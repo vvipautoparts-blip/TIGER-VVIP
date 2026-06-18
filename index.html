@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TIGER VVIP AutoParts</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <div class="logo">TIGER</div>
+      <div class="subtitle">AutoParts VVIP</div>
+    </div>
+    <nav class="main-nav">
+      <a href="#hero">الرئيسية</a>
+      <a href="#catalog">الكراج</a>
+      <a href="#workflow">كيف نعمل</a>
+      <a href="#auth-section">تسجيل الدخول</a>
+      <a href="#order-request">طلب قطع</a>
+      <a href="#user-orders">طلباتي</a>
+      <a href="#admin-dashboard" style="display:none;">لوحة التحكم</a>
+      <a href="#supplier-dashboard" style="display:none;">الموردين</a>
+      <a href="#contact">تواصل</a>
+      <button id="lang-toggle">English</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="hero" class="hero-section">
+      <div class="hero-copy">
+        <h1 data-ar="تجربة قطع غيار مخصصة للسيارات الفاخرة" data-en="Premium Auto Parts Experience for Luxury Vehicles">تجربة قطع غيار مخصصة للالسيارات الفاخرة</h1>
+        <p data-ar="TIGER VVIP تجمع بين الجودة الأصلية وخدمة التوصيل السريع للقطع الموثوقة." data-en="TIGER VVIP combines genuine quality with fast delivery for trusted parts.">TIGER VVIP تجمع بين الجودة الأصلية وخدمة التوصيل السريع للقطع الموثوقة.</p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#catalog" data-ar="استعرض الكراج" data-en="Browse Catalog">استعرض الكراج</a>
+          <a class="btn secondary" href="#contact" data-ar="اطلب الآن" data-en="Request Support">اطلب الآن</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-box">
+          <h2 data-ar="خدمة خاصة للمعارض والموزعين" data-en="Dedicated Dealer & Distributor Service">خدمة خاصة للمعارض والموزعين</h2>
+          <ul>
+            <li data-ar="نظام طلبات بمراحل موافقة" data-en="Approval-based workflow">نظام طلبات بمراحل موافقة</li>
+            <li data-ar="أسعار تنافسية وعروض مخصصة" data-en="Competitive pricing and custom quotes">أسعار تنافسية وعروض مخصصة</li>
+            <li data-ar="متابعة حالة الطلب والدفع الآمن" data-en="Order tracking and secure checkout">متابعة حالة الطلب والدفع الآمن</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="auth-section" class="section auth-section">
+      <div class="section-header">
+        <h2 data-ar="تسجيل الدخول" data-en="Sign In">تسجيل الدخول</h2>
+        <p data-ar="قم بتسجيل الدخول لإدارة الطلبات والموردين عبر Supabase." data-en="Sign in to manage orders and suppliers through Supabase.">قم بتسجيل الدخول لإدارة الطلبات والموردين عبر Supabase.</p>
+      </div>
+      <div id="auth-message" class="form-message"></div>
+      <form id="auth-form" class="request-form">
+        <div class="form-row">
+          <label>
+            <span data-ar="البريد الإلكتروني" data-en="Email">البريد الإلكتروني</span>
+            <input type="email" id="auth-email" data-ar-placeholder="example@domain.com" data-en-placeholder="example@domain.com" required />
+          </label>
+          <label>
+            <span data-ar="كلمة المرور" data-en="Password">كلمة المرور</span>
+            <input type="password" id="auth-password" data-ar-placeholder="********" data-en-placeholder="********" required />
+          </label>
+        </div>
+        <div class="form-row" id="auth-role-field" style="display:none;">
+          <label>
+            <span data-ar="الدور" data-en="Role">الدور</span>
+            <select id="auth-role">
+              <option value="dealer" data-ar="موزع" data-en="Dealer">موزع</option>
+              <option value="admin" data-ar="مشرف" data-en="Admin">مشرف</option>
+            </select>
+          </label>
+        </div>
+        <div class="form-row" id="auth-subscription-field" style="display:none;">
+          <label>
+            <span data-ar="خطة الاشتراك" data-en="Subscription Plan">خطة الاشتراك</span>
+            <select id="auth-subscription">
+              <option value="basic" data-ar="أساسية" data-en="Basic">أساسية</option>
+              <option value="standard" data-ar="قياسية" data-en="Standard">قياسية</option>
+              <option value="premium" data-ar="مميزة" data-en="Premium">مميزة</option>
+            </select>
+          </label>
+        </div>
+        <button type="submit" class="btn primary" data-ar="دخول" data-en="Sign In">دخول</button>
+      </form>
+      <button id="auth-mode-toggle" class="btn secondary" data-ar="أنشئ حساب" data-en="Create Account">أنشئ حساب</button>
+      <div class="social-login">
+        <p data-ar="أو تسجيل الدخول عبر:" data-en="Or sign in with:">أو تسجيل الدخول عبر:</p>
+        <div class="social-buttons">
+          <button id="google-login" type="button" class="btn secondary">Google</button>
+          <button id="facebook-login" type="button" class="btn secondary">Facebook</button>
+        </div>
+      </div>
+      <div id="user-panel" class="user-panel">
+        <div>
+          <p data-ar="مسجل الدخول كـ" data-en="Signed in as">مسجل الدخول كـ</p>
+          <strong id="user-email"></strong>
+        </div>
+        <div>
+          <p data-ar="الدور" data-en="Role">الدور</p>
+          <strong id="user-role"></strong>
+        </div>
+        <div>
+          <p data-ar="خطة الاشتراك" data-en="Subscription">خطة الاشتراك</p>
+          <strong id="user-subscription"></strong>
+        </div>
+        <button id="logout-button" class="btn secondary" data-ar="تسجيل خروج" data-en="Sign Out">تسجيل خروج</button>
+      </div>
+    </section>
+
+    <section id="catalog" class="section">
+      <div class="section-header">
+        <h2 data-ar="كراجنا الذكي" data-en="Our Smart Catalog">كراجنا الذكي</h2>
+        <p data-ar="مجموعة من قطع الغيار الأصلية والتجميعية لجميع الموديلات المميزة." data-en="A curated catalog of original and premium aftermarket parts.">مجموعة من قطع الغيار الأصلية والتجميعية لجميع الموديلات المميزة.</p>
+      </div>
+
+      <div class="search-bar">
+        <input id="search-input" type="search" placeholder="ابحث عن القطعة أو الموديل" />
+      </div>
+      <div class="product-grid" id="product-grid"></div>
+    </section>
+
+    <section id="order-request" class="section request-section">
+      <div class="section-header">
+        <h2 data-ar="نموذج طلب قطع" data-en="Parts Request Form">نموذج طلب قطع</h2>
+        <p data-ar="قدّم طلبًا باسم الشركة أو المعرض واحصل على متابعة حالة الطلب." data-en="Submit a request on behalf of your company or showroom and track its approval status.">قدّم طلبًا باسم الشركة أو المعرض واحصل على متابعة حالة الطلب.</p>
+      </div>
+      <div id="order-message" class="form-message"></div>
+      <form id="order-form" class="request-form">
+        <div class="form-row">
+          <label>
+            <span data-ar="اسم العميل" data-en="Customer Name">اسم العميل</span>
+            <input type="text" id="order-name" data-ar-placeholder="اكتب اسمك" data-en-placeholder="Enter your name" required />
+          </label>
+          <label>
+            <span data-ar="اسم المعرض/الشركة" data-en="Dealer / Company">اسم المعرض/الشركة</span>
+            <input type="text" id="order-company" data-ar-placeholder="اسم الشركة أو المعرض" data-en-placeholder="Company or showroom name" required />
+          </label>
+        </div>
+        <div class="form-row">
+          <label>
+            <span data-ar="البريد الإلكتروني" data-en="Email">البريد الإلكتروني</span>
+            <input type="email" id="order-email" data-ar-placeholder="example@domain.com" data-en-placeholder="example@domain.com" required />
+          </label>
+          <label>
+            <span data-ar="رقم الهاتف" data-en="Phone">رقم الهاتف</span>
+            <input type="tel" id="order-phone" data-ar-placeholder="05XXXXXXXX" data-en-placeholder="05XXXXXXXX" required />
+          </label>
+        </div>
+        <div class="form-row">
+          <label>
+            <span data-ar="القطعة المطلوبة" data-en="Requested Part">القطعة المطلوبة</span>
+            <select id="order-product" required></select>
+          </label>
+          <label>
+            <span data-ar="الكمية" data-en="Quantity">الكمية</span>
+            <input type="number" id="order-quantity" min="1" value="1" data-ar-placeholder="الحد الأدنى 1" data-en-placeholder="Minimum 1" required />
+          </label>
+        </div>
+        <div class="form-row">
+          <label>
+            <span data-ar="موقع التسليم" data-en="Delivery Location">موقع التسليم</span>
+            <input type="text" id="order-location" data-ar-placeholder="المدينة أو الفرع" data-en-placeholder="City or branch location" required />
+          </label>
+          <label>
+            <span data-ar="أولوية الطلب" data-en="Request Priority">أولوية الطلب</span>
+            <select id="order-priority">
+              <option value="Normal" data-ar="عادية" data-en="Normal">عادية</option>
+              <option value="Urgent" data-ar="عاجلة" data-en="Urgent">عاجلة</option>
+              <option value="High" data-ar="عالية" data-en="High">عالية</option>
+            </select>
+          </label>
+        </div>
+        <label>
+          <span data-ar="ملاحظات إضافية" data-en="Additional Notes">ملاحظات إضافية</span>
+          <textarea id="order-notes" rows="4" data-ar-placeholder="تفاصيل إضافية عن الطلب" data-en-placeholder="Additional details or requirements"></textarea>
+        </label>
+        <button type="submit" class="btn primary" data-ar="إرسال الطلب" data-en="Submit Request">إرسال الطلب</button>
+      </form>
+    </section>
+
+    <section id="user-orders" class="section dashboard-section">
+      <div class="section-header">
+        <h2 data-ar="طلباتي" data-en="My Orders">طلباتي</h2>
+        <p data-ar="عرض الطلبات الخاصة بك وحالتها بعد إرسالها." data-en="View your submitted orders and track their approval status.">عرض الطلبات الخاصة بك وحالتها بعد إرسالها.</p>
+      </div>
+      <div id="orders-empty" class="dashboard-empty" data-ar="لم تقم بإرسال أي طلبات بعد." data-en="You have not submitted any orders yet.">لم تقم بإرسال أي طلبات بعد.</div>
+      <div id="orders-list" class="dashboard-list"></div>
+    </section>
+
+    <section id="admin-dashboard" class="section dashboard-section" style="display:none;">
+      <div class="section-header">
+        <h2 data-ar="لوحة متابعة الطلبات" data-en="Order Approval Dashboard">لوحة متابعة الطلبات</h2>
+        <p data-ar="راجع الطلبات وأصدر حالة الموافقة أو الرفض مباشرة من هنا." data-en="Review incoming requests and approve or reject them directly from here.">راجع الطلبات وأصدر حالة الموافقة أو الرفض مباشرة من هنا.</p>
+      </div>
+      <div id="dashboard-empty" class="dashboard-empty" data-ar="لا توجد طلبات حتى الآن." data-en="No orders have been submitted yet.">لا توجد طلبات حتى الآن.</div>
+      <div id="dashboard-list" class="dashboard-list"></div>
+    </section>
+
+    <section id="supplier-dashboard" class="section supplier-section" style="display:none;">
+      <div class="section-header">
+        <h2 data-ar="إدارة الموردين" data-en="Supplier Management">إدارة الموردين</h2>
+        <p data-ar="أضف أو عدّل الموردين واحتفظ بقائمة الموردين في قاعدة بيانات Supabase." data-en="Add or update suppliers and keep supplier records in Supabase.">أضف أو عدّل الموردين واحتفظ بقائمة الموردين في قاعدة بيانات Supabase.</p>
+      </div>
+      <div id="supplier-message" class="form-message"></div>
+      <form id="supplier-form" class="request-form">
+        <div class="form-row">
+          <label>
+            <span data-ar="اسم المورد" data-en="Supplier Name">اسم المورد</span>
+            <input type="text" id="supplier-name" data-ar-placeholder="اسم المورد" data-en-placeholder="Supplier name" required />
+          </label>
+          <label>
+            <span data-ar="البريد الإلكتروني" data-en="Contact Email">البريد الإلكتروني</span>
+            <input type="email" id="supplier-email" data-ar-placeholder="example@domain.com" data-en-placeholder="example@domain.com" required />
+          </label>
+        </div>
+        <div class="form-row">
+          <label>
+            <span data-ar="الهاتف" data-en="Phone">الهاتف</span>
+            <input type="tel" id="supplier-phone" data-ar-placeholder="05XXXXXXXX" data-en-placeholder="05XXXXXXXX" required />
+          </label>
+          <label>
+            <span data-ar="نشط" data-en="Active">نشط</span>
+            <select id="supplier-active">
+              <option value="true" data-ar="نعم" data-en="Yes">نعم</option>
+              <option value="false" data-ar="لا" data-en="No">لا</option>
+            </select>
+          </label>
+        </div>
+        <button type="submit" class="btn primary" data-ar="حفظ المورد" data-en="Save Supplier">حفظ المورد</button>
+      </form>
+      <div id="supplier-list" class="supplier-list"></div>
+    </section>
+
+    <section id="workflow" class="section workflow-section">
+      <div class="section-header">
+        <h2 data-ar="كيف نعمل" data-en="How It Works">كيف نعمل</h2>
+        <p data-ar="من التسجيل إلى التسليم، تجربة سلسة للدفع السريع والموافقة الآمنة." data-en="From registration to delivery, a smooth experience for fast payment and secure approvals.">من التسجيل إلى التسليم، تجربة سلسة للدفع السريع والموافقة الآمنة.</p>
+      </div>
+      <div class="workflow-cards">
+        <article>
+          <span>1</span>
+          <h3 data-ar="تسجيل العميل" data-en="Register Account">تسجيل العميل</h3>
+          <p data-ar="سجل بياناتك كموزع أو معرض واستمتع بخدمات مخصصة." data-en="Sign up as distributor or showroom for tailored services.">سجل بياناتك كموزع أو معرض واستمتع بخدمات مخصصة.</p>
+        </article>
+        <article>
+          <span>2</span>
+          <h3 data-ar="طلب القطع" data-en="Place Order">طلب القطع</h3>
+          <p data-ar="اختر القطع من الكتالوج مع المواصفات والأسعار مباشرة." data-en="Select parts with specs and prices directly from the catalog.">اختر القطع من الكتالوج مع المواصفات والأسعار مباشرة.</p>
+        </article>
+        <article>
+          <span>3</span>
+          <h3 data-ar="موافقة مدمجة" data-en="Approval Workflow">موافقة مدمجة</h3>
+          <p data-ar="سجل طلبات المشتريات، راجعها، ووافق عليها بسرعة." data-en="Create purchase requests, review, and authorize quickly.">سجل طلبات المشتريات، راجعها، ووافق عليها بسرعة.</p>
+        </article>
+        <article>
+          <span>4</span>
+          <h3 data-ar="تسليم وقطع غيار" data-en="Delivery & Parts">تسليم وقطع غيار</h3>
+          <p data-ar="استلم قطعك الأصلية أو المميزة مع خدمة دعم ما بعد البيع." data-en="Receive genuine or premium parts with after-sales support.">استلم قطعك الأصلية أو المميزة مع خدمة دعم ما بعد البيع.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="contact" class="section contact-section">
+      <div class="section-header">
+        <h2 data-ar="تواصل معنا" data-en="Contact Us">تواصل معنا</h2>
+        <p data-ar="استفسر عن المخزون أو اطلب عرض سعر خاص لمشروعك." data-en="Ask about inventory or request a custom quote for your project.">استفسر عن المخزون أو اطلب عرض سعر خاص لمشروعك.</p>
+      </div>
+      <div class="contact-grid">
+        <article>
+          <h3 data-ar="البريد الإلكتروني" data-en="Email">البريد الإلكتروني</h3>
+          <p>info@tiger-vvip.com</p>
+        </article>
+        <article>
+          <h3 data-ar="الهاتف" data-en="Phone">الهاتف</h3>
+          <p>+966 5X XXX XXXX</p>
+        </article>
+        <article>
+          <h3 data-ar="العنوان" data-en="Location">العنوان</h3>
+          <p>الرياض، المملكة العربية السعودية</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p data-ar="حقوق الطبع والنشر © 2026 TIGER VVIP. جميع الحقوق محفوظة." data-en="Copyright © 2026 TIGER VVIP. All rights reserved.">حقوق الطبع والنشر © 2026 TIGER VVIP. جميع الحقوق محفوظة.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
