@@ -43,19 +43,13 @@ const langToggle = document.getElementById("lang-toggle");
 const orderForm = document.getElementById("order-form");
 const orderProduct = document.getElementById("order-product");
 const dashboardList = document.getElementById("dashboard-list");
-const dashboardEmpty = document.getElementById("dashboard-empty");
+const dashboardEmpty = document.getElementById("admin-dashboard-empty");
 const ordersList = document.getElementById("orders-list");
 const ordersEmpty = document.getElementById("orders-empty");
 const orderMessage = document.getElementById("order-message");
 const authForm = document.getElementById("auth-form");
 const authModeToggle = document.getElementById("auth-mode-toggle");
 const authMessage = document.getElementById("auth-message");
-const authRoleField = document.getElementById("auth-role-field");
-const authRoleSelect = document.getElementById("auth-role");
-const authSubscriptionField = document.getElementById("auth-subscription-field");
-const authSubscriptionSelect = document.getElementById("auth-subscription");
-const googleLoginButton = document.getElementById("google-login");
-const facebookLoginButton = document.getElementById("facebook-login");
 const userPanel = document.getElementById("user-panel");
 const userEmail = document.getElementById("user-email");
 const logoutButton = document.getElementById("logout-button");
@@ -66,12 +60,12 @@ const supplierSection = document.getElementById("supplier-dashboard");
 const adminSection = document.getElementById("admin-dashboard");
 const adminNavLink = document.querySelector('a[href="#admin-dashboard"]');
 const supplierNavLink = document.querySelector('a[href="#supplier-dashboard"]');
+const authNavLink = document.querySelector('a[href="#auth-section"]');
 const userRole = document.getElementById("user-role");
 const userSubscription = document.getElementById("user-subscription");
 
 let currentLang = "ar";
 let orderRequests = [];
-let authMode = "signin";
 let currentUser = null;
 let currentUserProfile = null;
 let selectedAccountType = null;
@@ -115,12 +109,30 @@ const registrationProfileForm = document.getElementById("registration-profile-fo
 const completeRegistrationButton = document.getElementById("complete-registration-button");
 const registrationStepTitle = document.getElementById("registration-step-title");
 const stepperItems = Array.from(document.querySelectorAll(".stepper-item"));
+const registrationNameRow = document.getElementById("registration-name-row");
+const registrationName = document.getElementById("registration-name");
 const registrationImageRow = document.getElementById("registration-image-row");
 const registrationImage = document.getElementById("registration-image");
+const registrationFullnameRow = document.getElementById("registration-fullname-row");
+const registrationAddressRow = document.getElementById("registration-address-row");
 const buyerForm = document.getElementById("buyer-form");
 const buyerMessage = document.getElementById("buyer-message");
 const buyerSearch = document.getElementById("buyer-search");
 const buyerList = document.getElementById("buyer-list");
+const profilePage = document.getElementById("profile-page");
+const profilePicture = document.getElementById("profile-picture");
+const profileName = document.getElementById("profile-name");
+const profileAccountType = document.getElementById("profile-account-type");
+const profileRole = document.getElementById("profile-role");
+const profilePhone = document.getElementById("profile-phone");
+const profileEmail = document.getElementById("profile-email");
+const profileBio = document.getElementById("profile-bio");
+const profileAccountTypeDetail = document.getElementById("profile-account-type-detail");
+const profileStatus = document.getElementById("profile-status");
+const profileSubscription = document.getElementById("profile-subscription");
+const profileOrdersCount = document.getElementById("profile-orders-count");
+const profileJoined = document.getElementById("profile-joined");
+const editProfileButton = document.getElementById("edit-profile-button");
 
 const messages = {
   orderSent: { ar: "تم إرسال الطلب بنجاح. يمكنك متابعة الموافقة من لوحة التحكم.", en: "Request submitted successfully. Track approval in the dashboard." },
@@ -252,18 +264,12 @@ async function fetchUserProfile(userId) {
 }
 
 async function handleAuthForm(email, password) {
-  const response = authMode === "signin" ? await signIn(email, password) : await signUp(email, password);
+  const response = await signIn(email, password);
   if (response.error) {
     showMessage(messages.authError[currentLang], "error", authMessage);
     return null;
   }
   currentUser = response.data.user;
-
-  if (authMode === "signup" && currentUser) {
-    const role = authRoleSelect.value || "dealer";
-    const subscription = authSubscriptionSelect.value || "basic";
-    await createProfile({ id: currentUser.id, role, subscription, created_at: new Date().toISOString() });
-  }
 
   currentUserProfile = await ensureUserProfile(currentUser.id);
   displayUser(currentUser);
@@ -271,6 +277,7 @@ async function handleAuthForm(email, password) {
   await syncOrdersFromSupabase();
   await syncSuppliers();
   await syncBuyers();
+  window.location.hash = "#profile-page";
   return currentUser;
 }
 
@@ -285,6 +292,9 @@ async function showAuthState() {
     await syncOrdersFromSupabase();
     await syncSuppliers();
     await syncBuyers();
+    if (!window.location.hash || window.location.hash === "#auth-section" || window.location.hash === "#registration-page") {
+      window.location.hash = "#profile-page";
+    }
   }
 }
 
@@ -349,17 +359,6 @@ function renderOrderCard(order, idx, isAdmin) {
         </div>
       </article>
     `;
-}
-
-async function handleSocialSignIn(provider) {
-  const { data, error } = await signInWithOAuth(provider);
-  if (error) {
-    showMessage(error.message || messages.authError[currentLang], "error", authMessage);
-    return;
-  }
-  if (data?.url) {
-    window.location.href = data.url;
-  }
 }
 
 function updateLanguage() {
@@ -447,6 +446,53 @@ function renderBuyerTable(filter = "") {
   buyerList.innerHTML = rows || `<tr><td colspan="3">${currentLang === "ar" ? "لا يوجد مشترين." : "No buyers found."}</td></tr>`;
 }
 
+function renderProfilePage() {
+  if (!profilePage) return;
+  if (!currentUser || !currentUserProfile) {
+    profilePage.style.display = "none";
+    return;
+  }
+
+  profilePage.style.display = "block";
+  const profileNameText = currentUserProfile.full_name || currentUser.email || "TIGER VVIP";
+  profileName.textContent = profileNameText;
+  profileAccountType.textContent = currentUserProfile.account_type || currentUserProfile.role || "";
+  if (profileRole) {
+    profileRole.textContent = currentUserProfile.role ? currentUserProfile.role.charAt(0).toUpperCase() + currentUserProfile.role.slice(1) : "VVIP";
+  }
+  profilePhone.textContent = currentUserProfile.phone || currentUser.phone || "";
+  profileEmail.textContent = currentUser.email || "";
+  if (profileAccountTypeDetail) {
+    profileAccountTypeDetail.textContent = currentUserProfile.account_type || currentUserProfile.role || "غير محدد";
+  }
+  if (profileStatus) {
+    profileStatus.textContent = currentUserProfile.active === false ? (currentLang === "ar" ? "موقوف" : "Inactive") : (currentLang === "ar" ? "نشط" : "Active");
+  }
+  if (profileSubscription) {
+    profileSubscription.textContent = currentUserProfile.subscription || "أساسي";
+  }
+  if (profileOrdersCount) {
+    profileOrdersCount.textContent = orderRequests.length || 0;
+  }
+  if (profileJoined) {
+    const createdAt = currentUserProfile.created_at ? new Date(currentUserProfile.created_at) : new Date();
+    profileJoined.textContent = createdAt.toLocaleDateString(currentLang === "ar" ? "ar-SA" : "en-US", { year: "numeric", month: "short" });
+  }
+  const initial = (profileNameText || "T").charAt(0).toUpperCase();
+  if (profilePicture) {
+    profilePicture.src = currentUserProfile.avatar_url || `https://via.placeholder.com/168/1877F2/ffffff?text=${initial}`;
+  }
+  profileBio.textContent = currentLang === "ar"
+    ? "هذا ملفك الشخصي. يمكنك التحكم في معلومات حسابك من هنا."
+    : "This is your profile. Manage your account information from here.";
+}
+
+if (editProfileButton) {
+  editProfileButton.addEventListener("click", () => {
+    window.location.hash = "#registration-page";
+  });
+}
+
 async function syncBuyers() {
   if (!currentUser || currentUserProfile?.role !== "admin") {
     buyers = [];
@@ -487,11 +533,16 @@ function resetRegistrationFlow() {
   selectedAccountCategory = null;
   accountTypeSearch.value = "";
   registrationPhone.value = "";
+  registrationName?.value && (registrationName.value = "");
   registrationOtp.value = "";
   registrationProfileForm.reset();
   registrationForm.classList.remove("hidden");
   otpSection.classList.add("hidden");
   profileSection.classList.add("hidden");
+  registrationNameRow?.classList.add("hidden");
+  registrationImageRow?.classList.add("hidden");
+  registrationFullnameRow?.classList.remove("hidden");
+  registrationAddressRow?.classList.remove("hidden");
   setRegistrationStep(1);
 }
 
@@ -504,7 +555,21 @@ function completeInitialRegistration() {
 
 function updateRegistrationMode() {
   const isBuyer = selectedAccountType === "مشتري";
+  registrationNameRow?.classList.toggle("hidden", !isBuyer);
   registrationImageRow?.classList.toggle("hidden", !isBuyer);
+  registrationFullnameRow?.classList.toggle("hidden", isBuyer);
+  registrationAddressRow?.classList.toggle("hidden", isBuyer);
+
+  const profileDescription = document.getElementById("profile-section-description");
+  if (profileDescription) {
+    profileDescription.textContent = isBuyer
+      ? currentLang === "ar"
+        ? "للمشترين يكفي إكمال البريد وكلمة المرور لإنشاء الحساب."
+        : "Buyers only need email and password to create the account."
+      : currentLang === "ar"
+        ? "أكمل معلوماتك الأساسية لإتمام التسجيل."
+        : "Complete your basic information to finish registration.";
+  }
 }
 
 function showProfileCompletion() {
@@ -552,9 +617,15 @@ registrationForm.addEventListener("submit", (event) => {
     return;
   }
 
-  if (selectedAccountType === "مشتري" && registrationImage && registrationImage.files.length === 0) {
-    showRegistrationMessage(currentLang === "ar" ? "يرجى رفع صورة خاصة بالمشتري." : "Please upload a buyer image.", "error");
-    return;
+  if (selectedAccountType === "مشتري") {
+    if (!registrationName.value.trim()) {
+      showRegistrationMessage(currentLang === "ar" ? "يرجى إدخال اسم المشتري." : "Please enter the buyer name.", "error");
+      return;
+    }
+    if (registrationImage && registrationImage.files.length === 0) {
+      showRegistrationMessage(currentLang === "ar" ? "يرجى رفع صورة خاصة بالمشتري." : "Please upload a buyer image.", "error");
+      return;
+    }
   }
 
   showRegistrationMessage(currentLang === "ar" ? "تم قبول البيانات الأولية. يرجى إدخال رمز التحقق." : "Primary data accepted. Please enter the verification code.", "success");
@@ -574,7 +645,7 @@ verifyOtpButton.addEventListener("click", () => {
 completeRegistrationButton.addEventListener("click", async () => {
   const email = document.getElementById("registration-email").value.trim();
   const password = document.getElementById("registration-password").value.trim();
-  const fullName = document.getElementById("registration-fullname").value.trim();
+  const fullnameValue = selectedAccountType === "مشتري" ? registrationName.value.trim() : document.getElementById("registration-fullname").value.trim();
   const address = document.getElementById("registration-address").value.trim();
 
   if (!email || !password) {
@@ -591,7 +662,7 @@ completeRegistrationButton.addEventListener("click", async () => {
   const isBuyer = selectedAccountType === "مشتري";
   const profilePayload = {
     id: response.data.user.id,
-    full_name: fullName || null,
+    full_name: fullnameValue || null,
     company: isBuyer ? null : selectedAccountCategory || null,
     role: isBuyer ? "buyer" : selectedAccountCategory === "الإدارة" ? "admin" : "dealer",
     subscription: "basic",
@@ -607,14 +678,13 @@ completeRegistrationButton.addEventListener("click", async () => {
     return;
   }
 
-  showRegistrationMessage(currentLang === "ar" ? "تم إنشاء الحساب بنجاح! جاري تسجيل الدخول..." : "Account created successfully! Logging in...", "success");
   currentUser = response.data.user;
   currentUserProfile = await ensureUserProfile(currentUser.id);
   displayUser(currentUser);
   await syncOrdersFromSupabase();
   await syncSuppliers();
   resetRegistrationFlow();
-  window.location.hash = "#user-orders";
+  window.location.hash = "#profile-page";
 });
 
 searchInput.addEventListener("input", (event) => {
@@ -696,19 +766,7 @@ buyerForm.addEventListener("submit", async (event) => {
 });
 
 authModeToggle.addEventListener("click", () => {
-  authMode = authMode === "signin" ? "signup" : "signin";
-  authModeToggle.textContent = authMode === "signin" ? "أنشئ حساب" : "دخول";
-  authForm.querySelector("button[type=submit]").textContent = authMode === "signin" ? "دخول" : "إنشاء حساب";
-  authRoleField.style.display = authMode === "signup" ? "grid" : "none";
-  authSubscriptionField.style.display = authMode === "signup" ? "grid" : "none";
-});
-
-googleLoginButton.addEventListener("click", async () => {
-  await handleSocialSignIn("google");
-});
-
-facebookLoginButton.addEventListener("click", async () => {
-  await handleSocialSignIn("facebook");
+  window.location.hash = "#registration-page";
 });
 
 langToggle.addEventListener("click", () => {
@@ -787,6 +845,25 @@ orderForm.addEventListener("submit", async (event) => {
   window.location.hash = currentUserProfile?.role === "admin" ? "#admin-dashboard" : "#user-orders";
 });
 
+function updateAuthPageMode() {
+  const currentHash = window.location.hash;
+  const isAuthFlow = currentHash === "#auth-section" || currentHash === "#registration-page";
+  const isProfile = currentHash === "#profile-page";
+
+  document.body.classList.toggle("login-page", isAuthFlow);
+  document.body.classList.toggle("profile-page", isProfile);
+
+  if (profilePage) {
+    profilePage.style.display = isProfile ? "block" : "none";
+  }
+
+  if (isProfile) {
+    renderProfilePage();
+  }
+}
+
+window.addEventListener("hashchange", updateAuthPageMode);
+
 loadAccountTypes().finally(() => {
   renderProducts(products);
   populateProductOptions();
@@ -794,3 +871,4 @@ loadAccountTypes().finally(() => {
 renderDashboard();
 showAuthState();
 updateLanguage();
+updateAuthPageMode();
