@@ -41,6 +41,18 @@ async function fetchSuppliers() {
   return await supabase.from("suppliers").select("*");
 }
 
+async function fetchBuyers() {
+  return await supabase.from("buyers").select("*").order("created_at", { ascending: false });
+}
+
+async function createBuyer(buyer) {
+  return await supabase.from("buyers").insert([buyer]);
+}
+
+async function fetchAccountTypes() {
+  return await supabase.from("account_types").select("label, category").eq("active", true).order("category", { ascending: true }).order("label", { ascending: true });
+}
+
 async function createSupplier(supplier) {
   return await supabase.from("suppliers").insert([supplier]);
 }

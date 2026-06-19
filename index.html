@@ -17,6 +17,7 @@
       <a href="#catalog">الكراج</a>
       <a href="#workflow">كيف نعمل</a>
       <a href="#auth-section">تسجيل الدخول</a>
+      <a href="#registration-page">سجل الآن</a>
       <a href="#order-request">طلب قطع</a>
       <a href="#user-orders">طلباتي</a>
       <a href="#admin-dashboard" style="display:none;">لوحة التحكم</a>
@@ -45,6 +46,111 @@
             <li data-ar="متابعة حالة الطلب والدفع الآمن" data-en="Order tracking and secure checkout">متابعة حالة الطلب والدفع الآمن</li>
           </ul>
         </div>
+      </div>
+    </section>
+
+    <section id="registration-page" class="section registration-page">
+      <div class="section-header">
+        <h2 data-ar="تسجيل مستخدم جديد" data-en="New User Registration">تسجيل مستخدم جديد</h2>
+        <p data-ar="ابدأ بتحديد نوع الحساب ورقم الهاتف فقط. باقي المعلومات تأتي لاحقًا لتجربة أسرع." data-en="Start with account type and phone only. Remaining details come later for a faster experience.">ابدأ بتحديد نوع الحساب ورقم الهاتف فقط. باقي المعلومات تأتي لاحقًا لتجربة أسرع.</p>
+      </div>
+      <div class="registration-grid">
+        <div class="registration-panel">
+          <div class="registration-stepper" aria-label="Registration steps">
+            <span class="stepper-item active" data-step="1"><strong>1</strong><small data-ar="اختر الحساب" data-en="Choose Account">اختر الحساب</small></span>
+            <span class="stepper-item" data-step="2"><strong>2</strong><small data-ar="التحقق" data-en="Verify">التحقق</small></span>
+            <span class="stepper-item" data-step="3"><strong>3</strong><small data-ar="أكمل الملف" data-en="Complete Profile">أكمل الملف</small></span>
+          </div>
+          <div class="registration-step-title" id="registration-step-title" data-ar="الخطوة 1: نوع الحساب ورقم الهاتف" data-en="Step 1: Account type and phone">الخطوة 1: نوع الحساب ورقم الهاتف</div>
+          <div id="reg-message" class="form-message"></div>
+          <form id="registration-form" class="request-form">
+            <div class="form-row single">
+              <label>
+                <span data-ar="نوع الحساب" data-en="Account Type">نوع الحساب</span>
+                <div class="account-type-dropdown">
+                  <input type="text" id="account-type-search" autocomplete="off" placeholder="اختر نوع الحساب أو ابدأ بالكتابة" data-ar-placeholder="اختر نوع الحساب أو ابدأ بالكتابة" data-en-placeholder="Search or select account type" />
+                  <div id="account-type-list" class="dropdown-list"></div>
+                </div>
+              </label>
+            </div>
+            <div class="form-row single">
+              <label>
+                <span data-ar="رقم الهاتف" data-en="Phone Number">رقم الهاتف</span>
+                <input type="tel" id="registration-phone" placeholder="+966 5XXXXXXXX" data-ar-placeholder="+966 5XXXXXXXX" data-en-placeholder="+1 555 555 5555" required />
+              </label>
+            </div>
+            <div id="registration-image-row" class="form-row single hidden">
+              <label>
+                <span data-ar="صورة المشتري" data-en="Buyer Image">صورة المشتري</span>
+                <input type="file" id="registration-image" accept="image/*" />
+              </label>
+            </div>
+            <button type="submit" class="btn primary" data-ar="استمرار" data-en="Continue">استمرار</button>
+          </form>
+
+          <div id="otp-section" class="registration-inner-step hidden">
+            <p data-ar="رمز التحقق تم إرساله إلى هاتفك. استخدم 123456 للتجربة." data-en="A verification code was sent to your phone. Use 123456 for demo.">رمز التحقق تم إرساله إلى هاتفك. استخدم 123456 للتجربة.</p>
+            <div class="form-row single">
+              <label>
+                <span data-ar="رمز التحقق" data-en="Verification Code">رمز التحقق</span>
+                <input type="text" id="registration-otp" maxlength="6" placeholder="123456" data-ar-placeholder="123456" data-en-placeholder="123456" />
+              </label>
+            </div>
+            <button id="verify-otp-button" class="btn primary" type="button" data-ar="تحقق" data-en="Verify">تحقق</button>
+          </div>
+
+          <div id="profile-section" class="registration-inner-step hidden">
+            <p data-ar="أكمل معلوماتك الأساسية لإتمام التسجيل." data-en="Complete your basic information to finish registration.">أكمل معلوماتك الأساسية لإتمام التسجيل.</p>
+            <form id="registration-profile-form" class="request-form">
+              <div class="form-row single">
+                <label>
+                  <span data-ar="البريد الإلكتروني" data-en="Email">البريد الإلكتروني</span>
+                  <input type="email" id="registration-email" placeholder="example@domain.com" data-ar-placeholder="example@domain.com" data-en-placeholder="example@domain.com" required />
+                </label>
+              </div>
+              <div class="form-row single">
+                <label>
+                  <span data-ar="كلمة المرور" data-en="Password">كلمة المرور</span>
+                  <input type="password" id="registration-password" placeholder="********" data-ar-placeholder="********" data-en-placeholder="********" required />
+                </label>
+              </div>
+              <div class="form-row single">
+                <label>
+                  <span data-ar="الاسم الكامل" data-en="Full Name">الاسم الكامل</span>
+                  <input type="text" id="registration-fullname" placeholder="الاسم الكامل" data-ar-placeholder="الاسم الكامل" data-en-placeholder="Full Name" />
+                </label>
+              </div>
+              <div class="form-row single">
+                <label>
+                  <span data-ar="عنوان/موقع" data-en="Location/Address">عنوان/موقع</span>
+                  <input type="text" id="registration-address" placeholder="المدينة أو الفرع" data-ar-placeholder="المدينة أو الفرع" data-en-placeholder="City or branch" />
+                </label>
+              </div>
+              <button id="complete-registration-button" class="btn primary" type="button" data-ar="إنشاء الحساب" data-en="Create Account">إنشاء الحساب</button>
+            </form>
+          </div>
+        </div>
+
+        <aside class="registration-aside">
+          <div class="aside-card">
+            <h3 data-ar="انطلاقة تسجيل مميزة" data-en="A premium signup experience">انطلاقة تسجيل مميزة</h3>
+            <p data-ar="واجهة نظيفة ومقسمة تساعدك على تسجيل أسرع دون تشتيت." data-en="A clean split layout helps you register faster without distraction.">واجهة نظيفة ومقسمة تساعدك على تسجيل أسرع دون تشتيت.</p>
+          </div>
+          <div class="aside-benefits">
+            <article>
+              <h4 data-ar="تركيز على المهمة" data-en="Task-focused">تركيز على المهمة</h4>
+              <p data-ar="صفحة التسجيل الأولى تحتوي فقط على نوع الحساب والهاتف." data-en="The first registration page contains only account type and phone.">صفحة التسجيل الأولى تحتوي فقط على نوع الحساب والهاتف.</p>
+            </article>
+            <article>
+              <h4 data-ar="بحث سريع" data-en="Quick search">بحث سريع</h4>
+              <p data-ar="اختر نوع الحساب بسرعة مع قائمة قابلة للبحث لضمان تجربة سلسة." data-en="Pick an account type quickly with a searchable list for a smooth experience.">اختر نوع الحساب بسرعة مع قائمة قابلة للبحث لضمان تجربة سلسة.</p>
+            </article>
+            <article>
+              <h4 data-ar="دعم دولي" data-en="International support">دعم دولي</h4>
+              <p data-ar="أدخل رقم الهاتف مع رمز الدولة بالكامل لتسجيل عالمي موثوق." data-en="Enter your phone with country code for trusted international signup.">أدخل رقم الهاتف مع رمز الدولة بالكامل لتسجيل عالمي موثوق.</p>
+            </article>
+          </div>
+        </aside>
       </div>
     </section>
 
@@ -233,6 +339,44 @@
         <button type="submit" class="btn primary" data-ar="حفظ المورد" data-en="Save Supplier">حفظ المورد</button>
       </form>
       <div id="supplier-list" class="supplier-list"></div>
+
+      <div class="buyer-management">
+        <div class="section-header">
+          <h2 data-ar="إدارة المشترين" data-en="Buyer Management">إدارة المشترين</h2>
+          <p data-ar="أضف مشتريًا جديدًا بسرعة واعرض قائمة المشترين مع البحث السريع." data-en="Add buyers quickly and view the buyer list with fast search.">أضف مشتريًا جديدًا بسرعة واعرض قائمة المشترين مع البحث السريع.</p>
+        </div>
+        <div id="buyer-message" class="form-message"></div>
+        <form id="buyer-form" class="request-form">
+          <div class="form-row single">
+            <label>
+              <span data-ar="اسم المشتري" data-en="Buyer Name">اسم المشتري</span>
+              <input type="text" id="buyer-name" data-ar-placeholder="الاسم الكامل" data-en-placeholder="Full name" required />
+            </label>
+          </div>
+          <div class="form-row single">
+            <label>
+              <span data-ar="الهاتف" data-en="Phone">الهاتف</span>
+              <input type="tel" id="buyer-phone" data-ar-placeholder="+966 5XXXXXXXX" data-en-placeholder="+1 555 555 5555" required />
+            </label>
+          </div>
+          <button type="submit" class="btn primary" data-ar="إضافة مشتري" data-en="Add Buyer">إضافة مشتري</button>
+        </form>
+        <div class="buyer-search">
+          <input type="search" id="buyer-search" placeholder="ابحث عن مشتري" data-ar-placeholder="ابحث عن مشتري" data-en-placeholder="Search buyers" />
+        </div>
+        <div class="buyer-table-wrapper">
+          <table id="buyer-table">
+            <thead>
+              <tr>
+                <th data-ar="الاسم" data-en="Name">الاسم</th>
+                <th data-ar="الهاتف" data-en="Phone">الهاتف</th>
+                <th data-ar="تاريخ الإضافة" data-en="Added">تاريخ الإضافة</th>
+              </tr>
+            </thead>
+            <tbody id="buyer-list"></tbody>
+          </table>
+        </div>
+      </div>
     </section>
 
     <section id="workflow" class="section workflow-section">
