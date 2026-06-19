@@ -25,6 +25,14 @@
       <a href="#contact">تواصل</a>
       <button id="lang-toggle">English</button>
     </nav>
+    <div id="user-panel" class="user-panel" style="display:none;">
+      <div class="user-panel-info">
+        <span id="user-email"></span>
+        <span id="user-role"></span>
+        <span id="user-subscription"></span>
+      </div>
+      <button id="logout-button" class="btn text-link" type="button">تسجيل خروج</button>
+    </div>
   </header>
 
   <main>
@@ -73,16 +81,22 @@
                 </div>
               </label>
             </div>
-            <div class="form-row single">
-              <label>
-                <span data-ar="رقم الهاتف" data-en="Phone Number">رقم الهاتف</span>
-                <input type="tel" id="registration-phone" placeholder="+966 5XXXXXXXX" data-ar-placeholder="+966 5XXXXXXXX" data-en-placeholder="+1 555 555 5555" required />
-              </label>
-            </div>
             <div id="registration-image-row" class="form-row single hidden">
               <label>
                 <span data-ar="صورة المشتري" data-en="Buyer Image">صورة المشتري</span>
                 <input type="file" id="registration-image" accept="image/*" />
+              </label>
+            </div>
+            <div id="registration-name-row" class="form-row single hidden">
+              <label>
+                <span data-ar="اسم المشتري" data-en="Buyer Name">اسم المشتري</span>
+                <input type="text" id="registration-name" placeholder="الاسم الكامل" data-ar-placeholder="الاسم الكامل" data-en-placeholder="Full name" />
+              </label>
+            </div>
+            <div class="form-row single">
+              <label>
+                <span data-ar="رقم الهاتف" data-en="Phone Number">رقم الهاتف</span>
+                <input type="tel" id="registration-phone" placeholder="+966 5XXXXXXXX" data-ar-placeholder="+966 5XXXXXXXX" data-en-placeholder="+1 555 555 5555" required />
               </label>
             </div>
             <button type="submit" class="btn primary" data-ar="استمرار" data-en="Continue">استمرار</button>
@@ -100,7 +114,7 @@
           </div>
 
           <div id="profile-section" class="registration-inner-step hidden">
-            <p data-ar="أكمل معلوماتك الأساسية لإتمام التسجيل." data-en="Complete your basic information to finish registration.">أكمل معلوماتك الأساسية لإتمام التسجيل.</p>
+            <p id="profile-section-description" data-ar="أكمل معلوماتك الأساسية لإتمام التسجيل." data-en="Complete your basic information to finish registration.">أكمل معلوماتك الأساسية لإتمام التسجيل.</p>
             <form id="registration-profile-form" class="request-form">
               <div class="form-row single">
                 <label>
@@ -114,13 +128,13 @@
                   <input type="password" id="registration-password" placeholder="********" data-ar-placeholder="********" data-en-placeholder="********" required />
                 </label>
               </div>
-              <div class="form-row single">
+              <div id="registration-fullname-row" class="form-row single">
                 <label>
                   <span data-ar="الاسم الكامل" data-en="Full Name">الاسم الكامل</span>
                   <input type="text" id="registration-fullname" placeholder="الاسم الكامل" data-ar-placeholder="الاسم الكامل" data-en-placeholder="Full Name" />
                 </label>
               </div>
-              <div class="form-row single">
+              <div id="registration-address-row" class="form-row single">
                 <label>
                   <span data-ar="عنوان/موقع" data-en="Location/Address">عنوان/موقع</span>
                   <input type="text" id="registration-address" placeholder="المدينة أو الفرع" data-ar-placeholder="المدينة أو الفرع" data-en-placeholder="City or branch" />
@@ -154,66 +168,48 @@
       </div>
     </section>
 
-    <section id="auth-section" class="section auth-section">
-      <div class="section-header">
-        <h2 data-ar="تسجيل الدخول" data-en="Sign In">تسجيل الدخول</h2>
-        <p data-ar="قم بتسجيل الدخول لإدارة الطلبات والموردين عبر Supabase." data-en="Sign in to manage orders and suppliers through Supabase.">قم بتسجيل الدخول لإدارة الطلبات والموردين عبر Supabase.</p>
-      </div>
-      <div id="auth-message" class="form-message"></div>
-      <form id="auth-form" class="request-form">
-        <div class="form-row">
-          <label>
-            <span data-ar="البريد الإلكتروني" data-en="Email">البريد الإلكتروني</span>
-            <input type="email" id="auth-email" data-ar-placeholder="example@domain.com" data-en-placeholder="example@domain.com" required />
-          </label>
-          <label>
-            <span data-ar="كلمة المرور" data-en="Password">كلمة المرور</span>
-            <input type="password" id="auth-password" data-ar-placeholder="********" data-en-placeholder="********" required />
-          </label>
+    <section id="auth-section" class="section auth-section auth-page">
+      <div class="auth-page-grid">
+        <aside class="auth-page-left">
+          <div class="auth-side-brand">
+            <div class="brand">
+              <div class="logo">TIGER</div>
+              <div class="subtitle">VVIP</div>
+            </div>
+            <div class="auth-tagline">
+              <h1 data-ar="TIGER VVIP" data-en="TIGER VVIP">TIGER VVIP</h1>
+              <p data-ar="كل ما تحتاجه لمركبتك هنا" data-en="Everything your vehicle needs, here.">كل ما تحتاجه لمركبتك هنا</p>
+            </div>
+          </div>
+        </aside>
+        <div class="auth-page-right">
+          <div class="login-card">
+            <div class="section-header login-card-header">
+              <h2 id="auth-card-title" data-ar="تسجيل الدخول" data-en="Sign In">تسجيل الدخول</h2>
+              <p id="auth-card-desc" data-ar="استخدم حسابك لتصل إلى لوحة التحكم بسرعة." data-en="Use your account to access the dashboard quickly.">استخدم حسابك لتصل إلى لوحة التحكم بسرعة.</p>
+            </div>
+            <div id="auth-message" class="form-message"></div>
+            <form id="auth-form" class="request-form">
+              <div class="form-row">
+                <label>
+                  <span data-ar="البريد الإلكتروني أو الهاتف" data-en="Email or Phone">البريد الإلكتروني أو الهاتف</span>
+                  <input type="text" id="auth-email" data-ar-placeholder="example@domain.com أو +966 5XXXXXXXX" data-en-placeholder="example@domain.com or +1 555 555 5555" required />
+                </label>
+              </div>
+              <div class="form-row">
+                <label>
+                  <span data-ar="كلمة المرور" data-en="Password">كلمة المرور</span>
+                  <input type="password" id="auth-password" data-ar-placeholder="********" data-en-placeholder="********" required />
+                </label>
+              </div>
+              <button type="submit" class="btn primary" data-ar="دخول" data-en="Sign In">دخول</button>
+            </form>
+            <div class="auth-card-footer">
+              <a href="#" id="forgot-password-link" class="auth-link" data-ar="هل نسيت كلمة السر؟" data-en="Forgot password?">هل نسيت كلمة السر؟</a>
+              <button id="auth-mode-toggle" class="btn text-link" type="button" data-ar="إنشاء حساب جديد" data-en="Create Account">إنشاء حساب جديد</button>
+            </div>
+          </div>
         </div>
-        <div class="form-row" id="auth-role-field" style="display:none;">
-          <label>
-            <span data-ar="الدور" data-en="Role">الدور</span>
-            <select id="auth-role">
-              <option value="dealer" data-ar="موزع" data-en="Dealer">موزع</option>
-              <option value="admin" data-ar="مشرف" data-en="Admin">مشرف</option>
-            </select>
-          </label>
-        </div>
-        <div class="form-row" id="auth-subscription-field" style="display:none;">
-          <label>
-            <span data-ar="خطة الاشتراك" data-en="Subscription Plan">خطة الاشتراك</span>
-            <select id="auth-subscription">
-              <option value="basic" data-ar="أساسية" data-en="Basic">أساسية</option>
-              <option value="standard" data-ar="قياسية" data-en="Standard">قياسية</option>
-              <option value="premium" data-ar="مميزة" data-en="Premium">مميزة</option>
-            </select>
-          </label>
-        </div>
-        <button type="submit" class="btn primary" data-ar="دخول" data-en="Sign In">دخول</button>
-      </form>
-      <button id="auth-mode-toggle" class="btn secondary" data-ar="أنشئ حساب" data-en="Create Account">أنشئ حساب</button>
-      <div class="social-login">
-        <p data-ar="أو تسجيل الدخول عبر:" data-en="Or sign in with:">أو تسجيل الدخول عبر:</p>
-        <div class="social-buttons">
-          <button id="google-login" type="button" class="btn secondary">Google</button>
-          <button id="facebook-login" type="button" class="btn secondary">Facebook</button>
-        </div>
-      </div>
-      <div id="user-panel" class="user-panel">
-        <div>
-          <p data-ar="مسجل الدخول كـ" data-en="Signed in as">مسجل الدخول كـ</p>
-          <strong id="user-email"></strong>
-        </div>
-        <div>
-          <p data-ar="الدور" data-en="Role">الدور</p>
-          <strong id="user-role"></strong>
-        </div>
-        <div>
-          <p data-ar="خطة الاشتراك" data-en="Subscription">خطة الاشتراك</p>
-          <strong id="user-subscription"></strong>
-        </div>
-        <button id="logout-button" class="btn secondary" data-ar="تسجيل خروج" data-en="Sign Out">تسجيل خروج</button>
       </div>
     </section>
 
@@ -297,12 +293,79 @@
       <div id="orders-list" class="dashboard-list"></div>
     </section>
 
+    <section id="profile-page" class="section profile-page" style="display:none;">
+      <div class="profile-container">
+        <div class="profile-banner">
+          <div class="cover-photo"></div>
+          <div class="profile-preview-card">
+            <div class="profile-picture-wrapper">
+              <img id="profile-picture" class="profile-picture" src="https://via.placeholder.com/168/1877F2/ffffff?text=T" alt="Profile picture" />
+            </div>
+            <div class="profile-header-text">
+              <h1 id="profile-name" class="profile-name">مرحبا بك</h1>
+              <div class="profile-meta">
+                <span id="profile-account-type">مشتري</span>
+                <span id="profile-role">حساب VVIP</span>
+              </div>
+              <div class="profile-contact">
+                <span id="profile-phone">+966 5XXXXXXXX</span>
+                <span id="profile-email">example@domain.com</span>
+              </div>
+            </div>
+            <button id="edit-profile-button" class="btn secondary edit-profile-button" type="button">تعديل البروفايل</button>
+          </div>
+        </div>
+
+        <div class="profile-main-grid">
+          <aside class="profile-side-card">
+            <div class="profile-card-block">
+              <h3>نبذة عن الحساب</h3>
+              <p id="profile-bio" class="profile-bio">هذا ملفك الشخصي. يمكنك التحكم في معلومات حسابك من هنا.</p>
+            </div>
+            <div class="profile-card-block profile-stats">
+              <div>
+                <strong id="profile-orders-count">0</strong>
+                <span>الطلبات</span>
+              </div>
+              <div>
+                <strong id="profile-joined">--</strong>
+                <span>انضم منذ</span>
+              </div>
+            </div>
+          </aside>
+
+          <section class="profile-feed-card">
+            <div class="profile-card-block">
+              <h3>معلومات إضافية</h3>
+              <ul class="profile-details-list">
+                <li><strong>نوع الحساب:</strong> <span id="profile-account-type-detail">مشتري</span></li>
+                <li><strong>الوضع:</strong> <span id="profile-status">نشط</span></li>
+                <li><strong>الاشتراك:</strong> <span id="profile-subscription">أساسي</span></li>
+              </ul>
+            </div>
+            <div class="profile-card-block">
+              <h3>آخر نشاط</h3>
+              <p>تسجيل الدخول الأخير تم بنجاح. تصفح الطلبات أو أضف مشتريًا جديدًا من لوحة الإدارة.</p>
+            </div>
+            <div class="profile-card-block">
+              <h3>روابط سريعة</h3>
+              <div class="profile-quick-links">
+                <a href="#user-orders">طلباتي</a>
+                <a href="#admin-dashboard">لوحة الإدارة</a>
+                <a href="#order-request">طلب جديد</a>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+
     <section id="admin-dashboard" class="section dashboard-section" style="display:none;">
       <div class="section-header">
         <h2 data-ar="لوحة متابعة الطلبات" data-en="Order Approval Dashboard">لوحة متابعة الطلبات</h2>
         <p data-ar="راجع الطلبات وأصدر حالة الموافقة أو الرفض مباشرة من هنا." data-en="Review incoming requests and approve or reject them directly from here.">راجع الطلبات وأصدر حالة الموافقة أو الرفض مباشرة من هنا.</p>
       </div>
-      <div id="dashboard-empty" class="dashboard-empty" data-ar="لا توجد طلبات حتى الآن." data-en="No orders have been submitted yet.">لا توجد طلبات حتى الآن.</div>
+      <div id="admin-dashboard-empty" class="dashboard-empty" data-ar="لا توجد طلبات حتى الآن." data-en="No orders have been submitted yet.">لا توجد طلبات حتى الآن.</div>
       <div id="dashboard-list" class="dashboard-list"></div>
     </section>
 
