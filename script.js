@@ -97,7 +97,7 @@ let profileParts = [];
 let profileReviewRequests = [];
 let adminRepliesByRequest = {};
 
-const ADMIN_ROLES = ["super_admin"];
+const ADMIN_ROLES = ["admin", "super_admin"];
 const STAFF_ROLES = ["manager", "supervisor", "representative"];
 const SESSION_DEVICE_KEY = "tiger_vvip_device_id";
 const WHATSAPP_OTP_ENDPOINT = window.WHATSAPP_OTP_ENDPOINT || "";
@@ -1512,7 +1512,8 @@ async function handleAuthForm(email, password) {
     return null;
   }
 
-  const willExceed = !existingSession.data && activeSessions.count >= 3;
+  const isAdminUser = isAdminRole(currentUserProfile?.role);
+  const willExceed = !isAdminUser && !existingSession.data && activeSessions.count >= 3;
   if (willExceed) {
     await signOut();
     currentUser = null;
