@@ -113,7 +113,8 @@ body.login-page #registration-page {
 }
 
 .main-nav a,
-.main-nav button {
+.main-nav button,
+.main-nav select {
   border: none;
   background: transparent;
   color: var(--text-primary);
@@ -134,6 +135,20 @@ body.login-page #registration-page {
   border: 1px solid var(--border-color);
   background: var(--background-card);
   padding: 0.85rem 1.1rem;
+}
+
+.quick-nav-select {
+  min-width: 220px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--background-card);
+  padding: 0.7rem 0.9rem;
+}
+
+.role-nav-link {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--background-card);
 }
 
 /* حاوية الدخول (توسيط) */
@@ -1620,8 +1635,13 @@ input[type="file"] {
   }
 
   .main-nav a,
-  .main-nav button {
+  .main-nav button,
+  .main-nav select {
     width: 100%;
+  }
+
+  .quick-nav-select {
+    min-width: 0;
   }
 
   .product-grid {

@@ -69,6 +69,7 @@ const adminNav = document.getElementById("admin-nav");
 const profileRepLink = document.getElementById("profile-rep-link");
 const profileApprovalsLink = document.getElementById("profile-approvals-link");
 const profileAdminLink = document.getElementById("profile-admin-link");
+const quickNavSelect = document.getElementById("quick-nav-select");
 
 const forgotForm = document.getElementById("forgot-form");
 const forgotMessage = document.getElementById("forgot-message");
@@ -2514,10 +2515,26 @@ function updateAuthPageMode() {
   }
 }
 
+function syncQuickNavWithHash() {
+  if (!quickNavSelect) return;
+  const currentHash = window.location.hash || "#hero";
+  const hasOption = Array.from(quickNavSelect.options).some((option) => option.value === currentHash);
+  quickNavSelect.value = hasOption ? currentHash : "";
+}
+
 window.addEventListener("hashchange", () => {
   updateAuthPageMode();
   updatePageVisibility();
+  syncQuickNavWithHash();
 });
+
+if (quickNavSelect) {
+  quickNavSelect.addEventListener("change", () => {
+    const selectedHash = quickNavSelect.value;
+    if (!selectedHash) return;
+    window.location.hash = selectedHash;
+  });
+}
 
 loadAccountTypes().finally(() => {
   loadCatalogParts().then(() => {
@@ -2528,6 +2545,7 @@ renderDashboard();
 showAuthState();
 updateLanguage();
 updateAuthPageMode();
+syncQuickNavWithHash();
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {

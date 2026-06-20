@@ -19,16 +19,17 @@
       <div class="subtitle">AutoParts VVIP</div>
     </div>
     <nav class="main-nav">
-      <a href="#hero">الرئيسية</a>
-      <a href="#catalog">الكراج</a>
-      <a href="#auth-section">تسجيل الدخول</a>
-      <a href="#registration-page">سجل الآن</a>
-      <a href="#forgot-password">نسيت كلمة المرور</a>
-      <a href="#order-request">طلب قطع</a>
-      <a href="#user-orders">طلباتي</a>
-      <a id="representative-nav" href="#representative-dashboard" style="display:none;">لوحة المندوب</a>
-      <a id="approvals-nav" href="#approvals-dashboard" style="display:none;">شاشة الموافقات</a>
-      <a id="admin-nav" href="#admin-dashboard" style="display:none;">لوحة المدير</a>
+      <select id="quick-nav-select" class="quick-nav-select" aria-label="Quick navigation">
+        <option value="" data-ar="القائمة الرئيسية" data-en="Main Menu">القائمة الرئيسية</option>
+        <option value="#hero" data-ar="الرئيسية" data-en="Home">الرئيسية</option>
+        <option value="#auth-section" data-ar="تسجيل الدخول" data-en="Sign In">تسجيل الدخول</option>
+        <option value="#registration-page" data-ar="سجل الآن" data-en="Register">سجل الآن</option>
+        <option value="#forgot-password" data-ar="نسيت كلمة المرور" data-en="Forgot Password">نسيت كلمة المرور</option>
+        <option value="#catalog" data-ar="بحث" data-en="Search">بحث</option>
+      </select>
+      <a id="representative-nav" class="role-nav-link" href="#representative-dashboard" style="display:none;">لوحة المندوب</a>
+      <a id="approvals-nav" class="role-nav-link" href="#approvals-dashboard" style="display:none;">شاشة الموافقات</a>
+      <a id="admin-nav" class="role-nav-link" href="#admin-dashboard" style="display:none;">لوحة المدير</a>
       <button id="lang-toggle">English</button>
     </nav>
     <div id="user-panel" class="user-panel" style="display:none;">
