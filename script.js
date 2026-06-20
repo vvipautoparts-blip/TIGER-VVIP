@@ -116,7 +116,7 @@ function showSupabaseConfigurationMessage(container = authMessage) {
   );
 }
 
-function showWhatsAppOtpConfigurationMessage(container = registrationMessage) {
+function showWhatsAppOtpConfigurationMessage(container = regMessage) {
   showMessage(
     currentLang === "ar"
       ? "خدمة WhatsApp OTP غير مفعلة بعد. حدّث WHATSAPP_OTP_ENDPOINT في supabase-local.js أولاً."
@@ -151,8 +151,7 @@ let accountTypes = [
 ];
 
 const registrationForm = document.getElementById("registration-form");
-const accountTypeSearch = document.getElementById("account-type-search");
-const accountTypeList = document.getElementById("account-type-list");
+const accountTypeSelect = document.getElementById("account-type-select");
 const regMessage = document.getElementById("reg-message");
 const otpSection = document.getElementById("otp-section");
 const registrationPhone = document.getElementById("registration-phone");
@@ -1159,12 +1158,12 @@ async function sendWhatsAppOtp(phone, code) {
 
 async function sendRegistrationOtp() {
   if (!hasWorkingSupabaseConfig()) {
-    showSupabaseConfigurationMessage(registrationMessage);
+    showSupabaseConfigurationMessage(regMessage);
     return false;
   }
 
   if (!WHATSAPP_OTP_ENDPOINT) {
-    showWhatsAppOtpConfigurationMessage(registrationMessage);
+    showWhatsAppOtpConfigurationMessage(regMessage);
     return false;
   }
 
@@ -1199,7 +1198,7 @@ async function sendRegistrationOtp() {
 
 async function verifyRegistrationOtp() {
   if (!hasWorkingSupabaseConfig()) {
-    showSupabaseConfigurationMessage(registrationMessage);
+    showSupabaseConfigurationMessage(regMessage);
     return false;
   }
 
@@ -1725,43 +1724,33 @@ function updateLanguage() {
   document.querySelectorAll("[data-ar-placeholder]").forEach((el) => {
     el.placeholder = currentLang === "ar" ? el.dataset.arPlaceholder : el.dataset.enPlaceholder;
   });
-  langToggle.textContent = currentLang === "ar" ? "English" : "العربية";
+  if (langToggle) {
+    langToggle.textContent = currentLang === "ar" ? "English" : "العربية";
+  }
 }
 
-function renderAccountTypeOptions(filter = "") {
-  const normalized = filter.trim().toLowerCase();
-  const results = accountTypes.filter((item) => {
-    return (
-      item.label.toLowerCase().includes(normalized) ||
-      item.category.toLowerCase().includes(normalized)
-    );
+function populateAccountTypeSelect() {
+  if (!accountTypeSelect) return;
+
+  const placeholder = currentLang === "ar" ? "اختر نوع الحساب" : "Select account type";
+  accountTypeSelect.innerHTML = `<option value="">${placeholder}</option>`;
+
+  accountTypes.forEach((item) => {
+    const option = document.createElement("option");
+    option.value = item.label;
+    option.textContent = item.label;
+    option.dataset.category = item.category || "";
+    accountTypeSelect.appendChild(option);
   });
 
-  if (results.length === 0) {
-    accountTypeList.innerHTML = `<div class="dropdown-item" tabindex="0"><span>${currentLang === "ar" ? "لا توجد نتائج" : "No results found"}</span></div>`;
-    accountTypeList.classList.add("visible");
-    return;
+  if (selectedAccountType) {
+    accountTypeSelect.value = selectedAccountType;
   }
-
-  accountTypeList.innerHTML = results
-    .map(
-      (item) => `
-      <button type="button" class="dropdown-item" data-label="${item.label}" data-category="${item.category}">
-        <div>${item.label}</div>
-        <span>${item.category}</span>
-      </button>
-    `
-    )
-    .join("");
-  accountTypeList.classList.add("visible");
-}
-
-function closeAccountTypeOptions() {
-  accountTypeList.classList.remove("visible");
 }
 
 async function loadAccountTypes() {
   if (typeof fetchAccountTypes !== "function") {
+    populateAccountTypeSelect();
     return;
   }
 
@@ -1769,6 +1758,8 @@ async function loadAccountTypes() {
   if (!error && Array.isArray(data) && data.length > 0) {
     accountTypes = data.map((item) => ({ label: item.label, category: item.category }));
   }
+
+  populateAccountTypeSelect();
 }
 
 function setRegistrationStep(step) {
@@ -1966,7 +1957,9 @@ function validatePhoneNumber(value) {
 function resetRegistrationFlow() {
   selectedAccountType = null;
   selectedAccountCategory = null;
-  accountTypeSearch.value = "";
+  if (accountTypeSelect) {
+    accountTypeSelect.value = "";
+  }
   registrationPhone.value = "";
   registrationName?.value && (registrationName.value = "");
   registrationOtp.value = "";
@@ -2015,34 +2008,26 @@ function showProfileCompletion() {
   registrationStepTitle.textContent = currentLang === "ar" ? "الخطوة 3: أكمل بياناتك الأساسية" : "Step 3: Complete your profile";
 }
 
-accountTypeSearch.addEventListener("focus", () => {
-  renderAccountTypeOptions(accountTypeSearch.value);
-});
-
-accountTypeSearch.addEventListener("input", (event) => {
-  renderAccountTypeOptions(event.target.value);
-});
-
-document.addEventListener("click", (event) => {
-  const dropdownItem = event.target.closest(".dropdown-item");
-  if (dropdownItem && dropdownItem.dataset.label) {
-    selectedAccountType = dropdownItem.dataset.label;
-    selectedAccountCategory = dropdownItem.dataset.category;
-    accountTypeSearch.value = selectedAccountType;
+if (accountTypeSelect) {
+  accountTypeSelect.addEventListener("change", () => {
+    selectedAccountType = accountTypeSelect.value || null;
+    const selectedOption = accountTypeSelect.options[accountTypeSelect.selectedIndex];
+    selectedAccountCategory = selectedOption?.dataset.category || null;
     updateRegistrationMode();
-    closeAccountTypeOptions();
-    return;
-  }
+  });
+}
 
-  if (!event.target.closest(".account-type-dropdown")) {
-    closeAccountTypeOptions();
-  }
-});
-
+if (registrationForm) {
 registrationForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
-  if (!accountTypeSearch.value.trim() || !selectedAccountType) {
+  if (accountTypeSelect && !selectedAccountType) {
+    selectedAccountType = accountTypeSelect.value || null;
+    const selectedOption = accountTypeSelect.options[accountTypeSelect.selectedIndex];
+    selectedAccountCategory = selectedOption?.dataset.category || null;
+  }
+
+  if (!selectedAccountType) {
     showRegistrationMessage(currentLang === "ar" ? "اختر نوع الحساب من القائمة أولاً." : "Choose an account type from the list first.", "error");
     return;
   }
@@ -2070,14 +2055,18 @@ registrationForm.addEventListener("submit", async (event) => {
     completeInitialRegistration();
   }
 });
+}
 
-verifyOtpButton.addEventListener("click", async () => {
-  await verifyRegistrationOtp();
-});
+if (verifyOtpButton) {
+  verifyOtpButton.addEventListener("click", async () => {
+    await verifyRegistrationOtp();
+  });
+}
 
+if (completeRegistrationButton) {
 completeRegistrationButton.addEventListener("click", async () => {
   if (!hasWorkingSupabaseConfig()) {
-    showSupabaseConfigurationMessage(registrationMessage);
+    showSupabaseConfigurationMessage(regMessage);
     return;
   }
 
@@ -2190,10 +2179,13 @@ completeRegistrationButton.addEventListener("click", async () => {
   resetRegistrationFlow();
   window.location.hash = "#profile-page";
 });
+}
 
-searchInput.addEventListener("input", (event) => {
-  runAdvancedSearch();
-});
+if (searchInput) {
+  searchInput.addEventListener("input", () => {
+    runAdvancedSearch();
+  });
+}
 
 if (applyAdvancedSearchButton) {
   applyAdvancedSearchButton.addEventListener("click", () => {
@@ -2348,25 +2340,33 @@ async function handleOrderStatusAction(action, order) {
   }
 }
 
-authForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const email = document.getElementById("auth-email").value.trim();
-  const password = document.getElementById("auth-password").value.trim();
-  await handleAuthForm(email, password);
-});
+if (authForm) {
+  authForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const email = document.getElementById("auth-email").value.trim();
+    const password = document.getElementById("auth-password").value.trim();
+    await handleAuthForm(email, password);
+  });
+}
 
-authModeToggle.addEventListener("click", () => {
-  window.location.hash = "#registration-page";
-});
+if (authModeToggle) {
+  authModeToggle.addEventListener("click", () => {
+    window.location.hash = "#registration-page";
+  });
+}
 
-langToggle.addEventListener("click", () => {
-  currentLang = currentLang === "ar" ? "en" : "ar";
-  updateLanguage();
-});
+if (langToggle) {
+  langToggle.addEventListener("click", () => {
+    currentLang = currentLang === "ar" ? "en" : "ar";
+    updateLanguage();
+  });
+}
 
-logoutButton.addEventListener("click", async () => {
-  await handleLogout();
-});
+if (logoutButton) {
+  logoutButton.addEventListener("click", async () => {
+    await handleLogout();
+  });
+}
 
 if (sendForgotOtpButton) {
   sendForgotOtpButton.addEventListener("click", async () => {
@@ -2460,6 +2460,7 @@ if (forgotForm) {
   });
 }
 
+if (orderForm) {
 orderForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
@@ -2497,6 +2498,7 @@ orderForm.addEventListener("submit", async (event) => {
   await syncOrdersFromSupabase();
   window.location.hash = "#user-orders";
 });
+}
 
 function updateAuthPageMode() {
   const currentHash = window.location.hash;

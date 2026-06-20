@@ -82,10 +82,9 @@
             <div class="form-row single">
               <label>
                 <span data-ar="نوع الحساب" data-en="Account Type">نوع الحساب</span>
-                <div class="account-type-dropdown">
-                  <input type="text" id="account-type-search" autocomplete="off" placeholder="اختر نوع الحساب أو ابدأ بالكتابة" data-ar-placeholder="اختر نوع الحساب أو ابدأ بالكتابة" data-en-placeholder="Search or select account type" />
-                  <div id="account-type-list" class="dropdown-list"></div>
-                </div>
+                <select id="account-type-select" class="dropdown-select" required>
+                  <option value="" data-ar="اختر نوع الحساب" data-en="Select account type">اختر نوع الحساب</option>
+                </select>
               </label>
             </div>
             <div id="registration-image-row" class="form-row single hidden">
@@ -674,7 +673,7 @@
     </section>
 
     <div class="floating-contact-actions" aria-label="Quick contact actions">
-      <a id="floating-call-action" class="floating-contact-btn call" href="tel:+962780003302" data-ar="اتصل الآن" data-en="Call Now">اتصل الآن</a>
+      <a id="floating-call-action" class="floating-contact-btn call" href="tel:+962780003302" data-ar="اتصال" data-en="Call">اتصال</a>
       <a id="floating-whatsapp-action" class="floating-contact-btn whatsapp" href="https://wa.me/962780003302" target="_blank" rel="noopener" data-ar="راسلنا واتساب" data-en="WhatsApp Us">راسلنا واتساب</a>
     </div>
 

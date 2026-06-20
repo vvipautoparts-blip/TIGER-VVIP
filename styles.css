@@ -486,6 +486,22 @@ body.login-page #registration-page {
   background-color: var(--hover-color);
 }
 
+#forgot-password {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+#forgot-password .request-form {
+  background: var(--background-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+#forgot-password .btn {
+  width: 100%;
+}
+
 /* ========================================
    صفحة البروفايل (Profile) - مثل فيسبوك
    ======================================== */
