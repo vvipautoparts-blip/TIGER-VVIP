@@ -1,13 +1,14 @@
-const CACHE_NAME = "tiger-vvip-v1";
+const CACHE_NAME = "tiger-vvip-v2";
 const ASSETS = [
-  "/",
-  "/index.html",
-  "/styles.css",
-  "/script.js",
-  "/supabase-config.js",
-  "/manifest.webmanifest",
-  "/icons/icon-192.svg",
-  "/icons/icon-512.svg"
+  "./",
+  "./index.html",
+  "./styles.css",
+  "./script.js",
+  "./supabase-config.js",
+  "./supabase-local.js",
+  "./manifest.webmanifest",
+  "./icons/icon-192.svg",
+  "./icons/icon-512.svg"
 ];
 
 self.addEventListener("install", (event) => {
@@ -36,7 +37,7 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
           return response;
         })
-        .catch(() => caches.match("/index.html"));
+        .catch(() => caches.match("./index.html"));
     })
   );
 });
