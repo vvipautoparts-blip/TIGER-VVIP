@@ -49,6 +49,14 @@ body {
   background-image: radial-gradient(circle at 10% 0%, rgba(24, 119, 242, 0.08) 0, rgba(24, 119, 242, 0) 32%);
 }
 
+main > section {
+  display: none;
+}
+
+#auth-section {
+  display: block;
+}
+
 /* ========================================
    صفحة الدخول (Login Page) - مثل فيسبوك
    ======================================== */
@@ -59,34 +67,96 @@ body.login-page {
 }
 
 body.login-page .site-header {
-  display: none;
+  display: flex;
 }
 
-body.login-page main > *:not(#auth-section):not(#registration-page) {
+body.login-page .hero-section,
+body.login-page #catalog,
+body.login-page #order-request,
+body.login-page #user-orders,
+body.login-page #home-page,
+body.login-page #representative-dashboard,
+body.login-page #approvals-dashboard,
+body.login-page #admin-dashboard,
+body.login-page #profile-page {
+  display: none !important;
+}
+
+body.login-page main > *:not(#auth-section):not(#registration-page):not(#forgot-password) {
   display: none !important;
 }
 
 body.login-page #auth-section,
-body.login-page #registration-page {
+body.login-page #registration-page,
+body.login-page #forgot-password {
   min-height: 100vh;
   padding: 0;
   background: transparent;
 }
 
+.app-back-button {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 1300;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border-color);
+  background: #fff;
+  color: var(--text-primary);
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+body .app-back-button {
+  display: none !important;
+}
+
+.app-back-button:hover {
+  background: var(--hover-color);
+}
+
+.app-back-button::before {
+  content: "←";
+  font-size: 1rem;
+  line-height: 1;
+}
+
+html[dir="rtl"] .app-back-button {
+  left: auto;
+  right: 14px;
+}
+
+html[dir="rtl"] .app-back-button::before {
+  content: "→";
+}
+
 /* إخفاء القائمة العلوية في صفحة الدخول */
 .site-header {
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 50;
+  inset-inline: 0;
+  z-index: 1200;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 1rem 2rem;
+  padding: 10px 16px;
   background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border-color);
+}
+
+.site-header .brand,
+.site-header .quick-nav-select,
+.site-header .role-nav-link,
+.site-header #user-panel {
+  display: none !important;
 }
 
 .brand {
@@ -111,8 +181,38 @@ body.login-page #registration-page {
 .main-nav {
   display: flex;
   align-items: center;
-  gap: 0.9rem;
+  gap: 0.6rem;
   flex-wrap: wrap;
+  width: 100%;
+  justify-content: flex-end;
+}
+
+.lang-toggle-btn {
+  border: 1px solid #ccd0d5;
+  background: #fff;
+  border-radius: 999px;
+  padding: 8px 14px;
+  min-height: 36px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #1c1e21;
+  font-family: "Cairo", "Segoe UI", Tahoma, sans-serif;
+}
+
+.lang-toggle-btn:hover {
+  background: #f0f2f5;
+}
+
+body.login-page .quick-nav-select,
+body.login-page .role-nav-link,
+body.login-page .user-panel,
+body.login-page .brand {
+  display: none !important;
+}
+
+body.login-page .main-nav {
+  width: 100%;
+  justify-content: flex-end;
 }
 
 .main-nav a,
@@ -174,53 +274,236 @@ body.login-page #registration-page {
   width: 100%;
 }
 
-/* الجانب الأيسر (شعار + جملة) */
-.visual-side {
+/* تخطيط صفحة الدخول الجديدة */
+.auth-page {
+  display: block;
+  padding: 56px 0 0;
+}
+
+.auth-page-grid {
+  width: 100%;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  direction: ltr;
+  background: #f0f2f5;
+}
+
+.auth-page-left {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #ffffff;
+  padding: 24px 20px 28px;
+  direction: rtl;
+  border-inline-end: 1px solid #d9dde3;
+}
+
+.auth-profile-shell {
+  width: min(548px, 100%);
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  gap: 14px;
+}
+
+.auth-profile-section {
+  text-align: center;
+  margin-bottom: 2px;
+}
+
+.auth-profile-avatar {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #c9ced6, #9ea7b5);
+  color: #ffffff;
+  font-size: 2.5rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
+  border: 3px solid #e4e6eb;
+  box-shadow: 0 8px 20px rgba(16, 24, 40, 0.16);
+  margin-bottom: 14px;
+  font-family: "Cairo", "Segoe UI", Tahoma, sans-serif;
 }
 
-.visual-side h1 {
-  color: var(--facebook-blue);
-  font-size: 3.6rem;
-  margin: 0 0 16px 0;
-  font-weight: 800;
-}
-
-.visual-side .tagline {
-  color: var(--text-secondary);
-  font-size: 1.3rem;
+.auth-profile-name {
   margin: 0;
-  line-height: 1.4;
-  max-width: 320px;
+  font-size: 2.05rem;
+  line-height: 1.1;
+  font-weight: 700;
+  color: #1c1e21;
+  font-family: "Cairo", "Segoe UI", Tahoma, sans-serif;
+  transform: translateY(1px);
+}
+
+.auth-login-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.auth-primary-btn.btn.primary {
+  width: 100%;
+  min-height: 44px;
+  border-radius: 6px;
+  background: #1877f2;
+  border: 1px solid #1877f2;
+  color: #fff;
+  font-size: 1.12rem;
+  font-weight: 700;
+  font-family: "Cairo", "Segoe UI", Tahoma, sans-serif;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+  line-height: 1;
+  padding-top: 1px;
+}
+
+.auth-primary-btn.btn.primary:hover {
+  background: #166fe5;
+}
+
+.auth-secondary-btn.btn {
+  width: 100%;
+  min-height: 44px;
+  border-radius: 6px;
+  border: 1px solid #ccd0d5;
+  background: #ffffff;
+  color: #1c1e21;
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-family: "Cairo", "Segoe UI", Tahoma, sans-serif;
+  line-height: 1;
+  padding-top: 1px;
+}
+
+.auth-secondary-btn.btn:hover {
+  background: #f0f2f5;
+}
+
+.auth-create-link {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 44px;
+  border-radius: 6px;
+  border: 1px solid #bcc0c4;
+  color: #1877f2;
+  background: #ffffff;
+  text-decoration: none;
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-family: "Cairo", "Segoe UI", Tahoma, sans-serif;
+  line-height: 1;
+  padding-top: 1px;
+}
+
+.auth-create-link:hover {
+  background: #f0f2f5;
+}
+
+.auth-page-right {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at 50% 4%, rgba(216, 169, 67, 0.3) 0%, rgba(216, 169, 67, 0) 40%),
+    linear-gradient(160deg, #0a1424 0%, #0f1d33 55%, #0a1626 100%);
+  padding: 24px;
+  direction: rtl;
+}
+
+.auth-side-brand {
+  width: min(640px, 100%);
+}
+
+.auth-brand-frame {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.auth-brand-title {
+  margin: 0 0 14px;
+  font-size: clamp(2.2rem, 4.5vw, 3.4rem);
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.8px;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+}
+
+.auth-brand-logo {
+  width: min(600px, 95%);
+  height: auto;
+  filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.34));
+}
+
+.auth-brand-tagline {
+  margin: 10px 0 0;
+  color: #d4af37;
+  font-size: clamp(1.3rem, 2.2vw, 1.9rem);
+  font-weight: 700;
+  font-family: "Cairo", "Segoe UI", Tahoma, sans-serif;
 }
 
 /* صندوق الدخول (Card) - مثل فيسبوك */
 .login-card {
-  background-color: var(--background-card);
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
-  padding: 40px;
-  max-width: 400px;
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  max-width: 100%;
   width: 100%;
+  border: 0;
 }
 
-.login-card-header {
-  margin-bottom: 1.5rem;
+.auth-hidden-card {
+  margin-top: 0;
+  display: none;
 }
 
-.login-card-header h2 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.8rem;
-  color: var(--text-primary);
+.auth-hidden-card .request-form {
+  gap: 8px;
 }
 
-.login-card-header p {
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 0.95rem;
+.auth-hidden-card .form-row {
+  margin-bottom: 0;
+}
+
+.auth-hidden-card .form-row label span {
+  font-size: 0.84rem;
+}
+
+.auth-hidden-card .form-row input {
+  border-radius: 6px;
+  min-height: 40px;
+  background: #fff;
+}
+
+.auth-native-submit {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.auth-hidden-footer {
+  margin-top: 6px;
+  justify-content: center;
+}
+
+.floating-contact-actions {
+  display: none !important;
 }
 
 /* الحقول (Input Fields) - مثل فيسبوك */
@@ -1633,6 +1916,32 @@ input[type="file"] {
   .login-layout {
     grid-template-columns: 1fr;
   }
+
+  .auth-page-grid {
+    grid-template-columns: 1fr;
+    min-height: 100vh;
+    gap: 0;
+  }
+
+  .auth-page-left {
+    order: 2;
+    padding: 26px 20px 24px;
+    border-inline-end: 0;
+  }
+
+  .auth-page-right {
+    order: 1;
+    min-height: 44vh;
+    padding: 20px 16px;
+  }
+
+  .auth-brand-logo {
+    width: min(340px, 76%);
+  }
+
+  .auth-profile-shell {
+    width: min(560px, 100%);
+  }
 }
 
 @media (max-width: 768px) {
@@ -1694,6 +2003,29 @@ input[type="file"] {
   .login-layout {
     gap: 20px;
   }
+
+  .auth-page-left {
+    padding: 22px 14px 20px;
+  }
+
+  .auth-page-right {
+    min-height: 36vh;
+    padding: 16px 12px;
+  }
+
+  .auth-profile-avatar {
+    width: 144px;
+    height: 144px;
+    font-size: 1.85rem;
+  }
+
+  .auth-profile-name {
+    font-size: 1.92rem;
+  }
+
+  .auth-hidden-card {
+    padding: 12px 10px 8px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1716,6 +2048,10 @@ input[type="file"] {
 
   .login-card {
     padding: 24px;
+  }
+
+  .auth-hidden-card {
+    padding: 10px 8px 6px;
   }
 
   .registration-panel {

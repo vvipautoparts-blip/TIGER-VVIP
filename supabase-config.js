@@ -2,6 +2,8 @@ const SUPABASE_URL = window.SUPABASE_URL || "https://your-project.supabase.co";
 const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || "your-anon-key";
 const IS_PLACEHOLDER_SUPABASE_CONFIG = SUPABASE_URL.includes("your-project") || SUPABASE_ANON_KEY === "your-anon-key";
 
+console.log("📡 supabase-config.js loading...", { IS_PLACEHOLDER_SUPABASE_CONFIG });
+
 function createUnavailableResult() {
   return {
     data: null,
@@ -66,6 +68,8 @@ window.__SUPABASE_CONFIG__ = {
   hasRealKeys: !IS_PLACEHOLDER_SUPABASE_CONFIG,
   hasLibrary: Boolean(window.supabase?.createClient),
 };
+
+console.log("✓ supabase-config.js loaded", window.__SUPABASE_CONFIG__);
 
 async function signIn(email, password) {
   return await supabaseClient.auth.signInWithPassword({ email, password });
