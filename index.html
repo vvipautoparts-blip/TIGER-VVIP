@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="stylesheet" href="styles.css?v=20260621-2" />
+  <link rel="stylesheet" href="styles.css?v=20260621-7" />
 </head>
 <body>
   <button id="app-back-button" class="app-back-button" type="button" data-ar="عودة" data-en="Back">عودة</button>
@@ -209,12 +209,11 @@
           </div>
         </aside>
         <div class="auth-page-right">
-          <div class="auth-side-brand">
-            <div class="auth-brand-frame">
-              <h1 class="auth-brand-title" data-ar="AUTOPARTS JO" data-en="AUTOPARTS JO">AUTOPARTS JO</h1>
-              <img src="icons/tiger-logo.png" alt="TIGER AutoParts logo" class="auth-brand-logo" />
-              <p class="auth-brand-tagline" data-ar="ابحث عن القطع والخدمات بسهولة" data-en="Find parts and services easily">ابحث عن القطع والخدمات بسهولة</p>
-            </div>
+          <div class="right-side">
+            <button class="lang-switch" type="button" onclick="toggleLang()">
+              <span id="lang-text">EN</span>
+            </button>
+            <img src="logo.png" alt="TIGER VVIP Logo" class="logo-crystal-3d" />
           </div>
         </div>
       </div>
@@ -802,8 +801,8 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-local.js?v=20260621-2"></script>
-  <script src="supabase-config.js?v=20260621-2"></script>
-  <script src="script.js?v=20260621-2"></script>
+  <script src="supabase-local.js?v=20260621-7"></script>
+  <script src="supabase-config.js?v=20260621-7"></script>
+  <script src="script.js?v=20260621-7"></script>
 </body>
 </html>

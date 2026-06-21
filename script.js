@@ -51,6 +51,7 @@ const filterCategory = document.getElementById("filter-category");
 const applyAdvancedSearchButton = document.getElementById("apply-advanced-search");
 const resetAdvancedSearchButton = document.getElementById("reset-advanced-search");
 const langToggle = document.getElementById("lang-toggle");
+const langText = document.getElementById("lang-text");
 const orderForm = document.getElementById("order-form");
 const orderProduct = document.getElementById("order-product");
 const ordersList = document.getElementById("orders-list");
@@ -1879,7 +1880,7 @@ function updatePageVisibility() {
   const isAuth = !!currentUser;
 
   if (!hash) {
-    window.location.hash = isAuth ? "#profile-page" : "#hero";
+    window.location.hash = isAuth ? "#profile-page" : "#auth-section";
     return;
   }
 
@@ -2012,7 +2013,17 @@ function updateLanguage() {
   if (langToggle) {
     langToggle.textContent = currentLang === "ar" ? "العربية | English" : "English | العربية";
   }
+  if (langText) {
+    langText.textContent = currentLang === "ar" ? "EN" : "AR";
+  }
 }
+
+function toggleLang() {
+  currentLang = currentLang === "ar" ? "en" : "ar";
+  updateLanguage();
+}
+
+window.toggleLang = toggleLang;
 
 function populateAccountTypeSelect() {
   if (!accountTypeSelect) return;
@@ -2770,10 +2781,7 @@ if (authModeToggle) {
 }
 
 if (langToggle) {
-  langToggle.addEventListener("click", () => {
-    currentLang = currentLang === "ar" ? "en" : "ar";
-    updateLanguage();
-  });
+  langToggle.addEventListener("click", toggleLang);
 }
 
 if (logoutButton) {
@@ -3051,9 +3059,28 @@ async function initializeApp() {
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .getRegistrations()
-      .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
-      .catch((error) => console.error("SW unregister failed", error));
+    const cacheResetKey = "tiger_vvip_cache_reset_v3";
+
+    (async () => {
+      try {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registrations.map((registration) => registration.unregister()));
+
+        if ("caches" in window) {
+          const cacheKeys = await caches.keys();
+          await Promise.all(cacheKeys.map((key) => caches.delete(key)));
+        }
+
+        if (!sessionStorage.getItem(cacheResetKey)) {
+          sessionStorage.setItem(cacheResetKey, "1");
+          const url = new URL(window.location.href);
+          url.searchParams.set("refresh", String(Date.now()));
+          window.location.replace(url.toString());
+          return;
+        }
+      } catch (error) {
+        console.error("SW/cache reset failed", error);
+      }
+    })();
   });
 }
