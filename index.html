@@ -40,7 +40,7 @@
       <a id="representative-nav" class="role-nav-link" href="#representative-dashboard" style="display:none;">لوحة المندوب</a>
       <a id="approvals-nav" class="role-nav-link" href="#approvals-dashboard" style="display:none;">شاشة الموافقات</a>
       <a id="admin-nav" class="role-nav-link" href="#admin-dashboard" style="display:none;">لوحة المدير</a>
-      <button id="lang-toggle" class="lang-toggle-btn" type="button" aria-label="Toggle language">العربية | English</button>
+
     </nav>
     <div id="user-panel" class="user-panel" style="display:none;">
       <div class="user-panel-info">
@@ -227,18 +227,8 @@
     </section>
 
     <section id="registration-page" class="section registration-page">
-      <div class="section-header">
-        <h2 data-ar="تسجيل مستخدم جديد" data-en="New User Registration">تسجيل مستخدم جديد</h2>
-        <p data-ar="ابدأ بتحديد نوع الحساب ورقم الهاتف فقط. باقي المعلومات تأتي لاحقًا لتجربة أسرع." data-en="Start with account type and phone only. Remaining details come later for a faster experience.">ابدأ بتحديد نوع الحساب ورقم الهاتف فقط. باقي المعلومات تأتي لاحقًا لتجربة أسرع.</p>
-      </div>
       <div class="registration-grid">
         <div class="registration-panel">
-          <div class="registration-stepper" aria-label="Registration steps">
-            <span class="stepper-item active" data-step="1"><strong>1</strong><small data-ar="اختر الحساب" data-en="Choose Account">اختر الحساب</small></span>
-            <span class="stepper-item" data-step="2"><strong>2</strong><small data-ar="التحقق" data-en="Verify">التحقق</small></span>
-            <span class="stepper-item" data-step="3"><strong>3</strong><small data-ar="أكمل الملف" data-en="Complete Profile">أكمل الملف</small></span>
-          </div>
-          <div class="registration-step-title" id="registration-step-title" data-ar="الخطوة 1: نوع الحساب ورقم الهاتف" data-en="Step 1: Account type and phone">الخطوة 1: نوع الحساب ورقم الهاتف</div>
           <div id="reg-message" class="form-message"></div>
           <form id="registration-form" class="request-form">
             <div class="form-row single">
@@ -263,8 +253,8 @@
             </div>
             <div class="form-row single">
               <label>
-                <span data-ar="رقم الهاتف" data-en="Phone Number">رقم الهاتف</span>
-                <input type="tel" id="registration-phone" placeholder="+966 5XXXXXXXX" data-ar-placeholder="+966 5XXXXXXXX" data-en-placeholder="+1 555 555 5555" required />
+                <span data-ar="البريد الإلكتروني" data-en="Email">البريد الإلكتروني</span>
+                <input type="email" id="registration-phone" placeholder="example@domain.com" data-ar-placeholder="example@domain.com" data-en-placeholder="example@domain.com" required />
               </label>
             </div>
             <button type="submit" class="btn primary" data-ar="استمرار" data-en="Continue">استمرار</button>
@@ -313,26 +303,7 @@
           </div>
         </div>
 
-        <aside class="registration-aside">
-          <div class="aside-card">
-            <h3 data-ar="انطلاقة تسجيل مميزة" data-en="A premium signup experience">انطلاقة تسجيل مميزة</h3>
-            <p data-ar="واجهة نظيفة ومقسمة تساعدك على تسجيل أسرع دون تشتيت." data-en="A clean split layout helps you register faster without distraction.">واجهة نظيفة ومقسمة تساعدك على تسجيل أسرع دون تشتيت.</p>
-          </div>
-          <div class="aside-benefits">
-            <article>
-              <h4 data-ar="تركيز على المهمة" data-en="Task-focused">تركيز على المهمة</h4>
-              <p data-ar="صفحة التسجيل الأولى تحتوي فقط على نوع الحساب والهاتف." data-en="The first registration page contains only account type and phone.">صفحة التسجيل الأولى تحتوي فقط على نوع الحساب والهاتف.</p>
-            </article>
-            <article>
-              <h4 data-ar="بحث سريع" data-en="Quick search">بحث سريع</h4>
-              <p data-ar="اختر نوع الحساب بسرعة مع قائمة قابلة للبحث لضمان تجربة سلسة." data-en="Pick an account type quickly with a searchable list for a smooth experience.">اختر نوع الحساب بسرعة مع قائمة قابلة للبحث لضمان تجربة سلسة.</p>
-            </article>
-            <article>
-              <h4 data-ar="دعم دولي" data-en="International support">دعم دولي</h4>
-              <p data-ar="أدخل رقم الهاتف مع رمز الدولة بالكامل لتسجيل عالمي موثوق." data-en="Enter your phone with country code for trusted international signup.">أدخل رقم الهاتف مع رمز الدولة بالكامل لتسجيل عالمي موثوق.</p>
-            </article>
-          </div>
-        </aside>
+
       </div>
     </section>
 
@@ -358,10 +329,7 @@
     </section>
 
     <section id="catalog" class="section">
-      <div class="section-header">
-        <h2 data-ar="كراجنا الذكي" data-en="Our Smart Catalog">كراجنا الذكي</h2>
-        <p data-ar="مجموعة من قطع الغيار الأصلية والتجميعية لجميع الموديلات المميزة." data-en="A curated catalog of original and premium aftermarket parts.">مجموعة من قطع الغيار الأصلية والتجميعية لجميع الموديلات المميزة.</p>
-      </div>
+
 
       <div class="search-bar">
         <input id="search-input" type="search" placeholder="ابحث عن القطعة أو الموديل" />
