@@ -3538,6 +3538,15 @@ if (authSubmitButton) {
   authSubmitButton.addEventListener("click", async (event) => {
     console.log("🎯 authSubmitButton click event triggered");
     event.preventDefault();
+
+    // If a user session already exists on this device, go directly to profile.
+    if (currentUser && (currentUser.id || currentUser.email)) {
+      window.location.hash = "#profile-page";
+      updatePageVisibility();
+      renderProfilePage();
+      return;
+    }
+
     await submitAuthFormFromUI();
   });
 } else {
