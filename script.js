@@ -1,3 +1,111 @@
+// 🚀 AUTOMATIC CACHE CLEANING AND PERFORMANCE OPTIMIZATION
+(function initializePerformance() {
+  // Auto-clear old cache entries every 30 minutes
+  const CACHE_EXPIRY_MS = 30 * 60 * 1000;
+  const CACHE_CLEANUP_KEY = 'last_cache_cleanup';
+  
+  function cleanOldCache() {
+    const now = Date.now();
+    const lastCleanup = localStorage.getItem(CACHE_CLEANUP_KEY) || 0;
+    
+    if (now - lastCleanup > CACHE_EXPIRY_MS) {
+      // Clear old temporary data
+      const keysToCheck = [
+        'reg_temp_email', 'reg_email_verified', 'tempRegEmail',
+        'auth_temp_code', 'auth_attempt_count'
+      ];
+      
+      keysToCheck.forEach(key => {
+        if (localStorage.getItem(key)) {
+          localStorage.removeItem(key);
+        }
+      });
+      
+      // Clear service worker cache
+      if ('caches' in window) {
+        caches.keys().then(cacheNames => {
+          cacheNames.forEach(cacheName => {
+            caches.open(cacheName).then(cache => {
+              cache.keys().then(requests => {
+                requests.forEach(request => {
+                  if (request.url.includes('old-') || request.url.includes('temp-')) {
+                    cache.delete(request);
+                  }
+                });
+              });
+            });
+          });
+        });
+      }
+      
+      localStorage.setItem(CACHE_CLEANUP_KEY, now);
+      console.log('✅ Cache cleaned at', new Date().toISOString());
+    }
+  }
+  
+  // Run cleanup on app init
+  cleanOldCache();
+  
+  // Schedule cleanup checks
+  setInterval(cleanOldCache, 5 * 60 * 1000);
+})();
+
+// 💾 AUTO-SAVE STATE
+(function initializeAutoSave() {
+  const AUTO_SAVE_KEY = 'app_auto_save';
+  const AUTO_SAVE_INTERVAL = 10 * 1000; // 10 seconds
+  
+  function autoSaveState() {
+    const state = {
+      currentLang: window.currentLang || 'ar',
+      currentUser: window.currentUser || null,
+      currentPage: window.location.hash || '#auth-section',
+      timestamp: Date.now()
+    };
+    
+    try {
+      localStorage.setItem(AUTO_SAVE_KEY, JSON.stringify(state));
+      console.log('💾 Auto-save completed');
+    } catch (e) {
+      console.warn('⚠️ Auto-save failed:', e);
+    }
+  }
+  
+  // Auto-save on page unload
+  window.addEventListener('beforeunload', autoSaveState);
+  
+  // Periodic auto-save
+  setInterval(autoSaveState, AUTO_SAVE_INTERVAL);
+})();
+
+// 🔧 PERFORMANCE OPTIMIZATION
+(function optimizePerformance() {
+  // Lazy load images
+  if ('IntersectionObserver' in window) {
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          img.src = img.dataset.src || img.src;
+          img.classList.add('loaded');
+          observer.unobserve(img);
+        }
+      });
+    });
+    
+    document.querySelectorAll('img[data-src]').forEach(img => imageObserver.observe(img));
+  }
+  
+  // Debounce window resize
+  let resizeTimeout;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      console.log('📐 Resize event processed');
+    }, 250);
+  });
+})();
+
 const products = [
   {
     title: "فلتر هواء أصلي",
@@ -117,8 +225,8 @@ let profileParts = [];
 let profileReviewRequests = [];
 let adminRepliesByRequest = {};
 
-const ADMIN_ROLES = ["admin", "super_admin"];
-const STAFF_ROLES = ["manager", "supervisor", "representative"];
+const ADMIN_ROLES = ["super_admin"];
+const STAFF_ROLES = ["representative"];
 const SESSION_DEVICE_KEY = "tiger_vvip_device_id";
 const WHATSAPP_OTP_ENDPOINT = window.WHATSAPP_OTP_ENDPOINT || "";
 const DEMO_USERS_STORAGE_KEY = "tiger_vvip_demo_users";
@@ -844,13 +952,14 @@ function normalizeOrder(order) {
 
 function getRoleLabel(role) {
   const labels = {
-    admin: { ar: "المدير العام", en: "General Manager" },
     super_admin: { ar: "المدير العام", en: "General Manager" },
-    manager: { ar: "مدير منطقة", en: "Area Manager" },
-    supervisor: { ar: "مشرف", en: "Supervisor" },
-    representative: { ar: "مندوب", en: "Representative" },
-    dealer: { ar: "تاجر", en: "Dealer" },
-    buyer: { ar: "مشتري", en: "Buyer" },
+    representative: { ar: "مندوب ميداني", en: "Field Representative" },
+    dealer: { ar: "تاجر / مركز خدمة", en: "Merchant / Service Center" },
+    customer: { ar: "عميل", en: "Customer" },
+    admin: { ar: "المدير العام", en: "General Manager" },
+    manager: { ar: "مندوب ميداني", en: "Field Representative" },
+    supervisor: { ar: "مندوب ميداني", en: "Field Representative" },
+    buyer: { ar: "عميل", en: "Customer" },
   };
 
   return labels[role] || { ar: role || "غير محدد", en: role || "Unknown" };
@@ -928,14 +1037,108 @@ function showPartMessage(text, type = "success") {
 }
 
 function isPartManager(role) {
-  return ["dealer", "representative", "manager", "super_admin"].includes(role);
+  return ["dealer", "representative", "super_admin"].includes(role);
 }
 
 function isApprovalReviewerRole(role) {
-  return ["representative", "manager", "super_admin"].includes(role);
+  return ["representative", "super_admin"].includes(role);
+}
+
+function isMerchantRole(role) {
+  return role === "dealer";
+}
+
+function isOrderCapableRole(role) {
+  return role === "dealer" || role === "customer";
+}
+
+function canAccessProfileTab(tabName, role = currentUserProfile?.role) {
+  if (tabName === "commission") {
+    return isApprovalReviewerRole(role) || isAdminRole(role);
+  }
+
+  if (tabName === "gallery") {
+    return isMerchantRole(role);
+  }
+
+  return ["feed", "orders", "info"].includes(tabName);
+}
+
+function applyProfileRoleVisibility(role = currentUserProfile?.role) {
+  const merchantOnly = isMerchantRole(role);
+  const canSeeCommission = isApprovalReviewerRole(role) || isAdminRole(role);
+  const canPlaceOrders = isOrderCapableRole(role);
+  const canShareProfile = isMerchantRole(role);
+
+  const merchantDetailsCard = document.getElementById("merchant-details-card");
+  const partDetailsCard = document.getElementById("part-details-card");
+  const profileRepTab = document.getElementById("profile-rep-tab");
+  const profileTabCommission = document.getElementById("profile-tab-commission");
+  const ordersTabButton = Array.from(document.querySelectorAll(".fb-tab-btn")).find((btn) => {
+    const onclick = btn.getAttribute("onclick") || "";
+    return onclick.includes("'orders'");
+  });
+  const galleryTabButton = Array.from(document.querySelectorAll(".fb-tab-btn")).find((btn) => {
+    const onclick = btn.getAttribute("onclick") || "";
+    return onclick.includes("'gallery'");
+  });
+  const galleryPanel = document.getElementById("profile-tab-gallery");
+  const ordersPanel = document.getElementById("profile-tab-orders");
+  const editProfileAction = document.getElementById("edit-profile-button");
+  const shareProfileAction = document.getElementById("share-profile-button");
+  const newOrderLink = document.getElementById("profile-new-order-link");
+  const myOrdersLink = document.getElementById("profile-my-orders-link");
+  const feedNewOrderAction = document.getElementById("profile-feed-new-order-action");
+  const seeAllOrdersLink = document.getElementById("profile-see-all-orders-link");
+  const profileLinksCard = document.getElementById("profile-links-card");
+
+  if (merchantDetailsCard) merchantDetailsCard.style.display = merchantOnly ? "block" : "none";
+  if (partDetailsCard) partDetailsCard.style.display = merchantOnly ? "block" : "none";
+  if (editProfileAction) editProfileAction.style.display = currentUser ? "inline-flex" : "none";
+  if (shareProfileAction) shareProfileAction.style.display = canShareProfile ? "inline-flex" : "none";
+  if (newOrderLink) newOrderLink.style.display = canPlaceOrders ? "block" : "none";
+  if (myOrdersLink) myOrdersLink.style.display = canPlaceOrders ? "block" : "none";
+  if (feedNewOrderAction) feedNewOrderAction.style.display = canPlaceOrders ? "inline-flex" : "none";
+  if (seeAllOrdersLink) seeAllOrdersLink.style.display = canPlaceOrders ? "inline-flex" : "none";
+  if (ordersTabButton) ordersTabButton.style.display = canPlaceOrders ? "inline-flex" : "none";
+  if (ordersPanel && !canPlaceOrders) ordersPanel.style.display = "none";
+  if (galleryTabButton) galleryTabButton.style.display = merchantOnly ? "inline-flex" : "none";
+  if (galleryPanel) galleryPanel.style.display = merchantOnly ? galleryPanel.style.display || "none" : "none";
+  if (profileRepTab) profileRepTab.style.display = canSeeCommission ? "inline-flex" : "none";
+  if (profileTabCommission && !canSeeCommission) profileTabCommission.style.display = "none";
+  if (profileLinksCard) {
+    const hasVisibleLinks = Array.from(profileLinksCard.querySelectorAll("a")).some((link) => getComputedStyle(link).display !== "none");
+    profileLinksCard.style.display = hasVisibleLinks ? "block" : "none";
+  }
+
+  const activeTab = document.querySelector(".fb-tab-btn.active");
+  const activeOnclick = activeTab?.getAttribute("onclick") || "";
+  const activeTabName = activeOnclick.match(/'([^']+)'/)?.[1] || "feed";
+
+  if (!canAccessProfileTab(activeTabName, role)) {
+    switchProfileTab("feed");
+  }
+}
+
+function applyHomePageRoleVisibility(role = currentUserProfile?.role) {
+  const canPlaceOrders = isOrderCapableRole(role);
+
+  const ordersNavLink = document.getElementById("home-orders-link");
+  const profileLink = document.getElementById("home-profile-link");
+  const myOrdersLink = document.getElementById("home-my-orders-link");
+  const newRequestLink = document.getElementById("home-new-request-link");
+
+  if (ordersNavLink) ordersNavLink.style.display = canPlaceOrders ? "block" : "none";
+  if (myOrdersLink) myOrdersLink.style.display = canPlaceOrders ? "block" : "none";
+  if (newRequestLink) newRequestLink.style.display = canPlaceOrders ? "block" : "none";
+  if (profileLink) profileLink.style.display = "block";
 }
 
 function switchProfileTab(tabName) {
+  if (!canAccessProfileTab(tabName)) {
+    tabName = "feed";
+  }
+
   // دعم التصميم الجديد (fb-tab-btn / profile-tab-*)
   document.querySelectorAll(".fb-tab-btn").forEach(btn => btn.classList.remove("active"));
   document.querySelectorAll(".fb-tab-content").forEach(panel => panel.style.display = "none");
@@ -1933,6 +2136,37 @@ function isStaffRole(role) {
   return STAFF_ROLES.includes(role) || isAdminRole(role);
 }
 
+function getDefaultAuthenticatedHash(role = currentUserProfile?.role) {
+  if (isAdminRole(role)) return "#admin-dashboard";
+  if (role === "representative") return "#representative-dashboard";
+  return "#profile-page";
+}
+
+function getUnauthorizedFallbackHash(role = currentUserProfile?.role) {
+  if (!currentUser) return "#auth-section";
+  return getDefaultAuthenticatedHash(role);
+}
+
+function updateQuickNavVisibility() {
+  if (!quickNavSelect) return;
+
+  const role = currentUserProfile?.role;
+  const visibilityByRoute = {
+    "#representative-dashboard": role === "representative" || isAdminRole(role),
+    "#approvals-dashboard": isApprovalReviewerRole(role),
+    "#admin-dashboard": isAdminRole(role),
+    "#registration-page": !currentUser,
+  };
+
+  Array.from(quickNavSelect.options).forEach((option) => {
+    const route = option.value;
+    if (!route || !(route in visibilityByRoute)) return;
+    const allowed = visibilityByRoute[route];
+    option.hidden = !allowed;
+    option.disabled = !allowed;
+  });
+}
+
 function canAccessRoute(hash) {
   if (!currentUser) {
     const privateRoutes = [
@@ -1970,6 +2204,7 @@ function updateRoleBasedNavigation() {
   if (profileRepLink) profileRepLink.style.display = showRep ? "inline-flex" : "none";
   if (profileApprovalsLink) profileApprovalsLink.style.display = showApprovals ? "inline-flex" : "none";
   if (profileAdminLink) profileAdminLink.style.display = showAdmin ? "inline-flex" : "none";
+  updateQuickNavVisibility();
 }
 
 function getDeviceId() {
@@ -2387,7 +2622,7 @@ async function handleAuthForm(email, password) {
     updateRoleBasedNavigation();
     displayUser(currentUser);
     showMessage(currentLang === "ar" ? "تم تسجيل الدخول (وضع تجريبي)." : "Signed in (demo mode).", "success", authMessage);
-    window.location.hash = "#profile-page";
+    window.location.hash = getDefaultAuthenticatedHash(currentUserProfile?.role);
     updatePageVisibility();
     return currentUser;
   }
@@ -2463,9 +2698,9 @@ async function handleAuthForm(email, password) {
   await renderAdminDashboard();
   await renderApprovalsDashboard();
   
-  // Redirect to profile immediately after login
+  // Redirect to the role-specific landing page immediately after login
   setTimeout(() => {
-    window.location.hash = "#profile-page";
+    window.location.hash = getDefaultAuthenticatedHash(currentUserProfile?.role);
     updatePageVisibility();
   }, 800);
   
@@ -2485,7 +2720,7 @@ async function handleLogout() {
   
   // Redirect to login immediately after logout
   setTimeout(() => {
-    window.location.hash = "#registration-page";
+    window.location.hash = "#auth-section";
     updatePageVisibility();
   }, 600);
 }
@@ -2509,7 +2744,7 @@ async function showAuthState() {
     await renderAdminDashboard();
     await renderApprovalsDashboard();
     if (!window.location.hash || window.location.hash === "#auth-section" || window.location.hash === "#registration-page") {
-      window.location.hash = "#profile-page";
+      window.location.hash = getDefaultAuthenticatedHash(currentUserProfile?.role);
     }
   }
   updatePageVisibility();
@@ -2520,14 +2755,14 @@ function updatePageVisibility() {
   const isAuth = !!currentUser;
 
   if (!hash) {
-    window.location.hash = isAuth ? "#profile-page" : "#registration-page";
+    window.location.hash = isAuth ? getDefaultAuthenticatedHash(currentUserProfile?.role) : "#auth-section";
     return;
   }
 
   const isOnAuthPages = hash === "#auth-section" || hash === "#registration-page";
 
   if (!canAccessRoute(hash)) {
-    window.location.hash = isAuth ? "#profile-page" : "#registration-page";
+    window.location.hash = getUnauthorizedFallbackHash(currentUserProfile?.role);
     return;
   }
   
@@ -2565,6 +2800,7 @@ function updatePageVisibility() {
     }
     document.getElementById("home-page").style.display = "block";
     document.body.classList.add("home-page");
+    applyHomePageRoleVisibility(currentUserProfile?.role);
   } else if (hash === "#representative-dashboard") {
     document.getElementById("representative-dashboard").style.display = "block";
     renderRepresentativeDashboard();
@@ -2593,7 +2829,7 @@ function populateProductOptions() {
 }
 
 function renderDashboard() {
-  const canManageOrders = ["admin", "super_admin", "manager", "supervisor", "representative"].includes(currentUserProfile?.role);
+  const canManageOrders = isApprovalReviewerRole(currentUserProfile?.role) || isAdminRole(currentUserProfile?.role);
   renderUserOrders(canManageOrders);
 }
 
@@ -2815,6 +3051,7 @@ function renderProfilePage() {
   renderProfileParts();
   renderProfileReviewRequests();
   renderProfileOrders(isStaffRole(currentUserProfile?.role));
+  applyProfileRoleVisibility(currentUserProfile?.role);
 
   // Fill new Facebook-style profile widgets
   const miniAvatar = document.getElementById("fb-mini-avatar-text");
@@ -2867,10 +3104,6 @@ function renderProfilePage() {
     if (partAvailableCount) partAvailableCount.textContent = String(profileParts.length || 0);
     if (partLatestName) partLatestName.textContent = profileParts[0]?.name || profileParts[0]?.part_name || "--";
     if (partStockStatus) partStockStatus.textContent = profileParts.length > 0 ? (currentLang === "ar" ? "متوفر" : "In stock") : (currentLang === "ar" ? "غير متوفر" : "Out of stock");
-
-    // تبويب المندوب - العمولات
-    const repTab = document.getElementById("profile-rep-tab");
-    if (repTab) repTab.style.display = isStaffRole(currentUserProfile?.role) ? "block" : "none";
 
     // عرض آخر الطلبات في الفيد
     const ordersListMini = document.getElementById("profile-orders-list");
@@ -3164,19 +3397,8 @@ completeRegistrationButton.addEventListener("click", async () => {
       return;
     }
 
-    const isBuyerDemo = selectedAccountType === "مشتري";
-    let roleDemo = "dealer";
-    if (isBuyerDemo) {
-      roleDemo = "buyer";
-    } else if (selectedAccountType === "المدير العام") {
-      roleDemo = "admin";
-    } else if (selectedAccountType === "مدير منطقة") {
-      roleDemo = "manager";
-    } else if (selectedAccountType === "مشرف") {
-      roleDemo = "supervisor";
-    } else if (selectedAccountType === "مندوب") {
-      roleDemo = "representative";
-    }
+    const isBuyerDemo = selectedAccountType === "مشتري" || selectedAccountType === "عميل";
+    const roleDemo = isBuyerDemo ? "customer" : mapRoleFromAccountType(selectedAccountType);
 
     const createdDemo = createDemoUser({
       email: emailDemo,
@@ -3200,7 +3422,7 @@ completeRegistrationButton.addEventListener("click", async () => {
     displayUser(currentUser);
     resetRegistrationFlow();
     showRegistrationMessage(currentLang === "ar" ? "تم إنشاء الحساب (وضع تجريبي)." : "Account created (demo mode).", "success");
-    window.location.hash = "#profile-page";
+    window.location.hash = getDefaultAuthenticatedHash(currentUserProfile?.role);
     updatePageVisibility();
     return;
   }
@@ -3238,21 +3460,10 @@ completeRegistrationButton.addEventListener("click", async () => {
     return;
   }
 
-  const isBuyer = selectedAccountType === "مشتري";
-  let role = "dealer";
-  if (isBuyer) {
-    role = "buyer";
-  } else if (selectedAccountType === "المدير العام") {
-    role = "admin";
-  } else if (selectedAccountType === "مدير منطقة") {
-    role = "manager";
-  } else if (selectedAccountType === "مشرف") {
-    role = "supervisor";
-  } else if (selectedAccountType === "مندوب") {
-    role = "representative";
-  }
+  const isBuyer = selectedAccountType === "مشتري" || selectedAccountType === "عميل";
+  const role = isBuyer ? "customer" : mapRoleFromAccountType(selectedAccountType);
 
-  const requiresApproval = isStaffRole(role) || role === "admin";
+  const requiresApproval = role !== "customer";
 
   const profilePayload = {
     id: response.data.user.id,
@@ -3559,7 +3770,7 @@ async function submitAuthFormFromUI() {
         currentUserProfile = savedCurrent.profile || currentUserProfile || {};
         updateRoleBasedNavigation();
         displayUser(currentUser);
-        window.location.hash = "#profile-page";
+        window.location.hash = getDefaultAuthenticatedHash(currentUserProfile?.role);
         updatePageVisibility();
         return;
       }
@@ -3737,6 +3948,68 @@ if (homeSignoutLink) {
     await handleLogout();
   });
 }
+
+// 🎯 ENHANCED BUTTON AND NAVIGATION SYSTEM
+(function enhanceButtonsAndNavigation() {
+  // Button error handling wrapper
+  function wrapButtonHandler(handler) {
+    return async function(event) {
+      try {
+        if (event && typeof event.preventDefault === 'function') {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        // Disable button during processing
+        if (this && typeof this.setAttribute === 'function') {
+          this.setAttribute('disabled', 'disabled');
+          this.style.opacity = '0.6';
+          this.style.cursor = 'not-allowed';
+        }
+        
+        const result = await handler.call(this, event);
+        
+        // Re-enable button
+        if (this && typeof this.removeAttribute === 'function') {
+          this.removeAttribute('disabled');
+          this.style.opacity = '1';
+          this.style.cursor = 'pointer';
+        }
+        
+        return result;
+      } catch (error) {
+        console.error('❌ Button handler error:', error);
+        if (this && typeof this.removeAttribute === 'function') {
+          this.removeAttribute('disabled');
+          this.style.opacity = '1';
+          this.style.cursor = 'pointer';
+        }
+      }
+    };
+  }
+  
+  // Enhance all navigation links
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener('click', function(e) {
+      const href = this.getAttribute('href');
+      if (href && href !== '#') {
+        e.preventDefault();
+        navigateToHash(href);
+      }
+    });
+  });
+  
+  // Enhance quick-nav-select
+  const quickNav = document.getElementById('quick-nav-select');
+  if (quickNav) {
+    quickNav.addEventListener('change', function() {
+      const value = this.value;
+      if (value) {
+        navigateToHash(value);
+      }
+      this.value = '';
+    });
+  }
+})();
 
 if (appBackButton) {
   appBackButton.addEventListener("click", () => {
@@ -4117,186 +4390,281 @@ function initGalleryOnProfileLoad() {
 
 // ===== REGISTRATION SYSTEM (NEW DESIGN) =====
 
+const REG_FALLBACK_ACCOUNT_TYPES = [
+  { labelAr: "Super Admin", labelEn: "Super Admin", role: "super_admin" },
+  { labelAr: "Field Representative", labelEn: "Field Representative", role: "representative" },
+  { labelAr: "تاجر / مركز خدمة", labelEn: "Merchant / Service Center", role: "dealer" },
+  { labelAr: "عميل", labelEn: "Customer", role: "customer" },
+];
+
+function isSupabaseConfigured() {
+  const url = String(window.SUPABASE_URL || "").trim();
+  const anonKey = String(window.SUPABASE_ANON_KEY || "").trim();
+  return url && anonKey && !url.includes("your-project.supabase.co") && !anonKey.includes("YOUR_SUPABASE");
+}
+
+function mapRoleFromAccountType(label) {
+  const normalized = String(label || "").trim().toLowerCase();
+  if (!normalized) return "customer";
+  if (normalized.includes("super admin") || normalized.includes("سوبر") || normalized.includes("مدير عام")) return "super_admin";
+  if (normalized.includes("field representative") || normalized.includes("مندوب") || normalized.includes("manager") || normalized.includes("supervisor") || normalized.includes("مدير منطقة") || normalized.includes("مشرف")) return "representative";
+  if (normalized.includes("merchant") || normalized.includes("service center") || normalized.includes("تاجر") || normalized.includes("مركز")) return "dealer";
+  if (normalized.includes("customer") || normalized.includes("عميل") || normalized.includes("مشتري")) return "customer";
+  return "dealer";
+}
+
+function getRegEmailRedirectUrl() {
+  const base = `${window.location.origin}${window.location.pathname}`;
+  return `${base}?reg_verified=1#registration-page`;
+}
+
+function hasReturnedFromEmailVerification() {
+  const query = new URLSearchParams(window.location.search);
+  const hash = String(window.location.hash || "");
+  return query.get("reg_verified") === "1" || hash.includes("access_token") || hash.includes("type=signup") || hash.includes("type=magiclink");
+}
+
+function ensureRegDefaultOption(select) {
+  if (!select) return;
+  select.innerHTML = "";
+  const option = document.createElement("option");
+  option.value = "";
+  option.textContent = currentLang === "ar" ? "اختر نوع الحساب" : "Select Account Type";
+  option.setAttribute("data-ar", "اختر نوع الحساب");
+  option.setAttribute("data-en", "Select Account Type");
+  select.appendChild(option);
+}
+
+function addRegAccountOptions(select, items) {
+  if (!select) return;
+  items.forEach((item) => {
+    const option = document.createElement("option");
+    option.value = item.label;
+    option.textContent = item.label;
+    option.dataset.role = item.role;
+    select.appendChild(option);
+  });
+}
+
+function addFallbackRegAccountOptions(select) {
+  const items = REG_FALLBACK_ACCOUNT_TYPES.map((item) => ({
+    label: currentLang === "ar" ? item.labelAr : item.labelEn,
+    role: item.role,
+  }));
+  addRegAccountOptions(select, items);
+}
+
+function syncRegVerificationStateFromUrl() {
+  if (hasReturnedFromEmailVerification()) {
+    sessionStorage.setItem("tempRegEmailVerified", "1");
+    const query = new URLSearchParams(window.location.search);
+    if (query.get("reg_verified") === "1") {
+      query.delete("reg_verified");
+      const nextQuery = query.toString();
+      const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}#registration-page`;
+      window.history.replaceState({}, "", nextUrl);
+    }
+  }
+
+  const isVerified = sessionStorage.getItem("tempRegEmailVerified") === "1";
+  const confirmedBtn = document.getElementById("reg-confirmed-btn");
+  if (confirmedBtn && isVerified) {
+    confirmedBtn.style.display = "block";
+  }
+}
+
 function initializeRegistrationUI() {
   const regEmailForm = document.getElementById('reg-email-form');
-  const regProfileForm = document.getElementById('reg-profile-form');
   const regConfirmedBtn = document.getElementById('reg-confirmed-btn');
   const regResendBtn = document.getElementById('reg-resend-btn');
-  const regModalCancel = document.getElementById('reg-modal-cancel');
-  const regModalManual = document.getElementById('reg-modal-manual');
+  const regContinueBtn = document.getElementById('reg-continue-btn');
 
   if (regEmailForm) {
     regEmailForm.addEventListener('submit', handleRegEmailSubmit);
   }
 
-  if (regProfileForm) {
-    regProfileForm.addEventListener('submit', handleRegProfileSubmit);
-  }
-
   if (regConfirmedBtn) {
-    regConfirmedBtn.addEventListener('click', handleRegConfirmed);
+    regConfirmedBtn.addEventListener('click', handleRegEmailVerified);
   }
 
   if (regResendBtn) {
     regResendBtn.addEventListener('click', handleRegResendEmail);
   }
 
-  if (regModalCancel) {
-    regModalCancel.addEventListener('click', closeRegModal);
+  if (regContinueBtn) {
+    regContinueBtn.addEventListener('click', handleRegContinueToProfile);
   }
 
-  if (regModalManual) {
-    regModalManual.addEventListener('click', showNewAccountForm);
-  }
-
-  // Load saved accounts button listener
-  const authModeToggle = document.getElementById('auth-mode-toggle');
-  if (authModeToggle) {
-    authModeToggle.addEventListener('click', showSavedAccountsModal);
-  }
+  syncRegVerificationStateFromUrl();
 }
 
+/**
+ * عند إدخال الإيميل والضغط على "التحقق من البريد"
+ */
 async function handleRegEmailSubmit(e) {
   e.preventDefault();
   const emailInput = document.getElementById('reg-email-input');
   const email = emailInput.value.trim();
 
   if (!email) {
-    showRegMessage('البريد الإلكتروني مطلوب', 'error');
+    showRegMessage(currentLang === 'ar' ? 'البريد الإلكتروني مطلوب' : 'Email is required', 'error');
     return;
   }
 
-  // Validate email format
+  // التحقق من صيغة البريد
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailPattern.test(email)) {
     showRegMessage(currentLang === 'ar' ? 'البريد الإلكتروني غير صحيح' : 'Invalid email address', 'error');
     return;
   }
 
-  // Check if email already exists
-  try {
-    const { data, error } = await supabaseClient
-      .from('profiles')
-      .select('id')
-      .eq('email', email)
-      .single();
+  // حفظ الإيميل مؤقتاً
+  localStorage.setItem('reg_temp_email', email);
+  localStorage.setItem('reg_email_verified', 'false');
 
-    if (data && !error) {
-      showRegMessage(currentLang === 'ar' ? 'هذا البريد مسجل بالفعل' : 'Email already registered', 'error');
-      return;
-    }
-  } catch (err) {
-    // Email not found (good)
-  }
-
-  // Send verification email (simulated)
-  console.log('Sending verification email to:', email);
-  showRegMessage(currentLang === 'ar' ? 'تم إرسال بريد التأكيد' : 'Verification email sent', 'success');
-
-  // Store email in session for next step
-  sessionStorage.setItem('tempRegEmail', email);
-
-  // Move to verification step
+  // الانتقال إلى خطوة التحقق
   moveRegStep('verification');
 
-  // Show "Confirmed" button after user checks email
-  setTimeout(() => {
-    document.getElementById('reg-confirmed-btn').style.display = 'block';
-  }, 2000);
-}
+  // في وضع الإنتاج: إرسال بريد تحقق حقيقي
+  // في وضع التطوير: عرض رسالة تحقق محاكاة
+  const configured = isSupabaseConfigured();
 
-function handleRegConfirmed() {
-  const email = sessionStorage.getItem('tempRegEmail');
-  if (!email) {
-    showRegMessage(currentLang === 'ar' ? 'حدث خطأ. حاول مجددًا' : 'Error. Try again', 'error');
-    return;
-  }
-
-  // Move to profile completion step
-  moveRegStep('profile');
-
-  // Load account types for dropdown
-  loadAccountTypesForReg();
-}
-
-async function handleRegProfileSubmit(e) {
-  e.preventDefault();
-  const email = sessionStorage.getItem('tempRegEmail');
-  const accountType = document.getElementById('reg-account-type').value;
-  const fullname = document.getElementById('reg-fullname').value;
-  const password = document.getElementById('reg-password').value;
-
-  if (!accountType || !fullname || !password) {
-    showRegMessage(currentLang === 'ar' ? 'جميع الحقول مطلوبة' : 'All fields required', 'error');
-    return;
-  }
-
-  if (password.length < 8) {
-    showRegMessage(currentLang === 'ar' ? 'كلمة المرور يجب أن تكون 8 أحرف على الأقل' : 'Password must be at least 8 characters', 'error');
-    return;
-  }
-
-  try {
-    // Create auth user
-    const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({
-      email: email,
-      password: password,
-    });
-
-    if (signUpError) throw signUpError;
-
-    const userId = signUpData.user.id;
-
-    // Create profile
-    const { error: profileError } = await supabaseClient
-      .from('profiles')
-      .insert({
-        id: userId,
-        email: email,
-        full_name: fullname,
-        account_type: accountType,
-        role: 'dealer',
-        is_approved: false,
-        subscription: 'basic',
+  if (configured) {
+    try {
+      await supabaseClient.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: getRegEmailRedirectUrl(),
+        },
       });
-
-    if (profileError) throw profileError;
-
-    // Save account to device (localStorage)
-    saveAccountToDevice({
-      userId: userId,
-      email: email,
-      fullname: fullname,
-      avatar: generateInitials(fullname),
-    });
-
-    showRegMessage(currentLang === 'ar' ? 'تم إنشاء الحساب بنجاح! جاري التوجيه...' : 'Account created successfully! Redirecting...', 'success');
-
-    // Clear session storage
-    sessionStorage.removeItem('tempRegEmail');
-
-    // Redirect to profile after 2 seconds
-    setTimeout(() => {
-      window.location.hash = '#profile-page';
-    }, 2000);
-  } catch (error) {
-    console.error('Registration error:', error);
-    showRegMessage(error.message || (currentLang === 'ar' ? 'حدث خطأ في التسجيل' : 'Registration error'), 'error');
+      showRegMessage(
+        currentLang === 'ar'
+          ? '✅ تم إرسال رابط التحقق. افتح بريدك الإلكتروني والنقر على الرابط.'
+          : '✅ Verification link sent. Check your email and click the link.',
+        'success'
+      );
+    } catch (error) {
+      console.error('OTP error:', error);
+      showRegMessage(
+        currentLang === 'ar'
+          ? '❌ تعذّر إرسال الرابط. حاول مجددًا.'
+          : '❌ Failed to send link. Try again.',
+        'error'
+      );
+      moveRegStep('email');
+    }
+  } else {
+    // وضع تطوير: محاكاة إرسال بريد
+    showRegMessage(
+      currentLang === 'ar'
+        ? '📧 (وضع تجريبي) تم إرسال رابط التحقق إلى: ' + email
+        : '📧 (Demo mode) Verification link sent to: ' + email,
+      'success'
+    );
   }
 }
 
-function handleRegResendEmail() {
-  const email = sessionStorage.getItem('tempRegEmail');
-  if (!email) return;
+/**
+ * عند التحقق من الإيميل
+ */
+function handleRegEmailVerified() {
+  localStorage.setItem('reg_email_verified', 'true');
+  moveRegStep('verified');
 
-  showRegMessage(currentLang === 'ar' ? 'تم إعادة إرسال البريد' : 'Email resent', 'success');
-  console.log('Resending verification email to:', email);
+  showRegMessage(
+    currentLang === 'ar'
+      ? '✅ تم التحقق من بريدك الإلكتروني بنجاح!'
+      : '✅ Your email has been verified successfully!',
+    'success'
+  );
 }
 
+/**
+ * إعادة إرسال بريد التحقق
+ */
+function handleRegResendEmail() {
+  const email = localStorage.getItem('reg_temp_email');
+  if (!email) {
+    showRegMessage(
+      currentLang === 'ar' ? 'حدث خطأ. حاول من البداية.' : 'Error. Start over.',
+      'error'
+    );
+    moveRegStep('email');
+    return;
+  }
+
+  showRegMessage(
+    currentLang === 'ar'
+      ? '📧 تم إعادة إرسال البريد إلى: ' + email
+      : '📧 Resent to: ' + email,
+    'success'
+  );
+}
+
+/**
+ * المتابعة إلى الملف الشخصي
+ */
+function handleRegContinueToProfile() {
+  const email = localStorage.getItem('reg_temp_email');
+  const isVerified = localStorage.getItem('reg_email_verified') === 'true';
+
+  if (!email || !isVerified) {
+    showRegMessage(
+      currentLang === 'ar'
+        ? 'يرجى التحقق من بريدك الإلكتروني أولاً.'
+        : 'Please verify your email first.',
+      'error'
+    );
+    moveRegStep('email');
+    return;
+  }
+
+  // حفظ بيانات المستخدم المؤقتة
+  const tempUser = {
+    email: email,
+    verified: true,
+    createdAt: new Date().toISOString(),
+  };
+
+  localStorage.setItem('currentUser', JSON.stringify(tempUser));
+  currentUser = tempUser;
+
+  // تنظيف التخزين المؤقت
+  localStorage.removeItem('reg_temp_email');
+  localStorage.removeItem('reg_email_verified');
+
+  // الانتقال للملف الشخصي
+  setTimeout(() => {
+    window.location.hash = '#profile-page';
+    updatePageVisibility();
+  }, 500);
+}
+
+/**
+ * الانتقال بين خطوات التسجيل
+ */
 function moveRegStep(step) {
-  document.querySelectorAll('.reg-step').forEach(el => el.style.display = 'none');
-  const stepEl = document.getElementById(`reg-${step}-step`);
-  if (stepEl) stepEl.style.display = 'block';
+  const emailFormWrapper = document.getElementById('reg-email-form-wrapper');
+  const verificationWrapper = document.getElementById('reg-verification-wrapper');
+  const verifiedWrapper = document.getElementById('reg-verified-wrapper');
+  const emailDisplay = document.getElementById('reg-email-display');
+
+  // إخفاء الكل
+  if (emailFormWrapper) emailFormWrapper.style.display = 'none';
+  if (verificationWrapper) verificationWrapper.style.display = 'none';
+  if (verifiedWrapper) verifiedWrapper.style.display = 'none';
+
+  // عرض المطلوب
+  if (step === 'email' && emailFormWrapper) {
+    emailFormWrapper.style.display = 'block';
+  } else if (step === 'verification' && verificationWrapper) {
+    verificationWrapper.style.display = 'block';
+    if (emailDisplay) {
+      emailDisplay.textContent = localStorage.getItem('reg_temp_email') || '';
+    }
+  } else if (step === 'verified' && verifiedWrapper) {
+    verifiedWrapper.style.display = 'block';
+  }
 }
 
 function showRegMessage(message, type = 'info') {
@@ -4316,24 +4684,37 @@ async function loadAccountTypesForReg() {
   const select = document.getElementById('reg-account-type');
   if (!select) return;
 
+  ensureRegDefaultOption(select);
+
+  if (!isSupabaseConfigured()) {
+    addFallbackRegAccountOptions(select);
+    return;
+  }
+
   try {
     const { data, error } = await supabaseClient
       .from('account_types')
-      .select('label, category')
+      .select('label, category, role')
       .eq('active', true)
       .order('category', { ascending: true })
       .order('label', { ascending: true });
 
     if (error) throw error;
 
-    data?.forEach(type => {
-      const option = document.createElement('option');
-      option.value = type.label;
-      option.textContent = type.label;
-      select.appendChild(option);
-    });
+    const normalized = (data || []).map((type) => ({
+      label: type.label,
+      role: type.role || mapRoleFromAccountType(type.label),
+    }));
+
+    if (!normalized.length) {
+      addFallbackRegAccountOptions(select);
+      return;
+    }
+
+    addRegAccountOptions(select, normalized);
   } catch (error) {
     console.error('Failed to load account types:', error);
+    addFallbackRegAccountOptions(select);
   }
 }
 
@@ -4408,9 +4789,191 @@ function generateInitials(fullname) {
     .join('');
 }
 
+// 🎯 PRODUCTS FEED SECTION - Facebook Style
+function initializeProductsFeed() {
+  const productsData = [
+    {
+      title: "فلتر هواء أصلي",
+      brand: "BMW",
+      model: "BMW X5 G05",
+      description: "فلتر هواء عالي الجودة للحفاظ على أداء المحرك",
+      price: 350,
+      image: "icons/tiger-logo.png",
+      category: "مرشحات",
+      phone: "+966501234567"
+    },
+    {
+      title: "كشاف LED أمامي",
+      brand: "Mercedes",
+      model: "Mercedes S-Class",
+      description: "مصابيح LED فاخرة مع توازن ضوء ممتاز",
+      price: 1250,
+      image: "icons/tiger-logo.png",
+      category: "إضاءة",
+      phone: "+966501234568"
+    },
+    {
+      title: "طقم فرامل رياضي",
+      brand: "Audi",
+      model: "Audi Q7",
+      description: "فرامل عالية الأداء مع تبريد محسّن",
+      price: 2100,
+      image: "icons/tiger-logo.png",
+      category: "فرامل",
+      phone: "+966501234569"
+    },
+    {
+      title: "غطاء مقعد جلد",
+      brand: "Range Rover",
+      model: "Range Rover",
+      description: "غطاء مقعد فاخر مع جلد ناعم",
+      price: 1800,
+      image: "icons/tiger-logo.png",
+      category: "ملحقات",
+      phone: "+966501234570"
+    },
+    {
+      title: "بطارية AGM",
+      brand: "Lexus",
+      model: "Lexus LX",
+      description: "بطارية قوة عالية طويلة العمر",
+      price: 980,
+      image: "icons/tiger-logo.png",
+      category: "بطاريات",
+      phone: "+966501234571"
+    },
+    {
+      title: "مجموعة صيانة",
+      brand: "Toyota",
+      model: "Toyota Land Cruiser",
+      description: "مجموعة قطع غيار أساسية للصيانة",
+      price: 720,
+      image: "icons/tiger-logo.png",
+      category: "صيانة",
+      phone: "+966501234572"
+    }
+  ];
+
+  const feedGrid = document.getElementById('products-feed-grid');
+  const emptyState = document.getElementById('feed-empty-state');
+  const filterBrand = document.getElementById('feed-filter-brand');
+  const filterCategory = document.getElementById('feed-filter-category');
+  const filterPrice = document.getElementById('feed-filter-price');
+  const searchInput = document.getElementById('feed-search');
+  const priceValue = document.getElementById('feed-price-value');
+  const resetBtn = document.getElementById('feed-reset-filters');
+
+  // Populate filter dropdowns
+  const brands = [...new Set(productsData.map(p => p.brand))];
+  const categories = [...new Set(productsData.map(p => p.category))];
+
+  brands.forEach(brand => {
+    const option = document.createElement('option');
+    option.value = brand;
+    option.textContent = brand;
+    filterBrand.appendChild(option);
+  });
+
+  categories.forEach(category => {
+    const option = document.createElement('option');
+    option.value = category;
+    option.textContent = category;
+    filterCategory.appendChild(option);
+  });
+
+  function renderProducts(data) {
+    feedGrid.innerHTML = '';
+    if (data.length === 0) {
+      emptyState.style.display = 'block';
+      return;
+    }
+    emptyState.style.display = 'none';
+
+    data.forEach(product => {
+      const card = document.createElement('div');
+      card.className = 'feed-product-card';
+      card.innerHTML = `
+        <img src="${product.image}" alt="${product.title}" class="feed-product-image" />
+        <div class="feed-product-header">
+          <div class="feed-product-brand">${product.brand}</div>
+          <h3 class="feed-product-title">${product.title}</h3>
+          <p class="feed-product-desc">${product.description}</p>
+          <div class="feed-product-price">${product.price} ريال</div>
+          <p class="feed-product-specs">الطراز: ${product.model}</p>
+        </div>
+        <div class="feed-product-actions">
+          <a href="https://wa.me/${product.phone}?text=مرحباً%2C%20أود%20الاستفسار%20عن%20${encodeURIComponent(product.title)}" 
+             class="feed-contact-btn whatsapp" target="_blank">
+            📱 اتصال WhatsApp
+          </a>
+          <a href="tel:${product.phone}" class="feed-contact-btn call">
+            ☎️ اتصال مباشر
+          </a>
+        </div>
+      `;
+      feedGrid.appendChild(card);
+    });
+  }
+
+  function applyFilters() {
+    let filtered = productsData;
+
+    // Brand filter
+    const selectedBrand = filterBrand.value;
+    if (selectedBrand) {
+      filtered = filtered.filter(p => p.brand === selectedBrand);
+    }
+
+    // Category filter
+    const selectedCategory = filterCategory.value;
+    if (selectedCategory) {
+      filtered = filtered.filter(p => p.category === selectedCategory);
+    }
+
+    // Price filter
+    const maxPrice = parseInt(filterPrice.value);
+    filtered = filtered.filter(p => p.price <= maxPrice);
+
+    // Search filter
+    const searchTerm = searchInput.value.toLowerCase();
+    if (searchTerm) {
+      filtered = filtered.filter(p => 
+        p.title.toLowerCase().includes(searchTerm) ||
+        p.brand.toLowerCase().includes(searchTerm) ||
+        p.model.toLowerCase().includes(searchTerm) ||
+        p.description.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    renderProducts(filtered);
+  }
+
+  // Event listeners
+  filterBrand.addEventListener('change', applyFilters);
+  filterCategory.addEventListener('change', applyFilters);
+  filterPrice.addEventListener('input', (e) => {
+    priceValue.textContent = e.target.value;
+    applyFilters();
+  });
+  searchInput.addEventListener('input', applyFilters);
+
+  resetBtn.addEventListener('click', () => {
+    filterBrand.value = '';
+    filterCategory.value = '';
+    filterPrice.value = '5000';
+    searchInput.value = '';
+    priceValue.textContent = '5000';
+    renderProducts(productsData);
+  });
+
+  // Initial render
+  renderProducts(productsData);
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
   initializeRegistrationUI();
+  initializeProductsFeed();
 });
 
 (async function startApp() {

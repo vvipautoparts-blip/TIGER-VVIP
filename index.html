@@ -13,13 +13,15 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="stylesheet" href="styles.css?v=20260622-2" />
+  <link rel="stylesheet" href="styles.css?v=20260622-4" />
 </head>
 <body>
   <button id="app-back-button" class="app-back-button" type="button" data-ar="عودة" data-en="Back">عودة</button>
   <header class="site-header">
     <div class="brand">
-      <div class="logo">TIGER</div>
+      <div class="logo-frame">
+        <img src="icons/tiger-logo.png" alt="TIGER VVIP" class="logo-img" />
+      </div>
       <div class="subtitle">AutoParts VVIP</div>
     </div>
     <nav class="main-nav">
@@ -85,11 +87,67 @@
             <button class="lang-switch" type="button" onclick="toggleLang()">
               <span id="lang-text">EN</span>
             </button>
-            <img src="logo.png" alt="TIGER VVIP Logo" class="logo-crystal-3d" />
+            <img src="icons/tiger-logo.png" alt="TIGER VVIP Logo" class="logo-crystal-3d" />
           </div>
         </div>
       </div>
     </section>
+
+    <!-- 🔐 ACCOUNTS MODAL - Saved Profiles Selection -->
+    <div id="accounts-modal" class="accounts-modal">
+      <div class="modal-overlay"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title" data-ar="اختر ملفًا شخصيًا" data-en="Select Profile">اختر ملفًا شخصيًا</h2>
+          <button type="button" class="modal-close-btn" onclick="closeAccountsModal()" aria-label="Close">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+          <!-- Saved Accounts List -->
+          <div id="saved-accounts-list" class="saved-accounts-list"></div>
+
+          <!-- New Account Form (Hidden by default) -->
+          <div id="account-form-section" class="account-form-section" style="display:none;">
+            <form id="new-account-form" class="new-account-form">
+              <h3 class="form-title" data-ar="إضافة حساب جديد" data-en="Add New Account">إضافة حساب جديد</h3>
+              
+              <div class="form-group">
+                <label for="new-account-name" data-ar="الاسم" data-en="Name">الاسم</label>
+                <input type="text" id="new-account-name" class="form-input" placeholder="اسمك الكامل" data-ar-placeholder="اسمك الكامل" data-en-placeholder="Your full name" required />
+              </div>
+
+              <div class="form-group">
+                <label for="new-account-email" data-ar="البريد الإلكتروني" data-en="Email">البريد الإلكتروني</label>
+                <input type="email" id="new-account-email" class="form-input" placeholder="example@domain.com" data-ar-placeholder="example@domain.com" data-en-placeholder="example@domain.com" required />
+              </div>
+
+              <div class="form-group">
+                <label for="new-account-password" data-ar="كلمة المرور" data-en="Password">كلمة المرور</label>
+                <input type="password" id="new-account-password" class="form-input" placeholder="••••••••" data-ar-placeholder="••••••••" data-en-placeholder="••••••••" required />
+              </div>
+
+              <div class="form-group">
+                <label for="new-account-photo" data-ar="صورة البروفايل" data-en="Profile Photo">صورة البروفايل (اختياري)</label>
+                <input type="file" id="new-account-photo" class="form-input" accept="image/*" onchange="previewAccountPhoto(this)" />
+                <div id="photo-preview" class="photo-preview" style="display:none;">
+                  <img id="preview-image" src="" alt="Preview" class="preview-img" />
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn-submit" data-ar="إضافة والدخول" data-en="Add & Login">إضافة والدخول</button>
+                <button type="button" class="btn-cancel" onclick="hideAccountForm()" data-ar="إلغاء" data-en="Cancel">إلغاء</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-add-account" onclick="showAccountForm()" data-ar="📱 إضافة حساب جديد" data-en="📱 Add New Account">📱 إضافة حساب جديد</button>
+          <button type="button" class="btn-close" onclick="closeAccountsModal()" data-ar="إغلاق" data-en="Close">إغلاق</button>
+        </div>
+      </div>
+    </div>
 
     <!-- صفحة 2: عن الشركة -->
     <section id="about-page" class="section auth-section auth-page">
@@ -112,7 +170,7 @@
             <button class="lang-switch" type="button" onclick="toggleLang()">
               <span id="lang-text-about">EN</span>
             </button>
-            <img src="logo.png" alt="TIGER VVIP Logo" class="logo-crystal-3d" />
+            <img src="icons/tiger-logo.png" alt="TIGER VVIP Logo" class="logo-crystal-3d" />
           </div>
         </div>
       </div>
@@ -139,7 +197,7 @@
             <button class="lang-switch" type="button" onclick="toggleLang()">
               <span id="lang-text-services">EN</span>
             </button>
-            <img src="logo.png" alt="TIGER VVIP Logo" class="logo-crystal-3d" />
+            <img src="icons/tiger-logo.png" alt="TIGER VVIP Logo" class="logo-crystal-3d" />
           </div>
         </div>
       </div>
@@ -166,7 +224,7 @@
             <button class="lang-switch" type="button" onclick="toggleLang()">
               <span id="lang-text-offers">EN</span>
             </button>
-            <img src="logo.png" alt="TIGER VVIP Logo" class="logo-crystal-3d" />
+            <img src="icons/tiger-logo.png" alt="TIGER VVIP Logo" class="logo-crystal-3d" />
           </div>
         </div>
       </div>
@@ -193,7 +251,7 @@
             <button class="lang-switch" type="button" onclick="toggleLang()">
               <span id="lang-text-contact">EN</span>
             </button>
-            <img src="logo.png" alt="TIGER VVIP Logo" class="logo-crystal-3d" />
+            <img src="icons/tiger-logo.png" alt="TIGER VVIP Logo" class="logo-crystal-3d" />
           </div>
         </div>
       </div>
@@ -220,23 +278,23 @@
             <button class="lang-switch" type="button" onclick="toggleLang()">
               <span id="lang-text-support">EN</span>
             </button>
-            <img src="logo.png" alt="TIGER VVIP Logo" class="logo-crystal-3d" />
+            <img src="icons/tiger-logo.png" alt="TIGER VVIP Logo" class="logo-crystal-3d" />
           </div>
         </div>
       </div>
     </section>
 
-    <!-- صفحة إنشاء حساب جديد - Split Screen Design -->
+    <!-- صفحة إنشاء حساب جديد - Split Screen Design (Email-Only) -->
     <section id="registration-page" class="section registration-split-screen">
       <div class="reg-split-container">
         <!-- اليسار: نموذج التسجيل -->
         <div class="reg-left-side">
-          <h1 class="reg-title" data-ar="إنشاء حساب جديد" data-en="Create New Account">إنشاء حساب جديد</h1>
-          
           <div id="reg-message" class="form-message"></div>
 
-          <!-- خطوة 1: البريد الإلكتروني -->
-          <div id="reg-email-step" class="reg-step active">
+          <!-- حالة 1: إدخال الإيميل -->
+          <div id="reg-email-form-wrapper" class="reg-step active">
+            <h1 class="reg-title" data-ar="إنشاء حساب جديد" data-en="Create New Account">إنشاء حساب جديد</h1>
+            
             <form id="reg-email-form" class="reg-form">
               <div class="reg-form-group">
                 <input 
@@ -249,77 +307,51 @@
                   required 
                 />
               </div>
-              <button type="submit" class="reg-btn-primary" data-ar="إرسال رمز التأكيد" data-en="Send Verification Code">إرسال رمز التأكيد</button>
+              <button type="submit" class="reg-btn-primary" data-ar="التحقق من البريد" data-en="Verify Email">التحقق من البريد</button>
             </form>
+
+            <div class="reg-footer-links">
+              <a href="#auth-section" class="reg-link" data-ar="لديك حساب بالفعل؟ دخول" data-en="Already have account? Sign in">لديك حساب بالفعل؟ دخول</a>
+            </div>
           </div>
 
-          <!-- خطوة 2: التحقق من البريد -->
-          <div id="reg-verification-step" class="reg-step" style="display:none;">
-            <p class="reg-step-message" data-ar="تم إرسال رسالة تفعيل لبريدك الإلكتروني. يرجى زيارة البريد والنقر على رابط التفعيل." data-en="A verification email has been sent. Please check your email and click the verification link.">تم إرسال رسالة تفعيل لبريدك الإلكتروني. يرجى زيارة البريد والنقر على رابط التفعيل.</p>
+          <!-- حالة 2: انتظار التحقق من الإيميل -->
+          <div id="reg-verification-wrapper" class="reg-step" style="display:none;">
+            <div class="verification-icon">📧</div>
+            <h2 class="reg-title" data-ar="تحقق من بريدك الإلكتروني" data-en="Verify Your Email">تحقق من بريدك الإلكتروني</h2>
+            
+            <p class="reg-step-message" data-ar="أرسلنا رسالة تأكيد إلى:" data-en="We sent a confirmation email to:"></p>
+            <p class="email-highlight" id="reg-email-display"></p>
+            
+            <p class="reg-step-message" data-ar="يرجى زيارة بريدك الإلكتروني والنقر على رابط التفعيل" data-en="Please check your email and click the verification link">يرجى زيارة بريدك الإلكتروني والنقر على رابط التفعيل</p>
+            
             <div class="reg-verification-actions">
-              <button type="button" class="reg-btn-primary" id="reg-confirmed-btn" style="display:none;" data-ar="تم التأكيد ✓ متابعة" data-en="Confirmed ✓ Continue">تم التأكيد ✓ متابعة</button>
-              <button type="button" class="reg-btn-secondary" id="reg-resend-btn" data-ar="إعادة إرسال البريد" data-en="Resend Email">إعادة إرسال البريد</button>
+              <button type="button" class="reg-btn-primary" id="reg-confirmed-btn" data-ar="تم التأكيد ✓" data-en="Verified ✓">تم التأكيد ✓</button>
+              <button type="button" class="reg-btn-secondary" id="reg-resend-btn" data-ar="إعادة إرسال" data-en="Resend">إعادة إرسال</button>
             </div>
           </div>
 
-          <!-- خطوة 3: إكمال البيانات -->
-          <div id="reg-profile-step" class="reg-step" style="display:none;">
-            <form id="reg-profile-form" class="reg-form">
-              <div class="reg-form-group">
-                <select id="reg-account-type" class="reg-input" required>
-                  <option value="" data-ar="اختر نوع الحساب" data-en="Select Account Type">اختر نوع الحساب</option>
-                </select>
-              </div>
-              <div class="reg-form-group">
-                <input 
-                  type="text" 
-                  id="reg-fullname" 
-                  class="reg-input" 
-                  placeholder="الاسم الكامل"
-                  data-ar-placeholder="الاسم الكامل"
-                  data-en-placeholder="Full Name"
-                  required 
-                />
-              </div>
-              <div class="reg-form-group">
-                <input 
-                  type="password" 
-                  id="reg-password" 
-                  class="reg-input" 
-                  placeholder="كلمة المرور"
-                  data-ar-placeholder="كلمة المرور"
-                  data-en-placeholder="Password"
-                  required 
-                />
-              </div>
-              <button type="submit" class="reg-btn-primary" data-ar="إنشاء الحساب" data-en="Create Account">إنشاء الحساب</button>
-            </form>
-          </div>
-
-          <!-- الحسابات المحفوظة -->
-          <div id="reg-saved-accounts-modal" class="reg-modal" style="display:none;">
-            <div class="reg-modal-content">
-              <h2 class="reg-modal-title" data-ar="اختر ملفًا شخصيًا" data-en="Select Profile">اختر ملفًا شخصيًا</h2>
-              <div id="reg-saved-accounts-list" class="reg-accounts-list"></div>
-              <div class="reg-modal-footer">
-                <button type="button" class="reg-btn-secondary" id="reg-modal-cancel" data-ar="إلغاء" data-en="Cancel">إلغاء</button>
-                <button type="button" class="reg-btn-primary" id="reg-modal-manual" data-ar="حساب جديد" data-en="New Account">حساب جديد</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- رابط العودة -->
-          <div class="reg-footer-links">
-            <a href="#auth-section" class="reg-link" data-ar="لديك حساب بالفعل؟ دخول" data-en="Already have account? Sign in">لديك حساب بالفعل؟ دخول</a>
+          <!-- حالة 3: تم التحقق بنجاح -->
+          <div id="reg-verified-wrapper" class="reg-step" style="display:none;">
+            <div class="verification-icon success">✅</div>
+            <h2 class="reg-title" data-ar="تم التحقق بنجاح!" data-en="Email Verified!">تم التحقق بنجاح!</h2>
+            
+            <p class="reg-step-message" data-ar="حسابك جاهز الآن. انقر على 'متابعة' للانتقال إلى ملفك الشخصي" data-en="Your account is ready. Click 'Continue' to go to your profile">حسابك جاهز الآن. انقر على 'متابعة' للانتقال إلى ملفك الشخصي</p>
+            
+            <button type="button" class="reg-btn-primary" id="reg-continue-btn" data-ar="متابعة إلى الملف الشخصي" data-en="Continue to Profile">متابعة إلى الملف الشخصي</button>
           </div>
         </div>
 
-        <!-- اليمين: الهوية البصرية -->
+        <!-- اليمين: الهوية البصرية (أزرق فاتح) -->
         <div class="reg-right-side">
           <button class="reg-lang-switch" type="button" onclick="toggleLang()">
             <span id="reg-lang-text">EN</span>
           </button>
-          <img src="logo.png" alt="TIGER VVIP Logo" class="reg-logo-crystal-3d" />
+          <div class="reg-brand-container">
+            <h1 class="reg-brand-name" data-ar="TIGER VVIP" data-en="TIGER VVIP">TIGER VVIP</h1>
+            <p class="reg-brand-tagline" data-ar="قطع غيار فاخرة موثوقة" data-en="Premium Auto Parts">قطع غيار فاخرة موثوقة</p>
+            <img src="icons/tiger-logo.png" alt="TIGER VVIP Logo" class="reg-logo-crystal-3d" />
+          </div>
         </div>
       </div>
     </section>
@@ -574,8 +606,8 @@
 
             <div class="fb-info-card" id="profile-links-card">
               <h3 data-ar="روابط سريعة" data-en="Quick Links">روابط سريعة</h3>
-              <a href="#order-request" class="fb-quick-link" data-ar="➕ طلب جديد" data-en="➕ New Order">➕ طلب جديد</a>
-              <a href="#user-orders" class="fb-quick-link" data-ar="📋 طلباتي" data-en="📋 My Orders">📋 طلباتي</a>
+              <a id="profile-new-order-link" href="#order-request" class="fb-quick-link" data-ar="➕ طلب جديد" data-en="➕ New Order">➕ طلب جديد</a>
+              <a id="profile-my-orders-link" href="#user-orders" class="fb-quick-link" data-ar="📋 طلباتي" data-en="📋 My Orders">📋 طلباتي</a>
               <a id="profile-rep-link" href="#representative-dashboard" class="fb-quick-link" style="display:none;" data-ar="📊 لوحة المندوب" data-en="📊 Rep Dashboard">📊 لوحة المندوب</a>
               <a id="profile-approvals-link" href="#approvals-dashboard" class="fb-quick-link" style="display:none;" data-ar="✅ شاشة الموافقات" data-en="✅ Approvals">✅ شاشة الموافقات</a>
               <a id="profile-admin-link" href="#admin-dashboard" class="fb-quick-link" style="display:none;" data-ar="⚙️ لوحة المدير" data-en="⚙️ Admin Dashboard">⚙️ لوحة المدير</a>
@@ -615,7 +647,7 @@
                   <button class="fb-post-placeholder" data-ar="ماذا تريد أن تطلب اليوم؟" data-en="What do you want to order today?">ماذا تريد أن تطلب اليوم؟</button>
                 </div>
                 <div class="fb-post-box-actions">
-                  <a href="#order-request" class="fb-post-action">
+                  <a id="profile-feed-new-order-action" href="#order-request" class="fb-post-action">
                     <svg width="18" height="18" fill="#45BD62" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/></svg>
                     <span data-ar="طلب جديد" data-en="New Order">طلب جديد</span>
                   </a>
@@ -631,7 +663,7 @@
                 <div id="profile-orders-list" class="fb-orders-mini">
                   <p class="fb-empty-state" data-ar="لا توجد طلبات بعد" data-en="No orders yet">لا توجد طلبات بعد</p>
                 </div>
-                <a href="#user-orders" class="fb-see-all" data-ar="عرض جميع الطلبات" data-en="See all orders">عرض جميع الطلبات</a>
+                <a id="profile-see-all-orders-link" href="#user-orders" class="fb-see-all" data-ar="عرض جميع الطلبات" data-en="See all orders">عرض جميع الطلبات</a>
               </div>
             </div>
 
@@ -733,7 +765,7 @@
       <div class="home-container">
         <nav class="navbar">
           <a href="#home-page" class="active" data-ar="الرئيسية" data-en="Home">الرئيسية</a>
-          <a href="#user-orders" data-ar="الطلبات" data-en="Orders">الطلبات</a>
+          <a id="home-orders-link" href="#user-orders" data-ar="الطلبات" data-en="Orders">الطلبات</a>
           <a href="#catalog" data-ar="الكراج" data-en="Catalog">الكراج</a>
         </nav>
 
@@ -761,12 +793,79 @@
 
           <aside class="right-column">
             <h4 data-ar="معلومات سريعة" data-en="Quick Info">معلومات سريعة</h4>
-            <a href="#profile-page" data-ar="البروفايل الخاص بي" data-en="My Profile">البروفايل الخاص بي</a>
-            <a href="#user-orders" data-ar="طلباتي" data-en="My Orders">طلباتي</a>
-            <a href="#order-request" data-ar="طلب جديد" data-en="New Request">طلب جديد</a>
+            <a id="home-profile-link" href="#profile-page" data-ar="البروفايل الخاص بي" data-en="My Profile">البروفايل الخاص بي</a>
+            <a id="home-my-orders-link" href="#user-orders" data-ar="طلباتي" data-en="My Orders">طلباتي</a>
+            <a id="home-new-request-link" href="#order-request" data-ar="طلب جديد" data-en="New Request">طلب جديد</a>
             <a id="home-signout-link" href="#auth-section" data-ar="تسجيل الخروج" data-en="Sign Out">تسجيل الخروج</a>
           </aside>
         </div>
+      </div>
+    </section>
+
+    <!-- 🎯 PRODUCTS FEED - Facebook Style Feed -->
+    <section id="products-feed" class="section products-feed-section" style="display:none;">
+      <div class="feed-container">
+        <!-- Sidebar Filters -->
+        <aside class="feed-sidebar">
+          <div class="feed-filters">
+            <h3 data-ar="الفلاتر" data-en="Filters">الفلاتر</h3>
+            
+            <!-- Brand Filter -->
+            <div class="filter-group">
+              <label data-ar="الشركة" data-en="Brand">الشركة</label>
+              <select id="feed-filter-brand" class="feed-filter-select">
+                <option value="" data-ar="الكل" data-en="All">الكل</option>
+              </select>
+            </div>
+
+            <!-- Price Range Filter -->
+            <div class="filter-group">
+              <label data-ar="نطاق السعر" data-en="Price Range">نطاق السعر</label>
+              <input type="range" id="feed-filter-price" class="price-range" min="0" max="5000" value="5000" />
+              <div class="price-display">
+                <span data-ar="السعر: " data-en="Price: "></span>
+                <span id="feed-price-value">5000</span>
+                <span data-ar=" ريال" data-en=" SAR"></span>
+              </div>
+            </div>
+
+            <!-- Category Filter -->
+            <div class="filter-group">
+              <label data-ar="الفئة" data-en="Category">الفئة</label>
+              <select id="feed-filter-category" class="feed-filter-select">
+                <option value="" data-ar="الكل" data-en="All">الكل</option>
+              </select>
+            </div>
+
+            <!-- Search in Feed -->
+            <div class="filter-group">
+              <label data-ar="البحث" data-en="Search">البحث</label>
+              <input type="text" id="feed-search" class="feed-search-input" placeholder="ابحث عن منتج..." />
+            </div>
+
+            <button id="feed-reset-filters" class="btn secondary feed-reset-btn" data-ar="إعادة تعيين" data-en="Reset">إعادة تعيين</button>
+          </div>
+        </aside>
+
+        <!-- Main Feed -->
+        <main class="feed-main">
+          <div class="feed-header">
+            <h2 data-ar="اكتشف منتجاتنا الفاخرة" data-en="Discover Our Premium Products">اكتشف منتجاتنا الفاخرة</h2>
+            <p data-ar="تصفح أحدث قطع الغيار الأصلية من أفضل الماركات" data-en="Browse latest genuine parts from top brands">تصفح أحدث قطع الغيار الأصلية من أفضل الماركات</p>
+          </div>
+
+          <!-- Products Feed Grid -->
+          <div id="products-feed-grid" class="products-feed-grid">
+            <!-- Products will be loaded here dynamically -->
+          </div>
+
+          <!-- Empty State -->
+          <div id="feed-empty-state" class="feed-empty-state" style="display:none;">
+            <div class="empty-icon">📦</div>
+            <h3 data-ar="لا توجد منتجات" data-en="No Products Found">لا توجد منتجات</h3>
+            <p data-ar="حاول تعديل الفلاتر والبحث" data-en="Try adjusting your filters and search">حاول تعديل الفلاتر والبحث</p>
+          </div>
+        </main>
       </div>
     </section>
 
@@ -860,6 +959,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-local.js?v=20260621-7"></script>
   <script src="supabase-config.js?v=20260621-7"></script>
-  <script src="script.js?v=20260622-2"></script>
+    <script src="script.js?v=20260622-10"></script>
 </body>
 </html>
