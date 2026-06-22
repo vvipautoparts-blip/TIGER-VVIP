@@ -25,10 +25,14 @@
     <nav class="main-nav">
       <select id="quick-nav-select" class="quick-nav-select" aria-label="Quick navigation">
         <option value="" data-ar="القائمة الرئيسية" data-en="Main Menu">القائمة الرئيسية</option>
-        <option value="#hero" data-ar="الرئيسية" data-en="Home">الرئيسية</option>
-        <option value="#auth-section" data-ar="تسجيل الدخول" data-en="Sign In">تسجيل الدخول</option>
+        <option value="#auth-section" data-ar="الرئيسية" data-en="Home">الرئيسية</option>
+        <option value="#about-page" data-ar="عن الشركة" data-en="About Us">عن الشركة</option>
+        <option value="#services-page" data-ar="الخدمات" data-en="Services">الخدمات</option>
+        <option value="#offers-page" data-ar="العروض" data-en="Offers">العروض</option>
+        <option value="#contact-page" data-ar="التواصل" data-en="Contact">التواصل</option>
+        <option value="#support-page" data-ar="الدعم الفني" data-en="Support">الدعم الفني</option>
         <option value="#registration-page" data-ar="سجل الآن" data-en="Register">سجل الآن</option>
-        <option value="#catalog" data-ar="بحث" data-en="Search">بحث</option>
+        <option value="#catalog" data-ar="الكراج" data-en="Catalog">الكراج</option>
         <option value="#representative-dashboard" data-ar="لوحة المندوب" data-en="Representative Dashboard">لوحة المندوب</option>
         <option value="#approvals-dashboard" data-ar="شاشة الموافقات" data-en="Approvals Dashboard">شاشة الموافقات</option>
         <option value="#admin-dashboard" data-ar="لوحة المدير" data-en="Admin Dashboard">لوحة المدير</option>
@@ -49,6 +53,179 @@
   </header>
 
   <main>
+    <section id="auth-section" class="section auth-section auth-page">
+      <div class="auth-page-grid">
+        <aside class="auth-page-left">
+          <div class="auth-profile-shell">
+            <div class="auth-profile-section">
+              <div class="auth-profile-avatar" aria-hidden="true">NZ</div>
+              <h2 class="auth-profile-name">Nemer Zyoude</h2>
+            </div>
+            <div class="auth-login-actions">
+              <button id="auth-submit-button" type="button" class="btn primary auth-primary-btn" data-ar="متابعة" data-en="Continue">متابعة</button>
+              <button id="auth-mode-toggle" class="btn auth-secondary-btn" type="button" data-ar="استخدام ملف شخصي آخر" data-en="Use another profile">استخدام ملف شخصي آخر</button>
+              <a href="#registration-page" class="auth-create-link" data-ar="إنشاء حساب جديد" data-en="Create New Account">إنشاء حساب جديد</a>
+            </div>
+            <div class="login-card auth-hidden-card">
+              <div id="auth-message" class="form-message"></div>
+              <form id="auth-form" class="request-form">
+                <div class="form-row">
+                  <input type="text" id="auth-email" aria-label="Email or Phone" data-ar-placeholder="example@domain.com أو +966 5XXXXXXXX" data-en-placeholder="example@domain.com or +1 555 555 5555" required />
+                </div>
+                <div class="form-row">
+                  <input type="password" id="auth-password" aria-label="Password" data-ar-placeholder="********" data-en-placeholder="********" required />
+                </div>
+                <button type="submit" class="auth-native-submit" aria-hidden="true" tabindex="-1">submit</button>
+              </form>
+            </div>
+          </div>
+        </aside>
+        <div class="auth-page-right">
+          <div class="right-side">
+            <button class="lang-switch" type="button" onclick="toggleLang()">
+              <span id="lang-text">EN</span>
+            </button>
+            <img src="logo.png" alt="TIGER VVIP Logo" class="logo-crystal-3d" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- صفحة 2: عن الشركة -->
+    <section id="about-page" class="section auth-section auth-page">
+      <div class="auth-page-grid">
+        <aside class="auth-page-left">
+          <div class="auth-profile-shell">
+            <div class="auth-profile-section">
+              <div class="auth-profile-avatar" aria-hidden="true">🏢</div>
+              <h2 class="auth-profile-name" data-ar="عن TIGER VVIP" data-en="About TIGER VVIP">عن TIGER VVIP</h2>
+            </div>
+            <div class="auth-login-actions">
+              <p style="color:#65676B;font-size:0.95rem;margin-bottom:1rem;" data-ar="متخصصون في قطع غيار السيارات الفاخرة منذ 2010. جودة أصلية وخدمة موثوقة." data-en="Specialists in luxury car spare parts since 2010. Genuine quality and trusted service.">متخصصون في قطع غيار السيارات الفاخرة منذ 2010. جودة أصلية وخدمة موثوقة.</p>
+              <a href="#services-page" class="btn primary auth-primary-btn" style="display:block;text-align:center;text-decoration:none;" data-ar="اكتشف خدماتنا" data-en="Discover Our Services">اكتشف خدماتنا</a>
+              <a href="#contact-page" class="btn auth-secondary-btn" style="display:block;text-align:center;text-decoration:none;" data-ar="تواصل معنا" data-en="Contact Us">تواصل معنا</a>
+            </div>
+          </div>
+        </aside>
+        <div class="auth-page-right">
+          <div class="right-side">
+            <button class="lang-switch" type="button" onclick="toggleLang()">
+              <span id="lang-text-about">EN</span>
+            </button>
+            <img src="logo.png" alt="TIGER VVIP Logo" class="logo-crystal-3d" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- صفحة 3: الخدمات -->
+    <section id="services-page" class="section auth-section auth-page">
+      <div class="auth-page-grid">
+        <aside class="auth-page-left">
+          <div class="auth-profile-shell">
+            <div class="auth-profile-section">
+              <div class="auth-profile-avatar" aria-hidden="true">⚙️</div>
+              <h2 class="auth-profile-name" data-ar="خدماتنا" data-en="Our Services">خدماتنا</h2>
+            </div>
+            <div class="auth-login-actions">
+              <p style="color:#65676B;font-size:0.95rem;margin-bottom:1rem;" data-ar="توريد قطع أصلية، توصيل سريع، ضمان شامل، وأسعار تنافسية." data-en="Original parts supply, fast delivery, full warranty, and competitive prices.">توريد قطع أصلية، توصيل سريع، ضمان شامل، وأسعار تنافسية.</p>
+              <a href="#catalog" class="btn primary auth-primary-btn" style="display:block;text-align:center;text-decoration:none;" data-ar="استعرض الكراج" data-en="Browse Catalog">استعرض الكراج</a>
+              <a href="#order-request" class="btn auth-secondary-btn" style="display:block;text-align:center;text-decoration:none;" data-ar="اطلب الآن" data-en="Order Now">اطلب الآن</a>
+            </div>
+          </div>
+        </aside>
+        <div class="auth-page-right">
+          <div class="right-side">
+            <button class="lang-switch" type="button" onclick="toggleLang()">
+              <span id="lang-text-services">EN</span>
+            </button>
+            <img src="logo.png" alt="TIGER VVIP Logo" class="logo-crystal-3d" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- صفحة 4: العروض الخاصة -->
+    <section id="offers-page" class="section auth-section auth-page">
+      <div class="auth-page-grid">
+        <aside class="auth-page-left">
+          <div class="auth-profile-shell">
+            <div class="auth-profile-section">
+              <div class="auth-profile-avatar" aria-hidden="true">🏷️</div>
+              <h2 class="auth-profile-name" data-ar="عروض خاصة" data-en="Special Offers">عروض خاصة</h2>
+            </div>
+            <div class="auth-login-actions">
+              <p style="color:#65676B;font-size:0.95rem;margin-bottom:1rem;" data-ar="احصل على خصم 20% على الطلبات الكبيرة والعروض الحصرية لأعضاء VVIP." data-en="Get 20% off bulk orders and exclusive deals for VVIP members.">احصل على خصم 20% على الطلبات الكبيرة والعروض الحصرية لأعضاء VVIP.</p>
+              <a href="#registration-page" class="btn primary auth-primary-btn" style="display:block;text-align:center;text-decoration:none;" data-ar="سجل واستفد" data-en="Register & Benefit">سجل واستفد</a>
+              <a href="#contact-page" class="btn auth-secondary-btn" style="display:block;text-align:center;text-decoration:none;" data-ar="اطلب عرض سعر" data-en="Request Quote">اطلب عرض سعر</a>
+            </div>
+          </div>
+        </aside>
+        <div class="auth-page-right">
+          <div class="right-side">
+            <button class="lang-switch" type="button" onclick="toggleLang()">
+              <span id="lang-text-offers">EN</span>
+            </button>
+            <img src="logo.png" alt="TIGER VVIP Logo" class="logo-crystal-3d" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- صفحة 5: التواصل -->
+    <section id="contact-page" class="section auth-section auth-page">
+      <div class="auth-page-grid">
+        <aside class="auth-page-left">
+          <div class="auth-profile-shell">
+            <div class="auth-profile-section">
+              <div class="auth-profile-avatar" aria-hidden="true">📞</div>
+              <h2 class="auth-profile-name" data-ar="تواصل معنا" data-en="Contact Us">تواصل معنا</h2>
+            </div>
+            <div class="auth-login-actions">
+              <p style="color:#65676B;font-size:0.95rem;margin-bottom:1rem;" data-ar="نحن هنا لمساعدتك. اتصل أو راسلنا عبر واتساب." data-en="We're here to help. Call or message us on WhatsApp.">نحن هنا لمساعدتك. اتصل أو راسلنا عبر واتساب.</p>
+              <a href="tel:+962780003302" class="btn primary auth-primary-btn" style="display:block;text-align:center;text-decoration:none;" data-ar="اتصل الآن" data-en="Call Now">اتصل الآن</a>
+              <a href="https://wa.me/962796960886" class="btn auth-secondary-btn" style="display:block;text-align:center;text-decoration:none;" data-ar="واتساب" data-en="WhatsApp">واتساب</a>
+            </div>
+          </div>
+        </aside>
+        <div class="auth-page-right">
+          <div class="right-side">
+            <button class="lang-switch" type="button" onclick="toggleLang()">
+              <span id="lang-text-contact">EN</span>
+            </button>
+            <img src="logo.png" alt="TIGER VVIP Logo" class="logo-crystal-3d" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- صفحة 6: الدعم الفني -->
+    <section id="support-page" class="section auth-section auth-page">
+      <div class="auth-page-grid">
+        <aside class="auth-page-left">
+          <div class="auth-profile-shell">
+            <div class="auth-profile-section">
+              <div class="auth-profile-avatar" aria-hidden="true">🛠️</div>
+              <h2 class="auth-profile-name" data-ar="الدعم الفني" data-en="Technical Support">الدعم الفني</h2>
+            </div>
+            <div class="auth-login-actions">
+              <p style="color:#65676B;font-size:0.95rem;margin-bottom:1rem;" data-ar="فريق الدعم متاح 24/7 للإجابة على جميع استفساراتك وحل مشاكلك." data-en="Support team available 24/7 to answer all your questions and solve your issues.">فريق الدعم متاح 24/7 للإجابة على جميع استفساراتك وحل مشاكلك.</p>
+              <a href="#contact-page" class="btn primary auth-primary-btn" style="display:block;text-align:center;text-decoration:none;" data-ar="تواصل مع الدعم" data-en="Contact Support">تواصل مع الدعم</a>
+              <a href="#catalog" class="btn auth-secondary-btn" style="display:block;text-align:center;text-decoration:none;" data-ar="استعرض الكراج" data-en="Browse Catalog">استعرض الكراج</a>
+            </div>
+          </div>
+        </aside>
+        <div class="auth-page-right">
+          <div class="right-side">
+            <button class="lang-switch" type="button" onclick="toggleLang()">
+              <span id="lang-text-support">EN</span>
+            </button>
+            <img src="logo.png" alt="TIGER VVIP Logo" class="logo-crystal-3d" />
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section id="registration-page" class="section registration-page">
       <div class="section-header">
         <h2 data-ar="تسجيل مستخدم جديد" data-en="New User Registration">تسجيل مستخدم جديد</h2>
@@ -176,44 +353,6 @@
             <li data-ar="أسعار تنافسية وعروض مخصصة" data-en="Competitive pricing and custom quotes">أسعار تنافسية وعروض مخصصة</li>
             <li data-ar="متابعة حالة الطلب والدفع الآمن" data-en="Order tracking and secure checkout">متابعة حالة الطلب والدفع الآمن</li>
           </ul>
-        </div>
-      </div>
-    </section>
-
-    <section id="auth-section" class="section auth-section auth-page">
-      <div class="auth-page-grid">
-        <aside class="auth-page-left">
-          <div class="auth-profile-shell">
-            <div class="auth-profile-section">
-              <div class="auth-profile-avatar" aria-hidden="true">NZ</div>
-              <h2 class="auth-profile-name">Nemer Zyoude</h2>
-            </div>
-            <div class="auth-login-actions">
-              <button id="auth-submit-button" type="button" class="btn primary auth-primary-btn" data-ar="متابعة" data-en="Continue">متابعة</button>
-              <button id="auth-mode-toggle" class="btn auth-secondary-btn" type="button" data-ar="استخدام ملف شخصي آخر" data-en="Use another profile">استخدام ملف شخصي آخر</button>
-              <a href="#registration-page" class="auth-create-link" data-ar="إنشاء حساب جديد" data-en="Create New Account">إنشاء حساب جديد</a>
-            </div>
-            <div class="login-card auth-hidden-card">
-              <div id="auth-message" class="form-message"></div>
-              <form id="auth-form" class="request-form">
-                <div class="form-row">
-                  <input type="text" id="auth-email" aria-label="Email or Phone" data-ar-placeholder="example@domain.com أو +966 5XXXXXXXX" data-en-placeholder="example@domain.com or +1 555 555 5555" required />
-                </div>
-                <div class="form-row">
-                  <input type="password" id="auth-password" aria-label="Password" data-ar-placeholder="********" data-en-placeholder="********" required />
-                </div>
-                <button type="submit" class="auth-native-submit" aria-hidden="true" tabindex="-1">submit</button>
-              </form>
-            </div>
-          </div>
-        </aside>
-        <div class="auth-page-right">
-          <div class="right-side">
-            <button class="lang-switch" type="button" onclick="toggleLang()">
-              <span id="lang-text">EN</span>
-            </button>
-            <img src="logo.png" alt="TIGER VVIP Logo" class="logo-crystal-3d" />
-          </div>
         </div>
       </div>
     </section>
