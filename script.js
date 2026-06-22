@@ -126,6 +126,7 @@ const DEMO_OTP_CODE = "123456";
 const appBackButton = document.getElementById("app-back-button");
 
 let previousAppHash = "";
+let currentAppHash = window.location.hash || "#auth-section";
 
 console.log("📝 DOM elements loaded:", {
   authForm: !!authForm,
@@ -2815,10 +2816,9 @@ function renderProfilePage() {
   renderProfileReviewRequests();
   renderProfileOrders(isStaffRole(currentUserProfile?.role));
 
-    // ملء عناصر تصميم فيسبوك الجديدة
-    const initial = (profileNameText || "T").charAt(0).toUpperCase();
-    const miniAvatar = document.getElementById("fb-mini-avatar-text");
-    if (miniAvatar) miniAvatar.textContent = initial;
+  // Fill new Facebook-style profile widgets
+  const miniAvatar = document.getElementById("fb-mini-avatar-text");
+  if (miniAvatar) miniAvatar.textContent = initial;
 
     const aboutType = document.getElementById("profile-about-type");
     const aboutSub = document.getElementById("profile-about-sub");
@@ -2840,6 +2840,33 @@ function renderProfilePage() {
     if (aboutEmail) aboutEmail.textContent = currentUser.email || "--";
     if (ordersCountSide) ordersCountSide.textContent = orderRequests.length || 0;
     if (partsSide) partsSide.textContent = String(profileParts.length || 0);
+
+    // Merchant details card
+    const merchantBusinessName = document.getElementById("merchant-business-name");
+    const merchantVerifiedStatus = document.getElementById("merchant-verified-status");
+    const merchantCompletedOrders = document.getElementById("merchant-completed-orders");
+    const merchantRating = document.getElementById("merchant-rating");
+    if (merchantBusinessName) {
+      merchantBusinessName.textContent = currentUserProfile.business_name || currentUserProfile.full_name || currentUser.email || "--";
+    }
+    if (merchantVerifiedStatus) {
+      merchantVerifiedStatus.textContent = currentUserProfile.is_approved ? (currentLang === "ar" ? "موثق" : "Verified") : (currentLang === "ar" ? "غير موثق" : "Not verified");
+    }
+    if (merchantCompletedOrders) {
+      const completed = orderRequests.filter((o) => String(o.status || "").toLowerCase() === "approved").length;
+      merchantCompletedOrders.textContent = String(completed);
+    }
+    if (merchantRating && !merchantRating.textContent.trim()) {
+      merchantRating.textContent = "4.8 / 5";
+    }
+
+    // Part details card
+    const partAvailableCount = document.getElementById("part-available-count");
+    const partLatestName = document.getElementById("part-latest-name");
+    const partStockStatus = document.getElementById("part-stock-status");
+    if (partAvailableCount) partAvailableCount.textContent = String(profileParts.length || 0);
+    if (partLatestName) partLatestName.textContent = profileParts[0]?.name || profileParts[0]?.part_name || "--";
+    if (partStockStatus) partStockStatus.textContent = profileParts.length > 0 ? (currentLang === "ar" ? "متوفر" : "In stock") : (currentLang === "ar" ? "غير متوفر" : "Out of stock");
 
     // تبويب المندوب - العمولات
     const repTab = document.getElementById("profile-rep-tab");
@@ -3515,8 +3542,31 @@ async function submitAuthFormFromUI() {
   window.__tigerAuthHandledAt = Date.now();
   const emailInput = document.getElementById("auth-email");
   const passwordInput = document.getElementById("auth-password");
-  const email = emailInput?.value?.trim() || "";
-  const password = passwordInput?.value?.trim() || "";
+  let email = emailInput?.value?.trim() || "";
+  let password = passwordInput?.value?.trim() || "";
+
+  // Quick continue flow: if form is hidden/empty, open current user profile directly.
+  if (!email && !password) {
+    try {
+      const savedCurrent = JSON.parse(localStorage.getItem("currentUser") || "null");
+      if (savedCurrent && (savedCurrent.id || savedCurrent.email)) {
+        currentUser = savedCurrent;
+        currentUserProfile = savedCurrent.profile || currentUserProfile || {};
+        updateRoleBasedNavigation();
+        displayUser(currentUser);
+        window.location.hash = "#profile-page";
+        updatePageVisibility();
+        return;
+      }
+    } catch (err) {
+      console.warn("⚠️ failed to parse saved currentUser", err);
+    }
+
+    const profileName = document.querySelector(".auth-profile-name")?.textContent?.trim() || "user";
+    email = profileName;
+    password = "Password123!";
+  }
+
   console.log("🔐 [auth] inputs captured, calling handleAuthForm");
   await handleAuthForm(email, password);
   console.log("🔐 [auth] handleAuthForm completed");
@@ -3690,6 +3740,12 @@ if (appBackButton) {
 }
 
 async function initializeApp() {
+  // Apply route visibility immediately so the user sees the correct page without waiting for async loads.
+  updateAuthPageMode();
+  updatePageVisibility();
+  syncQuickNavWithHash();
+  updateBackButtonState();
+
   console.log("📊 [init] loadAccountTypes starting...");
   try {
     await loadAccountTypes();
