@@ -394,8 +394,13 @@ CREATE INDEX IF NOT EXISTS vehicle_catalog_year_idx ON public.vehicle_catalog (y
 CREATE TABLE IF NOT EXISTS public.parts (
   id bigserial PRIMARY KEY,
   name text NOT NULL,
+  name_en text,
+  part_reference text,
   description text,
   price_jod numeric(10,2) NOT NULL DEFAULT 0,
+  discount_percent numeric(5,2) NOT NULL DEFAULT 0,
+  condition_type text NOT NULL DEFAULT 'new',
+  gallery_links text[] NOT NULL DEFAULT '{}',
   image_url text,
   status text NOT NULL DEFAULT 'active',
   category text NOT NULL,
@@ -409,11 +414,32 @@ CREATE TABLE IF NOT EXISTS public.parts (
   updated_at timestamp with time zone NOT NULL DEFAULT now()
 );
 
+ALTER TABLE public.parts
+  ADD COLUMN IF NOT EXISTS name_en text,
+  ADD COLUMN IF NOT EXISTS part_reference text,
+  ADD COLUMN IF NOT EXISTS discount_percent numeric(5,2) NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS condition_type text NOT NULL DEFAULT 'new',
+  ADD COLUMN IF NOT EXISTS gallery_links text[] NOT NULL DEFAULT '{}';
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = 'parts_discount_percent_range'
+  ) THEN
+    ALTER TABLE public.parts
+      ADD CONSTRAINT parts_discount_percent_range
+      CHECK (discount_percent >= 0 AND discount_percent <= 99);
+  END IF;
+END $$;
+
 CREATE INDEX IF NOT EXISTS parts_brand_idx ON public.parts (brand);
 CREATE INDEX IF NOT EXISTS parts_model_idx ON public.parts (model);
 CREATE INDEX IF NOT EXISTS parts_year_idx ON public.parts (year);
 CREATE INDEX IF NOT EXISTS parts_category_idx ON public.parts (category);
 CREATE INDEX IF NOT EXISTS parts_status_idx ON public.parts (status);
+CREATE UNIQUE INDEX IF NOT EXISTS parts_part_reference_unique_idx ON public.parts (part_reference) WHERE part_reference IS NOT NULL;
 
 -- Review requests table
 CREATE TABLE IF NOT EXISTS public.review_requests (

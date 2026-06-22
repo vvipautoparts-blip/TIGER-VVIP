@@ -69,6 +69,14 @@ const userSubscription = document.getElementById("user-subscription");
 const partManagementSection = document.getElementById("part-management");
 const partForm = document.getElementById("part-form");
 const partMessage = document.getElementById("part-message");
+const partSaveButton = document.getElementById("part-save-button");
+const partNameArInput = document.getElementById("part-name-ar");
+const partNameEnInput = document.getElementById("part-name-en");
+const partPriceInput = document.getElementById("part-price");
+const partImageInput = document.getElementById("part-image");
+const partImagePreview = document.getElementById("part-image-preview");
+const partPreviewImg = document.getElementById("part-preview-img");
+const partVehicleSelect = document.getElementById("part-vehicle-select");
 const representativeNav = document.getElementById("representative-nav");
 const approvalsNav = document.getElementById("approvals-nav");
 const adminNav = document.getElementById("admin-nav");
@@ -78,14 +86,19 @@ const profileAdminLink = document.getElementById("profile-admin-link");
 const quickNavSelect = document.getElementById("quick-nav-select");
 const homeFilterDropdown = document.getElementById("home-filter-dropdown");
 const homeSignoutLink = document.getElementById("home-signout-link");
+const profileAdvancedSearchForm = document.getElementById("profile-advanced-search-form");
+const profileSearchBrand = document.getElementById("profile-search-brand");
+const profileSearchModel = document.getElementById("profile-search-model");
+const profileSearchYear = document.getElementById("profile-search-year");
+const profileSearchBodyType = document.getElementById("profile-search-body-type");
+const profileSearchCategory = document.getElementById("profile-search-category");
+const profileSearchReset = document.getElementById("profile-search-reset");
+const profileSearchResults = document.getElementById("profile-search-results");
+const profileOrdersList = document.getElementById("profile-orders-list");
+const profileOrdersEmpty = document.getElementById("profile-orders-empty");
+const profilePartsSummary = document.getElementById("profile-parts-summary");
 
-const forgotForm = document.getElementById("forgot-form");
-const forgotMessage = document.getElementById("forgot-message");
-const sendForgotOtpButton = document.getElementById("send-forgot-otp");
-const forgotEmail = document.getElementById("forgot-email");
-const forgotPhone = document.getElementById("forgot-phone");
-const forgotOtp = document.getElementById("forgot-otp");
-const forgotNewPassword = document.getElementById("forgot-new-password");
+
 
 let currentLang = "ar";
 let orderRequests = [];
@@ -94,7 +107,6 @@ let currentUserProfile = null;
 let selectedAccountType = null;
 let selectedAccountCategory = null;
 let registrationOtpVerified = false;
-let pendingForgotOtpPhone = null;
 let catalogParts = [];
 let displayedCatalogParts = [];
 let profileServices = [];
@@ -114,7 +126,6 @@ const DEMO_OTP_CODE = "123456";
 const appBackButton = document.getElementById("app-back-button");
 
 let previousAppHash = "";
-let currentAppHash = window.location.hash || "#hero";
 
 console.log("📝 DOM elements loaded:", {
   authForm: !!authForm,
@@ -125,6 +136,361 @@ console.log("📝 DOM elements loaded:", {
   appBackButton: !!appBackButton,
 });
 console.log("✓ script.js loaded successfully");
+
+// ==========================================
+// 💾 SAVED ACCOUNTS MODAL - CORE FUNCTIONS
+// ==========================================
+
+/**
+ * 🔐 فتح نافذة اختيار الحسابات المحفوظة
+ * Open the saved accounts modal window
+ */
+function openAccountsModal() {
+  const modal = document.getElementById("accounts-modal");
+  if (modal) {
+    modal.classList.add("active");
+    loadSavedAccounts();
+  }
+}
+
+/**
+ * ❌ إغلاق نافذة اختيار الحسابات
+ * Close the saved accounts modal window
+ */
+function closeAccountsModal() {
+  const modal = document.getElementById("accounts-modal");
+  if (modal) {
+    modal.classList.remove("active");
+  }
+  hideAccountForm();
+}
+
+/**
+ * 🔍 فحص الحسابات الموجودة في الجهاز
+ * Scan and display all saved accounts from localStorage
+ */
+function scanDeviceAccounts() {
+  const accounts = JSON.parse(localStorage.getItem("savedAccounts") || "[]");
+  
+  if (accounts.length === 0) {
+    alert(
+      currentLang === "ar"
+        ? "📭 لا توجد حسابات محفوظة في الجهاز!\n\n💡 كيفية الإضافة:\n1️⃣ اضغط على 'إضافة حساب جديد'\n2️⃣ أدخل البريد الإلكتروني + كلمة المرور\n3️⃣ اختر صورة من الجهاز\n4️⃣ اضغط 'إضافة والدخول'"
+        : "📭 No saved accounts on this device!\n\n💡 How to add:\n1️⃣ Click 'Add New Account'\n2️⃣ Enter email + password\n3️⃣ Choose a photo from device\n4️⃣ Click 'Add & Login'"
+    );
+    showAccountForm();
+  } else {
+    loadSavedAccounts();
+    const message = currentLang === "ar"
+      ? `✅ تم العثور على ${accounts.length} حساب محفوظ`
+      : `✅ Found ${accounts.length} saved account(s)`;
+    alert(message);
+  }
+}
+
+/**
+ * 📋 تحميل قائمة الحسابات المحفوظة من localStorage
+ * Load saved accounts list from localStorage
+ */
+function loadSavedAccounts() {
+  const savedAccountsList = document.getElementById("saved-accounts-list");
+  if (!savedAccountsList) return;
+
+  const accounts = JSON.parse(localStorage.getItem("savedAccounts") || "[]");
+
+  if (accounts.length === 0) {
+    savedAccountsList.innerHTML = `
+      <div class="no-accounts">
+        <p>📭 ${currentLang === "ar" ? "لا توجد حسابات محفوظة" : "No saved accounts"}</p>
+        <p>${currentLang === "ar" ? "اضغط 'إضافة حساب جديد' لإنشاء حساب أول" : "Click 'Add New Account' to create your first account"}</p>
+      </div>
+    `;
+    return;
+  }
+
+  savedAccountsList.innerHTML = accounts
+    .map(
+      (account, index) => `
+    <div class="account-item" onclick="selectSavedAccount(${index})" title="${currentLang === "ar" ? "اختر هذا الحساب" : "Select this account"}">
+      <img src="${
+        account.photoUrl ||
+        'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect fill=%22%231877F2%22 width=%22100%22 height=%22100%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2240%22 fill=%22white%22 text-anchor=%22middle%22 dominant-baseline=%22central%22%3E${account.initials || "U"}%3C/text%3E%3C/svg%3E'
+      }" 
+           class="account-photo" 
+           alt="${account.name || account.email}"
+           onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect fill=%22%231877F2%22 width=%22100%22 height=%22100%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2240%22 fill=%22white%22 text-anchor=%22middle%22 dominant-baseline=%22central%22%3E${account.initials || "U"}%3C/text%3E%3C/svg%3E'">
+      <div class="account-info">
+        <h3 class="account-username">${account.name || account.email.split("@")[0]}</h3>
+        <p class="account-email">${account.email}</p>
+      </div>
+      <button class="btn-delete-account" type="button" onclick="event.stopPropagation(); deleteAccount(${index})" title="${currentLang === "ar" ? "حذف" : "Delete"}">✕</button>
+    </div>
+  `
+    )
+    .join("");
+
+  updateLanguage();
+}
+
+/**
+ * ✅ اختيار حساب محفوظ وتسجيل الدخول به
+ * Select a saved account and log in with it
+ */
+function selectSavedAccount(index) {
+  const accounts = JSON.parse(localStorage.getItem("savedAccounts") || "[]");
+  const account = accounts[index];
+
+  if (!account) return;
+
+  // حفظ الحساب الحالي / Save the current account
+  localStorage.setItem("currentUser", JSON.stringify(account));
+  currentUser = account;
+  currentUserProfile = account.profile || {};
+
+  // إغلاق Modal والانتقال / Close modal and navigate
+  closeAccountsModal();
+  
+  // رسالة تأكيد / Confirmation message
+  showMessage(
+    currentLang === "ar"
+      ? `✅ تم تسجيل الدخول بـ ${account.email}`
+      : `✅ Logged in as ${account.email}`,
+    "success",
+    authMessage,
+    300
+  );
+
+  setTimeout(() => {
+    updatePageVisibility();
+    displayUser(currentUser);
+    updateRoleBasedNavigation();
+  }, 500);
+}
+
+/**
+ * 🗑️ حذف حساب من قائمة الحسابات المحفوظة
+ * Delete an account from the saved accounts list
+ */
+function deleteAccount(index) {
+  const accounts = JSON.parse(localStorage.getItem("savedAccounts") || "[]");
+  const account = accounts[index];
+
+  // تأكيد الحذف / Confirm deletion
+  const confirmMessage =
+    currentLang === "ar"
+      ? `❌ هل تريد حذف حساب "${account.email}" من الجهاز؟`
+      : `❌ Are you sure you want to delete "${account.email}"?`;
+
+  if (!confirm(confirmMessage)) {
+    return;
+  }
+
+  // حذف الحساب / Delete the account
+  accounts.splice(index, 1);
+  localStorage.setItem("savedAccounts", JSON.stringify(accounts));
+
+  // رسالة النجاح / Success message
+  showMessage(
+    currentLang === "ar"
+      ? `✅ تم حذف حساب "${account.email}" بنجاح`
+      : `✅ Account "${account.email}" deleted successfully`,
+    "success",
+    authMessage,
+    300
+  );
+
+  // إعادة تحميل القائمة / Reload the list
+  loadSavedAccounts();
+}
+
+/**
+ * 📝 عرض نموذج إضافة حساب جديد
+ * Show the new account form
+ */
+function showAccountForm() {
+  const formSection = document.getElementById("account-form-section");
+  if (formSection) {
+    formSection.style.display = "block";
+    formSection.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+}
+
+/**
+ * 🙈 إخفاء نموذج إضافة حساب جديد
+ * Hide the new account form
+ */
+function hideAccountForm() {
+  const formSection = document.getElementById("account-form-section");
+  const form = document.getElementById("new-account-form");
+  const preview = document.getElementById("photo-preview");
+
+  if (formSection) {
+    formSection.style.display = "none";
+  }
+  if (form) {
+    form.reset();
+  }
+  if (preview) {
+    preview.style.display = "none";
+  }
+}
+
+/**
+ * 📸 معاينة الصورة المختارة
+ * Preview the selected photo
+ */
+function previewAccountPhoto(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const preview = document.getElementById("photo-preview");
+      const previewImg = document.getElementById("preview-image");
+
+      if (preview && previewImg) {
+        previewImg.src = e.target.result;
+        preview.style.display = "flex";
+      }
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+/**
+ * 💾 حفظ حساب جديد في localStorage
+ * Save a new account to localStorage
+ */
+function saveAccountToDevice(userData) {
+  const accounts = JSON.parse(localStorage.getItem("savedAccounts") || "[]");
+
+  // تحقق من عدم تكرار الحساب / Check for duplicates
+  const exists = accounts.some((acc) => acc.email === userData.email);
+  if (exists) {
+    showMessage(
+      currentLang === "ar" ? "❌ هذا الحساب موجود بالفعل" : "❌ This account already exists",
+      "error"
+    );
+    return false;
+  }
+
+  const newAccount = {
+    email: userData.email,
+    name: userData.name || userData.email.split("@")[0],
+    initials: (userData.name || userData.email).substring(0, 2).toUpperCase(),
+    photoUrl: userData.photoUrl || null,
+    profile: userData.profile || {},
+    id: userData.id || Date.now().toString(),
+  };
+
+  accounts.push(newAccount);
+  localStorage.setItem("savedAccounts", JSON.stringify(accounts));
+  return true;
+}
+
+// ==========================================
+// 🌐 FORM SUBMISSION HANDLER
+// ==========================================
+
+document.addEventListener("DOMContentLoaded", function () {
+  const newAccountForm = document.getElementById("new-account-form");
+
+  if (newAccountForm) {
+    newAccountForm.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const email = document.getElementById("new-account-email").value;
+      const password = document.getElementById("new-account-password").value;
+      const name = document.getElementById("new-account-name").value;
+      const photoInput = document.getElementById("new-account-photo");
+
+      try {
+        // معالجة الصورة / Process image
+        let photoUrl = null;
+        if (photoInput.files.length > 0) {
+          const file = photoInput.files[0];
+          photoUrl = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.readAsDataURL(file);
+          });
+        }
+
+        // البيانات الجديدة / New account data
+        const newUser = {
+          email: email,
+          password: password,
+          name: name || email.split("@")[0],
+          photoUrl: photoUrl,
+          role: "user",
+          createdAt: new Date().toISOString(),
+        };
+
+        // حفظ الحساب / Save account
+        if (saveAccountToDevice(newUser)) {
+          // حفظ كحساب حالي / Set as current user
+          localStorage.setItem("currentUser", JSON.stringify(newUser));
+          currentUser = newUser;
+          currentUserProfile = newUser.profile || {};
+
+          // رسالة النجاح / Success message
+          showMessage(
+            currentLang === "ar"
+              ? `✅ تم إنشاء الحساب بنجاح!\n📧 ${email}`
+              : `✅ Account created successfully!\n📧 ${email}`,
+            "success",
+            authMessage,
+            500
+          );
+
+          // إغلاق Modal والانتقال / Close modal and navigate
+          setTimeout(() => {
+            closeAccountsModal();
+            updatePageVisibility();
+            displayUser(currentUser);
+            updateRoleBasedNavigation();
+          }, 800);
+        }
+      } catch (err) {
+        showMessage(
+          currentLang === "ar"
+            ? `❌ خطأ: ${err.message}`
+            : `❌ Error: ${err.message}`,
+          "error",
+          authMessage
+        );
+      }
+    });
+  }
+});
+
+// ==========================================
+// 🌐 EXPOSE FUNCTIONS TO GLOBAL SCOPE
+// ==========================================
+window.openAccountsModal = openAccountsModal;
+window.closeAccountsModal = closeAccountsModal;
+window.scanDeviceAccounts = scanDeviceAccounts;
+window.loadSavedAccounts = loadSavedAccounts;
+window.selectSavedAccount = selectSavedAccount;
+window.deleteAccount = deleteAccount;
+window.showAccountForm = showAccountForm;
+window.hideAccountForm = hideAccountForm;
+window.previewAccountPhoto = previewAccountPhoto;
+window.saveAccountToDevice = saveAccountToDevice;
+
+// ==========================================
+// 🎯 Close modal when clicking on overlay
+// ==========================================
+document.addEventListener("DOMContentLoaded", function () {
+  const modal = document.getElementById("accounts-modal");
+  if (modal) {
+    modal.addEventListener("click", function (e) {
+      if (e.target === modal.querySelector(".modal-overlay")) {
+        closeAccountsModal();
+      }
+    });
+  }
+});
+
+// ==========================================
 
 function hasWorkingSupabaseConfig() {
   const hasConfig = Boolean(window.__SUPABASE_CONFIG__?.hasRealKeys && window.__SUPABASE_CONFIG__?.hasLibrary);
@@ -277,22 +643,22 @@ function createDemoUser(payload) {
 
 function updateBackButtonState() {
   if (!appBackButton) return;
-  const hash = window.location.hash || "#hero";
-  const hideOnRoutes = ["#hero", "#home-page"];
+  const hash = window.location.hash || "#auth-section";
+  const hideOnRoutes = ["#auth-section", "#home-page"];
 
   let shouldShow = !hideOnRoutes.includes(hash);
 
   if (hash === "#auth-section") {
-    shouldShow = ["#registration-page", "#forgot-password"].includes(previousAppHash);
+    shouldShow = ["#registration-page"].includes(previousAppHash);
   }
 
   appBackButton.style.display = shouldShow ? "inline-flex" : "none";
 }
 
 function navigateBackInApp() {
-  const hash = window.location.hash || "#hero";
+  const hash = window.location.hash || "#auth-section";
 
-  if (hash === "#registration-page" || hash === "#forgot-password") {
+  if (hash === "#registration-page") {
     navigateToHash("#auth-section");
     return;
   }
@@ -304,11 +670,11 @@ function navigateBackInApp() {
 
   if (!currentUser) {
     if (hash === "#auth-section") {
-      navigateToHash("#hero");
+      navigateToHash("#auth-section");
       return;
     }
-    if (hash === "#catalog" || hash === "#order-request" || hash === "#forgot-password") {
-      navigateToHash("#hero");
+    if (hash === "#catalog" || hash === "#order-request") {
+      navigateToHash("#auth-section");
       return;
     }
     navigateToHash("#auth-section");
@@ -370,6 +736,10 @@ const registrationImageRow = document.getElementById("registration-image-row");
 const registrationImage = document.getElementById("registration-image");
 const registrationFullnameRow = document.getElementById("registration-fullname-row");
 const registrationAddressRow = document.getElementById("registration-address-row");
+const cleanRegistrationForm = document.getElementById("reg-form");
+const cleanRegistrationEmail = document.getElementById("reg-email");
+const cleanVerificationStep = document.getElementById("verification-step");
+const cleanContinueToProfileButton = document.getElementById("continue-to-profile");
 const profilePage = document.getElementById("profile-page");
 const profileCover = document.getElementById("profile-cover");
 const profilePicture = document.getElementById("profile-picture");
@@ -578,6 +948,155 @@ function parseLegacyPriceToJod(priceText) {
   return Number(cleaned || 0);
 }
 
+function normalizeGalleryLinks(value) {
+  if (Array.isArray(value)) {
+    return value.filter(Boolean);
+  }
+
+  if (typeof value === "string") {
+    return value
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+}
+
+function getPartName(part) {
+  if (currentLang === "en") {
+    return part.name_en || part.name || "--";
+  }
+  return part.name || part.name_en || "--";
+}
+
+function getPartConditionLabel(condition) {
+  const key = String(condition || "").toLowerCase();
+  const labels = {
+    new: { ar: "جديد", en: "New" },
+    used: { ar: "مستعمل", en: "Used" },
+    oem: { ar: "أصلي", en: "OEM" },
+    aftermarket: { ar: "تجاري", en: "Aftermarket" },
+  };
+  const fallback = { ar: "غير محدد", en: "Unknown" };
+  const label = labels[key] || fallback;
+  return currentLang === "ar" ? label.ar : label.en;
+}
+
+function buildPartReference(inputValue) {
+  const provided = String(inputValue || "").trim();
+  if (provided) return provided;
+  const stamp = Date.now().toString().slice(-8);
+  return `PART-${stamp}`;
+}
+
+function isPartCoreFieldsReady() {
+  const nameAr = String(partNameArInput?.value || "").trim();
+  const nameEn = String(partNameEnInput?.value || "").trim();
+  const price = Number(partPriceInput?.value || 0);
+  const hasImage = Boolean(partImageInput?.dataset?.imageData || String(partImageInput?.value || "").trim());
+  return Boolean(nameAr && nameEn && price > 0 && hasImage);
+}
+
+function updatePartSaveButtonState() {
+  if (!partSaveButton) return;
+  partSaveButton.disabled = !isPartCoreFieldsReady();
+}
+
+function clearPartImagePreview() {
+  if (partPreviewImg) {
+    partPreviewImg.src = "";
+  }
+  if (partImagePreview) {
+    partImagePreview.style.display = "none";
+  }
+  if (partImageInput?.dataset?.imageData) {
+    delete partImageInput.dataset.imageData;
+  }
+  updatePartSaveButtonState();
+}
+
+function previewPartImage(file) {
+  if (!file) {
+    clearPartImagePreview();
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const imageData = String(event?.target?.result || "");
+    if (!imageData) {
+      clearPartImagePreview();
+      return;
+    }
+
+    if (partImageInput) {
+      partImageInput.dataset.imageData = imageData;
+    }
+    if (partPreviewImg) {
+      partPreviewImg.src = imageData;
+    }
+    if (partImagePreview) {
+      partImagePreview.style.display = "block";
+    }
+    updatePartSaveButtonState();
+  };
+  reader.readAsDataURL(file);
+}
+
+function buildVehicleOptionValue(part) {
+  const brand = String(part.brand || "").trim();
+  const model = String(part.model || "").trim();
+  const year = String(part.year || "").trim();
+  const bodyType = String(part.body_type || "").trim();
+  if (!brand || !model || !year || !bodyType) return "";
+  return `${brand}|||${model}|||${year}|||${bodyType}`;
+}
+
+function populatePartVehicleOptions() {
+  if (!partVehicleSelect) return;
+
+  const currentValue = partVehicleSelect.value;
+  const source = [...catalogParts, ...profileParts];
+  const uniqueVehicles = new Map();
+
+  source.forEach((part) => {
+    const value = buildVehicleOptionValue(part);
+    if (!value || uniqueVehicles.has(value)) return;
+    uniqueVehicles.set(value, {
+      value,
+      label: `${part.brand || "-"} ${part.model || "-"} ${part.year || "-"} • ${part.body_type || "-"}`,
+    });
+  });
+
+  const options = [
+    `<option value="" data-ar="اختر مركبة" data-en="Select vehicle">${currentLang === "ar" ? "اختر مركبة" : "Select vehicle"}</option>`,
+    ...Array.from(uniqueVehicles.values()).map((vehicle) => `<option value="${vehicle.value}">${vehicle.label}</option>`),
+    `<option value="custom" data-ar="إدخال يدوي" data-en="Manual entry">${currentLang === "ar" ? "إدخال يدوي" : "Manual entry"}</option>`,
+  ];
+
+  partVehicleSelect.innerHTML = options.join("");
+  if (currentValue && partVehicleSelect.querySelector(`option[value="${currentValue}"]`)) {
+    partVehicleSelect.value = currentValue;
+  }
+}
+
+function applySelectedVehicleToPartForm() {
+  const value = String(partVehicleSelect?.value || "");
+  if (!value || value === "custom") return;
+
+  const [brand, model, year, bodyType] = value.split("|||");
+  const partBrand = document.getElementById("part-brand");
+  const partModel = document.getElementById("part-model");
+  const partYear = document.getElementById("part-year");
+  const partBodyType = document.getElementById("part-body-type");
+
+  if (partBrand) partBrand.value = brand || "";
+  if (partModel) partModel.value = model || "";
+  if (partYear) partYear.value = year || "";
+  if (partBodyType) partBodyType.value = bodyType || "";
+}
+
 function getFallbackCatalogParts() {
   return products.map((product, index) => {
     const modelTokens = String(product.model || "").split(" ");
@@ -586,8 +1105,13 @@ function getFallbackCatalogParts() {
     return {
       id: `local-${index + 1}`,
       name: product.title,
+      name_en: product.title,
+      part_reference: `LOCAL-${index + 1}`,
       description: product.description,
       price_jod: parseLegacyPriceToJod(product.price),
+      discount_percent: 0,
+      condition_type: "new",
+      gallery_links: [],
       image_url: "",
       status: "active",
       category: "قطع الغيار",
@@ -608,8 +1132,13 @@ function normalizeCatalogPart(part, index = 0) {
   return {
     id: part.id ?? `local-${index + 1}`,
     name,
+    name_en: part.name_en || part.nameEn || name,
+    part_reference: part.part_reference || part.partId || part.ref || `PART-${index + 1}`,
     description: part.description || "-",
     price_jod: Number(part.price_jod ?? parseLegacyPriceToJod(part.price)),
+    discount_percent: Number(part.discount_percent || 0),
+    condition_type: part.condition_type || part.part_condition || "new",
+    gallery_links: normalizeGalleryLinks(part.gallery_links),
     image_url: part.image_url || "",
     status: part.status || "active",
     category: part.category || "",
@@ -663,6 +1192,66 @@ function populateAdvancedSearchFilters(parts) {
   populateFilterSelect(filterCategory, categories);
 }
 
+function populateProfileSearchFilters(parts) {
+  const brands = uniqueSorted(parts.map((p) => p.brand));
+  const models = uniqueSorted(parts.map((p) => p.model));
+  const years = uniqueSorted(parts.map((p) => p.year).filter(Boolean));
+  const bodyTypes = uniqueSorted(parts.map((p) => p.body_type));
+  const categories = uniqueSorted(parts.map((p) => p.category));
+
+  populateFilterSelect(profileSearchBrand, brands);
+  populateFilterSelect(profileSearchModel, models);
+  populateFilterSelect(profileSearchYear, years);
+  populateFilterSelect(profileSearchBodyType, bodyTypes);
+  populateFilterSelect(profileSearchCategory, categories);
+}
+
+function getProfileSearchFilters() {
+  return {
+    brand: profileSearchBrand?.value || "",
+    model: profileSearchModel?.value || "",
+    year: profileSearchYear?.value || "",
+    body_type: profileSearchBodyType?.value || "",
+    category: profileSearchCategory?.value || "",
+  };
+}
+
+function renderProfileSearchResults(parts) {
+  if (!profileSearchResults) return;
+
+  if (!parts.length) {
+    profileSearchResults.innerHTML = renderProfileEmptyState(
+      "لا توجد نتائج",
+      "No results",
+      "جرّب تعديل الفلاتر للعثور على قطع مناسبة.",
+      "Try changing filters to find matching parts."
+    );
+    return;
+  }
+
+  profileSearchResults.innerHTML = parts.map((part, index) => `
+    <article class="profile-data-card">
+      <img src="${part.image_url || "https://via.placeholder.com/640x400/F5F7FA/9AA0A6?text=Part"}" alt="${getPartName(part)}" />
+      <h4>${getPartName(part)}</h4>
+      <p>${currentLang === "ar" ? "السعر" : "Price"}: ${formatDinar(part.price_jod)}</p>
+      <p>${currentLang === "ar" ? "المركبة" : "Vehicle"}: ${part.brand || "-"} ${part.model || "-"} ${part.year || "-"}</p>
+      <p>${currentLang === "ar" ? "الفئة" : "Category"}: ${part.category || "-"}</p>
+      <div class="dashboard-actions">
+        <button type="button" class="btn secondary" data-action="order" data-index="${index}">
+          ${currentLang === "ar" ? "اطلب الآن" : "Order Now"}
+        </button>
+      </div>
+    </article>
+  `).join("");
+}
+
+function runProfileSearch() {
+  const filters = getProfileSearchFilters();
+  const results = applyClientSidePartFilters(catalogParts, "", filters);
+  displayedCatalogParts = [...results];
+  renderProfileSearchResults(results);
+}
+
 async function loadCatalogParts(filters = {}, queryText = "") {
   let rawParts = [];
   let dbError = null;
@@ -681,8 +1270,11 @@ async function loadCatalogParts(filters = {}, queryText = "") {
   catalogParts = sourceParts.map(normalizeCatalogPart);
   displayedCatalogParts = [...catalogParts];
   populateAdvancedSearchFilters(catalogParts);
+  populateProfileSearchFilters(catalogParts);
+  populatePartVehicleOptions();
   renderProducts(displayedCatalogParts);
   populateProductOptions();
+  runProfileSearch();
 }
 
 async function loadProfileAssets() {
@@ -709,6 +1301,8 @@ async function loadProfileAssets() {
       profileParts = (partsRes.data || []).map(normalizeCatalogPart);
     }
   }
+
+  populatePartVehicleOptions();
 
   if (typeof fetchReviewRequests === "function") {
     const reviewRequestsRes = await fetchReviewRequests({ requester_id: currentUser.id });
@@ -794,12 +1388,26 @@ function renderProfileParts() {
   }
 
   profilePartsList.innerHTML = profileParts.map((part) => `
-    <article class="profile-data-card">
-      <h4>${part.name}</h4>
-      <p>${part.brand || "-"} ${part.model || "-"} ${part.year || ""}</p>
-      <p>${currentLang === "ar" ? "الفئة" : "Category"}: ${part.category || "-"}</p>
-      <p>${currentLang === "ar" ? "السعر" : "Price"}: ${formatDinar(part.price_jod)}</p>
-      <p>${currentLang === "ar" ? "الحالة" : "Status"}: <span class="status ${String(part.status || "pending").toLowerCase()}">${part.status || "pending"}</span></p>
+    <article class="profile-part-card">
+      <div class="profile-part-image-wrap">
+        <img src="${part.image_url || "https://via.placeholder.com/640x400/F5F7FA/9AA0A6?text=Part"}" alt="${getPartName(part)}" />
+        ${Number(part.discount_percent || 0) > 0 ? `<span class="part-discount-badge">-${Number(part.discount_percent).toFixed(0)}%</span>` : ""}
+      </div>
+      <div class="profile-part-body">
+        <h4>${getPartName(part)}</h4>
+        <p class="profile-part-ref">${currentLang === "ar" ? "رقم القطعة" : "PartID"}: ${part.part_reference || "-"}</p>
+        <p class="profile-part-price">${formatDinar(part.price_jod)}</p>
+        <p>${currentLang === "ar" ? "الفئة" : "Category"}: ${part.category || "-"}</p>
+        <p>${currentLang === "ar" ? "الحالة" : "Status"}: <span class="status ${String(part.status || "pending").toLowerCase()}">${part.status || "pending"}</span></p>
+        <p>${currentLang === "ar" ? "الوصف" : "Description"}: ${part.description || "-"}</p>
+        <p>${currentLang === "ar" ? "حالة القطعة" : "Condition"}: ${getPartConditionLabel(part.condition_type)}</p>
+        <button class="btn secondary part-details-btn" type="button" data-action="toggle-part-details">${currentLang === "ar" ? "تفاصيل المركبة" : "Vehicle Details"}</button>
+        <div class="part-vehicle-details">
+          <p><strong>${currentLang === "ar" ? "المركبة" : "Vehicle"}:</strong> ${part.brand || "-"} ${part.model || "-"} ${part.year || "-"}</p>
+          <p><strong>${currentLang === "ar" ? "نوع الهيكل" : "Body Type"}:</strong> ${part.body_type || "-"}</p>
+          <p><strong>${currentLang === "ar" ? "الاسم الإنجليزي" : "English Name"}:</strong> ${part.name_en || "-"}</p>
+        </div>
+      </div>
     </article>
   `).join("");
 }
@@ -880,6 +1488,8 @@ function applyClientSidePartFilters(parts, query, filters) {
   return parts.filter((part) => {
     const matchText = !q ||
       part.name.toLowerCase().includes(q) ||
+      String(part.name_en || "").toLowerCase().includes(q) ||
+      String(part.part_reference || "").toLowerCase().includes(q) ||
       String(part.description || "").toLowerCase().includes(q) ||
       String(part.brand || "").toLowerCase().includes(q) ||
       String(part.model || "").toLowerCase().includes(q);
@@ -930,11 +1540,21 @@ async function handleCreatePart() {
     return;
   }
 
+  const partNameAr = document.getElementById("part-name-ar")?.value.trim();
+  const partNameEn = document.getElementById("part-name-en")?.value.trim();
+  const partReference = buildPartReference(document.getElementById("part-reference")?.value);
+  const galleryLinks = normalizeGalleryLinks(document.getElementById("part-gallery-links")?.value || "");
+
   const payload = {
-    name: document.getElementById("part-name").value.trim(),
+    name: partNameAr,
+    name_en: partNameEn,
+    part_reference: partReference,
     description: document.getElementById("part-description").value.trim(),
     price_jod: Number(document.getElementById("part-price").value || 0),
-    image_url: document.getElementById("part-image").value.trim() || null,
+    image_url: partImageInput?.dataset?.imageData || null,
+    discount_percent: Number(document.getElementById("part-discount")?.value || 0),
+    condition_type: document.getElementById("part-condition")?.value || "new",
+    gallery_links: galleryLinks,
     status: document.getElementById("part-status").value,
     category: document.getElementById("part-category").value.trim(),
     brand: document.getElementById("part-brand").value.trim(),
@@ -944,8 +1564,13 @@ async function handleCreatePart() {
     dealer_id: currentUser.id,
   };
 
-  if (!payload.name || !payload.brand || !payload.model || !payload.category || !payload.body_type || !payload.year) {
-    showPartMessage(currentLang === "ar" ? "يرجى تعبئة كل الحقول الإلزامية." : "Please fill all required fields.", "error");
+  if (!payload.name || !payload.name_en || !payload.price_jod || !payload.image_url) {
+    showPartMessage(currentLang === "ar" ? "الحقول الأساسية إلزامية: الاسم العربي، الاسم الإنجليزي، السعر، الصورة." : "Core fields are required: Arabic name, English name, price, image.", "error");
+    return;
+  }
+
+  if (!payload.brand || !payload.model || !payload.category || !payload.body_type || !payload.year) {
+    showPartMessage(currentLang === "ar" ? "أكمل بيانات المركبة والتصنيف قبل الحفظ." : "Complete vehicle and category fields before saving.", "error");
     return;
   }
 
@@ -972,7 +1597,11 @@ async function handleCreatePart() {
   }
 
   showPartMessage(currentLang === "ar" ? "تمت إضافة القطعة بنجاح." : "Part added successfully.", "success");
-  if (partForm) partForm.reset();
+  if (partForm) {
+    partForm.reset();
+    clearPartImagePreview();
+    updatePartSaveButtonState();
+  }
   await loadCatalogParts();
   await loadProfileAssets();
   renderProfileParts();
@@ -1655,6 +2284,7 @@ function renderProducts(items) {
         <p><strong data-ar="السنة:" data-en="Year:">السنة:</strong> ${product.year || "-"}</p>
         <p><strong data-ar="الهيكل:" data-en="Body:">الهيكل:</strong> ${product.body_type || "-"}</p>
         <p><strong data-ar="الفئة:" data-en="Category:">الفئة:</strong> ${product.category || "-"}</p>
+        <p><strong data-ar="رقم القطعة:" data-en="PartID:">رقم القطعة:</strong> ${product.part_reference || "-"}</p>
         <p><strong data-ar="الحالة:" data-en="Status:">الحالة:</strong> ${product.status || "-"}</p>
         <p>${product.description}</p>
         <div class="price">${formatDinar(product.price_jod)}</div>
@@ -1845,7 +2475,7 @@ async function handleLogout() {
   
   // Redirect to login immediately after logout
   setTimeout(() => {
-    window.location.hash = "#auth-section";
+    window.location.hash = "#registration-page";
     updatePageVisibility();
   }, 600);
 }
@@ -1880,14 +2510,14 @@ function updatePageVisibility() {
   const isAuth = !!currentUser;
 
   if (!hash) {
-    window.location.hash = isAuth ? "#profile-page" : "#auth-section";
+    window.location.hash = isAuth ? "#profile-page" : "#registration-page";
     return;
   }
 
-  const isOnAuthPages = hash === "#auth-section" || hash === "#registration-page" || hash === "#forgot-password";
+  const isOnAuthPages = hash === "#auth-section" || hash === "#registration-page";
 
   if (!canAccessRoute(hash)) {
-    window.location.hash = isAuth ? "#profile-page" : "#auth-section";
+    window.location.hash = isAuth ? "#profile-page" : "#registration-page";
     return;
   }
   
@@ -1934,8 +2564,6 @@ function updatePageVisibility() {
   } else if (hash === "#admin-dashboard") {
     document.getElementById("admin-dashboard").style.display = "block";
     renderAdminDashboard();
-  } else if (hash === "#forgot-password") {
-    document.getElementById("forgot-password").style.display = "block";
   } else {
     // Show catalog/order sections
     const sectionId = hash.replace("#", "");
@@ -1969,6 +2597,21 @@ function renderUserOrders(canManageOrders = false) {
 
   ordersEmpty.style.display = "none";
   ordersList.innerHTML = userOrders
+    .map((order, idx) => renderOrderCard(order, idx, canManageOrders))
+    .join("");
+}
+
+function renderProfileOrders(canManageOrders = false) {
+  if (!profileOrdersList || !profileOrdersEmpty) return;
+  const userOrders = orderRequests;
+  if (userOrders.length === 0) {
+    profileOrdersEmpty.style.display = "block";
+    profileOrdersList.innerHTML = "";
+    return;
+  }
+
+  profileOrdersEmpty.style.display = "none";
+  profileOrdersList.innerHTML = userOrders
     .map((order, idx) => renderOrderCard(order, idx, canManageOrders))
     .join("");
 }
@@ -2125,6 +2768,7 @@ function renderProfilePage() {
   if (profileQuickPhotos) profileQuickPhotos.textContent = String(profileGallery.length || 0);
   if (profileQuickServices) profileQuickServices.textContent = String(profileServices.length || 0);
   if (profileQuickParts) profileQuickParts.textContent = String(profileParts.length || 0);
+  if (profilePartsSummary) profilePartsSummary.textContent = String(profileParts.length || 0);
 
   if (profileContactPhone) profileContactPhone.textContent = phoneText;
   if (profileContactCity) profileContactCity.textContent = cityText;
@@ -2160,6 +2804,8 @@ function renderProfilePage() {
   renderProfileServices();
   renderProfileParts();
   renderProfileReviewRequests();
+  renderProfileOrders(isStaffRole(currentUserProfile?.role));
+  runProfileSearch();
 }
 
 if (editProfileButton) {
@@ -2374,6 +3020,28 @@ registrationForm.addEventListener("submit", async (event) => {
 });
 }
 
+if (cleanRegistrationForm) {
+  cleanRegistrationForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const emailValue = cleanRegistrationEmail?.value.trim();
+    if (!emailValue) {
+      return;
+    }
+
+    if (cleanVerificationStep) {
+      cleanVerificationStep.style.display = "block";
+    }
+  });
+}
+
+if (cleanContinueToProfileButton) {
+  cleanContinueToProfileButton.addEventListener("click", () => {
+    window.location.hash = "#profile-page";
+    updatePageVisibility();
+  });
+}
+
 if (verifyOtpButton) {
   verifyOtpButton.addEventListener("click", async () => {
     await verifyRegistrationOtp();
@@ -2531,7 +3199,7 @@ completeRegistrationButton.addEventListener("click", async () => {
     currentUser = null;
     currentUserProfile = null;
     resetRegistrationFlow();
-    window.location.hash = "#auth-section";
+    window.location.hash = "#registration-page";
     showRegistrationMessage(
       currentLang === "ar"
         ? "تم إنشاء الحساب بنجاح وهو الآن بانتظار اعتماد المدير."
@@ -2576,6 +3244,29 @@ if (resetAdvancedSearchButton) {
   });
 }
 
+if (profileAdvancedSearchForm) {
+  profileAdvancedSearchForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    runProfileSearch();
+  });
+}
+
+if (profileSearchReset) {
+  profileSearchReset.addEventListener("click", () => {
+    if (profileSearchBrand) profileSearchBrand.value = "";
+    if (profileSearchModel) profileSearchModel.value = "";
+    if (profileSearchYear) profileSearchYear.value = "";
+    if (profileSearchBodyType) profileSearchBodyType.value = "";
+    if (profileSearchCategory) profileSearchCategory.value = "";
+    runProfileSearch();
+  });
+}
+
+[profileSearchBrand, profileSearchModel, profileSearchYear, profileSearchBodyType, profileSearchCategory].forEach((control) => {
+  if (!control) return;
+  control.addEventListener("change", runProfileSearch);
+});
+
 [filterBrand, filterModel, filterYear, filterBodyType, filterCategory].forEach((control) => {
   if (!control) return;
   control.addEventListener("change", () => {
@@ -2584,6 +3275,25 @@ if (resetAdvancedSearchButton) {
 });
 
 if (partForm) {
+  [partNameArInput, partNameEnInput, partPriceInput, partImageInput].forEach((field) => {
+    if (!field) return;
+    field.addEventListener("input", updatePartSaveButtonState);
+    field.addEventListener("change", updatePartSaveButtonState);
+  });
+
+  if (partImageInput) {
+    partImageInput.addEventListener("change", () => {
+      const file = partImageInput.files && partImageInput.files[0];
+      previewPartImage(file || null);
+    });
+  }
+
+  if (partVehicleSelect) {
+    partVehicleSelect.addEventListener("change", applySelectedVehicleToPartForm);
+  }
+
+  updatePartSaveButtonState();
+
   partForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     await handleCreatePart();
@@ -2635,6 +3345,14 @@ document.addEventListener("click", (event) => {
 
   if (action === "request-review" && displayedCatalogParts[index]) {
     handleCreateReviewRequest(displayedCatalogParts[index]);
+    return;
+  }
+
+  if (action === "toggle-part-details") {
+    const card = button.closest(".profile-part-card");
+    if (card) {
+      card.classList.toggle("details-open");
+    }
     return;
   }
 
@@ -2762,21 +3480,8 @@ if (authSubmitButton) {
 
 if (authModeToggle) {
   authModeToggle.addEventListener("click", () => {
-    const authEmailInput = document.getElementById("auth-email");
-    const authPasswordInput = document.getElementById("auth-password");
-    if (authEmailInput) authEmailInput.value = "";
-    if (authPasswordInput) authPasswordInput.value = "";
-
-    if (authMessage) {
-      authMessage.textContent = "";
-      authMessage.className = "form-message";
-    }
-
-    if (window.location.hash !== "#auth-section") {
-      window.location.hash = "#auth-section";
-    }
-
-    authEmailInput?.focus();
+    // Open the saved accounts modal
+    openAccountsModal();
   });
 }
 
@@ -2787,98 +3492,6 @@ if (langToggle) {
 if (logoutButton) {
   logoutButton.addEventListener("click", async () => {
     await handleLogout();
-  });
-}
-
-if (sendForgotOtpButton) {
-  sendForgotOtpButton.addEventListener("click", async () => {
-    if (!hasWorkingSupabaseConfig()) {
-      showSupabaseConfigurationMessage(forgotMessage);
-      return;
-    }
-
-    if (!WHATSAPP_OTP_ENDPOINT) {
-      showWhatsAppOtpConfigurationMessage(forgotMessage);
-      return;
-    }
-
-    const phone = forgotPhone.value.trim();
-    const email = forgotEmail.value.trim();
-    if (!phone || !email) {
-      showMessage(currentLang === "ar" ? "أدخل البريد والهاتف أولاً." : "Enter email and phone first.", "error", forgotMessage);
-      return;
-    }
-
-    const profileRes = await fetchProfileByPhone(phone);
-    if (!profileRes.data) {
-      showMessage(currentLang === "ar" ? "رقم الهاتف غير موجود." : "Phone is not registered.", "error", forgotMessage);
-      return;
-    }
-
-    if ((profileRes.data.email || "").toLowerCase() !== email.toLowerCase()) {
-      showMessage(currentLang === "ar" ? "البريد لا يطابق رقم الهاتف." : "Email does not match the phone number.", "error", forgotMessage);
-      return;
-    }
-
-    const code = generateOtpCode();
-    const otpRes = await createOtpCode(phone, code, "forgot_password", 10);
-    if (otpRes.error) {
-      showMessage(currentLang === "ar" ? "تعذر إنشاء OTP." : "Failed to generate OTP.", "error", forgotMessage);
-      return;
-    }
-
-    try {
-      await sendWhatsAppOtp(phone, code);
-      pendingForgotOtpPhone = phone;
-      showMessage(currentLang === "ar" ? "تم إرسال OTP عبر واتساب." : "OTP sent via WhatsApp.", "success", forgotMessage);
-    } catch (_error) {
-      showMessage(currentLang === "ar" ? "فشل إرسال OTP." : "Failed to send OTP.", "error", forgotMessage);
-    }
-  });
-}
-
-if (forgotForm) {
-  forgotForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    if (!hasWorkingSupabaseConfig()) {
-      showSupabaseConfigurationMessage(forgotMessage);
-      return;
-    }
-
-    const code = forgotOtp.value.trim();
-    const password = forgotNewPassword.value.trim();
-    const phone = forgotPhone.value.trim();
-
-    if (!pendingForgotOtpPhone || pendingForgotOtpPhone !== phone) {
-      showMessage(currentLang === "ar" ? "أرسل OTP أولاً." : "Send OTP first.", "error", forgotMessage);
-      return;
-    }
-
-    const verify = await verifyOtpCode(phone, code, "forgot_password");
-    if (!verify.valid) {
-      showMessage(currentLang === "ar" ? "OTP غير صالح." : "Invalid OTP.", "error", forgotMessage);
-      return;
-    }
-
-    let resetError = null;
-    if (currentUser && currentUser.email && currentUser.email.toLowerCase() === forgotEmail.value.trim().toLowerCase()) {
-      const result = await supabaseClient.auth.updateUser({ password });
-      resetError = result.error || null;
-    } else {
-      const result = await supabaseClient.auth.resetPasswordForEmail(forgotEmail.value.trim(), {
-        redirectTo: `${window.location.origin}/index.html#auth-section`,
-      });
-      resetError = result.error || null;
-    }
-
-    if (resetError) {
-      showMessage(resetError.message || (currentLang === "ar" ? "فشل تحديث كلمة المرور." : "Failed to update password."), "error", forgotMessage);
-      return;
-    }
-
-    pendingForgotOtpPhone = null;
-    forgotForm.reset();
-    showMessage(currentLang === "ar" ? "تم التحقق. أكمل تحديث كلمة المرور من رابط البريد عند الحاجة." : "Verified. Complete password reset using the email link if needed.", "success", forgotMessage);
   });
 }
 
@@ -2924,11 +3537,13 @@ orderForm.addEventListener("submit", async (event) => {
 
 function updateAuthPageMode() {
   const currentHash = window.location.hash;
-  const isAuthFlow = currentHash === "#auth-section" || currentHash === "#registration-page" || currentHash === "#forgot-password";
+  const isAuthFlow = currentHash === "#auth-section" || currentHash === "#registration-page";
   const isProfile = currentHash === "#profile-page";
+  const isCleanRegistration = currentHash === "#registration-page";
 
   document.body.classList.toggle("login-page", isAuthFlow);
   document.body.classList.toggle("profile-page", isProfile);
+  document.body.classList.toggle("clean-registration-page", isCleanRegistration);
 
   if (profilePage) {
     profilePage.style.display = isProfile ? "block" : "none";
@@ -2941,7 +3556,7 @@ function updateAuthPageMode() {
 
 function syncQuickNavWithHash() {
   if (!quickNavSelect) return;
-  const currentHash = window.location.hash || "#hero";
+  const currentHash = window.location.hash || "#auth-section";
   const hasOption = Array.from(quickNavSelect.options).some((option) => option.value === currentHash);
   quickNavSelect.value = hasOption ? currentHash : "";
 }
@@ -2965,7 +3580,7 @@ function navigateToHash(targetHash) {
 
 window.addEventListener("hashchange", () => {
   previousAppHash = currentAppHash;
-  currentAppHash = window.location.hash || "#hero";
+  currentAppHash = window.location.hash || "#auth-section";
   updateAuthPageMode();
   updatePageVisibility();
   syncQuickNavWithHash();

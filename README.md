@@ -89,8 +89,8 @@ const SUPABASE_ANON_KEY = "your-anon-key";
 
 ### 2. تشغيل التطبيق
 ```bash
-python -m http.server 8000
-# ثم افتح: http://localhost:8000
+python -m http.server 800
+# ثم افتح: http://localhost:800
 ```
 
 ### 3. اختبر بهذه البيانات

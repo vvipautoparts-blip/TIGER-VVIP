@@ -120,8 +120,8 @@ VALUES (
 ```bash
 # Open index.html in a web browser
 # Or use a local server:
-python -m http.server 8000
-# Then visit http://localhost:8000
+python -m http.server 800
+# Then visit http://localhost:800
 ```
 
 ---

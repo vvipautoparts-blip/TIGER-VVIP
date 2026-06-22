@@ -8,8 +8,8 @@
 
 ## Working Commands
 
-- Local preview: `python -m http.server 8000`
-- App URL during local preview: `http://localhost:8000`
+- Local preview: `python -m http.server 800`
+- App URL during local preview: `http://localhost:800`
 - Supabase Edge Function deploy: `npm exec --yes supabase -- functions deploy send-otp`
 - There is no established automated test suite in this repo. After UI or logic changes, validate with a focused manual smoke check in the browser.
 

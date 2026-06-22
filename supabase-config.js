@@ -71,6 +71,41 @@ window.__SUPABASE_CONFIG__ = {
 
 console.log("✓ supabase-config.js loaded", window.__SUPABASE_CONFIG__);
 
+let __hardRefreshScheduled = false;
+
+function schedulePostMutationHardRefresh() {
+  if (typeof window === "undefined" || __hardRefreshScheduled) return;
+  __hardRefreshScheduled = true;
+
+  setTimeout(async () => {
+    try {
+      if ("serviceWorker" in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registrations.map((registration) => registration.unregister()));
+      }
+
+      if ("caches" in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((key) => caches.delete(key)));
+      }
+    } catch (error) {
+      console.warn("Post-mutation cache cleanup failed", error);
+    } finally {
+      const url = new URL(window.location.href);
+      url.searchParams.set("refresh", String(Date.now()));
+      window.location.replace(url.toString());
+    }
+  }, 120);
+}
+
+async function runMutationWithHardRefresh(task, isSuccess = (result) => !result?.error) {
+  const result = await task();
+  if (isSuccess(result)) {
+    schedulePostMutationHardRefresh();
+  }
+  return result;
+}
+
 async function signIn(email, password) {
   return await supabaseClient.auth.signInWithPassword({ email, password });
 }
@@ -98,7 +133,7 @@ async function getCurrentUser() {
 }
 
 async function createProfile(profile) {
-  return await supabaseClient.from("profiles").insert([profile]);
+  return await runMutationWithHardRefresh(() => supabaseClient.from("profiles").insert([profile]));
 }
 
 async function fetchProfile(userId) {
@@ -122,15 +157,15 @@ async function fetchPendingApprovals() {
 }
 
 async function approveUserProfile(userId) {
-  return await supabaseClient.from("profiles").update({ is_approved: true }).eq("id", userId);
+  return await runMutationWithHardRefresh(() => supabaseClient.from("profiles").update({ is_approved: true }).eq("id", userId));
 }
 
 async function updateUserApprovalState(userId, payload) {
-  return await supabaseClient.from("profiles").update(payload).eq("id", userId);
+  return await runMutationWithHardRefresh(() => supabaseClient.from("profiles").update(payload).eq("id", userId));
 }
 
 async function assignSupervisor(userId, superiorId) {
-  return await supabaseClient.from("profiles").update({ superior_id: superiorId }).eq("id", userId);
+  return await runMutationWithHardRefresh(() => supabaseClient.from("profiles").update({ superior_id: superiorId }).eq("id", userId));
 }
 
 async function fetchSuppliers() {
@@ -142,7 +177,7 @@ async function fetchBuyers() {
 }
 
 async function createBuyer(buyer) {
-  return await supabaseClient.from("buyers").insert([buyer]);
+  return await runMutationWithHardRefresh(() => supabaseClient.from("buyers").insert([buyer]));
 }
 
 async function fetchAccountTypes() {
@@ -163,7 +198,7 @@ async function fetchParts(filters = {}) {
   if (filters.query) {
     const escaped = String(filters.query).trim();
     if (escaped) {
-      query = query.or(`name.ilike.%${escaped}%,description.ilike.%${escaped}%,brand.ilike.%${escaped}%,model.ilike.%${escaped}%`);
+      query = query.or(`name.ilike.%${escaped}%,name_en.ilike.%${escaped}%,part_reference.ilike.%${escaped}%,description.ilike.%${escaped}%,brand.ilike.%${escaped}%,model.ilike.%${escaped}%`);
     }
   }
 
@@ -171,17 +206,21 @@ async function fetchParts(filters = {}) {
 }
 
 async function createPart(part) {
-  return await supabaseClient.from("parts").insert([part]);
+  return await runMutationWithHardRefresh(() => supabaseClient.from("parts").insert([part]));
 }
 
 async function updatePart(partId, payload) {
   const existing = await supabaseClient.from("parts").select("*").eq("id", partId).maybeSingle();
   const updated = await supabaseClient.from("parts").update(payload).eq("id", partId).select("*").maybeSingle();
-  return {
+  const result = {
     previous: existing.data || null,
     current: updated.data || null,
     error: existing.error || updated.error || null,
   };
+  if (!result.error) {
+    schedulePostMutationHardRefresh();
+  }
+  return result;
 }
 
 async function fetchReviewRequests(filters = null) {
@@ -207,18 +246,20 @@ async function fetchReviewRequests(filters = null) {
 }
 
 async function createReviewRequest(request) {
-  return await supabaseClient.from("review_requests").insert([request]);
+  return await runMutationWithHardRefresh(() => supabaseClient.from("review_requests").insert([request]));
 }
 
 async function updateReviewRequestStatus(reviewRequestId, status) {
-  return await supabaseClient
-    .from("review_requests")
-    .update({ status, updated_at: new Date().toISOString() })
-    .eq("id", reviewRequestId);
+  return await runMutationWithHardRefresh(() =>
+    supabaseClient
+      .from("review_requests")
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq("id", reviewRequestId)
+  );
 }
 
 async function createAdminReply(reply) {
-  return await supabaseClient.from("admin_replies").insert([reply]);
+  return await runMutationWithHardRefresh(() => supabaseClient.from("admin_replies").insert([reply]));
 }
 
 async function fetchAdminReplies(reviewRequestId) {
@@ -230,7 +271,7 @@ async function fetchAdminReplies(reviewRequestId) {
 }
 
 async function createPartUpdateLog(log) {
-  return await supabaseClient.from("part_update_logs").insert([log]);
+  return await runMutationWithHardRefresh(() => supabaseClient.from("part_update_logs").insert([log]));
 }
 
 async function fetchProfileMeta(userId) {
@@ -238,7 +279,7 @@ async function fetchProfileMeta(userId) {
 }
 
 async function upsertProfileMeta(payload) {
-  return await supabaseClient.from("profile_meta").upsert([payload], { onConflict: "user_id" });
+  return await runMutationWithHardRefresh(() => supabaseClient.from("profile_meta").upsert([payload], { onConflict: "user_id" }));
 }
 
 async function fetchServiceCenterServices(filters = {}) {
@@ -250,7 +291,7 @@ async function fetchServiceCenterServices(filters = {}) {
 }
 
 async function createServiceCenterService(payload) {
-  return await supabaseClient.from("service_center_services").insert([payload]);
+  return await runMutationWithHardRefresh(() => supabaseClient.from("service_center_services").insert([payload]));
 }
 
 async function fetchGalleryImages(filters = {}) {
@@ -262,7 +303,7 @@ async function fetchGalleryImages(filters = {}) {
 }
 
 async function createGalleryImage(payload) {
-  return await supabaseClient.from("gallery_images").insert([payload]);
+  return await runMutationWithHardRefresh(() => supabaseClient.from("gallery_images").insert([payload]));
 }
 
 async function fetchApprovalRequests(filters = {}) {
@@ -274,18 +315,20 @@ async function fetchApprovalRequests(filters = {}) {
 }
 
 async function createApprovalRequest(payload) {
-  return await supabaseClient.from("approval_requests").insert([payload]);
+  return await runMutationWithHardRefresh(() => supabaseClient.from("approval_requests").insert([payload]));
 }
 
 async function updateApprovalRequest(requestId, payload) {
-  return await supabaseClient
-    .from("approval_requests")
-    .update({ ...payload, reviewed_at: new Date().toISOString() })
-    .eq("id", requestId);
+  return await runMutationWithHardRefresh(() =>
+    supabaseClient
+      .from("approval_requests")
+      .update({ ...payload, reviewed_at: new Date().toISOString() })
+      .eq("id", requestId)
+  );
 }
 
 async function createSupplier(supplier) {
-  return await supabaseClient.from("suppliers").insert([supplier]);
+  return await runMutationWithHardRefresh(() => supabaseClient.from("suppliers").insert([supplier]));
 }
 
 async function fetchOrders(userId = null) {
@@ -297,7 +340,7 @@ async function fetchOrders(userId = null) {
 }
 
 async function createOrder(order) {
-  return await supabaseClient.from("orders").insert([order]);
+  return await runMutationWithHardRefresh(() => supabaseClient.from("orders").insert([order]));
 }
 
 async function updateOrderStatus(orderId, status, completedBy = null) {
@@ -313,33 +356,37 @@ async function updateOrderStatus(orderId, status, completedBy = null) {
     }
   }
 
-  return await supabaseClient.from("orders").update(payload).eq("id", orderId);
+  return await runMutationWithHardRefresh(() => supabaseClient.from("orders").update(payload).eq("id", orderId));
 }
 
 async function createCommissionEntry(entry) {
-  return await supabaseClient.from("commissions").upsert([entry], { onConflict: "order_id" });
+  return await runMutationWithHardRefresh(() => supabaseClient.from("commissions").upsert([entry], { onConflict: "order_id" }));
 }
 
 async function resetCommissionsAfter30Days() {
   const threshold = new Date();
   threshold.setDate(threshold.getDate() - 30);
-  return await supabaseClient
-    .from("commissions")
-    .update({ status: "reset" })
-    .eq("status", "earned")
-    .lt("earned_at", threshold.toISOString());
+  return await runMutationWithHardRefresh(() =>
+    supabaseClient
+      .from("commissions")
+      .update({ status: "reset" })
+      .eq("status", "earned")
+      .lt("earned_at", threshold.toISOString())
+  );
 }
 
 async function markCommissionsPaid(userId) {
-  return await supabaseClient
-    .from("commissions")
-    .update({ status: "paid", paid_at: new Date().toISOString() })
-    .eq("user_id", userId)
-    .eq("status", "earned");
+  return await runMutationWithHardRefresh(() =>
+    supabaseClient
+      .from("commissions")
+      .update({ status: "paid", paid_at: new Date().toISOString() })
+      .eq("user_id", userId)
+      .eq("status", "earned")
+  );
 }
 
 async function createSalaryPayment(payment) {
-  return await supabaseClient.from("salary_payments").insert([payment]);
+  return await runMutationWithHardRefresh(() => supabaseClient.from("salary_payments").insert([payment]));
 }
 
 async function fetchSalaryPayments(userId = null) {
@@ -378,15 +425,17 @@ async function fetchGlobalCommissionDashboard() {
 
 async function createOtpCode(phone, code, purpose = "registration", expiresMinutes = 10) {
   const expiresAt = new Date(Date.now() + expiresMinutes * 60000).toISOString();
-  return await supabaseClient.from("otp_codes").insert([
-    {
-      phone,
-      code,
-      purpose,
-      expires_at: expiresAt,
-      consumed: false,
-    },
-  ]);
+  return await runMutationWithHardRefresh(() =>
+    supabaseClient.from("otp_codes").insert([
+      {
+        phone,
+        code,
+        purpose,
+        expires_at: expiresAt,
+        consumed: false,
+      },
+    ])
+  );
 }
 
 async function verifyOtpCode(phone, code, purpose = "registration") {
@@ -410,21 +459,23 @@ async function verifyOtpCode(phone, code, purpose = "registration") {
     return { valid: false, error: { message: "OTP expired" } };
   }
 
-  await supabaseClient.from("otp_codes").update({ consumed: true }).eq("id", data.id);
+  await runMutationWithHardRefresh(() => supabaseClient.from("otp_codes").update({ consumed: true }).eq("id", data.id));
   return { valid: true, data };
 }
 
 async function upsertUserSession(userId, deviceId, deviceInfo = "web") {
-  return await supabaseClient.from("user_sessions").upsert(
-    [
-      {
-        user_id: userId,
-        device_id: deviceId,
-        device_info: deviceInfo,
-        is_active: true,
-      },
-    ],
-    { onConflict: "user_id,device_id" }
+  return await runMutationWithHardRefresh(() =>
+    supabaseClient.from("user_sessions").upsert(
+      [
+        {
+          user_id: userId,
+          device_id: deviceId,
+          device_info: deviceInfo,
+          is_active: true,
+        },
+      ],
+      { onConflict: "user_id,device_id" }
+    )
   );
 }
 
@@ -438,7 +489,7 @@ async function fetchActiveSessionsCount(userId) {
 }
 
 async function deactivateAllSessions(userId) {
-  return await supabaseClient.from("user_sessions").update({ is_active: false }).eq("user_id", userId);
+  return await runMutationWithHardRefresh(() => supabaseClient.from("user_sessions").update({ is_active: false }).eq("user_id", userId));
 }
 
 async function fetchCommissions(userId = null, days = 30) {

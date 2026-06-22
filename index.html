@@ -28,7 +28,6 @@
         <option value="#hero" data-ar="الرئيسية" data-en="Home">الرئيسية</option>
         <option value="#auth-section" data-ar="تسجيل الدخول" data-en="Sign In">تسجيل الدخول</option>
         <option value="#registration-page" data-ar="سجل الآن" data-en="Register">سجل الآن</option>
-        <option value="#forgot-password" data-ar="نسيت كلمة المرور" data-en="Forgot Password">نسيت كلمة المرور</option>
         <option value="#catalog" data-ar="بحث" data-en="Search">بحث</option>
         <option value="#representative-dashboard" data-ar="لوحة المندوب" data-en="Representative Dashboard">لوحة المندوب</option>
         <option value="#approvals-dashboard" data-ar="شاشة الموافقات" data-en="Approvals Dashboard">شاشة الموافقات</option>
@@ -219,44 +218,6 @@
       </div>
     </section>
 
-    <section id="forgot-password" class="section auth-section">
-      <div class="section-header">
-        <h2 data-ar="استعادة كلمة المرور" data-en="Forgot Password">استعادة كلمة المرور</h2>
-        <p data-ar="إرسال رمز تحقق عبر واتساب إلى الرقم المسجل ثم تعيين كلمة مرور جديدة." data-en="Send WhatsApp OTP to your registered phone then set a new password.">إرسال رمز تحقق عبر واتساب إلى الرقم المسجل ثم تعيين كلمة مرور جديدة.</p>
-      </div>
-      <div id="forgot-message" class="form-message"></div>
-      <form id="forgot-form" class="request-form">
-        <div class="form-row single">
-          <label>
-            <span data-ar="البريد الإلكتروني" data-en="Email">البريد الإلكتروني</span>
-            <input type="email" id="forgot-email" placeholder="vvipautoparts@gmail.com" required />
-          </label>
-        </div>
-        <div class="form-row single">
-          <label>
-            <span data-ar="رقم الهاتف" data-en="Phone Number">رقم الهاتف</span>
-            <input type="tel" id="forgot-phone" placeholder="+962780003302" required />
-          </label>
-        </div>
-        <div class="form-row single">
-          <button type="button" id="send-forgot-otp" class="btn secondary" data-ar="إرسال رمز واتساب" data-en="Send WhatsApp OTP">إرسال رمز واتساب</button>
-        </div>
-        <div class="form-row single">
-          <label>
-            <span data-ar="رمز التحقق" data-en="OTP Code">رمز التحقق</span>
-            <input type="text" id="forgot-otp" maxlength="6" placeholder="123456" required />
-          </label>
-        </div>
-        <div class="form-row single">
-          <label>
-            <span data-ar="كلمة المرور الجديدة" data-en="New Password">كلمة المرور الجديدة</span>
-            <input type="password" id="forgot-new-password" placeholder="********" required />
-          </label>
-        </div>
-        <button type="submit" class="btn primary" data-ar="تأكيد التعيين" data-en="Reset Password">تأكيد التعيين</button>
-      </form>
-    </section>
-
     <section id="catalog" class="section">
       <div class="section-header">
         <h2 data-ar="كراجنا الذكي" data-en="Our Smart Catalog">كراجنا الذكي</h2>
@@ -306,73 +267,6 @@
         </div>
       </div>
       <div class="product-grid" id="product-grid"></div>
-
-      <div id="part-management" class="part-management" style="display:none;">
-        <div class="section-header">
-          <h3 data-ar="إضافة القطع" data-en="Add Parts">إضافة القطع</h3>
-          <p data-ar="إدارة بيانات القطع الكاملة: الماركة، الطراز، السنة، الهيكل، الفئة، السعر والحالة." data-en="Manage complete part data: brand, model, year, body type, category, price, and status.">إدارة بيانات القطع الكاملة: الماركة، الطراز، السنة، الهيكل، الفئة، السعر والحالة.</p>
-        </div>
-        <div id="part-message" class="form-message"></div>
-        <form id="part-form" class="request-form">
-          <div class="form-row">
-            <label>
-              <span data-ar="اسم القطعة" data-en="Part Name">اسم القطعة</span>
-              <input type="text" id="part-name" required />
-            </label>
-            <label>
-              <span data-ar="السعر (د.أ)" data-en="Price (JOD)">السعر (د.أ)</span>
-              <input type="number" id="part-price" min="0" step="0.01" required />
-            </label>
-          </div>
-          <div class="form-row">
-            <label>
-              <span data-ar="الماركة" data-en="Brand">الماركة</span>
-              <input type="text" id="part-brand" required />
-            </label>
-            <label>
-              <span data-ar="الطراز" data-en="Model">الطراز</span>
-              <input type="text" id="part-model" required />
-            </label>
-          </div>
-          <div class="form-row">
-            <label>
-              <span data-ar="السنة" data-en="Year">السنة</span>
-              <input type="number" id="part-year" min="1980" max="2100" required />
-            </label>
-            <label>
-              <span data-ar="نوع الهيكل" data-en="Body Type">نوع الهيكل</span>
-              <input type="text" id="part-body-type" required />
-            </label>
-          </div>
-          <div class="form-row">
-            <label>
-              <span data-ar="الفئة" data-en="Category">الفئة</span>
-              <input type="text" id="part-category" required />
-            </label>
-            <label>
-              <span data-ar="الحالة" data-en="Status">الحالة</span>
-              <select id="part-status">
-                <option value="pending" data-ar="Pending" data-en="Pending">Pending</option>
-                <option value="active" data-ar="مفعل" data-en="Active">مفعل</option>
-                <option value="inactive" data-ar="غير مفعل" data-en="Inactive">غير مفعل</option>
-              </select>
-            </label>
-          </div>
-          <div class="form-row single">
-            <label>
-              <span data-ar="رابط الصورة" data-en="Image URL">رابط الصورة</span>
-              <input type="url" id="part-image" />
-            </label>
-          </div>
-          <div class="form-row single">
-            <label>
-              <span data-ar="الوصف" data-en="Description">الوصف</span>
-              <textarea id="part-description" rows="3"></textarea>
-            </label>
-          </div>
-          <button type="submit" class="btn primary" data-ar="حفظ القطعة" data-en="Save Part">حفظ القطعة</button>
-        </form>
-      </div>
     </section>
 
     <section id="order-request" class="section request-section">
@@ -479,195 +373,146 @@
           <article><strong id="profile-quick-parts">0</strong><span data-ar="عدد القطع" data-en="Parts">عدد القطع</span></article>
         </div>
 
-        <div class="profile-tab-nav" role="tablist" aria-label="Profile tabs">
-          <button type="button" class="profile-tab-btn active" data-profile-tab="info">Info</button>
-          <button type="button" class="profile-tab-btn" data-profile-tab="photos">Photos</button>
-          <button type="button" class="profile-tab-btn" data-profile-tab="parts">Parts</button>
-          <button type="button" class="profile-tab-btn" data-profile-tab="services">Services</button>
-          <button type="button" class="profile-tab-btn" data-profile-tab="requests">Requests</button>
-          <button type="button" class="profile-tab-btn" data-profile-tab="contact">Contact</button>
-        </div>
-
-        <div class="profile-tab-content">
-          <section class="profile-tab-panel active" data-profile-panel="info">
-            <div class="profile-section">
-              <h3 data-ar="نبذة عن الحساب" data-en="About Account">نبذة عن الحساب</h3>
+        <div class="profile-main-grid facebook-profile-grid">
+          <aside class="profile-left-column profile-left-modern">
+            <article class="profile-info-card-modern">
+              <h3 class="card-title" data-ar="المعلومات" data-en="Information">المعلومات</h3>
               <p id="profile-bio">هذا ملفك الشخصي. يمكنك التحكم في معلومات حسابك من هنا.</p>
-              <p><strong data-ar="نوع الحساب:" data-en="Account Type:">نوع الحساب:</strong> <span id="profile-account-type-detail">مشتري</span></p>
-              <p><strong data-ar="الوضع:" data-en="Status:">الوضع:</strong> <span id="profile-status">نشط</span></p>
-              <p><strong data-ar="الاشتراك:" data-en="Subscription:">الاشتراك:</strong> <span id="profile-subscription">أساسي</span></p>
-              <p><strong data-ar="الطلبات:" data-en="Orders:">الطلبات:</strong> <span id="profile-orders-count">0</span></p>
-              <p><strong data-ar="انضم منذ:" data-en="Joined:">انضم منذ:</strong> <span id="profile-joined">--</span></p>
-            </div>
-
-            <div class="profile-section finance-dashboard">
-              <h3 data-ar="الأرباح والعمولات" data-en="Earnings & Commissions">الأرباح والعمولات</h3>
-              <div class="finance-grid">
-                <article class="finance-card">
-                  <strong id="commission-completed-count">0</strong>
-                  <span data-ar="العمليات المكتملة" data-en="Completed Operations">العمليات المكتملة</span>
-                </article>
-                <article class="finance-card">
-                  <strong id="commission-weekly-count">0</strong>
-                  <span data-ar="عمليات هذا الأسبوع" data-en="This Week Operations">عمليات هذا الأسبوع</span>
-                </article>
-                <article class="finance-card">
-                  <strong id="commission-weekly-total">0.00 د.أ</strong>
-                  <span data-ar="الراتب الأسبوعي" data-en="Weekly Salary">الراتب الأسبوعي</span>
-                </article>
-                <article class="finance-card">
-                  <strong id="commission-month-count">0</strong>
-                  <span data-ar="عمليات 30 يوم" data-en="30-Day Operations">عمليات 30 يوم</span>
-                </article>
-                <article class="finance-card">
-                  <strong id="commission-month-total">0.00 د.أ</strong>
-                  <span data-ar="إجمالي 30 يوم" data-en="30-Day Total">إجمالي 30 يوم</span>
-                </article>
-              </div>
-              <p class="finance-note" data-ar="كل عملية مكتملة تضيف 0.75 د.أ إلى حسابك فقط. لا يمكن لأي مدير رؤية أرباح مدير آخر." data-en="Each completed operation adds JOD 0.75 to your account only. No manager can see another manager's earnings.">كل عملية مكتملة تضيف 0.75 د.أ إلى حسابك فقط. لا يمكن لأي مدير رؤية أرباح مدير آخر.</p>
-            </div>
-          </section>
-
-          <section class="profile-tab-panel" data-profile-panel="photos">
-            <div class="profile-section">
-              <h3 data-ar="رفع صور المعرض" data-en="Upload Gallery Images">رفع صور المعرض</h3>
-              <div id="gallery-message" class="form-message"></div>
-              <form id="gallery-form" class="request-form">
-                <div class="form-row">
-                  <label>
-                    <span data-ar="اسم الصورة" data-en="Image Title">اسم الصورة</span>
-                    <input type="text" id="gallery-title" required />
-                  </label>
-                  <label>
-                    <span data-ar="التصنيف" data-en="Category">التصنيف</span>
-                    <input type="text" id="gallery-category" placeholder="واجهة / داخلي / قطعة" />
-                  </label>
-                </div>
-                <div class="form-row single">
-                  <label>
-                    <span data-ar="الوصف القصير" data-en="Short Description">الوصف القصير</span>
-                    <textarea id="gallery-description" rows="2"></textarea>
-                  </label>
-                </div>
-                <div class="form-row">
-                  <label>
-                    <span data-ar="رابط الصورة" data-en="Image URL">رابط الصورة</span>
-                    <input type="url" id="gallery-image-url" required />
-                  </label>
-                  <label>
-                    <span data-ar="حالة النشر" data-en="Publish Status">حالة النشر</span>
-                    <select id="gallery-status">
-                      <option value="pending" data-ar="Pending" data-en="Pending">Pending</option>
-                      <option value="active" data-ar="Active" data-en="Active">Active</option>
-                    </select>
-                  </label>
-                </div>
-                <div class="form-row">
-                  <label>
-                    <span data-ar="ربط بقطعة (اختياري)" data-en="Related Part (optional)">ربط بقطعة (اختياري)</span>
-                    <input type="text" id="gallery-related-part" />
-                  </label>
-                  <label>
-                    <span data-ar="ربط بخدمة (اختياري)" data-en="Related Service (optional)">ربط بخدمة (اختياري)</span>
-                    <input type="text" id="gallery-related-service" />
-                  </label>
-                </div>
-                <div class="form-row">
-                  <label>
-                    <span><input type="checkbox" id="gallery-featured" /> <span data-ar="صورة رئيسية" data-en="Featured Image">صورة رئيسية</span></span>
-                  </label>
-                  <label>
-                    <span><input type="checkbox" id="gallery-public" checked /> <span data-ar="تظهر في المعرض العام" data-en="Show in public gallery">تظهر في المعرض العام</span></span>
-                  </label>
-                </div>
-                <button type="submit" class="btn primary" data-ar="حفظ الصورة" data-en="Save Image">حفظ الصورة</button>
-              </form>
-            </div>
-            <div id="profile-gallery-list" class="profile-card-grid"></div>
-          </section>
-
-          <section class="profile-tab-panel" data-profile-panel="parts">
-            <div class="profile-section">
-              <h3 data-ar="القطع" data-en="Parts">القطع</h3>
-              <p data-ar="جميع قطع حسابك مع الحالة والسعر." data-en="All your parts with status and pricing.">جميع قطع حسابك مع الحالة والسعر.</p>
-            </div>
-            <div id="profile-parts-list" class="profile-card-grid"></div>
-          </section>
-
-          <section class="profile-tab-panel" data-profile-panel="services">
-            <div class="profile-section">
-              <h3 data-ar="الخدمات" data-en="Services">الخدمات</h3>
-              <div id="service-message" class="form-message"></div>
-              <form id="service-form" class="request-form">
-                <div class="form-row">
-                  <label>
-                    <span data-ar="نوع الخدمة" data-en="Service Type">نوع الخدمة</span>
-                    <input type="text" id="service-type" required />
-                  </label>
-                  <label>
-                    <span data-ar="سعر مبدئي" data-en="Starting Price">سعر مبدئي</span>
-                    <input type="number" id="service-starting-price" min="0" step="0.01" />
-                  </label>
-                </div>
-                <div class="form-row">
-                  <label>
-                    <span data-ar="ساعات العمل" data-en="Working Hours">ساعات العمل</span>
-                    <input type="text" id="service-working-hours" placeholder="09:00 - 18:00" />
-                  </label>
-                  <label>
-                    <span data-ar="حالة النشر" data-en="Publish Status">حالة النشر</span>
-                    <select id="service-status">
-                      <option value="pending" data-ar="Pending" data-en="Pending">Pending</option>
-                      <option value="active" data-ar="Active" data-en="Active">Active</option>
-                    </select>
-                  </label>
-                </div>
-                <div class="form-row single">
-                  <label>
-                    <span data-ar="الوصف" data-en="Description">الوصف</span>
-                    <textarea id="service-description" rows="2"></textarea>
-                  </label>
-                </div>
-                <div class="form-row single">
-                  <label>
-                    <span data-ar="رابط الصورة" data-en="Image URL">رابط الصورة</span>
-                    <input type="url" id="service-image-url" />
-                  </label>
-                </div>
-                <button type="submit" class="btn primary" data-ar="حفظ الخدمة" data-en="Save Service">حفظ الخدمة</button>
-              </form>
-            </div>
-            <div id="profile-services-list" class="profile-card-grid"></div>
-          </section>
-
-          <section class="profile-tab-panel" data-profile-panel="requests">
-            <div class="profile-section">
-              <h3 data-ar="متابعة الطلبات والردود" data-en="Requests & Admin Replies">متابعة الطلبات والردود</h3>
-              <p data-ar="تابع حالة كل طلب مراجعة والرد الإداري المرتبط به بشكل تفصيلي." data-en="Track each review request status and its linked admin reply in detail.">تابع حالة كل طلب مراجعة والرد الإداري المرتبط به بشكل تفصيلي.</p>
-            </div>
-            <div id="profile-review-requests-list" class="profile-request-list"></div>
-          </section>
-
-          <section class="profile-tab-panel" data-profile-panel="contact">
-            <div class="profile-section">
-              <h3 data-ar="معلومات التواصل" data-en="Contact Information">معلومات التواصل</h3>
-              <p><strong data-ar="الهاتف:" data-en="Phone:">الهاتف:</strong> <span id="profile-contact-phone">--</span></p>
-              <p><strong data-ar="المدينة:" data-en="City:">المدينة:</strong> <span id="profile-contact-city">--</span></p>
-              <p><strong data-ar="العنوان:" data-en="Address:">العنوان:</strong> <span id="profile-contact-address">--</span></p>
-              <p><strong data-ar="البريد:" data-en="Email:">البريد:</strong> <span id="profile-contact-email">--</span></p>
-              <p><strong data-ar="الوصف التجاري:" data-en="Business Description:">الوصف التجاري:</strong> <span id="profile-contact-description">--</span></p>
-            </div>
-            <div class="profile-section">
-              <h3 data-ar="روابط سريعة" data-en="Quick Links">روابط سريعة</h3>
-              <div style="display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap;">
-                <a href="#user-orders" class="btn secondary" data-ar="طلباتي" data-en="My Orders">طلباتي</a>
+              <div class="info-item"><span data-ar="نوع الحساب:" data-en="Account Type:">نوع الحساب:</span> <strong id="profile-account-type-detail">مشتري</strong></div>
+              <div class="info-item"><span data-ar="الوضع:" data-en="Status:">الوضع:</span> <strong id="profile-status">نشط</strong></div>
+              <div class="info-item"><span data-ar="الاشتراك:" data-en="Subscription:">الاشتراك:</span> <strong id="profile-subscription">أساسي</strong></div>
+              <div class="info-item"><span data-ar="انضم منذ:" data-en="Joined:">انضم منذ:</span> <strong id="profile-joined">--</strong></div>
+              <div class="profile-side-links">
                 <a href="#order-request" class="btn secondary" data-ar="طلب جديد" data-en="New Request">طلب جديد</a>
                 <a id="profile-rep-link" href="#representative-dashboard" class="btn secondary" style="display:none;" data-ar="لوحة المندوب" data-en="Rep Dashboard">لوحة المندوب</a>
                 <a id="profile-approvals-link" href="#approvals-dashboard" class="btn secondary" style="display:none;" data-ar="شاشة الموافقات" data-en="Approvals">شاشة الموافقات</a>
                 <a id="profile-admin-link" href="#admin-dashboard" class="btn secondary" style="display:none;" data-ar="لوحة المدير" data-en="Admin Dashboard">لوحة المدير</a>
               </div>
+            </article>
+
+            <article class="profile-stats-card-modern">
+              <div class="stat-item"><span class="stat-number" id="profile-orders-count">0</span><span class="stat-label" data-ar="طلبات" data-en="Orders">طلبات</span></div>
+              <div class="stat-item"><span class="stat-number" id="profile-parts-summary">0</span><span class="stat-label" data-ar="قطع" data-en="Parts">قطع</span></div>
+              <div class="stat-item"><span class="stat-number" id="commission-month-count">0</span><span class="stat-label" data-ar="عمليات" data-en="Operations">عمليات</span></div>
+            </article>
+
+            <article class="profile-info-card-modern">
+              <h3 class="card-title" data-ar="التواصل" data-en="Contact">التواصل</h3>
+              <p><strong data-ar="الهاتف:" data-en="Phone:">الهاتف:</strong> <span id="profile-contact-phone">--</span></p>
+              <p><strong data-ar="المدينة:" data-en="City:">المدينة:</strong> <span id="profile-contact-city">--</span></p>
+              <p><strong data-ar="العنوان:" data-en="Address:">العنوان:</strong> <span id="profile-contact-address">--</span></p>
+              <p><strong data-ar="البريد:" data-en="Email:">البريد:</strong> <span id="profile-contact-email">--</span></p>
+              <p><strong data-ar="الوصف التجاري:" data-en="Business Description:">الوصف التجاري:</strong> <span id="profile-contact-description">--</span></p>
+            </article>
+
+            <div style="display:none;">
+              <span id="commission-completed-count">0</span>
+              <span id="commission-weekly-count">0</span>
+              <span id="commission-weekly-total">0.00 د.أ</span>
+              <span id="commission-month-total">0.00 د.أ</span>
+              <div id="profile-gallery-list"></div>
+              <div id="profile-services-list"></div>
+              <div id="profile-review-requests-list"></div>
+              <form id="gallery-form"></form>
+              <div id="gallery-message" class="form-message"></div>
+              <form id="service-form"></form>
+              <div id="service-message" class="form-message"></div>
             </div>
-          </section>
+          </aside>
+
+          <div class="profile-tabs-area">
+            <div class="profile-tab-nav" role="tablist" aria-label="Profile tabs">
+              <button type="button" class="profile-tab-btn active" data-profile-tab="search" data-ar="البحث" data-en="Search">البحث</button>
+              <button type="button" class="profile-tab-btn" data-profile-tab="parts" data-ar="قطع البائع" data-en="Seller Parts">قطع البائع</button>
+              <button type="button" class="profile-tab-btn" data-profile-tab="orders" data-ar="طلباتي" data-en="My Orders">طلباتي</button>
+            </div>
+
+            <div class="profile-tab-content">
+              <section class="profile-tab-panel active" data-profile-panel="search">
+                <div class="profile-section">
+                  <h3 data-ar="بحث متقدم للقطع" data-en="Advanced Parts Search">بحث متقدم للقطع</h3>
+                  <form id="profile-advanced-search-form" class="request-form">
+                    <div class="form-row">
+                      <label><span data-ar="الماركة" data-en="Brand">الماركة</span><select id="profile-search-brand"><option value="" data-ar="الكل" data-en="All">الكل</option></select></label>
+                      <label><span data-ar="الطراز" data-en="Model">الطراز</span><select id="profile-search-model"><option value="" data-ar="الكل" data-en="All">الكل</option></select></label>
+                    </div>
+                    <div class="form-row">
+                      <label><span data-ar="السنة" data-en="Year">السنة</span><select id="profile-search-year"><option value="" data-ar="الكل" data-en="All">الكل</option></select></label>
+                      <label><span data-ar="نوع الهيكل" data-en="Body Type">نوع الهيكل</span><select id="profile-search-body-type"><option value="" data-ar="الكل" data-en="All">الكل</option></select></label>
+                    </div>
+                    <div class="form-row single">
+                      <label><span data-ar="الفئة" data-en="Category">الفئة</span><select id="profile-search-category"><option value="" data-ar="الكل" data-en="All">الكل</option></select></label>
+                    </div>
+                    <div class="advanced-search-actions">
+                      <button type="submit" class="btn secondary" data-ar="تطبيق البحث" data-en="Apply Search">تطبيق البحث</button>
+                      <button id="profile-search-reset" type="button" class="btn secondary" data-ar="إعادة الضبط" data-en="Reset">إعادة الضبط</button>
+                    </div>
+                  </form>
+                </div>
+                <div id="profile-search-results" class="profile-card-grid"></div>
+              </section>
+
+              <section class="profile-tab-panel" data-profile-panel="parts">
+                <div class="profile-section">
+                  <h3 data-ar="قطع البائع" data-en="Seller Parts">قطع البائع</h3>
+                  <p data-ar="كل قطعة تظهر في بطاقة مستقلة، والسعر إلزامي." data-en="Each part appears in its own card, and price is required.">كل قطعة تظهر في بطاقة مستقلة، والسعر إلزامي.</p>
+                </div>
+
+                <div id="part-management" class="part-management" style="display:none;">
+                  <div class="section-header">
+                    <h3 data-ar="إضافة قطعة جديدة" data-en="Add New Part">إضافة قطعة جديدة</h3>
+                    <p data-ar="لن يتفعل زر الحفظ حتى إدخال الاسم والسعر والصورة." data-en="Save button stays disabled until name, price, and image are provided.">لن يتفعل زر الحفظ حتى إدخال الاسم والسعر والصورة.</p>
+                  </div>
+                  <div id="part-message" class="form-message"></div>
+                  <form id="part-form" class="request-form">
+                    <div class="form-row">
+                      <label><span data-ar="اسم القطعة (AR)" data-en="Part Name (AR)">اسم القطعة (AR)</span><input type="text" id="part-name-ar" required /></label>
+                      <label><span data-ar="اسم القطعة (EN)" data-en="Part Name (EN)">اسم القطعة (EN)</span><input type="text" id="part-name-en" required /></label>
+                    </div>
+                    <div class="form-row">
+                      <label><span data-ar="رقم القطعة (PartID)" data-en="PartID Reference">رقم القطعة (PartID)</span><input type="text" id="part-reference" data-ar-placeholder="اختياري - يُنشأ تلقائياً" data-en-placeholder="Optional - auto generated" /></label>
+                      <label><span data-ar="السعر (د.أ)" data-en="Price (JOD)">السعر (د.أ)</span><input type="number" id="part-price" min="0" step="0.01" required /></label>
+                    </div>
+                    <div class="form-row">
+                      <label><span data-ar="المركبة المرتبطة" data-en="Linked Vehicle">المركبة المرتبطة</span><select id="part-vehicle-select"><option value="" data-ar="اختر مركبة" data-en="Select vehicle">اختر مركبة</option><option value="custom" data-ar="إدخال يدوي" data-en="Manual entry">إدخال يدوي</option></select></label>
+                      <label><span data-ar="الفئة" data-en="Category">الفئة</span><input type="text" id="part-category" list="part-category-list" required /><datalist id="part-category-list"><option value="محرك"></option><option value="كهرباء"></option><option value="فرامل"></option><option value="تعليق"></option><option value="تبريد"></option><option value="هيكل"></option></datalist></label>
+                    </div>
+                    <div class="form-row">
+                      <label><span data-ar="الماركة" data-en="Brand">الماركة</span><input type="text" id="part-brand" required /></label>
+                      <label><span data-ar="الطراز" data-en="Model">الطراز</span><input type="text" id="part-model" required /></label>
+                    </div>
+                    <div class="form-row">
+                      <label><span data-ar="السنة" data-en="Year">السنة</span><input type="number" id="part-year" min="1980" max="2100" required /></label>
+                      <label><span data-ar="نوع الهيكل" data-en="Body Type">نوع الهيكل</span><input type="text" id="part-body-type" required /></label>
+                    </div>
+                    <div class="form-row">
+                      <label><span data-ar="حالة القطعة" data-en="Part Condition">حالة القطعة</span><select id="part-condition"><option value="new" data-ar="جديد" data-en="New">جديد</option><option value="used" data-ar="مستعمل" data-en="Used">مستعمل</option><option value="oem" data-ar="أصلي" data-en="OEM">أصلي</option><option value="aftermarket" data-ar="تجاري" data-en="Aftermarket">تجاري</option></select></label>
+                      <label><span data-ar="الخصم (%)" data-en="Discount (%)">الخصم (%)</span><input type="number" id="part-discount" min="0" max="95" step="0.01" /></label>
+                    </div>
+                    <div class="form-row">
+                      <label><span data-ar="حالة العرض" data-en="Publish Status">حالة العرض</span><select id="part-status"><option value="active" data-ar="جاهز للعرض" data-en="Live">جاهز للعرض</option><option value="pending" data-ar="تحت المراجعة" data-en="Under Review">تحت المراجعة</option><option value="inactive" data-ar="غير منشور" data-en="Unpublished">غير منشور</option></select></label>
+                      <label><span data-ar="صورة القطعة" data-en="Part Image">صورة القطعة</span><input type="file" id="part-image" accept="image/*" required /></label>
+                    </div>
+                    <div id="part-image-preview" class="part-image-preview" style="display:none;"><img id="part-preview-img" alt="Part preview" /></div>
+                    <div class="form-row single"><label><span data-ar="روابط Gallery (اختياري)" data-en="Gallery Links (optional)">روابط Gallery (اختياري)</span><input type="text" id="part-gallery-links" data-ar-placeholder="افصل بين الروابط بفاصلة" data-en-placeholder="Comma-separated URLs" /></label></div>
+                    <div class="form-row single"><label><span data-ar="الوصف" data-en="Description">الوصف</span><textarea id="part-description" rows="3"></textarea></label></div>
+                    <button id="part-save-button" type="submit" class="btn primary" disabled data-ar="حفظ القطعة" data-en="Save Part">حفظ القطعة</button>
+                  </form>
+                </div>
+
+                <div id="profile-parts-list" class="profile-card-grid"></div>
+              </section>
+
+              <section class="profile-tab-panel" data-profile-panel="orders">
+                <div class="profile-section">
+                  <h3 data-ar="طلباتي" data-en="My Orders">طلباتي</h3>
+                  <p data-ar="عرض سجل الطلبات مباشرة داخل صفحة البروفايل." data-en="View your order history directly inside your profile page.">عرض سجل الطلبات مباشرة داخل صفحة البروفايل.</p>
+                </div>
+                <div id="profile-orders-empty" class="dashboard-empty" data-ar="لا توجد طلبات بعد." data-en="No orders yet.">لا توجد طلبات بعد.</div>
+                <div id="profile-orders-list" class="dashboard-list"></div>
+              </section>
+            </div>
+          </div>
         </div>
       </div>
     </section>
