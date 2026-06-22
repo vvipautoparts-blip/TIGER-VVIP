@@ -264,6 +264,8 @@ function selectSavedAccount(index) {
     updatePageVisibility();
     displayUser(currentUser);
     updateRoleBasedNavigation();
+    window.location.hash = "#profile-page";
+    updatePageVisibility();
   }, 500);
 }
 
@@ -933,14 +935,21 @@ function isApprovalReviewerRole(role) {
 }
 
 function switchProfileTab(tabName) {
+  // دعم التصميم الجديد (fb-tab-btn / profile-tab-*)
+  document.querySelectorAll(".fb-tab-btn").forEach(btn => btn.classList.remove("active"));
+  document.querySelectorAll(".fb-tab-content").forEach(panel => panel.style.display = "none");
+  const activePanel = document.getElementById("profile-tab-" + tabName);
+  if (activePanel) activePanel.style.display = "block";
+  // تحديد الزر النشط بناءً على data-ar
+  document.querySelectorAll(".fb-tab-btn").forEach(btn => {
+    const onclick = btn.getAttribute("onclick") || "";
+    if (onclick.includes("'" + tabName + "'")) btn.classList.add("active");
+  });
+  // دعم التصميم القديم أيضاً
   const buttons = Array.from(document.querySelectorAll(".profile-tab-btn"));
   const panels = Array.from(document.querySelectorAll(".profile-tab-panel"));
-  buttons.forEach((btn) => {
-    btn.classList.toggle("active", btn.dataset.profileTab === tabName);
-  });
-  panels.forEach((panel) => {
-    panel.classList.toggle("active", panel.dataset.profilePanel === tabName);
-  });
+  buttons.forEach(btn => btn.classList.toggle("active", btn.dataset.profileTab === tabName));
+  panels.forEach(panel => panel.classList.toggle("active", panel.dataset.profilePanel === tabName));
 }
 
 function parseLegacyPriceToJod(priceText) {
@@ -2805,6 +2814,63 @@ function renderProfilePage() {
   renderProfileParts();
   renderProfileReviewRequests();
   renderProfileOrders(isStaffRole(currentUserProfile?.role));
+
+    // ملء عناصر تصميم فيسبوك الجديدة
+    const initial = (profileNameText || "T").charAt(0).toUpperCase();
+    const miniAvatar = document.getElementById("fb-mini-avatar-text");
+    if (miniAvatar) miniAvatar.textContent = initial;
+
+    const aboutType = document.getElementById("profile-about-type");
+    const aboutSub = document.getElementById("profile-about-sub");
+    const aboutStatus = document.getElementById("profile-about-status");
+    const aboutJoined = document.getElementById("profile-about-joined");
+    const aboutCity = document.getElementById("profile-about-city");
+    const aboutEmail = document.getElementById("profile-about-email");
+    const ordersCountSide = document.getElementById("profile-orders-count-side");
+    const partsSide = document.getElementById("profile-parts-side");
+
+    if (aboutType) aboutType.textContent = currentUserProfile.account_type || currentUserProfile.role || "غير محدد";
+    if (aboutSub) aboutSub.textContent = currentUserProfile.subscription || "أساسي";
+    if (aboutStatus) aboutStatus.textContent = currentUserProfile.business_status || (currentLang === "ar" ? "نشط" : "Active");
+    if (aboutJoined) {
+      const createdAt2 = currentUserProfile.created_at ? new Date(currentUserProfile.created_at) : new Date();
+      aboutJoined.textContent = createdAt2.toLocaleDateString(currentLang === "ar" ? "ar-SA" : "en-US", { year: "numeric", month: "long" });
+    }
+    if (aboutCity) aboutCity.textContent = currentUserProfile.city || currentUserProfile.location || "--";
+    if (aboutEmail) aboutEmail.textContent = currentUser.email || "--";
+    if (ordersCountSide) ordersCountSide.textContent = orderRequests.length || 0;
+    if (partsSide) partsSide.textContent = String(profileParts.length || 0);
+
+    // تبويب المندوب - العمولات
+    const repTab = document.getElementById("profile-rep-tab");
+    if (repTab) repTab.style.display = isStaffRole(currentUserProfile?.role) ? "block" : "none";
+
+    // عرض آخر الطلبات في الفيد
+    const ordersListMini = document.getElementById("profile-orders-list");
+    const ordersListFull = document.getElementById("profile-orders-full");
+    if (ordersListMini || ordersListFull) {
+      const recentOrders = orderRequests.slice(0, 3);
+      const allOrdersHtml = orderRequests.map(o => `
+        <div class="fb-order-item">
+          <div class="fb-order-icon">📦</div>
+          <div class="fb-order-info">
+            <strong>${o.product || o.part_name || "طلب"}</strong>
+            <span>${o.company || o.customer_name || ""} • ${new Date(o.created_at || Date.now()).toLocaleDateString("ar-SA")}</span>
+          </div>
+          <span class="fb-order-status ${o.status === 'Approved' ? 'approved' : o.status === 'Rejected' ? 'rejected' : 'pending'}">${o.status || "معلق"}</span>
+        </div>`).join("") || `<p class="fb-empty-state" data-ar="لا توجد طلبات بعد" data-en="No orders yet">لا توجد طلبات بعد</p>`;
+      const recentHtml = recentOrders.map(o => `
+        <div class="fb-order-item">
+          <div class="fb-order-icon">📦</div>
+          <div class="fb-order-info">
+            <strong>${o.product || o.part_name || "طلب"}</strong>
+            <span>${o.company || o.customer_name || ""} • ${new Date(o.created_at || Date.now()).toLocaleDateString("ar-SA")}</span>
+          </div>
+          <span class="fb-order-status ${o.status === 'Approved' ? 'approved' : o.status === 'Rejected' ? 'rejected' : 'pending'}">${o.status || "معلق"}</span>
+        </div>`).join("") || `<p class="fb-empty-state">لا توجد طلبات بعد</p>`;
+      if (ordersListMini) ordersListMini.innerHTML = recentHtml;
+      if (ordersListFull) ordersListFull.innerHTML = allOrdersHtml;
+    }
   runProfileSearch();
 }
 

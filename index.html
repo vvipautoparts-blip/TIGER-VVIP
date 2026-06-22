@@ -445,180 +445,195 @@
     </section>
 
     <section id="profile-page" class="section profile-page" style="display:none;">
-      <div class="profile-container premium-profile">
-        <div id="profile-cover" class="cover-photo"></div>
-        <div class="profile-header-wrapper">
-          <div class="profile-avatar-shell">
-            <img id="profile-picture" class="profile-picture" src="https://via.placeholder.com/168/1877F2/ffffff?text=VVIP" alt="Profile picture" />
-            <span id="profile-active-indicator" class="profile-active-indicator" title="Active"></span>
-          </div>
-          <div class="profile-header-info">
-            <div class="profile-title-row">
-              <h1 id="profile-name" class="profile-name">مرحبا بك</h1>
-              <span id="profile-verified-badge" class="verified-badge" style="display:none;" data-ar="حساب موثق" data-en="Verified account">موثق</span>
-            </div>
-            <div class="profile-info">
-              <span id="profile-account-type">مشتري</span>
-              <span id="profile-business-type">--</span>
-              <span id="profile-phone">+966 5XXXXXXXX</span>
-              <span id="profile-email">example@domain.com</span>
-            </div>
-            <div class="profile-header-actions">
-              <button id="share-profile-button" class="btn secondary" type="button" data-ar="نسخ رابط البروفايل" data-en="Copy Profile Link">نسخ رابط البروفايل</button>
-              <a id="share-profile-whatsapp" class="btn secondary" href="https://wa.me/?text=TIGER%20VVIP" target="_blank" rel="noopener" data-ar="مشاركة واتساب" data-en="Share on WhatsApp">مشاركة واتساب</a>
-            </div>
-          </div>
-          <button id="edit-profile-button" class="btn secondary edit-profile-button" type="button" data-ar="تعديل البروفايل" data-en="Edit Profile">تعديل البروفايل</button>
+      <div class="fb-profile-page">
+
+        <!-- غلاف البروفايل -->
+        <div class="fb-cover-area">
+          <div id="profile-cover" class="fb-cover-photo"></div>
+          <div class="fb-cover-overlay"></div>
+          <label class="fb-cover-edit-btn" title="تعديل صورة الغلاف">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/><path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0z"/></svg>
+            <span data-ar="تعديل الغلاف" data-en="Edit Cover">تعديل الغلاف</span>
+          </label>
         </div>
 
-        <div class="profile-quick-bar">
-          <article><strong id="profile-quick-phone">--</strong><span data-ar="الهاتف" data-en="Phone">الهاتف</span></article>
-          <article><strong id="profile-quick-city">--</strong><span data-ar="المدينة" data-en="City">المدينة</span></article>
-          <article><strong id="profile-quick-address">--</strong><span data-ar="العنوان" data-en="Address">العنوان</span></article>
-          <article><strong id="profile-quick-photos">0</strong><span data-ar="عدد الصور" data-en="Photos">عدد الصور</span></article>
-          <article><strong id="profile-quick-services">0</strong><span data-ar="عدد الخدمات" data-en="Services">عدد الخدمات</span></article>
-          <article><strong id="profile-quick-parts">0</strong><span data-ar="عدد القطع" data-en="Parts">عدد القطع</span></article>
+        <!-- هيدر البروفايل -->
+        <div class="fb-profile-header">
+          <div class="fb-profile-avatar-wrap">
+            <img id="profile-picture" class="fb-avatar" src="https://ui-avatars.com/api/?name=VVIP&background=1877F2&color=fff&size=168" alt="Profile" />
+            <span id="profile-active-indicator" class="fb-active-dot"></span>
+          </div>
+
+          <div class="fb-profile-identity">
+            <div class="fb-name-row">
+              <h1 id="profile-name" class="fb-profile-name">مرحبا بك</h1>
+              <span id="profile-verified-badge" class="fb-verified-badge" style="display:none;">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="#1877F2"><path d="M10 0C4.477 0 0 4.477 0 10s4.477 10 10 10 10-4.477 10-10S15.523 0 10 0zm4.707 7.293l-5.414 5.414a1 1 0 01-1.414 0l-2.586-2.586a1 1 0 011.414-1.414L8.586 10.586l4.707-4.707a1 1 0 011.414 1.414z"/></svg>
+              </span>
+            </div>
+            <p class="fb-profile-meta">
+              <span id="profile-account-type" class="fb-meta-chip">مشتري</span>
+              <span id="profile-business-type" class="fb-meta-chip"></span>
+            </p>
+            <p class="fb-followers-line">
+              <span id="profile-orders-count" class="fb-bold">0</span>
+              <span data-ar=" طلبات  •  " data-en=" orders  •  "> طلبات  •  </span>
+              <span id="profile-parts-summary" class="fb-bold">0</span>
+              <span data-ar=" قطع" data-en=" parts"> قطع</span>
+            </p>
+          </div>
+
+          <div class="fb-profile-actions">
+            <button id="edit-profile-button" class="fb-btn-primary" type="button">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/></svg>
+              <span data-ar="تعديل البروفايل" data-en="Edit Profile">تعديل البروفايل</span>
+            </button>
+            <button id="share-profile-button" class="fb-btn-secondary" type="button">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z"/></svg>
+              <span data-ar="مشاركة" data-en="Share">مشاركة</span>
+            </button>
+          </div>
         </div>
 
-        <div class="profile-main-grid facebook-profile-grid">
-          <aside class="profile-left-column profile-left-modern">
-            <article class="profile-info-card-modern">
-              <h3 class="card-title" data-ar="المعلومات" data-en="Information">المعلومات</h3>
-              <p id="profile-bio">هذا ملفك الشخصي. يمكنك التحكم في معلومات حسابك من هنا.</p>
-              <div class="info-item"><span data-ar="نوع الحساب:" data-en="Account Type:">نوع الحساب:</span> <strong id="profile-account-type-detail">مشتري</strong></div>
-              <div class="info-item"><span data-ar="الوضع:" data-en="Status:">الوضع:</span> <strong id="profile-status">نشط</strong></div>
-              <div class="info-item"><span data-ar="الاشتراك:" data-en="Subscription:">الاشتراك:</span> <strong id="profile-subscription">أساسي</strong></div>
-              <div class="info-item"><span data-ar="انضم منذ:" data-en="Joined:">انضم منذ:</span> <strong id="profile-joined">--</strong></div>
-              <div class="profile-side-links">
-                <a href="#order-request" class="btn secondary" data-ar="طلب جديد" data-en="New Request">طلب جديد</a>
-                <a id="profile-rep-link" href="#representative-dashboard" class="btn secondary" style="display:none;" data-ar="لوحة المندوب" data-en="Rep Dashboard">لوحة المندوب</a>
-                <a id="profile-approvals-link" href="#approvals-dashboard" class="btn secondary" style="display:none;" data-ar="شاشة الموافقات" data-en="Approvals">شاشة الموافقات</a>
-                <a id="profile-admin-link" href="#admin-dashboard" class="btn secondary" style="display:none;" data-ar="لوحة المدير" data-en="Admin Dashboard">لوحة المدير</a>
+        <!-- شريط التبويبات -->
+        <div class="fb-profile-tabs-bar">
+          <button class="fb-tab-btn active" onclick="switchProfileTab('feed')" data-ar="الكل" data-en="All">الكل</button>
+          <button class="fb-tab-btn" onclick="switchProfileTab('orders')" data-ar="طلباتي" data-en="My Orders">طلباتي</button>
+          <button class="fb-tab-btn" onclick="switchProfileTab('info')" data-ar="حول" data-en="About">حول</button>
+          <button class="fb-tab-btn" onclick="switchProfileTab('commission')" id="profile-rep-tab" style="display:none;" data-ar="العمولات" data-en="Commission">العمولات</button>
+        </div>
+
+        <!-- محتوى البروفايل -->
+        <div class="fb-profile-body">
+
+          <!-- عمود يمين: معلومات -->
+          <aside class="fb-profile-sidebar">
+
+            <div class="fb-info-card">
+              <h3 data-ar="التفاصيل الشخصية" data-en="Personal Details">التفاصيل الشخصية</h3>
+              <div class="fb-info-row">
+                <svg width="16" height="16" fill="#65676B" viewBox="0 0 16 16"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>
+                <span id="profile-contact-city" data-ar="يعيش في --" data-en="Lives in --">يعيش في --</span>
               </div>
-            </article>
+              <div class="fb-info-row">
+                <svg width="16" height="16" fill="#65676B" viewBox="0 0 16 16"><path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511z"/></svg>
+                <span id="profile-contact-phone">--</span>
+              </div>
+              <div class="fb-info-row">
+                <svg width="16" height="16" fill="#65676B" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/></svg>
+                <span id="profile-contact-email">--</span>
+              </div>
+              <div class="fb-info-row">
+                <svg width="16" height="16" fill="#65676B" viewBox="0 0 16 16"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg>
+                <span id="profile-joined">--</span>
+              </div>
+            </div>
 
-            <article class="profile-stats-card-modern">
-              <div class="stat-item"><span class="stat-number" id="profile-orders-count">0</span><span class="stat-label" data-ar="طلبات" data-en="Orders">طلبات</span></div>
-              <div class="stat-item"><span class="stat-number" id="profile-parts-summary">0</span><span class="stat-label" data-ar="قطع" data-en="Parts">قطع</span></div>
-              <div class="stat-item"><span class="stat-number" id="commission-month-count">0</span><span class="stat-label" data-ar="عمليات" data-en="Operations">عمليات</span></div>
-            </article>
+            <div class="fb-info-card">
+              <h3 data-ar="الإحصائيات" data-en="Statistics">الإحصائيات</h3>
+              <div class="fb-stats-grid">
+                <div class="fb-stat-box"><span id="profile-orders-count-side" class="fb-stat-num">0</span><span data-ar="طلبات" data-en="Orders">طلبات</span></div>
+                <div class="fb-stat-box"><span class="fb-stat-num" id="commission-month-count">0</span><span data-ar="عمليات" data-en="Ops">عمليات</span></div>
+                <div class="fb-stat-box"><span class="fb-stat-num" id="profile-parts-side">0</span><span data-ar="قطع" data-en="Parts">قطع</span></div>
+              </div>
+            </div>
 
-            <article class="profile-info-card-modern">
-              <h3 class="card-title" data-ar="التواصل" data-en="Contact">التواصل</h3>
-              <p><strong data-ar="الهاتف:" data-en="Phone:">الهاتف:</strong> <span id="profile-contact-phone">--</span></p>
-              <p><strong data-ar="المدينة:" data-en="City:">المدينة:</strong> <span id="profile-contact-city">--</span></p>
-              <p><strong data-ar="العنوان:" data-en="Address:">العنوان:</strong> <span id="profile-contact-address">--</span></p>
-              <p><strong data-ar="البريد:" data-en="Email:">البريد:</strong> <span id="profile-contact-email">--</span></p>
-              <p><strong data-ar="الوصف التجاري:" data-en="Business Description:">الوصف التجاري:</strong> <span id="profile-contact-description">--</span></p>
-            </article>
+            <div class="fb-info-card" id="profile-links-card">
+              <h3 data-ar="روابط سريعة" data-en="Quick Links">روابط سريعة</h3>
+              <a href="#order-request" class="fb-quick-link" data-ar="➕ طلب جديد" data-en="➕ New Order">➕ طلب جديد</a>
+              <a href="#user-orders" class="fb-quick-link" data-ar="📋 طلباتي" data-en="📋 My Orders">📋 طلباتي</a>
+              <a id="profile-rep-link" href="#representative-dashboard" class="fb-quick-link" style="display:none;" data-ar="📊 لوحة المندوب" data-en="📊 Rep Dashboard">📊 لوحة المندوب</a>
+              <a id="profile-approvals-link" href="#approvals-dashboard" class="fb-quick-link" style="display:none;" data-ar="✅ شاشة الموافقات" data-en="✅ Approvals">✅ شاشة الموافقات</a>
+              <a id="profile-admin-link" href="#admin-dashboard" class="fb-quick-link" style="display:none;" data-ar="⚙️ لوحة المدير" data-en="⚙️ Admin Dashboard">⚙️ لوحة المدير</a>
+            </div>
 
             <div style="display:none;">
+              <span id="profile-quick-phone"></span>
+              <span id="profile-quick-city"></span>
+              <span id="profile-quick-address"></span>
+              <span id="profile-quick-photos">0</span>
+              <span id="profile-quick-services">0</span>
+              <span id="profile-quick-parts">0</span>
+              <span id="profile-phone"></span>
+              <span id="profile-email"></span>
+              <span id="profile-account-type-detail"></span>
+              <span id="profile-status"></span>
+              <span id="profile-subscription"></span>
+              <span id="profile-bio"></span>
               <span id="commission-completed-count">0</span>
               <span id="commission-weekly-count">0</span>
               <span id="commission-weekly-total">0.00 د.أ</span>
               <span id="commission-month-total">0.00 د.أ</span>
-              <div id="profile-gallery-list"></div>
-              <div id="profile-services-list"></div>
-              <div id="profile-review-requests-list"></div>
-              <form id="gallery-form"></form>
-              <div id="gallery-message" class="form-message"></div>
-              <form id="service-form"></form>
-              <div id="service-message" class="form-message"></div>
+              <span id="profile-contact-address"></span>
+              <span id="profile-contact-description"></span>
+              <a id="share-profile-whatsapp" href="#" style="display:none;"></a>
             </div>
           </aside>
 
-          <div class="profile-tabs-area">
-            <div class="profile-tab-nav" role="tablist" aria-label="Profile tabs">
-              <button type="button" class="profile-tab-btn active" data-profile-tab="search" data-ar="البحث" data-en="Search">البحث</button>
-              <button type="button" class="profile-tab-btn" data-profile-tab="parts" data-ar="قطع البائع" data-en="Seller Parts">قطع البائع</button>
-              <button type="button" class="profile-tab-btn" data-profile-tab="orders" data-ar="طلباتي" data-en="My Orders">طلباتي</button>
+          <!-- عمود وسط: الفيد -->
+          <div class="fb-profile-feed">
+
+            <!-- تبويب: الكل -->
+            <div id="profile-tab-feed" class="fb-tab-content active">
+              <div class="fb-post-box">
+                <div class="fb-post-box-inner">
+                  <div class="fb-mini-avatar" id="fb-mini-avatar-text">NZ</div>
+                  <button class="fb-post-placeholder" data-ar="ماذا تريد أن تطلب اليوم؟" data-en="What do you want to order today?">ماذا تريد أن تطلب اليوم؟</button>
+                </div>
+                <div class="fb-post-box-actions">
+                  <a href="#order-request" class="fb-post-action">
+                    <svg width="18" height="18" fill="#45BD62" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/></svg>
+                    <span data-ar="طلب جديد" data-en="New Order">طلب جديد</span>
+                  </a>
+                  <a href="#catalog" class="fb-post-action">
+                    <svg width="18" height="18" fill="#1877F2" viewBox="0 0 16 16"><path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z"/><path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z"/></svg>
+                    <span data-ar="الكراج" data-en="Catalog">الكراج</span>
+                  </a>
+                </div>
+              </div>
+
+              <div class="fb-profile-card">
+                <h3 class="fb-card-title" data-ar="📋 آخر الطلبات" data-en="📋 Recent Orders">📋 آخر الطلبات</h3>
+                <div id="profile-orders-list" class="fb-orders-mini">
+                  <p class="fb-empty-state" data-ar="لا توجد طلبات بعد" data-en="No orders yet">لا توجد طلبات بعد</p>
+                </div>
+                <a href="#user-orders" class="fb-see-all" data-ar="عرض جميع الطلبات" data-en="See all orders">عرض جميع الطلبات</a>
+              </div>
             </div>
 
-            <div class="profile-tab-content">
-              <section class="profile-tab-panel active" data-profile-panel="search">
-                <div class="profile-section">
-                  <h3 data-ar="بحث متقدم للقطع" data-en="Advanced Parts Search">بحث متقدم للقطع</h3>
-                  <form id="profile-advanced-search-form" class="request-form">
-                    <div class="form-row">
-                      <label><span data-ar="الماركة" data-en="Brand">الماركة</span><select id="profile-search-brand"><option value="" data-ar="الكل" data-en="All">الكل</option></select></label>
-                      <label><span data-ar="الطراز" data-en="Model">الطراز</span><select id="profile-search-model"><option value="" data-ar="الكل" data-en="All">الكل</option></select></label>
-                    </div>
-                    <div class="form-row">
-                      <label><span data-ar="السنة" data-en="Year">السنة</span><select id="profile-search-year"><option value="" data-ar="الكل" data-en="All">الكل</option></select></label>
-                      <label><span data-ar="نوع الهيكل" data-en="Body Type">نوع الهيكل</span><select id="profile-search-body-type"><option value="" data-ar="الكل" data-en="All">الكل</option></select></label>
-                    </div>
-                    <div class="form-row single">
-                      <label><span data-ar="الفئة" data-en="Category">الفئة</span><select id="profile-search-category"><option value="" data-ar="الكل" data-en="All">الكل</option></select></label>
-                    </div>
-                    <div class="advanced-search-actions">
-                      <button type="submit" class="btn secondary" data-ar="تطبيق البحث" data-en="Apply Search">تطبيق البحث</button>
-                      <button id="profile-search-reset" type="button" class="btn secondary" data-ar="إعادة الضبط" data-en="Reset">إعادة الضبط</button>
-                    </div>
-                  </form>
+            <!-- تبويب: طلباتي -->
+            <div id="profile-tab-orders" class="fb-tab-content" style="display:none;">
+              <div class="fb-profile-card">
+                <h3 class="fb-card-title" data-ar="📦 جميع طلباتي" data-en="📦 All My Orders">📦 جميع طلباتي</h3>
+                <div id="profile-orders-full" class="fb-orders-full">
+                  <p class="fb-empty-state" data-ar="لا توجد طلبات" data-en="No orders">لا توجد طلبات</p>
                 </div>
-                <div id="profile-search-results" class="profile-card-grid"></div>
-              </section>
-
-              <section class="profile-tab-panel" data-profile-panel="parts">
-                <div class="profile-section">
-                  <h3 data-ar="قطع البائع" data-en="Seller Parts">قطع البائع</h3>
-                  <p data-ar="كل قطعة تظهر في بطاقة مستقلة، والسعر إلزامي." data-en="Each part appears in its own card, and price is required.">كل قطعة تظهر في بطاقة مستقلة، والسعر إلزامي.</p>
-                </div>
-
-                <div id="part-management" class="part-management" style="display:none;">
-                  <div class="section-header">
-                    <h3 data-ar="إضافة قطعة جديدة" data-en="Add New Part">إضافة قطعة جديدة</h3>
-                    <p data-ar="لن يتفعل زر الحفظ حتى إدخال الاسم والسعر والصورة." data-en="Save button stays disabled until name, price, and image are provided.">لن يتفعل زر الحفظ حتى إدخال الاسم والسعر والصورة.</p>
-                  </div>
-                  <div id="part-message" class="form-message"></div>
-                  <form id="part-form" class="request-form">
-                    <div class="form-row">
-                      <label><span data-ar="اسم القطعة (AR)" data-en="Part Name (AR)">اسم القطعة (AR)</span><input type="text" id="part-name-ar" required /></label>
-                      <label><span data-ar="اسم القطعة (EN)" data-en="Part Name (EN)">اسم القطعة (EN)</span><input type="text" id="part-name-en" required /></label>
-                    </div>
-                    <div class="form-row">
-                      <label><span data-ar="رقم القطعة (PartID)" data-en="PartID Reference">رقم القطعة (PartID)</span><input type="text" id="part-reference" data-ar-placeholder="اختياري - يُنشأ تلقائياً" data-en-placeholder="Optional - auto generated" /></label>
-                      <label><span data-ar="السعر (د.أ)" data-en="Price (JOD)">السعر (د.أ)</span><input type="number" id="part-price" min="0" step="0.01" required /></label>
-                    </div>
-                    <div class="form-row">
-                      <label><span data-ar="المركبة المرتبطة" data-en="Linked Vehicle">المركبة المرتبطة</span><select id="part-vehicle-select"><option value="" data-ar="اختر مركبة" data-en="Select vehicle">اختر مركبة</option><option value="custom" data-ar="إدخال يدوي" data-en="Manual entry">إدخال يدوي</option></select></label>
-                      <label><span data-ar="الفئة" data-en="Category">الفئة</span><input type="text" id="part-category" list="part-category-list" required /><datalist id="part-category-list"><option value="محرك"></option><option value="كهرباء"></option><option value="فرامل"></option><option value="تعليق"></option><option value="تبريد"></option><option value="هيكل"></option></datalist></label>
-                    </div>
-                    <div class="form-row">
-                      <label><span data-ar="الماركة" data-en="Brand">الماركة</span><input type="text" id="part-brand" required /></label>
-                      <label><span data-ar="الطراز" data-en="Model">الطراز</span><input type="text" id="part-model" required /></label>
-                    </div>
-                    <div class="form-row">
-                      <label><span data-ar="السنة" data-en="Year">السنة</span><input type="number" id="part-year" min="1980" max="2100" required /></label>
-                      <label><span data-ar="نوع الهيكل" data-en="Body Type">نوع الهيكل</span><input type="text" id="part-body-type" required /></label>
-                    </div>
-                    <div class="form-row">
-                      <label><span data-ar="حالة القطعة" data-en="Part Condition">حالة القطعة</span><select id="part-condition"><option value="new" data-ar="جديد" data-en="New">جديد</option><option value="used" data-ar="مستعمل" data-en="Used">مستعمل</option><option value="oem" data-ar="أصلي" data-en="OEM">أصلي</option><option value="aftermarket" data-ar="تجاري" data-en="Aftermarket">تجاري</option></select></label>
-                      <label><span data-ar="الخصم (%)" data-en="Discount (%)">الخصم (%)</span><input type="number" id="part-discount" min="0" max="95" step="0.01" /></label>
-                    </div>
-                    <div class="form-row">
-                      <label><span data-ar="حالة العرض" data-en="Publish Status">حالة العرض</span><select id="part-status"><option value="active" data-ar="جاهز للعرض" data-en="Live">جاهز للعرض</option><option value="pending" data-ar="تحت المراجعة" data-en="Under Review">تحت المراجعة</option><option value="inactive" data-ar="غير منشور" data-en="Unpublished">غير منشور</option></select></label>
-                      <label><span data-ar="صورة القطعة" data-en="Part Image">صورة القطعة</span><input type="file" id="part-image" accept="image/*" required /></label>
-                    </div>
-                    <div id="part-image-preview" class="part-image-preview" style="display:none;"><img id="part-preview-img" alt="Part preview" /></div>
-                    <div class="form-row single"><label><span data-ar="روابط Gallery (اختياري)" data-en="Gallery Links (optional)">روابط Gallery (اختياري)</span><input type="text" id="part-gallery-links" data-ar-placeholder="افصل بين الروابط بفاصلة" data-en-placeholder="Comma-separated URLs" /></label></div>
-                    <div class="form-row single"><label><span data-ar="الوصف" data-en="Description">الوصف</span><textarea id="part-description" rows="3"></textarea></label></div>
-                    <button id="part-save-button" type="submit" class="btn primary" disabled data-ar="حفظ القطعة" data-en="Save Part">حفظ القطعة</button>
-                  </form>
-                </div>
-
-                <div id="profile-parts-list" class="profile-card-grid"></div>
-              </section>
-
-              <section class="profile-tab-panel" data-profile-panel="orders">
-                <div class="profile-section">
-                  <h3 data-ar="طلباتي" data-en="My Orders">طلباتي</h3>
-                  <p data-ar="عرض سجل الطلبات مباشرة داخل صفحة البروفايل." data-en="View your order history directly inside your profile page.">عرض سجل الطلبات مباشرة داخل صفحة البروفايل.</p>
-                </div>
-                <div id="profile-orders-empty" class="dashboard-empty" data-ar="لا توجد طلبات بعد." data-en="No orders yet.">لا توجد طلبات بعد.</div>
-                <div id="profile-orders-list" class="dashboard-list"></div>
-              </section>
+              </div>
             </div>
+
+            <!-- تبويب: حول -->
+            <div id="profile-tab-info" class="fb-tab-content" style="display:none;">
+              <div class="fb-profile-card">
+                <h3 class="fb-card-title" data-ar="ℹ️ معلومات الحساب" data-en="ℹ️ Account Info">ℹ️ معلومات الحساب</h3>
+                <div class="fb-about-list">
+                  <div class="fb-about-row"><span data-ar="نوع الحساب:" data-en="Account Type:">نوع الحساب:</span><strong id="profile-about-type">--</strong></div>
+                  <div class="fb-about-row"><span data-ar="الاشتراك:" data-en="Subscription:">الاشتراك:</span><strong id="profile-about-sub">--</strong></div>
+                  <div class="fb-about-row"><span data-ar="الحالة:" data-en="Status:">الحالة:</span><strong id="profile-about-status">نشط</strong></div>
+                  <div class="fb-about-row"><span data-ar="تاريخ الانضمام:" data-en="Joined:">تاريخ الانضمام:</span><strong id="profile-about-joined">--</strong></div>
+                  <div class="fb-about-row"><span data-ar="المدينة:" data-en="City:">المدينة:</span><strong id="profile-about-city">--</strong></div>
+                  <div class="fb-about-row"><span data-ar="البريد:" data-en="Email:">البريد:</span><strong id="profile-about-email">--</strong></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- تبويب: العمولات (للمندوبين) -->
+            <div id="profile-tab-commission" class="fb-tab-content" style="display:none;">
+              <div class="fb-profile-card">
+                <h3 class="fb-card-title" data-ar="💰 ملخص العمولات" data-en="💰 Commission Summary">💰 ملخص العمولات</h3>
+                <div id="financial-summary" class="fb-commission-summary"></div>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
