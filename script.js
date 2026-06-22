@@ -4115,6 +4115,304 @@ function initGalleryOnProfileLoad() {
   }
 }
 
+// ===== REGISTRATION SYSTEM (NEW DESIGN) =====
+
+function initializeRegistrationUI() {
+  const regEmailForm = document.getElementById('reg-email-form');
+  const regProfileForm = document.getElementById('reg-profile-form');
+  const regConfirmedBtn = document.getElementById('reg-confirmed-btn');
+  const regResendBtn = document.getElementById('reg-resend-btn');
+  const regModalCancel = document.getElementById('reg-modal-cancel');
+  const regModalManual = document.getElementById('reg-modal-manual');
+
+  if (regEmailForm) {
+    regEmailForm.addEventListener('submit', handleRegEmailSubmit);
+  }
+
+  if (regProfileForm) {
+    regProfileForm.addEventListener('submit', handleRegProfileSubmit);
+  }
+
+  if (regConfirmedBtn) {
+    regConfirmedBtn.addEventListener('click', handleRegConfirmed);
+  }
+
+  if (regResendBtn) {
+    regResendBtn.addEventListener('click', handleRegResendEmail);
+  }
+
+  if (regModalCancel) {
+    regModalCancel.addEventListener('click', closeRegModal);
+  }
+
+  if (regModalManual) {
+    regModalManual.addEventListener('click', showNewAccountForm);
+  }
+
+  // Load saved accounts button listener
+  const authModeToggle = document.getElementById('auth-mode-toggle');
+  if (authModeToggle) {
+    authModeToggle.addEventListener('click', showSavedAccountsModal);
+  }
+}
+
+async function handleRegEmailSubmit(e) {
+  e.preventDefault();
+  const emailInput = document.getElementById('reg-email-input');
+  const email = emailInput.value.trim();
+
+  if (!email) {
+    showRegMessage('البريد الإلكتروني مطلوب', 'error');
+    return;
+  }
+
+  // Validate email format
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(email)) {
+    showRegMessage(currentLang === 'ar' ? 'البريد الإلكتروني غير صحيح' : 'Invalid email address', 'error');
+    return;
+  }
+
+  // Check if email already exists
+  try {
+    const { data, error } = await supabaseClient
+      .from('profiles')
+      .select('id')
+      .eq('email', email)
+      .single();
+
+    if (data && !error) {
+      showRegMessage(currentLang === 'ar' ? 'هذا البريد مسجل بالفعل' : 'Email already registered', 'error');
+      return;
+    }
+  } catch (err) {
+    // Email not found (good)
+  }
+
+  // Send verification email (simulated)
+  console.log('Sending verification email to:', email);
+  showRegMessage(currentLang === 'ar' ? 'تم إرسال بريد التأكيد' : 'Verification email sent', 'success');
+
+  // Store email in session for next step
+  sessionStorage.setItem('tempRegEmail', email);
+
+  // Move to verification step
+  moveRegStep('verification');
+
+  // Show "Confirmed" button after user checks email
+  setTimeout(() => {
+    document.getElementById('reg-confirmed-btn').style.display = 'block';
+  }, 2000);
+}
+
+function handleRegConfirmed() {
+  const email = sessionStorage.getItem('tempRegEmail');
+  if (!email) {
+    showRegMessage(currentLang === 'ar' ? 'حدث خطأ. حاول مجددًا' : 'Error. Try again', 'error');
+    return;
+  }
+
+  // Move to profile completion step
+  moveRegStep('profile');
+
+  // Load account types for dropdown
+  loadAccountTypesForReg();
+}
+
+async function handleRegProfileSubmit(e) {
+  e.preventDefault();
+  const email = sessionStorage.getItem('tempRegEmail');
+  const accountType = document.getElementById('reg-account-type').value;
+  const fullname = document.getElementById('reg-fullname').value;
+  const password = document.getElementById('reg-password').value;
+
+  if (!accountType || !fullname || !password) {
+    showRegMessage(currentLang === 'ar' ? 'جميع الحقول مطلوبة' : 'All fields required', 'error');
+    return;
+  }
+
+  if (password.length < 8) {
+    showRegMessage(currentLang === 'ar' ? 'كلمة المرور يجب أن تكون 8 أحرف على الأقل' : 'Password must be at least 8 characters', 'error');
+    return;
+  }
+
+  try {
+    // Create auth user
+    const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({
+      email: email,
+      password: password,
+    });
+
+    if (signUpError) throw signUpError;
+
+    const userId = signUpData.user.id;
+
+    // Create profile
+    const { error: profileError } = await supabaseClient
+      .from('profiles')
+      .insert({
+        id: userId,
+        email: email,
+        full_name: fullname,
+        account_type: accountType,
+        role: 'dealer',
+        is_approved: false,
+        subscription: 'basic',
+      });
+
+    if (profileError) throw profileError;
+
+    // Save account to device (localStorage)
+    saveAccountToDevice({
+      userId: userId,
+      email: email,
+      fullname: fullname,
+      avatar: generateInitials(fullname),
+    });
+
+    showRegMessage(currentLang === 'ar' ? 'تم إنشاء الحساب بنجاح! جاري التوجيه...' : 'Account created successfully! Redirecting...', 'success');
+
+    // Clear session storage
+    sessionStorage.removeItem('tempRegEmail');
+
+    // Redirect to profile after 2 seconds
+    setTimeout(() => {
+      window.location.hash = '#profile-page';
+    }, 2000);
+  } catch (error) {
+    console.error('Registration error:', error);
+    showRegMessage(error.message || (currentLang === 'ar' ? 'حدث خطأ في التسجيل' : 'Registration error'), 'error');
+  }
+}
+
+function handleRegResendEmail() {
+  const email = sessionStorage.getItem('tempRegEmail');
+  if (!email) return;
+
+  showRegMessage(currentLang === 'ar' ? 'تم إعادة إرسال البريد' : 'Email resent', 'success');
+  console.log('Resending verification email to:', email);
+}
+
+function moveRegStep(step) {
+  document.querySelectorAll('.reg-step').forEach(el => el.style.display = 'none');
+  const stepEl = document.getElementById(`reg-${step}-step`);
+  if (stepEl) stepEl.style.display = 'block';
+}
+
+function showRegMessage(message, type = 'info') {
+  const msgEl = document.getElementById('reg-message');
+  if (!msgEl) return;
+
+  msgEl.textContent = message;
+  msgEl.className = `form-message ${type}`;
+  msgEl.style.display = 'block';
+
+  setTimeout(() => {
+    msgEl.style.display = 'none';
+  }, 5000);
+}
+
+async function loadAccountTypesForReg() {
+  const select = document.getElementById('reg-account-type');
+  if (!select) return;
+
+  try {
+    const { data, error } = await supabaseClient
+      .from('account_types')
+      .select('label, category')
+      .eq('active', true)
+      .order('category', { ascending: true })
+      .order('label', { ascending: true });
+
+    if (error) throw error;
+
+    data?.forEach(type => {
+      const option = document.createElement('option');
+      option.value = type.label;
+      option.textContent = type.label;
+      select.appendChild(option);
+    });
+  } catch (error) {
+    console.error('Failed to load account types:', error);
+  }
+}
+
+function showSavedAccountsModal() {
+  const savedAccounts = getSavedAccounts();
+  const modal = document.getElementById('reg-saved-accounts-modal');
+  const list = document.getElementById('reg-saved-accounts-list');
+
+  if (!list || !modal) return;
+
+  list.innerHTML = '';
+
+  if (savedAccounts.length === 0) {
+    list.innerHTML = '<p style="text-align:center;color:#65676B;">لا توجد حسابات محفوظة</p>';
+  } else {
+    savedAccounts.forEach(account => {
+      const item = document.createElement('div');
+      item.className = 'reg-account-item';
+      item.innerHTML = `
+        <div class="reg-account-avatar">${account.avatar}</div>
+        <div class="reg-account-name">${account.fullname}</div>
+      `;
+      item.addEventListener('click', () => useSavedAccount(account));
+      list.appendChild(item);
+    });
+  }
+
+  modal.style.display = 'flex';
+}
+
+function closeRegModal() {
+  const modal = document.getElementById('reg-saved-accounts-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function showNewAccountForm() {
+  closeRegModal();
+  moveRegStep('email');
+}
+
+function useSavedAccount(account) {
+  // Navigate to profile with saved account
+  currentUser = { id: account.userId, email: account.email };
+  sessionStorage.setItem('tempRegEmail', account.email);
+  closeRegModal();
+  window.location.hash = '#profile-page';
+}
+
+function saveAccountToDevice(account) {
+  const accounts = getSavedAccounts();
+  
+  // Avoid duplicates
+  if (!accounts.find(a => a.userId === account.userId)) {
+    accounts.push(account);
+    localStorage.setItem('savedAccounts', JSON.stringify(accounts));
+  }
+}
+
+function getSavedAccounts() {
+  try {
+    return JSON.parse(localStorage.getItem('savedAccounts') || '[]');
+  } catch (error) {
+    return [];
+  }
+}
+
+function generateInitials(fullname) {
+  return fullname
+    .split(' ')
+    .slice(0, 2)
+    .map(word => word.charAt(0).toUpperCase())
+    .join('');
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+  initializeRegistrationUI();
+});
+
 (async function startApp() {
   try {
     console.log("🔄 Starting app initialization...");

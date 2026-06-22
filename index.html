@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="stylesheet" href="styles.css?v=20260622-1" />
+  <link rel="stylesheet" href="styles.css?v=20260622-2" />
 </head>
 <body>
   <button id="app-back-button" class="app-back-button" type="button" data-ar="عودة" data-en="Back">عودة</button>
@@ -226,84 +226,101 @@
       </div>
     </section>
 
-    <section id="registration-page" class="section registration-page">
-      <div class="registration-grid">
-        <div class="registration-panel">
+    <!-- صفحة إنشاء حساب جديد - Split Screen Design -->
+    <section id="registration-page" class="section registration-split-screen">
+      <div class="reg-split-container">
+        <!-- اليسار: نموذج التسجيل -->
+        <div class="reg-left-side">
+          <h1 class="reg-title" data-ar="إنشاء حساب جديد" data-en="Create New Account">إنشاء حساب جديد</h1>
+          
           <div id="reg-message" class="form-message"></div>
-          <form id="registration-form" class="request-form">
-            <div class="form-row single">
-              <label>
-                <span data-ar="نوع الحساب" data-en="Account Type">نوع الحساب</span>
-                <select id="account-type-select" class="dropdown-select" required>
-                  <option value="" data-ar="اختر نوع الحساب" data-en="Select account type">اختر نوع الحساب</option>
-                </select>
-              </label>
-            </div>
-            <div id="registration-image-row" class="form-row single hidden">
-              <label>
-                <span data-ar="صورة المشتري" data-en="Buyer Image">صورة المشتري</span>
-                <input type="file" id="registration-image" accept="image/*" />
-              </label>
-            </div>
-            <div id="registration-name-row" class="form-row single hidden">
-              <label>
-                <span data-ar="اسم المشتري" data-en="Buyer Name">اسم المشتري</span>
-                <input type="text" id="registration-name" placeholder="الاسم الكامل" data-ar-placeholder="الاسم الكامل" data-en-placeholder="Full name" />
-              </label>
-            </div>
-            <div class="form-row single">
-              <label>
-                <span data-ar="البريد الإلكتروني" data-en="Email">البريد الإلكتروني</span>
-                <input type="email" id="registration-phone" placeholder="example@domain.com" data-ar-placeholder="example@domain.com" data-en-placeholder="example@domain.com" required />
-              </label>
-            </div>
-            <button type="submit" class="btn primary" data-ar="استمرار" data-en="Continue">استمرار</button>
-          </form>
 
-          <div id="otp-section" class="registration-inner-step hidden">
-            <p data-ar="رمز التحقق تم إرساله إلى هاتفك. استخدم 123456 للتجربة." data-en="A verification code was sent to your phone. Use 123456 for demo.">رمز التحقق تم إرساله إلى هاتفك. استخدم 123456 للتجربة.</p>
-            <div class="form-row single">
-              <label>
-                <span data-ar="رمز التحقق" data-en="Verification Code">رمز التحقق</span>
-                <input type="text" id="registration-otp" maxlength="6" placeholder="123456" data-ar-placeholder="123456" data-en-placeholder="123456" />
-              </label>
-            </div>
-            <button id="verify-otp-button" class="btn primary" type="button" data-ar="تحقق" data-en="Verify">تحقق</button>
+          <!-- خطوة 1: البريد الإلكتروني -->
+          <div id="reg-email-step" class="reg-step active">
+            <form id="reg-email-form" class="reg-form">
+              <div class="reg-form-group">
+                <input 
+                  type="email" 
+                  id="reg-email-input" 
+                  class="reg-input" 
+                  placeholder="البريد الإلكتروني"
+                  data-ar-placeholder="البريد الإلكتروني"
+                  data-en-placeholder="Email Address"
+                  required 
+                />
+              </div>
+              <button type="submit" class="reg-btn-primary" data-ar="إرسال رمز التأكيد" data-en="Send Verification Code">إرسال رمز التأكيد</button>
+            </form>
           </div>
 
-          <div id="profile-section" class="registration-inner-step hidden">
-            <p id="profile-section-description" data-ar="أكمل معلوماتك الأساسية لإتمام التسجيل." data-en="Complete your basic information to finish registration.">أكمل معلوماتك الأساسية لإتمام التسجيل.</p>
-            <form id="registration-profile-form" class="request-form">
-              <div class="form-row single">
-                <label>
-                  <span data-ar="البريد الإلكتروني" data-en="Email">البريد الإلكتروني</span>
-                  <input type="email" id="registration-email" placeholder="example@domain.com" data-ar-placeholder="example@domain.com" data-en-placeholder="example@domain.com" required />
-                </label>
+          <!-- خطوة 2: التحقق من البريد -->
+          <div id="reg-verification-step" class="reg-step" style="display:none;">
+            <p class="reg-step-message" data-ar="تم إرسال رسالة تفعيل لبريدك الإلكتروني. يرجى زيارة البريد والنقر على رابط التفعيل." data-en="A verification email has been sent. Please check your email and click the verification link.">تم إرسال رسالة تفعيل لبريدك الإلكتروني. يرجى زيارة البريد والنقر على رابط التفعيل.</p>
+            <div class="reg-verification-actions">
+              <button type="button" class="reg-btn-primary" id="reg-confirmed-btn" style="display:none;" data-ar="تم التأكيد ✓ متابعة" data-en="Confirmed ✓ Continue">تم التأكيد ✓ متابعة</button>
+              <button type="button" class="reg-btn-secondary" id="reg-resend-btn" data-ar="إعادة إرسال البريد" data-en="Resend Email">إعادة إرسال البريد</button>
+            </div>
+          </div>
+
+          <!-- خطوة 3: إكمال البيانات -->
+          <div id="reg-profile-step" class="reg-step" style="display:none;">
+            <form id="reg-profile-form" class="reg-form">
+              <div class="reg-form-group">
+                <select id="reg-account-type" class="reg-input" required>
+                  <option value="" data-ar="اختر نوع الحساب" data-en="Select Account Type">اختر نوع الحساب</option>
+                </select>
               </div>
-              <div class="form-row single">
-                <label>
-                  <span data-ar="كلمة المرور" data-en="Password">كلمة المرور</span>
-                  <input type="password" id="registration-password" placeholder="********" data-ar-placeholder="********" data-en-placeholder="********" required />
-                </label>
+              <div class="reg-form-group">
+                <input 
+                  type="text" 
+                  id="reg-fullname" 
+                  class="reg-input" 
+                  placeholder="الاسم الكامل"
+                  data-ar-placeholder="الاسم الكامل"
+                  data-en-placeholder="Full Name"
+                  required 
+                />
               </div>
-              <div id="registration-fullname-row" class="form-row single">
-                <label>
-                  <span data-ar="الاسم الكامل" data-en="Full Name">الاسم الكامل</span>
-                  <input type="text" id="registration-fullname" placeholder="الاسم الكامل" data-ar-placeholder="الاسم الكامل" data-en-placeholder="Full Name" />
-                </label>
+              <div class="reg-form-group">
+                <input 
+                  type="password" 
+                  id="reg-password" 
+                  class="reg-input" 
+                  placeholder="كلمة المرور"
+                  data-ar-placeholder="كلمة المرور"
+                  data-en-placeholder="Password"
+                  required 
+                />
               </div>
-              <div id="registration-address-row" class="form-row single">
-                <label>
-                  <span data-ar="عنوان/موقع" data-en="Location/Address">عنوان/موقع</span>
-                  <input type="text" id="registration-address" placeholder="المدينة أو الفرع" data-ar-placeholder="المدينة أو الفرع" data-en-placeholder="City or branch" />
-                </label>
-              </div>
-              <button id="complete-registration-button" class="btn primary" type="button" data-ar="إنشاء الحساب" data-en="Create Account">إنشاء الحساب</button>
+              <button type="submit" class="reg-btn-primary" data-ar="إنشاء الحساب" data-en="Create Account">إنشاء الحساب</button>
             </form>
+          </div>
+
+          <!-- الحسابات المحفوظة -->
+          <div id="reg-saved-accounts-modal" class="reg-modal" style="display:none;">
+            <div class="reg-modal-content">
+              <h2 class="reg-modal-title" data-ar="اختر ملفًا شخصيًا" data-en="Select Profile">اختر ملفًا شخصيًا</h2>
+              <div id="reg-saved-accounts-list" class="reg-accounts-list"></div>
+              <div class="reg-modal-footer">
+                <button type="button" class="reg-btn-secondary" id="reg-modal-cancel" data-ar="إلغاء" data-en="Cancel">إلغاء</button>
+                <button type="button" class="reg-btn-primary" id="reg-modal-manual" data-ar="حساب جديد" data-en="New Account">حساب جديد</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- رابط العودة -->
+          <div class="reg-footer-links">
+            <a href="#auth-section" class="reg-link" data-ar="لديك حساب بالفعل؟ دخول" data-en="Already have account? Sign in">لديك حساب بالفعل؟ دخول</a>
           </div>
         </div>
 
-
+        <!-- اليمين: الهوية البصرية -->
+        <div class="reg-right-side">
+          <button class="reg-lang-switch" type="button" onclick="toggleLang()">
+            <span id="reg-lang-text">EN</span>
+          </button>
+          <img src="logo.png" alt="TIGER VVIP Logo" class="reg-logo-crystal-3d" />
+        </div>
       </div>
     </section>
 
@@ -843,6 +860,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-local.js?v=20260621-7"></script>
   <script src="supabase-config.js?v=20260621-7"></script>
-  <script src="script.js?v=20260622-1"></script>
+  <script src="script.js?v=20260622-2"></script>
 </body>
 </html>
