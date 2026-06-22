@@ -111,37 +111,37 @@ const products = [
     title: "فلتر هواء أصلي",
     model: "BMW X5 G05",
     description: "فلتر هواء عالي الجودة للحفاظ على أداء المحرك وسلامته.",
-    price: "350 ريال",
+    price: "65 دينار",
   },
   {
     title: "كشاف LED أمامي",
     model: "Mercedes S-Class",
     description: "مصابيح LED فاخرة مع توازن ضوء ممتاز ومقاومة للماء.",
-    price: "1,250 ريال",
+    price: "235 دينار",
   },
   {
     title: "طقم فرامل رياضي",
     model: "Audi Q7",
     description: "فرامل عالية الأداء مع تبريد محسّن وتحمل أكبر.",
-    price: "2,100 ريال",
+    price: "395 دينار",
   },
   {
     title: "غطاء مقعد جلد فئة VVIP",
     model: "Range Rover",
     description: "غطاء مقعد فاخر مع جلد ناعم وحماية إضافية للأثاث.",
-    price: "1,800 ريال",
+    price: "340 دينار",
   },
   {
     title: "بطارية AGM",
     model: "Lexus LX",
     description: "بطارية قوة عالية طويلة العمر لجميع احتياجات السيارات الفاخرة.",
-    price: "980 ريال",
+    price: "185 دينار",
   },
   {
     title: "مجموعة صيانة عاجلة",
     model: "Toyota Land Cruiser",
     description: "مجموعة قطع غيار أساسية للصيانة السريعة والخدمة العاجلة.",
-    price: "720 ريال",
+    price: "135 دينار",
   },
 ];
 
@@ -647,29 +647,46 @@ function saveDemoUsers(users) {
 
 function ensureDemoUsersSeed() {
   const users = getDemoUsers();
-  if (users.length > 0) return users;
 
-  const seededUsers = [
-    {
+  const canonicalAdmin = {
+    id: "demo-admin-1",
+    email: "vvipautoparts@gmail.com",
+    password: "Edco.202672",
+    profile: {
       id: "demo-admin-1",
-      email: "admin@tigervvip.com",
-      password: "Password123!",
-      profile: {
-        id: "demo-admin-1",
-        full_name: "Admin TIGER VVIP",
-        phone: "+962780003302",
-        role: "admin",
-        account_type: "المدير العام",
-        account_category: "الإدارة",
-        subscription: "premium",
-        is_approved: true,
-        created_at: new Date().toISOString(),
-      },
+      full_name: "Admin TIGER VVIP",
+      phone: "+962780003302",
+      role: "super_admin",
+      account_type: "المدير العام",
+      account_category: "الإدارة",
+      subscription: "premium",
+      is_approved: true,
+      created_at: new Date().toISOString(),
     },
-  ];
+  };
 
-  saveDemoUsers(seededUsers);
-  return seededUsers;
+  const adminIndex = users.findIndex(
+    (user) => user?.id === "demo-admin-1" || String(user?.email || "").toLowerCase() === "vvipautoparts@gmail.com"
+  );
+
+  if (adminIndex >= 0) {
+    const existing = users[adminIndex] || {};
+    users[adminIndex] = {
+      ...existing,
+      id: canonicalAdmin.id,
+      email: canonicalAdmin.email,
+      password: canonicalAdmin.password,
+      profile: {
+        ...(existing.profile || {}),
+        ...canonicalAdmin.profile,
+      },
+    };
+  } else {
+    users.unshift(canonicalAdmin);
+  }
+
+  saveDemoUsers(users);
+  return users;
 }
 
 function findDemoUserByEmail(email) {
@@ -2608,8 +2625,8 @@ async function handleAuthForm(email, password) {
     if (demoUser.password !== secret) {
       showMessage(
         currentLang === "ar"
-          ? "كلمة المرور غير صحيحة. جرّب Password123! لحساب الإدارة أو سجّل حسابًا جديدًا."
-          : "Incorrect password. Try Password123! for admin or create a new account.",
+          ? "كلمة المرور غير صحيحة. جرّب vvipautoparts@gmail.com / Edco.202672 للمسؤول أو سجّل حسابًا جديدًا."
+          : "Incorrect password. Try vvipautoparts@gmail.com / Edco.202672 for admin or create a new account.",
         "error",
         authMessage
       );
@@ -2811,11 +2828,14 @@ function updatePageVisibility() {
     document.getElementById("admin-dashboard").style.display = "block";
     renderAdminDashboard();
   } else {
-    // Show catalog/order sections
+    // Show generic section by hash (catalog, order-request, user-orders, products-feed, ...)
     const sectionId = hash.replace("#", "");
-    const section = document.getElementById(sectionId || "hero");
+    const section = document.getElementById(sectionId);
     if (section) {
       section.style.display = "block";
+    } else {
+      window.location.hash = isAuth ? "#home-page" : "#auth-section";
+      return;
     }
   }
 }
@@ -3778,9 +3798,8 @@ async function submitAuthFormFromUI() {
       console.warn("⚠️ failed to parse saved currentUser", err);
     }
 
-    const profileName = document.querySelector(".auth-profile-name")?.textContent?.trim() || "user";
-    email = profileName;
-    password = "Password123!";
+    email = "vvipautoparts@gmail.com";
+    password = "Edco.202672";
   }
 
   console.log("🔐 [auth] inputs captured, calling handleAuthForm");
@@ -4791,66 +4810,69 @@ function generateInitials(fullname) {
 
 // 🎯 PRODUCTS FEED SECTION - Facebook Style
 function initializeProductsFeed() {
+  const OFFICIAL_CALL_NUMBER = "+962780003302";
+  const OFFICIAL_WHATSAPP_NUMBER = "962796960886";
+
   const productsData = [
     {
       title: "فلتر هواء أصلي",
       brand: "BMW",
       model: "BMW X5 G05",
       description: "فلتر هواء عالي الجودة للحفاظ على أداء المحرك",
-      price: 350,
+      price: 65,
       image: "icons/tiger-logo.png",
       category: "مرشحات",
-      phone: "+966501234567"
+      phone: OFFICIAL_CALL_NUMBER
     },
     {
       title: "كشاف LED أمامي",
       brand: "Mercedes",
       model: "Mercedes S-Class",
       description: "مصابيح LED فاخرة مع توازن ضوء ممتاز",
-      price: 1250,
+      price: 235,
       image: "icons/tiger-logo.png",
       category: "إضاءة",
-      phone: "+966501234568"
+      phone: OFFICIAL_CALL_NUMBER
     },
     {
       title: "طقم فرامل رياضي",
       brand: "Audi",
       model: "Audi Q7",
       description: "فرامل عالية الأداء مع تبريد محسّن",
-      price: 2100,
+      price: 395,
       image: "icons/tiger-logo.png",
       category: "فرامل",
-      phone: "+966501234569"
+      phone: OFFICIAL_CALL_NUMBER
     },
     {
       title: "غطاء مقعد جلد",
       brand: "Range Rover",
       model: "Range Rover",
       description: "غطاء مقعد فاخر مع جلد ناعم",
-      price: 1800,
+      price: 340,
       image: "icons/tiger-logo.png",
       category: "ملحقات",
-      phone: "+966501234570"
+      phone: OFFICIAL_CALL_NUMBER
     },
     {
       title: "بطارية AGM",
       brand: "Lexus",
       model: "Lexus LX",
       description: "بطارية قوة عالية طويلة العمر",
-      price: 980,
+      price: 185,
       image: "icons/tiger-logo.png",
       category: "بطاريات",
-      phone: "+966501234571"
+      phone: OFFICIAL_CALL_NUMBER
     },
     {
       title: "مجموعة صيانة",
       brand: "Toyota",
       model: "Toyota Land Cruiser",
       description: "مجموعة قطع غيار أساسية للصيانة",
-      price: 720,
+      price: 135,
       image: "icons/tiger-logo.png",
       category: "صيانة",
-      phone: "+966501234572"
+      phone: OFFICIAL_CALL_NUMBER
     }
   ];
 
@@ -4898,11 +4920,11 @@ function initializeProductsFeed() {
           <div class="feed-product-brand">${product.brand}</div>
           <h3 class="feed-product-title">${product.title}</h3>
           <p class="feed-product-desc">${product.description}</p>
-          <div class="feed-product-price">${product.price} ريال</div>
+          <div class="feed-product-price">${product.price} دينار</div>
           <p class="feed-product-specs">الطراز: ${product.model}</p>
         </div>
         <div class="feed-product-actions">
-          <a href="https://wa.me/${product.phone}?text=مرحباً%2C%20أود%20الاستفسار%20عن%20${encodeURIComponent(product.title)}" 
+          <a href="https://wa.me/${OFFICIAL_WHATSAPP_NUMBER}" 
              class="feed-contact-btn whatsapp" target="_blank">
             📱 اتصال WhatsApp
           </a>
@@ -4960,9 +4982,9 @@ function initializeProductsFeed() {
   resetBtn.addEventListener('click', () => {
     filterBrand.value = '';
     filterCategory.value = '';
-    filterPrice.value = '5000';
+    filterPrice.value = '500';
     searchInput.value = '';
-    priceValue.textContent = '5000';
+    priceValue.textContent = '500';
     renderProducts(productsData);
   });
 

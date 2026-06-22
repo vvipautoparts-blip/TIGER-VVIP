@@ -28,13 +28,8 @@
       <select id="quick-nav-select" class="quick-nav-select" aria-label="Quick navigation">
         <option value="" data-ar="القائمة الرئيسية" data-en="Main Menu">القائمة الرئيسية</option>
         <option value="#auth-section" data-ar="الرئيسية" data-en="Home">الرئيسية</option>
-        <option value="#about-page" data-ar="عن الشركة" data-en="About Us">عن الشركة</option>
-        <option value="#services-page" data-ar="الخدمات" data-en="Services">الخدمات</option>
-        <option value="#offers-page" data-ar="العروض" data-en="Offers">العروض</option>
-        <option value="#contact-page" data-ar="التواصل" data-en="Contact">التواصل</option>
-        <option value="#support-page" data-ar="الدعم الفني" data-en="Support">الدعم الفني</option>
         <option value="#registration-page" data-ar="سجل الآن" data-en="Register">سجل الآن</option>
-        <option value="#catalog" data-ar="الكراج" data-en="Catalog">الكراج</option>
+        <option value="#products-feed" data-ar="المنتجات" data-en="Products">المنتجات</option>
         <option value="#representative-dashboard" data-ar="لوحة المندوب" data-en="Representative Dashboard">لوحة المندوب</option>
         <option value="#approvals-dashboard" data-ar="شاشة الموافقات" data-en="Approvals Dashboard">شاشة الموافقات</option>
         <option value="#admin-dashboard" data-ar="لوحة المدير" data-en="Admin Dashboard">لوحة المدير</option>
@@ -149,141 +144,6 @@
       </div>
     </div>
 
-    <!-- صفحة 2: عن الشركة -->
-    <section id="about-page" class="section auth-section auth-page">
-      <div class="auth-page-grid">
-        <aside class="auth-page-left">
-          <div class="auth-profile-shell">
-            <div class="auth-profile-section">
-              <div class="auth-profile-avatar" aria-hidden="true">🏢</div>
-              <h2 class="auth-profile-name" data-ar="عن TIGER VVIP" data-en="About TIGER VVIP">عن TIGER VVIP</h2>
-            </div>
-            <div class="auth-login-actions">
-              <p style="color:#65676B;font-size:0.95rem;margin-bottom:1rem;" data-ar="متخصصون في قطع غيار السيارات الفاخرة منذ 2010. جودة أصلية وخدمة موثوقة." data-en="Specialists in luxury car spare parts since 2010. Genuine quality and trusted service.">متخصصون في قطع غيار السيارات الفاخرة منذ 2010. جودة أصلية وخدمة موثوقة.</p>
-              <a href="#services-page" class="btn primary auth-primary-btn" style="display:block;text-align:center;text-decoration:none;" data-ar="اكتشف خدماتنا" data-en="Discover Our Services">اكتشف خدماتنا</a>
-              <a href="#contact-page" class="btn auth-secondary-btn" style="display:block;text-align:center;text-decoration:none;" data-ar="تواصل معنا" data-en="Contact Us">تواصل معنا</a>
-            </div>
-          </div>
-        </aside>
-        <div class="auth-page-right">
-          <div class="right-side">
-            <button class="lang-switch" type="button" onclick="toggleLang()">
-              <span id="lang-text-about">EN</span>
-            </button>
-            <img src="icons/tiger-logo.png" alt="TIGER VVIP Logo" class="logo-crystal-3d" />
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- صفحة 3: الخدمات -->
-    <section id="services-page" class="section auth-section auth-page">
-      <div class="auth-page-grid">
-        <aside class="auth-page-left">
-          <div class="auth-profile-shell">
-            <div class="auth-profile-section">
-              <div class="auth-profile-avatar" aria-hidden="true">⚙️</div>
-              <h2 class="auth-profile-name" data-ar="خدماتنا" data-en="Our Services">خدماتنا</h2>
-            </div>
-            <div class="auth-login-actions">
-              <p style="color:#65676B;font-size:0.95rem;margin-bottom:1rem;" data-ar="توريد قطع أصلية، توصيل سريع، ضمان شامل، وأسعار تنافسية." data-en="Original parts supply, fast delivery, full warranty, and competitive prices.">توريد قطع أصلية، توصيل سريع، ضمان شامل، وأسعار تنافسية.</p>
-              <a href="#catalog" class="btn primary auth-primary-btn" style="display:block;text-align:center;text-decoration:none;" data-ar="استعرض الكراج" data-en="Browse Catalog">استعرض الكراج</a>
-              <a href="#order-request" class="btn auth-secondary-btn" style="display:block;text-align:center;text-decoration:none;" data-ar="اطلب الآن" data-en="Order Now">اطلب الآن</a>
-            </div>
-          </div>
-        </aside>
-        <div class="auth-page-right">
-          <div class="right-side">
-            <button class="lang-switch" type="button" onclick="toggleLang()">
-              <span id="lang-text-services">EN</span>
-            </button>
-            <img src="icons/tiger-logo.png" alt="TIGER VVIP Logo" class="logo-crystal-3d" />
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- صفحة 4: العروض الخاصة -->
-    <section id="offers-page" class="section auth-section auth-page">
-      <div class="auth-page-grid">
-        <aside class="auth-page-left">
-          <div class="auth-profile-shell">
-            <div class="auth-profile-section">
-              <div class="auth-profile-avatar" aria-hidden="true">🏷️</div>
-              <h2 class="auth-profile-name" data-ar="عروض خاصة" data-en="Special Offers">عروض خاصة</h2>
-            </div>
-            <div class="auth-login-actions">
-              <p style="color:#65676B;font-size:0.95rem;margin-bottom:1rem;" data-ar="احصل على خصم 20% على الطلبات الكبيرة والعروض الحصرية لأعضاء VVIP." data-en="Get 20% off bulk orders and exclusive deals for VVIP members.">احصل على خصم 20% على الطلبات الكبيرة والعروض الحصرية لأعضاء VVIP.</p>
-              <a href="#registration-page" class="btn primary auth-primary-btn" style="display:block;text-align:center;text-decoration:none;" data-ar="سجل واستفد" data-en="Register & Benefit">سجل واستفد</a>
-              <a href="#contact-page" class="btn auth-secondary-btn" style="display:block;text-align:center;text-decoration:none;" data-ar="اطلب عرض سعر" data-en="Request Quote">اطلب عرض سعر</a>
-            </div>
-          </div>
-        </aside>
-        <div class="auth-page-right">
-          <div class="right-side">
-            <button class="lang-switch" type="button" onclick="toggleLang()">
-              <span id="lang-text-offers">EN</span>
-            </button>
-            <img src="icons/tiger-logo.png" alt="TIGER VVIP Logo" class="logo-crystal-3d" />
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- صفحة 5: التواصل -->
-    <section id="contact-page" class="section auth-section auth-page">
-      <div class="auth-page-grid">
-        <aside class="auth-page-left">
-          <div class="auth-profile-shell">
-            <div class="auth-profile-section">
-              <div class="auth-profile-avatar" aria-hidden="true">📞</div>
-              <h2 class="auth-profile-name" data-ar="تواصل معنا" data-en="Contact Us">تواصل معنا</h2>
-            </div>
-            <div class="auth-login-actions">
-              <p style="color:#65676B;font-size:0.95rem;margin-bottom:1rem;" data-ar="نحن هنا لمساعدتك. اتصل أو راسلنا عبر واتساب." data-en="We're here to help. Call or message us on WhatsApp.">نحن هنا لمساعدتك. اتصل أو راسلنا عبر واتساب.</p>
-              <a href="tel:+962780003302" class="btn primary auth-primary-btn" style="display:block;text-align:center;text-decoration:none;" data-ar="اتصل الآن" data-en="Call Now">اتصل الآن</a>
-              <a href="https://wa.me/962796960886" class="btn auth-secondary-btn" style="display:block;text-align:center;text-decoration:none;" data-ar="واتساب" data-en="WhatsApp">واتساب</a>
-            </div>
-          </div>
-        </aside>
-        <div class="auth-page-right">
-          <div class="right-side">
-            <button class="lang-switch" type="button" onclick="toggleLang()">
-              <span id="lang-text-contact">EN</span>
-            </button>
-            <img src="icons/tiger-logo.png" alt="TIGER VVIP Logo" class="logo-crystal-3d" />
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- صفحة 6: الدعم الفني -->
-    <section id="support-page" class="section auth-section auth-page">
-      <div class="auth-page-grid">
-        <aside class="auth-page-left">
-          <div class="auth-profile-shell">
-            <div class="auth-profile-section">
-              <div class="auth-profile-avatar" aria-hidden="true">🛠️</div>
-              <h2 class="auth-profile-name" data-ar="الدعم الفني" data-en="Technical Support">الدعم الفني</h2>
-            </div>
-            <div class="auth-login-actions">
-              <p style="color:#65676B;font-size:0.95rem;margin-bottom:1rem;" data-ar="فريق الدعم متاح 24/7 للإجابة على جميع استفساراتك وحل مشاكلك." data-en="Support team available 24/7 to answer all your questions and solve your issues.">فريق الدعم متاح 24/7 للإجابة على جميع استفساراتك وحل مشاكلك.</p>
-              <a href="#contact-page" class="btn primary auth-primary-btn" style="display:block;text-align:center;text-decoration:none;" data-ar="تواصل مع الدعم" data-en="Contact Support">تواصل مع الدعم</a>
-              <a href="#catalog" class="btn auth-secondary-btn" style="display:block;text-align:center;text-decoration:none;" data-ar="استعرض الكراج" data-en="Browse Catalog">استعرض الكراج</a>
-            </div>
-          </div>
-        </aside>
-        <div class="auth-page-right">
-          <div class="right-side">
-            <button class="lang-switch" type="button" onclick="toggleLang()">
-              <span id="lang-text-support">EN</span>
-            </button>
-            <img src="icons/tiger-logo.png" alt="TIGER VVIP Logo" class="logo-crystal-3d" />
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- صفحة إنشاء حساب جديد - Split Screen Design (Email-Only) -->
     <section id="registration-page" class="section registration-split-screen">
       <div class="reg-split-container">
@@ -354,143 +214,6 @@
           </div>
         </div>
       </div>
-    </section>
-
-    <section id="hero" class="hero-section">
-      <div class="hero-copy">
-        <h1 data-ar="تجربة قطع غيار مخصصة للسيارات الفاخرة" data-en="Premium Auto Parts Experience for Luxury Vehicles">تجربة قطع غيار مخصصة للالسيارات الفاخرة</h1>
-        <p data-ar="TIGER VVIP تجمع بين الجودة الأصلية وخدمة التوصيل السريع للقطع الموثوقة." data-en="TIGER VVIP combines genuine quality with fast delivery for trusted parts.">TIGER VVIP تجمع بين الجودة الأصلية وخدمة التوصيل السريع للقطع الموثوقة.</p>
-        <div class="hero-actions">
-          <a class="btn primary" href="#catalog" data-ar="استعرض الكراج" data-en="Browse Catalog">استعرض الكراج</a>
-          <a class="btn secondary" href="#order-request" data-ar="اطلب الآن" data-en="Request Support">اطلب الآن</a>
-        </div>
-      </div>
-      <div class="hero-visual">
-        <div class="hero-box">
-          <h2 data-ar="خدمة خاصة للمعارض والموزعين" data-en="Dedicated Dealer & Distributor Service">خدمة خاصة للمعارض والموزعين</h2>
-          <ul>
-            <li data-ar="نظام طلبات بمراحل موافقة" data-en="Approval-based workflow">نظام طلبات بمراحل موافقة</li>
-            <li data-ar="أسعار تنافسية وعروض مخصصة" data-en="Competitive pricing and custom quotes">أسعار تنافسية وعروض مخصصة</li>
-            <li data-ar="متابعة حالة الطلب والدفع الآمن" data-en="Order tracking and secure checkout">متابعة حالة الطلب والدفع الآمن</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <section id="catalog" class="section">
-
-
-      <div class="search-bar">
-        <input id="search-input" type="search" placeholder="ابحث عن القطعة أو الموديل" />
-      </div>
-      <div class="advanced-search-panel">
-        <h3 data-ar="بحث متقدم" data-en="Advanced Search">بحث متقدم</h3>
-        <div class="advanced-search-grid">
-          <label>
-            <span data-ar="الماركة" data-en="Brand">الماركة</span>
-            <select id="filter-brand">
-              <option value="" data-ar="الكل" data-en="All">الكل</option>
-            </select>
-          </label>
-          <label>
-            <span data-ar="الطراز" data-en="Model">الطراز</span>
-            <select id="filter-model">
-              <option value="" data-ar="الكل" data-en="All">الكل</option>
-            </select>
-          </label>
-          <label>
-            <span data-ar="السنة" data-en="Year">السنة</span>
-            <select id="filter-year">
-              <option value="" data-ar="الكل" data-en="All">الكل</option>
-            </select>
-          </label>
-          <label>
-            <span data-ar="نوع الهيكل" data-en="Body Type">نوع الهيكل</span>
-            <select id="filter-body-type">
-              <option value="" data-ar="الكل" data-en="All">الكل</option>
-            </select>
-          </label>
-          <label>
-            <span data-ar="الفئة" data-en="Category">الفئة</span>
-            <select id="filter-category">
-              <option value="" data-ar="الكل" data-en="All">الكل</option>
-            </select>
-          </label>
-        </div>
-        <div class="advanced-search-actions">
-          <button id="apply-advanced-search" class="btn secondary" type="button" data-ar="تطبيق البحث" data-en="Apply Search">تطبيق البحث</button>
-          <button id="reset-advanced-search" class="btn secondary" type="button" data-ar="إعادة الضبط" data-en="Reset">إعادة الضبط</button>
-        </div>
-      </div>
-      <div class="product-grid" id="product-grid"></div>
-    </section>
-
-    <section id="order-request" class="section request-section">
-      <div class="section-header">
-        <h2 data-ar="نموذج طلب قطع" data-en="Parts Request Form">نموذج طلب قطع</h2>
-        <p data-ar="قدّم طلبًا باسم الشركة أو المعرض واحصل على متابعة حالة الطلب." data-en="Submit a request on behalf of your company or showroom and track its approval status.">قدّم طلبًا باسم الشركة أو المعرض واحصل على متابعة حالة الطلب.</p>
-      </div>
-      <div id="order-message" class="form-message"></div>
-      <form id="order-form" class="request-form">
-        <div class="form-row">
-          <label>
-            <span data-ar="اسم العميل" data-en="Customer Name">اسم العميل</span>
-            <input type="text" id="order-name" data-ar-placeholder="اكتب اسمك" data-en-placeholder="Enter your name" required />
-          </label>
-          <label>
-            <span data-ar="اسم المعرض/الشركة" data-en="Dealer / Company">اسم المعرض/الشركة</span>
-            <input type="text" id="order-company" data-ar-placeholder="اسم الشركة أو المعرض" data-en-placeholder="Company or showroom name" required />
-          </label>
-        </div>
-        <div class="form-row">
-          <label>
-            <span data-ar="البريد الإلكتروني" data-en="Email">البريد الإلكتروني</span>
-            <input type="email" id="order-email" data-ar-placeholder="example@domain.com" data-en-placeholder="example@domain.com" required />
-          </label>
-          <label>
-            <span data-ar="رقم الهاتف" data-en="Phone">رقم الهاتف</span>
-            <input type="tel" id="order-phone" data-ar-placeholder="05XXXXXXXX" data-en-placeholder="05XXXXXXXX" required />
-          </label>
-        </div>
-        <div class="form-row">
-          <label>
-            <span data-ar="القطعة المطلوبة" data-en="Requested Part">القطعة المطلوبة</span>
-            <select id="order-product" required></select>
-          </label>
-          <label>
-            <span data-ar="الكمية" data-en="Quantity">الكمية</span>
-            <input type="number" id="order-quantity" min="1" value="1" data-ar-placeholder="الحد الأدنى 1" data-en-placeholder="Minimum 1" required />
-          </label>
-        </div>
-        <div class="form-row">
-          <label>
-            <span data-ar="موقع التسليم" data-en="Delivery Location">موقع التسليم</span>
-            <input type="text" id="order-location" data-ar-placeholder="المدينة أو الفرع" data-en-placeholder="City or branch location" required />
-          </label>
-          <label>
-            <span data-ar="أولوية الطلب" data-en="Request Priority">أولوية الطلب</span>
-            <select id="order-priority">
-              <option value="Normal" data-ar="عادية" data-en="Normal">عادية</option>
-              <option value="Urgent" data-ar="عاجلة" data-en="Urgent">عاجلة</option>
-              <option value="High" data-ar="عالية" data-en="High">عالية</option>
-            </select>
-          </label>
-        </div>
-        <label>
-          <span data-ar="ملاحظات إضافية" data-en="Additional Notes">ملاحظات إضافية</span>
-          <textarea id="order-notes" rows="4" data-ar-placeholder="تفاصيل إضافية عن الطلب" data-en-placeholder="Additional details or requirements"></textarea>
-        </label>
-        <button type="submit" class="btn primary" data-ar="إرسال الطلب" data-en="Submit Request">إرسال الطلب</button>
-      </form>
-    </section>
-
-    <section id="user-orders" class="section dashboard-section">
-      <div class="section-header">
-        <h2 data-ar="طلباتي" data-en="My Orders">طلباتي</h2>
-        <p data-ar="عرض الطلبات الخاصة بك وحالتها بعد إرسالها." data-en="View your submitted orders and track their approval status.">عرض الطلبات الخاصة بك وحالتها بعد إرسالها.</p>
-      </div>
-      <div id="orders-empty" class="dashboard-empty" data-ar="لم تقم بإرسال أي طلبات بعد." data-en="You have not submitted any orders yet.">لم تقم بإرسال أي طلبات بعد.</div>
-      <div id="orders-list" class="dashboard-list"></div>
     </section>
 
     <section id="profile-page" class="section profile-page" style="display:none;">
@@ -821,11 +544,11 @@
             <!-- Price Range Filter -->
             <div class="filter-group">
               <label data-ar="نطاق السعر" data-en="Price Range">نطاق السعر</label>
-              <input type="range" id="feed-filter-price" class="price-range" min="0" max="5000" value="5000" />
+              <input type="range" id="feed-filter-price" class="price-range" min="0" max="500" value="500" />
               <div class="price-display">
                 <span data-ar="السعر: " data-en="Price: "></span>
-                <span id="feed-price-value">5000</span>
-                <span data-ar=" ريال" data-en=" SAR"></span>
+                <span id="feed-price-value">500</span>
+                <span data-ar=" دينار" data-en=" JOD"></span>
               </div>
             </div>
 
