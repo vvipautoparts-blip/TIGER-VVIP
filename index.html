@@ -500,6 +500,7 @@
           <button class="fb-tab-btn active" onclick="switchProfileTab('feed')" data-ar="الكل" data-en="All">الكل</button>
           <button class="fb-tab-btn" onclick="switchProfileTab('orders')" data-ar="طلباتي" data-en="My Orders">طلباتي</button>
           <button class="fb-tab-btn" onclick="switchProfileTab('info')" data-ar="حول" data-en="About">حول</button>
+          <button class="fb-tab-btn" onclick="switchProfileTab('gallery')" data-ar="📸 الصور" data-en="📸 Photos">📸 الصور</button>
           <button class="fb-tab-btn" onclick="switchProfileTab('commission')" id="profile-rep-tab" style="display:none;" data-ar="العمولات" data-en="Commission">العمولات</button>
         </div>
 
@@ -647,6 +648,62 @@
               <div class="fb-profile-card">
                 <h3 class="fb-card-title" data-ar="💰 ملخص العمولات" data-en="💰 Commission Summary">💰 ملخص العمولات</h3>
                 <div id="financial-summary" class="fb-commission-summary"></div>
+              </div>
+            </div>
+
+            <!-- تبويب: معرض الصور -->
+            <div id="profile-tab-gallery" class="fb-tab-content" style="display:none;">
+              <!-- قسم رفع الصور -->
+              <div class="fb-profile-card fb-gallery-upload-card">
+                <h3 class="fb-card-title" data-ar="📸 رفع الصور" data-en="📸 Upload Photos">📸 رفع الصور</h3>
+                <div class="fb-upload-counter">
+                  <span class="fb-counter-text">
+                    <span class="fb-current-count" id="gallery-image-count">0</span>
+                    <span data-ar=" من 50 صورة" data-en=" of 50 images"> من 50 صورة</span>
+                  </span>
+                  <div class="fb-counter-bar">
+                    <div class="fb-counter-progress" id="gallery-progress-bar" style="width: 0%;"></div>
+                  </div>
+                </div>
+
+                <div class="fb-upload-area" id="gallery-upload-zone">
+                  <svg width="48" height="48" fill="#1877F2" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>
+                  <h4 class="fb-upload-title" data-ar="رفع الصور" data-en="Upload Images">رفع الصور</h4>
+                  <p class="fb-upload-hint" data-ar="اسحب الصور هنا أو انقر للاختيار" data-en="Drag images here or click to select">اسحب الصور هنا أو انقر للاختيار</p>
+                  <div class="fb-upload-buttons">
+                    <input type="file" id="gallery-file-input" accept="image/jpeg,image/jpg" multiple style="display: none;" />
+                    <button class="fb-btn-primary" id="gallery-file-btn" type="button" data-ar="من الجهاز" data-en="From Device">من الجهاز</button>
+                    <button class="fb-btn-secondary" id="gallery-camera-btn" type="button" data-ar="التصوير المباشر" data-en="Camera">التصوير المباشر</button>
+                  </div>
+                  <input type="file" id="gallery-camera-input" accept="image/*" capture="environment" style="display: none;" />
+                  <p class="fb-upload-format" data-ar="صيغة JPG فقط • بحد أقصى 5 ميجابايت" data-en="JPG format only • Maximum 5 MB">صيغة JPG فقط • بحد أقصى 5 ميجابايت</p>
+                </div>
+
+                <div id="gallery-preview-container" class="fb-upload-preview" style="display:none;">
+                  <h4 class="fb-preview-title" data-ar="معاينة الصور" data-en="Preview">معاينة الصور</h4>
+                  <div id="gallery-preview-list" class="fb-preview-list"></div>
+                  <div class="fb-preview-actions">
+                    <button class="fb-btn-secondary" id="gallery-clear-btn" type="button" data-ar="حذف الكل" data-en="Clear All">حذف الكل</button>
+                    <button class="fb-btn-primary" id="gallery-upload-confirm-btn" type="button" data-ar="رفع الآن" data-en="Upload Now">رفع الآن</button>
+                  </div>
+                </div>
+
+                <div id="gallery-upload-progress" class="fb-upload-progress" style="display:none;">
+                  <div class="fb-progress-item">
+                    <span class="fb-progress-label">جاري الرفع...</span>
+                    <div class="fb-progress-bar">
+                      <div class="fb-progress-fill" id="gallery-upload-bar" style="width: 0%;"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- عرض معرض الصور -->
+              <div class="fb-profile-card fb-gallery-display-card">
+                <h3 class="fb-card-title" data-ar="📷 معرض الصور" data-en="📷 Photo Gallery">📷 معرض الصور</h3>
+                <div id="profile-gallery-grid" class="fb-gallery-grid">
+                  <p class="fb-empty-state" data-ar="لا توجد صور بعد" data-en="No photos yet">لا توجد صور بعد</p>
+                </div>
               </div>
             </div>
 

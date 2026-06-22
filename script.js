@@ -2947,6 +2947,11 @@ if (shareProfileButton) {
       showMessage(currentLang === "ar" ? `انسخ الرابط يدوياً: ${shareUrl}` : `Copy this link manually: ${shareUrl}`, "success", orderMessage);
     }
   });
+
+  // Initialize gallery UI after profile loads
+  setTimeout(() => {
+    initGalleryOnProfileLoad();
+  }, 100);
 }
 
 function renderHomeFeed() {
@@ -3790,6 +3795,324 @@ async function initializeApp() {
   }
   
   console.log("✓ App initialized successfully");
+}
+
+// ===== GALLERY MANAGEMENT FUNCTIONS =====
+
+let galleryPreviewFiles = [];
+
+function initializeGalleryUI() {
+  const uploadZone = document.getElementById('gallery-upload-zone');
+  const fileInput = document.getElementById('gallery-file-input');
+  const cameraInput = document.getElementById('gallery-camera-input');
+  const fileBtn = document.getElementById('gallery-file-btn');
+  const cameraBtn = document.getElementById('gallery-camera-btn');
+  const uploadConfirmBtn = document.getElementById('gallery-upload-confirm-btn');
+  const clearBtn = document.getElementById('gallery-clear-btn');
+
+  // File input events
+  fileBtn.addEventListener('click', () => fileInput.click());
+  cameraBtn.addEventListener('click', () => cameraInput.click());
+
+  fileInput.addEventListener('change', (e) => {
+    handleGalleryFileSelect(e.target.files);
+    e.target.value = '';
+  });
+
+  cameraInput.addEventListener('change', (e) => {
+    handleGalleryFileSelect(e.target.files);
+    e.target.value = '';
+  });
+
+  // Drag and drop
+  uploadZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadZone.classList.add('dragover');
+  });
+
+  uploadZone.addEventListener('dragleave', () => {
+    uploadZone.classList.remove('dragover');
+  });
+
+  uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('dragover');
+    handleGalleryFileSelect(e.dataTransfer.files);
+  });
+
+  uploadConfirmBtn?.addEventListener('click', uploadGalleryFiles);
+  clearBtn?.addEventListener('click', clearGalleryPreview);
+}
+
+function handleGalleryFileSelect(files) {
+  const MAX_FILES = 50;
+  const currentCount = parseInt(document.getElementById('gallery-image-count')?.textContent || '0');
+  const remainingSlots = MAX_FILES - currentCount;
+
+  if (remainingSlots <= 0) {
+    alert(currentLang === 'ar' ? 'لقد وصلت للحد الأقصى (50 صورة)' : 'Maximum images (50) reached');
+    return;
+  }
+
+  const newFiles = Array.from(files)
+    .filter(file => {
+      // Validate JPEG only
+      if (!['image/jpeg', 'image/jpg'].includes(file.type)) {
+        alert(currentLang === 'ar' ? 'فقط صيغة JPG مدعومة' : 'Only JPG format supported');
+        return false;
+      }
+      // Validate size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        alert(currentLang === 'ar' ? 'حجم الملف يتجاوز 5 ميجابايت' : 'File size exceeds 5 MB');
+        return false;
+      }
+      return true;
+    })
+    .slice(0, remainingSlots);
+
+  galleryPreviewFiles = [...galleryPreviewFiles, ...newFiles].slice(0, remainingSlots);
+  renderGalleryPreview();
+}
+
+function renderGalleryPreview() {
+  const previewContainer = document.getElementById('gallery-preview-container');
+  const previewList = document.getElementById('gallery-preview-list');
+
+  if (galleryPreviewFiles.length === 0) {
+    previewContainer.style.display = 'none';
+    return;
+  }
+
+  previewContainer.style.display = 'block';
+  previewList.innerHTML = '';
+
+  galleryPreviewFiles.forEach((file, index) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'fb-preview-item';
+      itemDiv.innerHTML = `
+        <img src="${e.target.result}" alt="Preview ${index}" />
+        <button class="fb-preview-remove" onclick="removeGalleryPreviewItem(${index})" type="button">✕</button>
+      `;
+      previewList.appendChild(itemDiv);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function removeGalleryPreviewItem(index) {
+  galleryPreviewFiles.splice(index, 1);
+  renderGalleryPreview();
+}
+
+function clearGalleryPreview() {
+  galleryPreviewFiles = [];
+  document.getElementById('gallery-file-input').value = '';
+  document.getElementById('gallery-camera-input').value = '';
+  renderGalleryPreview();
+}
+
+async function uploadGalleryFiles() {
+  if (galleryPreviewFiles.length === 0) {
+    alert(currentLang === 'ar' ? 'اختر صور قبل الرفع' : 'Select images before uploading');
+    return;
+  }
+
+  const uploadProgress = document.getElementById('gallery-upload-progress');
+  const uploadBar = document.getElementById('gallery-upload-bar');
+  uploadProgress.style.display = 'block';
+
+  let uploadedCount = 0;
+  const totalFiles = galleryPreviewFiles.length;
+
+  for (const file of galleryPreviewFiles) {
+    try {
+      // Compress image
+      const compressedBlob = await compressImage(file);
+      
+      // Upload to Supabase Storage
+      const timestamp = Date.now();
+      const fileName = `${currentUser.id}/${timestamp}-${Math.random().toString(36).substring(7)}.jpg`;
+      
+      const { data, error } = await supabaseClient.storage
+        .from('gallery')
+        .upload(fileName, compressedBlob, {
+          contentType: 'image/jpeg',
+        });
+
+      if (error) throw error;
+
+      // Get public URL
+      const { data: publicData } = supabaseClient.storage
+        .from('gallery')
+        .getPublicUrl(fileName);
+
+      // Save metadata to database
+      const { error: dbError } = await supabaseClient
+        .from('gallery_images')
+        .insert({
+          owner_id: currentUser.id,
+          title: file.name.split('.')[0] || 'Image',
+          description: '',
+          category: '',
+          image_url: publicData.publicUrl,
+          format_type: 'jpeg',
+          file_size: compressedBlob.size,
+          upload_status: 'completed',
+          status: 'pending',
+        });
+
+      if (dbError) throw dbError;
+
+      uploadedCount++;
+      uploadBar.style.width = `${(uploadedCount / totalFiles) * 100}%`;
+    } catch (error) {
+      console.error('Upload error:', error);
+    }
+  }
+
+  uploadProgress.style.display = 'none';
+  uploadBar.style.width = '0%';
+  galleryPreviewFiles = [];
+  renderGalleryPreview();
+  
+  // Reload gallery
+  await renderUserGallery();
+  updateGalleryCounter();
+}
+
+function compressImage(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxWidth = 1200;
+        const maxHeight = 1200;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(resolve, 'image/jpeg', 0.8);
+      };
+      img.onerror = () => reject(new Error('Image failed to load'));
+    };
+    reader.onerror = () => reject(new Error('FileReader error'));
+  });
+}
+
+async function renderUserGallery() {
+  const galleryGrid = document.getElementById('profile-gallery-grid');
+  if (!galleryGrid) return;
+
+  try {
+    const { data, error } = await supabaseClient
+      .from('gallery_images')
+      .select('*')
+      .eq('owner_id', currentUser.id)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
+      galleryGrid.innerHTML = '<p class="fb-empty-state" data-ar="لا توجد صور بعد" data-en="No photos yet">لا توجد صور بعد</p>';
+      return;
+    }
+
+    galleryGrid.innerHTML = data.map(item => `
+      <div class="fb-gallery-item" onclick="openGalleryModal(${item.id})">
+        <img src="${item.image_url}" alt="${item.title}" />
+        <div class="fb-gallery-overlay">
+          <button onclick="downloadGalleryImage('${item.image_url}', '${item.title}')" title="Download" type="button">⬇️</button>
+          <button onclick="deleteGalleryImage(${item.id})" title="Delete" type="button">🗑️</button>
+        </div>
+        <div class="fb-gallery-item-meta">${item.title}</div>
+      </div>
+    `).join('');
+  } catch (error) {
+    console.error('Error loading gallery:', error);
+  }
+}
+
+function openGalleryModal(imageId) {
+  // Implementation for modal view
+  console.log('Open modal for image:', imageId);
+}
+
+function downloadGalleryImage(url, title) {
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${title}.jpg`;
+  link.click();
+}
+
+async function deleteGalleryImage(imageId) {
+  if (!confirm(currentLang === 'ar' ? 'هل تريد حذف هذه الصورة؟' : 'Delete this image?')) {
+    return;
+  }
+
+  try {
+    const { error } = await supabaseClient
+      .from('gallery_images')
+      .delete()
+      .eq('id', imageId)
+      .eq('owner_id', currentUser.id);
+
+    if (error) throw error;
+
+    await renderUserGallery();
+    updateGalleryCounter();
+  } catch (error) {
+    console.error('Error deleting image:', error);
+  }
+}
+
+function updateGalleryCounter() {
+  const counter = document.getElementById('gallery-image-count');
+  const progressBar = document.getElementById('gallery-progress-bar');
+  
+  if (!counter || !currentUser) return;
+
+  supabaseClient
+    .from('gallery_images')
+    .select('COUNT(*)')
+    .eq('owner_id', currentUser.id)
+    .then(({ data, error }) => {
+      if (!error && data) {
+        const count = data.length || 0;
+        counter.textContent = Math.min(count, 50);
+        progressBar.style.width = `${(count / 50) * 100}%`;
+      }
+    });
+}
+
+// Initialize gallery when profile is loaded
+function initGalleryOnProfileLoad() {
+  if (currentUser) {
+    initializeGalleryUI();
+    renderUserGallery();
+    updateGalleryCounter();
+  }
 }
 
 (async function startApp() {

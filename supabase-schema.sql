@@ -666,13 +666,25 @@ CREATE TABLE IF NOT EXISTS public.gallery_images (
   description text,
   category text,
   image_url text NOT NULL,
+  thumbnail_url text,
   is_featured boolean NOT NULL DEFAULT false,
   is_public boolean NOT NULL DEFAULT true,
   related_part text,
   related_service text,
   status text NOT NULL DEFAULT 'pending',
+  display_order integer NOT NULL DEFAULT 0,
+  file_size integer,
+  format_type text NOT NULL DEFAULT 'jpeg',
+  upload_status text NOT NULL DEFAULT 'completed',
+  width integer,
+  height integer,
   created_at timestamp with time zone NOT NULL DEFAULT now(),
-  updated_at timestamp with time zone NOT NULL DEFAULT now()
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT gallery_images_max_per_user CHECK (
+    (SELECT COUNT(*) FROM gallery_images g2 WHERE g2.owner_id = gallery_images.owner_id) <= 50
+  ),
+  CONSTRAINT gallery_images_jpeg_only CHECK (format_type = 'jpeg' OR format_type = 'jpg'),
+  CONSTRAINT gallery_images_file_size_limit CHECK (file_size IS NULL OR file_size <= 5242880)
 );
 
 CREATE TABLE IF NOT EXISTS public.approval_requests (
@@ -692,6 +704,9 @@ CREATE TABLE IF NOT EXISTS public.approval_requests (
 
 CREATE INDEX IF NOT EXISTS service_center_services_owner_idx ON public.service_center_services(owner_id);
 CREATE INDEX IF NOT EXISTS gallery_images_owner_idx ON public.gallery_images(owner_id);
+CREATE INDEX IF NOT EXISTS gallery_images_category_idx ON public.gallery_images(category);
+CREATE INDEX IF NOT EXISTS gallery_images_created_idx ON public.gallery_images(created_at DESC);
+CREATE INDEX IF NOT EXISTS gallery_images_status_idx ON public.gallery_images(status);
 CREATE INDEX IF NOT EXISTS approval_requests_status_idx ON public.approval_requests(status);
 CREATE INDEX IF NOT EXISTS approval_requests_requester_idx ON public.approval_requests(requester_id);
 CREATE INDEX IF NOT EXISTS approval_requests_target_idx ON public.approval_requests(target_type, target_id);
