@@ -120,7 +120,7 @@ body.login-page #profile-page {
   display: none !important;
 }
 
-body.login-page main > *:not(#auth-section):not(#registration-page) {
+body.login-page main > *:not(#auth-section):not(#registration-page):not(#accounts-modal) {
   display: none !important;
 }
 
@@ -271,6 +271,10 @@ body.login-page .header-logout-button,
 body.login-page .user-panel,
 body.login-page .brand {
   display: none !important;
+}
+
+body.login-page .accounts-modal.active {
+  display: flex !important;
 }
 
 body.login-page .main-nav {
@@ -2589,53 +2593,136 @@ input[type="file"] {
 .accounts-modal {
   display: none;
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1000;
+  inset: 0;
+  z-index: 9999;
+  align-items: flex-end;
+  justify-content: center;
 }
 
 .accounts-modal.active {
-  display: flex;
+  display: flex !important;
 }
 
 .modal-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  animation: fadeIn 0.3s ease-in-out;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  animation: fadeIn 0.25s ease;
+  backdrop-filter: blur(2px);
 }
 
-.modal-content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 90%;
-  max-width: 520px;
-  max-height: 80vh;
+.accounts-sheet {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  max-height: 88vh;
   background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  animation: slideUp 0.3s ease-in-out;
-  overflow: hidden;
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.18);
+  animation: sheetUp 0.32s cubic-bezier(0.22, 1, 0.36, 1);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   z-index: 10;
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+}
+
+@keyframes sheetUp {
+  from { transform: translateY(100%); opacity: 0.4; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.sheet-handle {
+  width: 40px;
+  height: 4px;
+  background: #dde1e7;
+  border-radius: 999px;
+  margin: 12px auto 0;
+  flex-shrink: 0;
+}
+
+.sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 0;
+  flex-shrink: 0;
+}
+
+.sheet-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #1c1e21;
+  font-family: 'Cairo', sans-serif;
+}
+
+.sheet-brand-logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  object-fit: contain;
+}
+
+.sheet-subtitle {
+  padding: 6px 20px 0;
+  margin: 0;
+  font-size: 0.9rem;
+  color: #65676b;
+  font-family: 'Cairo', sans-serif;
+  flex-shrink: 0;
+}
+
+.accounts-sheet .modal-body {
+  padding: 10px 12px 0;
+  gap: 2px;
+}
+
+.sheet-footer {
+  padding: 8px 12px 16px;
+  border-top: 1px solid #e4e6eb;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.sheet-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1877f2;
+  transition: background 0.15s;
+  text-align: start;
+}
+
+.sheet-add-btn:hover { background: #f0f2f5; }
+
+.sheet-add-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: #e4e6eb;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 300;
+  color: #1c1e21;
+  flex-shrink: 0;
 }
 
 .modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 25px;
-  border-bottom: 1px solid #e1e4e8;
-  background: #f5f5f5;
-  flex-shrink: 0;
+  display: none;
 }
 
 .modal-title {
@@ -2709,29 +2796,28 @@ input[type="file"] {
 .account-item {
   display: flex;
   align-items: center;
-  padding: 15px 16px;
-  background: #f5f5f5;
-  border-radius: 8px;
+  padding: 10px 10px;
+  background: transparent;
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
-  font-family: "Cairo", "Segoe UI", Tahoma, sans-serif;
+  transition: background 0.15s ease;
+  border: none;
+  gap: 14px;
+  font-family: 'Cairo', 'Segoe UI', sans-serif;
+  width: 100%;
 }
 
 .account-item:hover {
-  background: #e8f4fd;
-  border-color: var(--facebook-blue);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(24, 119, 242, 0.2);
+  background: #f0f2f5;
 }
 
 .account-photo {
-  width: 50px;
-  height: 50px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
-  margin-right: 16px;
+  margin-right: 0;
   object-fit: cover;
-  border: 2px solid var(--facebook-blue);
+  border: 2px solid #e4e6eb;
   flex-shrink: 0;
 }
 
@@ -2741,18 +2827,18 @@ input[type="file"] {
 }
 
 .account-username {
-  font-size: 1.05rem;
+  font-size: 0.98rem;
   font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 5px 0;
+  color: #1c1e21;
+  margin: 0 0 2px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .account-email {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
+  font-size: 0.82rem;
+  color: #65676b;
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2761,10 +2847,10 @@ input[type="file"] {
 
 .no-accounts {
   text-align: center;
-  color: var(--text-secondary);
-  font-size: 1rem;
-  padding: 30px 20px;
-  font-family: "Cairo", "Segoe UI", Tahoma, sans-serif;
+  color: #65676b;
+  font-size: 0.95rem;
+  padding: 32px 20px;
+  font-family: 'Cairo', sans-serif;
 }
 
 /* إضافة حساب جديد */

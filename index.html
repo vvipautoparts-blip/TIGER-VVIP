@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="stylesheet" href="styles.css?v=20260623-7" />
+  <link rel="stylesheet" href="styles.css?v=20260624-1" />
 </head>
 <body>
   <button id="app-back-button" class="app-back-button" type="button" data-ar="عودة" data-en="Back">عودة</button>
@@ -92,13 +92,17 @@
 
     <!-- 🔐 ACCOUNTS MODAL - Saved Profiles Selection -->
     <div id="accounts-modal" class="accounts-modal">
-      <div class="modal-overlay"></div>
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2 class="modal-title" data-ar="اختر ملفًا شخصيًا" data-en="Select Profile">اختر ملفًا شخصيًا</h2>
+      <div class="modal-overlay" onclick="closeAccountsModal()"></div>
+      <div class="modal-content accounts-sheet">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+          <div class="sheet-brand">
+            <img src="icons/tiger-logo.png" alt="TIGER VVIP" class="sheet-brand-logo" />
+            <span>TIGER VVIP</span>
+          </div>
           <button type="button" class="modal-close-btn" onclick="closeAccountsModal()" aria-label="Close">&times;</button>
         </div>
-        
+        <p class="sheet-subtitle" data-ar="اختر حساباً للمتابعة" data-en="Choose an account to continue">اختر حساباً للمتابعة</p>
         <div class="modal-body">
           <!-- Saved Accounts List -->
           <div id="saved-accounts-list" class="saved-accounts-list"></div>
@@ -139,9 +143,11 @@
           </div>
         </div>
 
-        <div class="modal-footer">
-          <button type="button" class="btn-add-account" onclick="showAccountForm()" data-ar="📱 إضافة حساب جديد" data-en="📱 Add New Account">📱 إضافة حساب جديد</button>
-          <button type="button" class="btn-close" onclick="closeAccountsModal()" data-ar="إغلاق" data-en="Close">إغلاق</button>
+        <div class="sheet-footer">
+          <button type="button" class="sheet-add-btn" onclick="showAccountForm()">
+            <span class="sheet-add-icon">＋</span>
+            <span data-ar="إضافة حساب آخر" data-en="Add another account">إضافة حساب آخر</span>
+          </button>
         </div>
       </div>
     </div>
