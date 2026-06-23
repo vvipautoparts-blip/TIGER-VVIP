@@ -21,7 +21,25 @@ window.EMAIL_FROM_NAME = window.EMAIL_FROM_NAME || "TIGER VVIP";
 
 // رابط تطبيقك (مهم لبناء رابط التحقق الصحيح)
 // مثال: "https://yourdomain.com" أو رابط Supabase
-window.APP_URL = window.APP_URL || "";
+window.APP_URL = window.APP_URL || window.location.origin;
 
-console.log("✓ supabase-local.js loaded");
+const __isPlaceholderSupabase = window.SUPABASE_URL.includes("your-project") || window.SUPABASE_ANON_KEY === "your-anon-key";
+const __configReadiness = {
+	supabaseReady: !__isPlaceholderSupabase,
+	whatsappOtpReady: Boolean(window.WHATSAPP_OTP_ENDPOINT),
+	emailProviderReady: Boolean((window.MAILGUN_API_KEY && window.MAILGUN_DOMAIN) || (window.AWS_ACCESS_KEY_ID && window.AWS_SECRET_ACCESS_KEY)),
+	appUrlReady: Boolean(window.APP_URL),
+};
+
+window.__LOCAL_CONFIG_READY__ = __configReadiness;
+
+if (!__configReadiness.supabaseReady) {
+	console.warn("Local config: Supabase URL/Anon Key are placeholders. Update supabase-local.js with real project values.");
+}
+
+if (!__configReadiness.whatsappOtpReady) {
+	console.warn("Local config: WHATSAPP_OTP_ENDPOINT is empty. OTP over WhatsApp is disabled.");
+}
+
+console.log("✓ supabase-local.js loaded", window.__LOCAL_CONFIG_READY__);
 
