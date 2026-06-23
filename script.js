@@ -2656,10 +2656,24 @@ async function handleAuthForm(email, password) {
 }
 
 async function handleLogout() {
-  if (currentUser) {
-    await deactivateAllSessions(currentUser.id);
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  const savedAccounts = JSON.parse(localStorage.getItem("savedAccounts") || "[]");
+  const savedIds = savedAccounts
+    .map((account) => account?.id)
+    .filter((id) => typeof id === "string" && uuidPattern.test(id));
+
+  const allSessionUserIds = new Set(savedIds);
+  if (currentUser?.id && typeof currentUser.id === "string" && uuidPattern.test(currentUser.id)) {
+    allSessionUserIds.add(currentUser.id);
   }
+
+  // Deactivate sessions for all saved accounts on this device (including admin accounts).
+  await Promise.allSettled(
+    Array.from(allSessionUserIds).map((userId) => deactivateAllSessions(userId))
+  );
+
   await signOut();
+  localStorage.removeItem("currentUser");
   currentUser = null;
   currentUserProfile = null;
   updateRoleBasedNavigation();
