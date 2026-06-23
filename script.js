@@ -277,7 +277,6 @@ function closeAccountsModal() {
   if (modal) {
     modal.classList.remove("active");
   }
-  hideAccountForm();
 }
 
 /**
@@ -290,10 +289,9 @@ function scanDeviceAccounts() {
   if (accounts.length === 0) {
     alert(
       currentLang === "ar"
-        ? "📭 لا توجد حسابات محفوظة في الجهاز!\n\n💡 كيفية الإضافة:\n1️⃣ اضغط على 'إضافة حساب جديد'\n2️⃣ أدخل البريد الإلكتروني + كلمة المرور\n3️⃣ اختر صورة من الجهاز\n4️⃣ اضغط 'إضافة والدخول'"
-        : "📭 No saved accounts on this device!\n\n💡 How to add:\n1️⃣ Click 'Add New Account'\n2️⃣ Enter email + password\n3️⃣ Choose a photo from device\n4️⃣ Click 'Add & Login'"
+        ? "📭 لا توجد حسابات محفوظة على هذا الجهاز.\n\nأنشئ حساباً جديداً من الصفحة الأولى ثم عُد هنا."
+        : "📭 No saved accounts on this device.\n\nCreate a new account from the first page, then come back here."
     );
-    showAccountForm();
   } else {
     loadSavedAccounts();
     const message = currentLang === "ar"
@@ -317,7 +315,7 @@ function loadSavedAccounts() {
     savedAccountsList.innerHTML = `
       <div class="no-accounts">
         <p>📭 ${currentLang === "ar" ? "لا توجد حسابات محفوظة" : "No saved accounts"}</p>
-        <p>${currentLang === "ar" ? "اضغط 'إضافة حساب جديد' لإنشاء حساب أول" : "Click 'Add New Account' to create your first account"}</p>
+        <p>${currentLang === "ar" ? "أنشئ حساباً جديداً من الصفحة الأولى (إنشاء حساب جديد)." : "Create an account from the first page (Create New Account)."}</p>
       </div>
     `;
     return;
@@ -338,7 +336,6 @@ function loadSavedAccounts() {
         <h3 class="account-username">${account.name || account.email.split("@")[0]}</h3>
         <p class="account-email">${account.email}</p>
       </div>
-      <button class="btn-delete-account" type="button" onclick="event.stopPropagation(); deleteAccount(${index})" title="${currentLang === "ar" ? "حذف" : "Delete"}">✕</button>
     </div>
   `
     )
@@ -386,74 +383,6 @@ function selectSavedAccount(index) {
     window.location.hash = "#profile-page";
     updatePageVisibility();
   }, 500);
-}
-
-/**
- * 🗑️ حذف حساب من قائمة الحسابات المحفوظة
- * Delete an account from the saved accounts list
- */
-function deleteAccount(index) {
-  const accounts = JSON.parse(localStorage.getItem("savedAccounts") || "[]");
-  const account = accounts[index];
-
-  // تأكيد الحذف / Confirm deletion
-  const confirmMessage =
-    currentLang === "ar"
-      ? `❌ هل تريد حذف حساب "${account.email}" من الجهاز؟`
-      : `❌ Are you sure you want to delete "${account.email}"?`;
-
-  if (!confirm(confirmMessage)) {
-    return;
-  }
-
-  // حذف الحساب / Delete the account
-  accounts.splice(index, 1);
-  localStorage.setItem("savedAccounts", JSON.stringify(accounts));
-
-  // رسالة النجاح / Success message
-  showMessage(
-    currentLang === "ar"
-      ? `✅ تم حذف حساب "${account.email}" بنجاح`
-      : `✅ Account "${account.email}" deleted successfully`,
-    "success",
-    authMessage,
-    300
-  );
-
-  // إعادة تحميل القائمة / Reload the list
-  loadSavedAccounts();
-}
-
-/**
- * 📝 عرض نموذج إضافة حساب جديد
- * Show the new account form
- */
-function showAccountForm() {
-  const formSection = document.getElementById("account-form-section");
-  if (formSection) {
-    formSection.style.display = "block";
-    formSection.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }
-}
-
-/**
- * 🙈 إخفاء نموذج إضافة حساب جديد
- * Hide the new account form
- */
-function hideAccountForm() {
-  const formSection = document.getElementById("account-form-section");
-  const form = document.getElementById("new-account-form");
-  const preview = document.getElementById("photo-preview");
-
-  if (formSection) {
-    formSection.style.display = "none";
-  }
-  if (form) {
-    form.reset();
-  }
-  if (preview) {
-    preview.style.display = "none";
-  }
 }
 
 /**
@@ -569,75 +498,7 @@ function initializeAuthAvatarPicker() {
 // ==========================================
 
 document.addEventListener("DOMContentLoaded", function () {
-  const newAccountForm = document.getElementById("new-account-form");
-
-  if (newAccountForm) {
-    newAccountForm.addEventListener("submit", async function (e) {
-      e.preventDefault();
-
-      const email = document.getElementById("new-account-email").value;
-      const password = document.getElementById("new-account-password").value;
-      const name = document.getElementById("new-account-name").value;
-      const photoInput = document.getElementById("new-account-photo");
-
-      try {
-        // معالجة الصورة / Process image
-        let photoUrl = null;
-        if (photoInput.files.length > 0) {
-          const file = photoInput.files[0];
-          photoUrl = await new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = (e) => resolve(e.target.result);
-            reader.readAsDataURL(file);
-          });
-        }
-
-        // البيانات الجديدة / New account data
-        const newUser = {
-          email: email,
-          password: password,
-          name: name || email.split("@")[0],
-          photoUrl: photoUrl,
-          role: "user",
-          createdAt: new Date().toISOString(),
-        };
-
-        // حفظ الحساب / Save account
-        if (saveAccountToDevice(newUser)) {
-          // حفظ كحساب حالي / Set as current user
-          localStorage.setItem("currentUser", JSON.stringify(newUser));
-          currentUser = newUser;
-          currentUserProfile = newUser.profile || {};
-
-          // رسالة النجاح / Success message
-          showMessage(
-            currentLang === "ar"
-              ? `✅ تم إنشاء الحساب بنجاح!\n📧 ${email}`
-              : `✅ Account created successfully!\n📧 ${email}`,
-            "success",
-            authMessage,
-            500
-          );
-
-          // إغلاق Modal والانتقال / Close modal and navigate
-          setTimeout(() => {
-            closeAccountsModal();
-            updatePageVisibility();
-            displayUser(currentUser);
-            updateRoleBasedNavigation();
-          }, 800);
-        }
-      } catch (err) {
-        showMessage(
-          currentLang === "ar"
-            ? `❌ خطأ: ${err.message}`
-            : `❌ Error: ${err.message}`,
-          "error",
-          authMessage
-        );
-      }
-    });
-  }
+  // Selection-only modal: no add/delete form handlers here.
 });
 
 // ==========================================
@@ -648,9 +509,6 @@ window.closeAccountsModal = closeAccountsModal;
 window.scanDeviceAccounts = scanDeviceAccounts;
 window.loadSavedAccounts = loadSavedAccounts;
 window.selectSavedAccount = selectSavedAccount;
-window.deleteAccount = deleteAccount;
-window.showAccountForm = showAccountForm;
-window.hideAccountForm = hideAccountForm;
 window.previewAccountPhoto = previewAccountPhoto;
 window.saveAccountToDevice = saveAccountToDevice;
 

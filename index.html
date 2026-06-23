@@ -106,48 +106,6 @@
         <div class="modal-body">
           <!-- Saved Accounts List -->
           <div id="saved-accounts-list" class="saved-accounts-list"></div>
-
-          <!-- New Account Form (Hidden by default) -->
-          <div id="account-form-section" class="account-form-section" style="display:none;">
-            <form id="new-account-form" class="new-account-form">
-              <h3 class="form-title" data-ar="إضافة حساب جديد" data-en="Add New Account">إضافة حساب جديد</h3>
-              
-              <div class="form-group">
-                <label for="new-account-name" data-ar="الاسم" data-en="Name">الاسم</label>
-                <input type="text" id="new-account-name" class="form-input" placeholder="اسمك الكامل" data-ar-placeholder="اسمك الكامل" data-en-placeholder="Your full name" required />
-              </div>
-
-              <div class="form-group">
-                <label for="new-account-email" data-ar="البريد الإلكتروني" data-en="Email">البريد الإلكتروني</label>
-                <input type="email" id="new-account-email" class="form-input" placeholder="example@domain.com" data-ar-placeholder="example@domain.com" data-en-placeholder="example@domain.com" required />
-              </div>
-
-              <div class="form-group">
-                <label for="new-account-password" data-ar="كلمة المرور" data-en="Password">كلمة المرور</label>
-                <input type="password" id="new-account-password" class="form-input" placeholder="••••••••" data-ar-placeholder="••••••••" data-en-placeholder="••••••••" required />
-              </div>
-
-              <div class="form-group">
-                <label for="new-account-photo" data-ar="صورة البروفايل" data-en="Profile Photo">صورة البروفايل (اختياري)</label>
-                <input type="file" id="new-account-photo" class="form-input" accept="image/*" onchange="previewAccountPhoto(this)" />
-                <div id="photo-preview" class="photo-preview" style="display:none;">
-                  <img id="preview-image" src="" alt="Preview" class="preview-img" />
-                </div>
-              </div>
-
-              <div class="form-actions">
-                <button type="submit" class="btn-submit" data-ar="إضافة والدخول" data-en="Add & Login">إضافة والدخول</button>
-                <button type="button" class="btn-cancel" onclick="hideAccountForm()" data-ar="إلغاء" data-en="Cancel">إلغاء</button>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        <div class="sheet-footer">
-          <button type="button" class="sheet-add-btn" onclick="showAccountForm()">
-            <span class="sheet-add-icon">＋</span>
-            <span data-ar="إضافة حساب آخر" data-en="Add another account">إضافة حساب آخر</span>
-          </button>
         </div>
       </div>
     </div>
