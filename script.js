@@ -2663,7 +2663,15 @@ async function handleAuthForm(email, password) {
 
 async function handleLogout() {
   const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  const savedAccounts = JSON.parse(localStorage.getItem("savedAccounts") || "[]");
+  let savedAccounts = [];
+  try {
+    const parsedSavedAccounts = JSON.parse(localStorage.getItem("savedAccounts") || "[]");
+    savedAccounts = Array.isArray(parsedSavedAccounts) ? parsedSavedAccounts : [];
+  } catch (error) {
+    console.warn("[logout] Invalid savedAccounts JSON. Proceeding with empty list.", error);
+    savedAccounts = [];
+  }
+
   const savedIds = savedAccounts
     .map((account) => account?.id)
     .filter((id) => typeof id === "string" && uuidPattern.test(id));
@@ -2674,11 +2682,20 @@ async function handleLogout() {
   }
 
   // Deactivate sessions for all saved accounts on this device (including admin accounts).
-  await Promise.allSettled(
-    Array.from(allSessionUserIds).map((userId) => deactivateAllSessions(userId))
-  );
+  try {
+    await Promise.allSettled(
+      Array.from(allSessionUserIds).map((userId) => deactivateAllSessions(userId))
+    );
+  } catch (error) {
+    console.warn("[logout] Failed to deactivate some sessions.", error);
+  }
 
-  await signOut();
+  try {
+    await signOut();
+  } catch (error) {
+    console.warn("[logout] Supabase signOut failed. Clearing local session anyway.", error);
+  }
+
   localStorage.removeItem("currentUser");
   currentUser = null;
   currentUserProfile = null;
@@ -2686,11 +2703,9 @@ async function handleLogout() {
   displayUser(null);
   showMessage(messages.authSignedOut[currentLang], "success", authMessage);
   
-  // Redirect to login immediately after logout
-  setTimeout(() => {
-    window.location.hash = "#auth-section";
-    updatePageVisibility();
-  }, 600);
+  // Redirect to auth section immediately after logout.
+  window.location.hash = "#auth-section";
+  updatePageVisibility();
 }
 
 window.handleLogout = handleLogout;
