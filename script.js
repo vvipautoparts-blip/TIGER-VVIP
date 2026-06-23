@@ -168,6 +168,7 @@ const orderMessage = document.getElementById("order-message");
 const authForm = document.getElementById("auth-form");
 const authSubmitButton = document.getElementById("auth-submit-button");
 const authModeToggle = document.getElementById("auth-mode-toggle");
+const authLogoutButton = document.getElementById("auth-logout-button");
 const authMessage = document.getElementById("auth-message");
 const authAvatarClickable = document.getElementById("auth-avatar-clickable");
 const authAvatarUploadInput = document.getElementById("auth-avatar-upload");
@@ -3922,6 +3923,13 @@ if (homeLogoutButton) {
 
 if (headerLogoutButton) {
   headerLogoutButton.addEventListener("click", async (event) => {
+    event.preventDefault();
+    await handleLogout();
+  });
+}
+
+if (authLogoutButton) {
+  authLogoutButton.addEventListener("click", async (event) => {
     event.preventDefault();
     await handleLogout();
   });
