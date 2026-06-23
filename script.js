@@ -169,6 +169,9 @@ const authForm = document.getElementById("auth-form");
 const authSubmitButton = document.getElementById("auth-submit-button");
 const authModeToggle = document.getElementById("auth-mode-toggle");
 const authMessage = document.getElementById("auth-message");
+const authAvatarClickable = document.getElementById("auth-avatar-clickable");
+const authAvatarUploadInput = document.getElementById("auth-avatar-upload");
+const authProfileAvatar = document.querySelector(".auth-profile-avatar");
 const userPanel = document.getElementById("user-panel");
 const userEmail = document.getElementById("user-email");
 const logoutButton = document.getElementById("logout-button");
@@ -194,6 +197,8 @@ const profileAdminLink = document.getElementById("profile-admin-link");
 const quickNavSelect = document.getElementById("quick-nav-select");
 const homeFilterDropdown = document.getElementById("home-filter-dropdown");
 const homeSignoutLink = document.getElementById("home-signout-link");
+const homeLogoutButton = document.getElementById("home-logout-button");
+const headerLogoutButton = document.getElementById("header-logout-button");
 const profileAdvancedSearchForm = document.getElementById("profile-advanced-search-form");
 const profileSearchBrand = document.getElementById("profile-search-brand");
 const profileSearchModel = document.getElementById("profile-search-model");
@@ -228,6 +233,7 @@ let adminRepliesByRequest = {};
 const ADMIN_ROLES = ["super_admin"];
 const STAFF_ROLES = ["representative"];
 const SESSION_DEVICE_KEY = "tiger_vvip_device_id";
+const AUTH_AVATAR_STORAGE_KEY = "tiger_auth_avatar_data_url";
 const WHATSAPP_OTP_ENDPOINT = window.WHATSAPP_OTP_ENDPOINT || "";
 const DEMO_USERS_STORAGE_KEY = "tiger_vvip_demo_users";
 const DEMO_OTP_CODE = "123456";
@@ -355,6 +361,10 @@ function selectSavedAccount(index) {
   localStorage.setItem("currentUser", JSON.stringify(account));
   currentUser = account;
   currentUserProfile = account.profile || {};
+  if (account.photoUrl) {
+    localStorage.setItem(AUTH_AVATAR_STORAGE_KEY, account.photoUrl);
+    setAuthAvatar(account.photoUrl);
+  }
 
   // إغلاق Modal والانتقال / Close modal and navigate
   closeAccountsModal();
@@ -495,6 +505,63 @@ function saveAccountToDevice(userData) {
   accounts.push(newAccount);
   localStorage.setItem("savedAccounts", JSON.stringify(accounts));
   return true;
+}
+
+function setAuthAvatar(dataUrl) {
+  if (!authProfileAvatar) return;
+
+  if (dataUrl) {
+    authProfileAvatar.style.backgroundImage = `url(${dataUrl})`;
+    authProfileAvatar.classList.add("has-image");
+    authProfileAvatar.textContent = "";
+    return;
+  }
+
+  authProfileAvatar.style.backgroundImage = "";
+  authProfileAvatar.classList.remove("has-image");
+  authProfileAvatar.textContent = authProfileAvatar.dataset.initials || "NZ";
+}
+
+function handleAuthAvatarFile(file) {
+  if (!file) return;
+  if (!String(file.type || "").startsWith("image/")) {
+    showMessage(currentLang === "ar" ? "الملف يجب أن يكون صورة." : "Please choose an image file.", "error", authMessage);
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const dataUrl = String(event.target?.result || "");
+    if (!dataUrl) return;
+    localStorage.setItem(AUTH_AVATAR_STORAGE_KEY, dataUrl);
+    setAuthAvatar(dataUrl);
+    showMessage(currentLang === "ar" ? "تم تحديث الصورة." : "Profile photo updated.", "success", authMessage, 250);
+  };
+  reader.readAsDataURL(file);
+}
+
+function initializeAuthAvatarPicker() {
+  if (!authProfileAvatar) return;
+
+  authProfileAvatar.dataset.initials = authProfileAvatar.textContent.trim() || "NZ";
+  const savedAvatar = localStorage.getItem(AUTH_AVATAR_STORAGE_KEY);
+  if (savedAvatar) {
+    setAuthAvatar(savedAvatar);
+  }
+
+  // On avatar click, open image gallery directly
+  authAvatarClickable?.addEventListener("click", () => {
+    authAvatarUploadInput?.click();
+  });
+
+  // Handle file selection (from gallery or camera)
+  authAvatarUploadInput?.addEventListener("change", (event) => {
+    const file = event.target?.files?.[0];
+    if (file) {
+      handleAuthAvatarFile(file);
+      event.target.value = "";
+    }
+  });
 }
 
 // ==========================================
@@ -2564,6 +2631,9 @@ function renderProducts(items) {
 function displayUser(user) {
   if (!user) {
     userPanel.style.display = "none";
+    if (headerLogoutButton) {
+      headerLogoutButton.style.display = "none";
+    }
     if (partManagementSection) partManagementSection.style.display = "none";
     return;
   }
@@ -2572,6 +2642,9 @@ function displayUser(user) {
   userRole.textContent = currentLang === "ar" ? roleLabel.ar : roleLabel.en;
   userSubscription.textContent = currentUserProfile?.subscription || "basic";
   userPanel.style.display = "grid";
+  if (headerLogoutButton) {
+    headerLogoutButton.style.display = "inline-flex";
+  }
   if (partManagementSection) {
     partManagementSection.style.display = isPartManager(currentUserProfile?.role) ? "block" : "none";
   }
@@ -3968,6 +4041,20 @@ if (homeSignoutLink) {
   });
 }
 
+if (homeLogoutButton) {
+  homeLogoutButton.addEventListener("click", async (event) => {
+    event.preventDefault();
+    await handleLogout();
+  });
+}
+
+if (headerLogoutButton) {
+  headerLogoutButton.addEventListener("click", async (event) => {
+    event.preventDefault();
+    await handleLogout();
+  });
+}
+
 // 🎯 ENHANCED BUTTON AND NAVIGATION SYSTEM
 (function enhanceButtonsAndNavigation() {
   // Button error handling wrapper
@@ -4038,6 +4125,7 @@ if (appBackButton) {
 
 async function initializeApp() {
   // Apply route visibility immediately so the user sees the correct page without waiting for async loads.
+  initializeAuthAvatarPicker();
   updateAuthPageMode();
   updatePageVisibility();
   syncQuickNavWithHash();

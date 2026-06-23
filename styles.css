@@ -195,8 +195,7 @@ html[dir="rtl"] .app-back-button::before {
 
 .site-header .brand,
 .site-header .quick-nav-select,
-.site-header .role-nav-link,
-.site-header #user-panel {
+.site-header .role-nav-link {
   display: none !important;
 }
 
@@ -265,6 +264,7 @@ html[dir="rtl"] .app-back-button::before {
 
 body.login-page .quick-nav-select,
 body.login-page .role-nav-link,
+body.login-page .header-logout-button,
 body.login-page .user-panel,
 body.login-page .brand {
   display: none !important;
@@ -318,6 +318,18 @@ body.login-page .main-nav .lang-toggle-btn {
   border: 1px solid var(--border-color);
   border-radius: 6px;
   background: var(--background-card);
+}
+
+.header-logout-button {
+  border: 1px solid #d93025 !important;
+  background: #fff5f5 !important;
+  color: #b42318 !important;
+  font-weight: 700;
+}
+
+.header-logout-button:hover {
+  color: #ffffff !important;
+  background: #d93025 !important;
 }
 
 /* حاوية الدخول (توسيط) */
@@ -378,12 +390,12 @@ body.login-page .main-nav .lang-toggle-btn {
 }
 
 .auth-profile-avatar {
-  width: 180px;
-  height: 180px;
+  width: 160px;
+  height: 160px;
   border-radius: 50%;
   background: linear-gradient(145deg, #c9ced6, #9ea7b5);
   color: #ffffff;
-  font-size: 2.5rem;
+  font-size: 2.4rem;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
@@ -392,7 +404,48 @@ body.login-page .main-nav .lang-toggle-btn {
   box-shadow: 0 8px 20px rgba(16, 24, 40, 0.16);
   margin-bottom: 14px;
   font-family: "Cairo", "Segoe UI", Tahoma, sans-serif;
+  transition: width 0.3s ease, height 0.3s ease, font-size 0.3s ease;
 }
+
+/* Mobile phones - small screens */
+@media (max-width: 480px) {
+  .auth-profile-avatar {
+    width: 140px;
+    height: 140px;
+    font-size: 2rem;
+  }
+}
+
+/* Mobile phones - medium screens */
+@media (min-width: 481px) and (max-width: 768px) {
+  .auth-profile-avatar {
+    width: 160px;
+    height: 160px;
+    font-size: 2.4rem;
+  }
+}
+
+/* Tablets and desktop */
+@media (min-width: 769px) {
+  .auth-profile-avatar {
+    width: 200px;
+    height: 200px;
+    font-size: 3.2rem;
+  }
+}
+
+
+.auth-profile-avatar.has-image {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: transparent;
+}
+
+/* Avatar menu removed - direct gallery access on click */
+
+
+/* Removed menu item styles */
 
 .auth-profile-name {
   margin: 0;
@@ -1656,6 +1709,23 @@ body.home-page main > *:not(#home-page) {
   display: inline-block;
 }
 
+.home-logout-btn {
+  margin-inline-start: auto;
+  border: 1px solid #d93025;
+  background: transparent;
+  color: #d93025;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.home-logout-btn:hover {
+  background: #d93025;
+  color: #ffffff;
+}
+
 .navbar a.active,
 .navbar a:hover {
   color: var(--facebook-blue);
@@ -2247,6 +2317,13 @@ input[type="file"] {
     grid-template-columns: 1fr;
   }
 
+  .navbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
   .right-column,
   .left-column {
     display: none;
@@ -2348,6 +2425,12 @@ input[type="file"] {
 
   .quick-nav-select {
     min-width: 0;
+  }
+
+  .home-logout-btn {
+    width: 100%;
+    margin-inline-start: 0;
+    margin-top: 8px;
   }
 
   .product-grid {

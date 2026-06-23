@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="stylesheet" href="styles.css?v=20260622-4" />
+  <link rel="stylesheet" href="styles.css?v=20260623-7" />
 </head>
 <body>
   <button id="app-back-button" class="app-back-button" type="button" data-ar="عودة" data-en="Back">عودة</button>
@@ -37,6 +37,7 @@
       <a id="representative-nav" class="role-nav-link" href="#representative-dashboard" style="display:none;">لوحة المندوب</a>
       <a id="approvals-nav" class="role-nav-link" href="#approvals-dashboard" style="display:none;">شاشة الموافقات</a>
       <a id="admin-nav" class="role-nav-link" href="#admin-dashboard" style="display:none;">لوحة المدير</a>
+      <button id="header-logout-button" class="header-logout-button" type="button" data-ar="تسجيل الخروج" data-en="Sign Out" style="display:none;">تسجيل الخروج</button>
 
     </nav>
     <div id="user-panel" class="user-panel" style="display:none;">
@@ -55,12 +56,13 @@
         <aside class="auth-page-left">
           <div class="auth-profile-shell">
             <div class="auth-profile-section">
-              <div class="auth-profile-avatar" aria-hidden="true">NZ</div>
+              <div class="auth-profile-avatar" id="auth-avatar-clickable" style="cursor:pointer;" aria-hidden="true">NZ</div>
+              <input type="file" id="auth-avatar-upload" accept="image/*" style="display:none;" />
               <h2 class="auth-profile-name">Nemer Zyoude</h2>
             </div>
             <div class="auth-login-actions">
               <button id="auth-submit-button" type="button" class="btn primary auth-primary-btn" data-ar="متابعة" data-en="Continue">متابعة</button>
-              <button id="auth-mode-toggle" class="btn auth-secondary-btn" type="button" data-ar="استخدام ملف شخصي آخر" data-en="Use another profile">استخدام ملف شخصي آخر</button>
+              <button id="auth-mode-toggle" class="btn auth-secondary-btn" type="button" onclick="document.getElementById('accounts-modal')?.classList.add('active'); window.loadSavedAccounts?.();" data-ar="استخدام ملف شخصي آخر" data-en="Use another profile">استخدام ملف شخصي آخر</button>
               <a href="#registration-page" class="auth-create-link" data-ar="إنشاء حساب جديد" data-en="Create New Account">إنشاء حساب جديد</a>
             </div>
             <div class="login-card auth-hidden-card">
@@ -490,6 +492,7 @@
           <a href="#home-page" class="active" data-ar="الرئيسية" data-en="Home">الرئيسية</a>
           <a id="home-orders-link" href="#user-orders" data-ar="الطلبات" data-en="Orders">الطلبات</a>
           <a href="#catalog" data-ar="الكراج" data-en="Catalog">الكراج</a>
+          <button id="home-logout-button" type="button" class="home-logout-btn" data-ar="تسجيل الخروج" data-en="Sign Out">تسجيل الخروج</button>
         </nav>
 
         <div class="home-layout">
@@ -682,6 +685,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-local.js?v=20260621-7"></script>
   <script src="supabase-config.js?v=20260621-7"></script>
-    <script src="script.js?v=20260622-10"></script>
+    <script src="script.js?v=20260623-13"></script>
 </body>
 </html>
