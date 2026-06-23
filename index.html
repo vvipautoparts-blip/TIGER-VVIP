@@ -64,7 +64,7 @@
               <button id="auth-submit-button" type="button" class="btn primary auth-primary-btn" data-ar="متابعة" data-en="Continue">متابعة</button>
               <button id="auth-mode-toggle" class="btn auth-secondary-btn" type="button" onclick="document.getElementById('accounts-modal')?.classList.add('active'); window.loadSavedAccounts?.();" data-ar="استخدام ملف شخصي آخر" data-en="Use another profile">استخدام ملف شخصي آخر</button>
               <a href="#registration-page" class="auth-create-link" data-ar="إنشاء حساب جديد" data-en="Create New Account">إنشاء حساب جديد</a>
-              <button id="auth-logout-button" class="btn auth-secondary-btn" type="button" data-ar="تسجيل الخروج" data-en="Sign Out">تسجيل الخروج</button>
+              <button id="auth-logout-button" class="btn auth-secondary-btn" type="button" onclick="window.__FORCE_LOGOUT__ && window.__FORCE_LOGOUT__(event)" data-ar="تسجيل الخروج" data-en="Sign Out">تسجيل الخروج</button>
             </div>
             <div class="login-card auth-hidden-card">
               <div id="auth-message" class="form-message"></div>
@@ -652,6 +652,96 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-local.js?v=20260623-8"></script>
   <script src="supabase-config.js?v=20260623-8"></script>
-    <script src="script.js?v=20260623-19"></script>
+  <script>
+    (function registerFailsafeLogout() {
+      let inFlight = false;
+
+      function setButtonLoading(button, loading) {
+        if (!button) return;
+        if (loading) {
+          if (!button.dataset.originalText) {
+            button.dataset.originalText = button.textContent || "";
+          }
+          button.disabled = true;
+          button.style.opacity = "0.75";
+          button.style.cursor = "wait";
+          const isArabic = (document.documentElement.lang || "").toLowerCase().startsWith("ar") || (window.currentLang === "ar");
+          button.textContent = isArabic ? "جار تسجيل الخروج..." : "Signing out...";
+          return;
+        }
+
+        button.disabled = false;
+        button.style.opacity = "";
+        button.style.cursor = "";
+        if (button.dataset.originalText) {
+          button.textContent = button.dataset.originalText;
+        }
+      }
+
+      function hardLocalLogout() {
+        try {
+          localStorage.removeItem("currentUser");
+          sessionStorage.removeItem("currentUser");
+        } catch (_) {}
+
+        const authMessage = document.getElementById("auth-message");
+        if (authMessage) {
+          authMessage.className = "form-message success";
+          authMessage.textContent = "تم تسجيل الخروج.";
+        }
+
+        if (window.location.hash !== "#auth-section") {
+          window.location.hash = "#auth-section";
+        }
+
+        const authSection = document.getElementById("auth-section");
+        if (authSection) {
+          document.querySelectorAll("main > section").forEach((section) => {
+            section.style.display = "none";
+          });
+          authSection.style.display = "block";
+          document.body.classList.remove("profile-page", "home-page");
+          document.body.classList.add("login-page");
+        }
+      }
+
+      window.__FORCE_LOGOUT__ = async function forceLogout(event) {
+        if (event && typeof event.preventDefault === "function") event.preventDefault();
+        if (event && typeof event.stopPropagation === "function") event.stopPropagation();
+        if (inFlight) return;
+        inFlight = true;
+
+        const button = document.getElementById("auth-logout-button");
+        setButtonLoading(button, true);
+
+        try {
+          if (typeof window.handleLogout === "function") {
+            await Promise.race([
+              window.handleLogout(),
+              new Promise((_, reject) => setTimeout(() => reject(new Error("logout-timeout")), 2000)),
+            ]);
+          } else {
+            hardLocalLogout();
+          }
+        } catch (error) {
+          console.warn("[failsafe logout] fallback due to:", error);
+          hardLocalLogout();
+        } finally {
+          setButtonLoading(button, false);
+          inFlight = false;
+        }
+      };
+
+      document.addEventListener("click", function (event) {
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+        const logoutButton = target.closest("#auth-logout-button");
+        if (logoutButton) {
+          window.__FORCE_LOGOUT__(event);
+        }
+      }, true);
+    })();
+  </script>
+  <script src="script.js?v=20260623-20"></script>
 </body>
 </html>
