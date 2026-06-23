@@ -1198,6 +1198,35 @@ CREATE POLICY "Super admin updates review requests" ON public.review_requests
   FOR UPDATE USING (public.is_super_admin())
   WITH CHECK (public.is_super_admin());
 
+-- =============================================
+-- Email Verifications Table
+-- =============================================
+CREATE TABLE IF NOT EXISTS public.email_verifications (
+  id          bigserial PRIMARY KEY,
+  email       text NOT NULL,
+  token       text NOT NULL UNIQUE,
+  verified_at timestamp with time zone DEFAULT NULL,
+  expires_at  timestamp with time zone NOT NULL,
+  ip_address  text DEFAULT NULL,
+  created_at  timestamp with time zone NOT NULL DEFAULT now()
+);
+
+-- Index for fast lookups
+CREATE INDEX IF NOT EXISTS idx_email_verifications_email ON public.email_verifications(email);
+CREATE INDEX IF NOT EXISTS idx_email_verifications_token ON public.email_verifications(token);
+CREATE INDEX IF NOT EXISTS idx_email_verifications_expires ON public.email_verifications(expires_at);
+
+-- Only Edge Functions (service role) can read/write this table
+ALTER TABLE public.email_verifications ENABLE ROW LEVEL SECURITY;
+
+-- No public access — all access is via Edge Function with service role key
+CREATE POLICY "Service role only" ON public.email_verifications
+  FOR ALL USING (false);
+
+-- Auto-cleanup: delete expired tokens older than 7 days (run via cron or pg_cron)
+-- pg_cron: SELECT cron.schedule('cleanup-expired-tokens', '0 3 * * *',
+--   $$DELETE FROM public.email_verifications WHERE expires_at < now() - interval '7 days'$$);
+
 DROP POLICY IF EXISTS "Users can read admin replies for own requests" ON public.admin_replies;
 DROP POLICY IF EXISTS "Super admin can create replies" ON public.admin_replies;
 

@@ -4562,10 +4562,60 @@ function addFallbackRegAccountOptions(select) {
 }
 
 function syncRegVerificationStateFromUrl() {
+  const query = new URLSearchParams(window.location.search);
+  const verifyToken = query.get("verify_token");
+  const verifyEmail = query.get("verify_email");
+
+  // حالة 1: وصول المستخدم عبر رابط التحقق الجديد (Mailgun/SES)
+  if (verifyToken && verifyEmail) {
+    query.delete("verify_token");
+    query.delete("verify_email");
+    const nextQuery = query.toString();
+    const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}#registration-page`;
+    window.history.replaceState({}, "", nextUrl);
+
+    // التحقق من التوكن عبر Edge Function
+    (async () => {
+      const regMsg = document.getElementById("reg-message");
+      if (regMsg) {
+        regMsg.textContent = currentLang === "ar" ? "⏳ جارٍ التحقق من بريدك الإلكتروني..." : "⏳ Verifying your email...";
+        regMsg.className = "form-message info";
+        regMsg.style.display = "block";
+      }
+
+      const result = await verifyEmailToken(verifyToken, verifyEmail);
+
+      if (result && (result.verified || result.alreadyVerified)) {
+        sessionStorage.setItem("tempRegEmailVerified", "1");
+        sessionStorage.setItem("tempRegVerifiedEmail", verifyEmail);
+        localStorage.setItem("reg_temp_email", verifyEmail);
+        localStorage.setItem("reg_email_verified", "true");
+        moveRegStep("verified");
+        showRegMessage(
+          currentLang === "ar"
+            ? "✅ تم تفعيل بريدك الإلكتروني بنجاح! يمكنك المتابعة الآن."
+            : "✅ Your email has been verified! You may continue.",
+          "success"
+        );
+      } else {
+        moveRegStep("email");
+        showRegMessage(
+          result?.error ||
+          (currentLang === "ar"
+            ? "❌ رابط التحقق غير صالح أو انتهت صلاحيته. يرجى المحاولة مجدداً."
+            : "❌ Verification link is invalid or expired. Please try again."),
+          "error"
+        );
+      }
+    })();
+    return;
+  }
+
+  // حالة 2: عودة من Supabase Auth (OTP Magic Link)
   if (hasReturnedFromEmailVerification()) {
     sessionStorage.setItem("tempRegEmailVerified", "1");
-    const query = new URLSearchParams(window.location.search);
-    if (query.get("reg_verified") === "1") {
+    const regVerified = query.get("reg_verified");
+    if (regVerified === "1") {
       query.delete("reg_verified");
       const nextQuery = query.toString();
       const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}#registration-page`;
@@ -4574,9 +4624,9 @@ function syncRegVerificationStateFromUrl() {
   }
 
   const isVerified = sessionStorage.getItem("tempRegEmailVerified") === "1";
-  const confirmedBtn = document.getElementById("reg-confirmed-btn");
-  if (confirmedBtn && isVerified) {
-    confirmedBtn.style.display = "block";
+  if (isVerified) {
+    const confirmedBtn = document.getElementById("reg-confirmed-btn");
+    if (confirmedBtn) confirmedBtn.style.display = "block";
   }
 }
 
@@ -4611,6 +4661,7 @@ function initializeRegistrationUI() {
 async function handleRegEmailSubmit(e) {
   e.preventDefault();
   const emailInput = document.getElementById('reg-email-input');
+  const submitBtn = document.querySelector('#reg-email-form .reg-btn-primary');
   const email = emailInput.value.trim();
 
   if (!email) {
@@ -4629,45 +4680,140 @@ async function handleRegEmailSubmit(e) {
   localStorage.setItem('reg_temp_email', email);
   localStorage.setItem('reg_email_verified', 'false');
 
-  // الانتقال إلى خطوة التحقق
-  moveRegStep('verification');
+  // تعطيل الزر أثناء الإرسال
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = currentLang === 'ar' ? 'جارٍ الإرسال...' : 'Sending...';
+  }
 
-  // في وضع الإنتاج: إرسال بريد تحقق حقيقي
-  // في وضع التطوير: عرض رسالة تحقق محاكاة
-  const configured = isSupabaseConfigured();
+  try {
+    const sent = await sendVerificationEmail(email);
 
-  if (configured) {
-    try {
-      await supabaseClient.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: getRegEmailRedirectUrl(),
-        },
-      });
+    if (sent) {
+      // الانتقال إلى خطوة التحقق
+      moveRegStep('verification');
       showRegMessage(
         currentLang === 'ar'
           ? '✅ تم إرسال رابط التحقق. افتح بريدك الإلكتروني والنقر على الرابط.'
           : '✅ Verification link sent. Check your email and click the link.',
         'success'
       );
-    } catch (error) {
-      console.error('OTP error:', error);
+    } else {
       showRegMessage(
         currentLang === 'ar'
-          ? '❌ تعذّر إرسال الرابط. حاول مجددًا.'
-          : '❌ Failed to send link. Try again.',
+          ? '❌ تعذّر إرسال البريد. تأكد من البريد وحاول مجدداً.'
+          : '❌ Failed to send email. Check the address and try again.',
         'error'
       );
-      moveRegStep('email');
     }
-  } else {
-    // وضع تطوير: محاكاة إرسال بريد
-    showRegMessage(
-      currentLang === 'ar'
-        ? '📧 (وضع تجريبي) تم إرسال رابط التحقق إلى: ' + email
-        : '📧 (Demo mode) Verification link sent to: ' + email,
-      'success'
-    );
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = currentLang === 'ar' ? 'التحقق من البريد' : 'Verify Email';
+    }
+  }
+}
+
+/**
+ * إرسال بريد التحقق عبر Edge Function (Mailgun + AWS SES)
+ * أو Supabase OTP كبديل، أو وضع تجريبي
+ */
+async function sendVerificationEmail(email) {
+  const supabaseUrl = String(window.SUPABASE_URL || "").trim();
+  const configured = isSupabaseConfigured();
+
+  // ── الطريقة 1: Edge Function مع Mailgun/SES (الأفضل) ──
+  const edgeFnConfigured =
+    configured &&
+    String(window.MAILGUN_API_KEY || window.AWS_ACCESS_KEY_ID || "").trim().length > 4;
+
+  if (edgeFnConfigured) {
+    try {
+      const res = await fetch(`${supabaseUrl}/functions/v1/send-verification-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: String(window.SUPABASE_ANON_KEY || ""),
+        },
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          action: "send",
+          lang: currentLang || "ar",
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        console.log("✅ Verification email sent via Edge Function (Mailgun/SES)");
+        return true;
+      }
+
+      console.warn("Edge Function error:", data.error);
+    } catch (err) {
+      console.warn("Edge Function request failed:", err);
+    }
+  }
+
+  // ── الطريقة 2: Supabase Auth OTP (احتياطي) ──
+  if (configured) {
+    try {
+      const { error } = await supabaseClient.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: getRegEmailRedirectUrl() },
+      });
+
+      if (!error) {
+        console.log("✅ Verification email sent via Supabase Auth OTP");
+        return true;
+      }
+
+      console.warn("Supabase OTP error:", error.message);
+    } catch (err) {
+      console.warn("Supabase OTP request failed:", err);
+    }
+  }
+
+  // ── الطريقة 3: وضع تجريبي (بدون إعداد حقيقي) ──
+  console.log("⚠️ Demo mode - no real email sent");
+  showRegMessage(
+    currentLang === 'ar'
+      ? '📧 (وضع تجريبي) لم يُرسل بريد حقيقي. يرجى إعداد Mailgun أو Supabase.'
+      : '📧 (Demo mode) No real email sent. Please configure Mailgun or Supabase.',
+    'info'
+  );
+  return false;
+}
+
+/**
+ * التحقق من توكن البريد عبر Edge Function
+ */
+async function verifyEmailToken(token, email) {
+  const supabaseUrl = String(window.SUPABASE_URL || "").trim();
+  const configured = isSupabaseConfigured();
+
+  if (!configured) return { verified: false, error: "Not configured" };
+
+  try {
+    const res = await fetch(`${supabaseUrl}/functions/v1/send-verification-email`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: String(window.SUPABASE_ANON_KEY || ""),
+      },
+      body: JSON.stringify({
+        action: "verify",
+        token,
+        email,
+        lang: currentLang || "ar",
+      }),
+    });
+
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.error("Token verification failed:", err);
+    return { verified: false, error: "Network error" };
   }
 }
 
