@@ -2807,6 +2807,8 @@ function renderDashboard() {
 }
 
 function renderUserOrders(canManageOrders = false) {
+  if (!ordersList || !ordersEmpty) return;
+
   const userOrders = orderRequests;
   if (userOrders.length === 0) {
     ordersEmpty.style.display = "block";

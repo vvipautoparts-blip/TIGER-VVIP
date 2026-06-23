@@ -54,12 +54,15 @@ if (IS_PLACEHOLDER_SUPABASE_CONFIG) {
   console.warn("Supabase keys are still placeholders. Set window.SUPABASE_URL and window.SUPABASE_ANON_KEY before loading supabase-config.js.");
 }
 
-const supabaseClient = window.supabase?.createClient
+const canUseLiveSupabase = Boolean(window.supabase?.createClient) && !IS_PLACEHOLDER_SUPABASE_CONFIG;
+const supabaseClient = canUseLiveSupabase
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : createUnavailableSupabaseClient();
 
 if (!window.supabase?.createClient) {
   console.warn("Supabase browser library failed to load. The app will stay interactive, but database-backed actions are disabled until the library is available.");
+} else if (IS_PLACEHOLDER_SUPABASE_CONFIG) {
+  console.warn("Supabase is running in offline-safe mode because placeholder keys are configured.");
 }
 
 window.supabaseClient = supabaseClient;
@@ -67,6 +70,7 @@ window.__SUPABASE_CONFIG__ = {
   url: SUPABASE_URL,
   hasRealKeys: !IS_PLACEHOLDER_SUPABASE_CONFIG,
   hasLibrary: Boolean(window.supabase?.createClient),
+  liveClient: canUseLiveSupabase,
 };
 
 console.log("✓ supabase-config.js loaded", window.__SUPABASE_CONFIG__);
