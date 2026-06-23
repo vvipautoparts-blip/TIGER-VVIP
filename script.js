@@ -149,7 +149,7 @@ console.log("📝 ===============================");
 console.log("📝 script.js loading started");
 console.log("📝 ===============================");
 
-const productGrid = document.getElementById("product-grid");
+const productGrid = document.getElementById("product-grid") || document.getElementById("products-feed-grid");
 const searchInput = document.getElementById("search-input");
 const filterBrand = document.getElementById("filter-brand");
 const filterModel = document.getElementById("filter-model");
@@ -2454,6 +2454,11 @@ async function renderAdminDashboard() {
 }
 
 function renderProducts(items) {
+  if (!productGrid) {
+    console.warn("[renderProducts] Products container not found.");
+    return;
+  }
+
   if (!Array.isArray(items) || items.length === 0) {
     productGrid.innerHTML = `<article class="dashboard-empty">${currentLang === "ar" ? "لا توجد نتائج مطابقة حالياً." : "No matching results right now."}</article>`;
     return;
@@ -2787,6 +2792,8 @@ function updatePageVisibility() {
 }
 
 function populateProductOptions() {
+  if (!orderProduct) return;
+
   orderProduct.innerHTML = catalogParts
     .map(
       (product) => `<option value="${product.name}">${product.name} - ${product.brand} ${product.model} ${product.year || ""}</option>`
@@ -3613,7 +3620,9 @@ document.addEventListener("click", (event) => {
   if (action === "order") {
     productGrid.scrollIntoView({ behavior: "smooth" });
     if (displayedCatalogParts[index]) {
-      orderProduct.value = displayedCatalogParts[index].name;
+      if (orderProduct) {
+        orderProduct.value = displayedCatalogParts[index].name;
+      }
     }
     return;
   }
@@ -3833,7 +3842,7 @@ orderForm.addEventListener("submit", async (event) => {
 
   showMessage(messages.orderSent[currentLang], "success", orderMessage);
   orderForm.reset();
-  if (catalogParts.length > 0) {
+  if (orderProduct && catalogParts.length > 0) {
     orderProduct.value = catalogParts[0].name;
   }
   await syncOrdersFromSupabase();
