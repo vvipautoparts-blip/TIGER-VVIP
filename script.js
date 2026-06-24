@@ -2737,9 +2737,6 @@ async function handleAuthForm(email, password) {
 
   currentUserProfile = await ensureUserProfile(currentUser.id);
   if (currentUserProfile?.is_approved === false) {
-    await signOut();
-    currentUser = null;
-    currentUserProfile = null;
     showMessage(
       currentLang === "ar"
         ? "الحساب قيد المراجعة. يجب اعتمادك من المدير أولاً."
@@ -2768,9 +2765,6 @@ async function handleAuthForm(email, password) {
   const isAdminUser = isAdminRole(currentUserProfile?.role);
   const willExceed = !isAdminUser && !existingSession.data && activeSessions.count >= 3;
   if (willExceed) {
-    await signOut();
-    currentUser = null;
-    currentUserProfile = null;
     showMessage(
       currentLang === "ar"
         ? "تم الوصول للحد الأقصى (3 أجهزة). اطلب من المدير تسجيل الخروج من جهاز آخر."
@@ -2783,9 +2777,6 @@ async function handleAuthForm(email, password) {
 
   const upsert = await upsertUserSession(currentUser.id, deviceId, navigator.userAgent || "web");
   if (upsert.error) {
-    await signOut();
-    currentUser = null;
-    currentUserProfile = null;
     showMessage(messages.authError[currentLang], "error", authMessage);
     return null;
   }
@@ -3733,15 +3724,15 @@ completeRegistrationButton.addEventListener("click", async () => {
       });
     }
 
-    await signOut();
-    currentUser = null;
-    currentUserProfile = null;
+    // Don't sign out - keep user logged in (Facebook style)
+    // User will see pending approval message
+    currentUserProfile = { ...createdProfile, is_approved: false };
     resetRegistrationFlow();
-    window.location.hash = "#registration-page";
+    window.location.hash = "#profile-page";
     showRegistrationMessage(
       currentLang === "ar"
-        ? "تم إنشاء الحساب بنجاح وهو الآن بانتظار اعتماد المدير."
-        : "Account created and pending admin approval.",
+        ? "تم إنشاء الحساب بنجاح! حسابك بانتظار اعتماد المدير."
+        : "Account created successfully! Your account is pending admin approval.",
       "success"
     );
     return;
@@ -5208,43 +5199,16 @@ async function handleRegResendEmail() {
  * المتابعة إلى الملف الشخصي
  */
 function handleRegContinueToProfile() {
-  const email = localStorage.getItem('reg_temp_email');
-  const isVerified = localStorage.getItem('reg_email_verified') === 'true';
-
-  if (!email || !isVerified) {
-    showRegMessage(
-      currentLang === 'ar'
-        ? 'يرجى التحقق من بريدك الإلكتروني أولاً.'
-        : 'Please verify your email first.',
-      'error'
-    );
-    moveRegStep('email');
-    return;
-  }
-
-  // حفظ بيانات المستخدم المؤقتة
-  const tempUser = {
-    email: email,
-    verified: true,
-    createdAt: new Date().toISOString(),
-  };
-
-  localStorage.setItem('currentUser', JSON.stringify(tempUser));
-  currentUser = tempUser;
-
-  // تنظيف التخزين المؤقت
-  localStorage.removeItem('reg_temp_email');
-  localStorage.removeItem('reg_email_verified');
-
-  // الانتقال للملف الشخصي
+  // بعد التحقق من البريد، انتظر قليلاً ثم انتقل للملف الشخصي
+  // الملف الشخصي سيحمل البيانات من الـ localStorage
   setTimeout(() => {
     window.location.hash = '#profile-page';
     updatePageVisibility();
-  }, 500);
+  }, 300);
 }
 
 /**
- * الانتقال بين خطوات التسجيل
+ * الانتقال بين خطوات التسجيل بسلاسة
  */
 function moveRegStep(step) {
   const emailFormWrapper = document.getElementById('reg-email-form-wrapper');
@@ -5252,22 +5216,33 @@ function moveRegStep(step) {
   const verifiedWrapper = document.getElementById('reg-verified-wrapper');
   const emailDisplay = document.getElementById('reg-email-display');
 
-  // إخفاء الكل
-  if (emailFormWrapper) emailFormWrapper.style.display = 'none';
-  if (verificationWrapper) verificationWrapper.style.display = 'none';
-  if (verifiedWrapper) verifiedWrapper.style.display = 'none';
+  // Fade out all wrappers
+  const fadeOutClass = 'fade-out';
+  if (emailFormWrapper) emailFormWrapper.classList.add(fadeOutClass);
+  if (verificationWrapper) verificationWrapper.classList.add(fadeOutClass);
+  if (verifiedWrapper) verifiedWrapper.classList.add(fadeOutClass);
 
-  // عرض المطلوب
-  if (step === 'email' && emailFormWrapper) {
-    emailFormWrapper.style.display = 'block';
-  } else if (step === 'verification' && verificationWrapper) {
-    verificationWrapper.style.display = 'block';
-    if (emailDisplay) {
-      emailDisplay.textContent = localStorage.getItem('reg_temp_email') || '';
+  setTimeout(() => {
+    // إخفاء الكل
+    if (emailFormWrapper) emailFormWrapper.style.display = 'none';
+    if (verificationWrapper) verificationWrapper.style.display = 'none';
+    if (verifiedWrapper) verifiedWrapper.style.display = 'none';
+
+    // عرض المطلوب
+    if (step === 'email' && emailFormWrapper) {
+      emailFormWrapper.classList.remove(fadeOutClass);
+      emailFormWrapper.style.display = 'block';
+    } else if (step === 'verification' && verificationWrapper) {
+      verificationWrapper.classList.remove(fadeOutClass);
+      verificationWrapper.style.display = 'block';
+      if (emailDisplay) {
+        emailDisplay.textContent = localStorage.getItem('reg_temp_email') || '';
+      }
+    } else if (step === 'verified' && verifiedWrapper) {
+      verifiedWrapper.classList.remove(fadeOutClass);
+      verifiedWrapper.style.display = 'block';
     }
-  } else if (step === 'verified' && verifiedWrapper) {
-    verifiedWrapper.style.display = 'block';
-  }
+  }, 200);
 }
 
 function showRegMessage(message, type = 'info') {

@@ -4842,6 +4842,24 @@ select.reg-input option {
   100% { transform: scale(1); opacity: 1; }
 }
 
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.fade-out {
+  animation: fadeOut 0.2s ease-out forwards;
+}
+
+.reg-step {
+  animation: fadeIn 0.3s ease-out;
+}
+
 .email-highlight {
   font-size: 1.1rem;
   font-weight: 700;
