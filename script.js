@@ -2652,9 +2652,19 @@ function displayUser(user) {
   const roleLabel = getRoleLabel(currentUserProfile?.role || "dealer");
   userRole.textContent = currentLang === "ar" ? roleLabel.ar : roleLabel.en;
   userSubscription.textContent = currentUserProfile?.subscription || "basic";
+  
+  // ✅ تأكد من ظهور أزرار الخروج والملف الشخصي
   if (headerLogoutButton) {
     headerLogoutButton.style.display = "inline-flex";
+    headerLogoutButton.style.visibility = "visible";
   }
+  
+  // ✅ عرض avatar في الهيدر
+  if (navProfileAvatar) {
+    navProfileAvatar.style.display = "flex";
+    navProfileAvatar.style.visibility = "visible";
+  }
+  
   if (partManagementSection) {
     partManagementSection.style.display = isPartManager(currentUserProfile?.role) ? "block" : "none";
   }
@@ -2861,6 +2871,23 @@ async function showAuthState() {
   }
   updateRoleBasedNavigation();
   displayUser(currentUser);
+  
+  // ✅ تأكد من ظهور أزرار الخروج والملف الشخصي
+  if (currentUser) {
+    setTimeout(() => {
+      const headerLogoutBtn = document.getElementById("header-logout-button");
+      const navAvatar = document.getElementById("nav-profile-avatar");
+      if (headerLogoutBtn) {
+        headerLogoutBtn.style.display = "inline-flex";
+        headerLogoutBtn.style.visibility = "visible";
+      }
+      if (navAvatar) {
+        navAvatar.style.display = "flex";
+        navAvatar.style.visibility = "visible";
+      }
+    }, 100);
+  }
+  
   if (currentUser) {
     await syncOrdersFromSupabase();
     await loadProfileAssets();
