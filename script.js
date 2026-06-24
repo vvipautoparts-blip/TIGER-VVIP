@@ -923,7 +923,6 @@ const cleanRegistrationEmail = document.getElementById("reg-email");
 const cleanVerificationStep = document.getElementById("verification-step");
 const cleanContinueToProfileButton = document.getElementById("continue-to-profile");
 const profilePage = document.getElementById("profile-page");
-const profileCover = document.getElementById("profile-cover");
 const profilePicture = document.getElementById("profile-picture");
 const profileActiveIndicator = document.getElementById("profile-active-indicator");
 const profileName = document.getElementById("profile-name");
@@ -3300,13 +3299,6 @@ function renderProfilePage() {
     profilePictureEl.src = currentUserProfile.avatar_url || `https://via.placeholder.com/168/1877F2/ffffff?text=${initial}`;
     profilePictureEl.alt = profileNameText;
   }
-  if (profileCover) {
-    const cachedCover = currentUser?.id ? localStorage.getItem(`tiger_cover_${currentUser.id}`) : null;
-    const coverUrl = profileMeta?.cover_image_url || currentUserProfile.cover_url || cachedCover || "";
-    profileCover.style.backgroundImage = coverUrl ? `url('${coverUrl}')` : "";
-    profileCover.style.backgroundSize = "cover";
-    profileCover.style.backgroundPosition = "center";
-  }
 
   updateFloatingContactActions(phoneText);
   updateProfileShareActions(profileNameText, phoneText);
@@ -3442,70 +3434,6 @@ if (editProfileButton) {
     profileMeta = { ...(profileMeta || {}), ...metaPayload };
     renderProfilePage();
     showMessage(currentLang === "ar" ? "تم تحديث البروفايل." : "Profile updated.", "success", orderMessage);
-  });
-}
-
-// ==========================================
-// 🖼️ رفع صورة الغلاف بالملف مباشرةً
-// ==========================================
-const coverUploadInput = document.getElementById("cover-photo-upload");
-if (coverUploadInput) {
-  coverUploadInput.addEventListener("change", async (e) => {
-    const file = e.target?.files?.[0];
-    if (!file || !currentUser) return;
-    e.target.value = "";
-
-    if (!file.type.startsWith("image/")) {
-      showMessage(currentLang === "ar" ? "يجب اختيار صورة." : "Please select an image.", "error", orderMessage);
-      return;
-    }
-
-    // عرض فوري (local preview)
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const dataUrl = ev.target.result;
-      if (profileCover) {
-        profileCover.style.backgroundImage = `url('${dataUrl}')`;
-        profileCover.style.backgroundSize = "cover";
-        profileCover.style.backgroundPosition = "center";
-      }
-
-      // حفظ في profileMeta محلياً
-      if (!profileMeta) profileMeta = {};
-      profileMeta.cover_image_url = dataUrl;
-
-      // حفظ في localStorage كـ cache مؤقت
-      try {
-        localStorage.setItem(`tiger_cover_${currentUser.id}`, dataUrl);
-      } catch (_) { /* storage full */ }
-
-      // إذا كان Supabase متاحاً — ارفع الصورة وحدّث URL
-      if (hasWorkingSupabaseConfig()) {
-        (async () => {
-          try {
-            const fileName = `cover_${currentUser.id}_${Date.now()}.${file.name.split(".").pop() || "jpg"}`;
-            const uploadRes = await window.supabaseClient?.storage
-              ?.from("avatars")
-              ?.upload(fileName, file, { upsert: true, contentType: file.type });
-            if (uploadRes?.data) {
-              const { data: urlData } = window.supabaseClient.storage
-                .from("avatars")
-                .getPublicUrl(fileName);
-              const publicUrl = urlData?.publicUrl;
-              if (publicUrl) {
-                await upsertProfileMeta({
-                  user_id: currentUser.id,
-                  cover_image_url: publicUrl,
-                  about_text: profileMeta?.about_text || "",
-                });
-                profileMeta.cover_image_url = publicUrl;
-              }
-            }
-          } catch (_) { /* offline — keep local preview */ }
-        })();
-      }
-    };
-    reader.readAsDataURL(file);
   });
 }
 
