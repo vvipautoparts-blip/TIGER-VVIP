@@ -529,6 +529,9 @@ function updateNavAvatar(photoUrl, initials) {
   navProfileAvatar.style.display = "flex";
   navProfileAvatar.style.alignItems = "center";
   navProfileAvatar.style.justifyContent = "center";
+  navProfileAvatar.style.backgroundSize = "cover";
+  navProfileAvatar.style.backgroundPosition = "center";
+  navProfileAvatar.style.backgroundRepeat = "no-repeat";
   if (photoUrl) {
     navProfileAvatar.style.backgroundImage = `url(${photoUrl})`;
     navProfileAvatar.classList.add("has-image");
@@ -2773,12 +2776,13 @@ async function handleAuthForm(email, password) {
   }
 
   const isAdminUser = isAdminRole(currentUserProfile?.role);
-  const willExceed = !isAdminUser && !existingSession.data && activeSessions.count >= 3;
+  const MAX_DEVICES = isAdminUser ? Infinity : 4;
+  const willExceed = !isAdminUser && !existingSession.data && activeSessions.count >= 4;
   if (willExceed) {
     showMessage(
       currentLang === "ar"
-        ? "تم الوصول للحد الأقصى (3 أجهزة). اطلب من المدير تسجيل الخروج من جهاز آخر."
-        : "Maximum devices reached (3). Ask admin to release a session.",
+        ? "تم الوصول للحد الأقصى (4 أجهزة). اطلب من المدير تسجيل الخروج من جهاز آخر."
+        : "Maximum devices reached (4). Ask admin to release a session.",
       "error",
       authMessage
     );

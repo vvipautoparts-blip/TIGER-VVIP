@@ -370,10 +370,15 @@ body.login-page .main-nav .lang-toggle-btn {
 .nav-profile-avatar {
   width: 40px;
   height: 40px;
+  min-width: 40px;
+  min-height: 40px;
   border-radius: 50%;
   border: 2.5px solid #1877F2;
   background: #1877F2 center/cover no-repeat;
   background-color: #1877F2;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   color: #fff;
   font-size: 0.88rem;
   font-weight: 700;
@@ -480,8 +485,13 @@ body.login-page .main-nav .lang-toggle-btn {
 .auth-profile-avatar {
   width: 160px;
   height: 160px;
+  min-width: 160px;
+  min-height: 160px;
   border-radius: 50%;
   background: linear-gradient(145deg, #c9ced6, #9ea7b5);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   color: #ffffff;
   font-size: 2.4rem;
   font-weight: 700;
@@ -3788,10 +3798,15 @@ body.profile-page .fb-profile-page {
 .fb-avatar {
   width: 148px;
   height: 148px;
+  min-width: 148px;
+  min-height: 148px;
   border-radius: 50%;
   border: 4px solid var(--background-card);
   object-fit: cover;
   background: #1877F2;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   display: block;
 }
 
