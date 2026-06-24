@@ -939,6 +939,7 @@ const profileSubscription = document.getElementById("profile-subscription");
 const profileOrdersCount = document.getElementById("profile-orders-count");
 const profileJoined = document.getElementById("profile-joined");
 const editProfileButton = document.getElementById("edit-profile-button");
+const accessDashboardButton = document.getElementById("access-dashboard-button");
 const profileQuickPhone = document.getElementById("profile-quick-phone");
 const profileQuickCity = document.getElementById("profile-quick-city");
 const profileQuickAddress = document.getElementById("profile-quick-address");
@@ -1167,6 +1168,7 @@ function applyProfileRoleVisibility(role = currentUserProfile?.role) {
   if (partDetailsCard) partDetailsCard.style.display = merchantOnly ? "block" : "none";
   if (editProfileAction) editProfileAction.style.display = currentUser ? "inline-flex" : "none";
   if (shareProfileAction) shareProfileAction.style.display = canShareProfile ? "inline-flex" : "none";
+  if (accessDashboardButton) accessDashboardButton.style.display = isAdminRole(currentUserProfile?.role) ? "inline-flex" : "none";
   if (newOrderLink) newOrderLink.style.display = canPlaceOrders ? "block" : "none";
   if (myOrdersLink) myOrdersLink.style.display = canPlaceOrders ? "block" : "none";
   if (feedNewOrderAction) feedNewOrderAction.style.display = canPlaceOrders ? "inline-flex" : "none";
@@ -2208,8 +2210,7 @@ function isStaffRole(role) {
 }
 
 function getDefaultAuthenticatedHash(role = currentUserProfile?.role) {
-  if (isAdminRole(role)) return "#admin-dashboard";
-  if (role === "representative") return "#representative-dashboard";
+  // جميع المستخدمين يذهبون إلى profile-page أولاً (المديرين لديهم زر الداشبورد)
   return "#profile-page";
 }
 
@@ -3530,6 +3531,14 @@ if (shareProfileButton) {
   setTimeout(() => {
     initGalleryOnProfileLoad();
   }, 100);
+}
+
+// Dashboard Access Button for Admins
+if (accessDashboardButton) {
+  accessDashboardButton.addEventListener("click", () => {
+    // يمكن إضافة كلمة مرور اختيارية هنا
+    window.location.hash = "#admin-dashboard";
+  });
 }
 
 function renderHomeFeed() {

@@ -3914,6 +3914,27 @@ body.profile-page .fb-profile-page {
 
 .fb-btn-secondary:hover { background: #d8dadf; }
 
+.fb-btn-admin {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.fb-btn-admin:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
 /* Tabs Bar */
 .fb-profile-tabs-bar {
   background: var(--background-card);
