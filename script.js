@@ -4598,6 +4598,91 @@ async function isEmailAlreadyRegistered(email) {
   return false;
 }
 
+async function sendAccountRecoveryEmail(email) {
+  const normalizedEmail = normalizeEmailAddress(email);
+  if (!normalizedEmail) {
+    showRegMessage(currentLang === "ar" ? "البريد الإلكتروني مطلوب" : "Email is required", "error");
+    return false;
+  }
+
+  const redirectTo = `${window.location.origin}${window.location.pathname}#auth-section`;
+
+  try {
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(normalizedEmail, { redirectTo });
+    if (error) {
+      throw error;
+    }
+
+    showRegMessage(
+      currentLang === "ar"
+        ? `📩 تم إرسال رابط استعادة الحساب إلى ${normalizedEmail}`
+        : `📩 Recovery link sent to ${normalizedEmail}`,
+      "success"
+    );
+    return true;
+  } catch (error) {
+    if (!hasWorkingSupabaseConfig()) {
+      showRegMessage(
+        currentLang === "ar"
+          ? "ميزة استعادة الحساب تحتاج إعداد Supabase الحقيقي أولاً."
+          : "Account recovery requires real Supabase configuration first.",
+        "error"
+      );
+      return false;
+    }
+
+    showRegMessage(
+      error?.message || (currentLang === "ar" ? "تعذّر إرسال رابط الاستعادة." : "Failed to send recovery link."),
+      "error"
+    );
+    return false;
+  }
+}
+
+function showDuplicateEmailActions(email) {
+  const msgEl = document.getElementById("reg-message");
+  if (!msgEl) return;
+
+  const normalizedEmail = normalizeEmailAddress(email);
+  msgEl.className = "form-message error";
+  msgEl.style.display = "block";
+  msgEl.innerHTML = `
+    <div>${currentLang === "ar" ? "هذا البريد مستخدم بالفعل." : "This email is already in use."}</div>
+    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button type="button" id="reg-login-now-btn" class="reg-btn-secondary">${currentLang === "ar" ? "دخول الآن" : "Sign In Now"}</button>
+      <button type="button" id="reg-recover-account-btn" class="reg-btn-secondary">${currentLang === "ar" ? "استعادة الحساب" : "Recover Account"}</button>
+    </div>
+  `;
+
+  const loginNowBtn = document.getElementById("reg-login-now-btn");
+  if (loginNowBtn) {
+    loginNowBtn.addEventListener("click", () => {
+      const authEmailInput = document.getElementById("auth-email");
+      if (authEmailInput) {
+        authEmailInput.value = normalizedEmail;
+      }
+      window.location.hash = "#auth-section";
+      updatePageVisibility();
+      showMessage(
+        currentLang === "ar" ? "يمكنك تسجيل الدخول مباشرة بهذا البريد." : "You can sign in directly with this email.",
+        "info",
+        authMessage
+      );
+    }, { once: true });
+  }
+
+  const recoverBtn = document.getElementById("reg-recover-account-btn");
+  if (recoverBtn) {
+    recoverBtn.addEventListener("click", async () => {
+      recoverBtn.disabled = true;
+      recoverBtn.textContent = currentLang === "ar" ? "جارٍ الإرسال..." : "Sending...";
+      await sendAccountRecoveryEmail(normalizedEmail);
+      recoverBtn.disabled = false;
+      recoverBtn.textContent = currentLang === "ar" ? "استعادة الحساب" : "Recover Account";
+    });
+  }
+}
+
 /**
  * عند إدخال الإيميل والضغط على "التحقق من البريد"
  */
@@ -4621,12 +4706,7 @@ async function handleRegEmailSubmit(e) {
 
   const duplicateEmail = await isEmailAlreadyRegistered(email);
   if (duplicateEmail) {
-    showRegMessage(
-      currentLang === 'ar'
-        ? 'هذا البريد مستخدم بالفعل. سجّل الدخول أو استخدم استعادة الحساب.'
-        : 'This email is already in use. Sign in or recover your account.',
-      'error'
-    );
+    showDuplicateEmailActions(email);
     moveRegStep('email');
     return;
   }
