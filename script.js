@@ -4561,6 +4561,43 @@ function initializeRegistrationUI() {
   syncRegVerificationStateFromUrl();
 }
 
+function normalizeEmailAddress(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+async function isEmailAlreadyRegistered(email) {
+  const normalizedEmail = normalizeEmailAddress(email);
+  if (!normalizedEmail) return false;
+
+  // Demo/offline users
+  if (findDemoUserByEmail(normalizedEmail)) {
+    return true;
+  }
+
+  // Saved local accounts (Facebook-style remembered accounts)
+  try {
+    const saved = JSON.parse(localStorage.getItem("savedAccounts") || "[]");
+    if (Array.isArray(saved)) {
+      const found = saved.some((account) => normalizeEmailAddress(account?.email) === normalizedEmail);
+      if (found) return true;
+    }
+  } catch (_error) {
+    // Ignore malformed local data and continue with server check.
+  }
+
+  // Supabase profiles check when available
+  if (hasWorkingSupabaseConfig() && typeof fetchProfileByEmail === "function") {
+    try {
+      const result = await fetchProfileByEmail(normalizedEmail);
+      if (result?.data) return true;
+    } catch (_error) {
+      // Ignore transient failures here; final signup step still validates.
+    }
+  }
+
+  return false;
+}
+
 /**
  * عند إدخال الإيميل والضغط على "التحقق من البريد"
  */
@@ -4568,7 +4605,7 @@ async function handleRegEmailSubmit(e) {
   e.preventDefault();
   const emailInput = document.getElementById('reg-email-input');
   const submitBtn = document.querySelector('#reg-email-form .reg-btn-primary');
-  const email = emailInput.value.trim();
+  const email = normalizeEmailAddress(emailInput.value);
 
   if (!email) {
     showRegMessage(currentLang === 'ar' ? 'البريد الإلكتروني مطلوب' : 'Email is required', 'error');
@@ -4579,6 +4616,18 @@ async function handleRegEmailSubmit(e) {
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailPattern.test(email)) {
     showRegMessage(currentLang === 'ar' ? 'البريد الإلكتروني غير صحيح' : 'Invalid email address', 'error');
+    return;
+  }
+
+  const duplicateEmail = await isEmailAlreadyRegistered(email);
+  if (duplicateEmail) {
+    showRegMessage(
+      currentLang === 'ar'
+        ? 'هذا البريد مستخدم بالفعل. سجّل الدخول أو استخدم استعادة الحساب.'
+        : 'This email is already in use. Sign in or recover your account.',
+      'error'
+    );
+    moveRegStep('email');
     return;
   }
 
@@ -4600,8 +4649,8 @@ async function handleRegEmailSubmit(e) {
       moveRegStep('verification');
       showRegMessage(
         currentLang === 'ar'
-          ? '✅ تم إرسال رابط التحقق. افتح بريدك الإلكتروني والنقر على الرابط.'
-          : '✅ Verification link sent. Check your email and click the link.',
+          ? `✅ تم إرسال رابط التحقق إلى ${email}`
+          : `✅ Verification link sent to ${email}`,
         'success'
       );
     } else {
@@ -4741,7 +4790,7 @@ function handleRegEmailVerified() {
 /**
  * إعادة إرسال بريد التحقق
  */
-function handleRegResendEmail() {
+async function handleRegResendEmail() {
   const email = localStorage.getItem('reg_temp_email');
   if (!email) {
     showRegMessage(
@@ -4752,11 +4801,22 @@ function handleRegResendEmail() {
     return;
   }
 
+  const sent = await sendVerificationEmail(email);
+  if (sent) {
+    showRegMessage(
+      currentLang === 'ar'
+        ? '📧 تم إعادة إرسال رابط التحقق إلى: ' + email
+        : '📧 Verification link resent to: ' + email,
+      'success'
+    );
+    return;
+  }
+
   showRegMessage(
     currentLang === 'ar'
-      ? '📧 تم إعادة إرسال البريد إلى: ' + email
-      : '📧 Resent to: ' + email,
-    'success'
+      ? '❌ تعذر إعادة الإرسال. حاول مرة أخرى.'
+      : '❌ Resend failed. Please try again.',
+    'error'
   );
 }
 
