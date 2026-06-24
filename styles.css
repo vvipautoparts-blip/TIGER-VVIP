@@ -4711,6 +4711,43 @@ body.profile-page .fb-profile-page {
   box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.1);
 }
 
+.reg-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #333;
+  font-family: 'Cairo', sans-serif;
+}
+
+select.reg-input {
+  padding: 12px 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: 'Cairo', sans-serif;
+  background-color: white;
+  color: #333;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231877F2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 20px;
+  padding-right: 40px;
+}
+
+select.reg-input:focus {
+  outline: none;
+  border-color: #1877F2;
+  box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.1);
+}
+
+select.reg-input option {
+  padding: 10px;
+  font-family: 'Cairo', sans-serif;
+}
+
 .reg-btn-primary {
   width: 100%;
   padding: 14px;
@@ -4729,6 +4766,35 @@ body.profile-page .fb-profile-page {
   background: #0a66c2;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(24, 119, 242, 0.3);
+}
+
+.reg-btn-primary:disabled {
+  background: #ccc;
+  color: #999;
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+}
+
+.reg-btn-primary:disabled:hover {
+  background: #ccc;
+  box-shadow: none;
+}
+
+.reg-error-message {
+  font-family: 'Cairo', sans-serif;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .reg-btn-secondary {

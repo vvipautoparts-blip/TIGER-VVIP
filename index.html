@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="stylesheet" href="styles.css?v=20260624-11" />
+  <link rel="stylesheet" href="styles.css?v=20260624-12" />
 </head>
 <body>
   <button id="app-back-button" class="app-back-button" type="button" data-ar="عودة" data-en="Back">عودة</button>
@@ -123,6 +123,21 @@
             <h1 class="reg-title" data-ar="إنشاء حساب جديد" data-en="Create New Account">إنشاء حساب جديد</h1>
             
             <form id="reg-email-form" class="reg-form">
+              <!-- قسم نوع الحساب -->
+              <div class="reg-form-group">
+                <label class="reg-label" data-ar="ℹ️ عن" data-en="ℹ️ About">ℹ️ عن</label>
+                <select 
+                  id="reg-account-type-select" 
+                  class="reg-input" 
+                  data-ar-placeholder="اختر نوع الحساب"
+                  data-en-placeholder="Select Account Type"
+                  required 
+                >
+                  <option value="" data-ar="اختر نوع الحساب..." data-en="Select Account Type...">اختر نوع الحساب...</option>
+                </select>
+              </div>
+
+              <!-- حقل الإيميل -->
               <div class="reg-form-group">
                 <input 
                   type="email" 
@@ -134,7 +149,8 @@
                   required 
                 />
               </div>
-              <button type="submit" class="reg-btn-primary" data-ar="التحقق من البريد" data-en="Verify Email">التحقق من البريد</button>
+              <button type="submit" class="reg-btn-primary" id="reg-email-submit-btn" data-ar="التحقق من البريد" data-en="Verify Email">التحقق من البريد</button>
+              <div id="reg-account-type-error" class="reg-error-message" style="display: none; margin-top: 10px; color: #d32f2f; font-size: 0.9rem; text-align: center;" data-ar="يرجى اختيار نوع الحساب أولاً" data-en="Please select account type first">يرجى اختيار نوع الحساب أولاً</div>
 
               <div class="reg-footer-links">
                 <a href="#auth-section" class="reg-link" data-ar="لديك حساب بالفعل؟" data-en="Already have account?">لديك حساب بالفعل؟</a> <a href="#auth-section" class="reg-link reg-link-bold" data-ar="دخول" data-en="Sign in">دخول</a>
@@ -786,6 +802,6 @@
       }, true);
     })();
   </script>
-  <script src="script.js?v=20260624-26"></script>
+  <script src="script.js?v=20260624-27"></script>
 </body>
 </html>

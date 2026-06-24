@@ -4780,9 +4780,67 @@ function initializeRegistrationUI() {
   const regConfirmedBtn = document.getElementById('reg-confirmed-btn');
   const regResendBtn = document.getElementById('reg-resend-btn');
   const regContinueBtn = document.getElementById('reg-continue-btn');
+  const regAccountTypeSelect = document.getElementById('reg-account-type-select');
+  const regEmailSubmitBtn = document.getElementById('reg-email-submit-btn');
+  const regAccountTypeError = document.getElementById('reg-account-type-error');
+
+  // تعطيل الزر افتراضياً
+  if (regEmailSubmitBtn) {
+    regEmailSubmitBtn.disabled = true;
+  }
+
+  // ملء قائمة نوع الحساب
+  if (regAccountTypeSelect) {
+    const placeholder = currentLang === "ar" ? "اختر نوع الحساب..." : "Select Account Type...";
+    regAccountTypeSelect.innerHTML = `<option value="">${placeholder}</option>`;
+
+    accountTypes.forEach((item) => {
+      const option = document.createElement("option");
+      option.value = item.label;
+      option.textContent = item.label;
+      option.dataset.category = item.category || "";
+      regAccountTypeSelect.appendChild(option);
+    });
+
+    // حدث التغيير - تفعيل/تعطيل الزر
+    regAccountTypeSelect.addEventListener('change', () => {
+      const isSelected = regAccountTypeSelect.value.trim() !== "";
+      
+      if (regEmailSubmitBtn) {
+        regEmailSubmitBtn.disabled = !isSelected;
+      }
+
+      if (regAccountTypeError) {
+        if (isSelected) {
+          regAccountTypeError.style.display = 'none';
+        }
+      }
+
+      // حفظ الاختيار
+      selectedAccountType = regAccountTypeSelect.value;
+      if (selectedAccountType) {
+        const selected = accountTypes.find(t => t.label === selectedAccountType);
+        selectedAccountCategory = selected?.category || null;
+      }
+    });
+  }
 
   if (regEmailForm) {
-    regEmailForm.addEventListener('submit', handleRegEmailSubmit);
+    regEmailForm.addEventListener('submit', (event) => {
+      // التحقق من اختيار نوع الحساب
+      if (!selectedAccountType || selectedAccountType.trim() === "") {
+        event.preventDefault();
+        if (regAccountTypeError) {
+          regAccountTypeError.style.display = 'block';
+        }
+        if (regEmailSubmitBtn) {
+          regEmailSubmitBtn.disabled = true;
+        }
+        return;
+      }
+
+      handleRegEmailSubmit(event);
+    });
   }
 
   if (regConfirmedBtn) {
