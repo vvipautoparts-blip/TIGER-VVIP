@@ -4607,6 +4607,23 @@ async function sendAccountRecoveryEmail(email) {
 
   const redirectTo = `${window.location.origin}${window.location.pathname}#auth-section`;
 
+  if (!hasWorkingSupabaseConfig()) {
+    const authEmailInput = document.getElementById("auth-email");
+    if (authEmailInput) {
+      authEmailInput.value = normalizedEmail;
+    }
+    window.location.hash = "#auth-section";
+    updatePageVisibility();
+    showMessage(
+      currentLang === "ar"
+        ? "لاستعادة الحساب حاليًا: أدخل كلمة المرور لهذا البريد أو أنشئ كلمة مرور جديدة بعد تفعيل Supabase."
+        : "For now: sign in with this email password, or enable Supabase to send a reset link.",
+      "info",
+      authMessage
+    );
+    return true;
+  }
+
   try {
     const { error } = await supabaseClient.auth.resetPasswordForEmail(normalizedEmail, { redirectTo });
     if (error) {
@@ -4621,16 +4638,6 @@ async function sendAccountRecoveryEmail(email) {
     );
     return true;
   } catch (error) {
-    if (!hasWorkingSupabaseConfig()) {
-      showRegMessage(
-        currentLang === "ar"
-          ? "ميزة استعادة الحساب تحتاج إعداد Supabase الحقيقي أولاً."
-          : "Account recovery requires real Supabase configuration first.",
-        "error"
-      );
-      return false;
-    }
-
     showRegMessage(
       error?.message || (currentLang === "ar" ? "تعذّر إرسال رابط الاستعادة." : "Failed to send recovery link."),
       "error"
