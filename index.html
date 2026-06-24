@@ -680,9 +680,14 @@
 
       function hardLocalLogout() {
         try {
+          localStorage.removeItem("tiger_auth_avatar_data_url");
           localStorage.removeItem("currentUser");
           sessionStorage.removeItem("currentUser");
         } catch (_) {}
+
+        if (typeof window.__RESET_AUTH_IDENTITY_UI__ === "function") {
+          window.__RESET_AUTH_IDENTITY_UI__();
+        }
 
         const authMessage = document.getElementById("auth-message");
         if (authMessage) {
@@ -742,6 +747,6 @@
       }, true);
     })();
   </script>
-  <script src="script.js?v=20260624-23"></script>
+  <script src="script.js?v=20260624-24"></script>
 </body>
 </html>

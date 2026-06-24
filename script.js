@@ -173,6 +173,7 @@ const authMessage = document.getElementById("auth-message");
 const authAvatarClickable = document.getElementById("auth-avatar-clickable");
 const authAvatarUploadInput = document.getElementById("auth-avatar-upload");
 const authProfileAvatar = document.querySelector(".auth-profile-avatar");
+const authProfileName = document.querySelector(".auth-profile-name");
 const userPanel = document.getElementById("user-panel");
 const userEmail = document.getElementById("user-email");
 const logoutButton = document.getElementById("logout-button");
@@ -450,6 +451,18 @@ function setAuthAvatar(dataUrl) {
   authProfileAvatar.style.backgroundImage = "";
   authProfileAvatar.classList.remove("has-image");
   authProfileAvatar.textContent = authProfileAvatar.dataset.initials || "NZ";
+}
+
+function resetAuthIdentityUI() {
+  if (authProfileName) {
+    authProfileName.textContent = "";
+  }
+
+  if (authProfileAvatar) {
+    authProfileAvatar.style.backgroundImage = "";
+    authProfileAvatar.classList.remove("has-image");
+    authProfileAvatar.textContent = "";
+  }
 }
 
 function handleAuthAvatarFile(file) {
@@ -2494,6 +2507,7 @@ function renderProducts(items) {
 
 function displayUser(user) {
   if (!user) {
+    resetAuthIdentityUI();
     userPanel.style.display = "none";
     if (headerLogoutButton) {
       headerLogoutButton.style.display = "none";
@@ -2501,6 +2515,18 @@ function displayUser(user) {
     if (partManagementSection) partManagementSection.style.display = "none";
     return;
   }
+
+  const profileName = String(currentUserProfile?.full_name || user?.email || "").trim();
+  if (authProfileName) {
+    authProfileName.textContent = profileName;
+  }
+
+  if (authProfileAvatar && !authProfileAvatar.classList.contains("has-image")) {
+    const initials = (profileName || "").slice(0, 2).toUpperCase() || "";
+    authProfileAvatar.textContent = initials;
+    authProfileAvatar.dataset.initials = initials;
+  }
+
   userEmail.textContent = user.email;
   const roleLabel = getRoleLabel(currentUserProfile?.role || "dealer");
   userRole.textContent = currentLang === "ar" ? roleLabel.ar : roleLabel.en;
@@ -2696,6 +2722,7 @@ async function handleLogout() {
     console.warn("[logout] Supabase signOut failed. Clearing local session anyway.", error);
   }
 
+  localStorage.removeItem(AUTH_AVATAR_STORAGE_KEY);
   localStorage.removeItem("currentUser");
   currentUser = null;
   currentUserProfile = null;
@@ -2709,6 +2736,7 @@ async function handleLogout() {
 }
 
 window.handleLogout = handleLogout;
+window.__RESET_AUTH_IDENTITY_UI__ = resetAuthIdentityUI;
 
 async function showAuthState() {
   const user = await getCurrentUser();
