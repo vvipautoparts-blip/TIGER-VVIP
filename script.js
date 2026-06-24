@@ -2221,9 +2221,11 @@ function getUnauthorizedFallbackHash(role = currentUserProfile?.role) {
 function handleBackButton() {
   const hash = window.location.hash.toLowerCase();
   
-  // من dashboard الخاص إلى الصفحة الأساسية
-  if (hash === "#admin-dashboard" || hash === "#representative-dashboard" || hash === "#approvals-dashboard") {
-    window.location.hash = getDefaultAuthenticatedHash();
+  // من dashboards إلى profile (أو home للعاديين)
+  if (hash === "#admin-dashboard") {
+    window.location.hash = "#profile-page";
+  } else if (hash === "#representative-dashboard" || hash === "#approvals-dashboard") {
+    window.location.hash = "#profile-page";
   }
   // من profile إلى home
   else if (hash === "#profile-page") {
@@ -2239,8 +2241,13 @@ function handleBackButton() {
   }
   // الافتراضي: الرجوع إلى الصفحة الأساسية
   else {
-    window.location.hash = currentUser ? getDefaultAuthenticatedHash() : "#auth-section";
+    window.location.hash = currentUser ? "#profile-page" : "#auth-section";
   }
+  
+  // تحديث الصفحة بعد تغيير hash
+  setTimeout(() => {
+    updatePageVisibility();
+  }, 100);
 }
 
 function updateQuickNavVisibility() {
