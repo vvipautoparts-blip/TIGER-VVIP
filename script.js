@@ -438,6 +438,50 @@ function saveAccountToDevice(userData) {
   return true;
 }
 
+function rememberSignedInAccount(user, profile = null) {
+  if (!user || !user.email) return;
+
+  const email = String(user.email || "").trim().toLowerCase();
+  if (!email) return;
+
+  const accountName = String(profile?.full_name || user.email || "").trim();
+  const initials = (accountName || email).slice(0, 2).toUpperCase();
+  const photoUrl = profile?.avatar_url || localStorage.getItem(AUTH_AVATAR_STORAGE_KEY) || null;
+
+  let accounts = [];
+  try {
+    const parsed = JSON.parse(localStorage.getItem("savedAccounts") || "[]");
+    accounts = Array.isArray(parsed) ? parsed : [];
+  } catch (_error) {
+    accounts = [];
+  }
+
+  const nextAccount = {
+    email,
+    name: accountName || email.split("@")[0],
+    initials,
+    photoUrl,
+    profile: profile || {},
+    id: user.id || Date.now().toString(),
+  };
+
+  const existingIndex = accounts.findIndex((account) => String(account?.email || "").toLowerCase() === email);
+  if (existingIndex >= 0) {
+    accounts[existingIndex] = {
+      ...accounts[existingIndex],
+      ...nextAccount,
+      profile: {
+        ...(accounts[existingIndex]?.profile || {}),
+        ...(profile || {}),
+      },
+    };
+  } else {
+    accounts.push(nextAccount);
+  }
+
+  localStorage.setItem("savedAccounts", JSON.stringify(accounts));
+}
+
 function setAuthAvatar(dataUrl) {
   if (!authProfileAvatar) return;
 
@@ -2599,6 +2643,7 @@ async function handleAuthForm(email, password) {
     console.log("✅ [handleAuthForm] Demo user authenticated successfully");
     currentUser = { id: demoUser.id, email: demoUser.email };
     currentUserProfile = { ...(demoUser.profile || {}) };
+    rememberSignedInAccount(currentUser, currentUserProfile);
     updateRoleBasedNavigation();
     displayUser(currentUser);
     showMessage(currentLang === "ar" ? "تم تسجيل الدخول (وضع تجريبي)." : "Signed in (demo mode).", "success", authMessage);
@@ -2671,6 +2716,7 @@ async function handleAuthForm(email, password) {
 
   updateRoleBasedNavigation();
   displayUser(currentUser);
+  rememberSignedInAccount(currentUser, currentUserProfile);
   showMessage(messages.authSignedIn[currentLang], "success", authMessage);
   await syncOrdersFromSupabase();
   await loadProfileAssets();
