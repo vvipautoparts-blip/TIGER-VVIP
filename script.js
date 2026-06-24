@@ -2546,8 +2546,11 @@ async function renderAdminDashboard() {
   if (pendingEl) pendingEl.textContent = String(pendingApprovals.length);
   if (weeklyPaymentsEl) weeklyPaymentsEl.textContent = formatDinar(totalPayments);
 
+  // Initialize filter buttons
+  initializeAdminFilters(pendingApprovals, payments, pendingReviews);
+
   const approvalsRows = pendingApprovals.map((p) => `
-    <article class="dashboard-row">
+    <article class="dashboard-row" data-user-id="${p.id}" data-status="pending">
       <div>
         <strong>${p.full_name || "--"}</strong>
         <p>${p.phone || "--"} • ${p.account_type || p.role || "--"}</p>
@@ -2561,7 +2564,7 @@ async function renderAdminDashboard() {
   const dueRows = Object.entries(dueByUser)
     .filter(([, amount]) => Number(amount) > 0)
     .map(([userId, amount]) => `
-    <article class="dashboard-row">
+    <article class="dashboard-row" data-user-id="${userId}" data-status="pending">
       <div>
         <strong>${formatDinar(amount)}</strong>
         <p>${currentLang === "ar" ? "مستحق هذا الأسبوع" : "Due this week"} • ${userId}</p>
@@ -2573,7 +2576,7 @@ async function renderAdminDashboard() {
   `);
 
   const paidRows = payments.slice(0, 20).map((p) => `
-    <article class="dashboard-row">
+    <article class="dashboard-row" data-payment-id="${p.id}" data-status="paid">
       <div>
         <strong>${formatDinar(p.total_amount)}</strong>
         <p>${new Date(p.payment_date).toLocaleDateString(currentLang === "ar" ? "ar-SA" : "en-US")} • ${p.period_start} - ${p.period_end}</p>
@@ -2595,7 +2598,7 @@ async function renderAdminDashboard() {
   );
 
   const reviewRows = pendingReviews.map((review) => `
-    <article class="dashboard-row">
+    <article class="dashboard-row" data-review-id="${review.id}" data-status="pending">
       <div>
         <strong>${currentLang === "ar" ? "طلب مراجعة" : "Review Request"} #${review.id}</strong>
         <p>${review.request_message || "--"}</p>
@@ -2611,6 +2614,65 @@ async function renderAdminDashboard() {
     reviewRows,
     document.getElementById("admin-reviews-empty")
   );
+}
+
+// Admin Filter Functions
+function initializeAdminFilters(pendingApprovals, payments, pendingReviews) {
+  const searchInput = document.getElementById("admin-search");
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+      filterAdminBySearch(e.target.value);
+    });
+  }
+}
+
+function filterAdminData(type) {
+  // Update active button
+  document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.classList.remove("active");
+  });
+  event.target.classList.add("active");
+  
+  // Filter rows based on type
+  const rows = document.querySelectorAll(".dashboard-row");
+  rows.forEach(row => {
+    const status = row.getAttribute("data-status");
+    if (type === "all") {
+      row.style.display = "block";
+    } else if (type === "pending" && status === "pending") {
+      row.style.display = "block";
+    } else if (type === "approved" && status === "approved") {
+      row.style.display = "block";
+    } else if (type === "paid" && status === "paid") {
+      row.style.display = "block";
+    } else {
+      row.style.display = "none";
+    }
+  });
+  
+  // Update empty message
+  const visible = document.querySelectorAll(".dashboard-row[style='display: block']").length;
+  if (visible === 0) {
+    document.querySelectorAll(".dashboard-empty").forEach(el => {
+      if (el.style.display !== "none") {
+        el.style.display = "block";
+      }
+    });
+  }
+}
+
+function filterAdminBySearch(searchText) {
+  const text = searchText.toLowerCase().trim();
+  const rows = document.querySelectorAll(".dashboard-row");
+  
+  rows.forEach(row => {
+    const content = row.textContent.toLowerCase();
+    if (text === "" || content.includes(text)) {
+      row.style.display = "block";
+    } else {
+      row.style.display = "none";
+    }
+  });
 }
 
 function renderProducts(items) {
