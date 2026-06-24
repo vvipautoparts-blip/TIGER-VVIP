@@ -80,6 +80,11 @@ main > section {
   display: none;
 }
 
+/* تعويض الهيدر الثابت لجميع الصفحات عدا صفحة الدخول */
+body:not(.login-page) main > section:not(#auth-section):not(#registration-page) {
+  padding-top: 56px;
+}
+
 #auth-section {
   display: block;
     border-top: 1px solid rgba(24, 119, 242, 0.14);
@@ -186,20 +191,45 @@ html[dir="rtl"] .app-back-button::before {
   inset-inline: 0;
   z-index: 1200;
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 10px 16px;
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  gap: 0.5rem;
+  padding: 0 16px;
+  height: 56px;
+  min-height: 56px;
+  max-height: 56px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.97);
   border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 
-.site-header .brand,
+.site-header .brand {
+  display: flex !important;
+  flex-shrink: 0;
+}
+
 .site-header .quick-nav-select,
 .site-header .role-nav-link {
   display: none !important;
+}
+
+/* إخفاء user-panel دائماً — nav avatar يحل محله */
+#user-panel { display: none !important; }
+
+/* الـ nav يأخذ المساحة المتبقية على اليسار */
+.site-header > nav.main-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  overflow: hidden;
+  flex-wrap: nowrap;
+  height: 56px;
+  max-height: 56px;
 }
 
 .brand {
@@ -243,10 +273,10 @@ html[dir="rtl"] .app-back-button::before {
 .main-nav {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-  width: 100%;
+  gap: 0.4rem;
+  flex-wrap: nowrap;
   justify-content: flex-end;
+  flex-shrink: 0;
 }
 
 .lang-toggle-btn {
@@ -296,7 +326,17 @@ body.login-page .main-nav .lang-toggle-btn {
   text-decoration: none;
   cursor: pointer;
   transition: color 0.2s ease;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.75rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
 }
 
 .main-nav a:hover,
@@ -308,23 +348,8 @@ body.login-page .main-nav .lang-toggle-btn {
   border-radius: 6px;
   border: 1px solid var(--border-color);
   background: var(--background-card);
-  padding: 0.85rem 1.1rem;
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
-}
-
-.quick-nav-select {
-  min-width: 220px;
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
-  background: var(--background-card);
-  padding: 0.7rem 0.9rem;
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
-}
-
-.role-nav-link {
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  background: var(--background-card);
+  padding: 7px 14px;
+  font-size: 0.85rem;
 }
 
 .header-logout-button {
@@ -332,12 +357,68 @@ body.login-page .main-nav .lang-toggle-btn {
   background: #fff5f5 !important;
   color: #b42318 !important;
   font-weight: 700;
+  font-size: 0.82rem !important;
+  padding: 6px 12px !important;
 }
 
 .header-logout-button:hover {
   color: #ffffff !important;
   background: #d93025 !important;
 }
+
+/* ===== صورة البروفايل الدائرية في شريط العنوان ===== */
+.nav-profile-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2.5px solid #1877F2;
+  background: #1877F2 center/cover no-repeat;
+  background-color: #1877F2;
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  font-family: 'Cairo', 'Segoe UI', sans-serif;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin-inline-start: 4px;
+  box-shadow: 0 2px 10px rgba(24,119,242,0.3);
+  transition: box-shadow 0.2s, transform 0.15s;
+  outline: none;
+  overflow: hidden;
+}
+
+/* تظهر فقط عند تسجيل الدخول عبر JS */
+.nav-profile-avatar[style*="display: flex"],
+.nav-profile-avatar[style*="display:flex"] {
+  display: flex !important;
+}
+
+.nav-profile-avatar:hover {
+  box-shadow: 0 4px 14px rgba(24,119,242,0.4);
+  transform: scale(1.07);
+}
+
+.nav-profile-avatar.has-image {
+  background-size: cover;
+  background-position: center;
+}
+
+/* إجبار الشكل الدائري دائماً */
+.nav-profile-avatar,
+.nav-profile-avatar.has-image {
+  border-radius: 50% !important;
+  min-width: 40px;
+  max-width: 40px;
+  min-height: 40px;
+  max-height: 40px;
+  z-index: 1300;
+  position: relative;
+}
+
 
 /* حاوية الدخول (توسيط) */
 .login-container {
@@ -596,12 +677,11 @@ body.login-page .main-nav .lang-toggle-btn {
   overflow: hidden;
   border: 1px solid rgba(255, 215, 120, 0.34);
   border-radius: 24px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04));
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 24px 70px rgba(7, 16, 33, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  background: linear-gradient(145deg, rgba(255,255,255,0.12), rgba(10,24,48,0.85));
+  box-shadow: 0 8px 32px rgba(7, 16, 33, 0.28);
   min-height: min(72vh, 620px);
   padding: 0;
+  will-change: auto;
 }
 
 .right-side::before {
@@ -636,9 +716,8 @@ body.login-page .main-nav .lang-toggle-btn {
   height: 100%;
   object-fit: cover;
   object-position: center;
-  filter: drop-shadow(0 0 30px rgba(212, 175, 55, 0.4)) brightness(1.3) contrast(1.1);
+  filter: brightness(1.15);
   transform: none;
-  transition: filter 0.5s ease;
   z-index: 1;
 }
 
@@ -1140,6 +1219,12 @@ body.profile-page {
 body.profile-page .site-header {
   display: flex;
 }
+
+body.profile-page #profile-page {
+  padding-top: 56px;
+}
+
+body.home-page #home-page { padding-top: 56px; }
 
 body.profile-page main > *:not(#profile-page) {
   display: none !important;
@@ -1689,7 +1774,7 @@ body.home-page main > *:not(#home-page) {
 .home-page {
   min-height: 100vh;
   background: var(--background-primary);
-  padding: 20px;
+  padding: 76px 20px 20px;
 }
 
 .home-container {
@@ -2405,9 +2490,23 @@ input[type="file"] {
   }
 
   .site-header {
-    flex-direction: column;
+    flex-direction: row !important;
     gap: 0.5rem;
-    padding: 0.75rem;
+    padding: 0 12px;
+    height: 56px !important;
+    overflow: hidden;
+  }
+
+  .site-header > nav.main-nav {
+    flex-direction: row !important;
+    width: auto !important;
+    height: 56px !important;
+    max-height: 56px !important;
+  }
+
+  .site-header > nav.main-nav a,
+  .site-header > nav.main-nav button {
+    width: auto !important;
   }
 
   .main-nav {
@@ -3617,6 +3716,11 @@ input[type="file"] {
   min-height: 100vh;
 }
 
+/* padding لتعويض الهيدر الثابت */
+body.profile-page .fb-profile-page {
+  padding-top: 0;
+}
+
 /* Cover Photo */
 .fb-cover-area {
   position: relative;
@@ -3821,13 +3925,23 @@ input[type="file"] {
 .fb-tab-btn:hover { background: #f0f2f5; border-radius: 8px 8px 0 0; }
 .fb-tab-btn.active { color: #1877F2; border-bottom-color: #1877F2; }
 
-/* Profile Body */
+/* Profile Body — Desktop: sidebar + main + right-widget */
 .fb-profile-body {
   display: grid;
-  grid-template-columns: 360px 1fr;
+  grid-template-columns: 320px 1fr 280px;
   gap: 16px;
   padding: 16px;
   align-items: start;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+/* Tablet: sidebar + main */
+@media (max-width: 1024px) and (min-width: 601px) {
+  .fb-profile-body {
+    grid-template-columns: 280px 1fr;
+  }
+  .fb-profile-right-widget { display: none; }
 }
 
 /* Sidebar */
@@ -3843,6 +3957,29 @@ input[type="file"] {
   padding: 16px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
+
+/* العمود الأيمن — الأصدقاء والإحصائيات */
+.fb-profile-right-widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Skeleton loader للصورة الدائرية */
+.nav-avatar-skeleton {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #e4e6eb 25%, #f0f2f5 50%, #e4e6eb 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.2s infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 
 .fb-info-card h3 {
   font-size: 1.1rem;
@@ -4677,8 +4814,7 @@ input[type="file"] {
 
 .reg-logo-crystal-3d {
   width: 280px;
-  filter: drop-shadow(0 0 30px rgba(212, 175, 55, 0.4)) brightness(1.3);
-  animation: float 3s ease-in-out infinite;
+  filter: brightness(1.15);
 }
 
 @keyframes float {

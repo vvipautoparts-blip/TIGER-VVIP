@@ -174,6 +174,7 @@ const authAvatarClickable = document.getElementById("auth-avatar-clickable");
 const authAvatarUploadInput = document.getElementById("auth-avatar-upload");
 const authProfileAvatar = document.querySelector(".auth-profile-avatar");
 const authProfileName = document.querySelector(".auth-profile-name");
+const navProfileAvatar = document.getElementById("nav-profile-avatar");
 const userPanel = document.getElementById("user-panel");
 const userEmail = document.getElementById("user-email");
 const logoutButton = document.getElementById("logout-button");
@@ -512,6 +513,33 @@ function setAuthAvatar(dataUrl) {
   authProfileAvatar.textContent = authProfileAvatar.dataset.initials || "NZ";
 }
 
+/**
+ * 🔵 تحديث الصورة الدائرية في شريط العنوان (nav avatar)
+ * Sync the header circular avatar with the current user photo / initials
+ */
+function updateNavAvatar(photoUrl, initials) {
+  if (!navProfileAvatar) return;
+  if (!photoUrl && !initials) {
+    navProfileAvatar.style.display = "none";
+    navProfileAvatar.style.backgroundImage = "";
+    navProfileAvatar.classList.remove("has-image");
+    navProfileAvatar.textContent = "";
+    return;
+  }
+  navProfileAvatar.style.display = "flex";
+  navProfileAvatar.style.alignItems = "center";
+  navProfileAvatar.style.justifyContent = "center";
+  if (photoUrl) {
+    navProfileAvatar.style.backgroundImage = `url(${photoUrl})`;
+    navProfileAvatar.classList.add("has-image");
+    navProfileAvatar.textContent = "";
+  } else {
+    navProfileAvatar.style.backgroundImage = "";
+    navProfileAvatar.classList.remove("has-image");
+    navProfileAvatar.textContent = (initials || "").slice(0, 2).toUpperCase();
+  }
+}
+
 function resetAuthIdentityUI() {
   if (authProfileName) {
     authProfileName.textContent = "";
@@ -584,6 +612,23 @@ window.loadSavedAccounts = loadSavedAccounts;
 window.selectSavedAccount = selectSavedAccount;
 window.previewAccountPhoto = previewAccountPhoto;
 window.saveAccountToDevice = saveAccountToDevice;
+
+// ==========================================
+// 🔵 NAV AVATAR — الصورة الدائرية في الهيدر
+// ==========================================
+(function attachNavAvatarHandler() {
+  const btn = document.getElementById("nav-profile-avatar");
+  if (!btn) return;
+
+  function goToProfile(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    navigateToHash("#profile-page");
+  }
+
+  btn.addEventListener("click", goToProfile, { passive: false });
+  btn.addEventListener("touchend", goToProfile, { passive: false });
+})();
 
 // ==========================================
 // 🎯 Close modal when clicking on overlay
@@ -784,39 +829,47 @@ function updateBackButtonState() {
 function navigateBackInApp() {
   const hash = window.location.hash || "#auth-section";
 
+  // التسجيل → الرجوع → صفحة الدخول
   if (hash === "#registration-page") {
     navigateToHash("#auth-section");
     return;
   }
 
-  if (previousAppHash && previousAppHash !== (window.location.hash || "")) {
-    navigateToHash(previousAppHash);
-    return;
-  }
-
+  // إذا كان المستخدم غير مسجّل → لا رجوع خارج صفحة الدخول
   if (!currentUser) {
-    if (hash === "#auth-section") {
-      navigateToHash("#auth-section");
-      return;
-    }
-    if (hash === "#catalog" || hash === "#order-request") {
-      navigateToHash("#auth-section");
-      return;
-    }
     navigateToHash("#auth-section");
     return;
   }
 
-  if (hash === "#home-page") {
-    navigateToHash("#profile-page");
+  // استخدام السجل السابق إذا كان موجوداً وهو صفحة مختلفة ومستخدم مصرح
+  const safeAuthHashes = [
+    "#profile-page", "#home-page", "#catalog", "#order-request",
+    "#user-orders", "#representative-dashboard", "#approvals-dashboard", "#admin-dashboard"
+  ];
+  if (
+    previousAppHash &&
+    previousAppHash !== hash &&
+    safeAuthHashes.includes(previousAppHash)
+  ) {
+    navigateToHash(previousAppHash);
     return;
   }
 
-  if (["#catalog", "#order-request", "#user-orders", "#representative-dashboard", "#approvals-dashboard", "#admin-dashboard"].includes(hash)) {
+  // من البروفايل → الصفحة الرئيسية للمستخدم
+  if (hash === "#profile-page") {
+    const defaultHash = getDefaultAuthenticatedHash(currentUserProfile?.role);
+    // إذا كانت الصفحة الافتراضية هي البروفايل نفسه (مستخدمون عاديون)، اذهب للـ home-page
+    navigateToHash(defaultHash === "#profile-page" ? "#home-page" : defaultHash);
+    return;
+  }
+
+  // من أي صفحة فرعية → الصفحة الرئيسية
+  if (["#catalog", "#order-request", "#user-orders"].includes(hash)) {
     navigateToHash("#home-page");
     return;
   }
 
+  // افتراضياً → صفحة البروفايل
   navigateToHash("#profile-page");
 }
 
@@ -2571,6 +2624,7 @@ function displayUser(user) {
     if (headerLogoutButton) {
       headerLogoutButton.style.display = "none";
     }
+    if (navProfileAvatar) navProfileAvatar.style.display = "none";
     if (partManagementSection) partManagementSection.style.display = "none";
     return;
   }
@@ -2586,11 +2640,18 @@ function displayUser(user) {
     authProfileAvatar.dataset.initials = initials;
   }
 
+  // تحديث الصورة الدائرية في شريط العنوان
+  const navPhotoUrl = currentUserProfile?.avatar_url || localStorage.getItem(AUTH_AVATAR_STORAGE_KEY) || null;
+  const navInitials = (profileName || user.email || "").slice(0, 2).toUpperCase();
+  updateNavAvatar(navPhotoUrl, navInitials);
+
+  // إخفاء user-panel — nav avatar يحل محله
+  userPanel.style.display = "none";
+
   userEmail.textContent = user.email;
   const roleLabel = getRoleLabel(currentUserProfile?.role || "dealer");
   userRole.textContent = currentLang === "ar" ? roleLabel.ar : roleLabel.en;
   userSubscription.textContent = currentUserProfile?.subscription || "basic";
-  userPanel.style.display = "grid";
   if (headerLogoutButton) {
     headerLogoutButton.style.display = "inline-flex";
   }
@@ -2848,6 +2909,11 @@ function updatePageVisibility() {
   });
   
   if (isOnAuthPages) {
+    // إذا كان المستخدم مسجّلاً ووصل لصفحة الدخول عبر زر الرجوع، أعده للصفحة الأساسية
+    if (isAuth) {
+      window.location.hash = getDefaultAuthenticatedHash(currentUserProfile?.role);
+      return;
+    }
     // Show auth section
     if (hash === "#registration-page") {
       document.getElementById("registration-page").style.display = "block";
@@ -3118,8 +3184,11 @@ function renderProfilePage() {
     profilePictureEl.alt = profileNameText;
   }
   if (profileCover) {
-    const coverUrl = currentUserProfile.cover_url || profileMeta?.cover_image_url || "";
-    profileCover.style.backgroundImage = coverUrl ? `url('${coverUrl}')` : "linear-gradient(120deg, #dfe9f3 0%, #ffffff 100%)";
+    const cachedCover = currentUser?.id ? localStorage.getItem(`tiger_cover_${currentUser.id}`) : null;
+    const coverUrl = profileMeta?.cover_image_url || currentUserProfile.cover_url || cachedCover || "";
+    profileCover.style.backgroundImage = coverUrl ? `url('${coverUrl}')` : "";
+    profileCover.style.backgroundSize = "cover";
+    profileCover.style.backgroundPosition = "center";
   }
 
   updateFloatingContactActions(phoneText);
@@ -3210,6 +3279,25 @@ function renderProfilePage() {
       if (ordersListMini) ordersListMini.innerHTML = recentHtml;
       if (ordersListFull) ordersListFull.innerHTML = allOrdersHtml;
     }
+
+  // ===== تحديث العمود الأيمن (right widget) =====
+  const rwPhone = document.getElementById("rw-phone");
+  const rwEmail = document.getElementById("rw-email");
+  const rwCity  = document.getElementById("rw-city");
+  if (rwPhone) rwPhone.textContent = phoneText;
+  if (rwEmail) rwEmail.textContent = currentUser.email || "--";
+  if (rwCity)  rwCity.textContent  = cityText;
+
+  const rwRepLink   = document.getElementById("rw-rep-link");
+  const rwAdminLink = document.getElementById("rw-admin-link");
+  if (rwRepLink)   rwRepLink.style.display   = (currentUserProfile?.role === "representative" || isAdminRole(currentUserProfile?.role)) ? "" : "none";
+  if (rwAdminLink) rwAdminLink.style.display = isAdminRole(currentUserProfile?.role) ? "" : "none";
+
+  // ===== مزامنة صورة nav مع صورة البروفايل =====
+  const navPhoto    = currentUserProfile?.avatar_url || localStorage.getItem(AUTH_AVATAR_STORAGE_KEY) || null;
+  const navInitials = (profileNameText || currentUser.email || "T").slice(0, 2).toUpperCase();
+  updateNavAvatar(navPhoto, navInitials);
+
   runProfileSearch();
 }
 
@@ -3219,13 +3307,10 @@ if (editProfileButton) {
     const about = window.prompt(currentLang === "ar" ? "أدخل نبذة مختصرة" : "Enter short about text", profileMeta?.about_text || currentUserProfile?.business_description || "");
     if (about === null) return;
 
-    const cover = window.prompt(currentLang === "ar" ? "أدخل رابط صورة الغلاف" : "Enter cover image URL", profileMeta?.cover_image_url || currentUserProfile?.cover_url || "");
-    if (cover === null) return;
-
     const metaPayload = {
       user_id: currentUser.id,
       about_text: about,
-      cover_image_url: cover || null,
+      cover_image_url: profileMeta?.cover_image_url || currentUserProfile?.cover_url || null,
       contact_phone: currentUserProfile.phone || null,
       city: currentUserProfile.city || currentUserProfile.location || null,
       address: currentUserProfile.address || currentUserProfile.location || null,
@@ -3242,6 +3327,71 @@ if (editProfileButton) {
     showMessage(currentLang === "ar" ? "تم تحديث البروفايل." : "Profile updated.", "success", orderMessage);
   });
 }
+
+// ==========================================
+// 🖼️ رفع صورة الغلاف بالملف مباشرةً
+// ==========================================
+const coverUploadInput = document.getElementById("cover-photo-upload");
+if (coverUploadInput) {
+  coverUploadInput.addEventListener("change", async (e) => {
+    const file = e.target?.files?.[0];
+    if (!file || !currentUser) return;
+    e.target.value = "";
+
+    if (!file.type.startsWith("image/")) {
+      showMessage(currentLang === "ar" ? "يجب اختيار صورة." : "Please select an image.", "error", orderMessage);
+      return;
+    }
+
+    // عرض فوري (local preview)
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target.result;
+      if (profileCover) {
+        profileCover.style.backgroundImage = `url('${dataUrl}')`;
+        profileCover.style.backgroundSize = "cover";
+        profileCover.style.backgroundPosition = "center";
+      }
+
+      // حفظ في profileMeta محلياً
+      if (!profileMeta) profileMeta = {};
+      profileMeta.cover_image_url = dataUrl;
+
+      // حفظ في localStorage كـ cache مؤقت
+      try {
+        localStorage.setItem(`tiger_cover_${currentUser.id}`, dataUrl);
+      } catch (_) { /* storage full */ }
+
+      // إذا كان Supabase متاحاً — ارفع الصورة وحدّث URL
+      if (hasWorkingSupabaseConfig()) {
+        (async () => {
+          try {
+            const fileName = `cover_${currentUser.id}_${Date.now()}.${file.name.split(".").pop() || "jpg"}`;
+            const uploadRes = await window.supabaseClient?.storage
+              ?.from("avatars")
+              ?.upload(fileName, file, { upsert: true, contentType: file.type });
+            if (uploadRes?.data) {
+              const { data: urlData } = window.supabaseClient.storage
+                .from("avatars")
+                .getPublicUrl(fileName);
+              const publicUrl = urlData?.publicUrl;
+              if (publicUrl) {
+                await upsertProfileMeta({
+                  user_id: currentUser.id,
+                  cover_image_url: publicUrl,
+                  about_text: profileMeta?.about_text || "",
+                });
+                profileMeta.cover_image_url = publicUrl;
+              }
+            }
+          } catch (_) { /* offline — keep local preview */ }
+        })();
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 
 document.querySelectorAll(".profile-tab-btn").forEach((button) => {
   button.addEventListener("click", () => {
