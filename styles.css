@@ -5439,3 +5439,50 @@ select.reg-input option {
     height: 140px;
   }
 }
+
+/* ===== زر الرجوع في الصفحات ===== */
+.page-back-section {
+  display: flex;
+  justify-content: center;
+  padding: 24px 16px;
+  margin-top: 20px;
+  gap: 12px;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: #1877F2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Cairo', 'Segoe UI', sans-serif;
+}
+
+.back-button:hover {
+  background: #165bc0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(24, 119, 242, 0.3);
+}
+
+.back-button:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .page-back-section {
+    padding: 16px;
+    margin-top: 16px;
+  }
+  
+  .back-button {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+}

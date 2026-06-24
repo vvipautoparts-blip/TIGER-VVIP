@@ -2218,6 +2218,31 @@ function getUnauthorizedFallbackHash(role = currentUserProfile?.role) {
   return getDefaultAuthenticatedHash(role);
 }
 
+function handleBackButton() {
+  const hash = window.location.hash.toLowerCase();
+  
+  // من dashboard الخاص إلى الصفحة الأساسية
+  if (hash === "#admin-dashboard" || hash === "#representative-dashboard" || hash === "#approvals-dashboard") {
+    window.location.hash = getDefaultAuthenticatedHash();
+  }
+  // من profile إلى home
+  else if (hash === "#profile-page") {
+    window.location.hash = "#home-page";
+  }
+  // من home/catalog/orders إلى profile
+  else if (hash === "#home-page" || hash === "#catalog" || hash === "#user-orders" || hash === "#order-request") {
+    window.location.hash = "#profile-page";
+  }
+  // من registration إلى auth
+  else if (hash === "#registration-page") {
+    window.location.hash = "#auth-section";
+  }
+  // الافتراضي: الرجوع إلى الصفحة الأساسية
+  else {
+    window.location.hash = currentUser ? getDefaultAuthenticatedHash() : "#auth-section";
+  }
+}
+
 function updateQuickNavVisibility() {
   if (!quickNavSelect) return;
 

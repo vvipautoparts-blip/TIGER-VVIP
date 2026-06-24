@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="stylesheet" href="styles.css?v=20260624-13" />
+  <link rel="stylesheet" href="styles.css?v=20260624-14" />
 </head>
 <body>
   <button id="app-back-button" class="app-back-button" type="button" data-ar="عودة" data-en="Back">عودة</button>
@@ -506,6 +506,14 @@
 
         </div>
       </div>
+      
+      <!-- Back Button Section -->
+      <div class="page-back-section">
+        <button class="back-button" onclick="handleBackButton();">
+          <span data-ar="←" data-en="←">←</span>
+          <span data-ar="عودة" data-en="Back">عودة</span>
+        </button>
+      </div>
     </section>
 
     <section id="home-page" class="section home-page" style="display:none;">
@@ -615,6 +623,14 @@
           </div>
         </main>
       </div>
+      
+      <!-- Back Button Section -->
+      <div class="page-back-section">
+        <button class="back-button" onclick="handleBackButton();">
+          <span data-ar="←" data-en="←">←</span>
+          <span data-ar="عودة" data-en="Back">عودة</span>
+        </button>
+      </div>
     </section>
 
     <section id="representative-dashboard" class="section dashboard-section" style="display:none;">
@@ -643,6 +659,14 @@
       <div id="rep-dashboard-note" class="form-message" style="display:block;">
         <span data-ar="الراتب الأسبوعي يُصرف من المدير العام." data-en="Weekly salary is paid by super admin.">الراتب الأسبوعي يُصرف من المدير العام.</span>
       </div>
+      
+      <!-- Back Button Section -->
+      <div class="page-back-section">
+        <button class="back-button" onclick="handleBackButton();">
+          <span data-ar="←" data-en="←">←</span>
+          <span data-ar="عودة" data-en="Back">عودة</span>
+        </button>
+      </div>
     </section>
 
     <section id="approvals-dashboard" class="section dashboard-section" style="display:none;">
@@ -652,6 +676,14 @@
       </div>
       <div id="approvals-empty" class="dashboard-empty" data-ar="لا توجد طلبات موافقة حالياً." data-en="No approval requests right now.">لا توجد طلبات موافقة حالياً.</div>
       <div id="approvals-list" class="dashboard-list"></div>
+      
+      <!-- Back Button Section -->
+      <div class="page-back-section">
+        <button class="back-button" onclick="handleBackButton();">
+          <span data-ar="←" data-en="←">←</span>
+          <span data-ar="عودة" data-en="Back">عودة</span>
+        </button>
+      </div>
     </section>
 
     <section id="admin-dashboard" class="section dashboard-section" style="display:none;">
@@ -695,6 +727,14 @@
         <h3 data-ar="طلبات المراجعة والردود الإدارية" data-en="Review Requests & Admin Replies">طلبات المراجعة والردود الإدارية</h3>
         <div id="admin-reviews-empty" class="dashboard-empty" data-ar="لا توجد طلبات مراجعة حالياً." data-en="No review requests right now.">لا توجد طلبات مراجعة حالياً.</div>
         <div id="admin-reviews-list" class="dashboard-list"></div>
+      </div>
+      
+      <!-- Back Button Section -->
+      <div class="page-back-section">
+        <button class="back-button" onclick="handleBackButton();">
+          <span data-ar="←" data-en="←">←</span>
+          <span data-ar="عودة" data-en="Back">عودة</span>
+        </button>
       </div>
     </section>
 
@@ -802,6 +842,6 @@
       }, true);
     })();
   </script>
-  <script src="script.js?v=20260624-29"></script>
+  <script src="script.js?v=20260624-30"></script>
 </body>
 </html>
