@@ -351,7 +351,14 @@ function loadSavedAccounts() {
  * Select a saved account and log in with it
  */
 function selectSavedAccount(index) {
-  const accounts = JSON.parse(localStorage.getItem("savedAccounts") || "[]");
+  let accounts = [];
+  try {
+    const parsedAccounts = JSON.parse(localStorage.getItem("savedAccounts") || "[]");
+    accounts = Array.isArray(parsedAccounts) ? parsedAccounts : [];
+  } catch (_error) {
+    accounts = [];
+  }
+
   const account = accounts[index];
 
   if (!account) return;
@@ -360,9 +367,19 @@ function selectSavedAccount(index) {
   localStorage.setItem("currentUser", JSON.stringify(account));
   currentUser = account;
   currentUserProfile = account.profile || {};
+  if (authProfileName) {
+    authProfileName.textContent = account.name || account.email?.split("@")[0] || "";
+  }
+  if (authProfileAvatar) {
+    const initials = (account.initials || account.name || account.email || "").slice(0, 2).toUpperCase();
+    authProfileAvatar.dataset.initials = initials;
+  }
   if (account.photoUrl) {
     localStorage.setItem(AUTH_AVATAR_STORAGE_KEY, account.photoUrl);
     setAuthAvatar(account.photoUrl);
+  } else {
+    localStorage.removeItem(AUTH_AVATAR_STORAGE_KEY);
+    setAuthAvatar("");
   }
 
   // إغلاق Modal والانتقال / Close modal and navigate
@@ -371,19 +388,17 @@ function selectSavedAccount(index) {
   // رسالة تأكيد / Confirmation message
   showMessage(
     currentLang === "ar"
-      ? `✅ تم تسجيل الدخول بـ ${account.email}`
-      : `✅ Logged in as ${account.email}`,
+      ? `✅ تم اختيار الحساب: ${account.email}`
+      : `✅ Account selected: ${account.email}`,
     "success",
     authMessage,
     300
   );
 
   setTimeout(() => {
+    window.location.hash = "#auth-section";
     updatePageVisibility();
-    displayUser(currentUser);
     updateRoleBasedNavigation();
-    window.location.hash = "#profile-page";
-    updatePageVisibility();
   }, 500);
 }
 
