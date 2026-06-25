@@ -3022,6 +3022,28 @@ async function signInWithGoogleAccountChooser(targetHash = '#registration-page',
 
   // Check if we have real Supabase configuration
   if (IS_PLACEHOLDER_SUPABASE_CONFIG) {
+    if (targetHash === '#registration-page') {
+      localStorage.setItem('demo_email_verified', 'true');
+      localStorage.setItem('reg_email_verified', 'true');
+
+      if (!localStorage.getItem('reg_temp_email')) {
+        const emailInput = document.getElementById('reg-email-input');
+        const fallbackEmail = String(emailInput?.value || '').trim();
+        if (fallbackEmail) {
+          localStorage.setItem('reg_temp_email', fallbackEmail);
+        }
+      }
+
+      handleRegEmailVerified();
+      showRegMessage(
+        currentLang === 'ar'
+          ? '✅ تم التحقق (وضع تجريبي) ويمكنك المتابعة الآن.'
+          : '✅ Verified in demo mode. You can continue now.',
+        'success'
+      );
+      return;
+    }
+
     const msg = currentLang === 'ar'
       ? '⚠️ البيئة المحلية: Google OAuth يتطلب مفاتيح Supabase حقيقية. اطّلع على SETUP-GUIDE.md'
       : '⚠️ Local environment: Google OAuth requires real Supabase keys. See SETUP-GUIDE.md';
@@ -3032,44 +3054,6 @@ async function signInWithGoogleAccountChooser(targetHash = '#registration-page',
     } else {
       alert(msg);
     }
-
-    const shouldConfigureNow = confirm(
-      currentLang === 'ar'
-        ? 'هل تريد إدخال مفاتيح Supabase الآن لتفعيل زر Google؟'
-        : 'Do you want to enter Supabase keys now to activate the Google button?'
-    );
-
-    if (shouldConfigureNow && typeof window.setRuntimeSupabaseConfig === 'function') {
-      const enteredUrl = prompt(
-        currentLang === 'ar'
-          ? 'أدخل Supabase URL (مثال: https://xxxx.supabase.co)'
-          : 'Enter Supabase URL (example: https://xxxx.supabase.co)'
-      );
-
-      if (!enteredUrl) return;
-
-      const enteredAnonKey = prompt(
-        currentLang === 'ar'
-          ? 'أدخل Supabase Anon Key'
-          : 'Enter Supabase Anon Key'
-      );
-
-      if (!enteredAnonKey) return;
-
-      const saved = window.setRuntimeSupabaseConfig(enteredUrl, enteredAnonKey);
-      if (saved?.ok) {
-        alert(currentLang === 'ar' ? 'تم حفظ الإعدادات. سيتم إعادة تحميل الصفحة.' : 'Configuration saved. The page will reload now.');
-        window.location.reload();
-      } else {
-        const saveError = saved?.message || (currentLang === 'ar' ? 'تعذر حفظ الإعدادات.' : 'Failed to save configuration.');
-        if (feedbackEl) {
-          showMessage(saveError, 'error', feedbackEl);
-        } else {
-          alert(saveError);
-        }
-      }
-    }
-
     return;
   }
 
@@ -5803,12 +5787,25 @@ async function handleRegResendEmail() {
  * المتابعة إلى الملف الشخصي
  */
 function handleRegContinueToProfile() {
-  // بعد التحقق من البريد، انتظر قليلاً ثم انتقل للملف الشخصي
-  // الملف الشخصي سيحمل البيانات من الـ localStorage
+  // إذا لم يكن المستخدم مسجلاً، أكمل التدفق عبر صفحة الدخول
+  if (!currentUser) {
+    showRegMessage(
+      currentLang === 'ar'
+        ? '✅ تم التحقق. الآن أكمل تسجيل الدخول للمتابعة.'
+        : '✅ Verified. Now sign in to continue.',
+      'success'
+    );
+    setTimeout(() => {
+      window.location.hash = '#auth-section';
+      updatePageVisibility();
+    }, 250);
+    return;
+  }
+
   setTimeout(() => {
     window.location.hash = '#profile-page';
     updatePageVisibility();
-  }, 300);
+  }, 250);
 }
 
 /**
@@ -5845,6 +5842,11 @@ function moveRegStep(step) {
     } else if (step === 'verified' && verifiedWrapper) {
       verifiedWrapper.classList.remove(fadeOutClass);
       verifiedWrapper.style.display = 'block';
+
+      const continueBtn = document.getElementById('reg-continue-btn');
+      if (continueBtn) {
+        continueBtn.onclick = handleRegContinueToProfile;
+      }
     }
   }, 200);
 }
