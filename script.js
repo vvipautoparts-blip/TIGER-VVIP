@@ -631,6 +631,32 @@ window.saveAccountToDevice = saveAccountToDevice;
   btn.addEventListener("touchend", goToProfile, { passive: false });
 })();
 
+function updateFloatingProfileButton() {
+  let floatingBtn = document.getElementById("floating-profile-btn");
+
+  if (!floatingBtn) {
+    floatingBtn = document.createElement("button");
+    floatingBtn.id = "floating-profile-btn";
+    floatingBtn.className = "floating-profile-btn";
+    floatingBtn.type = "button";
+    floatingBtn.title = currentLang === "ar" ? "الملف الشخصي" : "Profile";
+    floatingBtn.addEventListener("click", () => navigateToHash("#profile-page"));
+    document.body.appendChild(floatingBtn);
+  }
+
+  const hash = (window.location.hash || "#auth-section").toLowerCase();
+  const shouldShow = Boolean(currentUser) && hash !== "#auth-section" && hash !== "#registration-page";
+  floatingBtn.style.display = shouldShow ? "inline-flex" : "none";
+
+  const displayName =
+    currentUserProfile?.full_name ||
+    currentUser?.user_metadata?.full_name ||
+    currentUser?.email ||
+    "U";
+  const initials = getInitials(displayName).slice(0, 2) || "U";
+  floatingBtn.textContent = initials.toUpperCase();
+}
+
 // ==========================================
 // 🎯 Close modal when clicking on overlay
 // ==========================================
@@ -3325,6 +3351,8 @@ function updatePageVisibility() {
       return;
     }
   }
+
+  updateFloatingProfileButton();
 }
 
 function populateProductOptions() {
@@ -5906,6 +5934,7 @@ async function loadAccountTypesForReg() {
 function initializeProductsFeed() {
   const OFFICIAL_CALL_NUMBER = "+962780003302";
   const OFFICIAL_WHATSAPP_NUMBER = "962796960886";
+  const FEED_FOLLOW_STATE_KEY = "tiger_feed_follow_state_v1";
 
   const productsData = [
     {
@@ -5979,6 +6008,33 @@ function initializeProductsFeed() {
   const priceValue = document.getElementById('feed-price-value');
   const resetBtn = document.getElementById('feed-reset-filters');
 
+  const loadFollowState = () => {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(FEED_FOLLOW_STATE_KEY) || "{}");
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch (_error) {
+      return {};
+    }
+  };
+
+  const saveFollowState = (state) => {
+    localStorage.setItem(FEED_FOLLOW_STATE_KEY, JSON.stringify(state));
+  };
+
+  const showFeedToast = (text) => {
+    let toast = document.getElementById("feed-toast");
+    if (!toast) {
+      toast = document.createElement("div");
+      toast.id = "feed-toast";
+      toast.className = "feed-toast";
+      document.body.appendChild(toast);
+    }
+
+    toast.textContent = text;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 1700);
+  };
+
   // Populate filter dropdowns
   const brands = [...new Set(productsData.map(p => p.brand))];
   const categories = [...new Set(productsData.map(p => p.category))];
@@ -5998,6 +6054,8 @@ function initializeProductsFeed() {
   });
 
   function renderProducts(data) {
+    const followState = loadFollowState();
+
     feedGrid.innerHTML = '';
     if (data.length === 0) {
       emptyState.style.display = 'block';
@@ -6006,18 +6064,24 @@ function initializeProductsFeed() {
     emptyState.style.display = 'none';
 
     data.forEach(product => {
+      const followKey = `${product.brand}-${product.model}`;
+      const isFollowing = Boolean(followState[followKey]);
+
       const card = document.createElement('div');
       card.className = 'feed-product-card';
       card.innerHTML = `
         <img src="${product.image}" alt="${product.title}" class="feed-product-image" />
         <div class="feed-product-header">
-          <div class="feed-product-brand">${product.brand}</div>
-          <h3 class="feed-product-title">${product.title}</h3>
+          <div class="feed-product-brand feed-profile-link" data-follow-key="${followKey}">${product.brand}</div>
+          <h3 class="feed-product-title feed-profile-link" data-follow-key="${followKey}">${product.title}</h3>
           <p class="feed-product-desc">${product.description}</p>
           <div class="feed-product-price">${product.price} دينار</div>
           <p class="feed-product-specs">الطراز: ${product.model}</p>
         </div>
         <div class="feed-product-actions">
+          <button type="button" class="feed-follow-btn ${isFollowing ? 'following' : ''}" data-follow-key="${followKey}">
+            ${isFollowing ? '✓ متابع' : 'متابعة'}
+          </button>
           <a href="https://wa.me/${OFFICIAL_WHATSAPP_NUMBER}" 
              class="feed-contact-btn whatsapp" target="_blank">
             📱 اتصال WhatsApp
@@ -6027,6 +6091,36 @@ function initializeProductsFeed() {
           </a>
         </div>
       `;
+
+      const followBtn = card.querySelector('.feed-follow-btn');
+      if (followBtn) {
+        followBtn.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+
+          const state = loadFollowState();
+          const key = followBtn.dataset.followKey;
+          const nextState = !Boolean(state[key]);
+          state[key] = nextState;
+          saveFollowState(state);
+
+          followBtn.classList.toggle('following', nextState);
+          followBtn.textContent = nextState ? '✓ متابع' : 'متابعة';
+
+          showFeedToast(nextState
+            ? `تمت متابعة ${product.brand} بنجاح`
+            : `تم إلغاء متابعة ${product.brand}`);
+        });
+      }
+
+      card.querySelectorAll('.feed-profile-link').forEach((el) => {
+        el.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          navigateToHash('#profile-page');
+        });
+      });
+
       feedGrid.appendChild(card);
     });
   }

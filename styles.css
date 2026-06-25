@@ -5149,6 +5149,14 @@ select.reg-input option {
   margin-bottom: 6px;
 }
 
+.feed-profile-link {
+  cursor: pointer;
+}
+
+.feed-profile-link:hover {
+  text-decoration: underline;
+}
+
 .feed-product-title {
   font-size: 1.1rem;
   font-weight: 700;
@@ -5192,6 +5200,29 @@ select.reg-input option {
   gap: 10px;
 }
 
+.feed-follow-btn {
+  padding: 11px 16px;
+  border: 1px solid #d0d7e2;
+  border-radius: 8px;
+  background: #f0f2f5;
+  color: #1c1e21;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Cairo', sans-serif;
+}
+
+.feed-follow-btn:hover {
+  background: #e4e6eb;
+}
+
+.feed-follow-btn.following {
+  background: #1877F2;
+  border-color: #1877F2;
+  color: white;
+}
+
 .feed-contact-btn {
   padding: 12px 16px;
   border: none;
@@ -5229,6 +5260,57 @@ select.reg-input option {
   background: #0a66c2;
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(24, 119, 242, 0.35);
+}
+
+.feed-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%) translateY(12px);
+  background: #1c1e21;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1200;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.feed-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.floating-profile-btn {
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  border: 2px solid #ffffff;
+  background: #1877F2;
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  z-index: 1100;
+}
+
+.floating-profile-btn:hover {
+  background: #0a66c2;
+}
+
+html[dir="rtl"] .floating-profile-btn {
+  left: auto;
+  right: 18px;
 }
 
 .feed-empty-state {
