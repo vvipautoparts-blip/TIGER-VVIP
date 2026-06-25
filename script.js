@@ -4650,6 +4650,10 @@ async function initializeApp() {
     displayUser(null);
     updatePageVisibility();
   }
+
+  // 👀 [NEW] Monitor email verification status
+  console.log("📊 [init] setupEmailVerificationMonitoring...");
+  monitorEmailVerificationStatus();
   
   console.log("✓ App initialized successfully");
 }
@@ -5680,10 +5684,100 @@ async function verifyEmailToken(token, email) {
 }
 
 /**
+ * التحقق من حالة تأكيد البريل من Supabase
+ */
+async function checkEmailVerificationStatus(user) {
+  if (!user || !user.id) {
+    console.warn('⚠️ No user to check verification status');
+    return { verified: false };
+  }
+
+  try {
+    const configured = isSupabaseConfigured();
+    
+    if (configured && supabaseClient) {
+      // الطريقة 1: التحقق من user.email_confirmed_at (الأفضل)
+      const { data: { user: currentUser } } = await supabaseClient.auth.getUser();
+      
+      if (currentUser?.email_confirmed_at) {
+        console.log('✅ Email confirmed at:', currentUser.email_confirmed_at);
+        return { 
+          verified: true,
+          confirmedAt: currentUser.email_confirmed_at,
+          email: currentUser.email
+        };
+      }
+
+      // الطريقة 2: التحقق من الملف الشخصي في قاعدة البيانات
+      const { data: profile, error } = await supabaseClient
+        .from('profiles')
+        .select('email_verified_at, email_confirmed')
+        .eq('id', user.id)
+        .single();
+
+      if (!error && profile) {
+        if (profile.email_verified_at || profile.email_confirmed) {
+          console.log('✅ Email verified in DB:', profile.email_verified_at);
+          return { verified: true, profile };
+        }
+      }
+
+      return { verified: false };
+    }
+
+    // الطريقة 3: وضع تجريبي - افترض التحقق بعد 3 ثواني
+    const demoVerified = localStorage.getItem('demo_email_verified') === 'true';
+    if (demoVerified) {
+      return { verified: true, demo: true };
+    }
+
+    return { verified: false };
+  } catch (err) {
+    console.error('❌ Error checking email verification:', err);
+    return { verified: false, error: err.message };
+  }
+}
+
+/**
+ * مراقبة حالة المستخدم - إعادة توجيه تلقائية عند التحقق
+ */
+function monitorEmailVerificationStatus() {
+  if (!isSupabaseConfigured()) {
+    console.log('⚠️ Supabase not configured - skipping email verification monitoring');
+    return;
+  }
+
+  if (!supabaseClient) {
+    console.warn('⚠️ Supabase client not ready');
+    return;
+  }
+
+  // استمع لتغييرات حالة المصادقة
+  supabaseClient.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+      console.log('🔐 Auth state changed - checking email verification...');
+      
+      const { verified, confirmedAt } = await checkEmailVerificationStatus(session.user);
+      
+      if (verified) {
+        console.log('✅ Email verified - allowing access');
+        localStorage.setItem('demo_email_verified', 'true');
+        
+        // إعادة توجيه إلى صفحة البروفايل
+        setTimeout(() => {
+          window.location.hash = '#profile-page';
+        }, 1000);
+      }
+    }
+  });
+}
+
+/**
  * عند التحقق من الإيميل
  */
 function handleRegEmailVerified() {
   localStorage.setItem('reg_email_verified', 'true');
+  localStorage.setItem('demo_email_verified', 'true');
   
   // 💾 حفظ البريد المستخدم في القائمة
   saveCurrentEmail();
@@ -5696,6 +5790,9 @@ function handleRegEmailVerified() {
       : '✅ Your email has been verified successfully!',
     'success'
   );
+
+  // 👀 استدعاء مراقبة التحقق للإعادة التوجيه التلقائية
+  monitorEmailVerificationStatus();
 }
 
 /**
