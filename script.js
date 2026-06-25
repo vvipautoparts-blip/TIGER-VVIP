@@ -3000,7 +3000,26 @@ async function handleAuthForm(email, password) {
 // =============================================
 // 🔐 Google OAuth Account Chooser
 // =============================================
-async function signInWithGoogleAccountChooser() {
+async function signInWithGoogleAccountChooser(targetHash = '#registration-page', messageElement = null) {
+  const feedbackEl =
+    messageElement ||
+    (targetHash === '#registration-page' ? document.getElementById('reg-message') : null) ||
+    authMessage ||
+    null;
+
+  if (!supabaseClient?.auth?.signInWithOAuth) {
+    const msg = currentLang === 'ar'
+      ? '⚠️ Google OAuth غير جاهز حالياً. تحقق من إعدادات Supabase (URL/ANON KEY) ثم أعد المحاولة.'
+      : '⚠️ Google OAuth is not ready. Check Supabase URL/ANON KEY and try again.';
+
+    if (feedbackEl) {
+      showMessage(msg, 'error', feedbackEl);
+    } else {
+      alert(msg);
+    }
+    return;
+  }
+
   // Check if we have real Supabase configuration
   if (IS_PLACEHOLDER_SUPABASE_CONFIG) {
     const msg = currentLang === 'ar'
@@ -3008,8 +3027,8 @@ async function signInWithGoogleAccountChooser() {
       : '⚠️ Local environment: Google OAuth requires real Supabase keys. See SETUP-GUIDE.md';
     
     console.warn('ℹ️ Google OAuth Configuration Required:', msg);
-    if (authMessage) {
-      showMessage(msg, 'info', authMessage);
+    if (feedbackEl) {
+      showMessage(msg, 'info', feedbackEl);
     } else {
       alert(msg);
     }
@@ -3023,7 +3042,7 @@ async function signInWithGoogleAccountChooser() {
         queryParams: {
           prompt: 'select_account'
         },
-        redirectTo: window.location.origin + window.location.pathname + '#auth-section'
+        redirectTo: `${window.location.origin}${window.location.pathname}${targetHash}`
       }
     });
 
@@ -3033,11 +3052,16 @@ async function signInWithGoogleAccountChooser() {
         ? '❌ خطأ في تسجيل الدخول عبر Google' 
         : '❌ Google sign-in failed';
       
-      if (authMessage) {
-        showMessage(msg, 'error', authMessage);
+      if (feedbackEl) {
+        showMessage(msg, 'error', feedbackEl);
       } else {
         alert(msg);
       }
+      return;
+    }
+
+    if (data?.url) {
+      window.location.assign(data.url);
       return;
     }
 
@@ -3048,8 +3072,8 @@ async function signInWithGoogleAccountChooser() {
       ? 'خطأ غير متوقع - تحقق من الكونسول'
       : 'Unexpected error - check console';
     
-    if (authMessage) {
-      showMessage(msg, 'error', authMessage);
+    if (feedbackEl) {
+      showMessage(msg, 'error', feedbackEl);
     } else {
       alert(msg);
     }
@@ -3060,128 +3084,37 @@ async function signInWithGoogleAccountChooser() {
 // 🔐 Google One Tap Sign-up (Registration Page)
 // =============================================
 async function initializeGoogleOneTap() {
-  // تحقق من وجود Google API
-  if (!window.google || !window.google.accounts) {
-    console.warn('⚠️ Google API not loaded yet');
-    return;
-  }
+  const containerEl = document.getElementById('google-one-tap-container');
+  if (!containerEl) return;
 
-  // تحقق من وجود Client ID صحيح
-  const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID';
-  if (GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID') {
-    console.warn('⚠️ Google Client ID not configured');
-    const containerEl = document.getElementById('google-one-tap-container');
-    if (containerEl) {
-      const msg = currentLang === 'ar'
-        ? `<div style="text-align: center; padding: 20px; background: #f0f0f0; border-radius: 8px; margin: 10px 0;">
-             <strong>🔐 Google Sign-up</strong><br>
-             <small>يتطلب إعداد Google Client ID<br><a href="GOOGLE-ONE-TAP-SETUP.md" target="_blank" style="color: #1877F2;">اتبع الدليل الكامل</a></small>
-           </div>`
-        : `<div style="text-align: center; padding: 20px; background: #f0f0f0; border-radius: 8px; margin: 10px 0;">
-             <strong>🔐 Google Sign-up</strong><br>
-             <small>Requires Google Client ID setup<br><a href="GOOGLE-ONE-TAP-SETUP.md" target="_blank" style="color: #1877F2;">See setup guide</a></small>
-           </div>`;
-      containerEl.innerHTML = msg;
-    }
-    return;
-  }
+  const buttonText = currentLang === 'ar' ? 'المتابعة باستخدام Google' : 'Continue with Google';
+  const helperText = currentLang === 'ar'
+    ? 'سيتم فتح قائمة حسابات Google لاختيار البريد'
+    : 'Google account chooser will open to select your email';
 
-  try {
-    // معالج الاستجابة من Google One Tap
-    const handleGoogleSignUp = async (response) => {
+  containerEl.innerHTML = `
+    <button type="button" id="reg-google-chooser-btn" class="btn reg-btn-secondary" style="width: 300px; max-width: 100%;">
+      G ${buttonText}
+    </button>
+    <small style="display:block; margin-top:8px; color:#666; text-align:center;">${helperText}</small>
+  `;
+
+  const chooserBtn = document.getElementById('reg-google-chooser-btn');
+  if (chooserBtn) {
+    chooserBtn.addEventListener('click', async () => {
+      const originalText = chooserBtn.textContent;
+      chooserBtn.disabled = true;
+      chooserBtn.textContent = currentLang === 'ar' ? 'جارٍ فتح Google...' : 'Opening Google...';
+
       try {
-        // فك تشفير JWT token من Google
-        const base64Url = response.credential.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-        
-        const googleUser = JSON.parse(jsonPayload);
-        
-        console.log('✅ Google One Tap Response:', {
-          email: googleUser.email,
-          name: googleUser.name,
-          picture: googleUser.picture
-        });
-
-        // ملء نموذج التسجيل ببيانات Google
-        const emailInput = document.getElementById('reg-email-input');
-        const accountTypeSelect = document.getElementById('reg-account-type-select');
-        
-        if (emailInput) {
-          emailInput.value = googleUser.email;
-          // إضافة البريد إلى السجل المحفوظ
-          addSavedEmail(googleUser.email);
-        }
-
-        // إظهار رسالة نجاح
-        const regMessage = document.getElementById('reg-message');
-        if (regMessage) {
-          const msg = currentLang === 'ar'
-            ? `✅ مرحباً ${googleUser.name}! تم ملء بيانات Google تلقائياً`
-            : `✅ Welcome ${googleUser.name}! Google data populated`;
-          showMessage(msg, 'success', regMessage);
-        }
-
-        // سجل المستخدم في Supabase (إذا كان هناك اتصال)
-        if (!IS_PLACEHOLDER_SUPABASE_CONFIG && supabaseClient) {
-          const { error } = await supabaseClient.auth.signInWithIdToken({
-            provider: 'google',
-            token: response.credential
-          });
-          
-          if (!error) {
-            console.log('✅ User signed in with Google');
-            // الانتقال إلى الخطوة التالية
-            setTimeout(() => {
-              handleRegEmailVerified();
-            }, 1000);
-          }
-        }
-      } catch (err) {
-        console.error('❌ Error processing Google One Tap response:', err);
-        const regMessage = document.getElementById('reg-message');
-        if (regMessage) {
-          const msg = currentLang === 'ar'
-            ? 'خطأ في معالجة بيانات Google'
-            : 'Error processing Google data';
-          showMessage(msg, 'error', regMessage);
-        }
+        await signInWithGoogleAccountChooser('#registration-page', document.getElementById('reg-message'));
+      } finally {
+        setTimeout(() => {
+          chooserBtn.disabled = false;
+          chooserBtn.textContent = originalText;
+        }, 1200);
       }
-    };
-
-    // تهيئة Google One Tap
-    google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID,
-      callback: handleGoogleSignUp,
-      use_fedcm_for_prompt: true // استخدم FedCM للأمان الأفضل
     });
-
-    // عرض زر Google في الحاوية المحددة
-    const containerEl = document.getElementById('google-one-tap-container');
-    if (containerEl) {
-      google.accounts.id.renderButton(
-        containerEl,
-        {
-          type: 'standard',
-          size: 'large',
-          text: currentLang === 'ar' ? 'signup_with' : 'signup_with',
-          logo_alignment: 'center',
-          width: '300',
-          theme: 'outline'
-        }
-      );
-
-      // محاولة عرض One Tap Prompt (الـ popup الاحترافي)
-      google.accounts.id.prompt((notification) => {
-        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          console.log('ℹ️ One Tap prompt not displayed');
-        }
-      });
-    }
-  } catch (err) {
-    console.error('❌ Error initializing Google One Tap:', err);
   }
 }
 
