@@ -813,17 +813,8 @@ function createDemoUser(payload) {
 }
 
 function updateBackButtonState() {
-  if (!appBackButton) return;
-  const hash = window.location.hash || "#auth-section";
-  const hideOnRoutes = ["#auth-section", "#home-page"];
-
-  let shouldShow = !hideOnRoutes.includes(hash);
-
-  if (hash === "#auth-section") {
-    shouldShow = ["#registration-page"].includes(previousAppHash);
-  }
-
-  appBackButton.style.display = shouldShow ? "inline-flex" : "none";
+  // Back button removed from header - no-op
+  return;
 }
 
 function navigateBackInApp() {
