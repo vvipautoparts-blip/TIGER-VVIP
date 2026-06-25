@@ -5101,6 +5101,196 @@ function showDuplicateEmailActions(email) {
 /**
  * عند إدخال الإيميل والضغط على "التحقق من البريد"
  */
+/**
+ * ========================================
+ * Email Selector System
+ * اختيار البريد الإلكتروني من قائمة المحفوظ
+ * ========================================
+ */
+
+const SAVED_EMAILS_KEY = 'TIGER_VVIP_SAVED_EMAILS';
+const MAX_SAVED_EMAILS = 5;
+
+/**
+ * 📧 الحصول على قائمة البريدات المحفوظة
+ */
+function getSavedEmails() {
+  try {
+    const stored = localStorage.getItem(SAVED_EMAILS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (err) {
+    console.error('❌ Error reading saved emails:', err);
+    return [];
+  }
+}
+
+/**
+ * 💾 حفظ بريد جديد في القائمة
+ */
+function addSavedEmail(email) {
+  if (!email || !email.includes('@')) return;
+  
+  const emails = getSavedEmails();
+  const normalizedEmail = email.toLowerCase().trim();
+  
+  // إزالة البريد إذا كان موجود (لنقله للأول)
+  const filtered = emails.filter(e => e.email !== normalizedEmail);
+  
+  // إضافة البريد الجديد في الأول
+  const updated = [
+    { email: normalizedEmail, timestamp: Date.now() },
+    ...filtered
+  ].slice(0, MAX_SAVED_EMAILS);
+  
+  localStorage.setItem(SAVED_EMAILS_KEY, JSON.stringify(updated));
+  renderSavedEmails();
+  renderEmailDatalist();
+}
+
+/**
+ * 🗑️ حذف بريد من القائمة
+ */
+function deleteSavedEmail(email) {
+  const emails = getSavedEmails();
+  const updated = emails.filter(e => e.email !== email.toLowerCase().trim());
+  localStorage.setItem(SAVED_EMAILS_KEY, JSON.stringify(updated));
+  renderSavedEmails();
+  renderEmailDatalist();
+}
+
+/**
+ * 🎯 اختيار بريد من القائمة
+ */
+function selectEmailFromList(email) {
+  const input = document.getElementById('reg-email-input');
+  if (input) {
+    input.value = email;
+    input.focus();
+  }
+  toggleEmailSelector();
+}
+
+/**
+ * 📋 عرض قائمة البريدات المحفوظة (Dropdown)
+ */
+function renderSavedEmails() {
+  const container = document.getElementById('saved-emails-container');
+  if (!container) return;
+  
+  const emails = getSavedEmails();
+  
+  if (emails.length === 0) {
+    container.innerHTML = `
+      <div class="email-selector-empty">
+        <span data-ar="لا توجد بريدات محفوظة" data-en="No saved emails">لا توجد بريدات محفوظة</span>
+      </div>
+    `;
+    return;
+  }
+  
+  container.innerHTML = emails.map(item => {
+    const date = new Date(item.timestamp);
+    const timeStr = currentLang === 'ar' 
+      ? date.toLocaleDateString('ar-SA', { month: 'short', day: 'numeric' })
+      : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    
+    return `
+      <div class="email-selector-item" onclick="selectEmailFromList('${item.email}')">
+        <span class="email-selector-item-icon">✓</span>
+        <div class="email-selector-item-text">
+          <span class="email-selector-item-email">${item.email}</span>
+          <span class="email-selector-item-time">${timeStr}</span>
+        </div>
+        <button 
+          type="button" 
+          class="email-selector-item-delete" 
+          onclick="event.stopPropagation(); deleteSavedEmail('${item.email}')"
+          title="Delete"
+        >
+          ×
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+
+/**
+ * 📝 عرض قائمة البريدات في datalist (للـ autocomplete)
+ */
+function renderEmailDatalist() {
+  const datalist = document.getElementById('saved-emails-list');
+  if (!datalist) return;
+  
+  const emails = getSavedEmails();
+  datalist.innerHTML = emails.map(item => 
+    `<option value="${item.email}" label="${new Date(item.timestamp).toLocaleDateString()}">`
+  ).join('');
+}
+
+/**
+ * 🎚️ فتح/إغلاق قائمة البريدات
+ */
+function toggleEmailSelector(event) {
+  if (event) event.preventDefault();
+  
+  const dropdown = document.getElementById('email-selector-dropdown');
+  if (!dropdown) return;
+  
+  const isVisible = dropdown.style.display !== 'none';
+  dropdown.style.display = isVisible ? 'none' : 'block';
+  
+  if (!isVisible) {
+    renderSavedEmails();
+  }
+}
+
+/**
+ * 🔄 تهيئة Email Selector عند تحميل صفحة التسجيل
+ */
+function initializeEmailSelector() {
+  const input = document.getElementById('reg-email-input');
+  if (!input) return;
+  
+  // عرض البريدات المحفوظة عند التركيز
+  input.addEventListener('focus', () => {
+    if (getSavedEmails().length > 0) {
+      // إظهار تلميح
+      input.setAttribute('placeholder', 
+        currentLang === 'ar'
+          ? 'اختر من القائمة أعلاه ↑'
+          : 'Choose from list above ↑'
+      );
+    }
+  });
+  
+  // إخفاء القائمة عند فقدان التركيز
+  input.addEventListener('blur', () => {
+    setTimeout(() => {
+      const dropdown = document.getElementById('email-selector-dropdown');
+      if (dropdown) dropdown.style.display = 'none';
+    }, 200);
+  });
+  
+  // تحديث datalist عند التحميل
+  renderEmailDatalist();
+  renderSavedEmails();
+}
+
+/**
+ * ✅ حفظ البريد المستخدم بعد التحقق الناجح
+ */
+function saveCurrentEmail() {
+  const email = localStorage.getItem('reg_temp_email');
+  if (email) {
+    addSavedEmail(email);
+  }
+}
+
+// تهيئة عند تحميل الصفحة
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => initializeEmailSelector(), 300);
+});
+
 async function handleRegEmailSubmit(e) {
   e.preventDefault();
   const emailInput = document.getElementById('reg-email-input');
@@ -5273,6 +5463,10 @@ async function verifyEmailToken(token, email) {
  */
 function handleRegEmailVerified() {
   localStorage.setItem('reg_email_verified', 'true');
+  
+  // 💾 حفظ البريد المستخدم في القائمة
+  saveCurrentEmail();
+  
   moveRegStep('verified');
 
   showRegMessage(

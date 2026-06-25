@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="stylesheet" href="styles.css?v=20260625-19" />
+  <link rel="stylesheet" href="styles.css?v=20260625-20" />
 </head>
 <body>
 
@@ -104,17 +104,42 @@
                 </select>
               </div>
 
-              <!-- حقل الإيميل -->
-              <div class="reg-form-group">
-                <input 
-                  type="email" 
-                  id="reg-email-input" 
-                  class="reg-input" 
-                  placeholder="البريد الإلكتروني"
-                  data-ar-placeholder="البريد الإلكتروني"
-                  data-en-placeholder="Email Address"
-                  required 
-                />
+              <!-- حقل الإيميل مع قائمة البريدات المحفوظة -->
+              <div class="reg-form-group email-selector-wrapper">
+                <div class="email-input-container">
+                  <input 
+                    type="email" 
+                    id="reg-email-input" 
+                    class="reg-input" 
+                    list="saved-emails-list"
+                    placeholder="البريد الإلكتروني"
+                    data-ar-placeholder="اختر من البريدات المحفوظة أو أدخل بريداً جديداً"
+                    data-en-placeholder="Choose from saved or enter new email"
+                    required 
+                  />
+                  <datalist id="saved-emails-list">
+                    <!-- سيتم ملؤها من JavaScript -->
+                  </datalist>
+                  <button 
+                    type="button" 
+                    class="email-selector-toggle" 
+                    id="email-selector-btn"
+                    title="اختر بريداً محفوظاً"
+                    onclick="toggleEmailSelector(event)"
+                  >
+                    📧
+                  </button>
+                </div>
+                <!-- قائمة البريدات المحفوظة (Dropdown) -->
+                <div id="email-selector-dropdown" class="email-selector-dropdown" style="display:none;">
+                  <div class="email-selector-header">
+                    <span data-ar="البريدات المحفوظة" data-en="Saved Emails">البريدات المحفوظة</span>
+                    <button type="button" class="email-selector-close" onclick="toggleEmailSelector()" aria-label="Close">×</button>
+                  </div>
+                  <div id="saved-emails-container" class="email-selector-list">
+                    <!-- سيتم ملؤها من JavaScript -->
+                  </div>
+                </div>
               </div>
               <button type="submit" class="reg-btn-primary" id="reg-email-submit-btn" data-ar="التحقق من البريد" data-en="Verify Email">التحقق من البريد</button>
               <div id="reg-account-type-error" class="reg-error-message" style="display: none; margin-top: 10px; color: #d32f2f; font-size: 0.9rem; text-align: center;" data-ar="يرجى اختيار نوع الحساب أولاً" data-en="Please select account type first">يرجى اختيار نوع الحساب أولاً</div>
@@ -829,6 +854,6 @@
       }, true);
     })();
   </script>
-  <script src="script.js?v=20260625-39"></script>
+  <script src="script.js?v=20260625-40"></script>
 </body>
 </html>
