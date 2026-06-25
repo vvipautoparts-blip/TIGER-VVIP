@@ -3066,6 +3066,26 @@ async function initializeGoogleOneTap() {
     return;
   }
 
+  // تحقق من وجود Client ID صحيح
+  const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID';
+  if (GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID') {
+    console.warn('⚠️ Google Client ID not configured');
+    const containerEl = document.getElementById('google-one-tap-container');
+    if (containerEl) {
+      const msg = currentLang === 'ar'
+        ? `<div style="text-align: center; padding: 20px; background: #f0f0f0; border-radius: 8px; margin: 10px 0;">
+             <strong>🔐 Google Sign-up</strong><br>
+             <small>يتطلب إعداد Google Client ID<br><a href="GOOGLE-ONE-TAP-SETUP.md" target="_blank" style="color: #1877F2;">اتبع الدليل الكامل</a></small>
+           </div>`
+        : `<div style="text-align: center; padding: 20px; background: #f0f0f0; border-radius: 8px; margin: 10px 0;">
+             <strong>🔐 Google Sign-up</strong><br>
+             <small>Requires Google Client ID setup<br><a href="GOOGLE-ONE-TAP-SETUP.md" target="_blank" style="color: #1877F2;">See setup guide</a></small>
+           </div>`;
+      containerEl.innerHTML = msg;
+    }
+    return;
+  }
+
   try {
     // معالج الاستجابة من Google One Tap
     const handleGoogleSignUp = async (response) => {
@@ -3133,7 +3153,7 @@ async function initializeGoogleOneTap() {
 
     // تهيئة Google One Tap
     google.accounts.id.initialize({
-      client_id: 'YOUR_GOOGLE_CLIENT_ID', // سيتم استبداله بـ Client ID الحقيقي
+      client_id: GOOGLE_CLIENT_ID,
       callback: handleGoogleSignUp,
       use_fedcm_for_prompt: true // استخدم FedCM للأمان الأفضل
     });
