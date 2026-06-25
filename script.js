@@ -2997,6 +2997,47 @@ async function handleAuthForm(email, password) {
   return currentUser;
 }
 
+// =============================================
+// 🔐 Google OAuth Account Chooser
+// =============================================
+async function signInWithGoogleAccountChooser() {
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        queryParams: {
+          prompt: 'select_account'
+        },
+        redirectTo: window.location.origin + window.location.pathname + '#auth-section'
+      }
+    });
+
+    if (error) {
+      console.error('❌ Google OAuth Error:', error);
+      showMessage(
+        currentLang === 'ar' 
+          ? 'خطأ في تسجيل الدخول عبر Google' 
+          : 'Google login error',
+        'error'
+      );
+      return;
+    }
+
+    console.log('✅ Google OAuth sign-in initiated:', data);
+  } catch (err) {
+    console.error('❌ Unexpected error during Google sign-in:', err);
+    showMessage(
+      currentLang === 'ar'
+        ? 'حدث خطأ غير متوقع'
+        : 'Unexpected error',
+      'error'
+    );
+  }
+}
+
+// Export for global access
+window.signInWithGoogleAccountChooser = signInWithGoogleAccountChooser;
+
 async function handleLogout() {
   const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   let savedAccounts = [];

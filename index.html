@@ -30,6 +30,7 @@
             <div class="auth-login-actions">
               <button id="auth-submit-button" type="button" class="btn primary auth-primary-btn" data-ar="متابعة" data-en="Continue">متابعة</button>
               <button id="auth-mode-toggle" class="btn auth-secondary-btn" type="button" onclick="document.getElementById('accounts-modal')?.classList.add('active'); window.loadSavedAccounts?.();" data-ar="استخدام ملف شخصي آخر" data-en="Use another profile">استخدام ملف شخصي آخر</button>
+              <button id="auth-google-chooser-btn" class="btn auth-secondary-btn" type="button" onclick="signInWithGoogleAccountChooser()" data-ar="🔐 حساب Google" data-en="🔐 Google Account">🔐 حساب Google</button>
               <a href="#registration-page" class="auth-create-link" data-ar="إنشاء حساب جديد" data-en="Create New Account">إنشاء حساب جديد</a>
               <button id="auth-logout-button" class="btn auth-secondary-btn" type="button" onclick="window.__FORCE_LOGOUT__ && window.__FORCE_LOGOUT__(event)" data-ar="تسجيل الخروج" data-en="Sign Out">تسجيل الخروج</button>
             </div>
