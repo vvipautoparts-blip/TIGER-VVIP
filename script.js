@@ -3001,6 +3001,21 @@ async function handleAuthForm(email, password) {
 // 🔐 Google OAuth Account Chooser
 // =============================================
 async function signInWithGoogleAccountChooser() {
+  // Check if we have real Supabase configuration
+  if (IS_PLACEHOLDER_SUPABASE_CONFIG) {
+    const msg = currentLang === 'ar'
+      ? '⚠️ البيئة المحلية: Google OAuth يتطلب مفاتيح Supabase حقيقية. اطّلع على SETUP-GUIDE.md'
+      : '⚠️ Local environment: Google OAuth requires real Supabase keys. See SETUP-GUIDE.md';
+    
+    console.warn('ℹ️ Google OAuth Configuration Required:', msg);
+    if (authMessage) {
+      showMessage(msg, 'info', authMessage);
+    } else {
+      alert(msg);
+    }
+    return;
+  }
+
   try {
     const { data, error } = await supabaseClient.auth.signInWithOAuth({
       provider: 'google',
@@ -3015,8 +3030,8 @@ async function signInWithGoogleAccountChooser() {
     if (error) {
       console.error('❌ Google OAuth Error:', error);
       const msg = currentLang === 'ar' 
-        ? 'خطأ في تسجيل الدخول عبر Google. تأكد من إعداد Supabase بشكل صحيح.' 
-        : 'Google login error. Ensure Supabase is configured properly.';
+        ? '❌ خطأ في تسجيل الدخول عبر Google' 
+        : '❌ Google sign-in failed';
       
       if (authMessage) {
         showMessage(msg, 'error', authMessage);
@@ -3030,8 +3045,8 @@ async function signInWithGoogleAccountChooser() {
   } catch (err) {
     console.error('❌ Unexpected error during Google sign-in:', err);
     const msg = currentLang === 'ar'
-      ? 'حدث خطأ غير متوقع. تحقق من الكونسول للتفاصيل.'
-      : 'Unexpected error. Check console for details.';
+      ? 'خطأ غير متوقع - تحقق من الكونسول'
+      : 'Unexpected error - check console';
     
     if (authMessage) {
       showMessage(msg, 'error', authMessage);
