@@ -233,11 +233,58 @@ let profileParts = [];
 let profileReviewRequests = [];
 let adminRepliesByRequest = {};
 
+const PROFILE_THEME_STORAGE_KEY = "tiger_profile_theme_mode";
+
 const ADMIN_ROLES = ["super_admin"];
 const STAFF_ROLES = ["representative"];
 const SESSION_DEVICE_KEY = "tiger_vvip_device_id";
 const AUTH_AVATAR_STORAGE_KEY = "tiger_auth_avatar_data_url";
 const WHATSAPP_OTP_ENDPOINT = window.WHATSAPP_OTP_ENDPOINT || "";
+
+function getStoredProfileTheme() {
+  try {
+    const stored = String(localStorage.getItem(PROFILE_THEME_STORAGE_KEY) || "light").toLowerCase();
+    return stored === "dark" ? "dark" : "light";
+  } catch (_error) {
+    return "light";
+  }
+}
+
+function applyProfileTheme(theme) {
+  if (!document.body) return;
+  const normalized = theme === "dark" ? "dark" : "light";
+  document.body.classList.toggle("profile-vvip-dark", normalized === "dark");
+}
+
+function persistProfileTheme(theme) {
+  try {
+    localStorage.setItem(PROFILE_THEME_STORAGE_KEY, theme === "dark" ? "dark" : "light");
+  } catch (_error) {
+    // Ignore storage failures silently.
+  }
+}
+
+function updateProfileThemeToggleLabel() {
+  const btn = document.getElementById("profile-theme-toggle");
+  if (!btn) return;
+
+  const isDark = document.body?.classList.contains("profile-vvip-dark");
+  const text = isDark
+    ? (currentLang === "ar" ? "☀️ فاتح" : "☀️ Light")
+    : (currentLang === "ar" ? "🌙 داكن" : "🌙 Dark");
+
+  btn.innerHTML = `<span>${text}</span>`;
+}
+
+function toggleProfileTheme() {
+  const isDark = document.body?.classList.contains("profile-vvip-dark");
+  const nextTheme = isDark ? "light" : "dark";
+  applyProfileTheme(nextTheme);
+  persistProfileTheme(nextTheme);
+  updateProfileThemeToggleLabel();
+}
+
+applyProfileTheme(getStoredProfileTheme());
 const DEMO_USERS_STORAGE_KEY = "tiger_vvip_demo_users";
 const DEMO_OTP_CODE = "123456";
 
@@ -3686,6 +3733,7 @@ function renderProfilePage() {
   updateNavAvatar(navPhoto, navInitials);
 
   runProfileSearch();
+  updateProfileThemeToggleLabel();
 }
 
 if (editProfileButton) {
@@ -3737,6 +3785,11 @@ if (shareProfileButton) {
   setTimeout(() => {
     initGalleryOnProfileLoad();
   }, 100);
+}
+
+const profileThemeToggleButton = document.getElementById("profile-theme-toggle");
+if (profileThemeToggleButton) {
+  profileThemeToggleButton.addEventListener("click", toggleProfileTheme);
 }
 
 // Dashboard Access Button for Admins

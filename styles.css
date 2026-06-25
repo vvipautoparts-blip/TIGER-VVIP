@@ -3501,11 +3501,25 @@ body.profile-page .fb-profile-page {
   flex-wrap: wrap;
   border-bottom: 1px solid #e4e6eb;
   position: relative;
+  isolation: isolate;
+}
+
+.fb-profile-header::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 180px;
+  background:
+    linear-gradient(140deg, rgba(24, 119, 242, 0.28), rgba(13, 95, 200, 0.15)),
+    radial-gradient(circle at 88% 22%, rgba(255, 255, 255, 0.7), transparent 48%),
+    linear-gradient(180deg, #eaf2ff, #d8e7ff);
+  border-bottom: 1px solid rgba(24, 119, 242, 0.14);
+  z-index: -1;
 }
 
 .fb-profile-avatar-wrap {
   position: relative;
-  margin-top: -68px;
+  margin-top: 56px;
   flex-shrink: 0;
 }
 
@@ -3557,6 +3571,7 @@ body.profile-page .fb-profile-page {
   color: #050505;
   margin: 0;
   line-height: 1.2;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
 .fb-verified-badge svg { vertical-align: middle; }
@@ -3706,6 +3721,94 @@ body.profile-page .fb-profile-page {
   border-radius: 8px;
   padding: 16px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  border: 1px solid #e4e6eb;
+}
+
+/* ===== VVIP DARK MODE (Profile only) ===== */
+body.profile-vvip-dark .fb-profile-page {
+  background: #0f1626;
+}
+
+body.profile-vvip-dark .fb-profile-header,
+body.profile-vvip-dark .fb-profile-tabs-bar,
+body.profile-vvip-dark .fb-info-card,
+body.profile-vvip-dark .fb-post-box,
+body.profile-vvip-dark .fb-profile-card {
+  background: #172033;
+  border-color: #27334d;
+}
+
+body.profile-vvip-dark .fb-profile-header::before {
+  background:
+    linear-gradient(140deg, rgba(24, 119, 242, 0.35), rgba(4, 18, 41, 0.55)),
+    radial-gradient(circle at 84% 20%, rgba(72, 140, 246, 0.3), transparent 52%),
+    linear-gradient(180deg, #1c2f55, #15213a);
+  border-bottom-color: #2d3b57;
+}
+
+body.profile-vvip-dark .fb-profile-name,
+body.profile-vvip-dark .fb-card-title,
+body.profile-vvip-dark .fb-info-card h3,
+body.profile-vvip-dark .fb-bold,
+body.profile-vvip-dark .fb-about-row strong,
+body.profile-vvip-dark .fb-order-info strong {
+  color: #f2f6ff;
+  text-shadow: none;
+}
+
+body.profile-vvip-dark .fb-profile-meta,
+body.profile-vvip-dark .fb-followers-line,
+body.profile-vvip-dark .fb-about-row,
+body.profile-vvip-dark .fb-info-row,
+body.profile-vvip-dark .fb-order-info span,
+body.profile-vvip-dark .fb-empty-state {
+  color: #b9c6df;
+}
+
+body.profile-vvip-dark .fb-meta-chip,
+body.profile-vvip-dark .fb-stat-box,
+body.profile-vvip-dark .fb-post-placeholder,
+body.profile-vvip-dark .fb-about-row,
+body.profile-vvip-dark .fb-order-item {
+  background: #1f2a41;
+  border-color: #2e3b58;
+}
+
+body.profile-vvip-dark .fb-btn-secondary {
+  background: #24324d;
+  color: #f2f6ff;
+}
+
+body.profile-vvip-dark .fb-btn-secondary:hover {
+  background: #2b3d60;
+}
+
+body.profile-vvip-dark .fb-tab-btn {
+  color: #b9c6df;
+}
+
+body.profile-vvip-dark .fb-tab-btn:hover {
+  background: #22324f;
+}
+
+body.profile-vvip-dark .fb-tab-btn.active {
+  color: #7db6ff;
+  border-bottom-color: #7db6ff;
+}
+
+body.profile-vvip-dark .fb-see-all,
+body.profile-vvip-dark .fb-quick-link {
+  color: #7db6ff;
+}
+
+@media (max-width: 768px) {
+  .fb-profile-header::before {
+    height: 140px;
+  }
+
+  .fb-profile-avatar-wrap {
+    margin-top: 40px;
+  }
 }
 
 /* العمود الأيمن — الأصدقاء والإحصائيات */
