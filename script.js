@@ -3056,6 +3056,136 @@ async function signInWithGoogleAccountChooser() {
   }
 }
 
+// =============================================
+// 🔐 Google One Tap Sign-up (Registration Page)
+// =============================================
+async function initializeGoogleOneTap() {
+  // تحقق من وجود Google API
+  if (!window.google || !window.google.accounts) {
+    console.warn('⚠️ Google API not loaded yet');
+    return;
+  }
+
+  try {
+    // معالج الاستجابة من Google One Tap
+    const handleGoogleSignUp = async (response) => {
+      try {
+        // فك تشفير JWT token من Google
+        const base64Url = response.credential.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        
+        const googleUser = JSON.parse(jsonPayload);
+        
+        console.log('✅ Google One Tap Response:', {
+          email: googleUser.email,
+          name: googleUser.name,
+          picture: googleUser.picture
+        });
+
+        // ملء نموذج التسجيل ببيانات Google
+        const emailInput = document.getElementById('reg-email-input');
+        const accountTypeSelect = document.getElementById('reg-account-type-select');
+        
+        if (emailInput) {
+          emailInput.value = googleUser.email;
+          // إضافة البريد إلى السجل المحفوظ
+          addSavedEmail(googleUser.email);
+        }
+
+        // إظهار رسالة نجاح
+        const regMessage = document.getElementById('reg-message');
+        if (regMessage) {
+          const msg = currentLang === 'ar'
+            ? `✅ مرحباً ${googleUser.name}! تم ملء بيانات Google تلقائياً`
+            : `✅ Welcome ${googleUser.name}! Google data populated`;
+          showMessage(msg, 'success', regMessage);
+        }
+
+        // سجل المستخدم في Supabase (إذا كان هناك اتصال)
+        if (!IS_PLACEHOLDER_SUPABASE_CONFIG && supabaseClient) {
+          const { error } = await supabaseClient.auth.signInWithIdToken({
+            provider: 'google',
+            token: response.credential
+          });
+          
+          if (!error) {
+            console.log('✅ User signed in with Google');
+            // الانتقال إلى الخطوة التالية
+            setTimeout(() => {
+              handleRegEmailVerified();
+            }, 1000);
+          }
+        }
+      } catch (err) {
+        console.error('❌ Error processing Google One Tap response:', err);
+        const regMessage = document.getElementById('reg-message');
+        if (regMessage) {
+          const msg = currentLang === 'ar'
+            ? 'خطأ في معالجة بيانات Google'
+            : 'Error processing Google data';
+          showMessage(msg, 'error', regMessage);
+        }
+      }
+    };
+
+    // تهيئة Google One Tap
+    google.accounts.id.initialize({
+      client_id: 'YOUR_GOOGLE_CLIENT_ID', // سيتم استبداله بـ Client ID الحقيقي
+      callback: handleGoogleSignUp,
+      use_fedcm_for_prompt: true // استخدم FedCM للأمان الأفضل
+    });
+
+    // عرض زر Google في الحاوية المحددة
+    const containerEl = document.getElementById('google-one-tap-container');
+    if (containerEl) {
+      google.accounts.id.renderButton(
+        containerEl,
+        {
+          type: 'standard',
+          size: 'large',
+          text: currentLang === 'ar' ? 'signup_with' : 'signup_with',
+          logo_alignment: 'center',
+          width: '300',
+          theme: 'outline'
+        }
+      );
+
+      // محاولة عرض One Tap Prompt (الـ popup الاحترافي)
+      google.accounts.id.prompt((notification) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          console.log('ℹ️ One Tap prompt not displayed');
+        }
+      });
+    }
+  } catch (err) {
+    console.error('❌ Error initializing Google One Tap:', err);
+  }
+}
+
+// استدعاء Google One Tap عند تحميل صفحة التسجيل
+window.addEventListener('hashchange', () => {
+  if (window.location.hash === '#registration-page') {
+    setTimeout(() => {
+      initializeGoogleOneTap();
+    }, 500);
+  }
+});
+
+// استدعاء أولي
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.location.hash === '#registration-page') {
+    setTimeout(() => {
+      initializeGoogleOneTap();
+    }, 1000);
+  }
+});
+
+// Export للوصول العام
+window.initializeGoogleOneTap = initializeGoogleOneTap;
+
 // Export for global access
 window.signInWithGoogleAccountChooser = signInWithGoogleAccountChooser;
 

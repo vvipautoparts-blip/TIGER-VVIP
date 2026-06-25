@@ -5521,3 +5521,52 @@ select.reg-input option {
     font-size: 0.8rem;
   }
 }
+
+/* ========================================
+   Google One Tap Sign-up Styling
+   ======================================== */
+.google-one-tap-wrapper {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  min-height: 50px;
+}
+
+.divider-or {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.divider-or::before,
+.divider-or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #ddd;
+}
+
+/* Google Sign-In Button Customization */
+#google-one-tap-container {
+  display: flex;
+  justify-content: center;
+  padding: 15px;
+}
+
+/* Override Google button styling for RTL */
+[dir="rtl"] #google-one-tap-container {
+  direction: ltr;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .google-one-tap-wrapper {
+    margin: 15px 0;
+  }
+  
+  .divider-or {
+    margin: 15px 0;
+    font-size: 0.9rem;
+  }
+}

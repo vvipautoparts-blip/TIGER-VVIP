@@ -14,6 +14,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="styles.css?v=20260625-20" />
+  <!-- Google Sign-In SDK for One Tap Sign-up -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
@@ -30,7 +32,6 @@
             <div class="auth-login-actions">
               <button id="auth-submit-button" type="button" class="btn primary auth-primary-btn" data-ar="متابعة" data-en="Continue">متابعة</button>
               <button id="auth-mode-toggle" class="btn auth-secondary-btn" type="button" onclick="document.getElementById('accounts-modal')?.classList.add('active'); window.loadSavedAccounts?.();" data-ar="استخدام ملف شخصي آخر" data-en="Use another profile">استخدام ملف شخصي آخر</button>
-              <button id="auth-google-chooser-btn" class="btn auth-secondary-btn" type="button" onclick="signInWithGoogleAccountChooser()" data-ar="🔐 حساب Google" data-en="🔐 Google Account">🔐 حساب Google</button>
               <a href="#registration-page" class="auth-create-link" data-ar="إنشاء حساب جديد" data-en="Create New Account">إنشاء حساب جديد</a>
               <button id="auth-logout-button" class="btn auth-secondary-btn" type="button" onclick="window.__FORCE_LOGOUT__ && window.__FORCE_LOGOUT__(event)" data-ar="تسجيل الخروج" data-en="Sign Out">تسجيل الخروج</button>
             </div>
@@ -89,6 +90,13 @@
           <!-- حالة 1: إدخال الإيميل -->
           <div id="reg-email-form-wrapper" class="reg-step active">
             <h1 class="reg-title" data-ar="إنشاء حساب جديد" data-en="Create New Account">إنشاء حساب جديد</h1>
+            
+            <!-- Google One Tap Container -->
+            <div id="google-one-tap-container" class="google-one-tap-wrapper"></div>
+            
+            <div class="divider-or" style="text-align: center; margin: 20px 0; color: #999;">
+              <span data-ar="أو" data-en="or">أو</span>
+            </div>
             
             <form id="reg-email-form" class="reg-form">
               <!-- قسم نوع الحساب -->
