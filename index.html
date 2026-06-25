@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="stylesheet" href="styles.css?v=20260625-18" />
+  <link rel="stylesheet" href="styles.css?v=20260625-19" />
 </head>
 <body>
 
@@ -705,6 +705,16 @@
         <div id="admin-reviews-empty" class="dashboard-empty" data-ar="لا توجد طلبات مراجعة حالياً." data-en="No review requests right now.">لا توجد طلبات مراجعة حالياً.</div>
         <div id="admin-reviews-list" class="dashboard-list"></div>
       </div>
+
+      <!-- قسم جميع المستخدمين (فيسبوك ستايل) -->
+      <div class="profile-section" id="admin-users-section">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+          <h3 data-ar="جميع المستخدمين" data-en="All Users" style="margin:0;">جميع المستخدمين</h3>
+          <input type="text" id="admin-users-search" placeholder="ابحث بالاسم أو الهاتف..." style="border:1px solid #e4e6eb; border-radius:20px; padding:7px 14px; font-size:0.9rem; font-family:Cairo,sans-serif; width:200px;" />
+        </div>
+        <div id="admin-users-list" class="admin-users-grid"></div>
+        <div id="admin-users-empty" class="dashboard-empty" style="display:none;" data-ar="لا يوجد مستخدمون." data-en="No users found.">لا يوجد مستخدمون.</div>
+      </div>
       
       <!-- Back Button Section -->
       <div class="page-back-section">
@@ -819,6 +829,6 @@
       }, true);
     })();
   </script>
-  <script src="script.js?v=20260625-36"></script>
+  <script src="script.js?v=20260625-37"></script>
 </body>
 </html>

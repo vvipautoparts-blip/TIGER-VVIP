@@ -484,6 +484,7 @@ html[dir="rtl"] .app-back-button::before {
   filter: brightness(1.15);
   transform: none;
   z-index: 1;
+  animation: none;
 }
 
 .lang-switch {
@@ -4490,22 +4491,22 @@ select.reg-input option {
 
 .reg-btn-primary {
   width: 100%;
-  padding: 14px;
+  min-height: 44px;
+  padding: 0 14px;
   background: #1877F2;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
+  color: #fff;
+  border: 1px solid #1877F2;
+  border-radius: 6px;
+  font-size: 1.05rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: 'Cairo', sans-serif;
+  transition: background 0.2s;
+  font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.08);
 }
 
 .reg-btn-primary:hover {
-  background: #0a66c2;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(24, 119, 242, 0.3);
+  background: #166fe5;
 }
 
 .reg-btn-primary:disabled {
@@ -4539,21 +4540,22 @@ select.reg-input option {
 
 .reg-btn-secondary {
   width: 100%;
-  padding: 12px;
-  background: #E4E6EB;
-  color: #050505;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 600;
+  min-height: 44px;
+  padding: 0 14px;
+  background: #ffffff;
+  color: #1c1e21;
+  border: 1px solid #ccd0d5;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: 'Cairo', sans-serif;
-  margin-top: 10px;
+  transition: background 0.2s;
+  font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+  margin-top: 8px;
 }
 
 .reg-btn-secondary:hover {
-  background: #d0d2d7;
+  background: #f0f2f5;
 }
 
 .reg-step {
@@ -4639,6 +4641,9 @@ select.reg-input option {
 .reg-logo-crystal-3d {
   width: 280px;
   filter: brightness(1.15);
+  animation: none;
+  transform: none;
+  display: block;
 }
 
 @keyframes float {
@@ -5209,6 +5214,75 @@ select.reg-input option {
   .back-button {
     padding: 10px 20px;
     font-size: 0.9rem;
+  }
+}
+
+/* ===== Admin Users Grid ===== */
+.admin-users-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.admin-user-card {
+  background: #fff;
+  border: 1px solid #e4e6eb;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+
+.admin-user-card:hover {
+  box-shadow: 0 4px 16px rgba(24,119,242,0.15);
+  transform: translateY(-2px);
+}
+
+.admin-user-card .user-card-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #1877F2 center/cover no-repeat;
+  margin: 0 auto 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 700;
+  border: 2px solid #e4e6eb;
+}
+
+.admin-user-card .user-card-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #1c1e21;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-user-card .user-card-role {
+  font-size: 0.78rem;
+  color: #65676b;
+  background: #f0f2f5;
+  border-radius: 20px;
+  padding: 2px 8px;
+  display: inline-block;
+  margin-bottom: 4px;
+}
+
+.admin-user-card .user-card-phone {
+  font-size: 0.82rem;
+  color: #65676b;
+}
+
+@media (max-width: 600px) {
+  .admin-users-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   }
 }
 
