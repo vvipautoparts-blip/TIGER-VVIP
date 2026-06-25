@@ -3014,24 +3014,30 @@ async function signInWithGoogleAccountChooser() {
 
     if (error) {
       console.error('❌ Google OAuth Error:', error);
-      showMessage(
-        currentLang === 'ar' 
-          ? 'خطأ في تسجيل الدخول عبر Google' 
-          : 'Google login error',
-        'error'
-      );
+      const msg = currentLang === 'ar' 
+        ? 'خطأ في تسجيل الدخول عبر Google. تأكد من إعداد Supabase بشكل صحيح.' 
+        : 'Google login error. Ensure Supabase is configured properly.';
+      
+      if (authMessage) {
+        showMessage(msg, 'error', authMessage);
+      } else {
+        alert(msg);
+      }
       return;
     }
 
     console.log('✅ Google OAuth sign-in initiated:', data);
   } catch (err) {
     console.error('❌ Unexpected error during Google sign-in:', err);
-    showMessage(
-      currentLang === 'ar'
-        ? 'حدث خطأ غير متوقع'
-        : 'Unexpected error',
-      'error'
-    );
+    const msg = currentLang === 'ar'
+      ? 'حدث خطأ غير متوقع. تحقق من الكونسول للتفاصيل.'
+      : 'Unexpected error. Check console for details.';
+    
+    if (authMessage) {
+      showMessage(msg, 'error', authMessage);
+    } else {
+      alert(msg);
+    }
   }
 }
 
