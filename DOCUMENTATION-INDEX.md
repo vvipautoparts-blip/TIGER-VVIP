@@ -10,6 +10,7 @@
 
 Start here if you're new to the project:
 
+0. **[UNIFIED-PLATFORM-STATUS.md](./UNIFIED-PLATFORM-STATUS.md)** - Single source of truth (current state + next actions)
 1. **[README.md](./README.md)** - Project overview
 2. **[SETUP-GUIDE.md](./SETUP-GUIDE.md)** - Initial setup
 3. **[AGENTS.md](./AGENTS.md)** - Project conventions
