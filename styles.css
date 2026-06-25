@@ -3801,16 +3801,6 @@ body.profile-vvip-dark .fb-quick-link {
   color: #7db6ff;
 }
 
-@media (max-width: 768px) {
-  .fb-profile-header::before {
-    height: 140px;
-  }
-
-  .fb-profile-avatar-wrap {
-    margin-top: 40px;
-  }
-}
-
 /* العمود الأيمن — الأصدقاء والإحصائيات */
 .fb-profile-right-widget {
   display: flex;
@@ -4446,17 +4436,121 @@ body.profile-vvip-dark .fb-quick-link {
 @media (max-width: 900px) {
   .fb-profile-body {
     grid-template-columns: 1fr;
+    padding: 10px;
   }
-  .fb-avatar { width: 100px; height: 100px; }
-  .fb-profile-avatar-wrap { margin-top: -50px; }
-  .fb-profile-name { font-size: 1.3rem; }
-  .fb-profile-header { padding: 0 12px 12px; gap: 10px; }
+
+  .fb-profile-header {
+    padding: 0 12px 14px;
+    gap: 12px;
+    align-items: flex-end;
+  }
+
+  .fb-profile-header::before {
+    height: 132px;
+  }
+
+  .fb-avatar {
+    width: 112px;
+    height: 112px;
+    min-width: 112px;
+    min-height: 112px;
+  }
+
+  .fb-profile-avatar-wrap {
+    margin-top: 30px;
+  }
+
+  .fb-profile-identity {
+    min-width: 100%;
+    padding-top: 0;
+  }
+
+  .fb-profile-name {
+    font-size: 1.28rem;
+  }
+
+  .fb-profile-actions {
+    width: 100%;
+    margin-right: 0;
+    padding-top: 4px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .fb-btn-primary,
+  .fb-btn-secondary,
+  .fb-btn-admin {
+    width: 100%;
+    min-height: 42px;
+    justify-content: center;
+  }
+
+  #access-dashboard-button {
+    grid-column: 1 / -1;
+  }
+
   .fb-commission-summary { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 600px) {
-  .fb-profile-actions { width: 100%; justify-content: stretch; }
-  .fb-btn-primary, .fb-btn-secondary { flex: 1; justify-content: center; }
+  .fb-profile-header {
+    padding: 0 10px 12px;
+    gap: 10px;
+  }
+
+  .fb-profile-header::before {
+    height: 116px;
+  }
+
+  .fb-avatar {
+    width: 96px;
+    height: 96px;
+    min-width: 96px;
+    min-height: 96px;
+  }
+
+  .fb-profile-avatar-wrap {
+    margin-top: 24px;
+  }
+
+  .fb-profile-name {
+    font-size: 1.15rem;
+  }
+
+  .fb-followers-line {
+    font-size: 0.82rem;
+  }
+
+  .fb-profile-actions {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .fb-btn-primary,
+  .fb-btn-secondary,
+  .fb-btn-admin {
+    min-height: 40px;
+    font-size: 0.85rem;
+    border-radius: 10px;
+    padding: 8px 12px;
+  }
+
+  .fb-profile-tabs-bar {
+    padding: 0 8px;
+    gap: 2px;
+    scrollbar-width: none;
+  }
+
+  .fb-profile-tabs-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .fb-tab-btn {
+    padding: 12px 10px;
+    font-size: 0.86rem;
+  }
+
   .fb-stats-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
