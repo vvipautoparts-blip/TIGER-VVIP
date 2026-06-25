@@ -174,7 +174,6 @@ const authAvatarClickable = document.getElementById("auth-avatar-clickable");
 const authAvatarUploadInput = document.getElementById("auth-avatar-upload");
 const authProfileAvatar = document.querySelector(".auth-profile-avatar");
 const authProfileName = document.querySelector(".auth-profile-name");
-const navProfileAvatar = document.getElementById("nav-profile-avatar");
 const userPanel = document.getElementById("user-panel");
 const userEmail = document.getElementById("user-email");
 const logoutButton = document.getElementById("logout-button");
@@ -197,11 +196,11 @@ const adminNav = document.getElementById("admin-nav");
 const profileRepLink = document.getElementById("profile-rep-link");
 const profileApprovalsLink = document.getElementById("profile-approvals-link");
 const profileAdminLink = document.getElementById("profile-admin-link");
-const quickNavSelect = document.getElementById("quick-nav-select");
+const quickNavSelect = null;
 const homeFilterDropdown = document.getElementById("home-filter-dropdown");
 const homeSignoutLink = document.getElementById("home-signout-link");
 const homeLogoutButton = document.getElementById("home-logout-button");
-const headerLogoutButton = document.getElementById("header-logout-button");
+const headerLogoutButton = null;
 const profileAdvancedSearchForm = document.getElementById("profile-advanced-search-form");
 const profileSearchBrand = document.getElementById("profile-search-brand");
 const profileSearchModel = document.getElementById("profile-search-model");
@@ -240,7 +239,6 @@ const AUTH_AVATAR_STORAGE_KEY = "tiger_auth_avatar_data_url";
 const WHATSAPP_OTP_ENDPOINT = window.WHATSAPP_OTP_ENDPOINT || "";
 const DEMO_USERS_STORAGE_KEY = "tiger_vvip_demo_users";
 const DEMO_OTP_CODE = "123456";
-const appBackButton = document.getElementById("app-back-button");
 
 let previousAppHash = "";
 let currentAppHash = window.location.hash || "#auth-section";
@@ -251,7 +249,6 @@ console.log("📝 DOM elements loaded:", {
   authMessage: !!authMessage,
   authEmail: !!document.getElementById("auth-email"),
   authPassword: !!document.getElementById("auth-password"),
-  appBackButton: !!appBackButton,
 });
 console.log("✓ script.js loaded successfully");
 
@@ -2970,22 +2967,7 @@ async function showAuthState() {
   updateRoleBasedNavigation();
   displayUser(currentUser);
   
-  // ✅ تأكد من ظهور أزرار الخروج والملف الشخصي
-  if (currentUser) {
-    setTimeout(() => {
-      const headerLogoutBtn = document.getElementById("header-logout-button");
-      const navAvatar = document.getElementById("nav-profile-avatar");
-      if (headerLogoutBtn) {
-        headerLogoutBtn.style.display = "inline-flex";
-        headerLogoutBtn.style.visibility = "visible";
-      }
-      if (navAvatar) {
-        navAvatar.style.display = "flex";
-        navAvatar.style.visibility = "visible";
-      }
-    }, 100);
-  }
-  
+  // ✅ تأكد من تسجيل الدخول (auth state updated)
   if (currentUser) {
     await syncOrdersFromSupabase();
     await loadProfileAssets();
@@ -4302,24 +4284,8 @@ if (authLogoutButton) {
     });
   });
   
-  // Enhance quick-nav-select
-  const quickNav = document.getElementById('quick-nav-select');
-  if (quickNav) {
-    quickNav.addEventListener('change', function() {
-      const value = this.value;
-      if (value) {
-        navigateToHash(value);
-      }
-      this.value = '';
-    });
-  }
+  // Enhance quick-nav-select (removed - header deleted)
 })();
-
-if (appBackButton) {
-  appBackButton.addEventListener("click", () => {
-    navigateBackInApp();
-  });
-}
 
 async function initializeApp() {
   // Apply route visibility immediately so the user sees the correct page without waiting for async loads.
