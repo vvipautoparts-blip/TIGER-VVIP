@@ -1,5 +1,15 @@
-window.SUPABASE_URL = window.SUPABASE_URL || "https://your-project.supabase.co";
-window.SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || "your-anon-key";
+let __storedSupabaseUrl = "";
+let __storedSupabaseAnonKey = "";
+
+try {
+	__storedSupabaseUrl = String(localStorage.getItem("TIGER_SUPABASE_URL") || "").trim();
+	__storedSupabaseAnonKey = String(localStorage.getItem("TIGER_SUPABASE_ANON_KEY") || "").trim();
+} catch (error) {
+	console.warn("Local config: unable to read runtime Supabase config from localStorage.", error);
+}
+
+window.SUPABASE_URL = window.SUPABASE_URL || __storedSupabaseUrl || "https://your-project.supabase.co";
+window.SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || __storedSupabaseAnonKey || "your-anon-key";
 window.WHATSAPP_OTP_ENDPOINT = window.WHATSAPP_OTP_ENDPOINT || "";
 
 // ── Email Verification Config ──────────────────────────────────
@@ -42,4 +52,33 @@ if (!__configReadiness.whatsappOtpReady) {
 }
 
 console.log("✓ supabase-local.js loaded", window.__LOCAL_CONFIG_READY__);
+
+window.setRuntimeSupabaseConfig = function setRuntimeSupabaseConfig(url, anonKey) {
+	const normalizedUrl = String(url || "").trim();
+	const normalizedAnonKey = String(anonKey || "").trim();
+
+	if (!normalizedUrl || !normalizedAnonKey) {
+		return { ok: false, message: "URL and anon key are required" };
+	}
+
+	try {
+		localStorage.setItem("TIGER_SUPABASE_URL", normalizedUrl);
+		localStorage.setItem("TIGER_SUPABASE_ANON_KEY", normalizedAnonKey);
+		return { ok: true };
+	} catch (error) {
+		console.error("Failed to save runtime Supabase config", error);
+		return { ok: false, message: "Failed to save config in browser storage" };
+	}
+};
+
+window.clearRuntimeSupabaseConfig = function clearRuntimeSupabaseConfig() {
+	try {
+		localStorage.removeItem("TIGER_SUPABASE_URL");
+		localStorage.removeItem("TIGER_SUPABASE_ANON_KEY");
+		return { ok: true };
+	} catch (error) {
+		console.error("Failed to clear runtime Supabase config", error);
+		return { ok: false, message: "Failed to clear config in browser storage" };
+	}
+};
 

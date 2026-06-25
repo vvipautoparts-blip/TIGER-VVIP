@@ -3032,6 +3032,44 @@ async function signInWithGoogleAccountChooser(targetHash = '#registration-page',
     } else {
       alert(msg);
     }
+
+    const shouldConfigureNow = confirm(
+      currentLang === 'ar'
+        ? 'هل تريد إدخال مفاتيح Supabase الآن لتفعيل زر Google؟'
+        : 'Do you want to enter Supabase keys now to activate the Google button?'
+    );
+
+    if (shouldConfigureNow && typeof window.setRuntimeSupabaseConfig === 'function') {
+      const enteredUrl = prompt(
+        currentLang === 'ar'
+          ? 'أدخل Supabase URL (مثال: https://xxxx.supabase.co)'
+          : 'Enter Supabase URL (example: https://xxxx.supabase.co)'
+      );
+
+      if (!enteredUrl) return;
+
+      const enteredAnonKey = prompt(
+        currentLang === 'ar'
+          ? 'أدخل Supabase Anon Key'
+          : 'Enter Supabase Anon Key'
+      );
+
+      if (!enteredAnonKey) return;
+
+      const saved = window.setRuntimeSupabaseConfig(enteredUrl, enteredAnonKey);
+      if (saved?.ok) {
+        alert(currentLang === 'ar' ? 'تم حفظ الإعدادات. سيتم إعادة تحميل الصفحة.' : 'Configuration saved. The page will reload now.');
+        window.location.reload();
+      } else {
+        const saveError = saved?.message || (currentLang === 'ar' ? 'تعذر حفظ الإعدادات.' : 'Failed to save configuration.');
+        if (feedbackEl) {
+          showMessage(saveError, 'error', feedbackEl);
+        } else {
+          alert(saveError);
+        }
+      }
+    }
+
     return;
   }
 
