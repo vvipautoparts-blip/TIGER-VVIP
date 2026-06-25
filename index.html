@@ -232,20 +232,9 @@
           </div>
 
           <div class="fb-profile-actions">
-            <button id="edit-profile-button" class="fb-btn-primary" type="button">
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/></svg>
-              <span data-ar="تعديل البروفايل" data-en="Edit Profile">تعديل البروفايل</span>
-            </button>
             <button id="share-profile-button" class="fb-btn-secondary" type="button">
               <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z"/></svg>
               <span data-ar="مشاركة" data-en="Share">مشاركة</span>
-            </button>
-            <button id="profile-theme-toggle" class="fb-btn-secondary" type="button">
-              <span data-ar="🌙 داكن" data-en="🌙 Dark">🌙 داكن</span>
-            </button>
-            <button id="access-dashboard-button" class="fb-btn-admin" type="button" style="display:none;">
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M0 5.5H2v5H0V5.5Zm3-1h2v6H3v-6Zm3-1h2v7H6v-7Zm3 2h2v5H9v-5Zm3-1h2v6h-2v-6Zm3 3h2v3h-2v-3Z"/></svg>
-              <span data-ar="لوحة التحكم" data-en="Dashboard">لوحة التحكم</span>
             </button>
           </div>
         </div>
@@ -256,7 +245,6 @@
           <button class="fb-tab-btn" onclick="switchProfileTab('orders')" data-ar="طلباتي" data-en="My Orders">طلباتي</button>
           <button class="fb-tab-btn" onclick="switchProfileTab('info')" data-ar="حول" data-en="About">حول</button>
           <button class="fb-tab-btn" onclick="switchProfileTab('gallery')" data-ar="📸 الصور" data-en="📸 Photos">📸 الصور</button>
-          <button class="fb-tab-btn" onclick="switchProfileTab('commission')" id="profile-rep-tab" style="display:none;" data-ar="العمولات" data-en="Commission">العمولات</button>
         </div>
 
         <!-- محتوى البروفايل -->
@@ -285,15 +273,6 @@
               </div>
             </div>
 
-            <div class="fb-info-card">
-              <h3 data-ar="الإحصائيات" data-en="Statistics">الإحصائيات</h3>
-              <div class="fb-stats-grid">
-                <div class="fb-stat-box"><span id="profile-orders-count-side" class="fb-stat-num">0</span><span data-ar="طلبات" data-en="Orders">طلبات</span></div>
-                <div class="fb-stat-box"><span class="fb-stat-num" id="commission-month-count">0</span><span data-ar="عمليات" data-en="Ops">عمليات</span></div>
-                <div class="fb-stat-box"><span class="fb-stat-num" id="profile-parts-side">0</span><span data-ar="قطع" data-en="Parts">قطع</span></div>
-              </div>
-            </div>
-
             <div class="fb-info-card" id="merchant-details-card">
               <h3 data-ar="تفاصيل التاجر" data-en="Merchant Details">تفاصيل التاجر</h3>
               <div class="fb-about-row"><span data-ar="الاسم التجاري:" data-en="Business Name:">الاسم التجاري:</span><strong id="merchant-business-name">--</strong></div>
@@ -307,16 +286,6 @@
               <div class="fb-about-row"><span data-ar="عدد القطع المتاحة:" data-en="Available Parts:">عدد القطع المتاحة:</span><strong id="part-available-count">0</strong></div>
               <div class="fb-about-row"><span data-ar="آخر قطعة مضافة:" data-en="Latest Part:">آخر قطعة مضافة:</span><strong id="part-latest-name">--</strong></div>
               <div class="fb-about-row"><span data-ar="الحالة:" data-en="Stock Status:">الحالة:</span><strong id="part-stock-status">متوفر</strong></div>
-              <a href="#catalog" class="fb-see-all" data-ar="استعرض كل القطع" data-en="Browse all parts">استعرض كل القطع</a>
-            </div>
-
-            <div class="fb-info-card" id="profile-links-card">
-              <h3 data-ar="روابط سريعة" data-en="Quick Links">روابط سريعة</h3>
-              <a id="profile-new-order-link" href="#order-request" class="fb-quick-link" data-ar="➕ طلب جديد" data-en="➕ New Order">➕ طلب جديد</a>
-              <a id="profile-my-orders-link" href="#user-orders" class="fb-quick-link" data-ar="📋 طلباتي" data-en="📋 My Orders">📋 طلباتي</a>
-              <a id="profile-rep-link" href="#representative-dashboard" class="fb-quick-link" style="display:none;" data-ar="📊 لوحة المندوب" data-en="📊 Rep Dashboard">📊 لوحة المندوب</a>
-              <a id="profile-approvals-link" href="#approvals-dashboard" class="fb-quick-link" style="display:none;" data-ar="✅ شاشة الموافقات" data-en="✅ Approvals">✅ شاشة الموافقات</a>
-              <a id="profile-admin-link" href="#admin-dashboard" class="fb-quick-link" style="display:none;" data-ar="⚙️ لوحة المدير" data-en="⚙️ Admin Dashboard">⚙️ لوحة المدير</a>
             </div>
 
             <div style="display:none;">
@@ -347,29 +316,9 @@
 
             <!-- تبويب: الكل -->
             <div id="profile-tab-feed" class="fb-tab-content active">
-              <div class="fb-post-box">
-                <div class="fb-post-box-inner">
-                  <div class="fb-mini-avatar" id="fb-mini-avatar-text">NZ</div>
-                  <button class="fb-post-placeholder" data-ar="ماذا تريد أن تطلب اليوم؟" data-en="What do you want to order today?">ماذا تريد أن تطلب اليوم؟</button>
-                </div>
-                <div class="fb-post-box-actions">
-                  <a id="profile-feed-new-order-action" href="#order-request" class="fb-post-action">
-                    <svg width="18" height="18" fill="#45BD62" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/></svg>
-                    <span data-ar="طلب جديد" data-en="New Order">طلب جديد</span>
-                  </a>
-                  <a href="#catalog" class="fb-post-action">
-                    <svg width="18" height="18" fill="#1877F2" viewBox="0 0 16 16"><path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z"/><path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z"/></svg>
-                    <span data-ar="الكراج" data-en="Catalog">الكراج</span>
-                  </a>
-                </div>
-              </div>
-
               <div class="fb-profile-card">
-                <h3 class="fb-card-title" data-ar="📋 آخر الطلبات" data-en="📋 Recent Orders">📋 آخر الطلبات</h3>
-                <div id="profile-orders-list" class="fb-orders-mini">
-                  <p class="fb-empty-state" data-ar="لا توجد طلبات بعد" data-en="No orders yet">لا توجد طلبات بعد</p>
-                </div>
-                <a id="profile-see-all-orders-link" href="#user-orders" class="fb-see-all" data-ar="عرض جميع الطلبات" data-en="See all orders">عرض جميع الطلبات</a>
+                <h3 class="fb-card-title" data-ar="🧾 ملخص الحساب" data-en="🧾 Account Summary">🧾 ملخص الحساب</h3>
+                <p class="fb-empty-state" data-ar="تم تبسيط الصفحة حسب إعداداتك." data-en="This page has been simplified as requested.">تم تبسيط الصفحة حسب إعداداتك.</p>
               </div>
             </div>
 
@@ -395,14 +344,6 @@
                   <div class="fb-about-row"><span data-ar="المدينة:" data-en="City:">المدينة:</span><strong id="profile-about-city">--</strong></div>
                   <div class="fb-about-row"><span data-ar="البريد:" data-en="Email:">البريد:</span><strong id="profile-about-email">--</strong></div>
                 </div>
-              </div>
-            </div>
-
-            <!-- تبويب: العمولات (للمندوبين) -->
-            <div id="profile-tab-commission" class="fb-tab-content" style="display:none;">
-              <div class="fb-profile-card">
-                <h3 class="fb-card-title" data-ar="💰 ملخص العمولات" data-en="💰 Commission Summary">💰 ملخص العمولات</h3>
-                <div id="financial-summary" class="fb-commission-summary"></div>
               </div>
             </div>
 
@@ -463,43 +404,6 @@
             </div>
 
           </div>
-
-          <!-- عمود يسار (ثالث) — معلومات الاتصال السريعة + الإجراءات -->
-          <aside class="fb-profile-right-widget">
-            <div class="fb-info-card">
-              <h3 data-ar="معلومات الاتصال" data-en="Contact Info">معلومات الاتصال</h3>
-              <div class="fb-info-row">
-                <svg width="15" height="15" fill="#65676B" viewBox="0 0 16 16"><path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328z"/></svg>
-                <span id="rw-phone">--</span>
-              </div>
-              <div class="fb-info-row">
-                <svg width="15" height="15" fill="#65676B" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Z"/></svg>
-                <span id="rw-email" style="word-break:break-all;font-size:0.82rem;">--</span>
-              </div>
-              <div class="fb-info-row">
-                <svg width="15" height="15" fill="#65676B" viewBox="0 0 16 16"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>
-                <span id="rw-city">--</span>
-              </div>
-            </div>
-
-            <div class="fb-info-card">
-              <h3 data-ar="الإجراءات السريعة" data-en="Quick Actions">الإجراءات السريعة</h3>
-              <a href="#order-request" class="fb-quick-link">
-                <svg width="14" height="14" fill="#1877F2" viewBox="0 0 16 16" style="margin-inline-end:6px;vertical-align:middle;"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>
-                <span data-ar="طلب جديد" data-en="New Order">طلب جديد</span>
-              </a>
-              <a href="#user-orders" class="fb-quick-link">
-                <svg width="14" height="14" fill="#1877F2" viewBox="0 0 16 16" style="margin-inline-end:6px;vertical-align:middle;"><path d="M5 10.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5zm0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z"/><path d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm0 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3z"/></svg>
-                <span data-ar="طلباتي" data-en="My Orders">طلباتي</span>
-              </a>
-              <a href="#catalog" class="fb-quick-link">
-                <svg width="14" height="14" fill="#1877F2" viewBox="0 0 16 16" style="margin-inline-end:6px;vertical-align:middle;"><path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z"/><path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z"/></svg>
-                <span data-ar="الكراج" data-en="Catalog">الكراج</span>
-              </a>
-              <a id="rw-rep-link" href="#representative-dashboard" class="fb-quick-link" style="display:none;" data-ar="لوحة المندوب" data-en="Rep Dashboard">لوحة المندوب</a>
-              <a id="rw-admin-link" href="#admin-dashboard" class="fb-quick-link" style="display:none;" data-ar="لوحة المدير" data-en="Admin Dashboard">لوحة المدير</a>
-            </div>
-          </aside>
 
         </div>
       </div>
