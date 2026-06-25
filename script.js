@@ -588,6 +588,24 @@ function updateNavAvatar(photoUrl, initials) {
   }
 }
 
+function getPreferredAvatarUrl() {
+  const localAvatar = localStorage.getItem(AUTH_AVATAR_STORAGE_KEY);
+  const profileAvatar = currentUserProfile?.avatar_url || currentUser?.user_metadata?.avatar_url || "";
+  return String(localAvatar || profileAvatar || "").trim() || null;
+}
+
+
+function getInitials(value) {
+  const text = String(value || "").trim();
+  if (!text) return "U";
+
+  const parts = text.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    return `${parts[0][0] || ""}${parts[1][0] || ""}`.toUpperCase() || "U";
+  }
+
+  return text.slice(0, 2).toUpperCase() || "U";
+}
 function resetAuthIdentityUI() {
   if (authProfileName) {
     authProfileName.textContent = "";
@@ -700,8 +718,18 @@ function updateFloatingProfileButton() {
     currentUser?.user_metadata?.full_name ||
     currentUser?.email ||
     "U";
-  const initials = getInitials(displayName).slice(0, 2) || "U";
-  floatingBtn.textContent = initials.toUpperCase();
+
+  const avatarUrl = getPreferredAvatarUrl();
+  if (avatarUrl) {
+    floatingBtn.style.backgroundImage = `url(${avatarUrl})`;
+    floatingBtn.classList.add("has-image");
+    floatingBtn.textContent = "";
+  } else {
+    const initials = getInitials(displayName).slice(0, 2) || "U";
+    floatingBtn.style.backgroundImage = "";
+    floatingBtn.classList.remove("has-image");
+    floatingBtn.textContent = initials.toUpperCase();
+  }
 }
 
 // ==========================================
@@ -2900,17 +2928,27 @@ function displayUser(user) {
   }
 
   // تحديث الصورة الدائرية في شريط العنوان
-  const navPhotoUrl = currentUserProfile?.avatar_url || localStorage.getItem(AUTH_AVATAR_STORAGE_KEY) || null;
+  const navPhotoUrl = getPreferredAvatarUrl();
   const navInitials = (profileName || user.email || "").slice(0, 2).toUpperCase();
   updateNavAvatar(navPhotoUrl, navInitials);
 
   // إخفاء user-panel — nav avatar يحل محله
-  userPanel.style.display = "none";
+  if (userPanel) {
+    userPanel.style.display = "none";
+  }
 
-  userEmail.textContent = user.email;
+  if (userEmail) {
+    userEmail.textContent = user.email;
+  }
+
   const roleLabel = getRoleLabel(currentUserProfile?.role || "dealer");
-  userRole.textContent = currentLang === "ar" ? roleLabel.ar : roleLabel.en;
-  userSubscription.textContent = currentUserProfile?.subscription || "basic";
+  if (userRole) {
+    userRole.textContent = currentLang === "ar" ? roleLabel.ar : roleLabel.en;
+  }
+
+  if (userSubscription) {
+    userSubscription.textContent = currentUserProfile?.subscription || "basic";
+  }
   
   // ✅ تأكد من ظهور أزرار الخروج والملف الشخصي
   if (headerLogoutButton) {
@@ -3620,8 +3658,9 @@ function renderProfilePage() {
   renderFinancialSummary(buildCommissionSummary(orderRequests));
 
   const initial = (profileNameText || "T").charAt(0).toUpperCase();
+  const preferredAvatar = getPreferredAvatarUrl();
   if (profilePictureEl) {
-    profilePictureEl.src = currentUserProfile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profileNameText)}&background=1877F2&color=fff&size=168&bold=true`;
+    profilePictureEl.src = preferredAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(profileNameText)}&background=1877F2&color=fff&size=168&bold=true`;
     profilePictureEl.alt = profileNameText;
   }
 
@@ -3637,7 +3676,17 @@ function renderProfilePage() {
 
   // Fill new Facebook-style profile widgets
   const miniAvatar = document.getElementById("fb-mini-avatar-text");
-  if (miniAvatar) miniAvatar.textContent = initial;
+  if (miniAvatar) {
+    if (preferredAvatar) {
+      miniAvatar.style.backgroundImage = `url(${preferredAvatar})`;
+      miniAvatar.classList.add("has-image");
+      miniAvatar.textContent = "";
+    } else {
+      miniAvatar.style.backgroundImage = "";
+      miniAvatar.classList.remove("has-image");
+      miniAvatar.textContent = initial;
+    }
+  }
 
     const aboutType = document.getElementById("profile-about-type");
     const aboutSub = document.getElementById("profile-about-sub");
@@ -3728,7 +3777,7 @@ function renderProfilePage() {
   if (rwAdminLink) rwAdminLink.style.display = isAdminRole(currentUserProfile?.role) ? "" : "none";
 
   // ===== مزامنة صورة nav مع صورة البروفايل =====
-  const navPhoto    = currentUserProfile?.avatar_url || localStorage.getItem(AUTH_AVATAR_STORAGE_KEY) || null;
+  const navPhoto    = getPreferredAvatarUrl();
   const navInitials = (profileNameText || currentUser.email || "T").slice(0, 2).toUpperCase();
   updateNavAvatar(navPhoto, navInitials);
 

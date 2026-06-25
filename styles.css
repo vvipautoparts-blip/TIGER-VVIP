@@ -3972,6 +3972,13 @@ body.profile-vvip-dark .fb-quick-link {
   flex-shrink: 0;
 }
 
+.fb-mini-avatar.has-image {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: transparent;
+}
+
 .fb-post-placeholder {
   flex: 1;
   background: #f0f2f5;
@@ -5552,6 +5559,13 @@ select.reg-input option {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
   cursor: pointer;
   z-index: 1100;
+}
+
+.floating-profile-btn.has-image {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: transparent;
 }
 
 .floating-profile-btn:hover {
