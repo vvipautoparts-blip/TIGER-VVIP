@@ -1866,13 +1866,21 @@ input[type="file"] {
 }
 
 .form-message.error {
+  display: block;
   background: #f44336;
   border-color: #d32f2f;
 }
 
 .form-message.success {
+  display: block;
   background: #4CAF50;
   border-color: #388E3C;
+}
+
+.form-message.info {
+  display: block;
+  background: #1877F2;
+  border-color: #0a66c2;
 }
 
 /* ========================================
