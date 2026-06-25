@@ -321,7 +321,7 @@ html[dir="rtl"] .app-back-button::before {
 .auth-primary-btn.btn.primary {
   width: 100%;
   min-height: 44px;
-  border-radius: 6px;
+  border-radius: var(--app-btn-radius);
   background: #1877f2;
   border: 1px solid #1877f2;
   color: #fff;
@@ -340,7 +340,7 @@ html[dir="rtl"] .app-back-button::before {
 .auth-secondary-btn.btn {
   width: 100%;
   min-height: 44px;
-  border-radius: 6px;
+  border-radius: var(--app-btn-radius);
   border: 1px solid #ccd0d5;
   background: #ffffff;
   color: #1c1e21;
@@ -566,7 +566,7 @@ html[dir="rtl"] .app-back-button::before {
   width: 100%;
   min-height: 52px;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--app-btn-radius);
   font-size: 1rem;
   font-weight: 800;
   cursor: pointer;
@@ -1568,11 +1568,12 @@ body.home-page main > *:not(#home-page) {
   border: 1px solid #d93025;
   background: transparent;
   color: #d93025;
-  border-radius: 6px;
+  border-radius: var(--app-btn-radius);
   padding: 8px 14px;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
+  min-height: 40px;
 }
 
 .home-logout-btn:hover {
@@ -1803,18 +1804,70 @@ input[type="file"] {
    Buttons
    ======================================== */
 
+:root {
+  --app-btn-radius: 10px;
+  --app-btn-min-height: 44px;
+  --app-btn-weight: 700;
+  --app-btn-transition: background-color 0.2s ease, color 0.2s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: var(--app-btn-radius);
+  min-height: var(--app-btn-min-height);
   padding: 12px 24px;
-  font-weight: 600;
+  font-weight: var(--app-btn-weight);
   font-size: 15px;
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: var(--app-btn-transition);
   border: none;
   font-family: inherit;
+}
+
+.login-button,
+.auth-primary-btn.btn.primary,
+.auth-secondary-btn.btn,
+.reg-btn-primary,
+.reg-btn-secondary,
+.clean-registration-page .btn-submit,
+.clean-registration-page .btn-continue,
+.fb-btn-primary,
+.fb-btn-secondary,
+.back-button,
+.home-logout-btn,
+.filter-btn,
+.btn-submit,
+.btn-cancel,
+.btn-browse,
+.btn-add-account,
+.btn-delete-account {
+  border-radius: var(--app-btn-radius);
+  font-weight: var(--app-btn-weight);
+  transition: var(--app-btn-transition);
+}
+
+.btn:focus-visible,
+.login-button:focus-visible,
+.auth-primary-btn.btn.primary:focus-visible,
+.auth-secondary-btn.btn:focus-visible,
+.reg-btn-primary:focus-visible,
+.reg-btn-secondary:focus-visible,
+.clean-registration-page .btn-submit:focus-visible,
+.clean-registration-page .btn-continue:focus-visible,
+.fb-btn-primary:focus-visible,
+.fb-btn-secondary:focus-visible,
+.back-button:focus-visible,
+.home-logout-btn:focus-visible,
+.filter-btn:focus-visible,
+.btn-submit:focus-visible,
+.btn-cancel:focus-visible,
+.btn-browse:focus-visible,
+.btn-add-account:focus-visible,
+.btn-delete-account:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.22);
 }
 
 .btn.primary {
@@ -3612,7 +3665,7 @@ body.profile-page .fb-profile-page {
   background: #1877F2;
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--app-btn-radius);
   padding: 8px 16px;
   font-size: 0.9rem;
   font-weight: 600;
@@ -3620,7 +3673,7 @@ body.profile-page .fb-profile-page {
   display: flex;
   align-items: center;
   gap: 6px;
-  transition: background 0.2s;
+  transition: var(--app-btn-transition);
 }
 
 .fb-btn-primary:hover { background: #166FE5; }
@@ -3629,7 +3682,7 @@ body.profile-page .fb-profile-page {
   background: #e4e6eb;
   color: #050505;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--app-btn-radius);
   padding: 8px 16px;
   font-size: 0.9rem;
   font-weight: 600;
@@ -3637,7 +3690,7 @@ body.profile-page .fb-profile-page {
   display: flex;
   align-items: center;
   gap: 6px;
-  transition: background 0.2s;
+  transition: var(--app-btn-transition);
   text-decoration: none;
 }
 
@@ -4841,11 +4894,11 @@ select.reg-input option {
   background: #1877F2;
   color: #fff;
   border: 1px solid #1877F2;
-  border-radius: 6px;
+  border-radius: var(--app-btn-radius);
   font-size: 1.05rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: var(--app-btn-transition);
   font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
   box-shadow: 0 1px 1px rgba(0,0,0,0.08);
 }
@@ -4890,11 +4943,11 @@ select.reg-input option {
   background: #ffffff;
   color: #1c1e21;
   border: 1px solid #ccd0d5;
-  border-radius: 6px;
+  border-radius: var(--app-btn-radius);
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: var(--app-btn-transition);
   font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
   margin-top: 8px;
 }
@@ -5614,11 +5667,11 @@ html[dir="rtl"] .floating-profile-btn {
   background: #1877F2;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--app-btn-radius);
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: var(--app-btn-transition);
   font-family: 'Cairo', 'Segoe UI', sans-serif;
 }
 
@@ -5753,12 +5806,12 @@ html[dir="rtl"] .floating-profile-btn {
   border: 2px solid #e4e6eb;
   background: white;
   color: var(--text-primary);
-  border-radius: 20px;
+  border-radius: 999px;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.85rem;
   font-family: 'Cairo', sans-serif;
-  transition: all 0.2s ease;
+  transition: var(--app-btn-transition);
 }
 
 .filter-btn:hover {
