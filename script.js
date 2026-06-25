@@ -3203,6 +3203,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+// استدعاء فوري إذا كنا بالفعل على صفحة التسجيل
+if (window.location.hash === '#registration-page') {
+  setTimeout(() => {
+    if (typeof initializeGoogleOneTap === 'function') {
+      initializeGoogleOneTap();
+    }
+  }, 500);
+}
+
 // Export للوصول العام
 window.initializeGoogleOneTap = initializeGoogleOneTap;
 
