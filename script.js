@@ -201,6 +201,7 @@ const homeFilterDropdown = document.getElementById("home-filter-dropdown");
 const homeSignoutLink = document.getElementById("home-signout-link");
 const homeLogoutButton = document.getElementById("home-logout-button");
 const headerLogoutButton = null;
+const navProfileAvatar = null;
 const profileAdvancedSearchForm = document.getElementById("profile-advanced-search-form");
 const profileSearchBrand = document.getElementById("profile-search-brand");
 const profileSearchModel = document.getElementById("profile-search-model");
@@ -2805,7 +2806,7 @@ function renderProducts(items) {
 function displayUser(user) {
   if (!user) {
     resetAuthIdentityUI();
-    userPanel.style.display = "none";
+    if (userPanel) userPanel.style.display = "none";
     if (headerLogoutButton) {
       headerLogoutButton.style.display = "none";
     }
