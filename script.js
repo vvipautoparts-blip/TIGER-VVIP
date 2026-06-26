@@ -1778,11 +1778,11 @@ function updateQuickNavVisibility() {
 
 function canAccessRoute(hash) {
   if (!currentUser) {
-    return ["#auth-section", "#registration-page", "#home-page", "#forgot-password", ""].includes(hash);
+    return ["#hero", "#auth-section", "#registration-page", "#home-page", "#forgot-password", ""].includes(hash);
   }
 
   const role = currentUserProfile?.role;
-  if (["#auth-section", "#registration-page", "#home-page", "#profile-page", "#forgot-password", ""].includes(hash)) {
+  if (["#hero", "#auth-section", "#registration-page", "#home-page", "#profile-page", "#forgot-password", ""].includes(hash)) {
     return true;
   }
   if (hash === "#admin-dashboard") {
@@ -2524,7 +2524,8 @@ async function showAuthState() {
 function updatePageVisibility() {
   const hash = window.location.hash.toLowerCase();
   const isAuth = !!currentUser;
-  const isOnAuthPages = hash === "#auth-section" || hash === "#registration-page" || hash === "#forgot-password" || hash === "";
+  const isLandingPage = hash === "#hero" || hash === "";
+  const isOnAuthPages = hash === "#auth-section" || hash === "#registration-page" || hash === "#forgot-password";
 
   if (hash === "#admin-dashboard") {
     window.location.hash = "#profile-page";
@@ -2545,12 +2546,13 @@ function updatePageVisibility() {
     section.style.display = "none";
   });
   
-  if (isOnAuthPages) {
+  if (isLandingPage) {
+    stopAdminMonitorAutoRefresh();
+    document.getElementById("hero").style.display = "block";
+  } else if (isOnAuthPages) {
     stopAdminMonitorAutoRefresh();
     if (hash === "#forgot-password") {
       document.getElementById("forgot-password").style.display = "block";
-    } else if (hash === "#plans-section") {
-      document.getElementById("plans-section").style.display = "block";
     } else if (hash === "#registration-page") {
       document.getElementById("registration-page").style.display = "block";
     } else {
