@@ -680,9 +680,6 @@ CREATE TABLE IF NOT EXISTS public.gallery_images (
   height integer,
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
-  CONSTRAINT gallery_images_max_per_user CHECK (
-    (SELECT COUNT(*) FROM gallery_images g2 WHERE g2.owner_id = gallery_images.owner_id) <= 50
-  ),
   CONSTRAINT gallery_images_jpeg_only CHECK (format_type = 'jpeg' OR format_type = 'jpg'),
   CONSTRAINT gallery_images_file_size_limit CHECK (file_size IS NULL OR file_size <= 5242880)
 );

@@ -1,0 +1,5 @@
+# Local generated temporary artifacts
+tmp/
+
+# Supabase CLI local temp/cache
+supabase/.temp/

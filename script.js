@@ -223,8 +223,8 @@ let currentUserProfile = null;
 let selectedAccountType = null;
 let selectedAccountCategory = null;
 let registrationOtpVerified = false;
-let catalogParts = [];
-let displayedCatalogParts = [];
+let productsFeedParts = [];
+let displayedProductsFeedParts = [];
 let profileServices = [];
 let profileGallery = [];
 let profileMeta = null;
@@ -936,7 +936,7 @@ function navigateBackInApp() {
 
   // استخدام السجل السابق إذا كان موجوداً وهو صفحة مختلفة ومستخدم مصرح
   const safeAuthHashes = [
-    "#profile-page", "#home-page", "#catalog", "#order-request",
+    "#profile-page", "#home-page", "#products-feed", "#order-request",
     "#user-orders", "#representative-dashboard", "#approvals-dashboard", "#admin-dashboard"
   ];
   if (
@@ -957,7 +957,7 @@ function navigateBackInApp() {
   }
 
   // من أي صفحة فرعية → الصفحة الرئيسية
-  if (["#catalog", "#order-request", "#user-orders"].includes(hash)) {
+  if (["#products-feed", "#order-request", "#user-orders"].includes(hash)) {
     navigateToHash("#home-page");
     return;
   }
@@ -1432,7 +1432,7 @@ function populatePartVehicleOptions() {
   if (!partVehicleSelect) return;
 
   const currentValue = partVehicleSelect.value;
-  const source = [...catalogParts, ...profileParts];
+  const source = [...productsFeedParts, ...profileParts];
   const uniqueVehicles = new Map();
 
   source.forEach((part) => {
@@ -1472,7 +1472,7 @@ function applySelectedVehicleToPartForm() {
   if (partBodyType) partBodyType.value = bodyType || "";
 }
 
-function getFallbackCatalogParts() {
+function getFallbackProductsFeedParts() {
   return products.map((product, index) => {
     const modelTokens = String(product.model || "").split(" ");
     const brand = modelTokens[0] || "Unknown";
@@ -1502,7 +1502,7 @@ function getFallbackCatalogParts() {
   });
 }
 
-function normalizeCatalogPart(part, index = 0) {
+function normalizeProductsFeedPart(part, index = 0) {
   const name = part.name || part.title || `Part ${index + 1}`;
   return {
     id: part.id ?? `local-${index + 1}`,
@@ -1622,12 +1622,12 @@ function renderProfileSearchResults(parts) {
 
 function runProfileSearch() {
   const filters = getProfileSearchFilters();
-  const results = applyClientSidePartFilters(catalogParts, "", filters);
-  displayedCatalogParts = [...results];
+  const results = applyClientSidePartFilters(productsFeedParts, "", filters);
+  displayedProductsFeedParts = [...results];
   renderProfileSearchResults(results);
 }
 
-async function loadCatalogParts(filters = {}, queryText = "") {
+async function loadProductsFeedParts(filters = {}, queryText = "") {
   let rawParts = [];
   let dbError = null;
 
@@ -1641,13 +1641,13 @@ async function loadCatalogParts(filters = {}, queryText = "") {
     console.warn("Failed to fetch parts from Supabase, using local fallback.", dbError.message || dbError);
   }
 
-  const sourceParts = rawParts.length > 0 ? rawParts : getFallbackCatalogParts();
-  catalogParts = sourceParts.map(normalizeCatalogPart);
-  displayedCatalogParts = [...catalogParts];
-  populateAdvancedSearchFilters(catalogParts);
-  populateProfileSearchFilters(catalogParts);
+  const sourceParts = rawParts.length > 0 ? rawParts : getFallbackProductsFeedParts();
+  productsFeedParts = sourceParts.map(normalizeProductsFeedPart);
+  displayedProductsFeedParts = [...productsFeedParts];
+  populateAdvancedSearchFilters(productsFeedParts);
+  populateProfileSearchFilters(productsFeedParts);
   populatePartVehicleOptions();
-  renderProducts(displayedCatalogParts);
+  renderProducts(displayedProductsFeedParts);
   populateProductOptions();
   runProfileSearch();
 }
@@ -1673,7 +1673,7 @@ async function loadProfileAssets() {
   if (typeof fetchParts === "function") {
     const partsRes = await fetchParts({ dealer_id: currentUser.id });
     if (!partsRes.error) {
-      profileParts = (partsRes.data || []).map(normalizeCatalogPart);
+      profileParts = (partsRes.data || []).map(normalizeProductsFeedPart);
     }
   }
 
@@ -1794,7 +1794,7 @@ function renderProfileReviewRequests() {
       "لا توجد طلبات مراجعة بعد",
       "No review requests yet",
       "من الكتالوج يمكنك إرسال طلب مراجعة لأي قطعة ومتابعة الرد الإداري هنا.",
-      "From the catalog you can submit a review request for any part and track the admin reply here."
+      "From the products feed you can submit a review request for any part and track the admin reply here."
     );
     return;
   }
@@ -1885,18 +1885,18 @@ async function runAdvancedSearch() {
   if (typeof fetchParts === "function") {
     const response = await fetchParts({ ...filters, query: queryText, status: "active" });
     if (!response.error) {
-      const dbResults = (response.data || []).map(normalizeCatalogPart);
-      displayedCatalogParts = dbResults.length > 0
+      const dbResults = (response.data || []).map(normalizeProductsFeedPart);
+      displayedProductsFeedParts = dbResults.length > 0
         ? dbResults
-        : applyClientSidePartFilters(catalogParts, queryText, filters);
-      renderProducts(displayedCatalogParts);
+        : applyClientSidePartFilters(productsFeedParts, queryText, filters);
+      renderProducts(displayedProductsFeedParts);
       populateProductOptions();
       return;
     }
   }
 
-  displayedCatalogParts = applyClientSidePartFilters(catalogParts, queryText, filters);
-  renderProducts(displayedCatalogParts);
+  displayedProductsFeedParts = applyClientSidePartFilters(productsFeedParts, queryText, filters);
+  renderProducts(displayedProductsFeedParts);
   populateProductOptions();
 }
 
@@ -1977,7 +1977,7 @@ async function handleCreatePart() {
     clearPartImagePreview();
     updatePartSaveButtonState();
   }
-  await loadCatalogParts();
+  await loadProductsFeedParts();
   await loadProfileAssets();
   renderProfileParts();
   await renderApprovalsDashboard();
@@ -2164,7 +2164,7 @@ async function handleApprovalDecision(requestId, mode) {
     await applyApprovalToTarget(request, "rejected", reason);
   }
 
-  await loadCatalogParts();
+  await loadProductsFeedParts();
   await loadProfileAssets();
   renderProfileGallery();
   renderProfileServices();
@@ -2235,11 +2235,11 @@ async function handleUpdatePartPrice(part) {
     change_type: "price",
     old_value: String(part.price_jod),
     new_value: String(newPrice),
-    note: "Price updated from catalog card",
+    note: "Price updated from products feed card",
   });
 
   showMessage(currentLang === "ar" ? "تم تحديث السعر بنجاح." : "Price updated successfully.", "success", orderMessage);
-  await loadCatalogParts();
+  await loadProductsFeedParts();
 }
 
 async function handleTogglePartStatus(part) {
@@ -2262,11 +2262,11 @@ async function handleTogglePartStatus(part) {
     change_type: "status",
     old_value: String(part.status),
     new_value: String(nextStatus),
-    note: "Status toggled from catalog card",
+    note: "Status toggled from products feed card",
   });
 
   showMessage(currentLang === "ar" ? "تم تحديث حالة القطعة." : "Part status updated.", "success", orderMessage);
-  await loadCatalogParts();
+  await loadProductsFeedParts();
 }
 
 async function handleAdminReply(reviewRequestId) {
@@ -2321,8 +2321,8 @@ function handleBackButton() {
   else if (hash === "#profile-page") {
     window.location.hash = "#home-page";
   }
-  // من home/catalog/orders إلى profile
-  else if (hash === "#home-page" || hash === "#catalog" || hash === "#user-orders" || hash === "#order-request") {
+  // من home/products-feed/orders إلى profile
+  else if (hash === "#home-page" || hash === "#products-feed" || hash === "#user-orders" || hash === "#order-request") {
     window.location.hash = "#profile-page";
   }
   // من registration إلى auth
@@ -3426,7 +3426,7 @@ function updatePageVisibility() {
     document.getElementById("admin-dashboard").style.display = "block";
     renderAdminDashboard();
   } else {
-    // Show generic section by hash (catalog, order-request, user-orders, products-feed, ...)
+    // Show generic section by hash (order-request, user-orders, products-feed, ...)
     const sectionId = hash.replace("#", "");
     const section = document.getElementById(sectionId);
     if (section) {
@@ -3443,7 +3443,7 @@ function updatePageVisibility() {
 function populateProductOptions() {
   if (!orderProduct) return;
 
-  orderProduct.innerHTML = catalogParts
+  orderProduct.innerHTML = productsFeedParts
     .map(
       (product) => `<option value="${product.name}">${product.name} - ${product.brand} ${product.model} ${product.year || ""}</option>`
     )
@@ -3853,7 +3853,7 @@ function renderHomeFeed() {
   const feedContent = document.getElementById("home-feed-content");
   if (!feedContent) return;
 
-  const source = catalogParts.length > 0 ? catalogParts : getFallbackCatalogParts().map(normalizeCatalogPart);
+  const source = productsFeedParts.length > 0 ? productsFeedParts : getFallbackProductsFeedParts().map(normalizeProductsFeedPart);
   const sortedSource = [...source].sort((left, right) => {
     const sortMode = homeFilterDropdown?.value || "recent";
 
@@ -4211,7 +4211,7 @@ if (applyAdvancedSearchButton) {
 if (resetAdvancedSearchButton) {
   resetAdvancedSearchButton.addEventListener("click", async () => {
     resetAdvancedSearchControls();
-    await loadCatalogParts();
+    await loadProductsFeedParts();
   });
 }
 
@@ -4308,16 +4308,16 @@ document.addEventListener("click", (event) => {
 
   if (action === "order") {
     productGrid.scrollIntoView({ behavior: "smooth" });
-    if (displayedCatalogParts[index]) {
+    if (displayedProductsFeedParts[index]) {
       if (orderProduct) {
-        orderProduct.value = displayedCatalogParts[index].name;
+        orderProduct.value = displayedProductsFeedParts[index].name;
       }
     }
     return;
   }
 
-  if (action === "request-review" && displayedCatalogParts[index]) {
-    handleCreateReviewRequest(displayedCatalogParts[index]);
+  if (action === "request-review" && displayedProductsFeedParts[index]) {
+    handleCreateReviewRequest(displayedProductsFeedParts[index]);
     return;
   }
 
@@ -4329,13 +4329,13 @@ document.addEventListener("click", (event) => {
     return;
   }
 
-  if (action === "update-part-price" && displayedCatalogParts[index]) {
-    handleUpdatePartPrice(displayedCatalogParts[index]);
+  if (action === "update-part-price" && displayedProductsFeedParts[index]) {
+    handleUpdatePartPrice(displayedProductsFeedParts[index]);
     return;
   }
 
-  if (action === "toggle-part-status" && displayedCatalogParts[index]) {
-    handleTogglePartStatus(displayedCatalogParts[index]);
+  if (action === "toggle-part-status" && displayedProductsFeedParts[index]) {
+    handleTogglePartStatus(displayedProductsFeedParts[index]);
     return;
   }
 
@@ -4531,8 +4531,8 @@ orderForm.addEventListener("submit", async (event) => {
 
   showMessage(messages.orderSent[currentLang], "success", orderMessage);
   orderForm.reset();
-  if (orderProduct && catalogParts.length > 0) {
-    orderProduct.value = catalogParts[0].name;
+  if (orderProduct && productsFeedParts.length > 0) {
+    orderProduct.value = productsFeedParts[0].name;
   }
   await syncOrdersFromSupabase();
   window.location.hash = "#user-orders";
@@ -4702,16 +4702,16 @@ async function initializeApp() {
     populateAccountTypeSelect();
   }
 
-  console.log("📊 [init] loadCatalogParts starting...");
+  console.log("📊 [init] loadProductsFeedParts starting...");
   try {
-    await loadCatalogParts();
-    console.log("✓ [init] loadCatalogParts complete");
+    await loadProductsFeedParts();
+    console.log("✓ [init] loadProductsFeedParts complete");
   } catch (error) {
-    console.error("[init] loadCatalogParts failed:", error);
-    catalogParts = getFallbackCatalogParts().map(normalizeCatalogPart);
-    displayedCatalogParts = [...catalogParts];
-    populateAdvancedSearchFilters(catalogParts);
-    renderProducts(displayedCatalogParts);
+    console.error("[init] loadProductsFeedParts failed:", error);
+    productsFeedParts = getFallbackProductsFeedParts().map(normalizeProductsFeedPart);
+    displayedProductsFeedParts = [...productsFeedParts];
+    populateAdvancedSearchFilters(productsFeedParts);
+    renderProducts(displayedProductsFeedParts);
     populateProductOptions();
   }
 

@@ -106,7 +106,6 @@ body.login-page .hero-section,
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
   }
-body.login-page #catalog,
 body.login-page #order-request,
 body.login-page #user-orders,
 body.login-page #home-page,

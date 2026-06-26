@@ -192,7 +192,7 @@ You can create test accounts via the registration form:
 2. Click "دخول" (Sign In)
 3. **Automatic redirect** to Profile page
 4. Display user information from Supabase
-5. Show Quick Links to Orders/Catalog/Home
+5. Show Quick Links to Orders/Products Feed/Home
 
 ### Facebook-Style Registration Flow
 1. **Step 1:** Select Account Type + Phone (Searchable Dropdown)

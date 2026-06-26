@@ -8,9 +8,9 @@ try {
 	console.warn("Local config: unable to read runtime Supabase config from localStorage.", error);
 }
 
-window.SUPABASE_URL = window.SUPABASE_URL || __storedSupabaseUrl || "https://your-project.supabase.co";
-window.SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || __storedSupabaseAnonKey || "your-anon-key";
-window.WHATSAPP_OTP_ENDPOINT = window.WHATSAPP_OTP_ENDPOINT || "";
+window.SUPABASE_URL = window.SUPABASE_URL || __storedSupabaseUrl || "https://zelcngyyvbomuzokvuxo.supabase.co";
+window.SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || __storedSupabaseAnonKey || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InplbGNuZ3l5dmJvbXV6b2t2dXhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MTEzNTMsImV4cCI6MjA5Nzk4NzM1M30.yW9zQ7fRqi9-jbOFbBiLtsWFuYTIExYO2Lul-mFgKkI";
+window.WHATSAPP_OTP_ENDPOINT = window.WHATSAPP_OTP_ENDPOINT || "https://zelcngyyvbomuzokvuxo.functions.supabase.co/send-otp";
 
 // ── Email Verification Config ──────────────────────────────────
 // الطريقة 1: Mailgun (مجاني - 25,000 بريد/شهر)
