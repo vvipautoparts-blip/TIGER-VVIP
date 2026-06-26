@@ -71,6 +71,7 @@ const adminNav = document.getElementById("admin-nav");
 const profileRepLink = document.getElementById("profile-rep-link");
 const profileApprovalsLink = document.getElementById("profile-approvals-link");
 const profileAdminLink = document.getElementById("profile-admin-link");
+const accessDashboardButton = document.getElementById("access-dashboard-button");
 
 const forgotForm = document.getElementById("forgot-form");
 const forgotMessage = document.getElementById("forgot-message");
@@ -1725,26 +1726,26 @@ function getUnauthorizedFallbackHash(role = currentUserProfile?.role) {
 
 function handleBackButton() {
   const hash = window.location.hash.toLowerCase();
-  
-  // من dashboards إلى profile (أو home للعاديين)
+
+  // من لوحات التحكم إلى البروفايل الخاص
   if (hash === "#admin-dashboard") {
     window.location.hash = "#profile-page";
   } else if (hash === "#representative-dashboard" || hash === "#approvals-dashboard") {
     window.location.hash = "#profile-page";
   }
-  // من profile إلى home
+  // من البروفايل الخاص إلى العام
   else if (hash === "#profile-page") {
     window.location.hash = "#home-page";
   }
-  // من home/products-feed/orders إلى profile
-  else if (hash === "#home-page" || hash === "#products-feed" || hash === "#user-orders" || hash === "#order-request") {
-    window.location.hash = "#profile-page";
+  // من البروفايل العام إلى تسجيل الدخول
+  else if (hash === "#home-page") {
+    window.location.hash = "#auth-section";
   }
-  // من registration إلى auth
+  // من التسجيل إلى تسجيل الدخول
   else if (hash === "#registration-page") {
     window.location.hash = "#auth-section";
   }
-  // الافتراضي: الرجوع إلى الصفحة الأساسية
+  // الافتراضي
   else {
     window.location.hash = currentUser ? "#profile-page" : "#auth-section";
   }
@@ -1777,10 +1778,13 @@ function updateQuickNavVisibility() {
 
 function canAccessRoute(hash) {
   if (!currentUser) {
-    return ["#auth-section", "#registration-page", "#forgot-password", "#plans-section", "#shopper-section", ""].includes(hash);
+    return ["#auth-section", "#registration-page", "#home-page", "#forgot-password", ""].includes(hash);
   }
 
   const role = currentUserProfile?.role;
+  if (["#auth-section", "#registration-page", "#home-page", "#profile-page", "#forgot-password", ""].includes(hash)) {
+    return true;
+  }
   if (hash === "#admin-dashboard") {
     return isAdminRole(role);
   }
@@ -2510,11 +2514,7 @@ async function showAuthState() {
     await renderRepresentativeDashboard();
     await renderAdminDashboard();
     await renderApprovalsDashboard();
-    if (isReadOnlyShopper(currentUserProfile?.role)) {
-      if (!window.location.hash || window.location.hash === "#auth-section" || window.location.hash === "#registration-page" || window.location.hash === "#profile-page") {
-        window.location.hash = "#shopper-section";
-      }
-    } else if (!window.location.hash || window.location.hash === "#auth-section" || window.location.hash === "#registration-page") {
+    if (!window.location.hash || window.location.hash === "#auth-section" || window.location.hash === "#registration-page") {
       window.location.hash = "#profile-page";
     }
   }
@@ -2524,15 +2524,9 @@ async function showAuthState() {
 function updatePageVisibility() {
   const hash = window.location.hash.toLowerCase();
   const isAuth = !!currentUser;
-  const isOnAuthPages = hash === "#auth-section" || hash === "#registration-page" || hash === "#forgot-password" || hash === "#plans-section" || hash === "";
-  const isShopperPage = hash === "#shopper-section";
+  const isOnAuthPages = hash === "#auth-section" || hash === "#registration-page" || hash === "#forgot-password" || hash === "";
 
   if (hash === "#admin-dashboard") {
-    window.location.hash = "#profile-page";
-    return;
-  }
-
-  if (isReadOnlyShopper(currentUserProfile?.role) && (hash === "#order-request" || hash === "#user-orders")) {
     window.location.hash = "#profile-page";
     return;
   }
@@ -2563,8 +2557,11 @@ function updatePageVisibility() {
       document.getElementById("auth-section").style.display = "block";
     }
     document.body.classList.add("login-page");
-  } else if (isShopperPage) {
-    document.getElementById("shopper-section").style.display = "block";
+  } else if (hash === "#home-page") {
+    stopAdminMonitorAutoRefresh();
+    document.getElementById("home-page").style.display = "block";
+    renderHomeFeed();
+    renderDashboard();
   } else if (hash === "#profile-page") {
     // Show profile page
     if (!isAuth) {
@@ -2584,12 +2581,7 @@ function updatePageVisibility() {
     document.getElementById("approvals-dashboard").style.display = "block";
     renderApprovalsDashboard();
   } else {
-    // Show generic section by hash (order-request, user-orders, products-feed, ...)
-    const sectionId = hash.replace("#", "");
-    const section = document.getElementById(sectionId || "hero");
-    if (section) {
-      section.style.display = "block";
-    }
+    window.location.hash = isAuth ? "#profile-page" : "#auth-section";
   }
 }
 
