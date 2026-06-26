@@ -1,10 +1,11 @@
-const CACHE_NAME = "tiger-vvip-v2";
+const CACHE_NAME = "tiger-vvip-v3";
 const ASSETS = [
   "/",
   "/index.html",
   "/styles.css",
   "/script.js",
   "/i18n-text.js",
+  "/supabase-local.js",
   "/supabase-config.js",
   "/manifest.webmanifest",
   "/icons/icon-192.png",
