@@ -72,6 +72,7 @@ const profileRepLink = document.getElementById("profile-rep-link");
 const profileApprovalsLink = document.getElementById("profile-approvals-link");
 const profileAdminLink = document.getElementById("profile-admin-link");
 const accessDashboardButton = document.getElementById("access-dashboard-button");
+const quickNavSelect = document.getElementById("quick-nav-select");
 
 const forgotForm = document.getElementById("forgot-form");
 const forgotMessage = document.getElementById("forgot-message");
