@@ -404,8 +404,6 @@ const approvalsEmpty = document.getElementById("approvals-empty");
 const shareProfileButton = document.getElementById("share-profile-button");
 const shareProfileWhatsApp = document.getElementById("share-profile-whatsapp");
 const shopperNav = document.getElementById("shopper-nav");
-const floatingCallAction = document.getElementById("floating-call-action");
-const floatingWhatsAppAction = document.getElementById("floating-whatsapp-action");
 const planSubscriptionSection = document.getElementById("plan-subscription");
 const planSubscriptionForm = document.getElementById("plan-subscription-form");
 const planSubscriptionMessage = document.getElementById("plan-subscription-message");
@@ -1271,16 +1269,6 @@ function renderProfileReviewRequests() {
   }).join("");
 }
 
-function updateFloatingContactActions(phone) {
-  const normalizedPhone = String(phone || "+962780003302").replace(/\s+/g, "");
-  if (floatingCallAction) {
-    floatingCallAction.href = `tel:${normalizedPhone}`;
-  }
-  if (floatingWhatsAppAction) {
-    floatingWhatsAppAction.href = `https://wa.me/${normalizedPhone.replace(/^\+/, "")}`;
-  }
-}
-
 function buildProfileShareUrl() {
   return `${window.location.origin}${window.location.pathname}#profile-page`;
 }
@@ -1820,8 +1808,6 @@ function updateRoleBasedNavigation() {
   if (profileRepLink) profileRepLink.style.display = showRep ? "inline-flex" : "none";
   if (profileApprovalsLink) profileApprovalsLink.style.display = showApprovals ? "inline-flex" : "none";
   if (profileAdminLink) profileAdminLink.style.display = showAdmin ? "inline-flex" : "none";
-  if (floatingCallAction) floatingCallAction.style.display = shopper ? "inline-flex" : "none";
-  if (floatingWhatsAppAction) floatingWhatsAppAction.style.display = shopper ? "inline-flex" : "none";
   if (shopperNav) shopperNav.classList.toggle("shopper-featured", shopper);
 }
 
@@ -2972,7 +2958,6 @@ function renderProfilePage() {
       : "This is a read-only shopper account for viewing and contact only. It cannot publish or add content inside the platform.";
   }
 
-  updateFloatingContactActions(phoneText);
   updateProfileShareActions(profileNameText, phoneText);
 
   renderProfileGallery();
