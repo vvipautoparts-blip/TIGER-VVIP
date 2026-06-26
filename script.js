@@ -1,155 +1,43 @@
-// 🚀 AUTOMATIC CACHE CLEANING AND PERFORMANCE OPTIMIZATION
-(function initializePerformance() {
-  // Auto-clear old cache entries every 30 minutes
-  const CACHE_EXPIRY_MS = 30 * 60 * 1000;
-  const CACHE_CLEANUP_KEY = 'last_cache_cleanup';
-  
-  function cleanOldCache() {
-    const now = Date.now();
-    const lastCleanup = localStorage.getItem(CACHE_CLEANUP_KEY) || 0;
-    
-    if (now - lastCleanup > CACHE_EXPIRY_MS) {
-      // Clear old temporary data
-      const keysToCheck = [
-        'reg_temp_email', 'reg_email_verified', 'tempRegEmail',
-        'auth_temp_code', 'auth_attempt_count'
-      ];
-      
-      keysToCheck.forEach(key => {
-        if (localStorage.getItem(key)) {
-          localStorage.removeItem(key);
-        }
-      });
-      
-      // Clear service worker cache
-      if ('caches' in window) {
-        caches.keys().then(cacheNames => {
-          cacheNames.forEach(cacheName => {
-            caches.open(cacheName).then(cache => {
-              cache.keys().then(requests => {
-                requests.forEach(request => {
-                  if (request.url.includes('old-') || request.url.includes('temp-')) {
-                    cache.delete(request);
-                  }
-                });
-              });
-            });
-          });
-        });
-      }
-      
-      localStorage.setItem(CACHE_CLEANUP_KEY, now);
-      console.log('✅ Cache cleaned at', new Date().toISOString());
-    }
-  }
-  
-  // Run cleanup on app init
-  cleanOldCache();
-  
-  // Schedule cleanup checks
-  setInterval(cleanOldCache, 5 * 60 * 1000);
-})();
-
-// 💾 AUTO-SAVE STATE
-(function initializeAutoSave() {
-  const AUTO_SAVE_KEY = 'app_auto_save';
-  const AUTO_SAVE_INTERVAL = 10 * 1000; // 10 seconds
-  
-  function autoSaveState() {
-    const state = {
-      currentLang: window.currentLang || 'ar',
-      currentUser: window.currentUser || null,
-      currentPage: window.location.hash || '#auth-section',
-      timestamp: Date.now()
-    };
-    
-    try {
-      localStorage.setItem(AUTO_SAVE_KEY, JSON.stringify(state));
-      console.log('💾 Auto-save completed');
-    } catch (e) {
-      console.warn('⚠️ Auto-save failed:', e);
-    }
-  }
-  
-  // Auto-save on page unload
-  window.addEventListener('beforeunload', autoSaveState);
-  
-  // Periodic auto-save
-  setInterval(autoSaveState, AUTO_SAVE_INTERVAL);
-})();
-
-// 🔧 PERFORMANCE OPTIMIZATION
-(function optimizePerformance() {
-  // Lazy load images
-  if ('IntersectionObserver' in window) {
-    const imageObserver = new IntersectionObserver((entries, observer) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const img = entry.target;
-          img.src = img.dataset.src || img.src;
-          img.classList.add('loaded');
-          observer.unobserve(img);
-        }
-      });
-    });
-    
-    document.querySelectorAll('img[data-src]').forEach(img => imageObserver.observe(img));
-  }
-  
-  // Debounce window resize
-  let resizeTimeout;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => {
-      console.log('📐 Resize event processed');
-    }, 250);
-  });
-})();
-
 const products = [
   {
     title: "فلتر هواء أصلي",
     model: "BMW X5 G05",
     description: "فلتر هواء عالي الجودة للحفاظ على أداء المحرك وسلامته.",
-    price: "65 دينار",
+    price: "350 ريال",
   },
   {
     title: "كشاف LED أمامي",
     model: "Mercedes S-Class",
     description: "مصابيح LED فاخرة مع توازن ضوء ممتاز ومقاومة للماء.",
-    price: "235 دينار",
+    price: "1,250 ريال",
   },
   {
     title: "طقم فرامل رياضي",
     model: "Audi Q7",
     description: "فرامل عالية الأداء مع تبريد محسّن وتحمل أكبر.",
-    price: "395 دينار",
+    price: "2,100 ريال",
   },
   {
     title: "غطاء مقعد جلد فئة VVIP",
     model: "Range Rover",
     description: "غطاء مقعد فاخر مع جلد ناعم وحماية إضافية للأثاث.",
-    price: "340 دينار",
+    price: "1,800 ريال",
   },
   {
     title: "بطارية AGM",
     model: "Lexus LX",
     description: "بطارية قوة عالية طويلة العمر لجميع احتياجات السيارات الفاخرة.",
-    price: "185 دينار",
+    price: "980 ريال",
   },
   {
     title: "مجموعة صيانة عاجلة",
     model: "Toyota Land Cruiser",
     description: "مجموعة قطع غيار أساسية للصيانة السريعة والخدمة العاجلة.",
-    price: "135 دينار",
+    price: "720 ريال",
   },
 ];
 
-console.log("📝 ===============================");
-console.log("📝 script.js loading started");
-console.log("📝 ===============================");
-
-const productGrid = document.getElementById("product-grid") || document.getElementById("products-feed-grid");
+const productGrid = document.getElementById("product-grid");
 const searchInput = document.getElementById("search-input");
 const filterBrand = document.getElementById("filter-brand");
 const filterModel = document.getElementById("filter-model");
@@ -159,62 +47,38 @@ const filterCategory = document.getElementById("filter-category");
 const applyAdvancedSearchButton = document.getElementById("apply-advanced-search");
 const resetAdvancedSearchButton = document.getElementById("reset-advanced-search");
 const langToggle = document.getElementById("lang-toggle");
-const langText = document.getElementById("lang-text");
 const orderForm = document.getElementById("order-form");
 const orderProduct = document.getElementById("order-product");
 const ordersList = document.getElementById("orders-list");
 const ordersEmpty = document.getElementById("orders-empty");
 const orderMessage = document.getElementById("order-message");
 const authForm = document.getElementById("auth-form");
-const authSubmitButton = document.getElementById("auth-submit-button");
 const authModeToggle = document.getElementById("auth-mode-toggle");
-const authLogoutButton = document.getElementById("auth-logout-button");
 const authMessage = document.getElementById("auth-message");
-const authAvatarClickable = document.getElementById("auth-avatar-clickable");
-const authAvatarUploadInput = document.getElementById("auth-avatar-upload");
-const authProfileAvatar = document.querySelector(".auth-profile-avatar");
-const authProfileName = document.querySelector(".auth-profile-name");
 const userPanel = document.getElementById("user-panel");
 const userEmail = document.getElementById("user-email");
 const logoutButton = document.getElementById("logout-button");
 const userRole = document.getElementById("user-role");
 const userSubscription = document.getElementById("user-subscription");
+const orderRequestNav = document.getElementById("order-request-nav");
+const userOrdersNav = document.getElementById("user-orders-nav");
 const partManagementSection = document.getElementById("part-management");
 const partForm = document.getElementById("part-form");
 const partMessage = document.getElementById("part-message");
-const partSaveButton = document.getElementById("part-save-button");
-const partNameArInput = document.getElementById("part-name-ar");
-const partNameEnInput = document.getElementById("part-name-en");
-const partPriceInput = document.getElementById("part-price");
-const partImageInput = document.getElementById("part-image");
-const partImagePreview = document.getElementById("part-image-preview");
-const partPreviewImg = document.getElementById("part-preview-img");
-const partVehicleSelect = document.getElementById("part-vehicle-select");
 const representativeNav = document.getElementById("representative-nav");
 const approvalsNav = document.getElementById("approvals-nav");
 const adminNav = document.getElementById("admin-nav");
 const profileRepLink = document.getElementById("profile-rep-link");
 const profileApprovalsLink = document.getElementById("profile-approvals-link");
 const profileAdminLink = document.getElementById("profile-admin-link");
-const quickNavSelect = null;
-const homeFilterDropdown = document.getElementById("home-filter-dropdown");
-const homeSignoutLink = document.getElementById("home-signout-link");
-const homeLogoutButton = document.getElementById("home-logout-button");
-const headerLogoutButton = null;
-const navProfileAvatar = null;
-const profileAdvancedSearchForm = document.getElementById("profile-advanced-search-form");
-const profileSearchBrand = document.getElementById("profile-search-brand");
-const profileSearchModel = document.getElementById("profile-search-model");
-const profileSearchYear = document.getElementById("profile-search-year");
-const profileSearchBodyType = document.getElementById("profile-search-body-type");
-const profileSearchCategory = document.getElementById("profile-search-category");
-const profileSearchReset = document.getElementById("profile-search-reset");
-const profileSearchResults = document.getElementById("profile-search-results");
-const profileOrdersList = document.getElementById("profile-orders-list");
-const profileOrdersEmpty = document.getElementById("profile-orders-empty");
-const profilePartsSummary = document.getElementById("profile-parts-summary");
 
-
+const forgotForm = document.getElementById("forgot-form");
+const forgotMessage = document.getElementById("forgot-message");
+const sendForgotOtpButton = document.getElementById("send-forgot-otp");
+const forgotEmail = document.getElementById("forgot-email");
+const forgotPhone = document.getElementById("forgot-phone");
+const forgotOtp = document.getElementById("forgot-otp");
+const forgotNewPassword = document.getElementById("forgot-new-password");
 
 let currentLang = "ar";
 let orderRequests = [];
@@ -232,528 +96,17 @@ let approvalRequests = [];
 let profileParts = [];
 let profileReviewRequests = [];
 let adminRepliesByRequest = {};
-
-const PROFILE_THEME_STORAGE_KEY = "tiger_profile_theme_mode";
+let authInProgress = false;
+let registrationInProgress = false;
+let forgotPasswordInProgress = false;
 
 const ADMIN_ROLES = ["super_admin"];
-const STAFF_ROLES = ["representative"];
+const STAFF_ROLES = ["manager", "supervisor", "representative"];
 const SESSION_DEVICE_KEY = "tiger_vvip_device_id";
-const AUTH_AVATAR_STORAGE_KEY = "tiger_auth_avatar_data_url";
 const WHATSAPP_OTP_ENDPOINT = window.WHATSAPP_OTP_ENDPOINT || "";
 
-function getStoredProfileTheme() {
-  try {
-    const stored = String(localStorage.getItem(PROFILE_THEME_STORAGE_KEY) || "light").toLowerCase();
-    return stored === "dark" ? "dark" : "light";
-  } catch (_error) {
-    return "light";
-  }
-}
-
-function applyProfileTheme(theme) {
-  if (!document.body) return;
-  const normalized = theme === "dark" ? "dark" : "light";
-  document.body.classList.toggle("profile-vvip-dark", normalized === "dark");
-}
-
-function persistProfileTheme(theme) {
-  try {
-    localStorage.setItem(PROFILE_THEME_STORAGE_KEY, theme === "dark" ? "dark" : "light");
-  } catch (_error) {
-    // Ignore storage failures silently.
-  }
-}
-
-function updateProfileThemeToggleLabel() {
-  const btn = document.getElementById("profile-theme-toggle");
-  if (!btn) return;
-
-  const isDark = document.body?.classList.contains("profile-vvip-dark");
-  const text = isDark
-    ? (currentLang === "ar" ? "☀️ فاتح" : "☀️ Light")
-    : (currentLang === "ar" ? "🌙 داكن" : "🌙 Dark");
-
-  btn.innerHTML = `<span>${text}</span>`;
-}
-
-function toggleProfileTheme() {
-  const isDark = document.body?.classList.contains("profile-vvip-dark");
-  const nextTheme = isDark ? "light" : "dark";
-  applyProfileTheme(nextTheme);
-  persistProfileTheme(nextTheme);
-  updateProfileThemeToggleLabel();
-}
-
-applyProfileTheme(getStoredProfileTheme());
-const DEMO_USERS_STORAGE_KEY = "tiger_vvip_demo_users";
-const DEMO_OTP_CODE = "123456";
-
-let previousAppHash = "";
-let currentAppHash = window.location.hash || "#auth-section";
-
-console.log("📝 DOM elements loaded:", {
-  authForm: !!authForm,
-  authSubmitButton: !!authSubmitButton,
-  authMessage: !!authMessage,
-  authEmail: !!document.getElementById("auth-email"),
-  authPassword: !!document.getElementById("auth-password"),
-});
-console.log("✓ script.js loaded successfully");
-
-// ==========================================
-// 💾 SAVED ACCOUNTS MODAL - CORE FUNCTIONS
-// ==========================================
-
-/**
- * 🔐 فتح نافذة اختيار الحسابات المحفوظة
- * Open the saved accounts modal window
- */
-function openAccountsModal() {
-  const modal = document.getElementById("accounts-modal");
-  if (modal) {
-    modal.classList.add("active");
-    loadSavedAccounts();
-  }
-}
-
-/**
- * ❌ إغلاق نافذة اختيار الحسابات
- * Close the saved accounts modal window
- */
-function closeAccountsModal() {
-  const modal = document.getElementById("accounts-modal");
-  if (modal) {
-    modal.classList.remove("active");
-  }
-}
-
-/**
- * 🔍 فحص الحسابات الموجودة في الجهاز
- * Scan and display all saved accounts from localStorage
- */
-function scanDeviceAccounts() {
-  const accounts = JSON.parse(localStorage.getItem("savedAccounts") || "[]");
-  
-  if (accounts.length === 0) {
-    alert(
-      currentLang === "ar"
-        ? "📭 لا توجد حسابات محفوظة على هذا الجهاز.\n\nأنشئ حساباً جديداً من الصفحة الأولى ثم عُد هنا."
-        : "📭 No saved accounts on this device.\n\nCreate a new account from the first page, then come back here."
-    );
-  } else {
-    loadSavedAccounts();
-    const message = currentLang === "ar"
-      ? `✅ تم العثور على ${accounts.length} حساب محفوظ`
-      : `✅ Found ${accounts.length} saved account(s)`;
-    alert(message);
-  }
-}
-
-/**
- * 📋 تحميل قائمة الحسابات المحفوظة من localStorage
- * Load saved accounts list from localStorage
- */
-function loadSavedAccounts() {
-  const savedAccountsList = document.getElementById("saved-accounts-list");
-  if (!savedAccountsList) return;
-
-  const accounts = JSON.parse(localStorage.getItem("savedAccounts") || "[]");
-
-  if (accounts.length === 0) {
-    savedAccountsList.innerHTML = `
-      <div class="no-accounts">
-        <p>📭 ${currentLang === "ar" ? "لا توجد حسابات محفوظة" : "No saved accounts"}</p>
-        <p>${currentLang === "ar" ? "أنشئ حساباً جديداً من الصفحة الأولى (إنشاء حساب جديد)." : "Create an account from the first page (Create New Account)."}</p>
-      </div>
-    `;
-    return;
-  }
-
-  savedAccountsList.innerHTML = accounts
-    .map(
-      (account, index) => `
-    <div class="account-item" onclick="selectSavedAccount(${index})" title="${currentLang === "ar" ? "اختر هذا الحساب" : "Select this account"}">
-      <img src="${
-        account.photoUrl ||
-        'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect fill=%22%231877F2%22 width=%22100%22 height=%22100%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2240%22 fill=%22white%22 text-anchor=%22middle%22 dominant-baseline=%22central%22%3E${account.initials || "U"}%3C/text%3E%3C/svg%3E'
-      }" 
-           class="account-photo" 
-           alt="${account.name || account.email}"
-           onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect fill=%22%231877F2%22 width=%22100%22 height=%22100%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2240%22 fill=%22white%22 text-anchor=%22middle%22 dominant-baseline=%22central%22%3E${account.initials || "U"}%3C/text%3E%3C/svg%3E'">
-      <div class="account-info">
-        <h3 class="account-username">${account.name || account.email.split("@")[0]}</h3>
-        <p class="account-email">${account.email}</p>
-      </div>
-    </div>
-  `
-    )
-    .join("");
-
-  updateLanguage();
-}
-
-/**
- * ✅ اختيار حساب محفوظ وتسجيل الدخول به
- * Select a saved account and log in with it
- */
-function selectSavedAccount(index) {
-  let accounts = [];
-  try {
-    const parsedAccounts = JSON.parse(localStorage.getItem("savedAccounts") || "[]");
-    accounts = Array.isArray(parsedAccounts) ? parsedAccounts : [];
-  } catch (_error) {
-    accounts = [];
-  }
-
-  const account = accounts[index];
-
-  if (!account) return;
-
-  // حفظ الحساب الحالي / Save the current account
-  localStorage.setItem("currentUser", JSON.stringify(account));
-  currentUser = account;
-  currentUserProfile = account.profile || {};
-  if (authProfileName) {
-    authProfileName.textContent = account.name || account.email?.split("@")[0] || "";
-  }
-  if (authProfileAvatar) {
-    const initials = (account.initials || account.name || account.email || "").slice(0, 2).toUpperCase();
-    authProfileAvatar.dataset.initials = initials;
-  }
-  if (account.photoUrl) {
-    localStorage.setItem(AUTH_AVATAR_STORAGE_KEY, account.photoUrl);
-    setAuthAvatar(account.photoUrl);
-  } else {
-    localStorage.removeItem(AUTH_AVATAR_STORAGE_KEY);
-    setAuthAvatar("");
-  }
-
-  // إغلاق Modal والانتقال / Close modal and navigate
-  closeAccountsModal();
-  
-  // رسالة تأكيد / Confirmation message
-  showMessage(
-    currentLang === "ar"
-      ? `✅ تم اختيار الحساب: ${account.email}`
-      : `✅ Account selected: ${account.email}`,
-    "success",
-    authMessage,
-    300
-  );
-
-  setTimeout(() => {
-    window.location.hash = "#auth-section";
-    updatePageVisibility();
-    updateRoleBasedNavigation();
-  }, 500);
-}
-
-/**
- * 📸 معاينة الصورة المختارة
- * Preview the selected photo
- */
-function previewAccountPhoto(input) {
-  if (input.files && input.files[0]) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      const preview = document.getElementById("photo-preview");
-      const previewImg = document.getElementById("preview-image");
-
-      if (preview && previewImg) {
-        previewImg.src = e.target.result;
-        preview.style.display = "flex";
-      }
-    };
-    reader.readAsDataURL(input.files[0]);
-  }
-}
-
-/**
- * 💾 حفظ حساب جديد في localStorage
- * Save a new account to localStorage
- */
-function saveAccountToDevice(userData) {
-  const accounts = JSON.parse(localStorage.getItem("savedAccounts") || "[]");
-
-  // تحقق من عدم تكرار الحساب / Check for duplicates
-  const exists = accounts.some((acc) => acc.email === userData.email);
-  if (exists) {
-    showMessage(
-      currentLang === "ar" ? "❌ هذا الحساب موجود بالفعل" : "❌ This account already exists",
-      "error"
-    );
-    return false;
-  }
-
-  const newAccount = {
-    email: userData.email,
-    name: userData.name || userData.email.split("@")[0],
-    initials: (userData.name || userData.email).substring(0, 2).toUpperCase(),
-    photoUrl: userData.photoUrl || null,
-    profile: userData.profile || {},
-    id: userData.id || Date.now().toString(),
-  };
-
-  accounts.push(newAccount);
-  localStorage.setItem("savedAccounts", JSON.stringify(accounts));
-  return true;
-}
-
-function rememberSignedInAccount(user, profile = null) {
-  if (!user || !user.email) return;
-
-  const email = String(user.email || "").trim().toLowerCase();
-  if (!email) return;
-
-  const accountName = String(profile?.full_name || user.email || "").trim();
-  const initials = (accountName || email).slice(0, 2).toUpperCase();
-  const photoUrl = profile?.avatar_url || localStorage.getItem(AUTH_AVATAR_STORAGE_KEY) || null;
-
-  let accounts = [];
-  try {
-    const parsed = JSON.parse(localStorage.getItem("savedAccounts") || "[]");
-    accounts = Array.isArray(parsed) ? parsed : [];
-  } catch (_error) {
-    accounts = [];
-  }
-
-  const nextAccount = {
-    email,
-    name: accountName || email.split("@")[0],
-    initials,
-    photoUrl,
-    profile: profile || {},
-    id: user.id || Date.now().toString(),
-  };
-
-  const existingIndex = accounts.findIndex((account) => String(account?.email || "").toLowerCase() === email);
-  if (existingIndex >= 0) {
-    accounts[existingIndex] = {
-      ...accounts[existingIndex],
-      ...nextAccount,
-      profile: {
-        ...(accounts[existingIndex]?.profile || {}),
-        ...(profile || {}),
-      },
-    };
-  } else {
-    accounts.push(nextAccount);
-  }
-
-  localStorage.setItem("savedAccounts", JSON.stringify(accounts));
-}
-
-function setAuthAvatar(dataUrl) {
-  if (!authProfileAvatar) return;
-
-  if (dataUrl) {
-    authProfileAvatar.style.backgroundImage = `url(${dataUrl})`;
-    authProfileAvatar.classList.add("has-image");
-    authProfileAvatar.textContent = "";
-    return;
-  }
-
-  authProfileAvatar.style.backgroundImage = "";
-  authProfileAvatar.classList.remove("has-image");
-  authProfileAvatar.textContent = authProfileAvatar.dataset.initials || "NZ";
-}
-
-/**
- * 🔵 تحديث الصورة الدائرية في شريط العنوان (nav avatar)
- * Sync the header circular avatar with the current user photo / initials
- */
-function updateNavAvatar(photoUrl, initials) {
-  if (!navProfileAvatar) return;
-  if (!photoUrl && !initials) {
-    navProfileAvatar.style.display = "none";
-    navProfileAvatar.style.backgroundImage = "";
-    navProfileAvatar.classList.remove("has-image");
-    navProfileAvatar.textContent = "";
-    return;
-  }
-  navProfileAvatar.style.display = "flex";
-  navProfileAvatar.style.alignItems = "center";
-  navProfileAvatar.style.justifyContent = "center";
-  navProfileAvatar.style.backgroundSize = "cover";
-  navProfileAvatar.style.backgroundPosition = "center";
-  navProfileAvatar.style.backgroundRepeat = "no-repeat";
-  if (photoUrl) {
-    navProfileAvatar.style.backgroundImage = `url(${photoUrl})`;
-    navProfileAvatar.classList.add("has-image");
-    navProfileAvatar.textContent = "";
-  } else {
-    navProfileAvatar.style.backgroundImage = "";
-    navProfileAvatar.classList.remove("has-image");
-    navProfileAvatar.textContent = (initials || "").slice(0, 2).toUpperCase();
-  }
-}
-
-function getPreferredAvatarUrl() {
-  const localAvatar = localStorage.getItem(AUTH_AVATAR_STORAGE_KEY);
-  const profileAvatar = currentUserProfile?.avatar_url || currentUser?.user_metadata?.avatar_url || "";
-  return String(localAvatar || profileAvatar || "").trim() || null;
-}
-
-
-function getInitials(value) {
-  const text = String(value || "").trim();
-  if (!text) return "U";
-
-  const parts = text.split(/\s+/).filter(Boolean);
-  if (parts.length >= 2) {
-    return `${parts[0][0] || ""}${parts[1][0] || ""}`.toUpperCase() || "U";
-  }
-
-  return text.slice(0, 2).toUpperCase() || "U";
-}
-function resetAuthIdentityUI() {
-  if (authProfileName) {
-    authProfileName.textContent = "";
-  }
-
-  if (authProfileAvatar) {
-    authProfileAvatar.style.backgroundImage = "";
-    authProfileAvatar.classList.remove("has-image");
-    authProfileAvatar.textContent = "";
-  }
-}
-
-function handleAuthAvatarFile(file) {
-  if (!file) return;
-  if (!String(file.type || "").startsWith("image/")) {
-    showMessage(currentLang === "ar" ? "الملف يجب أن يكون صورة." : "Please choose an image file.", "error", authMessage);
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    const dataUrl = String(event.target?.result || "");
-    if (!dataUrl) return;
-    localStorage.setItem(AUTH_AVATAR_STORAGE_KEY, dataUrl);
-    setAuthAvatar(dataUrl);
-    showMessage(currentLang === "ar" ? "تم تحديث الصورة." : "Profile photo updated.", "success", authMessage, 250);
-  };
-  reader.readAsDataURL(file);
-}
-
-function initializeAuthAvatarPicker() {
-  if (!authProfileAvatar) return;
-
-  authProfileAvatar.dataset.initials = authProfileAvatar.textContent.trim() || "NZ";
-  const savedAvatar = localStorage.getItem(AUTH_AVATAR_STORAGE_KEY);
-  if (savedAvatar) {
-    setAuthAvatar(savedAvatar);
-  }
-
-  // On avatar click, open image gallery directly
-  authAvatarClickable?.addEventListener("click", () => {
-    authAvatarUploadInput?.click();
-  });
-
-  // Handle file selection (from gallery or camera)
-  authAvatarUploadInput?.addEventListener("change", (event) => {
-    const file = event.target?.files?.[0];
-    if (file) {
-      handleAuthAvatarFile(file);
-      event.target.value = "";
-    }
-  });
-}
-
-// ==========================================
-// 🌐 FORM SUBMISSION HANDLER
-// ==========================================
-
-document.addEventListener("DOMContentLoaded", function () {
-  // Selection-only modal: no add/delete form handlers here.
-});
-
-// ==========================================
-// 🌐 EXPOSE FUNCTIONS TO GLOBAL SCOPE
-// ==========================================
-window.openAccountsModal = openAccountsModal;
-window.closeAccountsModal = closeAccountsModal;
-window.scanDeviceAccounts = scanDeviceAccounts;
-window.loadSavedAccounts = loadSavedAccounts;
-window.selectSavedAccount = selectSavedAccount;
-window.previewAccountPhoto = previewAccountPhoto;
-window.saveAccountToDevice = saveAccountToDevice;
-
-// ==========================================
-// 🔵 NAV AVATAR — الصورة الدائرية في الهيدر
-// ==========================================
-(function attachNavAvatarHandler() {
-  const btn = document.getElementById("nav-profile-avatar");
-  if (!btn) return;
-
-  function goToProfile(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    navigateToHash("#profile-page");
-  }
-
-  btn.addEventListener("click", goToProfile, { passive: false });
-  btn.addEventListener("touchend", goToProfile, { passive: false });
-})();
-
-function updateFloatingProfileButton() {
-  let floatingBtn = document.getElementById("floating-profile-btn");
-
-  if (!floatingBtn) {
-    floatingBtn = document.createElement("button");
-    floatingBtn.id = "floating-profile-btn";
-    floatingBtn.className = "floating-profile-btn";
-    floatingBtn.type = "button";
-    floatingBtn.title = currentLang === "ar" ? "الملف الشخصي" : "Profile";
-    floatingBtn.addEventListener("click", () => navigateToHash("#profile-page"));
-    document.body.appendChild(floatingBtn);
-  }
-
-  const hash = (window.location.hash || "#auth-section").toLowerCase();
-  const shouldShow = Boolean(currentUser) && hash !== "#auth-section" && hash !== "#registration-page";
-  floatingBtn.style.display = shouldShow ? "inline-flex" : "none";
-
-  const displayName =
-    currentUserProfile?.full_name ||
-    currentUser?.user_metadata?.full_name ||
-    currentUser?.email ||
-    "U";
-
-  const avatarUrl = getPreferredAvatarUrl();
-  if (avatarUrl) {
-    floatingBtn.style.backgroundImage = `url(${avatarUrl})`;
-    floatingBtn.classList.add("has-image");
-    floatingBtn.textContent = "";
-  } else {
-    const initials = getInitials(displayName).slice(0, 2) || "U";
-    floatingBtn.style.backgroundImage = "";
-    floatingBtn.classList.remove("has-image");
-    floatingBtn.textContent = initials.toUpperCase();
-  }
-}
-
-// ==========================================
-// 🎯 Close modal when clicking on overlay
-// ==========================================
-document.addEventListener("DOMContentLoaded", function () {
-  const modal = document.getElementById("accounts-modal");
-  if (modal) {
-    modal.addEventListener("click", function (e) {
-      if (e.target === modal.querySelector(".modal-overlay")) {
-        closeAccountsModal();
-      }
-    });
-  }
-});
-
-// ==========================================
-
 function hasWorkingSupabaseConfig() {
-  const hasConfig = Boolean(window.__SUPABASE_CONFIG__?.hasRealKeys && window.__SUPABASE_CONFIG__?.hasLibrary);
-  if (!hasConfig) {
-    console.log("⚠️ No working Supabase config detected - using demo mode");
-  }
-  return hasConfig;
+  return Boolean(window.__SUPABASE_CONFIG__?.hasRealKeys && window.__SUPABASE_CONFIG__?.hasLibrary);
 }
 
 function showSupabaseConfigurationMessage(container = authMessage) {
@@ -988,10 +341,12 @@ let accountTypes = [
   { label: "مركز خدمات أخرى للمركبات", category: "خدمات أخرى" },
   { label: "محل خدمات أخرى للمركبات", category: "خدمات أخرى" },
   { label: "مشتري", category: "مشتري" },
+  { label: "متسوق داعم", category: "متسوق" },
 ];
 
 const registrationForm = document.getElementById("registration-form");
-const accountTypeSelect = document.getElementById("account-type-select");
+const accountTypeSearch = document.getElementById("account-type-search");
+const accountTypeList = document.getElementById("account-type-list");
 const regMessage = document.getElementById("reg-message");
 const otpSection = document.getElementById("otp-section");
 const registrationPhone = document.getElementById("registration-phone");
@@ -1008,11 +363,8 @@ const registrationImageRow = document.getElementById("registration-image-row");
 const registrationImage = document.getElementById("registration-image");
 const registrationFullnameRow = document.getElementById("registration-fullname-row");
 const registrationAddressRow = document.getElementById("registration-address-row");
-const cleanRegistrationForm = document.getElementById("reg-form");
-const cleanRegistrationEmail = document.getElementById("reg-email");
-const cleanVerificationStep = document.getElementById("verification-step");
-const cleanContinueToProfileButton = document.getElementById("continue-to-profile");
 const profilePage = document.getElementById("profile-page");
+const profileCover = document.getElementById("profile-cover");
 const profilePicture = document.getElementById("profile-picture");
 const profileActiveIndicator = document.getElementById("profile-active-indicator");
 const profileName = document.getElementById("profile-name");
@@ -1028,7 +380,6 @@ const profileSubscription = document.getElementById("profile-subscription");
 const profileOrdersCount = document.getElementById("profile-orders-count");
 const profileJoined = document.getElementById("profile-joined");
 const editProfileButton = document.getElementById("edit-profile-button");
-const accessDashboardButton = document.getElementById("access-dashboard-button");
 const profileQuickPhone = document.getElementById("profile-quick-phone");
 const profileQuickCity = document.getElementById("profile-quick-city");
 const profileQuickAddress = document.getElementById("profile-quick-address");
@@ -1052,8 +403,36 @@ const approvalsList = document.getElementById("approvals-list");
 const approvalsEmpty = document.getElementById("approvals-empty");
 const shareProfileButton = document.getElementById("share-profile-button");
 const shareProfileWhatsApp = document.getElementById("share-profile-whatsapp");
+const shopperNav = document.getElementById("shopper-nav");
 const floatingCallAction = document.getElementById("floating-call-action");
 const floatingWhatsAppAction = document.getElementById("floating-whatsapp-action");
+const planSubscriptionSection = document.getElementById("plan-subscription");
+const planSubscriptionForm = document.getElementById("plan-subscription-form");
+const planSubscriptionMessage = document.getElementById("plan-subscription-message");
+const planRequestPlan = document.getElementById("plan-request-plan");
+const planRequestName = document.getElementById("plan-request-name");
+const planRequestCenter = document.getElementById("plan-request-center");
+const planRequestPhone = document.getElementById("plan-request-phone");
+const planRequestEmail = document.getElementById("plan-request-email");
+const planRequestNotes = document.getElementById("plan-request-notes");
+const profitCalculatorForm = document.getElementById("profit-calculator-form");
+const calcBasicCount = document.getElementById("calc-basic-count");
+const calcProCount = document.getElementById("calc-pro-count");
+const calcPremiumCount = document.getElementById("calc-premium-count");
+const calcPlusCount = document.getElementById("calc-plus-count");
+const calcFixedCost = document.getElementById("calc-fixed-cost");
+const calcOtpCost = document.getElementById("calc-otp-cost");
+const calcMonthlyOtpCount = document.getElementById("calc-monthly-otp-count");
+const calcTotalRevenue = document.getElementById("calc-total-revenue");
+const calcTotalCost = document.getElementById("calc-total-cost");
+const calcNetProfit = document.getElementById("calc-net-profit");
+const calcBreakEven = document.getElementById("calc-break-even");
+const calcResultMessage = document.getElementById("calc-result-message");
+
+const PLAN_REQUESTS_KEY = "tiger_vvip_plan_requests";
+const PLATFORM_ACTIVITY_KEY = "tiger_vvip_platform_activity";
+const ADMIN_MONITOR_REFRESH_MS = 30000;
+let adminMonitorTimer = null;
 
 const messages = {
   orderSent: { ar: "تم إرسال الطلب بنجاح. يمكنك متابعة الطلب من لوحة الطلبات.", en: "Request submitted successfully. Track your order in the orders section." },
@@ -1113,14 +492,14 @@ function normalizeOrder(order) {
 
 function getRoleLabel(role) {
   const labels = {
-    super_admin: { ar: "المدير العام", en: "General Manager" },
-    representative: { ar: "مندوب ميداني", en: "Field Representative" },
-    dealer: { ar: "تاجر / مركز خدمة", en: "Merchant / Service Center" },
-    customer: { ar: "عميل", en: "Customer" },
     admin: { ar: "المدير العام", en: "General Manager" },
-    manager: { ar: "مندوب ميداني", en: "Field Representative" },
-    supervisor: { ar: "مندوب ميداني", en: "Field Representative" },
-    buyer: { ar: "عميل", en: "Customer" },
+    super_admin: { ar: "المدير العام", en: "General Manager" },
+    manager: { ar: "مدير منطقة", en: "Area Manager" },
+    supervisor: { ar: "مشرف", en: "Supervisor" },
+    representative: { ar: "مندوب", en: "Representative" },
+    dealer: { ar: "تاجر", en: "Dealer" },
+    buyer: { ar: "مشتري", en: "Buyer" },
+    shopper: { ar: "متسوق داعم", en: "Support Shopper" },
   };
 
   return labels[role] || { ar: role || "غير محدد", en: role || "Unknown" };
@@ -1170,6 +549,116 @@ function formatDinar(value) {
   return `${Number(value || 0).toFixed(2)} د.أ`;
 }
 
+function validateEmail(value) {
+  const normalized = String(value || "").trim();
+  const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return pattern.test(normalized);
+}
+
+function validatePasswordStrength(value) {
+  const password = String(value || "");
+  if (password.length < 8) return false;
+  const hasLetter = /[A-Za-z]/.test(password);
+  const hasNumber = /\d/.test(password);
+  return hasLetter && hasNumber;
+}
+
+function normalizeDigits(value) {
+  const text = String(value || "");
+  return text
+    .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 1632))
+    .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 1776));
+}
+
+function normalizePhoneNumber(value) {
+  const normalizedDigits = normalizeDigits(value).replace(/[\s()-]/g, "");
+  return normalizedDigits;
+}
+
+function normalizeOtpCode(value) {
+  return normalizeDigits(value).replace(/\D/g, "").slice(0, 6);
+}
+
+async function fetchProfileByPhoneFlexible(phone) {
+  const normalizedPhone = normalizePhoneNumber(phone);
+  const primaryRes = await fetchProfileByPhone(normalizedPhone);
+  if (primaryRes?.data || !phone || normalizedPhone === String(phone || "").trim()) {
+    return { result: primaryRes, normalizedPhone };
+  }
+
+  const fallbackRes = await fetchProfileByPhone(String(phone || "").trim());
+  if (fallbackRes?.data) {
+    return { result: fallbackRes, normalizedPhone };
+  }
+
+  return { result: primaryRes, normalizedPhone };
+}
+
+function getAuthErrorMessage(error, fallbackAr, fallbackEn) {
+  const message = String(error?.message || "").toLowerCase();
+  if (message.includes("invalid login credentials")) {
+    return currentLang === "ar"
+      ? "بيانات الدخول غير صحيحة. تحقق من البريد/الهاتف وكلمة المرور."
+      : "Invalid credentials. Check your email/phone and password.";
+  }
+  if (message.includes("email not confirmed")) {
+    return currentLang === "ar"
+      ? "يرجى تأكيد البريد الإلكتروني أولاً."
+      : "Please confirm your email first.";
+  }
+  if (message.includes("network") || message.includes("fetch")) {
+    return currentLang === "ar"
+      ? "تعذر الاتصال بالخادم. تحقق من الشبكة وحاول مرة أخرى."
+      : "Could not reach the server. Check your network and try again.";
+  }
+  return currentLang === "ar" ? fallbackAr : fallbackEn;
+}
+
+async function resolveLoginEmail(identifier) {
+  const normalized = String(identifier || "").trim();
+  if (!normalized) {
+    return { email: null, error: currentLang === "ar" ? "أدخل البريد الإلكتروني أو رقم الهاتف." : "Enter email or phone number." };
+  }
+
+  if (validateEmail(normalized)) {
+    return { email: normalized.toLowerCase(), error: null };
+  }
+
+  const normalizedPhone = normalizePhoneNumber(normalized);
+  if (!validatePhoneNumber(normalizedPhone)) {
+    return {
+      email: null,
+      error: currentLang === "ar"
+        ? "صيغة الإدخال غير صحيحة. استخدم بريدًا صحيحًا أو رقم هاتف دولي مثل +962..."
+        : "Invalid format. Use a valid email or international phone like +962...",
+    };
+  }
+
+  const profileLookup = await fetchProfileByPhoneFlexible(normalizedPhone);
+  const profileRes = profileLookup.result;
+  if (profileRes.error) {
+    return {
+      email: null,
+      error: getAuthErrorMessage(
+        profileRes.error,
+        "تعذر التحقق من رقم الهاتف الآن. حاول مرة أخرى.",
+        "Unable to validate phone number right now. Please try again."
+      ),
+    };
+  }
+
+  if (!profileRes.data?.email) {
+    return {
+      email: null,
+      error: currentLang === "ar"
+        ? "رقم الهاتف غير مرتبط بحساب بريد. استخدم البريد الإلكتروني للدخول."
+        : "This phone is not linked to an email account. Sign in using email.",
+    };
+  }
+
+  return { email: String(profileRes.data.email).toLowerCase(), error: null };
+}
+
 function renderFinancialSummary(summary) {
   const completedCountEl = document.getElementById("commission-completed-count");
   const weeklyCountEl = document.getElementById("commission-weekly-count");
@@ -1185,10 +674,13 @@ function renderFinancialSummary(summary) {
 }
 
 function showMessage(text, type = "success", container = orderMessage) {
+  if (!container) return;
   container.textContent = text;
   container.className = `form-message ${type}`;
+  container.style.display = "block";
   setTimeout(() => {
     container.className = "form-message";
+    container.style.display = "none";
   }, 4500);
 }
 
@@ -1198,124 +690,97 @@ function showPartMessage(text, type = "success") {
 }
 
 function isPartManager(role) {
-  return ["dealer", "representative", "super_admin"].includes(role);
+  return ["dealer", "representative", "manager", "super_admin"].includes(role);
+}
+
+function isReadOnlyShopper(role) {
+  return role === "shopper";
+}
+
+function getSubscriptionRates() {
+  return {
+    basic: 59,
+    pro: 129,
+    premium: 249,
+    plus: 449,
+    shopper: 1,
+  };
+}
+
+function getFirstFreeSubscriptionEnd(profile) {
+  const createdAt = profile?.created_at ? new Date(profile.created_at) : new Date();
+  const end = new Date(createdAt);
+  end.setDate(end.getDate() + 30);
+  return end;
+}
+
+function getSubscriptionDisplayText(profile) {
+  if (!profile) return currentLang === "ar" ? "أساسي" : "Basic";
+
+  const role = profile.role || "dealer";
+  const freeUntil = getFirstFreeSubscriptionEnd(profile);
+  const freeUntilText = freeUntil.toLocaleDateString(currentLang === "ar" ? "ar-SA" : "en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+
+  if (role === "shopper") {
+    return currentLang === "ar"
+      ? `متسوق داعم - أول اشتراك مجاني حتى ${freeUntilText} ثم 1 د.أ / شهر`
+      : `Support Shopper - first subscription free until ${freeUntilText}, then JOD 1 / month`;
+  }
+
+  return currentLang === "ar"
+    ? `أول اشتراك مجاني حتى ${freeUntilText}`
+    : `First subscription free until ${freeUntilText}`;
+}
+
+function updateProfitCalculator() {
+  if (!calcTotalRevenue || !calcTotalCost || !calcNetProfit || !calcBreakEven) return;
+
+  const rates = getSubscriptionRates();
+  const basicCount = Number(calcBasicCount?.value || 0);
+  const proCount = Number(calcProCount?.value || 0);
+  const premiumCount = Number(calcPremiumCount?.value || 0);
+  const plusCount = Number(calcPlusCount?.value || 0);
+  const shopperCount = Number(document.getElementById("calc-shopper-count")?.value || 0);
+  const fixedCost = Number(calcFixedCost?.value || 0);
+  const otpMonthlyCount = Number(calcMonthlyOtpCount?.value || 0);
+  const otpCost = Number(calcOtpCost?.value || 0);
+
+  const revenue = (basicCount * rates.basic) + (proCount * rates.pro) + (premiumCount * rates.premium) + (plusCount * rates.plus) + (shopperCount * rates.shopper);
+  const variableOtpCost = otpMonthlyCount * otpCost;
+  const totalCost = fixedCost + variableOtpCost;
+  const netProfit = revenue - totalCost;
+  const averageRevenuePerSubscriber = (rates.basic + rates.pro + rates.premium + rates.plus + rates.shopper) / 5;
+  const breakEvenSubscribers = averageRevenuePerSubscriber > 0 ? Math.ceil(totalCost / averageRevenuePerSubscriber) : 0;
+
+  calcTotalRevenue.textContent = formatDinar(revenue);
+  calcTotalCost.textContent = formatDinar(totalCost);
+  calcNetProfit.textContent = formatDinar(netProfit);
+  calcBreakEven.textContent = String(breakEvenSubscribers);
+
+  if (calcResultMessage) {
+    calcResultMessage.textContent = currentLang === "ar"
+      ? `الإيراد الشهري ${formatDinar(revenue)} وصافي الربح ${formatDinar(netProfit)}.`
+      : `Monthly revenue is ${formatDinar(revenue)} and net profit is ${formatDinar(netProfit)}.`;
+  }
 }
 
 function isApprovalReviewerRole(role) {
-  return ["representative", "super_admin"].includes(role);
-}
-
-function isMerchantRole(role) {
-  return role === "dealer";
-}
-
-function isOrderCapableRole(role) {
-  return role === "dealer" || role === "customer";
-}
-
-function canAccessProfileTab(tabName, role = currentUserProfile?.role) {
-  if (tabName === "commission") {
-    return isApprovalReviewerRole(role) || isAdminRole(role);
-  }
-
-  if (tabName === "gallery") {
-    return isMerchantRole(role);
-  }
-
-  return ["feed", "orders", "info"].includes(tabName);
-}
-
-function applyProfileRoleVisibility(role = currentUserProfile?.role) {
-  const merchantOnly = isMerchantRole(role);
-  const canSeeCommission = isApprovalReviewerRole(role) || isAdminRole(role);
-  const canPlaceOrders = isOrderCapableRole(role);
-  const canShareProfile = isMerchantRole(role);
-
-  const merchantDetailsCard = document.getElementById("merchant-details-card");
-  const partDetailsCard = document.getElementById("part-details-card");
-  const profileRepTab = document.getElementById("profile-rep-tab");
-  const profileTabCommission = document.getElementById("profile-tab-commission");
-  const ordersTabButton = Array.from(document.querySelectorAll(".fb-tab-btn")).find((btn) => {
-    const onclick = btn.getAttribute("onclick") || "";
-    return onclick.includes("'orders'");
-  });
-  const galleryTabButton = Array.from(document.querySelectorAll(".fb-tab-btn")).find((btn) => {
-    const onclick = btn.getAttribute("onclick") || "";
-    return onclick.includes("'gallery'");
-  });
-  const galleryPanel = document.getElementById("profile-tab-gallery");
-  const ordersPanel = document.getElementById("profile-tab-orders");
-  const editProfileAction = document.getElementById("edit-profile-button");
-  const shareProfileAction = document.getElementById("share-profile-button");
-  const newOrderLink = document.getElementById("profile-new-order-link");
-  const myOrdersLink = document.getElementById("profile-my-orders-link");
-  const feedNewOrderAction = document.getElementById("profile-feed-new-order-action");
-  const seeAllOrdersLink = document.getElementById("profile-see-all-orders-link");
-  const profileLinksCard = document.getElementById("profile-links-card");
-
-  if (merchantDetailsCard) merchantDetailsCard.style.display = merchantOnly ? "block" : "none";
-  if (partDetailsCard) partDetailsCard.style.display = merchantOnly ? "block" : "none";
-  if (editProfileAction) editProfileAction.style.display = currentUser ? "inline-flex" : "none";
-  if (shareProfileAction) shareProfileAction.style.display = canShareProfile ? "inline-flex" : "none";
-  if (accessDashboardButton) accessDashboardButton.style.display = isAdminRole(currentUserProfile?.role) ? "inline-flex" : "none";
-  if (newOrderLink) newOrderLink.style.display = canPlaceOrders ? "block" : "none";
-  if (myOrdersLink) myOrdersLink.style.display = canPlaceOrders ? "block" : "none";
-  if (feedNewOrderAction) feedNewOrderAction.style.display = canPlaceOrders ? "inline-flex" : "none";
-  if (seeAllOrdersLink) seeAllOrdersLink.style.display = canPlaceOrders ? "inline-flex" : "none";
-  if (ordersTabButton) ordersTabButton.style.display = canPlaceOrders ? "inline-flex" : "none";
-  if (ordersPanel && !canPlaceOrders) ordersPanel.style.display = "none";
-  if (galleryTabButton) galleryTabButton.style.display = merchantOnly ? "inline-flex" : "none";
-  if (galleryPanel) galleryPanel.style.display = merchantOnly ? galleryPanel.style.display || "none" : "none";
-  if (profileRepTab) profileRepTab.style.display = canSeeCommission ? "inline-flex" : "none";
-  if (profileTabCommission && !canSeeCommission) profileTabCommission.style.display = "none";
-  if (profileLinksCard) {
-    const hasVisibleLinks = Array.from(profileLinksCard.querySelectorAll("a")).some((link) => getComputedStyle(link).display !== "none");
-    profileLinksCard.style.display = hasVisibleLinks ? "block" : "none";
-  }
-
-  const activeTab = document.querySelector(".fb-tab-btn.active");
-  const activeOnclick = activeTab?.getAttribute("onclick") || "";
-  const activeTabName = activeOnclick.match(/'([^']+)'/)?.[1] || "feed";
-
-  if (!canAccessProfileTab(activeTabName, role)) {
-    switchProfileTab("feed");
-  }
-}
-
-function applyHomePageRoleVisibility(role = currentUserProfile?.role) {
-  const canPlaceOrders = isOrderCapableRole(role);
-
-  const ordersNavLink = document.getElementById("home-orders-link");
-  const profileLink = document.getElementById("home-profile-link");
-  const myOrdersLink = document.getElementById("home-my-orders-link");
-  const newRequestLink = document.getElementById("home-new-request-link");
-
-  if (ordersNavLink) ordersNavLink.style.display = canPlaceOrders ? "block" : "none";
-  if (myOrdersLink) myOrdersLink.style.display = canPlaceOrders ? "block" : "none";
-  if (newRequestLink) newRequestLink.style.display = canPlaceOrders ? "block" : "none";
-  if (profileLink) profileLink.style.display = "block";
+  return ["representative", "manager", "super_admin"].includes(role);
 }
 
 function switchProfileTab(tabName) {
-  if (!canAccessProfileTab(tabName)) {
-    tabName = "feed";
-  }
-
-  // دعم التصميم الجديد (fb-tab-btn / profile-tab-*)
-  document.querySelectorAll(".fb-tab-btn").forEach(btn => btn.classList.remove("active"));
-  document.querySelectorAll(".fb-tab-content").forEach(panel => panel.style.display = "none");
-  const activePanel = document.getElementById("profile-tab-" + tabName);
-  if (activePanel) activePanel.style.display = "block";
-  // تحديد الزر النشط بناءً على data-ar
-  document.querySelectorAll(".fb-tab-btn").forEach(btn => {
-    const onclick = btn.getAttribute("onclick") || "";
-    if (onclick.includes("'" + tabName + "'")) btn.classList.add("active");
-  });
-  // دعم التصميم القديم أيضاً
   const buttons = Array.from(document.querySelectorAll(".profile-tab-btn"));
   const panels = Array.from(document.querySelectorAll(".profile-tab-panel"));
-  buttons.forEach(btn => btn.classList.toggle("active", btn.dataset.profileTab === tabName));
-  panels.forEach(panel => panel.classList.toggle("active", panel.dataset.profilePanel === tabName));
+  buttons.forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.profileTab === tabName);
+  });
+  panels.forEach((panel) => {
+    panel.classList.toggle("active", panel.dataset.profilePanel === tabName);
+  });
 }
 
 function parseLegacyPriceToJod(priceText) {
@@ -1480,13 +945,8 @@ function getFallbackProductsFeedParts() {
     return {
       id: `local-${index + 1}`,
       name: product.title,
-      name_en: product.title,
-      part_reference: `LOCAL-${index + 1}`,
       description: product.description,
       price_jod: parseLegacyPriceToJod(product.price),
-      discount_percent: 0,
-      condition_type: "new",
-      gallery_links: [],
       image_url: "",
       status: "active",
       category: "قطع الغيار",
@@ -1507,13 +967,8 @@ function normalizeProductsFeedPart(part, index = 0) {
   return {
     id: part.id ?? `local-${index + 1}`,
     name,
-    name_en: part.name_en || part.nameEn || name,
-    part_reference: part.part_reference || part.partId || part.ref || `PART-${index + 1}`,
     description: part.description || "-",
     price_jod: Number(part.price_jod ?? parseLegacyPriceToJod(part.price)),
-    discount_percent: Number(part.discount_percent || 0),
-    condition_type: part.condition_type || part.part_condition || "new",
-    gallery_links: normalizeGalleryLinks(part.gallery_links),
     image_url: part.image_url || "",
     status: part.status || "active",
     category: part.category || "",
@@ -1649,7 +1104,6 @@ async function loadProductsFeedParts(filters = {}, queryText = "") {
   populatePartVehicleOptions();
   renderProducts(displayedProductsFeedParts);
   populateProductOptions();
-  runProfileSearch();
 }
 
 async function loadProfileAssets() {
@@ -1676,8 +1130,6 @@ async function loadProfileAssets() {
       profileParts = (partsRes.data || []).map(normalizeProductsFeedPart);
     }
   }
-
-  populatePartVehicleOptions();
 
   if (typeof fetchReviewRequests === "function") {
     const reviewRequestsRes = await fetchReviewRequests({ requester_id: currentUser.id });
@@ -1763,26 +1215,12 @@ function renderProfileParts() {
   }
 
   profilePartsList.innerHTML = profileParts.map((part) => `
-    <article class="profile-part-card">
-      <div class="profile-part-image-wrap">
-        <img src="${part.image_url || ''}" alt="${getPartName(part)}" onerror="this.style.display='none';this.parentElement.style.background='#f0f2f5'" />
-        ${Number(part.discount_percent || 0) > 0 ? `<span class="part-discount-badge">-${Number(part.discount_percent).toFixed(0)}%</span>` : ""}
-      </div>
-      <div class="profile-part-body">
-        <h4>${getPartName(part)}</h4>
-        <p class="profile-part-ref">${currentLang === "ar" ? "رقم القطعة" : "PartID"}: ${part.part_reference || "-"}</p>
-        <p class="profile-part-price">${formatDinar(part.price_jod)}</p>
-        <p>${currentLang === "ar" ? "الفئة" : "Category"}: ${part.category || "-"}</p>
-        <p>${currentLang === "ar" ? "الحالة" : "Status"}: <span class="status ${String(part.status || "pending").toLowerCase()}">${part.status || "pending"}</span></p>
-        <p>${currentLang === "ar" ? "الوصف" : "Description"}: ${part.description || "-"}</p>
-        <p>${currentLang === "ar" ? "حالة القطعة" : "Condition"}: ${getPartConditionLabel(part.condition_type)}</p>
-        <button class="btn secondary part-details-btn" type="button" data-action="toggle-part-details">${currentLang === "ar" ? "تفاصيل المركبة" : "Vehicle Details"}</button>
-        <div class="part-vehicle-details">
-          <p><strong>${currentLang === "ar" ? "المركبة" : "Vehicle"}:</strong> ${part.brand || "-"} ${part.model || "-"} ${part.year || "-"}</p>
-          <p><strong>${currentLang === "ar" ? "نوع الهيكل" : "Body Type"}:</strong> ${part.body_type || "-"}</p>
-          <p><strong>${currentLang === "ar" ? "الاسم الإنجليزي" : "English Name"}:</strong> ${part.name_en || "-"}</p>
-        </div>
-      </div>
+    <article class="profile-data-card">
+      <h4>${part.name}</h4>
+      <p>${part.brand || "-"} ${part.model || "-"} ${part.year || ""}</p>
+      <p>${currentLang === "ar" ? "الفئة" : "Category"}: ${part.category || "-"}</p>
+      <p>${currentLang === "ar" ? "السعر" : "Price"}: ${formatDinar(part.price_jod)}</p>
+      <p>${currentLang === "ar" ? "الحالة" : "Status"}: <span class="status ${String(part.status || "pending").toLowerCase()}">${part.status || "pending"}</span></p>
     </article>
   `).join("");
 }
@@ -1863,8 +1301,6 @@ function applyClientSidePartFilters(parts, query, filters) {
   return parts.filter((part) => {
     const matchText = !q ||
       part.name.toLowerCase().includes(q) ||
-      String(part.name_en || "").toLowerCase().includes(q) ||
-      String(part.part_reference || "").toLowerCase().includes(q) ||
       String(part.description || "").toLowerCase().includes(q) ||
       String(part.brand || "").toLowerCase().includes(q) ||
       String(part.model || "").toLowerCase().includes(q);
@@ -1915,21 +1351,11 @@ async function handleCreatePart() {
     return;
   }
 
-  const partNameAr = document.getElementById("part-name-ar")?.value.trim();
-  const partNameEn = document.getElementById("part-name-en")?.value.trim();
-  const partReference = buildPartReference(document.getElementById("part-reference")?.value);
-  const galleryLinks = normalizeGalleryLinks(document.getElementById("part-gallery-links")?.value || "");
-
   const payload = {
-    name: partNameAr,
-    name_en: partNameEn,
-    part_reference: partReference,
+    name: document.getElementById("part-name").value.trim(),
     description: document.getElementById("part-description").value.trim(),
     price_jod: Number(document.getElementById("part-price").value || 0),
-    image_url: partImageInput?.dataset?.imageData || null,
-    discount_percent: Number(document.getElementById("part-discount")?.value || 0),
-    condition_type: document.getElementById("part-condition")?.value || "new",
-    gallery_links: galleryLinks,
+    image_url: document.getElementById("part-image").value.trim() || null,
     status: document.getElementById("part-status").value,
     category: document.getElementById("part-category").value.trim(),
     brand: document.getElementById("part-brand").value.trim(),
@@ -1939,13 +1365,8 @@ async function handleCreatePart() {
     dealer_id: currentUser.id,
   };
 
-  if (!payload.name || !payload.name_en || !payload.price_jod || !payload.image_url) {
-    showPartMessage(currentLang === "ar" ? "الحقول الأساسية إلزامية: الاسم العربي، الاسم الإنجليزي، السعر، الصورة." : "Core fields are required: Arabic name, English name, price, image.", "error");
-    return;
-  }
-
-  if (!payload.brand || !payload.model || !payload.category || !payload.body_type || !payload.year) {
-    showPartMessage(currentLang === "ar" ? "أكمل بيانات المركبة والتصنيف قبل الحفظ." : "Complete vehicle and category fields before saving.", "error");
+  if (!payload.name || !payload.brand || !payload.model || !payload.category || !payload.body_type || !payload.year) {
+    showPartMessage(currentLang === "ar" ? "يرجى تعبئة كل الحقول الإلزامية." : "Please fill all required fields.", "error");
     return;
   }
 
@@ -2286,6 +1707,12 @@ async function handleAdminReply(reviewRequestId) {
   }
 
   await updateReviewRequestStatus(reviewRequestId, "resolved");
+  recordPlatformActivity(
+    "review",
+    currentLang === "ar" ? "رد إداري على مراجعة" : "Admin reply sent",
+    String(reviewRequestId),
+    "approved"
+  );
   showMessage(currentLang === "ar" ? "تم إرسال الرد وتحديث الحالة." : "Reply sent and status updated.", "success", orderMessage);
   await renderAdminDashboard();
 }
@@ -2362,14 +1789,7 @@ function updateQuickNavVisibility() {
 
 function canAccessRoute(hash) {
   if (!currentUser) {
-    const privateRoutes = [
-      "#profile-page",
-      "#user-orders",
-      "#representative-dashboard",
-      "#approvals-dashboard",
-      "#admin-dashboard",
-    ];
-    return !privateRoutes.includes(hash);
+    return ["#auth-section", "#registration-page", "#forgot-password", "#plans-section", "#shopper-section", ""].includes(hash);
   }
 
   const role = currentUserProfile?.role;
@@ -2390,14 +1810,19 @@ function updateRoleBasedNavigation() {
   const showRep = role === "representative" || isAdminRole(role);
   const showApprovals = isApprovalReviewerRole(role);
   const showAdmin = isAdminRole(role);
+  const shopper = isReadOnlyShopper(role);
 
   if (representativeNav) representativeNav.style.display = showRep ? "inline-flex" : "none";
   if (approvalsNav) approvalsNav.style.display = showApprovals ? "inline-flex" : "none";
   if (adminNav) adminNav.style.display = showAdmin ? "inline-flex" : "none";
+  if (orderRequestNav) orderRequestNav.style.display = shopper ? "none" : "inline-flex";
+  if (userOrdersNav) userOrdersNav.style.display = shopper ? "none" : "inline-flex";
   if (profileRepLink) profileRepLink.style.display = showRep ? "inline-flex" : "none";
   if (profileApprovalsLink) profileApprovalsLink.style.display = showApprovals ? "inline-flex" : "none";
   if (profileAdminLink) profileAdminLink.style.display = showAdmin ? "inline-flex" : "none";
-  updateQuickNavVisibility();
+  if (floatingCallAction) floatingCallAction.style.display = shopper ? "inline-flex" : "none";
+  if (floatingWhatsAppAction) floatingWhatsAppAction.style.display = shopper ? "inline-flex" : "none";
+  if (shopperNav) shopperNav.classList.toggle("shopper-featured", shopper);
 }
 
 function getDeviceId() {
@@ -2434,13 +1859,8 @@ async function sendWhatsAppOtp(phone, code) {
 
 async function sendRegistrationOtp() {
   if (!hasWorkingSupabaseConfig()) {
-    showRegistrationMessage(
-      currentLang === "ar"
-        ? `وضع تجريبي: استخدم رمز التحقق ${DEMO_OTP_CODE}`
-        : `Demo mode: use OTP code ${DEMO_OTP_CODE}`,
-      "success"
-    );
-    return true;
+    showSupabaseConfigurationMessage(regMessage);
+    return false;
   }
 
   if (!WHATSAPP_OTP_ENDPOINT) {
@@ -2448,13 +1868,15 @@ async function sendRegistrationOtp() {
     return false;
   }
 
-  const phone = registrationPhone.value.trim();
+  const phone = normalizePhoneNumber(registrationPhone.value.trim());
+  registrationPhone.value = phone;
   if (!validatePhoneNumber(phone)) {
     showRegistrationMessage(currentLang === "ar" ? "رقم الهاتف غير صالح." : "Invalid phone number.", "error");
     return false;
   }
 
-  const duplicatePhone = await fetchProfileByPhone(phone);
+  const duplicatePhoneLookup = await fetchProfileByPhoneFlexible(phone);
+  const duplicatePhone = duplicatePhoneLookup.result;
   if (duplicatePhone.data) {
     showRegistrationMessage(currentLang === "ar" ? "رقم الهاتف مستخدم مسبقًا." : "Phone is already registered.", "error");
     return false;
@@ -2479,24 +1901,15 @@ async function sendRegistrationOtp() {
 
 async function verifyRegistrationOtp() {
   if (!hasWorkingSupabaseConfig()) {
-    const code = registrationOtp.value.trim();
-    if (code !== DEMO_OTP_CODE) {
-      showRegistrationMessage(
-        currentLang === "ar" ? `رمز OTP التجريبي هو ${DEMO_OTP_CODE}` : `Demo OTP code is ${DEMO_OTP_CODE}`,
-        "error"
-      );
-      return false;
-    }
-
-    registrationOtpVerified = true;
-    showProfileCompletion();
-    showRegistrationMessage(currentLang === "ar" ? "تم التحقق بنجاح (وضع تجريبي)." : "Verified successfully (demo mode).", "success");
-    return true;
+    showSupabaseConfigurationMessage(regMessage);
+    return false;
   }
 
-  const code = registrationOtp.value.trim();
-  const phone = registrationPhone.value.trim();
-  if (!code || code.length < 6) {
+  const code = normalizeOtpCode(registrationOtp.value.trim());
+  registrationOtp.value = code;
+  const phone = normalizePhoneNumber(registrationPhone.value.trim());
+  registrationPhone.value = phone;
+  if (!/^\d{6}$/.test(code)) {
     showRegistrationMessage(currentLang === "ar" ? "أدخل OTP صحيح." : "Enter a valid OTP.", "error");
     return false;
   }
@@ -2569,6 +1982,12 @@ async function handleApproveProfile(userId) {
     showMessage(currentLang === "ar" ? "تعذر اعتماد المستخدم." : "Could not approve user.", "error", orderMessage);
     return;
   }
+  recordPlatformActivity(
+    "approval",
+    currentLang === "ar" ? "تم اعتماد مستخدم" : "User approved",
+    userId,
+    "approved"
+  );
   await renderAdminDashboard();
 }
 
@@ -2598,88 +2017,18 @@ async function handleWeeklyPay(userId) {
   }
 
   await markCommissionsPaid(userId);
+  recordPlatformActivity(
+    "payment",
+    currentLang === "ar" ? "تم صرف راتب أسبوعي" : "Weekly salary paid",
+    `${userId} • ${formatDinar(total)}`,
+    "completed"
+  );
   showMessage(currentLang === "ar" ? "تم صرف الراتب الأسبوعي." : "Weekly salary paid.", "success", orderMessage);
   await renderAdminDashboard();
   if (currentUserProfile.role === "representative") {
     await renderRepresentativeDashboard();
   }
 }
-
-async function renderAdminUsers() {
-  const list = document.getElementById("admin-users-list");
-  const empty = document.getElementById("admin-users-empty");
-  const searchInput = document.getElementById("admin-users-search");
-  if (!list) return;
-
-  let allUsers = [];
-
-  if (hasWorkingSupabaseConfig()) {
-    try {
-      const { data } = await window.supabaseClient
-        .from("profiles")
-        .select("id, full_name, phone, role, account_type, avatar_url, is_approved")
-        .order("created_at", { ascending: false })
-        .limit(200);
-      allUsers = data || [];
-    } catch (_) {}
-  }
-
-  // وضع تجريبي - مستخدمون مزيفون
-  if (allUsers.length === 0) {
-    allUsers = getDemoUsers().map(u => ({
-      id: u.id,
-      full_name: u.full_name || u.email?.split("@")[0] || "مستخدم",
-      phone: u.phone || "--",
-      role: u.role || "dealer",
-      account_type: u.account_type || "",
-      avatar_url: u.avatar_url || "",
-      is_approved: u.is_approved || false,
-    }));
-  }
-
-  function renderList(users) {
-    if (!users.length) {
-      list.innerHTML = "";
-      if (empty) empty.style.display = "block";
-      return;
-    }
-    if (empty) empty.style.display = "none";
-    list.innerHTML = users.map(u => {
-      const initial = (u.full_name || "U").charAt(0).toUpperCase();
-      const avatarStyle = u.avatar_url
-        ? `background-image:url('${u.avatar_url}')`
-        : `background:#1877F2`;
-      return `
-        <div class="admin-user-card" onclick="adminViewUser('${u.id}')">
-          <div class="user-card-avatar" style="${avatarStyle}">${u.avatar_url ? "" : initial}</div>
-          <div class="user-card-name">${u.full_name || "--"}</div>
-          <div class="user-card-role">${u.role || "dealer"}</div>
-          <div class="user-card-phone">${u.phone || "--"}</div>
-        </div>
-      `;
-    }).join("");
-  }
-
-  renderList(allUsers);
-
-  if (searchInput) {
-    searchInput.addEventListener("input", () => {
-      const q = searchInput.value.toLowerCase().trim();
-      if (!q) { renderList(allUsers); return; }
-      renderList(allUsers.filter(u =>
-        (u.full_name || "").toLowerCase().includes(q) ||
-        (u.phone || "").toLowerCase().includes(q) ||
-        (u.role || "").toLowerCase().includes(q)
-      ));
-    });
-  }
-}
-
-window.adminViewUser = function(userId) {
-  // يفتح بروفايل المستخدم (قراءة فقط للمدير)
-  window._adminViewingUserId = userId;
-  navigateToHash("#profile-page");
-};
 
 async function renderAdminDashboard() {
   if (!isAdminRole(currentUserProfile?.role)) return;
@@ -2712,11 +2061,8 @@ async function renderAdminDashboard() {
   if (pendingEl) pendingEl.textContent = String(pendingApprovals.length);
   if (weeklyPaymentsEl) weeklyPaymentsEl.textContent = formatDinar(totalPayments);
 
-  // Initialize filter buttons
-  initializeAdminFilters(pendingApprovals, payments, pendingReviews);
-
   const approvalsRows = pendingApprovals.map((p) => `
-    <article class="dashboard-row" data-user-id="${p.id}" data-status="pending">
+    <article class="dashboard-row">
       <div>
         <strong>${p.full_name || "--"}</strong>
         <p>${p.phone || "--"} • ${p.account_type || p.role || "--"}</p>
@@ -2730,7 +2076,7 @@ async function renderAdminDashboard() {
   const dueRows = Object.entries(dueByUser)
     .filter(([, amount]) => Number(amount) > 0)
     .map(([userId, amount]) => `
-    <article class="dashboard-row" data-user-id="${userId}" data-status="pending">
+    <article class="dashboard-row">
       <div>
         <strong>${formatDinar(amount)}</strong>
         <p>${currentLang === "ar" ? "مستحق هذا الأسبوع" : "Due this week"} • ${userId}</p>
@@ -2742,7 +2088,7 @@ async function renderAdminDashboard() {
   `);
 
   const paidRows = payments.slice(0, 20).map((p) => `
-    <article class="dashboard-row" data-payment-id="${p.id}" data-status="paid">
+    <article class="dashboard-row">
       <div>
         <strong>${formatDinar(p.total_amount)}</strong>
         <p>${new Date(p.payment_date).toLocaleDateString(currentLang === "ar" ? "ar-SA" : "en-US")} • ${p.period_start} - ${p.period_end}</p>
@@ -2764,7 +2110,7 @@ async function renderAdminDashboard() {
   );
 
   const reviewRows = pendingReviews.map((review) => `
-    <article class="dashboard-row" data-review-id="${review.id}" data-status="pending">
+    <article class="dashboard-row">
       <div>
         <strong>${currentLang === "ar" ? "طلب مراجعة" : "Review Request"} #${review.id}</strong>
         <p>${review.request_message || "--"}</p>
@@ -2782,95 +2128,177 @@ async function renderAdminDashboard() {
   );
 }
 
-// =============================================
-// 👥 عرض جميع المستخدمين في الداشبورد
-// =============================================
-(function initAdminUsers() {
-  document.addEventListener("DOMContentLoaded", async () => {
-    if (isAdminRole(currentUserProfile?.role)) {
-      setTimeout(() => renderAdminUsers(), 100);
-    }
-  });
+async function renderSuperAdminControlCenter() {
+  const section = document.getElementById("super-admin-control-center");
+  if (!section) return;
 
-  // عند تحديث الداشبورد
-  const observer = new MutationObserver(() => {
-    const usersSection = document.getElementById("admin-users-section");
-    if (usersSection && usersSection.style.display !== "none") {
-      renderAdminUsers();
-    }
-  });
-
-  const adminDash = document.getElementById("admin-dashboard");
-  if (adminDash) {
-    observer.observe(adminDash, { attributes: true });
-  }
-})();
-
-// Admin Filter Functions
-function initializeAdminFilters(pendingApprovals, payments, pendingReviews) {
-  const searchInput = document.getElementById("admin-search");
-  if (searchInput) {
-    searchInput.addEventListener("input", (e) => {
-      filterAdminBySearch(e.target.value);
-    });
-  }
-}
-
-function filterAdminData(type) {
-  // Update active button
-  document.querySelectorAll(".filter-btn").forEach(btn => {
-    btn.classList.remove("active");
-  });
-  event.target.classList.add("active");
-  
-  // Filter rows based on type
-  const rows = document.querySelectorAll(".dashboard-row");
-  rows.forEach(row => {
-    const status = row.getAttribute("data-status");
-    if (type === "all") {
-      row.style.display = "block";
-    } else if (type === "pending" && status === "pending") {
-      row.style.display = "block";
-    } else if (type === "approved" && status === "approved") {
-      row.style.display = "block";
-    } else if (type === "paid" && status === "paid") {
-      row.style.display = "block";
-    } else {
-      row.style.display = "none";
-    }
-  });
-  
-  // Update empty message
-  const visible = document.querySelectorAll(".dashboard-row[style='display: block']").length;
-  if (visible === 0) {
-    document.querySelectorAll(".dashboard-empty").forEach(el => {
-      if (el.style.display !== "none") {
-        el.style.display = "block";
-      }
-    });
-  }
-}
-
-function filterAdminBySearch(searchText) {
-  const text = searchText.toLowerCase().trim();
-  const rows = document.querySelectorAll(".dashboard-row");
-  
-  rows.forEach(row => {
-    const content = row.textContent.toLowerCase();
-    if (text === "" || content.includes(text)) {
-      row.style.display = "block";
-    } else {
-      row.style.display = "none";
-    }
-  });
-}
-
-function renderProducts(items) {
-  if (!productGrid) {
-    console.warn("[renderProducts] Products container not found.");
+  if (!isAdminRole(currentUserProfile?.role)) {
+    section.style.display = "none";
+    stopAdminMonitorAutoRefresh();
     return;
   }
 
+  section.style.display = "block";
+
+  const monitorStatusEl = document.getElementById("admin-monitor-status");
+  const monitorUpdatedEl = document.getElementById("admin-monitor-updated");
+  const operationsEl = document.getElementById("gm-achievement-operations");
+  const commissionsEl = document.getElementById("gm-achievement-commissions");
+  const dueUsersEl = document.getElementById("gm-due-users");
+  const dueTotalEl = document.getElementById("gm-due-total");
+  const pendingQueueEl = document.getElementById("gm-pending-queue");
+  const dueListEl = document.getElementById("gm-due-list");
+  const trackingListEl = document.getElementById("gm-tracking-list");
+  const insightsEl = document.getElementById("gm-ai-insights");
+
+  const dashboard = await fetchGlobalCommissionDashboard();
+  const pendingProfilesRes = await fetchPendingApprovals();
+  const pendingReviewsRes = await fetchReviewRequests("pending");
+  const approvalRequestsRes = typeof fetchApprovalRequests === "function"
+    ? await fetchApprovalRequests("pending")
+    : { data: [] };
+
+  const commissions = dashboard?.commissions?.data || [];
+  const payments = dashboard?.payments?.data || [];
+  const pendingProfiles = pendingProfilesRes?.data || [];
+  const pendingReviews = pendingReviewsRes?.data || [];
+  const pendingApprovalRequests = approvalRequestsRes?.data || [];
+  const planRequests = loadPlanRequests().filter((item) => item?.status === "new");
+
+  const dueMap = commissions
+    .filter((item) => item?.status === "earned")
+    .reduce((acc, item) => {
+      const key = item.user_id || "unknown";
+      acc[key] = Number(acc[key] || 0) + Number(item.amount || 0);
+      return acc;
+    }, {});
+
+  const dueRows = Object.entries(dueMap)
+    .filter(([, amount]) => Number(amount) > 0)
+    .sort((a, b) => Number(b[1]) - Number(a[1]));
+
+  const totalDueAmount = dueRows.reduce((sum, [, amount]) => sum + Number(amount || 0), 0);
+  const pendingQueue = pendingProfiles.length + pendingReviews.length + pendingApprovalRequests.length + planRequests.length;
+
+  if (operationsEl) operationsEl.textContent = String(commissions.length);
+  if (commissionsEl) commissionsEl.textContent = formatDinar(commissions.reduce((sum, item) => sum + Number(item.amount || 0), 0));
+  if (dueUsersEl) dueUsersEl.textContent = String(dueRows.length);
+  if (dueTotalEl) dueTotalEl.textContent = formatDinar(totalDueAmount);
+  if (pendingQueueEl) pendingQueueEl.textContent = String(pendingQueue);
+  if (monitorUpdatedEl) monitorUpdatedEl.textContent = getMonitorTimestampText();
+  if (monitorStatusEl) monitorStatusEl.textContent = currentLang === "ar" ? "متابعة تلقائية" : "Auto Monitoring";
+
+  if (dueListEl) {
+    if (!dueRows.length) {
+      dueListEl.innerHTML = `<article class="dashboard-empty">${currentLang === "ar" ? "لا يوجد استحقاقات حالياً." : "No due payments currently."}</article>`;
+    } else {
+      dueListEl.innerHTML = dueRows.slice(0, 10).map(([userId, amount]) => `
+        <article class="dashboard-row">
+          <div>
+            <strong>${formatDinar(amount)}</strong>
+            <p>${currentLang === "ar" ? "مستخدم" : "User"}: ${userId}</p>
+          </div>
+          <button type="button" class="btn primary" data-action="pay-weekly" data-user-id="${userId}">
+            ${currentLang === "ar" ? "صرف الآن" : "Pay Now"}
+          </button>
+        </article>
+      `).join("");
+    }
+  }
+
+  if (trackingListEl) {
+    const trackingRows = [];
+    const activityLog = loadPlatformActivity().slice(0, 8);
+
+    activityLog.forEach((entry) => {
+      trackingRows.push(`
+        <article class="dashboard-row ai-insight-row">
+          <div>
+            <strong>${entry.title || (currentLang === "ar" ? "نشاط منصة" : "Platform activity")}</strong>
+            <p>${entry.detail || "--"} • ${new Date(entry.created_at).toLocaleString(currentLang === "ar" ? "ar-SA" : "en-US", { dateStyle: "medium", timeStyle: "short" })}</p>
+          </div>
+          <span class="status ${entry.level || "active"}">${entry.type || "log"}</span>
+        </article>
+      `);
+    });
+
+    pendingProfiles.slice(0, 3).forEach((item) => {
+      trackingRows.push(`
+        <article class="dashboard-row">
+          <div>
+            <strong>${currentLang === "ar" ? "طلب اعتماد مستخدم" : "User approval request"}</strong>
+            <p>${item.full_name || "--"} • ${item.account_type || item.role || "--"}</p>
+          </div>
+          <button type="button" class="btn secondary" data-action="approve-user" data-user-id="${item.id}">
+            ${currentLang === "ar" ? "اعتماد" : "Approve"}
+          </button>
+        </article>
+      `);
+    });
+
+    pendingReviews.slice(0, 3).forEach((item) => {
+      trackingRows.push(`
+        <article class="dashboard-row">
+          <div>
+            <strong>${currentLang === "ar" ? "طلب مراجعة" : "Review request"} #${item.id}</strong>
+            <p>${item.request_message || "--"}</p>
+          </div>
+          <button type="button" class="btn secondary" data-action="reply-review" data-review-id="${item.id}">
+            ${currentLang === "ar" ? "رد" : "Reply"}
+          </button>
+        </article>
+      `);
+    });
+
+    payments.slice(0, 3).forEach((item) => {
+      trackingRows.push(`
+        <article class="dashboard-row">
+          <div>
+            <strong>${currentLang === "ar" ? "دفعة راتب" : "Salary payment"}</strong>
+            <p>${formatDinar(item.total_amount || 0)} • ${(item.payment_date || "").slice(0, 10)}</p>
+          </div>
+          <span class="status completed">${currentLang === "ar" ? "منفذة" : "Executed"}</span>
+        </article>
+      `);
+    });
+
+    planRequests.slice(0, 3).forEach((item) => {
+      trackingRows.push(`
+        <article class="dashboard-row">
+          <div>
+            <strong>${currentLang === "ar" ? "طلب اشتراك باقة" : "Plan subscription request"}</strong>
+            <p>${item.center || "--"} • ${item.plan || "basic"}</p>
+          </div>
+          <span class="status pending">${currentLang === "ar" ? "جديد" : "New"}</span>
+        </article>
+      `);
+    });
+
+    trackingListEl.innerHTML = trackingRows.length
+      ? trackingRows.join("")
+      : `<article class="dashboard-empty">${currentLang === "ar" ? "لا توجد أحداث جديدة الآن." : "No new events right now."}</article>`;
+  }
+
+  if (insightsEl) {
+    const insights = buildAiInsights({
+      pendingQueue,
+      totalDueAmount,
+      dueUsersCount: dueRows.length,
+      pendingReviews: pendingReviews.length,
+    });
+
+    insightsEl.innerHTML = insights.map((text) => `
+      <article class="dashboard-row ai-insight-row">
+        <div>
+          <strong>${currentLang === "ar" ? "توصية ذكية" : "AI Insight"}</strong>
+          <p>${text}</p>
+        </div>
+      </article>
+    `).join("");
+  }
+}
+
+function renderProducts(items) {
   if (!Array.isArray(items) || items.length === 0) {
     productGrid.innerHTML = `<article class="dashboard-empty">${currentLang === "ar" ? "لا توجد نتائج مطابقة حالياً." : "No matching results right now."}</article>`;
     return;
@@ -2881,6 +2309,7 @@ function renderProducts(items) {
       (product, index) => {
         const canUpdatePrice = isPartManager(currentUserProfile?.role);
         const canToggleStatus = isAdminRole(currentUserProfile?.role);
+        const shopperOnly = isReadOnlyShopper(currentUserProfile?.role);
         return `
       <article class="product-card">
         <h3>${product.name}</h3>
@@ -2889,12 +2318,11 @@ function renderProducts(items) {
         <p><strong data-ar="السنة:" data-en="Year:">السنة:</strong> ${product.year || "-"}</p>
         <p><strong data-ar="الهيكل:" data-en="Body:">الهيكل:</strong> ${product.body_type || "-"}</p>
         <p><strong data-ar="الفئة:" data-en="Category:">الفئة:</strong> ${product.category || "-"}</p>
-        <p><strong data-ar="رقم القطعة:" data-en="PartID:">رقم القطعة:</strong> ${product.part_reference || "-"}</p>
         <p><strong data-ar="الحالة:" data-en="Status:">الحالة:</strong> ${product.status || "-"}</p>
         <p>${product.description}</p>
         <div class="price">${formatDinar(product.price_jod)}</div>
-        <button class="btn secondary" type="button" data-action="order" data-index="${index}">اطلب الآن</button>
-        <button class="btn secondary" type="button" data-action="request-review" data-index="${index}">${currentLang === "ar" ? "طلب مراجعة" : "Review Request"}</button>
+        ${shopperOnly ? `<a class="btn primary" href="tel:+962780003302">${currentLang === "ar" ? "اتصل الآن" : "Call Now"}</a>` : `<button class="btn secondary" type="button" data-action="order" data-index="${index}">اطلب الآن</button>`}
+        ${shopperOnly ? `<a class="btn secondary" href="https://wa.me/962780003302" target="_blank" rel="noopener">${currentLang === "ar" ? "واتساب" : "WhatsApp"}</a>` : `<button class="btn secondary" type="button" data-action="request-review" data-index="${index}">${currentLang === "ar" ? "طلب مراجعة" : "Review Request"}</button>`}
         ${canUpdatePrice ? `<button class="btn secondary" type="button" data-action="update-part-price" data-index="${index}">${currentLang === "ar" ? "تحديث السعر" : "Update Price"}</button>` : ""}
         ${canToggleStatus ? `<button class="btn secondary" type="button" data-action="toggle-part-status" data-index="${index}">${currentLang === "ar" ? "تبديل الحالة" : "Toggle Status"}</button>` : ""}
       </article>
@@ -2906,62 +2334,15 @@ function renderProducts(items) {
 
 function displayUser(user) {
   if (!user) {
-    resetAuthIdentityUI();
-    if (userPanel) userPanel.style.display = "none";
-    if (headerLogoutButton) {
-      headerLogoutButton.style.display = "none";
-    }
-    if (navProfileAvatar) navProfileAvatar.style.display = "none";
+    userPanel.style.display = "none";
     if (partManagementSection) partManagementSection.style.display = "none";
     return;
   }
-
-  const profileName = String(currentUserProfile?.full_name || user?.email || "").trim();
-  if (authProfileName) {
-    authProfileName.textContent = profileName;
-  }
-
-  if (authProfileAvatar && !authProfileAvatar.classList.contains("has-image")) {
-    const initials = (profileName || "").slice(0, 2).toUpperCase() || "";
-    authProfileAvatar.textContent = initials;
-    authProfileAvatar.dataset.initials = initials;
-  }
-
-  // تحديث الصورة الدائرية في شريط العنوان
-  const navPhotoUrl = getPreferredAvatarUrl();
-  const navInitials = (profileName || user.email || "").slice(0, 2).toUpperCase();
-  updateNavAvatar(navPhotoUrl, navInitials);
-
-  // إخفاء user-panel — nav avatar يحل محله
-  if (userPanel) {
-    userPanel.style.display = "none";
-  }
-
-  if (userEmail) {
-    userEmail.textContent = user.email;
-  }
-
+  userEmail.textContent = user.email;
   const roleLabel = getRoleLabel(currentUserProfile?.role || "dealer");
-  if (userRole) {
-    userRole.textContent = currentLang === "ar" ? roleLabel.ar : roleLabel.en;
-  }
-
-  if (userSubscription) {
-    userSubscription.textContent = currentUserProfile?.subscription || "basic";
-  }
-  
-  // ✅ تأكد من ظهور أزرار الخروج والملف الشخصي
-  if (headerLogoutButton) {
-    headerLogoutButton.style.display = "inline-flex";
-    headerLogoutButton.style.visibility = "visible";
-  }
-  
-  // ✅ عرض avatar في الهيدر
-  if (navProfileAvatar) {
-    navProfileAvatar.style.display = "flex";
-    navProfileAvatar.style.visibility = "visible";
-  }
-  
+  userRole.textContent = currentLang === "ar" ? roleLabel.ar : roleLabel.en;
+  userSubscription.textContent = getSubscriptionDisplayText(currentUserProfile);
+  userPanel.style.display = "grid";
   if (partManagementSection) {
     partManagementSection.style.display = isPartManager(currentUserProfile?.role) ? "block" : "none";
   }
@@ -2977,363 +2358,155 @@ async function fetchUserProfile(userId) {
 }
 
 async function handleAuthForm(email, password) {
-  console.log("🔐 [handleAuthForm] Starting with email:", email);
+  if (authInProgress) {
+    return null;
+  }
+
   if (!hasWorkingSupabaseConfig()) {
-    console.log("🔐 [handleAuthForm] Using demo mode (no Supabase config)");
-    const identifier = String(email || "").trim();
-    const secret = String(password || "").trim();
-    if (!identifier || !secret) {
-      showMessage(
-        currentLang === "ar" ? "أدخل البريد/الهاتف وكلمة المرور أولاً." : "Enter email/phone and password first.",
-        "error",
-        authMessage
-      );
+    showSupabaseConfigurationMessage(authMessage);
+    return null;
+  }
+
+  const submitButton = authForm?.querySelector('button[type="submit"]');
+  authInProgress = true;
+  if (submitButton) submitButton.disabled = true;
+
+  try {
+    const resolved = await resolveLoginEmail(email);
+    if (resolved.error) {
+      showMessage(resolved.error, "error", authMessage);
       return null;
     }
 
-    let demoUser = findDemoUserByIdentifier(identifier);
-
-    if (!demoUser) {
-      const created = createDemoUser({
-        email: makeDemoEmailFromIdentifier(identifier),
-        password: secret,
-        full_name: identifier,
-        phone: makeDemoPhoneFromIdentifier(identifier),
-        role: "dealer",
-        account_type: "مشتري",
-        account_category: "مشتري",
-      });
-
-      if (created.error) {
-        showMessage(created.error, "error", authMessage);
-        return null;
-      }
-
-      demoUser = created.user;
-    }
-
-    if (demoUser.password !== secret) {
+    if (!password || password.length < 8) {
       showMessage(
         currentLang === "ar"
-          ? "كلمة المرور غير صحيحة. جرّب vvipautoparts@gmail.com / Edco.202672 للمسؤول أو سجّل حسابًا جديدًا."
-          : "Incorrect password. Try vvipautoparts@gmail.com / Edco.202672 for admin or create a new account.",
+          ? "كلمة المرور غير صالحة. الحد الأدنى 8 أحرف."
+          : "Invalid password. Minimum 8 characters.",
         "error",
         authMessage
       );
       return null;
     }
 
-    console.log("✅ [handleAuthForm] Demo user authenticated successfully");
-    currentUser = { id: demoUser.id, email: demoUser.email };
-    currentUserProfile = { ...(demoUser.profile || {}) };
-    rememberSignedInAccount(currentUser, currentUserProfile);
+    const response = await signIn(resolved.email, password);
+    if (response.error) {
+      showMessage(
+        getAuthErrorMessage(response.error, messages.authError.ar, messages.authError.en),
+        "error",
+        authMessage
+      );
+      return null;
+    }
+    currentUser = response.data.user;
+
+    currentUserProfile = await ensureUserProfile(currentUser.id);
+    if (currentUserProfile?.is_approved === false) {
+      await signOut();
+      currentUser = null;
+      currentUserProfile = null;
+      showMessage(
+        currentLang === "ar"
+          ? "الحساب قيد المراجعة. يجب اعتمادك من المدير أولاً."
+          : "Your account is pending approval by admin.",
+        "error",
+        authMessage
+      );
+      return null;
+    }
+
+    const deviceId = getDeviceId();
+    const [existingSession, activeSessions] = await Promise.all([
+      supabaseClient
+        .from("user_sessions")
+        .select("id")
+        .eq("user_id", currentUser.id)
+        .eq("device_id", deviceId)
+        .eq("is_active", true)
+        .maybeSingle(),
+      fetchActiveSessionsCount(currentUser.id),
+    ]);
+
+    if (activeSessions.error) {
+      showMessage(messages.authError[currentLang], "error", authMessage);
+      return null;
+    }
+
+    const willExceed = !existingSession.data && activeSessions.count >= 3;
+    if (willExceed) {
+      await signOut();
+      currentUser = null;
+      currentUserProfile = null;
+      showMessage(
+        currentLang === "ar"
+          ? "تم الوصول للحد الأقصى (3 أجهزة). اطلب من المدير تسجيل الخروج من جهاز آخر."
+          : "Maximum devices reached (3). Ask admin to release a session.",
+        "error",
+        authMessage
+      );
+      return null;
+    }
+
+    const upsert = await upsertUserSession(currentUser.id, deviceId, navigator.userAgent || "web");
+    if (upsert.error) {
+      await signOut();
+      currentUser = null;
+      currentUserProfile = null;
+      showMessage(messages.authError[currentLang], "error", authMessage);
+      return null;
+    }
+
     updateRoleBasedNavigation();
     displayUser(currentUser);
-    showMessage(currentLang === "ar" ? "تم تسجيل الدخول (وضع تجريبي)." : "Signed in (demo mode).", "success", authMessage);
-    window.location.hash = getDefaultAuthenticatedHash(currentUserProfile?.role);
-    updatePageVisibility();
-    return currentUser;
-  }
-
-  const response = await signIn(email, password);
-  if (response.error) {
-    showMessage(messages.authError[currentLang], "error", authMessage);
-    return null;
-  }
-  currentUser = response.data.user;
-
-  currentUserProfile = await ensureUserProfile(currentUser.id);
-  if (currentUserProfile?.is_approved === false) {
-    showMessage(
-      currentLang === "ar"
-        ? "الحساب قيد المراجعة. يجب اعتمادك من المدير أولاً."
-        : "Your account is pending approval by admin.",
-      "error",
-      authMessage
+    showMessage(messages.authSignedIn[currentLang], "success", authMessage);
+    recordPlatformActivity(
+      "auth",
+      currentLang === "ar" ? "تسجيل دخول ناجح" : "Successful sign in",
+      `${currentUser.email} • ${currentUserProfile?.role || "dealer"}`,
+      "approved"
     );
-    return null;
-  }
+    await syncOrdersFromSupabase();
+    await loadProfileAssets();
+    await renderRepresentativeDashboard();
+    await renderAdminDashboard();
+    await renderApprovalsDashboard();
 
-  const deviceId = getDeviceId();
-  const existingSession = await supabaseClient
-    .from("user_sessions")
-    .select("id")
-    .eq("user_id", currentUser.id)
-    .eq("device_id", deviceId)
-    .eq("is_active", true)
-    .maybeSingle();
-
-  const activeSessions = await fetchActiveSessionsCount(currentUser.id);
-  if (activeSessions.error) {
-    showMessage(messages.authError[currentLang], "error", authMessage);
-    return null;
-  }
-
-  const isAdminUser = isAdminRole(currentUserProfile?.role);
-  const MAX_DEVICES = isAdminUser ? Infinity : 4;
-  const willExceed = !isAdminUser && !existingSession.data && activeSessions.count >= 4;
-  if (willExceed) {
-    showMessage(
-      currentLang === "ar"
-        ? "تم الوصول للحد الأقصى (4 أجهزة). اطلب من المدير تسجيل الخروج من جهاز آخر."
-        : "Maximum devices reached (4). Ask admin to release a session.",
-      "error",
-      authMessage
-    );
-    return null;
-  }
-
-  const upsert = await upsertUserSession(currentUser.id, deviceId, navigator.userAgent || "web");
-  if (upsert.error) {
-    showMessage(messages.authError[currentLang], "error", authMessage);
-    return null;
-  }
-
-  updateRoleBasedNavigation();
-  displayUser(currentUser);
-  rememberSignedInAccount(currentUser, currentUserProfile);
-  showMessage(messages.authSignedIn[currentLang], "success", authMessage);
-  await syncOrdersFromSupabase();
-  await loadProfileAssets();
-  await renderRepresentativeDashboard();
-  await renderAdminDashboard();
-  await renderApprovalsDashboard();
-  
-  // Redirect to the role-specific landing page immediately after login
-  setTimeout(() => {
-    window.location.hash = getDefaultAuthenticatedHash(currentUserProfile?.role);
-    updatePageVisibility();
-  }, 800);
-  
-  return currentUser;
-}
-
-// =============================================
-// 🔐 Google OAuth Account Chooser
-// =============================================
-async function signInWithGoogleAccountChooser(targetHash = '#registration-page', messageElement = null) {
-  const feedbackEl =
-    messageElement ||
-    (targetHash === '#registration-page' ? document.getElementById('reg-message') : null) ||
-    authMessage ||
-    null;
-
-  if (!supabaseClient?.auth?.signInWithOAuth) {
-    const msg = currentLang === 'ar'
-      ? '⚠️ Google OAuth غير جاهز حالياً. تحقق من إعدادات Supabase (URL/ANON KEY) ثم أعد المحاولة.'
-      : '⚠️ Google OAuth is not ready. Check Supabase URL/ANON KEY and try again.';
-
-    if (feedbackEl) {
-      showMessage(msg, 'error', feedbackEl);
-    } else {
-      alert(msg);
-    }
-    return;
-  }
-
-  // Check if we have real Supabase configuration
-  if (IS_PLACEHOLDER_SUPABASE_CONFIG) {
-    if (targetHash === '#registration-page') {
-      localStorage.setItem('demo_email_verified', 'true');
-      localStorage.setItem('reg_email_verified', 'true');
-
-      if (!localStorage.getItem('reg_temp_email')) {
-        const emailInput = document.getElementById('reg-email-input');
-        const fallbackEmail = String(emailInput?.value || '').trim();
-        if (fallbackEmail) {
-          localStorage.setItem('reg_temp_email', fallbackEmail);
-        }
-      }
-
-      handleRegEmailVerified();
-      showRegMessage(
-        currentLang === 'ar'
-          ? '✅ تم التحقق (وضع تجريبي) ويمكنك المتابعة الآن.'
-          : '✅ Verified in demo mode. You can continue now.',
-        'success'
-      );
-      return;
-    }
-
-    const msg = currentLang === 'ar'
-      ? '⚠️ البيئة المحلية: Google OAuth يتطلب مفاتيح Supabase حقيقية. اطّلع على SETUP-GUIDE.md'
-      : '⚠️ Local environment: Google OAuth requires real Supabase keys. See SETUP-GUIDE.md';
-    
-    console.warn('ℹ️ Google OAuth Configuration Required:', msg);
-    if (feedbackEl) {
-      showMessage(msg, 'info', feedbackEl);
-    } else {
-      alert(msg);
-    }
-    return;
-  }
-
-  try {
-    const { data, error } = await supabaseClient.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        queryParams: {
-          prompt: 'select_account'
-        },
-        redirectTo: `${window.location.origin}${window.location.pathname}${targetHash}`
-      }
-    });
-
-    if (error) {
-      console.error('❌ Google OAuth Error:', error);
-      const msg = currentLang === 'ar' 
-        ? '❌ خطأ في تسجيل الدخول عبر Google' 
-        : '❌ Google sign-in failed';
-      
-      if (feedbackEl) {
-        showMessage(msg, 'error', feedbackEl);
-      } else {
-        alert(msg);
-      }
-      return;
-    }
-
-    if (data?.url) {
-      window.location.assign(data.url);
-      return;
-    }
-
-    console.log('✅ Google OAuth sign-in initiated:', data);
-  } catch (err) {
-    console.error('❌ Unexpected error during Google sign-in:', err);
-    const msg = currentLang === 'ar'
-      ? 'خطأ غير متوقع - تحقق من الكونسول'
-      : 'Unexpected error - check console';
-    
-    if (feedbackEl) {
-      showMessage(msg, 'error', feedbackEl);
-    } else {
-      alert(msg);
-    }
-  }
-}
-
-// =============================================
-// 🔐 Google One Tap Sign-up (Registration Page)
-// =============================================
-async function initializeGoogleOneTap() {
-  const containerEl = document.getElementById('google-one-tap-container');
-  if (!containerEl) return;
-
-  const buttonText = currentLang === 'ar' ? 'المتابعة باستخدام Google' : 'Continue with Google';
-  const helperText = currentLang === 'ar'
-    ? 'سيتم فتح قائمة حسابات Google لاختيار البريد'
-    : 'Google account chooser will open to select your email';
-
-  containerEl.innerHTML = `
-    <button type="button" id="reg-google-chooser-btn" class="btn reg-btn-secondary" style="width: 300px; max-width: 100%;">
-      G ${buttonText}
-    </button>
-    <small style="display:block; margin-top:8px; color:#666; text-align:center;">${helperText}</small>
-  `;
-
-  const chooserBtn = document.getElementById('reg-google-chooser-btn');
-  if (chooserBtn) {
-    chooserBtn.addEventListener('click', async () => {
-      const originalText = chooserBtn.textContent;
-      chooserBtn.disabled = true;
-      chooserBtn.textContent = currentLang === 'ar' ? 'جارٍ فتح Google...' : 'Opening Google...';
-
-      try {
-        await signInWithGoogleAccountChooser('#registration-page', document.getElementById('reg-message'));
-      } finally {
-        setTimeout(() => {
-          chooserBtn.disabled = false;
-          chooserBtn.textContent = originalText;
-        }, 1200);
-      }
-    });
-  }
-}
-
-// استدعاء Google One Tap عند تحميل صفحة التسجيل
-window.addEventListener('hashchange', () => {
-  if (window.location.hash === '#registration-page') {
     setTimeout(() => {
-      initializeGoogleOneTap();
+      window.location.hash = "#profile-page";
+      updatePageVisibility();
     }, 500);
-  }
-});
 
-// استدعاء أولي
-document.addEventListener('DOMContentLoaded', () => {
-  if (window.location.hash === '#registration-page') {
-    setTimeout(() => {
-      initializeGoogleOneTap();
-    }, 1000);
+    return currentUser;
+  } finally {
+    authInProgress = false;
+    if (submitButton) submitButton.disabled = false;
   }
-});
-
-// استدعاء فوري إذا كنا بالفعل على صفحة التسجيل
-if (window.location.hash === '#registration-page') {
-  setTimeout(() => {
-    if (typeof initializeGoogleOneTap === 'function') {
-      initializeGoogleOneTap();
-    }
-  }, 500);
 }
-
-// Export للوصول العام
-window.initializeGoogleOneTap = initializeGoogleOneTap;
-
-// Export for global access
-window.signInWithGoogleAccountChooser = signInWithGoogleAccountChooser;
 
 async function handleLogout() {
-  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  let savedAccounts = [];
-  try {
-    const parsedSavedAccounts = JSON.parse(localStorage.getItem("savedAccounts") || "[]");
-    savedAccounts = Array.isArray(parsedSavedAccounts) ? parsedSavedAccounts : [];
-  } catch (error) {
-    console.warn("[logout] Invalid savedAccounts JSON. Proceeding with empty list.", error);
-    savedAccounts = [];
+  recordPlatformActivity(
+    "auth",
+    currentLang === "ar" ? "تسجيل خروج" : "Sign out",
+    currentUser?.email || "--",
+    "pending"
+  );
+  stopAdminMonitorAutoRefresh();
+  if (currentUser) {
+    await deactivateAllSessions(currentUser.id);
   }
-
-  const savedIds = savedAccounts
-    .map((account) => account?.id)
-    .filter((id) => typeof id === "string" && uuidPattern.test(id));
-
-  const allSessionUserIds = new Set(savedIds);
-  if (currentUser?.id && typeof currentUser.id === "string" && uuidPattern.test(currentUser.id)) {
-    allSessionUserIds.add(currentUser.id);
-  }
-
-  // Deactivate sessions for all saved accounts on this device (including admin accounts).
-  try {
-    await Promise.allSettled(
-      Array.from(allSessionUserIds).map((userId) => deactivateAllSessions(userId))
-    );
-  } catch (error) {
-    console.warn("[logout] Failed to deactivate some sessions.", error);
-  }
-
-  try {
-    await signOut();
-  } catch (error) {
-    console.warn("[logout] Supabase signOut failed. Clearing local session anyway.", error);
-  }
-
-  localStorage.removeItem(AUTH_AVATAR_STORAGE_KEY);
-  localStorage.removeItem("currentUser");
+  await signOut();
   currentUser = null;
   currentUserProfile = null;
   updateRoleBasedNavigation();
   displayUser(null);
   showMessage(messages.authSignedOut[currentLang], "success", authMessage);
   
-  // Redirect to auth section immediately after logout.
-  window.location.hash = "#auth-section";
-  updatePageVisibility();
+  // Redirect to login immediately after logout
+  setTimeout(() => {
+    window.location.hash = "#auth-section";
+    updatePageVisibility();
+  }, 600);
 }
-
-window.handleLogout = handleLogout;
-window.__RESET_AUTH_IDENTITY_UI__ = resetAuthIdentityUI;
 
 async function showAuthState() {
   const user = await getCurrentUser();
@@ -3345,39 +2518,46 @@ async function showAuthState() {
   }
   updateRoleBasedNavigation();
   displayUser(currentUser);
-  
-  // ✅ تأكد من تسجيل الدخول (auth state updated)
   if (currentUser) {
     await syncOrdersFromSupabase();
     await loadProfileAssets();
     await renderRepresentativeDashboard();
     await renderAdminDashboard();
     await renderApprovalsDashboard();
-    if (!window.location.hash || window.location.hash === "#auth-section" || window.location.hash === "#registration-page") {
-      window.location.hash = getDefaultAuthenticatedHash(currentUserProfile?.role);
+    if (isReadOnlyShopper(currentUserProfile?.role)) {
+      if (!window.location.hash || window.location.hash === "#auth-section" || window.location.hash === "#registration-page" || window.location.hash === "#profile-page") {
+        window.location.hash = "#shopper-section";
+      }
+    } else if (!window.location.hash || window.location.hash === "#auth-section" || window.location.hash === "#registration-page") {
+      window.location.hash = "#profile-page";
     }
   }
   updatePageVisibility();
 }
 
 function updatePageVisibility() {
-  let hash = window.location.hash.toLowerCase();
+  const hash = window.location.hash.toLowerCase();
   const isAuth = !!currentUser;
+  const isOnAuthPages = hash === "#auth-section" || hash === "#registration-page" || hash === "#forgot-password" || hash === "#plans-section" || hash === "";
+  const isShopperPage = hash === "#shopper-section";
 
-  if (!hash) {
-    window.location.hash = isAuth ? getDefaultAuthenticatedHash(currentUserProfile?.role) : "#auth-section";
+  if (hash === "#admin-dashboard") {
+    window.location.hash = "#profile-page";
     return;
   }
 
-  const isOnAuthPages = hash === "#auth-section" || hash === "#registration-page";
+  if (isReadOnlyShopper(currentUserProfile?.role) && (hash === "#order-request" || hash === "#user-orders")) {
+    window.location.hash = "#profile-page";
+    return;
+  }
 
   if (!canAccessRoute(hash)) {
-    window.location.hash = getUnauthorizedFallbackHash(currentUserProfile?.role);
+    window.location.hash = isAuth ? "#profile-page" : "#auth-section";
     return;
   }
   
   // Remove all page classes
-  document.body.classList.remove("login-page", "profile-page", "home-page");
+  document.body.classList.remove("login-page", "profile-page");
   
   // Hide all main sections except active
   const allSections = document.querySelectorAll("main > section");
@@ -3386,18 +2566,19 @@ function updatePageVisibility() {
   });
   
   if (isOnAuthPages) {
-    // إذا كان المستخدم مسجّلاً ووصل لصفحة الدخول عبر زر الرجوع، أعده للصفحة الأساسية
-    if (isAuth) {
-      window.location.hash = getDefaultAuthenticatedHash(currentUserProfile?.role);
-      return;
-    }
-    // Show auth section
-    if (hash === "#registration-page") {
+    stopAdminMonitorAutoRefresh();
+    if (hash === "#forgot-password") {
+      document.getElementById("forgot-password").style.display = "block";
+    } else if (hash === "#plans-section") {
+      document.getElementById("plans-section").style.display = "block";
+    } else if (hash === "#registration-page") {
       document.getElementById("registration-page").style.display = "block";
     } else {
       document.getElementById("auth-section").style.display = "block";
     }
     document.body.classList.add("login-page");
+  } else if (isShopperPage) {
+    document.getElementById("shopper-section").style.display = "block";
   } else if (hash === "#profile-page") {
     // Show profile page
     if (!isAuth) {
@@ -3407,37 +2588,23 @@ function updatePageVisibility() {
     document.getElementById("profile-page").style.display = "block";
     document.body.classList.add("profile-page");
     renderProfilePage();
-  } else if (hash === "#home-page") {
-    // Show home page
-    if (!isAuth) {
-      window.location.hash = "#auth-section";
-      return;
-    }
-    document.getElementById("home-page").style.display = "block";
-    document.body.classList.add("home-page");
-    applyHomePageRoleVisibility(currentUserProfile?.role);
+    startAdminMonitorAutoRefresh();
   } else if (hash === "#representative-dashboard") {
+    stopAdminMonitorAutoRefresh();
     document.getElementById("representative-dashboard").style.display = "block";
     renderRepresentativeDashboard();
   } else if (hash === "#approvals-dashboard") {
+    stopAdminMonitorAutoRefresh();
     document.getElementById("approvals-dashboard").style.display = "block";
     renderApprovalsDashboard();
-  } else if (hash === "#admin-dashboard") {
-    document.getElementById("admin-dashboard").style.display = "block";
-    renderAdminDashboard();
   } else {
     // Show generic section by hash (order-request, user-orders, products-feed, ...)
     const sectionId = hash.replace("#", "");
-    const section = document.getElementById(sectionId);
+    const section = document.getElementById(sectionId || "hero");
     if (section) {
       section.style.display = "block";
-    } else {
-      window.location.hash = isAuth ? "#home-page" : "#auth-section";
-      return;
     }
   }
-
-  updateFloatingProfileButton();
 }
 
 function populateProductOptions() {
@@ -3451,13 +2618,11 @@ function populateProductOptions() {
 }
 
 function renderDashboard() {
-  const canManageOrders = isApprovalReviewerRole(currentUserProfile?.role) || isAdminRole(currentUserProfile?.role);
+  const canManageOrders = ["admin", "super_admin", "manager", "supervisor", "representative"].includes(currentUserProfile?.role);
   renderUserOrders(canManageOrders);
 }
 
 function renderUserOrders(canManageOrders = false) {
-  if (!ordersList || !ordersEmpty) return;
-
   const userOrders = orderRequests;
   if (userOrders.length === 0) {
     ordersEmpty.style.display = "block";
@@ -3467,21 +2632,6 @@ function renderUserOrders(canManageOrders = false) {
 
   ordersEmpty.style.display = "none";
   ordersList.innerHTML = userOrders
-    .map((order, idx) => renderOrderCard(order, idx, canManageOrders))
-    .join("");
-}
-
-function renderProfileOrders(canManageOrders = false) {
-  if (!profileOrdersList || !profileOrdersEmpty) return;
-  const userOrders = orderRequests;
-  if (userOrders.length === 0) {
-    profileOrdersEmpty.style.display = "block";
-    profileOrdersList.innerHTML = "";
-    return;
-  }
-
-  profileOrdersEmpty.style.display = "none";
-  profileOrdersList.innerHTML = userOrders
     .map((order, idx) => renderOrderCard(order, idx, canManageOrders))
     .join("");
 }
@@ -3517,49 +2667,183 @@ function renderOrderCard(order, idx, canManageOrders) {
 function updateLanguage() {
   document.documentElement.lang = currentLang;
   document.documentElement.dir = currentLang === "ar" ? "rtl" : "ltr";
+  applyDataI18nBindings();
   document.querySelectorAll("[data-ar]").forEach((el) => {
     el.textContent = currentLang === "ar" ? el.dataset.ar : el.dataset.en;
   });
   document.querySelectorAll("[data-ar-placeholder]").forEach((el) => {
     el.placeholder = currentLang === "ar" ? el.dataset.arPlaceholder : el.dataset.enPlaceholder;
   });
-  if (langToggle) {
-    langToggle.textContent = currentLang === "ar" ? "العربية | English" : "English | العربية";
+  langToggle.textContent = currentLang === "ar" ? "English" : "العربية";
+  updateProfitCalculator();
+}
+
+function openPlanSubscription(planCode = "basic") {
+  if (!planSubscriptionSection) return;
+  if (planRequestPlan) {
+    planRequestPlan.value = planCode;
   }
-  if (langText) {
-    langText.textContent = currentLang === "ar" ? "EN" : "AR";
+  planSubscriptionSection.scrollIntoView({ behavior: "smooth", block: "start" });
+  setTimeout(() => planRequestName?.focus(), 250);
+}
+
+function loadPlanRequests() {
+  try {
+    const raw = localStorage.getItem(PLAN_REQUESTS_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (_error) {
+    return [];
   }
 }
 
-function toggleLang() {
-  currentLang = currentLang === "ar" ? "en" : "ar";
-  updateLanguage();
+function savePlanRequest(payload) {
+  const requests = loadPlanRequests();
+  requests.unshift(payload);
+  localStorage.setItem(PLAN_REQUESTS_KEY, JSON.stringify(requests.slice(0, 200)));
 }
 
-window.toggleLang = toggleLang;
+function loadPlatformActivity() {
+  try {
+    const raw = localStorage.getItem(PLATFORM_ACTIVITY_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (_error) {
+    return [];
+  }
+}
 
-function populateAccountTypeSelect() {
-  if (!accountTypeSelect) return;
+function recordPlatformActivity(type, title, detail = "", level = "info") {
+  const entry = {
+    id: `act-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    type,
+    title,
+    detail,
+    level,
+    created_at: new Date().toISOString(),
+  };
+  const entries = loadPlatformActivity();
+  entries.unshift(entry);
+  localStorage.setItem(PLATFORM_ACTIVITY_KEY, JSON.stringify(entries.slice(0, 200)));
+  return entry;
+}
 
-  const placeholder = currentLang === "ar" ? "اختر نوع الحساب" : "Select account type";
-  accountTypeSelect.innerHTML = `<option value="">${placeholder}</option>`;
+function getMonitorTimestampText() {
+  const stamp = new Date().toLocaleString(currentLang === "ar" ? "ar-SA" : "en-US");
+  return currentLang === "ar" ? `آخر تحديث: ${stamp}` : `Last update: ${stamp}`;
+}
 
-  accountTypes.forEach((item) => {
-    const option = document.createElement("option");
-    option.value = item.label;
-    option.textContent = item.label;
-    option.dataset.category = item.category || "";
-    accountTypeSelect.appendChild(option);
+function buildAiInsights(metrics) {
+  const insights = [];
+  if (metrics.pendingQueue > 8) {
+    insights.push(currentLang === "ar"
+      ? "AI: يوجد تكدس مرتفع في الطلبات المعلقة. الأولوية الحالية: الاعتمادات ثم طلبات المراجعة."
+      : "AI: High pending queue detected. Current priority: approvals then review requests.");
+  }
+  if (metrics.totalDueAmount > 0 && metrics.dueUsersCount > 0) {
+    insights.push(currentLang === "ar"
+      ? `AI: لديك ${metrics.dueUsersCount} مستخدمين باستحقاق إجمالي ${formatDinar(metrics.totalDueAmount)}. يوصى بجدولة صرف أسبوعي اليوم.`
+      : `AI: ${metrics.dueUsersCount} users are due for a total of ${formatDinar(metrics.totalDueAmount)}. Weekly payout is recommended today.`);
+  }
+  if (metrics.pendingReviews > 0) {
+    insights.push(currentLang === "ar"
+      ? `AI: توجد ${metrics.pendingReviews} طلبات مراجعة بلا رد. الرد السريع يقلل زمن الإغلاق التشغيلي.`
+      : `AI: ${metrics.pendingReviews} review requests are waiting without reply. Fast response reduces operational cycle time.`);
+  }
+  if (!insights.length) {
+    insights.push(currentLang === "ar"
+      ? "AI: الأداء مستقر حاليا. حافظ على التحديث التلقائي لمتابعة أي تغير فوري."
+      : "AI: Performance is currently stable. Keep auto-monitoring on for immediate changes.");
+  }
+  return insights;
+}
+
+function stopAdminMonitorAutoRefresh() {
+  if (adminMonitorTimer) {
+    clearInterval(adminMonitorTimer);
+    adminMonitorTimer = null;
+  }
+}
+
+function startAdminMonitorAutoRefresh() {
+  stopAdminMonitorAutoRefresh();
+  if (!isAdminRole(currentUserProfile?.role)) return;
+  if (window.location.hash.toLowerCase() !== "#profile-page") return;
+
+  adminMonitorTimer = setInterval(async () => {
+    await renderSuperAdminControlCenter();
+  }, ADMIN_MONITOR_REFRESH_MS);
+}
+
+if (profitCalculatorForm) {
+  profitCalculatorForm.addEventListener("input", () => {
+    updateProfitCalculator();
+  });
+  updateProfitCalculator();
+}
+
+function getI18nDictionary() {
+  return window.__I18N_TEXT__ || window.i18nText || {};
+}
+
+function applyDataI18nBindings() {
+  const dictionary = getI18nDictionary();
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    const key = el.dataset.i18n;
+    if (!key) return;
+
+    const entry = dictionary[key];
+    if (entry && typeof entry === "object") {
+      if (!el.dataset.ar && typeof entry.ar === "string") {
+        el.dataset.ar = entry.ar;
+      }
+      if (!el.dataset.en && typeof entry.en === "string") {
+        el.dataset.en = entry.en;
+      }
+      if (!el.dataset.arPlaceholder && typeof entry.ar_placeholder === "string") {
+        el.dataset.arPlaceholder = entry.ar_placeholder;
+      }
+      if (!el.dataset.enPlaceholder && typeof entry.en_placeholder === "string") {
+        el.dataset.enPlaceholder = entry.en_placeholder;
+      }
+    }
+  });
+}
+
+function renderAccountTypeOptions(filter = "") {
+  const normalized = filter.trim().toLowerCase();
+  const results = accountTypes.filter((item) => {
+    return (
+      item.label.toLowerCase().includes(normalized) ||
+      item.category.toLowerCase().includes(normalized)
+    );
   });
 
-  if (selectedAccountType) {
-    accountTypeSelect.value = selectedAccountType;
+  if (results.length === 0) {
+    accountTypeList.innerHTML = `<div class="dropdown-item" tabindex="0"><span>${currentLang === "ar" ? "لا توجد نتائج" : "No results found"}</span></div>`;
+    accountTypeList.classList.add("visible");
+    return;
   }
+
+  accountTypeList.innerHTML = results
+    .map(
+      (item) => `
+      <button type="button" class="dropdown-item" data-label="${item.label}" data-category="${item.category}">
+        <div>${item.label}</div>
+        <span>${item.category}</span>
+      </button>
+    `
+    )
+    .join("");
+  accountTypeList.classList.add("visible");
+}
+
+function closeAccountTypeOptions() {
+  accountTypeList.classList.remove("visible");
 }
 
 async function loadAccountTypes() {
   if (typeof fetchAccountTypes !== "function") {
-    populateAccountTypeSelect();
     return;
   }
 
@@ -3567,8 +2851,6 @@ async function loadAccountTypes() {
   if (!error && Array.isArray(data) && data.length > 0) {
     accountTypes = data.map((item) => ({ label: item.label, category: item.category }));
   }
-
-  populateAccountTypeSelect();
 }
 
 function setRegistrationStep(step) {
@@ -3618,7 +2900,7 @@ function renderProfilePage() {
     profileStatusEl.textContent = currentUserProfile.business_status || (currentUserProfile.active === false ? (currentLang === "ar" ? "موقوف" : "Inactive") : (currentLang === "ar" ? "نشط" : "Active"));
   }
   if (profileSubscriptionEl) {
-    profileSubscriptionEl.textContent = currentUserProfile.subscription || "أساسي";
+    profileSubscriptionEl.textContent = getSubscriptionDisplayText(currentUserProfile);
   }
   if (profileOrdersCountEl) {
     profileOrdersCountEl.textContent = orderRequests.length || 0;
@@ -3638,7 +2920,6 @@ function renderProfilePage() {
   if (profileQuickPhotos) profileQuickPhotos.textContent = String(profileGallery.length || 0);
   if (profileQuickServices) profileQuickServices.textContent = String(profileServices.length || 0);
   if (profileQuickParts) profileQuickParts.textContent = String(profileParts.length || 0);
-  if (profilePartsSummary) profilePartsSummary.textContent = String(profileParts.length || 0);
 
   if (profileContactPhone) profileContactPhone.textContent = phoneText;
   if (profileContactCity) profileContactCity.textContent = cityText;
@@ -3658,10 +2939,37 @@ function renderProfilePage() {
   renderFinancialSummary(buildCommissionSummary(orderRequests));
 
   const initial = (profileNameText || "T").charAt(0).toUpperCase();
-  const preferredAvatar = getPreferredAvatarUrl();
   if (profilePictureEl) {
-    profilePictureEl.src = preferredAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(profileNameText)}&background=1877F2&color=fff&size=168&bold=true`;
+    profilePictureEl.src = currentUserProfile.avatar_url || `https://via.placeholder.com/168/1877F2/ffffff?text=${initial}`;
     profilePictureEl.alt = profileNameText;
+  }
+  if (profileCover) {
+    const coverUrl = currentUserProfile.cover_url || profileMeta?.cover_image_url || "";
+    profileCover.style.backgroundImage = coverUrl ? `url('${coverUrl}')` : "linear-gradient(120deg, #dfe9f3 0%, #ffffff 100%)";
+  }
+
+  const shopperMode = isReadOnlyShopper(currentUserProfile?.role);
+  if (editProfileButton) {
+    editProfileButton.style.display = shopperMode ? "none" : "inline-flex";
+  }
+  document.querySelectorAll(".profile-tab-btn").forEach((button) => {
+    const tabName = button.dataset.profileTab;
+    const visibleForShopper = ["info", "contact"].includes(tabName);
+    button.style.display = shopperMode && !visibleForShopper ? "none" : "inline-flex";
+  });
+  document.querySelectorAll(".profile-tab-panel").forEach((panel) => {
+    const panelName = panel.dataset.profilePanel;
+    const visibleForShopper = ["info", "contact"].includes(panelName);
+    if (shopperMode) {
+      panel.style.display = visibleForShopper ? "block" : "none";
+    } else {
+      panel.style.display = "";
+    }
+  });
+  if (shopperMode && profileBio) {
+    profileBio.textContent = currentLang === "ar"
+      ? "هذا حساب متسوق للمشاهدة والتواصل فقط. لا يمكنه نشر أو إضافة محتوى داخل المنصة."
+      : "This is a read-only shopper account for viewing and contact only. It cannot publish or add content inside the platform.";
   }
 
   updateFloatingContactActions(phoneText);
@@ -3671,118 +2979,7 @@ function renderProfilePage() {
   renderProfileServices();
   renderProfileParts();
   renderProfileReviewRequests();
-  renderProfileOrders(isStaffRole(currentUserProfile?.role));
-  applyProfileRoleVisibility(currentUserProfile?.role);
-
-  // Fill new Facebook-style profile widgets
-  const miniAvatar = document.getElementById("fb-mini-avatar-text");
-  if (miniAvatar) {
-    if (preferredAvatar) {
-      miniAvatar.style.backgroundImage = `url(${preferredAvatar})`;
-      miniAvatar.classList.add("has-image");
-      miniAvatar.textContent = "";
-    } else {
-      miniAvatar.style.backgroundImage = "";
-      miniAvatar.classList.remove("has-image");
-      miniAvatar.textContent = initial;
-    }
-  }
-
-    const aboutType = document.getElementById("profile-about-type");
-    const aboutSub = document.getElementById("profile-about-sub");
-    const aboutStatus = document.getElementById("profile-about-status");
-    const aboutJoined = document.getElementById("profile-about-joined");
-    const aboutCity = document.getElementById("profile-about-city");
-    const aboutEmail = document.getElementById("profile-about-email");
-    const ordersCountSide = document.getElementById("profile-orders-count-side");
-    const partsSide = document.getElementById("profile-parts-side");
-
-    if (aboutType) aboutType.textContent = currentUserProfile.account_type || currentUserProfile.role || "غير محدد";
-    if (aboutSub) aboutSub.textContent = currentUserProfile.subscription || "أساسي";
-    if (aboutStatus) aboutStatus.textContent = currentUserProfile.business_status || (currentLang === "ar" ? "نشط" : "Active");
-    if (aboutJoined) {
-      const createdAt2 = currentUserProfile.created_at ? new Date(currentUserProfile.created_at) : new Date();
-      aboutJoined.textContent = createdAt2.toLocaleDateString(currentLang === "ar" ? "ar-SA" : "en-US", { year: "numeric", month: "long" });
-    }
-    if (aboutCity) aboutCity.textContent = currentUserProfile.city || currentUserProfile.location || "--";
-    if (aboutEmail) aboutEmail.textContent = currentUser.email || "--";
-    if (ordersCountSide) ordersCountSide.textContent = orderRequests.length || 0;
-    if (partsSide) partsSide.textContent = String(profileParts.length || 0);
-
-    // Merchant details card
-    const merchantBusinessName = document.getElementById("merchant-business-name");
-    const merchantVerifiedStatus = document.getElementById("merchant-verified-status");
-    const merchantCompletedOrders = document.getElementById("merchant-completed-orders");
-    const merchantRating = document.getElementById("merchant-rating");
-    if (merchantBusinessName) {
-      merchantBusinessName.textContent = currentUserProfile.business_name || currentUserProfile.full_name || currentUser.email || "--";
-    }
-    if (merchantVerifiedStatus) {
-      merchantVerifiedStatus.textContent = currentUserProfile.is_approved ? (currentLang === "ar" ? "موثق" : "Verified") : (currentLang === "ar" ? "غير موثق" : "Not verified");
-    }
-    if (merchantCompletedOrders) {
-      const completed = orderRequests.filter((o) => String(o.status || "").toLowerCase() === "approved").length;
-      merchantCompletedOrders.textContent = String(completed);
-    }
-    if (merchantRating && !merchantRating.textContent.trim()) {
-      merchantRating.textContent = "4.8 / 5";
-    }
-
-    // Part details card
-    const partAvailableCount = document.getElementById("part-available-count");
-    const partLatestName = document.getElementById("part-latest-name");
-    const partStockStatus = document.getElementById("part-stock-status");
-    if (partAvailableCount) partAvailableCount.textContent = String(profileParts.length || 0);
-    if (partLatestName) partLatestName.textContent = profileParts[0]?.name || profileParts[0]?.part_name || "--";
-    if (partStockStatus) partStockStatus.textContent = profileParts.length > 0 ? (currentLang === "ar" ? "متوفر" : "In stock") : (currentLang === "ar" ? "غير متوفر" : "Out of stock");
-
-    // عرض آخر الطلبات في الفيد
-    const ordersListMini = document.getElementById("profile-orders-list");
-    const ordersListFull = document.getElementById("profile-orders-full");
-    if (ordersListMini || ordersListFull) {
-      const recentOrders = orderRequests.slice(0, 3);
-      const allOrdersHtml = orderRequests.map(o => `
-        <div class="fb-order-item">
-          <div class="fb-order-icon">📦</div>
-          <div class="fb-order-info">
-            <strong>${o.product || o.part_name || "طلب"}</strong>
-            <span>${o.company || o.customer_name || ""} • ${new Date(o.created_at || Date.now()).toLocaleDateString("ar-SA")}</span>
-          </div>
-          <span class="fb-order-status ${o.status === 'Approved' ? 'approved' : o.status === 'Rejected' ? 'rejected' : 'pending'}">${o.status || "معلق"}</span>
-        </div>`).join("") || `<p class="fb-empty-state" data-ar="لا توجد طلبات بعد" data-en="No orders yet">لا توجد طلبات بعد</p>`;
-      const recentHtml = recentOrders.map(o => `
-        <div class="fb-order-item">
-          <div class="fb-order-icon">📦</div>
-          <div class="fb-order-info">
-            <strong>${o.product || o.part_name || "طلب"}</strong>
-            <span>${o.company || o.customer_name || ""} • ${new Date(o.created_at || Date.now()).toLocaleDateString("ar-SA")}</span>
-          </div>
-          <span class="fb-order-status ${o.status === 'Approved' ? 'approved' : o.status === 'Rejected' ? 'rejected' : 'pending'}">${o.status || "معلق"}</span>
-        </div>`).join("") || `<p class="fb-empty-state">لا توجد طلبات بعد</p>`;
-      if (ordersListMini) ordersListMini.innerHTML = recentHtml;
-      if (ordersListFull) ordersListFull.innerHTML = allOrdersHtml;
-    }
-
-  // ===== تحديث العمود الأيمن (right widget) =====
-  const rwPhone = document.getElementById("rw-phone");
-  const rwEmail = document.getElementById("rw-email");
-  const rwCity  = document.getElementById("rw-city");
-  if (rwPhone) rwPhone.textContent = phoneText;
-  if (rwEmail) rwEmail.textContent = currentUser.email || "--";
-  if (rwCity)  rwCity.textContent  = cityText;
-
-  const rwRepLink   = document.getElementById("rw-rep-link");
-  const rwAdminLink = document.getElementById("rw-admin-link");
-  if (rwRepLink)   rwRepLink.style.display   = (currentUserProfile?.role === "representative" || isAdminRole(currentUserProfile?.role)) ? "" : "none";
-  if (rwAdminLink) rwAdminLink.style.display = isAdminRole(currentUserProfile?.role) ? "" : "none";
-
-  // ===== مزامنة صورة nav مع صورة البروفايل =====
-  const navPhoto    = getPreferredAvatarUrl();
-  const navInitials = (profileNameText || currentUser.email || "T").slice(0, 2).toUpperCase();
-  updateNavAvatar(navPhoto, navInitials);
-
-  runProfileSearch();
-  updateProfileThemeToggleLabel();
+  renderSuperAdminControlCenter();
 }
 
 if (editProfileButton) {
@@ -3791,10 +2988,13 @@ if (editProfileButton) {
     const about = window.prompt(currentLang === "ar" ? "أدخل نبذة مختصرة" : "Enter short about text", profileMeta?.about_text || currentUserProfile?.business_description || "");
     if (about === null) return;
 
+    const cover = window.prompt(currentLang === "ar" ? "أدخل رابط صورة الغلاف" : "Enter cover image URL", profileMeta?.cover_image_url || currentUserProfile?.cover_url || "");
+    if (cover === null) return;
+
     const metaPayload = {
       user_id: currentUser.id,
       about_text: about,
-      cover_image_url: profileMeta?.cover_image_url || currentUserProfile?.cover_url || null,
+      cover_image_url: cover || null,
       contact_phone: currentUserProfile.phone || null,
       city: currentUserProfile.city || currentUserProfile.location || null,
       address: currentUserProfile.address || currentUserProfile.location || null,
@@ -3811,7 +3011,6 @@ if (editProfileButton) {
     showMessage(currentLang === "ar" ? "تم تحديث البروفايل." : "Profile updated.", "success", orderMessage);
   });
 }
-
 
 document.querySelectorAll(".profile-tab-btn").forEach((button) => {
   button.addEventListener("click", () => {
@@ -3913,9 +3112,7 @@ function validatePhoneNumber(value) {
 function resetRegistrationFlow() {
   selectedAccountType = null;
   selectedAccountCategory = null;
-  if (accountTypeSelect) {
-    accountTypeSelect.value = "";
-  }
+  accountTypeSearch.value = "";
   registrationPhone.value = "";
   registrationName?.value && (registrationName.value = "");
   registrationOtp.value = "";
@@ -3962,34 +3159,49 @@ function showProfileCompletion() {
   profileSection.classList.remove("hidden");
   setRegistrationStep(3);
   registrationStepTitle.textContent = currentLang === "ar" ? "الخطوة 3: أكمل بياناتك الأساسية" : "Step 3: Complete your profile";
+  document.getElementById("registration-email")?.focus();
 }
 
-if (accountTypeSelect) {
-  accountTypeSelect.addEventListener("change", () => {
-    selectedAccountType = accountTypeSelect.value || null;
-    const selectedOption = accountTypeSelect.options[accountTypeSelect.selectedIndex];
-    selectedAccountCategory = selectedOption?.dataset.category || null;
+accountTypeSearch.addEventListener("focus", () => {
+  renderAccountTypeOptions(accountTypeSearch.value);
+});
+
+accountTypeSearch.addEventListener("input", (event) => {
+  renderAccountTypeOptions(event.target.value);
+});
+
+document.addEventListener("click", (event) => {
+  const dropdownItem = event.target.closest(".dropdown-item");
+  if (dropdownItem && dropdownItem.dataset.label) {
+    selectedAccountType = dropdownItem.dataset.label;
+    selectedAccountCategory = dropdownItem.dataset.category;
+    accountTypeSearch.value = selectedAccountType;
     updateRegistrationMode();
-  });
-}
+    closeAccountTypeOptions();
+    return;
+  }
 
-if (registrationForm) {
+  if (!event.target.closest(".account-type-dropdown")) {
+    closeAccountTypeOptions();
+  }
+});
+
 registrationForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
-  if (accountTypeSelect && !selectedAccountType) {
-    selectedAccountType = accountTypeSelect.value || null;
-    const selectedOption = accountTypeSelect.options[accountTypeSelect.selectedIndex];
-    selectedAccountCategory = selectedOption?.dataset.category || null;
+  if (registrationInProgress) {
+    return;
   }
 
-  if (!selectedAccountType) {
+  if (!accountTypeSearch.value.trim() || !selectedAccountType) {
     showRegistrationMessage(currentLang === "ar" ? "اختر نوع الحساب من القائمة أولاً." : "Choose an account type from the list first.", "error");
     return;
   }
 
   const phoneValue = registrationPhone.value.trim();
-  if (!validatePhoneNumber(phoneValue)) {
+  const normalizedPhoneValue = normalizePhoneNumber(phoneValue);
+  registrationPhone.value = normalizedPhoneValue;
+  if (!validatePhoneNumber(normalizedPhoneValue)) {
     showRegistrationMessage(currentLang === "ar" ? "أدخل رقم هاتف صحيح مع رمز الدولة." : "Enter a valid phone number with country code.", "error");
     return;
   }
@@ -4005,87 +3217,37 @@ registrationForm.addEventListener("submit", async (event) => {
     }
   }
 
-  const sent = await sendRegistrationOtp();
-  if (sent) {
-    showRegistrationMessage(currentLang === "ar" ? "تم قبول البيانات الأولية. يرجى إدخال رمز التحقق." : "Primary data accepted. Please enter the verification code.", "success");
-    completeInitialRegistration();
+  registrationInProgress = true;
+  const submitButton = registrationForm.querySelector('button[type="submit"]');
+  if (submitButton) submitButton.disabled = true;
+  try {
+    const sent = await sendRegistrationOtp();
+    if (sent) {
+      showRegistrationMessage(currentLang === "ar" ? "تم قبول البيانات الأولية. يرجى إدخال رمز التحقق." : "Primary data accepted. Please enter the verification code.", "success");
+      completeInitialRegistration();
+      registrationOtp.focus();
+    }
+  } finally {
+    registrationInProgress = false;
+    if (submitButton) submitButton.disabled = false;
   }
 });
-}
 
-if (cleanRegistrationForm) {
-  cleanRegistrationForm.addEventListener("submit", (event) => {
-    event.preventDefault();
+verifyOtpButton.addEventListener("click", async () => {
+  await verifyRegistrationOtp();
+});
 
-    const emailValue = cleanRegistrationEmail?.value.trim();
-    if (!emailValue) {
-      return;
-    }
-
-    if (cleanVerificationStep) {
-      cleanVerificationStep.style.display = "block";
-    }
-  });
-}
-
-if (cleanContinueToProfileButton) {
-  cleanContinueToProfileButton.addEventListener("click", () => {
-    window.location.hash = "#profile-page";
-    updatePageVisibility();
-  });
-}
-
-if (verifyOtpButton) {
-  verifyOtpButton.addEventListener("click", async () => {
-    await verifyRegistrationOtp();
-  });
-}
-
-if (completeRegistrationButton) {
 completeRegistrationButton.addEventListener("click", async () => {
+  if (registrationInProgress) {
+    return;
+  }
+
+  registrationInProgress = true;
+  completeRegistrationButton.disabled = true;
+
+  try {
   if (!hasWorkingSupabaseConfig()) {
-    const emailDemo = document.getElementById("registration-email").value.trim();
-    const passwordDemo = document.getElementById("registration-password").value.trim();
-    const fullnameDemo = selectedAccountType === "مشتري" ? registrationName.value.trim() : document.getElementById("registration-fullname").value.trim();
-    const addressDemo = document.getElementById("registration-address").value.trim();
-
-    if (!emailDemo || !passwordDemo) {
-      showRegistrationMessage(currentLang === "ar" ? "يرجى إدخال البريد الإلكتروني وكلمة المرور." : "Please enter email and password.", "error");
-      return;
-    }
-
-    if (!registrationOtpVerified) {
-      showRegistrationMessage(currentLang === "ar" ? "يجب التحقق من OTP أولاً." : "You must verify OTP first.", "error");
-      return;
-    }
-
-    const isBuyerDemo = selectedAccountType === "مشتري" || selectedAccountType === "عميل";
-    const roleDemo = isBuyerDemo ? "customer" : mapRoleFromAccountType(selectedAccountType);
-
-    const createdDemo = createDemoUser({
-      email: emailDemo,
-      password: passwordDemo,
-      full_name: fullnameDemo,
-      phone: registrationPhone.value.trim(),
-      role: roleDemo,
-      account_type: selectedAccountType,
-      account_category: selectedAccountCategory,
-      address: addressDemo,
-    });
-
-    if (createdDemo.error) {
-      showRegistrationMessage(createdDemo.error, "error");
-      return;
-    }
-
-    currentUser = { id: createdDemo.user.id, email: createdDemo.user.email };
-    currentUserProfile = { ...(createdDemo.user.profile || {}) };
-    updateRoleBasedNavigation();
-    displayUser(currentUser);
-    resetRegistrationFlow();
-    showRegistrationMessage(currentLang === "ar" ? "تم إنشاء الحساب (وضع تجريبي)." : "Account created (demo mode).", "success");
-    window.location.hash = getDefaultAuthenticatedHash(currentUserProfile?.role);
-    updatePageVisibility();
+    showSupabaseConfigurationMessage(regMessage);
     return;
   }
 
@@ -4093,9 +3255,31 @@ completeRegistrationButton.addEventListener("click", async () => {
   const password = document.getElementById("registration-password").value.trim();
   const fullnameValue = selectedAccountType === "مشتري" ? registrationName.value.trim() : document.getElementById("registration-fullname").value.trim();
   const address = document.getElementById("registration-address").value.trim();
+  const normalizedRegistrationPhone = normalizePhoneNumber(registrationPhone.value.trim());
+  registrationPhone.value = normalizedRegistrationPhone;
 
   if (!email || !password) {
     showRegistrationMessage(currentLang === "ar" ? "يرجى إدخال البريد الإلكتروني وكلمة المرور." : "Please enter email and password.", "error");
+    return;
+  }
+
+  if (!validateEmail(email)) {
+    showRegistrationMessage(currentLang === "ar" ? "صيغة البريد الإلكتروني غير صحيحة." : "Invalid email format.", "error");
+    return;
+  }
+
+  if (!validatePasswordStrength(password)) {
+    showRegistrationMessage(
+      currentLang === "ar"
+        ? "كلمة المرور يجب أن تكون 8 أحرف على الأقل وتحتوي على أحرف وأرقام."
+        : "Password must be at least 8 characters and include letters and numbers.",
+      "error"
+    );
+    return;
+  }
+
+  if (!fullnameValue || fullnameValue.length < 3) {
+    showRegistrationMessage(currentLang === "ar" ? "الاسم الكامل يجب أن يكون 3 أحرف على الأقل." : "Full name must be at least 3 characters.", "error");
     return;
   }
 
@@ -4110,7 +3294,8 @@ completeRegistrationButton.addEventListener("click", async () => {
     return;
   }
 
-  const duplicatePhone = await fetchProfileByPhone(registrationPhone.value.trim());
+  const duplicatePhoneLookup = await fetchProfileByPhoneFlexible(normalizedRegistrationPhone);
+  const duplicatePhone = duplicatePhoneLookup.result;
   if (duplicatePhone.data) {
     showRegistrationMessage(currentLang === "ar" ? "رقم الهاتف مستخدم مسبقًا." : "Phone is already registered.", "error");
     return;
@@ -4122,10 +3307,23 @@ completeRegistrationButton.addEventListener("click", async () => {
     return;
   }
 
-  const isBuyer = selectedAccountType === "مشتري" || selectedAccountType === "عميل";
-  const role = isBuyer ? "customer" : mapRoleFromAccountType(selectedAccountType);
+  const isBuyer = selectedAccountType === "مشتري";
+  let role = "dealer";
+  if (isBuyer) {
+    role = "buyer";
+  } else if (selectedAccountType === "متسوق داعم" || selectedAccountType === "متسوق") {
+    role = "shopper";
+  } else if (selectedAccountType === "المدير العام") {
+    role = "admin";
+  } else if (selectedAccountType === "مدير منطقة") {
+    role = "manager";
+  } else if (selectedAccountType === "مشرف") {
+    role = "supervisor";
+  } else if (selectedAccountType === "مندوب") {
+    role = "representative";
+  }
 
-  const requiresApproval = role !== "customer";
+  const requiresApproval = isStaffRole(role) || role === "admin";
 
   const profilePayload = {
     id: response.data.user.id,
@@ -4134,8 +3332,10 @@ completeRegistrationButton.addEventListener("click", async () => {
     email,
     role,
     is_approved: !requiresApproval,
-    subscription: "basic",
-    phone: registrationPhone.value.trim(),
+    subscription: role === "shopper" ? "shopper" : "basic",
+    subscription_started_at: new Date().toISOString(),
+    subscription_free_until: getFirstFreeSubscriptionEnd({ created_at: new Date().toISOString() }).toISOString(),
+    phone: normalizedRegistrationPhone,
     account_type: selectedAccountType,
     account_category: selectedAccountCategory,
     created_at: new Date().toISOString(),
@@ -4160,21 +3360,21 @@ completeRegistrationButton.addEventListener("click", async () => {
         details: {
           account_type: selectedAccountType,
           account_category: selectedAccountCategory,
-          phone: registrationPhone.value.trim(),
+          phone: normalizedRegistrationPhone,
         },
         status: "pending",
       });
     }
 
-    // Don't sign out - keep user logged in (Facebook style)
-    // User will see pending approval message
-    currentUserProfile = { ...createdProfile, is_approved: false };
+    await signOut();
+    currentUser = null;
+    currentUserProfile = null;
     resetRegistrationFlow();
-    window.location.hash = "#profile-page";
+    window.location.hash = "#auth-section";
     showRegistrationMessage(
       currentLang === "ar"
-        ? "تم إنشاء الحساب بنجاح! حسابك بانتظار اعتماد المدير."
-        : "Account created successfully! Your account is pending admin approval.",
+        ? "تم إنشاء الحساب بنجاح وهو الآن بانتظار اعتماد المدير."
+        : "Account created and pending admin approval.",
       "success"
     );
     return;
@@ -4185,22 +3385,16 @@ completeRegistrationButton.addEventListener("click", async () => {
   await syncOrdersFromSupabase();
   await loadProfileAssets();
   resetRegistrationFlow();
-  window.location.hash = "#profile-page";
+  window.location.hash = isReadOnlyShopper(currentUserProfile?.role) ? "#shopper-section" : "#profile-page";
+  } finally {
+    registrationInProgress = false;
+    completeRegistrationButton.disabled = false;
+  }
 });
-}
 
-if (registrationProfileForm && completeRegistrationButton) {
-  registrationProfileForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    completeRegistrationButton.click();
-  });
-}
-
-if (searchInput) {
-  searchInput.addEventListener("input", () => {
-    runAdvancedSearch();
-  });
-}
+searchInput.addEventListener("input", (event) => {
+  runAdvancedSearch();
+});
 
 if (applyAdvancedSearchButton) {
   applyAdvancedSearchButton.addEventListener("click", () => {
@@ -4215,29 +3409,6 @@ if (resetAdvancedSearchButton) {
   });
 }
 
-if (profileAdvancedSearchForm) {
-  profileAdvancedSearchForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    runProfileSearch();
-  });
-}
-
-if (profileSearchReset) {
-  profileSearchReset.addEventListener("click", () => {
-    if (profileSearchBrand) profileSearchBrand.value = "";
-    if (profileSearchModel) profileSearchModel.value = "";
-    if (profileSearchYear) profileSearchYear.value = "";
-    if (profileSearchBodyType) profileSearchBodyType.value = "";
-    if (profileSearchCategory) profileSearchCategory.value = "";
-    runProfileSearch();
-  });
-}
-
-[profileSearchBrand, profileSearchModel, profileSearchYear, profileSearchBodyType, profileSearchCategory].forEach((control) => {
-  if (!control) return;
-  control.addEventListener("change", runProfileSearch);
-});
-
 [filterBrand, filterModel, filterYear, filterBodyType, filterCategory].forEach((control) => {
   if (!control) return;
   control.addEventListener("change", () => {
@@ -4246,29 +3417,9 @@ if (profileSearchReset) {
 });
 
 if (partForm) {
-  [partNameArInput, partNameEnInput, partPriceInput, partImageInput].forEach((field) => {
-    if (!field) return;
-    field.addEventListener("input", updatePartSaveButtonState);
-    field.addEventListener("change", updatePartSaveButtonState);
-  });
-
-  if (partImageInput) {
-    partImageInput.addEventListener("change", () => {
-      const file = partImageInput.files && partImageInput.files[0];
-      previewPartImage(file || null);
-    });
-  }
-
-  if (partVehicleSelect) {
-    partVehicleSelect.addEventListener("change", applySelectedVehicleToPartForm);
-  }
-
-  updatePartSaveButtonState();
-
   partForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     await handleCreatePart();
-    renderHomeFeed();
   });
 }
 
@@ -4287,16 +3438,6 @@ if (galleryForm) {
 }
 
 document.addEventListener("click", (event) => {
-  const routeLink = event.target.closest('a[href^="#"]');
-  if (routeLink) {
-    const targetHash = routeLink.getAttribute("href");
-    if (targetHash && targetHash !== "#") {
-      event.preventDefault();
-      navigateToHash(targetHash);
-      return;
-    }
-  }
-
   const button = event.target.closest("button[data-action]");
   if (!button) return;
 
@@ -4417,89 +3558,244 @@ async function handleOrderStatusAction(action, order) {
   }
 }
 
-async function submitAuthFormFromUI() {
-  console.log("🔐 [auth] submitAuthFormFromUI called");
-  window.__tigerAuthHandledAt = Date.now();
-  const emailInput = document.getElementById("auth-email");
-  const passwordInput = document.getElementById("auth-password");
-  let email = emailInput?.value?.trim() || "";
-  let password = passwordInput?.value?.trim() || "";
-
-  // Quick continue flow: if form is hidden/empty, open current user profile directly.
-  if (!email && !password) {
-    try {
-      const savedCurrent = JSON.parse(localStorage.getItem("currentUser") || "null");
-      if (savedCurrent && (savedCurrent.id || savedCurrent.email)) {
-        currentUser = savedCurrent;
-        currentUserProfile = savedCurrent.profile || currentUserProfile || {};
-        updateRoleBasedNavigation();
-        displayUser(currentUser);
-        window.location.hash = getDefaultAuthenticatedHash(currentUserProfile?.role);
-        updatePageVisibility();
-        return;
-      }
-    } catch (err) {
-      console.warn("⚠️ failed to parse saved currentUser", err);
-    }
-
-    email = "vvipautoparts@gmail.com";
-    password = "Edco.202672";
-  }
-
-  console.log("🔐 [auth] inputs captured, calling handleAuthForm");
+authForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const email = document.getElementById("auth-email").value.trim();
+  const password = document.getElementById("auth-password").value.trim();
   await handleAuthForm(email, password);
-  console.log("🔐 [auth] handleAuthForm completed");
-}
+});
 
-if (authForm) {
-  console.log("✓ authForm found, attaching submit listener");
-  authForm.addEventListener("submit", async (event) => {
-    console.log("🎯 authForm submit event triggered");
-    event.preventDefault();
-    await submitAuthFormFromUI();
+authModeToggle.addEventListener("click", () => {
+  window.location.hash = "#registration-page";
+});
+
+langToggle.addEventListener("click", () => {
+  currentLang = currentLang === "ar" ? "en" : "ar";
+  updateLanguage();
+});
+
+document.querySelectorAll(".plan-action-btn").forEach((button) => {
+  button.addEventListener("click", () => {
+    openPlanSubscription(button.dataset.plan || "basic");
   });
-} else {
-  console.warn("⚠️ authForm NOT found in DOM!");
-}
+});
 
-if (authSubmitButton) {
-  console.log("✓ authSubmitButton found, attaching click listener");
-  authSubmitButton.addEventListener("click", async (event) => {
-    console.log("🎯 authSubmitButton click event triggered");
+document.querySelectorAll(".plan-compare-btn").forEach((button) => {
+  button.addEventListener("click", () => {
+    document.getElementById("plans-compare-table")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+});
+
+if (planSubscriptionForm) {
+  planSubscriptionForm.addEventListener("submit", (event) => {
     event.preventDefault();
 
-    // If a user session already exists on this device, go directly to profile.
-    if (currentUser && (currentUser.id || currentUser.email)) {
-      window.location.hash = "#profile-page";
-      updatePageVisibility();
-      renderProfilePage();
+    const name = planRequestName?.value.trim() || "";
+    const center = planRequestCenter?.value.trim() || "";
+    const phone = normalizePhoneNumber(planRequestPhone?.value.trim() || "");
+    const email = (planRequestEmail?.value || "").trim().toLowerCase();
+    const notes = planRequestNotes?.value.trim() || "";
+    const plan = planRequestPlan?.value || "basic";
+
+    if (!name || !center || !phone || !email) {
+      showMessage(
+        currentLang === "ar" ? "الرجاء تعبئة الحقول الإلزامية." : "Please fill all required fields.",
+        "error",
+        planSubscriptionMessage
+      );
       return;
     }
 
-    await submitAuthFormFromUI();
+    if (!validatePhoneNumber(phone)) {
+      showMessage(
+        currentLang === "ar" ? "صيغة رقم الهاتف غير صحيحة." : "Invalid phone format.",
+        "error",
+        planSubscriptionMessage
+      );
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      showMessage(
+        currentLang === "ar" ? "صيغة البريد الإلكتروني غير صحيحة." : "Invalid email format.",
+        "error",
+        planSubscriptionMessage
+      );
+      return;
+    }
+
+    savePlanRequest({
+      id: `plan-${Date.now()}`,
+      plan,
+      name,
+      center,
+      phone,
+      email,
+      notes,
+      created_at: new Date().toISOString(),
+      status: "new",
+    });
+
+    recordPlatformActivity(
+      "subscription",
+      currentLang === "ar" ? "طلب اشتراك باقة جديد" : "New plan subscription request",
+      `${center} • ${plan}`,
+      "pending"
+    );
+
+    showMessage(
+      currentLang === "ar"
+        ? "تم استلام طلب الاشتراك بنجاح. سيتواصل فريقنا معك قريباً."
+        : "Your subscription request was received successfully. Our team will contact you soon.",
+      "success",
+      planSubscriptionMessage
+    );
+
+    planSubscriptionForm.reset();
+    if (planRequestPlan) planRequestPlan.value = plan;
   });
-} else {
-  console.warn("⚠️ authSubmitButton NOT found in DOM!");
 }
 
-if (authModeToggle) {
-  authModeToggle.addEventListener("click", () => {
-    // Open the saved accounts modal
-    openAccountsModal();
+logoutButton.addEventListener("click", async () => {
+  await handleLogout();
+});
+
+if (sendForgotOtpButton) {
+  sendForgotOtpButton.addEventListener("click", async () => {
+    if (forgotPasswordInProgress) {
+      return;
+    }
+
+    if (!hasWorkingSupabaseConfig()) {
+      showSupabaseConfigurationMessage(forgotMessage);
+      return;
+    }
+
+    if (!WHATSAPP_OTP_ENDPOINT) {
+      showWhatsAppOtpConfigurationMessage(forgotMessage);
+      return;
+    }
+
+    const phone = forgotPhone.value.trim();
+    const email = forgotEmail.value.trim();
+    if (!phone || !email) {
+      showMessage(currentLang === "ar" ? "أدخل البريد والهاتف أولاً." : "Enter email and phone first.", "error", forgotMessage);
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      showMessage(currentLang === "ar" ? "صيغة البريد الإلكتروني غير صحيحة." : "Invalid email format.", "error", forgotMessage);
+      return;
+    }
+
+    const normalizedForgotPhone = normalizePhoneNumber(phone);
+    forgotPhone.value = normalizedForgotPhone;
+
+    if (!validatePhoneNumber(normalizedForgotPhone)) {
+      showMessage(currentLang === "ar" ? "صيغة رقم الهاتف غير صحيحة." : "Invalid phone format.", "error", forgotMessage);
+      return;
+    }
+
+    forgotPasswordInProgress = true;
+    sendForgotOtpButton.disabled = true;
+    try {
+      const profileLookup = await fetchProfileByPhoneFlexible(normalizedForgotPhone);
+      const profileRes = profileLookup.result;
+      if (!profileRes.data) {
+        showMessage(currentLang === "ar" ? "رقم الهاتف غير موجود." : "Phone is not registered.", "error", forgotMessage);
+        return;
+      }
+
+      if ((profileRes.data.email || "").toLowerCase() !== email.toLowerCase()) {
+        showMessage(currentLang === "ar" ? "البريد لا يطابق رقم الهاتف." : "Email does not match the phone number.", "error", forgotMessage);
+        return;
+      }
+
+      const code = generateOtpCode();
+      const otpRes = await createOtpCode(normalizedForgotPhone, code, "forgot_password", 10);
+      if (otpRes.error) {
+        showMessage(currentLang === "ar" ? "تعذر إنشاء OTP." : "Failed to generate OTP.", "error", forgotMessage);
+        return;
+      }
+
+      try {
+        await sendWhatsAppOtp(normalizedForgotPhone, code);
+        pendingForgotOtpPhone = normalizedForgotPhone;
+        showMessage(currentLang === "ar" ? "تم إرسال OTP عبر واتساب." : "OTP sent via WhatsApp.", "success", forgotMessage);
+        forgotOtp.focus();
+      } catch (_error) {
+        showMessage(currentLang === "ar" ? "فشل إرسال OTP." : "Failed to send OTP.", "error", forgotMessage);
+      }
+    } finally {
+      forgotPasswordInProgress = false;
+      sendForgotOtpButton.disabled = false;
+    }
   });
 }
 
-if (langToggle) {
-  langToggle.addEventListener("click", toggleLang);
-}
+if (forgotForm) {
+  forgotForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!hasWorkingSupabaseConfig()) {
+      showSupabaseConfigurationMessage(forgotMessage);
+      return;
+    }
 
-if (logoutButton) {
-  logoutButton.addEventListener("click", async () => {
-    await handleLogout();
+    const code = normalizeOtpCode(forgotOtp.value.trim());
+    forgotOtp.value = code;
+    const password = forgotNewPassword.value.trim();
+    const phone = normalizePhoneNumber(forgotPhone.value.trim());
+    forgotPhone.value = phone;
+
+    if (!/^\d{6}$/.test(code)) {
+      showMessage(currentLang === "ar" ? "OTP يجب أن يكون 6 أرقام." : "OTP must be 6 digits.", "error", forgotMessage);
+      return;
+    }
+
+    if (!validatePasswordStrength(password)) {
+      showMessage(
+        currentLang === "ar"
+          ? "كلمة المرور يجب أن تكون 8 أحرف على الأقل وتحتوي على أحرف وأرقام."
+          : "Password must be at least 8 characters and include letters and numbers.",
+        "error",
+        forgotMessage
+      );
+      return;
+    }
+
+    if (!pendingForgotOtpPhone || pendingForgotOtpPhone !== phone) {
+      showMessage(currentLang === "ar" ? "أرسل OTP أولاً." : "Send OTP first.", "error", forgotMessage);
+      return;
+    }
+
+    const verify = await verifyOtpCode(phone, code, "forgot_password");
+    if (!verify.valid) {
+      showMessage(currentLang === "ar" ? "OTP غير صالح." : "Invalid OTP.", "error", forgotMessage);
+      return;
+    }
+
+    let resetError = null;
+    if (currentUser && currentUser.email && currentUser.email.toLowerCase() === forgotEmail.value.trim().toLowerCase()) {
+      const result = await supabaseClient.auth.updateUser({ password });
+      resetError = result.error || null;
+    } else {
+      const result = await supabaseClient.auth.resetPasswordForEmail(forgotEmail.value.trim(), {
+        redirectTo: `${window.location.origin}/index.html#auth-section`,
+      });
+      resetError = result.error || null;
+    }
+
+    if (resetError) {
+      showMessage(resetError.message || (currentLang === "ar" ? "فشل تحديث كلمة المرور." : "Failed to update password."), "error", forgotMessage);
+      return;
+    }
+
+    pendingForgotOtpPhone = null;
+    forgotForm.reset();
+    showMessage(currentLang === "ar" ? "تم التحقق. أكمل تحديث كلمة المرور من رابط البريد عند الحاجة." : "Verified. Complete password reset using the email link if needed.", "success", forgotMessage);
   });
 }
 
-if (orderForm) {
 orderForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
@@ -4537,58 +3833,9 @@ orderForm.addEventListener("submit", async (event) => {
   await syncOrdersFromSupabase();
   window.location.hash = "#user-orders";
 });
-}
-
-function updateAuthPageMode() {
-  const currentHash = window.location.hash;
-  const isAuthFlow = currentHash === "#auth-section" || currentHash === "#registration-page";
-  const isProfile = currentHash === "#profile-page";
-  const isCleanRegistration = currentHash === "#registration-page";
-
-  document.body.classList.toggle("login-page", isAuthFlow);
-  document.body.classList.toggle("profile-page", isProfile);
-  document.body.classList.toggle("clean-registration-page", isCleanRegistration);
-
-  if (profilePage) {
-    profilePage.style.display = isProfile ? "block" : "none";
-  }
-
-  if (isProfile) {
-    renderProfilePage();
-  }
-}
-
-function syncQuickNavWithHash() {
-  if (!quickNavSelect) return;
-  const currentHash = window.location.hash || "#auth-section";
-  const hasOption = Array.from(quickNavSelect.options).some((option) => option.value === currentHash);
-  quickNavSelect.value = hasOption ? currentHash : "";
-}
-
-function navigateToHash(targetHash) {
-  const normalizedHash = targetHash?.startsWith("#") ? targetHash : `#${targetHash || ""}`;
-  if (!normalizedHash || normalizedHash === "#") return;
-
-  if (window.location.hash !== normalizedHash) {
-    window.location.hash = normalizedHash;
-    return;
-  }
-
-  updateAuthPageMode();
-  updatePageVisibility();
-  syncQuickNavWithHash();
-
-  const targetSection = document.getElementById(normalizedHash.slice(1));
-  targetSection?.scrollIntoView({ behavior: "smooth", block: "start" });
-}
 
 window.addEventListener("hashchange", () => {
-  previousAppHash = currentAppHash;
-  currentAppHash = window.location.hash || "#auth-section";
-  updateAuthPageMode();
   updatePageVisibility();
-  syncQuickNavWithHash();
-  updateBackButtonState();
 });
 
 if (quickNavSelect) {
@@ -5600,729 +4847,13 @@ function saveCurrentEmail() {
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => initializeEmailSelector(), 300);
 });
-
-async function handleRegEmailSubmit(e) {
-  e.preventDefault();
-  const emailInput = document.getElementById('reg-email-input');
-  const submitBtn = document.querySelector('#reg-email-form .reg-btn-primary');
-  const email = normalizeEmailAddress(emailInput.value);
-
-  if (!email) {
-    showRegMessage(currentLang === 'ar' ? 'البريد الإلكتروني مطلوب' : 'Email is required', 'error');
-    return;
-  }
-
-  // التحقق من صيغة البريد
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailPattern.test(email)) {
-    showRegMessage(currentLang === 'ar' ? 'البريد الإلكتروني غير صحيح' : 'Invalid email address', 'error');
-    return;
-  }
-
-  const duplicateEmail = await isEmailAlreadyRegistered(email);
-  if (duplicateEmail) {
-    showDuplicateEmailActions(email);
-    moveRegStep('email');
-    return;
-  }
-
-  // حفظ الإيميل مؤقتاً
-  localStorage.setItem('reg_temp_email', email);
-  localStorage.setItem('reg_email_verified', 'false');
-
-  // تعطيل الزر أثناء الإرسال
-  if (submitBtn) {
-    submitBtn.disabled = true;
-    submitBtn.textContent = currentLang === 'ar' ? 'جارٍ الإرسال...' : 'Sending...';
-  }
-
-  try {
-    const sent = await sendVerificationEmail(email);
-
-    if (sent) {
-      // الانتقال إلى خطوة التحقق
-      moveRegStep('verification');
-      const configured = isSupabaseConfigured();
-      showRegMessage(
-        configured
-          ? (currentLang === 'ar'
-              ? `✅ تم إرسال رابط التحقق إلى ${email} — تحقق من بريدك وعد للضغط على "تم التأكيد"`
-              : `✅ Verification link sent to ${email} — Check your inbox then click "Verified"`)
-          : (currentLang === 'ar'
-              ? `✅ وضع تجريبي — اضغط "تم التأكيد" للمتابعة مباشرة`
-              : `✅ Demo mode — Click "Verified" to continue directly`),
-        'success'
-      );
-    } else {
-      showRegMessage(
-        currentLang === 'ar'
-          ? '❌ تعذّر إرسال البريد. تأكد من البريد وحاول مجدداً.'
-          : '❌ Failed to send email. Check the address and try again.',
-        'error'
-      );
-    }
-  } finally {
-    if (submitBtn) {
-      submitBtn.disabled = false;
-      submitBtn.textContent = currentLang === 'ar' ? 'التحقق من البريد' : 'Verify Email';
-    }
-  }
-}
-
-/**
- * إرسال بريد التحقق عبر Edge Function (Mailgun + AWS SES)
- * أو Supabase OTP كبديل، أو وضع تجريبي
- */
-async function sendVerificationEmail(email) {
-  const supabaseUrl = String(window.SUPABASE_URL || "").trim();
-  const configured = isSupabaseConfigured();
-
-  // ── الطريقة 1: Edge Function مع Mailgun/SES (الأفضل) ──
-  const edgeFnConfigured =
-    configured &&
-    String(window.MAILGUN_API_KEY || window.AWS_ACCESS_KEY_ID || "").trim().length > 4;
-
-  if (edgeFnConfigured) {
-    try {
-      const res = await fetch(`${supabaseUrl}/functions/v1/send-verification-email`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: String(window.SUPABASE_ANON_KEY || ""),
-        },
-        body: JSON.stringify({
-          email: email.trim().toLowerCase(),
-          action: "send",
-          lang: currentLang || "ar",
-        }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        console.log("✅ Verification email sent via Edge Function (Mailgun/SES)");
-        return true;
-      }
-
-      console.warn("Edge Function error:", data.error);
-    } catch (err) {
-      console.warn("Edge Function request failed:", err);
-    }
-  }
-
-  // ── الطريقة 2: Supabase Auth Magic Link (مجاني - يرسل من خوادم Supabase) ──
-  if (configured) {
-    try {
-      const { error } = await supabaseClient.auth.signInWithOtp({
-        email,
-        options: { emailRedirectTo: getRegEmailRedirectUrl() },
-      });
-
-      if (!error) {
-        console.log("✅ Verification email sent via Supabase Magic Link");
-        return true;
-      }
-
-      console.warn("Supabase OTP error:", error.message);
-    } catch (err) {
-      console.warn("Supabase OTP request failed:", err);
-    }
-  }
-
-  // ── الطريقة 3: وضع تجريبي - كود تجاوز تلقائي ──
-  console.log("⚠️ Demo mode - using bypass code: 123456");
-  // حفظ الكود التجريبي تلقائياً للتحقق
-  localStorage.setItem('demo_verify_code_' + email.toLowerCase(), '123456');
-  return true; // يعيد true حتى تنتقل إلى خطوة التحقق
-}
-
-/**
- * التحقق من توكن البريد عبر Edge Function
- */
-async function verifyEmailToken(token, email) {
-  const supabaseUrl = String(window.SUPABASE_URL || "").trim();
-  const configured = isSupabaseConfigured();
-
-  if (!configured) return { verified: false, error: "Not configured" };
-
-  try {
-    const res = await fetch(`${supabaseUrl}/functions/v1/send-verification-email`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: String(window.SUPABASE_ANON_KEY || ""),
-      },
-      body: JSON.stringify({
-        action: "verify",
-        token,
-        email,
-        lang: currentLang || "ar",
-      }),
-    });
-
-    const data = await res.json();
-    return data;
-  } catch (err) {
-    console.error("Token verification failed:", err);
-    return { verified: false, error: "Network error" };
-  }
-}
-
-/**
- * التحقق من حالة تأكيد البريل من Supabase
- */
-async function checkEmailVerificationStatus(user) {
-  if (!user || !user.id) {
-    console.warn('⚠️ No user to check verification status');
-    return { verified: false };
-  }
-
-  try {
-    const configured = isSupabaseConfigured();
-    
-    if (configured && supabaseClient) {
-      // الطريقة 1: التحقق من user.email_confirmed_at (الأفضل)
-      const { data: { user: currentUser } } = await supabaseClient.auth.getUser();
-      
-      if (currentUser?.email_confirmed_at) {
-        console.log('✅ Email confirmed at:', currentUser.email_confirmed_at);
-        return { 
-          verified: true,
-          confirmedAt: currentUser.email_confirmed_at,
-          email: currentUser.email
-        };
-      }
-
-      // الطريقة 2: التحقق من الملف الشخصي في قاعدة البيانات
-      const { data: profile, error } = await supabaseClient
-        .from('profiles')
-        .select('email_verified_at, email_confirmed')
-        .eq('id', user.id)
-        .single();
-
-      if (!error && profile) {
-        if (profile.email_verified_at || profile.email_confirmed) {
-          console.log('✅ Email verified in DB:', profile.email_verified_at);
-          return { verified: true, profile };
-        }
-      }
-
-      return { verified: false };
-    }
-
-    // الطريقة 3: وضع تجريبي - افترض التحقق بعد 3 ثواني
-    const demoVerified = localStorage.getItem('demo_email_verified') === 'true';
-    if (demoVerified) {
-      return { verified: true, demo: true };
-    }
-
-    return { verified: false };
-  } catch (err) {
-    console.error('❌ Error checking email verification:', err);
-    return { verified: false, error: err.message };
-  }
-}
-
-/**
- * مراقبة حالة المستخدم - إعادة توجيه تلقائية عند التحقق
- */
-function monitorEmailVerificationStatus() {
-  if (!isSupabaseConfigured()) {
-    console.log('⚠️ Supabase not configured - skipping email verification monitoring');
-    return;
-  }
-
-  if (!supabaseClient) {
-    console.warn('⚠️ Supabase client not ready');
-    return;
-  }
-
-  // استمع لتغييرات حالة المصادقة
-  supabaseClient.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session) {
-      console.log('🔐 Auth state changed - checking email verification...');
-      
-      const { verified, confirmedAt } = await checkEmailVerificationStatus(session.user);
-      
-      if (verified) {
-        console.log('✅ Email verified - allowing access');
-        localStorage.setItem('demo_email_verified', 'true');
-        
-        // إعادة توجيه إلى صفحة البروفايل
-        setTimeout(() => {
-          window.location.hash = '#profile-page';
-        }, 1000);
-      }
-    }
-  });
-}
-
-/**
- * عند التحقق من الإيميل
- */
-function handleRegEmailVerified() {
-  localStorage.setItem('reg_email_verified', 'true');
-  localStorage.setItem('demo_email_verified', 'true');
-  
-  // 💾 حفظ البريد المستخدم في القائمة
-  saveCurrentEmail();
-  
-  moveRegStep('verified');
-
-  showRegMessage(
-    currentLang === 'ar'
-      ? '✅ تم التحقق من بريدك الإلكتروني بنجاح!'
-      : '✅ Your email has been verified successfully!',
-    'success'
-  );
-
-  // 👀 استدعاء مراقبة التحقق للإعادة التوجيه التلقائية
-  monitorEmailVerificationStatus();
-}
-
-/**
- * إعادة إرسال بريد التحقق
- */
-async function handleRegResendEmail() {
-  const email = localStorage.getItem('reg_temp_email');
-  if (!email) {
-    showRegMessage(
-      currentLang === 'ar' ? 'حدث خطأ. حاول من البداية.' : 'Error. Start over.',
-      'error'
-    );
-    moveRegStep('email');
-    return;
-  }
-
-  const sent = await sendVerificationEmail(email);
-  if (sent) {
-    showRegMessage(
-      currentLang === 'ar'
-        ? '📧 تم إعادة إرسال رابط التحقق إلى: ' + email
-        : '📧 Verification link resent to: ' + email,
-      'success'
-    );
-    return;
-  }
-
-  showRegMessage(
-    currentLang === 'ar'
-      ? '❌ تعذر إعادة الإرسال. حاول مرة أخرى.'
-      : '❌ Resend failed. Please try again.',
-    'error'
-  );
-}
-
-/**
- * المتابعة إلى الملف الشخصي
- */
-function handleRegContinueToProfile() {
-  // إذا لم يكن المستخدم مسجلاً، أكمل التدفق عبر صفحة الدخول
-  if (!currentUser) {
-    showRegMessage(
-      currentLang === 'ar'
-        ? '✅ تم التحقق. الآن أكمل تسجيل الدخول للمتابعة.'
-        : '✅ Verified. Now sign in to continue.',
-      'success'
-    );
-    setTimeout(() => {
-      window.location.hash = '#auth-section';
-      updatePageVisibility();
-    }, 250);
-    return;
-  }
-
-  setTimeout(() => {
-    window.location.hash = '#profile-page';
-    updatePageVisibility();
-  }, 250);
-}
-
-/**
- * الانتقال بين خطوات التسجيل بسلاسة
- */
-function moveRegStep(step) {
-  const emailFormWrapper = document.getElementById('reg-email-form-wrapper');
-  const verificationWrapper = document.getElementById('reg-verification-wrapper');
-  const verifiedWrapper = document.getElementById('reg-verified-wrapper');
-  const emailDisplay = document.getElementById('reg-email-display');
-
-  // Fade out all wrappers
-  const fadeOutClass = 'fade-out';
-  if (emailFormWrapper) emailFormWrapper.classList.add(fadeOutClass);
-  if (verificationWrapper) verificationWrapper.classList.add(fadeOutClass);
-  if (verifiedWrapper) verifiedWrapper.classList.add(fadeOutClass);
-
-  setTimeout(() => {
-    // إخفاء الكل
-    if (emailFormWrapper) emailFormWrapper.style.display = 'none';
-    if (verificationWrapper) verificationWrapper.style.display = 'none';
-    if (verifiedWrapper) verifiedWrapper.style.display = 'none';
-
-    // عرض المطلوب
-    if (step === 'email' && emailFormWrapper) {
-      emailFormWrapper.classList.remove(fadeOutClass);
-      emailFormWrapper.style.display = 'block';
-    } else if (step === 'verification' && verificationWrapper) {
-      verificationWrapper.classList.remove(fadeOutClass);
-      verificationWrapper.style.display = 'block';
-      if (emailDisplay) {
-        emailDisplay.textContent = localStorage.getItem('reg_temp_email') || '';
-      }
-    } else if (step === 'verified' && verifiedWrapper) {
-      verifiedWrapper.classList.remove(fadeOutClass);
-      verifiedWrapper.style.display = 'block';
-
-      const continueBtn = document.getElementById('reg-continue-btn');
-      if (continueBtn) {
-        continueBtn.onclick = handleRegContinueToProfile;
-      }
-    }
-  }, 200);
-}
-
-function showRegMessage(message, type = 'info') {
-  const msgEl = document.getElementById('reg-message');
-  if (!msgEl) return;
-
-  msgEl.textContent = message;
-  msgEl.className = `form-message ${type}`;
-  msgEl.style.display = 'block';
-
-  setTimeout(() => {
-    msgEl.style.display = 'none';
-  }, 5000);
-}
-
-async function loadAccountTypesForReg() {
-  const select = document.getElementById('reg-account-type');
-  if (!select) return;
-
-  ensureRegDefaultOption(select);
-
-  if (!isSupabaseConfigured()) {
-    addFallbackRegAccountOptions(select);
-    return;
-  }
-
-  try {
-    const { data, error } = await supabaseClient
-      .from('account_types')
-      .select('label, category, role')
-      .eq('active', true)
-      .order('category', { ascending: true })
-      .order('label', { ascending: true });
-
-    if (error) throw error;
-
-    const normalized = (data || []).map((type) => ({
-      label: type.label,
-      role: type.role || mapRoleFromAccountType(type.label),
-    }));
-
-    if (!normalized.length) {
-      addFallbackRegAccountOptions(select);
-      return;
-    }
-
-    addRegAccountOptions(select, normalized);
-  } catch (error) {
-    console.error('Failed to load account types:', error);
-    addFallbackRegAccountOptions(select);
-  }
-}
-
-// 🎯 PRODUCTS FEED SECTION - Facebook Style
-function initializeProductsFeed() {
-  const OFFICIAL_CALL_NUMBER = "+962780003302";
-  const OFFICIAL_WHATSAPP_NUMBER = "962796960886";
-  const FEED_FOLLOW_STATE_KEY = "tiger_feed_follow_state_v1";
-
-  const productsData = [
-    {
-      title: "فلتر هواء أصلي",
-      brand: "BMW",
-      model: "BMW X5 G05",
-      description: "فلتر هواء عالي الجودة للحفاظ على أداء المحرك",
-      price: 65,
-      image: "icons/tiger-logo.png",
-      category: "مرشحات",
-      phone: OFFICIAL_CALL_NUMBER
-    },
-    {
-      title: "كشاف LED أمامي",
-      brand: "Mercedes",
-      model: "Mercedes S-Class",
-      description: "مصابيح LED فاخرة مع توازن ضوء ممتاز",
-      price: 235,
-      image: "icons/tiger-logo.png",
-      category: "إضاءة",
-      phone: OFFICIAL_CALL_NUMBER
-    },
-    {
-      title: "طقم فرامل رياضي",
-      brand: "Audi",
-      model: "Audi Q7",
-      description: "فرامل عالية الأداء مع تبريد محسّن",
-      price: 395,
-      image: "icons/tiger-logo.png",
-      category: "فرامل",
-      phone: OFFICIAL_CALL_NUMBER
-    },
-    {
-      title: "غطاء مقعد جلد",
-      brand: "Range Rover",
-      model: "Range Rover",
-      description: "غطاء مقعد فاخر مع جلد ناعم",
-      price: 340,
-      image: "icons/tiger-logo.png",
-      category: "ملحقات",
-      phone: OFFICIAL_CALL_NUMBER
-    },
-    {
-      title: "بطارية AGM",
-      brand: "Lexus",
-      model: "Lexus LX",
-      description: "بطارية قوة عالية طويلة العمر",
-      price: 185,
-      image: "icons/tiger-logo.png",
-      category: "بطاريات",
-      phone: OFFICIAL_CALL_NUMBER
-    },
-    {
-      title: "مجموعة صيانة",
-      brand: "Toyota",
-      model: "Toyota Land Cruiser",
-      description: "مجموعة قطع غيار أساسية للصيانة",
-      price: 135,
-      image: "icons/tiger-logo.png",
-      category: "صيانة",
-      phone: OFFICIAL_CALL_NUMBER
-    }
-  ];
-
-  const feedGrid = document.getElementById('products-feed-grid');
-  const emptyState = document.getElementById('feed-empty-state');
-  const filterBrand = document.getElementById('feed-filter-brand');
-  const filterCategory = document.getElementById('feed-filter-category');
-  const filterPrice = document.getElementById('feed-filter-price');
-  const searchInput = document.getElementById('feed-search');
-  const priceValue = document.getElementById('feed-price-value');
-  const resetBtn = document.getElementById('feed-reset-filters');
-
-  const loadFollowState = () => {
-    try {
-      const parsed = JSON.parse(localStorage.getItem(FEED_FOLLOW_STATE_KEY) || "{}");
-      return parsed && typeof parsed === "object" ? parsed : {};
-    } catch (_error) {
-      return {};
-    }
-  };
-
-  const saveFollowState = (state) => {
-    localStorage.setItem(FEED_FOLLOW_STATE_KEY, JSON.stringify(state));
-  };
-
-  const showFeedToast = (text) => {
-    let toast = document.getElementById("feed-toast");
-    if (!toast) {
-      toast = document.createElement("div");
-      toast.id = "feed-toast";
-      toast.className = "feed-toast";
-      document.body.appendChild(toast);
-    }
-
-    toast.textContent = text;
-    toast.classList.add("show");
-    setTimeout(() => toast.classList.remove("show"), 1700);
-  };
-
-  // Populate filter dropdowns
-  const brands = [...new Set(productsData.map(p => p.brand))];
-  const categories = [...new Set(productsData.map(p => p.category))];
-
-  brands.forEach(brand => {
-    const option = document.createElement('option');
-    option.value = brand;
-    option.textContent = brand;
-    filterBrand.appendChild(option);
-  });
-
-  categories.forEach(category => {
-    const option = document.createElement('option');
-    option.value = category;
-    option.textContent = category;
-    filterCategory.appendChild(option);
-  });
-
-  function renderProducts(data) {
-    const followState = loadFollowState();
-
-    feedGrid.innerHTML = '';
-    if (data.length === 0) {
-      emptyState.style.display = 'block';
-      return;
-    }
-    emptyState.style.display = 'none';
-
-    data.forEach(product => {
-      const followKey = `${product.brand}-${product.model}`;
-      const isFollowing = Boolean(followState[followKey]);
-
-      const card = document.createElement('div');
-      card.className = 'feed-product-card';
-      card.innerHTML = `
-        <img src="${product.image}" alt="${product.title}" class="feed-product-image" />
-        <div class="feed-product-header">
-          <div class="feed-product-brand feed-profile-link" data-follow-key="${followKey}">${product.brand}</div>
-          <h3 class="feed-product-title feed-profile-link" data-follow-key="${followKey}">${product.title}</h3>
-          <p class="feed-product-desc">${product.description}</p>
-          <div class="feed-product-price">${product.price} دينار</div>
-          <p class="feed-product-specs">الطراز: ${product.model}</p>
-        </div>
-        <div class="feed-product-actions">
-          <button type="button" class="feed-follow-btn ${isFollowing ? 'following' : ''}" data-follow-key="${followKey}">
-            ${isFollowing ? '✓ متابع' : 'متابعة'}
-          </button>
-          <a href="https://wa.me/${OFFICIAL_WHATSAPP_NUMBER}" 
-             class="feed-contact-btn whatsapp" target="_blank">
-            📱 اتصال WhatsApp
-          </a>
-          <a href="tel:${product.phone}" class="feed-contact-btn call">
-            ☎️ اتصال مباشر
-          </a>
-        </div>
-      `;
-
-      const followBtn = card.querySelector('.feed-follow-btn');
-      if (followBtn) {
-        followBtn.addEventListener('click', (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-
-          const state = loadFollowState();
-          const key = followBtn.dataset.followKey;
-          const nextState = !Boolean(state[key]);
-          state[key] = nextState;
-          saveFollowState(state);
-
-          followBtn.classList.toggle('following', nextState);
-          followBtn.textContent = nextState ? '✓ متابع' : 'متابعة';
-
-          showFeedToast(nextState
-            ? `تمت متابعة ${product.brand} بنجاح`
-            : `تم إلغاء متابعة ${product.brand}`);
-        });
-      }
-
-      card.querySelectorAll('.feed-profile-link').forEach((el) => {
-        el.addEventListener('click', (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          navigateToHash('#profile-page');
-        });
-      });
-
-      feedGrid.appendChild(card);
-    });
-  }
-
-  function applyFilters() {
-    let filtered = productsData;
-
-    // Brand filter
-    const selectedBrand = filterBrand.value;
-    if (selectedBrand) {
-      filtered = filtered.filter(p => p.brand === selectedBrand);
-    }
-
-    // Category filter
-    const selectedCategory = filterCategory.value;
-    if (selectedCategory) {
-      filtered = filtered.filter(p => p.category === selectedCategory);
-    }
-
-    // Price filter
-    const maxPrice = parseInt(filterPrice.value);
-    filtered = filtered.filter(p => p.price <= maxPrice);
-
-    // Search filter
-    const searchTerm = searchInput.value.toLowerCase();
-    if (searchTerm) {
-      filtered = filtered.filter(p => 
-        p.title.toLowerCase().includes(searchTerm) ||
-        p.brand.toLowerCase().includes(searchTerm) ||
-        p.model.toLowerCase().includes(searchTerm) ||
-        p.description.toLowerCase().includes(searchTerm)
-      );
-    }
-
-    renderProducts(filtered);
-  }
-
-  // Event listeners
-  filterBrand.addEventListener('change', applyFilters);
-  filterCategory.addEventListener('change', applyFilters);
-  filterPrice.addEventListener('input', (e) => {
-    priceValue.textContent = e.target.value;
-    applyFilters();
-  });
-  searchInput.addEventListener('input', applyFilters);
-
-  resetBtn.addEventListener('click', () => {
-    filterBrand.value = '';
-    filterCategory.value = '';
-    filterPrice.value = '500';
-    searchInput.value = '';
-    priceValue.textContent = '500';
-    renderProducts(productsData);
-  });
-
-  // Initial render
-  renderProducts(productsData);
-}
-
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', () => {
-  initializeRegistrationUI();
-  initializeProductsFeed();
-});
-
-(async function startApp() {
-  try {
-    console.log("🔄 Starting app initialization...");
-    await initializeApp();
-    console.log("✅ App initialization complete");
-  } catch (error) {
-    console.error("❌ CRITICAL: App initialization failed:", error);
-    console.error("Error stack:", error?.stack);
-  }
-})();
+renderDashboard();
+showAuthState();
+updateLanguage();
+updatePageVisibility();
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    const cacheResetKey = "tiger_vvip_cache_reset_v3";
-
-    (async () => {
-      try {
-        const registrations = await navigator.serviceWorker.getRegistrations();
-        await Promise.all(registrations.map((registration) => registration.unregister()));
-
-        if ("caches" in window) {
-          const cacheKeys = await caches.keys();
-          await Promise.all(cacheKeys.map((key) => caches.delete(key)));
-        }
-
-        if (!sessionStorage.getItem(cacheResetKey)) {
-          sessionStorage.setItem(cacheResetKey, "1");
-          const url = new URL(window.location.href);
-          url.searchParams.set("refresh", String(Date.now()));
-          window.location.replace(url.toString());
-          return;
-        }
-      } catch (error) {
-        console.error("SW/cache reset failed", error);
-      }
-    })();
+    navigator.serviceWorker.register("./sw.js").catch((error) => console.error("SW register failed", error));
   });
 }
