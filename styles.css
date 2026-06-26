@@ -48,6 +48,14 @@ body {
   font-family: inherit;
 }
 
+main > section {
+  display: none;
+}
+
+main > section:target {
+  display: block;
+}
+
 /* ========================================
    صفحة الدخول (Login Page) - مثل فيسبوك
    ======================================== */
