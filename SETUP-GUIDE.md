@@ -1,8 +1,8 @@
-# TIGER VVIP AutoParts - Facebook-Style Final Setup Guide
+# TIGER VVIP AutoParts - Facebook-Style Setup Guide
 
-## ✅ Project Status: COMPLETE (100% Facebook-Style)
+## ⚠️ Project Status: UI Ready, Production Setup Still Required
 
-This is the final comprehensive implementation of TIGER VVIP AutoParts system with a **100% Facebook-style** design, colors, and user experience.
+This project delivers a complete Facebook-style UI and role-driven flow, but a production deployment still requires real Supabase keys, verified RLS policies, and an external OTP endpoint if registration OTP is kept.
 
 ---
 
@@ -66,6 +66,16 @@ Hover Color:      #E4E6EB (Light Gray Hover)
 - ✅ Session Management
 - ✅ Logout with Redirect
 
+## 🛡️ Security & Deployment Gaps
+
+Before production go-live, make sure you complete these items:
+
+- Replace the placeholder values in `supabase-local.js` with the real Supabase URL and anon key.
+- Run `supabase-schema.sql` in the Supabase SQL editor so all tables and RLS policies are created.
+- Verify that only staff roles can manage admin data such as suppliers and buyers.
+- If you keep OTP in the app, point `WHATSAPP_OTP_ENDPOINT` to a real server-side endpoint.
+- Test sign-in, profile creation, approval flows, and password reset using the real project.
+
 ### 6️⃣ **Currency**
 - ✅ Jordanian Dinar (د.أ) Only
 - ✅ Prices shown in JOD format
@@ -85,14 +95,25 @@ Hover Color:      #E4E6EB (Light Gray Hover)
 
 1. Create a Supabase project at [supabase.com](https://supabase.com)
 2. Copy your Project URL and Anon Key
-3. Update `supabase-config.js`:
+3. Update `supabase-local.js`:
 
 ```javascript
-const SUPABASE_URL = "your-project-url";
-const SUPABASE_ANON_KEY = "your-anon-key";
+window.SUPABASE_URL = "your-project-url";
+window.SUPABASE_ANON_KEY = "your-anon-key";
+window.WHATSAPP_OTP_ENDPOINT = "https://your-server.example.com/otp";
 ```
 
-### Step 2: Create Admin User
+### Step 2: Apply the Database Schema
+
+Open the Supabase SQL editor and run:
+
+```sql
+\i supabase-schema.sql
+```
+
+If your SQL editor does not support `\i`, paste the contents of `supabase-schema.sql` directly.
+
+### Step 3: Create Admin User
 
 Run this in Supabase SQL Editor to create the admin account:
 
@@ -115,7 +136,7 @@ VALUES (
 - Password: (secure password)
 - Then insert into profiles table
 
-### Step 3: Run the Application
+### Step 4: Run the Application
 
 ```bash
 # Open index.html in a web browser
@@ -240,6 +261,11 @@ You can create test accounts via the registration form:
 - `orders` - Order requests
 - `suppliers` - Supplier contacts
 - `buyers` - Buyer contacts
+
+### Access model
+- `suppliers`: public can read active rows, staff can manage rows
+- `buyers`: staff only
+- `parts`, `orders`, `profiles`, `review_requests`, `approval_requests`: protected by RLS
 
 ### Key Fields
 ```

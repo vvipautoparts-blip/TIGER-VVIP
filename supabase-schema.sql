@@ -394,13 +394,8 @@ CREATE INDEX IF NOT EXISTS vehicle_catalog_year_idx ON public.vehicle_catalog (y
 CREATE TABLE IF NOT EXISTS public.parts (
   id bigserial PRIMARY KEY,
   name text NOT NULL,
-  name_en text,
-  part_reference text,
   description text,
   price_jod numeric(10,2) NOT NULL DEFAULT 0,
-  discount_percent numeric(5,2) NOT NULL DEFAULT 0,
-  condition_type text NOT NULL DEFAULT 'new',
-  gallery_links text[] NOT NULL DEFAULT '{}',
   image_url text,
   status text NOT NULL DEFAULT 'active',
   category text NOT NULL,
@@ -414,32 +409,11 @@ CREATE TABLE IF NOT EXISTS public.parts (
   updated_at timestamp with time zone NOT NULL DEFAULT now()
 );
 
-ALTER TABLE public.parts
-  ADD COLUMN IF NOT EXISTS name_en text,
-  ADD COLUMN IF NOT EXISTS part_reference text,
-  ADD COLUMN IF NOT EXISTS discount_percent numeric(5,2) NOT NULL DEFAULT 0,
-  ADD COLUMN IF NOT EXISTS condition_type text NOT NULL DEFAULT 'new',
-  ADD COLUMN IF NOT EXISTS gallery_links text[] NOT NULL DEFAULT '{}';
-
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1
-    FROM pg_constraint
-    WHERE conname = 'parts_discount_percent_range'
-  ) THEN
-    ALTER TABLE public.parts
-      ADD CONSTRAINT parts_discount_percent_range
-      CHECK (discount_percent >= 0 AND discount_percent <= 99);
-  END IF;
-END $$;
-
 CREATE INDEX IF NOT EXISTS parts_brand_idx ON public.parts (brand);
 CREATE INDEX IF NOT EXISTS parts_model_idx ON public.parts (model);
 CREATE INDEX IF NOT EXISTS parts_year_idx ON public.parts (year);
 CREATE INDEX IF NOT EXISTS parts_category_idx ON public.parts (category);
 CREATE INDEX IF NOT EXISTS parts_status_idx ON public.parts (status);
-CREATE UNIQUE INDEX IF NOT EXISTS parts_part_reference_unique_idx ON public.parts (part_reference) WHERE part_reference IS NOT NULL;
 
 -- Review requests table
 CREATE TABLE IF NOT EXISTS public.review_requests (
@@ -666,25 +640,13 @@ CREATE TABLE IF NOT EXISTS public.gallery_images (
   description text,
   category text,
   image_url text NOT NULL,
-  thumbnail_url text,
   is_featured boolean NOT NULL DEFAULT false,
   is_public boolean NOT NULL DEFAULT true,
   related_part text,
   related_service text,
   status text NOT NULL DEFAULT 'pending',
-  display_order integer NOT NULL DEFAULT 0,
-  file_size integer,
-  format_type text NOT NULL DEFAULT 'jpeg',
-  upload_status text NOT NULL DEFAULT 'completed',
-  width integer,
-  height integer,
   created_at timestamp with time zone NOT NULL DEFAULT now(),
-  updated_at timestamp with time zone NOT NULL DEFAULT now(),
-  CONSTRAINT gallery_images_max_per_user CHECK (
-    (SELECT COUNT(*) FROM gallery_images g2 WHERE g2.owner_id = gallery_images.owner_id) <= 50
-  ),
-  CONSTRAINT gallery_images_jpeg_only CHECK (format_type = 'jpeg' OR format_type = 'jpg'),
-  CONSTRAINT gallery_images_file_size_limit CHECK (file_size IS NULL OR file_size <= 5242880)
+  updated_at timestamp with time zone NOT NULL DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS public.approval_requests (
@@ -704,9 +666,6 @@ CREATE TABLE IF NOT EXISTS public.approval_requests (
 
 CREATE INDEX IF NOT EXISTS service_center_services_owner_idx ON public.service_center_services(owner_id);
 CREATE INDEX IF NOT EXISTS gallery_images_owner_idx ON public.gallery_images(owner_id);
-CREATE INDEX IF NOT EXISTS gallery_images_category_idx ON public.gallery_images(category);
-CREATE INDEX IF NOT EXISTS gallery_images_created_idx ON public.gallery_images(created_at DESC);
-CREATE INDEX IF NOT EXISTS gallery_images_status_idx ON public.gallery_images(status);
 CREATE INDEX IF NOT EXISTS approval_requests_status_idx ON public.approval_requests(status);
 CREATE INDEX IF NOT EXISTS approval_requests_requester_idx ON public.approval_requests(requester_id);
 CREATE INDEX IF NOT EXISTS approval_requests_target_idx ON public.approval_requests(target_type, target_id);
@@ -855,508 +814,60 @@ CREATE POLICY "Reviewers can update approval requests" ON public.approval_reques
     )
   );
 
--- ==========================================
--- RBAC hardening for final production roles
--- Roles: super_admin, representative, dealer, customer
--- ==========================================
-
-UPDATE public.profiles
-SET role = CASE
-  WHEN role IN ('admin', 'super_admin') THEN 'super_admin'
-  WHEN role IN ('manager', 'supervisor', 'representative') THEN 'representative'
-  WHEN role IN ('dealer', 'merchant', 'service_center') THEN 'dealer'
-  ELSE 'customer'
-END
-WHERE role NOT IN ('super_admin', 'representative', 'dealer', 'customer')
-   OR role IN ('admin', 'manager', 'supervisor', 'merchant', 'service_center');
-
-ALTER TABLE public.account_types
-  ADD COLUMN IF NOT EXISTS role text NOT NULL DEFAULT 'customer',
-  ADD COLUMN IF NOT EXISTS is_registration_option boolean NOT NULL DEFAULT false;
-
-UPDATE public.account_types
-SET role = CASE
-  WHEN label IN ('المدير العام', 'Super Admin') THEN 'super_admin'
-  WHEN label IN ('مندوب', 'مدير منطقة', 'مشرف', 'Field Representative') THEN 'representative'
-  WHEN label IN (
-    'شركة قطع غيار', 'مؤسسة قطع غيار', 'مركز قطع غيار', 'محل بيع قطع غيار',
-    'شركة صيانة مركبات', 'مؤسسة صيانة مركبات', 'مركز صيانة مركبات', 'محل صيانة مركبات',
-    'شركة خدمات مركبات', 'مؤسسة خدمات مركبات', 'مركز خدمات مركبات', 'محل خدمات مركبات',
-    'شركة خدمات أخرى للمركبات', 'مؤسسة خدمات أخرى للمركبات', 'مركز خدمات أخرى للمركبات', 'محل خدمات أخرى للمركبات',
-    'Merchant / Service Center', 'تاجر / مركز خدمة'
-  ) THEN 'dealer'
-  ELSE 'customer'
-END,
-is_registration_option = label IN ('Super Admin', 'Field Representative', 'Merchant / Service Center', 'Customer', 'المدير العام', 'مندوب', 'تاجر / مركز خدمة', 'عميل');
-
-INSERT INTO public.account_types (label, category, active, role, is_registration_option)
-VALUES
-  ('Super Admin', 'System', true, 'super_admin', true),
-  ('Field Representative', 'Operations', true, 'representative', true),
-  ('Merchant / Service Center', 'Business', true, 'dealer', true),
-  ('Customer', 'Public', true, 'customer', true),
-  ('تاجر / مركز خدمة', 'الأعمال', true, 'dealer', true),
-  ('عميل', 'عام', true, 'customer', true)
-ON CONFLICT (label, category) DO UPDATE
-SET active = EXCLUDED.active,
-    role = EXCLUDED.role,
-    is_registration_option = EXCLUDED.is_registration_option;
-
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_constraint WHERE conname = 'profiles_role_check'
-  ) THEN
-    ALTER TABLE public.profiles
-      ADD CONSTRAINT profiles_role_check
-      CHECK (role IN ('super_admin', 'representative', 'dealer', 'customer'));
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_constraint WHERE conname = 'account_types_role_check'
-  ) THEN
-    ALTER TABLE public.account_types
-      ADD CONSTRAINT account_types_role_check
-      CHECK (role IN ('super_admin', 'representative', 'dealer', 'customer'));
-  END IF;
-END $$;
-
-CREATE OR REPLACE FUNCTION public.user_role_for(target_user uuid)
-RETURNS text
-LANGUAGE sql
-STABLE
-SECURITY DEFINER
-SET search_path = public
-AS $$
-  SELECT COALESCE((SELECT p.role FROM public.profiles p WHERE p.id = target_user LIMIT 1), 'guest');
-$$;
-
-CREATE OR REPLACE FUNCTION public.current_user_role()
-RETURNS text
-LANGUAGE sql
-STABLE
-SECURITY DEFINER
-SET search_path = public
-AS $$
-  SELECT public.user_role_for(auth.uid());
-$$;
-
-CREATE OR REPLACE FUNCTION public.is_super_admin()
-RETURNS boolean
-LANGUAGE sql
-STABLE
-SECURITY DEFINER
-SET search_path = public
-AS $$
-  SELECT public.current_user_role() = 'super_admin';
-$$;
-
-CREATE OR REPLACE FUNCTION public.is_field_representative()
-RETURNS boolean
-LANGUAGE sql
-STABLE
-SECURITY DEFINER
-SET search_path = public
-AS $$
-  SELECT public.current_user_role() = 'representative';
-$$;
-
-CREATE OR REPLACE FUNCTION public.is_reviewer()
-RETURNS boolean
-LANGUAGE sql
-STABLE
-SECURITY DEFINER
-SET search_path = public
-AS $$
-  SELECT public.current_user_role() IN ('super_admin', 'representative');
-$$;
-
-CREATE OR REPLACE FUNCTION public.is_team_member(target_user uuid)
-RETURNS boolean
-LANGUAGE sql
-STABLE
-SECURITY DEFINER
-SET search_path = public
-AS $$
-  SELECT EXISTS (
-    SELECT 1
-    FROM public.profiles p
-    WHERE p.id = target_user
-      AND p.superior_id = auth.uid()
-  );
-$$;
-
-CREATE OR REPLACE FUNCTION public.can_publish_owner(target_user uuid)
-RETURNS boolean
-LANGUAGE sql
-STABLE
-SECURITY DEFINER
-SET search_path = public
-AS $$
-  SELECT EXISTS (
-    SELECT 1
-    FROM public.profiles p
-    WHERE p.id = target_user
-      AND p.role = 'dealer'
-      AND p.is_approved = true
-      AND COALESCE(p.business_status, 'active') = 'active'
-      AND COALESCE(p.subscription, 'basic') <> 'expired'
-  );
-$$;
-
-CREATE OR REPLACE FUNCTION public.can_self_update_profile(
-  target_id uuid,
-  new_role text,
-  new_is_approved boolean,
-  new_superior_id uuid,
-  new_subscription text,
-  new_business_status text
-)
-RETURNS boolean
-LANGUAGE sql
-STABLE
-SECURITY DEFINER
-SET search_path = public
-AS $$
-  SELECT auth.uid() = target_id
-    AND EXISTS (
-      SELECT 1
-      FROM public.profiles p
-      WHERE p.id = auth.uid()
-        AND p.role = new_role
-        AND p.is_approved = new_is_approved
-        AND p.superior_id IS NOT DISTINCT FROM new_superior_id
-        AND p.subscription = new_subscription
-        AND COALESCE(p.business_status, 'active') = COALESCE(new_business_status, 'active')
-    );
-$$;
-
 ALTER TABLE public.suppliers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.buyers ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Users can view own commissions" ON public.commissions;
-DROP POLICY IF EXISTS "Supervisor views team commissions" ON public.commissions;
-DROP POLICY IF EXISTS "Manager views team commissions" ON public.commissions;
-DROP POLICY IF EXISTS "Super admin views all commissions" ON public.commissions;
-DROP POLICY IF EXISTS "Users can insert own commissions" ON public.commissions;
-DROP POLICY IF EXISTS "Users can update own commissions" ON public.commissions;
-
-CREATE POLICY "Users can view own commissions" ON public.commissions
-  FOR SELECT USING (auth.uid() = user_id);
-
-CREATE POLICY "Representative can view team commissions" ON public.commissions
-  FOR SELECT USING (public.is_team_member(commissions.user_id));
-
-CREATE POLICY "Super admin views all commissions" ON public.commissions
-  FOR SELECT USING (public.is_super_admin());
-
-CREATE POLICY "Super admin manages commissions" ON public.commissions
-  FOR ALL USING (public.is_super_admin())
-  WITH CHECK (public.is_super_admin());
-
-DROP POLICY IF EXISTS "Users can view own orders" ON public.orders;
-DROP POLICY IF EXISTS "Team and super admin can view orders" ON public.orders;
-DROP POLICY IF EXISTS "Users can insert own orders" ON public.orders;
-DROP POLICY IF EXISTS "Users can update own orders" ON public.orders;
-
-CREATE POLICY "Users can view own orders" ON public.orders
-  FOR SELECT USING (auth.uid() = user_id);
-
-CREATE POLICY "Reviewers can view permitted orders" ON public.orders
+DROP POLICY IF EXISTS "Anyone can read active suppliers" ON public.suppliers;
+CREATE POLICY "Anyone can read active suppliers" ON public.suppliers
   FOR SELECT USING (
-    public.is_super_admin()
-    OR public.is_team_member(orders.user_id)
+    active = true
+    OR EXISTS (
+      SELECT 1 FROM public.profiles p
+      WHERE p.id = auth.uid()
+        AND p.role IN ('super_admin', 'manager', 'representative')
+    )
   );
 
-CREATE POLICY "Users can insert own orders" ON public.orders
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update own orders" ON public.orders
-  FOR UPDATE USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Reviewers can update permitted orders" ON public.orders
-  FOR UPDATE USING (
-    public.is_super_admin()
-    OR public.is_team_member(orders.user_id)
+DROP POLICY IF EXISTS "Staff can manage suppliers" ON public.suppliers;
+CREATE POLICY "Staff can manage suppliers" ON public.suppliers
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles p
+      WHERE p.id = auth.uid()
+        AND p.role IN ('super_admin', 'manager', 'representative')
+    )
   )
   WITH CHECK (
-    public.is_super_admin()
-    OR public.is_team_member(orders.user_id)
+    EXISTS (
+      SELECT 1 FROM public.profiles p
+      WHERE p.id = auth.uid()
+        AND p.role IN ('super_admin', 'manager', 'representative')
+    )
   );
 
-DROP POLICY IF EXISTS "Users can view own profile" ON public.profiles;
-DROP POLICY IF EXISTS "Admin can view all profiles" ON public.profiles;
-DROP POLICY IF EXISTS "Users can insert own profile" ON public.profiles;
-DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
-DROP POLICY IF EXISTS "Admin can update approvals" ON public.profiles;
-
-CREATE POLICY "Users can view own profile" ON public.profiles
-  FOR SELECT USING (auth.uid() = id);
-
-CREATE POLICY "Super admin can view all profiles" ON public.profiles
-  FOR SELECT USING (public.is_super_admin());
-
-CREATE POLICY "Representative can view assigned profiles" ON public.profiles
-  FOR SELECT USING (public.is_team_member(profiles.id));
-
-CREATE POLICY "Users can insert own profile" ON public.profiles
-  FOR INSERT WITH CHECK (
-    auth.uid() = id
-    AND role IN ('super_admin', 'representative', 'dealer', 'customer')
-  );
-
-CREATE POLICY "Users can update own safe profile fields" ON public.profiles
-  FOR UPDATE USING (auth.uid() = id)
+DROP POLICY IF EXISTS "Staff can manage buyers" ON public.buyers;
+CREATE POLICY "Staff can manage buyers" ON public.buyers
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles p
+      WHERE p.id = auth.uid()
+        AND p.role IN ('super_admin', 'manager', 'representative')
+    )
+  )
   WITH CHECK (
-    public.can_self_update_profile(id, role, is_approved, superior_id, subscription, business_status)
+    EXISTS (
+      SELECT 1 FROM public.profiles p
+      WHERE p.id = auth.uid()
+        AND p.role IN ('super_admin', 'manager', 'representative')
+    )
   );
 
-CREATE POLICY "Super admin can manage all profiles" ON public.profiles
-  FOR UPDATE USING (public.is_super_admin())
-  WITH CHECK (public.is_super_admin());
-
-DROP POLICY IF EXISTS "Users can view own salary payments" ON public.salary_payments;
-DROP POLICY IF EXISTS "Admin can view all salary payments" ON public.salary_payments;
-DROP POLICY IF EXISTS "Only admin can insert salary payments" ON public.salary_payments;
-
-CREATE POLICY "Users can view own salary payments" ON public.salary_payments
-  FOR SELECT USING (auth.uid() = user_id);
-
-CREATE POLICY "Super admin can view all salary payments" ON public.salary_payments
-  FOR SELECT USING (public.is_super_admin());
-
-CREATE POLICY "Super admin manages salary payments" ON public.salary_payments
-  FOR ALL USING (public.is_super_admin())
-  WITH CHECK (public.is_super_admin());
-
-DROP POLICY IF EXISTS "Users manage own sessions" ON public.user_sessions;
-CREATE POLICY "Users manage own sessions" ON public.user_sessions
-  FOR ALL USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "Users can manage otp by phone" ON public.otp_codes;
-CREATE POLICY "Super admin can review otp codes" ON public.otp_codes
-  FOR SELECT USING (public.is_super_admin());
-
-DROP POLICY IF EXISTS "Anyone can read active account types" ON public.account_types;
-CREATE POLICY "Anyone can read active registration account types" ON public.account_types
-  FOR SELECT USING (active = true AND is_registration_option = true);
-
-CREATE POLICY "Super admin manages account types" ON public.account_types
-  FOR ALL USING (public.is_super_admin())
-  WITH CHECK (public.is_super_admin());
-
-DROP POLICY IF EXISTS "Anyone can read active vehicle catalog" ON public.vehicle_catalog;
-CREATE POLICY "Anyone can read active vehicle catalog" ON public.vehicle_catalog
-  FOR SELECT USING (is_active = true);
-
-CREATE POLICY "Super admin manages vehicle catalog" ON public.vehicle_catalog
-  FOR ALL USING (public.is_super_admin())
-  WITH CHECK (public.is_super_admin());
-
-DROP POLICY IF EXISTS "Anyone can read active parts" ON public.parts;
-DROP POLICY IF EXISTS "Dealer can insert own parts" ON public.parts;
-DROP POLICY IF EXISTS "Dealer can update own parts" ON public.parts;
-
-CREATE POLICY "Public can read approved active parts" ON public.parts
-  FOR SELECT USING (
-    (status = 'active' AND public.can_publish_owner(dealer_id))
-    OR auth.uid() = dealer_id
-    OR public.is_super_admin()
-    OR public.is_team_member(dealer_id)
-  );
-
-CREATE POLICY "Dealer can insert own parts" ON public.parts
-  FOR INSERT WITH CHECK (
-    auth.uid() = dealer_id
-    AND public.current_user_role() = 'dealer'
-  );
-
-CREATE POLICY "Dealer can update own parts" ON public.parts
-  FOR UPDATE USING (auth.uid() = dealer_id)
-  WITH CHECK (auth.uid() = dealer_id);
-
-CREATE POLICY "Super admin manages all parts" ON public.parts
-  FOR ALL USING (public.is_super_admin())
-  WITH CHECK (public.is_super_admin());
-
-DROP POLICY IF EXISTS "Users can read own and admin review requests" ON public.review_requests;
-DROP POLICY IF EXISTS "Users can create own review requests" ON public.review_requests;
-DROP POLICY IF EXISTS "Super admin can update review requests" ON public.review_requests;
-
-CREATE POLICY "Requester reads own review requests" ON public.review_requests
-  FOR SELECT USING (requester_id = auth.uid());
-
-CREATE POLICY "Reviewers read review requests" ON public.review_requests
-  FOR SELECT USING (public.is_reviewer());
-
-CREATE POLICY "Users can create own review requests" ON public.review_requests
-  FOR INSERT WITH CHECK (requester_id = auth.uid());
-
-CREATE POLICY "Super admin updates review requests" ON public.review_requests
-  FOR UPDATE USING (public.is_super_admin())
-  WITH CHECK (public.is_super_admin());
-
--- =============================================
--- Email Verifications Table
--- =============================================
-CREATE TABLE IF NOT EXISTS public.email_verifications (
-  id          bigserial PRIMARY KEY,
-  email       text NOT NULL,
-  token       text NOT NULL UNIQUE,
-  verified_at timestamp with time zone DEFAULT NULL,
-  expires_at  timestamp with time zone NOT NULL,
-  ip_address  text DEFAULT NULL,
-  created_at  timestamp with time zone NOT NULL DEFAULT now()
-);
-
--- Index for fast lookups
-CREATE INDEX IF NOT EXISTS idx_email_verifications_email ON public.email_verifications(email);
-CREATE INDEX IF NOT EXISTS idx_email_verifications_token ON public.email_verifications(token);
-CREATE INDEX IF NOT EXISTS idx_email_verifications_expires ON public.email_verifications(expires_at);
-
--- Only Edge Functions (service role) can read/write this table
-ALTER TABLE public.email_verifications ENABLE ROW LEVEL SECURITY;
-
--- No public access — all access is via Edge Function with service role key
-CREATE POLICY "Service role only" ON public.email_verifications
-  FOR ALL USING (false);
-
--- Auto-cleanup: delete expired tokens older than 7 days (run via cron or pg_cron)
--- pg_cron: SELECT cron.schedule('cleanup-expired-tokens', '0 3 * * *',
---   $$DELETE FROM public.email_verifications WHERE expires_at < now() - interval '7 days'$$);
-
-DROP POLICY IF EXISTS "Users can read admin replies for own requests" ON public.admin_replies;
-DROP POLICY IF EXISTS "Super admin can create replies" ON public.admin_replies;
-
-CREATE POLICY "Users can read admin replies for own requests" ON public.admin_replies
+DROP POLICY IF EXISTS "Staff can read buyers" ON public.buyers;
+CREATE POLICY "Staff can read buyers" ON public.buyers
   FOR SELECT USING (
     EXISTS (
-      SELECT 1
-      FROM public.review_requests rr
-      WHERE rr.id = admin_replies.review_request_id
-        AND rr.requester_id = auth.uid()
-    )
-    OR public.is_reviewer()
-  );
-
-CREATE POLICY "Reviewers can create replies" ON public.admin_replies
-  FOR INSERT WITH CHECK (public.is_reviewer());
-
-DROP POLICY IF EXISTS "Users can read part update logs" ON public.part_update_logs;
-DROP POLICY IF EXISTS "Owners and super admin can log part updates" ON public.part_update_logs;
-
-CREATE POLICY "Owners and reviewers can read part update logs" ON public.part_update_logs
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1
-      FROM public.parts pa
-      WHERE pa.id = part_update_logs.part_id
-        AND (
-          pa.dealer_id = auth.uid()
-          OR public.is_super_admin()
-          OR public.is_team_member(pa.dealer_id)
-        )
+      SELECT 1 FROM public.profiles p
+      WHERE p.id = auth.uid()
+        AND p.role IN ('super_admin', 'manager', 'representative')
     )
   );
-
-CREATE POLICY "Owners and reviewers can log part updates" ON public.part_update_logs
-  FOR INSERT WITH CHECK (
-    changed_by = auth.uid()
-    AND EXISTS (
-      SELECT 1
-      FROM public.parts pa
-      WHERE pa.id = part_update_logs.part_id
-        AND (
-          pa.dealer_id = auth.uid()
-          OR public.is_super_admin()
-          OR public.is_team_member(pa.dealer_id)
-        )
-    )
-  );
-
-DROP POLICY IF EXISTS "Users can read own profile meta" ON public.profile_meta;
-DROP POLICY IF EXISTS "Users can upsert own profile meta" ON public.profile_meta;
-
-CREATE POLICY "Users can read own profile meta" ON public.profile_meta
-  FOR SELECT USING (auth.uid() = user_id);
-
-CREATE POLICY "Reviewers can read permitted profile meta" ON public.profile_meta
-  FOR SELECT USING (
-    public.is_super_admin()
-    OR public.is_team_member(profile_meta.user_id)
-  );
-
-CREATE POLICY "Users can upsert own profile meta" ON public.profile_meta
-  FOR ALL USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Super admin manages profile meta" ON public.profile_meta
-  FOR ALL USING (public.is_super_admin())
-  WITH CHECK (public.is_super_admin());
-
-DROP POLICY IF EXISTS "Anyone can read active services" ON public.service_center_services;
-DROP POLICY IF EXISTS "Owners can manage own services" ON public.service_center_services;
-DROP POLICY IF EXISTS "Reviewers can update services status" ON public.service_center_services;
-
-CREATE POLICY "Public can read approved active services" ON public.service_center_services
-  FOR SELECT USING (
-    (status = 'active' AND is_public = true AND public.can_publish_owner(owner_id))
-    OR auth.uid() = owner_id
-    OR public.is_super_admin()
-    OR public.is_team_member(owner_id)
-  );
-
-CREATE POLICY "Owners can manage own services" ON public.service_center_services
-  FOR ALL USING (auth.uid() = owner_id)
-  WITH CHECK (auth.uid() = owner_id);
-
-CREATE POLICY "Super admin manages services" ON public.service_center_services
-  FOR ALL USING (public.is_super_admin())
-  WITH CHECK (public.is_super_admin());
-
-DROP POLICY IF EXISTS "Anyone can read active gallery" ON public.gallery_images;
-DROP POLICY IF EXISTS "Owners can manage own gallery" ON public.gallery_images;
-DROP POLICY IF EXISTS "Reviewers can update gallery status" ON public.gallery_images;
-
-CREATE POLICY "Public can read approved active gallery" ON public.gallery_images
-  FOR SELECT USING (
-    (status = 'active' AND is_public = true AND public.can_publish_owner(owner_id))
-    OR auth.uid() = owner_id
-    OR public.is_super_admin()
-    OR public.is_team_member(owner_id)
-  );
-
-CREATE POLICY "Owners can manage own gallery" ON public.gallery_images
-  FOR ALL USING (auth.uid() = owner_id)
-  WITH CHECK (auth.uid() = owner_id);
-
-CREATE POLICY "Super admin manages gallery" ON public.gallery_images
-  FOR ALL USING (public.is_super_admin())
-  WITH CHECK (public.is_super_admin());
-
-DROP POLICY IF EXISTS "Requester can read own approval requests" ON public.approval_requests;
-DROP POLICY IF EXISTS "Requester can create approval requests" ON public.approval_requests;
-DROP POLICY IF EXISTS "Reviewers can update approval requests" ON public.approval_requests;
-
-CREATE POLICY "Requester can read own approval requests" ON public.approval_requests
-  FOR SELECT USING (requester_id = auth.uid());
-
-CREATE POLICY "Reviewers can read approval requests" ON public.approval_requests
-  FOR SELECT USING (public.is_reviewer());
-
-CREATE POLICY "Requester can create approval requests" ON public.approval_requests
-  FOR INSERT WITH CHECK (requester_id = auth.uid());
-
-CREATE POLICY "Reviewers can update approval requests" ON public.approval_requests
-  FOR UPDATE USING (public.is_reviewer())
-  WITH CHECK (public.is_reviewer());
-
-CREATE POLICY "Super admin manages suppliers" ON public.suppliers
-  FOR ALL USING (public.is_super_admin())
-  WITH CHECK (public.is_super_admin());
-
-CREATE POLICY "Super admin manages buyers" ON public.buyers
-  FOR ALL USING (public.is_super_admin())
-  WITH CHECK (public.is_super_admin());
