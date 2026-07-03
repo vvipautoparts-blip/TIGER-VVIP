@@ -65,8 +65,6 @@
   const logoutConfirmModal = document.getElementById("logout-confirm-modal");
   const confirmLogoutBtn = document.getElementById("confirm-logout-btn");
   const cancelLogoutBtn = document.getElementById("cancel-logout-btn");
-  const openSignupFlowBtn = document.getElementById("open-signup-flow-btn");
-  const openRecoveryFlowBtn = document.getElementById("open-recovery-flow-btn");
   const emailLoginBtn = document.getElementById("email-login-btn");
   const loginEmailInput = document.getElementById("login-email");
   const loginPasswordInput = document.getElementById("login-password");
@@ -91,8 +89,6 @@
     continueLabel: { ar: "متابعة باستخدام", en: "Continue with" },
     continuePublic: { ar: "متابعة إلى البروفايل العام", en: "Continue to public profile" },
     resetLink: { ar: "نسيت كلمة المرور؟ إعادة تعيين بالإيميل", en: "Forgot your password? Reset via email" },
-    signupFlow: { ar: "إنشاء حساب جديد (خطوة بخطوة)", en: "Create new account (step-by-step)" },
-    recoveryFlow: { ar: "استعادة الحساب (خطوة بخطوة)", en: "Account recovery (step-by-step)" },
     logout: { ar: "تسجيل الخروج", en: "Log out" },
     avatarAria: { ar: "الانتقال إلى البروفايل الخاص", en: "Go to private profile" },
     verifyTitle: { ar: "التحقق من البريد الإلكتروني", en: "Verify your email" },
@@ -189,8 +185,6 @@
     if (continuePublicBtn) continuePublicBtn.textContent = tx(AUTH_TEXT.continuePublic);
     if (avatarPrivateBtn) avatarPrivateBtn.setAttribute("aria-label", tx(AUTH_TEXT.avatarAria));
     setText(".reset-link", tx(AUTH_TEXT.resetLink));
-    if (openSignupFlowBtn) openSignupFlowBtn.textContent = tx(AUTH_TEXT.signupFlow);
-    if (openRecoveryFlowBtn) openRecoveryFlowBtn.textContent = tx(AUTH_TEXT.recoveryFlow);
     if (logoutBtn) logoutBtn.textContent = tx(AUTH_TEXT.logout);
 
     setText("#verification-modal .verification-title", tx(AUTH_TEXT.verifyTitle));
@@ -524,20 +518,6 @@
   if (closeVerification) {
     closeVerification.addEventListener("click", function () {
       if (verificationModal) verificationModal.style.display = "none";
-    });
-  }
-
-  if (openSignupFlowBtn) {
-    openSignupFlowBtn.addEventListener("click", function () {
-      const lang = normalizeLang(localStorage.getItem(STORAGE_LANG_KEY) || authLang);
-      window.location.href = "auth-flow.html?mode=signup&lang=" + encodeURIComponent(lang);
-    });
-  }
-
-  if (openRecoveryFlowBtn) {
-    openRecoveryFlowBtn.addEventListener("click", function () {
-      const lang = normalizeLang(localStorage.getItem(STORAGE_LANG_KEY) || authLang);
-      window.location.href = "auth-flow.html?mode=recovery&lang=" + encodeURIComponent(lang);
     });
   }
 
