@@ -81,11 +81,11 @@
   const params = new URLSearchParams(window.location.search);
   let mode = params.get("mode") === "recovery" ? "recovery" : "signup";
   let currentStep = 1;
-  const lang = normalizeLang(params.get("lang") || localStorage.getItem(STORAGE_LANG_KEY) || document.documentElement.lang || "ar");
+  let currentLang = normalizeLang(params.get("lang") || localStorage.getItem(STORAGE_LANG_KEY) || document.documentElement.lang || "ar");
 
-  localStorage.setItem(STORAGE_LANG_KEY, lang);
-  document.documentElement.lang = lang;
-  document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+  localStorage.setItem(STORAGE_LANG_KEY, currentLang);
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = currentLang === "ar" ? "rtl" : "ltr";
 
   const COPY = {
     ar: {
@@ -201,7 +201,135 @@
   };
 
   function t(key) {
-    return COPY[lang][key] || "";
+    return COPY[currentLang][key] || "";
+  }
+
+  function setNodeText(selector, arText, enText) {
+    const node = document.querySelector(selector);
+    if (!node) return;
+    node.textContent = currentLang === "en" ? enText : arText;
+  }
+
+  function setInputPlaceholder(selector, arText, enText) {
+    const node = document.querySelector(selector);
+    if (!node) return;
+    node.placeholder = currentLang === "en" ? enText : arText;
+  }
+
+  function setLabelWithInput(selector, arText, enText) {
+    const label = document.querySelector(selector);
+    if (!label) return;
+    const input = label.querySelector("input");
+    if (!input) {
+      label.textContent = currentLang === "en" ? enText : arText;
+      return;
+    }
+    label.innerHTML = "";
+    label.appendChild(input);
+    label.appendChild(document.createTextNode(" " + (currentLang === "en" ? enText : arText)));
+  }
+
+  function applyStaticLocalization() {
+    document.title = currentLang === "en" ? "Authentication Flow - VVIP TIGER" : "تدفق المصادقة - VVIP TIGER";
+
+    setNodeText("#flow-subtitle", "منظومة مصادقة كاملة خطوة بخطوة.", "A complete step-by-step authentication system.");
+
+    const navLinks = Array.from(document.querySelectorAll(".page-rail-link"));
+    if (navLinks[0]) navLinks[0].textContent = currentLang === "en" ? "Login" : "الدخول";
+    if (navLinks[1]) navLinks[1].textContent = currentLang === "en" ? "Full flow" : "التدفق الكامل";
+    if (navLinks[2]) navLinks[2].textContent = currentLang === "en" ? "Recover password" : "استعادة كلمة المرور";
+
+    setNodeText("#mode-signup", "إنشاء حساب", "Sign up");
+    setNodeText("#mode-recovery", "استرجاع الحساب", "Recovery");
+
+    setNodeText('.flow-panel[data-mode="signup"][data-step="1"] h2', "مرحبًا بك", "Welcome");
+    setNodeText('.flow-panel[data-mode="signup"][data-step="1"] p', "ابدأ إنشاء حساب VVIP TIGER بخطوات واضحة.", "Start creating your VVIP TIGER account in clear steps.");
+    setNodeText('label[for="signup-fullname"]', "الاسم الكامل", "Full name");
+    setInputPlaceholder("#signup-fullname", "الاسم الكامل", "Full name");
+
+    setNodeText('.flow-panel[data-mode="signup"][data-step="2"] h2', "معلومات التواصل", "Contact details");
+    setNodeText('.flow-panel[data-mode="signup"][data-step="2"] p', "أدخل البريد الإلكتروني ورقم الهاتف.", "Enter your email and phone number.");
+    setNodeText('label[for="signup-email"]', "البريد الإلكتروني", "Email");
+    setNodeText('label[for="signup-phone"]', "رقم الهاتف", "Phone number");
+
+    setNodeText('.flow-panel[data-mode="signup"][data-step="3"] h2', "التحقق", "Verification");
+    setNodeText('.flow-panel[data-mode="signup"][data-step="3"] p', "أدخل رمز التحقق المكون من 6 أرقام.", "Enter the 6-digit verification code.");
+    setNodeText("#signup-otp-resend", "إعادة إرسال الرمز", "Resend code");
+
+    setNodeText('.flow-panel[data-mode="signup"][data-step="4"] h2', "كلمة المرور", "Password");
+    setNodeText('.flow-panel[data-mode="signup"][data-step="4"] p', "حدد كلمة مرور قوية.", "Choose a strong password.");
+    setNodeText('label[for="signup-password"]', "كلمة المرور", "Password");
+    setNodeText('label[for="signup-password-confirm"]', "تأكيد كلمة المرور", "Confirm password");
+
+    setNodeText('.flow-panel[data-mode="signup"][data-step="5"] h2', "الهوية", "Identity");
+    setNodeText('.flow-panel[data-mode="signup"][data-step="5"] p', "اسم المستخدم والصورة الشخصية.", "Username and profile image.");
+    setNodeText('label[for="signup-username"]', "اسم المستخدم", "Username");
+    setNodeText('label[for="signup-avatar"]', "رابط صورة شخصية (اختياري)", "Profile image URL (optional)");
+    setInputPlaceholder("#signup-avatar", "https://...", "https://...");
+
+    setNodeText('.flow-panel[data-mode="signup"][data-step="6"] h2', "الاهتمامات", "Interests");
+    setNodeText('.flow-panel[data-mode="signup"][data-step="6"] p', "اختر اهتماماتك الأساسية.", "Select your main interests.");
+    setLabelWithInput('.flow-panel[data-mode="signup"][data-step="6"] label:nth-of-type(1)', "قطع الغيار", "Auto parts");
+    setLabelWithInput('.flow-panel[data-mode="signup"][data-step="6"] label:nth-of-type(2)', "الصيانة", "Maintenance");
+    setLabelWithInput('.flow-panel[data-mode="signup"][data-step="6"] label:nth-of-type(3)', "السيارات", "Cars");
+    setLabelWithInput('.flow-panel[data-mode="signup"][data-step="6"] label:nth-of-type(4)', "التحليلات", "Analytics");
+
+    setNodeText('.flow-panel[data-mode="signup"][data-step="7"] h2', "الشروط", "Terms");
+    setNodeText('.flow-panel[data-mode="signup"][data-step="7"] p', "يجب الموافقة لإكمال التسجيل.", "You must accept terms to continue.");
+    setLabelWithInput('.flow-panel[data-mode="signup"][data-step="7"] .flow-consent', "أوافق على الشروط وسياسة الخصوصية.", "I accept the terms and privacy policy.");
+
+    setNodeText('.flow-panel[data-mode="signup"][data-step="8"] h2', "حماية إضافية 2FA", "Extra 2FA protection");
+    setNodeText('.flow-panel[data-mode="signup"][data-step="8"] p', "فعّل طبقة حماية إضافية: جهاز موثوق + أكواد احتياطية.", "Enable an extra layer: trusted device + backup codes.");
+    setLabelWithInput('.flow-panel[data-mode="signup"][data-step="8"] .flow-consent', "تذكّر هذا الجهاز كجهاز موثوق.", "Remember this device as trusted.");
+    setNodeText('label[for="signup-trusted-expiry"]', "مدة صلاحية الجهاز الموثوق", "Trusted device validity");
+    const trustedOptions = Array.from(document.querySelectorAll("#signup-trusted-expiry option"));
+    if (trustedOptions[0]) trustedOptions[0].textContent = currentLang === "en" ? "7 days" : "7 أيام";
+    if (trustedOptions[1]) trustedOptions[1].textContent = currentLang === "en" ? "30 days" : "30 يوم";
+    if (trustedOptions[2]) trustedOptions[2].textContent = currentLang === "en" ? "90 days" : "90 يوم";
+    setNodeText("#signup-generate-backup", "توليد أكواد احتياطية", "Generate backup codes");
+    setNodeText("#signup-revoke-trusted", "إبطال كل الأجهزة الموثوقة", "Revoke all trusted devices");
+    setNodeText("#signup-view-security", "عرض التقرير الأمني", "View security report");
+    setNodeText("#signup-copy-security", "نسخ التقرير الأمني", "Copy security report");
+    setNodeText("#signup-export-security", "تصدير تقرير أمني JSON", "Export JSON security report");
+
+    setNodeText('.flow-panel[data-mode="signup"][data-step="9"] h2', "تم إنشاء الحساب", "Account created");
+    setNodeText('.flow-panel[data-mode="signup"][data-step="9"] p', "يمكنك الآن المتابعة إلى المنصة.", "You can now continue to the platform.");
+    setNodeText("#flow-finish-signup", "الانتقال إلى الصفحة العامة", "Go to public page");
+
+    setNodeText('.flow-panel[data-mode="recovery"][data-step="1"] h2', "تعريف الحساب", "Account identification");
+    setNodeText('.flow-panel[data-mode="recovery"][data-step="1"] p', "أدخل البريد أو الهاتف.", "Enter your email or phone.");
+    setInputPlaceholder("#recovery-identity", "name@example.com أو +9627...", "name@example.com or +9627...");
+
+    setNodeText('.flow-panel[data-mode="recovery"][data-step="2"] h2', "طريقة الاسترجاع", "Recovery method");
+    setNodeText('.flow-panel[data-mode="recovery"][data-step="2"] p', "اختر قناة إرسال الرمز.", "Choose how to receive the code.");
+    setLabelWithInput('.flow-panel[data-mode="recovery"][data-step="2"] label:nth-of-type(1)', "رسالة نصية", "SMS");
+    setLabelWithInput('.flow-panel[data-mode="recovery"][data-step="2"] label:nth-of-type(2)', "بريد إلكتروني", "Email");
+    setLabelWithInput('.flow-panel[data-mode="recovery"][data-step="2"] label:nth-of-type(3)', "جهاز موثوق", "Trusted device");
+    setLabelWithInput('.flow-panel[data-mode="recovery"][data-step="2"] label:nth-of-type(4)', "كود احتياطي", "Backup code");
+
+    setNodeText('.flow-panel[data-mode="recovery"][data-step="3"] h2', "رمز التحقق", "Verification code");
+    setNodeText('.flow-panel[data-mode="recovery"][data-step="3"] p', "أدخل رمز الاسترجاع.", "Enter the recovery code.");
+    setNodeText("#recovery-otp-resend", "إعادة إرسال الرمز", "Resend code");
+
+    setNodeText('.flow-panel[data-mode="recovery"][data-step="4"] h2', "تعيين كلمة مرور جديدة", "Set a new password");
+    setNodeText('label[for="recovery-password"]', "كلمة المرور الجديدة", "New password");
+    setNodeText('label[for="recovery-password-confirm"]', "تأكيد كلمة المرور", "Confirm password");
+
+    setNodeText('.flow-panel[data-mode="recovery"][data-step="5"] h2', "تم الاسترجاع", "Recovery complete");
+    setNodeText('.flow-panel[data-mode="recovery"][data-step="5"] p', "تم تحديث كلمة المرور بنجاح.", "Password was updated successfully.");
+    setNodeText("#flow-finish-recovery", "العودة إلى تسجيل الدخول", "Back to login");
+
+    setNodeText("#flow-back", "السابق", "Back");
+    setNodeText("#flow-next", "التالي", "Next");
+
+    setNodeText("#security-report-title", "معاينة التقرير الأمني", "Security report preview");
+    setNodeText("#security-report-close", "إغلاق", "Close");
+    const closeBtn = document.getElementById("security-report-close");
+    if (closeBtn) {
+      closeBtn.setAttribute("aria-label", currentLang === "en" ? "Close" : "إغلاق");
+    }
+    setNodeText("#security-report-copy", "نسخ التقرير", "Copy report");
+    setNodeText("#security-report-export", "تصدير JSON", "Export JSON");
   }
 
   function normalizePhone(value) {
@@ -404,7 +532,7 @@
   function formatTrustedExpiry(epochMs) {
     const value = Number(epochMs || 0);
     if (!value) return "-";
-    return new Date(value).toLocaleDateString(lang === "ar" ? "ar" : "en", {
+    return new Date(value).toLocaleDateString(currentLang === "ar" ? "ar" : "en", {
       year: "numeric",
       month: "2-digit",
       day: "2-digit"
@@ -489,7 +617,7 @@
 
     return {
       generatedAt: new Date().toISOString(),
-      language: lang,
+      language: currentLang,
       twoFactor: {
         enabled: Boolean(profile.enabled),
         trustedEnabled: Boolean(profile.trustedEnabled),
@@ -1184,7 +1312,7 @@
       pushSessionEntry({
         at: new Date().toISOString(),
         ua: navigator.userAgent,
-        lang: lang,
+        lang: currentLang,
         email: email,
         type: "signup"
       });
@@ -1578,6 +1706,7 @@
     });
   }
 
+  applyStaticLocalization();
   setInterval(updateOtpUiMeta, 1000);
   renderBackupCodes([]);
   refreshSecurityWidgets();

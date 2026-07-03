@@ -400,7 +400,10 @@
   }
 
   // Email / Password login
-  async function handleEmailLogin() {
+  async function handleEmailLogin(triggerEvent) {
+    if (triggerEvent && triggerEvent.isTrusted === false) {
+      return;
+    }
     if (!emailLoginBtn || !loginEmailInput || !loginPasswordInput) return;
     const email = String(loginEmailInput.value || "").trim();
     const password = String(loginPasswordInput.value || "");
@@ -456,11 +459,13 @@
   }
 
   if (emailLoginBtn) {
-    emailLoginBtn.addEventListener("click", handleEmailLogin);
+    emailLoginBtn.addEventListener("click", function (event) {
+      handleEmailLogin(event);
+    });
   }
   if (loginPasswordInput) {
     loginPasswordInput.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") handleEmailLogin();
+      if (e.key === "Enter") handleEmailLogin(e);
     });
   }
   if (loginEmailInput) {
