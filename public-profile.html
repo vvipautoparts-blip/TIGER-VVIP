@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css?v=20260703e" />
+  <link rel="stylesheet" href="enhanced-components.css?v=20260703f" />
 </head>
 <body class="social-page dark-theme">
   <main class="mobile-frame" aria-label="الصفحة العامة">
@@ -78,6 +79,25 @@
         <button id="stories-archive-toggle" type="button" data-i18n-ar="الأرشيف" data-i18n-en="Archive">الأرشيف</button>
       </div>
       <div id="stories-list" class="stories-list"></div>
+    </section>
+
+    <!-- 🚀 SMART PRODUCTS SECTION 2030 -->
+    <section class="fb-composer" style="background: linear-gradient(135deg, #f0f7ff 0%, #e8f1ff 100%); border: 1px solid rgba(24, 119, 242, 0.1); margin: 1rem 0.5rem;">
+      <div style="padding: 12px 0;">
+        <h2 style="margin: 0 0 12px; font-size: 1.2rem; font-weight: 800; color: #1877f2; display: flex; align-items: center; gap: 8px;">
+          🤖 قطع غيار موصى بها (مدعومة بالذكاء الاصطناعي)
+        </h2>
+        <p style="margin: 0; color: #65676b; font-size: 0.9rem;">بحث ذكي فوري عن القطع المتوافقة مع سيارتك</p>
+      </div>
+      <input 
+        id="product-semantic-search" 
+        type="text" 
+        placeholder="ابحث عن أي قطعة (مثل: فلتر هواء، زيت محرك، بطارية)..." 
+        style="width: 100%; padding: 10px 12px; border: 1px solid rgba(24, 119, 242, 0.2); border-radius: 10px; font-family: 'Cairo', sans-serif; background: white; font-size: 0.95rem; margin-bottom: 12px;"
+      />
+      <div id="smart-products-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 12px;">
+        <!-- Smart cards will be rendered here -->
+      </div>
     </section>
 
     <aside id="composer-modal" class="composer-modal" aria-hidden="true">
@@ -292,5 +312,6 @@
   </aside>
 
   <script src="social-ui.js?v=20260702s"></script>
+  <script src="ai-product-system.js?v=20260703f"></script>
 </body>
 </html>
