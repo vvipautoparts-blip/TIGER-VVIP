@@ -76,58 +76,59 @@ html, body {
 
 .fb-wordmark {
   font-family: "Cairo", sans-serif;
-  font-size: 2.8rem;
+  font-size: 3.2rem;
   font-weight: 800;
   color: #1877f2;
   line-height: 1;
-  margin-bottom: 1rem;
-  letter-spacing: -0.5px;
+  margin-bottom: 1.2rem;
+  letter-spacing: -1px;
 }
 .fb-wordmark span {
   color: #0f5bb5;
 }
 
 .fb-brand-col .login-subtitle {
-  font-size: 1.12rem;
-  line-height: 1.7;
-  color: #1c1e21;
+  font-size: 1.2rem;
+  line-height: 1.8;
+  color: #050505;
   margin: 0;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 /* Right Card */
 .fb-card {
   background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 8px 16px rgba(0,0,0,0.1);
-  padding: 1.25rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08), 0 12px 28px rgba(0,0,0,0.15);
+  padding: 1.5rem;
   width: 100%;
   max-width: 396px;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
 /* Inputs */
 .fb-input {
   width: 100%;
-  border: 1px solid #dddfe2;
-  border-radius: 6px;
-  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 7px;
+  font-size: 1.05rem;
   font-family: "Cairo", sans-serif;
-  padding: 0.9rem 1rem;
+  padding: 1rem 1.1rem;
   color: #1c1e21;
-  background: #fff;
-  transition: border-color 0.15s;
+  background: #f5f6f7;
+  transition: all 0.2s ease;
   outline: none;
   text-align: right;
 }
 .fb-input:focus {
   border-color: #1877f2;
-  box-shadow: 0 0 0 2px rgba(24,119,242,0.2);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(24,119,242,0.15);
 }
 .fb-input::placeholder {
-  color: #90949c;
+  color: #999;
 }
 
 /* Login Button */
@@ -136,27 +137,29 @@ html, body {
   background: #1877f2;
   color: #fff;
   border: none;
-  border-radius: 6px;
-  font-size: 1.1rem;
+  border-radius: 7px;
+  font-size: 1.15rem;
   font-family: "Cairo", sans-serif;
-  font-weight: 700;
-  padding: 0.85rem;
+  font-weight: 800;
+  padding: 1rem;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.2s ease;
+  box-shadow: 0 2px 6px rgba(24,119,242,0.2);
 }
-.fb-login-btn:hover { background: #166fe5; }
-.fb-login-btn:active { background: #1165d8; }
-.fb-login-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+.fb-login-btn:hover { background: #0f63e0; box-shadow: 0 3px 8px rgba(24,119,242,0.3); }
+.fb-login-btn:active { background: #185dce; }
+.fb-login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* Forgot password */
 .fb-forgot {
   display: block;
   text-align: center;
   color: #1877f2;
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 700;
   text-decoration: none;
   font-family: "Cairo", sans-serif;
+  margin: 0.25rem 0;
 }
 .fb-forgot:hover { text-decoration: underline; }
 
@@ -164,19 +167,19 @@ html, body {
 .fb-divider {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin: 0.25rem 0;
+  gap: 0.8rem;
+  margin: 0.5rem 0;
 }
 .fb-divider::before,
 .fb-divider::after {
   content: '';
   flex: 1;
   height: 1px;
-  background: #dadde1;
+  background: #d0d8de;
 }
 .fb-divider span {
-  color: #606770;
-  font-size: 0.85rem;
+  color: #65676b;
+  font-size: 0.9rem;
   font-weight: 600;
   font-family: "Cairo", sans-serif;
   white-space: nowrap;
@@ -185,44 +188,47 @@ html, body {
 /* Create Account Button */
 .fb-create-btn {
   display: block;
+  width: auto;
   margin: 0 auto;
-  background: #42b72a;
+  background: #31a24c;
   color: #fff;
   border: none;
-  border-radius: 6px;
-  font-size: 1rem;
+  border-radius: 7px;
+  font-size: 1.05rem;
   font-family: "Cairo", sans-serif;
-  font-weight: 700;
-  padding: 0.75rem 1.8rem;
+  font-weight: 800;
+  padding: 0.9rem 2.2rem;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.2s ease;
+  box-shadow: 0 2px 6px rgba(49,162,76,0.2);
 }
-.fb-create-btn:hover { background: #36a420; }
-.fb-create-btn:active { background: #2d9119; }
+.fb-create-btn:hover { background: #289940; box-shadow: 0 3px 8px rgba(49,162,76,0.3); }
+.fb-create-btn:active { background: #218435; }
 
 /* Social Buttons Row */
 .fb-social-row {
   display: flex;
-  gap: 0.6rem;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
 }
 .fb-social-btn {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  border: 1px solid #dadde1;
-  border-radius: 6px;
+  gap: 0.6rem;
+  border: 1px solid #ddd;
+  border-radius: 7px;
   background: #fff;
   font-family: "Cairo", sans-serif;
-  font-size: 0.88rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 800;
   color: #1c1e21;
-  padding: 0.6rem;
+  padding: 0.75rem 0.5rem;
   cursor: pointer;
-  transition: background 0.12s;
+  transition: all 0.2s ease;
 }
-.fb-social-btn:hover { background: #f5f6f7; }
+.fb-social-btn:hover { background: #f0f2f5; border-color: #ccc; }
 .fb-google-btn { color: #444; }
 .fb-fb-btn { color: #1877f2; border-color: #1877f2; }
 
@@ -253,21 +259,21 @@ html, body {
 /* Footer links in card */
 .fb-card-footer {
   text-align: center;
-  border-top: 1px solid #dadde1;
-  padding-top: 0.6rem;
-  margin-top: 0.25rem;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 0.75rem;
+  margin-top: 0.5rem;
 }
 .fb-text-link {
   background: none;
   border: none;
-  color: #606770;
-  font-size: 0.85rem;
-  font-weight: 600;
+  color: #65676b;
+  font-size: 0.9rem;
+  font-weight: 700;
   cursor: pointer;
   font-family: "Cairo", sans-serif;
   padding: 0;
 }
-.fb-text-link:hover { text-decoration: underline; }
+.fb-text-link:hover { color: #1877f2; text-decoration: underline; }
 
 /* Footer */
 .fb-footer {
@@ -1226,26 +1232,27 @@ html, body {
   top: 0;
   z-index: 100;
   background: #fff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 0.5rem;
-  height: 56px;
-  gap: 0.5rem;
+  padding: 0 0.75rem;
+  height: 60px;
+  gap: 0.75rem;
 }
 .fb-topbar-logo {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   flex-shrink: 0;
 }
 .fb-topbar-wordmark {
   font-family: "Cairo", sans-serif;
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   font-weight: 800;
   color: #1877f2;
   white-space: nowrap;
+  letter-spacing: -0.5px;
 }
 .fb-topbar-wordmark b { color: #0f5bb5; }
 .fb-topbar-search-wrap {
@@ -1253,20 +1260,20 @@ html, body {
   align-items: center;
   background: #f0f2f5;
   border-radius: 999px;
-  padding: 0.4rem 0.75rem;
-  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  gap: 0.5rem;
   cursor: text;
 }
 .fb-topbar-search-input {
   border: none;
   background: transparent;
   font-family: "Cairo", sans-serif;
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   color: #1c1e21;
   outline: none;
-  width: 120px;
+  width: 140px;
 }
-.fb-topbar-search-input::placeholder { color: #90949c; }
+.fb-topbar-search-input::placeholder { color: #999; }
 
 /* Center nav tabs */
 .fb-topbar-nav {
@@ -1274,22 +1281,23 @@ html, body {
   align-items: center;
   flex: 1;
   justify-content: center;
-  gap: 0.25rem;
+  gap: 0.5rem;
 }
 .fb-topbar-tab {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 48px;
+  width: 60px;
+  height: 52px;
   border: none;
   background: transparent;
-  border-radius: 8px;
+  border-radius: 6px;
   color: #65676b;
   cursor: pointer;
-  transition: background 0.12s, color 0.12s;
+  transition: all 0.2s ease;
   border-bottom: 3px solid transparent;
   text-decoration: none;
+  font-size: 1.2rem;
 }
 .fb-topbar-tab:hover { background: #f0f2f5; color: #1877f2; }
 .fb-topbar-tab.active {
@@ -1306,89 +1314,93 @@ html, body {
 .fb-topbar-actions {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.5rem;
   flex-shrink: 0;
 }
 .fb-topbar-icon-btn {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: none;
   background: #e4e6eb;
   color: #1c1e21;
-  font-size: 1rem;
+  font-size: 1.1rem;
   cursor: pointer;
   display: grid;
   place-items: center;
-  transition: background 0.12s;
+  transition: all 0.2s ease;
+  font-weight: 600;
 }
-.fb-topbar-icon-btn:hover { background: #d8dadf; }
+.fb-topbar-icon-btn:hover { background: #d8dadf; color: #1877f2; }
 
 /* Facebook-style Composer */
 .fb-composer {
   background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-  margin: 0.5rem;
-  padding: 0.75rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  margin: 1rem 0.5rem;
+  padding: 1rem;
 }
 .fb-composer-top {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  margin-bottom: 0.6rem;
-  padding-bottom: 0.6rem;
+  gap: 0.75rem;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.8rem;
   border-bottom: 1px solid #e4e6eb;
 }
 .fb-composer-avatar {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: linear-gradient(135deg, #1877f2, #42a5f5);
   color: #fff;
   font-weight: 800;
-  font-size: 0.9rem;
+  font-size: 1rem;
   display: grid;
   place-items: center;
   text-decoration: none;
   flex-shrink: 0;
   font-family: "Cairo", sans-serif;
+  box-shadow: 0 2px 6px rgba(24,119,242,0.2);
 }
 .fb-composer-input {
   flex: 1;
   background: #f0f2f5;
   border: none;
   border-radius: 999px;
-  padding: 0.6rem 1rem;
+  padding: 0.8rem 1.2rem;
   font-family: "Cairo", sans-serif;
-  font-size: 0.95rem;
+  font-size: 1rem;
   color: #65676b;
   cursor: pointer;
   text-align: right;
-  transition: background 0.12s;
+  transition: all 0.2s ease;
+  font-weight: 600;
 }
-.fb-composer-input:hover { background: #e4e6eb; }
+.fb-composer-input:hover { background: #e4e6eb; color: #1c1e21; }
 .fb-composer-bar {
   display: flex;
   align-items: center;
   justify-content: space-around;
+  margin-top: 0.6rem;
 }
 .fb-composer-action {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.5rem;
   border: none;
   background: transparent;
   font-family: "Cairo", sans-serif;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: #65676b;
   cursor: pointer;
-  padding: 0.4rem 0.6rem;
+  padding: 0.6rem 0.8rem;
   border-radius: 6px;
-  transition: background 0.12s;
+  transition: all 0.2s ease;
 }
-.fb-composer-action:hover { background: #f0f2f5; }
+.fb-composer-action:hover { background: #f0f2f5; color: #1877f2; }
 .fb-composer-action-photo { color: #45bd62; }
 
 /* Facebook-style Post Reactions Row */
@@ -1396,18 +1408,19 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.4rem 0.75rem;
+  padding: 0.75rem 0.75rem;
   border-top: 1px solid #e4e6eb;
   border-bottom: 1px solid #e4e6eb;
-  margin: 0 -0.75rem;
+  margin: 0;
 }
 .fb-reaction-count {
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   color: #65676b;
+  font-weight: 700;
 }
-.fb-reaction-count b { font-weight: 600; color: #1c1e21; }
+.fb-reaction-count b { font-weight: 800; color: #1c1e21; }
 .fb-reaction-meta {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   color: #65676b;
 }
 
@@ -1416,29 +1429,29 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding: 0.25rem 0;
+  padding: 0.5rem 0;
 }
 .fb-action-btn {
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  justify-content: center;
+  gap: 0.4rem;
   border: none;
   background: transparent;
   font-family: "Cairo", sans-serif;
-  font-size: 0.88rem;
-  font-weight: 700;
+  font-size: 0.92rem;
+  font-weight: 800;
   color: #65676b;
   cursor: pointer;
-  padding: 0.5rem 0.6rem;
+  padding: 0.6rem 0.8rem;
   border-radius: 6px;
-  transition: background 0.12s, color 0.12s;
+  transition: all 0.2s ease;
   flex: 1;
-  justify-content: center;
 }
-.fb-action-btn:hover { background: #f0f2f5; }
-.fb-action-btn.liked { color: #1877f2; }
+.fb-action-btn:hover { background: #f0f2f5; color: #1877f2; }
+.fb-action-btn.liked { color: #e41e3f; }
 .fb-action-btn.liked .fb-action-icon { filter: none; }
-.fb-action-icon { font-size: 1.1rem; }
+.fb-action-icon { font-size: 1.15rem; }
 
 .social-page {
   min-height: 100vh;
@@ -2343,41 +2356,42 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.6rem;
-  padding: 0 0.75rem 0.6rem;
+  gap: 0.75rem;
+  padding: 1rem 0.75rem 0.75rem;
 }
 
 /* Avatar in post header */
 .post-header-left {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.75rem;
   flex: 1;
   min-width: 0;
 }
 
 .post-avatar {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: linear-gradient(135deg, #1877f2, #42a5f5);
   color: #fff;
   font-weight: 800;
-  font-size: 0.88rem;
+  font-size: 1rem;
   display: grid;
   place-items: center;
   flex-shrink: 0;
   font-family: "Cairo", sans-serif;
+  box-shadow: 0 2px 6px rgba(24,119,242,0.15);
 }
 
-.post-avatar-v { background: linear-gradient(135deg, #e91e8c, #f44336); }
-.post-avatar-t { background: linear-gradient(135deg, #ff9800, #e65100); }
+.post-avatar-v { background: linear-gradient(135deg, #e91e8c, #f44336); box-shadow: 0 2px 6px rgba(233,30,140,0.15); }
+.post-avatar-t { background: linear-gradient(135deg, #ff9800, #e65100); box-shadow: 0 2px 6px rgba(255,152,0,0.15); }
 
 .post-header-info { min-width: 0; }
 
 .post-header h2 {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #1c1e21;
   white-space: nowrap;
@@ -2386,17 +2400,18 @@ html, body {
 }
 
 .post-header p {
-  margin: 0.1rem 0 0;
+  margin: 0.15rem 0 0;
   color: #65676b;
-  font-size: 0.76rem;
+  font-size: 0.8rem;
   display: flex;
   align-items: center;
   gap: 0.3rem;
+  font-weight: 600;
 }
 
 .post-header p::after {
   content: '🌐';
-  font-size: 0.65rem;
+  font-size: 0.7rem;
 }
 
 .post-created-at {
@@ -2548,12 +2563,12 @@ html, body {
   width: min(100%, 430px);
   margin-inline: auto;
   background: #fff;
-  border-top: 1px solid #e4e6eb;
+  border-top: 2px solid #f0f2f5;
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   padding: 0 0 env(safe-area-inset-bottom, 0);
   z-index: 100;
-  box-shadow: 0 -1px 4px rgba(0,0,0,0.08);
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
 }
 
 .nav-item {
@@ -2565,20 +2580,21 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: 0.62rem;
-  font-weight: 700;
+  font-size: 0.65rem;
+  font-weight: 800;
   font-family: "Cairo", sans-serif;
-  min-height: 52px;
-  padding: 0.4rem 0.2rem;
-  gap: 0.2rem;
+  min-height: 56px;
+  padding: 0.5rem 0.2rem;
+  gap: 0.25rem;
   cursor: pointer;
-  border-top: 3px solid transparent;
-  transition: color 0.12s;
+  border-top: 4px solid transparent;
+  transition: all 0.2s ease;
 }
 
 .nav-item.active {
   color: #1877f2;
   border-top-color: #1877f2;
+  font-weight: 900;
 }
 }
 
