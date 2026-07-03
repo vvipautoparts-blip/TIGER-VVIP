@@ -72,8 +72,8 @@ In Supabase Dashboard:
 
 | Phase | Component | Status | Files |
 |-------|-----------|--------|-------|
-| **1-3** | UI & Google OAuth | ✅ Complete | index.html, script.js |
-| **4** | Email Verification | ✅ Complete | script.js, RLS-EMAIL-VERIFICATION-POLICIES.sql |
+| **1-3** | UI & Google OAuth | ✅ Complete | index.html, auth.js, social-ui.js |
+| **4** | Email Verification | ✅ Complete | auth.js, RLS-EMAIL-VERIFICATION-POLICIES.sql |
 | **5** | SMTP & Templates | ✅ Complete | email-templates/, docs |
 | **6** | Testing & Deploy | 🟡 Ready | Will auto-deploy on GitHub Pages |
 
@@ -121,7 +121,7 @@ In Supabase Dashboard:
 - `RLS-QUICK-REFERENCE.md` - RLS policies guide
 
 ### Updated Code
-- `script.js` - Added email verification monitoring
+- `auth.js` - Added email verification handling
 - `RLS-EMAIL-VERIFICATION-POLICIES.sql` - Database security
 
 ---

@@ -11,7 +11,7 @@
 #### 1. Email Verification Status Check
 ```javascript
 checkEmailVerificationStatus(user)
-// Lines: 5656-5702 in script.js
+// Lines: 5656-5702 in social-ui.js
 // Features:
 // - Checks Supabase email_confirmed_at
 // - Falls back to profiles.email_verified_at
@@ -21,7 +21,7 @@ checkEmailVerificationStatus(user)
 #### 2. Real-Time Verification Monitoring
 ```javascript
 monitorEmailVerificationStatus()
-// Lines: 5705-5731 in script.js
+// Lines: 5705-5731 in social-ui.js
 // Features:
 // - Listens to auth state changes
 // - Auto-redirects to profile page when verified
@@ -31,7 +31,7 @@ monitorEmailVerificationStatus()
 #### 3. Enhanced Registration Flow
 ```javascript
 handleRegEmailVerified()
-// Lines: 5733-5756 in script.js
+// Lines: 5733-5756 in social-ui.js
 // Enhanced with:
 // - Calls monitorEmailVerificationStatus()
 // - Sets demo verification flag
@@ -41,7 +41,7 @@ handleRegEmailVerified()
 #### 4. App Initialization Update
 ```javascript
 initializeApp()
-// Lines: 4603+ in script.js
+// Lines: 4603+ in social-ui.js
 // Added:
 // - Calls monitorEmailVerificationStatus() at startup
 // - Ensures verification monitoring is always active
@@ -89,9 +89,9 @@ initializeApp()
 
 ## 🔧 Code Changes Summary
 
-### script.js Changes
+### social-ui.js Changes
 ```
-File: /workspaces/TIGER-VVIP/script.js
+File: /workspaces/TIGER-VVIP/social-ui.js
 Total additions: ~170 lines
 - New function: checkEmailVerificationStatus() (47 lines)
 - New function: monitorEmailVerificationStatus() (27 lines)
@@ -99,7 +99,7 @@ Total additions: ~170 lines
 - Modified: initializeApp() (3 lines)
 ```
 
-**Validation:** ✅ `node --check script.js` - Syntax OK
+**Validation:** ✅ `node --check social-ui.js` - Syntax OK
 
 ---
 

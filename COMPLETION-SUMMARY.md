@@ -10,8 +10,8 @@
 |------|-------|--------|
 | index.html | 27 KB | ✅ مكتمل |
 | styles.css | 23 KB | ✅ مكتمل |
-| script.js | 31 KB | ✅ مكتمل |
-| supabase-config.js | 2.0 KB | ✅ مكتمل |
+| auth.js | 2.0 KB | ✅ مكتمل |
+| social-ui.js | 31 KB | ✅ مكتمل |
 | supabase-schema.sql | 1.4 KB | ✅ مكتمل |
 | SETUP-GUIDE.md | 8.2 KB | ✅ مكتمل |
 | README.md | 6.0 KB | ✅ مكتمل |
@@ -238,9 +238,8 @@
 
 ### 1. إعداد Supabase
 ```bash
-# تعديل supabase-config.js
-SUPABASE_URL = "your-url"
-SUPABASE_ANON_KEY = "your-key"
+localStorage.setItem("TIGER_SUPABASE_URL", "your-url")
+localStorage.setItem("TIGER_SUPABASE_ANON_KEY", "your-key")
 ```
 
 ### 2. تشغيل الخادم

@@ -41,7 +41,7 @@
 
 ### 2.2 منطق التحكم بالصلاحيات
 ```javascript
-// في script.js
+// في social-ui.js
 function isAdminRole(role) {
   return ['admin', 'super_admin'].includes(role);
 }

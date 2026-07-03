@@ -1,11 +1,11 @@
 # TIGER VVIP - Unified Platform Status (Single Source of Truth)
 
-Last updated: 2026-06-26
+Last updated: 2026-07-02
 Project: TIGER-VVIP
 Product name: TIGER VVIP AutoParts
 
 ## 1) What this project is
-Static single-page web app (HTML/CSS/JS) with Supabase backend integration for:
+Static multi-page web app (HTML/CSS/JS) with Supabase backend integration for:
 - Auth and registration
 - Role-based access (buyer, supplier/admin flows)
 - Orders and profile management
@@ -14,19 +14,21 @@ Static single-page web app (HTML/CSS/JS) with Supabase backend integration for:
 
 Core runtime files:
 - index.html
+- public-profile.html
+- private-profile.html
+- reset-password.html
 - styles.css
-- script.js
-- supabase-config.js
-- supabase-local.js
-- supabase-schema.sql
+- auth.js
+- social-ui.js
+- supabase/migrations/20260702_feed_posts_table.sql
 - sw.js
 - manifest.webmanifest
 
 ## 2) Current repository reality (now)
-- Git HEAD is currently detached because an interactive rebase is in progress.
-- Remote default branch latest commit: f591cac
-- You have staged changes/additions waiting inside the ongoing rebase state.
-- Extra local extracted media exists under tmp/ (frames/seconds).
+- Git branch is `main` and tracks `origin/main`.
+- The worktree is dirty with the current documentation/runtime updates in progress.
+- Deleted legacy files still show in the working tree until the changes are finalized.
+- Untracked runtime and page files are present for the current multi-page app.
 
 ## 3) Work completed recently (yesterday/today snapshot)
 Recent top commits on origin/main:
@@ -53,21 +55,21 @@ Most-used docs:
 Most likely one or more of these:
 - Browser cache or service worker serving old assets
 - You are viewing a different local server/session than current workspace state
-- Rebase state not completed yet, so intended local update flow is not finalized
+- The page may still be using cached assets until the service worker is refreshed
 
 ## 6) Immediate fix steps (safe)
 1. Hard reload the browser page.
 2. Unregister service worker and clear site cache.
 3. Confirm local server is running from this workspace path.
-4. Complete or abort/restart rebase intentionally, then verify page again.
+4. Reopen the page after the cache refresh, then verify again.
 
 ## 7) Decision point to finalize your latest work
 Choose one path clearly:
-- Path A: Keep your current staged rebase changes and continue rebase.
-- Path B: Stop current rebase and re-sync from origin/main, then re-apply only wanted edits.
+- Path A: Keep the current worktree changes and continue cleanup.
+- Path B: Finalize the current cleanup set, then move to deployment or backend setup.
 
 ## 8) Acceptance checklist
-- Correct branch/rebase state confirmed
+- Correct branch and worktree state confirmed
 - Latest intended files visible in git status
 - Browser shows updated UI (not stale)
 - Key flows smoke-tested: registration, profile, orders, role-specific paths

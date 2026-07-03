@@ -34,9 +34,10 @@
 📦 DELIVERABLES
 
 Code Changes:
-├─ script.js           - Enhanced with email verification monitoring
-├─ index.html          - Google button removed, One Tap added
-└─ styles.css          - Google One Tap styling added
+├─ auth.js             - Firebase auth flow and verification handling
+├─ social-ui.js        - Feed/profile interactions and localization
+├─ index.html          - Login and entry navigation updates
+└─ styles.css          - Shared UI styling updates
 
 New Email Templates:
 ├─ confirm-email.html        - Professional Arabic design
@@ -195,8 +196,11 @@ User Experience:      ✅✅✅✅✅ (Professional)
 📚 KEY FILES TO REMEMBER
 
 Core App:
-  /index.html          - Main SPA markup
-  /script.js           - All JavaScript logic (6000+ lines)
+  /index.html          - Auth entry page
+  /public-profile.html - Public feed page
+  /private-profile.html - Private profile page
+  /auth.js             - Firebase auth logic
+  /social-ui.js        - Feed/profile logic and i18n
   /styles.css          - Facebook-style design
 
 Email System:
@@ -272,22 +276,25 @@ After:
 📊 COMPLETE PROJECT STRUCTURE
 
 TIGER-VVIP/
-├── 📄 index.html              ← Main app (marked up)
-├── 🎨 styles.css              ← All styling
-├── 💻 script.js               ← All logic (6000+ lines)
+├── 📄 index.html              ← Auth entry page
+├── 📄 public-profile.html     ← Public feed page
+├── 📄 private-profile.html    ← Private profile page
+├── 🎨 styles.css              ← Shared styling
+├── 💻 auth.js                 ← Authentication logic
+├── 💻 social-ui.js            ← Feed/profile logic
 │
 ├── 📧 email-templates/
 │   ├── confirm-email.html          (Arabic)
 │   └── confirm-email-en.html       (English)
 │
 ├── 🗄️  supabase/
-│   ├── functions/send-otp/
-│   └── functions/send-verification-email/
+│   ├── functions/phone-verification/
+│   └── migrations/20260702_feed_posts_table.sql
 │
 ├── 🔧 Configuration Files
-│   ├── supabase-config.js
-│   ├── supabase-local.js
-│   └── supabase-schema.sql
+│   ├── supabase-schema.sql
+│   ├── firebase.json
+│   └── manifest.webmanifest
 │
 └── 📚 Documentation (20+ files)
     ├── DOCUMENTATION-INDEX.md
@@ -313,8 +320,8 @@ For Immediate Deployment:
 
 For Code Review:
   1. Read: AGENTS.md (code conventions)
-  2. Review: script.js (main logic)
-  3. Check: index.html (markup structure)
+  2. Review: social-ui.js (main feed/profile logic)
+  3. Check: index.html plus the profile pages (markup structure)
 
 For Admin Setup:
   1. Follow: ADMIN-SETUP-GUIDE.md
@@ -384,7 +391,7 @@ Quick Start:
 For Questions:
   → Read relevant PHASE-X-SETUP.md file
   → Check AGENTS.md for code conventions
-  → Review comments in script.js
+  → Review comments in social-ui.js and auth.js
 
 For Setup Help:
   → Follow PHASE-5-SMTP-SETUP.md step by step

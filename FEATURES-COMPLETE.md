@@ -27,7 +27,7 @@
 **الملفات:**
 - `index.html`: HTML markup + datalist
 - `styles.css`: CSS styling (~100 lines)
-- `script.js`: 7 JavaScript functions
+- `auth.js` و`social-ui.js`: منطق JavaScript الحالي
 
 **الاختبار:** ✅ موثق في [FEATURE-VERIFICATION.md](./FEATURE-VERIFICATION.md#1-email-selector-saved-emails---complete)
 
@@ -51,7 +51,7 @@
 **الملفات:**
 - `index.html` (line 735): Section + search input
 - `styles.css`: Grid styling + card design
-- `script.js` (line 2507): renderAdminUsers() function
+- `social-ui.js`: rendering and interaction handlers for the current public/private pages
 
 **الاختبار:** ✅ جاهز - يتطلب دخول super_admin
 
@@ -67,7 +67,7 @@
 
 **الملفات:**
 - `index.html` (line 34): Google OAuth button
-- `script.js` (line 3000): signInWithGoogleAccountChooser() function
+- `auth.js`: Google OAuth sign-in flow
 
 **المتطلبات:**
 - ✅ كود جاهز
@@ -96,7 +96,7 @@
 - `RLS-IMPLEMENTATION-GUIDE.md` - دليل التطبيق والاختبار
 
 **الحالة:**
-- ✅ Frontend code متوافق (script.js + index.html)
+- ✅ Frontend code متوافق (auth.js + social-ui.js + current HTML pages)
 - ✅ SQL policies توثقت بالكامل
 - ⏳ تطبيق في Supabase (يتطلب SQL Editor)
 
@@ -118,7 +118,7 @@
 ### Email Verification ✅
 - Demo Mode: "123456" bypass code
 - Magic Link: Supabase default
-- Edge Function: WhatsApp OTP ready
+- Edge Function: Internal phone verification ready
 - 3-tier fallback system
 
 ### Multilingual ✅
@@ -244,10 +244,9 @@ Previous: Bug fixes and initial features
 ```
 TIGER-VVIP/
 ├── index.html                    # HTML markup
-├── script.js                     # JavaScript (v20260625-40)
-├── styles.css                    # CSS (v20260625-20)
-├── supabase-config.js            # Supabase client
-├── supabase-local.js             # Local config
+├── auth.js                       # Firebase auth flow
+├── social-ui.js                  # Feed/profile behavior and i18n
+├── styles.css                    # CSS
 ├── manifest.webmanifest          # PWA manifest
 ├── sw.js                         # Service Worker
 │
@@ -268,7 +267,7 @@ TIGER-VVIP/
 │
 ├── Edge Functions:
 ├── supabase/functions/
-│   ├── send-otp/index.ts         # WhatsApp OTP
+│   ├── phone-verification/index.ts # Internal phone verification
 │   └── send-verification-email/  # Email verification
 │
 └── Assets:

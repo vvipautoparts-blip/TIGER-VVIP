@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>البروفايل الخاص - AutoParts JO</title>
+  <meta name="theme-color" content="#1877f2" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=20260702x" />
+</head>
+<body class="social-page dark-theme">
+  <main class="mobile-frame" aria-label="البروفايل الخاص" data-i18n-aria-ar="البروفايل الخاص" data-i18n-aria-en="Private Profile">
+    <header class="mobile-header profile-mobile-header">
+      <div class="home-topbar profile-topbar">
+        <div class="home-brand-actions">
+          <button id="private-messenger-btn" class="home-icon-btn" type="button" aria-label="Messenger">✉</button>
+          <button id="private-search-btn" class="home-icon-btn" type="button" aria-label="Search">⌕</button>
+          <button id="profile-ai-header" class="home-icon-btn home-icon-btn-ai" type="button" aria-label="AI Assistant">✦</button>
+          <button id="private-create-btn" class="home-icon-btn" type="button" aria-label="Create">＋</button>
+        </div>
+        <h1 class="app-title app-title-facebook platform-brand" aria-label="VVIP TIGER">
+          <span class="platform-brand-main">VVIP</span>
+          <span class="platform-brand-accent">TIGER</span>
+        </h1>
+        <div class="home-brand-actions home-brand-actions-end">
+          <button id="profile-menu-toggle" class="home-icon-btn" type="button" aria-label="Menu">☰</button>
+        </div>
+      </div>
+      <div class="home-main-tabs" aria-label="Primary navigation">
+        <button class="home-main-tab" type="button" aria-label="Messages">◌</button>
+        <button class="home-main-tab has-badge" type="button" aria-label="Notifications" data-badge="9+">◔</button>
+        <button class="home-main-tab" type="button" aria-label="Marketplace">▣</button>
+        <button class="home-main-tab has-badge" type="button" aria-label="Friends" data-badge="3">◉</button>
+        <button class="home-main-tab has-badge" type="button" aria-label="Reels" data-badge="9+">▭</button>
+        <a class="home-main-tab home-main-tab-link active" href="private-profile.html" aria-current="page" aria-label="Profile">⌂</a>
+      </div>
+    </header>
+
+    <section class="profile-hero">
+      <div class="cover-image profile-cover-dark">
+        <div class="profile-cover-toolbar">
+          <button class="cover-tool-btn" type="button">…</button>
+          <div class="cover-tool-group">
+            <button class="cover-tool-btn" type="button">⌕</button>
+            <button class="cover-tool-btn" type="button">✎</button>
+          </div>
+        </div>
+      </div>
+      <div class="hero-content">
+        <div class="hero-avatar-wrap">
+          <div class="hero-avatar hero-avatar-large">AJ</div>
+          <button class="hero-avatar-camera" type="button" aria-label="Camera">◉</button>
+          <div class="hero-thought-bubble" data-i18n-ar="أفكر في..." data-i18n-en="Thinking...">أفكر في...</div>
+        </div>
+        <h1 id="profile-name">شركة النمر لقطع السيارات</h1>
+        <p id="profile-handle" class="hero-handle">@tiger.parts</p>
+        <p id="profile-bio" class="hero-bio">توريد قطع أصلية وتدقيق توافق حسب رقم الهيكل، شحن لجميع المحافظات.</p>
+        <div class="hero-stats hero-stats-inline">
+          <div><strong id="profile-posts-count">89</strong><span data-i18n-ar="منشور" data-i18n-en="Posts">منشور</span></div>
+          <div><strong>12.4K</strong><span data-i18n-ar="متابع" data-i18n-en="Followers">متابع</span></div>
+          <div><strong>340</strong><span data-i18n-ar="يتابع" data-i18n-en="Following">يتابع</span></div>
+        </div>
+        <div class="hero-actions">
+          <button id="profile-edit-btn" type="button" data-i18n-ar="تعديل الملف" data-i18n-en="Edit profile">تعديل الملف</button>
+          <button id="profile-story-btn" type="button" data-i18n-ar="إضافة قصة" data-i18n-en="Add to story">إضافة قصة</button>
+          <button id="profile-ai-boost" class="hero-actions-ai" type="button" data-i18n-ar="تعزيز AI" data-i18n-en="AI Boost">تعزيز AI</button>
+        </div>
+        <div class="profile-mini-tabs" role="tablist" aria-label="Profile quick tabs">
+          <button class="profile-mini-tab" type="button">Reels</button>
+          <button class="profile-mini-tab" type="button">Photos</button>
+          <button class="profile-mini-tab active" type="button">All</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="profile-tabs" role="tablist" aria-label="أقسام البروفايل" data-i18n-aria-ar="أقسام البروفايل" data-i18n-aria-en="Profile sections">
+      <button class="profile-tab active" type="button" data-profile-tab="posts" role="tab" aria-selected="true" data-i18n-ar="المنشورات" data-i18n-en="Posts">المنشورات</button>
+      <button class="profile-tab" type="button" data-profile-tab="photos" role="tab" aria-selected="false" data-i18n-ar="الصور" data-i18n-en="Photos">الصور</button>
+      <button class="profile-tab" type="button" data-profile-tab="videos" role="tab" aria-selected="false" data-i18n-ar="الفيديو" data-i18n-en="Videos">الفيديو</button>
+      <button class="profile-tab" type="button" data-profile-tab="insights" role="tab" aria-selected="false" data-i18n-ar="التحليلات" data-i18n-en="Insights">التحليلات</button>
+      <button class="profile-tab" type="button" data-profile-tab="ads" role="tab" aria-selected="false" data-i18n-ar="الإعلانات" data-i18n-en="Ads">الإعلانات</button>
+      <button class="profile-tab" type="button" data-profile-tab="about" role="tab" aria-selected="false" data-i18n-ar="حول" data-i18n-en="About">حول</button>
+    </section>
+
+    <section class="profile-content">
+      <div class="tab-panel active" data-panel="posts">
+        <p id="profile-posts-status" class="feed-db-status" aria-live="polite">حالة البيانات: جاري التحقق...</p>
+        <section id="profile-posts-skeleton" class="feed-skeleton" aria-hidden="true">
+          <article class="skeleton-card compact">
+            <div class="skeleton-row skeleton-row-head"></div>
+            <div class="skeleton-line w-75"></div>
+            <div class="skeleton-line w-55"></div>
+            <div class="skeleton-media short"></div>
+            <div class="skeleton-actions"></div>
+          </article>
+          <article class="skeleton-card compact">
+            <div class="skeleton-row skeleton-row-head"></div>
+            <div class="skeleton-line w-70"></div>
+            <div class="skeleton-line w-40"></div>
+            <div class="skeleton-actions"></div>
+          </article>
+        </section>
+        <section id="profile-posts-list" class="feed-list" aria-live="polite"></section>
+        <p id="profile-posts-empty" class="feed-empty" hidden data-i18n-ar="لا توجد منشورات لهذا الحساب بعد." data-i18n-en="There are no posts for this account yet.">لا توجد منشورات لهذا الحساب بعد.</p>
+      </div>
+
+      <div class="tab-panel" data-panel="photos">
+        <div class="media-grid">
+          <div>Photo 1</div>
+          <div>Photo 2</div>
+          <div>Photo 3</div>
+          <div>Photo 4</div>
+          <div>Photo 5</div>
+          <div>Photo 6</div>
+        </div>
+      </div>
+
+      <div class="tab-panel" data-panel="videos">
+        <div class="video-list">
+          <article><strong data-i18n-ar="شرح فحص القطعة" data-i18n-en="Part inspection walkthrough">شرح فحص القطعة</strong><span>02:31</span></article>
+          <article><strong data-i18n-ar="تركيب حساس جديد" data-i18n-en="New sensor installation">تركيب حساس جديد</strong><span>04:05</span></article>
+          <article><strong data-i18n-ar="مقارنة جودة OEM" data-i18n-en="OEM quality comparison">مقارنة جودة OEM</strong><span>01:48</span></article>
+        </div>
+      </div>
+
+      <div class="tab-panel" data-panel="insights">
+        <section class="insights-panel">
+          <div class="insights-head">
+            <div>
+              <h2 data-i18n-ar="لوحة تحليلات استباقية" data-i18n-en="Predictive analytics">لوحة تحليلات استباقية</h2>
+              <p id="insights-summary">يتم حساب هذا القسم من آخر 28 يومًا من الأحداث المسجلة على المنصة.</p>
+            </div>
+            <span id="insights-badge" class="assistant-badge">Insights</span>
+          </div>
+          <div id="insights-metrics" class="insights-metrics"></div>
+          <div class="insights-ai-row">
+            <button id="insights-ai-refresh" class="profile-ai-action" type="button" data-i18n-ar="تحديث التحليلات بالذكاء الاصطناعي" data-i18n-en="Refresh analytics with AI">تحديث التحليلات بالذكاء الاصطناعي</button>
+          </div>
+          <div id="insights-chart" class="insights-chart" aria-label="رسم بياني للتفاعل" data-i18n-aria-ar="رسم بياني للتفاعل" data-i18n-aria-en="Engagement chart"></div>
+          <ul id="insights-highlights" class="insights-highlights"></ul>
+        </section>
+      </div>
+
+      <div class="tab-panel" data-panel="ads">
+        <section class="ads-panel">
+          <div class="insights-head">
+            <div>
+              <h2 data-i18n-ar="إدارة الإعلانات" data-i18n-en="Ad manager">إدارة الإعلانات</h2>
+              <p data-i18n-ar="يتم حفظ الإعدادات محليًا مع مزامنة تلقائية لقاعدة البيانات عند توفرها." data-i18n-en="Settings are saved locally and synced to the database automatically when available.">يتم حفظ الإعدادات محليًا مع مزامنة تلقائية لقاعدة البيانات عند توفرها.</p>
+            </div>
+            <span class="assistant-badge">Ad Manager</span>
+          </div>
+          <form id="ad-manager-form" class="ads-form">
+            <label for="ad-location" data-i18n-ar="الموقع المستهدف" data-i18n-en="Target location">الموقع المستهدف</label>
+            <input id="ad-location" type="text" placeholder="Amman, Irbid" data-i18n-placeholder-ar="عمان، إربد" data-i18n-placeholder-en="Amman, Irbid" />
+
+            <label for="ad-age" data-i18n-ar="الفئة العمرية" data-i18n-en="Age range">الفئة العمرية</label>
+            <input id="ad-age" type="text" placeholder="18-45" />
+
+            <label for="ad-interests" data-i18n-ar="الاهتمامات" data-i18n-en="Interests">الاهتمامات</label>
+            <input id="ad-interests" type="text" placeholder="auto parts, cars, maintenance" data-i18n-placeholder-ar="قطع غيار، سيارات، صيانة" data-i18n-placeholder-en="auto parts, cars, maintenance" />
+
+            <label for="ad-budget" data-i18n-ar="الميزانية اليومية" data-i18n-en="Daily budget">الميزانية اليومية</label>
+            <input id="ad-budget" type="number" min="0" step="0.1" placeholder="25" />
+
+            <label for="ad-start" data-i18n-ar="تاريخ البداية" data-i18n-en="Start date">تاريخ البداية</label>
+            <input id="ad-start" type="date" />
+
+            <label for="ad-end" data-i18n-ar="تاريخ النهاية" data-i18n-en="End date">تاريخ النهاية</label>
+            <input id="ad-end" type="date" />
+
+            <div class="composer-submit-row">
+              <button id="ad-manager-save" type="submit" data-i18n-ar="حفظ الحملة" data-i18n-en="Save campaign">حفظ الحملة</button>
+            </div>
+            <button id="ad-ai-suggest" class="profile-ai-action" type="button" data-i18n-ar="اقتراح إعدادات AI" data-i18n-en="AI suggested settings">اقتراح إعدادات AI</button>
+          </form>
+          <p id="ad-manager-status" class="composer-status" aria-live="polite"></p>
+          <div id="ad-manager-preview" class="ad-preview"></div>
+          <a class="ad-external-link" href="https://example.com" data-inapp-link="true" data-i18n-ar="فتح مثال خارجي داخل التطبيق" data-i18n-en="Open external example inside the app">فتح مثال خارجي داخل التطبيق</a>
+        </section>
+      </div>
+
+      <div class="tab-panel" data-panel="about">
+        <section class="profile-details-card">
+          <div class="profile-section-head">
+            <button class="section-edit-btn" type="button">✎</button>
+            <h2 data-i18n-ar="التفاصيل الشخصية" data-i18n-en="Personal details">التفاصيل الشخصية</h2>
+          </div>
+          <ul class="about-list profile-details-list" id="about-list">
+            <li id="about-account-type"><span class="detail-icon">⌘</span><strong>نوع الحساب:</strong> شركة قطع سيارات</li>
+            <li data-i18n-ar="المدينة: عمان" data-i18n-en="City: Amman"><span class="detail-icon">⌂</span>المدينة: عمان</li>
+            <li data-i18n-ar="ساعات العمل: 9 صباحًا - 8 مساءً" data-i18n-en="Working hours: 9 AM - 8 PM"><span class="detail-icon">◷</span>ساعات العمل: 9 صباحًا - 8 مساءً</li>
+            <li data-i18n-ar="الخدمات: توريد، تدقيق توافق، شحن" data-i18n-en="Services: Supply, compatibility checks, shipping"><span class="detail-icon">♡</span>الخدمات: توريد، تدقيق توافق، شحن</li>
+          </ul>
+        </section>
+        <section class="profile-tools-grid-wrap">
+          <div class="profile-tools-grid">
+            <article class="profile-tool-card"><strong>العناصر المحفوظة</strong><span>حفظ كل ما تحتاجه</span></article>
+            <article class="profile-tool-card"><strong>الذكريات</strong><span>أعد زيارة المحتوى</span></article>
+            <article class="profile-tool-card"><strong>ريلز</strong><span>اللقطات القصيرة</span></article>
+            <article class="profile-tool-card"><strong>المجموعات</strong><span>إدارة مجتمعك</span></article>
+            <article class="profile-tool-card"><strong>الأصدقاء</strong><span>شبكة التواصل</span></article>
+            <article class="profile-tool-card"><strong>Marketplace</strong><span>العروض والبيع</span></article>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <nav class="bottom-nav" aria-label="تنقل سفلي" data-i18n-aria-ar="تنقل سفلي" data-i18n-aria-en="Bottom navigation">
+      <a class="nav-item" href="public-profile.html">🏠<span data-i18n-ar="الرئيسية" data-i18n-en="Home">الرئيسية</span></a>
+      <button class="nav-item" type="button">🔎<span data-i18n-ar="بحث" data-i18n-en="Search">بحث</span></button>
+      <button class="nav-item nav-main" type="button">＋<span data-i18n-ar="إنشاء" data-i18n-en="Create">إنشاء</span></button>
+      <button id="profile-ai-nav" class="nav-item nav-item-ai" type="button">✦<span data-i18n-ar="ذكاء" data-i18n-en="AI">ذكاء</span></button>
+      <a class="nav-item active" href="private-profile.html" aria-current="page">👤<span data-i18n-ar="بروفايل" data-i18n-en="Profile">بروفايل</span></a>
+    </nav>
+  </main>
+
+  <aside id="profile-menu-sheet" class="profile-menu-sheet" aria-hidden="true">
+    <div class="profile-menu-panel" role="dialog" aria-modal="true" aria-label="Profile menu">
+      <div class="profile-menu-header">
+        <button id="profile-menu-close" type="button">⌄</button>
+        <div class="profile-menu-account">
+          <span class="profile-menu-avatar">AJ</span>
+          <strong id="profile-menu-account-name">شركة النمر لقطع السيارات</strong>
+        </div>
+      </div>
+      <div class="profile-menu-shortcuts">
+        <article class="profile-menu-shortcut"><strong>العناصر المحفوظة</strong></article>
+        <article class="profile-menu-shortcut"><strong>الذكريات</strong></article>
+        <article class="profile-menu-shortcut"><strong>ريلز</strong></article>
+        <article class="profile-menu-shortcut"><strong>المجموعات</strong></article>
+        <article class="profile-menu-shortcut"><strong>Marketplace</strong></article>
+        <article class="profile-menu-shortcut"><strong>الأخبار</strong></article>
+      </div>
+      <button class="profile-menu-more" type="button">عرض المزيد</button>
+      <div class="profile-menu-footer">المساعدة والدعم</div>
+    </div>
+  </aside>
+
+  <script src="social-ui.js?v=20260702t"></script>
+</body>
+</html>

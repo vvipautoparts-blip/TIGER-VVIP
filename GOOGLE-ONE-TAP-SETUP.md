@@ -14,7 +14,7 @@
 
 ### 2. استخدام Client ID
 
-استبدل `YOUR_GOOGLE_CLIENT_ID` في `script.js` (سطر ~3129):
+استبدل `YOUR_GOOGLE_CLIENT_ID` في [auth.js](auth.js):
 
 ```javascript
 google.accounts.id.initialize({

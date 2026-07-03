@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تدفق المصادقة - VVIP TIGER</title>
+  <meta name="theme-color" content="#1877f2" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=20260702-authflow" />
+
+  <script>
+    window.FIREBASE_CONFIG = {
+      apiKey: "AIzaSyCa3tyYM8vFbRCEiBCFV5b-li7Ljr1LlT4",
+      authDomain: "auto-parts-aa00a.firebaseapp.com",
+      projectId: "auto-parts-aa00a",
+      storageBucket: "auto-parts-aa00a.firebasestorage.app",
+      messagingSenderId: "709675029751",
+      appId: "1:709675029751:web:603a5173ab4c4fcb232ff2"
+    };
+  </script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+</head>
+<body class="auth-page auth-flow-page">
+  <div class="login-background" aria-hidden="true">
+    <div class="login-gradient"></div>
+  </div>
+
+  <main class="login-wrapper auth-flow-wrapper">
+    <section class="login-brand">
+      <div class="logo-mark" aria-hidden="true">VT</div>
+      <h1 class="login-title">VVIP TIGER</h1>
+      <p id="flow-subtitle" class="login-subtitle">منظومة مصادقة كاملة خطوة بخطوة.</p>
+    </section>
+
+    <section class="login-card auth-flow-card" aria-label="auth flow">
+      <nav class="page-rail page-rail-inline" aria-label="Auth navigation">
+        <a class="page-rail-link" href="index.html">الدخول</a>
+        <a class="page-rail-link active" href="auth-flow.html" aria-current="page">التدفق الكامل</a>
+        <a class="page-rail-link" href="reset-password.html">استعادة كلمة المرور</a>
+      </nav>
+
+      <div class="auth-flow-mode-toggle" role="tablist" aria-label="Flow mode">
+        <button id="mode-signup" class="auth-flow-mode-btn active" type="button">إنشاء حساب</button>
+        <button id="mode-recovery" class="auth-flow-mode-btn" type="button">استرجاع الحساب</button>
+      </div>
+
+      <div class="auth-flow-progress">
+        <span id="flow-step-label">الخطوة 1</span>
+        <div class="auth-flow-progress-track"><span id="flow-progress-fill"></span></div>
+      </div>
+
+      <form id="auth-flow-form" class="auth-flow-form" novalidate>
+        <section class="flow-panel" data-mode="signup" data-step="1">
+          <h2>مرحبًا بك</h2>
+          <p>ابدأ إنشاء حساب VVIP TIGER بخطوات واضحة.</p>
+          <label for="signup-fullname">الاسم الكامل</label>
+          <input id="signup-fullname" type="text" maxlength="60" placeholder="الاسم الكامل" />
+        </section>
+
+        <section class="flow-panel" data-mode="signup" data-step="2" hidden>
+          <h2>معلومات التواصل</h2>
+          <p>أدخل البريد الإلكتروني ورقم الهاتف.</p>
+          <label for="signup-email">البريد الإلكتروني</label>
+          <input id="signup-email" type="email" placeholder="name@example.com" />
+          <label for="signup-phone">رقم الهاتف</label>
+          <input id="signup-phone" type="tel" placeholder="+9627XXXXXXXX" />
+        </section>
+
+        <section class="flow-panel" data-mode="signup" data-step="3" hidden>
+          <h2>التحقق</h2>
+          <p>أدخل رمز التحقق المكون من 6 أرقام.</p>
+          <input id="signup-otp" type="text" inputmode="numeric" maxlength="6" placeholder="000000" />
+          <div class="flow-otp-tools">
+            <button id="signup-otp-resend" class="flow-otp-resend" type="button">إعادة إرسال الرمز</button>
+            <span id="signup-otp-meta" class="flow-otp-meta"></span>
+          </div>
+        </section>
+
+        <section class="flow-panel" data-mode="signup" data-step="4" hidden>
+          <h2>كلمة المرور</h2>
+          <p>حدد كلمة مرور قوية.</p>
+          <label for="signup-password">كلمة المرور</label>
+          <input id="signup-password" type="password" minlength="8" placeholder="********" />
+          <label for="signup-password-confirm">تأكيد كلمة المرور</label>
+          <input id="signup-password-confirm" type="password" minlength="8" placeholder="********" />
+        </section>
+
+        <section class="flow-panel" data-mode="signup" data-step="5" hidden>
+          <h2>الهوية</h2>
+          <p>اسم المستخدم والصورة الشخصية.</p>
+          <label for="signup-username">اسم المستخدم</label>
+          <input id="signup-username" type="text" maxlength="24" placeholder="vvip.tiger" />
+          <label for="signup-avatar">رابط صورة شخصية (اختياري)</label>
+          <input id="signup-avatar" type="url" placeholder="https://..." />
+        </section>
+
+        <section class="flow-panel" data-mode="signup" data-step="6" hidden>
+          <h2>الاهتمامات</h2>
+          <p>اختر اهتماماتك الأساسية.</p>
+          <div class="flow-check-grid">
+            <label><input type="checkbox" name="interest" value="parts" /> قطع الغيار</label>
+            <label><input type="checkbox" name="interest" value="maintenance" /> الصيانة</label>
+            <label><input type="checkbox" name="interest" value="cars" /> السيارات</label>
+            <label><input type="checkbox" name="interest" value="analytics" /> التحليلات</label>
+          </div>
+        </section>
+
+        <section class="flow-panel" data-mode="signup" data-step="7" hidden>
+          <h2>الشروط</h2>
+          <p>يجب الموافقة لإكمال التسجيل.</p>
+          <label class="flow-consent"><input id="signup-consent" type="checkbox" /> أوافق على الشروط وسياسة الخصوصية.</label>
+        </section>
+
+        <section class="flow-panel" data-mode="signup" data-step="8" hidden>
+          <h2>حماية إضافية 2FA</h2>
+          <p>فعّل طبقة حماية إضافية: جهاز موثوق + أكواد احتياطية.</p>
+          <label class="flow-consent"><input id="signup-trusted-device" type="checkbox" checked /> تذكّر هذا الجهاز كجهاز موثوق.</label>
+          <label for="signup-trusted-expiry">مدة صلاحية الجهاز الموثوق</label>
+          <select id="signup-trusted-expiry" class="flow-select">
+            <option value="7">7 أيام</option>
+            <option value="30" selected>30 يوم</option>
+            <option value="90">90 يوم</option>
+          </select>
+          <button id="signup-generate-backup" class="flow-otp-resend" type="button">توليد أكواد احتياطية</button>
+          <button id="signup-revoke-trusted" class="flow-otp-resend" type="button">إبطال كل الأجهزة الموثوقة</button>
+          <button id="signup-view-security" class="flow-otp-resend" type="button">عرض التقرير الأمني</button>
+          <button id="signup-copy-security" class="flow-otp-resend" type="button">نسخ التقرير الأمني</button>
+          <button id="signup-export-security" class="flow-otp-resend" type="button">تصدير تقرير أمني JSON</button>
+          <div id="signup-backup-codes" class="flow-backup-codes" aria-live="polite"></div>
+          <div id="signup-trusted-devices" class="flow-trusted-devices" aria-live="polite"></div>
+          <p id="signup-security-summary" class="flow-step-note"></p>
+        </section>
+
+        <section class="flow-panel" data-mode="signup" data-step="9" hidden>
+          <h2>تم إنشاء الحساب</h2>
+          <p>يمكنك الآن المتابعة إلى المنصة.</p>
+          <button id="flow-finish-signup" class="btn-primary" type="button">الانتقال إلى الصفحة العامة</button>
+        </section>
+
+        <section class="flow-panel" data-mode="recovery" data-step="1" hidden>
+          <h2>تعريف الحساب</h2>
+          <p>أدخل البريد أو الهاتف.</p>
+          <input id="recovery-identity" type="text" placeholder="name@example.com أو +9627..." />
+        </section>
+
+        <section class="flow-panel" data-mode="recovery" data-step="2" hidden>
+          <h2>طريقة الاسترجاع</h2>
+          <p>اختر قناة إرسال الرمز.</p>
+          <div class="flow-radio-grid">
+            <label><input type="radio" name="recovery-channel" value="sms" checked /> رسالة نصية</label>
+            <label><input type="radio" name="recovery-channel" value="email" /> بريد إلكتروني</label>
+            <label><input type="radio" name="recovery-channel" value="trusted" /> جهاز موثوق</label>
+            <label><input type="radio" name="recovery-channel" value="backup" /> كود احتياطي</label>
+          </div>
+        </section>
+
+        <section class="flow-panel" data-mode="recovery" data-step="3" hidden>
+          <h2>رمز التحقق</h2>
+          <p>أدخل رمز الاسترجاع.</p>
+          <input id="recovery-otp" type="text" inputmode="numeric" maxlength="6" placeholder="000000" />
+          <input id="recovery-backup-code" type="text" maxlength="16" placeholder="AAAA-BBBB" hidden />
+          <div class="flow-otp-tools">
+            <button id="recovery-otp-resend" class="flow-otp-resend" type="button">إعادة إرسال الرمز</button>
+            <span id="recovery-otp-meta" class="flow-otp-meta"></span>
+          </div>
+          <p id="recovery-step3-note" class="flow-step-note" hidden></p>
+        </section>
+
+        <section class="flow-panel" data-mode="recovery" data-step="4" hidden>
+          <h2>تعيين كلمة مرور جديدة</h2>
+          <label for="recovery-password">كلمة المرور الجديدة</label>
+          <input id="recovery-password" type="password" minlength="8" placeholder="********" />
+          <label for="recovery-password-confirm">تأكيد كلمة المرور</label>
+          <input id="recovery-password-confirm" type="password" minlength="8" placeholder="********" />
+        </section>
+
+        <section class="flow-panel" data-mode="recovery" data-step="5" hidden>
+          <h2>تم الاسترجاع</h2>
+          <p>تم تحديث كلمة المرور بنجاح.</p>
+          <button id="flow-finish-recovery" class="btn-primary" type="button">العودة إلى تسجيل الدخول</button>
+        </section>
+
+        <p id="auth-flow-status" class="status-message" role="status" aria-live="polite"></p>
+
+        <div class="auth-flow-actions">
+          <button id="flow-back" class="btn-secondary" type="button">السابق</button>
+          <button id="flow-next" class="btn-primary" type="submit">التالي</button>
+        </div>
+      </form>
+    </section>
+
+    <div id="security-report-modal" class="security-report-modal" hidden>
+      <div class="security-report-dialog" role="dialog" aria-modal="true" aria-labelledby="security-report-title">
+        <div class="security-report-head">
+          <h3 id="security-report-title">معاينة التقرير الأمني</h3>
+          <button id="security-report-close" class="flow-device-remove" type="button" aria-label="إغلاق">إغلاق</button>
+        </div>
+        <pre id="security-report-preview" class="security-report-preview"></pre>
+        <div class="security-report-actions">
+          <button id="security-report-copy" class="flow-otp-resend" type="button">نسخ التقرير</button>
+          <button id="security-report-export" class="flow-otp-resend" type="button">تصدير JSON</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="auth-flow.js?v=20260702"></script>
+</body>
+</html>

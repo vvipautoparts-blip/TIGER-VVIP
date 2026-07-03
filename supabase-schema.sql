@@ -873,3 +873,30 @@ CREATE POLICY "Staff can read buyers" ON public.buyers
         AND p.role IN ('super_admin', 'manager', 'representative')
     )
   );
+
+CREATE OR REPLACE FUNCTION public.lookup_profile_by_phone(input_phone text)
+RETURNS TABLE (id uuid, phone text, email text)
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT p.id, p.phone, p.email
+  FROM public.profiles p
+  WHERE p.phone = input_phone
+  LIMIT 1;
+$$;
+
+CREATE OR REPLACE FUNCTION public.lookup_profile_by_email(input_email text)
+RETURNS TABLE (id uuid, email text)
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT p.id, p.email
+  FROM public.profiles p
+  WHERE lower(p.email) = lower(input_email)
+  LIMIT 1;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.lookup_profile_by_phone(text) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.lookup_profile_by_email(text) TO anon, authenticated;

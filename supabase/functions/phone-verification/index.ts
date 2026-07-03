@@ -23,7 +23,7 @@ function jsonResponse(status: number, payload: Record<string, unknown>) {
 }
 
 function normalizePhone(phone: string) {
-  return phone.replace(/[^\d+]/g, "");
+  return String(phone || "").replace(/[^\d]/g, "");
 }
 
 async function sendViaMetaWhatsApp(phone: string, code: string) {
@@ -31,39 +31,39 @@ async function sendViaMetaWhatsApp(phone: string, code: string) {
   const phoneNumberId = Deno.env.get("WHATSAPP_PHONE_NUMBER_ID");
   const templateName = Deno.env.get("WHATSAPP_TEMPLATE_NAME");
   const templateLang = Deno.env.get("WHATSAPP_TEMPLATE_LANG") || "ar";
+  const includeCodeParam = (Deno.env.get("WHATSAPP_TEMPLATE_INCLUDE_CODE") || "true").toLowerCase() === "true";
 
-  if (!accessToken || !phoneNumberId) {
+  if (!accessToken || !phoneNumberId || !templateName) {
     throw new Error("Missing WhatsApp environment variables.");
   }
 
-  const recipient = normalizePhone(phone).replace(/^\+/, "");
-  const endpoint = `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`;
+  const recipient = normalizePhone(phone);
+  if (!recipient) {
+    throw new Error("Invalid recipient phone.");
+  }
 
-  const payload = templateName
-    ? {
-        messaging_product: "whatsapp",
-        to: recipient,
-        type: "template",
-        template: {
-          name: templateName,
-          language: { code: templateLang },
-          components: [
-            {
-              type: "body",
-              parameters: [{ type: "text", text: code }],
-            },
-          ],
-        },
-      }
-    : {
-        messaging_product: "whatsapp",
-        to: recipient,
-        type: "text",
-        text: {
-          preview_url: false,
-          body: `Tiger VVIP verification code: ${code}`,
-        },
-      };
+  const endpoint = `https://graph.facebook.com/v21.0/${phoneNumberId}/messages`;
+
+  const templatePayload: Record<string, unknown> = {
+    name: templateName,
+    language: { code: templateLang },
+  };
+
+  if (includeCodeParam) {
+    templatePayload.components = [
+      {
+        type: "body",
+        parameters: [{ type: "text", text: code }],
+      },
+    ];
+  }
+
+  const payload = {
+    messaging_product: "whatsapp",
+    to: recipient,
+    type: "template",
+    template: templatePayload,
+  };
 
   const response = await fetch(endpoint, {
     method: "POST",
@@ -77,10 +77,27 @@ async function sendViaMetaWhatsApp(phone: string, code: string) {
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    throw new Error(`WhatsApp API error: ${JSON.stringify(data)}`);
+    const details = data?.error?.message || data?.message || JSON.stringify(data);
+    throw new Error(`WhatsApp API error: ${details}`);
   }
 
   return data;
+}
+
+function sendViaInternalVerification(phone: string, code: string) {
+  const recipient = normalizePhone(phone);
+
+  if (!recipient) {
+    throw new Error("Invalid recipient phone.");
+  }
+
+  return {
+    accepted: true,
+    mode: "internal",
+    phone: recipient,
+    codeLength: code.length,
+    deliveredExternally: false,
+  };
 }
 
 serve(async (request) => {
@@ -97,27 +114,37 @@ serve(async (request) => {
 
   try {
     const body = (await request.json()) as OtpRequest;
-    const phone = body.phone?.trim();
-    const code = body.code?.trim();
-    const channel = body.channel?.trim().toLowerCase();
+    const phone = normalizePhone(body.phone || "");
+    const code = String(body.code || "").trim();
+    const channel = String(body.channel || "").trim().toLowerCase();
 
-    if (!phone || !code || channel !== "whatsapp") {
+    if (!phone || !code) {
       return jsonResponse(400, {
         success: false,
-        message: "Invalid payload. Expected phone, code, channel=whatsapp.",
+        message: "Invalid payload. Expected phone and code.",
       });
     }
 
-    const provider = (Deno.env.get("WHATSAPP_PROVIDER") || "meta").toLowerCase();
+    const provider = (Deno.env.get("WHATSAPP_PROVIDER") || "internal").toLowerCase();
+    let providerResponse: unknown;
 
-    if (provider !== "meta") {
+    if (provider === "meta") {
+      if (channel && channel !== "whatsapp") {
+        return jsonResponse(400, {
+          success: false,
+          message: "Meta delivery requires channel=whatsapp.",
+        });
+      }
+
+      providerResponse = await sendViaMetaWhatsApp(phone, code);
+    } else if (provider === "internal") {
+      providerResponse = sendViaInternalVerification(phone, code);
+    } else {
       return jsonResponse(500, {
         success: false,
         message: `Unsupported provider: ${provider}`,
       });
     }
-
-    const providerResponse = await sendViaMetaWhatsApp(phone, code);
 
     return jsonResponse(200, {
       success: true,

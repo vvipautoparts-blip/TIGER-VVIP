@@ -5,7 +5,7 @@
 | الميزة | الحالة | الاختبار | الملاحظات |
 |--------|--------|---------|----------|
 | Email Selector (Saved Emails) | ✅ مكتملة | ✅ موثقة | يعمل بكمال - localStorage + UI |
-| Admin Users Grid | ✅ مكتملة | 🔧 جاهز | الكود موجود في script.js - 2507 |
+| Admin Users Grid | ✅ مكتملة | 🔧 جاهز | الكود موجود في social-ui.js |
 | Account Chooser (OAuth) | 📋 مُواصفة | ⏳ معلّق | في ACCOUNT-CHOOSER-SPEC.md |
 | Admin Role System (RLS) | 📋 مُواصفة | ⏳ معلّق | في ADMIN-ROLE-SPEC.md |
 
@@ -29,7 +29,7 @@
    - .email-selector-item with hover state
    - Email delete button styling
 
-✅ JavaScript Functions (script.js):
+✅ JavaScript Functions (auth.js + social-ui.js):
    - getSavedEmails() - read from localStorage
    - addSavedEmail(email) - persist with timestamp
    - deleteSavedEmail(email) - remove from list
@@ -107,7 +107,7 @@ Result: ✅ Shows "لا توجد بريدات محفوظة"
    - .user-card-avatar
    - .user-card-name, .user-card-role, .user-card-phone
 
-✅ JavaScript Implementation (script.js):
+✅ JavaScript Implementation (auth.js + social-ui.js):
    - renderAdminUsers() - line 2507+
    - adminViewUser(userId) - view user profile
    - Search and filter functionality
@@ -171,7 +171,7 @@ URL: http://localhost:8000/#admin-dashboard
 ### الخطوات المتبقية
 1. إعداد Google Cloud Console
 2. إضافة Google Provider في Supabase
-3. تنفيذ الكود في script.js
+3. تنفيذ الكود في auth.js وsocial-ui.js
 4. إضافة HTML button في index.html
 
 ---
@@ -189,7 +189,7 @@ URL: http://localhost:8000/#admin-dashboard
 ### الخطوات المتبقية
 1. تنفيذ RLS policies في Supabase
 2. اختبار في PostgreSQL console
-3. تحديث frontend checks في script.js
+3. تحديث frontend checks في social-ui.js
 
 ---
 
@@ -199,7 +199,8 @@ URL: http://localhost:8000/#admin-dashboard
 |------|-------|
 | [index.html](./index.html) | HTML markup للبريد والـ admin |
 | [styles.css](./styles.css) | تنسيق البريد والـ admin |
-| [script.js](./script.js) | منطق الحفظ والعرض والبحث |
+| [auth.js](./auth.js) | منطق المصادقة |
+| [social-ui.js](./social-ui.js) | منطق الحفظ والعرض والبحث |
 | [ACCOUNT-CHOOSER-SPEC.md](./ACCOUNT-CHOOSER-SPEC.md) | مواصفة OAuth |
 | [ADMIN-ROLE-SPEC.md](./ADMIN-ROLE-SPEC.md) | مواصفة RLS |
 | [SETUP-GUIDE.md](./SETUP-GUIDE.md) | دليل الإعداد الأساسي |

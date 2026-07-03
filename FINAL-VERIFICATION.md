@@ -189,8 +189,8 @@
 |------|--------|--------|-----|
 | index.html | 27 KB | HTML | ✅ |
 | styles.css | 23 KB | CSS | ✅ |
-| script.js | 31 KB | JavaScript | ✅ |
-| supabase-config.js | 2.0 KB | Config | ✅ |
+| auth.js | 2.0 KB | JavaScript | ✅ |
+| social-ui.js | 31 KB | JavaScript | ✅ |
 | supabase-schema.sql | 1.4 KB | SQL | ✅ |
 | README.md | 6.0 KB | Doc | ✅ |
 | SETUP-GUIDE.md | 8.2 KB | Doc | ✅ |
@@ -251,8 +251,8 @@
 ```
 1. إنشاء مشروع في supabase.com
 2. نسخ Project URL و Anon Key
-3. تحديث supabase-config.js
-4. تنفيذ supabase-schema.sql
+3. حفظ مفاتيح Supabase في localStorage عبر TIGER_SUPABASE_URL و TIGER_SUPABASE_ANON_KEY
+4. تنفيذ supabase-schema.sql أو المهاجرة feed_posts
 5. إنشاء حسابات الاختبار
 ```
 

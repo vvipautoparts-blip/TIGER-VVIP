@@ -9,6 +9,7 @@
   const STORAGE_ADS_KEY = "autoparts_ad_campaign";
   const STORAGE_SAVED_POSTS_KEY = "autoparts_saved_posts";
   const STORAGE_STORIES_KEY = "autoparts_story_items";
+  const STORAGE_FEED_FILTER_KEY = "autoparts_feed_filter_state";
   const STORAGE_AI_ENDPOINT_KEY = "TIGER_AI_ENDPOINT";
   const STORAGE_AI_KEY_KEY = "TIGER_AI_KEY";
   const STORAGE_VISION_ENDPOINT_KEY = "TIGER_VISION_ENDPOINT";
@@ -340,6 +341,174 @@
         toast.remove();
       }, 220);
     }, 2200);
+  }
+
+  function ensurePostAiSheet() {
+    let sheet = document.getElementById("post-ai-sheet");
+    if (sheet) return sheet;
+
+    sheet = document.createElement("aside");
+    sheet.id = "post-ai-sheet";
+    sheet.className = "comments-sheet";
+    sheet.setAttribute("aria-hidden", "true");
+    sheet.innerHTML = [
+      '<div class="sheet-panel" role="dialog" aria-modal="true" aria-label="AI Post Info">',
+      '  <div class="sheet-head">',
+      '    <h3 id="post-ai-sheet-title">AI</h3>',
+      '    <button id="post-ai-sheet-close" type="button">✕</button>',
+      '  </div>',
+      '  <div class="sheet-body">',
+      '    <article class="comment-item">',
+      '      <p class="comment-author" id="post-ai-summary-label"></p>',
+      '      <p id="post-ai-summary"></p>',
+      '    </article>',
+      '    <article class="comment-item">',
+      '      <p class="comment-author" id="post-ai-tags-label"></p>',
+      '      <p id="post-ai-tags"></p>',
+      '    </article>',
+      '    <article class="comment-item">',
+      '      <p class="comment-author" id="post-ai-tip-label"></p>',
+      '      <p id="post-ai-tip"></p>',
+      '    </article>',
+      '  </div>',
+      '</div>'
+    ].join("\n");
+
+    document.body.appendChild(sheet);
+
+    const closeBtn = sheet.querySelector("#post-ai-sheet-close");
+    if (closeBtn) {
+      closeBtn.addEventListener("click", function () {
+        sheet.classList.remove("open");
+        sheet.setAttribute("aria-hidden", "true");
+      });
+    }
+
+    sheet.addEventListener("click", function (event) {
+      if (event.target === sheet) {
+        sheet.classList.remove("open");
+        sheet.setAttribute("aria-hidden", "true");
+      }
+    });
+
+    return sheet;
+  }
+
+  function openPostAiSheet(postCard) {
+    if (!postCard) return;
+    const sheet = ensurePostAiSheet();
+    const textNode = postCard.querySelector(".post-copy");
+    const draft = {
+      text: textNode ? textNode.textContent : (postCard.getAttribute("data-text") || ""),
+      type: postCard.getAttribute("data-type") || "all",
+      audience: postCard.getAttribute("data-audience") || "all",
+      mediaUrl: ""
+    };
+    const ai = guessContentSignals(draft);
+
+    const title = sheet.querySelector("#post-ai-sheet-title");
+    const summaryLabel = sheet.querySelector("#post-ai-summary-label");
+    const summary = sheet.querySelector("#post-ai-summary");
+    const tagsLabel = sheet.querySelector("#post-ai-tags-label");
+    const tags = sheet.querySelector("#post-ai-tags");
+    const tipLabel = sheet.querySelector("#post-ai-tip-label");
+    const tip = sheet.querySelector("#post-ai-tip");
+
+    if (title) title.textContent = currentLang === "en" ? "AI Post Insight" : "تحليل AI للمنشور";
+    if (summaryLabel) summaryLabel.textContent = currentLang === "en" ? "Summary" : "الملخص";
+    if (summary) summary.textContent = ai.summary;
+    if (tagsLabel) tagsLabel.textContent = currentLang === "en" ? "Tags" : "الوسوم";
+    if (tags) tags.textContent = ai.tags.join("  ");
+    if (tipLabel) tipLabel.textContent = currentLang === "en" ? "Recommendation" : "التوصية";
+    if (tip) tip.textContent = ai.tip;
+
+    sheet.classList.add("open");
+    sheet.setAttribute("aria-hidden", "false");
+    logAnalyticsEvent("ai_post_insight_open", { type: draft.type, audience: draft.audience });
+  }
+
+  function initGlobalPostMenuActions() {
+    if (document.body && document.body.dataset.globalPostMenuBound === "true") return;
+    if (document.body) {
+      document.body.dataset.globalPostMenuBound = "true";
+    }
+
+    document.addEventListener("click", function (event) {
+      const menuButton = event.target && event.target.closest ? event.target.closest(".post-menu") : null;
+      if (!menuButton) return;
+      if (event.__postMenuHandled) return;
+
+      const postCard = menuButton.closest(".post-card");
+      if (!postCard) return;
+      openPostAiSheet(postCard);
+    });
+  }
+
+  function initGeneralButtonActions() {
+    const publicSearchBtn = document.getElementById("public-search-btn");
+    const publicMenuBtn = document.getElementById("public-menu-btn");
+    const feedSearch = document.getElementById("feed-search");
+    const privateSearchBtn = document.getElementById("private-search-btn");
+    const privateCreateBtn = document.getElementById("private-create-btn");
+    const privateMessengerBtn = document.getElementById("private-messenger-btn");
+    const profileEditBtn = document.getElementById("profile-edit-btn");
+    const profileStoryBtn = document.getElementById("profile-story-btn");
+    const profileMiniTabs = Array.from(document.querySelectorAll(".profile-mini-tab"));
+
+    if (publicSearchBtn && feedSearch) {
+      publicSearchBtn.addEventListener("click", function () {
+        feedSearch.focus();
+        feedSearch.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+    }
+
+    if (publicMenuBtn) {
+      publicMenuBtn.addEventListener("click", function () {
+        showToast(currentLang === "en" ? "Use the three dots on posts to open AI details." : "استخدم الثلاث نقاط في كل منشور لعرض تفاصيل AI.", "info");
+      });
+    }
+
+    if (privateSearchBtn) {
+      privateSearchBtn.addEventListener("click", function () {
+        const target = document.querySelector(".profile-tab[data-profile-tab='posts']");
+        if (target) target.click();
+        showToast(currentLang === "en" ? "Posts tab is ready for search." : "تبويب المنشورات جاهز للبحث.", "info");
+      });
+    }
+
+    if (privateCreateBtn) {
+      privateCreateBtn.addEventListener("click", function () {
+        const target = document.querySelector(".profile-tab[data-profile-tab='posts']");
+        if (target) target.click();
+        showToast(currentLang === "en" ? "Create post from your public feed composer." : "أنشئ منشورًا من composer في الصفحة العامة.", "warning");
+      });
+    }
+
+    if (privateMessengerBtn) {
+      privateMessengerBtn.addEventListener("click", function () {
+        showToast(currentLang === "en" ? "Messaging module will open from this button." : "وحدة الرسائل ستُفتح من هذا الزر.", "info");
+      });
+    }
+
+    if (profileEditBtn) {
+      profileEditBtn.addEventListener("click", function () {
+        const aboutTab = document.querySelector(".profile-tab[data-profile-tab='about']");
+        if (aboutTab) aboutTab.click();
+      });
+    }
+
+    if (profileStoryBtn) {
+      profileStoryBtn.addEventListener("click", function () {
+        showToast(currentLang === "en" ? "Story composer will be available from this action." : "منشئ القصص سيتوفر من هذا الزر.", "info");
+      });
+    }
+
+    profileMiniTabs.forEach(function (tab) {
+      tab.addEventListener("click", function () {
+        profileMiniTabs.forEach(function (node) { node.classList.remove("active"); });
+        tab.classList.add("active");
+      });
+    });
   }
 
   function getLastRenderedPost(feedList) {
@@ -1198,6 +1367,7 @@
       const commentButton = target.closest(".comment-btn");
       const shareButton = target.closest(".share-btn");
       const saveButton = target.closest(".save-btn");
+      const menuButton = target.closest(".post-menu");
       const postCard = target.closest(".post-card");
       const postId = postCard ? postCard.getAttribute("data-post-id") : "";
 
@@ -1206,6 +1376,12 @@
           postId: postId,
           category: postCard.getAttribute("data-category") || "general"
         });
+      }
+
+      if (menuButton && postCard) {
+        event.__postMenuHandled = true;
+        openPostAiSheet(postCard);
+        return;
       }
 
       if (likeButton) {
@@ -1316,6 +1492,12 @@
     const composerAssistantTags = document.getElementById("composer-assistant-tags");
     const composerAssistantBadge = document.getElementById("composer-assistant-badge");
     const feedEmpty = document.getElementById("feed-empty");
+    const feedResultsCount = document.getElementById("feed-results-count");
+    const feedSearchTrigger = document.getElementById("feed-search-trigger");
+    const aiSearchTrigger = document.getElementById("ai-search-trigger");
+    const aiAssistantTrigger = document.getElementById("ai-assistant-trigger");
+    const composerAiTrigger = document.getElementById("composer-ai-trigger");
+    const aiNavTrigger = document.getElementById("ai-nav-trigger");
     const feedLoadMore = document.getElementById("feed-load-more");
     const feedDbStatus = document.getElementById("feed-db-status");
     const mainCreateButton = document.querySelector(".nav-main");
@@ -1347,6 +1529,50 @@
       items: getStoredStories(),
       index: 0
     };
+
+    function readFeedFilterState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_FEED_FILTER_KEY);
+        const parsed = raw ? JSON.parse(raw) : null;
+        if (!parsed || typeof parsed !== "object") {
+          return { tab: "all", query: "" };
+        }
+
+        const safeTab = ["all", "followed", "video", "images"].includes(String(parsed.tab || ""))
+          ? String(parsed.tab)
+          : "all";
+        const safeQuery = String(parsed.query || "").trim().slice(0, 120);
+        return { tab: safeTab, query: safeQuery };
+      } catch (_error) {
+        return { tab: "all", query: "" };
+      }
+    }
+
+    function persistFeedFilterState() {
+      const state = {
+        tab: activeFeedTab(),
+        query: String(searchInput && searchInput.value ? searchInput.value : "").trim().slice(0, 120)
+      };
+      localStorage.setItem(STORAGE_FEED_FILTER_KEY, JSON.stringify(state));
+    }
+
+    function setActiveFeedTab(tabKey) {
+      const targetTab = String(tabKey || "all");
+      let matched = false;
+      tabButtons.forEach(function (item) {
+        const isActive = item.getAttribute("data-tab") === targetTab;
+        item.classList.toggle("active", isActive);
+        item.setAttribute("aria-selected", isActive ? "true" : "false");
+        if (isActive) {
+          matched = true;
+        }
+      });
+
+      if (!matched && tabButtons.length) {
+        tabButtons[0].classList.add("active");
+        tabButtons[0].setAttribute("aria-selected", "true");
+      }
+    }
 
     const role = getCurrentRole();
     const createEnabledRoles = ["company_parts", "institution_parts", "shop", "maintenance_center"];
@@ -1455,6 +1681,20 @@
       return localResult.assistant;
     }
 
+    function openAiAssistant(source) {
+      if (!composerModal || !composerText) return;
+      composerModal.classList.add("open");
+      composerModal.setAttribute("aria-hidden", "false");
+      if (!composerText.value) {
+        composerText.value = currentLang === "en"
+          ? "Create a high-performing post idea for auto parts customers."
+          : "أنشئ فكرة منشور قوية تستهدف عملاء قطع السيارات.";
+      }
+      composerText.focus();
+      renderComposerAssistant({ ai: true });
+      logAnalyticsEvent("ai_assistant_open", { source: source || "unknown" });
+    }
+
     function updateComposerAssistantDebounced() {
       if (composerAssistantTimer) {
         window.clearTimeout(composerAssistantTimer);
@@ -1551,10 +1791,6 @@
       updateFeedLoadMoreState();
     }
 
-    (async function hydrateFeed() {
-      await loadFeedPage({ append: false });
-    })();
-
     function persistMetricChange(payload) {
       if (!payload || !payload.metricKey) return;
 
@@ -1603,6 +1839,16 @@
       return active ? active.getAttribute("data-tab") : "all";
     }
 
+    function updateFeedResultsCount(visibleCount, totalCount) {
+      if (!feedResultsCount) return;
+      const visible = Math.max(0, Number(visibleCount) || 0);
+      const total = Math.max(0, Number(totalCount) || 0);
+      feedResultsCount.textContent = currentLang === "en"
+        ? ("Results: " + visible + " of " + total)
+        : ("النتائج: " + visible + " من " + total);
+      feedResultsCount.classList.toggle("is-empty", visible === 0);
+    }
+
     function applyFeedFilters() {
       const posts = Array.from(document.querySelectorAll(".post-card"));
       const currentTab = activeFeedTab();
@@ -1631,16 +1877,14 @@
       if (feedEmpty) {
         feedEmpty.hidden = visibleCount !== 0;
       }
+
+      updateFeedResultsCount(visibleCount, posts.length);
+      persistFeedFilterState();
     }
 
     tabButtons.forEach(function (button) {
       button.addEventListener("click", function () {
-        tabButtons.forEach(function (item) {
-          item.classList.remove("active");
-          item.setAttribute("aria-selected", "false");
-        });
-        button.classList.add("active");
-        button.setAttribute("aria-selected", "true");
+        setActiveFeedTab(button.getAttribute("data-tab") || "all");
         logAnalyticsEvent("feed_tab_switch", { tab: button.getAttribute("data-tab") || "all" });
         applyFeedFilters();
       });
@@ -1650,6 +1894,49 @@
       searchInput.addEventListener("input", function () {
         logAnalyticsEvent("feed_search", { queryLength: String(searchInput.value || "").trim().length });
         applyFeedFilters();
+      });
+    }
+
+    (function restoreFeedFilterState() {
+      const state = readFeedFilterState();
+      if (searchInput && state.query) {
+        searchInput.value = state.query;
+      }
+      setActiveFeedTab(state.tab);
+    })();
+
+    (async function hydrateFeed() {
+      await loadFeedPage({ append: false });
+    })();
+
+    if (feedSearchTrigger && searchInput) {
+      feedSearchTrigger.addEventListener("click", function () {
+        searchInput.focus();
+        searchInput.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+    }
+
+    if (aiSearchTrigger) {
+      aiSearchTrigger.addEventListener("click", function () {
+        openAiAssistant("search-row");
+      });
+    }
+
+    if (aiAssistantTrigger) {
+      aiAssistantTrigger.addEventListener("click", function () {
+        openAiAssistant("header");
+      });
+    }
+
+    if (composerAiTrigger) {
+      composerAiTrigger.addEventListener("click", function () {
+        openAiAssistant("composer-row");
+      });
+    }
+
+    if (aiNavTrigger) {
+      aiNavTrigger.addEventListener("click", function () {
+        openAiAssistant("bottom-nav");
       });
     }
 
@@ -1993,7 +2280,26 @@
         postsList.insertAdjacentHTML("beforeend", createPostHtml(post, { compact: true }));
       });
 
-      postsEmpty.hidden = profilePosts.length !== 0;
+      if (!profilePosts.length) {
+        const fallbackPost = {
+          id: "profile-ai-demo",
+          text: currentLang === "en"
+            ? "AI-ready profile post. Open the three dots to inspect smart suggestions."
+            : "منشور جاهز للذكاء الاصطناعي. افتح الثلاث نقاط للاطلاع على التحليل الذكي.",
+          type: "all",
+          audience: "all",
+          author: (snapshot && snapshot.displayName) ? snapshot.displayName : (currentLang === "en" ? "VVIP TIGER" : "VVIP TIGER"),
+          handle: (snapshot && snapshot.handle) ? snapshot.handle : "vvip.tiger",
+          likes: 12,
+          comments: 3,
+          shares: 1,
+          createdAt: new Date().toISOString(),
+          syncState: "local"
+        };
+        postsList.insertAdjacentHTML("beforeend", createPostHtml(fallbackPost, { compact: true }));
+      }
+
+      postsEmpty.hidden = true;
 
       if (dbPosts) {
         setProfileStatus("db-online", tx(UI_TEXT.dbStatus.connected));
@@ -2274,6 +2580,102 @@
     });
   }
 
+  function initProfileAiControls() {
+    const headerAi = document.getElementById("profile-ai-header");
+    const boostAi = document.getElementById("profile-ai-boost");
+    const navAi = document.getElementById("profile-ai-nav");
+    const refreshAi = document.getElementById("insights-ai-refresh");
+    const adSuggestAi = document.getElementById("ad-ai-suggest");
+
+    if (!headerAi && !boostAi && !navAi && !refreshAi && !adSuggestAi) return;
+
+    function activateProfileTab(tabKey) {
+      const target = document.querySelector('.profile-tab[data-profile-tab="' + tabKey + '"]');
+      if (target) {
+        target.click();
+      }
+    }
+
+    function openInsightsWithAi(source) {
+      activateProfileTab("insights");
+      renderAnalyticsInsights();
+      showToast(
+        currentLang === "en"
+          ? "AI refreshed your analytics insights."
+          : "تم تحديث التحليلات بالذكاء الاصطناعي.",
+        "info"
+      );
+      logAnalyticsEvent("ai_insights_refresh", { source: source || "profile" });
+    }
+
+    function suggestAdSettingsWithAi(source) {
+      activateProfileTab("ads");
+      initAdManager();
+
+      const location = document.getElementById("ad-location");
+      const age = document.getElementById("ad-age");
+      const interests = document.getElementById("ad-interests");
+      const budget = document.getElementById("ad-budget");
+      const status = document.getElementById("ad-manager-status");
+
+      if (location) location.value = currentLang === "en" ? "Amman, Irbid, Zarqa" : "عمان، إربد، الزرقاء";
+      if (age) age.value = "22-45";
+      if (interests) interests.value = currentLang === "en"
+        ? "auto parts, VIN check, maintenance, garages"
+        : "قطع غيار، فحص VIN، صيانة، كراجات";
+      if (budget) budget.value = "35";
+
+      [location, age, interests, budget].forEach(function (node) {
+        if (!node) return;
+        node.dispatchEvent(new Event("input", { bubbles: true }));
+      });
+
+      if (status) {
+        status.textContent = currentLang === "en"
+          ? "AI suggested campaign settings are ready."
+          : "اقتراحات حملة الذكاء الاصطناعي جاهزة.";
+      }
+
+      showToast(
+        currentLang === "en"
+          ? "AI campaign suggestions applied."
+          : "تم تطبيق اقتراحات الحملة بالذكاء الاصطناعي.",
+        "success"
+      );
+      logAnalyticsEvent("ai_ad_suggestion", { source: source || "profile" });
+    }
+
+    if (headerAi) {
+      headerAi.addEventListener("click", function () {
+        openInsightsWithAi("header");
+      });
+    }
+
+    if (boostAi) {
+      boostAi.addEventListener("click", function () {
+        openInsightsWithAi("hero");
+      });
+    }
+
+    if (navAi) {
+      navAi.addEventListener("click", function () {
+        openInsightsWithAi("bottom-nav");
+      });
+    }
+
+    if (refreshAi) {
+      refreshAi.addEventListener("click", function () {
+        openInsightsWithAi("insights-panel");
+      });
+    }
+
+    if (adSuggestAi) {
+      adSuggestAi.addEventListener("click", function () {
+        suggestAdSettingsWithAi("ads-panel");
+      });
+    }
+  }
+
   initLanguageToggle();
   initStaticLocalization();
   initFeedInteractions();
@@ -2281,7 +2683,10 @@
   initProfilePosts();
   initProfileTabs();
   initProfileMenuSheet();
+  initProfileAiControls();
+  initGeneralButtonActions();
   initAdManager();
   initInAppBrowserLinks();
+  initGlobalPostMenuActions();
   initPageRail();
 })();

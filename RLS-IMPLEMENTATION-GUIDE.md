@@ -135,7 +135,7 @@ if (error?.code === 'PGRST116') {
 
 ## 🎯 Frontend Integration
 
-### في script.js، تم بالفعل تطبيق:
+### في social-ui.js، تم بالفعل تطبيق:
 
 ```javascript
 // 1. التحقق من الدور
@@ -224,7 +224,7 @@ UPDATE profiles SET role = 'super_admin' WHERE id = 'admin-id';
 
 **ما تم تطبيقه:**
 1. ✅ 5 SQL RLS policies جاهزة للنسخ واللصق
-2. ✅ Frontend code متوافق (script.js + index.html)
+2. ✅ Frontend code متوافق (social-ui.js + current HTML pages)
 3. ✅ إدارة المستخدمين للمسؤولين
 4. ✅ عزل البيانات الآمن
 

@@ -1,24 +1,23 @@
-# Supabase Edge Function for WhatsApp OTP
+# Supabase Edge Function for Internal Phone Verification
 
-هذا المسار يفعّل خيار 2: إرسال OTP عبر Supabase Edge Function.
+هذا المسار يفعّل التحقق الهاتفي الداخلي عبر Supabase Edge Function، مع إبقاء Meta خيارًا اختياريًا فقط.
 
 ## 1. الملفات الجاهزة
 
-- الدالة: [supabase/functions/send-otp/index.ts](supabase/functions/send-otp/index.ts)
-- الربط في الواجهة: [supabase-local.js](supabase-local.js)
+- الدالة: [supabase/functions/phone-verification/index.ts](supabase/functions/phone-verification/index.ts)
+- الربط في الواجهة: [social-ui.js](social-ui.js)
 
 ## 2. المتطلبات
 
-قبل النشر، جهّز بيانات WhatsApp Cloud API من Meta:
+للوضع الداخلي الحالي لا تحتاج أي مزود خارجي.
 
+اختياري فقط إذا أردت تفعيل Meta لاحقًا:
+
+- `WHATSAPP_PROVIDER=meta`
 - `WHATSAPP_ACCESS_TOKEN`
 - `WHATSAPP_PHONE_NUMBER_ID`
-- اختياري للإنتاج:
-  - `WHATSAPP_TEMPLATE_NAME`
-  - `WHATSAPP_TEMPLATE_LANG`
-
-ملاحظة:
-إذا لم تضع `WHATSAPP_TEMPLATE_NAME` فالدالة سترسل رسالة نصية عادية. هذا قد يعمل فقط داخل نافذة 24 ساعة للمحادثة. للإنتاج، OTP الأفضل يكون عبر Template Approved من Meta.
+- `WHATSAPP_TEMPLATE_NAME`
+- `WHATSAPP_TEMPLATE_LANG`
 
 ## 3. تسجيل الدخول إلى Supabase CLI
 
@@ -41,38 +40,35 @@ supabase link --project-ref YOUR_PROJECT_REF
 نفّذ:
 
 ```bash
-npm exec --yes supabase -- secrets set WHATSAPP_PROVIDER=meta
-npm exec --yes supabase -- secrets set WHATSAPP_ACCESS_TOKEN=YOUR_META_ACCESS_TOKEN
-npm exec --yes supabase -- secrets set WHATSAPP_PHONE_NUMBER_ID=YOUR_PHONE_NUMBER_ID
-npm exec --yes supabase -- secrets set WHATSAPP_TEMPLATE_NAME=your_otp_template
-npm exec --yes supabase -- secrets set WHATSAPP_TEMPLATE_LANG=ar
+npm exec --yes supabase -- secrets set WHATSAPP_PROVIDER=internal
 ```
 
-إذا كنت تريد اختباراً سريعاً بدون Template approved، احذف متغير `WHATSAPP_TEMPLATE_NAME` من الإعدادات واترك الإرسال النصي فقط.
+إذا أردت تفعيل Meta لاحقًا، بدّل `WHATSAPP_PROVIDER=meta` ثم أضف مفاتيح Meta المذكورة أعلاه.
 
 ## 5. نشر الدالة
 
 نفّذ:
 
 ```bash
-npm exec --yes supabase -- functions deploy send-otp
+npm exec --yes supabase -- functions deploy phone-verification
 ```
 
 رابط الدالة سيكون بهذا الشكل:
 
 ```text
-https://YOUR_PROJECT_REF.functions.supabase.co/send-otp
+https://YOUR_PROJECT_REF.functions.supabase.co/phone-verification
 ```
 
 ## 6. ربطها مع الواجهة
 
-حدّث [supabase-local.js](supabase-local.js):
+خزّن مفاتيح Supabase كقيم runtime في المتصفح:
 
 ```js
-window.SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
-window.SUPABASE_ANON_KEY = "YOUR_REAL_ANON_KEY";
-window.WHATSAPP_OTP_ENDPOINT = "https://YOUR_PROJECT_REF.functions.supabase.co/send-otp";
+localStorage.setItem("TIGER_SUPABASE_URL", "https://YOUR_PROJECT.supabase.co");
+localStorage.setItem("TIGER_SUPABASE_ANON_KEY", "YOUR_REAL_ANON_KEY");
 ```
+
+ثم اعتمد على [social-ui.js](social-ui.js) لتفعيل المزامنة والواجهات الحالية.
 
 ## 7. عقد الطلب الذي تستقبله الدالة
 
@@ -82,7 +78,7 @@ window.WHATSAPP_OTP_ENDPOINT = "https://YOUR_PROJECT_REF.functions.supabase.co/s
 {
   "phone": "+962780003302",
   "code": "123456",
-  "channel": "whatsapp"
+  "channel": "internal"
 }
 ```
 
@@ -91,7 +87,7 @@ window.WHATSAPP_OTP_ENDPOINT = "https://YOUR_PROJECT_REF.functions.supabase.co/s
 ```json
 {
   "success": true,
-  "provider": "meta"
+  "provider": "internal"
 }
 ```
 
@@ -100,15 +96,15 @@ window.WHATSAPP_OTP_ENDPOINT = "https://YOUR_PROJECT_REF.functions.supabase.co/s
 جرّب:
 
 ```bash
-curl -X POST "https://YOUR_PROJECT_REF.functions.supabase.co/send-otp" \
+curl -X POST "https://YOUR_PROJECT_REF.functions.supabase.co/phone-verification" \
   -H "Content-Type: application/json" \
-  -d '{"phone":"+962780003302","code":"123456","channel":"whatsapp"}'
+  -d '{"phone":"+962780003302","code":"123456","channel":"internal"}'
 ```
 
 ## 9. ملاحظات مهمة
 
 - تشغيل زر الإرسال في الواجهة يتطلب:
   - مفاتيح Supabase الحقيقية
-  - `WHATSAPP_OTP_ENDPOINT` صحيح
-- تسجيل الدخول بالإيميل والباسورد لا يحتاج `WHATSAPP_OTP_ENDPOINT`، لكنه يحتاج مفاتيح Supabase الحقيقية.
-- إذا كان RLS مفعلاً كما ينبغي، فالدالة لا تغيّر جداولك مباشرة؛ هي فقط ترسل OTP. التحقق الفعلي يبقى داخل التطبيق عبر جداول OTP الموجودة لديك.
+  - نشر [supabase/functions/phone-verification/index.ts](supabase/functions/phone-verification/index.ts)
+- تسجيل الدخول بالإيميل والباسورد لا يحتاج نقطة التحقق الهاتفي، لكنه يحتاج مفاتيح Supabase الحقيقية.
+- إذا كان RLS مفعلاً كما ينبغي، فالدالة لا تغيّر جداولك مباشرة؛ هي فقط تبدأ التحقق الهاتفي. التحقق الفعلي يبقى داخل التطبيق عبر جداول OTP الموجودة لديك.

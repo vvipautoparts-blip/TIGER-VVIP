@@ -51,10 +51,12 @@ python -m http.server 8000
 
 ### Core Files (الملفات الأساسية)
 ```
-✅ index.html (27 KB)        - جميع الصفحات (HTML5)
+✅ index.html                - صفحة الدخول والتنقل بين الصفحات
+✅ public-profile.html       - صفحة البروفايل العامة
+✅ private-profile.html      - صفحة البروفايل الخاص
 ✅ styles.css (23 KB)        - تصميم Facebook (CSS3)
-✅ script.js (31 KB)         - منطق التطبيق (JS)
-✅ supabase-config.js        - إعدادات قاعدة البيانات
+✅ auth.js                   - Firebase auth flow
+✅ social-ui.js              - منطق الواجهة والـ i18n
 ✅ supabase-schema.sql       - مخطط الجداول
 ```
 

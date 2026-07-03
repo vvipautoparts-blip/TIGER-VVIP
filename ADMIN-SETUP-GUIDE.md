@@ -23,22 +23,29 @@
    - <ADMIN_USER_ID>
    بالـ UUID الفعلي من جدول auth.users.
 
-## 4) تفعيل OTP واتساب (إجباري فعلي)
-التطبيق الآن يرسل OTP عبر endpoint خارجي. لذلك:
+## 4) تفعيل التحقق الهاتفي الداخلي
+التطبيق الآن يربط التحقق الهاتفي عبر endpoint داخلي. لذلك:
 1. جهّز Backend endpoint خاص بك (مثلا عبر Edge Function أو API server).
 2. endpoint يستقبل:
    - phone
    - code
-   - channel=whatsapp
-3. قبل تحميل script.js، عرّف المتغير:
+    - channel=internal
+3. قبل تحميل [auth.js](auth.js) و[reset-password.js](reset-password.js)، عرّف المتغير:
 
 ```html
 <script>
-  window.WHATSAPP_OTP_ENDPOINT = "https://YOUR-ENDPOINT/send-otp";
+   window.FIREBASE_CONFIG = {
+     apiKey: "YOUR_API_KEY",
+     authDomain: "YOUR_PROJECT.firebaseapp.com",
+     projectId: "YOUR_PROJECT_ID",
+     storageBucket: "YOUR_PROJECT.appspot.com",
+     messagingSenderId: "YOUR_SENDER_ID",
+     appId: "YOUR_APP_ID"
+   };
 </script>
 ```
 
-بدون هذا endpoint، سيبقى الإرسال في وضع تحذيري (غير إنتاجي).
+إذا كنت تحتاج تحقق الهاتف، فالنقطة الحالية هي [supabase/functions/phone-verification/index.ts](supabase/functions/phone-verification/index.ts).
 
 ## 5) اختبار القيود الرئيسية
 1. التسجيل الإداري:

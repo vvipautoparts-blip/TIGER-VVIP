@@ -203,7 +203,7 @@
 ```
 ⚠️ ملاحظة مهمة:
 - التطبيق يحتاج إلى تكوين Supabase
-- الملف: supabase-config.js
+- الملف: [social-ui.js](social-ui.js)
 - ضع URL و Anon Key الخاصة بك
 ```
 
@@ -211,8 +211,8 @@
 ```
 ├─ index.html (27 KB)      - جميع الصفحات
 ├─ styles.css (23 KB)      - تصميم Facebook
-├─ script.js (31 KB)       - منطق التطبيق
-├─ supabase-config.js      - إعدادات قاعدة البيانات
+├─ auth.js                 - Firebase auth flow
+├─ social-ui.js            - منطق التطبيق
 └─ supabase-schema.sql     - مخطط الجداول
 ```
 
@@ -250,7 +250,7 @@
 ```
 1. إنشاء مشروع في supabase.com
 2. نسخ URL و Anon Key
-3. تحديث supabase-config.js
+3. حفظ مفاتيح Supabase في localStorage (TIGER_SUPABASE_URL و TIGER_SUPABASE_ANON_KEY)
 4. تنفيذ supabase-schema.sql
 ```
 

@@ -8,7 +8,7 @@
 
 ## 📋 What's Been Implemented
 
-### ✅ Backend Functions (script.js)
+### ✅ Backend Functions (auth.js)
 
 #### 1. **checkEmailVerificationStatus(user)**
 ```javascript
@@ -120,12 +120,7 @@ CREATE POLICY
 If using Google Sign-In:
 
 1. Get **Google Client ID** from Google Cloud Console
-2. In `script.js`, replace (line ~3125):
-   ```javascript
-   const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID';
-   // ↓ with
-   const GOOGLE_CLIENT_ID = 'your-actual-client-id.apps.googleusercontent.com';
-   ```
+2. In [auth.js](auth.js), update the Google client configuration if needed.
 
 3. In Supabase: **Authentication** → **Providers** → **Google**
    - Enable and add same OAuth credentials

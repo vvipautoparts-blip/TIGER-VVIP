@@ -1,186 +1,77 @@
-# 🎉 TIGER VVIP AutoParts - Facebook-Style Implementation
+# TIGER VVIP - AutoParts JO
 
-## ⚠️ Feature-Complete UI, Backend Still Needs Production Hardening
+Static bilingual web app (Arabic/English) for authentication and social-style profile/feed experience.
 
-مشروع نظام قطع غيار السيارات الفاخرة TIGER VVIP مع تصميم **Facebook-style** وتجربة مستخدم مكتملة من ناحية الواجهة، لكن ما يزال يحتاج إلى Supabase حقيقي، ضبط أمان إنتاجي، وأتمتة للاشتراك والاختبارات قبل اعتباره جاهزاً بالكامل.
+## Current Architecture
 
----
+This repository is now a multi-page static app (not SPA):
 
-## 🎨 لوحة الألوان - فيسبوك 100%
+- `index.html`: authentication entry page (Google/Facebook) and navigation to app pages.
+- `public-profile.html`: public feed page (page 3).
+- `private-profile.html`: private profile page (page 4).
+- `auth.js`: Firebase authentication, local user snapshot, role bootstrap.
+- `social-ui.js`: feed/profile interactions, language switching, optional Supabase sync with local fallback.
+- `styles.css`: shared visual system.
+- `reset-password.html` + `reset-password.js`: email reset flow.
 
-| اللون | الـ Hex | الاستخدام |
-|-------|--------|-----------|
-| أزرق فيسبوك | #1877F2 | الأزرار، الروابط، الرموز |
-| خلفية | #F0F2F5 | خلفية الصفحة |
-| البطاقات | #FFFFFF | الحاويات، النماذج |
-| النص الأساسي | #050505 | النصوص الرئيسية |
-| النص الثانوي | #65676B | الوصفات، المعلومات الثانوية |
-| الحدود | #DDDfe2 | الخطوط الفاصلة |
+## Key Behavior
 
----
+- Bilingual UI with RTL/LTR switching.
+- Optional Supabase runtime integration for feed persistence:
+  - `TIGER_SUPABASE_URL`
+  - `TIGER_SUPABASE_ANON_KEY`
+- Automatic fallback to local mode when Supabase config is unavailable.
+- Role-aware create/publish behavior via local user role state.
 
-## ✨ المزايا المنفذة
+## Quick Start
 
-### 1️⃣ **صفحات المصادقة**
-- ✅ صفحة الدخول (2-Column Layout - فيسبوك ستايل)
-- ✅ صفحة التسجيل (Multi-step مع dropdown وتحقق)
-- ✅ التحقق من رقم الهاتف (الصيغة الدولية: +966...)
-- ✅ التحقق من OTP
-- ✅ إعادة توجيه تلقائية بعد الدخول → البروفايل
-- ✅ إعادة توجيه تلقائية بعد التسجيل → البروفايل
+1. Run local preview:
 
-### 2️⃣ **صفحة البروفايل**
-- ✅ صورة الغلاف (#e4e6eb)
-- ✅ صورة البروفايل الدائرية (168px)
-- ✅ اسم البروفايل (28px، #050505)
-- ✅ عرض نوع الحساب
-- ✅ معلومات الاتصال (الهاتف، البريد)
-- ✅ زر تعديل البروفايل (#E4E6EB)
-- ✅ الإحصائيات (عدد الطلبات، تاريخ الانضمام)
-- ✅ روابط سريعة (طلباتي، طلب جديد)
-- ✅ التخطيط ثلاثي الأعمدة
-
-### 3️⃣ **صفحة الهوم/الفيد**
-- ✅ التخطيط ثلاثي الأعمدة
-- ✅ قائمة الفئات (يسار)
-- ✅ محتوى الفيد (وسط)
-- ✅ معلومات سريعة (يمين)
-- ✅ زر الاتصال (tel:+962780003302)
-- ✅ زر الواتساب (wa.me/962796960886)
-- ✅ شريط التنقل مع الحالة النشطة
-- ✅ Dropdown للفرز والتصفية
-
-### 4️⃣ **التسجيل والمصادقة**
-- ✅ Dropdown قابل للبحث لنوع الحساب
-- ✅ جميع الفئات مدعومة ("مشتري"، "إدارة"، "قطع غيار"، إلخ)
-- ✅ التحقق من الهاتف الدولي
-- ✅ تحميل الصورة (صورة دائرية)
-- ✅ حقل اسم المشتري
-- ✅ واجهة Stepper متعددة الخطوات
-
-### 5️⃣ **الأمان والتحكم**
-- ✅ التحكم في الوصول بناءً على الدور
-- ✅ إعادة توجيه تلقائية للمستخدمين غير المصرح لهم
-- ✅ دعم يوزر المدير
-- ✅ إدارة الجلسة
-- ✅ تسجيل الخروج مع إعادة التوجيه
-
-### 6️⃣ **العملة والتسعير**
-- ✅ الدينار الأردني فقط (د.أ)
-- ✅ عرض الأسعار بصيغة JOD
-
-### 7️⃣ **التقنيات**
-- ✅ HTML5 ثنائي اللغة (عربي/إنجليزي)
-- ✅ CSS3 مع CSS Variables للمواضيع
-- ✅ JavaScript vanilla (بدون أطر عمل)
-- ✅ تكامل Supabase (قاعدة البيانات + المصادقة)
-- ✅ تصميم مستجيب (الهاتف، الجهاز اللوحي، الكمبيوتر)
-
----
-
-## 🚀 التشغيل السريع
-
-### 1. إعداد Supabase
-```javascript
-// supabase-config.js
-const SUPABASE_URL = "your-project-url";
-const SUPABASE_ANON_KEY = "your-anon-key";
-```
-
-### 2. تشغيل التطبيق
 ```bash
-python -m http.server 800
-# ثم افتح: http://localhost:800
+python -m http.server 8000
 ```
 
-### 3. اختبر بهذه البيانات
-```
-البريد الإلكتروني: admin@tigervvip.com
-أو سجل حساباً جديداً عبر نموذج التسجيل
-```
+2. Open:
 
----
+- `http://localhost:8000/index.html`
 
-## 👤 حساب المدير الافتراضي
+3. Run smoke checks:
 
-```
-البريد الإلكتروني: admin@tigervvip.com
-نوع الحساب:      المدير العام
-الصلاحيات:       وصول كامل
-الدور:           admin
+```bash
+./scripts/qa-smoke.sh
 ```
 
----
+## Firebase Authentication
 
-## 📁 الملفات الرئيسية
+`index.html` and `reset-password.html` embed `window.FIREBASE_CONFIG` and load Firebase compat SDKs.
 
-| الملف | الوصف |
-|-------|-------|
-| `index.html` | الصفحة الرئيسية (المصادقة، التسجيل، البروفايل، الهوم) |
-| `styles.css` | تصميم فيسبوك مع CSS Variables |
-| `script.js` | منطق JavaScript (المصادقة، التوجيهات، العرض) |
-| `supabase-config.js` | إعدادات الاتصال بـ Supabase |
-| `supabase-schema.sql` | مخطط قاعدة البيانات |
-| `SETUP-GUIDE.md` | دليل الإعداد الكامل |
-| `README.md` | هذا الملف |
+If you rotate projects/keys, update the `FIREBASE_CONFIG` object in both pages.
 
----
+## Supabase Feed Sync (Optional)
 
-## 📋 قائمة التحقق النهائية
+`social-ui.js` reads runtime keys from browser localStorage:
 
-- ✅ لوحة ألوان فيسبوك (100%)
-- ✅ صفحة دخول فيسبوك-ستايل (2-Column)
-- ✅ صفحة تسجيل متعددة الخطوات
-- ✅ صفحة بروفايل فيسبوك-ستايل
-- ✅ صفحة هوم مع 3 أعمدة
-- ✅ إعادة توجيه تلقائية بعد الدخول
-- ✅ إعادة توجيه تلقائية بعد التسجيل
-- ✅ التحقق من الهاتف (صيغة دولية)
-- ✅ زر الاتصال (tel:+962...)
-- ✅ زر الواتساب (wa.me/...)
-- ✅ دعم يوزر المدير
-- ✅ عملة الدينار الأردني
-- ✅ التحكم في الوصول بناءً على الدور
-- ✅ دعم ثنائي اللغة (عربي/إنجليزي)
-- ✅ تصميم مستجيب
-- ✅ تكامل Supabase
-- ✅ إدارة الجلسة
-- ✅ تسجيل الخروج مع إعادة التوجيه
+- `TIGER_SUPABASE_URL`
+- `TIGER_SUPABASE_ANON_KEY`
 
-## 🧱 ما يزال ناقصاً قبل الإنتاج الكامل
+When missing/invalid, feed actions still work in local mode.
 
-### 1) ربط Supabase الحقيقي
-- استبدال القيم الوهمية في `supabase-local.js` و`supabase-config.js`
-- التأكد من أن تسجيل الدخول والحفظ والقراءة تعمل على قاعدة البيانات الفعلية
+## Database Assets
 
-### 2) الأمان على مستوى قاعدة البيانات
-- مراجعة سياسات RLS على الجداول الأساسية
-- اختبار صلاحيات الأدوار مباشرة على Supabase، وليس فقط من الواجهة
+- `supabase/migrations/20260702_feed_posts_table.sql`: feed posts table + policies.
+- `supabase/functions/phone-verification/index.ts`: edge function for phone verification delivery.
+- `supabase-schema.sql`: broader schema history and compatibility SQL.
 
-### 3) الاشتراك والدفع
-- تحويل عرض الباقات إلى اشتراك قابل للدفع والتجديد
-- ربط فترة التجربة المجانية 30 يوماً بسلوك فعلي وليس نصاً فقط
+## PWA
 
-### 4) الاختبارات الآلية
-- إضافة اختبارات smoke أساسية لتدفق الدخول والتوجيه والصلاحيات
-- تغطية سيناريوهات الدور: admin / manager / supervisor / representative / dealer / buyer / shopper
+- `manifest.webmanifest`
+- `sw.js`
 
-## 📌 الحالة الحالية
+Service worker uses cache-first for static assets and has versioned cache key.
 
-- الواجهة مكتملة عملياً لمعظم الشاشات والتدفقات
-- يوجد fallback محلي يسمح بالتجربة بدون قاعدة بيانات
-- أي اعتماد إنتاجي كامل يتطلب تنفيذ النقاط الأربع أعلاه
+## Project Status
 
----
-
-## 📞 معلومات الاتصال
-
-- **الهاتف:** +962 796 960 886
-- **الواتساب:** https://wa.me/962796960886
-- **البريد الإلكتروني:** admin@tigervvip.com
-
----
-
-**الحالة:** ✅ جاهز للإنتاج  
-**آخر تحديث:** 2026-06-20  
-**النسخة:** 1.0 (مكتملة)
+- UI and interaction flow are implemented.
+- Core smoke checks pass.
+- Some legacy docs may still need cleanup in secondary guides.
+- Expanded future product scope is tracked in [PRODUCT-REQUIREMENTS-ADDENDUM.md](PRODUCT-REQUIREMENTS-ADDENDUM.md).

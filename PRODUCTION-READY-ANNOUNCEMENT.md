@@ -15,7 +15,7 @@
 ## ✅ What's Complete (5 Phases)
 
 ### Phase 1: Project Foundation ✅
-- Single-page app with Facebook-style UI
+- Static multi-page app with Facebook-style UI
 - Bilingual interface (Arabic + English)
 - PWA support (offline capability)
 - GitHub Pages auto-deployment
@@ -60,8 +60,9 @@
 
 ### Code (Production-Ready)
 ```
-✅ index.html          - Complete SPA markup
-✅ script.js           - All JavaScript logic (6000+ lines)
+✅ index.html          - Complete page markup
+✅ auth.js             - Firebase auth logic
+✅ social-ui.js        - All feed/profile logic
 ✅ styles.css          - Facebook-style design
 ✅ Email verification  - Automatic monitoring
 ✅ Google OAuth        - One Tap integration
@@ -386,7 +387,7 @@ Production-ready in 30 min
 
 **Questions about the code?**
 - Read: [AGENTS.md](./AGENTS.md)
-- Check: Comments in script.js
+- Check: Comments in social-ui.js
 - Review: Relevant .md file
 
 **Need to test?**
@@ -407,7 +408,7 @@ Production-ready in 30 min
 - ✅ Bilingual interface
 - ✅ Device limiting logic
 - ✅ Session management
-- ✅ WhatsApp OTP ready
+- ✅ Internal phone verification ready
 
 ### Coming Soon (Roadmap):
 - Mobile app version
@@ -450,7 +451,8 @@ All the technical infrastructure that large companies take months to build is co
 ```
 Production Code:
 ├─ index.html           ← Main app
-├─ script.js            ← All logic
+├─ auth.js              ← Auth logic
+├─ social-ui.js         ← Feed/profile logic
 └─ styles.css           ← All styling
 
 Setup & Deployment:

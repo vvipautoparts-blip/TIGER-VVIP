@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>الصفحة العامة - AutoParts JO</title>
+  <meta name="theme-color" content="#1877f2" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=20260703b" />
+</head>
+<body class="social-page dark-theme">
+  <main class="mobile-frame" aria-label="الصفحة العامة">
+    <header class="mobile-header">
+      <!-- Facebook-style Top Bar -->
+      <div class="fb-topbar">
+        <div class="fb-topbar-logo">
+          <span class="fb-topbar-wordmark">AutoParts<b>JO</b></span>
+          <label class="fb-topbar-search-wrap" for="feed-search" aria-label="بحث">
+            <span aria-hidden="true">🔎</span>
+            <input id="feed-search" type="search" class="fb-topbar-search-input" placeholder="ابحث في المنشورات..." data-i18n-placeholder-ar="ابحث في المنشورات..." data-i18n-placeholder-en="Search posts..." />
+          </label>
+        </div>
+        <nav class="fb-topbar-nav" aria-label="التنقل الرئيسي">
+          <button class="fb-topbar-tab active" type="button" aria-label="الرئيسية">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          </button>
+          <button class="fb-topbar-tab" type="button" aria-label="مقاطع الفيديو">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+          </button>
+          <button class="fb-topbar-tab" type="button" aria-label="السوق">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-1.99.9-1.99 2L3 20c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3z"/></svg>
+          </button>
+          <a class="fb-topbar-tab fb-topbar-tab-link" href="private-profile.html" aria-label="البروفايل">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+          </a>
+        </nav>
+        <div class="fb-topbar-actions">
+          <button id="ai-assistant-trigger" class="fb-topbar-icon-btn" type="button" aria-label="AI">✦</button>
+          <button id="public-menu-btn" class="fb-topbar-icon-btn" type="button" aria-label="القائمة">☰</button>
+        </div>
+      </div>
+      <button id="ai-search-trigger" class="search-ai-btn" type="button" data-i18n-ar="AI" data-i18n-en="AI" style="display:none;">AI</button>
+      <div class="chip-tabs" role="tablist" aria-label="فلاتر المنشورات" data-i18n-aria-ar="فلاتر المنشورات" data-i18n-aria-en="Post filters">
+        <button class="chip-tab active" type="button" role="tab" aria-selected="true" data-tab="all" data-i18n-ar="الكل" data-i18n-en="All">الكل</button>
+        <button class="chip-tab" type="button" role="tab" aria-selected="false" data-tab="followed" data-i18n-ar="المتابعون" data-i18n-en="Following">المتابعون</button>
+        <button class="chip-tab" type="button" role="tab" aria-selected="false" data-tab="video" data-i18n-ar="فيديو" data-i18n-en="Video">فيديو</button>
+        <button class="chip-tab" type="button" role="tab" aria-selected="false" data-tab="images" data-i18n-ar="صور" data-i18n-en="Photos">صور</button>
+      </div>
+      <p id="feed-results-count" class="feed-results-count" aria-live="polite">النتائج: 0</p>
+      <p id="feed-db-status" class="feed-db-status" aria-live="polite">حالة البيانات: جاري التحقق...</p>
+    </header>
+
+    <!-- Facebook-style Composer -->
+    <section class="fb-composer" aria-label="إنشاء منشور">
+      <div class="fb-composer-top">
+        <a class="fb-composer-avatar" href="private-profile.html" aria-label="البروفايل">AJ</a>
+        <button id="open-composer" class="fb-composer-input" type="button" data-i18n-ar="بم تفكر يا {name}؟" data-i18n-en="What's on your mind?">بم تفكر؟</button>
+      </div>
+      <div class="fb-composer-bar">
+        <button type="button" class="fb-composer-action">
+          <span>🎬</span> <span data-i18n-ar="ريل" data-i18n-en="Reel">ريل</span>
+        </button>
+        <button type="button" class="fb-composer-action fb-composer-action-photo">
+          <span>📷</span> <span data-i18n-ar="صورة/فيديو" data-i18n-en="Photo/Video">صورة/فيديو</span>
+        </button>
+        <button id="composer-ai-trigger" type="button" class="fb-composer-action">
+          <span>✦</span> <span data-i18n-ar="AI" data-i18n-en="AI">AI</span>
+        </button>
+        <button class="composer-media-shortcut" type="button" aria-label="Open gallery" style="display:none;">🖼</button>
+      </div>
+    </section>
+
+    <section class="stories-rail" aria-label="القصص" data-i18n-aria-ar="القصص" data-i18n-aria-en="Stories">
+      <div class="stories-head">
+        <h2 data-i18n-ar="القصص" data-i18n-en="Stories">القصص</h2>
+        <button id="stories-archive-toggle" type="button" data-i18n-ar="الأرشيف" data-i18n-en="Archive">الأرشيف</button>
+      </div>
+      <div id="stories-list" class="stories-list"></div>
+    </section>
+
+    <aside id="composer-modal" class="composer-modal" aria-hidden="true">
+      <div class="composer-sheet" role="dialog" aria-modal="true" aria-label="إنشاء منشور جديد" data-i18n-aria-ar="إنشاء منشور جديد" data-i18n-aria-en="Create new post">
+        <div class="sheet-head">
+          <h3 data-i18n-ar="إنشاء منشور" data-i18n-en="Create Post">إنشاء منشور</h3>
+          <button id="close-composer" type="button" aria-label="إغلاق" data-i18n-aria-ar="إغلاق" data-i18n-aria-en="Close">✕</button>
+        </div>
+        <form id="composer-form" class="composer-form" novalidate>
+          <label for="composer-text" data-i18n-ar="النص" data-i18n-en="Text">النص</label>
+          <textarea id="composer-text" rows="4" maxlength="500" placeholder="اكتب تفاصيل المنشور..." data-i18n-placeholder-ar="اكتب تفاصيل المنشور..." data-i18n-placeholder-en="Write post details..."></textarea>
+          <p id="composer-security-tip" class="composer-security-tip" data-i18n-ar="يتم تنظيف النص تلقائيًا من المحارف المخفية والأنماط غير الآمنة قبل النشر." data-i18n-en="Text is automatically cleaned from hidden characters and unsafe patterns before publishing.">يتم تنظيف النص تلقائيًا من المحارف المخفية والأنماط غير الآمنة قبل النشر.</p>
+
+          <section class="composer-assistant" aria-label="مساعد المنشور" data-i18n-aria-ar="مساعد المنشور" data-i18n-aria-en="Post assistant">
+            <div class="assistant-head">
+              <strong data-i18n-ar="Meta AI الشخصي" data-i18n-en="Personal Meta AI">Meta AI الشخصي</strong>
+              <span id="composer-assistant-badge" class="assistant-badge">Context</span>
+            </div>
+            <p id="composer-assistant-summary" class="assistant-summary">اكتب أو أضف وسائط حتى أقترح وسمًا ونصًا مناسبًا.</p>
+            <div id="composer-assistant-tags" class="assistant-tags"></div>
+          </section>
+
+          <div class="composer-grid">
+            <label for="composer-type" data-i18n-ar="نوع المحتوى" data-i18n-en="Content type">نوع المحتوى</label>
+            <select id="composer-type">
+              <option value="all" data-i18n-ar="نص" data-i18n-en="Text">نص</option>
+              <option value="images" data-i18n-ar="صورة" data-i18n-en="Photo">صورة</option>
+              <option value="video" data-i18n-ar="فيديو" data-i18n-en="Video">فيديو</option>
+            </select>
+
+            <label for="composer-audience" data-i18n-ar="الجمهور" data-i18n-en="Audience">الجمهور</label>
+            <select id="composer-audience">
+              <option value="all" data-i18n-ar="عام" data-i18n-en="Public">عام</option>
+              <option value="followed" data-i18n-ar="المتابعون" data-i18n-en="Following">المتابعون</option>
+            </select>
+          </div>
+
+          <div class="composer-grid composer-media-grid">
+            <label for="composer-media-url" data-i18n-ar="رابط الوسائط" data-i18n-en="Media URL">رابط الوسائط</label>
+            <input id="composer-media-url" type="url" placeholder="https://..." data-i18n-placeholder-ar="https://..." data-i18n-placeholder-en="https://..." />
+
+            <label for="composer-media-poster" data-i18n-ar="صورة الغلاف" data-i18n-en="Poster image">صورة الغلاف</label>
+            <input id="composer-media-poster" type="url" placeholder="https://..." data-i18n-placeholder-ar="https://..." data-i18n-placeholder-en="https://..." />
+
+            <label for="composer-media-caption" data-i18n-ar="وصف الوسائط" data-i18n-en="Media caption">وصف الوسائط</label>
+            <input id="composer-media-caption" type="text" maxlength="120" placeholder="اختياري" data-i18n-placeholder-ar="اختياري" data-i18n-placeholder-en="Optional" />
+          </div>
+
+          <div class="composer-submit-row">
+            <button id="composer-publish" type="submit" data-i18n-ar="نشر الآن" data-i18n-en="Publish now">نشر الآن</button>
+          </div>
+          <p id="composer-status" class="composer-status" aria-live="polite"></p>
+        </form>
+      </div>
+    </aside>
+
+    <section id="feed-skeleton" class="feed-skeleton" aria-hidden="true">
+      <article class="skeleton-card">
+        <div class="skeleton-row skeleton-row-head"></div>
+        <div class="skeleton-line w-80"></div>
+        <div class="skeleton-line w-60"></div>
+        <div class="skeleton-media"></div>
+        <div class="skeleton-actions"></div>
+      </article>
+      <article class="skeleton-card">
+        <div class="skeleton-row skeleton-row-head"></div>
+        <div class="skeleton-line w-70"></div>
+        <div class="skeleton-line w-50"></div>
+        <div class="skeleton-media short"></div>
+        <div class="skeleton-actions"></div>
+      </article>
+    </section>
+
+    <section id="feed-list" class="feed-list" aria-live="polite">
+      <article class="post-card" data-post-id="static-video-01" data-type="video" data-audience="all" data-text="شحنة جديدة فيديو عرض قطع الغيار new shipment video parts compatibility">
+        <header class="post-header">
+          <div>
+            <h2 data-i18n-ar="شركة النمر لقطع السيارات" data-i18n-en="Tiger Auto Parts Co.">شركة النمر لقطع السيارات</h2>
+            <p data-i18n-ar="@tiger.parts • قبل ساعتين" data-i18n-en="@tiger.parts • 2 hours ago">@tiger.parts • قبل ساعتين</p>
+          </div>
+          <button class="post-menu" type="button" aria-label="خيارات" data-i18n-aria-ar="خيارات" data-i18n-aria-en="Options">⋯</button>
+        </header>
+        <p class="post-copy" data-i18n-ar="تم إضافة فيديو جديد لشرح توافق القطع مع موديلات 2024." data-i18n-en="A new video was added to explain part compatibility with 2024 models.">تم إضافة فيديو جديد لشرح توافق القطع مع موديلات 2024.</p>
+        <div class="post-media media-video" data-i18n-ar="معاينة فيديو 16:9" data-i18n-en="Video Preview 16:9">معاينة فيديو 16:9</div>
+        <div class="fb-post-reactions">
+          <span class="fb-reaction-count">👍❤😂 <b>1.2K</b></span>
+          <span class="fb-reaction-meta">342 تعليق · 89 مشاركة</span>
+        </div>
+        <footer class="fb-post-footer">
+          <button class="fb-action-btn like-btn" type="button" data-liked="false">
+            <span class="fb-action-icon">👍</span>
+            <span data-i18n-ar="إعجاب" data-i18n-en="Like">إعجاب</span>
+          </button>
+          <button class="fb-action-btn comment-btn" type="button">
+            <span class="fb-action-icon">💬</span>
+            <span data-i18n-ar="تعليق" data-i18n-en="Comment">تعليق</span>
+          </button>
+          <button class="fb-action-btn share-btn" type="button">
+            <span class="fb-action-icon">↪</span>
+            <span data-i18n-ar="مشاركة" data-i18n-en="Share">مشاركة</span>
+          </button>
+          <button class="fb-action-btn save-btn" type="button" data-saved="false">
+            <span class="fb-action-icon">🔖</span>
+            <span data-i18n-ar="حفظ" data-i18n-en="Save">حفظ</span>
+          </button>
+        </footer>
+      </article>
+
+      <article class="post-card" data-post-id="static-images-02" data-type="images" data-audience="followed" data-text="صور حقيقية قبل وبعد الصيانة real photos before after maintenance cooling">
+        <header class="post-header">
+          <div>
+            <h2 data-i18n-ar="مركز صيانة VIP" data-i18n-en="VIP Service Center">مركز صيانة VIP</h2>
+            <p data-i18n-ar="@vip.service • قبل 4 ساعات" data-i18n-en="@vip.service • 4 hours ago">@vip.service • قبل 4 ساعات</p>
+          </div>
+          <button class="post-menu" type="button" aria-label="خيارات" data-i18n-aria-ar="خيارات" data-i18n-aria-en="Options">⋯</button>
+        </header>
+        <p class="post-copy" data-i18n-ar="نتائج فحص نظام التبريد قبل وبعد التبديل، التفاصيل داخل الصور." data-i18n-en="Cooling system inspection results before and after replacement, details in images.">نتائج فحص نظام التبريد قبل وبعد التبديل، التفاصيل داخل الصور.</p>
+        <div class="post-media media-image" data-i18n-ar="معرض صور 4:5" data-i18n-en="Image Gallery 4:5">معرض صور 4:5</div>
+        <div class="fb-post-reactions">
+          <span class="fb-reaction-count">👍❤ <b>806</b></span>
+          <span class="fb-reaction-meta">118 تعليق · 23 مشاركة</span>
+        </div>
+        <footer class="fb-post-footer">
+          <button class="fb-action-btn like-btn" type="button" data-liked="false">
+            <span class="fb-action-icon">👍</span>
+            <span data-i18n-ar="إعجاب" data-i18n-en="Like">إعجاب</span>
+          </button>
+          <button class="fb-action-btn comment-btn" type="button">
+            <span class="fb-action-icon">💬</span>
+            <span data-i18n-ar="تعليق" data-i18n-en="Comment">تعليق</span>
+          </button>
+          <button class="fb-action-btn share-btn" type="button">
+            <span class="fb-action-icon">↪</span>
+            <span data-i18n-ar="مشاركة" data-i18n-en="Share">مشاركة</span>
+          </button>
+          <button class="fb-action-btn save-btn" type="button" data-saved="false">
+            <span class="fb-action-icon">🔖</span>
+            <span data-i18n-ar="حفظ" data-i18n-en="Save">حفظ</span>
+          </button>
+        </footer>
+      </article>
+    </section>
+
+    <p id="feed-empty" class="feed-empty" hidden data-i18n-ar="لا توجد نتائج مطابقة للفلاتر الحالية." data-i18n-en="No results match the current filters.">لا توجد نتائج مطابقة للفلاتر الحالية.</p>
+    <button id="feed-load-more" class="feed-load-more" type="button" data-i18n-ar="تحميل المزيد" data-i18n-en="Load more">تحميل المزيد</button>
+
+    <nav class="bottom-nav" aria-label="تنقل سفلي" data-i18n-aria-ar="تنقل سفلي" data-i18n-aria-en="Bottom navigation">
+      <a class="nav-item active" href="public-profile.html" aria-current="page">🏠<span data-i18n-ar="الرئيسية" data-i18n-en="Home">الرئيسية</span></a>
+      <button id="feed-search-trigger" class="nav-item" type="button">🔎<span data-i18n-ar="بحث" data-i18n-en="Search">بحث</span></button>
+      <button class="nav-item nav-main" type="button">＋<span data-i18n-ar="إنشاء" data-i18n-en="Create">إنشاء</span></button>
+      <button id="ai-nav-trigger" class="nav-item nav-item-ai" type="button">✦<span data-i18n-ar="ذكاء" data-i18n-en="AI">ذكاء</span></button>
+      <a class="nav-item" href="private-profile.html">👤<span data-i18n-ar="بروفايل" data-i18n-en="Profile">بروفايل</span></a>
+    </nav>
+  </main>
+
+  <aside id="comments-sheet" class="comments-sheet" aria-hidden="true">
+    <div class="sheet-panel" role="dialog" aria-modal="true" aria-label="التعليقات" data-i18n-aria-ar="التعليقات" data-i18n-aria-en="Comments">
+      <div class="sheet-head">
+        <h3 data-i18n-ar="التعليقات" data-i18n-en="Comments">التعليقات</h3>
+        <button id="close-comments" type="button" aria-label="إغلاق" data-i18n-aria-ar="إغلاق" data-i18n-aria-en="Close">✕</button>
+      </div>
+      <div class="sheet-body">
+        <article class="comment-item">
+          <p class="comment-author" data-i18n-ar="أحمد الزعبي" data-i18n-en="Ahmad Al-Zoubi">أحمد الزعبي</p>
+          <p data-i18n-ar="هل القطعة متوفرة لشاصي 2022؟" data-i18n-en="Is this part available for 2022 chassis?">هل القطعة متوفرة لشاصي 2022؟</p>
+        </article>
+        <article class="comment-item nested">
+          <p class="comment-author" data-i18n-ar="شركة النمر لقطع السيارات" data-i18n-en="Tiger Auto Parts Co.">شركة النمر لقطع السيارات</p>
+          <p data-i18n-ar="نعم، متوفرة ويوجد شحن لنفس اليوم." data-i18n-en="Yes, available with same-day shipping.">نعم، متوفرة ويوجد شحن لنفس اليوم.</p>
+        </article>
+      </div>
+      <form class="sheet-input" onsubmit="return false;">
+        <input type="text" placeholder="اكتب تعليقك" aria-label="تعليق" data-i18n-placeholder-ar="اكتب تعليقك" data-i18n-placeholder-en="Write your comment" data-i18n-aria-ar="تعليق" data-i18n-aria-en="Comment" />
+        <button type="submit" data-i18n-ar="إرسال" data-i18n-en="Send">إرسال</button>
+      </form>
+    </div>
+  </aside>
+
+  <aside id="inapp-browser" class="inapp-browser" aria-hidden="true">
+    <div class="inapp-browser-sheet" role="dialog" aria-modal="true" aria-label="متصفح داخلي" data-i18n-aria-ar="متصفح داخلي" data-i18n-aria-en="In-app browser">
+      <div class="inapp-browser-head">
+        <strong data-i18n-ar="متصفح داخلي" data-i18n-en="In-app browser">متصفح داخلي</strong>
+        <div class="inapp-browser-actions">
+          <button id="inapp-browser-open-external" type="button" data-i18n-ar="فتح خارجي" data-i18n-en="Open externally">فتح خارجي</button>
+          <button id="inapp-browser-close" type="button" data-i18n-ar="إغلاق" data-i18n-en="Close">إغلاق</button>
+        </div>
+      </div>
+      <iframe id="inapp-browser-frame" title="In-app browser"></iframe>
+    </div>
+  </aside>
+
+  <aside id="story-viewer" class="story-viewer" aria-hidden="true">
+    <div class="story-viewer-sheet" role="dialog" aria-modal="true" aria-label="Story viewer">
+      <div class="story-viewer-top">
+        <strong id="story-viewer-title">Story</strong>
+        <button id="story-viewer-close" type="button">✕</button>
+      </div>
+      <div id="story-viewer-media" class="story-viewer-media"></div>
+      <div id="story-viewer-meta" class="story-viewer-meta"></div>
+      <div class="story-viewer-actions">
+        <button id="story-viewer-prev" type="button">‹</button>
+        <button id="story-viewer-reply" type="button">Reply</button>
+        <button id="story-viewer-next" type="button">›</button>
+      </div>
+    </div>
+  </aside>
+
+  <script src="social-ui.js?v=20260702s"></script>
+</body>
+</html>
