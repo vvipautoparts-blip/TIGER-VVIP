@@ -259,10 +259,21 @@
         result = await auth.signInWithPopup(provider);
       } catch (popupError) {
         const code = String(popupError && popupError.code ? popupError.code : "");
+        console.error('🚨 OAuth popup error:', { code, message: popupError && popupError.message });
+        
         if (code === "auth/popup-blocked" || code === "auth/cancelled-popup-request") {
           await auth.signInWithRedirect(provider);
           return;
         }
+        
+        if (code === "auth/unauthorized-domain") {
+          const msg = tx(AUTH_TEXT.firebaseConfigMissing) + "Unauthorized domain. Check Firebase Console.";
+          setMessage(msg, "error");
+          showToast(msg, "error");
+          console.error('📌 Solution: Add tigerautoparts.shop to Authorized domains in Firebase Console');
+          return;
+        }
+        
         throw popupError;
       }
 
@@ -331,11 +342,26 @@
     } catch (err) {
       const code = String(err && err.code ? err.code : "");
       let msg = authLang === "en" ? "Sign-in failed." : "فشل تسجيل الدخول.";
-      if (code === "auth/user-not-found" || code === "auth/wrong-password" || code === "auth/invalid-credential") {
+      
+      console.error('🚨 Email login error:', { code, message: err && err.message });
+      
+      if (code === "auth/operation-not-allowed") {
+        msg = authLang === "en" 
+          ? "❌ Email/Password login is not enabled. Please try Google or Facebook."
+          : "❌ تسجيل الدخول عبر البريد الإلكتروني غير مفعّل. حاول جوجل أو فيسبوك.";
+        console.error('📌 Solution: Enable Email/Password in Firebase Console → Authentication → Sign-in method');
+      } else if (code === "auth/user-not-found") {
+        msg = authLang === "en" ? "Email not found. Please create a new account." : "البريد الإلكتروني غير موجود. أنشئ حساب جديد.";
+      } else if (code === "auth/wrong-password" || code === "auth/invalid-credential") {
         msg = authLang === "en" ? "Incorrect email or password." : "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
       } else if (code === "auth/too-many-requests") {
         msg = authLang === "en" ? "Too many attempts. Try again later." : "محاولات كثيرة. حاول لاحقاً.";
+      } else if (code === "auth/invalid-email") {
+        msg = authLang === "en" ? "Invalid email format." : "صيغة البريد الإلكتروني غير صحيحة.";
+      } else if (code === "auth/weak-password") {
+        msg = authLang === "en" ? "Password is too weak. Use at least 6 characters." : "كلمة المرور ضعيفة جداً. استخدم 6 أحرف على الأقل.";
       }
+      
       setMessage(msg, "error");
       showToast(msg, "error");
     } finally {
