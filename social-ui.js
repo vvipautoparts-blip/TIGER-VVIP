@@ -1578,6 +1578,21 @@
     const createEnabledRoles = ["company_parts", "institution_parts", "shop", "maintenance_center"];
     const canCreate = createEnabledRoles.includes(role);
 
+    // Replace {name} in composer button with user's first name
+    if (composerButton) {
+      const snapshot = localStorage.getItem(STORAGE_USER_KEY);
+      let firstName = "";
+      try {
+        const parsed = JSON.parse(snapshot || "{}");
+        const displayName = String(parsed.displayName || parsed.email || "").trim();
+        firstName = displayName.split(/\s+/)[0] || "";
+      } catch (e) { firstName = ""; }
+      const composerPlaceholder = firstName
+        ? (currentLang === "en" ? "What's on your mind, " + firstName + "?" : "بم تفكر يا " + firstName + "؟")
+        : (currentLang === "en" ? "What's on your mind?" : "بم تفكر؟");
+      if (!composerButton.disabled) composerButton.textContent = composerPlaceholder;
+    }
+
     if (!canCreate) {
       if (composerButton) composerButton.disabled = true;
       if (composerButton) composerButton.textContent = tx(UI_TEXT.composer.createRestricted);
