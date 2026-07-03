@@ -74,6 +74,9 @@
   const ROLE_STORAGE_KEY = "autoparts_role";
   const USER_STORAGE_KEY = "autoparts_user_snapshot";
   const STORAGE_LANG_KEY = "autoparts_lang";
+  const OAUTH_POPUP_TIMEOUT_MS = 10000;
+  const OAUTH_LOADING_MAX_MS = 15000;
+  let lastOAuthAttemptAt = 0;
   let authLang = normalizeLang(localStorage.getItem(STORAGE_LANG_KEY) || document.documentElement.lang || "ar");
 
   const AUTH_TEXT = {
@@ -136,6 +139,20 @@
         : "أضف localhost إلى Firebase Console → Authentication → Settings → Authorized domains.";
     }
     return "";
+  }
+
+  function signInWithPopupTimeout(provider) {
+    return Promise.race([
+      auth.signInWithPopup(provider),
+      new Promise(function (_resolve, reject) {
+        window.setTimeout(function () {
+          reject({
+            code: "auth/popup-timeout",
+            message: "OAuth popup timed out"
+          });
+        }, OAUTH_POPUP_TIMEOUT_MS);
+      })
+    ]);
   }
 
   function setText(selector, value) {
@@ -244,7 +261,33 @@
     button.classList.toggle("is-loading", isLoading);
     button.disabled = Boolean(isLoading);
     button.setAttribute("aria-busy", isLoading ? "true" : "false");
+    if (isLoading) {
+      button.setAttribute("data-loading-start", String(Date.now()));
+    } else {
+      button.removeAttribute("data-loading-start");
+    }
   }
+
+  function releaseStaleOAuthButtons() {
+    [googleBtn, facebookBtn].forEach(function (button) {
+      if (!button || !button.disabled) return;
+      const startedAt = Number(button.getAttribute("data-loading-start") || "0");
+      const fallbackStartedAt = lastOAuthAttemptAt;
+      const effectiveStartedAt = startedAt || fallbackStartedAt;
+      if (!effectiveStartedAt) return;
+      if (Date.now() - effectiveStartedAt > OAUTH_LOADING_MAX_MS) {
+        setButtonLoading(button, false);
+      }
+    });
+  }
+
+  window.setInterval(releaseStaleOAuthButtons, 1200);
+  window.addEventListener("focus", releaseStaleOAuthButtons);
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden) {
+      releaseStaleOAuthButtons();
+    }
+  });
 
   function openLogoutConfirm() {
     if (!logoutConfirmModal) return;
@@ -279,18 +322,28 @@
     }
 
     const sourceButton = providerName === "Google" ? googleBtn : facebookBtn;
+    lastOAuthAttemptAt = Date.now();
     setButtonLoading(sourceButton, true);
 
     try {
       let result;
       try {
-        result = await auth.signInWithPopup(provider);
+        result = await signInWithPopupTimeout(provider);
       } catch (popupError) {
         const code = String(popupError && popupError.code ? popupError.code : "");
         console.error('🚨 OAuth popup error:', { code, message: popupError && popupError.message });
         
         if (code === "auth/popup-blocked" || code === "auth/cancelled-popup-request") {
           await auth.signInWithRedirect(provider);
+          return;
+        }
+
+        if (code === "auth/popup-timeout") {
+          const timeoutMsg = authLang === "en"
+            ? "Google/Facebook sign-in popup did not complete. Please try again."
+            : "نافذة تسجيل الدخول عبر Google/Facebook لم تكتمل. حاول مرة أخرى.";
+          setMessage(timeoutMsg, "error");
+          showToast(timeoutMsg, "error");
           return;
         }
         
