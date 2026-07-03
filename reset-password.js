@@ -1,4 +1,11 @@
 (function () {
+  if (window.location.hostname === "127.0.0.1") {
+    const nextUrl = new URL(window.location.href);
+    nextUrl.hostname = "localhost";
+    window.location.replace(nextUrl.toString());
+    return;
+  }
+
   const runtimeConfig = window.FIREBASE_CONFIG || {};
   const firebaseConfig = {
     apiKey: runtimeConfig.apiKey || "YOUR_API_KEY",

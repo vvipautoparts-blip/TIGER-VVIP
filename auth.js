@@ -1,4 +1,18 @@
 (function () {
+  function normalizeAuthHost() {
+    if (window.location.hostname === "127.0.0.1") {
+      const nextUrl = new URL(window.location.href);
+      nextUrl.hostname = "localhost";
+      window.location.replace(nextUrl.toString());
+      return true;
+    }
+    return false;
+  }
+
+  if (normalizeAuthHost()) {
+    return;
+  }
+
   const runtimeConfig = window.FIREBASE_CONFIG || {};
   const firebaseConfig = {
     apiKey: runtimeConfig.apiKey || "YOUR_API_KEY",
@@ -108,6 +122,20 @@
 
   function normalizeLang(value) {
     return String(value || "").toLowerCase().indexOf("en") === 0 ? "en" : "ar";
+  }
+
+  function getAuthSupportHint(code) {
+    if (code === "auth/operation-not-allowed") {
+      return authLang === "en"
+        ? "Enable Email/Password in Firebase Console → Authentication → Sign-in method."
+        : "فعّل Email/Password من Firebase Console → Authentication → Sign-in method.";
+    }
+    if (code === "auth/unauthorized-domain") {
+      return authLang === "en"
+        ? "Add localhost to Firebase Console → Authentication → Settings → Authorized domains."
+        : "أضف localhost إلى Firebase Console → Authentication → Settings → Authorized domains.";
+    }
+    return "";
   }
 
   function setText(selector, value) {
@@ -360,6 +388,11 @@
         msg = authLang === "en" ? "Invalid email format." : "صيغة البريد الإلكتروني غير صحيحة.";
       } else if (code === "auth/weak-password") {
         msg = authLang === "en" ? "Password is too weak. Use at least 6 characters." : "كلمة المرور ضعيفة جداً. استخدم 6 أحرف على الأقل.";
+      }
+
+      const supportHint = getAuthSupportHint(code);
+      if (supportHint) {
+        msg = msg + " " + supportHint;
       }
       
       setMessage(msg, "error");
