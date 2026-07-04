@@ -1,0 +1,80 @@
+# VVIP TIGER Safe Button Audit
+
+## Summary
+
+- totalButtonsLinks: 39
+- consoleErrors: 0
+- pageErrors: 0
+- failedClicks: 0
+- errorsAfterClick: 0
+- clickedNoVisibleFeedback: 2
+- okNavigation: 2
+- okFeedbackToast: 28
+- skippedHidden: 7
+
+## Details
+
+| # | Text | Status | Notes |
+|---|---|---|---|
+| 1 | NO TEXT | OK navigation | 
+      
+        
+          إنشاء منشور
+          ✕
+        
+        
+          النص
+          
+          يتم تنظيف النص تلقائيًا من المحارف المخفية والأنماط غير الآمنة قبل النشر.
+
+ |
+| 2 | الإشعارات | OK feedback/toast | تم تنفيذ الأمر: الإشعارات / تم تنفيذ الأمر: الإشعارات |
+| 3 | الرسائل | OK feedback/toast | تم تنفيذ الأمر: الرسائل / تم تنفيذ الأمر: الرسائل |
+| 4 | البروفايل | CLICKED no visible feedback | http://127.0.0.1:8080/private-profile.html |
+| 5 | ✦ | OK feedback/toast | تم تحديث التحليلات بالذكاء الاصطناعي. / تم تحديث التحليلات بالذكاء الاصطناعي. |
+| 6 | ☰ | OK feedback/toast | تم تنفيذ الأمر: ☰ / تم تنفيذ الأمر: ☰ |
+| 7 | … | OK feedback/toast | تم تنفيذ الأمر: … / تم تنفيذ الأمر: … |
+| 8 | ⌕ | OK feedback/toast | تم تنفيذ الأمر: ⌕ / تم تنفيذ الأمر: ⌕ |
+| 9 | ✎ | OK feedback/toast | تم تنفيذ الأمر: ✎ / تم تنفيذ الأمر: ✎ |
+| 10 | ◉ | OK feedback/toast | تم تنفيذ الأمر: ◉ / تم تنفيذ الأمر: ◉ |
+| 11 | تعديل الملف | OK feedback/toast | تم تنفيذ الأمر: تعديل الملف / تم تنفيذ الأمر: تعديل الملف |
+| 12 | إضافة قصة | OK feedback/toast | منشئ القصص سيتوفر من هذا الزر. / منشئ القصص سيتوفر من هذا الزر. |
+| 13 | تعزيز AI | OK feedback/toast | تم تحديث التحليلات بالذكاء الاصطناعي. / تم تحديث التحليلات بالذكاء الاصطناعي. |
+| 14 | Reels | OK feedback/toast | تم تنفيذ الأمر: Reels / تم تنفيذ الأمر: Reels |
+| 15 | Photos | OK feedback/toast | تم تنفيذ الأمر: Photos / تم تنفيذ الأمر: Photos |
+| 16 | All | OK feedback/toast | تم تنفيذ الأمر: All / تم تنفيذ الأمر: All |
+| 17 | المنشورات | OK feedback/toast | تم تنفيذ الأمر: المنشورات / تم تنفيذ الأمر: المنشورات |
+| 18 | الصور | OK feedback/toast | تم تطبيق الفلتر: الصور / تم تطبيق الفلتر: الصور |
+| 19 | الفيديو | OK feedback/toast | تم تطبيق الفلتر: الفيديو / تم تطبيق الفلتر: الفيديو |
+| 20 | التحليلات | OK feedback/toast | تم تنفيذ الأمر: التحليلات / تم تنفيذ الأمر: التحليلات |
+| 21 | الإعلانات | OK feedback/toast | تم تنفيذ الأمر: الإعلانات / تم تنفيذ الأمر: الإعلانات |
+| 22 | حول | OK feedback/toast | تم تنفيذ الأمر: حول / تم تنفيذ الأمر: حول |
+| 23 | ⋯ | OK feedback/toast | تم فتح خيارات المنشور. / تم فتح خيارات المنشور. |
+| 24 | ❤ 12 | OK feedback/toast | تم تنفيذ الأمر: ❤ 12 / تم تنفيذ الأمر: ❤ 12 |
+| 25 | 💬 3 | OK feedback/toast | تم فتح التعليقات. / تم فتح التعليقات. |
+| 26 | ↪ 1 | OK feedback/toast | تم تجهيز المشاركة. / تم تجهيز المشاركة. |
+| 27 | 🔖 حفظ | OK feedback/toast | تم حفظ المنشور. / تم حفظ المنشور. |
+| 28 | تحديث التحليلات بالذكاء الاصطناعي | SKIPPED hidden |  |
+| 29 | حفظ الحملة | SKIPPED hidden |  |
+| 30 | اقتراح إعدادات AI | SKIPPED hidden |  |
+| 31 | فتح مثال خارجي داخل التطبيق | SKIPPED hidden | https://example.com/ |
+| 32 | ✎ | SKIPPED hidden |  |
+| 33 | 🏠الرئيسية | OK navigation | 
+      
+        
+          إنشاء منشور
+          ✕
+        
+        
+          النص
+          
+          يتم تنظيف النص تلقائيًا من المحارف المخفية والأنماط غير الآمنة قبل النشر.
+
+ |
+| 34 | 🔎بحث | OK feedback/toast | تم تنفيذ الأمر: 🔎بحث / تم تنفيذ الأمر: 🔎بحث |
+| 35 | ＋إنشاء | OK feedback/toast | تم تنفيذ الأمر: ＋إنشاء / تم تنفيذ الأمر: ＋إنشاء |
+| 36 | ✦ذكاء | OK feedback/toast | تم تحديث التحليلات بالذكاء الاصطناعي. / تم تحديث التحليلات بالذكاء الاصطناعي. |
+| 37 | 👤بروفايل | CLICKED no visible feedback | http://127.0.0.1:8080/private-profile.html |
+| 38 | ⌄ | SKIPPED hidden |  |
+| 39 | عرض المزيد | SKIPPED hidden |  |
+
