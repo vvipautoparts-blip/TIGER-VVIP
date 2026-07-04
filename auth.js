@@ -131,9 +131,20 @@
         : "فعّل Email/Password من Firebase Console → Authentication → Sign-in method.";
     }
     if (code === "auth/unauthorized-domain") {
+      const host = window.location.hostname || "localhost";
       return authLang === "en"
-        ? "Add localhost to Firebase Console → Authentication → Settings → Authorized domains."
-        : "أضف localhost إلى Firebase Console → Authentication → Settings → Authorized domains.";
+        ? ("Add this host to Firebase Console → Authentication → Settings → Authorized domains: " + host)
+        : ("أضف هذا الدومين إلى Firebase Console → Authentication → Settings → Authorized domains: " + host);
+    }
+    if (code === "auth/popup-blocked") {
+      return authLang === "en"
+        ? "Allow popups for this site and try again."
+        : "اسمح بالنوافذ المنبثقة لهذا الموقع ثم حاول مرة أخرى.";
+    }
+    if (code === "auth/network-request-failed") {
+      return authLang === "en"
+        ? "Check internet connection and try again."
+        : "تحقق من الاتصال بالإنترنت ثم حاول مرة أخرى.";
     }
     return "";
   }
@@ -343,10 +354,13 @@
         }
         
         if (code === "auth/unauthorized-domain") {
-          const msg = tx(AUTH_TEXT.firebaseConfigMissing) + "Unauthorized domain. Check Firebase Console.";
+          const hint = getAuthSupportHint(code);
+          const msg = authLang === "en"
+            ? ("Google/Facebook login is blocked for this domain. " + hint)
+            : ("تسجيل الدخول عبر Google/Facebook محظور لهذا الدومين. " + hint);
           setMessage(msg, "error");
           showToast(msg, "error");
-          console.error('📌 Solution: Add tigerautoparts.shop to Authorized domains in Firebase Console');
+          console.error('📌 Firebase Authorized Domains required:', window.location.hostname);
           return;
         }
         
@@ -375,7 +389,10 @@
       setMessage(tx(AUTH_TEXT.signInSuccessViaPrefix) + providerName + ".", "success");
       showToast(tx(AUTH_TEXT.signInSuccess), "success");
     } catch (error) {
-      setMessage(tx(AUTH_TEXT.signInFailedPrefix) + (error && error.message ? error.message : tx(AUTH_TEXT.unknownError)), "error");
+      const code = String(error && error.code ? error.code : "");
+      const hint = getAuthSupportHint(code);
+      const baseMessage = tx(AUTH_TEXT.signInFailedPrefix) + (error && error.message ? error.message : tx(AUTH_TEXT.unknownError));
+      setMessage(hint ? (baseMessage + " — " + hint) : baseMessage, "error");
       showToast(tx(AUTH_TEXT.signInFailedToast), "error");
     } finally {
       setButtonLoading(sourceButton, false);
