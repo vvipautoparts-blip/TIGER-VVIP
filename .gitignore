@@ -9,3 +9,9 @@ supabase/.temp/
 *.desktop-approved.*
 test-results/
 tests/
+
+# Local generated files
+node_modules/
+reports/*.log
+package-lock.json
+package.json

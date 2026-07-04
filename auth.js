@@ -78,7 +78,7 @@
   let authLang = normalizeLang(localStorage.getItem(STORAGE_LANG_KEY) || document.documentElement.lang || "ar");
 
   const AUTH_TEXT = {
-    title: { ar: "تسجيل الدخول - AutoParts JO", en: "Login - AutoParts JO" },
+    title: { ar: "تسجيل الدخول - VVIP TIGER", en: "Login - VVIP TIGER" title: { ar: "تسجيل الدخول - VVIP TIGER", en: "Login - VVIP TIGER" },
     brandSubtitle: { ar: "بحث أسرع. موردون أوثق. تجربة دخول آمنة.", en: "Faster search. Better suppliers. Secure sign-in experience." },
     cardTitle: { ar: "تسجيل الدخول", en: "Sign in" },
     cardSubtitle: { ar: "بدون كلمات مرور. اختر مزودك للمتابعة.", en: "No passwords needed. Choose a provider to continue." },
@@ -115,9 +115,10 @@
     facebookAria: { ar: "تسجيل الدخول عبر Facebook", en: "Facebook sign in" }
   };
 
-  function tx(pair) {
-    return authLang === "en" ? pair.en : pair.ar;
-  }
+ function tx(pair) {
+  if (!pair) return "";
+  return authLang === "en" ? (pair.en || pair.ar || "") : (pair.ar || pair.en || "");
+}
 
   function normalizeLang(value) {
     return String(value || "").toLowerCase().indexOf("en") === 0 ? "en" : "ar";

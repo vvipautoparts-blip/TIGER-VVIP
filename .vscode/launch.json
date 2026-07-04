@@ -4,7 +4,6 @@
     // لمزيد من المعلومات، قم بزيارة: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-                
         {
             "args": [
                 "--extensionDevelopmentPath=${workspaceFolder}"
@@ -33,21 +32,21 @@
             "name": "Launch Chrome",
             "request": "launch",
             "type": "chrome",
-            "url": "http://localhost:8080",
+            "url": "http://localhost:8080/public-profile.html",
             "webRoot": "${workspaceFolder}"
         },
         {
             "name": "Launch Chrome",
             "request": "launch",
             "type": "chrome",
-            "url": "http://localhost:8080",
+            "url": "http://localhost:8080/public-profile.html",
             "webRoot": "${workspaceFolder}"
         },
         {
             "type": "chrome",
             "request": "launch",
             "name": "تشغيل كروم باستخدام المضيف المحلي",
-            "url": "http://localhost:8080",
+            "url": "http://localhost:8080/public-profile.html",
             "webRoot": "${workspaceFolder}"
         }
     ]

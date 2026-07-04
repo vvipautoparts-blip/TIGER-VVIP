@@ -3733,3 +3733,312 @@ html, body {
     font-size: 0.8rem;
   }
 }
+
+/* ===== VVIP TIGER Login Luxury Upgrade ===== */
+.fb-auth-page {
+  background:
+    radial-gradient(circle at top right, rgba(24, 119, 242, 0.18), transparent 32%),
+    linear-gradient(135deg, #070b14 0%, #101827 45%, #eef2f7 45%, #eef2f7 100%);
+}
+
+.fb-login-wrap {
+  min-height: 100vh;
+}
+
+.fb-brand-col {
+  position: relative;
+}
+
+.fb-wordmark {
+  font-size: clamp(46px, 6vw, 78px);
+  font-weight: 900;
+  letter-spacing: -2px;
+  background: linear-gradient(135deg, #1877f2, #60a5fa, #d7b46a);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 18px 45px rgba(24, 119, 242, 0.22);
+}
+
+.login-subtitle {
+  font-size: clamp(22px, 2.2vw, 34px);
+  line-height: 1.65;
+  color: #0b1220;
+  font-weight: 900;
+  max-width: 620px;
+}
+
+.fb-card {
+  border: 1px solid rgba(215, 180, 106, 0.35);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.18),
+    0 0 0 1px rgba(255, 255, 255, 0.65) inset;
+  border-radius: 28px;
+  backdrop-filter: blur(18px);
+}
+
+.fb-card input {
+  border-radius: 16px;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: rgba(248, 250, 252, 0.92);
+}
+
+.fb-primary-btn,
+#email-login-btn {
+  border-radius: 16px;
+  font-weight: 900;
+  box-shadow: 0 14px 32px rgba(24, 119, 242, 0.35);
+}
+
+.fb-social-btn {
+  border-radius: 14px;
+  font-weight: 800;
+}
+
+.fb-lang-bar {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+}
+
+@media (max-width: 900px) {
+  .fb-auth-page {
+    background: linear-gradient(180deg, #eef2f7 0%, #f8fafc 100%);
+  }
+
+  .fb-wordmark,
+  .login-subtitle {
+    text-align: center;
+  }
+}
+
+/* ===== VVIP TIGER Login Polish v2 ===== */
+.fb-lang-bar {
+  position: fixed;
+  top: 18px;
+  left: 22px;
+  z-index: 50;
+  width: auto;
+  padding: 8px;
+  border-radius: 999px;
+  background: rgba(7, 11, 20, 0.72);
+  border: 1px solid rgba(215, 180, 106, 0.35);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(16px);
+}
+
+.fb-lang-inner,
+.entry-lang-switch {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.fb-lang-bar button,
+.entry-lang-switch button {
+  border: 1px solid rgba(215, 180, 106, 0.45);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  padding: 8px 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.fb-lang-bar button:hover,
+.entry-lang-switch button:hover {
+  background: rgba(215, 180, 106, 0.22);
+}
+
+.fb-card {
+  transform: translateY(8px);
+}
+
+.fb-primary-btn,
+#email-login-btn {
+  background: linear-gradient(135deg, #1877f2, #2563eb);
+}
+
+.fb-primary-btn:hover,
+#email-login-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 38px rgba(24, 119, 242, 0.42);
+}
+
+.login-subtitle {
+  text-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 900px) {
+  .fb-lang-bar {
+    position: static;
+    margin: 12px auto 0;
+    width: fit-content;
+  }
+}
+
+
+/* ===== VVIP TIGER Public Page VIP Layout Fix ===== */
+body.social-page,
+body.dark-theme {
+  margin: 0 !important;
+  background:
+    radial-gradient(circle at top right, rgba(24,119,242,.16), transparent 32%),
+    linear-gradient(135deg, #070b14 0%, #101827 42%, #eaf1fb 42%, #f4f7fb 100%) !important;
+  color: #0f172a !important;
+  font-family: Cairo, Roboto, Arial, sans-serif !important;
+}
+
+.mobile-frame {
+  width: min(1240px, calc(100vw - 48px)) !important;
+  max-width: 1240px !important;
+  min-height: 100vh !important;
+  margin: 0 auto !important;
+  padding: 22px !important;
+  transform: none !important;
+  zoom: 1 !important;
+  background: rgba(255,255,255,.62) !important;
+  border-left: 1px solid rgba(215,180,106,.18) !important;
+  border-right: 1px solid rgba(215,180,106,.18) !important;
+  box-shadow: 0 30px 90px rgba(0,0,0,.14) !important;
+}
+
+.mobile-header,
+.fb-topbar {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 20 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+  padding: 14px 18px !important;
+  margin-bottom: 20px !important;
+  border-radius: 24px !important;
+  background: rgba(7, 11, 20, .88) !important;
+  border: 1px solid rgba(215,180,106,.32) !important;
+  box-shadow: 0 20px 55px rgba(0,0,0,.22) !important;
+  backdrop-filter: blur(16px) !important;
+}
+
+.fb-wordmark,
+.fb-topbar-logo,
+.fb-topbar-logo span,
+.mobile-header strong,
+.mobile-header .brand,
+.mobile-header a {
+  font-size: 28px !important;
+  font-weight: 900 !important;
+  letter-spacing: -.8px !important;
+  color: #fff !important;
+  text-decoration: none !important;
+}
+
+.fb-topbar-logo span,
+.fb-wordmark {
+  background: linear-gradient(135deg, #60a5fa, #1877f2, #d7b46a) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+
+input[type="search"],
+input[type="text"],
+textarea,
+select {
+  border: 1px solid rgba(15,23,42,.12) !important;
+  border-radius: 16px !important;
+  background: rgba(255,255,255,.92) !important;
+  padding: 12px 14px !important;
+  box-shadow: 0 12px 28px rgba(15,23,42,.07) !important;
+  font-family: inherit !important;
+}
+
+button,
+.fb-topbar-tab,
+.nav-item,
+.composer-action,
+.story-card,
+.post-action {
+  border-radius: 14px !important;
+  border: 1px solid rgba(215,180,106,.32) !important;
+  background: rgba(255,255,255,.88) !important;
+  color: #0f172a !important;
+  font-weight: 800 !important;
+  padding: 9px 13px !important;
+  cursor: pointer !important;
+  box-shadow: 0 10px 22px rgba(15,23,42,.06) !important;
+}
+
+button:hover,
+.fb-topbar-tab:hover,
+.nav-item:hover {
+  transform: translateY(-1px) !important;
+  border-color: rgba(24,119,242,.42) !important;
+}
+
+main,
+.feed,
+.feed-list,
+.profile-feed,
+.public-feed,
+.content,
+.fb-feed {
+  width: 100% !important;
+  max-width: 900px !important;
+  margin-inline: auto !important;
+}
+
+.stories,
+.stories-row,
+.story-list {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(160px, 1fr)) !important;
+  gap: 14px !important;
+  margin: 18px auto !important;
+  max-width: 900px !important;
+}
+
+.story-card,
+.story,
+article,
+.post-card,
+.feed-card,
+.composer,
+.create-post,
+.ai-card,
+.recommendation-card,
+section {
+  border-radius: 24px !important;
+  background: rgba(255,255,255,.88) !important;
+  border: 1px solid rgba(215,180,106,.24) !important;
+  box-shadow: 0 24px 70px rgba(15,23,42,.10) !important;
+}
+
+h1, h2, h3 {
+  color: #0b1220 !important;
+  font-weight: 900 !important;
+}
+
+a {
+  color: #1877f2 !important;
+  font-weight: 800 !important;
+}
+
+@media (max-width: 800px) {
+  .mobile-frame {
+    width: 100% !important;
+    padding: 12px !important;
+  }
+
+  .mobile-header,
+  .fb-topbar {
+    flex-wrap: wrap !important;
+    border-radius: 18px !important;
+  }
+
+  .stories,
+  .stories-row,
+  .story-list {
+    grid-template-columns: 1fr !important;
+  }
+}

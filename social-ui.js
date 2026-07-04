@@ -1,15 +1,15 @@
 (function () {
-  const STORAGE_POSTS_KEY = "autoparts_feed_posts";
-  const STORAGE_USER_KEY = "autoparts_user_snapshot";
-  const STORAGE_ROLE_KEY = "autoparts_role";
-  const STORAGE_LANG_KEY = "autoparts_lang";
+  const STORAGE_POSTS_KEY = "vvip.tiger_feed_posts";
+  const STORAGE_USER_KEY = "vvip.tiger_user_snapshot";
+  const STORAGE_ROLE_KEY = "vvip.tiger_role";
+  const STORAGE_LANG_KEY = "vvip.tiger_lang";
   const SUPABASE_URL_KEY = "TIGER_SUPABASE_URL";
   const SUPABASE_ANON_KEY = "TIGER_SUPABASE_ANON_KEY";
-  const STORAGE_ANALYTICS_KEY = "autoparts_analytics_events";
-  const STORAGE_ADS_KEY = "autoparts_ad_campaign";
-  const STORAGE_SAVED_POSTS_KEY = "autoparts_saved_posts";
-  const STORAGE_STORIES_KEY = "autoparts_story_items";
-  const STORAGE_FEED_FILTER_KEY = "autoparts_feed_filter_state";
+  const STORAGE_ANALYTICS_KEY = "vvip.tiger_analytics_events";
+  const STORAGE_ADS_KEY = "vvip.tiger_ad_campaign";
+  const STORAGE_SAVED_POSTS_KEY = "vvip.tiger_saved_posts";
+  const STORAGE_STORIES_KEY = "vvip.tiger_story_items";
+  const STORAGE_FEED_FILTER_KEY = "vvip.tiger_feed_filter_state";
   const STORAGE_AI_ENDPOINT_KEY = "TIGER_AI_ENDPOINT";
   const STORAGE_AI_KEY_KEY = "TIGER_AI_KEY";
   const STORAGE_VISION_ENDPOINT_KEY = "TIGER_VISION_ENDPOINT";
@@ -49,16 +49,16 @@
       createRestricted: bi("النشر متاح للحسابات التجارية فقط", "Posting is available for business accounts only")
     },
     dbStatus: {
-      loadingFeed: bi("حالة البيانات: جاري مزامنة المنشورات...", "Data status: syncing posts..."),
-      loadingProfile: bi("حالة البيانات: جاري مزامنة منشورات البروفايل...", "Data status: syncing profile posts..."),
-      connected: bi("حالة البيانات: متصل بقاعدة البيانات.", "Data status: connected to database."),
-      fallbackConnection: bi("حالة البيانات: تعذر الاتصال، تم التحويل للوضع المحلي.", "Data status: connection failed, switched to local mode."),
-      fallbackConfigMissing: bi("حالة البيانات: وضع محلي (لم يتم ضبط Supabase). ", "Data status: local mode (Supabase not configured). "),
-      metricSavedLocal: bi("حالة البيانات: تم حفظ التفاعل محلياً (تعذر مزامنة DB). ", "Data status: interaction saved locally (DB sync failed). "),
-      publishSavedLocal: bi("حالة البيانات: حفظ محلي (offline fallback).", "Data status: saved locally (offline fallback).")
+      loadingFeed: bi("حالة المنصة: جاري مزامنة المنشورات...", "Data status: syncing posts..."),
+      loadingProfile: bi("حالة المنصة: جاري مزامنة منشورات البروفايل...", "Data status: syncing profile posts..."),
+      connected: bi("حالة المنصة: متصل بقاعدة البيانات.", "Data status: connected to database."),
+      fallbackConnection: bi("حالة المنصة: تعذر الاتصال، تم التحويل للوضع المحلي.", "Data status: connection failed, switched to local mode."),
+      fallbackConfigMissing: bi("حالة المنصة: وضع تجريبي آمن قبل الربط النهائي. ", "Data status: local mode (الربط النهائي not configured). "),
+      metricSavedLocal: bi("حالة المنصة: تم حفظ التفاعل محلياً (تعذر مزامنة DB). ", "Data status: interaction saved locally (DB sync failed). "),
+      publishSavedLocal: bi("حالة المنصة: حفظ محلي (offline fallback).", "Data status: saved locally (offline fallback).")
     },
     profile: {
-      defaultBio: bi("حساب نشط على منصة AutoParts مع إدارة مباشرة للطلبات والمنشورات.", "Active AutoParts account with direct management of orders and posts."),
+      defaultBio: bi("حساب نشط على منصة VVIP TIGER مع إدارة مباشرة للطلبات والمنشورات.", "Active VVIP TIGER account with direct management of orders and posts."),
       accountTypePrefix: bi("نوع الحساب: ", "Account Type: ")
     },
     language: {
@@ -66,8 +66,8 @@
       switchToEnglish: bi("التبديل إلى الإنجليزية", "Switch to English")
     },
     pageTitles: {
-      public: bi("الصفحة العامة - AutoParts JO", "Public Page - AutoParts JO"),
-      private: bi("البروفايل الخاص - AutoParts JO", "Private Profile - AutoParts JO")
+      public: bi("الصفحة العامة - VVIP TIGER", "Public Page - VVIP TIGER"),
+      private: bi("البروفايل الخاص - VVIP TIGER", "Private Profile - VVIP TIGER")
     },
     media: {
       videoPreview: bi("معاينة فيديو 16:9", "Video Preview 16:9"),
@@ -98,27 +98,27 @@
 
   let supabaseClientPromise = null;
 
-  function hasSupabaseRuntimeConfig() {
+  function hasRuntimeConfig() {
     const url = String(localStorage.getItem(SUPABASE_URL_KEY) || "").trim();
     const anonKey = String(localStorage.getItem(SUPABASE_ANON_KEY) || "").trim();
     return Boolean(url && anonKey && !url.includes("your-project") && !anonKey.includes("your-anon-key"));
   }
 
-  function getSupabaseRuntimeConfig() {
+  function getRuntimeConfig() {
     return {
       url: String(localStorage.getItem(SUPABASE_URL_KEY) || "").trim(),
       anonKey: String(localStorage.getItem(SUPABASE_ANON_KEY) || "").trim()
     };
   }
 
-  async function ensureSupabaseClient() {
-    if (!hasSupabaseRuntimeConfig()) return null;
+  async function ensureRuntimeClient() {
+    if (!hasRuntimeConfig()) return null;
     if (supabaseClientPromise) return supabaseClientPromise;
 
     supabaseClientPromise = new Promise(function (resolve) {
       const existingFactory = window.supabase && window.supabase.createClient;
       if (existingFactory) {
-        const config = getSupabaseRuntimeConfig();
+        const config = getRuntimeConfig();
         resolve(existingFactory(config.url, config.anonKey));
         return;
       }
@@ -130,7 +130,7 @@
           resolve(null);
           return;
         }
-        const config = getSupabaseRuntimeConfig();
+        const config = getRuntimeConfig();
         resolve(window.supabase.createClient(config.url, config.anonKey));
       };
       script.onerror = function () {
@@ -148,8 +148,8 @@
       text: String(row.description || "").trim(),
       type: row.media_kind || "all",
       audience: row.visibility || "all",
-      author: row.author_name || "AutoParts User",
-      handle: row.author_handle || "autoparts.user",
+      author: row.author_name || "VVIP TIGER User",
+      handle: row.author_handle || "vvip.tiger",
       likes: Number(row.like_count || 0),
       comments: Number(row.comment_count || 0),
       shares: Number(row.share_count || 0),
@@ -158,8 +158,8 @@
     };
   }
 
-  async function fetchPostsFromSupabase(options) {
-    const client = await ensureSupabaseClient();
+  async function fetchPostsFromRuntime(options) {
+    const client = await ensureRuntimeClient();
     if (!client) return null;
 
     const limit = Math.max(1, Math.min(60, Number(options && options.limit) || FEED_PAGE_SIZE));
@@ -181,8 +181,8 @@
     return data.map(normalizePostFromDb);
   }
 
-  async function insertPostToSupabase(post) {
-    const client = await ensureSupabaseClient();
+  async function insertPostToRuntime(post) {
+    const client = await ensureRuntimeClient();
     if (!client) return null;
 
     const payload = {
@@ -580,7 +580,7 @@
     const fallbackStories = [
       {
         id: "story-1",
-        author: currentLang === "en" ? "Tiger Auto Parts" : "شركة النمر",
+        author: currentLang === "en" ? "Tiger Auto Parts" : "VVIP TIGER",
         handle: "tiger.parts",
         type: "image",
         mediaUrl: "",
@@ -598,7 +598,7 @@
       },
       {
         id: "story-3",
-        author: currentLang === "en" ? "Workshop" : "الورشة",
+        author: currentLang === "en" ? "Workshop" : "المساحة",
         handle: "workshop.jo",
         type: "image",
         mediaUrl: "",
@@ -648,7 +648,7 @@
       .map(function (tag) {
         return tag.charAt(0) === "#" ? tag : ("#" + tag.replace(/\s+/g, "_"));
       });
-    return normalized.length ? normalized : ["#AutoParts"];
+    return normalized.length ? normalized : ["#VVIPTIGER"];
   }
 
   async function requestAssistantFromApi(draft, fallbackSignals) {
@@ -721,9 +721,9 @@
     }
   }
 
-  async function insertAnalyticsEventToSupabase(eventRecord) {
+  async function insertAnalyticsEventToRuntime(eventRecord) {
     if (!eventRecord || !eventRecord.id) return false;
-    const client = await ensureSupabaseClient();
+    const client = await ensureRuntimeClient();
     if (!client) return false;
 
     const snapshot = readUserSnapshot() || {};
@@ -731,7 +731,7 @@
       event_id: String(eventRecord.id),
       event_type: String(eventRecord.type || "event"),
       payload_json: eventRecord.payload || {},
-      actor_handle: String(snapshot.handle || "autoparts.user"),
+      actor_handle: String(snapshot.handle || "vvip.tiger"),
       created_at: eventRecord.createdAt || new Date().toISOString()
     };
 
@@ -739,8 +739,8 @@
     return !error;
   }
 
-  async function fetchAnalyticsEventsFromSupabase(days) {
-    const client = await ensureSupabaseClient();
+  async function fetchAnalyticsEventsFromRuntime(days) {
+    const client = await ensureRuntimeClient();
     if (!client) return null;
 
     const windowDays = Math.max(1, Number(days) || ANALYTICS_WINDOW_DAYS);
@@ -768,12 +768,12 @@
       });
   }
 
-  async function fetchAdCampaignFromSupabase() {
-    const client = await ensureSupabaseClient();
+  async function fetchAdCampaignFromRuntime() {
+    const client = await ensureRuntimeClient();
     if (!client) return null;
 
     const snapshot = readUserSnapshot() || {};
-    const handle = String(snapshot.handle || "autoparts.user");
+    const handle = String(snapshot.handle || "vvip.tiger");
     const { data, error } = await client
       .from("ad_campaign_settings")
       .select("location,age_range,interests,budget,start_date,end_date,updated_at")
@@ -794,13 +794,13 @@
     };
   }
 
-  async function upsertAdCampaignToSupabase(settings) {
-    const client = await ensureSupabaseClient();
+  async function upsertAdCampaignToRuntime(settings) {
+    const client = await ensureRuntimeClient();
     if (!client) return false;
 
     const snapshot = readUserSnapshot() || {};
     const payload = {
-      actor_handle: String(snapshot.handle || "autoparts.user"),
+      actor_handle: String(snapshot.handle || "vvip.tiger"),
       location: String(settings && settings.location ? settings.location : ""),
       age_range: String(settings && settings.age ? settings.age : ""),
       interests: String(settings && settings.interests ? settings.interests : ""),
@@ -824,7 +824,7 @@
     events.unshift(eventRecord);
     writeStoredList(STORAGE_ANALYTICS_KEY, events.slice(0, ANALYTICS_MAX_EVENTS));
 
-    insertAnalyticsEventToSupabase(eventRecord).catch(function () {
+    insertAnalyticsEventToRuntime(eventRecord).catch(function () {
       return null;
     });
   }
@@ -847,8 +847,8 @@
   function getUserContextSnapshot() {
     const snapshot = readUserSnapshot() || {};
     return {
-      handle: String(snapshot.handle || "autoparts.user"),
-      displayName: String(snapshot.displayName || "AutoParts User"),
+      handle: String(snapshot.handle || "vvip.tiger"),
+      displayName: String(snapshot.displayName || "VVIP TIGER User"),
       bio: String(snapshot.bio || ""),
       role: getCurrentRole()
     };
@@ -871,7 +871,7 @@
     const signals = {
       category: "general",
       summary: currentLang === "en" ? "General content" : "محتوى عام",
-      tags: ["#AutoParts"],
+      tags: ["#VVIPTIGER"],
       tip: currentLang === "en" ? "Add a concrete part number or VIN to improve reach." : "أضف رقم قطعة أو رقم هيكل لرفع التفاعل.",
       confidence: currentLang === "en" ? "Medium confidence" : "ثقة متوسطة"
     };
@@ -879,8 +879,8 @@
     const joined = text + " " + mediaUrl;
     if (/\b(vin|شاصي|chassis|oem|original|اصلي|قطع|part|sensor|engine|gear|brake|filter|radiator|cooling)\b/i.test(joined)) {
       signals.category = "auto-parts";
-      signals.summary = currentLang === "en" ? "Auto parts / compatibility" : "قطع غيار / توافق";
-      signals.tags = ["#قطع_غيار", "#AutoParts", "#VIN"];
+      signals.summary = currentLang === "en" ? "Auto parts / compatibility" : "مساحات نخبوية / توافق";
+      signals.tags = ["#قطع_غيار", "#VVIPTIGER", "#VIN"];
       signals.tip = currentLang === "en" ? "Mention the model year and compatibility details." : "اذكر سنة الموديل وتفاصيل التوافق.";
       signals.confidence = currentLang === "en" ? "High confidence" : "ثقة عالية";
     } else if (/\b(video|فيديو|reels|ريلز)\b/i.test(joined)) {
@@ -1084,8 +1084,8 @@
     const safeType = escapeHtml(post.type || "all");
     const safeAudience = escapeHtml(post.audience || "all");
     const safeText = linkifyPostText(post.text || "");
-    const safeAuthor = escapeHtml(post.author || "AutoParts User");
-    const safeHandle = escapeHtml(post.handle || "autoparts.user");
+    const safeAuthor = escapeHtml(post.author || "VVIP TIGER User");
+    const safeHandle = escapeHtml(post.handle || "vvip.tiger");
     const safeMediaUrl = escapeHtml(post.mediaUrl || "");
     const safeMediaPoster = escapeHtml(post.mediaPoster || "");
     const safeMediaCaption = escapeHtml(post.mediaCaption || mediaLabel || safeText || safeAuthor);
@@ -1329,14 +1329,14 @@
     }
   }
 
-  async function updatePostMetricInSupabase(postId, metricKey, nextValue) {
+  async function updatePostMetricInRuntime(postId, metricKey, nextValue) {
     if (postId == null || String(postId).trim() === "") return false;
     const normalizedId = String(postId).trim();
     const isNumericId = /^\d+$/.test(normalizedId);
     const isUuidId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(normalizedId);
     if (!isNumericId && !isUuidId) return false;
 
-    const client = await ensureSupabaseClient();
+    const client = await ensureRuntimeClient();
     if (!client) return false;
 
     const dbFieldMap = {
@@ -1472,8 +1472,31 @@
 
   function initFeedInteractions() {
     const searchInput = document.getElementById("feed-search");
+    const desktopSearchInput = document.getElementById("desktop-feed-search");
     const tabButtons = Array.from(document.querySelectorAll(".chip-tab"));
     const feedList = document.getElementById("feed-list");
+    const desktopPostStream = document.getElementById("desktop-post-stream");
+    const desktopMembersSection = document.getElementById("desktop-members-section");
+    const desktopShortcutsSection = document.getElementById("desktop-shortcuts-section");
+    const desktopSuggestionsSection = document.getElementById("desktop-suggestions-section");
+    const desktopStoriesSection = document.getElementById("desktop-stories-section");
+    const desktopStoryCards = Array.from(document.querySelectorAll(".desktop-story-card"));
+    const desktopStoriesArchive = document.getElementById("desktop-stories-archive");
+    const desktopNavVideo = document.getElementById("desktop-nav-video");
+    const desktopNavMembers = document.getElementById("desktop-nav-members");
+    const desktopNavShortcuts = document.getElementById("desktop-nav-shortcuts");
+    const desktopNavAi = document.getElementById("desktop-nav-ai");
+    const desktopNotificationsBtn = document.getElementById("desktop-notifications-btn");
+    const desktopMessagesBtn = document.getElementById("desktop-messages-btn");
+    const desktopMembersViewAll = document.getElementById("desktop-members-view-all");
+    const desktopShortcutsManage = document.getElementById("desktop-shortcuts-manage");
+    const desktopShortcutButtons = Array.from(document.querySelectorAll(".desktop-shortcut-btn"));
+    const desktopSuggestionsSearch = document.getElementById("desktop-suggestions-search");
+    const desktopComposerInput = document.getElementById("desktop-composer-input");
+    const desktopComposePhoto = document.getElementById("desktop-compose-photo");
+    const desktopComposeVideo = document.getElementById("desktop-compose-video");
+    const desktopComposeAi = document.getElementById("desktop-compose-ai");
+    const desktopComposePublish = document.getElementById("desktop-compose-publish");
     const commentsSheet = document.getElementById("comments-sheet");
     const closeComments = document.getElementById("close-comments");
     const composerButton = document.getElementById("open-composer");
@@ -1520,7 +1543,7 @@
     logPageView("feed");
 
     const feedState = {
-      source: hasSupabaseRuntimeConfig() ? "db" : "local",
+      source: hasRuntimeConfig() ? "db" : "local",
       lastVisiblePost: null,
       hasMore: true,
       loading: false
@@ -1529,6 +1552,91 @@
       items: getStoredStories(),
       index: 0
     };
+
+    function scrollToNode(node) {
+      if (!node) return;
+      node.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function createDesktopPostMarkup(payload) {
+      const post = payload || {};
+      const postId = post.id || ("desktop-generated-" + Date.now());
+      const author = escapeHtml(post.author || "VVIP TIGER");
+      const meta = escapeHtml(post.meta || (currentLang === "en" ? "Just now • Draft" : "الآن • تجريبي"));
+      const text = escapeHtml(post.text || "");
+      const mediaLabel = escapeHtml(post.mediaLabel || "منشور جديد");
+      return [
+        '<article class="vvip-post-card post-card" data-post-id="' + postId + '" data-type="' + escapeHtml(post.type || 'all') + '" data-audience="all" data-category="general" data-text="' + text + '">',
+        '  <div class="vvip-post-meta">',
+        '    <div class="vvip-post-author">',
+        '      <div class="vvip-avatar" aria-hidden="true">VT</div>',
+        '      <div>',
+        '        <strong>' + author + '</strong>',
+        '        <small>' + meta + '</small>',
+        '      </div>',
+        '    </div>',
+        '    <button class="post-menu" type="button">⋯</button>',
+        '  </div>',
+        '  <p class="post-copy">' + text + '</p>',
+        '  <div class="vvip-post-media">' + mediaLabel + '</div>',
+        '  <div class="vvip-post-actions">',
+        '    <button class="like-btn" type="button" data-liked="false">👍 <span>0</span></button>',
+        '    <button class="comment-btn" type="button">💬 <span>0</span></button>',
+        '    <button class="share-btn" type="button">↗ <span>0</span></button>',
+        '  </div>',
+        '  <div class="vvip-comment-row">',
+        '    <div class="vvip-comment-avatar" aria-hidden="true">أنت</div>',
+        '    <input class="vvip-comment-input" type="text" placeholder="' + escapeHtml(currentLang === "en" ? "Write a quick comment..." : "اكتب تعليقًا سريعًا...") + '" />',
+        '    <button class="vvip-comment-send desktop-comment-send" type="button">' + escapeHtml(currentLang === "en" ? "Send" : "إرسال") + '</button>',
+        '  </div>',
+        '  <div class="desktop-comment-list" aria-live="polite"></div>',
+        '</article>'
+      ].join("");
+    }
+
+    function applyDesktopSearchFilter() {
+      const query = String(desktopSearchInput && desktopSearchInput.value ? desktopSearchInput.value : "").trim().toLowerCase();
+      const storyCards = Array.from(document.querySelectorAll(".desktop-story-card"));
+      const desktopPosts = desktopPostStream ? Array.from(desktopPostStream.querySelectorAll(".post-card")) : [];
+
+      storyCards.forEach(function (card) {
+        const text = String(card.textContent || "").trim().toLowerCase();
+        card.hidden = Boolean(query) && text.indexOf(query) === -1;
+      });
+
+      desktopPosts.forEach(function (card) {
+        const text = String(card.getAttribute("data-text") || card.textContent || "").trim().toLowerCase();
+        card.hidden = Boolean(query) && text.indexOf(query) === -1;
+      });
+    }
+
+    function addDesktopComment(button) {
+      const row = button ? button.closest(".vvip-comment-row") : null;
+      const postCard = row ? row.closest(".post-card") : null;
+      const input = row ? row.querySelector(".vvip-comment-input") : null;
+      const list = postCard ? postCard.querySelector(".desktop-comment-list") : null;
+      if (!input || !list) return;
+      const value = String(input.value || "").trim();
+      if (!value) {
+        showToast(currentLang === "en" ? "Write a comment first." : "اكتب تعليقًا أولًا.", "warning");
+        input.focus();
+        return;
+      }
+
+      const item = document.createElement("div");
+      item.className = "desktop-comment-item";
+      item.textContent = value;
+      list.prepend(item);
+      input.value = "";
+
+      const commentButton = postCard.querySelector(".comment-btn");
+      if (commentButton) {
+        const currentCount = readMetricFromButton(commentButton);
+        writeMetricToButton(commentButton, currentCount + 1);
+      }
+
+      showToast(currentLang === "en" ? "Comment added locally." : "تمت إضافة تعليق تجريبي.", "success");
+    }
 
     function readFeedFilterState() {
       try {
@@ -1702,8 +1810,8 @@
       composerModal.setAttribute("aria-hidden", "false");
       if (!composerText.value) {
         composerText.value = currentLang === "en"
-          ? "Create a high-performing post idea for auto parts customers."
-          : "أنشئ فكرة منشور قوية تستهدف عملاء قطع السيارات.";
+          ? "Create a high-performing post idea for vvip tiger customers."
+          : "أنشئ فكرة منشور قوية تستهدف عملاء منصة النخبة.";
       }
       composerText.focus();
       renderComposerAssistant({ ai: true });
@@ -1759,7 +1867,7 @@
 
       if (feedState.source === "db") {
         const cursor = feedState.lastVisiblePost && feedState.lastVisiblePost.createdAt ? feedState.lastVisiblePost.createdAt : "";
-        const dbPosts = await fetchPostsFromSupabase({ limit: FEED_PAGE_SIZE, before: cursor });
+        const dbPosts = await fetchPostsFromRuntime({ limit: FEED_PAGE_SIZE, before: cursor });
         if (dbPosts) {
           nextPosts = dbPosts;
           nextSource = "db";
@@ -1792,7 +1900,7 @@
 
       if (nextSource === "db" && feedState.hasMore) {
         setDbStatus("db-online", tx(UI_TEXT.dbStatus.connected));
-      } else if (hasSupabaseRuntimeConfig()) {
+      } else if (hasRuntimeConfig()) {
         setDbStatus("db-local", tx(UI_TEXT.dbStatus.fallbackConnection));
       } else {
         setDbStatus("db-local", tx(UI_TEXT.dbStatus.fallbackConfigMissing));
@@ -1826,7 +1934,7 @@
 
       updateStoredPostMetric(payload.postId, payload.metricKey, payload.nextValue);
       const metricStartedAt = Date.now();
-      updatePostMetricInSupabase(payload.postId, payload.metricKey, payload.nextValue).then(function (ok) {
+      updatePostMetricInRuntime(payload.postId, payload.metricKey, payload.nextValue).then(function (ok) {
         const elapsedMs = Date.now() - metricStartedAt;
         const finalize = function () {
           if (ok) {
@@ -1834,7 +1942,7 @@
             setDbStatus("db-online", tx(UI_TEXT.dbStatus.connected));
           } else {
             finishAs("local");
-            if (hasSupabaseRuntimeConfig()) {
+            if (hasRuntimeConfig()) {
               setDbStatus("db-local", tx(UI_TEXT.dbStatus.metricSavedLocal));
             }
           }
@@ -1963,6 +2071,205 @@
 
     renderComposerAssistant();
     renderStories();
+
+    if (desktopPostStream) {
+      bindPostInteractions(desktopPostStream, {
+        commentsSheet: commentsSheet,
+        onMetricPersist: persistMetricChange
+      });
+
+      desktopPostStream.addEventListener("click", function (event) {
+        const followButton = event.target.closest(".follow-btn");
+        const sendButton = event.target.closest(".desktop-comment-send");
+
+        if (followButton) {
+          const following = followButton.getAttribute("data-following") === "true";
+          followButton.setAttribute("data-following", following ? "false" : "true");
+          followButton.textContent = following
+            ? (currentLang === "en" ? "👍 Follow" : "👍 متابعة")
+            : (currentLang === "en" ? "✓ Following" : "✓ تتابعه الآن");
+          showToast(following ? (currentLang === "en" ? "Follow removed." : "تم إلغاء المتابعة.") : (currentLang === "en" ? "You are now following this stream." : "أنت تتابع هذا القسم الآن."), "info");
+          return;
+        }
+
+        if (sendButton) {
+          addDesktopComment(sendButton);
+        }
+      });
+
+      desktopPostStream.addEventListener("keydown", function (event) {
+        const input = event.target && event.target.classList && event.target.classList.contains("vvip-comment-input") ? event.target : null;
+        if (!input || event.key !== "Enter") return;
+        event.preventDefault();
+        const button = input.closest(".vvip-comment-row") ? input.closest(".vvip-comment-row").querySelector(".desktop-comment-send") : null;
+        if (button) addDesktopComment(button);
+      });
+    }
+
+    if (desktopSearchInput) {
+      desktopSearchInput.addEventListener("input", function () {
+        applyDesktopSearchFilter();
+      });
+      desktopSearchInput.addEventListener("keydown", function (event) {
+        if (event.key !== "Enter") return;
+        applyDesktopSearchFilter();
+        showToast(currentLang === "en" ? "Desktop feed filtered." : "تمت تصفية الخلاصة المكتبية.", "info");
+      });
+    }
+
+    if (desktopNavVideo) {
+      desktopNavVideo.addEventListener("click", function () {
+        scrollToNode(desktopPostStream || feedList);
+        showToast(currentLang === "en" ? "Video view is being prepared. Showing latest posts for now." : "عرض الفيديو قيد التجهيز، وتم نقلك حاليًا إلى أحدث المنشورات.", "info");
+      });
+    }
+
+    if (desktopNavMembers) {
+      desktopNavMembers.addEventListener("click", function () {
+        scrollToNode(desktopMembersSection);
+      });
+    }
+
+    if (desktopNavShortcuts) {
+      desktopNavShortcuts.addEventListener("click", function () {
+        scrollToNode(desktopShortcutsSection);
+      });
+    }
+
+    if (desktopNavAi) {
+      desktopNavAi.addEventListener("click", function () {
+        openAiAssistant("desktop-header");
+      });
+    }
+
+    if (desktopNotificationsBtn) {
+      desktopNotificationsBtn.addEventListener("click", function () {
+        showToast(currentLang === "en" ? "Notifications center is being prepared." : "مركز الإشعارات قيد التجهيز.", "info");
+      });
+    }
+
+    if (desktopMessagesBtn) {
+      desktopMessagesBtn.addEventListener("click", function () {
+        showToast(currentLang === "en" ? "Messaging is being prepared." : "الرسائل قيد التجهيز.", "info");
+      });
+    }
+
+    if (desktopMembersViewAll) {
+      desktopMembersViewAll.addEventListener("click", function () {
+        scrollToNode(desktopMembersSection);
+        showToast(currentLang === "en" ? "Showing active members on this panel." : "يتم عرض الأعضاء النشطين في هذه اللوحة.", "info");
+      });
+    }
+
+    if (desktopStoriesArchive) {
+      desktopStoriesArchive.addEventListener("click", function () {
+        showToast(currentLang === "en" ? "Stories archive checked." : "تم فحص أرشيف القصص.", "info");
+      });
+    }
+
+    desktopStoryCards.forEach(function (card) {
+      function handleStoryCard() {
+        const action = card.getAttribute("data-story-action") || "open";
+        const label = card.getAttribute("data-story-label") || (currentLang === "en" ? "Story" : "قصة");
+        if (action === "add") {
+          if (desktopComposerInput) {
+            desktopComposerInput.value = currentLang === "en" ? "A fresh story idea for VVIP TIGER" : "فكرة قصة جديدة لمنصة VVIP TIGER";
+            scrollToNode(document.getElementById("desktop-composer-section"));
+            desktopComposerInput.focus();
+          }
+          showToast(currentLang === "en" ? "Story creator is being prepared. Start from the composer for now." : "منشئ القصص قيد التجهيز، ويمكنك البدء من صندوق النشر حاليًا.", "warning");
+          return;
+        }
+        showToast((currentLang === "en" ? "Story opened: " : "تم فتح القصة: ") + label, "info");
+      }
+
+      card.addEventListener("click", handleStoryCard);
+      card.addEventListener("keydown", function (event) {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        handleStoryCard();
+      });
+    });
+
+    if (desktopComposePhoto) {
+      desktopComposePhoto.addEventListener("click", function () {
+        if (desktopComposerInput) {
+          desktopComposerInput.dataset.composeType = "images";
+          desktopComposerInput.focus();
+        }
+        showToast(currentLang === "en" ? "Photo post mode selected." : "تم اختيار وضع منشور الصورة.", "info");
+      });
+    }
+
+    if (desktopComposeVideo) {
+      desktopComposeVideo.addEventListener("click", function () {
+        if (desktopComposerInput) {
+          desktopComposerInput.dataset.composeType = "video";
+          desktopComposerInput.focus();
+        }
+        showToast(currentLang === "en" ? "Video post mode selected." : "تم اختيار وضع منشور الفيديو.", "info");
+      });
+    }
+
+    if (desktopComposeAi) {
+      desktopComposeAi.addEventListener("click", function () {
+        openAiAssistant("desktop-composer");
+      });
+    }
+
+    if (desktopComposePublish) {
+      desktopComposePublish.addEventListener("click", function () {
+        if (!desktopComposerInput) return;
+        const value = String(desktopComposerInput.value || "").trim();
+        if (!value) {
+          showToast(currentLang === "en" ? "Write your post first." : "اكتب المنشور أولًا.", "warning");
+          desktopComposerInput.focus();
+          return;
+        }
+
+        if (desktopPostStream) {
+          const markup = createDesktopPostMarkup({
+            id: "desktop-local-" + Date.now(),
+            text: value,
+            type: desktopComposerInput.dataset.composeType || "all",
+            mediaLabel: currentLang === "en" ? "New desktop post" : "منشور مكتبي جديد",
+            meta: currentLang === "en" ? "Just now • Local preview" : "الآن • معاينة محلية"
+          });
+          desktopPostStream.insertAdjacentHTML("afterbegin", markup);
+        }
+
+        desktopComposerInput.value = "";
+        delete desktopComposerInput.dataset.composeType;
+        showToast(currentLang === "en" ? "Experimental post added to the page." : "تمت إضافة منشور تجريبي داخل الصفحة.", "success");
+        scrollToNode(desktopPostStream);
+      });
+    }
+
+    if (desktopShortcutsManage) {
+      desktopShortcutsManage.addEventListener("click", function () {
+        showToast(currentLang === "en" ? "Shortcuts manager is being prepared." : "إدارة الاختصارات قيد التجهيز.", "info");
+      });
+    }
+
+    desktopShortcutButtons.forEach(function (button) {
+      button.addEventListener("click", function () {
+        const label = String(button.textContent || "").trim();
+        showToast((currentLang === "en" ? "Opening shortcut: " : "فتح الاختصار: ") + label, "info");
+      });
+    });
+
+    if (desktopSuggestionsSearch) {
+      desktopSuggestionsSearch.addEventListener("keydown", function (event) {
+        if (event.key !== "Enter") return;
+        event.preventDefault();
+        if (desktopSearchInput) {
+          desktopSearchInput.value = desktopSuggestionsSearch.value;
+          applyDesktopSearchFilter();
+          scrollToNode(desktopPostStream || desktopStoriesSection);
+        }
+        showToast(currentLang === "en" ? "Suggested spaces search applied to the feed." : "تم تطبيق البحث المقترح على الخلاصة.", "info");
+      });
+    }
 
     if (feedLoadMore) {
       feedLoadMore.addEventListener("click", function () {
@@ -2099,8 +2406,8 @@
         }
 
         const userSnapshot = JSON.parse(localStorage.getItem(STORAGE_USER_KEY) || "null");
-        const displayName = userSnapshot && userSnapshot.displayName ? userSnapshot.displayName : "AutoParts User";
-        const handle = userSnapshot && userSnapshot.handle ? userSnapshot.handle : "autoparts.user";
+        const displayName = userSnapshot && userSnapshot.displayName ? userSnapshot.displayName : "VVIP TIGER User";
+        const handle = userSnapshot && userSnapshot.handle ? userSnapshot.handle : "vvip.tiger";
 
         const draftPost = {
           id: "local-" + Date.now() + "-" + Math.floor(Math.random() * 1000),
@@ -2113,7 +2420,7 @@
           mediaPoster: composerMediaPoster ? sanitizeExternalUrl(composerMediaPoster.value) : "",
           mediaCaption: composerMediaCaption ? String(composerMediaCaption.value || "").trim() : "",
           category: "general",
-          tags: ["#AutoParts"],
+          tags: ["#VVIPTIGER"],
           likes: 0,
           comments: 0,
           shares: 0,
@@ -2132,7 +2439,7 @@
         const assistantResult = await renderComposerAssistant({ ai: true });
         if (assistantResult) {
           draftPost.category = assistantResult.category || "general";
-          draftPost.tags = normalizeAssistantTags(assistantResult.tags, ["#AutoParts"]);
+          draftPost.tags = normalizeAssistantTags(assistantResult.tags, ["#VVIPTIGER"]);
         }
 
         logAnalyticsEvent("post_publish_start", { category: draftPost.category, type: draftPost.type });
@@ -2150,7 +2457,7 @@
           applyFeedFilters();
 
           const startedAt = Date.now();
-          const insertedDbPost = await insertPostToSupabase(draftPost);
+          const insertedDbPost = await insertPostToRuntime(draftPost);
           const elapsedMs = Date.now() - startedAt;
           if (elapsedMs < MIN_PENDING_BADGE_MS) {
             await new Promise(function (resolve) {
@@ -2244,7 +2551,7 @@
 
       updateStoredPostMetric(payload.postId, payload.metricKey, payload.nextValue);
       const metricStartedAt = Date.now();
-      updatePostMetricInSupabase(payload.postId, payload.metricKey, payload.nextValue).then(function (ok) {
+      updatePostMetricInRuntime(payload.postId, payload.metricKey, payload.nextValue).then(function (ok) {
         const elapsedMs = Date.now() - metricStartedAt;
         const finalize = function () {
           if (ok) {
@@ -2252,7 +2559,7 @@
             setProfileStatus("db-online", tx(UI_TEXT.dbStatus.connected));
           } else {
             finishAs("local");
-            if (hasSupabaseRuntimeConfig()) {
+            if (hasRuntimeConfig()) {
               setProfileStatus("db-local", tx(UI_TEXT.dbStatus.metricSavedLocal));
             }
 
@@ -2276,7 +2583,7 @@
       setProfileStatus("db-loading", tx(UI_TEXT.dbStatus.loadingProfile));
       setSectionLoading(postsSkeleton, postsList, true);
 
-      const dbPosts = await fetchPostsFromSupabase();
+      const dbPosts = await fetchPostsFromRuntime();
       const allPosts = dbPosts || getStoredPosts();
       const snapshot = readUserSnapshot();
       const preferredHandle = snapshot && snapshot.handle ? String(snapshot.handle).toLowerCase() : "";
@@ -2318,7 +2625,7 @@
 
       if (dbPosts) {
         setProfileStatus("db-online", tx(UI_TEXT.dbStatus.connected));
-      } else if (hasSupabaseRuntimeConfig()) {
+      } else if (hasRuntimeConfig()) {
         setProfileStatus("db-local", tx(UI_TEXT.dbStatus.fallbackConnection));
       } else {
         setProfileStatus("db-local", tx(UI_TEXT.dbStatus.fallbackConfigMissing));
@@ -2343,7 +2650,7 @@
 
     if (snapshot && snapshot.displayName) {
       profileName.textContent = snapshot.displayName;
-      profileHandle.textContent = "@" + (snapshot.handle || "autoparts.user");
+      profileHandle.textContent = "@" + (snapshot.handle || "vvip.tiger");
       profileBio.textContent = snapshot.bio || tx(UI_TEXT.profile.defaultBio);
     }
 
@@ -2359,7 +2666,7 @@
 
     const localEvents = getAnalyticsWindow(ANALYTICS_WINDOW_DAYS);
     let mergedEvents = localEvents;
-    const dbEvents = await fetchAnalyticsEventsFromSupabase(ANALYTICS_WINDOW_DAYS);
+    const dbEvents = await fetchAnalyticsEventsFromRuntime(ANALYTICS_WINDOW_DAYS);
     if (Array.isArray(dbEvents) && dbEvents.length) {
       const byId = {};
       dbEvents.concat(localEvents).forEach(function (event) {
@@ -2460,7 +2767,7 @@
         end: String(endInput && endInput.value || "").trim()
       };
       writeAdCampaignSettings(nextSettings);
-      const synced = await upsertAdCampaignToSupabase(nextSettings);
+      const synced = await upsertAdCampaignToRuntime(nextSettings);
       status.textContent = synced
         ? (currentLang === "en" ? "Campaign settings saved to database." : "تم حفظ إعدادات الحملة في قاعدة البيانات.")
         : (currentLang === "en" ? "Campaign settings saved locally." : "تم حفظ إعدادات الحملة محليًا.");
@@ -2471,7 +2778,7 @@
 
     updatePreview();
 
-    fetchAdCampaignFromSupabase().then(function (remoteSettings) {
+    fetchAdCampaignFromRuntime().then(function (remoteSettings) {
       if (!remoteSettings) return;
       if (locationInput) locationInput.value = remoteSettings.location || locationInput.value;
       if (ageInput) ageInput.value = remoteSettings.age || ageInput.value;
@@ -2636,8 +2943,8 @@
       if (location) location.value = currentLang === "en" ? "Amman, Irbid, Zarqa" : "عمان، إربد، الزرقاء";
       if (age) age.value = "22-45";
       if (interests) interests.value = currentLang === "en"
-        ? "auto parts, VIN check, maintenance, garages"
-        : "قطع غيار، فحص VIN، صيانة، كراجات";
+        ? "vvip tiger, VIN check, maintenance, garages"
+        : "مساحات نخبوية، فحص VIN، صيانة، كراجات";
       if (budget) budget.value = "35";
 
       [location, age, interests, budget].forEach(function (node) {
