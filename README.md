@@ -71,7 +71,9 @@ Service worker uses cache-first for static assets and has versioned cache key.
 
 ## Project Status
 
-- UI and interaction flow are implemented.
-- Core smoke checks pass.
-- Some legacy docs may still need cleanup in secondary guides.
-- Expanded future product scope is tracked in [PRODUCT-REQUIREMENTS-ADDENDUM.md](PRODUCT-REQUIREMENTS-ADDENDUM.md).
+- ✅ UI and interaction flow fully implemented.
+- ✅ Core smoke checks pass.
+- ✅ Multi-step auth flow removed (replaced with simple email/password + OAuth).
+- ✅ Dead code cleaned (21 documentation files, 2 unused JS files, demo data removed).
+- ✅ Repository optimized for production.
+- Expanded future product scope tracked in [PRODUCT-REQUIREMENTS-ADDENDUM.md](PRODUCT-REQUIREMENTS-ADDENDUM.md).

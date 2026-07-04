@@ -97,8 +97,15 @@ If static assets look stale after updates, clear browser site data or unregister
 - verify `FIREBASE_CONFIG` values in both auth pages
 - check Firebase Auth provider settings
 
-## 9) Current Reality
+## 9) Authentication Flow
 
-- Architecture is page-based (not SPA).
-- Legacy references to removed files may exist in older documentation pages.
+- **Index Page** (`index.html`): Google/Facebook OAuth + email/password login.
+- **Multi-step flow removed**: Auth flow was simplified. No longer includes step-by-step OTP/2FA signup.
+- **Simple reset**: Use `reset-password.html` for Firebase email recovery.
+
+## 10) Current Reality
+
+- ✅ Architecture is page-based (not SPA).
+- ✅ All dead code removed (21 doc files deleted, unused JS files cleaned).
+- ✅ Only active files referenced above.
 - Use this guide + `AGENTS.md` as source of truth for active runtime files.
