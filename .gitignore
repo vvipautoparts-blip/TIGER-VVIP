@@ -3,3 +3,9 @@ tmp/
 
 # Supabase CLI local temp/cache
 supabase/.temp/
+
+# VVIP temporary backups and test artifacts
+*.backup*
+*.desktop-approved.*
+test-results/
+tests/
