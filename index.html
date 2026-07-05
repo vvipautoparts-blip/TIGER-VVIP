@@ -12,9 +12,20 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css?v=20260703e" />
-  <script src="https://unpkg.com/%40supabase/supabase-js@2/dist/umd/supabase.js"></script>
-  <script src="scripts/supabase-config.js"></script>
-  <script src="auth-supabase.js?v=20260705-login-fix2"></script>
+<script
+  defer
+  crossorigin="anonymous"
+  src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/ui@1/dist/ui.browser.js"
+  type="text/javascript"
+></script>
+<script
+  defer
+  crossorigin="anonymous"
+  data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk"
+  src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"
+  type="text/javascript"
+></script>
+<script defer src="auth-clerk-index.js?v=20260706-clerk-index"></script>
 </head>
 <body class="fb-auth-page">
 
@@ -96,7 +107,7 @@
       <nav style="display:none;" data-page-rail>
         <a href="index.html" data-page-target="index"></a>
         <a href="public-profile.html" data-page-target="public-profile"></a>
-        <a href="private-profile.html" data-page-target="private-profile"></a>
+        <a href="clerk-private-profile.html" data-page-target="private-profile"></a>
         <a href="reset-password.html" data-page-target="reset-password"></a>
       </nav>
       <!-- Hidden compat elements -->
