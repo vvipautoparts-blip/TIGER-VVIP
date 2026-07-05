@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VVIP TIGER - Clerk Auth Test</title>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(37, 99, 235, 0.18), transparent 35%),
+        linear-gradient(135deg, #070b16 0%, #0f172a 45%, #f8fafc 45%, #eef2ff 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0f172a;
+    }
+
+    .vvip-shell {
+      width: min(1100px, 94vw);
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    .vvip-card {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(218, 165, 32, 0.35);
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: 0 30px 90px rgba(15, 23, 42, 0.25);
+      min-height: 500px;
+    }
+
+    .vvip-brand {
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid rgba(218, 165, 32, 0.25);
+      border-radius: 28px;
+      padding: 36px;
+      box-shadow: 0 25px 75px rgba(15, 23, 42, 0.18);
+    }
+
+    .vvip-title {
+      margin: 0 0 14px;
+      font-size: 38px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      color: #2563eb;
+    }
+
+    .vvip-subtitle {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.8;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .vvip-note {
+      margin-top: 18px;
+      color: #475569;
+      line-height: 1.8;
+      font-size: 15px;
+    }
+
+    #auth-area {
+      min-height: 420px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .success-box {
+      width: 100%;
+      text-align: center;
+      padding: 28px;
+    }
+
+    .success-box h2 {
+      margin: 0 0 12px;
+      color: #166534;
+      font-size: 26px;
+    }
+
+    .success-box p {
+      color: #334155;
+      line-height: 1.8;
+      margin: 8px 0;
+    }
+
+    .vvip-actions {
+      margin-top: 24px;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .vvip-btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 13px 18px;
+      font-weight: 800;
+      cursor: pointer;
+      background: #2563eb;
+      color: white;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .vvip-btn.secondary {
+      background: #0f172a;
+    }
+
+    .vvip-loading {
+      text-align: center;
+      color: #475569;
+      font-weight: 700;
+    }
+
+    @media (max-width: 900px) {
+      .vvip-shell {
+        grid-template-columns: 1fr;
+        padding: 24px 0;
+      }
+    }
+  </style>
+
+  <script
+    defer
+    crossorigin="anonymous"
+    src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/ui@1/dist/ui.browser.js"
+    type="text/javascript"
+  ></script>
+
+  <script
+    defer
+    crossorigin="anonymous"
+    data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk"
+    src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"
+    type="text/javascript"
+  ></script>
+</head>
+
+<body>
+  <main class="vvip-shell">
+    <section class="vvip-card">
+      <div id="auth-area">
+        <div class="vvip-loading">جاري تحميل Clerk...</div>
+      </div>
+    </section>
+
+    <section class="vvip-brand">
+      <h1 class="vvip-title">VVIP TIGER</h1>
+      <p class="vvip-subtitle">
+        طبقة دخول احترافية جاهزة:
+        تسجيل دخول، إنشاء حساب، نسيت كلمة المرور، وخروج — بدون اختراعات يدوية.
+      </p>
+      <p class="vvip-note">
+        هذه صفحة اختبار مستقلة. إذا نجحت، ننقلها لاحقًا بدل صفحة الدخول القديمة بشكل منظم.
+      </p>
+    </section>
+  </main>
+
+  <script>
+    window.addEventListener("load", async function () {
+      const authArea = document.getElementById("auth-area");
+
+      try {
+        await window.Clerk.load({
+          ui: { ClerkUI: window.__internal_ClerkUICtor }
+        });
+
+        function render() {
+          authArea.innerHTML = "";
+
+          if (window.Clerk.isSignedIn) {
+            authArea.innerHTML = `
+              <div class="success-box">
+                <h2>تم تسجيل الدخول بنجاح ✅</h2>
+                <p>Clerk يعمل الآن كبوابة دخول احترافية لـ VVIP TIGER.</p>
+                <p id="user-email"></p>
+                <div id="user-button"></div>
+                <div class="vvip-actions">
+                  <a class="vvip-btn" href="clerk-private-profile.html">فتح البروفايل الخاص</a>
+                  <button class="vvip-btn secondary" id="sign-out-btn">تسجيل الخروج</button>
+                </div>
+              </div>
+            `;
+
+            const email =
+              window.Clerk.user &&
+              window.Clerk.user.primaryEmailAddress &&
+              window.Clerk.user.primaryEmailAddress.emailAddress
+                ? window.Clerk.user.primaryEmailAddress.emailAddress
+                : "مستخدم Clerk";
+
+            document.getElementById("user-email").textContent = email;
+
+            const userButtonDiv = document.getElementById("user-button");
+            window.Clerk.mountUserButton(userButtonDiv);
+
+            document.getElementById("sign-out-btn").addEventListener("click", async function () {
+              await window.Clerk.signOut();
+              window.location.reload();
+            });
+
+            return;
+          }
+
+          authArea.innerHTML = '<div id="sign-in"></div>';
+          const signInDiv = document.getElementById("sign-in");
+
+          const clerkRedirectUrl = window.location.origin + "/clerk-test.html";
+
+          window.Clerk.mountSignIn(signInDiv, {
+            routing: "hash",
+            fallbackRedirectUrl: clerkRedirectUrl,
+            forceRedirectUrl: clerkRedirectUrl,
+            signUpFallbackRedirectUrl: clerkRedirectUrl,
+            signUpForceRedirectUrl: clerkRedirectUrl
+          });
+        }
+
+        render();
+
+        if (typeof window.Clerk.addListener === "function") {
+          window.Clerk.addListener(function () {
+            render();
+          });
+        }
+      } catch (error) {
+        console.error("Clerk load error:", error);
+        authArea.innerHTML = `
+          <div class="success-box">
+            <h2 style="color:#991b1b">تعذر تحميل Clerk</h2>
+            <p>افتح Console وصوّر الخطأ الأحمر.</p>
+          </div>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>

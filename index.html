@@ -12,20 +12,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css?v=20260703e" />
-
-  <script>
-    window.FIREBASE_CONFIG = {
-      apiKey: "AIzaSyCa3tyYM8vFbRCEiBCFV5b-li7Ljr1LlT4",
-      authDomain: "auto-parts-aa00a.firebaseapp.com",
-      projectId: "auto-parts-aa00a",
-      storageBucket: "auto-parts-aa00a.firebasestorage.app",
-      messagingSenderId: "709675029751",
-      appId: "1:709675029751:web:603a5173ab4c4fcb232ff2"
-    };
-  </script>
-
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://unpkg.com/%40supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="scripts/supabase-config.js"></script>
+  <script src="auth-supabase.js?v=20260705-login-fix2"></script>
 </head>
 <body class="fb-auth-page">
 
@@ -150,9 +139,5 @@
 
   <div id="app-toast-root" class="app-toast-root" aria-live="polite" aria-atomic="true"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="scripts/supabase-config.js"></script>
-<script src="auth.js?v=20260704-clean"></script>
-<script src="scripts/supabase-auth-bridge.js"></script>
 </body>
 </html>
