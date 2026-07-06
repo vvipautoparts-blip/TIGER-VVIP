@@ -1,0 +1,211 @@
+VVIP TIGER AUTH SCAN
+Generated manually from terminal commands.
+===== GIT STATUS =====
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	docs/VVIP_TIGER_AUTH_SCAN.txt
+
+nothing added to commit but untracked files present (use "git add" to track)
+
+===== CLERK USER REFERENCES =====
+auth-clerk-index.js:11:      <div id="clerk-main-auth" class="vvip-clerk-main">
+auth-clerk-index.js:16:    await window.Clerk.load({
+auth-clerk-index.js:17:      ui: { ClerkUI: window.__internal_ClerkUICtor }
+auth-clerk-index.js:20:    function renderClerkIndex() {
+auth-clerk-index.js:21:      const authBox = document.getElementById("clerk-main-auth");
+auth-clerk-index.js:26:      if (window.Clerk.isSignedIn) {
+auth-clerk-index.js:28:          window.Clerk.user &&
+auth-clerk-index.js:29:          window.Clerk.user.primaryEmailAddress &&
+auth-clerk-index.js:30:          window.Clerk.user.primaryEmailAddress.emailAddress
+auth-clerk-index.js:31:            ? window.Clerk.user.primaryEmailAddress.emailAddress
+auth-clerk-index.js:40:            <div id="clerk-user-button" style="margin:16px 0;"></div>
+auth-clerk-index.js:43:              <a href="clerk-private-profile.html" style="border:0;border-radius:14px;padding:12px 16px;background:#1877f2;color:white;text-decoration:none;font-weight:800;display:inline-flex;align-items:center;justify-content:center;min-width:150px;">فتح البروفايل الخاص</a>
+auth-clerk-index.js:45:              <button id="clerk-sign-out-btn" type="button" style="border:1px solid rgba(15,23,42,.18);border-radius:14px;padding:12px 16px;background:white;color:#0f172a;font-weight:800;cursor:pointer;min-width:130px;">تسجيل الخروج</button>
+auth-clerk-index.js:50:        const userButtonDiv = document.getElementById("clerk-user-button");
+auth-clerk-index.js:52:          window.Clerk.mountUserButton(userButtonDiv);
+auth-clerk-index.js:55:        const signOutBtn = document.getElementById("clerk-sign-out-btn");
+auth-clerk-index.js:58:            await window.Clerk.signOut();
+auth-clerk-index.js:66:      authBox.innerHTML = '<div id="clerk-sign-in"></div>';
+auth-clerk-index.js:68:      const signInDiv = document.getElementById("clerk-sign-in");
+auth-clerk-index.js:69:      const clerkRedirectUrl = window.location.origin + "/index.html";
+auth-clerk-index.js:71:      window.Clerk.mountSignIn(signInDiv, {
+auth-clerk-index.js:73:        fallbackRedirectUrl: clerkRedirectUrl,
+auth-clerk-index.js:74:        forceRedirectUrl: clerkRedirectUrl,
+auth-clerk-index.js:75:        signUpFallbackRedirectUrl: clerkRedirectUrl,
+auth-clerk-index.js:76:        signUpForceRedirectUrl: clerkRedirectUrl
+auth-clerk-index.js:80:    renderClerkIndex();
+auth-clerk-index.js:82:    if (typeof window.Clerk.addListener === "function") {
+auth-clerk-index.js:83:      window.Clerk.addListener(function () {
+auth-clerk-index.js:84:        renderClerkIndex();
+auth-clerk-index.js:88:    console.error("VVIP TIGER Clerk index error:", error);
+auth-clerk-index.js:92:        تعذر تحميل Clerk. افتح Console وصوّر الخطأ الأحمر.
+scripts/profile-loader.js:211:        .eq("id", user.id)
+
+===== SUPABASE PROFILE REFERENCES =====
+auth-clerk-index.js:43:              <a href="clerk-private-profile.html" style="border:0;border-radius:14px;padding:12px 16px;background:#1877f2;color:white;text-decoration:none;font-weight:800;display:inline-flex;align-items:center;justify-content:center;min-width:150px;">فتح البروفايل الخاص</a>
+auth-clerk-index.js:44:              <a href="public-profile.html" style="border:0;border-radius:14px;padding:12px 16px;background:#0f172a;color:white;text-decoration:none;font-weight:800;display:inline-flex;align-items:center;justify-content:center;min-width:150px;">متابعة إلى الصفحة العامة</a>
+scripts/supabase-auth-bridge.js:4:  const REDIRECT_AFTER_LOGIN = "private-profile.html";
+scripts/supabase-auth-bridge.js:11:    const inputs = Array.from(document.querySelectorAll("input"));
+scripts/supabase-auth-bridge.js:37:    const buttons = Array.from(
+scripts/require-auth.js:25:    console.log("Private profile access allowed:", data.session.user.email);
+scripts/profile-loader.js:1:// VVIP TIGER - Load private profile from Supabase public.profiles
+scripts/profile-loader.js:67:    setText("profile-posts-status", message);
+scripts/profile-loader.js:75:    const textNode = Array.from(node.childNodes).find(function (child) {
+scripts/profile-loader.js:101:  function buildSource(profile, user) {
+scripts/profile-loader.js:104:    const profileEmail = clean(profile && profile.email);
+scripts/profile-loader.js:105:    const email = profileEmail || sessionEmail;
+scripts/profile-loader.js:108:      profile && profile.display_name,
+scripts/profile-loader.js:109:      profile && profile.full_name,
+scripts/profile-loader.js:110:      profile && profile.name,
+scripts/profile-loader.js:111:      profile && profile.company_name,
+scripts/profile-loader.js:112:      profile && profile.company,
+scripts/profile-loader.js:113:      profile && profile.business_name,
+scripts/profile-loader.js:120:      profile && profile.company_name,
+scripts/profile-loader.js:121:      profile && profile.company,
+scripts/profile-loader.js:122:      profile && profile.business_name,
+scripts/profile-loader.js:127:      profile && profile.username,
+scripts/profile-loader.js:128:      profile && profile.handle,
+scripts/profile-loader.js:129:      profile && profile.company_code,
+scripts/profile-loader.js:135:      profile && profile.account_type,
+scripts/profile-loader.js:136:      profile && profile.account_category,
+scripts/profile-loader.js:137:      profile && profile.role,
+scripts/profile-loader.js:143:      profile && profile.bio,
+scripts/profile-loader.js:144:      profile && profile.business_description,
+scripts/profile-loader.js:145:      profile && profile.specialization,
+scripts/profile-loader.js:151:      profile && profile.avatar_url,
+scripts/profile-loader.js:152:      profile && profile.image_url,
+scripts/profile-loader.js:153:      profile && profile.photo_url,
+scripts/profile-loader.js:170:  function renderProfile(profile, user) {
+scripts/profile-loader.js:171:    const source = buildSource(profile || {}, user || {});
+scripts/profile-loader.js:175:    setText("profile-name", source.displayName);
+scripts/profile-loader.js:176:    setText("profile-handle", "@" + source.username);
+scripts/profile-loader.js:177:    setText("profile-bio", source.bio);
+scripts/profile-loader.js:178:    setText("profile-menu-account-name", source.displayName);
+scripts/profile-loader.js:180:    setText("profile-posts-status", "تم تحميل بيانات الملف الشخصي من public.profiles.");
+scripts/profile-loader.js:185:    applyAvatar(".profile-menu-avatar", source);
+scripts/profile-loader.js:188:  async function loadProfile() {
+scripts/profile-loader.js:193:      console.error("Supabase client is missing in profile-loader.js");
+scripts/profile-loader.js:208:      const profileResult = await client
+scripts/profile-loader.js:209:        .from("profiles")
+scripts/profile-loader.js:210:        .select("*")
+scripts/profile-loader.js:211:        .eq("id", user.id)
+scripts/profile-loader.js:214:      if (profileResult.error) {
+scripts/profile-loader.js:215:        console.error("Profile load error:", profileResult.error);
+scripts/profile-loader.js:216:        setStatus("تعذر تحميل بيانات public.profiles.");
+scripts/profile-loader.js:217:        renderProfile({}, user);
+scripts/profile-loader.js:221:      renderProfile(profileResult.data || {}, user);
+scripts/profile-loader.js:223:      console.error("Profile loader failed:", error);
+scripts/profile-loader.js:229:    document.addEventListener("DOMContentLoaded", loadProfile);
+scripts/profile-loader.js:231:    loadProfile();
+
+===== HTML SCRIPT ORDER =====
+index.html:15:<script
+index.html:18:  src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/ui@1/dist/ui.browser.js"
+index.html:19:  type="text/javascript"
+index.html:20:></script>
+index.html:21:<script
+index.html:24:  data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk"
+index.html:25:  src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"
+index.html:26:  type="text/javascript"
+index.html:27:></script>
+index.html:28:<script defer src="auth-clerk-index.js?v=20260706-clerk-index"></script>
+index.html:30:<body class="fb-auth-page">
+index.html:36:        <button class="entry-lang-btn" type="button" data-auth-lang="ar" aria-pressed="true">العربية</button>
+index.html:37:        <button class="entry-lang-btn" type="button" data-auth-lang="en" aria-pressed="false">English</button>
+index.html:51:    <section class="fb-card" aria-label="auth card">
+index.html:92:      <!-- Status / Auth message -->
+index.html:93:      <div id="auth-message" class="status-message" role="status" aria-live="polite"></div>
+index.html:110:        <a href="clerk-private-profile.html" data-page-target="private-profile"></a>
+private-profile.html:243:  <script src="social-ui.js?v=20260704-clean"></script>
+private-profile.html:245:<script>
+private-profile.html:397:</script>
+private-profile.html:401:<script>
+private-profile.html:463:</script>
+private-profile.html:466:<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+private-profile.html:467:<script src="scripts/supabase-config.js"></script>
+private-profile.html:468:<script src="scripts/require-auth.js"></script>
+private-profile.html:469:  <script src="scripts/profile-loader.js?v=20260705-profiles"></script>
+public-profile.html:4:<script>window.__VVIP_PUBLIC_PAGE__ = true;</script>
+public-profile.html:359:.vvip-post-author,
+public-profile.html:367:.vvip-post-author {
+public-profile.html:372:.vvip-post-author {
+public-profile.html:376:.vvip-post-author strong {
+public-profile.html:380:.vvip-post-author small {
+public-profile.html:517:.vvip-post-author {
+public-profile.html:571:.vvip-post-author small {
+public-profile.html:578:.vvip-post-author strong {
+public-profile.html:839:          <div class="vvip-post-author">
+public-profile.html:865:          <div class="vvip-post-author">
+public-profile.html:1169:          <p class="comment-author" data-i18n-ar="أحمد الزعبي" data-i18n-en="Ahmad Al-Zoubi">أحمد الزعبي</p>
+public-profile.html:1173:          <p class="comment-author" data-i18n-ar="VVIP TIGER" data-i18n-en="Tiger Auto Parts Co.">VVIP TIGER</p>
+public-profile.html:1213:  <script src="social-ui.js?v=20260704-clean"></script>
+public-profile.html:1216:<script>
+public-profile.html:1368:</script>
+clerk-private-profile.html:6:  <title>VVIP TIGER - Clerk Private Profile</title>
+clerk-private-profile.html:103:  <script
+clerk-private-profile.html:106:    data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk"
+clerk-private-profile.html:107:    src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"
+clerk-private-profile.html:108:    type="text/javascript"
+clerk-private-profile.html:109:  ></script>
+clerk-private-profile.html:114:    <div class="loading">جاري التحقق من الدخول عبر Clerk...</div>
+clerk-private-profile.html:117:  <script>
+clerk-private-profile.html:122:        if (!window.Clerk) {
+clerk-private-profile.html:123:          throw new Error("Clerk object not found");
+clerk-private-profile.html:126:        await window.Clerk.load();
+clerk-private-profile.html:128:        if (!window.Clerk.isSignedIn) {
+clerk-private-profile.html:129:          window.location.href = "clerk-test.html";
+clerk-private-profile.html:133:        const user = window.Clerk.user || {};
+clerk-private-profile.html:147:          <div class="badge">Verified VIP via Clerk</div>
+clerk-private-profile.html:156:            <strong>Auth Layer:</strong> Clerk
+clerk-private-profile.html:160:            <a href="clerk-test.html">العودة لصفحة Clerk</a>
+clerk-private-profile.html:166:          await window.Clerk.signOut();
+clerk-private-profile.html:167:          window.location.href = "clerk-test.html";
+clerk-private-profile.html:170:        console.error("Clerk profile error:", error);
+clerk-private-profile.html:172:          <h1 class="error">تعذر تحميل بروفايل Clerk</h1>
+clerk-private-profile.html:175:            <a href="clerk-test.html">العودة لصفحة Clerk</a>
+clerk-private-profile.html:180:  </script>
+clerk-test.html:6:  <title>VVIP TIGER - Clerk Auth Test</title>
+clerk-test.html:70:    #auth-area {
+clerk-test.html:135:  <script
+clerk-test.html:138:    src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/ui@1/dist/ui.browser.js"
+clerk-test.html:139:    type="text/javascript"
+clerk-test.html:140:  ></script>
+clerk-test.html:142:  <script
+clerk-test.html:145:    data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk"
+clerk-test.html:146:    src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"
+clerk-test.html:147:    type="text/javascript"
+clerk-test.html:148:  ></script>
+clerk-test.html:154:      <div id="auth-area">
+clerk-test.html:155:        <div class="vvip-loading">جاري تحميل Clerk...</div>
+clerk-test.html:171:  <script>
+clerk-test.html:173:      const authArea = document.getElementById("auth-area");
+clerk-test.html:176:        await window.Clerk.load({
+clerk-test.html:177:          ui: { ClerkUI: window.__internal_ClerkUICtor }
+clerk-test.html:181:          authArea.innerHTML = "";
+clerk-test.html:183:          if (window.Clerk.isSignedIn) {
+clerk-test.html:184:            authArea.innerHTML = `
+clerk-test.html:187:                <p>Clerk يعمل الآن كبوابة دخول احترافية لـ VVIP TIGER.</p>
+clerk-test.html:191:                  <a class="vvip-btn" href="clerk-private-profile.html">فتح البروفايل الخاص</a>
+clerk-test.html:198:              window.Clerk.user &&
+clerk-test.html:199:              window.Clerk.user.primaryEmailAddress &&
+clerk-test.html:200:              window.Clerk.user.primaryEmailAddress.emailAddress
+clerk-test.html:201:                ? window.Clerk.user.primaryEmailAddress.emailAddress
+clerk-test.html:202:                : "مستخدم Clerk";
+clerk-test.html:207:            window.Clerk.mountUserButton(userButtonDiv);
+clerk-test.html:210:              await window.Clerk.signOut();
+clerk-test.html:217:          authArea.innerHTML = '<div id="sign-in"></div>';
+clerk-test.html:220:          const clerkRedirectUrl = window.location.origin + "/clerk-test.html";
+clerk-test.html:222:          window.Clerk.mountSignIn(signInDiv, {
+clerk-test.html:224:            fallbackRedirectUrl: clerkRedirectUrl,
+clerk-test.html:225:            forceRedirectUrl: clerkRedirectUrl,
+clerk-test.html:226:            signUpFallbackRedirectUrl: clerkRedirectUrl,
+clerk-test.html:227:            signUpForceRedirectUrl: clerkRedirectUrl
+clerk-test.html:233:        if (typeof window.Clerk.addListener === "function") {
+clerk-test.html:234:          window.Clerk.addListener(function () {
+clerk-test.html:239:        console.error("Clerk load error:", error);
+clerk-test.html:240:        authArea.innerHTML = `
+clerk-test.html:242:            <h2 style="color:#991b1b">تعذر تحميل Clerk</h2>
+clerk-test.html:248:  </script>
