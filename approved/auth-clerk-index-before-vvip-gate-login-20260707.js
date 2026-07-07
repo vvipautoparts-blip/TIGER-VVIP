@@ -9,11 +9,7 @@ window.addEventListener("load", async function () {
   try {
     card.innerHTML = `
       <div id="clerk-main-auth" class="vvip-clerk-main">
-        <div class="vvip-gate-auth-header">
-          <span class="vvip-gate-auth-pill">Secure Access</span>
-          <h2>دخول VVIP TIGER</h2>
-          <p>جاري تحميل بوابة الدخول الآمنة...</p>
-        </div>
+        <div class="status-message">جاري تحميل بوابة الدخول الآمنة...</div>
       </div>
     `;
 
@@ -36,11 +32,10 @@ window.addEventListener("load", async function () {
             : "VIP Member";
 
         authBox.innerHTML = `
-          <div class="success-box vvip-gate-success">
-            <span class="vvip-gate-auth-pill">تم التحقق بنجاح</span>
-            <h2>أهلًا بك في VVIP TIGER ✅</h2>
-            <p>تم فتح بوابة الدخول الخاصة بحسابك.</p>
-            <p class="vvip-gate-email"><strong>${email}</strong></p>
+          <div class="success-box">
+            <h2>تم تسجيل الدخول بنجاح ✅</h2>
+            <p>أهلًا بك في VVIP TIGER.</p>
+            <p><strong>${email}</strong></p>
 
             <div id="clerk-user-button" style="margin:16px 0;"></div>
 
@@ -90,14 +85,7 @@ window.addEventListener("load", async function () {
         return;
       }
 
-      authBox.innerHTML = `
-        <div class="vvip-gate-auth-header">
-          <span class="vvip-gate-auth-pill">Members Only</span>
-          <h2>تسجيل الدخول الآمن</h2>
-          <p>ادخل عبر Clerk للوصول إلى البروفايل الخاص وتجربة VVIP TIGER.</p>
-        </div>
-        <div id="clerk-sign-in"></div>
-      `;
+      authBox.innerHTML = '<div id="clerk-sign-in"></div>';
 
       const signInDiv = document.getElementById("clerk-sign-in");
       const clerkRedirectUrl = window.location.origin + "/index.html";
