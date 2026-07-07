@@ -39,32 +39,10 @@ window.addEventListener("load", async function () {
 
             <div id="clerk-user-button" style="margin:16px 0;"></div>
 
-            <div class="vvip-actions" style="margin-top:18px;display:flex;gap:12px;justify-content:center;align-items:center;flex-wrap:wrap;direction:rtl;">
-              <a
-                href="clerk-private-profile.html"
-                aria-label="فتح البروفايل الخاص"
-                title="فتح البروفايل الخاص"
-                style="border:0;border-radius:16px;padding:14px 22px;background:#1877f2;color:#ffffff !important;text-decoration:none;font-weight:900;font-size:16px;line-height:1.2;display:inline-flex;align-items:center;justify-content:center;min-width:210px;box-shadow:0 14px 32px rgba(24,119,242,.24);"
-              >
-                <span style="color:#ffffff !important;display:inline-block;">فتح البروفايل الخاص</span>
-              </a>
-
-              <a
-                href="public-profile.html"
-                aria-label="متابعة إلى الصفحة العامة"
-                title="متابعة إلى الصفحة العامة"
-                style="border:0;border-radius:16px;padding:14px 22px;background:#0f172a;color:#ffffff !important;text-decoration:none;font-weight:900;font-size:16px;line-height:1.2;display:inline-flex;align-items:center;justify-content:center;min-width:210px;box-shadow:0 14px 32px rgba(15,23,42,.20);"
-              >
-                <span style="color:#ffffff !important;display:inline-block;">متابعة إلى الصفحة العامة</span>
-              </a>
-
-              <button
-                id="clerk-sign-out-btn"
-                type="button"
-                style="border:1px solid rgba(15,23,42,.18);border-radius:16px;padding:14px 22px;background:white;color:#0f172a;font-weight:900;font-size:16px;cursor:pointer;min-width:150px;"
-              >
-                تسجيل الخروج
-              </button>
+            <div class="vvip-actions" style="margin-top:18px;display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;">
+              <a href="clerk-private-profile.html" style="border:0;border-radius:14px;padding:12px 16px;background:#1877f2;color:white;text-decoration:none;font-weight:800;display:inline-flex;align-items:center;justify-content:center;min-width:150px;">فتح البروفايل الخاص</a>
+              <a href="public-profile.html" style="border:0;border-radius:14px;padding:12px 16px;background:#0f172a;color:white;text-decoration:none;font-weight:800;display:inline-flex;align-items:center;justify-content:center;min-width:150px;">متابعة إلى الصفحة العامة</a>
+              <button id="clerk-sign-out-btn" type="button" style="border:1px solid rgba(15,23,42,.18);border-radius:14px;padding:12px 16px;background:white;color:#0f172a;font-weight:800;cursor:pointer;min-width:130px;">تسجيل الخروج</button>
             </div>
           </div>
         `;
