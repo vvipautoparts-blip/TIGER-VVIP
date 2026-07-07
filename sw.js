@@ -1,8 +1,9 @@
-const CACHE_NAME = "autoparts-auth-v8";
+const CACHE_NAME = "autoparts-auth-v9";
 const ASSETS = [
   "/",
   "/index.html",
   "/public-profile.html",
+  "/clerk-private-profile.html",
   "/private-profile.html",
   "/reset-password.html",
   "/styles.css",
