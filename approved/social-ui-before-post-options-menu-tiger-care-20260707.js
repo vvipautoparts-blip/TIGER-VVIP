@@ -427,176 +427,6 @@
     logAnalyticsEvent("ai_post_insight_open", { type: draft.type, audience: draft.audience });
   }
 
-  function getPostOptionsText() {
-    return {
-      ai: currentLang === "en" ? "AI post insight" : "تحليل AI للمنشور",
-      save: currentLang === "en" ? "Save post" : "حفظ المنشور",
-      copy: currentLang === "en" ? "Copy post link" : "نسخ رابط المنشور",
-      hide: currentLang === "en" ? "Hide post" : "إخفاء المنشور",
-      tigerCare: currentLang === "en" ? "Request Tiger Care help" : "طلب مساعدة من Tiger Care",
-      escalate: currentLang === "en" ? "Official escalation" : "تصعيد رسمي",
-      copied: currentLang === "en" ? "Post link copied." : "تم نسخ رابط المنشور.",
-      hidden: currentLang === "en" ? "Post hidden." : "تم إخفاء المنشور.",
-      saved: currentLang === "en" ? "Post saved." : "تم حفظ المنشور.",
-      unsaved: currentLang === "en" ? "Post removed from saved." : "تمت إزالة المنشور من المحفوظات.",
-      careReceived: currentLang === "en"
-        ? "Your request has been received. We will contact you within 24 hours."
-        : "تم استلام طلبك، وسيتم التواصل معك خلال 24 ساعة.",
-      escalationReceived: currentLang === "en"
-        ? "Your official escalation has been recorded for Tiger Care review."
-        : "تم تسجيل طلب التصعيد الرسمي لمراجعته من Tiger Care."
-    };
-  }
-
-  function ensurePostOptionsMenu() {
-    let menu = document.getElementById("post-options-menu");
-
-    if (!menu) {
-      menu = document.createElement("div");
-      menu.id = "post-options-menu";
-      menu.className = "post-options-menu";
-      menu.setAttribute("role", "menu");
-      menu.setAttribute("aria-hidden", "true");
-      document.body.appendChild(menu);
-    }
-
-    return menu;
-  }
-
-  function closePostOptionsMenu() {
-    const menu = document.getElementById("post-options-menu");
-
-    if (menu) {
-      menu.classList.remove("open");
-      menu.setAttribute("aria-hidden", "true");
-      menu.innerHTML = "";
-    }
-
-    document.querySelectorAll(".post-menu[aria-expanded='true']").forEach(function (button) {
-      button.setAttribute("aria-expanded", "false");
-    });
-  }
-
-  function getPostLink(postCard) {
-    const postId = postCard ? postCard.getAttribute("data-post-id") : "";
-    const base = window.location.origin + window.location.pathname;
-
-    if (!postId) return base;
-
-    return base + "#post-" + encodeURIComponent(postId);
-  }
-
-  function copyTextToClipboard(value) {
-    if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
-      return navigator.clipboard.writeText(value);
-    }
-
-    const input = document.createElement("textarea");
-    input.value = value;
-    input.setAttribute("readonly", "readonly");
-    input.style.position = "fixed";
-    input.style.left = "-9999px";
-    document.body.appendChild(input);
-    input.select();
-    document.execCommand("copy");
-    document.body.removeChild(input);
-
-    return Promise.resolve();
-  }
-
-  function openPostOptionsMenu(menuButton, postCard) {
-    if (!menuButton || !postCard) return;
-
-    const menu = ensurePostOptionsMenu();
-    const text = getPostOptionsText();
-    const rect = menuButton.getBoundingClientRect();
-
-    closePostOptionsMenu();
-
-    menu.dataset.postId = postCard.getAttribute("data-post-id") || "";
-    menu.innerHTML = [
-      '<button type="button" role="menuitem" data-post-option="ai">✨ <span>' + escapeHtml(text.ai) + '</span></button>',
-      '<button type="button" role="menuitem" data-post-option="save">🔖 <span>' + escapeHtml(text.save) + '</span></button>',
-      '<button type="button" role="menuitem" data-post-option="copy">🔗 <span>' + escapeHtml(text.copy) + '</span></button>',
-      '<button type="button" role="menuitem" data-post-option="hide">🙈 <span>' + escapeHtml(text.hide) + '</span></button>',
-      '<button type="button" role="menuitem" data-post-option="tiger-care" class="vip-option">🐅 <span>' + escapeHtml(text.tigerCare) + '</span></button>',
-      '<button type="button" role="menuitem" data-post-option="escalate" class="danger-option">⚑ <span>' + escapeHtml(text.escalate) + '</span></button>'
-    ].join("");
-
-    const menuWidth = 280;
-    const spacing = 10;
-    const left = Math.max(12, Math.min(window.innerWidth - menuWidth - 12, rect.right - menuWidth));
-    const top = Math.min(window.innerHeight - 12, rect.bottom + spacing);
-
-    menu.style.left = left + "px";
-    menu.style.top = top + "px";
-    menu.classList.add("open");
-    menu.setAttribute("aria-hidden", "false");
-    menuButton.setAttribute("aria-expanded", "true");
-
-    const firstOption = menu.querySelector("button");
-    if (firstOption) firstOption.focus({ preventScroll: true });
-  }
-
-  function handlePostOptionAction(option, postCard) {
-    if (!option || !postCard) return;
-
-    const text = getPostOptionsText();
-    const postId = postCard.getAttribute("data-post-id") || "";
-
-    if (option === "ai") {
-      openPostAiSheet(postCard);
-      return;
-    }
-
-    if (option === "save") {
-      const isSaved = toggleSavedPost(postId);
-      const saveBtn = postCard.querySelector(".save-btn");
-
-      if (saveBtn) {
-        saveBtn.dataset.saved = isSaved ? "true" : "false";
-        saveBtn.textContent = isSaved ? (currentLang === "en" ? "Saved" : "محفوظ") : tx(UI_TEXT.postActions.save);
-      }
-
-      showToast(isSaved ? text.saved : text.unsaved, "success");
-      return;
-    }
-
-    if (option === "copy") {
-      copyTextToClipboard(getPostLink(postCard))
-        .then(function () {
-          showToast(text.copied, "success");
-        })
-        .catch(function () {
-          showToast(currentLang === "en" ? "Could not copy link." : "تعذر نسخ الرابط.", "error");
-        });
-      return;
-    }
-
-    if (option === "hide") {
-      postCard.classList.add("hidden");
-      showToast(text.hidden, "info");
-      return;
-    }
-
-    if (option === "tiger-care") {
-      showToast(text.careReceived, "success");
-      logAnalyticsEvent("tiger_care_post_request", {
-        post_id: postId,
-        source: "post_options_menu"
-      });
-      return;
-    }
-
-    if (option === "escalate") {
-      showToast(text.escalationReceived, "warning");
-      logAnalyticsEvent("tiger_care_post_escalation", {
-        post_id: postId,
-        source: "post_options_menu"
-      });
-    }
-  }
-
   function initGlobalPostMenuActions() {
     if (document.body && document.body.dataset.globalPostMenuBound === "true") return;
     if (document.body) {
@@ -604,63 +434,14 @@
     }
 
     document.addEventListener("click", function (event) {
-      const optionButton = event.target && event.target.closest ? event.target.closest("[data-post-option]") : null;
-
-      if (optionButton) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        const menu = optionButton.closest("#post-options-menu");
-        const postId = menu ? menu.dataset.postId : "";
-        const postCard = postId
-          ? document.querySelector('.post-card[data-post-id="' + CSS.escape(postId) + '"]')
-          : null;
-
-        const option = optionButton.getAttribute("data-post-option");
-        closePostOptionsMenu();
-        handlePostOptionAction(option, postCard);
-        return;
-      }
-
       const menuButton = event.target && event.target.closest ? event.target.closest(".post-menu") : null;
+      if (!menuButton) return;
+      if (event.__postMenuHandled) return;
 
-      if (menuButton) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        if (event.__postMenuHandled) return;
-
-        const postCard = menuButton.closest(".post-card");
-        if (!postCard) return;
-
-        const currentMenu = document.getElementById("post-options-menu");
-        const isOpenForSamePost =
-          currentMenu &&
-          currentMenu.classList.contains("open") &&
-          currentMenu.dataset.postId === (postCard.getAttribute("data-post-id") || "");
-
-        if (isOpenForSamePost) {
-          closePostOptionsMenu();
-        } else {
-          openPostOptionsMenu(menuButton, postCard);
-        }
-
-        return;
-      }
-
-      if (!event.target.closest || !event.target.closest("#post-options-menu")) {
-        closePostOptionsMenu();
-      }
+      const postCard = menuButton.closest(".post-card");
+      if (!postCard) return;
+      openPostAiSheet(postCard);
     });
-
-    document.addEventListener("keydown", function (event) {
-      if (event.key === "Escape") {
-        closePostOptionsMenu();
-      }
-    });
-
-    window.addEventListener("resize", closePostOptionsMenu);
-    window.addEventListener("scroll", closePostOptionsMenu, true);
   }
 
   function initGeneralButtonActions() {
@@ -1345,7 +1126,7 @@
       '      <p>@' + safeHandle + ' • ' + timeLabel + '</p>',
       '      <span class="post-sync-badge sync-' + syncState + '">📡 ' + syncLabel + '</span>',
       '    </div>',
-      '    <button class="post-menu" type="button" aria-label="' + postOptionsLabel + '" aria-haspopup="menu" aria-expanded="false">⋯</button>',
+      '    <button class="post-menu" type="button" aria-label="' + postOptionsLabel + '">⋯</button>',
       '  </header>',
       '  <p class="post-copy">' + safeText + '</p>',
       mediaMarkup,
