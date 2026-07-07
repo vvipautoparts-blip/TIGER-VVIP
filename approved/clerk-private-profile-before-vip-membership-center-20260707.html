@@ -324,80 +324,6 @@
       font-weight: 800;
     }
 
-
-    .vvip-membership-center {
-      margin-top: 18px;
-      border: 1px solid rgba(215,168,79,.24);
-      border-radius: 24px;
-      padding: 16px;
-      background:
-        linear-gradient(135deg, rgba(215,168,79,.14), rgba(255,255,255,.74));
-    }
-
-    .vvip-membership-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .vvip-membership-head h2 {
-      margin: 0;
-      color: var(--vvip-dark);
-      font-size: 18px;
-      font-weight: 950;
-    }
-
-    .vvip-membership-tag {
-      border-radius: 999px;
-      padding: 8px 12px;
-      background: rgba(215,168,79,.18);
-      color: #7c4a03;
-      font-size: 12px;
-      font-weight: 950;
-      white-space: nowrap;
-    }
-
-    .vvip-membership-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-    }
-
-    .vvip-membership-item {
-      border: 1px solid rgba(15,23,42,.08);
-      border-radius: 18px;
-      padding: 13px 14px;
-      background: rgba(255,255,255,.78);
-    }
-
-    .vvip-membership-item span {
-      display: block;
-      margin-bottom: 6px;
-      color: var(--vvip-muted);
-      font-size: 12px;
-      font-weight: 850;
-    }
-
-    .vvip-membership-item strong {
-      display: block;
-      color: var(--vvip-dark);
-      font-size: 15px;
-      font-weight: 950;
-    }
-
-    @media (max-width: 640px) {
-      .vvip-membership-head {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-
-      .vvip-membership-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
     .vvip-alert {
       margin-top: 16px;
       border-radius: 20px;
@@ -629,10 +555,6 @@
         "";
 
       const accountStatus = profile.account_status || "active";
-      const membershipTier = "VVIP Member";
-      const trialDuration = "4 أشهر";
-      const privacyLevel = "عالي";
-      const verificationStatus = "Verified via Clerk";
       const trialEnd = profile.trial_end_at ? new Date(profile.trial_end_at) : null;
       const trialEndText = trialEnd && !Number.isNaN(trialEnd.getTime())
         ? new Intl.DateTimeFormat("ar-JO", { year: "numeric", month: "long", day: "numeric" }).format(trialEnd)
@@ -698,45 +620,6 @@
                     <strong>Clerk + RLS</strong>
                   </div>
                 </div>
-
-                <section class="vvip-membership-center" aria-label="مركز العضوية VIP">
-                  <div class="vvip-membership-head">
-                    <h2>مركز العضوية VIP</h2>
-                    <span class="vvip-membership-tag">Premium Access</span>
-                  </div>
-
-                  <div class="vvip-membership-grid">
-                    <div class="vvip-membership-item">
-                      <span>نوع العضوية</span>
-                      <strong>${safe(membershipTier)}</strong>
-                    </div>
-
-                    <div class="vvip-membership-item">
-                      <span>حالة الحساب</span>
-                      <strong>${safe(accountStatus)}</strong>
-                    </div>
-
-                    <div class="vvip-membership-item">
-                      <span>الفترة المجانية</span>
-                      <strong>${safe(trialDuration)}</strong>
-                    </div>
-
-                    <div class="vvip-membership-item">
-                      <span>مستوى الخصوصية</span>
-                      <strong>${safe(privacyLevel)}</strong>
-                    </div>
-
-                    <div class="vvip-membership-item">
-                      <span>حالة التحقق</span>
-                      <strong>${safe(verificationStatus)}</strong>
-                    </div>
-
-                    <div class="vvip-membership-item">
-                      <span>تاريخ انتهاء التجربة</span>
-                      <strong>${safe(trialEndText)}</strong>
-                    </div>
-                  </div>
-                </section>
 
                 <div class="vvip-alert">
                   ${
