@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VVIP TIGER - Clerk Private Profile</title>
+  <title>VVIP TIGER - Clerk Supabase Profile</title>
 
   <style>
     body {
@@ -43,7 +43,7 @@
     h1 {
       margin: 0 0 12px;
       color: #2563eb;
-      font-size: 36px;
+      font-size: 34px;
       font-weight: 900;
     }
 
@@ -51,6 +51,7 @@
       font-size: 18px;
       color: #334155;
       margin: 10px 0 24px;
+      direction: ltr;
     }
 
     .vip-box {
@@ -62,6 +63,16 @@
       text-align: right;
       line-height: 2;
       font-size: 17px;
+    }
+
+    .status {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(37,99,235,0.08);
+      color: #1e40af;
+      font-weight: 800;
+      line-height: 1.7;
     }
 
     .actions {
@@ -107,14 +118,166 @@
     src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"
     type="text/javascript"
   ></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
   <main class="profile-card" id="app">
-    <div class="loading">جاري التحقق من الدخول عبر Clerk...</div>
+    <div class="loading">جاري التحقق من الدخول وربط البروفايل...</div>
   </main>
 
   <script>
+    const VVIP_SUPABASE_URL = "https://zelcngyyvbomuzokvuxo.supabase.co";
+    const VVIP_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_TSoq1AaQFTo00nTZMUDugA_Z3uUON-u";
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function getPrimaryEmail(user) {
+      return (
+        user &&
+        user.primaryEmailAddress &&
+        user.primaryEmailAddress.emailAddress
+      )
+        ? user.primaryEmailAddress.emailAddress
+        : "";
+    }
+
+    function getDisplayName(user) {
+      return (
+        user.fullName ||
+        user.firstName ||
+        getPrimaryEmail(user) ||
+        "VVIP TIGER Member"
+      );
+    }
+
+    function getAvatarUrl(user) {
+      return user.imageUrl || user.profileImageUrl || "";
+    }
+
+    function createClerkSupabaseClient() {
+      return window.supabase.createClient(
+        VVIP_SUPABASE_URL,
+        VVIP_SUPABASE_PUBLISHABLE_KEY,
+        {
+          async accessToken() {
+            if (!window.Clerk || !window.Clerk.session) {
+              return null;
+            }
+            return window.Clerk.session.getToken();
+          }
+        }
+      );
+    }
+
+    async function loadOrCreateVvipProfile(client, user) {
+      const clerkUserId = user.id;
+      const email = getPrimaryEmail(user);
+      const displayName = getDisplayName(user);
+      const avatarUrl = getAvatarUrl(user);
+
+      const existingResult = await client
+        .from("vvip_clerk_profiles")
+        .select("*")
+        .eq("clerk_user_id", clerkUserId)
+        .maybeSingle();
+
+      if (existingResult.error) {
+        throw existingResult.error;
+      }
+
+      if (existingResult.data) {
+        const updateResult = await client
+          .from("vvip_clerk_profiles")
+          .update({
+            email: email,
+            display_name: displayName,
+            avatar_url: avatarUrl,
+            updated_at: new Date().toISOString()
+          })
+          .eq("clerk_user_id", clerkUserId)
+          .select("*")
+          .single();
+
+        if (updateResult.error) {
+          throw updateResult.error;
+        }
+
+        return {
+          profile: updateResult.data,
+          created: false
+        };
+      }
+
+      const insertResult = await client
+        .from("vvip_clerk_profiles")
+        .insert({
+          clerk_user_id: clerkUserId,
+          email: email,
+          display_name: displayName,
+          avatar_url: avatarUrl,
+          account_status: "active"
+        })
+        .select("*")
+        .single();
+
+      if (insertResult.error) {
+        throw insertResult.error;
+      }
+
+      return {
+        profile: insertResult.data,
+        created: true
+      };
+    }
+
+    function renderProfile(user, profile, created) {
+      const email = profile.email || getPrimaryEmail(user) || "لا يوجد بريد";
+      const name = profile.display_name || getDisplayName(user);
+      const status = profile.account_status || "active";
+      const trialEnd = profile.trial_end_at
+        ? new Date(profile.trial_end_at).toLocaleDateString("ar-JO")
+        : "غير محدد";
+
+      document.getElementById("app").innerHTML = `
+        <div class="badge">تم الربط مع Supabase عبر Clerk</div>
+        <h1>VVIP TIGER LIVE PROFILE</h1>
+        <div class="email">${escapeHtml(email)}</div>
+
+        <div class="vip-box">
+          <strong>الاسم:</strong> ${escapeHtml(name)}<br>
+          <strong>البريد:</strong> ${escapeHtml(email)}<br>
+          <strong>حالة الحساب:</strong> ${escapeHtml(status)}<br>
+          <strong>نهاية الفترة المجانية:</strong> ${escapeHtml(trialEnd)}<br>
+          <strong>جدول البيانات:</strong> vvip_clerk_profiles<br>
+          <strong>Auth Layer:</strong> Clerk + Supabase RLS
+        </div>
+
+        <div class="status">
+          ${created ? "تم إنشاء بروفايل جديد وربطه بـ Clerk." : "تم تحميل البروفايل وربطه بـ Clerk."}
+        </div>
+
+        <div class="actions">
+          <a href="index.html">العودة للدخول</a>
+          <a href="public-profile.html">الصفحة العامة</a>
+          <button class="dark" id="sign-out-btn">تسجيل الخروج</button>
+        </div>
+      `;
+
+      document.getElementById("sign-out-btn").addEventListener("click", async function () {
+        await window.Clerk.signOut();
+        window.location.href = "index.html";
+      });
+    }
+
     window.addEventListener("load", async function () {
       const app = document.getElementById("app");
 
@@ -123,56 +286,29 @@
           throw new Error("Clerk object not found");
         }
 
+        if (!window.supabase) {
+          throw new Error("Supabase JS object not found");
+        }
+
         await window.Clerk.load();
 
         if (!window.Clerk.isSignedIn) {
-          window.location.href = "clerk-test.html";
+          window.location.href = "index.html";
           return;
         }
 
         const user = window.Clerk.user || {};
+        const client = createClerkSupabaseClient();
+        const result = await loadOrCreateVvipProfile(client, user);
 
-        const email =
-          user.primaryEmailAddress &&
-          user.primaryEmailAddress.emailAddress
-            ? user.primaryEmailAddress.emailAddress
-            : "مستخدم VVIP TIGER";
-
-        const name =
-          user.fullName ||
-          user.firstName ||
-          "VVIP TIGER Member";
-
-        app.innerHTML = `
-          <div class="badge">Verified VIP via Clerk</div>
-          <h1>VVIP TIGER LIVE PROFILE</h1>
-          <div class="email">${email}</div>
-
-          <div class="vip-box">
-            <strong>الاسم:</strong> ${name}<br>
-            <strong>البريد:</strong> ${email}<br>
-            <strong>Account:</strong> VIP<br>
-            <strong>Status:</strong> Verified VIP<br>
-            <strong>Auth Layer:</strong> Clerk
-          </div>
-
-          <div class="actions">
-            <a href="clerk-test.html">العودة لصفحة Clerk</a>
-            <button class="dark" id="sign-out-btn">تسجيل الخروج</button>
-          </div>
-        `;
-
-        document.getElementById("sign-out-btn").addEventListener("click", async function () {
-          await window.Clerk.signOut();
-          window.location.href = "clerk-test.html";
-        });
+        renderProfile(user, result.profile, result.created);
       } catch (error) {
-        console.error("Clerk profile error:", error);
+        console.error("Clerk + Supabase profile error:", error);
         app.innerHTML = `
-          <h1 class="error">تعذر تحميل بروفايل Clerk</h1>
-          <p>الخطأ: ${error.message || "غير معروف"}</p>
+          <h1 class="error">تعذر تحميل بروفايل VVIP TIGER</h1>
+          <p>الخطأ: ${escapeHtml(error.message || "غير معروف")}</p>
           <div class="actions">
-            <a href="clerk-test.html">العودة لصفحة Clerk</a>
+            <a href="index.html">العودة لصفحة الدخول</a>
           </div>
         `;
       }
