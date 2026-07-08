@@ -1,4 +1,12 @@
 # VVIP TIGER MEMORY MAP
+
+## Official Reference Link / الربط مع الدستور الرسمي
+
+- This file does not replace the official product constitution.
+- The highest reference is [Official Product Blueprint](./VVIP_TIGER_OFFICIAL_PRODUCT_BLUEPRINT.md).
+- This file preserves the decision map and the historical and execution context.
+- Any new implementation should review the official blueprint first, then this map.
+
 ## VVIP TIGER — بدء التنفيذ النهائي بعد اعتماد الخطة الكاملة
 
 **Session Name:** استفسارات 1/6 — 7/7/2026  

@@ -1,5 +1,18 @@
 # VVIP TIGER Official Product Blueprint
 
+## Official Documentation Hierarchy / هرمية التوثيق الرسمية
+
+- This file is the highest product reference and the official product constitution.
+- The Memory Map is the approved map of memory and decisions.
+- The Implementation Checklist is the phased execution plan.
+- In case of conflict, priority is: Official Product Blueprint, then Memory Map, then Implementation Checklist.
+- Any future change must be documented clearly.
+
+References:
+- [Official Product Blueprint](./VVIP_TIGER_OFFICIAL_PRODUCT_BLUEPRINT.md)
+- [Memory Map](./VVIP_TIGER_MEMORY_MAP.md)
+- [Implementation Checklist](../IMPLEMENTATION_CHECKLIST.md)
+
 ## Purpose
 
 This document defines the official product blueprint for VVIP TIGER and fixes the platform direction before production-scale implementation.
