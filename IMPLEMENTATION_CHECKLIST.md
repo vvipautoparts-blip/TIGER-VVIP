@@ -1,4 +1,15 @@
 # VVIP TIGER IMPLEMENTATION CHECKLIST
+
+## Official Planning References / مراجع التخطيط الرسمية
+
+- This checklist is a phased execution plan, not the product constitution.
+- Tasks must be executed in alignment with the official blueprint and the Memory Map.
+- Payments, contracts, sensitive permissions, and security work must not proceed without staged review.
+
+References:
+- [Official Product Blueprint](docs/VVIP_TIGER_OFFICIAL_PRODUCT_BLUEPRINT.md)
+- [Memory Map](docs/VVIP_TIGER_MEMORY_MAP.md)
+
 ## VVIP TIGER — بدء التنفيذ النهائي بعد اعتماد الخطة الكاملة
 
 Session: استفسارات 1/6 — 7/7/2026
