@@ -680,9 +680,14 @@
       const email = getPrimaryEmail(user);
       const displayName = getDisplayName(user);
       const avatarUrl = getAvatarUrl(user);
+      const trialStartAt = new Date();
+      const trialEndAt = new Date(trialStartAt);
 
+      trialEndAt.setMonth(trialEndAt.getMonth() + 4);
+
+      // Official profile source: public.profiles via clerk_user_id
       const existingResult = await client
-        .from("vvip_clerk_profiles")
+        .from("profiles")
         .select("*")
         .eq("clerk_user_id", clerkUserId)
         .maybeSingle();
@@ -693,7 +698,7 @@
 
       if (existingResult.data) {
         const updateResult = await client
-          .from("vvip_clerk_profiles")
+          .from("profiles")
           .update({
             email: email,
             display_name: displayName,
@@ -715,13 +720,15 @@
       }
 
       const insertResult = await client
-        .from("vvip_clerk_profiles")
+        .from("profiles")
         .insert({
           clerk_user_id: clerkUserId,
           email: email,
           display_name: displayName,
           avatar_url: avatarUrl,
-          account_status: "active"
+          account_status: "active",
+          trial_start_at: trialStartAt.toISOString(),
+          trial_end_at: trialEndAt.toISOString()
         })
         .select("*")
         .single();
@@ -966,7 +973,7 @@
 
                   <div class="vvip-flow-item">
                     <span>جدول البيانات</span>
-                    <small>vvip_clerk_profiles</small>
+                    <small>public.profiles</small>
                   </div>
 
                   <div class="vvip-flow-item">
