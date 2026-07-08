@@ -9,6 +9,7 @@
 References:
 - [Official Product Blueprint](docs/VVIP_TIGER_OFFICIAL_PRODUCT_BLUEPRINT.md)
 - [Memory Map](docs/VVIP_TIGER_MEMORY_MAP.md)
+- [Profile Source of Truth Decision](docs/VVIP_TIGER_PROFILE_SOURCE_OF_TRUTH.md)
 
 ## VVIP TIGER — بدء التنفيذ النهائي بعد اعتماد الخطة الكاملة
 
