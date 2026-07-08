@@ -504,27 +504,6 @@
     return Promise.resolve();
   }
 
-  function showPostOptionsFeedback(message, tone) {
-    let feedback = document.getElementById("post-options-feedback");
-
-    if (!feedback) {
-      feedback = document.createElement("div");
-      feedback.id = "post-options-feedback";
-      feedback.className = "post-options-feedback";
-      feedback.setAttribute("role", "status");
-      feedback.setAttribute("aria-live", "polite");
-      document.body.appendChild(feedback);
-    }
-
-    feedback.className = "post-options-feedback is-visible" + (tone ? " is-" + tone : "");
-    feedback.textContent = message;
-
-    window.clearTimeout(feedback._hideTimer);
-    feedback._hideTimer = window.setTimeout(function () {
-      feedback.classList.remove("is-visible");
-    }, 4200);
-  }
-
   function openPostOptionsMenu(menuButton, postCard) {
     if (!menuButton || !postCard) return;
 
@@ -602,7 +581,6 @@
 
     if (option === "tiger-care") {
       showToast(text.careReceived, "success");
-      showPostOptionsFeedback(text.careReceived, "success");
       logAnalyticsEvent("tiger_care_post_request", {
         post_id: postId,
         source: "post_options_menu"
@@ -612,7 +590,6 @@
 
     if (option === "escalate") {
       showToast(text.escalationReceived, "warning");
-      showPostOptionsFeedback(text.escalationReceived, "warning");
       logAnalyticsEvent("tiger_care_post_escalation", {
         post_id: postId,
         source: "post_options_menu"
