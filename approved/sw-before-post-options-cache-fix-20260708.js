@@ -1,4 +1,4 @@
-const CACHE_NAME = "autoparts-auth-v10-post-options";
+const CACHE_NAME = "autoparts-auth-v9";
 const ASSETS = [
   "/",
   "/index.html",

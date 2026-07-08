@@ -604,33 +604,6 @@
     }
 
     document.addEventListener("click", function (event) {
-      const menuButton = event.target && event.target.closest ? event.target.closest(".post-menu") : null;
-
-      if (!menuButton) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-      if (typeof event.stopImmediatePropagation === "function") {
-        event.stopImmediatePropagation();
-      }
-
-      const postCard = menuButton.closest(".post-card");
-      if (!postCard) return;
-
-      const currentMenu = document.getElementById("post-options-menu");
-      const isOpenForSamePost =
-        currentMenu &&
-        currentMenu.classList.contains("open") &&
-        currentMenu.dataset.postId === (postCard.getAttribute("data-post-id") || "");
-
-      if (isOpenForSamePost) {
-        closePostOptionsMenu();
-      } else {
-        openPostOptionsMenu(menuButton, postCard);
-      }
-    }, true);
-
-    document.addEventListener("click", function (event) {
       const optionButton = event.target && event.target.closest ? event.target.closest("[data-post-option]") : null;
 
       if (optionButton) {
@@ -654,9 +627,6 @@
       if (menuButton) {
         event.preventDefault();
         event.stopPropagation();
-        if (typeof event.stopImmediatePropagation === "function") {
-          event.stopImmediatePropagation();
-        }
 
         if (event.__postMenuHandled) return;
 
