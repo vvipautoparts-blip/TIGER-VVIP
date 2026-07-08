@@ -6,6 +6,7 @@
 - The highest reference is [Official Product Blueprint](./VVIP_TIGER_OFFICIAL_PRODUCT_BLUEPRINT.md).
 - This file preserves the decision map and the historical and execution context.
 - Any new implementation should review the official blueprint first, then this map.
+- [Profile Source of Truth Decision](./VVIP_TIGER_PROFILE_SOURCE_OF_TRUTH.md)
 
 ## VVIP TIGER — بدء التنفيذ النهائي بعد اعتماد الخطة الكاملة
 
