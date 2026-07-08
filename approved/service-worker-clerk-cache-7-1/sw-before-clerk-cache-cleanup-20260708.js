@@ -1,5 +1,4 @@
-const CACHE_NAME = "vvip-tiger-clerk-cache-v11";
-
+const CACHE_NAME = "autoparts-auth-v10-post-options";
 const ASSETS = [
   "/",
   "/index.html",
@@ -7,15 +6,10 @@ const ASSETS = [
   "/clerk-private-profile.html",
   "/private-profile.html",
   "/reset-password.html",
-
   "/styles.css",
-  "/enhanced-components.css",
-  "/vvip-identity.css",
-
-  "/auth-clerk-index.js",
+  "/auth.js",
   "/social-ui.js",
   "/reset-password.js",
-
   "/manifest.webmanifest",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
@@ -24,21 +18,13 @@ const ASSETS = [
 ];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
-  );
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)));
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys
-          .filter((key) => key !== CACHE_NAME)
-          .map((key) => caches.delete(key))
-      )
-    )
+    caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))))
   );
   self.clients.claim();
 });
@@ -49,14 +35,9 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
-
       return fetch(event.request).then((response) => {
         const copy = response.clone();
-
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, copy);
-        });
-
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
         return response;
       });
     })
