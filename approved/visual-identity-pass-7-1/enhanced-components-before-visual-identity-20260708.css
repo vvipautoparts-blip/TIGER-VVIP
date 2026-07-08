@@ -1,0 +1,1333 @@
+/* ============================================================
+   ENHANCED COMPONENTS - Glassmorphism & Smart Cards 2030
+   ============================================================ */
+
+:root {
+  /* Glass Effects */
+  --glass-blur: 20px;
+  --glass-opacity: 0.08;
+  --glass-border: 1px solid rgba(255, 255, 255, 0.18);
+  
+  /* Currency */
+  --currency-jod: "د.ا";
+  
+  /* AI Colors */
+  --ai-gradient-primary: linear-gradient(135deg, #1877f2 0%, #42a5f5 100%);
+  --ai-gradient-accent: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  --ai-gradient-success: linear-gradient(135deg, #31a24c 0%, #51d76b 100%);
+}
+
+/* ============================================================
+   GLASSMORPHISM EFFECT
+   ============================================================ */
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(var(--glass-blur));
+  border: var(--glass-border);
+  border-radius: 20px;
+  box-shadow: 
+    0 8px 32px rgba(31, 38, 135, 0.37),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+.glass-panel:hover {
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: 
+    0 12px 48px rgba(31, 38, 135, 0.45),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+  transform: translateY(-4px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================================
+   SMART PRODUCT CARD
+   ============================================================ */
+
+.smart-product-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  background: white;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.smart-product-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 60px rgba(24, 119, 242, 0.2);
+  border-color: rgba(24, 119, 242, 0.2);
+}
+
+.smart-product-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(600px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(24, 119, 242, 0.1), transparent 80%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.smart-product-card:hover::before {
+  opacity: 1;
+}
+
+/* Product Image */
+.product-image-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/5;
+  background: linear-gradient(135deg, #f0f2f5 0%, #e8eaed 100%);
+  overflow: hidden;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.smart-product-card:hover .product-image {
+  transform: scale(1.08);
+}
+
+.product-image-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.1) 100%);
+}
+
+.product-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #1877f2;
+}
+
+.product-badge.in-stock {
+  color: #31a24c;
+  background: rgba(49, 162, 76, 0.1);
+}
+
+.product-badge.low-stock {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+}
+
+/* Product Info */
+.product-info {
+  padding: 16px;
+}
+
+.product-name {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #050505;
+  line-height: 1.4;
+  min-height: 2.2em;
+}
+
+.product-compatibility {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.compatibility-score {
+  background: rgba(49, 162, 76, 0.1);
+  color: #31a24c;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.compatibility-models {
+  color: #65676b;
+  font-size: 0.9rem;
+}
+
+/* Price Section */
+.product-price-section {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 12px;
+  background: linear-gradient(135deg, #f0f7ff 0%, #e8f1ff 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(24, 119, 242, 0.1);
+}
+
+.product-price {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #1877f2;
+  letter-spacing: -0.5px;
+}
+
+.price-currency {
+  font-size: 1rem;
+  margin-left: 4px;
+  opacity: 0.8;
+}
+
+.price-original {
+  color: #65676b;
+  text-decoration: line-through;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.price-discount {
+  color: #e41e3f;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+/* Technical Specs */
+.product-specs {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+  font-size: 0.85rem;
+}
+
+.spec-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f2f5;
+  color: #65676b;
+}
+
+.spec-item:last-child {
+  border-bottom: none;
+}
+
+.spec-label {
+  font-weight: 600;
+  color: #1c1e21;
+}
+
+.spec-value {
+  color: #65676b;
+  font-weight: 700;
+}
+
+/* AI Features */
+.product-ai-section {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%);
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(124, 58, 237, 0.1);
+  margin-bottom: 12px;
+}
+
+.ai-feature {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+  color: #1c1e21;
+}
+
+.ai-feature:last-child {
+  margin-bottom: 0;
+}
+
+.ai-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  color: white;
+  display: grid;
+  place-items: center;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.ai-feature-text {
+  flex: 1;
+  line-height: 1.3;
+}
+
+/* Product Actions */
+.product-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.product-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: "Cairo", sans-serif;
+  text-align: center;
+}
+
+.product-btn-primary {
+  background: var(--ai-gradient-primary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(24, 119, 242, 0.25);
+}
+
+.product-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(24, 119, 242, 0.35);
+}
+
+.product-btn-secondary {
+  background: #f0f2f5;
+  color: #1877f2;
+  border: 1px solid #e4e6eb;
+}
+
+.product-btn-secondary:hover {
+  background: #e8eaed;
+  border-color: #d0d8de;
+}
+
+/* ============================================================
+   SMART MODAL - EXPANDABLE PRODUCT DETAILS
+   ============================================================ */
+
+.smart-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 60;
+}
+
+.smart-modal.open {
+  display: flex;
+}
+
+.smart-modal-content {
+  width: min(90vw, 600px);
+  max-height: 90vh;
+  background: white;
+  border-radius: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  overflow-y: auto;
+  animation: modalScaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.smart-modal-header {
+  position: sticky;
+  top: 0;
+  padding: 20px;
+  background: linear-gradient(135deg, #f0f7ff 0%, #e8f1ff 100%);
+  border-bottom: 1px solid rgba(24, 119, 242, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.smart-modal-header button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: white;
+  color: #65676b;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 1.2rem;
+  transition: all 0.2s ease;
+}
+
+.smart-modal-header button:hover {
+  background: #f0f2f5;
+  color: #1877f2;
+}
+
+.smart-modal-body {
+  padding: 24px;
+  display: grid;
+  gap: 20px;
+}
+
+.smart-specs-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #f8f9fa;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e8eaed;
+}
+
+.smart-specs-table th,
+.smart-specs-table td {
+  padding: 12px 16px;
+  text-align: right;
+  border-bottom: 1px solid #e8eaed;
+}
+
+.smart-specs-table th {
+  background: linear-gradient(135deg, #f0f7ff 0%, #e8f1ff 100%);
+  font-weight: 800;
+  color: #1877f2;
+  font-size: 0.9rem;
+}
+
+.smart-specs-table tr:last-child td {
+  border-bottom: none;
+}
+
+.smart-specs-table td {
+  color: #1c1e21;
+  font-size: 0.95rem;
+}
+
+/* ============================================================
+   VVIP PUBLIC PROFILE - DESKTOP SOCIAL SHELL
+   ============================================================ */
+
+.vvip-member-list {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.vvip-side-column,
+.vvip-shortcut-column {
+  position: sticky;
+  top: 72px;
+  align-self: start;
+}
+
+.vvip-member-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 11px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(24, 119, 242, 0.08), rgba(215, 180, 106, 0.08));
+  border: 1px solid rgba(24, 119, 242, 0.08);
+}
+
+.vvip-member-copy {
+  display: grid;
+  gap: 2px;
+}
+
+.vvip-member-copy strong {
+  font-size: 0.98rem;
+  color: #07111f;
+}
+
+.vvip-member-copy small {
+  color: #6b7280;
+  font-size: 0.82rem;
+}
+
+.vvip-member-status {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.9);
+}
+
+.vvip-member-status.is-online {
+  background: #22c55e;
+}
+
+.vvip-member-status.is-idle {
+  background: #f59e0b;
+}
+
+.vvip-shortcut-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.vvip-shortcut-list button {
+  width: 100%;
+  border: 1px solid rgba(215, 180, 106, 0.24);
+  border-radius: 15px;
+  background: linear-gradient(135deg, rgba(7, 11, 20, 0.96), rgba(24, 119, 242, 0.9));
+  color: #f8fbff;
+  font-family: "Cairo", sans-serif;
+  font-size: 0.84rem;
+  font-weight: 800;
+  padding: 10px 12px;
+  text-align: right;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16);
+}
+
+.vvip-shortcut-list button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.22);
+}
+
+.vvip-story-grid article {
+  overflow: hidden;
+  position: relative;
+}
+
+.desktop-story-card {
+  cursor: pointer;
+}
+
+.desktop-story-card:focus-visible {
+  outline: 2px solid rgba(215, 180, 106, 0.9);
+  outline-offset: 2px;
+}
+
+.vvip-story-grid article::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  pointer-events: none;
+}
+
+.vvip-story-avatar-add {
+  background: linear-gradient(135deg, rgba(215, 180, 106, 0.92), rgba(24, 119, 242, 0.92));
+  color: #07111f;
+  font-size: 18px;
+}
+
+.vvip-story-grid article:first-child {
+  background: linear-gradient(180deg, rgba(7, 11, 20, 0.22), rgba(7, 11, 20, 0.82)), linear-gradient(135deg, rgba(215, 180, 106, 0.72), rgba(24, 119, 242, 0.74));
+}
+
+.vvip-compose-prompt,
+.vvip-comment-input {
+  box-shadow: inset 0 1px 1px rgba(15, 23, 42, 0.03);
+}
+
+.desktop-comment-list {
+  display: grid;
+  gap: 6px;
+}
+
+.desktop-comment-item {
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #f8fbff;
+  color: #1f2937;
+  font-size: 0.83rem;
+  border: 1px solid rgba(24, 119, 242, 0.08);
+}
+
+.vvip-compose-publish {
+  background: linear-gradient(135deg, #1877f2, #2563eb) !important;
+  color: #fff !important;
+}
+
+.vvip-post-actions button,
+.vvip-compose-action {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+.vvip-post-actions button:hover,
+.vvip-compose-action:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.1);
+}
+
+.vvip-post-stream .vvip-post-card,
+.vvip-side-column .vvip-sidebar-card,
+.vvip-side-column .vvip-ai-card,
+.vvip-shortcut-column .vvip-sidebar-card,
+.vvip-shortcut-column .vvip-ai-card,
+.vvip-main-column .vvip-stories-card,
+.vvip-main-column .vvip-compose-card {
+  backdrop-filter: blur(18px);
+}
+
+.vvip-post-stream .vvip-post-card:hover,
+.vvip-side-column .vvip-sidebar-card:hover,
+.vvip-side-column .vvip-ai-card:hover,
+.vvip-shortcut-column .vvip-sidebar-card:hover,
+.vvip-shortcut-column .vvip-ai-card:hover {
+  transform: translateY(-3px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.14);
+}
+
+@media (max-width: 1100px) {
+  .vvip-side-column,
+  .vvip-shortcut-column {
+    position: static;
+    top: auto;
+  }
+}
+
+.smart-specs-table tr:hover {
+  background: rgba(24, 119, 242, 0.02);
+}
+
+/* ============================================================
+   ENHANCED ANIMATIONS
+   ============================================================ */
+
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(24, 119, 242, 0.7); }
+  50% { box-shadow: 0 0 0 10px rgba(24, 119, 242, 0); }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+/* ============================================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================================ */
+
+@media (max-width: 750px) {
+  .product-actions {
+    grid-template-columns: 1fr;
+  }
+  
+  .smart-modal-content {
+    width: 100%;
+    max-height: 100vh;
+    border-radius: 24px 24px 0 0;
+  }
+}
+
+/* ===== FORCE VVIP TIGER Public Page Wide Layout ===== */
+body.social-page,
+body.dark-theme {
+  margin: 0 !important;
+  background:
+    radial-gradient(circle at top right, rgba(24,119,242,.18), transparent 34%),
+    linear-gradient(135deg, #070b14 0%, #101827 38%, #edf4ff 38%, #f7f9fc 100%) !important;
+  overflow-x: hidden !important;
+}
+
+body.social-page .mobile-frame {
+  width: min(1280px, calc(100vw - 40px)) !important;
+  max-width: 1280px !important;
+  min-width: 0 !important;
+  margin: 0 auto !important;
+  padding: 24px !important;
+  transform: none !important;
+  zoom: 1 !important;
+  scale: 1 !important;
+  background: rgba(255,255,255,.68) !important;
+  border-radius: 28px !important;
+  border: 1px solid rgba(215,180,106,.25) !important;
+  box-shadow: 0 35px 100px rgba(0,0,0,.18) !important;
+}
+
+body.social-page .mobile-header,
+body.social-page .fb-topbar {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 74px !important;
+  padding: 16px 22px !important;
+  border-radius: 24px !important;
+  background: rgba(7,11,20,.92) !important;
+  border: 1px solid rgba(215,180,106,.35) !important;
+  box-shadow: 0 22px 55px rgba(0,0,0,.24) !important;
+}
+
+body.social-page main,
+body.social-page .feed,
+body.social-page .feed-list,
+body.social-page .public-feed,
+body.social-page .profile-feed,
+body.social-page .content,
+body.social-page .fb-feed,
+body.social-page .composer,
+body.social-page .create-post,
+body.social-page .ai-card,
+body.social-page .recommendation-card {
+  width: 100% !important;
+  max-width: 980px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+body.social-page section,
+body.social-page article,
+body.social-page .post-card,
+body.social-page .feed-card,
+body.social-page .story-card,
+body.social-page .composer,
+body.social-page .create-post,
+body.social-page .ai-card,
+body.social-page .recommendation-card {
+  border-radius: 24px !important;
+  background: rgba(255,255,255,.92) !important;
+  border: 1px solid rgba(215,180,106,.28) !important;
+  box-shadow: 0 24px 70px rgba(15,23,42,.10) !important;
+}
+
+body.social-page .stories,
+body.social-page .stories-row,
+body.social-page .story-list {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(180px, 1fr)) !important;
+  gap: 16px !important;
+  width: 100% !important;
+  max-width: 980px !important;
+  margin: 22px auto !important;
+}
+
+body.social-page button,
+body.social-page .nav-item,
+body.social-page .fb-topbar-tab,
+body.social-page .composer-action,
+body.social-page .post-action {
+  border-radius: 14px !important;
+  border: 1px solid rgba(215,180,106,.36) !important;
+  background: rgba(255,255,255,.92) !important;
+  font-weight: 800 !important;
+  box-shadow: 0 10px 24px rgba(15,23,42,.06) !important;
+}
+
+body.social-page input,
+body.social-page textarea,
+body.social-page select {
+  border-radius: 16px !important;
+  border: 1px solid rgba(15,23,42,.13) !important;
+  background: rgba(255,255,255,.95) !important;
+  padding: 12px 14px !important;
+  box-shadow: 0 12px 28px rgba(15,23,42,.07) !important;
+}
+
+@media (max-width: 800px) {
+  body.social-page .mobile-frame {
+    width: calc(100vw - 16px) !important;
+    padding: 12px !important;
+    border-radius: 18px !important;
+  }
+
+  body.social-page .stories,
+  body.social-page .stories-row,
+  body.social-page .story-list {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ===== VVIP TIGER Public Page Polish ===== */
+body.social-page .mobile-frame {
+  background: linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%) !important;
+  padding-top: 18px !important;
+}
+
+body.social-page .fb-topbar,
+body.social-page .mobile-header {
+  margin-bottom: 18px !important;
+}
+
+body.social-page .fb-topbar {
+  direction: rtl !important;
+}
+
+body.social-page .fb-wordmark,
+body.social-page .fb-topbar-logo {
+  white-space: nowrap !important;
+  font-size: 30px !important;
+}
+
+body.social-page .fb-topbar-search-wrap,
+body.social-page .fb-topbar-search-input {
+  min-width: 250px !important;
+}
+
+body.social-page .stories,
+body.social-page .stories-row,
+body.social-page .story-list {
+  min-height: auto !important;
+  padding: 14px !important;
+  background: rgba(255,255,255,.72) !important;
+}
+
+body.social-page .story-card,
+body.social-page .story {
+  min-height: 145px !important;
+  display: flex !important;
+  align-items: end !important;
+  justify-content: center !important;
+  padding: 16px !important;
+  font-size: 15px !important;
+  text-align: center !important;
+  background:
+    linear-gradient(135deg, rgba(7,11,20,.92), rgba(24,119,242,.30)),
+    linear-gradient(180deg, #ffffff, #f8fafc) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(215,180,106,.38) !important;
+}
+
+body.social-page .story-card *,
+body.social-page .story * {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+body.social-page .ai-card,
+body.social-page .recommendation-card {
+  margin-top: 16px !important;
+  padding: 22px !important;
+  text-align: right !important;
+}
+
+body.social-page .ai-card h2,
+body.social-page .recommendation-card h2 {
+  font-size: 24px !important;
+  margin-bottom: 8px !important;
+}
+
+body.social-page .composer,
+body.social-page .create-post {
+  margin-top: 22px !important;
+  padding: 24px !important;
+}
+
+body.social-page textarea {
+  width: 100% !important;
+  min-height: 120px !important;
+  font-size: 16px !important;
+  resize: vertical !important;
+}
+
+body.social-page .composer input,
+body.social-page .composer textarea,
+body.social-page .create-post input,
+body.social-page .create-post textarea {
+  margin-bottom: 12px !important;
+}
+
+body.social-page .post-card,
+body.social-page article,
+body.social-page .feed-card {
+  padding: 22px !important;
+  margin-top: 18px !important;
+}
+
+body.social-page h1,
+body.social-page h2,
+body.social-page h3 {
+  letter-spacing: -.3px !important;
+}
+
+body.social-page button {
+  transition: .2s ease !important;
+}
+
+body.social-page button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 16px 35px rgba(15,23,42,.14) !important;
+}
+
+/* ===== VVIP TIGER Public Page Clean Layout Pass ===== */
+
+/* إخفاء النصوص الباهتة القديمة داخل الهيدر */
+body.social-page .fb-topbar > *:first-child:not(.fb-topbar-logo):not(.fb-wordmark),
+body.social-page .mobile-header > *:first-child:not(.fb-topbar-logo):not(.fb-wordmark) {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* تصغير البلوكات الفارغة التي تظهر فوق القصص */
+body.social-page .mobile-frame > section:empty,
+body.social-page .mobile-frame > div:empty {
+  display: none !important;
+}
+
+body.social-page .mobile-frame > section,
+body.social-page .mobile-frame > div {
+  margin-bottom: 16px !important;
+}
+
+/* أي صندوق أبيض فارغ كبير فوق القصص يتحول إلى مساحة صغيرة */
+body.social-page section:has(+ section h2),
+body.social-page div:has(+ section h2) {
+  min-height: 0 !important;
+}
+
+/* ترتيب قسم القصص */
+body.social-page h2,
+body.social-page .stories-title {
+  font-size: 30px !important;
+  margin: 0 0 14px !important;
+  color: #07111f !important;
+}
+
+body.social-page .stories,
+body.social-page .stories-row,
+body.social-page .story-list {
+  padding: 18px !important;
+  min-height: 170px !important;
+}
+
+/* ترتيب كرت البحث الذكي */
+body.social-page .ai-card,
+body.social-page .recommendation-card {
+  margin-top: 18px !important;
+  padding: 26px !important;
+}
+
+body.social-page .ai-card input,
+body.social-page .recommendation-card input {
+  height: 58px !important;
+  font-size: 17px !important;
+}
+
+/* ترتيب إنشاء منشور */
+body.social-page .composer,
+body.social-page .create-post {
+  max-width: 980px !important;
+  margin: 24px auto !important;
+  padding: 28px !important;
+  display: grid !important;
+  gap: 16px !important;
+  background: rgba(255,255,255,.95) !important;
+}
+
+body.social-page .composer h2,
+body.social-page .create-post h2 {
+  font-size: 26px !important;
+  margin: 0 0 8px !important;
+}
+
+body.social-page .composer textarea,
+body.social-page .create-post textarea {
+  width: 100% !important;
+  min-height: 150px !important;
+  border-radius: 22px !important;
+  font-size: 17px !important;
+  padding: 18px !important;
+}
+
+body.social-page .composer label,
+body.social-page .create-post label {
+  font-weight: 800 !important;
+  color: #0f172a !important;
+}
+
+body.social-page .composer button,
+body.social-page .create-post button {
+  background: linear-gradient(135deg, #1877f2, #2563eb) !important;
+  color: white !important;
+  border: none !important;
+  min-height: 48px !important;
+  padding: 12px 20px !important;
+}
+
+/* تحسين عرض الصفحة داخل الشاشة */
+body.social-page .mobile-frame {
+  max-width: 1180px !important;
+  padding-inline: 28px !important;
+}
+
+
+/* ===== Restore VVIP TIGER Public Header ===== */
+
+/* إلغاء إخفاء عناصر الهيدر التي اختفت */
+body.social-page .fb-topbar > *,
+body.social-page .mobile-header > * {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  visibility: visible !important;
+}
+
+/* ترتيب الهيدر بشكل واضح */
+body.social-page .fb-topbar,
+body.social-page .mobile-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  min-height: 82px !important;
+  padding: 18px 26px !important;
+  overflow: hidden !important;
+}
+
+/* الشعار */
+body.social-page .fb-wordmark,
+body.social-page .fb-topbar-logo,
+body.social-page .fb-topbar-logo span {
+  display: inline-flex !important;
+  align-items: center !important;
+  font-size: 30px !important;
+  font-weight: 900 !important;
+  white-space: nowrap !important;
+  color: transparent !important;
+  background: linear-gradient(135deg, #60a5fa, #1877f2, #d7b46a) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+}
+
+/* البحث */
+body.social-page .fb-topbar-search-wrap,
+body.social-page label[for="feed-search"] {
+  display: flex !important;
+  align-items: center !important;
+  min-width: 270px !important;
+  max-width: 360px !important;
+  flex: 1 !important;
+}
+
+body.social-page #feed-search,
+body.social-page .fb-topbar-search-input {
+  width: 100% !important;
+  height: 52px !important;
+  border-radius: 18px !important;
+  font-size: 16px !important;
+}
+
+/* أزرار الأيقونات */
+body.social-page .fb-topbar-nav,
+body.social-page nav[aria-label] {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+body.social-page .fb-topbar-tab {
+  width: 52px !important;
+  height: 52px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+}
+
+/* إخفاء النص الباهت فقط بدون إخفاء الشعار */
+body.social-page .fb-topbar-stats,
+body.social-page .topbar-stats,
+body.social-page .feed-stats {
+  display: none !important;
+}
+
+/* تصغير الفراغ الفاضي تحت الهيدر */
+body.social-page .mobile-frame > section:first-of-type {
+  min-height: 70px !important;
+  padding: 12px !important;
+}
+
+/* تحسين صندوق القصص */
+body.social-page .stories,
+body.social-page .stories-row,
+body.social-page .story-list {
+  min-height: 130px !important;
+  padding: 16px !important;
+}
+
+/* جعل قسم إنشاء منشور أقرب وأوضح */
+body.social-page .composer,
+body.social-page .create-post {
+  margin-top: 18px !important;
+  padding: 24px !important;
+}
+
+
+
+/* ===== VVIP TIGER Clean Header Replacement ===== */
+
+/* إخفاء الهيدر القديم المكسور فقط */
+body.social-page .mobile-frame > header,
+body.social-page header.mobile-header,
+body.social-page .fb-topbar {
+  display: none !important;
+}
+
+/* الهيدر الجديد */
+body.social-page .vvip-clean-header {
+  width: min(1180px, calc(100vw - 44px)) !important;
+  margin: 22px auto 18px !important;
+  padding: 18px 22px !important;
+  direction: rtl !important;
+  display: grid !important;
+  grid-template-columns: auto minmax(260px, 1fr) auto auto !important;
+  align-items: center !important;
+  gap: 14px !important;
+  background: rgba(7, 11, 20, .94) !important;
+  border: 1px solid rgba(215, 180, 106, .42) !important;
+  border-radius: 28px !important;
+  box-shadow: 0 26px 70px rgba(0, 0, 0, .28) !important;
+  backdrop-filter: blur(18px) !important;
+  position: sticky !important;
+  top: 10px !important;
+  z-index: 100 !important;
+}
+
+body.social-page .vvip-brand {
+  font-size: 30px !important;
+  font-weight: 900 !important;
+  white-space: nowrap !important;
+  background: linear-gradient(135deg, #60a5fa, #1877f2, #d7b46a) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+
+body.social-page .vvip-search {
+  height: 54px !important;
+  width: 100% !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(215,180,106,.30) !important;
+  background: rgba(255,255,255,.96) !important;
+  padding: 0 18px !important;
+  font-size: 16px !important;
+  font-family: Cairo, Arial, sans-serif !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 12px 28px rgba(0,0,0,.16) !important;
+}
+
+body.social-page .vvip-nav,
+body.social-page .vvip-filters {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+body.social-page .vvip-nav a,
+body.social-page .vvip-nav button,
+body.social-page .vvip-filters button {
+  min-width: 46px !important;
+  height: 46px !important;
+  border-radius: 15px !important;
+  border: 1px solid rgba(215,180,106,.35) !important;
+  background: rgba(255,255,255,.94) !important;
+  color: #0f172a !important;
+  font-weight: 900 !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 12px !important;
+  box-shadow: 0 10px 22px rgba(0,0,0,.14) !important;
+}
+
+body.social-page .vvip-filters button {
+  min-width: auto !important;
+  padding: 0 14px !important;
+  font-size: 13px !important;
+}
+
+body.social-page .vvip-nav a:hover,
+body.social-page .vvip-nav button:hover,
+body.social-page .vvip-filters button:hover {
+  transform: translateY(-2px) !important;
+  border-color: rgba(96,165,250,.55) !important;
+}
+
+/* إزالة الفراغ العلوي الذي تركه الهيدر القديم */
+body.social-page .mobile-frame {
+  padding-top: 18px !important;
+}
+
+@media (max-width: 900px) {
+  body.social-page .vvip-clean-header {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  body.social-page .vvip-brand {
+    text-align: center !important;
+  }
+
+  body.social-page .vvip-nav,
+  body.social-page .vvip-filters {
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+  }
+}
+
+/* ===== Final Hero Visibility Fix ===== */
+body.social-page .vvip-public-feed .vvip-hero-card {
+  background:
+    radial-gradient(circle at top left, rgba(24,119,242,.38), transparent 36%),
+    linear-gradient(135deg, #050914 0%, #0b1220 55%, #111827 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(215,180,106,.42) !important;
+  box-shadow: 0 30px 90px rgba(0,0,0,.28) !important;
+}
+
+body.social-page .vvip-public-feed .vvip-hero-card h1,
+body.social-page .vvip-public-feed .vvip-hero-card p {
+  color: #ffffff !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+body.social-page .vvip-public-feed .vvip-hero-card h1 {
+  font-size: 44px !important;
+  font-weight: 900 !important;
+}
+
+body.social-page .vvip-public-feed .vvip-hero-card p {
+  color: rgba(255,255,255,.84) !important;
+  font-size: 19px !important;
+}
+
+body.social-page .vvip-public-feed .vvip-badge {
+  color: #f8e7b0 !important;
+  background: rgba(215,180,106,.15) !important;
+  border-color: rgba(215,180,106,.55) !important;
+}
+
+body.social-page .vvip-public-feed .vvip-hero-actions {
+  margin-top: 20px !important;
+}
+
+/* توحيد عرض كل كروت الصفحة */
+body.social-page .vvip-public-feed > section {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* منع أي محتوى قديم من الظهور بعد الواجهة الجديدة */
+body.social-page .mobile-frame,
+body.social-page main.mobile-frame {
+  display: none !important;
+}
+
+
+/* ===== VVIP TIGER Compose + Feed Final Polish ===== */
+body.social-page .vvip-ai-card,
+body.social-page .vvip-compose-card,
+body.social-page .vvip-post-card,
+body.social-page .vvip-stories-card {
+  margin-top: 18px !important;
+}
+
+body.social-page .vvip-compose-card {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,251,255,.96)) !important;
+  border: 1px solid rgba(215,180,106,.34) !important;
+  border-radius: 30px !important;
+  padding: 34px !important;
+}
+
+body.social-page .vvip-compose-card h2 {
+  font-size: 34px !important;
+  font-weight: 900 !important;
+  margin-bottom: 18px !important;
+  color: #07111f !important;
+}
+
+body.social-page .vvip-compose-card textarea {
+  min-height: 170px !important;
+  border-radius: 24px !important;
+  font-size: 17px !important;
+  line-height: 1.8 !important;
+  background: #ffffff !important;
+}
+
+body.social-page .vvip-compose-row {
+  display: grid !important;
+  grid-template-columns: 140px 140px 1fr auto !important;
+  gap: 12px !important;
+  align-items: center !important;
+}
+
+body.social-page .vvip-compose-row select,
+body.social-page .vvip-compose-row input {
+  height: 54px !important;
+}
+
+body.social-page .vvip-compose-row button {
+  height: 54px !important;
+  padding-inline: 26px !important;
+  white-space: nowrap !important;
+  background: linear-gradient(135deg, #1877f2, #1d4ed8) !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+body.social-page .vvip-post-card {
+  background: rgba(255,255,255,.97) !important;
+  border-radius: 30px !important;
+  padding: 32px !important;
+}
+
+body.social-page .vvip-post-card strong {
+  display: block !important;
+  font-size: 26px !important;
+  margin-bottom: 10px !important;
+  color: #07111f !important;
+}
+
+body.social-page .vvip-post-actions button {
+  min-width: 120px !important;
+}
+
+@media (max-width: 900px) {
+  body.social-page .vvip-compose-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  body.social-page .vvip-compose-row button {
+    width: 100% !important;
+  }
+}
+
+/* ===== Fix Header Overlap While Scrolling ===== */
+body.social-page .vvip-clean-header {
+  position: relative !important;
+  top: auto !important;
+  z-index: 20 !important;
+  margin-bottom: 24px !important;
+}
+
+body.social-page .vvip-public-feed {
+  padding-top: 0 !important;
+}
+
+body.social-page .vvip-hero-card,
+body.social-page .vvip-stories-card,
+body.social-page .vvip-ai-card,
+body.social-page .vvip-compose-card,
+body.social-page .vvip-post-card {
+  scroll-margin-top: 24px !important;
+}
+
+body.social-page .vvip-post-card {
+  margin-top: 22px !important;
+}
