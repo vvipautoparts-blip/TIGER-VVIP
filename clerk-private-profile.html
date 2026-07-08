@@ -682,6 +682,15 @@
       const avatarUrl = getAvatarUrl(user);
       const trialStartAt = new Date();
       const trialEndAt = new Date(trialStartAt);
+      // Only send whitelisted public.profiles fields. Never send Clerk user.id into UUID columns.
+      const baseProfilePayload = {
+        clerk_user_id: clerkUserId,
+        email: email || undefined,
+        display_name: displayName || undefined,
+        full_name: displayName || undefined,
+        avatar_url: avatarUrl || undefined,
+        account_status: "active"
+      };
 
       trialEndAt.setMonth(trialEndAt.getMonth() + 4);
 
@@ -697,14 +706,19 @@
       }
 
       if (existingResult.data) {
+        const updatePayload = Object.fromEntries(
+          Object.entries({
+            email: baseProfilePayload.email,
+            display_name: baseProfilePayload.display_name,
+            full_name: baseProfilePayload.full_name,
+            avatar_url: baseProfilePayload.avatar_url,
+            updated_at: new Date().toISOString()
+          }).filter(([, value]) => value !== undefined)
+        );
+
         const updateResult = await client
           .from("profiles")
-          .update({
-            email: email,
-            display_name: displayName,
-            avatar_url: avatarUrl,
-            updated_at: new Date().toISOString()
-          })
+          .update(updatePayload)
           .eq("clerk_user_id", clerkUserId)
           .select("*")
           .single();
@@ -719,17 +733,22 @@
         };
       }
 
-      const insertResult = await client
-        .from("profiles")
-        .insert({
-          clerk_user_id: clerkUserId,
-          email: email,
-          display_name: displayName,
-          avatar_url: avatarUrl,
-          account_status: "active",
+      const insertPayload = Object.fromEntries(
+        Object.entries({
+          clerk_user_id: baseProfilePayload.clerk_user_id,
+          email: baseProfilePayload.email,
+          display_name: baseProfilePayload.display_name,
+          full_name: baseProfilePayload.full_name,
+          avatar_url: baseProfilePayload.avatar_url,
+          account_status: baseProfilePayload.account_status,
           trial_start_at: trialStartAt.toISOString(),
           trial_end_at: trialEndAt.toISOString()
-        })
+        }).filter(([, value]) => value !== undefined)
+      );
+
+      const insertResult = await client
+        .from("profiles")
+        .insert(insertPayload)
         .select("*")
         .single();
 
