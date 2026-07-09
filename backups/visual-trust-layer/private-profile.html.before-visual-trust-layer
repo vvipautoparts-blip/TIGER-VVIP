@@ -79,7 +79,6 @@
       color: #94a3b8;
     }
   </style>
-  <link rel="stylesheet" href="styles/vvip-visual-trust-layer.css">
 </head>
 <body>
   <main class="redirect-card" aria-live="polite">
@@ -120,6 +119,5 @@
       }, 250);
     })();
   </script>
-  <script src="scripts/vvip-safe-ux-guard.js" defer></script>
 </body>
 </html>

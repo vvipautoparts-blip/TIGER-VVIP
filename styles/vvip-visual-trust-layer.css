@@ -1,0 +1,573 @@
+/*
+  VVIP TIGER — Visual Trust Layer
+  Purpose:
+  - Improve premium visual consistency.
+  - Increase color clarity and readability.
+  - Keep user-facing errors safe and non-technical.
+  - Do not touch backend, Supabase, RPC, RLS, Clerk logic, or secrets.
+*/
+
+:root {
+  --vvip-bg-deep: #07111f;
+  --vvip-bg-panel: #0d1b2f;
+  --vvip-bg-soft: #111f35;
+  --vvip-gold: #d6aa3f;
+  --vvip-gold-soft: #f2d27a;
+  --vvip-text-main: #f8fafc;
+  --vvip-text-soft: #cbd5e1;
+  --vvip-text-muted: #94a3b8;
+  --vvip-border-soft: rgba(214, 170, 63, 0.22);
+  --vvip-border-calm: rgba(148, 163, 184, 0.22);
+  --vvip-danger-safe: #f59e0b;
+  --vvip-success: #22c55e;
+  --vvip-radius-xl: 24px;
+  --vvip-radius-lg: 18px;
+  --vvip-radius-md: 14px;
+  --vvip-shadow-premium: 0 24px 70px rgba(0, 0, 0, 0.38);
+  --vvip-shadow-soft: 0 12px 35px rgba(0, 0, 0, 0.22);
+  --vvip-focus-ring: 0 0 0 3px rgba(214, 170, 63, 0.32);
+}
+
+/* Global readability protection */
+html {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  color: var(--vvip-text-main);
+}
+
+/* Premium surfaces */
+.vvip-card,
+.vvip-panel,
+.vvip-shell,
+.profile-card,
+.profile-shell,
+.account-card,
+.auth-card,
+.card {
+  border-color: var(--vvip-border-soft);
+}
+
+/* Avoid low-contrast pale text on dark UI */
+.vvip-card p,
+.vvip-panel p,
+.profile-card p,
+.profile-shell p,
+.account-card p,
+.auth-card p {
+  color: var(--vvip-text-soft);
+}
+
+/* Premium badge language */
+.vvip-badge,
+.vip-badge,
+.status-badge,
+.profile-badge,
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--vvip-border-soft);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(214, 170, 63, 0.16), rgba(242, 210, 122, 0.08));
+  color: var(--vvip-gold-soft);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+/* Button clarity */
+button,
+.button,
+.btn,
+a.button,
+[role="button"] {
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    color 160ms ease;
+}
+
+button:hover,
+.button:hover,
+.btn:hover,
+a.button:hover,
+[role="button"]:hover {
+  transform: translateY(-1px);
+}
+
+button:focus-visible,
+.button:focus-visible,
+.btn:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible {
+  outline: none;
+  box-shadow: var(--vvip-focus-ring);
+}
+
+/* Safe user-facing messages */
+.vvip-safe-message,
+.vvip-resilience-message,
+.vvip-user-message,
+[role="alert"].vvip-safe-message {
+  border: 1px solid rgba(214, 170, 63, 0.28);
+  border-radius: var(--vvip-radius-lg);
+  background:
+    radial-gradient(circle at top right, rgba(214, 170, 63, 0.18), transparent 34%),
+    rgba(13, 27, 47, 0.94);
+  color: var(--vvip-text-main);
+  box-shadow: var(--vvip-shadow-soft);
+}
+
+.vvip-safe-message small,
+.vvip-resilience-message small,
+.vvip-user-message small {
+  color: var(--vvip-text-muted);
+}
+
+/* Technical error containers should look calm if they exist */
+.error,
+.error-message,
+.alert-error,
+.status-error,
+[data-error],
+[role="alert"] {
+  overflow-wrap: anywhere;
+}
+
+/* Hide accidental debug-only blocks if explicitly marked */
+[data-debug-only="true"],
+.vvip-debug-only {
+  display: none !important;
+}
+
+/* Mobile clarity */
+@media (max-width: 640px) {
+  :root {
+    --vvip-radius-xl: 20px;
+    --vvip-radius-lg: 16px;
+    --vvip-radius-md: 12px;
+  }
+
+  .vvip-card,
+  .vvip-panel,
+  .profile-card,
+  .profile-shell,
+  .account-card,
+  .auth-card,
+  .card {
+    border-radius: var(--vvip-radius-lg);
+  }
+
+  button,
+  .button,
+  .btn,
+  a.button,
+  [role="button"] {
+    min-height: 44px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Visual Trust Layer — Phase 2
+   Contrast & Readability Fix
+   Purpose:
+   - Prevent pale/white text from disappearing on light cards.
+   - Improve public profile/social page readability.
+   - Keep premium identity without changing backend/auth logic.
+-------------------------------------------------------------------------- */
+
+/* Light surfaces must use dark readable text */
+:is(
+  .story-card,
+  .stories-card,
+  .story,
+  .member-card,
+  .active-member,
+  .user-card,
+  .profile-public-card,
+  .public-card,
+  .feed-card,
+  .listing-card,
+  .shortcut-card,
+  .suggestion-card,
+  .white-card,
+  .light-card
+) {
+  color: #0f172a;
+}
+
+/* Paragraphs and secondary text inside light cards */
+:is(
+  .story-card,
+  .stories-card,
+  .story,
+  .member-card,
+  .active-member,
+  .user-card,
+  .profile-public-card,
+  .public-card,
+  .feed-card,
+  .listing-card,
+  .shortcut-card,
+  .suggestion-card,
+  .white-card,
+  .light-card
+) :is(p, span, small, strong, b, h1, h2, h3, h4, h5, h6, label) {
+  color: inherit;
+}
+
+/* Muted text on light cards should still be readable */
+:is(
+  .story-card,
+  .stories-card,
+  .story,
+  .member-card,
+  .active-member,
+  .user-card,
+  .profile-public-card,
+  .public-card,
+  .feed-card,
+  .listing-card,
+  .shortcut-card,
+  .suggestion-card,
+  .white-card,
+  .light-card
+) :is(.muted, .text-muted, .subtitle, .caption, .meta, .time, .description) {
+  color: #475569;
+}
+
+/* Gold labels need enough contrast on white */
+:is(
+  .story-card,
+  .stories-card,
+  .story,
+  .member-card,
+  .active-member,
+  .user-card,
+  .profile-public-card,
+  .public-card,
+  .feed-card,
+  .listing-card
+) :is(.vip, .badge, .tag, .label, .status, .category) {
+  color: #8a5b00;
+}
+
+/* Story cards often had white text on white background */
+:is(.story-card, .stories-card, .story) {
+  text-shadow: none;
+}
+
+:is(.story-card, .stories-card, .story) :is(.story-title, .story-text, .story-meta, .story-label) {
+  color: #0f172a;
+  text-shadow: none;
+}
+
+/* Active members list readability */
+:is(.member-card, .active-member, .user-card) :is(.member-name, .user-name, .name, .title) {
+  color: #0f172a;
+  font-weight: 800;
+}
+
+:is(.member-card, .active-member, .user-card) :is(.member-status, .user-status, .status-text, .time, .meta) {
+  color: #64748b;
+}
+
+/* Search and filter controls on light UI */
+:is(.search-box, .search-input, .filter-button, .tab-button, .pill-button) {
+  color: #0f172a;
+}
+
+:is(.search-box, .search-input) input,
+input:is(.search-box, .search-input),
+input[type="search"] {
+  color: #0f172a;
+}
+
+:is(.search-box, .search-input) input::placeholder,
+input[type="search"]::placeholder {
+  color: #64748b;
+  opacity: 1;
+}
+
+/* Dark nav/header areas keep light text */
+:is(.topbar, .navbar, .nav-shell, .dark-shell, .vvip-dark, .vip-social-lounge) {
+  color: #f8fafc;
+}
+
+:is(.topbar, .navbar, .nav-shell, .dark-shell, .vvip-dark, .vip-social-lounge) :is(p, span, small, strong, b, h1, h2, h3, h4, h5, h6, label) {
+  color: inherit;
+}
+
+/* Prevent invisible placeholder or disabled-looking text */
+::placeholder {
+  opacity: 1;
+}
+
+/* Better Arabic readability */
+[dir="rtl"] :is(.story-card, .member-card, .active-member, .user-card, .public-card, .feed-card) {
+  line-height: 1.75;
+}
+
+/* --------------------------------------------------------------------------
+   Visual Trust Layer — Phase 2.1
+   Feed/Post Readability Patch
+   Purpose:
+   - Fix pale post descriptions and meta text on light feed cards.
+   - Keep the public/social page readable and premium.
+-------------------------------------------------------------------------- */
+
+:is(
+  .post-card,
+  .post,
+  .feed-post,
+  .timeline-post,
+  .social-post,
+  .activity-card,
+  .profile-post,
+  .public-post
+) {
+  color: #0f172a;
+}
+
+:is(
+  .post-card,
+  .post,
+  .feed-post,
+  .timeline-post,
+  .social-post,
+  .activity-card,
+  .profile-post,
+  .public-post
+) :is(p, span, small, div, strong, b, h1, h2, h3, h4, h5, h6) {
+  color: inherit;
+}
+
+:is(
+  .post-card,
+  .post,
+  .feed-post,
+  .timeline-post,
+  .social-post,
+  .activity-card,
+  .profile-post,
+  .public-post
+) :is(
+  .post-text,
+  .post-description,
+  .post-content,
+  .content,
+  .description,
+  .body,
+  .excerpt,
+  .caption
+) {
+  color: #334155;
+}
+
+:is(
+  .post-card,
+  .post,
+  .feed-post,
+  .timeline-post,
+  .social-post,
+  .activity-card,
+  .profile-post,
+  .public-post
+) :is(
+  .post-meta,
+  .meta,
+  .time,
+  .timestamp,
+  .subtitle,
+  .muted,
+  .text-muted
+) {
+  color: #64748b;
+}
+
+:is(
+  .post-card,
+  .post,
+  .feed-post,
+  .timeline-post,
+  .social-post,
+  .activity-card,
+  .profile-post,
+  .public-post
+) :is(.author-name, .profile-name, .post-author, .title, .name) {
+  color: #0f172a;
+  font-weight: 800;
+}
+
+/* --------------------------------------------------------------------------
+   Visual Trust Layer — Phase 2.2
+   Public Profile Readability Lock
+   Purpose:
+   - Fix remaining pale feed text on public-profile.html only.
+   - Override accidental low opacity / pale colors inside light feed surfaces.
+   - Keep dark navigation/header areas untouched.
+-------------------------------------------------------------------------- */
+
+body.vvip-page-public-profile :is(
+  .post-card,
+  .post,
+  .feed-post,
+  .timeline-post,
+  .social-post,
+  .activity-card,
+  .profile-post,
+  .public-post,
+  .feed-card,
+  .public-card,
+  article,
+  [class*="post"],
+  [class*="feed"]
+) {
+  opacity: 1 !important;
+  filter: none !important;
+  color: #0f172a !important;
+}
+
+body.vvip-page-public-profile :is(
+  .post-card,
+  .post,
+  .feed-post,
+  .timeline-post,
+  .social-post,
+  .activity-card,
+  .profile-post,
+  .public-post,
+  .feed-card,
+  .public-card,
+  article,
+  [class*="post"],
+  [class*="feed"]
+) :is(
+  p,
+  span,
+  small,
+  div,
+  strong,
+  b,
+  label,
+  .post-text,
+  .post-description,
+  .post-content,
+  .content,
+  .description,
+  .body,
+  .excerpt,
+  .caption,
+  .summary
+) {
+  opacity: 1 !important;
+  filter: none !important;
+  text-shadow: none !important;
+  color: #334155 !important;
+}
+
+body.vvip-page-public-profile :is(
+  .post-card,
+  .post,
+  .feed-post,
+  .timeline-post,
+  .social-post,
+  .activity-card,
+  .profile-post,
+  .public-post,
+  .feed-card,
+  .public-card,
+  article,
+  [class*="post"],
+  [class*="feed"]
+) :is(
+  .post-meta,
+  .meta,
+  .time,
+  .timestamp,
+  .subtitle,
+  .muted,
+  .text-muted,
+  .date,
+  .status
+) {
+  opacity: 1 !important;
+  color: #64748b !important;
+  text-shadow: none !important;
+}
+
+body.vvip-page-public-profile :is(
+  .post-card,
+  .post,
+  .feed-post,
+  .timeline-post,
+  .social-post,
+  .activity-card,
+  .profile-post,
+  .public-post,
+  .feed-card,
+  .public-card,
+  article,
+  [class*="post"],
+  [class*="feed"]
+) :is(
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .author-name,
+  .profile-name,
+  .post-author,
+  .title,
+  .name
+) {
+  opacity: 1 !important;
+  color: #0f172a !important;
+  text-shadow: none !important;
+  font-weight: 800;
+}
+
+/* Preserve premium dark areas on the same page */
+body.vvip-page-public-profile :is(
+  .topbar,
+  .navbar,
+  .nav-shell,
+  .dark-shell,
+  .vvip-dark,
+  .vip-social-lounge,
+  .header,
+  .hero,
+  .toolbar
+),
+body.vvip-page-public-profile :is(
+  .topbar,
+  .navbar,
+  .nav-shell,
+  .dark-shell,
+  .vvip-dark,
+  .vip-social-lounge,
+  .header,
+  .hero,
+  .toolbar
+) * {
+  color: inherit !important;
+}
+
+/* Comment/input area readability */
+body.vvip-page-public-profile :is(input, textarea) {
+  color: #0f172a !important;
+}
+
+body.vvip-page-public-profile :is(input, textarea)::placeholder {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
