@@ -797,173 +797,16 @@
       );
     }
 
-    const RESILIENT_PROFILE_CACHE_PREFIX = "vvip:tiger:profile:safe:";
-    const RESILIENT_PROFILE_CACHE_TTL_MS = 10 * 60 * 1000;
-    let backgroundProfileSyncInProgress = false;
-
-    // VVIP TIGER Profile Resilience Shell
-    function buildSafeProfileFromClerk(clerkUser) {
-      if (!clerkUser || !clerkUser.id) {
-        return null;
-      }
-
-      const email = normalizeEmail(getPrimaryEmail(clerkUser));
-      const displayName =
-        clerkUser.fullName ||
-        clerkUser.firstName ||
-        (email ? email.split("@")[0] : "VVIP Member");
-
-      return {
-        clerk_user_id: String(clerkUser.id),
-        email: email || "",
-        display_name: displayName,
-        full_name: displayName,
-        avatar_url: getAvatarUrl(clerkUser) || "",
-        account_status: "active",
-        profile_source: "clerk",
-        sync_status: "pending",
-        trial_label: "قيد التفعيل",
-        updated_at: new Date().toISOString()
-      };
-    }
-
-    function safeProfileCacheKey(clerkUserId) {
-      return RESILIENT_PROFILE_CACHE_PREFIX + String(clerkUserId || "");
-    }
-
-    function readSafeProfileCache(clerkUserId) {
-      if (!clerkUserId) {
-        return null;
-      }
-
-      try {
-        const raw = window.localStorage.getItem(safeProfileCacheKey(clerkUserId));
-        if (!raw) {
-          return null;
-        }
-
-        const parsed = JSON.parse(raw);
-        const cachedAt = Number(parsed && parsed.cachedAt ? parsed.cachedAt : 0);
-        const profile = parsed && parsed.profile ? parsed.profile : null;
-
-        if (!cachedAt || !profile) {
-          return null;
-        }
-
-        if (Date.now() - cachedAt > RESILIENT_PROFILE_CACHE_TTL_MS) {
-          window.localStorage.removeItem(safeProfileCacheKey(clerkUserId));
-          return null;
-        }
-
-        return {
-          profile: profile,
-          cachedAt: cachedAt
-        };
-      } catch (error) {
-        return null;
-      }
-    }
-
-    function writeSafeProfileCache(clerkUserId, profile) {
-      if (!clerkUserId || !profile) {
-        return;
-      }
-
-      try {
-        const safeProfile = {
-          clerk_user_id: profile.clerk_user_id || String(clerkUserId),
-          email: normalizeEmail(profile.email) || "",
-          display_name: profile.display_name || profile.full_name || "VVIP Member",
-          full_name: profile.full_name || profile.display_name || "VVIP Member",
-          avatar_url: profile.avatar_url || "",
-          account_status: profile.account_status || "active",
-          profile_source: profile.profile_source || "clerk",
-          sync_status: profile.sync_status || "pending",
-          updated_at: profile.updated_at || new Date().toISOString()
-        };
-
-        window.localStorage.setItem(
-          safeProfileCacheKey(clerkUserId),
-          JSON.stringify({
-            cachedAt: Date.now(),
-            profile: safeProfile
-          })
-        );
-      } catch (error) {
-        return;
-      }
-    }
-
-    async function runWithTimeout(promise, timeoutMs) {
-      let timerId;
-
-      try {
-        return await Promise.race([
-          promise,
-          new Promise(function (resolve) {
-            timerId = window.setTimeout(function () {
-              resolve(null);
-            }, timeoutMs);
-          })
-        ]);
-      } finally {
-        if (timerId) {
-          window.clearTimeout(timerId);
-        }
-      }
-    }
-
-    function renderResilientPrivateProfile(profile, meta) {
-      const sourceMeta = meta || {};
-      const source = sourceMeta.profileSource || profile.profile_source || "clerk";
-      const syncStatus = sourceMeta.syncStatus || profile.sync_status || "pending";
-      const message = sourceMeta.message || "ملفك الخاص جاهز، وجاري مزامنة بيانات العضوية بأمان.";
-      const statusNote = sourceMeta.statusNote || "بعض تفاصيل العضوية قد تظهر بعد اكتمال المزامنة.";
-
-      const mockUser = {
-        fullName: profile.full_name || profile.display_name || "VVIP Member",
-        firstName: profile.display_name || "VVIP",
-        imageUrl: profile.avatar_url || "",
-        primaryEmailAddress: {
-          emailAddress: profile.email || ""
-        }
-      };
-
-      renderProfile(mockUser, profile, false);
-
-      const alertNode = document.querySelector(".vvip-alert");
-      if (alertNode) {
-        alertNode.textContent = message;
-      }
-
-      const pillNode = document.querySelector(".vvip-secure-pill");
-      if (pillNode) {
-        pillNode.textContent = "تم تسجيل الدخول بنجاح";
-      }
-
-      const noteNode = document.querySelector(".vvip-note");
-      if (noteNode) {
-        noteNode.textContent = statusNote;
-      }
-
-      updateProfileState("profile_shell_rendered", {
-        profileSource: source,
-        syncStatus: syncStatus,
-        cacheAvailable: Boolean(sourceMeta.cacheAvailable)
-      });
-    }
-
     window.__VVIP_TIGER_PROFILE_DEBUG__ = function () {
-      const profileState = window.__vvipTigerLastProfileState || null;
-
       return {
         clerkLoaded: Boolean(window.Clerk),
         hasUser: Boolean(window.Clerk && window.Clerk.user),
         hasSession: Boolean(window.Clerk && window.Clerk.session),
-        profileSource: profileState && profileState.profileSource ? profileState.profileSource : null,
-        syncStatus: profileState && profileState.syncStatus ? profileState.syncStatus : null,
-        lastProfileState: profileState,
-        cacheAvailable: Boolean(profileState && profileState.cacheAvailable)
+        lastProfileState: window.__vvipTigerLastProfileState || null,
+        rpcResolverAvailable: Boolean(
+          window.supabase &&
+          typeof window.supabase.createClient === "function"
+        )
       };
     };
 
@@ -1539,139 +1382,6 @@
       attachRetryHandler();
     }
 
-    async function attemptBackgroundProfileSync(clerkUser, shellProfile) {
-      if (backgroundProfileSyncInProgress) {
-        console.info("VVIP TIGER background sync skipped");
-        return;
-      }
-
-      backgroundProfileSyncInProgress = true;
-      console.info("VVIP TIGER background sync pending");
-
-      try {
-        const resolved = await runWithTimeout(
-          (async function () {
-            const rpcResult = await resolveProfileViaRpc(clerkUser);
-            if (rpcResult && rpcResult.profile) {
-              return rpcResult.profile;
-            }
-
-            const authState = rpcResult ? rpcResult.authState : null;
-            const client = rpcResult ? rpcResult.client : null;
-            const clerkUserId = clerkUser && clerkUser.id ? String(clerkUser.id) : null;
-            const email = normalizeEmail(getPrimaryEmail(clerkUser));
-
-            if (!authState || !authState.ok || !client || !clerkUserId) {
-              return null;
-            }
-
-            const existingResult = await loadProfileByClerkId(client, clerkUserId, authState);
-            if (existingResult.profile) {
-              return existingResult.profile;
-            }
-
-            const payload = buildSafeProfilePayload(clerkUser);
-            if (!payload) {
-              return null;
-            }
-
-            const createResult = await createProfileSafely(client, payload, authState);
-            if (createResult.profile) {
-              return createResult.profile;
-            }
-
-            if (createResult.status === "duplicate_email") {
-              const recoveryResult = await recoverDuplicateEmailProfile({
-                clerkUserId: clerkUserId,
-                email: email,
-                client: client,
-                authState: authState
-              });
-
-              if (recoveryResult.profile) {
-                return recoveryResult.profile;
-              }
-            }
-
-            return null;
-          })(),
-          2500
-        );
-
-        if (resolved) {
-          const enrichedProfile = Object.assign({}, resolved, {
-            profile_source: "official",
-            sync_status: "completed"
-          });
-
-          writeSafeProfileCache(enrichedProfile.clerk_user_id || shellProfile.clerk_user_id, enrichedProfile);
-          renderResilientPrivateProfile(enrichedProfile, {
-            profileSource: "official",
-            syncStatus: "completed",
-            message: "تم تسجيل الدخول بنجاح",
-            statusNote: "ملفك الخاص جاهز، وتمت مزامنة بيانات العضوية بأمان.",
-            cacheAvailable: true
-          });
-          console.info("VVIP TIGER official profile sync completed");
-          return;
-        }
-
-        console.warn("VVIP TIGER background sync skipped");
-      } catch (error) {
-        console.warn("VVIP TIGER background sync skipped");
-      } finally {
-        backgroundProfileSyncInProgress = false;
-      }
-    }
-
-    async function resolveProfileFastForUser(clerkUser) {
-      const sessionState = await waitForClerkSession();
-      const resolvedUser = clerkUser || sessionState.user || null;
-      const clerkUserId = resolvedUser && resolvedUser.id ? String(resolvedUser.id) : null;
-
-      if (!sessionState.ok || !resolvedUser || !clerkUserId) {
-        renderProfileSafeMode({
-          recoveryFailed: true,
-          subtitle: "يرجى تسجيل الدخول للمتابعة.",
-          message: "تعذر التحقق من الجلسة الحالية."
-        });
-        return;
-      }
-
-      const safeProfile = buildSafeProfileFromClerk(resolvedUser);
-      if (!safeProfile) {
-        renderProfileSafeMode({
-          recoveryFailed: true,
-          subtitle: "تعذر تهيئة ملفك الخاص.",
-          message: "يرجى إعادة تسجيل الدخول ثم المحاولة مرة أخرى."
-        });
-        return;
-      }
-
-      const cached = readSafeProfileCache(clerkUserId);
-      const shellProfile = cached && cached.profile
-        ? Object.assign({}, safeProfile, cached.profile, {
-            profile_source: "cache",
-            sync_status: "cached"
-          })
-        : safeProfile;
-
-      await sleep(120);
-
-      renderResilientPrivateProfile(shellProfile, {
-        profileSource: shellProfile.profile_source || "clerk",
-        syncStatus: shellProfile.sync_status || "pending",
-        message: "تم تسجيل الدخول بنجاح",
-        statusNote: "ملفك الخاص جاهز، وجاري مزامنة بيانات العضوية بأمان. بعض تفاصيل العضوية قد تظهر بعد اكتمال المزامنة.",
-        cacheAvailable: Boolean(cached)
-      });
-
-      writeSafeProfileCache(clerkUserId, shellProfile);
-      console.info("VVIP TIGER profile shell active");
-
-      void attemptBackgroundProfileSync(resolvedUser, shellProfile);
-    }
-
     async function resolveProfileSelfHealing(clerkUser) {
       if (profileResolutionInProgress) {
         return;
@@ -1680,12 +1390,117 @@
       profileResolutionInProgress = true;
 
       try {
-        await resolveProfileFastForUser(clerkUser);
+        const identity = await getSafeClerkIdentity();
+        const resolvedUser = clerkUser || identity.user || (window.Clerk && window.Clerk.user) || null;
+        const clerkUserId = identity.clerkUserId || (resolvedUser && resolvedUser.id ? String(resolvedUser.id) : null);
+
+        if (!identity.ok || !clerkUserId) {
+          renderProfileRecoveryMode({
+            subtitle: "حسابك آمن، ويتم تجهيز ملفك الخاص.",
+            message: "جاري مزامنة ملف العضوية..."
+          });
+          return;
+        }
+
+        console.log("VVIP TIGER profile load by clerk_user_id");
+        renderProfileRecoveryMode({
+          subtitle: "حسابك آمن، ويتم تجهيز ملفك الخاص.",
+          message: "جاري مزامنة ملف العضوية..."
+        });
+
+        const rpcResult = await resolveProfileViaRpc(resolvedUser || identity.user);
+        if (rpcResult.profile) {
+          console.log("VVIP TIGER profile recovery success");
+          renderProfile(resolvedUser || identity.user, rpcResult.profile, false);
+          return;
+        }
+
+        const authState = rpcResult.authState;
+        const client = rpcResult.client;
+        const email = normalizeEmail(getPrimaryEmail(resolvedUser || identity.user));
+
+        if (!authState || !authState.ok || !client || !client.from) {
+          renderProfileRecoveryMode({
+            subtitle: "حسابك آمن، ويتم تجهيز ملفك الخاص.",
+            message: "جاري مزامنة ملف العضوية..."
+          });
+          return;
+        }
+
+        const existingResult = await loadProfileByClerkId(client, clerkUserId, authState);
+        if (existingResult.profile) {
+          console.log("VVIP TIGER profile recovery success");
+          renderProfile(resolvedUser || identity.user, existingResult.profile, false);
+          return;
+        }
+
+        if (existingResult.status === "auth_or_rls") {
+          renderProfileRecoveryMode({
+            subtitle: "حسابك آمن، ويتم تجهيز ملفك الخاص.",
+            message: "جاري مزامنة ملف العضوية..."
+          });
+          return;
+        }
+
+        const safePayload = buildSafeProfilePayload(resolvedUser || identity.user);
+        if (!safePayload) {
+          renderProfileRecoveryMode({
+            subtitle: "حسابك آمن، ويتم تجهيز ملفك الخاص.",
+            message: "جاري مزامنة ملف العضوية..."
+          });
+          return;
+        }
+
+        const createResult = await createProfileSafely(client, safePayload, authState);
+        if (createResult.profile) {
+          console.log("VVIP TIGER profile recovery success");
+          renderProfile(resolvedUser || identity.user, createResult.profile, true);
+          return;
+        }
+
+        if (createResult.status === "duplicate_email") {
+          const recoveryResult = await recoverDuplicateEmailProfile({
+            clerkUserId: clerkUserId,
+            email: email,
+            client: client,
+            authState: authState
+          });
+
+          if (recoveryResult.profile) {
+            renderProfile(resolvedUser || identity.user, recoveryResult.profile, false);
+            return;
+          }
+
+          if (recoveryResult.status === "auth_or_rls") {
+            renderProfileRecoveryMode({
+              subtitle: "حسابك آمن، ويتم تجهيز ملفك الخاص.",
+              message: "جاري مزامنة ملف العضوية..."
+            });
+            return;
+          }
+
+          renderProfileSafeMode({
+            recoveryFailed: true,
+            subtitle: "حسابك آمن، لكن ملف العضوية يحتاج مزامنة قصيرة.",
+            message: "يرجى إعادة المحاولة بعد لحظات أو إرسال طلب عبر Tiger Care."
+          });
+          return;
+        }
+
+        if (createResult.status === "auth_or_rls") {
+          renderProfileRecoveryMode({
+            subtitle: "حسابك آمن، ويتم تجهيز ملفك الخاص.",
+            message: "جاري مزامنة ملف العضوية..."
+          });
+          return;
+        }
+
+        renderProfileSafeMode({
+          recoveryFailed: true
+        });
       } catch (error) {
         renderProfileSafeMode({
-          recoveryFailed: true,
-          subtitle: "تعذر تهيئة ملفك الخاص.",
-          message: "يرجى إعادة تسجيل الدخول ثم المحاولة مرة أخرى."
+          recoveryFailed: true
         });
       } finally {
         profileResolutionInProgress = false;
