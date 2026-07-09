@@ -571,3 +571,160 @@ body.vvip-page-public-profile :is(input, textarea)::placeholder {
   color: #64748b !important;
   opacity: 1 !important;
 }
+
+/* --------------------------------------------------------------------------
+   Profile UX Polish — Phase 1
+   Purpose:
+   - Improve private/public profile spacing, card rhythm, and button clarity.
+   - Keep the premium VVIP TIGER visual tone.
+   - Do not change Clerk, Supabase, RPC, RLS, auth, or backend behavior.
+-------------------------------------------------------------------------- */
+
+body.vvip-profile-ux-polish {
+  --vvip-profile-card-radius: clamp(18px, 2vw, 28px);
+  --vvip-profile-gap: clamp(14px, 2.4vw, 24px);
+}
+
+body.vvip-profile-ux-polish :is(
+  .profile-card,
+  .profile-panel,
+  .account-card,
+  .info-card,
+  .contact-card,
+  .status-card,
+  .vip-card,
+  .vvip-card,
+  .public-card,
+  .feed-card,
+  .post-card,
+  .member-card,
+  .shortcut-card,
+  .request-card,
+  .support-card
+) {
+  border-radius: var(--vvip-profile-card-radius);
+  border: 1px solid rgba(214, 170, 63, 0.18);
+  box-shadow: 0 16px 45px rgba(15, 23, 42, 0.10);
+}
+
+body.vvip-profile-ux-polish :is(
+  .profile-card,
+  .profile-panel,
+  .account-card,
+  .info-card,
+  .contact-card,
+  .status-card,
+  .public-card,
+  .feed-card,
+  .post-card,
+  .member-card,
+  .shortcut-card,
+  .request-card,
+  .support-card
+) {
+  color: #0f172a;
+}
+
+body.vvip-profile-ux-polish :is(
+  .profile-card,
+  .profile-panel,
+  .account-card,
+  .info-card,
+  .contact-card,
+  .status-card,
+  .public-card,
+  .feed-card,
+  .post-card,
+  .member-card,
+  .shortcut-card,
+  .request-card,
+  .support-card
+) :is(p, span, small, label, div) {
+  line-height: 1.75;
+}
+
+body.vvip-profile-ux-polish :is(
+  button,
+  .button,
+  .btn,
+  a.button,
+  [role="button"]
+) {
+  min-height: 44px;
+  border-radius: 16px;
+  font-weight: 800;
+}
+
+body.vvip-profile-ux-polish :is(input, select, textarea) {
+  border-radius: 16px;
+  min-height: 44px;
+}
+
+body.vvip-page-private-profile :is(
+  .actions,
+  .profile-actions,
+  .account-actions,
+  .button-row,
+  .cta-row,
+  .footer-actions
+) {
+  gap: 12px;
+}
+
+body.vvip-page-public-profile :is(
+  .profile-header,
+  .public-header,
+  .feed-header,
+  .tabs,
+  .filters,
+  .toolbar
+) {
+  gap: 12px;
+}
+
+body.vvip-profile-ux-polish :is(
+  .topbar,
+  .navbar,
+  .nav-shell,
+  .dark-shell,
+  .vvip-dark,
+  .vip-social-lounge,
+  .hero-dark
+),
+body.vvip-profile-ux-polish :is(
+  .topbar,
+  .navbar,
+  .nav-shell,
+  .dark-shell,
+  .vvip-dark,
+  .vip-social-lounge,
+  .hero-dark
+) * {
+  color: inherit;
+}
+
+@media (max-width: 720px) {
+  body.vvip-profile-ux-polish :is(
+    .actions,
+    .profile-actions,
+    .account-actions,
+    .button-row,
+    .cta-row,
+    .footer-actions
+  ) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  body.vvip-profile-ux-polish :is(
+    .actions,
+    .profile-actions,
+    .account-actions,
+    .button-row,
+    .cta-row,
+    .footer-actions
+  ) > * {
+    flex: 1 1 140px;
+  }
+}
