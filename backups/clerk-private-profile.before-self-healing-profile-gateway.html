@@ -675,570 +675,94 @@
       );
     }
 
-    const LAST_PROFILE_SNAPSHOT_KEY = "vvip_tiger_last_profile_snapshot";
-    let profileResolutionInProgress = false;
-
-    function normalizeEmail(value) {
-      const normalized = String(value || "").trim().toLowerCase();
-      return normalized || null;
-    }
-
-    function sleep(ms) {
-      return new Promise(function (resolve) {
-        window.setTimeout(resolve, ms);
-      });
-    }
-
-    function isDuplicateProfileEmailError(error) {
-      const message = String(error && error.message ? error.message : "").toLowerCase();
-      return (
-        String(error && error.code ? error.code : "") === "23505" ||
-        message.indexOf("profiles_email_unique") !== -1 ||
-        message.indexOf("duplicate key") !== -1
-      );
-    }
-
-    function classifyProfileError(error) {
-      if (isDuplicateProfileEmailError(error)) {
-        return "duplicate_email";
-      }
-
-      const code = String(error && error.code ? error.code : "").toLowerCase();
-      const message = String(error && error.message ? error.message : "").toLowerCase();
-
-      if (
-        code === "auth_missing" ||
-        message.indexOf("not authenticated") !== -1 ||
-        message.indexOf("authentication") !== -1 ||
-        message.indexOf("clerk") !== -1
-      ) {
-        return "auth_missing";
-      }
-
-      if (
-        code === "pgrst116" ||
-        message.indexOf("not found") !== -1 ||
-        message.indexOf("no rows") !== -1 ||
-        message.indexOf("maybe single") !== -1
-      ) {
-        return "profile_not_found";
-      }
-
-      if (
-        code.indexOf("fetch") !== -1 ||
-        code.indexOf("network") !== -1 ||
-        message.indexOf("network") !== -1 ||
-        message.indexOf("timeout") !== -1 ||
-        message.indexOf("supabase") !== -1
-      ) {
-        return "network_or_supabase";
-      }
-
-      return "unknown";
-    }
-
-    async function getSafeClerkIdentity() {
-      try {
-        if (!window.Clerk) {
-          return {
-            ok: false,
-            status: "auth_missing",
-            clerkUserId: null,
-            email: null,
-            user: null
-          };
-        }
-
-        if (typeof window.Clerk.load === "function") {
-          await window.Clerk.load();
-        }
-
-        const user = window.Clerk.user || null;
-        const clerkUserId = user && user.id ? String(user.id) : null;
-        const email = normalizeEmail(
-          user && user.primaryEmailAddress && user.primaryEmailAddress.emailAddress
-        );
-
-        if (!clerkUserId) {
-          return {
-            ok: false,
-            status: "auth_missing",
-            clerkUserId: null,
-            email: email,
-            user: user
-          };
-        }
-
-        return {
-          ok: true,
-          status: "ready",
-          clerkUserId: clerkUserId,
-          email: email,
-          user: user
-        };
-      } catch (error) {
-        return {
-          ok: false,
-          status: classifyProfileError(error),
-          clerkUserId: null,
-          email: null,
-          user: null
-        };
-      }
-    }
-
-    function buildSafeProfilePayload(clerkUser) {
-      if (!clerkUser || !clerkUser.id) {
-        return null;
-      }
-
-      const clerkUserId = String(clerkUser.id);
-      const email = normalizeEmail(getPrimaryEmail(clerkUser));
-      const displayName = getDisplayName(clerkUser);
-      const avatarUrl = getAvatarUrl(clerkUser);
+    async function loadOrCreateVvipProfile(client, user) {
+      const clerkUserId = user.id;
+      const email = getPrimaryEmail(user);
+      const displayName = getDisplayName(user);
+      const avatarUrl = getAvatarUrl(user);
       const trialStartAt = new Date();
       const trialEndAt = new Date(trialStartAt);
+      // Only send whitelisted public.profiles fields. Never send Clerk user.id into UUID columns.
+      const baseProfilePayload = {
+        clerk_user_id: clerkUserId,
+        email: email || undefined,
+        display_name: displayName || undefined,
+        full_name: displayName || undefined,
+        avatar_url: avatarUrl || undefined,
+        account_status: "active"
+      };
 
       trialEndAt.setMonth(trialEndAt.getMonth() + 4);
 
-      // Official runtime source remains public.profiles via clerk_user_id.
-      return Object.fromEntries(
-        Object.entries({
-          clerk_user_id: clerkUserId,
-          email: email || undefined,
-          display_name: displayName || undefined,
-          full_name: displayName || undefined,
-          avatar_url: avatarUrl || undefined,
-          account_status: "active",
-          trial_start_at: trialStartAt.toISOString(),
-          trial_end_at: trialEndAt.toISOString()
-        }).filter(function (entry) {
-          return entry[1] !== undefined;
-        })
-      );
-    }
-
-    async function loadProfileByClerkId(client, clerkUserId) {
-      const result = await client
+      // Official profile source: public.profiles via clerk_user_id
+      const existingResult = await client
         .from("profiles")
         .select("*")
         .eq("clerk_user_id", clerkUserId)
         .maybeSingle();
 
-      if (result.error) {
+      if (existingResult.error) {
+        throw existingResult.error;
+      }
+
+      if (existingResult.data) {
+        const updatePayload = Object.fromEntries(
+          Object.entries({
+            email: baseProfilePayload.email,
+            display_name: baseProfilePayload.display_name,
+            full_name: baseProfilePayload.full_name,
+            avatar_url: baseProfilePayload.avatar_url,
+            updated_at: new Date().toISOString()
+          }).filter(([, value]) => value !== undefined)
+        );
+
+        const updateResult = await client
+          .from("profiles")
+          .update(updatePayload)
+          .eq("clerk_user_id", clerkUserId)
+          .select("*")
+          .single();
+
+        if (updateResult.error) {
+          throw updateResult.error;
+        }
+
         return {
-          profile: null,
-          error: result.error,
-          status: classifyProfileError(result.error)
+          profile: updateResult.data,
+          created: false
         };
       }
 
-      if (result.data) {
-        return {
-          profile: result.data,
-          error: null,
-          status: "found"
-        };
-      }
+      const insertPayload = Object.fromEntries(
+        Object.entries({
+          clerk_user_id: baseProfilePayload.clerk_user_id,
+          email: baseProfilePayload.email,
+          display_name: baseProfilePayload.display_name,
+          full_name: baseProfilePayload.full_name,
+          avatar_url: baseProfilePayload.avatar_url,
+          account_status: baseProfilePayload.account_status,
+          trial_start_at: trialStartAt.toISOString(),
+          trial_end_at: trialEndAt.toISOString()
+        }).filter(([, value]) => value !== undefined)
+      );
 
-      return {
-        profile: null,
-        error: null,
-        status: "profile_not_found"
-      };
-    }
-
-    async function createProfileSafely(client, payload) {
-      const result = await client
+      const insertResult = await client
         .from("profiles")
-        .insert(payload)
+        .insert(insertPayload)
         .select("*")
-        .maybeSingle();
+        .single();
 
-      if (result.error) {
-        return {
-          profile: null,
-          error: result.error,
-          status: isDuplicateProfileEmailError(result.error)
-            ? "duplicate_email"
-            : classifyProfileError(result.error)
-        };
+      if (insertResult.error) {
+        throw insertResult.error;
       }
 
       return {
-        profile: result.data || null,
-        error: null,
-        status: result.data ? "created" : "profile_not_found"
+        profile: insertResult.data,
+        created: true
       };
-    }
-
-    function readLastProfileSnapshot() {
-      try {
-        const raw = window.localStorage.getItem(LAST_PROFILE_SNAPSHOT_KEY);
-        return raw ? JSON.parse(raw) : null;
-      } catch (error) {
-        return null;
-      }
-    }
-
-    function saveLastProfileSnapshot(profile) {
-      try {
-        if (!profile) {
-          return;
-        }
-
-        const snapshot = {
-          email: normalizeEmail(profile.email),
-          clerk_user_id: profile.clerk_user_id || null,
-          account_status: profile.account_status || null,
-          updated_at: profile.updated_at || null
-        };
-
-        window.localStorage.setItem(LAST_PROFILE_SNAPSHOT_KEY, JSON.stringify(snapshot));
-      } catch (error) {
-        return;
-      }
-    }
-
-    function formatSnapshotTimestamp(value) {
-      if (!value) {
-        return "";
-      }
-
-      const date = new Date(value);
-      if (Number.isNaN(date.getTime())) {
-        return "";
-      }
-
-      return new Intl.DateTimeFormat("ar-JO", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-      }).format(date);
-    }
-
-    async function recoverDuplicateEmailProfile(context) {
-      console.log("VVIP TIGER duplicate email recovery started");
-
-      const client = context.client;
-      const clerkUserId = context.clerkUserId;
-      const normalizedEmail = normalizeEmail(context.email);
-      const retryDelays = [300, 700, 1200];
-
-      for (let index = 0; index < retryDelays.length; index += 1) {
-        await sleep(retryDelays[index]);
-        const retryResult = await loadProfileByClerkId(client, clerkUserId);
-
-        if (retryResult.profile) {
-          console.log("VVIP TIGER profile recovery success");
-          return {
-            profile: retryResult.profile,
-            status: "recovered"
-          };
-        }
-      }
-
-      if (normalizedEmail) {
-        try {
-          const updateResult = await client
-            .from("profiles")
-            .update({
-              clerk_user_id: clerkUserId,
-              updated_at: new Date().toISOString()
-            })
-            .eq("email", normalizedEmail)
-            .or("clerk_user_id.is.null,clerk_user_id.eq." + clerkUserId)
-            .select("*")
-            .maybeSingle();
-
-          if (updateResult && updateResult.data) {
-            console.log("VVIP TIGER profile recovery success");
-            return {
-              profile: updateResult.data,
-              status: "recovered"
-            };
-          }
-        } catch (updateError) {
-          // Keep the user on the safe path; do not surface raw database errors.
-        }
-      }
-
-      const finalRetry = await loadProfileByClerkId(client, clerkUserId);
-      if (finalRetry.profile) {
-        console.log("VVIP TIGER profile recovery success");
-        return {
-          profile: finalRetry.profile,
-          status: "recovered"
-        };
-      }
-
-      return {
-        profile: null,
-        status: "recovery_failed"
-      };
-    }
-
-    function renderGatewayShell(options) {
-      const snapshot = readLastProfileSnapshot();
-      const snapshotLine = snapshot && snapshot.updated_at
-        ? "آخر مزامنة ناجحة: " + formatSnapshotTimestamp(snapshot.updated_at)
-        : snapshot
-          ? "آخر مزامنة ناجحة"
-          : "";
-      const message = options.message || "";
-      const subtitle = options.subtitle || "";
-
-      return `
-        <div class="vvip-official-profile">
-          <section class="vvip-profile-hero">
-            <div class="vvip-profile-top">
-              <div class="vvip-brand-mark">
-                <span class="vvip-brand-icon">🐅</span>
-                <span>VVIP TIGER</span>
-              </div>
-
-              <div class="vvip-secure-pill">${escapeHtml(options.pill || "تم تسجيل الدخول بنجاح")}</div>
-            </div>
-
-            <div class="vvip-profile-main">
-              <div class="vvip-member-card">
-                <div class="vvip-member-head">
-                  <div class="vvip-avatar" aria-hidden="true">VT</div>
-
-                  <div>
-                    <p class="vvip-kicker">${escapeHtml(options.kicker || "العضوية الخاصة الرسمية")}</p>
-                    <h1 class="vvip-title">VVIP TIGER</h1>
-                    <p class="vvip-email">${escapeHtml(subtitle)}</p>
-                  </div>
-                </div>
-
-                <div class="vvip-alert">${escapeHtml(message)}</div>
-
-                ${
-                  snapshotLine
-                    ? `<div class="vvip-status-line"><div class="vvip-mini-stat"><span>الحالة الاحتياطية</span><strong>${escapeHtml(snapshotLine)}</strong></div></div>`
-                    : ""
-                }
-
-                <div class="vvip-actions">
-                  ${options.actions || ""}
-                </div>
-              </div>
-
-              <aside class="vvip-info-card">
-                <h2 class="vvip-section-title">${escapeHtml(options.sideTitle || "مسار الأمان الحالي")}</h2>
-
-                <div class="vvip-flow">
-                  <div class="vvip-flow-item">
-                    <span>تسجيل الدخول</span>
-                    <small>Clerk</small>
-                  </div>
-
-                  <div class="vvip-flow-item">
-                    <span>صلاحيات القراءة والكتابة</span>
-                    <small>Supabase RLS</small>
-                  </div>
-
-                  <div class="vvip-flow-item">
-                    <span>جدول البيانات</span>
-                    <small>public.profiles</small>
-                  </div>
-
-                  <div class="vvip-flow-item">
-                    <span>${escapeHtml(options.flowLabel || "الحالة")}</span>
-                    <small>${escapeHtml(options.flowValue || "Official Mobile First")}</small>
-                  </div>
-                </div>
-              </aside>
-            </div>
-          </section>
-        </div>
-      `;
-    }
-
-    function attachRetryHandler() {
-      const retryBtn = document.getElementById("retry-profile-btn");
-      if (retryBtn) {
-        retryBtn.addEventListener("click", async function () {
-          if (profileResolutionInProgress) {
-            return;
-          }
-
-          await resolveProfileSelfHealing();
-        });
-      }
-    }
-
-    function renderProfileRecoveryMode(context) {
-      console.log("VVIP TIGER profile safe mode");
-
-      const message = context && context.message
-        ? context.message
-        : "جاري المزامنة...";
-      const subtitle = context && context.subtitle
-        ? context.subtitle
-        : "يتم تجهيز ملفك الخاص ومزامنة بيانات العضوية بأمان.";
-
-      const root =
-        document.querySelector("[data-profile-root]") ||
-        document.querySelector("main") ||
-        document.getElementById("app") ||
-        document.body;
-
-      root.innerHTML = renderGatewayShell({
-        pill: "جاري المزامنة...",
-        kicker: "تم تسجيل الدخول بنجاح",
-        subtitle: subtitle,
-        message: message,
-        sideTitle: "VVIP TIGER",
-        flowLabel: "حالة التهيئة",
-        flowValue: "جاري المزامنة",
-        actions:
-          '<a class="vvip-btn vvip-btn-primary" href="index.html">العودة لصفحة الدخول</a>' +
-          '<a class="vvip-btn vvip-btn-dark" href="public-profile.html">متابعة إلى الصفحة العامة</a>' +
-          '<button class="vvip-btn vvip-btn-soft" id="retry-profile-btn" type="button">إعادة المحاولة</button>' +
-          '<a class="vvip-btn vvip-btn-soft" href="public-profile.html">طلب مساعدة عبر Tiger Care</a>'
-      });
-
-      attachRetryHandler();
-    }
-
-    function renderProfileSafeMode(context) {
-      console.log("VVIP TIGER profile safe mode");
-
-      const snapshot = readLastProfileSnapshot();
-      const hasRecoveryIssue = context && context.recoveryFailed;
-      const subtitle = hasRecoveryIssue
-        ? "حسابك آمن، لكن ملف العضوية يحتاج مزامنة قصيرة."
-        : "يتم تجهيز ملفك الخاص ومزامنة بيانات العضوية بأمان. يمكنك المتابعة الآن أو المحاولة بعد لحظات.";
-      const message = hasRecoveryIssue
-        ? "يرجى إعادة المحاولة بعد لحظات أو إرسال طلب عبر Tiger Care."
-        : "يمكنك المتابعة الآن أو المحاولة بعد لحظات.";
-      const snapshotNote = snapshot && snapshot.updated_at
-        ? "آخر مزامنة ناجحة: " + formatSnapshotTimestamp(snapshot.updated_at)
-        : snapshot
-          ? "آخر مزامنة ناجحة"
-          : "";
-
-      const root =
-        document.querySelector("[data-profile-root]") ||
-        document.querySelector("main") ||
-        document.getElementById("app") ||
-        document.body;
-
-      root.innerHTML = renderGatewayShell({
-        pill: "تم تسجيل الدخول بنجاح",
-        kicker: "VVIP TIGER",
-        subtitle: subtitle,
-        message: message,
-        sideTitle: "VVIP TIGER",
-        flowLabel: snapshotNote ? "آخر مزامنة" : "الحالة",
-        flowValue: snapshotNote || "Safe Mode",
-        actions:
-          '<a class="vvip-btn vvip-btn-primary" href="index.html">العودة لصفحة الدخول</a>' +
-          '<a class="vvip-btn vvip-btn-dark" href="public-profile.html">متابعة إلى الصفحة العامة</a>' +
-          '<button class="vvip-btn vvip-btn-soft" id="retry-profile-btn" type="button">إعادة المحاولة</button>' +
-          '<a class="vvip-btn vvip-btn-soft" href="public-profile.html">طلب مساعدة عبر Tiger Care</a>'
-      });
-
-      attachRetryHandler();
-    }
-
-    async function resolveProfileSelfHealing(clerkUser) {
-      if (profileResolutionInProgress) {
-        return;
-      }
-
-      profileResolutionInProgress = true;
-
-      try {
-        const identity = await getSafeClerkIdentity();
-        const resolvedUser = clerkUser || identity.user || (window.Clerk && window.Clerk.user) || null;
-        const clerkUserId = identity.clerkUserId || (resolvedUser && resolvedUser.id ? String(resolvedUser.id) : null);
-        const email = identity.email || normalizeEmail(getPrimaryEmail(resolvedUser));
-        const client = createClerkSupabaseClient();
-
-        if (!identity.ok || !clerkUserId || !client || !client.from) {
-          renderProfileSafeMode({
-            recoveryFailed: false,
-            subtitle: "يتم تجهيز ملفك الخاص ومزامنة بيانات العضوية بأمان.",
-            message: "تم تسجيل الدخول بنجاح"
-          });
-          return;
-        }
-
-        console.log("VVIP TIGER profile load by clerk_user_id");
-        renderProfileRecoveryMode({
-          subtitle: "يتم تجهيز ملفك الخاص ومزامنة بيانات العضوية بأمان.",
-          message: "جاري المزامنة..."
-        });
-
-        const existingResult = await loadProfileByClerkId(client, clerkUserId);
-        if (existingResult.profile) {
-          console.log("VVIP TIGER profile recovery success");
-          renderProfile(resolvedUser || identity.user, existingResult.profile, false);
-          return;
-        }
-
-        const safePayload = buildSafeProfilePayload(resolvedUser || identity.user);
-        if (!safePayload) {
-          renderProfileSafeMode({
-            recoveryFailed: true
-          });
-          return;
-        }
-
-        const createResult = await createProfileSafely(client, safePayload);
-        if (createResult.profile) {
-          console.log("VVIP TIGER profile recovery success");
-          renderProfile(resolvedUser || identity.user, createResult.profile, true);
-          return;
-        }
-
-        if (createResult.status === "duplicate_email") {
-          const recoveryResult = await recoverDuplicateEmailProfile({
-            clerkUserId: clerkUserId,
-            email: email,
-            client: client
-          });
-
-          if (recoveryResult.profile) {
-            renderProfile(resolvedUser || identity.user, recoveryResult.profile, false);
-            return;
-          }
-
-          renderProfileSafeMode({
-            recoveryFailed: true,
-            subtitle: "حسابك آمن، لكن ملف العضوية يحتاج مزامنة قصيرة.",
-            message: "يرجى إعادة المحاولة بعد لحظات أو إرسال طلب عبر Tiger Care."
-          });
-          return;
-        }
-
-        if (createResult.status === "auth_missing") {
-          renderProfileSafeMode({
-            recoveryFailed: false
-          });
-          return;
-        }
-
-        renderProfileSafeMode({
-          recoveryFailed: true
-        });
-      } catch (error) {
-        renderProfileSafeMode({
-          recoveryFailed: true
-        });
-      } finally {
-        profileResolutionInProgress = false;
-      }
     }
 
     function renderProfile(user, profile, created) {
-      saveLastProfileSnapshot(profile);
-
       const root =
         document.querySelector("[data-profile-root]") ||
         document.querySelector("main") ||
@@ -1507,19 +1031,38 @@
     }
 
     window.addEventListener("load", async function () {
+      const app = document.getElementById("app");
+
       try {
-        if (!window.Clerk || !window.supabase) {
-          renderProfileSafeMode({
-            recoveryFailed: false
-          });
+        if (!window.Clerk) {
+          throw new Error("Clerk object not found");
+        }
+
+        if (!window.supabase) {
+          throw new Error("Supabase JS object not found");
+        }
+
+        await window.Clerk.load();
+
+        if (!window.Clerk.isSignedIn) {
+          window.location.href = "index.html";
           return;
         }
 
-        await resolveProfileSelfHealing(window.Clerk.user || null);
+        const user = window.Clerk.user || {};
+        const client = createClerkSupabaseClient();
+        const result = await loadOrCreateVvipProfile(client, user);
+
+        renderProfile(user, result.profile, result.created);
       } catch (error) {
-        renderProfileSafeMode({
-          recoveryFailed: true
-        });
+        console.error("Clerk + Supabase profile error:", error);
+        app.innerHTML = `
+          <h1 class="error">تعذر تحميل بروفايل VVIP TIGER</h1>
+          <p>الخطأ: ${escapeHtml(error.message || "غير معروف")}</p>
+          <div class="actions">
+            <a href="index.html">العودة لصفحة الدخول</a>
+          </div>
+        `;
       }
     });
   </script>
