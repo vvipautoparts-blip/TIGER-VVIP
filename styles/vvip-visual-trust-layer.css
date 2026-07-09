@@ -173,3 +173,144 @@ textarea:focus-visible,
     min-height: 44px;
   }
 }
+
+/* --------------------------------------------------------------------------
+   Visual Trust Layer — Phase 2
+   Contrast & Readability Fix
+   Purpose:
+   - Prevent pale/white text from disappearing on light cards.
+   - Improve public profile/social page readability.
+   - Keep premium identity without changing backend/auth logic.
+-------------------------------------------------------------------------- */
+
+/* Light surfaces must use dark readable text */
+:is(
+  .story-card,
+  .stories-card,
+  .story,
+  .member-card,
+  .active-member,
+  .user-card,
+  .profile-public-card,
+  .public-card,
+  .feed-card,
+  .listing-card,
+  .shortcut-card,
+  .suggestion-card,
+  .white-card,
+  .light-card
+) {
+  color: #0f172a;
+}
+
+/* Paragraphs and secondary text inside light cards */
+:is(
+  .story-card,
+  .stories-card,
+  .story,
+  .member-card,
+  .active-member,
+  .user-card,
+  .profile-public-card,
+  .public-card,
+  .feed-card,
+  .listing-card,
+  .shortcut-card,
+  .suggestion-card,
+  .white-card,
+  .light-card
+) :is(p, span, small, strong, b, h1, h2, h3, h4, h5, h6, label) {
+  color: inherit;
+}
+
+/* Muted text on light cards should still be readable */
+:is(
+  .story-card,
+  .stories-card,
+  .story,
+  .member-card,
+  .active-member,
+  .user-card,
+  .profile-public-card,
+  .public-card,
+  .feed-card,
+  .listing-card,
+  .shortcut-card,
+  .suggestion-card,
+  .white-card,
+  .light-card
+) :is(.muted, .text-muted, .subtitle, .caption, .meta, .time, .description) {
+  color: #475569;
+}
+
+/* Gold labels need enough contrast on white */
+:is(
+  .story-card,
+  .stories-card,
+  .story,
+  .member-card,
+  .active-member,
+  .user-card,
+  .profile-public-card,
+  .public-card,
+  .feed-card,
+  .listing-card
+) :is(.vip, .badge, .tag, .label, .status, .category) {
+  color: #8a5b00;
+}
+
+/* Story cards often had white text on white background */
+:is(.story-card, .stories-card, .story) {
+  text-shadow: none;
+}
+
+:is(.story-card, .stories-card, .story) :is(.story-title, .story-text, .story-meta, .story-label) {
+  color: #0f172a;
+  text-shadow: none;
+}
+
+/* Active members list readability */
+:is(.member-card, .active-member, .user-card) :is(.member-name, .user-name, .name, .title) {
+  color: #0f172a;
+  font-weight: 800;
+}
+
+:is(.member-card, .active-member, .user-card) :is(.member-status, .user-status, .status-text, .time, .meta) {
+  color: #64748b;
+}
+
+/* Search and filter controls on light UI */
+:is(.search-box, .search-input, .filter-button, .tab-button, .pill-button) {
+  color: #0f172a;
+}
+
+:is(.search-box, .search-input) input,
+input:is(.search-box, .search-input),
+input[type="search"] {
+  color: #0f172a;
+}
+
+:is(.search-box, .search-input) input::placeholder,
+input[type="search"]::placeholder {
+  color: #64748b;
+  opacity: 1;
+}
+
+/* Dark nav/header areas keep light text */
+:is(.topbar, .navbar, .nav-shell, .dark-shell, .vvip-dark, .vip-social-lounge) {
+  color: #f8fafc;
+}
+
+:is(.topbar, .navbar, .nav-shell, .dark-shell, .vvip-dark, .vip-social-lounge) :is(p, span, small, strong, b, h1, h2, h3, h4, h5, h6, label) {
+  color: inherit;
+}
+
+/* Prevent invisible placeholder or disabled-looking text */
+::placeholder {
+  opacity: 1;
+}
+
+/* Better Arabic readability */
+[dir="rtl"] :is(.story-card, .member-card, .active-member, .user-card, .public-card, .feed-card) {
+  line-height: 1.75;
+}
