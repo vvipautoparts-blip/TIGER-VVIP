@@ -81,7 +81,13 @@
   </style>
   <link rel="stylesheet" href="styles/vvip-visual-trust-layer.css">
 </head>
-<body class="vvip-profile-ux-polish vvip-page-private-profile">
+<body class="vvip-profile-ux-polish vvip-page-private-profile vvip-page-flow-journey">
+<nav class="vvip-journey-bar" aria-label="Private profile journey navigation">
+  <a class="vvip-journey-link" href="index.html" data-vvip-action="go-home" aria-label="Go to home page">الرئيسية</a>
+  <a class="vvip-journey-link" href="public-profile.html" data-vvip-action="go-public-profile" aria-label="Go to public profile">البروفايل العام</a>
+  <button class="vvip-journey-link vvip-journey-signout" type="button" data-vvip-action="private-profile-signout" aria-label="Sign out">تسجيل الخروج</button>
+</nav>
+
   <main class="redirect-card" aria-live="polite">
     <div class="redirect-mark">VT</div>
     <h1>جاري تحويلك للبروفايل الرسمي</h1>
@@ -121,5 +127,36 @@
     })();
   </script>
   <script src="scripts/vvip-safe-ux-guard.js" defer></script>
+<script>
+(function () {
+  "use strict";
+
+  function goHomeSafely() {
+    window.location.href = "index.html";
+  }
+
+  async function signOutSafely() {
+    try {
+      if (window.Clerk && typeof window.Clerk.signOut === "function") {
+        await window.Clerk.signOut();
+        goHomeSafely();
+        return;
+      }
+    } catch (error) {
+      /* Keep logout failure calm and non-technical for users. */
+    }
+
+    goHomeSafely();
+  }
+
+  document.addEventListener("click", function (event) {
+    var target = event.target && event.target.closest ? event.target.closest("[data-vvip-action='private-profile-signout']") : null;
+    if (!target) return;
+
+    event.preventDefault();
+    signOutSafely();
+  });
+})();
+</script>
 </body>
 </html>
