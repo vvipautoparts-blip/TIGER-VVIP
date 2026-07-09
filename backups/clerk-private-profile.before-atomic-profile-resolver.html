@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VVIP TIGER - Private Profile</title>
+  <title>VVIP TIGER - Clerk Supabase Profile</title>
 
   <style>
     body {
@@ -660,7 +660,6 @@
       return user.imageUrl || user.profileImageUrl || "";
     }
 
-    // VVIP TIGER Clerk-Supabase JWT Bridge
     async function waitForClerkSession() {
       const retryDelays = [250, 500, 900, 1400];
 
@@ -802,11 +801,7 @@
         clerkLoaded: Boolean(window.Clerk),
         hasUser: Boolean(window.Clerk && window.Clerk.user),
         hasSession: Boolean(window.Clerk && window.Clerk.session),
-        lastProfileState: window.__vvipTigerLastProfileState || null,
-        rpcResolverAvailable: Boolean(
-          window.supabase &&
-          typeof window.supabase.createClient === "function"
-        )
+        lastProfileState: window.__vvipTigerLastProfileState || null
       };
     };
 
@@ -1143,73 +1138,6 @@
       };
     }
 
-    // VVIP TIGER Atomic Profile Resolver RPC
-    async function resolveProfileViaRpc(clerkUser) {
-      const authBundle = await getActiveProfileClient();
-      const authState = authBundle.authState;
-      const client = authBundle.client;
-      const normalizedEmail = normalizeEmail(getPrimaryEmail(clerkUser));
-
-      updateProfileState("rpc_resolver_start", {
-        authState: authState ? authState.status : null
-      });
-
-      if (!authState || authState.ok !== true || !client || typeof client.rpc !== "function") {
-        updateProfileState("rpc_resolver_unavailable", {
-          authState: authState ? authState.status : null
-        });
-        return {
-          profile: null,
-          status: "rpc_unavailable",
-          authState: authState,
-          client: client
-        };
-      }
-
-      const rpcResult = await client.rpc("vvip_resolve_own_profile", {
-        p_email: normalizedEmail
-      });
-
-      if (rpcResult.error) {
-        updateProfileState("rpc_resolver_error", {
-          authState: authState.status,
-          errorClass: classifyProfileError(rpcResult.error)
-        });
-        console.log("VVIP TIGER atomic profile resolver fallback");
-        return {
-          profile: null,
-          status: classifyProfileError(rpcResult.error),
-          authState: authState,
-          client: client
-        };
-      }
-
-      const data = rpcResult.data;
-      if (data && data.ok === true && data.profile) {
-        updateProfileState("rpc_resolver_success", {
-          status: data.status || "profile_loaded"
-        });
-        return {
-          profile: data.profile,
-          status: data.status || "profile_loaded",
-          authState: authState,
-          client: client
-        };
-      }
-
-      updateProfileState("rpc_resolver_non_ok", {
-        status: data && data.status ? data.status : "rpc_non_ok"
-      });
-      console.log("VVIP TIGER atomic profile resolver fallback");
-
-      return {
-        profile: null,
-        status: data && data.status ? data.status : "rpc_non_ok",
-        authState: authState,
-        client: client
-      };
-    }
-
     function renderGatewayShell(options) {
       const snapshot = readLastProfileSnapshot();
       const snapshotLine = snapshot && snapshot.updated_at
@@ -1390,11 +1318,15 @@
       profileResolutionInProgress = true;
 
       try {
+        const authBundle = await getActiveProfileClient();
+        const authState = authBundle.authState;
+        const client = authBundle.client;
         const identity = await getSafeClerkIdentity();
         const resolvedUser = clerkUser || identity.user || (window.Clerk && window.Clerk.user) || null;
-        const clerkUserId = identity.clerkUserId || (resolvedUser && resolvedUser.id ? String(resolvedUser.id) : null);
+        const clerkUserId = resolvedUser && resolvedUser.id ? String(resolvedUser.id) : null;
+        const email = normalizeEmail(getPrimaryEmail(resolvedUser));
 
-        if (!identity.ok || !clerkUserId) {
+        if (!authState.ok || !clerkUserId || !client || !client.from) {
           renderProfileRecoveryMode({
             subtitle: "حسابك آمن، ويتم تجهيز ملفك الخاص.",
             message: "جاري مزامنة ملف العضوية..."
@@ -1407,25 +1339,6 @@
           subtitle: "حسابك آمن، ويتم تجهيز ملفك الخاص.",
           message: "جاري مزامنة ملف العضوية..."
         });
-
-        const rpcResult = await resolveProfileViaRpc(resolvedUser || identity.user);
-        if (rpcResult.profile) {
-          console.log("VVIP TIGER profile recovery success");
-          renderProfile(resolvedUser || identity.user, rpcResult.profile, false);
-          return;
-        }
-
-        const authState = rpcResult.authState;
-        const client = rpcResult.client;
-        const email = normalizeEmail(getPrimaryEmail(resolvedUser || identity.user));
-
-        if (!authState || !authState.ok || !client || !client.from) {
-          renderProfileRecoveryMode({
-            subtitle: "حسابك آمن، ويتم تجهيز ملفك الخاص.",
-            message: "جاري مزامنة ملف العضوية..."
-          });
-          return;
-        }
 
         const existingResult = await loadProfileByClerkId(client, clerkUserId, authState);
         if (existingResult.profile) {
@@ -1716,8 +1629,8 @@
                 <div class="vvip-alert">
                   ${
                     created
-                      ? "تم إنشاء بروفايل جديد وربطه بنجاح."
-                      : "تم تحميل البروفايل الخاص وربطه بنجاح."
+                      ? "تم إنشاء بروفايل جديد وربطه مع Clerk و Supabase بنجاح."
+                      : "تم تحميل البروفايل الخاص وربطه مع Clerk و Supabase بنجاح."
                   }
                 </div>
 
