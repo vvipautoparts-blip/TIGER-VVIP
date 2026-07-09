@@ -15,3 +15,6 @@ node_modules/
 reports/*.log
 package-lock.json
 package.json
+
+# Local safety backups generated during controlled implementation phases
+.local-backups/
