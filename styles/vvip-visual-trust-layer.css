@@ -786,3 +786,40 @@ body.vvip-page-flow-journey .vvip-journey-signout {
     flex: 1 1 120px;
   }
 }
+
+/* --------------------------------------------------------------------------
+   Public Pages Consistency — Phase 1
+   Clerk Test Home Navigation
+   Purpose:
+   - Add clear home/back navigation to clerk-test.html.
+   - Keep change visual/user-facing only.
+   - Do not change Clerk logic, Supabase, RPC, RLS, or backend behavior.
+-------------------------------------------------------------------------- */
+
+body.vvip-public-page-consistency .vvip-public-page-return {
+  position: fixed;
+  top: 14px;
+  inset-inline-start: 14px;
+  z-index: 40;
+}
+
+body.vvip-public-page-consistency .vvip-public-page-return-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(214, 170, 63, 0.28);
+  background: rgba(7, 17, 31, 0.82);
+  color: #f8fafc;
+  font-weight: 800;
+  text-decoration: none;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+}
+
+body.vvip-public-page-consistency .vvip-public-page-return-link:hover {
+  transform: translateY(-1px);
+  border-color: rgba(242, 210, 122, 0.46);
+}
