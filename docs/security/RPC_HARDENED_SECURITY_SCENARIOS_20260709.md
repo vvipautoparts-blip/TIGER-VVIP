@@ -2,7 +2,7 @@
 
 ## الملف محل المراجعة
 
-`supabase/migrations/20260709_vvip_tiger_atomic_profile_resolver_rpc_hardened_review.sql`
+`docs/security/sql-review/20260709_vvip_tiger_atomic_profile_resolver_rpc_hardened_review.sql`
 
 ## الحالة
 
@@ -241,3 +241,18 @@
 1. مراجعة نهائية للفرق بين migration القديم والمحسّن.
 2. ثم فتح Pull Request.
 3. ثم بعد الدمج فقط ننتقل إلى خطة backup + manual Supabase apply.
+
+---
+
+## قرار تنظيمي إضافي
+
+تم نقل ملف SQL المحسّن إلى مجلد مراجعة آمن خارج `supabase/migrations`.
+
+السبب:
+ملفات `REVIEW ONLY` لا يجب أن تبقى داخل مجلد migrations الرسمي حتى لا يتم تطبيقها بالغلط مستقبلًا.
+
+المسار الحالي الآمن:
+
+`docs/security/sql-review/20260709_vvip_tiger_atomic_profile_resolver_rpc_hardened_review.sql`
+
+عند اعتماد التطبيق لاحقًا، يتم إنشاء migration رسمي جديد داخل `supabase/migrations` بعد backup ومراجعة نهائية.
