@@ -660,150 +660,20 @@
       return user.imageUrl || user.profileImageUrl || "";
     }
 
-    async function waitForClerkSession() {
-      const retryDelays = [250, 500, 900, 1400];
-
-      for (let index = 0; index < retryDelays.length; index += 1) {
-        try {
-          if (window.Clerk && typeof window.Clerk.load === "function") {
-            await window.Clerk.load();
-          }
-
-          const user = window.Clerk && window.Clerk.user ? window.Clerk.user : null;
-          const session = window.Clerk && window.Clerk.session ? window.Clerk.session : null;
-
-          if (user && session) {
-            return {
-              ok: true,
-              status: "ready",
-              user: user,
-              session: session
-            };
-          }
-        } catch (error) {
-          // Keep retrying silently; the UI will handle the fallback state.
-        }
-
-        if (index < retryDelays.length - 1) {
-          await sleep(retryDelays[index]);
-        }
-      }
-
-      const user = window.Clerk && window.Clerk.user ? window.Clerk.user : null;
-      const session = window.Clerk && window.Clerk.session ? window.Clerk.session : null;
-
-      return {
-        ok: false,
-        status: user ? "session_missing" : "auth_missing",
-        user: user,
-        session: session
-      };
-    }
-
-    async function getClerkSupabaseAccessToken() {
-      const sessionState = await waitForClerkSession();
-
-      if (!sessionState.ok || !sessionState.session || typeof sessionState.session.getToken !== "function") {
-        console.log("VVIP TIGER Clerk token available: false");
-        return null;
-      }
-
-      try {
-        const token = await sessionState.session.getToken();
-        console.log("VVIP TIGER Clerk token available: " + Boolean(token));
-        return token || null;
-      } catch (error) {
-        console.log("VVIP TIGER Clerk token available: false");
-        return null;
-      }
-    }
-
-    function createClerkSupabaseClient(clerkToken) {
-      const clientOptions = {};
-
-      if (clerkToken) {
-        clientOptions.accessToken = async function () {
-          return clerkToken;
-        };
-
-        clientOptions.global = {
-          headers: {
-            Authorization: "Bearer " + clerkToken
-          }
-        };
-      }
-
+    function createClerkSupabaseClient() {
       return window.supabase.createClient(
         VVIP_SUPABASE_URL,
         VVIP_SUPABASE_PUBLISHABLE_KEY,
-        clientOptions
-      );
-    }
-
-    async function assertSupabaseAuthReady() {
-      const sessionState = await waitForClerkSession();
-
-      if (!sessionState.ok) {
-        return {
-          ok: false,
-          status: sessionState.status,
-          user: sessionState.user || null,
-          session: sessionState.session || null,
-          token: null,
-          client: null
-        };
-      }
-
-      const token = await getClerkSupabaseAccessToken();
-
-      if (!token) {
-        return {
-          ok: false,
-          status: "session_missing",
-          user: sessionState.user,
-          session: sessionState.session,
-          token: null,
-          client: null
-        };
-      }
-
-      return {
-        ok: true,
-        status: "ready",
-        user: sessionState.user,
-        session: sessionState.session,
-        token: token,
-        client: createClerkSupabaseClient(token)
-      };
-    }
-
-    async function getActiveProfileClient() {
-      const authState = await assertSupabaseAuthReady();
-
-      return {
-        authState: authState,
-        client: authState.client || null
-      };
-    }
-
-    function updateProfileState(state, details) {
-      window.__vvipTigerLastProfileState = Object.assign(
         {
-          state: state,
-          timestamp: new Date().toISOString()
-        },
-        details || {}
+          async accessToken() {
+            if (!window.Clerk || !window.Clerk.session) {
+              return null;
+            }
+            return window.Clerk.session.getToken();
+          }
+        }
       );
     }
-
-    window.__VVIP_TIGER_PROFILE_DEBUG__ = function () {
-      return {
-        clerkLoaded: Boolean(window.Clerk),
-        hasUser: Boolean(window.Clerk && window.Clerk.user),
-        hasSession: Boolean(window.Clerk && window.Clerk.session),
-        lastProfileState: window.__vvipTigerLastProfileState || null
-      };
-    };
 
     const LAST_PROFILE_SNAPSHOT_KEY = "vvip_tiger_last_profile_snapshot";
     let profileResolutionInProgress = false;
@@ -835,23 +705,14 @@
 
       const code = String(error && error.code ? error.code : "").toLowerCase();
       const message = String(error && error.message ? error.message : "").toLowerCase();
-      const status = Number(error && error.status ? error.status : 0);
 
       if (
         code === "auth_missing" ||
-        status === 401 ||
-        status === 403 ||
-        code === "401" ||
-        code === "403" ||
         message.indexOf("not authenticated") !== -1 ||
         message.indexOf("authentication") !== -1 ||
-        message.indexOf("clerk") !== -1 ||
-        message.indexOf("row level security") !== -1 ||
-        message.indexOf("rls") !== -1 ||
-        message.indexOf("permission denied") !== -1 ||
-        message.indexOf("jwt") !== -1
+        message.indexOf("clerk") !== -1
       ) {
-        return "auth_or_rls";
+        return "auth_missing";
       }
 
       if (
@@ -877,21 +738,53 @@
     }
 
     async function getSafeClerkIdentity() {
-      const sessionState = await waitForClerkSession();
-      const user = sessionState.user || null;
-      const clerkUserId = user && user.id ? String(user.id) : null;
-      const email = normalizeEmail(
-        user && user.primaryEmailAddress && user.primaryEmailAddress.emailAddress
-      );
+      try {
+        if (!window.Clerk) {
+          return {
+            ok: false,
+            status: "auth_missing",
+            clerkUserId: null,
+            email: null,
+            user: null
+          };
+        }
 
-      return {
-        ok: Boolean(sessionState.ok && clerkUserId),
-        status: sessionState.ok && clerkUserId ? "ready" : sessionState.status,
-        clerkUserId: clerkUserId,
-        email: email,
-        user: user,
-        session: sessionState.session || null
-      };
+        if (typeof window.Clerk.load === "function") {
+          await window.Clerk.load();
+        }
+
+        const user = window.Clerk.user || null;
+        const clerkUserId = user && user.id ? String(user.id) : null;
+        const email = normalizeEmail(
+          user && user.primaryEmailAddress && user.primaryEmailAddress.emailAddress
+        );
+
+        if (!clerkUserId) {
+          return {
+            ok: false,
+            status: "auth_missing",
+            clerkUserId: null,
+            email: email,
+            user: user
+          };
+        }
+
+        return {
+          ok: true,
+          status: "ready",
+          clerkUserId: clerkUserId,
+          email: email,
+          user: user
+        };
+      } catch (error) {
+        return {
+          ok: false,
+          status: classifyProfileError(error),
+          clerkUserId: null,
+          email: null,
+          user: null
+        };
+      }
     }
 
     function buildSafeProfilePayload(clerkUser) {
@@ -925,20 +818,7 @@
       );
     }
 
-    async function loadProfileByClerkId(client, clerkUserId, authState) {
-      updateProfileState("loadProfileByClerkId", {
-        clerkUserId: clerkUserId,
-        authState: authState ? authState.status : null
-      });
-
-      if (!authState || authState.ok !== true || !client) {
-        return {
-          profile: null,
-          error: null,
-          status: "auth_or_rls"
-        };
-      }
-
+    async function loadProfileByClerkId(client, clerkUserId) {
       const result = await client
         .from("profiles")
         .select("*")
@@ -946,11 +826,10 @@
         .maybeSingle();
 
       if (result.error) {
-        const classified = classifyProfileError(result.error);
         return {
           profile: null,
           error: result.error,
-          status: classified
+          status: classifyProfileError(result.error)
         };
       }
 
@@ -969,19 +848,7 @@
       };
     }
 
-    async function createProfileSafely(client, payload, authState) {
-      updateProfileState("createProfileSafely", {
-        authState: authState ? authState.status : null
-      });
-
-      if (!authState || authState.ok !== true || !client) {
-        return {
-          profile: null,
-          error: null,
-          status: "auth_or_rls"
-        };
-      }
-
+    async function createProfileSafely(client, payload) {
       const result = await client
         .from("profiles")
         .insert(payload)
@@ -1058,24 +925,11 @@
       const client = context.client;
       const clerkUserId = context.clerkUserId;
       const normalizedEmail = normalizeEmail(context.email);
-      const authState = context.authState || null;
       const retryDelays = [300, 700, 1200];
-
-      updateProfileState("recoverDuplicateEmailProfile", {
-        clerkUserId: clerkUserId,
-        authState: authState ? authState.status : null
-      });
-
-      if (!authState || authState.ok !== true || !client) {
-        return {
-          profile: null,
-          status: "auth_or_rls"
-        };
-      }
 
       for (let index = 0; index < retryDelays.length; index += 1) {
         await sleep(retryDelays[index]);
-        const retryResult = await loadProfileByClerkId(client, clerkUserId, authState);
+        const retryResult = await loadProfileByClerkId(client, clerkUserId);
 
         if (retryResult.profile) {
           console.log("VVIP TIGER profile recovery success");
@@ -1106,24 +960,12 @@
               status: "recovered"
             };
           }
-
-          if (updateResult && updateResult.error && classifyProfileError(updateResult.error) === "auth_or_rls") {
-            return {
-              profile: null,
-              status: "auth_or_rls"
-            };
-          }
         } catch (updateError) {
-          if (classifyProfileError(updateError) === "auth_or_rls") {
-            return {
-              profile: null,
-              status: "auth_or_rls"
-            };
-          }
+          // Keep the user on the safe path; do not surface raw database errors.
         }
       }
 
-      const finalRetry = await loadProfileByClerkId(client, clerkUserId, authState);
+      const finalRetry = await loadProfileByClerkId(client, clerkUserId);
       if (finalRetry.profile) {
         console.log("VVIP TIGER profile recovery success");
         return {
@@ -1195,13 +1037,13 @@
                   </div>
 
                   <div class="vvip-flow-item">
-                    <span>صلاحيات الوصول</span>
-                    <small>محمية</small>
+                    <span>صلاحيات القراءة والكتابة</span>
+                    <small>Supabase RLS</small>
                   </div>
 
                   <div class="vvip-flow-item">
-                    <span>الملف الرسمي</span>
-                    <small>مزامنة آمنة</small>
+                    <span>جدول البيانات</span>
+                    <small>public.profiles</small>
                   </div>
 
                   <div class="vvip-flow-item">
@@ -1231,9 +1073,6 @@
 
     function renderProfileRecoveryMode(context) {
       console.log("VVIP TIGER profile safe mode");
-      updateProfileState("profile_recovery_mode", {
-        recoveryFailed: Boolean(context && context.recoveryFailed)
-      });
 
       const message = context && context.message
         ? context.message
@@ -1268,9 +1107,6 @@
 
     function renderProfileSafeMode(context) {
       console.log("VVIP TIGER profile safe mode");
-      updateProfileState("profile_safe_mode", {
-        recoveryFailed: Boolean(context && context.recoveryFailed)
-      });
 
       const snapshot = readLastProfileSnapshot();
       const hasRecoveryIssue = context && context.recoveryFailed;
@@ -1318,53 +1154,43 @@
       profileResolutionInProgress = true;
 
       try {
-        const authBundle = await getActiveProfileClient();
-        const authState = authBundle.authState;
-        const client = authBundle.client;
         const identity = await getSafeClerkIdentity();
         const resolvedUser = clerkUser || identity.user || (window.Clerk && window.Clerk.user) || null;
-        const clerkUserId = resolvedUser && resolvedUser.id ? String(resolvedUser.id) : null;
-        const email = normalizeEmail(getPrimaryEmail(resolvedUser));
+        const clerkUserId = identity.clerkUserId || (resolvedUser && resolvedUser.id ? String(resolvedUser.id) : null);
+        const email = identity.email || normalizeEmail(getPrimaryEmail(resolvedUser));
+        const client = createClerkSupabaseClient();
 
-        if (!authState.ok || !clerkUserId || !client || !client.from) {
-          renderProfileRecoveryMode({
-            subtitle: "حسابك آمن، ويتم تجهيز ملفك الخاص.",
-            message: "جاري مزامنة ملف العضوية..."
+        if (!identity.ok || !clerkUserId || !client || !client.from) {
+          renderProfileSafeMode({
+            recoveryFailed: false,
+            subtitle: "يتم تجهيز ملفك الخاص ومزامنة بيانات العضوية بأمان.",
+            message: "تم تسجيل الدخول بنجاح"
           });
           return;
         }
 
         console.log("VVIP TIGER profile load by clerk_user_id");
         renderProfileRecoveryMode({
-          subtitle: "حسابك آمن، ويتم تجهيز ملفك الخاص.",
-          message: "جاري مزامنة ملف العضوية..."
+          subtitle: "يتم تجهيز ملفك الخاص ومزامنة بيانات العضوية بأمان.",
+          message: "جاري المزامنة..."
         });
 
-        const existingResult = await loadProfileByClerkId(client, clerkUserId, authState);
+        const existingResult = await loadProfileByClerkId(client, clerkUserId);
         if (existingResult.profile) {
           console.log("VVIP TIGER profile recovery success");
           renderProfile(resolvedUser || identity.user, existingResult.profile, false);
           return;
         }
 
-        if (existingResult.status === "auth_or_rls") {
-          renderProfileRecoveryMode({
-            subtitle: "حسابك آمن، ويتم تجهيز ملفك الخاص.",
-            message: "جاري مزامنة ملف العضوية..."
-          });
-          return;
-        }
-
         const safePayload = buildSafeProfilePayload(resolvedUser || identity.user);
         if (!safePayload) {
-          renderProfileRecoveryMode({
-            subtitle: "حسابك آمن، ويتم تجهيز ملفك الخاص.",
-            message: "جاري مزامنة ملف العضوية..."
+          renderProfileSafeMode({
+            recoveryFailed: true
           });
           return;
         }
 
-        const createResult = await createProfileSafely(client, safePayload, authState);
+        const createResult = await createProfileSafely(client, safePayload);
         if (createResult.profile) {
           console.log("VVIP TIGER profile recovery success");
           renderProfile(resolvedUser || identity.user, createResult.profile, true);
@@ -1375,20 +1201,11 @@
           const recoveryResult = await recoverDuplicateEmailProfile({
             clerkUserId: clerkUserId,
             email: email,
-            client: client,
-            authState: authState
+            client: client
           });
 
           if (recoveryResult.profile) {
             renderProfile(resolvedUser || identity.user, recoveryResult.profile, false);
-            return;
-          }
-
-          if (recoveryResult.status === "auth_or_rls") {
-            renderProfileRecoveryMode({
-              subtitle: "حسابك آمن، ويتم تجهيز ملفك الخاص.",
-              message: "جاري مزامنة ملف العضوية..."
-            });
             return;
           }
 
@@ -1400,10 +1217,9 @@
           return;
         }
 
-        if (createResult.status === "auth_or_rls") {
-          renderProfileRecoveryMode({
-            subtitle: "حسابك آمن، ويتم تجهيز ملفك الخاص.",
-            message: "جاري مزامنة ملف العضوية..."
+        if (createResult.status === "auth_missing") {
+          renderProfileSafeMode({
+            recoveryFailed: false
           });
           return;
         }
@@ -1422,11 +1238,6 @@
 
     function renderProfile(user, profile, created) {
       saveLastProfileSnapshot(profile);
-      updateProfileState("profile_rendered", {
-        clerkUserId: profile && profile.clerk_user_id ? profile.clerk_user_id : null,
-        accountStatus: profile && profile.account_status ? profile.account_status : null,
-        updatedAt: profile && profile.updated_at ? profile.updated_at : null
-      });
 
       const root =
         document.querySelector("[data-profile-root]") ||
@@ -1485,7 +1296,7 @@
                 <span>VVIP TIGER</span>
               </div>
 
-              <div class="vvip-secure-pill">✓ تم الربط الآمن عبر Clerk</div>
+              <div class="vvip-secure-pill">✓ تم الربط مع Supabase عبر Clerk</div>
             </div>
 
             <div class="vvip-profile-main">
@@ -1517,7 +1328,7 @@
 
                   <div class="vvip-mini-stat">
                     <span>طبقة الدخول</span>
-                    <strong>Clerk + Safe Access</strong>
+                    <strong>Clerk + RLS</strong>
                   </div>
                 </div>
 
@@ -1651,13 +1462,13 @@
                   </div>
 
                   <div class="vvip-flow-item">
-                    <span>صلاحيات الوصول</span>
-                    <small>محمية</small>
+                    <span>صلاحيات القراءة والكتابة</span>
+                    <small>Supabase RLS</small>
                   </div>
 
                   <div class="vvip-flow-item">
-                    <span>الملف الرسمي</span>
-                    <small>مزامنة آمنة</small>
+                    <span>جدول البيانات</span>
+                    <small>public.profiles</small>
                   </div>
 
                   <div class="vvip-flow-item">
@@ -1697,14 +1508,14 @@
 
     window.addEventListener("load", async function () {
       try {
-        if (!window.supabase) {
+        if (!window.Clerk || !window.supabase) {
           renderProfileSafeMode({
-            recoveryFailed: true
+            recoveryFailed: false
           });
           return;
         }
 
-        await resolveProfileSelfHealing(window.Clerk && window.Clerk.user ? window.Clerk.user : null);
+        await resolveProfileSelfHealing(window.Clerk.user || null);
       } catch (error) {
         renderProfileSafeMode({
           recoveryFailed: true
