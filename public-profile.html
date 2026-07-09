@@ -710,11 +710,11 @@ body.social-page {
     </div>
   </section>
   <div class="vvip-filters" aria-label="فلاتر سريعة">
-    <button type="button">الكل</button>
-    <button type="button">المتابعين</button>
-    <button type="button">فيديو</button>
-    <button type="button">صور</button>
-    <button type="button">فعاليات</button>
+    <button type="button" data-vvip-action="public-profile-control-1" aria-label="الكل">الكل</button>
+    <button type="button" data-vvip-action="public-profile-control-2" aria-label="المتابعين">المتابعين</button>
+    <button type="button" data-vvip-action="public-profile-control-3" aria-label="فيديو">فيديو</button>
+    <button type="button" data-vvip-action="public-profile-control-4" aria-label="صور">صور</button>
+    <button type="button" data-vvip-action="public-profile-control-5" aria-label="فعاليات">فعاليات</button>
   </div>
 </section>
 
@@ -1178,7 +1178,7 @@ body.social-page {
       </div>
       <form class="sheet-input" onsubmit="return false;">
         <input type="text" placeholder="اكتب تعليقك" aria-label="تعليق" data-i18n-placeholder-ar="اكتب تعليقك" data-i18n-placeholder-en="Write your comment" data-i18n-aria-ar="تعليق" data-i18n-aria-en="Comment" />
-        <button type="submit" data-i18n-ar="إرسال" data-i18n-en="Send">إرسال</button>
+        <button type="submit" data-vvip-action="send-public-profile-message" data-i18n-ar="إرسال" data-i18n-en="Send">إرسال</button>
       </form>
     </div>
   </aside>
