@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta http-equiv="refresh" content="2; url=clerk-private-profile.html" />
+  <title>تحويل إلى البروفايل الرسمي | VVIP TIGER</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="vvip-identity.css?v=20260708-7-1" />
+
+  <style>
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: "Cairo", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(214, 168, 79, 0.16), transparent 34%),
+        linear-gradient(135deg, #07111f 0%, #0b1627 52%, #050a12 100%);
+      color: #f8fafc;
+    }
+
+    .redirect-card {
+      width: min(520px, 100%);
+      padding: 28px;
+      border-radius: 24px;
+      text-align: center;
+      background: rgba(16, 24, 39, 0.94);
+      border: 1px solid rgba(214, 168, 79, 0.32);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
+    }
+
+    .redirect-mark {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 16px;
+      display: grid;
+      place-items: center;
+      border-radius: 20px;
+      font-size: 30px;
+      background: linear-gradient(135deg, #f0d58a, #d6a84f, #9d7427);
+      color: #07111f;
+      font-weight: 900;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(24px, 5vw, 34px);
+      color: #ffffff;
+    }
+
+    p {
+      margin: 0 0 18px;
+      color: #cbd5e1;
+      line-height: 1.8;
+    }
+
+    a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 18px;
+      border-radius: 14px;
+      text-decoration: none;
+      font-weight: 800;
+      color: #07111f;
+      background: linear-gradient(135deg, #f0d58a, #d6a84f);
+      border: 1px solid rgba(240, 213, 138, 0.55);
+    }
+
+    small {
+      display: block;
+      margin-top: 14px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+  <main class="redirect-card" aria-live="polite">
+    <div class="redirect-mark">VT</div>
+    <h1>جاري تحويلك للبروفايل الرسمي</h1>
+    <p>
+      تم نقل البروفايل الخاص إلى النسخة الرسمية الجديدة المعتمدة على Clerk.
+      سيتم تحويلك تلقائيًا خلال لحظات.
+    </p>
+    <a id="redirect-link" href="clerk-private-profile.html">فتح البروفايل الرسمي الآن</a>
+    <small>VVIP TIGER Legacy Safe Redirect</small>
+  </main>
+
+  <script>
+    (function () {
+      var target = "clerk-private-profile.html";
+      var extra = "";
+
+      if (window.location.search) {
+        extra += window.location.search;
+      }
+
+      if (window.location.hash) {
+        extra += window.location.hash;
+      }
+
+      if (extra) {
+        target += extra;
+      }
+
+      var link = document.getElementById("redirect-link");
+      if (link) {
+        link.setAttribute("href", target);
+      }
+
+      window.setTimeout(function () {
+        window.location.replace(target);
+      }, 250);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1988 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VVIP TIGER - Private Profile</title>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(37, 99, 235, 0.18), transparent 35%),
+        linear-gradient(135deg, #070b16 0%, #0f172a 45%, #f8fafc 45%, #eef2ff 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0f172a;
+    }
+
+    .profile-card {
+      width: min(760px, 92vw);
+      background: rgba(255,255,255,0.94);
+      border: 1px solid rgba(218,165,32,0.35);
+      border-radius: 30px;
+      padding: 36px;
+      box-shadow: 0 35px 100px rgba(15,23,42,0.28);
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      padding: 9px 14px;
+      border-radius: 999px;
+      background: rgba(22,163,74,0.12);
+      color: #166534;
+      font-weight: 800;
+      border: 1px solid rgba(22,163,74,0.28);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      color: #2563eb;
+      font-size: 34px;
+      font-weight: 900;
+    }
+
+    .email {
+      font-size: 18px;
+      color: #334155;
+      margin: 10px 0 24px;
+      direction: ltr;
+    }
+
+    .vip-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 22px;
+      padding: 22px;
+      margin-top: 20px;
+      text-align: right;
+      line-height: 2;
+      font-size: 17px;
+    }
+
+    .status {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(37,99,235,0.08);
+      color: #1e40af;
+      font-weight: 800;
+      line-height: 1.7;
+    }
+
+    .actions {
+      margin-top: 28px;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    button, a {
+      border: 0;
+      border-radius: 14px;
+      padding: 13px 18px;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      color: white;
+      background: #2563eb;
+    }
+
+    button.dark {
+      background: #0f172a;
+    }
+
+    .loading {
+      font-size: 18px;
+      font-weight: 800;
+      color: #475569;
+    }
+
+    .error {
+      color: #991b1b;
+      font-weight: 800;
+    }
+  </style>
+
+  <script
+    defer
+    crossorigin="anonymous"
+    data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk"
+    src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"
+    type="text/javascript"
+  ></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style id="vvip-official-profile-style">
+    :root {
+      --vvip-bg: #050816;
+      --vvip-card: rgba(255,255,255,.92);
+      --vvip-card-soft: rgba(255,255,255,.72);
+      --vvip-text: #0f172a;
+      --vvip-muted: #64748b;
+      --vvip-gold: #d7a84f;
+      --vvip-blue: #1877f2;
+      --vvip-dark: #0f172a;
+      --vvip-border: rgba(15,23,42,.10);
+      --vvip-shadow: 0 28px 80px rgba(2,6,23,.28);
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      direction: rtl;
+      color: var(--vvip-text);
+      background:
+        radial-gradient(circle at top right, rgba(215,168,79,.28), transparent 34%),
+        radial-gradient(circle at bottom left, rgba(24,119,242,.20), transparent 36%),
+        linear-gradient(135deg, #050816 0%, #0f172a 48%, #111827 100%);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .vvip-official-profile {
+      width: min(1120px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 34px;
+    }
+
+    .vvip-profile-hero {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.20);
+      border-radius: 32px;
+      padding: 22px;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.96), rgba(255,255,255,.78)),
+        linear-gradient(135deg, rgba(215,168,79,.18), rgba(24,119,242,.12));
+      box-shadow: var(--vvip-shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .vvip-profile-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .vvip-brand-mark {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 950;
+      color: var(--vvip-dark);
+      letter-spacing: .2px;
+    }
+
+    .vvip-brand-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 16px;
+      display: inline-grid;
+      place-items: center;
+      color: #111827;
+      background: linear-gradient(135deg, #f9d976, #d7a84f);
+      box-shadow: 0 16px 34px rgba(215,168,79,.30);
+    }
+
+    .vvip-secure-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(34,197,94,.22);
+      border-radius: 999px;
+      padding: 9px 13px;
+      background: rgba(34,197,94,.10);
+      color: #166534;
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .vvip-profile-main {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .vvip-member-card,
+    .vvip-info-card {
+      border: 1px solid var(--vvip-border);
+      border-radius: 28px;
+      padding: 20px;
+      background: var(--vvip-card-soft);
+    }
+
+    .vvip-member-head {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .vvip-avatar {
+      width: 84px;
+      height: 84px;
+      border-radius: 28px;
+      object-fit: cover;
+      border: 3px solid rgba(215,168,79,.65);
+      background: #0f172a;
+      color: white;
+      display: grid;
+      place-items: center;
+      font-size: 26px;
+      font-weight: 950;
+      flex: 0 0 auto;
+    }
+
+    .vvip-kicker {
+      margin: 0 0 8px;
+      color: var(--vvip-gold);
+      font-size: 13px;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+    }
+
+    .vvip-title {
+      margin: 0;
+      font-size: clamp(26px, 4vw, 42px);
+      line-height: 1.12;
+      color: var(--vvip-dark);
+    }
+
+    .vvip-email {
+      margin: 10px 0 0;
+      color: var(--vvip-muted);
+      font-weight: 750;
+      word-break: break-word;
+    }
+
+    .vvip-status-line {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .vvip-mini-stat {
+      border: 1px solid rgba(15,23,42,.08);
+      border-radius: 20px;
+      padding: 14px;
+      background: rgba(255,255,255,.70);
+    }
+
+    .vvip-mini-stat span {
+      display: block;
+      color: var(--vvip-muted);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .vvip-mini-stat strong {
+      display: block;
+      color: var(--vvip-dark);
+      font-size: 15px;
+      font-weight: 950;
+    }
+
+    .vvip-section-title {
+      margin: 0 0 12px;
+      font-size: 18px;
+      font-weight: 950;
+      color: var(--vvip-dark);
+    }
+
+    .vvip-flow {
+      display: grid;
+      gap: 10px;
+    }
+
+    .vvip-flow-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      border-radius: 18px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,.70);
+      border: 1px solid rgba(15,23,42,.08);
+      font-weight: 850;
+    }
+
+    .vvip-flow-item small {
+      color: var(--vvip-muted);
+      font-weight: 800;
+    }
+
+
+    .vvip-membership-center {
+      margin-top: 18px;
+      border: 1px solid rgba(215,168,79,.24);
+      border-radius: 24px;
+      padding: 16px;
+      background:
+        linear-gradient(135deg, rgba(215,168,79,.14), rgba(255,255,255,.74));
+    }
+
+    .vvip-membership-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .vvip-membership-head h2 {
+      margin: 0;
+      color: var(--vvip-dark);
+      font-size: 18px;
+      font-weight: 950;
+    }
+
+    .vvip-membership-tag {
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: rgba(215,168,79,.18);
+      color: #7c4a03;
+      font-size: 12px;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .vvip-membership-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .vvip-membership-item {
+      border: 1px solid rgba(15,23,42,.08);
+      border-radius: 18px;
+      padding: 13px 14px;
+      background: rgba(255,255,255,.78);
+    }
+
+    .vvip-membership-item span {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--vvip-muted);
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .vvip-membership-item strong {
+      display: block;
+      color: var(--vvip-dark);
+      font-size: 15px;
+      font-weight: 950;
+    }
+
+    @media (max-width: 640px) {
+      .vvip-membership-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .vvip-membership-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+
+    .vvip-tiger-care {
+      margin-top: 18px;
+      border: 1px solid rgba(24,119,242,.18);
+      border-radius: 24px;
+      padding: 16px;
+      background:
+        linear-gradient(135deg, rgba(24,119,242,.10), rgba(255,255,255,.78));
+    }
+
+    .vvip-tiger-care-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .vvip-tiger-care-head h2 {
+      margin: 0 0 6px;
+      color: var(--vvip-dark);
+      font-size: 18px;
+      font-weight: 950;
+    }
+
+    .vvip-tiger-care-head p {
+      margin: 0;
+      color: var(--vvip-muted);
+      font-size: 13px;
+      line-height: 1.7;
+      font-weight: 750;
+    }
+
+    .vvip-care-tag {
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: rgba(24,119,242,.12);
+      color: #0b3b86;
+      font-size: 12px;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .vvip-care-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .vvip-care-field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .vvip-care-field label {
+      color: var(--vvip-dark);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .vvip-care-field select,
+    .vvip-care-field textarea {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid rgba(15,23,42,.12);
+      border-radius: 16px;
+      padding: 12px 13px;
+      background: rgba(255,255,255,.88);
+      color: var(--vvip-dark);
+      font: inherit;
+      font-weight: 750;
+      outline: none;
+    }
+
+    .vvip-care-field textarea {
+      min-height: 94px;
+      resize: vertical;
+    }
+
+    .vvip-care-field-full {
+      grid-column: 1 / -1;
+    }
+
+    .vvip-care-foot {
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .vvip-care-note {
+      color: var(--vvip-muted);
+      font-size: 12px;
+      line-height: 1.6;
+      font-weight: 800;
+    }
+
+    .vvip-care-message {
+      display: none;
+      margin-top: 12px;
+      border-radius: 18px;
+      padding: 13px 14px;
+      background: rgba(34,197,94,.12);
+      border: 1px solid rgba(34,197,94,.22);
+      color: #166534;
+      font-weight: 900;
+      line-height: 1.7;
+    }
+
+    .vvip-care-message.is-visible {
+      display: block;
+    }
+
+    @media (max-width: 640px) {
+      .vvip-tiger-care-head {
+        flex-direction: column;
+      }
+
+      .vvip-care-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .vvip-care-foot {
+        align-items: stretch;
+      }
+    }
+
+    .vvip-alert {
+      margin-top: 16px;
+      border-radius: 20px;
+      padding: 14px 16px;
+      background: rgba(24,119,242,.10);
+      border: 1px solid rgba(24,119,242,.18);
+      color: #0b3b86;
+      font-weight: 850;
+    }
+
+    .vvip-actions {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .vvip-btn {
+      border: 0;
+      border-radius: 18px;
+      padding: 14px 18px;
+      min-height: 50px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      cursor: pointer;
+      font-weight: 950;
+      font-size: 15px;
+    }
+
+    .vvip-btn-primary {
+      background: var(--vvip-blue);
+      color: #fff;
+      box-shadow: 0 16px 34px rgba(24,119,242,.24);
+    }
+
+    .vvip-btn-dark {
+      background: var(--vvip-dark);
+      color: #fff;
+      box-shadow: 0 16px 34px rgba(15,23,42,.18);
+    }
+
+    .vvip-btn-soft {
+      background: #fff;
+      color: var(--vvip-dark);
+      border: 1px solid rgba(15,23,42,.12);
+    }
+
+    .vvip-note {
+      margin: 16px 0 0;
+      color: rgba(255,255,255,.78);
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 820px) {
+      .vvip-official-profile {
+        width: min(100% - 18px, 560px);
+        padding-top: 10px;
+      }
+
+      .vvip-profile-hero {
+        border-radius: 26px;
+        padding: 16px;
+      }
+
+      .vvip-profile-top,
+      .vvip-member-head {
+        align-items: flex-start;
+      }
+
+      .vvip-profile-main,
+      .vvip-status-line {
+        grid-template-columns: 1fr;
+      }
+
+      .vvip-actions {
+        display: grid;
+      }
+
+      .vvip-btn {
+        width: 100%;
+      }
+    }
+  </style>
+
+  <link rel="stylesheet" href="vvip-identity.css?v=20260708-7-1" />
+</head>
+
+<body>
+  <main class="profile-card" id="app">
+    <div class="loading">جاري التحقق من الدخول وربط البروفايل...</div>
+  </main>
+
+  <script>
+    const VVIP_SUPABASE_URL = "https://zelcngyyvbomuzokvuxo.supabase.co";
+    const VVIP_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_TSoq1AaQFTo00nTZMUDugA_Z3uUON-u";
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function getPrimaryEmail(user) {
+      return (
+        user &&
+        user.primaryEmailAddress &&
+        user.primaryEmailAddress.emailAddress
+      )
+        ? user.primaryEmailAddress.emailAddress
+        : "";
+    }
+
+    function getDisplayName(user) {
+      return (
+        user.fullName ||
+        user.firstName ||
+        getPrimaryEmail(user) ||
+        "VVIP TIGER Member"
+      );
+    }
+
+    function getAvatarUrl(user) {
+      return user.imageUrl || user.profileImageUrl || "";
+    }
+
+    // VVIP TIGER Clerk-Supabase JWT Bridge
+    async function waitForClerkSession() {
+      const retryDelays = [250, 500, 900, 1400];
+
+      for (let index = 0; index < retryDelays.length; index += 1) {
+        try {
+          if (window.Clerk && typeof window.Clerk.load === "function") {
+            await window.Clerk.load();
+          }
+
+          const user = window.Clerk && window.Clerk.user ? window.Clerk.user : null;
+          const session = window.Clerk && window.Clerk.session ? window.Clerk.session : null;
+
+          if (user && session) {
+            return {
+              ok: true,
+              status: "ready",
+              user: user,
+              session: session
+            };
+          }
+        } catch (error) {
+          // Keep retrying silently; the UI will handle the fallback state.
+        }
+
+        if (index < retryDelays.length - 1) {
+          await sleep(retryDelays[index]);
+        }
+      }
+
+      const user = window.Clerk && window.Clerk.user ? window.Clerk.user : null;
+      const session = window.Clerk && window.Clerk.session ? window.Clerk.session : null;
+
+      return {
+        ok: false,
+        status: user ? "session_missing" : "auth_missing",
+        user: user,
+        session: session
+      };
+    }
+
+    async function getClerkSupabaseAccessToken() {
+      const sessionState = await waitForClerkSession();
+
+      if (!sessionState.ok || !sessionState.session || typeof sessionState.session.getToken !== "function") {
+        console.log("VVIP TIGER Clerk token available: false");
+        return null;
+      }
+
+      try {
+        const token = await sessionState.session.getToken();
+        console.log("VVIP TIGER Clerk token available: " + Boolean(token));
+        return token || null;
+      } catch (error) {
+        console.log("VVIP TIGER Clerk token available: false");
+        return null;
+      }
+    }
+
+    function createClerkSupabaseClient(clerkToken) {
+      const clientOptions = {};
+
+      if (clerkToken) {
+        clientOptions.accessToken = async function () {
+          return clerkToken;
+        };
+
+        clientOptions.global = {
+          headers: {
+            Authorization: "Bearer " + clerkToken
+          }
+        };
+      }
+
+      return window.supabase.createClient(
+        VVIP_SUPABASE_URL,
+        VVIP_SUPABASE_PUBLISHABLE_KEY,
+        clientOptions
+      );
+    }
+
+    async function assertSupabaseAuthReady() {
+      const sessionState = await waitForClerkSession();
+
+      if (!sessionState.ok) {
+        return {
+          ok: false,
+          status: sessionState.status,
+          user: sessionState.user || null,
+          session: sessionState.session || null,
+          token: null,
+          client: null
+        };
+      }
+
+      const token = await getClerkSupabaseAccessToken();
+
+      if (!token) {
+        return {
+          ok: false,
+          status: "session_missing",
+          user: sessionState.user,
+          session: sessionState.session,
+          token: null,
+          client: null
+        };
+      }
+
+      return {
+        ok: true,
+        status: "ready",
+        user: sessionState.user,
+        session: sessionState.session,
+        token: token,
+        client: createClerkSupabaseClient(token)
+      };
+    }
+
+    async function getActiveProfileClient() {
+      const authState = await assertSupabaseAuthReady();
+
+      return {
+        authState: authState,
+        client: authState.client || null
+      };
+    }
+
+    function updateProfileState(state, details) {
+      window.__vvipTigerLastProfileState = Object.assign(
+        {
+          state: state,
+          timestamp: new Date().toISOString()
+        },
+        details || {}
+      );
+    }
+
+    const RESILIENT_PROFILE_CACHE_PREFIX = "vvip:tiger:profile:safe:";
+    const RESILIENT_PROFILE_CACHE_TTL_MS = 10 * 60 * 1000;
+    let backgroundProfileSyncInProgress = false;
+
+    // VVIP TIGER Profile Resilience Shell
+    function buildSafeProfileFromClerk(clerkUser) {
+      if (!clerkUser || !clerkUser.id) {
+        return null;
+      }
+
+      const email = normalizeEmail(getPrimaryEmail(clerkUser));
+      const displayName =
+        clerkUser.fullName ||
+        clerkUser.firstName ||
+        (email ? email.split("@")[0] : "VVIP Member");
+
+      return {
+        clerk_user_id: String(clerkUser.id),
+        email: email || "",
+        display_name: displayName,
+        full_name: displayName,
+        avatar_url: getAvatarUrl(clerkUser) || "",
+        account_status: "active",
+        profile_source: "clerk",
+        sync_status: "pending",
+        trial_label: "قيد التفعيل",
+        updated_at: new Date().toISOString()
+      };
+    }
+
+    function safeProfileCacheKey(clerkUserId) {
+      return RESILIENT_PROFILE_CACHE_PREFIX + String(clerkUserId || "");
+    }
+
+    function readSafeProfileCache(clerkUserId) {
+      if (!clerkUserId) {
+        return null;
+      }
+
+      try {
+        const raw = window.localStorage.getItem(safeProfileCacheKey(clerkUserId));
+        if (!raw) {
+          return null;
+        }
+
+        const parsed = JSON.parse(raw);
+        const cachedAt = Number(parsed && parsed.cachedAt ? parsed.cachedAt : 0);
+        const profile = parsed && parsed.profile ? parsed.profile : null;
+
+        if (!cachedAt || !profile) {
+          return null;
+        }
+
+        if (Date.now() - cachedAt > RESILIENT_PROFILE_CACHE_TTL_MS) {
+          window.localStorage.removeItem(safeProfileCacheKey(clerkUserId));
+          return null;
+        }
+
+        return {
+          profile: profile,
+          cachedAt: cachedAt
+        };
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function writeSafeProfileCache(clerkUserId, profile) {
+      if (!clerkUserId || !profile) {
+        return;
+      }
+
+      try {
+        const safeProfile = {
+          clerk_user_id: profile.clerk_user_id || String(clerkUserId),
+          email: normalizeEmail(profile.email) || "",
+          display_name: profile.display_name || profile.full_name || "VVIP Member",
+          full_name: profile.full_name || profile.display_name || "VVIP Member",
+          avatar_url: profile.avatar_url || "",
+          account_status: profile.account_status || "active",
+          profile_source: profile.profile_source || "clerk",
+          sync_status: profile.sync_status || "pending",
+          updated_at: profile.updated_at || new Date().toISOString()
+        };
+
+        window.localStorage.setItem(
+          safeProfileCacheKey(clerkUserId),
+          JSON.stringify({
+            cachedAt: Date.now(),
+            profile: safeProfile
+          })
+        );
+      } catch (error) {
+        return;
+      }
+    }
+
+    async function runWithTimeout(promise, timeoutMs) {
+      let timerId;
+
+      try {
+        return await Promise.race([
+          promise,
+          new Promise(function (resolve) {
+            timerId = window.setTimeout(function () {
+              resolve(null);
+            }, timeoutMs);
+          })
+        ]);
+      } finally {
+        if (timerId) {
+          window.clearTimeout(timerId);
+        }
+      }
+    }
+
+    function renderResilientPrivateProfile(profile, meta) {
+      const sourceMeta = meta || {};
+      const source = sourceMeta.profileSource || profile.profile_source || "clerk";
+      const syncStatus = sourceMeta.syncStatus || profile.sync_status || "pending";
+      const message = sourceMeta.message || "ملفك الخاص جاهز، وجاري مزامنة بيانات العضوية بأمان.";
+      const statusNote = sourceMeta.statusNote || "بعض تفاصيل العضوية قد تظهر بعد اكتمال المزامنة.";
+
+      const mockUser = {
+        fullName: profile.full_name || profile.display_name || "VVIP Member",
+        firstName: profile.display_name || "VVIP",
+        imageUrl: profile.avatar_url || "",
+        primaryEmailAddress: {
+          emailAddress: profile.email || ""
+        }
+      };
+
+      renderProfile(mockUser, profile, false);
+
+      const alertNode = document.querySelector(".vvip-alert");
+      if (alertNode) {
+        alertNode.textContent = message;
+      }
+
+      const pillNode = document.querySelector(".vvip-secure-pill");
+      if (pillNode) {
+        pillNode.textContent = "تم تسجيل الدخول بنجاح";
+      }
+
+      const noteNode = document.querySelector(".vvip-note");
+      if (noteNode) {
+        noteNode.textContent = statusNote;
+      }
+
+      updateProfileState("profile_shell_rendered", {
+        profileSource: source,
+        syncStatus: syncStatus,
+        cacheAvailable: Boolean(sourceMeta.cacheAvailable)
+      });
+    }
+
+    window.__VVIP_TIGER_PROFILE_DEBUG__ = function () {
+      const profileState = window.__vvipTigerLastProfileState || null;
+
+      return {
+        clerkLoaded: Boolean(window.Clerk),
+        hasUser: Boolean(window.Clerk && window.Clerk.user),
+        hasSession: Boolean(window.Clerk && window.Clerk.session),
+        profileSource: profileState && profileState.profileSource ? profileState.profileSource : null,
+        syncStatus: profileState && profileState.syncStatus ? profileState.syncStatus : null,
+        lastProfileState: profileState,
+        cacheAvailable: Boolean(profileState && profileState.cacheAvailable)
+      };
+    };
+
+    const LAST_PROFILE_SNAPSHOT_KEY = "vvip_tiger_last_profile_snapshot";
+    let profileResolutionInProgress = false;
+
+    function normalizeEmail(value) {
+      const normalized = String(value || "").trim().toLowerCase();
+      return normalized || null;
+    }
+
+    function sleep(ms) {
+      return new Promise(function (resolve) {
+        window.setTimeout(resolve, ms);
+      });
+    }
+
+    function isDuplicateProfileEmailError(error) {
+      const message = String(error && error.message ? error.message : "").toLowerCase();
+      return (
+        String(error && error.code ? error.code : "") === "23505" ||
+        message.indexOf("profiles_email_unique") !== -1 ||
+        message.indexOf("duplicate key") !== -1
+      );
+    }
+
+    function classifyProfileError(error) {
+      if (isDuplicateProfileEmailError(error)) {
+        return "duplicate_email";
+      }
+
+      const code = String(error && error.code ? error.code : "").toLowerCase();
+      const message = String(error && error.message ? error.message : "").toLowerCase();
+      const status = Number(error && error.status ? error.status : 0);
+
+      if (
+        code === "auth_missing" ||
+        status === 401 ||
+        status === 403 ||
+        code === "401" ||
+        code === "403" ||
+        message.indexOf("not authenticated") !== -1 ||
+        message.indexOf("authentication") !== -1 ||
+        message.indexOf("clerk") !== -1 ||
+        message.indexOf("row level security") !== -1 ||
+        message.indexOf("rls") !== -1 ||
+        message.indexOf("permission denied") !== -1 ||
+        message.indexOf("jwt") !== -1
+      ) {
+        return "auth_or_rls";
+      }
+
+      if (
+        code === "pgrst116" ||
+        message.indexOf("not found") !== -1 ||
+        message.indexOf("no rows") !== -1 ||
+        message.indexOf("maybe single") !== -1
+      ) {
+        return "profile_not_found";
+      }
+
+      if (
+        code.indexOf("fetch") !== -1 ||
+        code.indexOf("network") !== -1 ||
+        message.indexOf("network") !== -1 ||
+        message.indexOf("timeout") !== -1 ||
+        message.indexOf("supabase") !== -1
+      ) {
+        return "network_or_supabase";
+      }
+
+      return "unknown";
+    }
+
+    async function getSafeClerkIdentity() {
+      const sessionState = await waitForClerkSession();
+      const user = sessionState.user || null;
+      const clerkUserId = user && user.id ? String(user.id) : null;
+      const email = normalizeEmail(
+        user && user.primaryEmailAddress && user.primaryEmailAddress.emailAddress
+      );
+
+      return {
+        ok: Boolean(sessionState.ok && clerkUserId),
+        status: sessionState.ok && clerkUserId ? "ready" : sessionState.status,
+        clerkUserId: clerkUserId,
+        email: email,
+        user: user,
+        session: sessionState.session || null
+      };
+    }
+
+    function buildSafeProfilePayload(clerkUser) {
+      if (!clerkUser || !clerkUser.id) {
+        return null;
+      }
+
+      const clerkUserId = String(clerkUser.id);
+      const email = normalizeEmail(getPrimaryEmail(clerkUser));
+      const displayName = getDisplayName(clerkUser);
+      const avatarUrl = getAvatarUrl(clerkUser);
+      const trialStartAt = new Date();
+      const trialEndAt = new Date(trialStartAt);
+
+      trialEndAt.setMonth(trialEndAt.getMonth() + 4);
+
+      // Official runtime source remains public.profiles via clerk_user_id.
+      return Object.fromEntries(
+        Object.entries({
+          clerk_user_id: clerkUserId,
+          email: email || undefined,
+          display_name: displayName || undefined,
+          full_name: displayName || undefined,
+          avatar_url: avatarUrl || undefined,
+          account_status: "active",
+          trial_start_at: trialStartAt.toISOString(),
+          trial_end_at: trialEndAt.toISOString()
+        }).filter(function (entry) {
+          return entry[1] !== undefined;
+        })
+      );
+    }
+
+    async function loadProfileByClerkId(client, clerkUserId, authState) {
+      updateProfileState("loadProfileByClerkId", {
+        clerkUserId: clerkUserId,
+        authState: authState ? authState.status : null
+      });
+
+      if (!authState || authState.ok !== true || !client) {
+        return {
+          profile: null,
+          error: null,
+          status: "auth_or_rls"
+        };
+      }
+
+      const result = await client
+        .from("profiles")
+        .select("*")
+        .eq("clerk_user_id", clerkUserId)
+        .maybeSingle();
+
+      if (result.error) {
+        const classified = classifyProfileError(result.error);
+        return {
+          profile: null,
+          error: result.error,
+          status: classified
+        };
+      }
+
+      if (result.data) {
+        return {
+          profile: result.data,
+          error: null,
+          status: "found"
+        };
+      }
+
+      return {
+        profile: null,
+        error: null,
+        status: "profile_not_found"
+      };
+    }
+
+    async function createProfileSafely(client, payload, authState) {
+      updateProfileState("createProfileSafely", {
+        authState: authState ? authState.status : null
+      });
+
+      if (!authState || authState.ok !== true || !client) {
+        return {
+          profile: null,
+          error: null,
+          status: "auth_or_rls"
+        };
+      }
+
+      const result = await client
+        .from("profiles")
+        .insert(payload)
+        .select("*")
+        .maybeSingle();
+
+      if (result.error) {
+        return {
+          profile: null,
+          error: result.error,
+          status: isDuplicateProfileEmailError(result.error)
+            ? "duplicate_email"
+            : classifyProfileError(result.error)
+        };
+      }
+
+      return {
+        profile: result.data || null,
+        error: null,
+        status: result.data ? "created" : "profile_not_found"
+      };
+    }
+
+    function readLastProfileSnapshot() {
+      try {
+        const raw = window.localStorage.getItem(LAST_PROFILE_SNAPSHOT_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function saveLastProfileSnapshot(profile) {
+      try {
+        if (!profile) {
+          return;
+        }
+
+        const snapshot = {
+          email: normalizeEmail(profile.email),
+          clerk_user_id: profile.clerk_user_id || null,
+          account_status: profile.account_status || null,
+          updated_at: profile.updated_at || null
+        };
+
+        window.localStorage.setItem(LAST_PROFILE_SNAPSHOT_KEY, JSON.stringify(snapshot));
+      } catch (error) {
+        return;
+      }
+    }
+
+    function formatSnapshotTimestamp(value) {
+      if (!value) {
+        return "";
+      }
+
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        return "";
+      }
+
+      return new Intl.DateTimeFormat("ar-JO", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      }).format(date);
+    }
+
+    async function recoverDuplicateEmailProfile(context) {
+      console.log("VVIP TIGER duplicate email recovery started");
+
+      const client = context.client;
+      const clerkUserId = context.clerkUserId;
+      const normalizedEmail = normalizeEmail(context.email);
+      const authState = context.authState || null;
+      const retryDelays = [300, 700, 1200];
+
+      updateProfileState("recoverDuplicateEmailProfile", {
+        clerkUserId: clerkUserId,
+        authState: authState ? authState.status : null
+      });
+
+      if (!authState || authState.ok !== true || !client) {
+        return {
+          profile: null,
+          status: "auth_or_rls"
+        };
+      }
+
+      for (let index = 0; index < retryDelays.length; index += 1) {
+        await sleep(retryDelays[index]);
+        const retryResult = await loadProfileByClerkId(client, clerkUserId, authState);
+
+        if (retryResult.profile) {
+          console.log("VVIP TIGER profile recovery success");
+          return {
+            profile: retryResult.profile,
+            status: "recovered"
+          };
+        }
+      }
+
+      if (normalizedEmail) {
+        try {
+          const updateResult = await client
+            .from("profiles")
+            .update({
+              clerk_user_id: clerkUserId,
+              updated_at: new Date().toISOString()
+            })
+            .eq("email", normalizedEmail)
+            .or("clerk_user_id.is.null,clerk_user_id.eq." + clerkUserId)
+            .select("*")
+            .maybeSingle();
+
+          if (updateResult && updateResult.data) {
+            console.log("VVIP TIGER profile recovery success");
+            return {
+              profile: updateResult.data,
+              status: "recovered"
+            };
+          }
+
+          if (updateResult && updateResult.error && classifyProfileError(updateResult.error) === "auth_or_rls") {
+            return {
+              profile: null,
+              status: "auth_or_rls"
+            };
+          }
+        } catch (updateError) {
+          if (classifyProfileError(updateError) === "auth_or_rls") {
+            return {
+              profile: null,
+              status: "auth_or_rls"
+            };
+          }
+        }
+      }
+
+      const finalRetry = await loadProfileByClerkId(client, clerkUserId, authState);
+      if (finalRetry.profile) {
+        console.log("VVIP TIGER profile recovery success");
+        return {
+          profile: finalRetry.profile,
+          status: "recovered"
+        };
+      }
+
+      return {
+        profile: null,
+        status: "recovery_failed"
+      };
+    }
+
+    // VVIP TIGER Atomic Profile Resolver RPC
+    async function resolveProfileViaRpc(clerkUser) {
+      const authBundle = await getActiveProfileClient();
+      const authState = authBundle.authState;
+      const client = authBundle.client;
+      const normalizedEmail = normalizeEmail(getPrimaryEmail(clerkUser));
+
+      updateProfileState("rpc_resolver_start", {
+        authState: authState ? authState.status : null
+      });
+
+      if (!authState || authState.ok !== true || !client || typeof client.rpc !== "function") {
+        updateProfileState("rpc_resolver_unavailable", {
+          authState: authState ? authState.status : null
+        });
+        return {
+          profile: null,
+          status: "rpc_unavailable",
+          authState: authState,
+          client: client
+        };
+      }
+
+      const rpcResult = await client.rpc("vvip_resolve_own_profile", {
+        p_email: normalizedEmail
+      });
+
+      if (rpcResult.error) {
+        updateProfileState("rpc_resolver_error", {
+          authState: authState.status,
+          errorClass: classifyProfileError(rpcResult.error)
+        });
+        console.log("VVIP TIGER atomic profile resolver fallback");
+        return {
+          profile: null,
+          status: classifyProfileError(rpcResult.error),
+          authState: authState,
+          client: client
+        };
+      }
+
+      const data = rpcResult.data;
+      if (data && data.ok === true && data.profile) {
+        updateProfileState("rpc_resolver_success", {
+          status: data.status || "profile_loaded"
+        });
+        return {
+          profile: data.profile,
+          status: data.status || "profile_loaded",
+          authState: authState,
+          client: client
+        };
+      }
+
+      updateProfileState("rpc_resolver_non_ok", {
+        status: data && data.status ? data.status : "rpc_non_ok"
+      });
+      console.log("VVIP TIGER atomic profile resolver fallback");
+
+      return {
+        profile: null,
+        status: data && data.status ? data.status : "rpc_non_ok",
+        authState: authState,
+        client: client
+      };
+    }
+
+    function renderGatewayShell(options) {
+      const snapshot = readLastProfileSnapshot();
+      const snapshotLine = snapshot && snapshot.updated_at
+        ? "آخر مزامنة ناجحة: " + formatSnapshotTimestamp(snapshot.updated_at)
+        : snapshot
+          ? "آخر مزامنة ناجحة"
+          : "";
+      const message = options.message || "";
+      const subtitle = options.subtitle || "";
+
+      return `
+        <div class="vvip-official-profile">
+          <section class="vvip-profile-hero">
+            <div class="vvip-profile-top">
+              <div class="vvip-brand-mark">
+                <span class="vvip-brand-icon">🐅</span>
+                <span>VVIP TIGER</span>
+              </div>
+
+              <div class="vvip-secure-pill">${escapeHtml(options.pill || "تم تسجيل الدخول بنجاح")}</div>
+            </div>
+
+            <div class="vvip-profile-main">
+              <div class="vvip-member-card">
+                <div class="vvip-member-head">
+                  <div class="vvip-avatar" aria-hidden="true">VT</div>
+
+                  <div>
+                    <p class="vvip-kicker">${escapeHtml(options.kicker || "العضوية الخاصة الرسمية")}</p>
+                    <h1 class="vvip-title">VVIP TIGER</h1>
+                    <p class="vvip-email">${escapeHtml(subtitle)}</p>
+                  </div>
+                </div>
+
+                <div class="vvip-alert">${escapeHtml(message)}</div>
+
+                ${
+                  snapshotLine
+                    ? `<div class="vvip-status-line"><div class="vvip-mini-stat"><span>الحالة الاحتياطية</span><strong>${escapeHtml(snapshotLine)}</strong></div></div>`
+                    : ""
+                }
+
+                <div class="vvip-actions">
+                  ${options.actions || ""}
+                </div>
+              </div>
+
+              <aside class="vvip-info-card">
+                <h2 class="vvip-section-title">${escapeHtml(options.sideTitle || "مسار الأمان الحالي")}</h2>
+
+                <div class="vvip-flow">
+                  <div class="vvip-flow-item">
+                    <span>تسجيل الدخول</span>
+                    <small>Clerk</small>
+                  </div>
+
+                  <div class="vvip-flow-item">
+                    <span>صلاحيات الوصول</span>
+                    <small>محمية</small>
+                  </div>
+
+                  <div class="vvip-flow-item">
+                    <span>الملف الرسمي</span>
+                    <small>مزامنة آمنة</small>
+                  </div>
+
+                  <div class="vvip-flow-item">
+                    <span>${escapeHtml(options.flowLabel || "الحالة")}</span>
+                    <small>${escapeHtml(options.flowValue || "Official Mobile First")}</small>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </section>
+        </div>
+      `;
+    }
+
+    function attachRetryHandler() {
+      const retryBtn = document.getElementById("retry-profile-btn");
+      if (retryBtn) {
+        retryBtn.addEventListener("click", async function () {
+          if (profileResolutionInProgress) {
+            return;
+          }
+
+          await resolveProfileSelfHealing();
+        });
+      }
+    }
+
+    function renderProfileRecoveryMode(context) {
+      console.log("VVIP TIGER profile safe mode");
+      updateProfileState("profile_recovery_mode", {
+        recoveryFailed: Boolean(context && context.recoveryFailed)
+      });
+
+      const message = context && context.message
+        ? context.message
+        : "جاري المزامنة...";
+      const subtitle = context && context.subtitle
+        ? context.subtitle
+        : "يتم تجهيز ملفك الخاص ومزامنة بيانات العضوية بأمان.";
+
+      const root =
+        document.querySelector("[data-profile-root]") ||
+        document.querySelector("main") ||
+        document.getElementById("app") ||
+        document.body;
+
+      root.innerHTML = renderGatewayShell({
+        pill: "جاري المزامنة...",
+        kicker: "تم تسجيل الدخول بنجاح",
+        subtitle: subtitle,
+        message: message,
+        sideTitle: "VVIP TIGER",
+        flowLabel: "حالة التهيئة",
+        flowValue: "جاري المزامنة",
+        actions:
+          '<a class="vvip-btn vvip-btn-primary" href="index.html">العودة لصفحة الدخول</a>' +
+          '<a class="vvip-btn vvip-btn-dark" href="public-profile.html">متابعة إلى الصفحة العامة</a>' +
+          '<button class="vvip-btn vvip-btn-soft" id="retry-profile-btn" type="button">إعادة المحاولة</button>' +
+          '<a class="vvip-btn vvip-btn-soft" href="public-profile.html">طلب مساعدة عبر Tiger Care</a>'
+      });
+
+      attachRetryHandler();
+    }
+
+    function renderProfileSafeMode(context) {
+      console.log("VVIP TIGER profile safe mode");
+      updateProfileState("profile_safe_mode", {
+        recoveryFailed: Boolean(context && context.recoveryFailed)
+      });
+
+      const snapshot = readLastProfileSnapshot();
+      const hasRecoveryIssue = context && context.recoveryFailed;
+      const subtitle = hasRecoveryIssue
+        ? "حسابك آمن، لكن ملف العضوية يحتاج مزامنة قصيرة."
+        : "يتم تجهيز ملفك الخاص ومزامنة بيانات العضوية بأمان. يمكنك المتابعة الآن أو المحاولة بعد لحظات.";
+      const message = hasRecoveryIssue
+        ? "يرجى إعادة المحاولة بعد لحظات أو إرسال طلب عبر Tiger Care."
+        : "يمكنك المتابعة الآن أو المحاولة بعد لحظات.";
+      const snapshotNote = snapshot && snapshot.updated_at
+        ? "آخر مزامنة ناجحة: " + formatSnapshotTimestamp(snapshot.updated_at)
+        : snapshot
+          ? "آخر مزامنة ناجحة"
+          : "";
+
+      const root =
+        document.querySelector("[data-profile-root]") ||
+        document.querySelector("main") ||
+        document.getElementById("app") ||
+        document.body;
+
+      root.innerHTML = renderGatewayShell({
+        pill: "تم تسجيل الدخول بنجاح",
+        kicker: "VVIP TIGER",
+        subtitle: subtitle,
+        message: message,
+        sideTitle: "VVIP TIGER",
+        flowLabel: snapshotNote ? "آخر مزامنة" : "الحالة",
+        flowValue: snapshotNote || "Safe Mode",
+        actions:
+          '<a class="vvip-btn vvip-btn-primary" href="index.html">العودة لصفحة الدخول</a>' +
+          '<a class="vvip-btn vvip-btn-dark" href="public-profile.html">متابعة إلى الصفحة العامة</a>' +
+          '<button class="vvip-btn vvip-btn-soft" id="retry-profile-btn" type="button">إعادة المحاولة</button>' +
+          '<a class="vvip-btn vvip-btn-soft" href="public-profile.html">طلب مساعدة عبر Tiger Care</a>'
+      });
+
+      attachRetryHandler();
+    }
+
+    async function attemptBackgroundProfileSync(clerkUser, shellProfile) {
+      if (backgroundProfileSyncInProgress) {
+        console.info("VVIP TIGER background sync skipped");
+        return;
+      }
+
+      backgroundProfileSyncInProgress = true;
+      console.info("VVIP TIGER background sync pending");
+
+      try {
+        const resolved = await runWithTimeout(
+          (async function () {
+            const rpcResult = await resolveProfileViaRpc(clerkUser);
+            if (rpcResult && rpcResult.profile) {
+              return rpcResult.profile;
+            }
+
+            const authState = rpcResult ? rpcResult.authState : null;
+            const client = rpcResult ? rpcResult.client : null;
+            const clerkUserId = clerkUser && clerkUser.id ? String(clerkUser.id) : null;
+            const email = normalizeEmail(getPrimaryEmail(clerkUser));
+
+            if (!authState || !authState.ok || !client || !clerkUserId) {
+              return null;
+            }
+
+            const existingResult = await loadProfileByClerkId(client, clerkUserId, authState);
+            if (existingResult.profile) {
+              return existingResult.profile;
+            }
+
+            const payload = buildSafeProfilePayload(clerkUser);
+            if (!payload) {
+              return null;
+            }
+
+            const createResult = await createProfileSafely(client, payload, authState);
+            if (createResult.profile) {
+              return createResult.profile;
+            }
+
+            if (createResult.status === "duplicate_email") {
+              const recoveryResult = await recoverDuplicateEmailProfile({
+                clerkUserId: clerkUserId,
+                email: email,
+                client: client,
+                authState: authState
+              });
+
+              if (recoveryResult.profile) {
+                return recoveryResult.profile;
+              }
+            }
+
+            return null;
+          })(),
+          2500
+        );
+
+        if (resolved) {
+          const enrichedProfile = Object.assign({}, resolved, {
+            profile_source: "official",
+            sync_status: "completed"
+          });
+
+          writeSafeProfileCache(enrichedProfile.clerk_user_id || shellProfile.clerk_user_id, enrichedProfile);
+          renderResilientPrivateProfile(enrichedProfile, {
+            profileSource: "official",
+            syncStatus: "completed",
+            message: "تم تسجيل الدخول بنجاح",
+            statusNote: "ملفك الخاص جاهز، وتمت مزامنة بيانات العضوية بأمان.",
+            cacheAvailable: true
+          });
+          console.info("VVIP TIGER official profile sync completed");
+          return;
+        }
+
+        console.warn("VVIP TIGER background sync skipped");
+      } catch (error) {
+        console.warn("VVIP TIGER background sync skipped");
+      } finally {
+        backgroundProfileSyncInProgress = false;
+      }
+    }
+
+    async function resolveProfileFastForUser(clerkUser) {
+      const sessionState = await waitForClerkSession();
+      const resolvedUser = clerkUser || sessionState.user || null;
+      const clerkUserId = resolvedUser && resolvedUser.id ? String(resolvedUser.id) : null;
+
+      if (!sessionState.ok || !resolvedUser || !clerkUserId) {
+        renderProfileSafeMode({
+          recoveryFailed: true,
+          subtitle: "يرجى تسجيل الدخول للمتابعة.",
+          message: "تعذر التحقق من الجلسة الحالية."
+        });
+        return;
+      }
+
+      const safeProfile = buildSafeProfileFromClerk(resolvedUser);
+      if (!safeProfile) {
+        renderProfileSafeMode({
+          recoveryFailed: true,
+          subtitle: "تعذر تهيئة ملفك الخاص.",
+          message: "يرجى إعادة تسجيل الدخول ثم المحاولة مرة أخرى."
+        });
+        return;
+      }
+
+      const cached = readSafeProfileCache(clerkUserId);
+      const shellProfile = cached && cached.profile
+        ? Object.assign({}, safeProfile, cached.profile, {
+            profile_source: "cache",
+            sync_status: "cached"
+          })
+        : safeProfile;
+
+      await sleep(120);
+
+      renderResilientPrivateProfile(shellProfile, {
+        profileSource: shellProfile.profile_source || "clerk",
+        syncStatus: shellProfile.sync_status || "pending",
+        message: "تم تسجيل الدخول بنجاح",
+        statusNote: "ملفك الخاص جاهز، وجاري مزامنة بيانات العضوية بأمان. بعض تفاصيل العضوية قد تظهر بعد اكتمال المزامنة.",
+        cacheAvailable: Boolean(cached)
+      });
+
+      writeSafeProfileCache(clerkUserId, shellProfile);
+      console.info("VVIP TIGER profile shell active");
+
+      void attemptBackgroundProfileSync(resolvedUser, shellProfile);
+    }
+
+    async function resolveProfileSelfHealing(clerkUser) {
+      if (profileResolutionInProgress) {
+        return;
+      }
+
+      profileResolutionInProgress = true;
+
+      try {
+        await resolveProfileFastForUser(clerkUser);
+      } catch (error) {
+        renderProfileSafeMode({
+          recoveryFailed: true,
+          subtitle: "تعذر تهيئة ملفك الخاص.",
+          message: "يرجى إعادة تسجيل الدخول ثم المحاولة مرة أخرى."
+        });
+      } finally {
+        profileResolutionInProgress = false;
+      }
+    }
+
+    function renderProfile(user, profile, created) {
+      saveLastProfileSnapshot(profile);
+      updateProfileState("profile_rendered", {
+        clerkUserId: profile && profile.clerk_user_id ? profile.clerk_user_id : null,
+        accountStatus: profile && profile.account_status ? profile.account_status : null,
+        updatedAt: profile && profile.updated_at ? profile.updated_at : null
+      });
+
+      const root =
+        document.querySelector("[data-profile-root]") ||
+        document.querySelector("main") ||
+        document.getElementById("app") ||
+        document.body;
+
+      const email =
+        profile.email ||
+        (user && user.primaryEmailAddress && user.primaryEmailAddress.emailAddress) ||
+        "VIP Member";
+
+      const displayName =
+        profile.display_name ||
+        (user && user.fullName) ||
+        email.split("@")[0] ||
+        "VVIP Member";
+
+      const avatarUrl =
+        profile.avatar_url ||
+        (user && user.imageUrl) ||
+        "";
+
+      const accountStatus = profile.account_status || "active";
+      const membershipTier = "VVIP Member";
+      const trialDuration = "4 أشهر";
+      const privacyLevel = "عالي";
+      const verificationStatus = "Verified via Clerk";
+      const trialEnd = profile.trial_end_at ? new Date(profile.trial_end_at) : null;
+      const trialEndText = trialEnd && !Number.isNaN(trialEnd.getTime())
+        ? new Intl.DateTimeFormat("ar-JO", { year: "numeric", month: "long", day: "numeric" }).format(trialEnd)
+        : "غير محدد";
+
+      const initials = String(displayName || "V")
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((part) => part.charAt(0))
+        .join("")
+        .toUpperCase() || "V";
+
+      const safe = (value) =>
+        String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+
+      root.innerHTML = `
+        <div class="vvip-official-profile">
+          <section class="vvip-profile-hero">
+            <div class="vvip-profile-top">
+              <div class="vvip-brand-mark">
+                <span class="vvip-brand-icon">🐅</span>
+                <span>VVIP TIGER</span>
+              </div>
+
+              <div class="vvip-secure-pill">✓ تم الربط الآمن عبر Clerk</div>
+            </div>
+
+            <div class="vvip-profile-main">
+              <div class="vvip-member-card">
+                <div class="vvip-member-head">
+                  ${
+                    avatarUrl
+                      ? `<img class="vvip-avatar" src="${safe(avatarUrl)}" alt="صورة العضو">`
+                      : `<div class="vvip-avatar" aria-hidden="true">${safe(initials)}</div>`
+                  }
+
+                  <div>
+                    <p class="vvip-kicker">العضوية الخاصة الرسمية</p>
+                    <h1 class="vvip-title">${safe(displayName)}</h1>
+                    <p class="vvip-email">${safe(email)}</p>
+                  </div>
+                </div>
+
+                <div class="vvip-status-line">
+                  <div class="vvip-mini-stat">
+                    <span>حالة الحساب</span>
+                    <strong>${safe(accountStatus)}</strong>
+                  </div>
+
+                  <div class="vvip-mini-stat">
+                    <span>نهاية الفترة المجانية</span>
+                    <strong>${safe(trialEndText)}</strong>
+                  </div>
+
+                  <div class="vvip-mini-stat">
+                    <span>طبقة الدخول</span>
+                    <strong>Clerk + Safe Access</strong>
+                  </div>
+                </div>
+
+                <section class="vvip-membership-center" aria-label="مركز العضوية VIP">
+                  <div class="vvip-membership-head">
+                    <h2>مركز العضوية VIP</h2>
+                    <span class="vvip-membership-tag">Premium Access</span>
+                  </div>
+
+                  <div class="vvip-membership-grid">
+                    <div class="vvip-membership-item">
+                      <span>نوع العضوية</span>
+                      <strong>${safe(membershipTier)}</strong>
+                    </div>
+
+                    <div class="vvip-membership-item">
+                      <span>حالة الحساب</span>
+                      <strong>${safe(accountStatus)}</strong>
+                    </div>
+
+                    <div class="vvip-membership-item">
+                      <span>الفترة المجانية</span>
+                      <strong>${safe(trialDuration)}</strong>
+                    </div>
+
+                    <div class="vvip-membership-item">
+                      <span>مستوى الخصوصية</span>
+                      <strong>${safe(privacyLevel)}</strong>
+                    </div>
+
+                    <div class="vvip-membership-item">
+                      <span>حالة التحقق</span>
+                      <strong>${safe(verificationStatus)}</strong>
+                    </div>
+
+                    <div class="vvip-membership-item">
+                      <span>تاريخ انتهاء التجربة</span>
+                      <strong>${safe(trialEndText)}</strong>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="vvip-tiger-care" aria-label="Tiger Care Contact Request">
+                  <div class="vvip-tiger-care-head">
+                    <div>
+                      <h2>Tiger Care Contact Request</h2>
+                      <p>طلب تواصل رسمي مع إدارة VVIP TIGER من داخل المنصة، بدون إظهار أرقام الإدارة أو القادة للمستخدمين.</p>
+                    </div>
+
+                    <span class="vvip-care-tag">Official Request</span>
+                  </div>
+
+                  <form id="tiger-care-form">
+                    <div class="vvip-care-grid">
+                      <div class="vvip-care-field">
+                        <label for="care-type">نوع الطلب</label>
+                        <select id="care-type" name="care_type">
+                          <option>استفسار عضوية VIP</option>
+                          <option>طلب دعم حساب</option>
+                          <option>طلب تواصل إداري</option>
+                          <option>طلب تصعيد رسمي</option>
+                        </select>
+                      </div>
+
+                      <div class="vvip-care-field">
+                        <label for="care-sector">القطاع المسؤول</label>
+                        <select id="care-sector" name="care_sector">
+                          <option>Tiger Care</option>
+                          <option>إدارة العضويات</option>
+                          <option>الدعم الفني</option>
+                          <option>إدارة المنصة</option>
+                        </select>
+                      </div>
+
+                      <div class="vvip-care-field">
+                        <label for="care-priority">الأولوية</label>
+                        <select id="care-priority" name="care_priority">
+                          <option>عادي</option>
+                          <option>مهم</option>
+                          <option>عاجل</option>
+                        </select>
+                      </div>
+
+                      <div class="vvip-care-field">
+                        <label for="care-channel">طريقة الرد</label>
+                        <select id="care-channel" name="care_channel">
+                          <option>داخل المنصة</option>
+                          <option>البريد الإلكتروني المسجل</option>
+                        </select>
+                      </div>
+
+                      <div class="vvip-care-field vvip-care-field-full">
+                        <label for="care-message">ملاحظات الطلب</label>
+                        <textarea id="care-message" name="care_message" placeholder="اكتب تفاصيل الطلب باختصار..."></textarea>
+                      </div>
+                    </div>
+
+                    <div class="vvip-care-foot">
+                      <span class="vvip-care-note">سيتم تحويل الطلب لاحقًا إلى Tiger Care Dashboard مع SLA وتتبع الحالة.</span>
+                      <button class="vvip-btn vvip-btn-primary" type="submit">إرسال طلب تواصل رسمي</button>
+                    </div>
+
+                    <div id="tiger-care-message" class="vvip-care-message" role="status" aria-live="polite">
+                      تم استلام طلبك، وسيتم التواصل معك خلال 24 ساعة.
+                    </div>
+                  </form>
+                </section>
+
+                <div class="vvip-alert">
+                  ${
+                    created
+                      ? "تم إنشاء بروفايل جديد وربطه بنجاح."
+                      : "تم تحميل البروفايل الخاص وربطه بنجاح."
+                  }
+                </div>
+
+                <div class="vvip-actions">
+                  <a class="vvip-btn vvip-btn-primary" href="public-profile.html">متابعة إلى الصفحة العامة</a>
+                  <a class="vvip-btn vvip-btn-dark" href="index.html">العودة إلى الدخول</a>
+                  <button class="vvip-btn vvip-btn-soft" id="sign-out-btn" type="button">تسجيل الخروج</button>
+                </div>
+              </div>
+
+              <aside class="vvip-info-card">
+                <h2 class="vvip-section-title">مسار الأمان الحالي</h2>
+
+                <div class="vvip-flow">
+                  <div class="vvip-flow-item">
+                    <span>تسجيل الدخول</span>
+                    <small>Clerk</small>
+                  </div>
+
+                  <div class="vvip-flow-item">
+                    <span>صلاحيات الوصول</span>
+                    <small>محمية</small>
+                  </div>
+
+                  <div class="vvip-flow-item">
+                    <span>الملف الرسمي</span>
+                    <small>مزامنة آمنة</small>
+                  </div>
+
+                  <div class="vvip-flow-item">
+                    <span>حالة الصفحة</span>
+                    <small>Official Mobile First</small>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </section>
+
+          <p class="vvip-note">
+            هذه الصفحة أصبحت المسار الرسمي الأول للبروفايل الخاص، وسيتم تطويرها تدريجيًا دون كسر المسار القديم.
+          </p>
+        </div>
+      `;
+
+      const tigerCareForm = document.getElementById("tiger-care-form");
+      const tigerCareMessage = document.getElementById("tiger-care-message");
+
+      if (tigerCareForm && tigerCareMessage) {
+        tigerCareForm.addEventListener("submit", function (event) {
+          event.preventDefault();
+          tigerCareMessage.classList.add("is-visible");
+          tigerCareMessage.textContent = "تم استلام طلبك، وسيتم التواصل معك خلال 24 ساعة.";
+        });
+      }
+
+      const signOutBtn = document.getElementById("sign-out-btn");
+      if (signOutBtn) {
+        signOutBtn.addEventListener("click", async function () {
+          await window.Clerk.signOut();
+          window.location.href = "index.html";
+        });
+      }
+    }
+
+    window.addEventListener("load", async function () {
+      try {
+        if (!window.supabase) {
+          renderProfileSafeMode({
+            recoveryFailed: true
+          });
+          return;
+        }
+
+        await resolveProfileSelfHealing(window.Clerk && window.Clerk.user ? window.Clerk.user : null);
+      } catch (error) {
+        renderProfileSafeMode({
+          recoveryFailed: true
+        });
+      }
+    });
+  </script>
+</body>
+</html>
