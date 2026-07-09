@@ -314,3 +314,94 @@ input[type="search"]::placeholder {
 [dir="rtl"] :is(.story-card, .member-card, .active-member, .user-card, .public-card, .feed-card) {
   line-height: 1.75;
 }
+
+/* --------------------------------------------------------------------------
+   Visual Trust Layer — Phase 2.1
+   Feed/Post Readability Patch
+   Purpose:
+   - Fix pale post descriptions and meta text on light feed cards.
+   - Keep the public/social page readable and premium.
+-------------------------------------------------------------------------- */
+
+:is(
+  .post-card,
+  .post,
+  .feed-post,
+  .timeline-post,
+  .social-post,
+  .activity-card,
+  .profile-post,
+  .public-post
+) {
+  color: #0f172a;
+}
+
+:is(
+  .post-card,
+  .post,
+  .feed-post,
+  .timeline-post,
+  .social-post,
+  .activity-card,
+  .profile-post,
+  .public-post
+) :is(p, span, small, div, strong, b, h1, h2, h3, h4, h5, h6) {
+  color: inherit;
+}
+
+:is(
+  .post-card,
+  .post,
+  .feed-post,
+  .timeline-post,
+  .social-post,
+  .activity-card,
+  .profile-post,
+  .public-post
+) :is(
+  .post-text,
+  .post-description,
+  .post-content,
+  .content,
+  .description,
+  .body,
+  .excerpt,
+  .caption
+) {
+  color: #334155;
+}
+
+:is(
+  .post-card,
+  .post,
+  .feed-post,
+  .timeline-post,
+  .social-post,
+  .activity-card,
+  .profile-post,
+  .public-post
+) :is(
+  .post-meta,
+  .meta,
+  .time,
+  .timestamp,
+  .subtitle,
+  .muted,
+  .text-muted
+) {
+  color: #64748b;
+}
+
+:is(
+  .post-card,
+  .post,
+  .feed-post,
+  .timeline-post,
+  .social-post,
+  .activity-card,
+  .profile-post,
+  .public-post
+) :is(.author-name, .profile-name, .post-author, .title, .name) {
+  color: #0f172a;
+  font-weight: 800;
+}
