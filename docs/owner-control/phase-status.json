@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "project": "VVIP TIGER",
   "updated_on": "2026-07-10",
   "visibility": "repository-internal-owner-reference",
@@ -59,13 +59,23 @@
       "id": "owner-master-reference",
       "priority": 0,
       "title": "Owner master reference",
-      "status": "ready_for_verification"
+      "status": "implemented_verified",
+      "evidence": {
+        "pull_request": 20,
+        "baseline": "18ed32a023731e3289f4a2d68ab7c52a4b7af750",
+        "post_merge_verified": true
+      }
     },
     {
       "id": "values-names-charter",
       "priority": 0,
       "title": "Values and Names of Allah charter",
-      "status": "ready_for_verification"
+      "status": "implemented_verified",
+      "evidence": {
+        "pull_request": 20,
+        "baseline": "18ed32a023731e3289f4a2d68ab7c52a4b7af750",
+        "post_merge_verified": true
+      }
     },
     {
       "id": "owner-control-center",
@@ -132,6 +142,110 @@
       "priority": 10,
       "title": "Advanced AI payments native app and AWS",
       "status": "not_started"
+    },
+    {
+      "id": "current-position-reference",
+      "priority": 0,
+      "title": "Current project position reference",
+      "status": "ready_for_verification"
+    },
+    {
+      "id": "business-operations-reference",
+      "priority": 0,
+      "title": "Business operations campaigns team and finance reference",
+      "status": "ready_for_verification"
+    },
+    {
+      "id": "decision-register",
+      "priority": 0,
+      "title": "Approved decisions and pending proposals register",
+      "status": "ready_for_verification"
+    },
+    {
+      "id": "execution-history",
+      "priority": 0,
+      "title": "Execution history and evidence register",
+      "status": "ready_for_verification"
+    },
+    {
+      "id": "legal-continuity-monitoring",
+      "priority": 0,
+      "title": "Legal privacy continuity and monitoring reference",
+      "status": "ready_for_verification"
+    },
+    {
+      "id": "governance-gate",
+      "priority": 0,
+      "title": "Mandatory VVIP governance execution gate",
+      "status": "not_started"
+    },
+    {
+      "id": "campaign-management",
+      "priority": 7,
+      "title": "Campaign management",
+      "status": "not_started"
+    },
+    {
+      "id": "referral-commission-system",
+      "priority": 7,
+      "title": "Referral commissions and incentive system",
+      "status": "not_started"
+    },
+    {
+      "id": "partnerships-crm",
+      "priority": 7,
+      "title": "Partnerships and field relationship management",
+      "status": "not_started"
+    },
+    {
+      "id": "team-operations",
+      "priority": 7,
+      "title": "Team operations roles and permissions",
+      "status": "not_started"
+    },
+    {
+      "id": "finance-subscriptions",
+      "priority": 7,
+      "title": "Finance subscriptions budgets and accounting",
+      "status": "not_started"
+    },
+    {
+      "id": "legal-privacy-package",
+      "priority": 9,
+      "title": "Legal terms privacy and data rights package",
+      "status": "not_started"
+    },
+    {
+      "id": "backup-recovery",
+      "priority": 9,
+      "title": "Backup restore and disaster recovery",
+      "status": "not_started"
+    },
+    {
+      "id": "monitoring-incidents",
+      "priority": 9,
+      "title": "Monitoring alerting and incident response",
+      "status": "not_started"
+    },
+    {
+      "id": "environment-separation",
+      "priority": 9,
+      "title": "Development staging and production separation",
+      "status": "not_started"
     }
+  ],
+  "reference_version": 2,
+  "last_verified_baseline": "18ed32a023731e3289f4a2d68ab7c52a4b7af750",
+  "last_verified_pull_request": 20,
+  "source_of_truth_files": [
+    "VVIP_TIGER_OWNER_MASTER_REFERENCE.md",
+    "VVIP_TIGER_CURRENT_POSITION.md",
+    "VVIP_TIGER_DECISION_REGISTER.md",
+    "VVIP_TIGER_BUSINESS_OPERATIONS_REFERENCE.md",
+    "VVIP_TIGER_EXECUTION_HISTORY.md",
+    "VVIP_TIGER_LEGAL_CONTINUITY_AND_MONITORING.md",
+    "VVIP_TIGER_VALUES_AND_NAMES_CHARTER.md",
+    "VVIP_TIGER_EXECUTION_CHARTER.md",
+    "VVIP_TIGER_PHASE_TRACKER.md"
   ]
 }
