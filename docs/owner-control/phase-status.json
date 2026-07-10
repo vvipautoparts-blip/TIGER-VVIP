@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "project": "VVIP TIGER",
+  "updated_on": "2026-07-10",
+  "visibility": "repository-internal-owner-reference",
+  "runtime_owner_page_enabled": false,
+  "rules": {
+    "approval_before_code": true,
+    "direct_main_changes": false,
+    "security_gate_required": true,
+    "performance_gate_required": true,
+    "fallback_required": true,
+    "rollback_required": true,
+    "pull_request_required": true,
+    "post_merge_verification_required": true,
+    "completion_mark_requires_evidence": true
+  },
+  "status_definitions": {
+    "not_started": "لم تبدأ",
+    "in_progress": "قيد التنفيذ",
+    "blocked": "متوقفة",
+    "ready_for_verification": "جاهزة للتحقق",
+    "implemented_verified": "تم التنفيذ والتحقق",
+    "security_verified": "تم التنفيذ والتحقق الأمني",
+    "launch_ready": "جاهزة للإطلاق"
+  },
+  "phases": [
+    {
+      "id": "memory-map",
+      "priority": 0,
+      "title": "Memory Map",
+      "status": "implemented_verified"
+    },
+    {
+      "id": "implementation-checklist",
+      "priority": 0,
+      "title": "Implementation Checklist",
+      "status": "implemented_verified"
+    },
+    {
+      "id": "clerk-auth",
+      "priority": 0,
+      "title": "Clerk authentication",
+      "status": "implemented_verified"
+    },
+    {
+      "id": "profile-bridge",
+      "priority": 0,
+      "title": "Clerk Supabase profile bridge",
+      "status": "security_verified"
+    },
+    {
+      "id": "atomic-profile-resolver",
+      "priority": 0,
+      "title": "Atomic profile resolver",
+      "status": "security_verified"
+    },
+    {
+      "id": "owner-master-reference",
+      "priority": 0,
+      "title": "Owner master reference",
+      "status": "ready_for_verification"
+    },
+    {
+      "id": "values-names-charter",
+      "priority": 0,
+      "title": "Values and Names of Allah charter",
+      "status": "ready_for_verification"
+    },
+    {
+      "id": "owner-control-center",
+      "priority": 0,
+      "title": "Authenticated owner control center",
+      "status": "not_started"
+    },
+    {
+      "id": "visual-identity",
+      "priority": 1,
+      "title": "Unified visual identity",
+      "status": "not_started"
+    },
+    {
+      "id": "app-shell-feed",
+      "priority": 2,
+      "title": "Mobile app shell and feed",
+      "status": "in_progress"
+    },
+    {
+      "id": "structured-search",
+      "priority": 3,
+      "title": "OpenSooq-style structured search",
+      "status": "not_started"
+    },
+    {
+      "id": "listing-engine",
+      "priority": 4,
+      "title": "Listing engine and seven-image pipeline",
+      "status": "not_started"
+    },
+    {
+      "id": "permissions-limits",
+      "priority": 5,
+      "title": "Account permissions and posting limits",
+      "status": "not_started"
+    },
+    {
+      "id": "private-communication",
+      "priority": 6,
+      "title": "One-to-one communication and privacy",
+      "status": "not_started"
+    },
+    {
+      "id": "tiger-care-admin",
+      "priority": 7,
+      "title": "Tiger Care and administration",
+      "status": "not_started"
+    },
+    {
+      "id": "engagement-trust",
+      "priority": 8,
+      "title": "Notifications favorites history and trust",
+      "status": "not_started"
+    },
+    {
+      "id": "pwa-launch",
+      "priority": 9,
+      "title": "PWA performance and controlled launch",
+      "status": "not_started"
+    },
+    {
+      "id": "advanced-systems",
+      "priority": 10,
+      "title": "Advanced AI payments native app and AWS",
+      "status": "not_started"
+    }
+  ]
+}
