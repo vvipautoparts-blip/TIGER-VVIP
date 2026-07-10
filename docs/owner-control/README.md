@@ -45,3 +45,26 @@
 هذه الملفات لا تظهر داخل واجهة المستخدم ولا يتم تحميلها بواسطة صفحات المنصة.
 
 لكن أي شخص يملك وصولًا إلى المستودع قد يستطيع قراءتها. إنشاء مركز يظهر للمالك وحده داخل المنصة يحتاج صلاحية مالك موثوقة عبر Clerk وطبقة خادم محمية.
+
+<!-- VVIP_OWNER_SOURCE_OF_TRUTH_COMPLETION -->
+
+## Source of Truth Completion
+
+ابدأ دائمًا من:
+
+1. [`VVIP_TIGER_CURRENT_POSITION.md`](./VVIP_TIGER_CURRENT_POSITION.md)
+   أين وصل المشروع الآن وما المرحلة التالية.
+
+2. [`VVIP_TIGER_DECISION_REGISTER.md`](./VVIP_TIGER_DECISION_REGISTER.md)
+   القرارات المعتمدة والاقتراحات التي تنتظر اعتماد المالك.
+
+3. [`VVIP_TIGER_BUSINESS_OPERATIONS_REFERENCE.md`](./VVIP_TIGER_BUSINESS_OPERATIONS_REFERENCE.md)
+   الحملات والعمولات والفريق والشراكات والإيرادات والتشغيل.
+
+4. [`VVIP_TIGER_EXECUTION_HISTORY.md`](./VVIP_TIGER_EXECUTION_HISTORY.md)
+   السجل التاريخي والـPRs والـCommits والنقاط الآمنة.
+
+5. [`VVIP_TIGER_LEGAL_CONTINUITY_AND_MONITORING.md`](./VVIP_TIGER_LEGAL_CONTINUITY_AND_MONITORING.md)
+   القانون والخصوصية والنسخ الاحتياطي والمراقبة وبيئات العمل.
+
+أي معلومة غير مثبتة كقرار نهائي تبقى داخل سجل القرارات بحالة 🟣، ولا تدخل إلى التنفيذ تلقائيًا.

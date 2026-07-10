@@ -26,8 +26,8 @@
 | 0 | Frontend Safe Baseline | ✅ | Baseline موثق |
 | 0 | PR #19 Runtime Guard | ✅ | تم الدمج والتحقق |
 | 0 | PR #20 Discovery | ✅ | أُغلق دون تغيير لعدم وجود خلل |
-| 0 | Owner Master Reference | 🔵 | أُنشئ في هذا الفرع وينتظر الدمج |
-| 0 | Values and Names Charter | 🔵 | أُنشئ في هذا الفرع وينتظر الدمج |
+| 0 | Owner Master Reference | ✅ | PR #20 مدمج وتم التحقق بعد الدمج |
+| 0 | Values and Names Charter | ✅ | مدمج ضمن PR #20 وتم التحقق |
 | 0 | Owner Runtime Control Center | ⬜ | يحتاج صلاحية مالك حقيقية |
 | 1 | الهوية البصرية والألوان | ⬜ | المرحلة المرئية التالية |
 | 2 | App Shell وFeed | 🟡 | أجزاء أولية فقط |
@@ -65,3 +65,27 @@
 - خطة الرجوع.
 - تاريخ الدمج.
 - Post-Merge Verification.
+
+<!-- VVIP_SOURCE_OF_TRUTH_TRACKER_COMPLETION -->
+
+## طبقات المرجع الإضافية
+
+| الأولوية | المرحلة | الحالة | الملاحظة |
+|---:|---|:---:|---|
+| 0 | Current Position Reference | 🔵 | أُنشئ وينتظر الدمج والتحقق |
+| 0 | Business & Operations Reference | 🔵 | الحملات والفريق والعمولات والمالية |
+| 0 | Decision Register | 🔵 | يفصل القرار المعتمد عن الاقتراح |
+| 0 | Execution History | 🔵 | PRs وCommits والنقاط الآمنة |
+| 0 | Legal, Continuity & Monitoring | 🔵 | القانون والنسخ الاحتياطي والمراقبة |
+| 0 | Governance Gate | ⬜ | لم يُنفذ بعد |
+| 0 | Branch Protection | ⬜ | لا يُفعل دون مراجعة صريحة |
+| 0 | Authenticated Owner Control Center | ⬜ | يحتاج صلاحية مالك حقيقية |
+| 7 | Campaign Management | ⬜ | يحتاج Runtime وإدارة محمية |
+| 7 | Partnerships CRM | ⬜ | غير منفذ |
+| 7 | Referral & Commission System | ⬜ | النسب تنتظر اعتماد المالك |
+| 7 | Team Operations & Permissions | ⬜ | الهيكل معتمد والتنفيذ غير مكتمل |
+| 7 | Finance & Subscription Operations | ⬜ | الأسعار والدفع تنتظر الاعتماد |
+| 9 | Legal & Privacy Package | ⬜ | مطلوب قبل الإطلاق |
+| 9 | Backup & Recovery | ⬜ | مطلوب قبل الإطلاق |
+| 9 | Monitoring & Incident Response | ⬜ | مطلوب قبل الإطلاق |
+| 9 | Development/Staging/Production Separation | ⬜ | مطلوب قبل الإطلاق |
