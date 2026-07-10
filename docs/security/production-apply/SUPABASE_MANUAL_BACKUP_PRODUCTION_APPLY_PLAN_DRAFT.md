@@ -1,36 +1,200 @@
-# VVIP TIGER â€” Ø®Ø·Ø© Supabase Ø§Ù„ÙŠØ¯ÙˆÙŠØ© â€” Ù…Ø³ÙˆØ¯Ø© ÙÙ‚Ø·
+# VVIP TIGER - Supabase Manual Backup and Production Apply Plan
 
-Ø§Ù„Ø­Ø§Ù„Ø©: Ù…Ø³ÙˆØ¯Ø© ÙÙ‚Ø· â€” Ù…Ù…Ù†ÙˆØ¹ Ø§Ù„ØªÙ†ÙÙŠØ°  
-Ø§Ù„ØªØ§Ø±ÙŠØ®: 2026-07-10
+Status: DRAFT ONLY  
+Date: 2026-07-10  
+Scope: Documentation and planning only. No production execution. No SQL apply. No Supabase changes. No Clerk changes.
 
-## Ù†Ù‚Ø·Ø© Ø§Ù„ÙˆÙ‚ÙˆÙ
+---
 
-- Ø§Ù„ÙØ±Ø¹ Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠ main ÙƒØ§Ù† Ù†Ø¸ÙŠÙÙ‹Ø§ ÙˆÙ…ØªØ²Ø§Ù…Ù†Ù‹Ø§ Ù…Ø¹ origin/main.
-- PR #3 Ù…Ø¯Ù…ÙˆØ¬.
-- Ø¢Ø®Ø± merge commit: b510f70.
-- Ù„Ù… ÙŠØªÙ… Ù„Ù…Ø³ Supabase Production.
-- Ù„Ù… ÙŠØªÙ… Ù„Ù…Ø³ Clerk.
-- Ù„Ù… ÙŠØªÙ… ØªØ·Ø¨ÙŠÙ‚ Ø£ÙŠ SQL.
-- Ù…Ù„Ù SQL Ù„Ù„Ù…Ø±Ø§Ø¬Ø¹Ø© ÙÙ‚Ø· Ù…ÙˆØ¬ÙˆØ¯ Ø¯Ø§Ø®Ù„: docs/security/sql-review.
+## 1. Safe Checkpoint
 
-## Ù‚ÙˆØ§Ø¹Ø¯ Ø§Ù„Ø£Ù…Ø§Ù†
+This plan starts from the clean checkpoint after PR #3 was merged into main.
 
-- Ù„Ø§ Ù†Ø´ØºÙ„ SQL Ù…Ù† VS Code.
-- Ù„Ø§ Ù†ÙØªØ­ Supabase Ù„Ù„ØªÙ†ÙÙŠØ° Ø§Ù„Ø¢Ù†.
-- Ù„Ø§ Ù†ØºÙŠØ± Clerk Ø§Ù„Ø¢Ù†.
-- Ù„Ø§ Ù†Ø´Ø§Ø±Ùƒ Ø£Ø³Ø±Ø§Ø± Ø£Ùˆ Ù…ÙØ§ØªÙŠØ­ Ø£Ùˆ JWT Ø£Ùˆ service_role.
-- Ù„Ø§ Ù†Ù†Ù‚Ù„ Ù…Ù„Ù† Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø© Ø¥Ù„Ù‰ supabase/migrations Ø¥Ù„Ø§ Ø¨Ù…ÙˆØ§ÙÙ‚Ø© ØµØ±ÙŠØ­Ø© Ù„Ø§Ø­Ù‚Ù‹Ø§.
-- Ù‡Ø°Ù‡ Ø§Ù„ÙˆØ«ÙŠÙ‚Ø© Ø®Ø·Ø© ÙÙ‚Ø· ÙˆÙ„ÙŠØ³Øª Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø§Ù„ØªØ·Ø¨ÙŠÙ‚.
+Known state:
 
-## Ø®Ø·Ø© Ø§Ù„Ù†Ø³Ø® Ø§Ù„Ø§Ø­ØªÙŠØ§Ø·ÙŠ Ù‚Ø¨Ù„ Ø£ÙŠ ØªØ·Ø¨ÙŠÙ‚ Ù…Ø³ØªÙ‚Ø¨Ù„ÙŠ
+- main was clean before this documentation branch was created.
+- origin/main was synced.
+- PR #3 was merged.
+- Merge commit: b510f70.
+- Supabase production was not touched.
+- Clerk was not touched.
+- No SQL was applied.
+- Review-only SQL remains under:
 
-Ù‚Ø¨Ù„ Ø£ÙŠ ØªØ·Ø¨ÙŠÙ‚ SQL Ù„Ø§Ø­Ù‚Ù‹Ø§ ÙŠØ¬Ø¨:
+docs/security/sql-review/
 
-1. ÙØªØ­ Supabase Dashboard.
-2. Ø§Ù„Ø¯Ø®ÙˆÙ„ Ø¥Ù„Ù‰ Ø§Ù„Ù…Ø´Ø±ÙˆØ¹ Ø§Ù„ØµØ­ÙŠØ­.
-3. Ø§Ù„Ø°Ù‡Ø§Ø¨ Ø¥Ù„Ù‰ Database Ø«Ù… Backups.
-4. Ø§Ù„ØªØ£ÙƒØ¯ Ù…Ù† ÙˆØ¬ÙˆØ¯ Ù†Ø³Ø®Ø© Ø§Ø­ØªÙŠØ§Ø·ÙŠØ© Ø­Ø¯ÙŠØ«Ø©.
-5. ØªØ³Ø¬ÙŠÙ„ ØªØ§Ø±ÙŠØ® ÙˆÙˆÙ‚Øª Ø§Ù„Ù†Ø³Ø®Ø©.
-6. Ø¹Ø¯Ù… ØªØ´ØºÙŠÙ„ SQL Ø¥Ø°Ø§ ÙƒØ§Ù†Øª Ø§Ù„Ù†Ø³Ø®Ø© Ø§Ù„Ø§Ø­ØªÙŠØ§Ø·ÙŠØ© ØºÙŠØ± ÙˆØ§Ø¶Ø­Ø©.
+This document is a planning draft only. It is not approval to execute anything in production.
 
-Ù‚Ø§Ù„Ø¨ Ø§Ù„Ù†Ø³Ø¶*N‚‚‹H6)öa6*¶)ö,vb¶+Ž‚‹H6)öa6b6`¶*Ž‚‹H6a¶b6.H6)öa6a¶,ö+¶*N‚‹H6av,v+6.H6)öa6a¶,ö+¶*N‚‹H6*¶aH6)öa6*¶(ö`öb¶+È6*6b6)ö,ö-ö*N‚‹H6ava6)ö+v.6)ö*Ž‚‚ˆÈÈ6+¶-ö*H6)öa6*¶-ö*6b¶`ˆ6)öa6av,ö*¶`¶*6a6bˆ8 %6a6b¶,È6)öa6(¶a‚‚¶)v,6)È6*¶av*ˆ6)öa6avb6)ö`v`¶*H6a6)ö+v`¶bö)È6`v`¶-Î‚‚ŒKˆ6`v*¶+HÝ\X˜\ÙHÔSY]Ü‹‚Œ‹ˆ6a6-v`ˆÔS6)öa6av,v)ö+6.H6b¶+öb6b¶bö)Ë‚ŒËˆ6av,v)ö+6.v*¶aÈ6av,v*H6*ö)öa¶b¶*H6`¶*6a6)öa6*¶-6.¶b¶a‚ˆ6*¶-6.¶b¶a6aÈ6av,v*H6b6)ö+v+ö*H6`v`¶-Ë‚Kˆ6+v`v.6a¶*¶b¶+6*H6)öa6*¶a¶`vb¶,‚‹ˆ6*¶-6.¶b¶a6`v+vb6-v)ö*ˆ6)öa6*¶+v`¶`‹‚Ëˆ6*¶,ö+6b¶a6`öa6-6b¶(H6`vbˆ6,ö+6a6)öa6*¶a¶`vb¶,‚‚ˆÈÈ6)öa6*¶+v`¶`ˆ6*6.v+È6)öa6*¶-ö*6b¶`ˆ6)öa6av,ö*¶`¶*6a6b‚‚¶*6.v+È6(öbˆ6*¶-ö*6b¶`ˆ6av.v*¶av+È6b¶+6*6)öa6*¶(ö`ö+È6(öaŽ‚‚‹H6)öa6av,ö*¶+¶+öaH6)öa6av,ö+6a6b¶-va6)va6bH6ava6`vaÈ6`v`¶-Ë‚‹H6)öa6av,ö*¶+¶+öaH6a6)È6b¶-va6)va6bH6ava6`H6av,ö*¶+¶+öaH6(¶+¶,K‚‹H6)öa6av,ö*¶+¶+öaH6.¶b¶,H6)öa6av,ö+6a6a6)È6b¶,ö*¶-öb¶.H6)ö,ö*¶+¶+ö)öaH6)öa6av,ö)ö,H6)öa6+¶)ö-K‚‹H“È6*6`¶bˆ6-v)ö,vavbö)Ë‚‹H6a6)È6b¶.6aö,H6(öbˆÚÙ[ˆ6(öbÙXÜ™]6(öbÙ\šXÙWÜ›ÛK‚‹H6-v`v+v*H6)öa6*6,vb6`v)öb¶a6)öa6+¶)ö-H6*¶.vava6*6.v+È6*¶,ö+6b¶a6)öa6+ö+¶b6a6*6b6)ö,ö-ö*HÛ\šË‚‚ˆÈÈ6+¶-ö*H6)öa6,v+6b6.H›Û˜XÚÂ‚¶`¶*6a6(öbˆ6*¶-ö*6b¶`ˆ6b¶+6*6*¶+6aöb¶,ˆ6-ö,vb¶`¶*H6,v+6b6.N‚‚‹H6)ö,ö*¶.v)ö+ö*H6*¶.v,vb¶`H6)öa6+ö)ôMŠ’Š}˜M‹=Š}Š˜"Š]˜b˜ŠÍŠòà¢ÒŠ=˜‚ŠÝ‹˜˜Š]‹Š}ŠýŠ’Š]˜m‹MŠ}ŠŠ}˜MŠýŠ}˜MŠ’Š}˜M˜]Š­Š=Š½‹Š’˜˜-‹rŠ]‹Šr˜=Š}˜b‹˜M˜2Š-˜]˜m˜½Šrà¢ÒŠ=˜‚Š}˜MŠ}‹=Š­‹Š}ŠýŠ’˜]˜b˜m‹=ŠíŠ’7W&6RŠ}˜MŠ}ŠÝŠ­˜­Š}‹}˜­Š’Š]‹ŠrŠÝŠýŠ²Ší˜M˜B˜=Š˜­‹à ¢22Š˜Š}ŠŠ’Š}˜M˜]˜Š}˜˜-Š ­˜MŠr˜­˜ŠÍŠòŠ­˜m˜˜­‹Š}˜MŠ-˜bà ­˜m‹RŠ}˜M˜]˜Š}˜˜-Š’Š}˜M˜]‹}˜M˜Š‚˜MŠ}ŠÝ˜-˜½Šr˜-Š˜BŠ=˜¢Š­‹M‹­˜­˜C  ­Š=˜Š}˜˜"‹˜M˜’Š­‹}Š˜­˜"5ÂŠ}˜M˜]‹Š}ŠÍ‹’˜­Šý˜˜­˜½ŠrŠýŠ}Ší˜B7W&6R&öGV7F–öâà ­ŠŠý˜˜b˜}‹˜rŠ}˜M˜]˜Š}˜˜-ŠˆÂ˜­Š˜-˜’Š}˜M˜‹m‹“  ­˜]‹=˜ŠýŠ’˜˜-‹r(	B˜]˜]˜m˜‹’Š}˜MŠ­˜m˜˜­‹à 
+---
+
+## 2. Hard Safety Rules
+
+Before any future production execution:
+
+1. Do not run SQL from VS Code.
+2. Do not apply SQL during this draft-only phase.
+3. Do not change Supabase production during this draft-only phase.
+4. Do not change Clerk during this draft-only phase.
+5. Do not expose secrets, JWT tokens, service_role keys, passwords, or dashboard screenshots with sensitive data.
+6. Do not move review-only SQL into supabase/migrations unless explicitly approved later.
+7. Any future SQL execution must be manual from Supabase SQL Editor after backup, review, approval, and rollback planning.
+
+Current status:
+
+DRAFT ONLY - DO NOT EXECUTE
+
+---
+
+## 3. Expected Review-Only SQL Location
+
+Expected review-only SQL path:
+
+docs/security/sql-review/20260709_vvip_tiger_atomic_profile_resolver_rpc_hardened_review.sql
+
+This file must not be executed now.
+
+This file must not be copied into Supabase now.
+
+This file must not be applied to production now.
+
+---
+
+## 4. Manual Backup Plan
+
+Before any future Supabase production apply, the following backup steps must be completed:
+
+1. Open Supabase Dashboard.
+2. Select the correct production project.
+3. Go to Database > Backups.
+4. Confirm the latest automatic backup exists.
+5. Record the backup date and time.
+6. If manual backup/export is available, create or download it.
+7. Do not proceed if backup status is unclear.
+
+Backup record template:
+
+Backup date:
+Backup time:
+Supabase project:
+Backup type:
+Backup reference:
+Confirmed by:
+Notes:
+
+---
+
+## 5. Pre-Apply Schema Snapshot Plan
+
+Before any future SQL apply, document the current state of affected objects.
+
+Likely affected objects:
+
+- profiles table.
+- RLS policies related to profiles.
+- RPC/function related to atomic profile resolving.
+- Grants and permissions for authenticated users.
+- Any related security definer function behavior.
+
+Snapshot record template:
+
+Object:
+Current state:
+Screenshot or reference saved:
+Risk level:
+Notes:
+
+---
+
+## 6. Future Production Apply Plan
+
+If explicit approval is given later, the manual apply process should be:
+
+1. Open Supabase Dashboard.
+2. Select the correct production project.
+3. Open SQL Editor.
+4. Paste reviewed SQL manually.
+5. Review the SQL again inside Supabase before running.
+6. Run once only.
+7. Save the Supabase execution result.
+8. Immediately run verification checks.
+9. Record results in the implementation log.
+
+This document does not authorize running SQL.
+
+---
+
+## 7. Pre-Apply Checklist
+
+Before any future production execution, all items must be confirmed:
+
+- [ ] Git branch verified.
+- [ ] Working tree clean.
+- [ ] Backup exists.
+- [ ] Backup reference recorded.
+- [ ] Review-only SQL reviewed.
+- [ ] SQL has no accidental destructive operation.
+- [ ] SQL does not expose secrets.
+- [ ] SQL does not weaken RLS.
+- [ ] Clerk changes are not included.
+- [ ] Frontend changes are not included.
+- [ ] Rollback notes are prepared.
+- [ ] Explicit approval received.
+
+Required future approval wording:
+
+Approved to apply reviewed SQL manually in Supabase production.
+
+Without explicit approval, production execution remains forbidden.
+
+---
+
+## 8. Future Verification Plan
+
+After any future approved apply, verify:
+
+- Authenticated user can resolve only their own profile.
+- Authenticated user cannot resolve another user's private profile.
+- Anonymous user cannot access private resolver behavior.
+- No secret, JWT, or service_role value is exposed.
+- RLS remains strict.
+- Private profile page works after Clerk sign-in.
+- Browser console does not expose token, JWT, or secret values.
+- Safe fallback remains available if RPC fails.
+
+---
+
+## 9. Rollback Plan
+
+Rollback must be ready before any future execution.
+
+Possible rollback options:
+
+1. Restore previous function definition if available.
+2. Drop and recreate only the affected function if safe.
+3. Restore from Supabase backup if a serious issue occurs.
+4. Revert frontend only if frontend was changed, which is not expected in this phase.
+
+Rollback record template:
+
+Rollback trigger:
+Rollback method:
+Responsible person:
+Backup reference:
+Expected downtime:
+Verification after rollback:
+Notes:
+
+---
+
+## 10. Final Gate
+
+This document is a draft only.
+
+Final status:
+
+DRAFT ONLY - DO NOT EXECUTE
+
+No Supabase production change.
+No Clerk change.
+No SQL apply.
+No migration execution.
