@@ -180,6 +180,7 @@
       id: datasetValue(element, ["id", "listingId"]) || `dom-${index + 1}`,
       element,
       sourceIndex: index,
+      originalHidden: Boolean(element.hidden),
       title,
       price: parseNumber(priceText),
       priceText,
@@ -344,7 +345,7 @@
         <div class="vvip-discovery__quick-row">
           <div class="vvip-discovery__search-wrap">
             <span class="vvip-discovery__search-icon" aria-hidden="true">⌕</span>
-            <label class="sr-only" for="vvip-discovery-query">البحث في الإعلانات</label>
+            <label class="vvip-discovery__sr-only" for="vvip-discovery-query">البحث في الإعلانات</label>
             <input class="vvip-discovery__input" id="vvip-discovery-query" type="search" autocomplete="off" placeholder="ابحث باسم القطعة أو المادة أو العقار...">
           </div>
           <button class="vvip-discovery__button vvip-discovery__button--gold" type="button" data-action="toggle-advanced" aria-expanded="false" aria-controls="vvip-discovery-advanced">البحث المتقدم</button>
@@ -391,7 +392,7 @@
       { name: "area", label: "المنطقة", placeholder: "مثال: الجبيهة" },
       { name: "priceMin", label: "السعر من", type: "number", inputMode: "decimal" },
       { name: "priceMax", label: "السعر إلى", type: "number", inputMode: "decimal" },
-      { name: "condition", label: "الحالة", type: "select", options: [{ value: "new", label: "جديد" }, { value: "used", label: "مستعمل" }, { value: "available", label: "متوفر" }] },
+      { name: "condition", label: "الحالة", type: "select", options: [{ value: "new", label: "جديد" }, { value: "used", label: "مستعمل" }] },
       { name: "accountType", label: "نوع المعلن", type: "select", options: [{ value: "individual", label: "فرد" }, { value: "business", label: "نشاط تجاري" }, { value: "supplier", label: "مورد" }, { value: "service-provider", label: "مزود خدمة" }, { value: "office", label: "مكتب" }] },
       { name: "sort", label: "ترتيب النتائج", type: "select", options: [{ value: "latest", label: "الأحدث" }, { value: "price-asc", label: "الأقل سعرًا" }, { value: "price-desc", label: "الأعلى سعرًا" }, { value: "region", label: "حسب المنطقة" }] },
     ];
@@ -609,6 +610,10 @@
         return;
       }
 
+      if (item.element.dataset.vvipOriginalHidden === undefined) {
+        item.element.dataset.vvipOriginalHidden = item.originalHidden ? "true" : "false";
+      }
+
       if (!item.element.dataset.vvipOriginalDisplay) {
         item.element.dataset.vvipOriginalDisplay = item.element.style.display || "__default__";
       }
@@ -622,12 +627,14 @@
       return;
     }
 
-    item.element.hidden = false;
+    const originalHidden = item.element.dataset.vvipOriginalHidden === "true";
     const previous = item.element.dataset.vvipOriginalDisplay;
 
-    if (previous && previous !== "__default__") {
+    item.element.hidden = originalHidden;
+
+    if (!originalHidden && previous && previous !== "__default__") {
       item.element.style.display = previous;
-    } else {
+    } else if (!originalHidden) {
       item.element.style.removeProperty("display");
     }
   }
@@ -815,7 +822,7 @@
   }
 
   function createMobileNavigation() {
-    const existingNav = document.querySelector(["[data-vvip-bottom-nav]", ".bottom-nav", ".mobile-nav", "nav[aria-label='التنقل الرئيسي للهاتف']"].join(","));
+    const existingNav = document.querySelector(["[data-vvip-bottom-nav]", ".vvip-mobile-nav", ".bottom-nav", ".mobile-nav", "nav[aria-label='التنقل الرئيسي للهاتف']"].join(","));
     if (existingNav || !Array.isArray(CONFIG.nav)) {
       return;
     }
@@ -825,12 +832,16 @@
     nav.dataset.vvipBottomNav = "true";
     nav.setAttribute("aria-label", "التنقل الرئيسي للهاتف");
 
+    document.body.dataset.vvipDiscoveryMobileNav = "true";
+
     for (const item of CONFIG.nav) {
       let control;
       if (item.enabled && item.href) {
         control = document.createElement("a");
         control.href = item.href;
-        if (item.id === "home" && location.pathname.endsWith("index.html")) {
+        if (item.id === "home" && (location.pathname === "/" || location.pathname.endsWith("/index.html") || location.pathname.endsWith("index.html"))) {
+          control.setAttribute("aria-current", "page");
+        } else if (item.id === "search" && location.hash === "#vvip-discovery") {
           control.setAttribute("aria-current", "page");
         }
       } else {
@@ -971,12 +982,16 @@
     return normalized;
   }
 
+  function clearExternalItems() {
+    externalItems = null;
+    discoverItems();
+    state.page = 1;
+    render();
+  }
+
   function setItems(items) {
     if (items === null) {
-      externalItems = null;
-      discoverItems();
-      state.page = 1;
-      render();
+      clearExternalItems();
       return;
     }
 
@@ -1009,6 +1024,7 @@
           render();
         },
         reset: resetFilters,
+        clearExternalItems,
         setItems,
         getState() {
           return { ...state };

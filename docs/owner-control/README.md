@@ -54,4 +54,6 @@
 
 [`VVIP_TIGER_DISCOVERY_EXPERIENCE_SPEC.md`](./VVIP_TIGER_DISCOVERY_EXPERIENCE_SPEC.md)
 
+[`VVIP_TIGER_PR22_DISCOVERY_SHELL_COMPLETION.md`](./VVIP_TIGER_PR22_DISCOVERY_SHELL_COMPLETION.md)
+
 وهو المرجع المعتمد لما نأخذه من سهولة فيسبوك ومن بحث السوق المفتوح، وللفلاتر العامة وفلاتر السيارات والعقارات والمواد والتموين والمستلزمات.

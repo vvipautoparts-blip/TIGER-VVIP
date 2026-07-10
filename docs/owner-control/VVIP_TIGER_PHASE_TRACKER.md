@@ -64,6 +64,11 @@
 | 3 | Materials & Supplies Filters | 🔵 | المادة والمورد والجملة والوحدة والحد الأدنى والتسليم |
 | 3 | Backend Search Adapter | ⬜ | يحتاج مخطط بيانات وصلاحيات Supabase مستقلة |
 
+ملاحظة إكمال:
+
+- PR #22 hardening اكتمل على الفرع `feat/vvip-discovery-experience-shell`.
+- الإصلاحات غطت hidden/display state وmobile nav وsr-only وclearExternalItems().
+
 ## دليل الإكمال المطلوب
 
 عند إكمال أي مرحلة يسجل:

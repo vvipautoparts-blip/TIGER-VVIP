@@ -475,7 +475,7 @@
 }
 
 @media (max-width: 680px) {
-  body {
+  body[data-vvip-discovery-mobile-nav="true"] {
     padding-bottom: 78px;
   }
 
@@ -519,6 +519,19 @@
   .vvip-mobile-nav {
     display: grid;
   }
+}
+
+.vvip-discovery__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  clip: rect(0 0 0 0);
+  border: 0;
+  white-space: nowrap;
 }
 
 @media (prefers-reduced-motion: reduce) {

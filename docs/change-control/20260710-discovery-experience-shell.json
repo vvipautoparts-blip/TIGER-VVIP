@@ -3,7 +3,7 @@
   "title": "VVIP Discovery Experience Shell",
   "goal": "تنفيذ تجربة اكتشاف مألوفة مستلهمة من سهولة فيسبوك وبحث منظم مستلهم من السوق المفتوح للقطاعات الثلاثة.",
   "reason": "تقديم تقدم مرئي حقيقي للمستخدم، وتوحيد البحث والفلاتر والسرعة وحالات التجربة ضمن وحدة قابلة للربط لاحقًا مع Supabase.",
-  "status": "approved_for_implementation",
+  "status": "ready_for_merge",
   "risk_level": "medium",
   "owner_approval": true,
   "scope": {
@@ -111,5 +111,33 @@
   ],
   "database_change_approved": false,
   "production_change": false,
-  "production_change_approved": false
+  "production_change_approved": false,
+  "review_round": 2,
+  "review_notes_resolved": [
+    "Preserved original hidden state and original display state for DOM cards.",
+    "Separated common condition filtering from sector-specific availability filtering.",
+    "Added scoped sr-only utility inside discovery stylesheet.",
+    "Made mobile nav current-page detection work for /, /index.html, and #vvip-discovery.",
+    "Blocked duplicate mobile nav injection and gated body padding behind the nav marker.",
+    "Added clearExternalItems() to restore DOM mode safely from external mode."
+  ],
+  "verification": {
+    "static": [
+      "node --check scripts/vvip-discovery-config.js",
+      "node --check scripts/vvip-discovery-shell.js",
+      "python3 -m json.tool docs/change-control/20260710-discovery-experience-shell.json",
+      "python3 -m json.tool docs/owner-control/phase-status.json",
+      "git diff --check"
+    ],
+    "security": [
+      "Secret scan over index.html, styles, scripts, docs/owner-control, docs/change-control.",
+      "Unicode control scan for U+202A-U+202E, U+2066-U+2069, U+200E, U+200F, and stray FEFF.",
+      "No sensitive systems touched: Clerk, Supabase, SQL, migrations, RLS, Storage policies, production, payments."
+    ],
+    "browser_smoke": [
+      "Desktop harness: discovery panel rendered once, advanced drawer toggled, filtering and pagination worked, no console errors.",
+      "Mobile harness < 680px: duplicate nav blocked, body padding stayed gated, home active state detected, no console errors.",
+      "External mode harness: setItems() rendered three sample cards and clearExternalItems() returned to DOM mode."
+    ]
+  }
 }
