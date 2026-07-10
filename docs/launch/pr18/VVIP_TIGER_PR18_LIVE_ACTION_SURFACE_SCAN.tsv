@@ -1,0 +1,862 @@
+file	line	pattern	text
+auth-clerk-index.js	1	action-surface	window.addEventListener("load", async function () {
+auth-clerk-index.js	2	action-surface	  const card = document.querySelector(".fb-card");
+auth-clerk-index.js	25	action-surface	      const authBox = document.getElementById("clerk-main-auth");
+auth-clerk-index.js	45	action-surface	            <div id="clerk-user-button" style="margin:16px 0;"></div>
+auth-clerk-index.js	49	action-surface	                href="clerk-private-profile.html"
+auth-clerk-index.js	50	action-surface	                aria-label="فتح البروفايل الخاص"
+auth-clerk-index.js	58	action-surface	                href="public-profile.html"
+auth-clerk-index.js	59	action-surface	                aria-label="متابعة إلى الصفحة العامة"
+auth-clerk-index.js	66	action-surface	              <button
+auth-clerk-index.js	68	action-surface	                type="button"
+auth-clerk-index.js	72	action-surface	              </button>
+auth-clerk-index.js	77	action-surface	        const userButtonDiv = document.getElementById("clerk-user-button");
+auth-clerk-index.js	78	action-surface	        if (userButtonDiv) {
+auth-clerk-index.js	79	action-surface	          window.Clerk.mountUserButton(userButtonDiv);
+auth-clerk-index.js	82	action-surface	        const signOutBtn = document.getElementById("clerk-sign-out-btn");
+auth-clerk-index.js	84	action-surface	          signOutBtn.addEventListener("click", async function () {
+auth-clerk-index.js	86	action-surface	            window.location.href = "index.html";
+auth-clerk-index.js	102	action-surface	      const signInDiv = document.getElementById("clerk-sign-in");
+auth-clerk-index.js	103	action-surface	      const clerkRedirectUrl = window.location.origin + "/index.html";
+auth-flow.html	9	action-surface	    window.location.replace("index.html");
+auth-flow.html	11	action-surface	  <link rel="stylesheet" href="styles/vvip-visual-trust-layer.css">
+auth-supabase.js	7	action-surface	  let isSubmitting = false;
+auth-supabase.js	35	action-surface	    return document.getElementById(id);
+auth-supabase.js	51	action-surface	    const button = byId("email-login-btn");
+auth-supabase.js	55	action-surface	    if (button) {
+auth-supabase.js	56	action-surface	      button.disabled = Boolean(isBusy);
+auth-supabase.js	57	action-surface	      button.textContent = isBusy ? LOADING_TEXT : "تسجيل الدخول";
+auth-supabase.js	99	action-surface	    if (isSubmitting) return;
+auth-supabase.js	120	action-surface	    isSubmitting = true;
+auth-supabase.js	142	action-surface	        window.location.href = REDIRECT_AFTER_LOGIN;
+auth-supabase.js	148	action-surface	      isSubmitting = false;
+auth-supabase.js	159	action-surface	    input.addEventListener("keydown", function (event) {
+auth-supabase.js	167	action-surface	    const loginButton = byId("email-login-btn");
+auth-supabase.js	168	action-surface	    const googleButton = byId("google-btn");
+auth-supabase.js	169	action-surface	    const facebookButton = byId("facebook-btn");
+auth-supabase.js	174	action-surface	    if (!loginButton || !emailField || !passwordField) {
+auth-supabase.js	183	action-surface	    loginButton.addEventListener("click", function () {
+auth-supabase.js	190	action-surface	      emailField.addEventListener("keydown", function (event) {
+auth-supabase.js	199	action-surface	    if (googleButton) {
+auth-supabase.js	200	action-surface	      googleButton.addEventListener("click", function () {
+auth-supabase.js	205	action-surface	    if (facebookButton) {
+auth-supabase.js	206	action-surface	      facebookButton.addEventListener("click", function () {
+auth-supabase.js	214	action-surface	          window.location.href = REDIRECT_AFTER_LOGIN;
+auth-supabase.js	223	action-surface	    document.addEventListener("DOMContentLoaded", init);
+auth.js	3	action-surface	    if (window.location.hostname === "127.0.0.1") {
+auth.js	4	action-surface	      const nextUrl = new URL(window.location.href);
+auth.js	6	action-surface	      window.location.replace(nextUrl.toString());
+auth.js	54	action-surface	  const googleBtn = document.getElementById("google-btn");
+auth.js	55	action-surface	  const facebookBtn = document.getElementById("facebook-btn");
+auth.js	56	action-surface	  const logoutBtn = document.getElementById("logout-btn");
+auth.js	57	action-surface	  const authMessage = document.getElementById("auth-message");
+auth.js	58	action-surface	  const profileActions = document.getElementById("profile-actions");
+auth.js	59	action-surface	  const continuePublicBtn = document.getElementById("continue-public-btn");
+auth.js	60	action-surface	  const avatarPrivateBtn = document.getElementById("avatar-private-btn");
+auth.js	61	action-surface	  const avatarFallback = document.getElementById("avatar-fallback");
+auth.js	62	action-surface	  const verificationModal = document.getElementById("verification-modal");
+auth.js	63	action-surface	  const verificationEmail = document.getElementById("verification-email");
+auth.js	64	action-surface	  const closeVerification = document.getElementById("close-verification");
+auth.js	65	action-surface	  const logoutConfirmModal = document.getElementById("logout-confirm-modal");
+auth.js	66	action-surface	  const confirmLogoutBtn = document.getElementById("confirm-logout-btn");
+auth.js	67	action-surface	  const cancelLogoutBtn = document.getElementById("cancel-logout-btn");
+auth.js	68	action-surface	  const emailLoginBtn = document.getElementById("email-login-btn");
+auth.js	69	action-surface	  const loginEmailInput = document.getElementById("login-email");
+auth.js	70	action-surface	  const loginPasswordInput = document.getElementById("login-password");
+auth.js	71	action-surface	  const toastRoot = document.getElementById("app-toast-root");
+auth.js	134	action-surface	      const host = window.location.hostname || "localhost";
+auth.js	167	action-surface	    const node = document.querySelector(selector);
+auth.js	177	action-surface	    const navIndex = document.querySelector('[data-page-target="index"]');
+auth.js	179	action-surface	    const navPublic = document.querySelector('[data-page-target="public-profile"]');
+auth.js	181	action-surface	    const navPrivate = document.querySelector('[data-page-target="private-profile"]');
+auth.js	183	action-surface	    const navReset = document.querySelector('[data-page-target="reset-password"]');
+auth.js	186	action-surface	    const langGroup = document.querySelector(".entry-lang-switch");
+auth.js	187	action-surface	    if (langGroup) langGroup.setAttribute("aria-label", tx(AUTH_TEXT.switchLanguageGroupAria));
+auth.js	189	action-surface	    const googleLabel = document.querySelector("#google-btn .auth-label");
+auth.js	191	action-surface	    const facebookLabel = document.querySelector("#facebook-btn .auth-label");
+auth.js	194	action-surface	    if (googleBtn) googleBtn.setAttribute("aria-label", tx(AUTH_TEXT.googleAria));
+auth.js	195	action-surface	    if (facebookBtn) facebookBtn.setAttribute("aria-label", tx(AUTH_TEXT.facebookAria));
+auth.js	198	action-surface	    if (avatarPrivateBtn) avatarPrivateBtn.setAttribute("aria-label", tx(AUTH_TEXT.avatarAria));
+auth.js	204	action-surface	    const verificationMessage = document.querySelector("#verification-modal .verification-message");
+auth.js	223	action-surface	    const langButtons = Array.from(document.querySelectorAll("[data-auth-lang]"));
+auth.js	224	action-surface	    langButtons.forEach(function (button) {
+auth.js	225	action-surface	      const btnLang = normalizeLang(button.getAttribute("data-auth-lang"));
+auth.js	227	action-surface	      button.classList.toggle("active", isActive);
+auth.js	228	action-surface	      button.setAttribute("aria-pressed", isActive ? "true" : "false");
+auth.js	233	action-surface	    const langButtons = Array.from(document.querySelectorAll("[data-auth-lang]"));
+auth.js	238	action-surface	    if (!langButtons.length) return;
+auth.js	240	action-surface	    langButtons.forEach(function (button) {
+auth.js	241	action-surface	      button.addEventListener("click", function () {
+auth.js	242	action-surface	        const nextLang = normalizeLang(button.getAttribute("data-auth-lang"));
+auth.js	265	action-surface	  function setButtonLoading(button, isLoading) {
+auth.js	266	action-surface	    if (!button) return;
+auth.js	267	action-surface	    button.classList.toggle("is-loading", isLoading);
+auth.js	268	action-surface	    button.disabled = Boolean(isLoading);
+auth.js	269	action-surface	    button.setAttribute("aria-busy", isLoading ? "true" : "false");
+auth.js	271	action-surface	      button.setAttribute("data-loading-start", String(Date.now()));
+auth.js	273	action-surface	      button.removeAttribute("data-loading-start");
+auth.js	277	action-surface	  function releaseStaleOAuthButtons() {
+auth.js	278	action-surface	    [googleBtn, facebookBtn].forEach(function (button) {
+auth.js	279	action-surface	      if (!button || !button.disabled) return;
+auth.js	280	action-surface	      const startedAt = Number(button.getAttribute("data-loading-start") || "0");
+auth.js	285	action-surface	        setButtonLoading(button, false);
+auth.js	290	action-surface	  window.setInterval(releaseStaleOAuthButtons, 1200);
+auth.js	291	action-surface	  window.addEventListener("focus", releaseStaleOAuthButtons);
+auth.js	292	action-surface	  document.addEventListener("visibilitychange", function () {
+auth.js	294	action-surface	      releaseStaleOAuthButtons();
+auth.js	315	action-surface	    const verificationMessage = document.querySelector("#verification-modal .verification-message");
+auth.js	330	action-surface	    const sourceButton = providerName === "Google" ? googleBtn : facebookBtn;
+auth.js	332	action-surface	    setButtonLoading(sourceButton, true);
+auth.js	363	action-surface	          console.error('📌 Firebase Authorized Domains required:', window.location.hostname);
+auth.js	380	action-surface	          url: window.location.origin + "/index.html"
+auth.js	398	action-surface	      setButtonLoading(sourceButton, false);
+auth.js	403	action-surface	    googleBtn.addEventListener("click", function () {
+auth.js	409	action-surface	    facebookBtn.addEventListener("click", function () {
+auth.js	426	action-surface	    setButtonLoading(emailLoginBtn, true);
+auth.js	431	action-surface	        await user.sendEmailVerification({ url: window.location.origin + "/index.html" });
+auth.js	437	action-surface	      window.location.href = "public-profile.html";
+auth.js	469	action-surface	      setButtonLoading(emailLoginBtn, false);
+auth.js	474	action-surface	    emailLoginBtn.addEventListener("click", function (event) {
+auth.js	479	action-surface	    loginPasswordInput.addEventListener("keydown", function (e) {
+auth.js	484	action-surface	    loginEmailInput.addEventListener("keydown", function (e) {
+auth.js	490	action-surface	    logoutBtn.addEventListener("click", function () {
+auth.js	496	action-surface	    confirmLogoutBtn.addEventListener("click", async function () {
+auth.js	497	action-surface	      setButtonLoading(confirmLogoutBtn, true);
+auth.js	507	action-surface	        setButtonLoading(confirmLogoutBtn, false);
+auth.js	513	action-surface	    cancelLogoutBtn.addEventListener("click", closeLogoutConfirm);
+auth.js	517	action-surface	    logoutConfirmModal.addEventListener("click", function (event) {
+auth.js	525	action-surface	    continuePublicBtn.addEventListener("click", function () {
+auth.js	526	action-surface	      window.location.href = "public-profile.html";
+auth.js	531	action-surface	    avatarPrivateBtn.addEventListener("click", function () {
+auth.js	532	action-surface	      window.location.href = "private-profile.html";
+auth.js	537	action-surface	    closeVerification.addEventListener("click", function () {
+clerk-private-profile.html	86	action-surface	    button, a {
+clerk-private-profile.html	98	action-surface	    button.dark {
+clerk-private-profile.html	129	action-surface	        var params = new URLSearchParams(window.location.search || "");
+clerk-private-profile.html	166	action-surface	      window.addEventListener("error", function () {
+clerk-private-profile.html	172	action-surface	      window.addEventListener("unhandledrejection", function () {
+clerk-private-profile.html	685	action-surface	  <link rel="stylesheet" href="vvip-identity.css?v=20260708-7-1" />
+clerk-private-profile.html	686	action-surface	  <link rel="stylesheet" href="styles/vvip-visual-trust-layer.css">
+clerk-private-profile.html	1001	action-surface	      const alertNode = document.querySelector(".vvip-alert");
+clerk-private-profile.html	1006	action-surface	      const pillNode = document.querySelector(".vvip-secure-pill");
+clerk-private-profile.html	1011	action-surface	      const noteNode = document.querySelector(".vvip-note");
+clerk-private-profile.html	1516	action-surface	      const retryBtn = document.getElementById("retry-profile-btn");
+clerk-private-profile.html	1518	action-surface	        retryBtn.addEventListener("click", async function () {
+clerk-private-profile.html	1542	action-surface	        document.querySelector("[data-profile-root]") ||
+clerk-private-profile.html	1543	action-surface	        document.querySelector("main") ||
+clerk-private-profile.html	1544	action-surface	        document.getElementById("app") ||
+clerk-private-profile.html	1556	action-surface	          '<a class="vvip-btn vvip-btn-primary" href="index.html">العودة لصفحة الدخول</a>' +
+clerk-private-profile.html	1557	action-surface	          '<a class="vvip-btn vvip-btn-dark" href="public-profile.html">متابعة إلى الصفحة العامة</a>' +
+clerk-private-profile.html	1558	action-surface	          '<button class="vvip-btn vvip-btn-soft" id="retry-profile-btn" type="button">إعادة المحاولة</button>' +
+clerk-private-profile.html	1559	action-surface	          '<a class="vvip-btn vvip-btn-soft" href="public-profile.html">طلب مساعدة عبر Tiger Care</a>'
+clerk-private-profile.html	1586	action-surface	        document.querySelector("[data-profile-root]") ||
+clerk-private-profile.html	1587	action-surface	        document.querySelector("main") ||
+clerk-private-profile.html	1588	action-surface	        document.getElementById("app") ||
+clerk-private-profile.html	1600	action-surface	          '<a class="vvip-btn vvip-btn-primary" href="index.html">العودة لصفحة الدخول</a>' +
+clerk-private-profile.html	1601	action-surface	          '<a class="vvip-btn vvip-btn-dark" href="public-profile.html">متابعة إلى الصفحة العامة</a>' +
+clerk-private-profile.html	1602	action-surface	          '<button class="vvip-btn vvip-btn-soft" id="retry-profile-btn" type="button">إعادة المحاولة</button>' +
+clerk-private-profile.html	1603	action-surface	          '<a class="vvip-btn vvip-btn-soft" href="public-profile.html">طلب مساعدة عبر Tiger Care</a>'
+clerk-private-profile.html	1771	action-surface	        document.querySelector("[data-profile-root]") ||
+clerk-private-profile.html	1772	action-surface	        document.querySelector("main") ||
+clerk-private-profile.html	1773	action-surface	        document.getElementById("app") ||
+clerk-private-profile.html	1863	action-surface	                <section class="vvip-membership-center" aria-label="مركز العضوية VIP">
+clerk-private-profile.html	1902	action-surface	                <section class="vvip-tiger-care" aria-label="Tiger Care Contact Request">
+clerk-private-profile.html	1959	action-surface	                      <button class="vvip-btn vvip-btn-primary" type="submit">إرسال طلب تواصل رسمي</button>
+clerk-private-profile.html	1977	action-surface	                  <a class="vvip-btn vvip-btn-primary" href="public-profile.html">متابعة إلى الصفحة العامة</a>
+clerk-private-profile.html	1978	action-surface	                  <a class="vvip-btn vvip-btn-dark" href="index.html">العودة إلى الدخول</a>
+clerk-private-profile.html	1979	action-surface	                  <button class="vvip-btn vvip-btn-soft" id="sign-out-btn" type="button">تسجيل الخروج</button>
+clerk-private-profile.html	2017	action-surface	      const tigerCareForm = document.getElementById("tiger-care-form");
+clerk-private-profile.html	2018	action-surface	      const tigerCareMessage = document.getElementById("tiger-care-message");
+clerk-private-profile.html	2021	action-surface	        tigerCareForm.addEventListener("submit", function (event) {
+clerk-private-profile.html	2028	action-surface	      const signOutBtn = document.getElementById("sign-out-btn");
+clerk-private-profile.html	2030	action-surface	        signOutBtn.addEventListener("click", async function () {
+clerk-private-profile.html	2032	action-surface	          window.location.href = "index.html";
+clerk-private-profile.html	2037	action-surface	    window.addEventListener("load", async function () {
+clerk-test.html	149	action-surface	  <link rel="stylesheet" href="styles/vvip-visual-trust-layer.css">
+clerk-test.html	153	action-surface	<nav class="vvip-public-page-return" aria-label="Page navigation">
+clerk-test.html	154	action-surface	  <a class="vvip-public-page-return-link" href="index.html" data-vvip-action="return-home" aria-label="Return to home page">الرئيسية</a>
+clerk-test.html	177	action-surface	    window.addEventListener("load", async function () {
+clerk-test.html	178	action-surface	      const authArea = document.getElementById("auth-area");
+clerk-test.html	194	action-surface	                <div id="user-button"></div>
+clerk-test.html	196	action-surface	                  <a class="vvip-btn" href="clerk-private-profile.html">فتح البروفايل الخاص</a>
+clerk-test.html	197	action-surface	                  <button type="button" class="vvip-btn secondary" id="sign-out-btn">تسجيل الخروج</button>
+clerk-test.html	209	action-surface	            document.getElementById("user-email").textContent = email;
+clerk-test.html	211	action-surface	            const userButtonDiv = document.getElementById("user-button");
+clerk-test.html	212	action-surface	            window.Clerk.mountUserButton(userButtonDiv);
+clerk-test.html	214	action-surface	            document.getElementById("sign-out-btn").addEventListener("click", async function () {
+clerk-test.html	216	action-surface	              window.location.reload();
+clerk-test.html	223	action-surface	          const signInDiv = document.getElementById("sign-in");
+clerk-test.html	225	action-surface	          const clerkRedirectUrl = window.location.origin + "/clerk-test.html";
+data-deletion.html	48	action-surface	  <link rel="stylesheet" href="styles/vvip-visual-trust-layer.css">
+data-deletion.html	54	action-surface	      <p>If you want your data deleted, submit a deletion request using one of the following methods:</p>
+email-templates/confirm-email-en.html	100	action-surface	        /* CTA Button */
+email-templates/confirm-email-en.html	106	action-surface	        .cta-button {
+email-templates/confirm-email-en.html	119	action-surface	        .cta-button:hover {
+email-templates/confirm-email-en.html	223	action-surface	            .cta-button {
+email-templates/confirm-email-en.html	257	action-surface	                One simple step is all that stands between you and an extraordinary shopping experience. To secure your account and start exploring our exclusive world, please activate your account by clicking the button below:
+email-templates/confirm-email-en.html	260	action-surface	            <!-- CTA Button -->
+email-templates/confirm-email-en.html	262	action-surface	                <a href="{{ .ConfirmationURL }}" class="cta-button">
+email-templates/confirm-email-en.html	270	action-surface	                <a href="{{ .ConfirmationURL }}">{{ .ConfirmationURL }}</a>
+email-templates/confirm-email-en.html	288	action-surface	                <a href="https://vvipautoparts-blip.github.io/TIGER-VVIP/">Official Website</a>
+email-templates/confirm-email-en.html	289	action-surface	                <a href="https://vvipautoparts-blip.github.io/TIGER-VVIP/#contact">Contact Us</a>
+email-templates/confirm-email-en.html	290	action-surface	                <a href="https://vvipautoparts-blip.github.io/TIGER-VVIP/#privacy">Privacy Policy</a>
+email-templates/confirm-email.html	100	action-surface	        /* CTA Button */
+email-templates/confirm-email.html	106	action-surface	        .cta-button {
+email-templates/confirm-email.html	119	action-surface	        .cta-button:hover {
+email-templates/confirm-email.html	223	action-surface	            .cta-button {
+email-templates/confirm-email.html	274	action-surface	            <!-- CTA Button -->
+email-templates/confirm-email.html	276	action-surface	                <a href="{{ .ConfirmationURL }}" class="cta-button">
+email-templates/confirm-email.html	284	action-surface	                <a href="{{ .ConfirmationURL }}">{{ .ConfirmationURL }}</a>
+email-templates/confirm-email.html	302	action-surface	                <a href="https://vvipautoparts-blip.github.io/TIGER-VVIP/">الموقع الرسمي</a>
+email-templates/confirm-email.html	303	action-surface	                <a href="https://vvipautoparts-blip.github.io/TIGER-VVIP/#contact">تواصل معنا</a>
+email-templates/confirm-email.html	304	action-surface	                <a href="https://vvipautoparts-blip.github.io/TIGER-VVIP/#privacy">سياسة الخصوصية</a>
+index.html	10	action-surface	  <link rel="manifest" href="manifest.webmanifest" />
+index.html	11	action-surface	  <link rel="preconnect" href="https://fonts.googleapis.com" />
+index.html	12	action-surface	  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+index.html	13	action-surface	  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+index.html	14	action-surface	  <link rel="stylesheet" href="styles.css?v=20260707-vvip-gate" />
+index.html	29	action-surface	  <link rel="stylesheet" href="vvip-identity.css?v=20260708-7-1" />
+index.html	30	action-surface	  <link rel="stylesheet" href="styles/vvip-visual-trust-layer.css">
+index.html	37	action-surface	      <div class="entry-lang-switch" role="group" aria-label="اختيار اللغة">
+index.html	38	action-surface	        <button class="entry-lang-btn" type="button" data-auth-lang="ar" aria-pressed="true">العربية</button>
+index.html	39	action-surface	        <button class="entry-lang-btn" type="button" data-auth-lang="en" aria-pressed="false">English</button>
+index.html	47	action-surface	    <section class="fb-brand-col vvip-gate-brand" aria-label="VVIP TIGER Gate">
+index.html	59	action-surface	      <div class="vvip-gate-points" aria-label="مميزات الدخول">
+index.html	76	action-surface	    <section class="fb-card" aria-label="auth card">
+index.html	88	action-surface	      <!-- Login Button -->
+index.html	89	action-surface	      <button id="email-login-btn" class="fb-login-btn" type="button">تسجيل الدخول</button>
+index.html	92	action-surface	      <a href="reset-password.html" class="fb-forgot reset-link">هل نسيت كلمة المرور؟</a>
+index.html	99	action-surface	        <button id="google-btn" class="fb-social-btn fb-google-btn" type="button" aria-label="Google sign in">
+index.html	107	action-surface	        </button>
+index.html	108	action-surface	        <button id="facebook-btn" class="fb-social-btn fb-fb-btn" type="button" aria-label="Facebook sign in">
+index.html	114	action-surface	        </button>
+index.html	122	action-surface	        <button id="continue-public-btn" class="fb-login-btn" type="button">متابعة إلى الصفحة العامة</button>
+index.html	124	action-surface	          <button id="avatar-private-btn" class="avatar-btn" type="button" aria-label="الانتقال إلى البروفايل الخاص">
+index.html	126	action-surface	          </button>
+index.html	127	action-surface	          <button id="logout-btn" class="fb-logout-link" type="button" style="display:none;">تسجيل الخروج</button>
+index.html	133	action-surface	        <a href="index.html" data-page-target="index"></a>
+index.html	134	action-surface	        <a href="public-profile.html" data-page-target="public-profile"></a>
+index.html	135	action-surface	        <a href="clerk-private-profile.html" data-page-target="private-profile"></a>
+index.html	136	action-surface	        <a href="reset-password.html" data-page-target="reset-password"></a>
+index.html	147	action-surface	      <a href="terms-of-service.html">الشروط</a>
+index.html	148	action-surface	      <a href="privacy-policy.html">الخصوصية</a>
+index.html	149	action-surface	      <a href="data-deletion.html">حذف البيانات</a>
+index.html	160	action-surface	      <button id="close-verification" class="btn-primary" type="button">فهمت</button>
+index.html	170	action-surface	        <button id="confirm-logout-btn" class="btn-primary" type="button">تسجيل الخروج</button>
+index.html	171	action-surface	        <button id="cancel-logout-btn" class="btn-secondary" type="button">إلغاء</button>
+privacy-policy.html	48	action-surface	  <link rel="stylesheet" href="styles/vvip-visual-trust-layer.css">
+private-profile.html	10	action-surface	  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+private-profile.html	11	action-surface	  <link rel="stylesheet" href="vvip-identity.css?v=20260708-7-1" />
+private-profile.html	82	action-surface	  <link rel="stylesheet" href="styles/vvip-visual-trust-layer.css">
+private-profile.html	85	action-surface	<nav class="vvip-journey-bar" aria-label="Private profile journey navigation">
+private-profile.html	86	action-surface	  <a class="vvip-journey-link" href="index.html" data-vvip-action="go-home" aria-label="Go to home page">الرئيسية</a>
+private-profile.html	87	action-surface	  <a class="vvip-journey-link" href="public-profile.html" data-vvip-action="go-public-profile" aria-label="Go to public profile">البروفايل العام</a>
+private-profile.html	88	action-surface	  <button class="vvip-journey-link vvip-journey-signout" type="button" data-vvip-action="private-profile-signout" aria-label="Sign out">تسجيل الخروج</button>
+private-profile.html	98	action-surface	    <a id="redirect-link" href="clerk-private-profile.html">فتح البروفايل الرسمي الآن</a>
+private-profile.html	107	action-surface	      if (window.location.search) {
+private-profile.html	108	action-surface	        extra += window.location.search;
+private-profile.html	111	action-surface	      if (window.location.hash) {
+private-profile.html	112	action-surface	        extra += window.location.hash;
+private-profile.html	119	action-surface	      var link = document.getElementById("redirect-link");
+private-profile.html	125	action-surface	        window.location.replace(target);
+private-profile.html	135	action-surface	    window.location.href = "index.html";
+private-profile.html	152	action-surface	  document.addEventListener("click", function (event) {
+public-profile.html	9	action-surface	  <link rel="preconnect" href="https://fonts.googleapis.com" />
+public-profile.html	10	action-surface	  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+public-profile.html	11	action-surface	  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+public-profile.html	12	action-surface	  <link rel="stylesheet" href="styles.css?v=20260703e" />
+public-profile.html	13	action-surface	  <link rel="stylesheet" href="enhanced-components.css?v=20260703f" />
+public-profile.html	144	action-surface	.vvip-clean-header button,
+public-profile.html	145	action-surface	.vvip-public-shell button,
+public-profile.html	158	action-surface	.vvip-nav button,
+public-profile.html	160	action-surface	.vvip-header-tools button {
+public-profile.html	172	action-surface	.vvip-filters button {
+public-profile.html	500	action-surface	.vvip-compose-card button,
+public-profile.html	501	action-surface	.vvip-post-actions button:first-child,
+public-profile.html	680	action-surface	  <link rel="stylesheet" href="vvip-identity.css?v=20260708-7-1" />
+public-profile.html	681	action-surface	  <link rel="stylesheet" href="styles/vvip-visual-trust-layer.css">
+public-profile.html	686	action-surface	<section class="vvip-shell-header" aria-label="VVIP TIGER header zone">
+public-profile.html	687	action-surface	  <section class="vvip-clean-header" aria-label="VVIP TIGER header">
+public-profile.html	695	action-surface	    <label class="vvip-search-wrap" aria-label="ابحث في الصفحة العامة">
+public-profile.html	699	action-surface	    <nav class="vvip-nav" aria-label="التنقل الرئيسي">
+public-profile.html	700	action-surface	      <a href="public-profile.html" aria-current="page">🏠</a>
+public-profile.html	701	action-surface	      <button id="desktop-nav-video" type="button" aria-label="الفيديو">🎥</button>
+public-profile.html	702	action-surface	      <button id="desktop-nav-members" type="button" aria-label="المجتمع">👥</button>
+public-profile.html	703	action-surface	      <button id="desktop-nav-shortcuts" type="button" aria-label="الاختصارات">💼</button>
+public-profile.html	704	action-surface	      <button id="desktop-nav-ai" type="button" aria-label="الذكاء الاصطناعي">✨</button>
+public-profile.html	706	action-surface	    <div class="vvip-header-tools" aria-label="أدوات الحساب">
+public-profile.html	707	action-surface	      <button id="desktop-notifications-btn" type="button" aria-label="الإشعارات">🔔</button>
+public-profile.html	708	action-surface	      <button id="desktop-messages-btn" type="button" aria-label="الرسائل">💬</button>
+public-profile.html	709	action-surface	      <a href="clerk-private-profile.html" aria-label="الملف الشخصي">👤</a>
+public-profile.html	712	action-surface	  <div class="vvip-filters" aria-label="فلاتر سريعة">
+public-profile.html	713	action-surface	    <button type="button" data-vvip-action="public-profile-control-1" aria-label="الكل">الكل</button>
+public-profile.html	714	action-surface	    <button type="button" data-vvip-action="public-profile-control-2" aria-label="المتابعين">المتابعين</button>
+public-profile.html	715	action-surface	    <button type="button" data-vvip-action="public-profile-control-3" aria-label="فيديو">فيديو</button>
+public-profile.html	716	action-surface	    <button type="button" data-vvip-action="public-profile-control-4" aria-label="صور">صور</button>
+public-profile.html	717	action-surface	    <button type="button" data-vvip-action="public-profile-control-5" aria-label="فعاليات">فعاليات</button>
+public-profile.html	721	action-surface	<section class="vvip-public-shell" aria-label="VVIP TIGER public feed">
+public-profile.html	722	action-surface	  <aside class="vvip-side-column" aria-label="عمود الأعضاء النشطين">
+public-profile.html	726	action-surface	        <button id="desktop-members-view-all" type="button">عرض الكل</button>
+public-profile.html	765	action-surface	  <main class="vvip-main-column" aria-label="العمود الرئيسي">
+public-profile.html	769	action-surface	        <button id="desktop-stories-archive" type="button">الأرشيف</button>
+public-profile.html	772	action-surface	        <article class="desktop-story-card desktop-add-story-card" role="button" tabindex="0" data-story-action="add" data-story-label="إضافة قصة">
+public-profile.html	782	action-surface	        <article class="desktop-story-card" role="button" tabindex="0" data-story-label="مباشر">
+public-profile.html	792	action-surface	        <article class="desktop-story-card" role="button" tabindex="0" data-story-label="عرض">
+public-profile.html	802	action-surface	        <article class="desktop-story-card" role="button" tabindex="0" data-story-label="إنجاز">
+public-profile.html	812	action-surface	        <article class="desktop-story-card" role="button" tabindex="0" data-story-label="VIP">
+public-profile.html	831	action-surface	        <button id="desktop-compose-photo" class="vvip-compose-action" type="button">📷 صورة</button>
+public-profile.html	832	action-surface	        <button id="desktop-compose-video" class="vvip-compose-action" type="button">🎥 فيديو</button>
+public-profile.html	833	action-surface	        <button id="desktop-compose-ai" class="vvip-compose-action" type="button">✨ AI</button>
+public-profile.html	834	action-surface	        <button id="desktop-compose-publish" class="vvip-compose-action vvip-compose-publish" type="button">نشر الآن</button>
+public-profile.html	838	action-surface	    <section id="desktop-post-stream" class="vvip-post-stream" aria-label="المنشورات">
+public-profile.html	848	action-surface	          <button class="post-menu" type="button">⋯</button>
+public-profile.html	853	action-surface	          <button class="like-btn" type="button" data-liked="false">👍 <span>0</span></button>
+public-profile.html	854	action-surface	          <button class="comment-btn" type="button">💬 <span>0</span></button>
+public-profile.html	855	action-surface	          <button class="share-btn" type="button">↗ <span>0</span></button>
+public-profile.html	860	action-surface	          <button class="vvip-comment-send desktop-comment-send" type="button">إرسال</button>
+public-profile.html	874	action-surface	          <button class="post-menu" type="button">⋯</button>
+public-profile.html	878	action-surface	          <button class="follow-btn" type="button" data-following="false">👍 متابعة</button>
+public-profile.html	879	action-surface	          <button class="comment-btn" type="button">💬 <span>0</span></button>
+public-profile.html	880	action-surface	          <button class="save-btn" type="button" data-saved="false">🔖 حفظ</button>
+public-profile.html	885	action-surface	          <button class="vvip-comment-send desktop-comment-send" type="button">إرسال</button>
+public-profile.html	892	action-surface	  <aside class="vvip-shortcut-column" aria-label="عمود الاختصارات والاقتراحات">
+public-profile.html	896	action-surface	        <button id="desktop-shortcuts-manage" type="button">إدارة</button>
+public-profile.html	899	action-surface	        <button class="desktop-shortcut-btn" type="button">📦 عروض اليوم</button>
+public-profile.html	900	action-surface	        <button class="desktop-shortcut-btn" type="button">🚚 حالة الشحن</button>
+public-profile.html	901	action-surface	        <button class="desktop-shortcut-btn" type="button">🛡 مجتمع الثقة</button>
+public-profile.html	902	action-surface	        <button class="desktop-shortcut-btn" type="button">⭐ ملفات VIP</button>
+public-profile.html	916	action-surface	<main class="mobile-frame" aria-label="الصفحة العامة">
+public-profile.html	922	action-surface	          <label class="fb-topbar-search-wrap" for="feed-search" aria-label="بحث">
+public-profile.html	927	action-surface	        <nav class="fb-topbar-nav" aria-label="التنقل الرئيسي">
+public-profile.html	928	action-surface	          <button class="fb-topbar-tab active" type="button" aria-label="الرئيسية">
+public-profile.html	930	action-surface	          </button>
+public-profile.html	931	action-surface	          <button class="fb-topbar-tab" type="button" aria-label="مقاطع الفيديو">
+public-profile.html	933	action-surface	          </button>
+public-profile.html	934	action-surface	          <button class="fb-topbar-tab" type="button" aria-label="السوق">
+public-profile.html	936	action-surface	          </button>
+public-profile.html	937	action-surface	          <a class="fb-topbar-tab fb-topbar-tab-link" href="clerk-private-profile.html" aria-label="البروفايل">
+public-profile.html	942	action-surface	          <button id="ai-assistant-trigger" class="fb-topbar-icon-btn" type="button" aria-label="AI">✦</button>
+public-profile.html	943	action-surface	          <button id="public-menu-btn" class="fb-topbar-icon-btn" type="button" aria-label="القائمة">☰</button>
+public-profile.html	946	action-surface	      <button id="ai-search-trigger" class="search-ai-btn" type="button" data-i18n-ar="AI" data-i18n-en="AI" style="display:none;">AI</button>
+public-profile.html	947	action-surface	      <div class="chip-tabs" role="tablist" aria-label="فلاتر المنشورات" data-i18n-aria-ar="فلاتر المنشورات" data-i18n-aria-en="Post filters">
+public-profile.html	948	action-surface	        <button class="chip-tab active" type="button" role="tab" aria-selected="true" data-tab="all" data-i18n-ar="الكل" data-i18n-en="All">الكل</button>
+public-profile.html	949	action-surface	        <button class="chip-tab" type="button" role="tab" aria-selected="false" data-tab="followed" data-i18n-ar="المتابعون" data-i18n-en="Following">المتابعون</button>
+public-profile.html	950	action-surface	        <button class="chip-tab" type="button" role="tab" aria-selected="false" data-tab="video" data-i18n-ar="فيديو" data-i18n-en="Video">فيديو</button>
+public-profile.html	951	action-surface	        <button class="chip-tab" type="button" role="tab" aria-selected="false" data-tab="images" data-i18n-ar="صور" data-i18n-en="Photos">صور</button>
+public-profile.html	958	action-surface	    <section class="fb-composer" aria-label="إنشاء منشور">
+public-profile.html	960	action-surface	        <a class="fb-composer-avatar" href="clerk-private-profile.html" aria-label="البروفايل">AJ</a>
+public-profile.html	961	action-surface	        <button id="open-composer" class="fb-composer-input" type="button" data-i18n-ar="بم تفكر؟" data-i18n-en="What's on your mind?">بم تفكر؟</button>
+public-profile.html	964	action-surface	        <button type="button" class="fb-composer-action">
+public-profile.html	966	action-surface	        </button>
+public-profile.html	967	action-surface	        <button type="button" class="fb-composer-action fb-composer-action-photo">
+public-profile.html	969	action-surface	        </button>
+public-profile.html	970	action-surface	        <button id="composer-ai-trigger" type="button" class="fb-composer-action">
+public-profile.html	972	action-surface	        </button>
+public-profile.html	973	action-surface	        <button class="composer-media-shortcut" type="button" aria-label="Open gallery" style="display:none;">🖼</button>
+public-profile.html	977	action-surface	    <section class="stories-rail" aria-label="القصص" data-i18n-aria-ar="القصص" data-i18n-aria-en="Stories">
+public-profile.html	980	action-surface	        <button id="stories-archive-toggle" type="button" data-i18n-ar="الأرشيف" data-i18n-en="Archive">الأرشيف</button>
+public-profile.html	1005	action-surface	      <div class="composer-sheet" role="dialog" aria-modal="true" aria-label="إنشاء منشور جديد" data-i18n-aria-ar="إنشاء منشور جديد" data-i18n-aria-en="Create new post">
+public-profile.html	1008	action-surface	          <button id="close-composer" type="button" aria-label="إغلاق" data-i18n-aria-ar="إغلاق" data-i18n-aria-en="Close">✕</button>
+public-profile.html	1015	action-surface	          <section class="composer-assistant" aria-label="مساعد المنشور" data-i18n-aria-ar="مساعد المنشور" data-i18n-aria-en="Post assistant">
+public-profile.html	1050	action-surface	          <div class="composer-submit-row">
+public-profile.html	1051	action-surface	            <button id="composer-publish" type="submit" data-i18n-ar="نشر الآن" data-i18n-en="Publish now">نشر الآن</button>
+public-profile.html	1085	action-surface	          <button class="post-menu" type="button" aria-label="خيارات">⋯</button>
+public-profile.html	1094	action-surface	          <button class="fb-action-btn like-btn" type="button" data-liked="false">
+public-profile.html	1097	action-surface	          </button>
+public-profile.html	1098	action-surface	          <button class="fb-action-btn comment-btn" type="button">
+public-profile.html	1101	action-surface	          </button>
+public-profile.html	1102	action-surface	          <button class="fb-action-btn share-btn" type="button">
+public-profile.html	1105	action-surface	          </button>
+public-profile.html	1106	action-surface	          <button class="fb-action-btn save-btn" type="button" data-saved="false">
+public-profile.html	1109	action-surface	          </button>
+public-profile.html	1122	action-surface	          <button class="post-menu" type="button" aria-label="خيارات">⋯</button>
+public-profile.html	1131	action-surface	          <button class="fb-action-btn like-btn" type="button" data-liked="false">
+public-profile.html	1134	action-surface	          </button>
+public-profile.html	1135	action-surface	          <button class="fb-action-btn comment-btn" type="button">
+public-profile.html	1138	action-surface	          </button>
+public-profile.html	1139	action-surface	          <button class="fb-action-btn share-btn" type="button">
+public-profile.html	1142	action-surface	          </button>
+public-profile.html	1143	action-surface	          <button class="fb-action-btn save-btn" type="button" data-saved="false">
+public-profile.html	1146	action-surface	          </button>
+public-profile.html	1152	action-surface	    <button id="feed-load-more" class="feed-load-more" type="button" data-i18n-ar="تحميل المزيد" data-i18n-en="Load more">تحميل المزيد</button>
+public-profile.html	1154	action-surface	    <nav class="bottom-nav" aria-label="تنقل سفلي" data-i18n-aria-ar="تنقل سفلي" data-i18n-aria-en="Bottom navigation">
+public-profile.html	1155	action-surface	      <a class="nav-item active" href="public-profile.html" aria-current="page">🏠<span data-i18n-ar="الرئيسية" data-i18n-en="Home">الرئيسية</span></a>
+public-profile.html	1156	action-surface	      <button id="feed-search-trigger" class="nav-item" type="button">🔎<span data-i18n-ar="بحث" data-i18n-en="Search">بحث</span></button>
+public-profile.html	1157	action-surface	      <button class="nav-item nav-main" type="button">＋<span data-i18n-ar="إنشاء" data-i18n-en="Create">إنشاء</span></button>
+public-profile.html	1158	action-surface	      <button id="ai-nav-trigger" class="nav-item nav-item-ai" type="button">✦<span data-i18n-ar="ذكاء" data-i18n-en="AI">ذكاء</span></button>
+public-profile.html	1159	action-surface	      <a class="nav-item" href="clerk-private-profile.html">👤<span data-i18n-ar="بروفايل" data-i18n-en="Profile">بروفايل</span></a>
+public-profile.html	1164	action-surface	    <div class="sheet-panel" role="dialog" aria-modal="true" aria-label="التعليقات" data-i18n-aria-ar="التعليقات" data-i18n-aria-en="Comments">
+public-profile.html	1167	action-surface	        <button id="close-comments" type="button" aria-label="إغلاق" data-i18n-aria-ar="إغلاق" data-i18n-aria-en="Close">✕</button>
+public-profile.html	1179	action-surface	      <form class="sheet-input" onsubmit="return false;">
+public-profile.html	1180	action-surface	        <input type="text" placeholder="اكتب تعليقك" aria-label="تعليق" data-i18n-placeholder-ar="اكتب تعليقك" data-i18n-placeholder-en="Write your comment" data-i18n-aria-ar="تعليق" data-i18n-aria-en="Comment" />
+public-profile.html	1181	action-surface	        <button type="submit" data-vvip-action="send-public-profile-message" data-i18n-ar="إرسال" data-i18n-en="Send">إرسال</button>
+public-profile.html	1187	action-surface	    <div class="inapp-browser-sheet" role="dialog" aria-modal="true" aria-label="متصفح داخلي" data-i18n-aria-ar="متصفح داخلي" data-i18n-aria-en="In-app browser">
+public-profile.html	1191	action-surface	          <button id="inapp-browser-open-external" type="button" data-i18n-ar="فتح خارجي" data-i18n-en="Open externally">فتح خارجي</button>
+public-profile.html	1192	action-surface	          <button id="inapp-browser-close" type="button" data-i18n-ar="إغلاق" data-i18n-en="Close">إغلاق</button>
+public-profile.html	1200	action-surface	    <div class="story-viewer-sheet" role="dialog" aria-modal="true" aria-label="Story viewer">
+public-profile.html	1203	action-surface	        <button id="story-viewer-close" type="button">✕</button>
+public-profile.html	1208	action-surface	        <button id="story-viewer-prev" type="button">‹</button>
+public-profile.html	1209	action-surface	        <button id="story-viewer-reply" type="button">Reply</button>
+public-profile.html	1210	action-surface	        <button id="story-viewer-next" type="button">›</button>
+public-profile.html	1217	action-surface	<!-- VVIP_BUTTON_FEEDBACK_FALLBACK_START -->
+public-profile.html	1220	action-surface	  if (window.__vvipButtonFeedbackFallback) return;
+public-profile.html	1221	action-surface	  window.__vvipButtonFeedbackFallback = true;
+public-profile.html	1224	action-surface	    if (document.getElementById("vvip-toast-fallback-style")) return;
+public-profile.html	1265	action-surface	    var root = document.getElementById("vvip-action-toast-root");
+public-profile.html	1291	action-surface	    var items = document.querySelectorAll(
+public-profile.html	1345	action-surface	  document.addEventListener("click", function (event) {
+public-profile.html	1346	action-surface	    var target = event.target.closest('button, a, [role="button"], input[type="button"], input[type="submit"]');
+public-profile.html	1350	action-surface	    var beforeUrl = location.href;
+public-profile.html	1354	action-surface	      target.getAttribute("aria-label") ||
+public-profile.html	1364	action-surface	      if (location.href !== beforeUrl) return;
+public-profile.html	1371	action-surface	<!-- VVIP_BUTTON_FEEDBACK_FALLBACK_END -->
+reset-password.html	7	action-surface	  <link rel="preconnect" href="https://fonts.googleapis.com" />
+reset-password.html	8	action-surface	  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+reset-password.html	9	action-surface	  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+reset-password.html	10	action-surface	  <link rel="stylesheet" href="styles.css?v=20260703e" />
+reset-password.html	25	action-surface	  <link rel="stylesheet" href="styles/vvip-visual-trust-layer.css">
+reset-password.html	36	action-surface	        <button type="submit" class="btn-primary">إرسال رابط إعادة التعيين</button>
+reset-password.html	40	action-surface	      <a class="back-link" href="index.html">العودة لصفحة الدخول</a>
+reset-password.js	2	action-surface	  if (window.location.hostname === "127.0.0.1") {
+reset-password.js	3	action-surface	    const nextUrl = new URL(window.location.href);
+reset-password.js	5	action-surface	    window.location.replace(nextUrl.toString());
+reset-password.js	40	action-surface	  const form = document.getElementById("reset-form");
+reset-password.js	41	action-surface	  const emailInput = document.getElementById("reset-email");
+reset-password.js	42	action-surface	  const message = document.getElementById("reset-message");
+reset-password.js	52	action-surface	  form.addEventListener("submit", async function (event) {
+reset-password.js	69	action-surface	        url: window.location.origin + "/index.html"
+scripts/profile-loader.js	62	action-surface	    const node = document.getElementById(id);
+scripts/profile-loader.js	71	action-surface	    const node = document.getElementById("about-account-type");
+scripts/profile-loader.js	88	action-surface	    const node = document.querySelector(selector);
+scripts/profile-loader.js	202	action-surface	        window.location.href = "index.html";
+scripts/profile-loader.js	229	action-surface	    document.addEventListener("DOMContentLoaded", loadProfile);
+scripts/require-auth.js	3	action-surface	document.addEventListener("DOMContentLoaded", async function () {
+scripts/require-auth.js	7	action-surface	      window.location.href = "index.html";
+scripts/require-auth.js	15	action-surface	      window.location.href = "index.html";
+scripts/require-auth.js	21	action-surface	      window.location.href = "index.html";
+scripts/require-auth.js	28	action-surface	    window.location.href = "index.html";
+scripts/supabase-auth-bridge.js	11	action-surface	    const inputs = Array.from(document.querySelectorAll("input"));
+scripts/supabase-auth-bridge.js	19	action-surface	        input.getAttribute("aria-label")
+scripts/supabase-auth-bridge.js	33	action-surface	    return document.querySelector('input[type="password"]');
+scripts/supabase-auth-bridge.js	36	action-surface	  function findLoginButton() {
+scripts/supabase-auth-bridge.js	37	action-surface	    const buttons = Array.from(
+scripts/supabase-auth-bridge.js	38	action-surface	      document.querySelectorAll('button, input[type="submit"], [role="button"]')
+scripts/supabase-auth-bridge.js	41	action-surface	    return buttons.find((button) => {
+scripts/supabase-auth-bridge.js	43	action-surface	        button.innerText ||
+scripts/supabase-auth-bridge.js	44	action-surface	        button.value ||
+scripts/supabase-auth-bridge.js	45	action-surface	        button.getAttribute("aria-label") ||
+scripts/supabase-auth-bridge.js	72	action-surface	    const loginButton = findLoginButton();
+scripts/supabase-auth-bridge.js	99	action-surface	    const oldButtonText = loginButton ? loginButton.innerText : "";
+scripts/supabase-auth-bridge.js	101	action-surface	    if (loginButton) {
+scripts/supabase-auth-bridge.js	102	action-surface	      loginButton.disabled = true;
+scripts/supabase-auth-bridge.js	103	action-surface	      loginButton.innerText = "جاري تسجيل الدخول...";
+scripts/supabase-auth-bridge.js	118	action-surface	      window.location.href = REDIRECT_AFTER_LOGIN;
+scripts/supabase-auth-bridge.js	125	action-surface	      if (loginButton) {
+scripts/supabase-auth-bridge.js	126	action-surface	        loginButton.disabled = false;
+scripts/supabase-auth-bridge.js	127	action-surface	        loginButton.innerText = oldButtonText || "تسجيل الدخول";
+scripts/supabase-auth-bridge.js	132	action-surface	  document.addEventListener(
+scripts/supabase-auth-bridge.js	133	action-surface	    "click",
+scripts/supabase-auth-bridge.js	135	action-surface	      const loginButton = findLoginButton();
+scripts/supabase-auth-bridge.js	137	action-surface	      if (!loginButton) return;
+scripts/supabase-auth-bridge.js	139	action-surface	      if (event.target === loginButton || loginButton.contains(event.target)) {
+scripts/supabase-auth-bridge.js	146	action-surface	  document.addEventListener(
+scripts/supabase-auth-bridge.js	147	action-surface	    "submit",
+scripts/supabase-auth-bridge.js	151	action-surface	      if (!form || !form.querySelector) return;
+scripts/supabase-auth-bridge.js	153	action-surface	      const hasPassword = form.querySelector('input[type="password"]');
+scripts/vvip-safe-ux-guard.js	56	action-surface	    var scope = root && root.querySelectorAll ? root : document;
+scripts/vvip-safe-ux-guard.js	57	action-surface	    var nodes = scope.querySelectorAll(ERROR_SELECTOR);
+scripts/vvip-safe-ux-guard.js	62	action-surface	    window.addEventListener("error", function () {
+scripts/vvip-safe-ux-guard.js	68	action-surface	    window.addEventListener("unhandledrejection", function () {
+scripts/vvip-safe-ux-guard.js	116	action-surface	    document.addEventListener("DOMContentLoaded", boot);
+social-ui.js	266	action-surface	        return '<a class="post-mention-link" href="' + escapeAttribute(segment) + '">' + escapeHtml(segment) + '</a>';
+social-ui.js	320	action-surface	    let root = document.getElementById("app-toast-root");
+social-ui.js	347	action-surface	    let sheet = document.getElementById("post-ai-sheet");
+social-ui.js	355	action-surface	      '<div class="sheet-panel" role="dialog" aria-modal="true" aria-label="AI Post Info">',
+social-ui.js	358	action-surface	      '    <button id="post-ai-sheet-close" type="button">✕</button>',
+social-ui.js	379	action-surface	    const closeBtn = sheet.querySelector("#post-ai-sheet-close");
+social-ui.js	381	action-surface	      closeBtn.addEventListener("click", function () {
+social-ui.js	387	action-surface	    sheet.addEventListener("click", function (event) {
+social-ui.js	400	action-surface	    const textNode = postCard.querySelector(".post-copy");
+social-ui.js	409	action-surface	    const title = sheet.querySelector("#post-ai-sheet-title");
+social-ui.js	410	action-surface	    const summaryLabel = sheet.querySelector("#post-ai-summary-label");
+social-ui.js	411	action-surface	    const summary = sheet.querySelector("#post-ai-summary");
+social-ui.js	412	action-surface	    const tagsLabel = sheet.querySelector("#post-ai-tags-label");
+social-ui.js	413	action-surface	    const tags = sheet.querySelector("#post-ai-tags");
+social-ui.js	414	action-surface	    const tipLabel = sheet.querySelector("#post-ai-tip-label");
+social-ui.js	415	action-surface	    const tip = sheet.querySelector("#post-ai-tip");
+social-ui.js	452	action-surface	    let menu = document.getElementById("post-options-menu");
+social-ui.js	467	action-surface	    const menu = document.getElementById("post-options-menu");
+social-ui.js	475	action-surface	    document.querySelectorAll(".post-menu[aria-expanded='true']").forEach(function (button) {
+social-ui.js	476	action-surface	      button.setAttribute("aria-expanded", "false");
+social-ui.js	482	action-surface	    const base = window.location.origin + window.location.pathname;
+social-ui.js	508	action-surface	    let feedback = document.getElementById("post-options-feedback");
+social-ui.js	528	action-surface	  function openPostOptionsMenu(menuButton, postCard) {
+social-ui.js	529	action-surface	    if (!menuButton || !postCard) return;
+social-ui.js	533	action-surface	    const rect = menuButton.getBoundingClientRect();
+social-ui.js	539	action-surface	      '<button type="button" role="menuitem" data-post-option="ai">✨ <span>' + escapeHtml(text.ai) + '</span></button>',
+social-ui.js	540	action-surface	      '<button type="button" role="menuitem" data-post-option="save">🔖 <span>' + escapeHtml(text.save) + '</span></button>',
+social-ui.js	541	action-surface	      '<button type="button" role="menuitem" data-post-option="copy">🔗 <span>' + escapeHtml(text.copy) + '</span></button>',
+social-ui.js	542	action-surface	      '<button type="button" role="menuitem" data-post-option="hide">🙈 <span>' + escapeHtml(text.hide) + '</span></button>',
+social-ui.js	543	action-surface	      '<button type="button" role="menuitem" data-post-option="tiger-care" class="vip-option">🐅 <span>' + escapeHtml(text.tigerCare) + '</span></button>',
+social-ui.js	544	action-surface	      '<button type="button" role="menuitem" data-post-option="escalate" class="danger-option">⚑ <span>' + escapeHtml(text.escalate) + '</span></button>'
+social-ui.js	556	action-surface	    menuButton.setAttribute("aria-expanded", "true");
+social-ui.js	558	action-surface	    const firstOption = menu.querySelector("button");
+social-ui.js	575	action-surface	      const saveBtn = postCard.querySelector(".save-btn");
+social-ui.js	629	action-surface	    document.addEventListener("click", function (event) {
+social-ui.js	630	action-surface	      const menuButton = event.target && event.target.closest ? event.target.closest(".post-menu") : null;
+social-ui.js	632	action-surface	      if (!menuButton) return;
+social-ui.js	640	action-surface	      const postCard = menuButton.closest(".post-card");
+social-ui.js	643	action-surface	      const currentMenu = document.getElementById("post-options-menu");
+social-ui.js	652	action-surface	        openPostOptionsMenu(menuButton, postCard);
+social-ui.js	656	action-surface	    document.addEventListener("click", function (event) {
+social-ui.js	657	action-surface	      const optionButton = event.target && event.target.closest ? event.target.closest("[data-post-option]") : null;
+social-ui.js	659	action-surface	      if (optionButton) {
+social-ui.js	663	action-surface	        const menu = optionButton.closest("#post-options-menu");
+social-ui.js	666	action-surface	          ? document.querySelector('.post-card[data-post-id="' + CSS.escape(postId) + '"]')
+social-ui.js	669	action-surface	        const option = optionButton.getAttribute("data-post-option");
+social-ui.js	675	action-surface	      const menuButton = event.target && event.target.closest ? event.target.closest(".post-menu") : null;
+social-ui.js	677	action-surface	      if (menuButton) {
+social-ui.js	686	action-surface	        const postCard = menuButton.closest(".post-card");
+social-ui.js	689	action-surface	        const currentMenu = document.getElementById("post-options-menu");
+social-ui.js	698	action-surface	          openPostOptionsMenu(menuButton, postCard);
+social-ui.js	709	action-surface	    document.addEventListener("keydown", function (event) {
+social-ui.js	715	action-surface	    window.addEventListener("resize", closePostOptionsMenu);
+social-ui.js	716	action-surface	    window.addEventListener("scroll", closePostOptionsMenu, true);
+social-ui.js	719	action-surface	  function initGeneralButtonActions() {
+social-ui.js	720	action-surface	    const publicSearchBtn = document.getElementById("public-search-btn");
+social-ui.js	721	action-surface	    const publicMenuBtn = document.getElementById("public-menu-btn");
+social-ui.js	722	action-surface	    const feedSearch = document.getElementById("feed-search");
+social-ui.js	723	action-surface	    const privateSearchBtn = document.getElementById("private-search-btn");
+social-ui.js	724	action-surface	    const privateCreateBtn = document.getElementById("private-create-btn");
+social-ui.js	725	action-surface	    const privateMessengerBtn = document.getElementById("private-messenger-btn");
+social-ui.js	726	action-surface	    const profileEditBtn = document.getElementById("profile-edit-btn");
+social-ui.js	727	action-surface	    const profileStoryBtn = document.getElementById("profile-story-btn");
+social-ui.js	728	action-surface	    const profileMiniTabs = Array.from(document.querySelectorAll(".profile-mini-tab"));
+social-ui.js	731	action-surface	      publicSearchBtn.addEventListener("click", function () {
+social-ui.js	738	action-surface	      publicMenuBtn.addEventListener("click", function () {
+social-ui.js	744	action-surface	      privateSearchBtn.addEventListener("click", function () {
+social-ui.js	745	action-surface	        const target = document.querySelector(".profile-tab[data-profile-tab='posts']");
+social-ui.js	746	action-surface	        if (target) target.click();
+social-ui.js	752	action-surface	      privateCreateBtn.addEventListener("click", function () {
+social-ui.js	753	action-surface	        const target = document.querySelector(".profile-tab[data-profile-tab='posts']");
+social-ui.js	754	action-surface	        if (target) target.click();
+social-ui.js	760	action-surface	      privateMessengerBtn.addEventListener("click", function () {
+social-ui.js	761	action-surface	        showToast(currentLang === "en" ? "Messaging module will open from this button." : "وحدة الرسائل ستُفتح من هذا الزر.", "info");
+social-ui.js	766	action-surface	      profileEditBtn.addEventListener("click", function () {
+social-ui.js	767	action-surface	        const aboutTab = document.querySelector(".profile-tab[data-profile-tab='about']");
+social-ui.js	768	action-surface	        if (aboutTab) aboutTab.click();
+social-ui.js	773	action-surface	      profileStoryBtn.addEventListener("click", function () {
+social-ui.js	779	action-surface	      tab.addEventListener("click", function () {
+social-ui.js	788	action-surface	    const cards = Array.from(feedList.querySelectorAll(".post-card:not(.hidden)"));
+social-ui.js	800	action-surface	    const cards = Array.from(feedList.querySelectorAll(".post-card"));
+social-ui.js	1257	action-surface	    let shell = document.getElementById("inapp-browser");
+social-ui.js	1265	action-surface	      '<div class="inapp-browser-sheet" role="dialog" aria-modal="true" aria-label="In-app browser">',
+social-ui.js	1269	action-surface	      '      <button id="inapp-browser-open-external" type="button">Open externally</button>',
+social-ui.js	1270	action-surface	      '      <button id="inapp-browser-close" type="button">Close</button>',
+social-ui.js	1284	action-surface	    const frame = shell.querySelector("#inapp-browser-frame");
+social-ui.js	1285	action-surface	    const closeButton = shell.querySelector("#inapp-browser-close");
+social-ui.js	1286	action-surface	    const openExternalButton = shell.querySelector("#inapp-browser-open-external");
+social-ui.js	1287	action-surface	    if (!frame || !closeButton || !openExternalButton) return false;
+social-ui.js	1290	action-surface	      const heading = shell.querySelector(".inapp-browser-head strong");
+social-ui.js	1298	action-surface	    closeButton.onclick = function () {
+social-ui.js	1304	action-surface	    openExternalButton.onclick = function () {
+social-ui.js	1308	action-surface	    shell.onclick = function (event) {
+social-ui.js	1310	action-surface	        closeButton.click();
+social-ui.js	1401	action-surface	      '    <button class="post-menu" type="button" aria-label="' + postOptionsLabel + '" aria-haspopup="menu" aria-expanded="false">⋯</button>',
+social-ui.js	1406	action-surface	      '    <button class="action-btn like-btn" type="button" data-liked="false">❤ <span>' + (post.likes || 0) + '</span></button>',
+social-ui.js	1407	action-surface	      '    <button class="action-btn comment-btn" type="button">💬 <span>' + (post.comments || 0) + '</span></button>',
+social-ui.js	1408	action-surface	      '    <button class="action-btn share-btn" type="button">↪ <span>' + (post.shares || 0) + '</span></button>',
+social-ui.js	1409	action-surface	      '    <button class="action-btn save-btn" type="button" data-saved="' + (isPostSaved(post.id) ? 'true' : 'false') + '">' + (isPostSaved(post.id) ? (currentLang === 'en' ? 'Saved' : 'محفوظ') : saveActionLabel) + '</button>',
+social-ui.js	1450	action-surface	  function readMetricFromButton(button) {
+social-ui.js	1451	action-surface	    const countNode = button.querySelector("span");
+social-ui.js	1456	action-surface	  function writeMetricToButton(button, value) {
+social-ui.js	1457	action-surface	    const countNode = button.querySelector("span");
+social-ui.js	1468	action-surface	    let badge = postCard.querySelector(".post-sync-badge");
+social-ui.js	1470	action-surface	      const headerMeta = postCard.querySelector(".post-header > div");
+social-ui.js	1482	action-surface	  function setActionButtonSyncState(button, isSyncing) {
+social-ui.js	1483	action-surface	    if (!button) return;
+social-ui.js	1485	action-surface	    let indicator = button.querySelector(".action-sync-indicator");
+social-ui.js	1492	action-surface	        button.appendChild(indicator);
+social-ui.js	1494	action-surface	      button.classList.add("action-sync-pending");
+social-ui.js	1495	action-surface	      button.setAttribute("aria-busy", "true");
+social-ui.js	1502	action-surface	    button.classList.remove("action-sync-pending");
+social-ui.js	1503	action-surface	    button.removeAttribute("aria-busy");
+social-ui.js	1506	action-surface	  function setComposerPublishState(button, isSyncing) {
+social-ui.js	1507	action-surface	    if (!button) return;
+social-ui.js	1509	action-surface	    let indicator = button.querySelector(".composer-sync-indicator");
+social-ui.js	1510	action-surface	    let label = button.querySelector(".composer-sync-label");
+social-ui.js	1517	action-surface	        button.appendChild(indicator);
+social-ui.js	1523	action-surface	        button.appendChild(label);
+social-ui.js	1525	action-surface	      button.classList.add("is-syncing");
+social-ui.js	1526	action-surface	      button.setAttribute("aria-busy", "true");
+social-ui.js	1527	action-surface	      button.disabled = true;
+social-ui.js	1537	action-surface	    button.classList.remove("is-syncing");
+social-ui.js	1538	action-surface	    button.removeAttribute("aria-busy");
+social-ui.js	1539	action-surface	    button.disabled = false;
+social-ui.js	1546	action-surface	    if (window.location.pathname.indexOf("public-profile.html") !== -1) {
+social-ui.js	1549	action-surface	    if (window.location.pathname.indexOf("private-profile.html") !== -1) {
+social-ui.js	1553	action-surface	    const toggleButtons = Array.from(document.querySelectorAll("[data-lang-toggle]"));
+social-ui.js	1554	action-surface	    if (!toggleButtons.length) return;
+social-ui.js	1560	action-surface	    toggleButtons.forEach(function (button) {
+social-ui.js	1561	action-surface	      button.textContent = nextLabel;
+social-ui.js	1562	action-surface	      button.setAttribute("aria-label", hint);
+social-ui.js	1563	action-surface	      button.setAttribute("title", hint);
+social-ui.js	1564	action-surface	      button.addEventListener("click", function () {
+social-ui.js	1566	action-surface	        window.location.reload();
+social-ui.js	1572	action-surface	    const localizedTextNodes = Array.from(document.querySelectorAll("[data-i18n-ar][data-i18n-en]"));
+social-ui.js	1577	action-surface	    const localizedPlaceholders = Array.from(document.querySelectorAll("[data-i18n-placeholder-ar][data-i18n-placeholder-en]"));
+social-ui.js	1583	action-surface	    const localizedAria = Array.from(document.querySelectorAll("[data-i18n-aria-ar][data-i18n-aria-en]"));
+social-ui.js	1586	action-surface	      node.setAttribute("aria-label", value || "");
+social-ui.js	1636	action-surface	    container.addEventListener("click", function (event) {
+social-ui.js	1638	action-surface	      const likeButton = target.closest(".like-btn");
+social-ui.js	1639	action-surface	      const commentButton = target.closest(".comment-btn");
+social-ui.js	1640	action-surface	      const shareButton = target.closest(".share-btn");
+social-ui.js	1641	action-surface	      const saveButton = target.closest(".save-btn");
+social-ui.js	1642	action-surface	      const menuButton = target.closest(".post-menu");
+social-ui.js	1653	action-surface	      if (menuButton && postCard) {
+social-ui.js	1659	action-surface	      if (likeButton) {
+social-ui.js	1660	action-surface	        const liked = likeButton.getAttribute("data-liked") === "true";
+social-ui.js	1661	action-surface	        likeButton.setAttribute("data-liked", liked ? "false" : "true");
+social-ui.js	1662	action-surface	        likeButton.classList.toggle("like-active", !liked);
+social-ui.js	1664	action-surface	        const currentLikes = readMetricFromButton(likeButton);
+social-ui.js	1666	action-surface	        writeMetricToButton(likeButton, nextLikes);
+social-ui.js	1674	action-surface	            actionButton: likeButton
+social-ui.js	1681	action-surface	      if (commentButton) {
+social-ui.js	1682	action-surface	        const currentComments = readMetricFromButton(commentButton);
+social-ui.js	1684	action-surface	        writeMetricToButton(commentButton, nextComments);
+social-ui.js	1692	action-surface	            actionButton: commentButton
+social-ui.js	1705	action-surface	      if (shareButton) {
+social-ui.js	1706	action-surface	        const currentShares = readMetricFromButton(shareButton);
+social-ui.js	1708	action-surface	        writeMetricToButton(shareButton, nextShares);
+social-ui.js	1716	action-surface	            actionButton: shareButton
+social-ui.js	1721	action-surface	        const shareUrl = window.location.origin + window.location.pathname + "#post-" + encodeURIComponent(postId || "share");
+social-ui.js	1722	action-surface	        const shareText = (postCard && postCard.querySelector(".post-copy") ? postCard.querySelector(".post-copy").textContent.trim() : "") || shareUrl;
+social-ui.js	1734	action-surface	      if (saveButton) {
+social-ui.js	1736	action-surface	        saveButton.setAttribute("data-saved", nextSaved ? "true" : "false");
+social-ui.js	1737	action-surface	        saveButton.textContent = nextSaved ? (currentLang === "en" ? "Saved" : "محفوظ") : saveActionLabel;
+social-ui.js	1746	action-surface	    const searchInput = document.getElementById("feed-search");
+social-ui.js	1747	action-surface	    const desktopSearchInput = document.getElementById("desktop-feed-search");
+social-ui.js	1748	action-surface	    const tabButtons = Array.from(document.querySelectorAll(".chip-tab"));
+social-ui.js	1749	action-surface	    const feedList = document.getElementById("feed-list");
+social-ui.js	1750	action-surface	    const desktopPostStream = document.getElementById("desktop-post-stream");
+social-ui.js	1751	action-surface	    const desktopMembersSection = document.getElementById("desktop-members-section");
+social-ui.js	1752	action-surface	    const desktopShortcutsSection = document.getElementById("desktop-shortcuts-section");
+social-ui.js	1753	action-surface	    const desktopSuggestionsSection = document.getElementById("desktop-suggestions-section");
+social-ui.js	1754	action-surface	    const desktopStoriesSection = document.getElementById("desktop-stories-section");
+social-ui.js	1755	action-surface	    const desktopStoryCards = Array.from(document.querySelectorAll(".desktop-story-card"));
+social-ui.js	1756	action-surface	    const desktopStoriesArchive = document.getElementById("desktop-stories-archive");
+social-ui.js	1757	action-surface	    const desktopNavVideo = document.getElementById("desktop-nav-video");
+social-ui.js	1758	action-surface	    const desktopNavMembers = document.getElementById("desktop-nav-members");
+social-ui.js	1759	action-surface	    const desktopNavShortcuts = document.getElementById("desktop-nav-shortcuts");
+social-ui.js	1760	action-surface	    const desktopNavAi = document.getElementById("desktop-nav-ai");
+social-ui.js	1761	action-surface	    const desktopNotificationsBtn = document.getElementById("desktop-notifications-btn");
+social-ui.js	1762	action-surface	    const desktopMessagesBtn = document.getElementById("desktop-messages-btn");
+social-ui.js	1763	action-surface	    const desktopMembersViewAll = document.getElementById("desktop-members-view-all");
+social-ui.js	1764	action-surface	    const desktopShortcutsManage = document.getElementById("desktop-shortcuts-manage");
+social-ui.js	1765	action-surface	    const desktopShortcutButtons = Array.from(document.querySelectorAll(".desktop-shortcut-btn"));
+social-ui.js	1766	action-surface	    const desktopSuggestionsSearch = document.getElementById("desktop-suggestions-search");
+social-ui.js	1767	action-surface	    const desktopComposerInput = document.getElementById("desktop-composer-input");
+social-ui.js	1768	action-surface	    const desktopComposePhoto = document.getElementById("desktop-compose-photo");
+social-ui.js	1769	action-surface	    const desktopComposeVideo = document.getElementById("desktop-compose-video");
+social-ui.js	1770	action-surface	    const desktopComposeAi = document.getElementById("desktop-compose-ai");
+social-ui.js	1771	action-surface	    const desktopComposePublish = document.getElementById("desktop-compose-publish");
+social-ui.js	1772	action-surface	    const commentsSheet = document.getElementById("comments-sheet");
+social-ui.js	1773	action-surface	    const closeComments = document.getElementById("close-comments");
+social-ui.js	1774	action-surface	    const composerButton = document.getElementById("open-composer");
+social-ui.js	1775	action-surface	    const composerModal = document.getElementById("composer-modal");
+social-ui.js	1776	action-surface	    const closeComposer = document.getElementById("close-composer");
+social-ui.js	1777	action-surface	    const composerForm = document.getElementById("composer-form");
+social-ui.js	1778	action-surface	    const composerText = document.getElementById("composer-text");
+social-ui.js	1779	action-surface	    const composerType = document.getElementById("composer-type");
+social-ui.js	1780	action-surface	    const composerAudience = document.getElementById("composer-audience");
+social-ui.js	1781	action-surface	    const composerStatus = document.getElementById("composer-status");
+social-ui.js	1782	action-surface	    const composerPublish = document.getElementById("composer-publish");
+social-ui.js	1783	action-surface	    const composerMediaUrl = document.getElementById("composer-media-url");
+social-ui.js	1784	action-surface	    const composerMediaPoster = document.getElementById("composer-media-poster");
+social-ui.js	1785	action-surface	    const composerMediaCaption = document.getElementById("composer-media-caption");
+social-ui.js	1786	action-surface	    const composerAssistantSummary = document.getElementById("composer-assistant-summary");
+social-ui.js	1787	action-surface	    const composerAssistantTags = document.getElementById("composer-assistant-tags");
+social-ui.js	1788	action-surface	    const composerAssistantBadge = document.getElementById("composer-assistant-badge");
+social-ui.js	1789	action-surface	    const feedEmpty = document.getElementById("feed-empty");
+social-ui.js	1790	action-surface	    const feedResultsCount = document.getElementById("feed-results-count");
+social-ui.js	1791	action-surface	    const feedSearchTrigger = document.getElementById("feed-search-trigger");
+social-ui.js	1792	action-surface	    const aiSearchTrigger = document.getElementById("ai-search-trigger");
+social-ui.js	1793	action-surface	    const aiAssistantTrigger = document.getElementById("ai-assistant-trigger");
+social-ui.js	1794	action-surface	    const composerAiTrigger = document.getElementById("composer-ai-trigger");
+social-ui.js	1795	action-surface	    const aiNavTrigger = document.getElementById("ai-nav-trigger");
+social-ui.js	1796	action-surface	    const feedLoadMore = document.getElementById("feed-load-more");
+social-ui.js	1797	action-surface	    const feedDbStatus = document.getElementById("feed-db-status");
+social-ui.js	1798	action-surface	    const mainCreateButton = document.querySelector(".nav-main");
+social-ui.js	1799	action-surface	    const feedSkeleton = document.getElementById("feed-skeleton");
+social-ui.js	1800	action-surface	    const storiesList = document.getElementById("stories-list");
+social-ui.js	1801	action-surface	    const storiesArchiveToggle = document.getElementById("stories-archive-toggle");
+social-ui.js	1802	action-surface	    const storyViewer = document.getElementById("story-viewer");
+social-ui.js	1803	action-surface	    const storyViewerTitle = document.getElementById("story-viewer-title");
+social-ui.js	1804	action-surface	    const storyViewerMedia = document.getElementById("story-viewer-media");
+social-ui.js	1805	action-surface	    const storyViewerMeta = document.getElementById("story-viewer-meta");
+social-ui.js	1806	action-surface	    const storyViewerClose = document.getElementById("story-viewer-close");
+social-ui.js	1807	action-surface	    const storyViewerPrev = document.getElementById("story-viewer-prev");
+social-ui.js	1808	action-surface	    const storyViewerNext = document.getElementById("story-viewer-next");
+social-ui.js	1809	action-surface	    const storyViewerReply = document.getElementById("story-viewer-reply");
+social-ui.js	1850	action-surface	        '    <button class="post-menu" type="button">⋯</button>',
+social-ui.js	1855	action-surface	        '    <button class="like-btn" type="button" data-liked="false">👍 <span>0</span></button>',
+social-ui.js	1856	action-surface	        '    <button class="comment-btn" type="button">💬 <span>0</span></button>',
+social-ui.js	1857	action-surface	        '    <button class="share-btn" type="button">↗ <span>0</span></button>',
+social-ui.js	1862	action-surface	        '    <button class="vvip-comment-send desktop-comment-send" type="button">' + escapeHtml(currentLang === "en" ? "Send" : "إرسال") + '</button>',
+social-ui.js	1871	action-surface	      const storyCards = Array.from(document.querySelectorAll(".desktop-story-card"));
+social-ui.js	1872	action-surface	      const desktopPosts = desktopPostStream ? Array.from(desktopPostStream.querySelectorAll(".post-card")) : [];
+social-ui.js	1885	action-surface	    function addDesktopComment(button) {
+social-ui.js	1886	action-surface	      const row = button ? button.closest(".vvip-comment-row") : null;
+social-ui.js	1888	action-surface	      const input = row ? row.querySelector(".vvip-comment-input") : null;
+social-ui.js	1889	action-surface	      const list = postCard ? postCard.querySelector(".desktop-comment-list") : null;
+social-ui.js	1904	action-surface	      const commentButton = postCard.querySelector(".comment-btn");
+social-ui.js	1905	action-surface	      if (commentButton) {
+social-ui.js	1906	action-surface	        const currentCount = readMetricFromButton(commentButton);
+social-ui.js	1907	action-surface	        writeMetricToButton(commentButton, currentCount + 1);
+social-ui.js	1942	action-surface	      tabButtons.forEach(function (item) {
+social-ui.js	1951	action-surface	      if (!matched && tabButtons.length) {
+social-ui.js	1952	action-surface	        tabButtons[0].classList.add("active");
+social-ui.js	1953	action-surface	        tabButtons[0].setAttribute("aria-selected", "true");
+social-ui.js	1961	action-surface	    // Replace {name} in composer button with user's first name
+social-ui.js	1962	action-surface	    if (composerButton) {
+social-ui.js	1973	action-surface	      if (!composerButton.disabled) composerButton.textContent = composerPlaceholder;
+social-ui.js	1977	action-surface	      if (composerButton) composerButton.disabled = true;
+social-ui.js	1978	action-surface	      if (composerButton) composerButton.textContent = tx(UI_TEXT.composer.createRestricted);
+social-ui.js	1979	action-surface	      if (mainCreateButton) mainCreateButton.setAttribute("disabled", "disabled");
+social-ui.js	2018	action-surface	          '<button class="story-card" type="button" data-story-index="' + index + '">',
+social-ui.js	2023	action-surface	          '</button>'
+social-ui.js	2104	action-surface	      const hasRenderablePosts = Array.from(feedList.querySelectorAll(".post-card")).length > 0;
+social-ui.js	2193	action-surface	      setActionButtonSyncState(payload.actionButton, true);
+social-ui.js	2197	action-surface	        setActionButtonSyncState(payload.actionButton, false);
+social-ui.js	2233	action-surface	      const active = document.querySelector(".chip-tab.active");
+social-ui.js	2248	action-surface	      const posts = Array.from(document.querySelectorAll(".post-card"));
+social-ui.js	2280	action-surface	    tabButtons.forEach(function (button) {
+social-ui.js	2281	action-surface	      button.addEventListener("click", function () {
+social-ui.js	2282	action-surface	        setActiveFeedTab(button.getAttribute("data-tab") || "all");
+social-ui.js	2283	action-surface	        logAnalyticsEvent("feed_tab_switch", { tab: button.getAttribute("data-tab") || "all" });
+social-ui.js	2289	action-surface	      searchInput.addEventListener("input", function () {
+social-ui.js	2308	action-surface	      feedSearchTrigger.addEventListener("click", function () {
+social-ui.js	2315	action-surface	      aiSearchTrigger.addEventListener("click", function () {
+social-ui.js	2321	action-surface	      aiAssistantTrigger.addEventListener("click", function () {
+social-ui.js	2327	action-surface	      composerAiTrigger.addEventListener("click", function () {
+social-ui.js	2333	action-surface	      aiNavTrigger.addEventListener("click", function () {
+social-ui.js	2340	action-surface	      node.addEventListener("input", updateComposerAssistantDebounced);
+social-ui.js	2341	action-surface	      node.addEventListener("change", updateComposerAssistantDebounced);
+social-ui.js	2353	action-surface	      desktopPostStream.addEventListener("click", function (event) {
+social-ui.js	2354	action-surface	        const followButton = event.target.closest(".follow-btn");
+social-ui.js	2355	action-surface	        const sendButton = event.target.closest(".desktop-comment-send");
+social-ui.js	2357	action-surface	        if (followButton) {
+social-ui.js	2358	action-surface	          const following = followButton.getAttribute("data-following") === "true";
+social-ui.js	2359	action-surface	          followButton.setAttribute("data-following", following ? "false" : "true");
+social-ui.js	2360	action-surface	          followButton.textContent = following
+social-ui.js	2367	action-surface	        if (sendButton) {
+social-ui.js	2368	action-surface	          addDesktopComment(sendButton);
+social-ui.js	2372	action-surface	      desktopPostStream.addEventListener("keydown", function (event) {
+social-ui.js	2376	action-surface	        const button = input.closest(".vvip-comment-row") ? input.closest(".vvip-comment-row").querySelector(".desktop-comment-send") : null;
+social-ui.js	2377	action-surface	        if (button) addDesktopComment(button);
+social-ui.js	2382	action-surface	      desktopSearchInput.addEventListener("input", function () {
+social-ui.js	2385	action-surface	      desktopSearchInput.addEventListener("keydown", function (event) {
+social-ui.js	2393	action-surface	      desktopNavVideo.addEventListener("click", function () {
+social-ui.js	2400	action-surface	      desktopNavMembers.addEventListener("click", function () {
+social-ui.js	2406	action-surface	      desktopNavShortcuts.addEventListener("click", function () {
+social-ui.js	2412	action-surface	      desktopNavAi.addEventListener("click", function () {
+social-ui.js	2418	action-surface	      desktopNotificationsBtn.addEventListener("click", function () {
+social-ui.js	2424	action-surface	      desktopMessagesBtn.addEventListener("click", function () {
+social-ui.js	2430	action-surface	      desktopMembersViewAll.addEventListener("click", function () {
+social-ui.js	2437	action-surface	      desktopStoriesArchive.addEventListener("click", function () {
+social-ui.js	2449	action-surface	            scrollToNode(document.getElementById("desktop-composer-section"));
+social-ui.js	2458	action-surface	      card.addEventListener("click", handleStoryCard);
+social-ui.js	2459	action-surface	      card.addEventListener("keydown", function (event) {
+social-ui.js	2467	action-surface	      desktopComposePhoto.addEventListener("click", function () {
+social-ui.js	2477	action-surface	      desktopComposeVideo.addEventListener("click", function () {
+social-ui.js	2487	action-surface	      desktopComposeAi.addEventListener("click", function () {
+social-ui.js	2493	action-surface	      desktopComposePublish.addEventListener("click", function () {
+social-ui.js	2521	action-surface	      desktopShortcutsManage.addEventListener("click", function () {
+social-ui.js	2526	action-surface	    desktopShortcutButtons.forEach(function (button) {
+social-ui.js	2527	action-surface	      button.addEventListener("click", function () {
+social-ui.js	2528	action-surface	        const label = String(button.textContent || "").trim();
+social-ui.js	2534	action-surface	      desktopSuggestionsSearch.addEventListener("keydown", function (event) {
+social-ui.js	2547	action-surface	      feedLoadMore.addEventListener("click", function () {
+social-ui.js	2556	action-surface	      storiesList.addEventListener("click", function (event) {
+social-ui.js	2557	action-surface	        const button = event.target.closest(".story-card");
+social-ui.js	2558	action-surface	        if (!button) return;
+social-ui.js	2559	action-surface	        openStory(Number(button.getAttribute("data-story-index") || 0));
+social-ui.js	2560	action-surface	        logAnalyticsEvent("story_open", { index: Number(button.getAttribute("data-story-index") || 0) });
+social-ui.js	2565	action-surface	      storiesArchiveToggle.addEventListener("click", function () {
+social-ui.js	2572	action-surface	    if (storyViewerClose) storyViewerClose.addEventListener("click", closeStoryViewer);
+social-ui.js	2574	action-surface	      storyViewer.addEventListener("click", function (event) {
+social-ui.js	2579	action-surface	      storyViewerPrev.addEventListener("click", function () {
+social-ui.js	2586	action-surface	      storyViewerNext.addEventListener("click", function () {
+social-ui.js	2594	action-surface	      storyViewerReply.addEventListener("click", function () {
+social-ui.js	2611	action-surface	      closeComments.addEventListener("click", function () {
+social-ui.js	2618	action-surface	      commentsSheet.addEventListener("click", function (event) {
+social-ui.js	2626	action-surface	    if (composerButton) {
+social-ui.js	2627	action-surface	      composerButton.addEventListener("click", function () {
+social-ui.js	2637	action-surface	    if (mainCreateButton) {
+social-ui.js	2638	action-surface	      mainCreateButton.addEventListener("click", function () {
+social-ui.js	2648	action-surface	      closeComposer.addEventListener("click", function () {
+social-ui.js	2655	action-surface	      composerModal.addEventListener("click", function (event) {
+social-ui.js	2664	action-surface	      composerForm.addEventListener("submit", async function (event) {
+social-ui.js	2745	action-surface	          const pendingNode = feedList.querySelector(pendingSelector);
+social-ui.js	2792	action-surface	    const postsList = document.getElementById("profile-posts-list");
+social-ui.js	2793	action-surface	    const postsSkeleton = document.getElementById("profile-posts-skeleton");
+social-ui.js	2794	action-surface	    const postsStatus = document.getElementById("profile-posts-status");
+social-ui.js	2795	action-surface	    const postsEmpty = document.getElementById("profile-posts-empty");
+social-ui.js	2796	action-surface	    const postsCountNode = document.getElementById("profile-posts-count");
+social-ui.js	2810	action-surface	      setActionButtonSyncState(payload.actionButton, true);
+social-ui.js	2814	action-surface	        setActionButtonSyncState(payload.actionButton, false);
+social-ui.js	2911	action-surface	    const profileName = document.getElementById("profile-name");
+social-ui.js	2912	action-surface	    const profileHandle = document.getElementById("profile-handle");
+social-ui.js	2913	action-surface	    const profileBio = document.getElementById("profile-bio");
+social-ui.js	2914	action-surface	    const aboutAccountType = document.getElementById("about-account-type");
+social-ui.js	2933	action-surface	    const summaryNode = document.getElementById("insights-summary");
+social-ui.js	2934	action-surface	    const metricsNode = document.getElementById("insights-metrics");
+social-ui.js	2935	action-surface	    const chartNode = document.getElementById("insights-chart");
+social-ui.js	2936	action-surface	    const highlightsNode = document.getElementById("insights-highlights");
+social-ui.js	2989	action-surface	    const form = document.getElementById("ad-manager-form");
+social-ui.js	2990	action-surface	    const status = document.getElementById("ad-manager-status");
+social-ui.js	2991	action-surface	    const preview = document.getElementById("ad-manager-preview");
+social-ui.js	2999	action-surface	    const locationInput = document.getElementById("ad-location");
+social-ui.js	3000	action-surface	    const ageInput = document.getElementById("ad-age");
+social-ui.js	3001	action-surface	    const interestsInput = document.getElementById("ad-interests");
+social-ui.js	3002	action-surface	    const budgetInput = document.getElementById("ad-budget");
+social-ui.js	3003	action-surface	    const startInput = document.getElementById("ad-start");
+social-ui.js	3004	action-surface	    const endInput = document.getElementById("ad-end");
+social-ui.js	3027	action-surface	      node.addEventListener("input", updatePreview);
+social-ui.js	3028	action-surface	      node.addEventListener("change", updatePreview);
+social-ui.js	3031	action-surface	    form.addEventListener("submit", async function (event) {
+social-ui.js	3081	action-surface	    document.addEventListener("click", function (event) {
+social-ui.js	3099	action-surface	    const rails = Array.from(document.querySelectorAll("[data-page-rail]"));
+social-ui.js	3102	action-surface	    const currentPath = window.location.pathname.split("/").pop() || "index.html";
+social-ui.js	3106	action-surface	      const links = Array.from(rail.querySelectorAll(".page-rail-link"));
+social-ui.js	3121	action-surface	    const tabs = Array.from(document.querySelectorAll(".profile-tab"));
+social-ui.js	3122	action-surface	    const panels = Array.from(document.querySelectorAll(".tab-panel"));
+social-ui.js	3126	action-surface	      tab.addEventListener("click", function () {
+social-ui.js	3153	action-surface	    const toggle = document.getElementById("profile-menu-toggle");
+social-ui.js	3154	action-surface	    const sheet = document.getElementById("profile-menu-sheet");
+social-ui.js	3155	action-surface	    const close = document.getElementById("profile-menu-close");
+social-ui.js	3168	action-surface	    toggle.addEventListener("click", openSheet);
+social-ui.js	3169	action-surface	    close.addEventListener("click", closeSheet);
+social-ui.js	3170	action-surface	    sheet.addEventListener("click", function (event) {
+social-ui.js	3178	action-surface	    const headerAi = document.getElementById("profile-ai-header");
+social-ui.js	3179	action-surface	    const boostAi = document.getElementById("profile-ai-boost");
+social-ui.js	3180	action-surface	    const navAi = document.getElementById("profile-ai-nav");
+social-ui.js	3181	action-surface	    const refreshAi = document.getElementById("insights-ai-refresh");
+social-ui.js	3182	action-surface	    const adSuggestAi = document.getElementById("ad-ai-suggest");
+social-ui.js	3187	action-surface	      const target = document.querySelector('.profile-tab[data-profile-tab="' + tabKey + '"]');
+social-ui.js	3189	action-surface	        target.click();
+social-ui.js	3209	action-surface	      const location = document.getElementById("ad-location");
+social-ui.js	3210	action-surface	      const age = document.getElementById("ad-age");
+social-ui.js	3211	action-surface	      const interests = document.getElementById("ad-interests");
+social-ui.js	3212	action-surface	      const budget = document.getElementById("ad-budget");
+social-ui.js	3213	action-surface	      const status = document.getElementById("ad-manager-status");
+social-ui.js	3243	action-surface	      headerAi.addEventListener("click", function () {
+social-ui.js	3249	action-surface	      boostAi.addEventListener("click", function () {
+social-ui.js	3255	action-surface	      navAi.addEventListener("click", function () {
+social-ui.js	3261	action-surface	      refreshAi.addEventListener("click", function () {
+social-ui.js	3267	action-surface	      adSuggestAi.addEventListener("click", function () {
+social-ui.js	3281	action-surface	  initGeneralButtonActions();
+sw.js	26	action-surface	self.addEventListener("install", (event) => {
+sw.js	33	action-surface	self.addEventListener("activate", (event) => {
+sw.js	46	action-surface	self.addEventListener("fetch", (event) => {
+terms-of-service.html	48	action-surface	  <link rel="stylesheet" href="styles/vvip-visual-trust-layer.css">

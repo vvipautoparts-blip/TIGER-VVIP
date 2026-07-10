@@ -1,0 +1,46 @@
+html_file	line	reference_type	reference
+auth-flow.html	11	link-href	  <link rel="stylesheet" href="styles/vvip-visual-trust-layer.css">
+auth-flow.html	15	script-src	  <script src="scripts/vvip-safe-ux-guard.js" defer></script>
+clerk-private-profile.html	188	script-src	  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+clerk-private-profile.html	685	link-href	  <link rel="stylesheet" href="vvip-identity.css?v=20260708-7-1" />
+clerk-private-profile.html	686	link-href	  <link rel="stylesheet" href="styles/vvip-visual-trust-layer.css">
+clerk-private-profile.html	2054	script-src	  <script src="scripts/vvip-safe-ux-guard.js" defer></script>
+clerk-test.html	149	link-href	  <link rel="stylesheet" href="styles/vvip-visual-trust-layer.css">
+clerk-test.html	254	script-src	  <script src="scripts/vvip-safe-ux-guard.js" defer></script>
+data-deletion.html	48	link-href	  <link rel="stylesheet" href="styles/vvip-visual-trust-layer.css">
+data-deletion.html	92	script-src	  <script src="scripts/vvip-safe-ux-guard.js" defer></script>
+index.html	10	link-href	  <link rel="manifest" href="manifest.webmanifest" />
+index.html	11	link-href	  <link rel="preconnect" href="https://fonts.googleapis.com" />
+index.html	12	link-href	  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+index.html	13	link-href	  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+index.html	14	link-href	  <link rel="stylesheet" href="styles.css?v=20260707-vvip-gate" />
+index.html	28	script-src	<script defer src="auth-clerk-index.js?v=20260707-vvip-gate"></script>
+index.html	29	link-href	  <link rel="stylesheet" href="vvip-identity.css?v=20260708-7-1" />
+index.html	30	link-href	  <link rel="stylesheet" href="styles/vvip-visual-trust-layer.css">
+index.html	178	script-src	  <script src="scripts/vvip-safe-ux-guard.js" defer></script>
+privacy-policy.html	48	link-href	  <link rel="stylesheet" href="styles/vvip-visual-trust-layer.css">
+privacy-policy.html	102	script-src	  <script src="scripts/vvip-safe-ux-guard.js" defer></script>
+private-profile.html	10	link-href	  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+private-profile.html	11	link-href	  <link rel="stylesheet" href="vvip-identity.css?v=20260708-7-1" />
+private-profile.html	82	link-href	  <link rel="stylesheet" href="styles/vvip-visual-trust-layer.css">
+private-profile.html	129	script-src	  <script src="scripts/vvip-safe-ux-guard.js" defer></script>
+public-profile.html	9	link-href	  <link rel="preconnect" href="https://fonts.googleapis.com" />
+public-profile.html	10	link-href	  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+public-profile.html	11	link-href	  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+public-profile.html	12	link-href	  <link rel="stylesheet" href="styles.css?v=20260703e" />
+public-profile.html	13	link-href	  <link rel="stylesheet" href="enhanced-components.css?v=20260703f" />
+public-profile.html	680	link-href	  <link rel="stylesheet" href="vvip-identity.css?v=20260708-7-1" />
+public-profile.html	681	link-href	  <link rel="stylesheet" href="styles/vvip-visual-trust-layer.css">
+public-profile.html	1215	script-src	  <script src="social-ui.js?v=20260708-post-options-menu"></script>
+public-profile.html	1373	script-src	  <script src="scripts/vvip-safe-ux-guard.js" defer></script>
+reset-password.html	7	link-href	  <link rel="preconnect" href="https://fonts.googleapis.com" />
+reset-password.html	8	link-href	  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+reset-password.html	9	link-href	  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+reset-password.html	10	link-href	  <link rel="stylesheet" href="styles.css?v=20260703e" />
+reset-password.html	23	script-src	  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+reset-password.html	24	script-src	  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+reset-password.html	25	link-href	  <link rel="stylesheet" href="styles/vvip-visual-trust-layer.css">
+reset-password.html	44	script-src	  <script src="reset-password.js?v=20260703g"></script>
+reset-password.html	45	script-src	  <script src="scripts/vvip-safe-ux-guard.js" defer></script>
+terms-of-service.html	48	link-href	  <link rel="stylesheet" href="styles/vvip-visual-trust-layer.css">
+terms-of-service.html	98	script-src	  <script src="scripts/vvip-safe-ux-guard.js" defer></script>
