@@ -1,7 +1,7 @@
 # VVIP TIGER - PR #16 Launch Shell Inspection
 
-Status: INSPECTION ONLY  
-Scope: No runtime changes  
+Status: INSPECTION ONLY
+Scope: No runtime changes
 Purpose: Prepare the next launch hardening step for No Blank Screen / No Dead Button behavior.
 
 ---
