@@ -1,7 +1,7 @@
 # VVIP TIGER - PR #15 Clerk Private Profile Runtime Launch Hardening
 
-Status: RUNTIME HARDENING - NARROW TARGET  
-Target: clerk-private-profile.html  
+Status: RUNTIME HARDENING - NARROW TARGET
+Target: clerk-private-profile.html
 Scope: First protected runtime change for the 48H Real Trial Launch.
 
 ---
@@ -95,4 +95,3 @@ Required checks:
 - no SQL/migrations changed,
 - no Supabase/Clerk dashboard changes,
 - changed files remain within the approved PR15 scope.
-
