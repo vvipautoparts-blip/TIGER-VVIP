@@ -93,7 +93,7 @@ phases:
   - id: P01
     priority: 1
     name: Comprehensive Repository Audit and Implementation Gap Matrix
-    status: next_authorized
+    status: ready_for_merge
     depends_on:
       - P00.1
     scope:
