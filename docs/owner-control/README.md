@@ -27,6 +27,21 @@
 7. `VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md`
    النسخة المقروءة للمالك من خارطة التنفيذ الرسمية.
 
+8. `VVIP_TIGER_IMPLEMENTATION_GAP_MATRIX.md`
+   مصفوفة فجوات التنفيذ الرسمية لمرحلة P01.
+
+9. `VVIP_TIGER_REPOSITORY_AUDIT_REPORT.md`
+   تقرير التدقيق الشامل للمستودع ضمن P01.
+
+10. `VVIP_TIGER_FILE_INVENTORY.csv`
+   جرد الملفات مع حالة الإحالة والمخاطر والإجراء المقترح.
+
+11. `VVIP_TIGER_P01_PRIORITY_FINDINGS.md`
+   ترتيب نتائج P01 حسب الأولوية والمخاطر.
+
+12. `VVIP_TIGER_P01_REPOSITORY_AUDIT_COMPLETION.md`
+   وثيقة إكمال وتحقق مرحلة P01.
+
 ## قاعدة إلزامية
 
 لا يبدأ أي كود أو فرع أو Pull Request أو SQL أو تعديل Runtime قبل عرض واعتماد:
@@ -67,3 +82,15 @@
 [`VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md`](./VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md)
 
 الملف YAML هو المرجع الرسمي المنظم لترتيب التنفيذ والاعتماد والأولويات، بينما Markdown هو النسخة المقروءة للمالك.
+
+## مخرجات P01
+
+[`VVIP_TIGER_IMPLEMENTATION_GAP_MATRIX.md`](./VVIP_TIGER_IMPLEMENTATION_GAP_MATRIX.md)
+
+[`VVIP_TIGER_REPOSITORY_AUDIT_REPORT.md`](./VVIP_TIGER_REPOSITORY_AUDIT_REPORT.md)
+
+[`VVIP_TIGER_FILE_INVENTORY.csv`](./VVIP_TIGER_FILE_INVENTORY.csv)
+
+[`VVIP_TIGER_P01_PRIORITY_FINDINGS.md`](./VVIP_TIGER_P01_PRIORITY_FINDINGS.md)
+
+[`VVIP_TIGER_P01_REPOSITORY_AUDIT_COMPLETION.md`](./VVIP_TIGER_P01_REPOSITORY_AUDIT_COMPLETION.md)

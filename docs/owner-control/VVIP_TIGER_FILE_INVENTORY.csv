@@ -1,0 +1,336 @@
+path,file_type,purpose,runtime_referenced,owner_reference,status,risk,recommended_action,target_phase
+.firebase/hosting..cache,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.firebaserc,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.git-auto-push.sh,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.github/workflows/pages.yml,yaml,repository asset,no,no,active,low,review_in_target_phase,deferred
+.gitignore,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/final-frontend-safety-sweep/auth-flow.html.before-audit.20260709-194731,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/final-frontend-safety-sweep/auth.js.before-audit.20260709-194731,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/final-frontend-safety-sweep/clerk-private-profile.html.before-audit.20260709-194731,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/final-frontend-safety-sweep/clerk-test.html.before-audit.20260709-194731,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/final-frontend-safety-sweep/data-deletion.html.before-audit.20260709-194731,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/final-frontend-safety-sweep/index.html.before-audit.20260709-194731,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/final-frontend-safety-sweep/privacy-policy.html.before-audit.20260709-194731,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/final-frontend-safety-sweep/private-profile.html.before-audit.20260709-194731,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/final-frontend-safety-sweep/public-profile.html.before-audit.20260709-194731,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/final-frontend-safety-sweep/reset-password.html.before-audit.20260709-194731,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/final-frontend-safety-sweep/scripts_profile-loader.js.before-audit.20260709-194731,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/final-frontend-safety-sweep/scripts_require-auth.js.before-audit.20260709-194731,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/final-frontend-safety-sweep/scripts_supabase-auth-bridge.js.before-audit.20260709-194731,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/final-frontend-safety-sweep/scripts_supabase-config.js.before-audit.20260709-194731,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/final-frontend-safety-sweep/scripts_vvip-safe-ux-guard.js.before-audit.20260709-194731,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/final-frontend-safety-sweep/social-ui.js.before-audit.20260709-194731,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/final-frontend-safety-sweep/styles_vvip-visual-trust-layer.css.before-audit.20260709-194731,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/final-frontend-safety-sweep/terms-of-service.html.before-audit.20260709-194731,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/navigation-button-stability/audit/auth-flow.html.before-audit.20260709-190656,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/navigation-button-stability/audit/clerk-private-profile.html.before-audit.20260709-190656,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/navigation-button-stability/audit/clerk-test.html.before-audit.20260709-190656,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/navigation-button-stability/audit/data-deletion.html.before-audit.20260709-190656,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/navigation-button-stability/audit/index.html.before-audit.20260709-190656,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/navigation-button-stability/audit/privacy-policy.html.before-audit.20260709-190656,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/navigation-button-stability/audit/private-profile.html.before-audit.20260709-190656,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/navigation-button-stability/audit/public-profile.html.before-audit.20260709-190656,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/navigation-button-stability/audit/reset-password.html.before-audit.20260709-190656,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/navigation-button-stability/audit/scripts_profile-loader.js.before-audit.20260709-190656,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/navigation-button-stability/audit/scripts_require-auth.js.before-audit.20260709-190656,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/navigation-button-stability/audit/scripts_supabase-auth-bridge.js.before-audit.20260709-190656,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/navigation-button-stability/audit/scripts_supabase-config.js.before-audit.20260709-190656,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/navigation-button-stability/audit/scripts_vvip-safe-ux-guard.js.before-audit.20260709-190656,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/navigation-button-stability/audit/styles_vvip-visual-trust-layer.css.before-audit.20260709-190656,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/navigation-button-stability/audit/terms-of-service.html.before-audit.20260709-190656,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/navigation-button-stability/phase-1/clerk-test.html.before-phase-1.20260709-191310,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/navigation-button-stability/phase-1/docs_VVIP_TIGER_NAVIGATION_BUTTON_AUDIT.md.before-phase-1.20260709-191310,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/navigation-button-stability/phase-1/public-profile.html.before-phase-1.20260709-191310,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/page-flow-user-journey-audit/auth-flow.html.before-audit.20260709-192244,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/page-flow-user-journey-audit/clerk-private-profile.html.before-audit.20260709-192244,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/page-flow-user-journey-audit/clerk-test.html.before-audit.20260709-192244,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/page-flow-user-journey-audit/data-deletion.html.before-audit.20260709-192244,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/page-flow-user-journey-audit/index.html.before-audit.20260709-192244,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/page-flow-user-journey-audit/phase-1/docs_VVIP_TIGER_PAGE_FLOW_USER_JOURNEY_AUDIT.md.before-phase-1.20260709-192625,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/page-flow-user-journey-audit/phase-1/private-profile.html.before-phase-1.20260709-192625,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/page-flow-user-journey-audit/phase-1/styles_vvip-visual-trust-layer.css.before-phase-1.20260709-192625,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/page-flow-user-journey-audit/privacy-policy.html.before-audit.20260709-192244,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/page-flow-user-journey-audit/private-profile.html.before-audit.20260709-192244,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/page-flow-user-journey-audit/public-profile.html.before-audit.20260709-192244,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/page-flow-user-journey-audit/reset-password.html.before-audit.20260709-192244,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/page-flow-user-journey-audit/scripts_profile-loader.js.before-audit.20260709-192244,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/page-flow-user-journey-audit/scripts_require-auth.js.before-audit.20260709-192244,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/page-flow-user-journey-audit/scripts_supabase-auth-bridge.js.before-audit.20260709-192244,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/page-flow-user-journey-audit/scripts_supabase-config.js.before-audit.20260709-192244,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/page-flow-user-journey-audit/scripts_vvip-safe-ux-guard.js.before-audit.20260709-192244,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/page-flow-user-journey-audit/styles_vvip-visual-trust-layer.css.before-audit.20260709-192244,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/page-flow-user-journey-audit/terms-of-service.html.before-audit.20260709-192244,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/profile-ux-polish/clerk-private-profile.html.before-profile-ux-polish.20260709-185253,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/profile-ux-polish/phase-1/clerk-private-profile.html.before-phase-1.20260709-185542,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/profile-ux-polish/phase-1/clerk-private-profile.html.before-phase-1.20260709-190012,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/profile-ux-polish/phase-1/clerk-private-profile.html.before-phase-1.20260709-190026,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/profile-ux-polish/phase-1/private-profile.html.before-phase-1.20260709-185542,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/profile-ux-polish/phase-1/private-profile.html.before-phase-1.20260709-190012,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/profile-ux-polish/phase-1/private-profile.html.before-phase-1.20260709-190026,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/profile-ux-polish/phase-1/public-profile.html.before-phase-1.20260709-185542,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/profile-ux-polish/phase-1/public-profile.html.before-phase-1.20260709-190012,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/profile-ux-polish/phase-1/public-profile.html.before-phase-1.20260709-190026,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/profile-ux-polish/phase-1/styles/vvip-visual-trust-layer.css.before-phase-1.20260709-190026,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/profile-ux-polish/private-profile.html.before-profile-ux-polish.20260709-185253,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/profile-ux-polish/public-profile.html.before-profile-ux-polish.20260709-185253,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/public-pages-consistency-audit/clerk-test.html.before-audit.20260709-193516,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/public-pages-consistency-audit/index.html.before-audit.20260709-193516,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/public-pages-consistency-audit/phase-1/clerk-test.html.before-phase-1.20260709-193654,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/public-pages-consistency-audit/phase-1/clerk-test.html.before-phase-1.20260709-193749,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/public-pages-consistency-audit/phase-1/clerk-test.html.before-phase-1.20260709-193854,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/public-pages-consistency-audit/phase-1/docs_VVIP_TIGER_PUBLIC_PAGES_CONSISTENCY_AUDIT.md.before-phase-1.20260709-193654,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/public-pages-consistency-audit/phase-1/docs_VVIP_TIGER_PUBLIC_PAGES_CONSISTENCY_AUDIT.md.before-phase-1.20260709-193750,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/public-pages-consistency-audit/phase-1/docs_VVIP_TIGER_PUBLIC_PAGES_CONSISTENCY_AUDIT.md.before-phase-1.20260709-193854,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/public-pages-consistency-audit/phase-1/styles_vvip-visual-trust-layer.css.before-phase-1.20260709-193654,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/public-pages-consistency-audit/phase-1/styles_vvip-visual-trust-layer.css.before-phase-1.20260709-193749,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/public-pages-consistency-audit/phase-1/styles_vvip-visual-trust-layer.css.before-phase-1.20260709-193854,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/public-pages-consistency-audit/public-profile.html.before-audit.20260709-193516,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/public-pages-consistency-audit/reset-password.html.before-audit.20260709-193516,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/public-pages-consistency-audit/scripts_profile-loader.js.before-audit.20260709-193516,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/public-pages-consistency-audit/scripts_require-auth.js.before-audit.20260709-193516,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/public-pages-consistency-audit/scripts_supabase-auth-bridge.js.before-audit.20260709-193516,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/public-pages-consistency-audit/scripts_supabase-config.js.before-audit.20260709-193516,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/public-pages-consistency-audit/scripts_vvip-safe-ux-guard.js.before-audit.20260709-193516,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.local-backups/public-pages-consistency-audit/styles_vvip-visual-trust-layer.css.before-audit.20260709-193516,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.vscode/launch.json,json,repository asset,no,no,active,low,review_in_target_phase,deferred
+.vscode/launch.json.backup-before-public-profile-url,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+.vscode/mcp.json,json,repository asset,no,no,active,low,review_in_target_phase,deferred
+.vscode/settings.json,json,repository asset,no,no,active,low,review_in_target_phase,deferred
+20260708_vvip_tiger_profiles_remove_legacy_auth_uid_policies.sql,sql,repository asset,no,no,active,low,review_in_target_phase,deferred
+20260708_vvip_tiger_public_profiles_clerk_runtime_fix.sql,sql,repository asset,no,no,active,low,review_in_target_phase,deferred
+ACCOUNT-CHOOSER-SPEC.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+ADMIN-ROLE-SPEC.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+ADMIN-SETUP-GUIDE.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+ADMIN-SETUP.sql,sql,repository asset,no,no,active,low,review_in_target_phase,deferred
+AGENTS.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+ANDROID-HTTPS-DEPLOY.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+CNAME,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+DOCUMENTATION-INDEX.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+EMAIL-TEMPLATE-VARIABLES.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+EMAIL-VERIFICATION-SETUP.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+FEATURE-VERIFICATION.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+FEATURES-COMPLETE.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+FINAL-VERIFICATION.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+FIREBASE-EMAIL-SETUP.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+GOOGLE-ONE-TAP-SETUP.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+IMPLEMENTATION_CHECKLIST.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+PHASE-3-READINESS-CHECK.sql,sql,repository asset,no,no,active,low,review_in_target_phase,deferred
+PRODUCT-REQUIREMENTS-ADDENDUM.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+PROJECT-SUMMARY.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+QA-FINAL-REPORT.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+README.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+RLS-EMAIL-VERIFICATION-POLICIES.sql,sql,repository asset,no,no,active,low,review_in_target_phase,deferred
+RLS-IMPLEMENTATION-GUIDE.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+RLS-POLICIES.sql,sql,repository asset,no,no,active,low,review_in_target_phase,deferred
+RLS-QUICK-REFERENCE.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+SESSION-SUMMARY.txt,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+SETUP-GUIDE.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+SUPABASE-EDGE-OTP-GUIDE.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+TEST-ACCOUNTS-GUIDE.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+TIGER-AutoParts-Prompts.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+UNIFIED-PLATFORM-STATUS.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+USER-GUIDE.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+VVIP-AUTH-SYSTEM-SPEC.md,markdown,repository asset,no,no,active,low,review_in_target_phase,deferred
+approved/FINAL-QA-APPROVAL.md,markdown,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/MOBILE-PUBLIC-APPROVED-README.md,markdown,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/PRIVATE-PROFILE-APPROVED-README.md,markdown,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/auth-clerk-index-before-profile-button-fix-20260707.js,javascript,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/auth-clerk-index-before-vvip-gate-login-20260707.js,javascript,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/clerk-private-profile-before-official-ui-20260707.html,html,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+approved/clerk-private-profile-before-supabase-bridge-20260707.html,html,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+approved/clerk-private-profile-before-tiger-care-card-20260707.html,html,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+approved/clerk-private-profile-before-vip-membership-center-20260707.html,html,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+approved/enhanced-components.final-approved.css,css,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/index-before-supabase-auth-20260704-191914.html,html,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+approved/index-before-supabase-auth-20260704-192024.html,html,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+approved/index-before-vvip-gate-login-20260707.html,html,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+approved/index-supabase-auth-approved.html,html,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+approved/index-supabase-auth-final.html,html,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+approved/legacy-auth-audit-7-1/clerk-private-profile-before-linkrel-fix-20260708.html,html,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+approved/legacy-auth-redirect-7-1/private-profile-before-redirect-20260708.html,html,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+approved/legacy-auth-redirect-7-1/sw-before-legacy-auth-audit-20260708.js,javascript,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/mobile-public-buttons-audit-report.md,markdown,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/nav-cleanup-7-1/public-profile-before-private-link-cleanup-20260708.html,html,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+approved/nav-cleanup-7-1/vvip-identity-before-clarity-patch-20260708.css,css,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/private-desktop-audit.txt,other,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/private-mobile-audit.md,markdown,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/private-profile-auth-guard-approved.html,html,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+approved/private-profile-auth-guard-final.html,html,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+approved/private-profile-before-auth-guard.html,html,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+approved/private-profile-buttons-audit-report.txt,other,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/private-profile.desktop-approved.html,html,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+approved/private-profile.final-approved.html,html,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+approved/public-desktop-audit.md,markdown,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/public-mobile-audit.md,markdown,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/public-profile.final-approved.html,html,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+approved/public-profile.mobile-approved.html,html,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+approved/require-auth-approved.js,javascript,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/require-auth-final.js,javascript,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/service-worker-clerk-cache-7-1/sw-before-clerk-cache-cleanup-20260708.js,javascript,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/social-ui-before-force-post-options-menu-20260708.js,javascript,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/social-ui-before-post-options-menu-tiger-care-20260707.js,javascript,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/social-ui-before-tiger-care-feedback-fix-20260708.js,javascript,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/styles-before-post-options-menu-tiger-care-20260707.css,css,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/styles-before-tiger-care-feedback-fix-20260708.css,css,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/styles-before-vvip-gate-login-20260707.css,css,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/supabase-auth-bridge-approved.js,javascript,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/supabase-auth-bridge-final.js,javascript,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/supabase-config-approved.js,javascript,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/supabase-config-final.js,javascript,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/sw-before-post-options-cache-fix-20260708.js,javascript,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/visual-identity-pass-7-1/clerk-private-profile-before-visual-identity-20260708.html,html,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+approved/visual-identity-pass-7-1/enhanced-components-before-visual-identity-20260708.css,css,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+approved/visual-identity-pass-7-1/index-before-visual-identity-20260708.html,html,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+approved/visual-identity-pass-7-1/public-profile-before-visual-identity-20260708.html,html,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+approved/visual-identity-pass-7-1/styles-before-visual-identity-20260708.css,css,approved snapshot archive,no,no,duplicate,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+auth-clerk-index.js,javascript,javascript logic,yes,no,active,medium,review_in_target_phase,deferred
+auth-flow.html,html,web page,no,no,active,medium,review_in_target_phase,P02-P13
+auth-supabase.js,javascript,javascript logic,no,no,active,medium,review_in_target_phase,deferred
+auth.js,javascript,javascript logic,no,no,active,medium,review_in_target_phase,deferred
+backups/clerk-private-profile.before-atomic-profile-resolver.html,html,backup snapshot archive,no,no,obsolete,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+backups/clerk-private-profile.before-jwt-rls-bridge.html,html,backup snapshot archive,no,no,obsolete,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+backups/clerk-private-profile.before-pr15-launch-hardening.html,html,backup snapshot archive,no,no,obsolete,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+backups/clerk-private-profile.before-profile-resilience-shell.html,html,backup snapshot archive,no,no,obsolete,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+backups/clerk-private-profile.before-self-healing-profile-gateway.html,html,backup snapshot archive,no,no,obsolete,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+backups/visual-trust-layer/clerk-private-profile.html.before-visual-trust-layer,other,backup snapshot archive,no,no,obsolete,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+backups/visual-trust-layer/index.html.before-visual-trust-layer,other,backup snapshot archive,no,no,obsolete,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+backups/visual-trust-layer/phase-2-2/public-profile.before-readable-lock.20260709-184736.html,html,backup snapshot archive,no,no,obsolete,low,keep_as_archive_and_exclude_from_runtime_paths,P02-P13
+backups/visual-trust-layer/phase-2-2/vvip-visual-trust-layer.before-readable-lock.20260709-184736.css,css,backup snapshot archive,no,no,obsolete,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+backups/visual-trust-layer/private-profile.html.before-visual-trust-layer,other,backup snapshot archive,no,no,obsolete,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+backups/visual-trust-layer/styles.css.before-visual-trust-layer,other,backup snapshot archive,no,no,obsolete,low,keep_as_archive_and_exclude_from_runtime_paths,P01
+clerk-private-profile.html,html,web page,yes,no,active,low,review_in_target_phase,P02-P13
+clerk-test.html,html,web page,no,no,active,low,review_in_target_phase,P02-P13
+data-deletion.html,html,web page,yes,no,active,low,review_in_target_phase,P02-P13
+docs/PROFILE_RESILIENCE_SHELL_CLOSURE.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_AUTH_AUDIT.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_AUTH_SCAN.txt,other,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_CLERK_PROFILE_TABLE_LOG.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_CLERK_RLS_APPLY_LOG.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_CLERK_SUPABASE_LINK_SUCCESS.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_DB_AUDIT.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_FINAL_FRONTEND_SAFETY_SWEEP.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_FINAL_FRONTEND_SAFETY_SWEEP_REVIEW.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_FRONTEND_SAFE_BASELINE.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_LEGACY_AUTH_AUDIT.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_MANUAL_DB_APPLY_LOG.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_MEMORY_MAP.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_NAVIGATION_BUTTON_AUDIT.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_NAVIGATION_BUTTON_STABILITY_PATCH.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_NAVIGATION_SMOKE_AUDIT.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_OFFICIAL_PRIVATE_PROFILE_UI.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_OFFICIAL_PRODUCT_BLUEPRINT.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_PAGE_FLOW_USER_JOURNEY_AUDIT.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_PAGE_FLOW_USER_JOURNEY_PATCH.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_POST_OPTIONS_TIGER_CARE.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_PROFILE_NAVIGATION_STABILITY_AUDIT.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_PROFILE_SOURCE_OF_TRUTH.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_PUBLIC_PAGES_CONSISTENCY_AUDIT.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_PUBLIC_PAGES_CONSISTENCY_PATCH.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_REPOSITORY_HOUSEKEEPING_AUDIT.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_VISUAL_TRUST_LAYER.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_VVIP_GATE_LOGIN.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/VVIP_TIGER_ZERO_VISIBLE_ERROR_EXPERIENCE.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/change-control/20260710-discovery-experience-shell.json,json,change control manifest,no,yes,needs_review,low,maintain_and_sync_with_phase_status,P01
+docs/change-control/20260710-master-execution-roadmap.json,json,change control manifest,no,yes,needs_review,low,maintain_and_sync_with_phase_status,P01
+docs/governance/VVIP_TIGER_FAST_FEELING_AND_INSTANT_UX_STANDARD.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/governance/VVIP_TIGER_SURGICAL_EXECUTION_RULE.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/launch/VVIP_TIGER_48H_REAL_TRIAL_LAUNCH_PLAN.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/launch/pr16/VVIP_TIGER_PR16_HTML_FILES.tsv,other,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/launch/pr16/VVIP_TIGER_PR16_LAUNCH_SHELL_INSPECTION.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/launch/pr16/VVIP_TIGER_PR16_LINKS_AND_BUTTONS_SCAN.tsv,other,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/launch/pr17/VVIP_TIGER_PR17_LAUNCH_SHELL_TARGET_SELECTION.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/launch/pr17/VVIP_TIGER_PR17_TOP_ACTION_FILES.tsv,other,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/launch/pr17/VVIP_TIGER_PR17_TOP_HTML_FILES.tsv,other,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/launch/pr18/VVIP_TIGER_PR18_HTML_SCRIPT_REFERENCES.tsv,other,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/launch/pr18/VVIP_TIGER_PR18_LIVE_ACTION_SURFACE_SCAN.tsv,other,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/launch/pr18/VVIP_TIGER_PR18_LIVE_RUNTIME_CANDIDATE_FILES.tsv,other,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/launch/pr18/VVIP_TIGER_PR18_LIVE_RUNTIME_TARGET_INSPECTION.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/launch/pr19/PR19_FIRST_NARROW_LAUNCH_SHELL_RUNTIME_GUARD_REPORT.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/owner-control/README.md,markdown,owner control documentation,no,yes,needs_review,low,maintain_and_sync_with_phase_status,P01
+docs/owner-control/VVIP_TIGER_DISCOVERY_EXPERIENCE_SPEC.md,markdown,owner control documentation,no,yes,needs_review,low,maintain_and_sync_with_phase_status,P01
+docs/owner-control/VVIP_TIGER_EXECUTION_CHARTER.md,markdown,owner control documentation,no,yes,needs_review,low,maintain_and_sync_with_phase_status,P01
+docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md,markdown,owner control documentation,no,yes,needs_review,low,maintain_and_sync_with_phase_status,P01
+docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml,yaml,owner control documentation,no,yes,needs_review,low,maintain_and_sync_with_phase_status,P01
+docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP_COMPLETION.md,markdown,owner control documentation,no,yes,needs_review,low,maintain_and_sync_with_phase_status,P01
+docs/owner-control/VVIP_TIGER_OWNER_MASTER_REFERENCE.md,markdown,owner control documentation,no,yes,needs_review,low,maintain_and_sync_with_phase_status,P01
+docs/owner-control/VVIP_TIGER_PHASE_TRACKER.md,markdown,owner control documentation,no,yes,needs_review,low,maintain_and_sync_with_phase_status,P01
+docs/owner-control/VVIP_TIGER_PR22_DISCOVERY_SHELL_COMPLETION.md,markdown,owner control documentation,no,yes,needs_review,low,maintain_and_sync_with_phase_status,P01
+docs/owner-control/VVIP_TIGER_VALUES_AND_NAMES_CHARTER.md,markdown,owner control documentation,no,yes,needs_review,low,maintain_and_sync_with_phase_status,P01
+docs/owner-control/phase-status.json,json,owner control documentation,no,yes,needs_review,low,maintain_and_sync_with_phase_status,P01
+docs/security/RPC_HARDENED_SECURITY_SCENARIOS_20260709.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/security/RPC_REVIEW_FINDINGS_20260709.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/security/SUPABASE_CLERK_SECURITY_AUDIT_LOCK_20260709.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/security/launch-hardening/pr14/VVIP_TIGER_PR14_CLERK_PRIVATE_PROFILE_LAUNCH_HARDENING_INSPECTION.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/security/launch-hardening/pr14/VVIP_TIGER_PR14_CLERK_PRIVATE_PROFILE_SAFE_FINDINGS.tsv,other,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/security/launch-hardening/pr15/VVIP_TIGER_PR15_CLERK_PRIVATE_PROFILE_RUNTIME_HARDENING.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/security/production-apply/SUPABASE_MANUAL_BACKUP_PRODUCTION_APPLY_PLAN_DRAFT.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/security/retrofit-audit/VVIP_TIGER_EXISTING_CODE_PROTECTION_RETROFIT_AUDIT.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/security/retrofit-audit/VVIP_TIGER_EXISTING_CODE_PROTECTION_SCAN.tsv,other,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/security/retrofit-audit-classification/VVIP_TIGER_RETROFIT_AUDIT_CLASSIFICATION_PLAN.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/security/retrofit-audit-classification/VVIP_TIGER_RETROFIT_AUDIT_CLASSIFICATION_SUMMARY.tsv,other,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/security/secrets-logging-hardening/VVIP_TIGER_SECRETS_LOGGING_B1_HARDENING_PREP.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/security/secrets-logging-hardening/VVIP_TIGER_SECRETS_LOGGING_B1_REVIEW_QUEUE.tsv,other,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/security/secrets-logging-hardening/VVIP_TIGER_SECRETS_LOGGING_B1_TOP_FILES.tsv,other,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/security/secrets-logging-hardening/first-target-inspection/VVIP_TIGER_B1_FIRST_RUNTIME_TARGET_INSPECTION.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/security/secrets-logging-hardening/first-target-inspection/VVIP_TIGER_B1_FIRST_RUNTIME_TARGET_QUEUE.tsv,other,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/security/secrets-logging-hardening/first-target-inspection/VVIP_TIGER_B1_RUNTIME_TARGET_CANDIDATES.tsv,other,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/security/secrets-logging-review/VVIP_TIGER_SECRETS_AND_LOGGING_FINDINGS.tsv,other,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/security/secrets-logging-review/VVIP_TIGER_SECRETS_AND_LOGGING_REVIEW.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/security/secrets-logging-review/VVIP_TIGER_SECRETS_AND_LOGGING_SUMMARY.tsv,other,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/security/secrets-logging-triage/VVIP_TIGER_SECRETS_LOGGING_HIGH_RISK_FILES.tsv,other,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/security/secrets-logging-triage/VVIP_TIGER_SECRETS_LOGGING_HIGH_RISK_SUMMARY.tsv,other,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/security/secrets-logging-triage/VVIP_TIGER_SECRETS_LOGGING_HIGH_RISK_TRIAGE_PLAN.md,markdown,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/security/secrets-logging-triage/VVIP_TIGER_SECRETS_LOGGING_HIGH_RISK_TRIAGE_QUEUE.tsv,other,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+docs/security/sql-review/20260709_vvip_tiger_atomic_profile_resolver_rpc_hardened_review.sql,sql,repository asset,no,no,needs_review,low,maintain_and_sync_with_phase_status,deferred
+email-templates/confirm-email-en.html,html,web page,no,no,active,low,review_in_target_phase,P02-P13
+email-templates/confirm-email.html,html,web page,no,no,active,low,review_in_target_phase,P02-P13
+enhanced-components.css,css,style sheet,yes,no,active,low,review_in_target_phase,deferred
+firebase.json,json,repository asset,no,no,active,low,review_in_target_phase,deferred
+icons/icon-192.png,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+icons/icon-192.svg,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+icons/icon-512.png,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+icons/icon-512.svg,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+icons/tiger-logo.png,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+index.html,html,web page,yes,no,active,low,review_in_target_phase,P02-P13
+index.html.backup-before-firebase-clean,other,repository asset,no,no,active,low,review_in_target_phase,deferred
+manifest.webmanifest,webmanifest,repository asset,yes,no,active,low,review_in_target_phase,deferred
+privacy-policy.html,html,web page,yes,no,active,low,review_in_target_phase,P02-P13
+private-profile.html,html,web page,no,no,active,low,review_in_target_phase,P02-P13
+public-profile.html,html,web page,yes,no,active,low,review_in_target_phase,P02-P13
+reset-password.html,html,web page,yes,no,active,low,review_in_target_phase,P02-P13
+reset-password.js,javascript,javascript logic,yes,no,active,low,review_in_target_phase,deferred
+scripts/profile-loader.js,javascript,runtime script asset,no,no,active,medium,review_in_target_phase,P02-P13
+scripts/qa-smoke.sh,other,runtime script asset,no,no,active,medium,review_in_target_phase,P02-P13
+scripts/require-auth.js,javascript,runtime script asset,no,no,active,medium,review_in_target_phase,P02-P13
+scripts/supabase-auth-bridge.js,javascript,runtime script asset,no,no,active,medium,review_in_target_phase,P02-P13
+scripts/supabase-config.js,javascript,runtime script asset,no,no,active,medium,review_in_target_phase,P02-P13
+scripts/vvip-discovery-config.js,javascript,runtime script asset,yes,no,active,medium,review_in_target_phase,P02-P13
+scripts/vvip-discovery-shell.js,javascript,runtime script asset,yes,no,active,medium,review_in_target_phase,P02-P13
+scripts/vvip-safe-ux-guard.js,javascript,runtime script asset,yes,no,active,medium,review_in_target_phase,P02-P13
+social-ui.js,javascript,javascript logic,yes,no,active,low,review_in_target_phase,deferred
+styles/vvip-discovery-shell.css,css,runtime style asset,yes,no,active,low,review_in_target_phase,P02-P13
+styles/vvip-visual-trust-layer.css,css,runtime style asset,yes,no,active,low,review_in_target_phase,P02-P13
+styles.css,css,style sheet,yes,no,active,low,review_in_target_phase,deferred
+supabase/.temp/cli-latest,other,supabase backend config and functions,no,no,active,medium,review_only_no_runtime_change_in_p01,P07-P08-P12
+supabase/.temp/gotrue-version,other,supabase backend config and functions,no,no,active,medium,review_only_no_runtime_change_in_p01,P07-P08-P12
+supabase/.temp/linked-project.json,json,supabase backend config and functions,no,no,active,medium,review_only_no_runtime_change_in_p01,P07-P08-P12
+supabase/.temp/pooler-url,other,supabase backend config and functions,no,no,active,medium,review_only_no_runtime_change_in_p01,P07-P08-P12
+supabase/.temp/postgres-version,other,supabase backend config and functions,no,no,active,medium,review_only_no_runtime_change_in_p01,P07-P08-P12
+supabase/.temp/project-ref,other,supabase backend config and functions,no,no,active,medium,review_only_no_runtime_change_in_p01,P07-P08-P12
+supabase/.temp/rest-version,other,supabase backend config and functions,no,no,active,medium,review_only_no_runtime_change_in_p01,P07-P08-P12
+supabase/.temp/storage-version,other,supabase backend config and functions,no,no,active,medium,review_only_no_runtime_change_in_p01,P07-P08-P12
+supabase/functions/phone-verification/index.ts,typescript,supabase backend config and functions,no,no,active,medium,review_only_no_runtime_change_in_p01,P07-P08-P12
+supabase/functions/send-verification-email/index.ts,typescript,supabase backend config and functions,no,no,active,medium,review_only_no_runtime_change_in_p01,P07-P08-P12
+supabase/migrations/20260626_parts_vehicle_registry_id_compat.sql,sql,supabase backend config and functions,no,no,active,medium,review_only_no_runtime_change_in_p01,P07-P08-P12
+supabase/migrations/20260627_vehicle_registry_compat.sql,sql,supabase backend config and functions,no,no,active,medium,review_only_no_runtime_change_in_p01,P07-P08-P12
+supabase/migrations/20260628_otp_codes_rls_open.sql,sql,supabase backend config and functions,no,no,active,medium,review_only_no_runtime_change_in_p01,P07-P08-P12
+supabase/migrations/20260702_ai_analytics_ads_tables.sql,sql,supabase backend config and functions,no,no,active,medium,review_only_no_runtime_change_in_p01,P07-P08-P12
+supabase/migrations/20260702_feed_posts_table.sql,sql,supabase backend config and functions,no,no,active,medium,review_only_no_runtime_change_in_p01,P07-P08-P12
+supabase/migrations/20260707_vvip_tiger_auth_profile_bridge.sql,sql,supabase backend config and functions,no,no,active,medium,review_only_no_runtime_change_in_p01,P07-P08-P12
+supabase/migrations/20260707_vvip_tiger_clerk_profiles_table.sql,sql,supabase backend config and functions,no,no,active,medium,review_only_no_runtime_change_in_p01,P07-P08-P12
+supabase/migrations/20260709_vvip_tiger_atomic_profile_resolver_rpc.sql,sql,supabase backend config and functions,no,no,active,medium,review_only_no_runtime_change_in_p01,P07-P08-P12
+supabase/migrations/20260709_vvip_tiger_profiles_clerk_jwt_rls_bridge.sql,sql,supabase backend config and functions,no,no,active,medium,review_only_no_runtime_change_in_p01,P07-P08-P12
+supabase-schema.sql,sql,repository asset,no,no,active,low,review_in_target_phase,deferred
+sw.js,javascript,javascript logic,no,no,active,medium,review_in_target_phase,deferred
+terms-of-service.html,html,web page,yes,no,active,low,review_in_target_phase,P02-P13
+vvip-identity.css,css,style sheet,yes,no,active,low,review_in_target_phase,deferred
