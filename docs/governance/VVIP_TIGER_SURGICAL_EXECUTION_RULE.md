@@ -1,7 +1,7 @@
-# VVIP TIGER - Surgical Execution Rule
+# VVIP TIGER - Surgical Execution and Security Shield Rule
 
 Status: OFFICIAL PROJECT RULE  
-Scope: Applies before any terminal command, code change, database change, production change, or platform-wide modification.
+Scope: Applies before any terminal command, code change, database change, production change, security change, or platform-wide modification.
 
 ---
 
@@ -13,139 +13,267 @@ No random fixes.
 No fake solutions.  
 No temporary patches presented as final solutions.  
 No blind terminal execution.  
-No production changes without review gates.
+No production changes without review gates.  
+No code without built-in protection.
 
-Every change must be root-cause based, scoped, reversible, testable, and safe for the user experience.
+Every change must be root-cause based, scoped, reversible, testable, secure by design, privacy by design, and safe for the user experience.
 
 ---
 
-## 2. Mandatory Rule Before Any Execution
+## 2. Mandatory First Gate Before Any Execution
 
-Before any command or code execution, the following must be clear:
+Before any terminal command or code execution, the following must be clear:
 
-1. What is the exact goal?
-2. What is the root problem being solved?
-3. What files, systems, or services may be affected?
-4. What will not be touched?
-5. What is the risk level?
-6. What is the rollback plan?
-7. What is the verification plan?
-8. What are the stop conditions?
-9. What user-facing fallback exists if something fails?
-10. Is explicit approval required before execution?
+1. Goal.
+2. Root cause or exact reason.
+3. Scope.
+4. Non-scope.
+5. Affected files, systems, or services.
+6. Hacking and tampering risks.
+7. Data leakage risks.
+8. Secrets exposure risks.
+9. Built-in code protection.
+10. Authorization and least-privilege rules.
+11. Fail-closed behavior.
+12. User-safe fallback behavior.
+13. Admin logging without secrets.
+14. Backup or rollback plan.
+15. Verification plan.
+16. Stop conditions.
+17. Whether explicit approval is required.
 
 If these items are not clear, execution must not proceed.
 
 ---
 
-## 3. Safety Boundaries
+## 3. Surgical Execution Rule
 
-The following systems require extra review gates:
+The platform must not be changed randomly.
 
-- Supabase production
-- Supabase SQL
-- Supabase migrations
-- Supabase RLS policies
-- Clerk authentication
-- Secrets and environment variables
-- User identity/profile logic
-- Payment/subscription logic
-- Legal/disclaimer logic
-- Admin permissions
-- Public/private data exposure
-- File upload/storage logic
+Correct execution requires:
 
-No direct production change is allowed without backup, review, approval, and rollback notes.
+- Inspect current state first.
+- Identify the real issue.
+- Preserve stable work.
+- Minimize change scope.
+- Avoid unrelated edits.
+- Use a safe branch.
+- Validate before commit.
+- Commit only reviewed work.
+- Use PR review gates before merge.
+- Keep production untouched unless explicitly approved.
+
+Bad execution examples:
+
+- Randomly editing files.
+- Deleting stable code without proof.
+- Changing many systems at once.
+- Applying SQL because it might help.
+- Hiding errors without logging.
+- Trusting frontend-only protection.
+- Shipping code without rollback.
 
 ---
 
-## 4. User-Safe Fallback Standard
+## 4. Security Shield Rule
 
-Any user-facing feature should be designed with a graceful fallback.
+Security must be part of every feature, every flow, and every code change.
+
+Every future implementation must consider protection from:
+
+- Hacking.
+- Tampering.
+- Unauthorized access.
+- Data leakage.
+- Secrets exposure.
+- Account abuse.
+- Fraud.
+- Fake content.
+- Impersonation.
+- Unsafe file upload.
+- Broken access control.
+- Unsafe admin actions.
+- Unexpected failures.
+
+Security is not a final polish step. Security is a first design rule.
+
+---
+
+## 5. Self-Protecting Code Standard
+
+Code must protect itself by design.
+
+Required standards:
+
+- Validate inputs before using them.
+- Normalize and sanitize user-provided data.
+- Never trust frontend state as authority.
+- Enforce authorization outside the frontend.
+- Avoid exposing secrets, tokens, JWTs, service_role keys, passwords, or private config.
+- Fail closed by default.
+- Handle errors gracefully.
+- Do not show technical error details to users.
+- Log useful admin/debug information without sensitive data.
+- Prevent dead buttons and broken user journeys.
+- Use safe defaults.
+- Limit risky behavior.
+- Avoid broad permissions.
+- Make sensitive operations auditable.
+
+The frontend may guide the user, but it must not be the only security layer.
+
+---
+
+## 6. Zero-Trust Platform Design
+
+VVIP TIGER must follow zero-trust thinking.
+
+Do not trust:
+
+- Browser state.
+- Hidden buttons.
+- URL parameters.
+- Local storage.
+- User-edited JavaScript.
+- Client-side role labels.
+- Client-side profile IDs.
+- Uploaded file metadata.
+- Any user input without validation.
+
+Security decisions must be enforced through trusted layers such as backend logic, Supabase RLS, secure RPC behavior, Clerk identity verification, and strict permission checks.
+
+---
+
+## 7. Fail-Closed Rule
+
+If the system is unsure, it must deny safely.
+
+Default behavior for sensitive flows:
+
+- Unknown user: deny.
+- Missing session: deny.
+- Invalid permission: deny.
+- Unexpected role: deny.
+- Unverified ownership: deny.
+- Broken security check: deny.
+- Database/RPC uncertainty: do not expose private data.
+
+A failure must not accidentally become permission.
+
+---
+
+## 8. Least Privilege Rule
+
+Every user, function, RPC, policy, storage rule, and admin action should receive only the minimum permission required.
+
+Avoid:
+
+- Global permissions when scoped permissions are enough.
+- Admin-like behavior in normal user flows.
+- service_role in frontend.
+- Wide update/delete permissions.
+- Public access to private records.
+- Broad storage access.
+- Unreviewed privileged RPC functions.
+
+---
+
+## 9. Defense in Depth
+
+The platform must use layered protection.
+
+Example structure:
+
+1. Clerk verifies identity.
+2. Frontend provides safe UX.
+3. Supabase RLS enforces data boundaries.
+4. RPC functions enforce controlled behavior.
+5. Storage rules enforce file ownership.
+6. Logs capture admin-safe diagnostics.
+7. Fallbacks protect the user experience.
+8. Review gates protect production.
+
+No single layer should be the only defense for sensitive data.
+
+---
+
+## 10. User-Safe Fallback and Recovery
+
+Any user-facing feature should include a graceful fallback.
 
 Required structure:
 
-1. Primary path
-2. Safe fallback path
-3. User-friendly message
-4. Silent recovery where safe
-5. Admin/debug logging without exposing secrets
-6. No crash screen
-7. No dead button
-8. No token, JWT, service_role, password, or secret exposure
+1. Primary path.
+2. Safe fallback path.
+3. User-friendly message.
+4. Silent recovery where safe.
+5. Admin/debug logging without secrets.
+6. No crash screen.
+7. No dead button.
+8. No token, JWT, service_role, password, or secret exposure.
 
-The user should not feel the system is broken when a recoverable internal issue happens.
-
----
-
-## 5. Root-Cause First
-
-Before fixing symptoms, identify the real cause.
-
-Bad approach:
-
-- Randomly editing files
-- Copying code without understanding scope
-- Deleting stable work
-- Changing many systems at once
-- Applying SQL because it "might help"
-- Hiding errors without logging them
-
-Correct approach:
-
-- Inspect current state
-- Identify affected flow
-- Minimize change scope
-- Preserve working behavior
-- Add fallback when needed
-- Validate after change
-- Commit only reviewed work
+The user should not feel the platform is broken when a recoverable internal issue happens.
 
 ---
 
-## 6. Execution Gate Template
+## 11. AI-Assisted Safety Layer
 
-Every implementation phase should include:
+AI may be used as an additional safety and quality layer, but it must never be treated as impossible to hack.
 
-### Goal
+AI can help with:
 
-What this phase is trying to achieve.
+- Scam detection.
+- Abuse detection.
+- Suspicious content review.
+- Listing quality checks.
+- Admin alerts.
+- Pattern detection.
+- Security review assistance.
+- User-friendly fallback messages.
 
-### Scope
+AI must not replace:
 
-What will be changed.
+- RLS.
+- Authorization.
+- Secure backend checks.
+- Input validation.
+- Human review for critical actions.
+- Backup and rollback planning.
 
-### Non-Scope
-
-What will not be touched.
-
-### Risk Level
-
-LOW, MEDIUM, HIGH, or CRITICAL.
-
-### Backup Plan
-
-What must be saved or verified before execution.
-
-### Rollback Plan
-
-How to return to the previous safe state.
-
-### Execution
-
-The exact command or code change.
-
-### Verification
-
-How success will be confirmed.
-
-### Stop Conditions
-
-When to stop immediately and avoid continuing.
+AI is an assistant layer, not the only defense.
 
 ---
 
-## 7. Production Rule
+## 12. Existing Code Retrofit Rule
+
+This rule applies to old code as well as new code.
+
+Existing code should be reviewed gradually and safely.
+
+Retrofit approach:
+
+1. Inventory current files and flows.
+2. Classify risk.
+3. Identify frontend-only security.
+4. Identify missing validation.
+5. Identify missing authorization.
+6. Identify weak fallback behavior.
+7. Identify unsafe logging.
+8. Identify secrets exposure.
+9. Fix in small staged branches.
+10. Preserve what already works.
+
+Do not rewrite the whole platform randomly.
+
+Correct principle:
+
+Preserve what works.  
+Harden what is risky.  
+Replace only what is structurally unsafe.
+
+---
+
+## 13. Production Rule
 
 Production systems must never be changed casually.
 
@@ -162,29 +290,16 @@ Without this, production execution is forbidden.
 
 ---
 
-## 8. Platform Quality Standard
+## 14. Final Rule
 
-VVIP TIGER should aim for:
-
-- Stable user journeys
-- Clear premium experience
-- Safe identity handling
-- No secret exposure
-- Clean navigation
-- Predictable fallback behavior
-- Structured logs for admins
-- No chaotic feature additions
-- No unreviewed destructive changes
-
----
-
-## 9. Final Rule
-
-If the change is not understood, scoped, reversible, and testable, do not execute it.
+If the change is not understood, scoped, reversible, testable, and protected, do not execute it.
 
 Final standard:
 
 Surgical execution only.  
-Root-cause solutions only.  
+Security by default.  
+Privacy by default.  
+Self-protecting code.  
+Zero-trust platform design.  
 User-safe fallbacks always.  
 No random hammering.
