@@ -2,6 +2,11 @@
   "schema_version": 2,
   "project": "VVIP TIGER",
   "updated_on": "2026-07-10",
+  "roadmap_version": "1.0",
+  "current_phase": "P00.1",
+  "last_completed_phase": "P00",
+  "next_authorized_phase": "P01",
+  "execution_lock": "P00.1",
   "visibility": "repository-internal-owner-reference",
   "runtime_owner_page_enabled": false,
   "rules": {
@@ -26,148 +31,225 @@
   },
   "phases": [
     {
-      "id": "memory-map",
+      "id": "P00",
       "priority": 0,
-      "title": "Memory Map",
-      "status": "implemented_verified"
+      "title": "Discovery Experience Shell",
+      "status": "completed"
     },
     {
-      "id": "implementation-checklist",
+      "id": "P00.1",
       "priority": 0,
-      "title": "Implementation Checklist",
-      "status": "implemented_verified"
+      "title": "VVIP TIGER Master Execution Roadmap",
+      "status": "ready_for_merge"
     },
     {
-      "id": "clerk-auth",
-      "priority": 0,
-      "title": "Clerk authentication",
-      "status": "implemented_verified"
-    },
-    {
-      "id": "profile-bridge",
-      "priority": 0,
-      "title": "Clerk Supabase profile bridge",
-      "status": "security_verified"
-    },
-    {
-      "id": "atomic-profile-resolver",
-      "priority": 0,
-      "title": "Atomic profile resolver",
-      "status": "security_verified"
-    },
-    {
-      "id": "owner-master-reference",
-      "priority": 0,
-      "title": "Owner master reference",
-      "status": "ready_for_verification"
-    },
-    {
-      "id": "values-names-charter",
-      "priority": 0,
-      "title": "Values and Names of Allah charter",
-      "status": "ready_for_verification"
-    },
-    {
-      "id": "owner-control-center",
-      "priority": 0,
-      "title": "Authenticated owner control center",
-      "status": "not_started"
-    },
-    {
-      "id": "visual-identity",
+      "id": "P01",
       "priority": 1,
-      "title": "Unified visual identity",
-      "status": "not_started"
+      "title": "Comprehensive Repository Audit and Implementation Gap Matrix",
+      "status": "next_authorized"
     },
     {
-      "id": "app-shell-feed",
+      "id": "P02",
       "priority": 2,
-      "title": "Mobile app shell and feed",
-      "status": "in_progress"
-    },
-    {
-      "id": "structured-search",
-      "priority": 3,
-      "title": "OpenSooq-style structured search",
+      "title": "App Shell and Navigation Architecture",
       "status": "not_started"
     },
     {
-      "id": "listing-engine",
+      "id": "P03",
+      "priority": 3,
+      "title": "Clerk ↔ Supabase Profile Identity Bridge",
+      "status": "not_started"
+    },
+    {
+      "id": "P04",
       "priority": 4,
-      "title": "Listing engine and seven-image pipeline",
+      "title": "Onboarding and Account Types",
       "status": "not_started"
     },
     {
-      "id": "permissions-limits",
+      "id": "P05",
       "priority": 5,
-      "title": "Account permissions and posting limits",
+      "title": "Public/Private Profiles and Account Management",
       "status": "not_started"
     },
     {
-      "id": "private-communication",
+      "id": "P06",
       "priority": 6,
-      "title": "One-to-one communication and privacy",
+      "title": "Owner Control Center",
       "status": "not_started"
     },
     {
-      "id": "tiger-care-admin",
+      "id": "P07",
       "priority": 7,
-      "title": "Tiger Care and administration",
+      "title": "Full Data Schema Design — Review Only",
       "status": "not_started"
     },
     {
-      "id": "engagement-trust",
+      "id": "P08",
       "priority": 8,
-      "title": "Notifications favorites history and trust",
+      "title": "Secure Migrations, RLS and Storage Policies",
       "status": "not_started"
     },
     {
-      "id": "pwa-launch",
+      "id": "P09",
       "priority": 9,
-      "title": "PWA performance and controlled launch",
+      "title": "Listings Engine",
       "status": "not_started"
     },
     {
-      "id": "advanced-systems",
+      "id": "P10",
       "priority": 10,
-      "title": "Advanced AI payments native app and AWS",
+      "title": "Three-Sector Structured Fields",
       "status": "not_started"
     },
     {
-      "id": "discovery-experience-shell",
-      "priority": 1,
-      "title": "Facebook-familiar discovery experience shell",
-      "status": "ready_for_verification"
+      "id": "P11",
+      "priority": 11,
+      "title": "Image Media Pipeline",
+      "status": "not_started"
     },
     {
-      "id": "structured-search",
-      "priority": 3,
-      "title": "OpenSooq-style structured quick and advanced search",
-      "status": "ready_for_verification"
+      "id": "P12",
+      "priority": 12,
+      "title": "Supabase Discovery Backend Adapter",
+      "status": "not_started"
     },
     {
-      "id": "automotive-filters",
-      "priority": 3,
-      "title": "Automotive structured filters",
-      "status": "ready_for_verification"
+      "id": "P13",
+      "priority": 13,
+      "title": "Feed, Listing Cards and Details",
+      "status": "not_started"
     },
     {
-      "id": "real-estate-filters",
-      "priority": 3,
-      "title": "Real estate structured filters",
-      "status": "ready_for_verification"
+      "id": "P14",
+      "priority": 14,
+      "title": "Private One-to-One Communication",
+      "status": "not_started"
     },
     {
-      "id": "materials-filters",
-      "priority": 3,
-      "title": "Materials supplies and provisioning filters",
-      "status": "ready_for_verification"
+      "id": "P15",
+      "priority": 15,
+      "title": "Private Sharing and Invitations",
+      "status": "not_started"
     },
     {
-      "id": "backend-search-adapter",
-      "priority": 3,
-      "title": "Trusted backend search adapter",
+      "id": "P16",
+      "priority": 16,
+      "title": "Sector Publishing Permissions",
+      "status": "not_started"
+    },
+    {
+      "id": "P17",
+      "priority": 17,
+      "title": "Trial, Subscriptions and Entitlements",
+      "status": "not_started"
+    },
+    {
+      "id": "P18",
+      "priority": 18,
+      "title": "Payment Gateway",
+      "status": "not_started"
+    },
+    {
+      "id": "P19",
+      "priority": 19,
+      "title": "Notifications Center",
+      "status": "not_started"
+    },
+    {
+      "id": "P20",
+      "priority": 20,
+      "title": "Tiger Care",
+      "status": "not_started"
+    },
+    {
+      "id": "P21",
+      "priority": 21,
+      "title": "Moderation and Trust & Safety",
+      "status": "not_started"
+    },
+    {
+      "id": "P22",
+      "priority": 22,
+      "title": "Admin and Sector Dashboards",
+      "status": "not_started"
+    },
+    {
+      "id": "P23",
+      "priority": 23,
+      "title": "Inactivity, Retention and Deletion",
+      "status": "not_started"
+    },
+    {
+      "id": "P24",
+      "priority": 24,
+      "title": "Secure AI Assistance",
+      "status": "not_started"
+    },
+    {
+      "id": "P25",
+      "priority": 25,
+      "title": "Analytics and Advertising Storage",
+      "status": "not_started"
+    },
+    {
+      "id": "P26",
+      "priority": 26,
+      "title": "PWA and Mobile Readiness",
+      "status": "not_started"
+    },
+    {
+      "id": "P27",
+      "priority": 27,
+      "title": "Accessibility, RTL and Languages",
+      "status": "not_started"
+    },
+    {
+      "id": "P28",
+      "priority": 28,
+      "title": "Performance and Scalability",
+      "status": "not_started"
+    },
+    {
+      "id": "P29",
+      "priority": 29,
+      "title": "Final Clerk/Supabase Security Hardening",
+      "status": "not_started"
+    },
+    {
+      "id": "P30",
+      "priority": 30,
+      "title": "Legal and Privacy Policies",
+      "status": "not_started"
+    },
+    {
+      "id": "P31",
+      "priority": 31,
+      "title": "Staging, End-to-End and Disaster Recovery",
+      "status": "not_started"
+    },
+    {
+      "id": "P32",
+      "priority": 32,
+      "title": "Launch Readiness",
+      "status": "not_started"
+    },
+    {
+      "id": "P33",
+      "priority": 33,
+      "title": "Gradual Launch",
+      "status": "not_started"
+    },
+    {
+      "id": "P34",
+      "priority": 34,
+      "title": "Post-Launch Operations and Growth",
       "status": "not_started"
     }
-  ]
+  ],
+  "roadmap_version": "1.0",
+  "current_phase": "P00.1",
+  "last_completed_phase": "P00",
+  "next_authorized_phase": "P01",
+  "execution_lock": "P00.1"
 }

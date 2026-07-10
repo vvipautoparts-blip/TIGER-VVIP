@@ -1,0 +1,916 @@
+roadmap_version: 1.0
+project: VVIP TIGER
+title: VVIP TIGER Master Execution Roadmap
+language: Arabic First
+market: Jordan First
+source_of_truth: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml
+human_readable_version: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md
+current_phase: P00.1
+last_completed_phase: P00
+next_authorized_phase: P01
+execution_lock: P00.1
+general_rules:
+  - phase_one_at_a_time
+  - start_from_clean_synced_main
+  - each_phase_has_its_own_branch
+  - each_phase_has_change_control_manifest
+  - each_phase_has_real_tests
+  - each_phase_has_completion_evidence
+  - each_phase_has_pull_request
+  - do_not_start_next_phase_before_merge_and_main_check
+  - no_sql_or_production_changes_without_separate_approval
+  - do_not_store_secrets_in_frontend_or_git
+  - never_claim_test_success_without_running_the_test
+  - scalability_to_millions_is_a_future_goal_not_a_claim
+phases:
+  - id: P00
+    priority: 0
+    name: Discovery Experience Shell
+    status: completed
+    depends_on: []
+    scope:
+      - discovery experience shell completion
+      - post-merge verification evidence
+    out_of_scope:
+      - backend search adapter
+      - production changes
+    risk_level: low
+    sensitive_change: false
+    required_tests:
+      - documentation verification
+      - branch and merge verification
+    required_documents:
+      - docs/owner-control/VVIP_TIGER_PR22_DISCOVERY_SHELL_COMPLETION.md
+    exit_gate:
+      - PR #22 merged
+      - main verified clean and synced
+    rollback:
+      - revert the merge commit if required
+    next_phase: P00.1
+  - id: P00.1
+    priority: 0
+    name: VVIP TIGER Master Execution Roadmap
+    status: ready_for_merge
+    depends_on:
+      - P00
+    scope:
+      - official master roadmap documentation
+      - owner-control reference alignment
+      - phase tracker normalization
+      - machine-readable roadmap and status alignment
+    out_of_scope:
+      - runtime changes
+      - Clerk changes
+      - Supabase changes
+      - SQL changes
+      - migrations
+      - RLS
+      - production changes
+      - payments
+    risk_level: low
+    sensitive_change: false
+    required_tests:
+      - python3 -m json.tool docs/change-control/20260710-master-execution-roadmap.json
+      - python3 -m json.tool docs/owner-control/phase-status.json
+      - yaml parser validation for docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml
+      - git diff --check
+      - secrets scan
+      - unicode control character scan
+      - phase coverage validation for P00 through P34
+    required_documents:
+      - docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md
+      - docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml
+      - docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP_COMPLETION.md
+      - docs/change-control/20260710-master-execution-roadmap.json
+    exit_gate:
+      - YAML and JSON valid
+      - phase coverage complete from P00 to P34
+      - docs-only scope confirmed
+      - no sensitive systems modified
+    rollback:
+      - revert the documentation commit
+    next_phase: P01
+  - id: P01
+    priority: 1
+    name: Comprehensive Repository Audit and Implementation Gap Matrix
+    status: next_authorized
+    depends_on:
+      - P00.1
+    scope:
+      - full repository audit
+      - gap matrix creation
+      - identify completed partial missing and duplicate work
+    out_of_scope:
+      - runtime changes
+      - Clerk changes
+      - Supabase changes
+      - SQL changes
+      - migrations
+      - RLS
+      - production changes
+      - payments
+    risk_level: medium
+    sensitive_change: false
+    required_tests:
+      - audit coverage check
+      - documentation consistency check
+    required_documents:
+      - docs/owner-control/VVIP_TIGER_IMPLEMENTATION_GAP_MATRIX.md
+    exit_gate:
+      - audit complete
+      - gap matrix approved
+    rollback:
+      - revert audit documentation commit
+    next_phase: P02
+  - id: P02
+    priority: 2
+    name: App Shell and Navigation Architecture
+    status: pending
+    depends_on:
+      - P01
+    scope:
+      - app shell architecture
+      - navigation structure
+      - public and private route design
+    out_of_scope:
+      - Clerk changes
+      - Supabase changes
+      - SQL changes
+      - migrations
+      - RLS
+      - production changes
+      - payments
+    risk_level: medium
+    sensitive_change: false
+    required_tests:
+      - route map validation
+      - navigation behavior review
+    required_documents:
+      - docs/owner-control/P02_APP_SHELL_AND_NAVIGATION.md
+    exit_gate:
+      - app shell design approved
+    rollback:
+      - revert design documentation commit
+    next_phase: P03
+  - id: P03
+    priority: 3
+    name: Clerk ↔ Supabase Profile Identity Bridge
+    status: pending
+    depends_on:
+      - P02
+    scope:
+      - identity bridge design
+      - profile resolution alignment
+      - account state mapping
+    out_of_scope:
+      - SQL execution
+      - migrations
+      - RLS
+      - production changes
+      - payments
+    risk_level: high
+    sensitive_change: true
+    required_tests:
+      - identity bridge review
+      - security review
+    required_documents:
+      - docs/owner-control/P03_CLERK_SUPABASE_PROFILE_IDENTITY_BRIDGE.md
+    exit_gate:
+      - bridge design approved
+    rollback:
+      - revert bridge documentation commit
+    next_phase: P04
+  - id: P04
+    priority: 4
+    name: Onboarding and Account Types
+    status: pending
+    depends_on:
+      - P03
+    scope:
+      - onboarding flows
+      - account type taxonomy
+      - sector-aware account setup
+    out_of_scope:
+      - runtime changes
+      - production changes
+      - payments
+    risk_level: medium
+    sensitive_change: false
+    required_tests:
+      - onboarding flow review
+    required_documents:
+      - docs/owner-control/P04_ONBOARDING_AND_ACCOUNT_TYPES.md
+    exit_gate:
+      - onboarding model approved
+    rollback:
+      - revert onboarding documentation commit
+    next_phase: P05
+  - id: P05
+    priority: 5
+    name: Public/Private Profiles and Account Management
+    status: pending
+    depends_on:
+      - P04
+    scope:
+      - public profile design
+      - private profile design
+      - account settings
+      - deletion and deactivation flows
+    out_of_scope:
+      - runtime changes
+      - production changes
+      - payments
+    risk_level: medium
+    sensitive_change: true
+    required_tests:
+      - profile flow review
+    required_documents:
+      - docs/owner-control/P05_PUBLIC_PRIVATE_PROFILES_AND_ACCOUNT_MANAGEMENT.md
+    exit_gate:
+      - profile management approved
+    rollback:
+      - revert profile documentation commit
+    next_phase: P06
+  - id: P06
+    priority: 6
+    name: Owner Control Center
+    status: pending
+    depends_on:
+      - P05
+    scope:
+      - owner control center design
+      - read-only governance views
+    out_of_scope:
+      - runtime changes
+      - production changes
+      - payments
+    risk_level: medium
+    sensitive_change: false
+    required_tests:
+      - owner control review
+    required_documents:
+      - docs/owner-control/P06_OWNER_CONTROL_CENTER.md
+    exit_gate:
+      - owner control center approved
+    rollback:
+      - revert owner control documentation commit
+    next_phase: P07
+  - id: P07
+    priority: 7
+    name: Full Data Schema Design — Review Only
+    status: pending
+    depends_on:
+      - P06
+    scope:
+      - schema review only
+      - entity and relation design
+    out_of_scope:
+      - SQL execution
+      - migrations
+      - RLS
+      - production changes
+    risk_level: high
+    sensitive_change: true
+    required_tests:
+      - schema design review
+    required_documents:
+      - docs/owner-control/P07_FULL_DATA_SCHEMA_DESIGN.md
+    exit_gate:
+      - schema review complete
+    rollback:
+      - revert schema design documentation commit
+    next_phase: P08
+  - id: P08
+    priority: 8
+    name: Secure Migrations, RLS and Storage Policies
+    status: pending
+    depends_on:
+      - P07
+    scope:
+      - secure migrations design
+      - row level security design
+      - storage policy design
+    out_of_scope:
+      - production changes without approval
+      - payments
+    risk_level: high
+    sensitive_change: true
+    required_tests:
+      - security review
+      - migration review
+    required_documents:
+      - docs/owner-control/P08_SECURE_MIGRATIONS_RLS_AND_STORAGE_POLICIES.md
+    exit_gate:
+      - security design approved
+    rollback:
+      - revert security documentation commit
+    next_phase: P09
+  - id: P09
+    priority: 9
+    name: Listings Engine
+    status: pending
+    depends_on:
+      - P08
+    scope:
+      - listings lifecycle
+      - publishing rules
+      - listing state machine
+    out_of_scope:
+      - payments
+      - production changes
+    risk_level: high
+    sensitive_change: true
+    required_tests:
+      - listings flow review
+    required_documents:
+      - docs/owner-control/P09_LISTINGS_ENGINE.md
+    exit_gate:
+      - listings engine approved
+    rollback:
+      - revert listings documentation commit
+    next_phase: P10
+  - id: P10
+    priority: 10
+    name: Three-Sector Structured Fields
+    status: pending
+    depends_on:
+      - P09
+    scope:
+      - sector field matrix
+      - structured data fields
+    out_of_scope:
+      - production changes
+      - payments
+    risk_level: medium
+    sensitive_change: false
+    required_tests:
+      - field matrix review
+    required_documents:
+      - docs/owner-control/P10_THREE_SECTOR_STRUCTURED_FIELDS.md
+    exit_gate:
+      - field matrix approved
+    rollback:
+      - revert field documentation commit
+    next_phase: P11
+  - id: P11
+    priority: 11
+    name: Image Media Pipeline
+    status: pending
+    depends_on:
+      - P10
+    scope:
+      - image upload pipeline design
+      - media handling rules
+    out_of_scope:
+      - production changes
+      - payments
+    risk_level: medium
+    sensitive_change: false
+    required_tests:
+      - media pipeline review
+    required_documents:
+      - docs/owner-control/P11_IMAGE_MEDIA_PIPELINE.md
+    exit_gate:
+      - media pipeline approved
+    rollback:
+      - revert media documentation commit
+    next_phase: P12
+  - id: P12
+    priority: 12
+    name: Supabase Discovery Backend Adapter
+    status: pending
+    depends_on:
+      - P11
+    scope:
+      - backend adapter design
+      - discovery data integration plan
+    out_of_scope:
+      - production changes without approval
+      - payments
+    risk_level: high
+    sensitive_change: true
+    required_tests:
+      - backend adapter review
+    required_documents:
+      - docs/owner-control/P12_SUPABASE_DISCOVERY_BACKEND_ADAPTER.md
+    exit_gate:
+      - backend adapter approved
+    rollback:
+      - revert adapter documentation commit
+    next_phase: P13
+  - id: P13
+    priority: 13
+    name: Feed, Listing Cards and Details
+    status: pending
+    depends_on:
+      - P12
+    scope:
+      - feed design
+      - listing card design
+      - details page design
+    out_of_scope:
+      - payments
+      - production changes
+    risk_level: medium
+    sensitive_change: false
+    required_tests:
+      - feed review
+    required_documents:
+      - docs/owner-control/P13_FEED_LISTING_CARDS_AND_DETAILS.md
+    exit_gate:
+      - feed design approved
+    rollback:
+      - revert feed documentation commit
+    next_phase: P14
+  - id: P14
+    priority: 14
+    name: Private One-to-One Communication
+    status: pending
+    depends_on:
+      - P13
+    scope:
+      - direct communication design
+      - privacy and messaging boundaries
+    out_of_scope:
+      - group chat
+      - broadcast messaging
+      - production changes
+    risk_level: high
+    sensitive_change: true
+    required_tests:
+      - communication security review
+    required_documents:
+      - docs/owner-control/P14_PRIVATE_ONE_TO_ONE_COMMUNICATION.md
+    exit_gate:
+      - communication design approved
+    rollback:
+      - revert communication documentation commit
+    next_phase: P15
+  - id: P15
+    priority: 15
+    name: Private Sharing and Invitations
+    status: pending
+    depends_on:
+      - P14
+    scope:
+      - private share design
+      - invitation flow design
+    out_of_scope:
+      - group sharing
+      - production changes
+    risk_level: medium
+    sensitive_change: false
+    required_tests:
+      - invitation flow review
+    required_documents:
+      - docs/owner-control/P15_PRIVATE_SHARING_AND_INVITATIONS.md
+    exit_gate:
+      - sharing design approved
+    rollback:
+      - revert sharing documentation commit
+    next_phase: P16
+  - id: P16
+    priority: 16
+    name: Sector Publishing Permissions
+    status: pending
+    depends_on:
+      - P15
+    scope:
+      - sector publish permissions
+      - role and entitlement mapping
+    out_of_scope:
+      - payments
+      - production changes
+    risk_level: medium
+    sensitive_change: true
+    required_tests:
+      - permissions review
+    required_documents:
+      - docs/owner-control/P16_SECTOR_PUBLISHING_PERMISSIONS.md
+    exit_gate:
+      - permissions model approved
+    rollback:
+      - revert permissions documentation commit
+    next_phase: P17
+  - id: P17
+    priority: 17
+    name: Trial, Subscriptions and Entitlements
+    status: pending
+    depends_on:
+      - P16
+    scope:
+      - trial and subscription model
+      - entitlements and limits
+    out_of_scope:
+      - payment execution without approval
+      - production changes
+    risk_level: high
+    sensitive_change: true
+    required_tests:
+      - entitlement review
+    required_documents:
+      - docs/owner-control/P17_TRIAL_SUBSCRIPTIONS_AND_ENTITLEMENTS.md
+    exit_gate:
+      - entitlements model approved
+    rollback:
+      - revert entitlement documentation commit
+    next_phase: P18
+  - id: P18
+    priority: 18
+    name: Payment Gateway
+    status: pending
+    depends_on:
+      - P17
+    scope:
+      - payment gateway design
+      - hosted payment flow plan
+    out_of_scope:
+      - ad hoc payment changes
+      - production changes
+    risk_level: high
+    sensitive_change: true
+    required_tests:
+      - payment architecture review
+    required_documents:
+      - docs/owner-control/P18_PAYMENT_GATEWAY.md
+    exit_gate:
+      - payment design approved
+    rollback:
+      - revert payment documentation commit
+    next_phase: P19
+  - id: P19
+    priority: 19
+    name: Notifications Center
+    status: pending
+    depends_on:
+      - P18
+    scope:
+      - in-app notifications
+      - delivery state design
+    out_of_scope:
+      - production changes
+      - payments
+    risk_level: medium
+    sensitive_change: false
+    required_tests:
+      - notifications review
+    required_documents:
+      - docs/owner-control/P19_NOTIFICATIONS_CENTER.md
+    exit_gate:
+      - notifications center approved
+    rollback:
+      - revert notifications documentation commit
+    next_phase: P20
+  - id: P20
+    priority: 20
+    name: Tiger Care
+    status: pending
+    depends_on:
+      - P19
+    scope:
+      - support center design
+      - help and escalation flows
+    out_of_scope:
+      - production changes
+      - payments
+    risk_level: medium
+    sensitive_change: false
+    required_tests:
+      - support flow review
+    required_documents:
+      - docs/owner-control/P20_TIGER_CARE.md
+    exit_gate:
+      - tiger care approved
+    rollback:
+      - revert tiger care documentation commit
+    next_phase: P21
+  - id: P21
+    priority: 21
+    name: Moderation and Trust & Safety
+    status: pending
+    depends_on:
+      - P20
+    scope:
+      - moderation design
+      - trust and safety design
+    out_of_scope:
+      - production changes
+      - payments
+    risk_level: high
+    sensitive_change: true
+    required_tests:
+      - moderation review
+      - trust and safety review
+    required_documents:
+      - docs/owner-control/P21_MODERATION_AND_TRUST_SAFETY.md
+    exit_gate:
+      - moderation model approved
+    rollback:
+      - revert moderation documentation commit
+    next_phase: P22
+  - id: P22
+    priority: 22
+    name: Admin and Sector Dashboards
+    status: pending
+    depends_on:
+      - P21
+    scope:
+      - admin dashboard design
+      - sector dashboard design
+    out_of_scope:
+      - production changes
+      - payments
+    risk_level: medium
+    sensitive_change: false
+    required_tests:
+      - dashboard review
+    required_documents:
+      - docs/owner-control/P22_ADMIN_AND_SECTOR_DASHBOARDS.md
+    exit_gate:
+      - dashboards approved
+    rollback:
+      - revert dashboard documentation commit
+    next_phase: P23
+  - id: P23
+    priority: 23
+    name: Inactivity, Retention and Deletion
+    status: pending
+    depends_on:
+      - P22
+    scope:
+      - inactivity policy design
+      - retention policy design
+      - deletion policy design
+    out_of_scope:
+      - production changes
+      - payments
+    risk_level: high
+    sensitive_change: true
+    required_tests:
+      - policy review
+    required_documents:
+      - docs/owner-control/P23_INACTIVITY_RETENTION_AND_DELETION.md
+    exit_gate:
+      - retention policy approved
+    rollback:
+      - revert retention documentation commit
+    next_phase: P24
+  - id: P24
+    priority: 24
+    name: Secure AI Assistance
+    status: pending
+    depends_on:
+      - P23
+    scope:
+      - AI assistance design
+      - secure backend execution plan
+    out_of_scope:
+      - insecure client-side secrets
+      - production changes
+    risk_level: high
+    sensitive_change: true
+    required_tests:
+      - AI security review
+    required_documents:
+      - docs/owner-control/P24_SECURE_AI_ASSISTANCE.md
+    exit_gate:
+      - AI assistance approved
+    rollback:
+      - revert AI documentation commit
+    next_phase: P25
+  - id: P25
+    priority: 25
+    name: Analytics and Advertising Storage
+    status: pending
+    depends_on:
+      - P24
+    scope:
+      - analytics design
+      - advertising storage design
+    out_of_scope:
+      - production changes
+      - payments
+    risk_level: medium
+    sensitive_change: false
+    required_tests:
+      - analytics review
+    required_documents:
+      - docs/owner-control/P25_ANALYTICS_AND_ADVERTISING_STORAGE.md
+    exit_gate:
+      - analytics model approved
+    rollback:
+      - revert analytics documentation commit
+    next_phase: P26
+  - id: P26
+    priority: 26
+    name: PWA and Mobile Readiness
+    status: pending
+    depends_on:
+      - P25
+    scope:
+      - PWA readiness
+      - mobile readiness
+    out_of_scope:
+      - production changes
+      - payments
+    risk_level: medium
+    sensitive_change: false
+    required_tests:
+      - PWA review
+    required_documents:
+      - docs/owner-control/P26_PWA_AND_MOBILE_READINESS.md
+    exit_gate:
+      - mobile readiness approved
+    rollback:
+      - revert PWA documentation commit
+    next_phase: P27
+  - id: P27
+    priority: 27
+    name: Accessibility, RTL and Languages
+    status: pending
+    depends_on:
+      - P26
+    scope:
+      - accessibility design
+      - RTL support
+      - language support
+    out_of_scope:
+      - production changes
+      - payments
+    risk_level: medium
+    sensitive_change: false
+    required_tests:
+      - accessibility review
+      - RTL review
+    required_documents:
+      - docs/owner-control/P27_ACCESSIBILITY_RTL_AND_LANGUAGES.md
+    exit_gate:
+      - accessibility model approved
+    rollback:
+      - revert accessibility documentation commit
+    next_phase: P28
+  - id: P28
+    priority: 28
+    name: Performance and Scalability
+    status: pending
+    depends_on:
+      - P27
+    scope:
+      - performance design
+      - scalability design
+    out_of_scope:
+      - unsupported scale claims
+      - production changes
+    risk_level: medium
+    sensitive_change: false
+    required_tests:
+      - load and performance planning review
+    required_documents:
+      - docs/owner-control/P28_PERFORMANCE_AND_SCALABILITY.md
+    exit_gate:
+      - scalability plan approved
+    rollback:
+      - revert scalability documentation commit
+    next_phase: P29
+  - id: P29
+    priority: 29
+    name: Final Clerk/Supabase Security Hardening
+    status: pending
+    depends_on:
+      - P28
+    scope:
+      - final security hardening design
+      - Clerk and Supabase review
+    out_of_scope:
+      - insecure credential handling
+      - production changes without approval
+    risk_level: high
+    sensitive_change: true
+    required_tests:
+      - final security review
+    required_documents:
+      - docs/owner-control/P29_FINAL_CLERK_SUPABASE_SECURITY_HARDENING.md
+    exit_gate:
+      - final hardening approved
+    rollback:
+      - revert hardening documentation commit
+    next_phase: P30
+  - id: P30
+    priority: 30
+    name: Legal and Privacy Policies
+    status: pending
+    depends_on:
+      - P29
+    scope:
+      - legal policy design
+      - privacy policy design
+    out_of_scope:
+      - production changes
+      - payments
+    risk_level: medium
+    sensitive_change: false
+    required_tests:
+      - policy review
+    required_documents:
+      - docs/owner-control/P30_LEGAL_AND_PRIVACY_POLICIES.md
+    exit_gate:
+      - legal policy approved
+    rollback:
+      - revert legal documentation commit
+    next_phase: P31
+  - id: P31
+    priority: 31
+    name: Staging, End-to-End and Disaster Recovery
+    status: pending
+    depends_on:
+      - P30
+    scope:
+      - staging validation
+      - end-to-end validation
+      - disaster recovery design
+    out_of_scope:
+      - production changes
+      - payments
+    risk_level: high
+    sensitive_change: true
+    required_tests:
+      - staging review
+      - end-to-end review
+      - disaster recovery review
+    required_documents:
+      - docs/owner-control/P31_STAGING_END_TO_END_AND_DISASTER_RECOVERY.md
+    exit_gate:
+      - recovery plan approved
+    rollback:
+      - revert recovery documentation commit
+    next_phase: P32
+  - id: P32
+    priority: 32
+    name: Launch Readiness
+    status: pending
+    depends_on:
+      - P31
+    scope:
+      - launch readiness plan
+      - go no-go review
+    out_of_scope:
+      - production changes
+      - payments
+    risk_level: high
+    sensitive_change: false
+    required_tests:
+      - launch readiness review
+    required_documents:
+      - docs/owner-control/P32_LAUNCH_READINESS.md
+    exit_gate:
+      - launch readiness approved
+    rollback:
+      - revert launch documentation commit
+    next_phase: P33
+  - id: P33
+    priority: 33
+    name: Gradual Launch
+    status: pending
+    depends_on:
+      - P32
+    scope:
+      - gradual launch plan
+      - pilot rollout design
+    out_of_scope:
+      - production changes without approval
+      - payments
+    risk_level: high
+    sensitive_change: false
+    required_tests:
+      - rollout review
+    required_documents:
+      - docs/owner-control/P33_GRADUAL_LAUNCH.md
+    exit_gate:
+      - rollout plan approved
+    rollback:
+      - revert rollout documentation commit
+    next_phase: P34
+  - id: P34
+    priority: 34
+    name: Post-Launch Operations and Growth
+    status: pending
+    depends_on:
+      - P33
+    scope:
+      - post-launch operations
+      - growth planning
+    out_of_scope:
+      - unsupported future claims
+      - production changes without approval
+    risk_level: medium
+    sensitive_change: false
+    required_tests:
+      - operations review
+      - growth planning review
+    required_documents:
+      - docs/owner-control/P34_POST_LAUNCH_OPERATIONS_AND_GROWTH.md
+    exit_gate:
+      - post-launch operations approved
+    rollback:
+      - revert operations documentation commit
+    next_phase: null

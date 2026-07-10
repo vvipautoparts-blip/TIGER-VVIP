@@ -21,6 +21,12 @@
 5. `phase-status.json`  
    نسخة منظمة قابلة للقراءة آليًا لاستخدامها مستقبلًا في مركز المالك.
 
+6. `VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml`
+   المرجع الرسمي المنظم لترتيب التنفيذ والاعتماد والأولويات.
+
+7. `VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md`
+   النسخة المقروءة للمالك من خارطة التنفيذ الرسمية.
+
 ## قاعدة إلزامية
 
 لا يبدأ أي كود أو فرع أو Pull Request أو SQL أو تعديل Runtime قبل عرض واعتماد:
@@ -56,4 +62,8 @@
 
 [`VVIP_TIGER_PR22_DISCOVERY_SHELL_COMPLETION.md`](./VVIP_TIGER_PR22_DISCOVERY_SHELL_COMPLETION.md)
 
-وهو المرجع المعتمد لما نأخذه من سهولة فيسبوك ومن بحث السوق المفتوح، وللفلاتر العامة وفلاتر السيارات والعقارات والمواد والتموين والمستلزمات.
+[`VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml`](./VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml)
+
+[`VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md`](./VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md)
+
+الملف YAML هو المرجع الرسمي المنظم لترتيب التنفيذ والاعتماد والأولويات، بينما Markdown هو النسخة المقروءة للمالك.

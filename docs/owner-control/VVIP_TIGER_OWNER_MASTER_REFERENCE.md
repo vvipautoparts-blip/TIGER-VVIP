@@ -21,6 +21,17 @@
 
 ---
 
+## Official Master Execution Roadmap
+
+- ملف [VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml](./VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml) هو المرجع الرسمي المنظم لترتيب المراحل والاعتماد والأولويات.
+- ملف [VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md](./VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md) هو النسخة المقروءة للمالك.
+- يتابع [VVIP_TIGER_PHASE_TRACKER.md](./VVIP_TIGER_PHASE_TRACKER.md) التنفيذ اليومي وحالة الفروع والدمج.
+- تمثل [phase-status.json](./phase-status.json) الحالة الآلية الحالية القابلة للقراءة البرمجية.
+- تثبت وثائق الإكمال إغلاق كل مرحلة بعد الدمج والتحقق.
+- لا يجوز تغيير ترتيب المراحل دون سبب موثق واعتماد المالك.
+
+---
+
 # 2. رؤية المنصة
 
 VVIP TIGER منصة عربية أولًا، أردنية أولًا، Mobile First، تجمع:
