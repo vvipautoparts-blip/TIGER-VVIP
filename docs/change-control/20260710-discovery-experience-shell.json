@@ -1,0 +1,115 @@
+{
+  "id": "20260710-vvip-discovery-experience-shell",
+  "title": "VVIP Discovery Experience Shell",
+  "goal": "تنفيذ تجربة اكتشاف مألوفة مستلهمة من سهولة فيسبوك وبحث منظم مستلهم من السوق المفتوح للقطاعات الثلاثة.",
+  "reason": "تقديم تقدم مرئي حقيقي للمستخدم، وتوحيد البحث والفلاتر والسرعة وحالات التجربة ضمن وحدة قابلة للربط لاحقًا مع Supabase.",
+  "status": "approved_for_implementation",
+  "risk_level": "medium",
+  "owner_approval": true,
+  "scope": {
+    "in": [
+      "index.html",
+      "styles/vvip-discovery-shell.css",
+      "scripts/vvip-discovery-config.js",
+      "scripts/vvip-discovery-shell.js",
+      "docs/owner-control/**",
+      "docs/change-control/20260710-discovery-experience-shell.json"
+    ],
+    "out": [
+      "Clerk",
+      "Supabase",
+      "SQL",
+      "Migrations",
+      "RLS",
+      "Storage policies",
+      "Production database",
+      "Payments",
+      "Admin permissions"
+    ]
+  },
+  "expected_result": [
+    "بحث سريع ظاهر.",
+    "بحث متقدم قابل للفتح والإغلاق.",
+    "فلاتر عامة للمنطقة والسعر والحالة ونوع الحساب.",
+    "فلاتر سيارات.",
+    "فلاتر عقارات.",
+    "فلاتر مواد وتموين ومستلزمات.",
+    "ترتيب وتقسيم النتائج إلى صفحات.",
+    "حالات تحميل وفراغ وخطأ وإعادة محاولة.",
+    "تنقل سفلي آمن للهاتف إذا لم يوجد تنقل حالي.",
+    "تحديث مرجع المالك والمتتبع وملف الحالة."
+  ],
+  "security": [
+    "لا أسرار أو Tokens.",
+    "لا HTML ديناميكي من بيانات المستخدم دون تعقيم.",
+    "استخدام textContent عند إنشاء البطاقات.",
+    "لا تعديل على الهوية أو الصلاحيات.",
+    "لا نجاح وهمي لعمليات حساسة."
+  ],
+  "performance": [
+    "Debounce للبحث.",
+    "Pagination.",
+    "Session cache للفلاتر غير الحساسة.",
+    "عدم تحميل جميع النتائج المرئية دفعة واحدة.",
+    "تقليل إعادة بناء DOM.",
+    "دعم prefers-reduced-motion."
+  ],
+  "fallbacks": [
+    "إذا لم توجد بطاقات يظهر Empty State واضح.",
+    "إذا فشل المحرك يظهر Error State مع Retry.",
+    "إذا لم توجد صفحة تنقل يكون الزر Disabled بدل رابط ميت.",
+    "إذا لم يتوفر Backend يعمل المحرك على بطاقات DOM الحالية."
+  ],
+  "permissions": [
+    "هذه المرحلة عامة للبحث ولا تمنح أي صلاحيات جديدة.",
+    "صلاحيات النشر والإدارة تبقى خارج النطاق."
+  ],
+  "risks": [
+    "بعض البطاقات القديمة قد لا تملك جميع data attributes.",
+    "الفلاتر المتخصصة تحتاج بيانات منظمة من محرك الإعلانات مستقبلًا.",
+    "البحث الحالي Client-side حتى ربط Adapter خلفي موثوق."
+  ],
+  "rollback": [
+    "Revert للـCommit.",
+    "إزالة روابط CSS وJavaScript المعلّمة من index.html.",
+    "حذف الملفات الجديدة فقط."
+  ],
+  "tests": [
+    "JavaScript syntax.",
+    "JSON validation.",
+    "HTML asset references.",
+    "Required filters presence.",
+    "Secret scan.",
+    "Scope validation.",
+    "git diff check."
+  ],
+  "stop_conditions": [
+    "main غير نظيف.",
+    "main غير متزامن.",
+    "وجود ملفات المرحلة مسبقًا.",
+    "فشل Syntax أو JSON.",
+    "ظهور تغيير خارج النطاق.",
+    "اكتشاف سر."
+  ],
+  "completion_evidence": [
+    "Commit SHA.",
+    "Pull Request URL.",
+    "Successful checks.",
+    "Post-merge verification."
+  ],
+  "user_experience_states": [
+    "loading",
+    "empty",
+    "error",
+    "retry",
+    "results",
+    "disabled"
+  ],
+  "sensitive_change": false,
+  "sensitive_review": [
+    "لا تغييرات هوية أو قواعد بيانات أو إنتاج."
+  ],
+  "database_change_approved": false,
+  "production_change": false,
+  "production_change_approved": false
+}
