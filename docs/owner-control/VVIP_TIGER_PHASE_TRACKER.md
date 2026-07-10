@@ -50,6 +50,25 @@
 | 10 | AI المتقدم | ⬜ | بعد ثبات المنتج |
 | 10 | الدفع والتطبيق الأصلي وAWS | ⬜ | مراحل مستقبلية |
 
+<!-- VVIP_DISCOVERY_PHASE_TRACKER -->
+
+## تجربة الاكتشاف والبحث
+
+| الأولوية | المرحلة | الحالة | الملاحظة |
+|---:|---|:---:|---|
+| 1 | Facebook Familiar Discovery Shell | 🔵 | منفذ على الفرع وينتظر الدمج والتحقق |
+| 3 | OpenSooq-style Quick Search | 🔵 | منفذ على الفرع وينتظر الدمج والتحقق |
+| 3 | Advanced Common Filters | 🔵 | المدينة والمنطقة والسعر والحالة والمعلن |
+| 3 | Automotive Filters | 🔵 | القطعة والماركة والموديل والسنة والطاقة |
+| 3 | Real Estate Filters | 🔵 | البيع والإيجار والنوع والمساحة والغرف |
+| 3 | Materials & Supplies Filters | 🔵 | المادة والمورد والجملة والوحدة والحد الأدنى والتسليم |
+| 3 | Backend Search Adapter | ⬜ | يحتاج مخطط بيانات وصلاحيات Supabase مستقلة |
+
+ملاحظة إكمال:
+
+- PR #22 hardening اكتمل على الفرع `feat/vvip-discovery-experience-shell`.
+- الإصلاحات غطت hidden/display state وmobile nav وsr-only وclearExternalItems().
+
 ## دليل الإكمال المطلوب
 
 عند إكمال أي مرحلة يسجل:

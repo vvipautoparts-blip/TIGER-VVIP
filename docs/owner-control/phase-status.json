@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "project": "VVIP TIGER",
   "updated_on": "2026-07-10",
   "visibility": "repository-internal-owner-reference",
@@ -131,6 +131,42 @@
       "id": "advanced-systems",
       "priority": 10,
       "title": "Advanced AI payments native app and AWS",
+      "status": "not_started"
+    },
+    {
+      "id": "discovery-experience-shell",
+      "priority": 1,
+      "title": "Facebook-familiar discovery experience shell",
+      "status": "ready_for_verification"
+    },
+    {
+      "id": "structured-search",
+      "priority": 3,
+      "title": "OpenSooq-style structured quick and advanced search",
+      "status": "ready_for_verification"
+    },
+    {
+      "id": "automotive-filters",
+      "priority": 3,
+      "title": "Automotive structured filters",
+      "status": "ready_for_verification"
+    },
+    {
+      "id": "real-estate-filters",
+      "priority": 3,
+      "title": "Real estate structured filters",
+      "status": "ready_for_verification"
+    },
+    {
+      "id": "materials-filters",
+      "priority": 3,
+      "title": "Materials supplies and provisioning filters",
+      "status": "ready_for_verification"
+    },
+    {
+      "id": "backend-search-adapter",
+      "priority": 3,
+      "title": "Trusted backend search adapter",
       "status": "not_started"
     }
   ]

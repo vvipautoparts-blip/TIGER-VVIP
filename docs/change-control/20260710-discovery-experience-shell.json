@@ -1,0 +1,143 @@
+{
+  "id": "20260710-vvip-discovery-experience-shell",
+  "title": "VVIP Discovery Experience Shell",
+  "goal": "تنفيذ تجربة اكتشاف مألوفة مستلهمة من سهولة فيسبوك وبحث منظم مستلهم من السوق المفتوح للقطاعات الثلاثة.",
+  "reason": "تقديم تقدم مرئي حقيقي للمستخدم، وتوحيد البحث والفلاتر والسرعة وحالات التجربة ضمن وحدة قابلة للربط لاحقًا مع Supabase.",
+  "status": "ready_for_merge",
+  "risk_level": "medium",
+  "owner_approval": true,
+  "scope": {
+    "in": [
+      "index.html",
+      "styles/vvip-discovery-shell.css",
+      "scripts/vvip-discovery-config.js",
+      "scripts/vvip-discovery-shell.js",
+      "docs/owner-control/**",
+      "docs/change-control/20260710-discovery-experience-shell.json"
+    ],
+    "out": [
+      "Clerk",
+      "Supabase",
+      "SQL",
+      "Migrations",
+      "RLS",
+      "Storage policies",
+      "Production database",
+      "Payments",
+      "Admin permissions"
+    ]
+  },
+  "expected_result": [
+    "بحث سريع ظاهر.",
+    "بحث متقدم قابل للفتح والإغلاق.",
+    "فلاتر عامة للمنطقة والسعر والحالة ونوع الحساب.",
+    "فلاتر سيارات.",
+    "فلاتر عقارات.",
+    "فلاتر مواد وتموين ومستلزمات.",
+    "ترتيب وتقسيم النتائج إلى صفحات.",
+    "حالات تحميل وفراغ وخطأ وإعادة محاولة.",
+    "تنقل سفلي آمن للهاتف إذا لم يوجد تنقل حالي.",
+    "تحديث مرجع المالك والمتتبع وملف الحالة."
+  ],
+  "security": [
+    "لا أسرار أو Tokens.",
+    "لا HTML ديناميكي من بيانات المستخدم دون تعقيم.",
+    "استخدام textContent عند إنشاء البطاقات.",
+    "لا تعديل على الهوية أو الصلاحيات.",
+    "لا نجاح وهمي لعمليات حساسة."
+  ],
+  "performance": [
+    "Debounce للبحث.",
+    "Pagination.",
+    "Session cache للفلاتر غير الحساسة.",
+    "عدم تحميل جميع النتائج المرئية دفعة واحدة.",
+    "تقليل إعادة بناء DOM.",
+    "دعم prefers-reduced-motion."
+  ],
+  "fallbacks": [
+    "إذا لم توجد بطاقات يظهر Empty State واضح.",
+    "إذا فشل المحرك يظهر Error State مع Retry.",
+    "إذا لم توجد صفحة تنقل يكون الزر Disabled بدل رابط ميت.",
+    "إذا لم يتوفر Backend يعمل المحرك على بطاقات DOM الحالية."
+  ],
+  "permissions": [
+    "هذه المرحلة عامة للبحث ولا تمنح أي صلاحيات جديدة.",
+    "صلاحيات النشر والإدارة تبقى خارج النطاق."
+  ],
+  "risks": [
+    "بعض البطاقات القديمة قد لا تملك جميع data attributes.",
+    "الفلاتر المتخصصة تحتاج بيانات منظمة من محرك الإعلانات مستقبلًا.",
+    "البحث الحالي Client-side حتى ربط Adapter خلفي موثوق."
+  ],
+  "rollback": [
+    "Revert للـCommit.",
+    "إزالة روابط CSS وJavaScript المعلّمة من index.html.",
+    "حذف الملفات الجديدة فقط."
+  ],
+  "tests": [
+    "JavaScript syntax.",
+    "JSON validation.",
+    "HTML asset references.",
+    "Required filters presence.",
+    "Secret scan.",
+    "Scope validation.",
+    "git diff check."
+  ],
+  "stop_conditions": [
+    "main غير نظيف.",
+    "main غير متزامن.",
+    "وجود ملفات المرحلة مسبقًا.",
+    "فشل Syntax أو JSON.",
+    "ظهور تغيير خارج النطاق.",
+    "اكتشاف سر."
+  ],
+  "completion_evidence": [
+    "Commit SHA.",
+    "Pull Request URL.",
+    "Successful checks.",
+    "Post-merge verification."
+  ],
+  "user_experience_states": [
+    "loading",
+    "empty",
+    "error",
+    "retry",
+    "results",
+    "disabled"
+  ],
+  "sensitive_change": false,
+  "sensitive_review": [
+    "لا تغييرات هوية أو قواعد بيانات أو إنتاج."
+  ],
+  "database_change_approved": false,
+  "production_change": false,
+  "production_change_approved": false,
+  "review_round": 2,
+  "review_notes_resolved": [
+    "Preserved original hidden state and original display state for DOM cards.",
+    "Separated common condition filtering from sector-specific availability filtering.",
+    "Added scoped sr-only utility inside discovery stylesheet.",
+    "Made mobile nav current-page detection work for /, /index.html, and #vvip-discovery.",
+    "Blocked duplicate mobile nav injection and gated body padding behind the nav marker.",
+    "Added clearExternalItems() to restore DOM mode safely from external mode."
+  ],
+  "verification": {
+    "static": [
+      "node --check scripts/vvip-discovery-config.js",
+      "node --check scripts/vvip-discovery-shell.js",
+      "python3 -m json.tool docs/change-control/20260710-discovery-experience-shell.json",
+      "python3 -m json.tool docs/owner-control/phase-status.json",
+      "git diff --check"
+    ],
+    "security": [
+      "Secret scan over index.html, styles, scripts, docs/owner-control, docs/change-control.",
+      "Unicode control scan for U+202A-U+202E, U+2066-U+2069, U+200E, U+200F, and stray FEFF.",
+      "No sensitive systems touched: Clerk, Supabase, SQL, migrations, RLS, Storage policies, production, payments."
+    ],
+    "browser_smoke": [
+      "Desktop harness: discovery panel rendered once, advanced drawer toggled, filtering and pagination worked, no console errors.",
+      "Mobile harness < 680px: duplicate nav blocked, body padding stayed gated, home active state detected, no console errors.",
+      "External mode harness: setItems() rendered three sample cards and clearExternalItems() returned to DOM mode."
+    ]
+  }
+}
