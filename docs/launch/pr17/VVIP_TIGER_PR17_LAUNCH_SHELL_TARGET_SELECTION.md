@@ -1,7 +1,7 @@
 # VVIP TIGER - PR #17 Launch Shell Runtime Target Selection
 
-Status: TARGET SELECTION ONLY  
-Scope: Documentation only  
+Status: TARGET SELECTION ONLY
+Scope: Documentation only
 Runtime impact: None
 
 ---
