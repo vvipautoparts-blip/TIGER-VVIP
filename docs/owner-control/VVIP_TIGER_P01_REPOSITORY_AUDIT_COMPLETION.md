@@ -71,4 +71,9 @@
 
 - لا تعديل Runtime ضمن P01.
 - لا تعديل Clerk أو Supabase أو SQL أو migrations أو RLS أو Production أو Payments.
-- P02 لا تصبح المرحلة التالية المصرح بها إلا بعد دمج P01 والتحقق بعد الدمج.
+- PR #26: MERGED.
+- Merge Commit: `8c064f060fb56b92096c16b2972ea8c64e7dbf61`.
+- P01 status: completed.
+- Post-Merge Verification: passed.
+- Current phase after closure: P02.
+- P02 status: next_authorized and not started.
