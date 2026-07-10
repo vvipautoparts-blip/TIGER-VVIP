@@ -303,3 +303,27 @@ Self-protecting code.
 Zero-trust platform design.  
 User-safe fallbacks always.  
 No random hammering.
+
+---
+## Fast Feeling & Instant UX Rule
+
+Every future VVIP TIGER code change must also pass the Fast Feeling & Instant UX Standard.
+
+This means code is not complete unless it provides:
+
+- immediate visual feedback,
+- no blank screens,
+- loading / empty / error states where needed,
+- safe command states,
+- duplicate submission protection,
+- progressive data loading,
+- image performance awareness,
+- safe caching without secrets,
+- user-safe failure behavior,
+- no speed optimization that weakens security.
+
+Reference:
+
+    docs/governance/VVIP_TIGER_FAST_FEELING_AND_INSTANT_UX_STANDARD.md
+
+This rule applies to all future code and retroactively to existing code through staged retrofit PRs.
