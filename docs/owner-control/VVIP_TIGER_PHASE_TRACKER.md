@@ -20,7 +20,7 @@
 
 | المرحلة | الحالة | الملاحظة |
 |---|---|---|
-| P00 | Completed | Discovery Experience Shell أُغلق رسميًا |
+| P00 | Completed and Post-Merge Verified | Discovery Experience Shell أُغلق رسميًا |
 | P00.1 | Completed and Post-Merge Verified | Master Execution Roadmap أُغلق رسميًا |
 | P01 | Next Authorized Phase, Not Started | لا يبدأ قبل إنشاء فرعه وChange Control Manifest الخاص به |
 | P02-P34 | Pending | جميع المراحل اللاحقة ما تزال قيد الانتظار |
@@ -29,6 +29,7 @@
 
 - P00.1 كانت In Progress أثناء إعداد المرجع، ثم أصبحت Completed and Post-Merge Verified بعد الدمج والتحقق.
 - لا يعتبر P01 قد بدأ حتى إنشاء فرعه وChange Control Manifest الخاص به.
+- P01 does not become in progress until its dedicated branch and Change Control Manifest are created.
 
 ## المراحل
 

@@ -49,6 +49,5 @@
     "open review comments remain"
   ],
   "rollback": "revert commit",
-  "expected_result": "وجود مرجع رسمي واحد لكل المراحل بصيغتي YAML وMarkdown مع حالة متسقة وقابلة للتتبع",
-  "next_authorized_phase": "P01"
+  "expected_result": "وجود مرجع رسمي واحد لكل المراحل بصيغتي YAML وMarkdown مع حالة متسقة وقابلة للتتبع"
 }

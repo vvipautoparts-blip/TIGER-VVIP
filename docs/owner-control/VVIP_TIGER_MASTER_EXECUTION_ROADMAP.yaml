@@ -30,7 +30,7 @@ phases:
     depends_on: []
     scope:
       - discovery experience shell completion
-      - post-merge verification evidence
+      - post-merge verification completed
     out_of_scope:
       - backend search adapter
       - production changes
@@ -101,6 +101,7 @@ phases:
       - gap matrix creation
       - identify completed partial missing and duplicate work
     out_of_scope:
+      - do not start execution before dedicated branch and manifest
       - runtime changes
       - Clerk changes
       - Supabase changes
