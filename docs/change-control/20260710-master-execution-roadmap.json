@@ -1,11 +1,17 @@
 {
   "id": "20260710-master-execution-roadmap",
   "title": "VVIP TIGER Master Execution Roadmap",
+  "status": "completed",
   "documentation_only": true,
   "risk_level": "low",
   "production_change": false,
   "sensitive_change": false,
   "owner_approval": true,
+  "merged": true,
+  "post_merge_verified": true,
+  "pull_request": 23,
+  "merge_commit": "15a6d79e1521925c847b4f96013eb3e2a4a9d5a6",
+  "next_authorized_phase": "P01",
   "scope_files": [
     "docs/owner-control/README.md",
     "docs/owner-control/VVIP_TIGER_OWNER_MASTER_REFERENCE.md",

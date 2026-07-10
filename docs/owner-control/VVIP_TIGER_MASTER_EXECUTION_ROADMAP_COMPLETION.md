@@ -6,8 +6,13 @@
 
 ## نقطة الأساس
 
-- PR #22 مدموج ومثبت كمرجع أساسي مكتمل.
-- `main` كان متزامنًا مع `origin/main` قبل بدء مرحلة التوثيق.
+- PR #23 = MERGED.
+- Merge Commit: `15a6d79e1521925c847b4f96013eb3e2a4a9d5a6`
+- Commit الخارطة: `70d1a46`
+- Commit تنظيف JSON: `588942a`
+- Post-Merge Verification passed.
+- P00.1 status: completed.
+- Next authorized phase: P01.
 - لا تمس هذه المرحلة أي Runtime أو Clerk أو Supabase أو SQL أو migrations أو RLS أو Production أو Payments.
 
 ## الملفات المنشأة والمعدلة
@@ -29,7 +34,7 @@
 ## ترتيب المراحل
 
 - P00: Discovery Experience Shell — Completed.
-- P00.1: Master Execution Roadmap — In Progress / Ready for Merge after validation.
+- P00.1: Master Execution Roadmap — Completed.
 - P01: Comprehensive Repository Audit and Implementation Gap Matrix.
 - P02: App Shell and Navigation Architecture.
 - P03: Clerk ↔ Supabase Profile Identity Bridge.
@@ -80,6 +85,10 @@
 - فحص الأسرار.
 - فحص Unicode control characters.
 - فحص وجود P00 إلى P34 دون نقص أو تكرار.
+- فحص أن `P00.1 status = completed`.
+- فحص أن `last_completed_phase = P00.1`.
+- فحص أن `current_phase = P01`.
+- فحص أن `execution_lock = P01`.
 - فحص أن `next_authorized_phase` هو P01.
 - فحص أن P01 لم يبدأ تنفيذًا.
 
