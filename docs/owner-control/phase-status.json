@@ -246,10 +246,5 @@
       "title": "Post-Launch Operations and Growth",
       "status": "not_started"
     }
-  ],
-  "roadmap_version": "1.0",
-  "current_phase": "P00.1",
-  "last_completed_phase": "P00",
-  "next_authorized_phase": "P01",
-  "execution_lock": "P00.1"
+  ]
 }
