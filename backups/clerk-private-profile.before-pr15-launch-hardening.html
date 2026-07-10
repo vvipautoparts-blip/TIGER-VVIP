@@ -111,73 +111,7 @@
     }
   </style>
 
-
-  <script id="VVIP_TIGER_PR15_SAFE_DIAGNOSTICS">
-    /*
-      VVIP TIGER PR #15 - Safe Launch Diagnostics
-      Purpose:
-      - prevent accidental sensitive console output during launch
-      - keep user-facing errors calm and safe
-      - preserve auth/profile behavior
-      - do not store or expose tokens, JWTs, sessions, or private payloads
-    */
-    (function () {
-      "use strict";
-
-      var DEBUG_ALLOWED = false;
-      try {
-        var params = new URLSearchParams(window.location.search || "");
-        DEBUG_ALLOWED = params.get("vvip_debug") === "1" && location.hostname === "localhost";
-      } catch (_) {
-        DEBUG_ALLOWED = false;
-      }
-
-      function safeText(value) {
-        try {
-          if (value == null) return "";
-          var text = String(value);
-          return text
-            .replace(/eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+/g, "[redacted-jwt]")
-            .replace(/sb_[a-zA-Z0-9_-]{12,}/g, "[redacted-supabase-key]")
-            .replace(/Bearer\s+[a-zA-Z0-9._-]+/gi, "Bearer [redacted]")
-            .replace(/token["']?\s*[:=]\s*["']?[^"'\s,}]+/gi, "token=[redacted]")
-            .replace(/session["']?\s*[:=]\s*["']?[^"'\s,}]+/gi, "session=[redacted]")
-            .replace(/password["']?\s*[:=]\s*["']?[^"'\s,}]+/gi, "password=[redacted]")
-            .slice(0, 300);
-        } catch (_) {
-          return "[safe-diagnostic]";
-        }
-      }
-
-      window.VVIP_TIGER_SAFE_DIAGNOSTIC = function (label, detail) {
-        if (!DEBUG_ALLOWED) return;
-        try {
-          console.info("[VVIP TIGER SAFE]", safeText(label), safeText(detail || ""));
-        } catch (_) {
-          /* no-op */
-        }
-      };
-
-      window.VVIP_TIGER_SAFE_USER_MESSAGE = function (message) {
-        var fallback = "حدث أمر غير متوقع. يرجى إعادة المحاولة بعد قليل.";
-        return safeText(message || fallback) || fallback;
-      };
-
-      window.addEventListener("error", function () {
-        if (window.VVIP_TIGER_SAFE_DIAGNOSTIC) {
-          window.VVIP_TIGER_SAFE_DIAGNOSTIC("window-error", "handled");
-        }
-      });
-
-      window.addEventListener("unhandledrejection", function () {
-        if (window.VVIP_TIGER_SAFE_DIAGNOSTIC) {
-          window.VVIP_TIGER_SAFE_DIAGNOSTIC("promise-rejection", "handled");
-        }
-      });
-    })();
-  </script>
-
-<script
+  <script
     defer
     crossorigin="anonymous"
     data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk"
