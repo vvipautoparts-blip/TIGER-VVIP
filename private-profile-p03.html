@@ -1,0 +1,813 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#ffffff">
+
+  <title>بروفايلي الخاص — VVIP TIGER</title>
+
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+
+  <link rel="stylesheet" href="styles/vvip-p03-tokens.css">
+  <link rel="stylesheet" href="styles/vvip-p03-shell.css">
+  <link rel="stylesheet" href="styles/vvip-p03-profile.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script
+    defer
+    crossorigin="anonymous"
+    data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk"
+    src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"
+    type="text/javascript"
+  ></script>
+  <script src="scripts/supabase-config.js"></script>
+  <script
+  defer
+  crossorigin="anonymous"
+  src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/ui@1/dist/ui.browser.js"
+  type="text/javascript"
+></script>
+</head>
+
+<body data-profile-mode="private">
+  <div
+    data-auth-gate
+    style="min-height:100vh;display:grid;place-items:center;padding:24px;text-align:center;color:#1c1e21;background:#f0f2f5"
+  >
+    جاري التحقق من الجلسة الآمنة...
+  </div>
+
+  <div class="vvip-profile-app" data-auth-protected hidden>
+    <header class="vvip-profile-topbar">
+      <button
+        class="vvip-profile-circle-button"
+        type="button"
+        aria-label="العودة"
+        data-profile-back
+      >
+        <svg class="vvip-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m9 18 6-6-6-6"></path>
+        </svg>
+      </button>
+
+      <div class="vvip-profile-brand">
+        <strong>VVIP TIGER</strong>
+        <span>VIP</span>
+      </div>
+
+      <button
+        class="vvip-profile-circle-button"
+        type="button"
+        aria-label="المزيد"
+        data-open-profile-more
+      >
+        •••
+      </button>
+    </header>
+
+    <main class="vvip-profile-main">
+
+
+      <section class="vvip-profile-hero">
+        <div class="vvip-profile-cover">
+          <img
+            alt="صورة الغلاف"
+            data-profile-cover-image
+            hidden
+          >
+
+          <div
+            class="vvip-profile-cover-fallback"
+            data-profile-cover-fallback
+            aria-hidden="true"
+          >
+            <span></span>
+          </div>
+
+
+          <button
+            class="vvip-cover-camera"
+            type="button"
+            aria-label="تغيير صورة الغلاف"
+            data-select-cover
+          >
+            <svg class="vvip-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 7h4l2-2h4l2 2h4v12H4Z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+          </button>
+
+          <div class="vvip-profile-avatar-wrap">
+            <div class="vvip-profile-avatar">
+              <img
+                alt="الصورة الشخصية"
+                data-profile-avatar-image
+                hidden
+              >
+
+              <span
+                data-profile-avatar-fallback
+                data-profile-initials
+                aria-hidden="true"
+              >
+                V
+              </span>
+            </div>
+
+            <button
+              class="vvip-avatar-camera"
+              type="button"
+              aria-label="تغيير الصورة الشخصية"
+              data-select-avatar
+            >
+              <svg class="vvip-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 7h4l2-2h4l2 2h4v12H4Z"></path>
+                <circle cx="12" cy="13" r="4"></circle>
+              </svg>
+            </button>
+          </div>
+
+        </div>
+
+        <div class="vvip-profile-identity">
+          <div class="vvip-profile-name-line">
+            <h1 data-profile-name>مستخدم</h1>
+
+            <span
+              class="vvip-profile-verified"
+              data-profile-verified
+              hidden
+            >
+              ✓
+            </span>
+          </div>
+
+          <p data-profile-bio></p>
+
+          <ul class="vvip-profile-details">
+            <li data-profile-work></li>
+            <li data-profile-education></li>
+            <li data-profile-location>الأردن</li>
+          </ul>
+
+
+        <div class="vvip-profile-actions private">
+          <button
+            class="vvip-profile-primary-action"
+            type="button"
+            data-open-profile-editor
+          >
+            <svg class="vvip-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 20h9"></path>
+              <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"></path>
+            </svg>
+            <span>تعديل الملف</span>
+          </button>
+
+        </div>
+
+        <p class="vvip-private-privacy-note">
+          أسماء المعجبين والتفاعلات الخاصة لا تظهر للعامة.
+        </p>
+
+        </div>
+      </section>
+
+      <nav class="vvip-profile-tabs" aria-label="أقسام الملف">
+        <button
+          type="button"
+          aria-selected="true"
+          data-profile-tab="posts"
+        >
+          المنشورات
+        </button>
+
+        <button
+          type="button"
+          aria-selected="false"
+          data-profile-tab="about"
+        >
+          حول
+        </button>
+
+        <button
+          type="button"
+          aria-selected="false"
+          data-profile-tab="photos"
+        >
+          الصور
+        </button>
+      </nav>
+
+
+<section data-profile-panel="posts">
+  <article class="vvip-profile-content-card">
+    <div class="vvip-profile-section-heading">
+      <h2>الإعلانات والمنشورات</h2>
+      <span>المشاركة الخاصة فقط</span>
+    </div>
+
+    <div class="vvip-profile-posts">
+      <article class="vvip-profile-post-card">
+        <header class="vvip-post-owner">
+          <span class="vvip-post-owner-avatar" data-profile-initials>V</span>
+          <div>
+            <strong data-profile-name>مستخدم</strong>
+            <small>إعلان عام داخل المنصة</small>
+          </div>
+        </header>
+
+        <button
+          class="vvip-profile-listing-image auto"
+          type="button"
+          data-open-listing-details="brakes"
+          aria-label="فتح تفاصيل الإعلان"
+        >
+          <span>السيارات والخدمات</span>
+        </button>
+
+        <div class="vvip-profile-listing-copy">
+          <h3>قطع فرامل أصلية بحالة ممتازة</h3>
+          <strong>45 د.أ</strong>
+          <small>عمّان — قطع غيار</small>
+        </div>
+
+        <div class="vvip-private-interactions">
+          <button
+            type="button"
+            aria-pressed="false"
+            data-private-like="brakes"
+          >
+            <svg class="vvip-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M7 10v10H4V10Z"></path>
+              <path d="M7 18c4 2 9 2 11 1l2-7c.4-1.4-.7-2.8-2.1-2.8H14l1-4c.3-1.4-1.4-2.2-2.2-1L7 10Z"></path>
+            </svg>
+            <span>أعجبني</span>
+          </button>
+
+          <button type="button" data-share-listing="brakes">
+            <svg class="vvip-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="18" cy="5" r="3"></circle>
+              <circle cx="6" cy="12" r="3"></circle>
+              <circle cx="18" cy="19" r="3"></circle>
+              <path d="m8.6 10.6 6.8-4.2"></path>
+              <path d="m8.6 13.4 6.8 4.2"></path>
+            </svg>
+            <span>مشاركة مع صديق</span>
+          </button>
+        </div>
+      </article>
+
+      <article class="vvip-profile-post-card">
+        <header class="vvip-post-owner">
+          <span class="vvip-post-owner-avatar" data-profile-initials>V</span>
+          <div>
+            <strong data-profile-name>مستخدم</strong>
+            <small>إعلان عام داخل المنصة</small>
+          </div>
+        </header>
+
+        <button
+          class="vvip-profile-listing-image materials"
+          type="button"
+          data-open-listing-details="materials"
+          aria-label="فتح تفاصيل الإعلان"
+        >
+          <span>المواد والمستلزمات</span>
+        </button>
+
+        <div class="vvip-profile-listing-copy">
+          <h3>مواد تشطيب داخلية للمشاريع</h3>
+          <strong>120 د.أ</strong>
+          <small>الزرقاء — مواد بناء</small>
+        </div>
+
+        <div class="vvip-private-interactions">
+          <button
+            type="button"
+            aria-pressed="false"
+            data-private-like="materials"
+          >
+            <svg class="vvip-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M7 10v10H4V10Z"></path>
+              <path d="M7 18c4 2 9 2 11 1l2-7c.4-1.4-.7-2.8-2.1-2.8H14l1-4c.3-1.4-1.4-2.2-2.2-1L7 10Z"></path>
+            </svg>
+            <span>أعجبني</span>
+          </button>
+
+          <button type="button" data-share-listing="materials">
+            <svg class="vvip-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="18" cy="5" r="3"></circle>
+              <circle cx="6" cy="12" r="3"></circle>
+              <circle cx="18" cy="19" r="3"></circle>
+              <path d="m8.6 10.6 6.8-4.2"></path>
+              <path d="m8.6 13.4 6.8 4.2"></path>
+            </svg>
+            <span>مشاركة مع صديق</span>
+          </button>
+        </div>
+      </article>
+
+      <article class="vvip-profile-post-card">
+        <header class="vvip-post-owner">
+          <span class="vvip-post-owner-avatar" data-profile-initials>V</span>
+          <div>
+            <strong data-profile-name>مستخدم</strong>
+            <small>إعلان عام داخل المنصة</small>
+          </div>
+        </header>
+
+        <button
+          class="vvip-profile-listing-image estate"
+          type="button"
+          data-open-listing-details="apartment"
+          aria-label="فتح تفاصيل الإعلان"
+        >
+          <span>العقارات</span>
+        </button>
+
+        <div class="vvip-profile-listing-copy">
+          <h3>شقة واسعة ضمن منطقة هادئة</h3>
+          <strong>68,000 د.أ</strong>
+          <small>الفحيص — شقق</small>
+        </div>
+
+        <div class="vvip-private-interactions">
+          <button
+            type="button"
+            aria-pressed="false"
+            data-private-like="apartment"
+          >
+            <svg class="vvip-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M7 10v10H4V10Z"></path>
+              <path d="M7 18c4 2 9 2 11 1l2-7c.4-1.4-.7-2.8-2.1-2.8H14l1-4c.3-1.4-1.4-2.2-2.2-1L7 10Z"></path>
+            </svg>
+            <span>أعجبني</span>
+          </button>
+
+          <button type="button" data-share-listing="apartment">
+            <svg class="vvip-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="18" cy="5" r="3"></circle>
+              <circle cx="6" cy="12" r="3"></circle>
+              <circle cx="18" cy="19" r="3"></circle>
+              <path d="m8.6 10.6 6.8-4.2"></path>
+              <path d="m8.6 13.4 6.8 4.2"></path>
+            </svg>
+            <span>مشاركة مع صديق</span>
+          </button>
+        </div>
+      </article>
+    </div>
+  </article>
+</section>
+
+<section
+  class="vvip-profile-content-card"
+  data-profile-panel="about"
+  hidden
+>
+  <div class="vvip-profile-section-heading">
+    <h2>حول</h2>
+  </div>
+
+  <dl class="vvip-profile-about">
+    <div>
+      <dt>السيرة الذاتية</dt>
+      <dd data-profile-bio></dd>
+    </div>
+
+    <div>
+      <dt>العمل</dt>
+      <dd data-profile-work></dd>
+    </div>
+
+    <div>
+      <dt>التعليم</dt>
+      <dd data-profile-education></dd>
+    </div>
+
+    <div>
+      <dt>الموقع</dt>
+      <dd data-profile-location></dd>
+    </div>
+
+    <div>
+      <dt>الرابط</dt>
+      <dd data-profile-link></dd>
+    </div>
+  </dl>
+</section>
+
+<section
+  class="vvip-profile-content-card"
+  data-profile-panel="photos"
+  hidden
+>
+  <div class="vvip-profile-section-heading">
+    <h2>الصور العامة</h2>
+    <span>وفق شروط المنصة</span>
+  </div>
+
+  <div class="vvip-profile-photo-grid">
+    <button
+      class="auto"
+      type="button"
+      data-open-listing-details="brakes"
+      aria-label="تفاصيل صورة السيارات والخدمات"
+    ></button>
+
+    <button
+      class="materials"
+      type="button"
+      data-open-listing-details="materials"
+      aria-label="تفاصيل صورة المواد والمستلزمات"
+    ></button>
+
+    <button
+      class="estate"
+      type="button"
+      data-open-listing-details="apartment"
+      aria-label="تفاصيل صورة العقارات"
+    ></button>
+  </div>
+</section>
+
+
+
+      <section class="vvip-profile-account-security">
+        <div>
+          <h2>الحساب والأمان</h2>
+
+          <p>
+            أنهِ جلسة هذا الجهاز للعودة إلى صفحة الدخول
+            واستخدام حساب آخر.
+          </p>
+        </div>
+
+        <button
+          class="vvip-profile-complete-signout"
+          type="button"
+          data-open-signout
+        >
+          تسجيل الخروج
+        </button>
+      </section>
+
+      <div class="vvip-profile-content-end" aria-hidden="true"></div>
+    </main>
+  </div>
+
+
+<nav class="vvip-bottom-nav" aria-label="التنقل الرئيسي">
+  <button class="vvip-nav-button" type="button" data-route="home">
+    <svg class="vvip-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M3 11.5 12 4l9 7.5"></path>
+      <path d="M5.5 10.5V20h13v-9.5"></path>
+    </svg>
+    <span class="vvip-nav-label">الرئيسية</span>
+  </button>
+
+  <button class="vvip-nav-button" type="button" data-route="market">
+    <svg class="vvip-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 9h16l-1-4H5L4 9Z"></path>
+      <path d="M5 9v10h14V9"></path>
+      <path d="M9 19v-6h6v6"></path>
+    </svg>
+    <span class="vvip-nav-label">السوق</span>
+  </button>
+
+  <button
+    class="vvip-nav-button vvip-nav-create"
+    type="button"
+    data-route="create"
+  >
+    <span class="vvip-nav-icon-shell">
+      <svg class="vvip-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 5v14"></path>
+        <path d="M5 12h14"></path>
+      </svg>
+    </span>
+    <span class="vvip-nav-label">إعلان</span>
+  </button>
+
+  <button
+    class="vvip-nav-button"
+    type="button"
+    data-route="notifications"
+  >
+    <svg class="vvip-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 7h18s-3 0-3-7"></path>
+      <path d="M10 19h4"></path>
+    </svg>
+    <span class="vvip-nav-label">الإشعارات</span>
+  </button>
+
+  <button
+    class="vvip-nav-button"
+    type="button"
+    aria-current="page"
+    data-route="profile"
+  >
+    <svg class="vvip-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="8" r="4"></circle>
+      <path d="M4.5 21a7.5 7.5 0 0 1 15 0"></path>
+    </svg>
+    <span class="vvip-nav-label">حسابي</span>
+  </button>
+</nav>
+
+
+<div
+  class="vvip-profile-sheet-backdrop"
+  data-sheet-backdrop
+  data-sheet-name="details"
+  data-listing-details-sheet
+  hidden
+>
+  <section
+    class="vvip-profile-bottom-sheet"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="listing-detail-title"
+  >
+    <div class="vvip-sheet-handle" aria-hidden="true"></div>
+
+    <header class="vvip-sheet-header">
+      <h2 id="listing-detail-title">تفاصيل الإعلان</h2>
+
+      <button
+        type="button"
+        aria-label="إغلاق"
+        data-close-sheet
+      >
+        ×
+      </button>
+    </header>
+
+    <span class="vvip-detail-sector" data-detail-sector></span>
+    <h3 class="vvip-detail-title" data-detail-title></h3>
+    <strong class="vvip-detail-price" data-detail-price></strong>
+
+    <p class="vvip-detail-location" data-detail-location></p>
+    <p class="vvip-detail-description" data-detail-description></p>
+
+    <dl class="vvip-detail-fields" data-detail-fields></dl>
+
+    <div class="vvip-detail-footer">
+      <span>
+        التصنيف:
+        <b data-detail-category></b>
+      </span>
+
+      <small>
+        VVIP TIGER منصة للعرض والاكتشاف والتواصل، وليست طرفًا في
+        البيع أو الدفع أو التسليم أو العقود.
+      </small>
+    </div>
+  </section>
+</div>
+
+<div
+  class="vvip-profile-sheet-backdrop"
+  data-sheet-backdrop
+  data-sheet-name="share"
+  data-private-share-sheet
+  hidden
+>
+  <section
+    class="vvip-profile-bottom-sheet"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="private-share-title"
+  >
+    <div class="vvip-sheet-handle" aria-hidden="true"></div>
+
+    <header class="vvip-sheet-header">
+      <div>
+        <h2 id="private-share-title">مشاركة مع صديق</h2>
+        <small data-share-resource-title></small>
+      </div>
+
+      <button
+        type="button"
+        aria-label="إغلاق"
+        data-close-sheet
+      >
+        ×
+      </button>
+    </header>
+
+    <p class="vvip-private-share-notice">
+      المشاركة خاصة داخل المنصة، من شخص إلى شخص، وبحد أقصى
+      20 صديقًا في الجلسة. لا توجد مشاركة عامة أو مجموعات.
+    </p>
+
+    <div class="vvip-friend-list" data-friend-list></div>
+
+    <div class="vvip-share-footer">
+      <span data-share-selected-count>0 / 20</span>
+
+      <button type="button" data-submit-private-share>
+        إرسال خاص
+      </button>
+    </div>
+  </section>
+</div>
+
+<div
+  class="vvip-profile-sheet-backdrop"
+  data-sheet-backdrop
+  data-sheet-name="more"
+  data-profile-more-sheet
+  hidden
+>
+  <section
+    class="vvip-profile-bottom-sheet"
+    role="dialog"
+    aria-modal="true"
+    aria-label="خيارات الملف"
+  >
+    <div class="vvip-sheet-handle" aria-hidden="true"></div>
+
+    <header class="vvip-sheet-header">
+      <h2>خيارات الملف</h2>
+
+      <button
+        type="button"
+        aria-label="إغلاق"
+        data-close-sheet
+      >
+        ×
+      </button>
+    </header>
+
+    <div class="vvip-profile-menu-list">
+      <button
+        class="vvip-profile-logout-menu-button"
+        type="button"
+        data-open-signout
+      >
+        <span>تسجيل الخروج</span>
+      </button>
+
+      <button type="button" data-copy-profile-link>
+        <span>نسخ رابط الملف العام</span>
+      </button>
+
+      <button type="button" data-share-profile>
+        <span>مشاركة مع صديق</span>
+      </button>
+
+      <button type="button">
+        <span>الإبلاغ عن مشكلة</span>
+      </button>
+    </div>
+  </section>
+</div>
+
+<div
+  class="vvip-toast"
+  role="status"
+  aria-live="polite"
+  data-toast
+  hidden
+></div>
+
+
+<div
+  class="vvip-profile-sheet-backdrop"
+  data-sheet-backdrop
+  data-sheet-name="edit-profile"
+  data-profile-edit-sheet
+  hidden
+>
+  <section
+    class="vvip-profile-bottom-sheet"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="profile-edit-title"
+  >
+    <div class="vvip-sheet-handle" aria-hidden="true"></div>
+
+    <header class="vvip-sheet-header">
+      <h2 id="profile-edit-title">تعديل معلومات الملف</h2>
+
+      <button
+        type="button"
+        aria-label="إغلاق"
+        data-close-sheet
+      >
+        ×
+      </button>
+    </header>
+
+    <form class="vvip-profile-edit-form" data-profile-edit-form>
+      <label>
+        <span>الاسم</span>
+        <input name="name" type="text" maxlength="90">
+      </label>
+
+      <label>
+        <span>السيرة الذاتية</span>
+        <textarea name="bio" rows="4" maxlength="300"></textarea>
+      </label>
+
+      <label>
+        <span>العمل</span>
+        <input name="work" type="text" maxlength="120">
+      </label>
+
+      <label>
+        <span>التعليم</span>
+        <input name="education" type="text" maxlength="120">
+      </label>
+
+      <label>
+        <span>الموقع العام</span>
+        <input name="location" type="text" maxlength="120">
+      </label>
+
+      <label>
+        <span>الرابط العام</span>
+        <input name="publicLink" type="text" maxlength="160">
+      </label>
+
+      <button
+        class="vvip-save-profile-button"
+        type="button"
+        data-save-profile-editor
+      >
+        حفظ
+      </button>
+    </form>
+  </section>
+</div>
+
+  <script src="scripts/vvip-p03-route-map.js"></script>
+  <script src="scripts/vvip-p03-profile-store.js"></script>
+  <script src="scripts/vvip-p03-profile-remote-sync.js"></script>
+  <script src="scripts/vvip-p03-profile.js"></script>
+<script src="scripts/vvip-p03-private-share.js" defer></script>
+
+  <div
+    class="vvip-signout-backdrop"
+    data-vvip-signout-dialog
+    hidden
+  >
+    <section
+      class="vvip-signout-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="vvip-signout-title"
+      aria-describedby="vvip-signout-description"
+    >
+      <div class="vvip-signout-icon" aria-hidden="true">
+        ↪
+      </div>
+
+      <h2 id="vvip-signout-title">
+        تسجيل الخروج؟
+      </h2>
+
+      <p id="vvip-signout-description">
+        سيتم إنهاء جلسة VVIP TIGER في هذا المتصفح
+        وإعادتك إلى صفحة الدخول لاختيار مستخدم آخر.
+      </p>
+
+      <p
+        class="vvip-signout-warning"
+        data-signout-error
+        role="alert"
+        hidden
+      ></p>
+
+      <div class="vvip-signout-actions">
+        <button
+          class="vvip-signout-cancel"
+          type="button"
+          data-cancel-signout
+        >
+          إلغاء
+        </button>
+
+        <button
+          class="vvip-signout-confirm"
+          type="button"
+          data-confirm-signout
+        >
+          تسجيل الخروج
+        </button>
+      </div>
+    </section>
+  </div>
+
+
+  <script src="scripts/vvip-p03-sign-out.js" defer></script>
+  <script src="scripts/vvip-p03-profile-clean-runtime.js" defer></script>
+</body>
+</html>

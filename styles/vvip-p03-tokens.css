@@ -1,0 +1,37 @@
+:root {
+  color-scheme: light;
+
+  --vvip-bg: #f0f2f5;
+  --vvip-surface: #ffffff;
+  --vvip-surface-soft: #f7f8fa;
+  --vvip-text: #1c1e21;
+  --vvip-text-soft: #65676b;
+  --vvip-border: #dfe3e8;
+
+  --vvip-blue: #0866ff;
+  --vvip-blue-strong: #075ce5;
+  --vvip-blue-soft: #e7f3ff;
+  --vvip-gold: #a97808;
+  --vvip-gold-soft: #fff7dc;
+
+  --vvip-danger: #c62828;
+  --vvip-success: #188038;
+
+  --vvip-radius-sm: 10px;
+  --vvip-radius-md: 14px;
+  --vvip-radius-lg: 18px;
+  --vvip-radius-round: 999px;
+
+  --vvip-shadow-card: 0 1px 2px rgba(15, 23, 42, 0.08);
+  --vvip-shadow-nav: 0 -1px 10px rgba(15, 23, 42, 0.08);
+
+  --vvip-space-1: 4px;
+  --vvip-space-2: 8px;
+  --vvip-space-3: 12px;
+  --vvip-space-4: 16px;
+  --vvip-space-5: 24px;
+  --vvip-space-6: 32px;
+
+  --vvip-content-width: 720px;
+  --vvip-bottom-nav-height: 66px;
+}

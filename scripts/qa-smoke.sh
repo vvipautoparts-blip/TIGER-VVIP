@@ -21,16 +21,16 @@ search() {
 }
 
 echo "[smoke] checking required files"
-for file in index.html public-profile.html private-profile.html styles.css auth.js social-ui.js supabase/migrations/20260702_feed_posts_table.sql; do
+for file in index.html public-profile-p03.html private-profile-p03.html styles.css auth.js social-ui.js supabase/migrations/20260702_feed_posts_table.sql; do
   [[ -f "$file" ]] || { echo "[smoke][fail] missing $file"; exit 1; }
   echo "[smoke][ok] $file"
 done
 
 echo "[smoke] validating feed and profile anchors"
-search "id=\"feed-list\"|id=\"comments-sheet\"|id=\"composer-modal\"|class=\"profile-hero\"|class=\"profile-tabs\"" public-profile.html private-profile.html >/dev/null
+search "class=\"vvip-profile-hero\"|class=\"vvip-profile-tabs\"|data-profile-panel" public-profile-p03.html private-profile-p03.html >/dev/null
 
 echo "[smoke] validating script references"
-search "social-ui\.js" public-profile.html private-profile.html >/dev/null
+search "scripts/vvip-p03-profile\.js" public-profile-p03.html private-profile-p03.html >/dev/null
 
 echo "[smoke] validating css selectors"
 search "\.mobile-frame|\.post-card|\.profile-hero|\.bottom-nav|\.comments-sheet" styles.css >/dev/null
