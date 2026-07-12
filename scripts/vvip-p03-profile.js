@@ -296,8 +296,14 @@
 
     let source = "";
 
+    const remoteSyncConfigured = Boolean(
+      window.VVIP_P03_PROFILE_REMOTE_SYNC
+    );
+
     const allowLocalRecord =
+      !remoteSyncConfigured ||
       remoteMediaState.offline ||
+      remoteMediaState.available === false ||
       Boolean(remoteMediaState[imageType]);
 
     if (
