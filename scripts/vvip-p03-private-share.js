@@ -2,7 +2,7 @@
   "use strict";
 
   const page =
-    window.location.pathname.split("/").pop() || "home.html";
+    window.location.pathname.split("/").pop() || "index.html";
 
   let activePayload = null;
   let toastTimer = null;
@@ -76,7 +76,7 @@
   }
 
   async function ensureHomeAvatar() {
-    if (page !== "home.html") return;
+    if (page !== "index.html") return;
 
     unwrapBrokenHeader();
 

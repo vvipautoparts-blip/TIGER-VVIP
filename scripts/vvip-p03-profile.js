@@ -8,8 +8,6 @@
     throw new Error("VVIP_PROFILE_STORE_MISSING");
   }
 
-  const OWNER_CONTEXT_KEY = "vvip:p03:profile-owner-context";
-  const VIEW_AS_KEY = "vvip:p03:profile-view-as";
   const MOTION_KEY = "vvip:p03:profile-motion";
   const LIKE_PREFIX = "vvip:p03:private-like:";
   const PREVIEW_SHARE_KEY = "vvip:p03:preview-private-shares";
@@ -328,15 +326,12 @@
     const work = String(metadata.work || "").trim();
     const education = String(metadata.education || "").trim();
     const location = String(metadata.location || "").trim();
-    const publicLink = String(metadata.publicLink || "").trim();
-
     setText("[data-profile-name]", displayName);
     setText("[data-profile-initials]", initials(displayName));
     setText("[data-profile-bio]", bio);
     setText("[data-profile-work]", work);
     setText("[data-profile-education]", education);
     setText("[data-profile-location]", location);
-    setText("[data-profile-link]", publicLink);
 
     document
       .querySelectorAll("[data-profile-bio]")
@@ -381,52 +376,6 @@
       document.body.classList.remove(className);
       sessionStorage.removeItem(MOTION_KEY);
     }, 430);
-  }
-
-  function navigateProfile(destination, direction, options = {}) {
-    if (typeof options.ownerContext === "boolean") {
-      sessionStorage.setItem(
-        OWNER_CONTEXT_KEY,
-        options.ownerContext ? "1" : "0"
-      );
-    }
-
-    if (typeof options.viewAs === "boolean") {
-      sessionStorage.setItem(
-        VIEW_AS_KEY,
-        options.viewAs ? "1" : "0"
-      );
-    }
-
-    sessionStorage.setItem(MOTION_KEY, direction);
-
-    document.body.classList.add(
-      direction === "back"
-        ? "vvip-profile-leave-back"
-        : "vvip-profile-leave-forward"
-    );
-
-    window.setTimeout(() => {
-      window.location.assign(destination);
-    }, 160);
-  }
-
-  function isOwnerViewAs() {
-    return (
-      PAGE_MODE === "public" &&
-      sessionStorage.getItem(OWNER_CONTEXT_KEY) === "1" &&
-      sessionStorage.getItem(VIEW_AS_KEY) === "1"
-    );
-  }
-
-  function applyPublicContext() {
-    const banner = document.querySelector(
-      "[data-owner-view-as-banner]"
-    );
-
-    if (banner) {
-      banner.hidden = !isOwnerViewAs();
-    }
   }
 
   function openSheet(sheet) {
@@ -497,55 +446,12 @@
       .querySelectorAll("[data-profile-back]")
       .forEach((button) => {
         button.addEventListener("click", () => {
-          if (PAGE_MODE === "public" && isOwnerViewAs()) {
-            navigateProfile(
-              "private-profile-p03.html",
-              "back",
-              {
-                ownerContext: true,
-                viewAs: false
-              }
-            );
-
-            return;
-          }
-
           if (window.history.length > 1) {
             window.history.back();
             return;
           }
 
-          window.location.assign("home.html");
-        });
-      });
-
-    document
-      .querySelectorAll("[data-view-as-public]")
-      .forEach((button) => {
-        button.addEventListener("click", () => {
-          navigateProfile(
-            "public-profile-p03.html",
-            "forward",
-            {
-              ownerContext: true,
-              viewAs: true
-            }
-          );
-        });
-      });
-
-    document
-      .querySelectorAll("[data-exit-view-as]")
-      .forEach((button) => {
-        button.addEventListener("click", () => {
-          navigateProfile(
-            "private-profile-p03.html",
-            "back",
-            {
-              ownerContext: true,
-              viewAs: false
-            }
-          );
+          window.location.assign("index.html");
         });
       });
 
@@ -560,23 +466,6 @@
 
         if (!route.available) {
           showToast(`${route.label}: سيتم ربطها في مرحلة لاحقة.`);
-          return;
-        }
-
-        if (
-          PAGE_MODE === "public" &&
-          button.dataset.route === "profile" &&
-          isOwnerViewAs()
-        ) {
-          navigateProfile(
-            "private-profile-p03.html",
-            "back",
-            {
-              ownerContext: true,
-              viewAs: false
-            }
-          );
-
           return;
         }
 
@@ -605,7 +494,6 @@
           form.elements.work.value = metadata.work;
           form.elements.education.value = metadata.education;
           form.elements.location.value = metadata.location;
-          form.elements.publicLink.value = metadata.publicLink;
 
           openSheet(editSheet);
         });
@@ -631,10 +519,7 @@
             bio: String(data.get("bio") || "").trim(),
             work: String(data.get("work") || "").trim(),
             education: String(data.get("education") || "").trim(),
-            location: String(data.get("location") || "").trim(),
-            publicLink: String(
-              data.get("publicLink") || ""
-            ).trim()
+            location: String(data.get("location") || "").trim()
           };
 
           store.saveMetadata(userId, metadata);
@@ -954,7 +839,7 @@
           openShareSheet({
             type: "profile",
             id: userId,
-            title: `الملف العام: ${metadata.name}`
+            title: `الملف الخاص: ${metadata.name}`
           });
         });
       });
@@ -1063,24 +948,6 @@
       .forEach((button) => {
         button.addEventListener("click", () => {
           openSheet(sheet);
-        });
-      });
-
-    document
-      .querySelectorAll("[data-copy-profile-link]")
-      .forEach((button) => {
-        button.addEventListener("click", async () => {
-          try {
-            await navigator.clipboard.writeText(
-              window.location.href.split("#")[0]
-            );
-
-            showToast("تم نسخ رابط الملف العام.");
-          } catch (error) {
-            showToast("تعذر نسخ الرابط تلقائيًا.");
-          }
-
-          requestCloseSheet();
         });
       });
   }
@@ -1225,11 +1092,6 @@
 
     store.saveMetadata(userId, metadata);
 
-    if (PAGE_MODE === "private") {
-      sessionStorage.setItem(OWNER_CONTEXT_KEY, "1");
-      sessionStorage.setItem(VIEW_AS_KEY, "0");
-    }
-
     await renderProfile();
 
     /*
@@ -1239,7 +1101,6 @@
     void retryPendingProfileMediaSync();
 
     applyEntryMotion();
-    applyPublicContext();
   }
 
   initialize().catch(() => {

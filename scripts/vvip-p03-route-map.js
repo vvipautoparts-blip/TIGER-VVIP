@@ -1,36 +1,33 @@
 (function () {
   "use strict";
 
+  const unavailable = "index.html?reason=route_unavailable";
+
   window.VVIP_P03_ROUTES = Object.freeze({
     home: {
       label: "الرئيسية",
-      href: "home.html",
+      href: "index.html",
       available: true
     },
     market: {
       label: "السوق",
-      href: "market.html",
-      available: true
+      href: unavailable + "&route=market",
+      available: false
     },
     create: {
       label: "إنشاء إعلان",
-      href: "create-listing.html",
-      available: true
+      href: unavailable + "&route=create-listing",
+      available: false
     },
     listingDetails: {
-      label: "تفاصيل الإعلان",
-      href: "listing-details.html",
-      available: true
+      label: "تفاصيل المنشور",
+      href: unavailable + "&route=listing-details",
+      available: false
     },
     notifications: {
       label: "الإشعارات",
-      href: "notifications.html",
+      href: unavailable + "&route=notifications",
       available: false
-    },
-    publicProfile: {
-      label: "الملف العام",
-      href: "public-profile-p03.html",
-      available: true
     },
     profile: {
       label: "حسابي",

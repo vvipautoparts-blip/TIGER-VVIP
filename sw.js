@@ -3,7 +3,6 @@ const CACHE_NAME = "vvip-tiger-clerk-cache-v11";
 const ASSETS = [
   "/",
   "/index.html",
-  "/public-profile.html",
   "/clerk-private-profile.html",
   "/private-profile.html",
   "/reset-password.html",
