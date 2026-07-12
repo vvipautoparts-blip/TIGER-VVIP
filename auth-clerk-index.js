@@ -55,7 +55,7 @@ window.addEventListener("load", async function () {
               </a>
 
               <a
-                href="public-profile.html"
+                href="index.html?reason=public_profile_disabled"
                 aria-label="متابعة إلى الصفحة العامة"
                 title="متابعة إلى الصفحة العامة"
                 style="border:0;border-radius:16px;padding:14px 22px;background:#0f172a;color:#ffffff !important;text-decoration:none;font-weight:900;font-size:16px;line-height:1.2;display:inline-flex;align-items:center;justify-content:center;min-width:210px;box-shadow:0 14px 32px rgba(15,23,42,.20);"

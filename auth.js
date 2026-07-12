@@ -83,11 +83,11 @@
     cardTitle: { ar: "تسجيل الدخول", en: "Sign in" },
     cardSubtitle: { ar: "بدون كلمات مرور. اختر مزودك للمتابعة.", en: "No passwords needed. Choose a provider to continue." },
     navIndex: { ar: "الدخول", en: "Login" },
-    navPublic: { ar: "الصفحة العامة", en: "Public page" },
+    navPublic: { ar: "المنصة", en: "Platform" },
     navPrivate: { ar: "البروفايل الخاص", en: "Private profile" },
     navReset: { ar: "استعادة كلمة المرور", en: "Reset password" },
     continueLabel: { ar: "متابعة باستخدام", en: "Continue with" },
-    continuePublic: { ar: "متابعة إلى البروفايل العام", en: "Continue to public profile" },
+    continuePublic: { ar: "متابعة إلى المنصة", en: "Continue to platform" },
     resetLink: { ar: "نسيت كلمة المرور؟ إعادة تعيين بالإيميل", en: "Forgot your password? Reset via email" },
     logout: { ar: "تسجيل الخروج", en: "Log out" },
     avatarAria: { ar: "الانتقال إلى البروفايل الخاص", en: "Go to private profile" },
@@ -176,7 +176,7 @@
 
     const navIndex = document.querySelector('[data-page-target="index"]');
     if (navIndex) navIndex.textContent = tx(AUTH_TEXT.navIndex);
-    const navPublic = document.querySelector('[data-page-target="public-profile"]');
+    const navPublic = document.querySelector('[data-page-target="listing-centered-disabled-profile"]');
     if (navPublic) navPublic.textContent = tx(AUTH_TEXT.navPublic);
     const navPrivate = document.querySelector('[data-page-target="private-profile"]');
     if (navPrivate) navPrivate.textContent = tx(AUTH_TEXT.navPrivate);
@@ -434,7 +434,7 @@
         return;
       }
       showToast(tx(AUTH_TEXT.signInSuccess), "success");
-      window.location.href = "public-profile.html";
+      window.location.href = "index.html?reason=listing_centered_flow";
     } catch (err) {
       const code = String(err && err.code ? err.code : "");
       let msg = authLang === "en" ? "Sign-in failed." : "فشل تسجيل الدخول.";
@@ -523,7 +523,7 @@
 
   if (continuePublicBtn) {
     continuePublicBtn.addEventListener("click", function () {
-      window.location.href = "public-profile.html";
+      window.location.href = "index.html?reason=listing_centered_flow";
     });
   }
 

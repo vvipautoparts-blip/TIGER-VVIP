@@ -1543,9 +1543,6 @@
     document.documentElement.lang = currentLang;
     document.documentElement.dir = currentLang === "ar" ? "rtl" : "ltr";
 
-    if (window.location.pathname.indexOf("public-profile.html") !== -1) {
-      document.title = tx(UI_TEXT.pageTitles.public);
-    }
     if (window.location.pathname.indexOf("private-profile.html") !== -1) {
       document.title = tx(UI_TEXT.pageTitles.private);
     }
