@@ -249,6 +249,22 @@
       alpha: false
     });
 
+    if (!context) {
+      diagnose({
+        editorReady: false,
+        lastStage: "canvas-context",
+        lastStatus: "failed"
+      });
+
+      showToast(
+        "تعذر تشغيل محرر الصور على هذا المتصفح."
+      );
+
+      picker.remove();
+      backdrop.remove();
+      return false;
+    }
+
     range = backdrop.querySelector(
       "[data-clean-editor-range]"
     );
@@ -266,6 +282,7 @@
     );
 
     bindEditorEvents();
+    return true;
   }
 
   function bindEditorEvents() {
@@ -621,6 +638,12 @@
         alpha: false
       });
 
+    if (!outputContext) {
+      throw new Error(
+        "تعذر تشغيل معالجة الصورة على هذا المتصفح."
+      );
+    }
+
     const factor =
       config.width / canvas.width;
 
@@ -807,11 +830,39 @@
           ? "[data-profile-cover-image]"
           : "[data-profile-avatar-image]";
 
-      document
-        .querySelectorAll(selector)
-        .forEach((image) => {
+      const images = Array.from(
+        document.querySelectorAll(selector)
+      );
+
+      if (!images.length) {
+        URL.revokeObjectURL(source);
+      } else {
+        let pendingImages = images.length;
+
+        const releaseSource = () => {
+          pendingImages -= 1;
+
+          if (pendingImages === 0) {
+            URL.revokeObjectURL(source);
+          }
+        };
+
+        images.forEach((image) => {
+          image.addEventListener(
+            "load",
+            releaseSource,
+            { once: true }
+          );
+
+          image.addEventListener(
+            "error",
+            releaseSource,
+            { once: true }
+          );
+
           image.src = source;
         });
+      }
 
       const savedKind = state.kind;
 
@@ -888,9 +939,10 @@
     );
 
     if (isPrivate) {
-      createEditor();
-      bindCameraButtons();
-      diagnose({ editorReady: true, lastStage: "ready" });
+      if (createEditor()) {
+        bindCameraButtons();
+        diagnose({ editorReady: true, lastStage: "ready" });
+      }
     }
 
     window.addEventListener(

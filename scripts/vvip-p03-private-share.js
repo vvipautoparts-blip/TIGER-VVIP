@@ -111,10 +111,19 @@
           const identity = await store.resolveIdentity();
           const metadata = store.loadMetadata(identity.userId);
 
-          const record = await store.getProcessedImage(
-            identity.userId,
-            "avatar"
-          );
+          let record = null;
+
+          try {
+            record = await store.getProcessedImage(
+              identity.userId,
+              "avatar"
+            );
+          } catch (error) {
+            console.warn(
+              "VVIP_HOME_AVATAR_LOCAL_READ_FAILED",
+              error?.message || error
+            );
+          }
 
           const source =
             record && record.blob instanceof Blob
@@ -127,6 +136,25 @@
             button.textContent = "";
 
             const image = document.createElement("img");
+
+            if (source.startsWith("blob:")) {
+              const releaseSource = () => {
+                URL.revokeObjectURL(source);
+              };
+
+              image.addEventListener(
+                "load",
+                releaseSource,
+                { once: true }
+              );
+
+              image.addEventListener(
+                "error",
+                releaseSource,
+                { once: true }
+              );
+            }
+
             image.src = source;
             image.alt = "";
             button.appendChild(image);

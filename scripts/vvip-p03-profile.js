@@ -279,10 +279,20 @@
     imageSelector,
     fallbackSelector
   ) {
-    const record = await store.getProcessedImage(
-      userId,
-      imageType
-    );
+    let record = null;
+
+    try {
+      record = await store.getProcessedImage(
+        userId,
+        imageType
+      );
+    } catch (error) {
+      console.warn(
+        "VVIP_PROFILE_LOCAL_IMAGE_READ_FAILED",
+        imageType,
+        error?.message || error
+      );
+    }
 
     let source = "";
 
