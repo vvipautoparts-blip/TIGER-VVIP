@@ -1,1320 +1,717 @@
-@view-transition {
-  navigation: auto;
+:root {
+  --ac-bg: #f0f2f5;
+  --ac-surface: #ffffff;
+  --ac-blue: #1877f2;
+  --ac-blue-hover: #166fe5;
+  --ac-navy: #1c1e21;
+  --ac-navy-2: #3a3b3c;
+  --ac-gold: #b88a2b;
+  --ac-text: #050505;
+  --ac-muted: #65676b;
+  --ac-border: #dadde1;
+  --ac-danger: #982c33;
+  --ac-success: #31a24c;
+  --ac-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  color: var(--ac-text);
+  background: var(--ac-bg);
+  font-family: "Cairo", sans-serif;
 }
 
-body[data-profile-mode] {
-  min-width: 0;
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  margin: 0;
   overflow-x: hidden;
-  background: #f0f2f5;
+  color: var(--ac-text);
+  background: var(--ac-bg);
 }
 
-.vvip-profile-app {
-  width: min(100%, var(--vvip-content-width));
+body.account-sheet-open {
+  overflow: hidden;
+}
+
+button,
+a {
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid rgba(24, 119, 242, 0.38);
+  outline-offset: 2px;
+}
+
+.account-auth-gate {
+  display: grid;
   min-height: 100vh;
-  margin: 0 auto;
-  background: #f0f2f5;
+  place-items: center;
+  padding: 24px;
+  color: var(--ac-muted);
+  text-align: center;
 }
 
-.vvip-profile-topbar {
+.account-auth-gate[hidden],
+.account-app[hidden],
+.account-sheet-layer[hidden],
+.account-dialog[hidden],
+.account-toast[hidden] {
+  display: none;
+}
+
+.account-header {
   position: sticky;
   top: 0;
-  z-index: 60;
-  display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) 44px;
-  align-items: center;
-  gap: 8px;
-  min-height: calc(64px + env(safe-area-inset-top, 0px));
-  padding:
-    calc(8px + env(safe-area-inset-top, 0px))
-    12px
-    8px;
-  border-bottom: 1px solid #e4e6eb;
-  background: rgba(255, 255, 255, 0.97);
-  backdrop-filter: blur(12px);
-}
-
-.vvip-profile-circle-button {
-  display: grid;
-  width: 44px;
-  height: 44px;
-  place-items: center;
-  border: 0;
-  border-radius: 50%;
-  background: #e4e6eb;
-  color: #1c1e21;
-  font-weight: 900;
-  cursor: pointer;
-}
-
-.vvip-profile-circle-button .vvip-icon {
-  width: 21px;
-  height: 21px;
-}
-
-.vvip-profile-brand {
+  z-index: 20;
   display: flex;
-  min-width: 0;
   align-items: center;
-  justify-content: center;
-  gap: 7px;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 56px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--ac-border);
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(10px);
 }
 
-.vvip-profile-brand strong {
-  overflow: hidden;
-  color: #0866ff;
-  font-size: 1.08rem;
-  font-weight: 900;
-  text-overflow: ellipsis;
+.account-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  color: var(--ac-navy);
+  text-decoration: none;
+}
+
+.account-brand > span {
+  display: grid;
+  place-items: center;
+  min-width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: #ffffff;
+  background: var(--ac-blue);
+  box-shadow: none;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.account-brand strong {
+  display: grid;
+  min-width: 0;
+  font-size: 0.9rem;
   white-space: nowrap;
 }
 
-.vvip-profile-brand span {
-  padding: 3px 7px;
-  border: 1px solid #dfb943;
-  border-radius: 999px;
-  background: #fff6d5;
-  color: #805d00;
-  font-size: 0.6rem;
-  font-weight: 900;
-}
-
-.vvip-profile-main {
-  display: grid;
-  gap: 10px;
-  padding-top: 10px;
-}
-
-.vvip-owner-view-as-banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-inline: 10px;
-  padding: 11px 12px;
-  border: 1px solid #b8d4ff;
-  border-radius: 10px;
-  background: #e7f3ff;
-}
-
-.vvip-owner-view-as-banner strong,
-.vvip-owner-view-as-banner span {
-  display: block;
-}
-
-.vvip-owner-view-as-banner strong {
-  color: #0866ff;
-  font-size: 0.8rem;
-}
-
-.vvip-owner-view-as-banner span {
-  margin-top: 2px;
-  color: #65676b;
-  font-size: 0.68rem;
-}
-
-.vvip-owner-view-as-banner button {
-  min-height: 38px;
-  flex: 0 0 auto;
-  padding: 7px 11px;
-  border: 0;
-  border-radius: 8px;
-  background: #0866ff;
-  color: #fff;
-  font-size: 0.72rem;
-  font-weight: 800;
-}
-
-.vvip-profile-hero {
-  position: relative;
-  overflow: visible;
-  background: #fff;
-}
-
-.vvip-profile-cover {
-  position: relative;
-  aspect-ratio: 5 / 2;
-  overflow: visible;
-  background: #dceaff;
-}
-
-.vvip-profile-cover > img,
-.vvip-profile-cover-fallback {
-  width: 100%;
-  height: 100%;
-}
-
-.vvip-profile-cover > img {
-  object-fit: cover;
-}
-
-.vvip-profile-cover-fallback {
-  display: grid;
-  place-items: center;
-  background:
-    radial-gradient(
-      circle at 18% 24%,
-      rgba(255, 255, 255, 0.18),
-      transparent 26%
-    ),
-    radial-gradient(
-      circle at 82% 22%,
-      rgba(214, 174, 77, 0.22),
-      transparent 20%
-    ),
-    linear-gradient(135deg, #0b1f4d, #123a7a 56%, #1f5ea8);
-}
-
-.vvip-profile-cover-fallback span {
-  display: none;
-}
-
-.vvip-cover-camera,
-.vvip-avatar-camera {
-  position: absolute;
-  display: grid;
-  width: 42px;
-  height: 42px;
-  place-items: center;
-  border: 3px solid #fff;
-  border-radius: 50%;
-  background: #e4e6eb;
-  color: #1c1e21;
-  cursor: pointer;
-  box-shadow: 0 2px 9px rgba(15, 23, 42, 0.14);
-}
-
-.vvip-cover-camera {
-  left: 12px;
-  right: auto;
-  bottom: 12px;
-}
-
-.vvip-avatar-camera {
-  right: 4px;
-  bottom: 6px;
-}
-
-.vvip-cover-camera .vvip-icon,
-.vvip-avatar-camera .vvip-icon {
-  width: 20px;
-  height: 20px;
-}
-
-.vvip-profile-avatar-wrap {
-  position: absolute;
-  right: 18px;
-  bottom: -64px;
-  z-index: 20;
-  width: clamp(126px, 34vw, 150px);
-  height: clamp(126px, 34vw, 150px);
-}
-
-.vvip-profile-avatar {
-  display: grid;
-  width: 100%;
-  height: 100%;
-  place-items: center;
-  overflow: hidden;
-  border: 5px solid #fff;
-  border-radius: 50%;
-  background: #0866ff;
-  color: #fff;
-  font-size: 2.5rem;
-  font-weight: 900;
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.18),
-    0 8px 20px rgba(15, 23, 42, 0.12);
-}
-
-.vvip-profile-avatar [data-profile-avatar-fallback] {
-  display: grid;
-  width: 100%;
-  height: 100%;
-  place-items: center;
-  background: linear-gradient(145deg, #0f3f87, #0866ff);
-  color: #fff;
-  font-size: 2.5rem;
-  font-weight: 900;
-}
-
-.vvip-profile-avatar > img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.vvip-profile-identity {
-  min-height: 194px;
-  padding: 76px 18px 18px;
-  background: #fff;
-  text-align: right;
-}
-
-.vvip-profile-name-line {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 7px;
-}
-
-.vvip-profile-name-line h1 {
-  margin: 0;
-  color: #050505;
-  font-size: clamp(1.42rem, 5.2vw, 1.75rem);
-  line-height: 1.25;
-}
-
-.vvip-profile-verified {
-  display: grid;
-  width: 23px;
-  height: 23px;
-  place-items: center;
-  border-radius: 50%;
-  background: #0866ff;
-  color: #fff;
-  font-size: 0.75rem;
-  font-weight: 900;
-}
-
-.vvip-profile-identity > p {
-  margin: 5px 0 0;
-  max-width: 34rem;
-  color: #1c1e21;
-  font-size: 0.84rem;
-  line-height: 1.65;
-}
-
-.vvip-profile-details {
-  display: grid;
-  gap: 6px;
-  margin: 11px 0 0;
-  padding: 0;
-  list-style: none;
-  color: #65676b;
-  font-size: 0.76rem;
-  text-align: right;
-}
-
-.vvip-profile-details li:empty {
-  display: none;
-}
-
-.vvip-profile-actions {
-  display: grid;
-  gap: 8px;
-  width: 100%;
-  margin-top: 16px;
-}
-
-.vvip-profile-actions.private {
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.vvip-profile-actions.public {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.vvip-profile-primary-action,
-.vvip-profile-secondary-action,
-.vvip-profile-more-action {
-  display: inline-flex;
-  min-width: 0;
-  min-height: 44px;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  border: 0;
-  border-radius: 10px;
-  font-size: 0.77rem;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.vvip-profile-primary-action {
-  background: #0866ff;
-  color: #fff;
-}
-
-.vvip-profile-secondary-action,
-.vvip-profile-more-action {
-  background: #e4e6eb;
-  color: #1c1e21;
-}
-
-.vvip-profile-primary-action .vvip-icon,
-.vvip-profile-secondary-action .vvip-icon {
-  width: 18px;
-  height: 18px;
-}
-
-.vvip-private-privacy-note {
-  margin: 9px 0 0;
-  color: #65676b;
-  font-size: 0.68rem;
-}
-
-.vvip-profile-tabs {
-  position: sticky;
-  top: calc(64px + env(safe-area-inset-top, 0px));
-  z-index: 30;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 3px;
-  padding: 4px 10px;
-  border-top: 1px solid #e4e6eb;
-  border-bottom: 1px solid #e4e6eb;
-  background: rgba(255, 255, 255, 0.98);
-}
-
-.vvip-profile-tabs button {
-  position: relative;
-  min-height: 46px;
-  border: 0;
-  border-radius: 7px;
-  background: transparent;
-  color: #65676b;
-  font-size: 0.8rem;
-  font-weight: 800;
-}
-
-.vvip-profile-tabs button[aria-selected="true"] {
-  color: #0866ff;
-}
-
-.vvip-profile-tabs button[aria-selected="true"]::after {
-  position: absolute;
-  right: 8px;
-  bottom: -4px;
-  left: 8px;
-  height: 3px;
-  border-radius: 3px 3px 0 0;
-  background: #0866ff;
-  content: "";
-}
-
-.vvip-profile-content-card {
-  margin-inline: 10px;
-  padding: 14px;
-  border-radius: 10px;
-  background: #fff;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
-}
-
-.vvip-profile-section-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.vvip-profile-section-heading h2 {
-  margin: 0;
-  font-size: 1rem;
-}
-
-.vvip-profile-section-heading span {
-  color: #65676b;
-  font-size: 0.68rem;
-}
-
-.vvip-profile-posts {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 12px;
-  margin-top: 12px;
-}
-
-.vvip-profile-post-card {
-  overflow: hidden;
-  border: 1px solid #e4e6eb;
-  border-radius: 10px;
-  background: #fff;
-}
-
-.vvip-post-owner {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 10px 11px;
-}
-
-.vvip-post-owner-avatar {
-  display: grid;
-  width: 38px;
-  height: 38px;
-  flex: 0 0 38px;
-  place-items: center;
-  border-radius: 50%;
-  background: #0866ff;
-  color: #fff;
-  font-size: 0.74rem;
-  font-weight: 900;
-}
-
-.vvip-post-owner strong,
-.vvip-post-owner small {
-  display: block;
-}
-
-.vvip-post-owner strong {
-  font-size: 0.78rem;
-}
-
-.vvip-post-owner small {
-  margin-top: 2px;
-  color: #65676b;
-  font-size: 0.64rem;
-}
-
-.vvip-profile-listing-image {
-  position: relative;
-  display: block;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  overflow: hidden;
-  border: 0;
-  background: linear-gradient(135deg, #dceaff, #9fc2ff);
-}
-
-.vvip-profile-listing-image.materials {
-  background: linear-gradient(135deg, #e0f3e7, #a8d7b8);
-}
-
-.vvip-profile-listing-image.estate {
-  background: linear-gradient(135deg, #fff0cf, #e9cc8d);
-}
-
-.vvip-profile-listing-image > span {
-  position: absolute;
-  top: 9px;
-  right: 9px;
-  padding: 5px 8px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  color: #1c1e21;
-  font-size: 0.65rem;
-  font-weight: 800;
-}
-
-.vvip-profile-listing-copy {
-  padding: 11px 12px 9px;
-}
-
-.vvip-profile-listing-copy h3 {
-  margin: 0;
-  font-size: 0.86rem;
-  line-height: 1.5;
-}
-
-.vvip-profile-listing-copy strong {
-  display: block;
-  margin-top: 4px;
-  color: #0866ff;
-  font-size: 1rem;
-  text-align: center;
-}
-
-.vvip-profile-listing-copy small {
-  display: block;
-  margin-top: 4px;
-  color: #65676b;
-  font-size: 0.67rem;
-  text-align: center;
-}
-
-.vvip-private-interactions {
-  display: grid;
-  grid-template-columns: 0.8fr 1.2fr;
-  border-top: 1px solid #e4e6eb;
-}
-
-.vvip-private-interactions button {
-  display: inline-flex;
-  min-height: 42px;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  border: 0;
-  background: transparent;
-  color: #65676b;
-  font-size: 0.7rem;
-  font-weight: 800;
-}
-
-.vvip-private-interactions button + button {
-  border-inline-start: 1px solid #e4e6eb;
-}
-
-.vvip-private-interactions button[aria-pressed="true"] {
-  color: #0866ff;
-}
-
-.vvip-private-interactions .vvip-icon {
-  width: 18px;
-  height: 18px;
-}
-
-.vvip-profile-about {
-  display: grid;
-  gap: 0;
-  margin: 12px 0 0;
-}
-
-.vvip-profile-about > div {
-  display: grid;
-  gap: 5px;
-  padding: 11px 0;
-  border-top: 1px solid #e4e6eb;
-}
-
-.vvip-profile-about dt {
-  color: #65676b;
-  font-size: 0.7rem;
-}
-
-.vvip-profile-about dd {
-  margin: 0;
-  font-size: 0.8rem;
-  line-height: 1.65;
-}
-
-.vvip-profile-photo-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 4px;
-  margin-top: 12px;
-  overflow: hidden;
-  border-radius: 8px;
-}
-
-.vvip-profile-photo-grid button {
-  aspect-ratio: 1;
-  border: 0;
-  background: #dceaff;
-}
-
-.vvip-profile-photo-grid .materials {
-  background: #c8ead3;
-}
-
-.vvip-profile-photo-grid .estate {
-  background: #f5d99c;
-}
-
-.vvip-profile-content-end {
-  height: calc(var(--vvip-bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 30px);
-}
-
-.vvip-profile-sheet-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 110;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.46);
-}
-
-.vvip-profile-bottom-sheet {
-  width: min(100%, var(--vvip-content-width));
-  max-height: min(90vh, 760px);
-  overflow-y: auto;
-  padding: 8px 14px calc(16px + env(safe-area-inset-bottom, 0px));
-  border-radius: 18px 18px 0 0;
-  background: #fff;
-  box-shadow: 0 -12px 36px rgba(15, 23, 42, 0.22);
-}
-
-.vvip-sheet-handle {
-  width: 42px;
-  height: 4px;
-  margin: 2px auto 11px;
-  border-radius: 999px;
-  background: #ced0d4;
-}
-
-.vvip-sheet-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding-bottom: 11px;
-  border-bottom: 1px solid #e4e6eb;
-}
-
-.vvip-sheet-header h2 {
-  margin: 0;
-  font-size: 1rem;
-}
-
-.vvip-sheet-header small {
-  display: block;
-  margin-top: 3px;
-  color: #65676b;
-  font-size: 0.65rem;
-}
-
-.vvip-sheet-header > button {
-  display: grid;
-  width: 38px;
-  height: 38px;
-  place-items: center;
-  border: 0;
-  border-radius: 50%;
-  background: #e4e6eb;
-  color: #1c1e21;
-  font-size: 1.1rem;
-}
-
-.vvip-detail-sector {
-  display: inline-block;
-  margin-top: 14px;
-  color: #0866ff;
-  font-size: 0.7rem;
-  font-weight: 900;
-}
-
-.vvip-detail-title {
-  margin: 5px 0 0;
-  font-size: 1.05rem;
-}
-
-.vvip-detail-price {
-  display: block;
-  margin-top: 5px;
-  color: #0866ff;
-  font-size: 1.18rem;
-  text-align: center;
-}
-
-.vvip-detail-location,
-.vvip-detail-description {
-  margin: 8px 0 0;
-  color: #65676b;
-  font-size: 0.76rem;
-  line-height: 1.7;
-}
-
-.vvip-detail-fields {
-  margin: 14px 0 0;
-}
-
-.vvip-detail-fields > div {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 0;
-  border-top: 1px solid #e4e6eb;
-}
-
-.vvip-detail-fields dt {
-  color: #65676b;
-}
-
-.vvip-detail-fields dd {
-  margin: 0;
-  font-weight: 800;
-}
-
-.vvip-detail-footer {
-  margin-top: 10px;
-  padding: 11px;
-  border-radius: 9px;
-  background: #f0f2f5;
-}
-
-.vvip-detail-footer span,
-.vvip-detail-footer small {
-  display: block;
-}
-
-.vvip-detail-footer small {
-  margin-top: 7px;
-  color: #65676b;
-  font-size: 0.65rem;
-  line-height: 1.65;
-}
-
-.vvip-private-share-notice {
-  margin: 13px 0 0;
-  padding: 10px;
-  border-radius: 9px;
-  background: #e7f3ff;
-  color: #365899;
-  font-size: 0.7rem;
-  line-height: 1.7;
-}
-
-.vvip-friend-list {
-  display: grid;
-  gap: 3px;
-  margin-top: 10px;
-}
-
-.vvip-friend-option {
-  display: grid;
-  min-height: 54px;
-  grid-template-columns: 38px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 4px;
-  border-bottom: 1px solid #f0f2f5;
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.vvip-friend-avatar {
-  display: grid;
-  width: 38px;
-  height: 38px;
-  place-items: center;
-  border-radius: 50%;
-  background: #0866ff;
-  color: #fff;
+.account-brand small {
+  color: var(--ac-muted);
   font-size: 0.66rem;
-  font-weight: 900;
 }
 
-.vvip-friend-option input {
-  width: 21px;
-  height: 21px;
-  accent-color: #0866ff;
+.account-brand em {
+  padding: 2px 6px;
+  border: 1px solid #d6b45f;
+  border-radius: 999px;
+  color: #6f5208;
+  background: #fff4cc;
+  font-size: 0.58rem;
+  font-style: normal;
+  font-weight: 800;
 }
 
-.vvip-share-empty {
-  padding: 18px 4px;
-  color: #65676b;
-  font-size: 0.75rem;
-  line-height: 1.7;
-  text-align: center;
-}
-
-.vvip-share-footer {
-  position: sticky;
-  bottom: 0;
+.account-header__actions {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 12px;
-  padding-top: 11px;
-  border-top: 1px solid #e4e6eb;
-  background: #fff;
+  gap: 7px;
 }
 
-.vvip-share-footer span {
-  color: #65676b;
-  font-size: 0.72rem;
-  font-weight: 800;
-}
-
-.vvip-share-footer button,
-.vvip-save-profile-button {
-  min-height: 44px;
-  padding: 8px 16px;
-  border: 0;
-  border-radius: 8px;
-  background: #0866ff;
-  color: #fff;
-  font-weight: 900;
-}
-
-.vvip-profile-menu-list {
-  display: grid;
-  margin-top: 6px;
-}
-
-.vvip-profile-menu-list button {
-  min-height: 54px;
-  padding: 9px 4px;
-  border: 0;
-  border-bottom: 1px solid #f0f2f5;
-  background: transparent;
-  color: #1c1e21;
-  text-align: right;
-  font-size: 0.8rem;
-  font-weight: 800;
-}
-
-.vvip-profile-edit-form {
-  display: grid;
-  gap: 13px;
-  padding-top: 14px;
-}
-
-.vvip-profile-edit-form label {
-  display: grid;
-  gap: 6px;
-  color: #1c1e21;
-  font-size: 0.74rem;
-  font-weight: 800;
-}
-
-.vvip-profile-edit-form input,
-.vvip-profile-edit-form textarea {
-  width: 100%;
-  min-height: 48px;
-  padding: 10px 12px;
-  border: 1px solid #ced0d4;
-  border-radius: 9px;
-  outline: 0;
-  background: #f7f8fa;
-  color: #1c1e21;
-}
-
-.vvip-profile-edit-form textarea {
-  resize: vertical;
-}
-
-.vvip-profile-edit-form input:focus,
-.vvip-profile-edit-form textarea:focus {
-  border-color: #0866ff;
-  box-shadow: 0 0 0 3px rgba(8, 102, 255, 0.12);
-}
-
-.vvip-save-profile-button {
-  width: 100%;
-}
-
-.vvip-profile-account-security {
-  display: grid;
-  gap: 14px;
-  margin: 10px 10px 18px;
-  padding: 16px;
-  border: 1px solid #f0c7c7;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.07);
-}
-
-.vvip-profile-account-security h2 {
-  margin: 0;
-  color: #1c1e21;
-  font-size: 1rem;
-}
-
-.vvip-profile-account-security p {
-  margin: 5px 0 0;
-  color: #65676b;
-  font-size: 0.72rem;
-  line-height: 1.7;
-}
-
-.vvip-profile-complete-signout {
+.account-button {
   display: inline-flex;
-  width: 100%;
-  min-height: 48px;
   align-items: center;
   justify-content: center;
-  border: 1px solid #dc2626;
-  border-radius: 9px;
-  background: #fff;
-  color: #dc2626;
-  font-size: 0.8rem;
-  font-weight: 900;
+  min-height: 44px;
+  padding: 9px 14px;
+  border: 1px solid transparent;
+  border-radius: 8px;
   cursor: pointer;
+  font-weight: 700;
+  text-decoration: none;
 }
 
-.vvip-profile-complete-signout:active {
-  background: #fff1f2;
-}
-
-.vvip-profile-logout-menu-button {
-  color: #dc2626;
-}
-
-.vvip-profile-logout-menu-button span {
-  color: inherit;
-  font-weight: 900;
-}
-
-.vvip-signout-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 400;
-  display: grid;
-  place-items: center;
-  padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 0px));
-  background: rgba(15, 23, 42, 0.58);
-}
-
-.vvip-signout-dialog {
-  width: min(100%, 430px);
-  padding: 22px 18px 18px;
-  border-radius: 18px;
-  background: #fff;
-  box-shadow: 0 24px 65px rgba(15, 23, 42, 0.28);
-  text-align: center;
-}
-
-.vvip-signout-icon {
-  display: grid;
-  width: 58px;
-  height: 58px;
-  margin: 0 auto;
-  place-items: center;
-  border-radius: 50%;
-  background: #fff1f2;
-  color: #dc2626;
-  font-size: 1.6rem;
-  font-weight: 900;
-}
-
-.vvip-signout-dialog h2 {
-  margin: 14px 0 0;
+.account-button--quiet {
   color: #1c1e21;
-  font-size: 1.15rem;
+  border-color: var(--ac-border);
+  background: #f5f6f7;
 }
 
-.vvip-signout-dialog > p {
-  margin: 8px 0 0;
-  color: #65676b;
-  font-size: 0.76rem;
+.account-button--danger {
+  color: #ffffff;
+  background: var(--ac-danger);
+}
+
+.account-main {
+  width: min(1020px, 100%);
+  margin: auto;
+  padding: 18px 16px calc(96px + env(safe-area-inset-bottom));
+}
+
+.account-intro {
+  padding: 8px 0 14px;
+}
+
+.account-intro h1 {
+  margin: 6px 0;
+  color: var(--ac-navy);
+  font-size: clamp(1.55rem, 5vw, 2.1rem);
+  line-height: 1.3;
+}
+
+.account-intro p,
+.account-summary p,
+.account-detail p {
+  color: var(--ac-muted);
   line-height: 1.75;
 }
 
-.vvip-signout-dialog .vvip-signout-warning {
-  padding: 9px 10px;
-  border-radius: 9px;
-  background: #fff1f2;
-  color: #b91c1c;
-}
-
-.vvip-signout-actions {
-  display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 9px;
-  margin-top: 18px;
-}
-
-.vvip-signout-actions button {
-  min-height: 47px;
-  border-radius: 9px;
-  font-size: 0.78rem;
-  font-weight: 900;
-  cursor: pointer;
-}
-
-.vvip-signout-cancel {
-  border: 0;
-  background: #e4e6eb;
-  color: #1c1e21;
-}
-
-.vvip-signout-confirm {
-  border: 1px solid #dc2626;
-  background: #dc2626;
-  color: #fff;
-}
-
-.vvip-signout-actions button[disabled],
-[data-open-signout][disabled] {
-  cursor: wait;
-  opacity: 0.65;
-}
-
-.vvip-clean-editor-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 30000;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  background: rgba(15, 23, 42, 0.62);
-}
-
-.vvip-clean-editor-backdrop[hidden],
-.vvip-clean-editor-error[hidden],
-.vvip-clean-editor-toast[hidden] {
-  display: none;
-}
-
-.vvip-clean-editor {
-  width: min(100%, 720px);
-  max-height: 96dvh;
-  overflow-y: auto;
-  padding: 10px 16px calc(18px + env(safe-area-inset-bottom, 0px));
-  border-radius: 26px 26px 0 0;
-  background: #fff;
-  box-shadow: 0 -20px 65px rgba(15, 23, 42, 0.32);
-}
-
-.vvip-clean-editor-handle {
-  width: 48px;
-  height: 5px;
-  margin: 0 auto 10px;
-  border-radius: 999px;
-  background: #c8ccd1;
-}
-
-.vvip-clean-editor-header {
-  display: grid;
-  grid-template-columns: 46px minmax(0, 1fr) 46px;
-  align-items: center;
-  min-height: 60px;
-  border-bottom: 1px solid #e4e6eb;
-}
-
-.vvip-clean-editor-header h2 {
-  grid-column: 2;
-  margin: 0;
-  font-size: 1.06rem;
+.account-kicker,
+.account-label {
+  color: var(--ac-blue);
+  font-size: 0.7rem;
   font-weight: 800;
-  text-align: center;
+  letter-spacing: 0.08em;
 }
 
-.vvip-clean-editor-close {
-  grid-column: 1;
-  grid-row: 1;
-  display: grid;
-  width: 44px;
-  height: 44px;
-  place-items: center;
-  border: 0;
-  border-radius: 50%;
-  background: #e4e6eb;
-  font-size: 1.25rem;
-  touch-action: manipulation;
-}
-
-.vvip-clean-editor-pick {
-  display: inline-flex;
-  min-height: 44px;
-  align-items: center;
-  justify-content: center;
-  margin: 12px 0;
-  padding: 8px 14px;
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
-  background: #fff;
-  color: #0866ff;
-  font-size: 0.78rem;
-  font-weight: 800;
-  touch-action: manipulation;
-}
-
-.vvip-clean-editor-stage {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  border-radius: 14px;
-  background: #111827;
-  touch-action: none;
-}
-
-.vvip-clean-editor-stage[data-kind="avatar"] {
-  aspect-ratio: 1 / 1;
-  border-radius: 50%;
-}
-
-.vvip-clean-editor-stage[data-kind="cover"] {
-  aspect-ratio: 5 / 2;
+.account-card {
+  border: 1px solid var(--ac-border);
   border-radius: 12px;
+  background: var(--ac-surface);
+  box-shadow: var(--ac-shadow);
 }
 
-.vvip-clean-editor-stage canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-  touch-action: none;
+.account-summary {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 18px;
 }
 
-.vvip-clean-editor-grid {
+.account-initials {
+  display: grid;
+  flex: 0 0 54px;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  border-radius: 50%;
+  color: #ffffff;
+  background: var(--ac-blue);
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.account-summary h2 {
+  margin: 3px 0;
+  color: var(--ac-navy);
+}
+
+.account-status-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  color: var(--ac-muted);
+  font-size: 0.8rem;
+}
+
+.account-status-row b {
+  color: var(--ac-success);
+}
+
+.account-summary p {
+  margin: 9px 0 0;
+  font-size: 0.78rem;
+}
+
+.account-section {
+  margin-top: 20px;
+  outline: 0;
+  scroll-margin-top: 90px;
+}
+
+.account-section__heading {
+  margin-bottom: 12px;
+}
+
+.account-section__heading h2,
+.account-detail h2 {
+  margin: 4px 0;
+  color: var(--ac-navy);
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.quick-actions button {
+  min-height: 60px;
+  padding: 12px;
+  border: 1px solid var(--ac-border);
+  border-radius: 10px;
+  color: var(--ac-navy);
+  background: #ffffff;
+  box-shadow: var(--ac-shadow);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.quick-actions button:first-child {
+  color: #ffffff;
+  border-color: var(--ac-blue);
+  background: var(--ac-blue);
+}
+
+.quick-actions button:hover,
+.managed-actions button:hover {
+  border-color: #ccd0d5;
+  background-color: #f0f2f5;
+  box-shadow: var(--ac-shadow);
+}
+
+.managed-listings {
+  display: grid;
+  gap: 14px;
+}
+
+.managed-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--ac-border);
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: var(--ac-shadow);
+}
+
+.managed-visual,
+.account-preview-visual {
+  position: relative;
+  display: grid;
+  place-items: end start;
+  aspect-ratio: 4 / 3;
+  padding: 14px;
+  overflow: hidden;
+  background: linear-gradient(145deg, #173b63, #98adc2);
+}
+
+.managed-visual::before,
+.account-preview-visual::before {
   position: absolute;
   inset: 0;
-  pointer-events: none;
+  content: "";
   background:
-    linear-gradient(
-      to right,
-      transparent 33.1%,
-      rgba(255, 255, 255, 0.28) 33.3%,
-      rgba(255, 255, 255, 0.28) 33.6%,
-      transparent 33.8%,
-      transparent 66.1%,
-      rgba(255, 255, 255, 0.28) 66.3%,
-      rgba(255, 255, 255, 0.28) 66.6%,
-      transparent 66.8%
-    ),
-    linear-gradient(
-      to bottom,
-      transparent 33.1%,
-      rgba(255, 255, 255, 0.28) 33.3%,
-      rgba(255, 255, 255, 0.28) 33.6%,
-      transparent 33.8%,
-      transparent 66.1%,
-      rgba(255, 255, 255, 0.28) 66.3%,
-      rgba(255, 255, 255, 0.28) 66.6%,
-      transparent 66.8%
-    );
+    radial-gradient(circle at 20% 18%, rgba(255, 255, 255, 0.34), transparent 30%),
+    linear-gradient(180deg, transparent 48%, rgba(8, 20, 37, 0.22));
 }
 
-.vvip-clean-editor-controls {
-  margin-top: 14px;
+.managed-visual::after,
+.account-preview-visual::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  color: rgba(255, 255, 255, 0.7);
+  content: "⚙";
+  font-size: clamp(3.2rem, 11vw, 5.8rem);
+  transform: translate(-50%, -52%);
 }
 
-.vvip-clean-editor-controls label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 0.8rem;
+.managed-visual--estate {
+  background: linear-gradient(145deg, #57796e, #a9c0b3);
+}
+
+.managed-visual--estate::after {
+  content: "⌂";
+}
+
+.managed-visual span,
+.account-preview-visual span {
+  position: relative;
+  z-index: 1;
+  padding: 5px 9px;
+  border-radius: 999px;
+  color: var(--ac-text);
+  background: rgba(255, 255, 255, 0.92);
+  font-size: 0.68rem;
   font-weight: 800;
 }
 
-.vvip-clean-editor-controls input {
-  width: 100%;
-  accent-color: #0866ff;
+.managed-card > div:last-child {
+  min-width: 0;
+  padding: 16px;
 }
 
-.vvip-clean-editor-help {
-  color: #65676b;
-  font-size: 0.7rem;
-  line-height: 1.7;
-  text-align: center;
+.managed-card h3 {
+  margin: 7px 0;
+  color: var(--ac-text);
 }
 
-.vvip-clean-editor-error {
-  margin-top: 12px;
-  padding: 11px 12px;
-  border: 1px solid #fecaca;
-  border-radius: 10px;
-  background: #fff1f2;
-  color: #b42318;
-  font-size: 0.73rem;
-  font-weight: 700;
-  line-height: 1.7;
+.managed-card strong {
+  color: var(--ac-navy);
 }
 
-.vvip-clean-editor-confirm {
-  display: flex;
-  width: 100%;
-  min-height: 55px;
-  align-items: center;
-  justify-content: center;
+.managed-card p {
+  margin: 4px 0;
+  color: var(--ac-muted);
+  font-size: 0.8rem;
+}
+
+.listing-state {
+  float: left;
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: var(--ac-success);
+  background: #e8f6ee;
+  font-size: 0.67rem;
+  font-weight: 800;
+}
+
+.managed-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
   margin-top: 14px;
+}
+
+.managed-actions button {
+  min-width: 0;
+  min-height: 42px;
+  padding: 7px 5px;
+  border: 1px solid var(--ac-border);
+  border-radius: 10px;
+  color: var(--ac-navy);
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.managed-actions button:first-child {
+  color: #ffffff;
+  border-color: var(--ac-blue);
+  background: var(--ac-blue);
+}
+
+.account-columns {
+  display: grid;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.account-detail {
+  padding: 20px;
+  outline: 0;
+  scroll-margin-top: 90px;
+}
+
+.account-detail dl {
+  margin: 14px 0 0;
+}
+
+.account-detail dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--ac-border);
+}
+
+.account-detail dl div:last-child {
+  border-bottom: 0;
+}
+
+.account-detail dt {
+  color: var(--ac-muted);
+}
+
+.account-detail dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-weight: 700;
+  text-align: left;
+}
+
+.session-state {
+  color: var(--ac-success) !important;
+  font-weight: 700;
+}
+
+.is-highlighted {
+  animation: account-highlight 1.6s ease;
+}
+
+.account-bottom-nav {
+  position: fixed;
+  right: 10px;
+  bottom: max(10px, env(safe-area-inset-bottom));
+  left: 10px;
+  z-index: 25;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  padding: 6px;
+  border: 1px solid var(--ac-border);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: var(--ac-shadow);
+  backdrop-filter: blur(16px);
+}
+
+.account-bottom-nav a,
+.account-bottom-nav button,
+.account-bottom-nav span {
+  display: grid;
+  min-width: 0;
+  min-height: 44px;
+  place-items: center;
+  padding: 4px;
   border: 0;
-  border-radius: 11px;
-  background: #0866ff;
-  color: #fff;
-  font-size: 0.91rem;
-  font-weight: 900;
-  touch-action: manipulation;
+  color: var(--ac-muted);
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-decoration: none;
 }
 
-.vvip-clean-editor-confirm[disabled] {
-  opacity: 0.6;
+.account-bottom-nav span {
+  border-radius: 10px;
+  color: var(--ac-blue);
+  background: #e7f3ff;
 }
 
-.vvip-clean-editor-toast {
+.account-toast {
   position: fixed;
   right: 16px;
-  bottom: calc(var(--vvip-bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 18px);
+  bottom: calc(82px + env(safe-area-inset-bottom));
   left: 16px;
-  z-index: 31000;
-  max-width: 560px;
-  margin-inline: auto;
-  padding: 12px 14px;
+  z-index: 80;
+  width: min(480px, calc(100% - 32px));
+  margin: auto;
+  padding: 13px 18px;
   border-radius: 13px;
-  background: rgba(28, 30, 33, 0.96);
-  color: #fff;
-  font-size: 0.74rem;
-  line-height: 1.6;
+  color: #ffffff;
+  background: #1c1e21;
+  box-shadow: var(--ac-shadow);
   text-align: center;
 }
 
-body.vvip-profile-enter-forward .vvip-profile-app {
-  animation: vvip-profile-enter-forward 320ms cubic-bezier(.2,.8,.2,1) both;
+.account-sheet-layer,
+.account-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
 }
 
-body.vvip-profile-enter-back .vvip-profile-app {
-  animation: vvip-profile-enter-back 320ms cubic-bezier(.2,.8,.2,1) both;
+.account-sheet-backdrop,
+.account-dialog {
+  border: 0;
+  background: rgba(8, 20, 37, 0.58);
+  backdrop-filter: blur(3px);
 }
 
-body.vvip-profile-leave-forward .vvip-profile-app {
-  animation: vvip-profile-leave-forward 160ms ease-in both;
+.account-sheet {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  max-height: 88vh;
+  padding: 18px 20px 24px;
+  overflow-y: auto;
+  border-radius: 22px 22px 0 0;
+  outline: 0;
+  background: #ffffff;
+  box-shadow: 0 -20px 52px rgba(8, 20, 37, 0.24);
 }
 
-body.vvip-profile-leave-back .vvip-profile-app {
-  animation: vvip-profile-leave-back 160ms ease-in both;
+.account-sheet-close {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  float: left;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--ac-border);
+  border-radius: 50%;
+  color: var(--ac-navy);
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 1.4rem;
+  line-height: 1;
 }
 
-@keyframes vvip-profile-enter-forward {
-  from {
-    opacity: 0.86;
-    transform: translateX(-34px);
+.account-preview-visual {
+  width: 100%;
+  margin: 2px 0 16px;
+  border-radius: 16px;
+}
+
+.account-preview-specs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0 18px;
+}
+
+.account-preview-specs span {
+  padding: 5px 9px;
+  border: 1px solid #e6eaf0;
+  border-radius: 9px;
+  color: #526075;
+  background: #f5f7f9;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.account-sheet h2 {
+  margin: 6px 0;
+  color: var(--ac-navy);
+}
+
+.sheet-price {
+  display: block;
+  margin: 10px 0;
+  color: var(--ac-navy);
+  font-size: 1.25rem;
+}
+
+.account-dialog {
+  display: grid;
+  place-items: center;
+  padding: 18px;
+}
+
+.account-dialog > section {
+  width: min(430px, 100%);
+  padding: 22px;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 20px 50px rgba(8, 20, 37, 0.22);
+}
+
+.account-dialog h2 {
+  margin-top: 0;
+  color: var(--ac-navy);
+}
+
+.account-dialog section > div {
+  display: flex;
+  gap: 8px;
+}
+
+.account-error {
+  color: var(--ac-danger);
+}
+
+@keyframes account-highlight {
+  0%,
+  100% {
+    box-shadow: var(--ac-shadow);
   }
 
-  to {
-    opacity: 1;
-    transform: translateX(0);
+  25%,
+  75% {
+    box-shadow: 0 0 0 4px rgba(24, 119, 242, 0.18), var(--ac-shadow);
   }
 }
 
-@keyframes vvip-profile-enter-back {
-  from {
-    opacity: 0.86;
-    transform: translateX(34px);
+@media (max-width: 430px) {
+  .account-header {
+    padding-inline: 12px;
   }
 
-  to {
-    opacity: 1;
-    transform: translateX(0);
+  .account-brand small {
+    display: none;
   }
-}
 
-@keyframes vvip-profile-leave-forward {
-  to {
-    opacity: 0.8;
-    transform: translateX(26px);
+  .account-header__actions {
+    gap: 5px;
   }
-}
 
-@keyframes vvip-profile-leave-back {
-  to {
-    opacity: 0.8;
-    transform: translateX(-26px);
+  .account-header__actions .account-button {
+    padding-inline: 9px;
+    font-size: 0.76rem;
+  }
+
+  .account-summary {
+    align-items: flex-start;
   }
 }
 
-@media (max-width: 390px) {
-  .vvip-profile-avatar-wrap {
-    right: 14px;
-    bottom: -60px;
-    width: 124px;
-    height: 124px;
+@media (min-width: 700px) {
+  .account-main {
+    padding-bottom: 54px;
   }
 
-  .vvip-profile-identity {
-    min-height: 182px;
-    padding-top: 72px;
+  .account-bottom-nav {
+    display: none;
   }
 
-  .vvip-profile-primary-action,
-  .vvip-profile-secondary-action {
-    font-size: 0.72rem;
+  .account-toast {
+    bottom: 24px;
+  }
+
+  .quick-actions {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .managed-listings,
+  .account-columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .managed-card {
+    display: grid;
+    grid-template-columns: minmax(145px, 38%) minmax(0, 1fr);
+  }
+
+  .managed-visual {
+    height: 100%;
+    aspect-ratio: auto;
+  }
+
+  .account-sheet {
+    right: 50%;
+    left: auto;
+    width: min(560px, 90vw);
+    transform: translateX(50%);
   }
 }
 
-@media (max-width: 340px) {
-  .vvip-owner-view-as-banner {
-    align-items: stretch;
-    flex-direction: column;
+@media (min-width: 900px) {
+  .account-sheet {
+    bottom: 24px;
+    max-height: calc(100vh - 48px);
+    border-radius: 22px;
   }
+}
 
-  .vvip-owner-view-as-banner button,
-  .vvip-profile-actions.public {
-    width: 100%;
-  }
-
-  .vvip-profile-actions.public,
-  .vvip-signout-actions {
-    grid-template-columns: 1fr;
+@media (min-width: 1000px) {
+  .account-header {
+    padding-inline: max(24px, calc((100vw - 1100px) / 2));
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body.vvip-profile-enter-forward .vvip-profile-app,
-  body.vvip-profile-enter-back .vvip-profile-app,
-  body.vvip-profile-leave-forward .vvip-profile-app,
-  body.vvip-profile-leave-back .vvip-profile-app {
-    animation: none;
+  * {
+    scroll-behavior: auto !important;
+    animation: none !important;
+    transition: none !important;
   }
 }

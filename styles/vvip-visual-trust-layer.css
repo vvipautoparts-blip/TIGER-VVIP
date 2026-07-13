@@ -179,7 +179,7 @@ textarea:focus-visible,
    Contrast & Readability Fix
    Purpose:
    - Prevent pale/white text from disappearing on light cards.
-   - Improve public profile/social page readability.
+   - Improve owner profile readability.
    - Keep premium identity without changing backend/auth logic.
 -------------------------------------------------------------------------- */
 
@@ -407,175 +407,9 @@ input[type="search"]::placeholder {
 }
 
 /* --------------------------------------------------------------------------
-   Visual Trust Layer — Phase 2.2
-   Public Profile Readability Lock
-   Purpose:
-   - Fix remaining pale feed text on public-profile.html only.
-   - Override accidental low opacity / pale colors inside light feed surfaces.
-   - Keep dark navigation/header areas untouched.
--------------------------------------------------------------------------- */
-
-body.vvip-page-public-profile :is(
-  .post-card,
-  .post,
-  .feed-post,
-  .timeline-post,
-  .social-post,
-  .activity-card,
-  .profile-post,
-  .public-post,
-  .feed-card,
-  .public-card,
-  article,
-  [class*="post"],
-  [class*="feed"]
-) {
-  opacity: 1 !important;
-  filter: none !important;
-  color: #0f172a !important;
-}
-
-body.vvip-page-public-profile :is(
-  .post-card,
-  .post,
-  .feed-post,
-  .timeline-post,
-  .social-post,
-  .activity-card,
-  .profile-post,
-  .public-post,
-  .feed-card,
-  .public-card,
-  article,
-  [class*="post"],
-  [class*="feed"]
-) :is(
-  p,
-  span,
-  small,
-  div,
-  strong,
-  b,
-  label,
-  .post-text,
-  .post-description,
-  .post-content,
-  .content,
-  .description,
-  .body,
-  .excerpt,
-  .caption,
-  .summary
-) {
-  opacity: 1 !important;
-  filter: none !important;
-  text-shadow: none !important;
-  color: #334155 !important;
-}
-
-body.vvip-page-public-profile :is(
-  .post-card,
-  .post,
-  .feed-post,
-  .timeline-post,
-  .social-post,
-  .activity-card,
-  .profile-post,
-  .public-post,
-  .feed-card,
-  .public-card,
-  article,
-  [class*="post"],
-  [class*="feed"]
-) :is(
-  .post-meta,
-  .meta,
-  .time,
-  .timestamp,
-  .subtitle,
-  .muted,
-  .text-muted,
-  .date,
-  .status
-) {
-  opacity: 1 !important;
-  color: #64748b !important;
-  text-shadow: none !important;
-}
-
-body.vvip-page-public-profile :is(
-  .post-card,
-  .post,
-  .feed-post,
-  .timeline-post,
-  .social-post,
-  .activity-card,
-  .profile-post,
-  .public-post,
-  .feed-card,
-  .public-card,
-  article,
-  [class*="post"],
-  [class*="feed"]
-) :is(
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6,
-  .author-name,
-  .profile-name,
-  .post-author,
-  .title,
-  .name
-) {
-  opacity: 1 !important;
-  color: #0f172a !important;
-  text-shadow: none !important;
-  font-weight: 800;
-}
-
-/* Preserve premium dark areas on the same page */
-body.vvip-page-public-profile :is(
-  .topbar,
-  .navbar,
-  .nav-shell,
-  .dark-shell,
-  .vvip-dark,
-  .vip-social-lounge,
-  .header,
-  .hero,
-  .toolbar
-),
-body.vvip-page-public-profile :is(
-  .topbar,
-  .navbar,
-  .nav-shell,
-  .dark-shell,
-  .vvip-dark,
-  .vip-social-lounge,
-  .header,
-  .hero,
-  .toolbar
-) * {
-  color: inherit !important;
-}
-
-/* Comment/input area readability */
-body.vvip-page-public-profile :is(input, textarea) {
-  color: #0f172a !important;
-}
-
-body.vvip-page-public-profile :is(input, textarea)::placeholder {
-  color: #64748b !important;
-  opacity: 1 !important;
-}
-
-/* --------------------------------------------------------------------------
    Profile UX Polish — Phase 1
    Purpose:
-   - Improve private/public profile spacing, card rhythm, and button clarity.
+   - Improve owner profile spacing, card rhythm, and button clarity.
    - Keep the premium VVIP TIGER visual tone.
    - Do not change Clerk, Supabase, RPC, RLS, auth, or backend behavior.
 -------------------------------------------------------------------------- */
@@ -671,17 +505,6 @@ body.vvip-page-private-profile :is(
   gap: 12px;
 }
 
-body.vvip-page-public-profile :is(
-  .profile-header,
-  .public-header,
-  .feed-header,
-  .tabs,
-  .filters,
-  .toolbar
-) {
-  gap: 12px;
-}
-
 body.vvip-profile-ux-polish :is(
   .topbar,
   .navbar,
@@ -733,7 +556,7 @@ body.vvip-profile-ux-polish :is(
    Page Flow & User Journey — Phase 1
    Private Profile Journey Controls
    Purpose:
-   - Make home/public-profile/logout access clearer on private-profile.html.
+   - Make home and logout access clearer on the private profile.
    - Keep changes user-facing only.
    - Do not change Supabase, RPC, RLS, Clerk configuration, or backend logic.
 -------------------------------------------------------------------------- */
