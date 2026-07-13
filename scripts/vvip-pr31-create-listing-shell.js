@@ -104,7 +104,7 @@
   function shellMarkup() {
     return `<div class="vvip-create-layer" data-vvip-create-listing-shell aria-hidden="true" hidden>
       <button class="vvip-create-backdrop" type="button" tabindex="-1" data-create-close aria-label="إغلاق نموذج الإعلان"></button>
-      <section class="vvip-create-shell" role="dialog" aria-modal="true" aria-labelledby="vvip-create-title" tabindex="-1">
+      <section class="vvip-create-shell" data-vvip-mobile-safe-shell role="dialog" aria-modal="true" aria-labelledby="vvip-create-title" tabindex="-1">
         <header class="vvip-create-header">
           <div><span class="vvip-create-badge">VVIP</span><h2 id="vvip-create-title">إنشاء إعلان</h2><p>هذا النموذج تجريبي آمن ولا ينشر الإعلان الآن.</p></div>
           <button class="vvip-create-close" type="button" data-create-close aria-label="إغلاق">×</button>
@@ -117,23 +117,23 @@
         </ol>
         <form class="vvip-create-form" data-vvip-create-listing-safe-draft novalidate>
           <section class="vvip-create-step" data-vvip-create-listing-sector-step data-create-step="0">
-            <div class="vvip-create-copy"><h3>اختر قطاع الإعلان</h3><p>اختيار القطاع مطلوب فقط عند إنشاء إعلان.</p></div>
+            <div class="vvip-create-copy"><h3>اختر قطاع الإعلان</h3><p>اختيار القطاع مطلوب فقط عند إنشاء إعلان.</p><p class="vvip-step-guidance">أكمل الحقول المطلوبة للانتقال.</p></div>
             <div class="vvip-sector-grid" role="radiogroup" aria-label="قطاع الإعلان">
               <button type="button" role="radio" aria-checked="false" data-create-sector="automotive">قطع وخدمات السيارات</button>
               <button type="button" role="radio" aria-checked="false" data-create-sector="materials">مواد ولوازم</button>
               <button type="button" role="radio" aria-checked="false" data-create-sector="real-estate">عقارات</button>
             </div>
-            <p class="vvip-create-error" data-create-error="sector" role="alert" hidden></p>
+            <p class="vvip-create-error vvip-field-error" data-create-error="sector" data-vvip-validation-error="sector" role="alert" hidden></p>
             <div class="vvip-create-actions"><button class="vvip-create-primary" type="button" data-create-next>التالي</button></div>
           </section>
 
           <section class="vvip-create-step" data-vvip-create-listing-details-step data-create-step="1" hidden>
-            <div class="vvip-create-copy"><h3>تفاصيل الإعلان</h3><p>أدخل المعلومات الأساسية بصورة واضحة ومختصرة.</p></div>
+            <div class="vvip-create-copy"><h3>تفاصيل الإعلان</h3><p>أدخل المعلومات الأساسية بصورة واضحة ومختصرة.</p><p class="vvip-step-guidance">أكمل الحقول المطلوبة للانتقال.</p></div>
             <div class="vvip-field-grid">
-              <label><span>اسم الإعلان / العنوان</span><input name="title" maxlength="120" autocomplete="off" required></label>
-              <label><span>السعر</span><input name="price" type="number" min="0.01" step="0.01" inputmode="decimal" required></label>
-              <label><span>المدينة / المنطقة</span><input name="location" maxlength="100" autocomplete="address-level2" required></label>
-              <label class="vvip-field-wide"><span>وصف مختصر</span><textarea name="summary" maxlength="500" rows="3"></textarea></label>
+              <label><span>اسم الإعلان / العنوان</span><input name="title" maxlength="80" autocomplete="off" required><small class="vvip-field-error" data-vvip-validation-error="title" role="alert" hidden></small></label>
+              <label><span>السعر</span><input name="price" type="text" inputmode="decimal" autocomplete="off" required><small class="vvip-field-error" data-vvip-validation-error="price" role="alert" hidden></small></label>
+              <label><span>المدينة / المنطقة</span><input name="location" maxlength="60" autocomplete="address-level2" required><small class="vvip-field-error" data-vvip-validation-error="location" role="alert" hidden></small></label>
+              <label class="vvip-field-wide"><span>وصف مختصر</span><textarea name="summary" maxlength="280" rows="3"></textarea><small class="vvip-field-error" data-vvip-validation-error="summary" role="status" hidden></small></label>
               <label class="vvip-field-wide"><span>مواصفات أساسية</span><input name="specs" maxlength="240" placeholder="افصل بين المواصفات بفاصلة"></label>
             </div>
 
@@ -170,7 +170,7 @@
             <label class="vvip-file-picker" data-local-file-picker><span>اختيار صور من الجهاز</span><input type="file" accept="image/*" multiple data-create-photo-input></label>
             <p class="vvip-file-fallback" data-file-api-fallback hidden>اختيار الصور غير متاح في هذا المتصفح، ويمكنك متابعة المسودة دون صور.</p>
             <div class="vvip-photo-preview" data-create-photo-preview aria-live="polite"></div>
-            <p class="vvip-create-hint">قص الصور وترتيبها واختيار صورة الغلاف ستتوفر في مرحلة لاحقة.</p>
+            <p class="vvip-create-hint">الصور ستُرفع لاحقًا عند تفعيل النشر الحقيقي. يمكنك إضافة صور لاحقًا عند تفعيل الرفع الحقيقي.</p>
             <div class="vvip-create-actions"><button type="button" data-create-back>السابق</button><button class="vvip-create-primary" type="button" data-create-next>مراجعة المسودة</button></div>
           </section>
 
@@ -180,8 +180,20 @@
               <span data-review-sector></span><h3 data-review-title></h3><strong data-review-price></strong><p data-review-location></p><p data-review-summary></p>
               <div class="vvip-review-specs" data-review-specs></div><p data-review-photo-count></p>
             </article>
+            <section class="vvip-readiness-panel" data-vvip-pr33-readiness>
+              <h3>جاهزية الإعلان</h3>
+              <span class="vvip-readiness-status" data-vvip-readiness-status>فحص البيانات...</span>
+              <ul class="vvip-readiness-checks">
+                <li data-readiness-check="sector" data-readiness-label="القطاع"></li>
+                <li data-readiness-check="title" data-readiness-label="الاسم"></li>
+                <li data-readiness-check="price" data-readiness-label="السعر"></li>
+                <li data-readiness-check="location" data-readiness-label="الموقع"></li>
+              </ul>
+              <p class="vvip-readiness-note">الصور اختيارية الآن، والنشر الحقيقي قيد التجهيز.</p>
+              <button type="button" data-vvip-readiness-open>فحص جاهزية الإعلان</button>
+            </section>
             <p class="vvip-create-disclaimer">VVIP TIGER منصة عرض وتواصل فقط وليست طرفًا في البيع أو الدفع أو التوصيل أو العقود.</p>
-            <div class="vvip-create-actions vvip-create-actions--review"><button class="vvip-create-primary" type="button" data-save-local-draft>حفظ كمسودة محلية</button><button type="button" data-create-back data-edit-details>رجوع للتعديل</button><button type="button" data-create-close>إغلاق</button></div>
+            <div class="vvip-create-actions vvip-create-actions--review"><button class="vvip-create-primary" type="button" data-save-local-draft>حفظ المسودة المحلية</button><button type="button" data-vvip-safe-publish-action data-vvip-publish-disabled aria-disabled="true">النشر الحقيقي لاحقًا</button><button type="button" data-create-back data-edit-details>رجوع للتعديل</button><button type="button" data-create-close>إغلاق</button></div>
           </section>
         </form>
       </section>
@@ -213,6 +225,35 @@
     return form && form.elements.namedItem(name);
   }
 
+  function readinessApi() {
+    return window.VVIP_PR33_READINESS || null;
+  }
+
+  function validationInput() {
+    const sectorDetails = {};
+    const labels = SECTOR_FIELD_LABELS[selectedSector] || {};
+    Object.keys(labels).forEach(function (name) {
+      sectorDetails[name] = cleanField(name, 140);
+    });
+    return {
+      sector: selectedSector,
+      title: field("title") ? field("title").value : "",
+      price: field("price") ? field("price").value : "",
+      location: field("location") ? field("location").value : "",
+      summary: field("summary") ? field("summary").value : "",
+      specs: field("specs") ? field("specs").value : "",
+      sectorDetails: sectorDetails,
+      selectedLocalPhotoCount: currentPhotoNames().length
+    };
+  }
+
+  function currentValidation() {
+    const api = readinessApi();
+    return api && typeof api.validateListingDraft === "function"
+      ? api.validateListingDraft(validationInput())
+      : null;
+  }
+
   function setError(name, message) {
     const node = layer.querySelector(`[data-create-error="${name}"]`);
     if (!node) return;
@@ -234,6 +275,8 @@
       fieldset.disabled = !active;
     });
     setError("sector", "");
+    const api = readinessApi();
+    if (api) api.setFieldError("sector", "");
     return true;
   }
 
@@ -251,16 +294,41 @@
     return {
       sector: selectedSector,
       sectorLabel: SECTORS[selectedSector] || "",
-      title: cleanField("title", 120),
-      price: parseSafePrice(field("price") && field("price").value),
-      location: cleanField("location", 100),
-      summary: cleanField("summary", 500),
+      title: cleanField("title", 80),
+      price: readinessApi() && typeof readinessApi().validatePrice === "function"
+        ? readinessApi().validatePrice(field("price") && field("price").value).value
+        : parseSafePrice(field("price") && field("price").value),
+      location: cleanField("location", 60),
+      summary: cleanField("summary", 280),
       specs: cleanField("specs", 240),
       sectorDetails: sectorDetails
     };
   }
 
   function validateDetails() {
+    const api = readinessApi();
+    const validation = currentValidation();
+    if (api && validation) {
+      const detailErrors = {};
+      ["title", "price", "location", "summary"].forEach(function (name) {
+        if (validation.errors[name]) detailErrors[name] = validation.errors[name];
+      });
+      api.renderValidationErrors(detailErrors);
+      if (validation.warnings.includes("summary")) {
+        api.setFieldError("summary", "أضف وصفًا مختصرًا يساعد المستخدمين على فهم الإعلان.");
+      }
+      const firstBlocker = validation.blockers.find(function (name) {
+        return name === "title" || name === "price" || name === "location" || name === "summary";
+      });
+      if (firstBlocker) {
+        const focusTarget = field(firstBlocker);
+        if (focusTarget) focusTarget.focus();
+        setError("details", "أكمل الحقول المطلوبة للانتقال.");
+        return false;
+      }
+      setError("details", "");
+      return true;
+    }
     const details = collectDetails();
     let message = "";
     let focusTarget = null;
@@ -308,12 +376,16 @@
       const value = details.sectorDetails[name];
       if (value) values.push(labels[name] + ": " + value);
     });
-    values.forEach(function (value) {
+    values.slice(0, 10).forEach(function (value) {
       const chip = document.createElement("span");
       chip.textContent = value;
       specsHost.appendChild(chip);
     });
     reviewText("[data-review-photo-count]", "الصور المحلية المحددة: " + currentPhotoNames().length);
+    const api = readinessApi();
+    if (api && typeof api.updateReadinessStatus === "function") {
+      api.updateReadinessStatus(validationInput());
+    }
   }
 
   function setStep(nextStep) {
@@ -334,10 +406,15 @@
 
   function nextStep() {
     if (currentStep === 0 && !selectedSector) {
-      setError("sector", "اختر قطاع الإعلان للمتابعة.");
+      const api = readinessApi();
+      if (api) api.setFieldError("sector", "اختر قطاع الإعلان.");
+      else setError("sector", "اختر قطاع الإعلان.");
       return;
     }
     if (currentStep === 1 && !validateDetails()) return;
+    if (currentStep === 2 && !currentPhotoNames().length) {
+      feedback("يمكنك إضافة صور لاحقًا عند تفعيل الرفع الحقيقي.");
+    }
     setStep(currentStep + 1);
   }
 
@@ -405,6 +482,13 @@
   function draftPayload() {
     const details = collectDetails();
     const photoNames = currentPhotoNames();
+    const validation = currentValidation();
+    const readiness = validation || {
+      ready: Boolean(details.sector && details.title && details.price !== null && details.location),
+      score: 0,
+      missing: [],
+      warnings: []
+    };
     return {
       version: 1,
       savedAt: new Date().toISOString(),
@@ -418,7 +502,12 @@
       sectorDetails: details.sectorDetails,
       photoNames: photoNames,
       selectedLocalPhotoCount: photoNames.length,
-      lastStep: currentStep
+      lastStep: currentStep,
+      readinessStatus: readiness.ready ? "ready" : "incomplete",
+      readinessScore: readiness.score,
+      readinessUpdatedAt: new Date().toISOString(),
+      missingFields: readiness.missing.slice(0, 10),
+      warnings: readiness.warnings.slice(0, 10)
     };
   }
 
@@ -447,7 +536,12 @@
       photoNames: draft.photoFileNames,
       selectedLocalPhotoCount: draft.photoCount,
       lastStep: draft.lastStep,
-      incomplete: draft.incomplete
+      incomplete: draft.incomplete,
+      readinessStatus: draft.readinessStatus,
+      readinessScore: draft.readinessScore,
+      readinessUpdatedAt: draft.readinessUpdatedAt,
+      missingFields: draft.missingFields,
+      warnings: draft.warnings
     };
   }
 
@@ -473,9 +567,11 @@
   }
 
   function saveDraft() {
-    if (!selectedSector || !validateDetails()) {
-      setStep(selectedSector ? 1 : 0);
-      if (!selectedSector) setError("sector", "اختر قطاع الإعلان للمتابعة.");
+    if (!selectedSector) {
+      setStep(0);
+      const api = readinessApi();
+      if (api) api.setFieldError("sector", "اختر قطاع الإعلان.");
+      else setError("sector", "اختر قطاع الإعلان.");
       return;
     }
     const draft = draftPayload();
@@ -489,7 +585,9 @@
     }
     dirty = false;
     savedPhotoNames = draft.photoNames.slice();
-    feedback("تم حفظ المسودة محليًا على هذا الجهاز فقط.");
+    feedback(draft.readinessStatus === "ready"
+      ? "تم حفظ المسودة المحلية وهي جاهزة للمراجعة لاحقًا."
+      : "تم حفظ المسودة محليًا، وتحتاج إلى إكمال بعض الحقول.");
   }
 
   function clearDraftStorage() {
@@ -530,6 +628,8 @@
     });
     setError("sector", "");
     setError("details", "");
+    const api = readinessApi();
+    if (api && typeof api.clearValidationErrors === "function") api.clearValidationErrors();
     renderPhotoPreview();
     setStep(0);
     const drafts = window.VVIP_PR32_DRAFTS;
@@ -818,7 +918,14 @@
     if (event.target.closest("[data-create-close]")) requestCloseShell();
   });
 
-  form.addEventListener("input", function () { dirty = true; });
+  form.addEventListener("input", function (event) {
+    dirty = true;
+    const api = readinessApi();
+    if (api && event.target && event.target.name) {
+      api.setFieldError(event.target.name, "");
+      setError("details", "");
+    }
+  });
   layer.querySelector("[data-create-photo-input]").addEventListener("change", function (event) {
     handlePhotos(event.target);
   });
@@ -850,6 +957,9 @@
       return localPhotos.length
         ? { url: localPhotos[0].url, count: localPhotos.length }
         : { url: "", count: savedPhotoNames.length };
+    },
+    currentDraft: function () {
+      return layer && !layer.hidden ? draftPayload() : null;
     },
     close: requestCloseShell,
     escapeText: escapeText,

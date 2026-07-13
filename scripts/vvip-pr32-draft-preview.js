@@ -14,6 +14,8 @@
   });
   const CORRUPT_MESSAGE =
     "تعذر قراءة المسودة المحلية. يمكنك حذفها أو إنشاء مسودة جديدة.";
+  const READINESS_FIELDS = Object.freeze(["sector", "title", "price", "location", "summary"]);
+  const READINESS_WARNINGS = Object.freeze(["summary", "sectorDetails", "photos"]);
 
   let previewLayer;
   let previewPanel;
@@ -69,8 +71,27 @@
       ? requestedStep
       : 1;
     const price = parsePrice(input.price);
-    const title = cleanText(input.title, 120);
-    const location = cleanText(input.location, 100);
+    const title = cleanText(input.title, 80);
+    const location = cleanText(input.location, 60);
+    const basicReady = title.length >= 2 && title.length <= 80 &&
+      price !== null && Boolean(location) && location.length <= 60;
+    const readinessStatus = basicReady && input.readinessStatus !== "incomplete"
+      ? "ready"
+      : "incomplete";
+    const requestedScore = Number(input.readinessScore);
+    const readinessScore = Number.isFinite(requestedScore)
+      ? Math.max(0, Math.min(100, Math.round(requestedScore)))
+      : basicReady ? 100 : 0;
+    const missingFields = Array.isArray(input.missingFields)
+      ? input.missingFields.filter(function (name) {
+        return READINESS_FIELDS.includes(name);
+      }).slice(0, 10)
+      : [];
+    const warnings = Array.isArray(input.warnings)
+      ? input.warnings.filter(function (name) {
+        return READINESS_WARNINGS.includes(name);
+      }).slice(0, 10)
+      : [];
 
     return {
       version: 2,
@@ -80,13 +101,18 @@
       title: title,
       price: price,
       location: location,
-      summary: cleanText(input.summary, 500),
+      summary: cleanText(input.summary, 280),
       specs: cleanText(input.specs, 240),
       sectorFields: sectorFields,
       photoCount: photoCount,
       photoFileNames: photoFileNames,
       lastStep: lastStep,
-      incomplete: !title || price === null || !location
+      incomplete: readinessStatus !== "ready",
+      readinessStatus: readinessStatus,
+      readinessScore: readinessScore,
+      readinessUpdatedAt: cleanText(input.readinessUpdatedAt, 40),
+      missingFields: missingFields,
+      warnings: warnings
     };
   }
 
@@ -133,7 +159,12 @@
       sectorFields: draft.sectorFields,
       photoCount: draft.photoCount,
       photoFileNames: draft.photoFileNames,
-      lastStep: draft.lastStep
+      lastStep: draft.lastStep,
+      readinessStatus: draft.readinessStatus,
+      readinessScore: draft.readinessScore,
+      readinessUpdatedAt: new Date().toISOString(),
+      missingFields: draft.missingFields,
+      warnings: draft.warnings
     };
     try {
       window.localStorage.setItem(DRAFT_KEY, JSON.stringify(stored));
@@ -203,7 +234,7 @@
     }
     if (!detail) {
       const badge = document.createElement("b");
-      badge.textContent = "مسودة محلية";
+      badge.textContent = draft.readinessStatus === "ready" ? "مسودة جاهزة" : "تحتاج إكمال";
       visual.appendChild(badge);
     }
     return visual;
@@ -226,6 +257,18 @@
       : draft.price.toLocaleString("ar-SA") + " ر.س";
     const summary = document.createElement("p");
     summary.textContent = draft.summary || "أكمل وصف الإعلان عند متابعة التعديل.";
+    const readinessRow = document.createElement("div");
+    readinessRow.className = "vvip-draft-readiness-row";
+    const readinessBadge = document.createElement("span");
+    readinessBadge.className = "vvip-draft-readiness-badge";
+    readinessBadge.dataset.readinessState = draft.readinessStatus;
+    readinessBadge.textContent = draft.readinessStatus === "ready" ? "مسودة جاهزة" : "تحتاج إكمال";
+    const readinessCopy = document.createElement("span");
+    readinessCopy.className = "vvip-draft-readiness-copy";
+    readinessCopy.textContent = draft.readinessStatus === "ready"
+      ? "جاهزة كمسودة محلية"
+      : "تحتاج إكمال";
+    readinessRow.append(readinessBadge, readinessCopy);
     const chips = document.createElement("div");
     chips.className = "vvip-draft-chips";
     draftSpecs(draft).forEach(function (value) {
@@ -244,9 +287,10 @@
     actions.append(
       makeButton("معاينة", "data-draft-preview-open"),
       makeButton("متابعة التعديل", "data-vvip-draft-resume-action"),
+      makeButton("فحص الجاهزية", "data-vvip-readiness-open"),
       makeButton("حذف المسودة", "data-vvip-draft-delete-action")
     );
-    body.append(meta, title, price, summary, chips, local, future, actions);
+    body.append(meta, title, price, summary, readinessRow, chips, local, future, actions);
     card.append(buildVisual(draft, false), body);
     return card;
   }
@@ -306,7 +350,7 @@
       <button class="vvip-draft-sheet-backdrop" type="button" tabindex="-1" data-draft-preview-close aria-label="إغلاق معاينة المسودة"></button>
       <section class="vvip-draft-sheet" role="dialog" aria-modal="true" aria-labelledby="vvip-draft-sheet-title" tabindex="-1">
         <button class="vvip-draft-sheet-close" type="button" data-draft-preview-close aria-label="إغلاق">×</button>
-        <span class="vvip-draft-badge">مسودة محلية</span>
+        <span class="vvip-draft-badge" data-draft-sheet-readiness>مسودة محلية</span>
         <h2 id="vvip-draft-sheet-title">معاينة المسودة</h2>
         <div data-draft-sheet-visual></div>
         <p class="vvip-draft-meta" data-draft-sheet-sector></p>
@@ -318,7 +362,7 @@
         <p data-draft-sheet-photo-count></p>
         <p class="vvip-draft-note">هذه معاينة محلية فقط. لم يتم نشر الإعلان ولم يتم إرسال أي بيانات إلى VVIP TIGER.</p>
         <p class="vvip-draft-disclaimer">VVIP TIGER منصة عرض وتواصل فقط وليست طرفًا في البيع أو الدفع أو التوصيل أو العقود.</p>
-        <div class="vvip-draft-actions"><button type="button" data-vvip-draft-resume-action>متابعة التعديل</button><button type="button" data-draft-preview-close>إغلاق</button><button type="button" data-vvip-draft-delete-action>حذف المسودة</button></div>
+        <div class="vvip-draft-actions"><button type="button" data-vvip-draft-resume-action>متابعة التعديل</button><button type="button" data-vvip-readiness-open>فحص الجاهزية</button><button type="button" data-draft-preview-close>إغلاق</button><button type="button" data-vvip-draft-delete-action>حذف المسودة</button></div>
       </section>
     </div>`;
   }
@@ -351,6 +395,7 @@
     setPreviewText("[data-draft-sheet-location]", draft.location || "الموقع غير مكتمل");
     setPreviewText("[data-draft-sheet-summary]", draft.summary || "الوصف غير مكتمل.");
     setPreviewText("[data-draft-sheet-photo-count]", "عدد الصور المحلية المسجلة: " + draft.photoCount);
+    setPreviewText("[data-draft-sheet-readiness]", draft.readinessStatus === "ready" ? "مسودة جاهزة" : "تحتاج إكمال");
     const specs = previewLayer.querySelector("[data-draft-sheet-specs]");
     specs.replaceChildren();
     draftSpecs(draft).forEach(function (value) {
