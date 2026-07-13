@@ -6,6 +6,8 @@
     search: { label: "البحث", href: "index.html#search", available: true },
     create: { label: "إنشاء إعلان", href: null, available: true, action: "openCreateListing" },
     createListing: { label: "إنشاء إعلان", href: null, available: true, action: "openCreateListing" },
+    createListingShell: { label: "إنشاء إعلان", href: null, available: true, action: "openCreateListing" },
+    draftPreview: { label: "معاينة المسودة", href: null, available: true, action: "openDraftPreview" },
     listingDetails: { label: "تفاصيل الإعلان", href: null, available: false },
     account: { label: "حسابي", href: "private-profile-p03.html", available: true },
     private: { label: "حسابي", href: "private-profile-p03.html", available: true },

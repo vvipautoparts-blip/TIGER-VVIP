@@ -12,8 +12,10 @@ for file in \
   scripts/vvip-pr29-home-marketplace.js \
   scripts/vvip-pr30-resilience.js \
   scripts/vvip-pr31-create-listing-shell.js \
+  scripts/vvip-pr32-draft-preview.js \
   styles/vvip-pr29-home-marketplace.css \
   styles/vvip-pr31-create-listing-shell.css \
+  styles/vvip-pr32-draft-preview.css \
   scripts/vvip-p03-route-map.js \
   sw.js; do
   [[ -f "$file" ]] || {
@@ -63,9 +65,11 @@ for marker in markers:
 required_assets = [
     "styles/vvip-pr29-home-marketplace.css",
     "styles/vvip-pr31-create-listing-shell.css",
+    "styles/vvip-pr32-draft-preview.css",
     "scripts/vvip-pr29-home-marketplace.js",
     "scripts/vvip-pr30-resilience.js",
     "scripts/vvip-pr31-create-listing-shell.js",
+    "scripts/vvip-pr32-draft-preview.js",
 ]
 
 for asset in required_assets:
@@ -382,8 +386,6 @@ behaviors = [
     "function parseSafePrice",
     "URL.createObjectURL",
     "URL.revokeObjectURL",
-    "localStorage.setItem",
-    "localStorage.removeItem",
     "photoNames",
     "selectedLocalPhotoCount",
     "لا يمكن حفظ المسودة محليًا الآن، لكن يمكنك مراجعة البيانات قبل الإغلاق.",
@@ -447,6 +449,7 @@ if retired_create_fallback in home_runtime + account_runtime:
 
 live_runtime_files = [
     Path("scripts/vvip-pr31-create-listing-shell.js"),
+    Path("scripts/vvip-pr32-draft-preview.js"),
     Path("scripts/vvip-pr30-resilience.js"),
     Path("scripts/vvip-pr29-home-marketplace.js"),
     Path("scripts/vvip-p03-profile.js"),
@@ -479,7 +482,7 @@ for hook in ["[data-create-confirm-cancel]", "[data-create-confirm-accept]"]:
     if hook not in resilience:
         raise SystemExit(f"[smoke][fail] PR30 guard blocks confirmation action: {hook}")
 
-if 'CACHE_NAME = CACHE_PREFIX + "v19"' not in service_worker:
+if 'CACHE_NAME = CACHE_PREFIX + "v20"' not in service_worker:
     raise SystemExit("[smoke][fail] PR31 confirmation cache was not invalidated")
 PY_PR31
 
@@ -492,6 +495,160 @@ assert.equal(helpers.parseSafePrice("1250.50"), 1250.5);
 assert.equal(helpers.parseSafePrice("0"), null);
 assert.equal(helpers.parseSafePrice("12x"), null);
 JS_PR31_HELPERS
+
+echo "[smoke] validating PR32 draft preview integration"
+python3 <<'PY_PR32'
+from pathlib import Path
+
+home = Path("index.html").read_text(encoding="utf-8")
+account = Path("private-profile-p03.html").read_text(encoding="utf-8")
+runtime = Path("scripts/vvip-pr32-draft-preview.js").read_text(encoding="utf-8")
+shell = Path("scripts/vvip-pr31-create-listing-shell.js").read_text(encoding="utf-8")
+styles = Path("styles/vvip-pr32-draft-preview.css").read_text(encoding="utf-8").lower()
+resilience = Path("scripts/vvip-pr30-resilience.js").read_text(encoding="utf-8")
+routes = Path("scripts/vvip-p03-route-map.js").read_text(encoding="utf-8")
+service_worker = Path("sw.js").read_text(encoding="utf-8")
+
+for page_name, page in [("Home", home), ("Account", account)]:
+    for asset in [
+        "styles/vvip-pr32-draft-preview.css",
+        "scripts/vvip-pr32-draft-preview.js",
+    ]:
+        if asset not in page:
+            raise SystemExit(f"[smoke][fail] {page_name} does not load {asset}")
+
+markers = [
+    "data-vvip-local-draft-preview",
+    "data-vvip-local-draft-card",
+    "data-vvip-draft-preview-sheet",
+    "data-vvip-draft-resume-action",
+    "data-vvip-draft-delete-action",
+    "data-vvip-draft-empty-state",
+]
+combined = home + account + runtime
+for marker in markers:
+    if marker not in combined:
+        raise SystemExit(f"[smoke][fail] missing PR32 marker: {marker}")
+
+helpers = [
+    "function readLocalDraft",
+    "function writeLocalDraft",
+    "function clearLocalDraft",
+    "function normalizeDraft",
+    "function sanitizeDraft",
+    "function renderDraftPreview",
+]
+for helper in helpers:
+    if helper not in runtime:
+        raise SystemExit(f"[smoke][fail] missing PR32 helper: {helper}")
+
+for storage_contract in ["localStorage.getItem", "localStorage.setItem", "localStorage.removeItem"]:
+    if storage_contract not in runtime:
+        raise SystemExit(f"[smoke][fail] missing PR32 storage contract: {storage_contract}")
+
+copy = [
+    "مسودتك الحالية",
+    "مسودة محلية",
+    "هذه المسودة محفوظة محليًا على هذا الجهاز فقط.",
+    "لم يتم نشر الإعلان بعد.",
+    "لن تظهر للمستخدمين حتى يتم تفعيل النشر الحقيقي لاحقًا.",
+    "معاينة المسودة",
+    "هذه معاينة محلية فقط. لم يتم نشر الإعلان ولم يتم إرسال أي بيانات إلى VVIP TIGER.",
+    "تم فتح المسودة، قد تحتاج لإكمال بعض الحقول.",
+    "تعذر قراءة المسودة المحلية. يمكنك حذفها أو إنشاء مسودة جديدة.",
+    "لا توجد مسودات محلية حاليًا.",
+]
+for text in copy:
+    if text not in combined + shell:
+        raise SystemExit(f"[smoke][fail] missing PR32 copy: {text}")
+
+shell_contract = [
+    "استكمال المسودة",
+    "بدء إعلان جديد",
+    "بدء إعلان جديد؟",
+    "سيتم استبدال المسودة المحلية الحالية على هذا الجهاز فقط.",
+    "بدء جديد",
+    "function requestOpenShell",
+    "function requestDeleteDraft",
+    "function transitionConfirmation",
+    "resume:",
+]
+for contract in shell_contract:
+    if contract not in shell:
+        raise SystemExit(f"[smoke][fail] missing PR32 shell contract: {contract}")
+
+for forbidden in ["data:" + "image", "base" + "64", "readAs" + "DataURL"]:
+    if forbidden.lower() in runtime.lower():
+        raise SystemExit(f"[smoke][fail] unsafe PR32 local image storage: {forbidden}")
+
+for contract in [
+    ".vvip-draft-preview",
+    ".vvip-draft-card",
+    ".vvip-draft-sheet",
+    "aspect-ratio: 4 / 3;",
+    "#f0f2f5",
+    "#1877f2",
+]:
+    if contract not in styles:
+        raise SystemExit(f"[smoke][fail] missing PR32 visual contract: {contract}")
+
+for hook in [
+    "[data-vvip-draft-resume-action]",
+    "[data-vvip-draft-delete-action]",
+    "[data-draft-preview-open]",
+    "[data-draft-preview-close]",
+]:
+    if hook not in resilience:
+        raise SystemExit(f"[smoke][fail] PR30 guard blocks PR32 action: {hook}")
+
+if 'draftPreview:' not in routes or 'action: "openDraftPreview"' not in routes:
+    raise SystemExit("[smoke][fail] route map misses internal draft preview action")
+
+for asset in [
+    "/scripts/vvip-pr32-draft-preview.js",
+    "/styles/vvip-pr32-draft-preview.css",
+]:
+    if asset not in service_worker:
+        raise SystemExit(f"[smoke][fail] service worker misses PR32 asset: {asset}")
+if 'CACHE_NAME = CACHE_PREFIX + "v20"' not in service_worker:
+    raise SystemExit("[smoke][fail] service worker cache was not bumped for PR32")
+PY_PR32
+
+node <<'JS_PR32_HELPERS'
+const assert = require("node:assert/strict");
+const memory = new Map();
+global.window = {
+  localStorage: {
+    getItem(key) { return memory.has(key) ? memory.get(key) : null; },
+    setItem(key, value) { memory.set(key, String(value)); },
+    removeItem(key) { memory.delete(key); },
+  },
+};
+const drafts = require("./scripts/vvip-pr32-draft-preview.js");
+
+const normalized = drafts.normalizeDraft({
+  version: 1,
+  sector: "automotive",
+  title: " <b>قطعة</b> ",
+  price: "120",
+  location: "الرياض",
+  sectorDetails: { autoType: "فرامل" },
+  photoNames: ["front.jpg"],
+  selectedLocalPhotoCount: 1,
+});
+assert.equal(normalized.title, "قطعة");
+assert.equal(normalized.price, 120);
+assert.equal(normalized.photoCount, 1);
+assert.equal(normalized.photoFileNames[0], "front.jpg");
+assert.equal(drafts.normalizeDraft({ sector: "unknown" }), null);
+assert.equal(drafts.writeLocalDraft(normalized), true);
+assert.equal(drafts.readLocalDraft().status, "ready");
+assert.equal(drafts.readLocalDraft().draft.title, "قطعة");
+memory.set("vvip_pr31_create_listing_draft", "{broken");
+assert.equal(drafts.readLocalDraft().status, "corrupt");
+assert.equal(drafts.clearLocalDraft(), true);
+assert.equal(drafts.readLocalDraft().status, "empty");
+JS_PR32_HELPERS
 
 echo "[smoke] validating auth preview and safe return path"
 python3 <<'PY_AUTH'
@@ -693,6 +850,7 @@ files = [
     Path("scripts/vvip-p03-profile.js"),
     Path("scripts/vvip-p03-sign-out.js"),
     Path("scripts/vvip-pr31-create-listing-shell.js"),
+    Path("scripts/vvip-pr32-draft-preview.js"),
     Path("styles/vvip-p03-profile.css"),
     Path("styles/vvip-visual-trust-layer.css"),
 ]
@@ -739,6 +897,7 @@ files = [
     Path("auth-clerk-index.js"),
     Path("scripts/vvip-pr29-home-marketplace.js"),
     Path("scripts/vvip-pr31-create-listing-shell.js"),
+    Path("scripts/vvip-pr32-draft-preview.js"),
 ]
 
 terms = [
@@ -770,6 +929,7 @@ files = [
     Path("scripts/vvip-pr29-home-marketplace.js"),
     Path("scripts/vvip-pr30-resilience.js"),
     Path("scripts/vvip-pr31-create-listing-shell.js"),
+    Path("scripts/vvip-pr32-draft-preview.js"),
 ]
 
 unsafe_fragments = [
