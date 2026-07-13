@@ -9,6 +9,28 @@
       "tmp/**",
       "*.md",
       "*.sql"
+    ],
+    "redirects": [
+      {
+        "source": "/public-profile.html",
+        "destination": "/index.html",
+        "type": 301
+      },
+      {
+        "source": "/public-profile-p03.html",
+        "destination": "/index.html",
+        "type": 301
+      },
+      {
+        "source": "/public-profile",
+        "destination": "/index.html",
+        "type": 301
+      },
+      {
+        "source": "/public-profile-p03",
+        "destination": "/index.html",
+        "type": 301
+      }
     ]
   }
 }

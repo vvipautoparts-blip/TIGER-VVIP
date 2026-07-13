@@ -23,7 +23,17 @@
     "index.html?logged_out=1&switch_user=1";
   const SIGN_OUT_TIMEOUT_MS = 12000;
   const PRIVATE_AUTH_RETURN_URL =
-    "index.html?logged_out=1&switch_user=1";
+    "index.html?return_to=private-profile-p03.html";
+
+  function localPreviewAllowed() {
+    const preview = new URLSearchParams(location.search).get("preview");
+    const isLocalHost = location.hostname === "localhost" ||
+      location.hostname === "127.0.0.1" ||
+      location.hostname === "::1" ||
+      location.hostname === "[::1]" ||
+      location.hostname === "0.0.0.0";
+    return isLocalHost && preview === "account";
+  }
 
   function showError(message) {
     if (!errorBox) return;
@@ -163,7 +173,6 @@
       "vvip:p03:create-state:v3",
       "vvip:p03:create-return-step",
       "vvip:p03:profile-owner-context",
-      "vvip:p03:profile-view-as",
       "vvip:p03:profile-motion",
       "vvip:p03:preview-private-shares",
       "vvip_p03_avatar_src",
@@ -271,6 +280,7 @@
   }
 
   async function guardPrivatePage() {
+    if (localPreviewAllowed()) return;
     if (redirectScheduled || document.visibilityState === "hidden") return;
     try {
       const clerk = await waitForClerk(1800);

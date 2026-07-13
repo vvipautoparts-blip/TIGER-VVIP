@@ -1,130 +1,69 @@
 window.addEventListener("load", async function () {
-  const card = document.querySelector(".fb-card");
+  "use strict";
 
-  if (!card) {
-    console.error("VVIP TIGER: login card not found");
+  const SAFE_RETURN_PATHS = new Set([
+    "index.html",
+    "/index.html",
+    "./index.html",
+    "private-profile-p03.html",
+    "/private-profile-p03.html",
+    "./private-profile-p03.html"
+  ]);
+
+  function localPreviewAllowed() {
+    const preview = new URLSearchParams(location.search).get("preview");
+    const isLocalHost = location.hostname === "localhost" ||
+      location.hostname === "127.0.0.1" ||
+      location.hostname === "::1" ||
+      location.hostname === "[::1]" ||
+      location.hostname === "0.0.0.0";
+    return isLocalHost && preview === "home";
+  }
+
+  function safeReturnPath() {
+    const returnTo = new URLSearchParams(location.search).get("return_to");
+    return SAFE_RETURN_PATHS.has(returnTo) ? returnTo : "";
+  }
+
+  function finishSignedIn() {
+    const returnTo = safeReturnPath();
+    if (returnTo) {
+      location.replace(returnTo);
+      return;
+    }
+    window.VVIP_PR29 && window.VVIP_PR29.showHome();
+  }
+
+  if (localPreviewAllowed()) {
+    window.VVIP_PR29 && window.VVIP_PR29.showHome();
     return;
   }
 
+  const host = document.getElementById("clerk-sign-in");
   try {
-    card.innerHTML = `
-      <div id="clerk-main-auth" class="vvip-clerk-main">
-        <div class="vvip-gate-auth-header">
-          <span class="vvip-gate-auth-pill">Secure Access</span>
-          <h2>دخول VVIP TIGER</h2>
-          <p>جاري تحميل بوابة الدخول الآمنة...</p>
-        </div>
-      </div>
-    `;
-
-    await window.Clerk.load({
-      ui: { ClerkUI: window.__internal_ClerkUICtor }
-    });
-
-    function renderClerkIndex() {
-      const authBox = document.getElementById("clerk-main-auth");
-      if (!authBox) return;
-
-      authBox.innerHTML = "";
-
-      if (window.Clerk.isSignedIn) {
-        const email =
-          window.Clerk.user &&
-          window.Clerk.user.primaryEmailAddress &&
-          window.Clerk.user.primaryEmailAddress.emailAddress
-            ? window.Clerk.user.primaryEmailAddress.emailAddress
-            : "VIP Member";
-
-        authBox.innerHTML = `
-          <div class="success-box vvip-gate-success">
-            <span class="vvip-gate-auth-pill">تم التحقق بنجاح</span>
-            <h2>أهلًا بك في VVIP TIGER ✅</h2>
-            <p>تم فتح بوابة الدخول الخاصة بحسابك.</p>
-            <p class="vvip-gate-email"><strong>${email}</strong></p>
-
-            <div id="clerk-user-button" style="margin:16px 0;"></div>
-
-            <div class="vvip-actions" style="margin-top:18px;display:flex;gap:12px;justify-content:center;align-items:center;flex-wrap:wrap;direction:rtl;">
-              <a
-                href="clerk-private-profile.html"
-                aria-label="فتح البروفايل الخاص"
-                title="فتح البروفايل الخاص"
-                style="border:0;border-radius:16px;padding:14px 22px;background:#1877f2;color:#ffffff !important;text-decoration:none;font-weight:900;font-size:16px;line-height:1.2;display:inline-flex;align-items:center;justify-content:center;min-width:210px;box-shadow:0 14px 32px rgba(24,119,242,.24);"
-              >
-                <span style="color:#ffffff !important;display:inline-block;">فتح البروفايل الخاص</span>
-              </a>
-
-              <a
-                href="index.html?reason=public_profile_disabled"
-                aria-label="متابعة إلى الصفحة العامة"
-                title="متابعة إلى الصفحة العامة"
-                style="border:0;border-radius:16px;padding:14px 22px;background:#0f172a;color:#ffffff !important;text-decoration:none;font-weight:900;font-size:16px;line-height:1.2;display:inline-flex;align-items:center;justify-content:center;min-width:210px;box-shadow:0 14px 32px rgba(15,23,42,.20);"
-              >
-                <span style="color:#ffffff !important;display:inline-block;">متابعة إلى الصفحة العامة</span>
-              </a>
-
-              <button
-                id="clerk-sign-out-btn"
-                type="button"
-                style="border:1px solid rgba(15,23,42,.18);border-radius:16px;padding:14px 22px;background:white;color:#0f172a;font-weight:900;font-size:16px;cursor:pointer;min-width:150px;"
-              >
-                تسجيل الخروج
-              </button>
-            </div>
-          </div>
-        `;
-
-        const userButtonDiv = document.getElementById("clerk-user-button");
-        if (userButtonDiv) {
-          window.Clerk.mountUserButton(userButtonDiv);
-        }
-
-        const signOutBtn = document.getElementById("clerk-sign-out-btn");
-        if (signOutBtn) {
-          signOutBtn.addEventListener("click", async function () {
-            await window.Clerk.signOut();
-            window.location.href = "index.html";
-          });
-        }
-
-        return;
-      }
-
-      authBox.innerHTML = `
-        <div class="vvip-gate-auth-header">
-          <span class="vvip-gate-auth-pill">Members Only</span>
-          <h2>تسجيل الدخول الآمن</h2>
-          <p>ادخل عبر Clerk للوصول إلى البروفايل الخاص وتجربة VVIP TIGER.</p>
-        </div>
-        <div id="clerk-sign-in"></div>
-      `;
-
-      const signInDiv = document.getElementById("clerk-sign-in");
-      const clerkRedirectUrl = window.location.origin + "/index.html";
-
-      window.Clerk.mountSignIn(signInDiv, {
+    if (!window.Clerk) throw new Error("Clerk runtime unavailable");
+    await window.Clerk.load();
+    if (window.Clerk.isSignedIn) {
+      finishSignedIn();
+      return;
+    }
+    window.VVIP_PR29 && window.VVIP_PR29.showGate();
+    const redirectPath = safeReturnPath() || "index.html";
+    const redirectUrl = new URL(redirectPath, location.href).href;
+    if (host) {
+      window.Clerk.mountSignIn(host, {
         routing: "hash",
-        fallbackRedirectUrl: clerkRedirectUrl,
-        forceRedirectUrl: clerkRedirectUrl,
-        signUpFallbackRedirectUrl: clerkRedirectUrl,
-        signUpForceRedirectUrl: clerkRedirectUrl
+        fallbackRedirectUrl: redirectUrl,
+        forceRedirectUrl: redirectUrl
       });
     }
-
-    renderClerkIndex();
-
     if (typeof window.Clerk.addListener === "function") {
       window.Clerk.addListener(function () {
-        renderClerkIndex();
+        if (window.Clerk.isSignedIn) finishSignedIn();
       });
     }
   } catch (error) {
-    console.error("VVIP TIGER Clerk index error:", error);
-
-    card.innerHTML = `
-      <div class="status-message">
-        تعذر تحميل Clerk. افتح Console وصوّر الخطأ الأحمر.
-      </div>
-    `;
+    console.error("VVIP TIGER Clerk gate error:", error);
+    if (host) host.innerHTML = '<p class="auth-error">تعذر تحميل بوابة الدخول الآمنة. حاول مرة أخرى.</p>';
   }
 });
