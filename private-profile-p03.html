@@ -10,10 +10,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/vvip-p03-profile.css">
+  <link rel="stylesheet" href="styles/vvip-pr31-create-listing-shell.css">
   <script defer crossorigin="anonymous" data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk" src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"></script>
   <script defer src="scripts/vvip-pr30-resilience.js"></script>
   <script defer src="scripts/vvip-p03-profile.js"></script>
   <script defer src="scripts/vvip-p03-sign-out.js"></script>
+  <script defer src="scripts/vvip-pr31-create-listing-shell.js"></script>
 </head>
 <body data-profile-mode="private" data-vvip-account-center data-vvip-private-owner-only>
   <div class="network-notice" data-network-notice role="status" hidden></div>
@@ -35,7 +37,7 @@
       <section class="account-section" data-vvip-account-actions aria-labelledby="quick-actions-title">
         <div class="account-section__heading"><span class="account-kicker">وصول سريع</span><h2 id="quick-actions-title">إدارة حسابك</h2></div>
         <div class="quick-actions">
-          <button type="button" data-account-action="create" data-coming-soon>إنشاء إعلان</button>
+          <button type="button" data-account-action="create" data-open-create-listing>إنشاء إعلان</button>
           <button type="button" data-account-action="listings" data-scroll-target="my-listings">إعلاناتي</button>
           <button type="button" data-account-action="data" data-scroll-target="account-data">بيانات الحساب</button>
           <button type="button" data-account-action="security" data-scroll-target="account-security">الأمان</button>
@@ -49,6 +51,7 @@
           <article class="managed-card"><div class="managed-visual managed-visual--auto"><span>قطع وخدمات السيارات</span></div><div><span class="listing-state">نشط</span><h3>طقم فرامل أصلي</h3><strong>1,240 ر.س</strong><p>جدة</p><div class="managed-actions"><button type="button" data-preview-listing="account-auto">معاينة</button><button type="button" data-coming-soon="edit">تعديل لاحقًا</button><button type="button" data-coming-soon="pause">إيقاف لاحقًا</button></div></div></article>
           <article class="managed-card"><div class="managed-visual managed-visual--estate"><span>عقارات</span></div><div><span class="listing-state">مسودة</span><h3>مكتب جاهز للأعمال</h3><strong>145,000 ر.س / سنة</strong><p>جدة — الروضة</p><div class="managed-actions"><button type="button" data-preview-listing="account-office">معاينة</button><button type="button" data-coming-soon="edit">تعديل لاحقًا</button><button type="button" data-coming-soon="pause">إيقاف لاحقًا</button></div></div></article>
         </div>
+        <div data-vvip-local-draft-list></div>
       </section>
 
       <div class="account-columns">
@@ -57,7 +60,7 @@
       </div>
     </main>
 
-    <nav class="account-bottom-nav" data-account-nav aria-label="التنقل الرئيسي"><a href="index.html" data-account-home="home" data-safe-nav data-nav-target="index.html">الرئيسية</a><a href="index.html#marketplace" data-account-home="marketplace" data-safe-nav data-nav-target="index.html#marketplace">السوق</a><button type="button" data-coming-soon="create">إعلان</button><button type="button" data-coming-soon="notifications">الإشعارات</button><span aria-current="page">حسابي</span></nav>
+    <nav class="account-bottom-nav" data-account-nav aria-label="التنقل الرئيسي"><a href="index.html" data-account-home="home" data-safe-nav data-nav-target="index.html">الرئيسية</a><a href="index.html#marketplace" data-account-home="marketplace" data-safe-nav data-nav-target="index.html#marketplace">السوق</a><button type="button" data-open-create-listing>إعلان</button><button type="button" data-coming-soon="notifications">الإشعارات</button><span aria-current="page">حسابي</span></nav>
   </div>
 
   <div class="account-sheet-layer" data-account-sheet aria-hidden="true" hidden><button class="account-sheet-backdrop" type="button" data-close-sheet aria-label="إغلاق"></button><section class="account-sheet" role="dialog" aria-modal="true" aria-labelledby="account-sheet-title" tabindex="-1"><button class="account-sheet-close" type="button" data-close-sheet aria-label="إغلاق">×</button><div data-account-sheet-content></div></section></div>

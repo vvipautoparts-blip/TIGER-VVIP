@@ -11,7 +11,9 @@ for file in \
   private-profile-p03.html \
   scripts/vvip-pr29-home-marketplace.js \
   scripts/vvip-pr30-resilience.js \
+  scripts/vvip-pr31-create-listing-shell.js \
   styles/vvip-pr29-home-marketplace.css \
+  styles/vvip-pr31-create-listing-shell.css \
   scripts/vvip-p03-route-map.js \
   sw.js; do
   [[ -f "$file" ]] || {
@@ -60,8 +62,10 @@ for marker in markers:
 
 required_assets = [
     "styles/vvip-pr29-home-marketplace.css",
+    "styles/vvip-pr31-create-listing-shell.css",
     "scripts/vvip-pr29-home-marketplace.js",
     "scripts/vvip-pr30-resilience.js",
+    "scripts/vvip-pr31-create-listing-shell.js",
 ]
 
 for asset in required_assets:
@@ -137,7 +141,7 @@ behaviors = [
     "تم تسجيل اهتمامك مبدئيًا.",
     "التواصل الرسمي داخل VVIP TIGER قيد التجهيز.",
     "المشاركة الخاصة قيد التجهيز داخل المنصة.",
-    "إنشاء الإعلان قيد التجهيز ضمن VVIP TIGER.",
+    "هذه الميزة قيد التجهيز ضمن VVIP TIGER.",
     "lastFocusedElement",
     'setAttribute("aria-hidden", "false")',
     'setAttribute("aria-hidden", "true")',
@@ -205,7 +209,6 @@ for text in required_copy:
 account_behaviors = [
     "previewAllowed",
     "lastFocusedElement",
-    "إنشاء الإعلان قيد التجهيز ضمن VVIP TIGER.",
     "تعديل الإعلان قيد التجهيز.",
     "إيقاف الإعلان قيد التجهيز.",
     "الإشعارات قيد التجهيز ضمن VVIP TIGER.",
@@ -299,6 +302,7 @@ class Buttons(HTMLParser):
         keys = {key for key, _ in attrs}
         guarded = {
             "data-coming-soon",
+            "data-open-create-listing",
             "data-sector-filter",
             "data-sheet-close",
             "data-reset-listings",
@@ -325,6 +329,169 @@ for contract in [".network-notice", ".listing-skeleton"]:
     if contract not in styles:
         raise SystemExit(f"[smoke][fail] missing resilience style: {contract}")
 PY_PR30
+
+echo "[smoke] validating PR31 create listing safe shell"
+python3 <<'PY_PR31'
+from pathlib import Path
+
+home = Path("index.html").read_text(encoding="utf-8")
+account = Path("private-profile-p03.html").read_text(encoding="utf-8")
+runtime = Path("scripts/vvip-pr31-create-listing-shell.js").read_text(
+    encoding="utf-8"
+)
+home_runtime = Path("scripts/vvip-pr29-home-marketplace.js").read_text(
+    encoding="utf-8"
+)
+account_runtime = Path("scripts/vvip-p03-profile.js").read_text(
+    encoding="utf-8"
+)
+styles = Path("styles/vvip-pr31-create-listing-shell.css").read_text(
+    encoding="utf-8"
+)
+resilience = Path("scripts/vvip-pr30-resilience.js").read_text(encoding="utf-8")
+routes = Path("scripts/vvip-p03-route-map.js").read_text(encoding="utf-8")
+service_worker = Path("sw.js").read_text(encoding="utf-8")
+
+for page_name, page in [("Home", home), ("Account", account)]:
+    for asset in [
+        "styles/vvip-pr31-create-listing-shell.css",
+        "scripts/vvip-pr31-create-listing-shell.js",
+    ]:
+        if asset not in page:
+            raise SystemExit(f"[smoke][fail] {page_name} does not load {asset}")
+    if "data-open-create-listing" not in page:
+        raise SystemExit(f"[smoke][fail] {page_name} has no create shell trigger")
+
+markers = [
+    "data-vvip-create-listing-shell",
+    "data-vvip-create-listing-stepper",
+    "data-vvip-create-listing-sector-step",
+    "data-vvip-create-listing-details-step",
+    "data-vvip-create-listing-media-step",
+    "data-vvip-create-listing-review-step",
+    "data-vvip-create-listing-safe-draft",
+    "data-vvip-publishing-readiness-layer",
+]
+for marker in markers:
+    if marker not in runtime:
+        raise SystemExit(f"[smoke][fail] missing PR31 marker: {marker}")
+
+behaviors = [
+    "vvip_pr31_create_listing_draft",
+    "function escapeText",
+    "function parseSafePrice",
+    "URL.createObjectURL",
+    "URL.revokeObjectURL",
+    "localStorage.setItem",
+    "localStorage.removeItem",
+    "photoNames",
+    "selectedLocalPhotoCount",
+    "لا يمكن حفظ المسودة محليًا الآن، لكن يمكنك مراجعة البيانات قبل الإغلاق.",
+    "تم حفظ المسودة محليًا على هذا الجهاز فقط.",
+    "تعذر فتح نموذج الإعلان مؤقتًا. يمكنك متابعة التصفح والعودة لاحقًا.",
+    "المعاينة محلية فقط ولن يتم رفع الصور في هذه المرحلة.",
+    "هذا النموذج تجريبي آمن ولا ينشر الإعلان الآن.",
+    "data-vvip-create-confirmation",
+    "data-create-confirm-title",
+    "data-create-confirm-message",
+    "data-create-confirm-cancel",
+    "data-create-confirm-accept",
+    "حذف المسودة المحلية؟",
+    "سيتم حذف هذه المسودة من هذا الجهاز فقط. لن يتم حذف أي بيانات من المنصة.",
+    "إغلاق النموذج؟",
+    "قد تفقد البيانات غير المحفوظة. يمكنك الرجوع أو حفظها كمسودة محلية.",
+    "متابعة التحرير",
+    "إغلاق النموذج",
+    'class="vvip-create-confirmation__backdrop" type="button" tabindex="-1"',
+]
+for behavior in behaviors:
+    if behavior not in runtime:
+        raise SystemExit(f"[smoke][fail] missing PR31 behavior: {behavior}")
+
+for hook in [
+    "data-create-next",
+    "data-create-back",
+    "data-create-close",
+    "data-save-local-draft",
+    "data-delete-local-draft",
+]:
+    if hook not in runtime:
+        raise SystemExit(f"[smoke][fail] missing PR31 action: {hook}")
+
+if "data:image" in runtime or "readAsDataURL" in runtime:
+    raise SystemExit("[smoke][fail] PR31 attempts to persist image data")
+
+for contract in [
+    ".vvip-create-layer",
+    "aspect-ratio: 4 / 3;",
+    "background: #f0f2f5;",
+    "#1877f2",
+    "@media (max-width: 640px)",
+]:
+    if contract not in styles.lower():
+        raise SystemExit(f"[smoke][fail] missing PR31 visual contract: {contract}")
+
+if "[data-open-create-listing]" not in resilience:
+    raise SystemExit("[smoke][fail] PR30 guard does not recognize PR31 triggers")
+if 'action: "openCreateListing"' not in routes:
+    raise SystemExit("[smoke][fail] route map does not expose internal create action")
+if "createListing:" not in routes:
+    raise SystemExit("[smoke][fail] route map misses named createListing action")
+missing_create_page = "create" + "-listing.html"
+if missing_create_page in home + account + runtime + routes:
+    raise SystemExit("[smoke][fail] create shell links to a missing page")
+
+retired_create_fallback = "إنشاء الإعلان قيد التجهيز ضمن VVIP TIGER."
+if retired_create_fallback in home_runtime + account_runtime:
+    raise SystemExit("[smoke][fail] retired create-listing toast remains")
+
+live_runtime_files = [
+    Path("scripts/vvip-pr31-create-listing-shell.js"),
+    Path("scripts/vvip-pr30-resilience.js"),
+    Path("scripts/vvip-pr29-home-marketplace.js"),
+    Path("scripts/vvip-p03-profile.js"),
+    Path("index.html"),
+    Path("private-profile-p03.html"),
+]
+native_dialog_calls = [
+    "con" + "firm(",
+    "window." + "confirm(",
+    "window." + "alert(",
+    "window." + "prompt(",
+    "ale" + "rt(",
+    "pro" + "mpt(",
+]
+for file in live_runtime_files:
+    source = file.read_text(encoding="utf-8", errors="ignore")
+    for call in native_dialog_calls:
+        if call in source:
+            raise SystemExit(f"[smoke][fail] native browser dialog in {file}")
+
+for contract in [
+    ".vvip-create-confirmation",
+    ".vvip-create-confirmation__card",
+    ".vvip-create-danger",
+]:
+    if contract not in styles:
+        raise SystemExit(f"[smoke][fail] missing in-app confirmation style: {contract}")
+
+for hook in ["[data-create-confirm-cancel]", "[data-create-confirm-accept]"]:
+    if hook not in resilience:
+        raise SystemExit(f"[smoke][fail] PR30 guard blocks confirmation action: {hook}")
+
+if 'CACHE_NAME = CACHE_PREFIX + "v19"' not in service_worker:
+    raise SystemExit("[smoke][fail] PR31 confirmation cache was not invalidated")
+PY_PR31
+
+node <<'JS_PR31_HELPERS'
+const assert = require("node:assert/strict");
+const helpers = require("./scripts/vvip-pr31-create-listing-shell.js");
+
+assert.equal(helpers.escapeText("  عنوان <script>alert(1)</script> آمن  "), "عنوان alert(1) آمن");
+assert.equal(helpers.parseSafePrice("1250.50"), 1250.5);
+assert.equal(helpers.parseSafePrice("0"), null);
+assert.equal(helpers.parseSafePrice("12x"), null);
+JS_PR31_HELPERS
 
 echo "[smoke] validating auth preview and safe return path"
 python3 <<'PY_AUTH'
@@ -393,9 +560,8 @@ text = Path("scripts/vvip-p03-route-map.js").read_text(encoding="utf-8")
 
 def block(name):
     match = re.search(
-        rf"\b{name}\s*:\s*\{{(?P<body>.*?)\n\s*\}}",
+        rf"\b{name}\s*:\s*\{{(?P<body>[^}}]*)\}}",
         text,
-        re.S,
     )
     if not match:
         raise SystemExit(f"[smoke][fail] missing route: {name}")
@@ -407,7 +573,8 @@ expected = {
     "search": ("index.html#search", True),
     "account": ("private-profile-p03.html", True),
     "private": ("private-profile-p03.html", True),
-    "create": (None, False),
+    "create": (None, True),
+    "createListing": (None, True),
     "listingDetails": (None, False),
 }
 
@@ -418,6 +585,9 @@ for name, (href, available) in expected.items():
         raise SystemExit(f"[smoke][fail] wrong availability: {name}")
     if href and f'href: "{href}"' not in route:
         raise SystemExit(f"[smoke][fail] wrong href: {name}")
+
+if 'action: "openCreateListing"' not in block("create"):
+    raise SystemExit("[smoke][fail] create route is not an internal shell action")
 
 public_token = "public" + "Profile"
 public_path = "public" + "-profile"
@@ -436,6 +606,8 @@ required = [
     "/scripts/vvip-p03-profile.js",
     "/scripts/vvip-p03-sign-out.js",
     "/styles/vvip-p03-profile.css",
+    "/scripts/vvip-pr31-create-listing-shell.js",
+    "/styles/vvip-pr31-create-listing-shell.css",
 ]
 for asset in required:
     if asset not in text:
@@ -520,6 +692,7 @@ files = [
     Path("sw.js"),
     Path("scripts/vvip-p03-profile.js"),
     Path("scripts/vvip-p03-sign-out.js"),
+    Path("scripts/vvip-pr31-create-listing-shell.js"),
     Path("styles/vvip-p03-profile.css"),
     Path("styles/vvip-visual-trust-layer.css"),
 ]
@@ -565,6 +738,7 @@ files = [
     Path("index.html"),
     Path("auth-clerk-index.js"),
     Path("scripts/vvip-pr29-home-marketplace.js"),
+    Path("scripts/vvip-pr31-create-listing-shell.js"),
 ]
 
 terms = [
@@ -595,6 +769,7 @@ files = [
     Path("scripts/vvip-p03-sign-out.js"),
     Path("scripts/vvip-pr29-home-marketplace.js"),
     Path("scripts/vvip-pr30-resilience.js"),
+    Path("scripts/vvip-pr31-create-listing-shell.js"),
 ]
 
 unsafe_fragments = [
@@ -645,7 +820,13 @@ for name in changed:
     if name.startswith(forbidden_roots):
         raise SystemExit(f"[smoke][fail] forbidden PR30 scope changed: {name}")
 
-blocked_roots = ["supa" + "base/", "migra" + "tions/"]
+blocked_roots = [
+    "supa" + "base/",
+    "migra" + "tions/",
+    "stor" + "age/",
+    "r" + "ls/",
+    "pol" + "icy/",
+]
 for name in changed:
     lowered = name.lower()
     if lowered.endswith("." + "sql") or any(root in lowered for root in blocked_roots):

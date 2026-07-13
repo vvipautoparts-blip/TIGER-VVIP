@@ -1,5 +1,5 @@
 const CACHE_PREFIX = "vvip-tiger-pr29-cache-";
-const CACHE_NAME = CACHE_PREFIX + "v17";
+const CACHE_NAME = CACHE_PREFIX + "v19";
 const ASSETS = [
   "/",
   "/index.html",
@@ -9,8 +9,10 @@ const ASSETS = [
   "/vvip-identity.css",
   "/styles/vvip-pr29-home-marketplace.css",
   "/styles/vvip-p03-profile.css",
+  "/styles/vvip-pr31-create-listing-shell.css",
   "/scripts/vvip-pr29-home-marketplace.js",
   "/scripts/vvip-pr30-resilience.js",
+  "/scripts/vvip-pr31-create-listing-shell.js",
   "/scripts/vvip-p03-profile.js",
   "/scripts/vvip-p03-sign-out.js",
   "/scripts/vvip-p03-route-map.js",

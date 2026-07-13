@@ -18,6 +18,16 @@
     "#search"
   ]);
   const KNOWN_ACTIONS = [
+    "[data-open-create-listing]",
+    "[data-create-sector]",
+    "[data-create-next]",
+    "[data-create-back]",
+    "[data-create-close]",
+    "[data-save-local-draft]",
+    "[data-preview-local-draft]",
+    "[data-delete-local-draft]",
+    "[data-create-confirm-cancel]",
+    "[data-create-confirm-accept]",
     "[data-coming-soon]",
     "[data-sector-filter]",
     "[data-listing-details]",
