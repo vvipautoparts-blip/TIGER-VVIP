@@ -13,9 +13,12 @@ for file in \
   scripts/vvip-pr30-resilience.js \
   scripts/vvip-pr31-create-listing-shell.js \
   scripts/vvip-pr32-draft-preview.js \
+  scripts/vvip-pr33-publish-readiness.js \
+  scripts/qa-pr33-accessibility.sh \
   styles/vvip-pr29-home-marketplace.css \
   styles/vvip-pr31-create-listing-shell.css \
   styles/vvip-pr32-draft-preview.css \
+  styles/vvip-pr33-publish-readiness.css \
   scripts/vvip-p03-route-map.js \
   sw.js; do
   [[ -f "$file" ]] || {
@@ -66,10 +69,12 @@ required_assets = [
     "styles/vvip-pr29-home-marketplace.css",
     "styles/vvip-pr31-create-listing-shell.css",
     "styles/vvip-pr32-draft-preview.css",
+    "styles/vvip-pr33-publish-readiness.css",
     "scripts/vvip-pr29-home-marketplace.js",
     "scripts/vvip-pr30-resilience.js",
     "scripts/vvip-pr31-create-listing-shell.js",
     "scripts/vvip-pr32-draft-preview.js",
+    "scripts/vvip-pr33-publish-readiness.js",
 ]
 
 for asset in required_assets:
@@ -389,7 +394,8 @@ behaviors = [
     "photoNames",
     "selectedLocalPhotoCount",
     "لا يمكن حفظ المسودة محليًا الآن، لكن يمكنك مراجعة البيانات قبل الإغلاق.",
-    "تم حفظ المسودة محليًا على هذا الجهاز فقط.",
+    "تم حفظ المسودة المحلية وهي جاهزة للمراجعة لاحقًا.",
+    "تم حفظ المسودة محليًا، وتحتاج إلى إكمال بعض الحقول.",
     "تعذر فتح نموذج الإعلان مؤقتًا. يمكنك متابعة التصفح والعودة لاحقًا.",
     "المعاينة محلية فقط ولن يتم رفع الصور في هذه المرحلة.",
     "هذا النموذج تجريبي آمن ولا ينشر الإعلان الآن.",
@@ -450,6 +456,7 @@ if retired_create_fallback in home_runtime + account_runtime:
 live_runtime_files = [
     Path("scripts/vvip-pr31-create-listing-shell.js"),
     Path("scripts/vvip-pr32-draft-preview.js"),
+    Path("scripts/vvip-pr33-publish-readiness.js"),
     Path("scripts/vvip-pr30-resilience.js"),
     Path("scripts/vvip-pr29-home-marketplace.js"),
     Path("scripts/vvip-p03-profile.js"),
@@ -482,7 +489,7 @@ for hook in ["[data-create-confirm-cancel]", "[data-create-confirm-accept]"]:
     if hook not in resilience:
         raise SystemExit(f"[smoke][fail] PR30 guard blocks confirmation action: {hook}")
 
-if 'CACHE_NAME = CACHE_PREFIX + "v20"' not in service_worker:
+if 'CACHE_NAME = CACHE_PREFIX + "v21"' not in service_worker:
     raise SystemExit("[smoke][fail] PR31 confirmation cache was not invalidated")
 PY_PR31
 
@@ -610,7 +617,7 @@ for asset in [
 ]:
     if asset not in service_worker:
         raise SystemExit(f"[smoke][fail] service worker misses PR32 asset: {asset}")
-if 'CACHE_NAME = CACHE_PREFIX + "v20"' not in service_worker:
+if 'CACHE_NAME = CACHE_PREFIX + "v21"' not in service_worker:
     raise SystemExit("[smoke][fail] service worker cache was not bumped for PR32")
 PY_PR32
 
@@ -640,6 +647,21 @@ assert.equal(normalized.title, "قطعة");
 assert.equal(normalized.price, 120);
 assert.equal(normalized.photoCount, 1);
 assert.equal(normalized.photoFileNames[0], "front.jpg");
+const explicitlyIncomplete = drafts.normalizeDraft({
+  sector: "automotive",
+  title: "قطعة أصلية",
+  price: "120",
+  location: "الرياض",
+  readinessStatus: "incomplete",
+  readinessScore: 75,
+  missingFields: ["summary"],
+  warnings: ["photos"],
+});
+assert.equal(explicitlyIncomplete.readinessStatus, "incomplete");
+assert.equal(explicitlyIncomplete.incomplete, true);
+assert.equal(explicitlyIncomplete.readinessScore, 75);
+assert.deepEqual(explicitlyIncomplete.missingFields, ["summary"]);
+assert.deepEqual(explicitlyIncomplete.warnings, ["photos"]);
 assert.equal(drafts.normalizeDraft({ sector: "unknown" }), null);
 assert.equal(drafts.writeLocalDraft(normalized), true);
 assert.equal(drafts.readLocalDraft().status, "ready");
@@ -649,6 +671,186 @@ assert.equal(drafts.readLocalDraft().status, "corrupt");
 assert.equal(drafts.clearLocalDraft(), true);
 assert.equal(drafts.readLocalDraft().status, "empty");
 JS_PR32_HELPERS
+
+echo "[smoke] validating PR33 publish readiness"
+python3 <<'PY_PR33'
+from pathlib import Path
+
+home = Path("index.html").read_text(encoding="utf-8")
+account = Path("private-profile-p03.html").read_text(encoding="utf-8")
+runtime = Path("scripts/vvip-pr33-publish-readiness.js").read_text(encoding="utf-8")
+shell = Path("scripts/vvip-pr31-create-listing-shell.js").read_text(encoding="utf-8")
+drafts = Path("scripts/vvip-pr32-draft-preview.js").read_text(encoding="utf-8")
+styles = Path("styles/vvip-pr33-publish-readiness.css").read_text(encoding="utf-8").lower()
+resilience = Path("scripts/vvip-pr30-resilience.js").read_text(encoding="utf-8")
+routes = Path("scripts/vvip-p03-route-map.js").read_text(encoding="utf-8")
+service_worker = Path("sw.js").read_text(encoding="utf-8")
+
+for page_name, page in [("Home", home), ("Account", account)]:
+    for asset in [
+        "styles/vvip-pr33-publish-readiness.css",
+        "scripts/vvip-pr33-publish-readiness.js",
+    ]:
+        if asset not in page:
+            raise SystemExit(f"[smoke][fail] {page_name} does not load {asset}")
+
+combined = runtime + shell + drafts + home + account
+for marker in [
+    "data-vvip-pr33-readiness",
+    "data-vvip-readiness-status",
+    "data-vvip-readiness-sheet",
+    "data-vvip-validation-error",
+    "data-vvip-validation-warning",
+    "data-vvip-safe-publish-action",
+    "data-vvip-mobile-safe-shell",
+]:
+    if marker not in combined:
+        raise SystemExit(f"[smoke][fail] missing PR33 marker: {marker}")
+
+for helper in [
+    "function validateListingDraft",
+    "function normalizeValidationInput",
+    "function validateRequiredText",
+    "function validatePrice",
+    "function validateSector",
+    "function validateLocation",
+    "function validateSummary",
+    "function getListingReadiness",
+    "function renderValidationErrors",
+    "function clearValidationErrors",
+    "function setFieldError",
+    "function setFieldWarning",
+    "function showReadinessSheet",
+    "function updateReadinessStatus",
+]:
+    if helper not in runtime:
+        raise SystemExit(f"[smoke][fail] missing PR33 helper: {helper}")
+
+for text in [
+    "أكمل الحقول المطلوبة للانتقال.",
+    "اكتب اسم الإعلان بوضوح.",
+    "أدخل سعرًا صحيحًا أكبر من صفر.",
+    "حدد المدينة أو المنطقة.",
+    "أضف وصفًا مختصرًا يساعد المستخدمين على فهم الإعلان.",
+    "الصور ستُرفع لاحقًا عند تفعيل النشر الحقيقي.",
+    "فحص جاهزية الإعلان",
+    "جاهز للمراجعة",
+    "النشر الحقيقي قيد التجهيز",
+    "النشر الحقيقي سيتم تفعيله لاحقًا بعد ربط قاعدة البيانات والمراجعة.",
+    "لم يتم إرسال أي بيانات خارج هذا الجهاز في هذه المرحلة.",
+    "مسودة جاهزة",
+    "تحتاج إكمال",
+]:
+    if text not in combined:
+        raise SystemExit(f"[smoke][fail] missing PR33 copy: {text}")
+
+for metadata in [
+    "readinessStatus",
+    "readinessScore",
+    "readinessUpdatedAt",
+    "missingFields",
+    "warnings",
+]:
+    if metadata not in shell + drafts:
+        raise SystemExit(f"[smoke][fail] missing PR33 draft metadata: {metadata}")
+
+for shell_contract in [
+    "currentDraft: function",
+    "layer && !layer.hidden",
+    "values.slice(0, 10).forEach",
+]:
+    if shell_contract not in shell:
+        raise SystemExit(f"[smoke][fail] missing PR33 active-shell contract: {shell_contract}")
+
+for readiness_contract in [
+    "const activeDraft = shell.currentDraft()",
+    "if (activeDraft) return activeDraft",
+]:
+    if readiness_contract not in runtime:
+        raise SystemExit(f"[smoke][fail] missing PR33 stored-draft fallback: {readiness_contract}")
+
+for contract in [
+    ".vvip-readiness-panel",
+    ".vvip-readiness-sheet",
+    ".vvip-field-error",
+    ".vvip-field-warning",
+    "position: sticky",
+    "overflow-x: hidden",
+    "#f0f2f5",
+    "#1877f2",
+    ":focus-visible",
+    "@media (max-width: 640px)",
+]:
+    if contract not in styles:
+        raise SystemExit(f"[smoke][fail] missing PR33 visual contract: {contract}")
+
+for hook in [
+    "[data-vvip-safe-publish-action]",
+    "[data-vvip-readiness-open]",
+    "[data-vvip-readiness-close]",
+]:
+    if hook not in resilience:
+        raise SystemExit(f"[smoke][fail] PR30 guard blocks PR33 action: {hook}")
+
+if 'publishReadiness:' not in routes or 'action: "openPublishReadiness"' not in routes:
+    raise SystemExit("[smoke][fail] route map misses internal readiness action")
+
+for asset in [
+    "/scripts/vvip-pr33-publish-readiness.js",
+    "/styles/vvip-pr33-publish-readiness.css",
+]:
+    if asset not in service_worker:
+        raise SystemExit(f"[smoke][fail] service worker misses PR33 asset: {asset}")
+if 'CACHE_NAME = CACHE_PREFIX + "v21"' not in service_worker:
+    raise SystemExit("[smoke][fail] service worker cache was not bumped for PR33")
+
+if "fetch(" in runtime or "XMLHttpRequest" in runtime:
+    raise SystemExit("[smoke][fail] PR33 runtime performs a network write")
+PY_PR33
+
+node <<'JS_PR33_HELPERS'
+const assert = require("node:assert/strict");
+const readiness = require("./scripts/vvip-pr33-publish-readiness.js");
+
+assert.equal(readiness.normalizeValidationInput("  <b>عنوان</b>  "), "عنوان");
+assert.equal(readiness.validateSector("automotive").valid, true);
+assert.equal(readiness.validateSector("unknown").valid, false);
+assert.equal(readiness.validatePrice("١٬٢٥٠٫٥٠").value, 1250.5);
+assert.equal(readiness.validatePrice("0").valid, false);
+assert.equal(readiness.validatePrice("not-a-price").valid, false);
+assert.equal(readiness.validateLocation("الرياض").valid, true);
+assert.equal(readiness.validateLocation("س".repeat(61)).valid, false);
+assert.equal(readiness.validateSummary("").severity, "warning");
+assert.equal(readiness.validateSummary("وصف ".repeat(80)).valid, false);
+
+const ready = readiness.getListingReadiness({
+  sector: "automotive",
+  title: "قطعة أصلية",
+  price: "250",
+  location: "الرياض",
+  summary: "وصف واضح ومختصر للإعلان",
+  specs: "أصلي، جديد",
+  sectorDetails: { autoType: "فرامل" },
+  selectedLocalPhotoCount: 0,
+});
+assert.equal(ready.ready, true);
+assert.equal(ready.score, 100);
+assert.equal(ready.blockers.length, 0);
+assert.ok(ready.warnings.includes("photos"));
+
+const blocked = readiness.validateListingDraft({
+  sector: "unknown",
+  title: "x",
+  price: "0",
+  location: "",
+  summary: "",
+});
+assert.equal(blocked.ready, false);
+assert.deepEqual(blocked.missing.sort(), ["location", "price", "sector", "title"]);
+assert.equal(blocked.errors.title, "اكتب اسم الإعلان بوضوح.");
+JS_PR33_HELPERS
+
+bash scripts/qa-pr33-accessibility.sh
 
 echo "[smoke] validating auth preview and safe return path"
 python3 <<'PY_AUTH'
@@ -851,6 +1053,7 @@ files = [
     Path("scripts/vvip-p03-sign-out.js"),
     Path("scripts/vvip-pr31-create-listing-shell.js"),
     Path("scripts/vvip-pr32-draft-preview.js"),
+    Path("scripts/vvip-pr33-publish-readiness.js"),
     Path("styles/vvip-p03-profile.css"),
     Path("styles/vvip-visual-trust-layer.css"),
 ]
@@ -898,6 +1101,7 @@ files = [
     Path("scripts/vvip-pr29-home-marketplace.js"),
     Path("scripts/vvip-pr31-create-listing-shell.js"),
     Path("scripts/vvip-pr32-draft-preview.js"),
+    Path("scripts/vvip-pr33-publish-readiness.js"),
 ]
 
 terms = [
@@ -930,6 +1134,7 @@ files = [
     Path("scripts/vvip-pr30-resilience.js"),
     Path("scripts/vvip-pr31-create-listing-shell.js"),
     Path("scripts/vvip-pr32-draft-preview.js"),
+    Path("scripts/vvip-pr33-publish-readiness.js"),
 ]
 
 unsafe_fragments = [
