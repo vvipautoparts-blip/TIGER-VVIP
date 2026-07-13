@@ -11,10 +11,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/vvip-pr29-home-marketplace.css">
   <script defer crossorigin="anonymous" data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk" src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"></script>
+  <script defer src="scripts/vvip-pr30-resilience.js"></script>
   <script defer src="auth-clerk-index.js"></script>
   <script defer src="scripts/vvip-pr29-home-marketplace.js"></script>
 </head>
 <body data-vvip-pr29-app>
+  <div class="network-notice" data-network-notice role="status" hidden></div>
   <section class="auth-gate" data-vvip-auth-gate hidden>
     <div class="auth-gate__brand"><span class="brand-mark">VVIP</span><h1>VVIP TIGER</h1><p>بوابتك الآمنة إلى المنصة الموحدة.</p></div>
     <div class="auth-gate__card"><span class="eyebrow">CLERK SECURE ACCESS</span><h2>سجّل الدخول للمتابعة</h2><p>استخدم حسابك للوصول إلى الإعلانات والتواصل داخل المنصة.</p><div id="clerk-main-auth"><div id="clerk-sign-in"></div></div></div>
@@ -22,9 +24,9 @@
 
   <main class="app-shell" data-vvip-unified-home hidden>
     <header class="app-header">
-      <a class="brand" href="index.html" aria-label="VVIP TIGER"><span class="brand-icon" aria-hidden="true">V</span><span><b>VVIP TIGER</b><small>السوق</small></span><span class="vvip-badge">VVIP</span></a>
+      <a class="brand" href="index.html" data-safe-nav data-nav-target="index.html" aria-label="VVIP TIGER"><span class="brand-icon" aria-hidden="true">V</span><span><b>VVIP TIGER</b><small>السوق</small></span><span class="vvip-badge">VVIP</span></a>
       <nav class="header-actions" aria-label="إجراءات الحساب">
-        <a class="button button--quiet" href="private-profile-p03.html" data-account-route>حسابي</a>
+        <a class="button button--quiet" href="private-profile-p03.html" data-account-route data-safe-nav data-nav-target="private-profile-p03.html">حسابي</a>
         <button class="button button--primary" type="button" data-coming-soon>إنشاء إعلان</button>
       </nav>
     </header>
@@ -48,8 +50,12 @@
         <button class="filter" type="button" data-sector-filter="materials" aria-pressed="false">مواد ولوازم</button>
         <button class="filter" type="button" data-sector-filter="real-estate" aria-pressed="false">عقارات</button>
       </div>
-      <div class="listing-grid" id="marketplace-listings" data-vvip-marketplace-feed aria-live="polite"></div>
-      <div class="empty-state" data-empty-state role="status" hidden><p>لا توجد نتائج مطابقة الآن. جرّب تعديل البحث أو الفلتر.</p></div>
+      <div class="listing-grid" id="marketplace-listings" data-vvip-marketplace-feed aria-live="polite" aria-busy="true">
+        <article class="listing-skeleton" aria-hidden="true"></article>
+        <article class="listing-skeleton" aria-hidden="true"></article>
+        <article class="listing-skeleton" aria-hidden="true"></article>
+      </div>
+      <div class="empty-state" data-empty-state role="status" hidden><p>لا توجد نتائج مطابقة الآن. جرّب تعديل البحث أو الفلتر.</p><button class="button button--primary" type="button" data-reset-listings>عرض كل الإعلانات</button></div>
     </section>
   </main>
 

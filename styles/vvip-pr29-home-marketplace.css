@@ -37,6 +37,28 @@ body.sheet-open {
   overflow: hidden;
 }
 
+.network-notice {
+  position: fixed;
+  top: 8px;
+  right: 50%;
+  z-index: 120;
+  width: min(560px, calc(100% - 24px));
+  padding: 9px 14px;
+  border: 1px solid #ccd0d5;
+  border-radius: 8px;
+  color: #1c1e21;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: var(--shadow-lg);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-align: center;
+  transform: translateX(50%);
+}
+
+.network-notice[hidden] {
+  display: none;
+}
+
 button,
 input {
   font: inherit;
@@ -333,6 +355,20 @@ input:focus-visible,
   gap: 14px;
 }
 
+.listing-skeleton {
+  min-height: 360px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background:
+    linear-gradient(#e4e6eb 0 0) top / 100% 58% no-repeat,
+    linear-gradient(#e4e6eb 0 0) 16px 66% / 62% 14px no-repeat,
+    linear-gradient(#f0f2f5 0 0) 16px 74% / 38% 12px no-repeat,
+    linear-gradient(#f0f2f5 0 0) 16px 84% / calc(100% - 32px) 46px no-repeat,
+    #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
 .listing-card {
   display: flex;
   min-width: 0;
@@ -520,6 +556,10 @@ button.listing-visual {
   color: var(--muted);
   text-align: center;
   background: rgba(255, 255, 255, 0.62);
+}
+
+.empty-state .button {
+  margin-top: 10px;
 }
 
 .sheet-layer {

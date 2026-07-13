@@ -265,10 +265,7 @@
         );
       }
 
-      console.error(
-        "VVIP_COMPLETE_SIGN_OUT_FAILED",
-        error
-      );
+      console.warn("VVIP_COMPLETE_SIGN_OUT_RECOVERY");
 
       showError(
         "تعذر إتمام تسجيل الخروج مركزيًا. سيتم تحويلك إلى صفحة الدخول خلال لحظات."

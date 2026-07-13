@@ -37,6 +37,28 @@ body.account-sheet-open {
   overflow: hidden;
 }
 
+.network-notice {
+  position: fixed;
+  top: 8px;
+  right: 50%;
+  z-index: 120;
+  width: min(560px, calc(100% - 24px));
+  padding: 9px 14px;
+  border: 1px solid #ccd0d5;
+  border-radius: 8px;
+  color: #1c1e21;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: var(--ac-shadow);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-align: center;
+  transform: translateX(50%);
+}
+
+.network-notice[hidden] {
+  display: none;
+}
+
 button,
 a {
   font: inherit;

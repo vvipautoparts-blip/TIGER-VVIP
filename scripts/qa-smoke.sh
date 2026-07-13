@@ -10,6 +10,7 @@ for file in \
   auth-clerk-index.js \
   private-profile-p03.html \
   scripts/vvip-pr29-home-marketplace.js \
+  scripts/vvip-pr30-resilience.js \
   styles/vvip-pr29-home-marketplace.css \
   scripts/vvip-p03-route-map.js \
   sw.js; do
@@ -60,6 +61,7 @@ for marker in markers:
 required_assets = [
     "styles/vvip-pr29-home-marketplace.css",
     "scripts/vvip-pr29-home-marketplace.js",
+    "scripts/vvip-pr30-resilience.js",
 ]
 
 for asset in required_assets:
@@ -70,6 +72,9 @@ accessibility_contract = [
     'aria-label="البحث في إعلانات السوق"',
     "data-results-count",
     "data-empty-state",
+    "data-reset-listings",
+    "data-network-notice",
+    "listing-skeleton",
 ]
 
 for contract in accessibility_contract:
@@ -138,6 +143,9 @@ behaviors = [
     'setAttribute("aria-hidden", "true")',
     "function updateInterestButtons",
     "state.interests.delete(id)",
+    "function resetListings",
+    "SEARCH_DEBOUNCE_MS = 180",
+    "clearTimeout(searchTimer)",
 ]
 for behavior in behaviors:
     if behavior not in text:
@@ -170,6 +178,8 @@ markers = [
     "data-vvip-my-listings",
     "data-vvip-account-security",
     "data-vvip-tiger-care-entry",
+    "data-network-notice",
+    "scripts/vvip-pr30-resilience.js",
 ]
 for marker in markers:
     if marker not in html:
@@ -242,6 +252,79 @@ if not re.search(
 ):
     raise SystemExit("[smoke][fail] account bottom nav is not mobile-only")
 PY_ACCOUNT
+
+echo "[smoke] validating PR30 resilience contracts"
+python3 <<'PY_PR30'
+from html.parser import HTMLParser
+from pathlib import Path
+
+runtime = Path("scripts/vvip-pr30-resilience.js").read_text(encoding="utf-8")
+required = [
+    "function safeNavigate",
+    "function isSafeTarget",
+    "function showFeedback",
+    "function guardAction",
+    'window.addEventListener("error"',
+    'window.addEventListener("unhandledrejection"',
+    'window.addEventListener("offline"',
+    'window.addEventListener("online"',
+    "VVIP_RESILIENCE_RECOVERY",
+    "حدث تعذر مؤقت. يمكنك المتابعة من السوق أو الرجوع للرئيسية.",
+    "الاتصال ضعيف أو غير متاح. يمكنك متابعة التصفح المحلي مؤقتًا.",
+    "window.VVIP_PR30",
+    'preview === "home" && isIndex',
+]
+for contract in required:
+    if contract not in runtime:
+        raise SystemExit(f"[smoke][fail] missing PR30 resilience contract: {contract}")
+
+unsafe = [
+    "java" + "script:",
+    "da" + "ta:",
+    "ht" + "tp:",
+    "ht" + "tps:",
+]
+for token in unsafe:
+    if f'ALLOWED_TARGETS.add("{token}' in runtime:
+        raise SystemExit(f"[smoke][fail] unsafe navigation allowlist: {token}")
+
+class Buttons(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.unguarded = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag != "button":
+            return
+        keys = {key for key, _ in attrs}
+        guarded = {
+            "data-coming-soon",
+            "data-sector-filter",
+            "data-sheet-close",
+            "data-reset-listings",
+            "data-account-action",
+            "data-preview-listing",
+            "data-close-sheet",
+            "data-open-signout",
+            "data-confirm-signout",
+            "data-cancel-signout",
+        }
+        if not keys.intersection(guarded):
+            self.unguarded.append(sorted(keys))
+
+for page in [Path("index.html"), Path("private-profile-p03.html")]:
+    parser = Buttons()
+    parser.feed(page.read_text(encoding="utf-8"))
+    if parser.unguarded:
+        raise SystemExit(f"[smoke][fail] unguarded static button in {page}")
+
+styles = Path("styles/vvip-pr29-home-marketplace.css").read_text(
+    encoding="utf-8"
+)
+for contract in [".network-notice", ".listing-skeleton"]:
+    if contract not in styles:
+        raise SystemExit(f"[smoke][fail] missing resilience style: {contract}")
+PY_PR30
 
 echo "[smoke] validating auth preview and safe return path"
 python3 <<'PY_AUTH'
@@ -380,7 +463,9 @@ hardening = [
     '"clerk"',
     '"supabase"',
     '"token"',
+    '"auth"',
     'return caches.match("/index.html")',
+    "/scripts/vvip-pr30-resilience.js",
 ]
 for contract in hardening:
     if contract not in text:
@@ -500,6 +585,34 @@ for file in files:
             raise SystemExit(f"[smoke][fail] retired policy in {file}")
 PY_POLICY
 
+echo "[smoke] validating sanitized client recovery logging"
+python3 <<'PY_LOGGING'
+from pathlib import Path
+
+files = [
+    Path("auth-clerk-index.js"),
+    Path("scripts/vvip-p03-profile.js"),
+    Path("scripts/vvip-p03-sign-out.js"),
+    Path("scripts/vvip-pr29-home-marketplace.js"),
+    Path("scripts/vvip-pr30-resilience.js"),
+]
+
+unsafe_fragments = [
+    ", error",
+    ", event.reason",
+    "error.stack",
+    "error.message",
+]
+
+for file in files:
+    source = file.read_text(encoding="utf-8", errors="ignore")
+    for fragment in unsafe_fragments:
+        if fragment in source:
+            raise SystemExit(
+                f"[smoke][fail] unsanitized client recovery logging in {file}"
+            )
+PY_LOGGING
+
 echo "[smoke] validating no database-scope diff"
 python3 <<'PY_DIFF'
 import subprocess
@@ -526,6 +639,11 @@ if backup_paths:
         "[smoke][fail] repository backup remains untracked: "
         + ", ".join(backup_paths)
     )
+
+forbidden_roots = ("backups/", "approved/", "docs/")
+for name in changed:
+    if name.startswith(forbidden_roots):
+        raise SystemExit(f"[smoke][fail] forbidden PR30 scope changed: {name}")
 
 blocked_roots = ["supa" + "base/", "migra" + "tions/"]
 for name in changed:

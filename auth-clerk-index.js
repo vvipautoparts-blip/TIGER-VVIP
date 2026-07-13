@@ -63,7 +63,7 @@ window.addEventListener("load", async function () {
       });
     }
   } catch (error) {
-    console.error("VVIP TIGER Clerk gate error:", error);
+    console.warn("VVIP_CLERK_GATE_RECOVERY");
     if (host) host.innerHTML = '<p class="auth-error">تعذر تحميل بوابة الدخول الآمنة. حاول مرة أخرى.</p>';
   }
 });
