@@ -11,15 +11,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/vvip-p03-profile.css">
   <script defer crossorigin="anonymous" data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk" src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"></script>
+  <script defer src="scripts/vvip-pr30-resilience.js"></script>
   <script defer src="scripts/vvip-p03-profile.js"></script>
   <script defer src="scripts/vvip-p03-sign-out.js"></script>
 </head>
 <body data-profile-mode="private" data-vvip-account-center data-vvip-private-owner-only>
+  <div class="network-notice" data-network-notice role="status" hidden></div>
   <div class="account-auth-gate" data-auth-gate>جاري التحقق من الجلسة الآمنة...</div>
   <div class="account-app" data-auth-protected hidden>
     <header class="account-header">
-      <a class="account-brand" href="index.html" data-account-home="home" aria-label="VVIP TIGER — الرئيسية"><span>V</span><strong>VVIP TIGER<small>مركز الحساب الخاص</small></strong><em>VVIP</em></a>
-      <div class="account-header__actions"><a class="account-button account-button--quiet" href="index.html" data-account-home="home">الرئيسية</a><button class="account-button account-button--danger" type="button" data-open-signout>الخروج</button></div>
+      <a class="account-brand" href="index.html" data-account-home="home" data-safe-nav data-nav-target="index.html" aria-label="VVIP TIGER — الرئيسية"><span>V</span><strong>VVIP TIGER<small>مركز الحساب الخاص</small></strong><em>VVIP</em></a>
+      <div class="account-header__actions"><a class="account-button account-button--quiet" href="index.html" data-account-home="home" data-safe-nav data-nav-target="index.html">الرئيسية</a><button class="account-button account-button--danger" type="button" data-open-signout>الخروج</button></div>
     </header>
 
     <main class="account-main">
@@ -55,7 +57,7 @@
       </div>
     </main>
 
-    <nav class="account-bottom-nav" data-account-nav aria-label="التنقل الرئيسي"><a href="index.html" data-account-home="home">الرئيسية</a><a href="index.html#marketplace" data-account-home="marketplace">السوق</a><button type="button" data-coming-soon="create">إعلان</button><button type="button" data-coming-soon="notifications">الإشعارات</button><span aria-current="page">حسابي</span></nav>
+    <nav class="account-bottom-nav" data-account-nav aria-label="التنقل الرئيسي"><a href="index.html" data-account-home="home" data-safe-nav data-nav-target="index.html">الرئيسية</a><a href="index.html#marketplace" data-account-home="marketplace" data-safe-nav data-nav-target="index.html#marketplace">السوق</a><button type="button" data-coming-soon="create">إعلان</button><button type="button" data-coming-soon="notifications">الإشعارات</button><span aria-current="page">حسابي</span></nav>
   </div>
 
   <div class="account-sheet-layer" data-account-sheet aria-hidden="true" hidden><button class="account-sheet-backdrop" type="button" data-close-sheet aria-label="إغلاق"></button><section class="account-sheet" role="dialog" aria-modal="true" aria-labelledby="account-sheet-title" tabindex="-1"><button class="account-sheet-close" type="button" data-close-sheet aria-label="إغلاق">×</button><div data-account-sheet-content></div></section></div>

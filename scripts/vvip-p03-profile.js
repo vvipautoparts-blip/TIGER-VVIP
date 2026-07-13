@@ -127,7 +127,7 @@
       renderAccount(window.Clerk.user);
       reveal();
     } catch (error) {
-      console.error("VVIP_ACCOUNT_AUTH_FAILED", error);
+      console.warn("VVIP_ACCOUNT_AUTH_RECOVERY");
       if (authGate) {
         authGate.textContent = "تعذر التحقق من الجلسة. سيتم تحويلك لبوابة الدخول.";
       }

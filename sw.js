@@ -1,5 +1,5 @@
 const CACHE_PREFIX = "vvip-tiger-pr29-cache-";
-const CACHE_NAME = CACHE_PREFIX + "v16";
+const CACHE_NAME = CACHE_PREFIX + "v17";
 const ASSETS = [
   "/",
   "/index.html",
@@ -9,8 +9,8 @@ const ASSETS = [
   "/vvip-identity.css",
   "/styles/vvip-pr29-home-marketplace.css",
   "/styles/vvip-p03-profile.css",
-  "/auth-clerk-index.js",
   "/scripts/vvip-pr29-home-marketplace.js",
+  "/scripts/vvip-pr30-resilience.js",
   "/scripts/vvip-p03-profile.js",
   "/scripts/vvip-p03-sign-out.js",
   "/scripts/vvip-p03-route-map.js",
@@ -22,7 +22,7 @@ const ASSETS = [
   "/icons/icon-512.svg"
 ];
 const ASSET_PATHS = new Set(ASSETS);
-const BYPASS_TERMS = ["clerk", "supabase", "token"];
+const BYPASS_TERMS = ["clerk", "supabase", "token", "auth"];
 
 function shouldBypass(url) {
   const target = (url.pathname + url.search).toLowerCase();

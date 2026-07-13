@@ -30,9 +30,12 @@
   const sheetPanel = sheet && sheet.querySelector(".detail-sheet");
   const sheetContent = document.querySelector("[data-sheet-content]");
   const toast = document.querySelector("[data-app-toast]");
+  const SEARCH_DEBOUNCE_MS = 180;
 
   let toastTimer;
+  let searchTimer;
   let lastFocusedElement = null;
+  let initialRendered = false;
 
   function safeText(value) {
     const span = document.createElement("span");
@@ -120,8 +123,27 @@
     if (!feed || !resultsCount || !emptyState) return;
     const visible = visibleListings();
     feed.innerHTML = visible.map(cardTemplate).join("");
+    feed.setAttribute("aria-busy", "false");
     resultsCount.textContent = visible.length + " إعلانات";
     emptyState.hidden = visible.length !== 0;
+    initialRendered = true;
+  }
+
+  function ensureInitialRender() {
+    if (!initialRendered) render();
+  }
+
+  function resetListings() {
+    state.sector = "all";
+    state.query = "";
+    if (searchInput) searchInput.value = "";
+    document.querySelectorAll("[data-sector-filter]").forEach(function (button) {
+      const active = button.dataset.sectorFilter === "all";
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+    render();
+    if (searchInput) searchInput.focus({ preventScroll: true });
   }
 
   function setSheetVisibility(visible) {
@@ -212,6 +234,11 @@
   }
 
   document.addEventListener("click", function (event) {
+    if (event.target.closest("[data-reset-listings]")) {
+      resetListings();
+      return;
+    }
+
     const filter = event.target.closest("[data-sector-filter]");
     if (filter) {
       state.sector = filter.dataset.sectorFilter;
@@ -259,7 +286,8 @@
   if (searchInput) {
     searchInput.addEventListener("input", function (event) {
       state.query = event.target.value;
-      render();
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(render, SEARCH_DEBOUNCE_MS);
     });
   }
 
@@ -274,7 +302,7 @@
   window.VVIP_PR29 = Object.freeze({
     showHome: function () {
       setView(true);
-      render();
+      ensureInitialRender();
     },
     showGate: function () {
       setView(false);
@@ -284,5 +312,5 @@
 
   applyLocalPreviewRoutes();
   setView(previewAllowed() || signedIn());
-  render();
+  ensureInitialRender();
 })();
