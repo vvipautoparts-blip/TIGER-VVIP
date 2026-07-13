@@ -30,7 +30,6 @@
   };
 
   const comingSoonMessages = {
-    create: "إنشاء الإعلان قيد التجهيز ضمن VVIP TIGER.",
     edit: "تعديل الإعلان قيد التجهيز.",
     pause: "إيقاف الإعلان قيد التجهيز.",
     notifications: "الإشعارات قيد التجهيز ضمن VVIP TIGER."

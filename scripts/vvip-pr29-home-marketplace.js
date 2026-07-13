@@ -279,7 +279,7 @@
     }
 
     if (event.target.closest("[data-coming-soon]")) {
-      showToast("إنشاء الإعلان قيد التجهيز ضمن VVIP TIGER.");
+      showToast("هذه الميزة قيد التجهيز ضمن VVIP TIGER.");
     }
   });
 

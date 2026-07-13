@@ -10,10 +10,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/vvip-pr29-home-marketplace.css">
+  <link rel="stylesheet" href="styles/vvip-pr31-create-listing-shell.css">
   <script defer crossorigin="anonymous" data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk" src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"></script>
   <script defer src="scripts/vvip-pr30-resilience.js"></script>
   <script defer src="auth-clerk-index.js"></script>
   <script defer src="scripts/vvip-pr29-home-marketplace.js"></script>
+  <script defer src="scripts/vvip-pr31-create-listing-shell.js"></script>
 </head>
 <body data-vvip-pr29-app>
   <div class="network-notice" data-network-notice role="status" hidden></div>
@@ -27,7 +29,7 @@
       <a class="brand" href="index.html" data-safe-nav data-nav-target="index.html" aria-label="VVIP TIGER"><span class="brand-icon" aria-hidden="true">V</span><span><b>VVIP TIGER</b><small>السوق</small></span><span class="vvip-badge">VVIP</span></a>
       <nav class="header-actions" aria-label="إجراءات الحساب">
         <a class="button button--quiet" href="private-profile-p03.html" data-account-route data-safe-nav data-nav-target="private-profile-p03.html">حسابي</a>
-        <button class="button button--primary" type="button" data-coming-soon>إنشاء إعلان</button>
+        <button class="button button--primary" type="button" data-open-create-listing>إنشاء إعلان</button>
       </nav>
     </header>
 
@@ -58,6 +60,13 @@
       <div class="empty-state" data-empty-state role="status" hidden><p>لا توجد نتائج مطابقة الآن. جرّب تعديل البحث أو الفلتر.</p><button class="button button--primary" type="button" data-reset-listings>عرض كل الإعلانات</button></div>
     </section>
   </main>
+
+  <nav class="market-bottom-nav" aria-label="التنقل الرئيسي">
+    <a href="index.html" data-safe-nav data-nav-target="index.html" aria-current="page">الرئيسية</a>
+    <a href="#marketplace" data-safe-nav data-nav-target="#marketplace">السوق</a>
+    <button type="button" data-open-create-listing>إعلان</button>
+    <a href="private-profile-p03.html" data-safe-nav data-nav-target="private-profile-p03.html">حسابي</a>
+  </nav>
 
   <div class="sheet-layer" data-vvip-listing-detail-sheet aria-hidden="true" hidden>
     <button class="sheet-backdrop" type="button" data-sheet-close aria-label="إغلاق التفاصيل"></button>
