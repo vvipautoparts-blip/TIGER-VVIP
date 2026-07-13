@@ -45,6 +45,20 @@
       cancel: "متابعة التحرير",
       accept: "إغلاق النموذج",
       destructive: false
+    },
+    draftChoice: {
+      title: "مسودتك المحلية جاهزة",
+      message: "يمكنك استكمال المسودة الحالية أو بدء إعلان جديد.",
+      cancel: "استكمال المسودة",
+      accept: "بدء إعلان جديد",
+      destructive: false
+    },
+    newDraft: {
+      title: "بدء إعلان جديد؟",
+      message: "سيتم استبدال المسودة المحلية الحالية على هذا الجهاز فقط.",
+      cancel: "إلغاء",
+      accept: "بدء جديد",
+      destructive: false
     }
   });
 
@@ -403,32 +417,38 @@
       specs: details.specs,
       sectorDetails: details.sectorDetails,
       photoNames: photoNames,
-      selectedLocalPhotoCount: photoNames.length
+      selectedLocalPhotoCount: photoNames.length,
+      lastStep: currentStep
     };
   }
 
-  function readDraft() {
-    try {
-      const raw = window.localStorage.getItem(DRAFT_KEY);
-      if (!raw) return null;
-      const draft = JSON.parse(raw);
-      if (!draft || draft.version !== 1 || !SECTORS[draft.sector]) return null;
-      return {
-        version: 1,
-        sector: draft.sector,
-        sectorLabel: SECTORS[draft.sector],
-        title: escapeText(draft.title).slice(0, 120),
-        price: parseSafePrice(draft.price),
-        location: escapeText(draft.location).slice(0, 100),
-        summary: escapeText(draft.summary).slice(0, 500),
-        specs: escapeText(draft.specs).slice(0, 240),
-        sectorDetails: draft.sectorDetails && typeof draft.sectorDetails === "object" ? draft.sectorDetails : {},
-        photoNames: Array.isArray(draft.photoNames) ? draft.photoNames.map(escapeText).slice(0, 50) : [],
-        selectedLocalPhotoCount: Number(draft.selectedLocalPhotoCount) || 0
-      };
-    } catch (error) {
-      return null;
+  function draftSnapshot() {
+    const drafts = window.VVIP_PR32_DRAFTS;
+    if (drafts && typeof drafts.readLocalDraft === "function") {
+      return drafts.readLocalDraft();
     }
+    return { status: "empty", draft: null };
+  }
+
+  function readDraft() {
+    const snapshot = draftSnapshot();
+    if (snapshot.status !== "ready") return null;
+    const draft = snapshot.draft;
+    return {
+      version: draft.version,
+      sector: draft.sector,
+      sectorLabel: draft.sectorLabel,
+      title: draft.title,
+      price: draft.price,
+      location: draft.location,
+      summary: draft.summary,
+      specs: draft.specs,
+      sectorDetails: draft.sectorFields,
+      photoNames: draft.photoFileNames,
+      selectedLocalPhotoCount: draft.photoCount,
+      lastStep: draft.lastStep,
+      incomplete: draft.incomplete
+    };
   }
 
   function fillField(name, value) {
@@ -459,27 +479,39 @@
       return;
     }
     const draft = draftPayload();
-    try {
-      window.localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
-    } catch (error) {
+    const drafts = window.VVIP_PR32_DRAFTS;
+    const saved = drafts && typeof drafts.writeLocalDraft === "function"
+      ? drafts.writeLocalDraft(draft)
+      : false;
+    if (!saved) {
       feedback(STORAGE_FAILURE);
       return;
     }
     dirty = false;
     savedPhotoNames = draft.photoNames.slice();
-    renderAccountDraft();
     feedback("تم حفظ المسودة محليًا على هذا الجهاز فقط.");
   }
 
-  function removeDraft() {
+  function clearDraftStorage() {
+    const drafts = window.VVIP_PR32_DRAFTS;
+    if (drafts && typeof drafts.clearLocalDraft === "function") {
+      return drafts.clearLocalDraft();
+    }
     try {
       window.localStorage.removeItem(DRAFT_KEY);
+      return true;
     } catch (error) {
-      feedback(STORAGE_FAILURE);
-      return;
+      return false;
     }
-    renderAccountDraft();
+  }
+
+  function removeDraft() {
+    if (!clearDraftStorage()) {
+      feedback(STORAGE_FAILURE);
+      return false;
+    }
     feedback("تم حذف المسودة المحلية من هذا الجهاز.");
+    return true;
   }
 
   function resetShell() {
@@ -500,24 +532,69 @@
     setError("details", "");
     renderPhotoPreview();
     setStep(0);
+    const drafts = window.VVIP_PR32_DRAFTS;
+    if (drafts && typeof drafts.renderDraftPreview === "function") {
+      drafts.renderDraftPreview();
+    }
   }
 
-  function openShell(reviewDraft) {
+  function openShell(mode) {
     try {
       resetShell();
-      const draft = readDraft();
+      const draft = mode === "new" ? null : readDraft();
       if (draft) hydrateDraft(draft);
       lastFocusedElement = document.activeElement;
       layer.hidden = false;
       layer.setAttribute("aria-hidden", "false");
       document.body.classList.add("vvip-create-open");
-      setStep(reviewDraft && draft ? 3 : 0);
+      setStep(draft ? draft.lastStep || 1 : 0);
+      if (draft && draft.incomplete) {
+        feedback("تم فتح المسودة، قد تحتاج لإكمال بعض الحقول.");
+      }
       window.setTimeout(function () {
         layer.querySelector(".vvip-create-shell").focus();
       }, 0);
     } catch (error) {
       feedback(OPEN_FAILURE);
     }
+  }
+
+  function requestOpenShell() {
+    const snapshot = draftSnapshot();
+    if (snapshot.status === "ready") {
+      openConfirmation("draftChoice");
+      return;
+    }
+    if (snapshot.status === "corrupt") {
+      feedback("تعذر قراءة المسودة المحلية. يمكنك حذفها أو إنشاء مسودة جديدة.");
+      openConfirmation("newDraft");
+      return;
+    }
+    openShell("new");
+  }
+
+  function resumeDraft() {
+    const snapshot = draftSnapshot();
+    if (snapshot.status !== "ready") {
+      feedback(snapshot.status === "corrupt"
+        ? "تعذر قراءة المسودة المحلية. يمكنك حذفها أو إنشاء مسودة جديدة."
+        : "لا توجد مسودة محلية لاستكمالها الآن.");
+      return;
+    }
+    openShell("resume");
+  }
+
+  function requestDeleteDraft() {
+    openConfirmation("delete");
+  }
+
+  function requestNewDraft() {
+    const snapshot = draftSnapshot();
+    if (snapshot.status === "ready" || snapshot.status === "corrupt") {
+      openConfirmation("newDraft");
+      return;
+    }
+    openShell("new");
   }
 
   function openConfirmation(type) {
@@ -551,6 +628,25 @@
     confirmationLastFocus = null;
   }
 
+  function transitionConfirmation(type) {
+    const origin = confirmationLastFocus;
+    closeConfirmation(false);
+    openConfirmation(type);
+    confirmationLastFocus = origin;
+  }
+
+  function cancelConfirmation() {
+    const action = pendingConfirmation;
+    if (action === "draftChoice") {
+      const origin = confirmationLastFocus;
+      closeConfirmation(false);
+      openShell("resume");
+      lastFocusedElement = origin;
+      return;
+    }
+    closeConfirmation(true);
+  }
+
   function performCloseShell() {
     if (!layer || layer.hidden) return;
     layer.hidden = true;
@@ -582,6 +678,21 @@
     if (action === "close") {
       closeConfirmation(false);
       performCloseShell();
+      return;
+    }
+    if (action === "draftChoice") {
+      transitionConfirmation("newDraft");
+      return;
+    }
+    if (action === "newDraft") {
+      const origin = confirmationLastFocus;
+      if (!clearDraftStorage()) {
+        feedback(STORAGE_FAILURE);
+        return;
+      }
+      closeConfirmation(false);
+      openShell("new");
+      lastFocusedElement = origin;
     }
   }
 
@@ -656,13 +767,12 @@
   buildShell();
   configureFilePicker();
   renderPhotoPreview();
-  renderAccountDraft();
 
   document.addEventListener("click", function (event) {
     const open = event.target.closest("[data-open-create-listing]");
     if (open) {
       event.preventDefault();
-      openShell(false);
+      requestOpenShell();
       return;
     }
     const sector = event.target.closest("[data-create-sector]");
@@ -685,15 +795,20 @@
       return;
     }
     if (event.target.closest("[data-preview-local-draft]")) {
-      openShell(true);
+      resumeDraft();
       return;
     }
     if (event.target.closest("[data-delete-local-draft]")) {
-      openConfirmation("delete");
+      requestDeleteDraft();
       return;
     }
-    if (event.target.closest("[data-create-confirm-cancel]")) {
-      closeConfirmation(true);
+    const confirmationCancel = event.target.closest("[data-create-confirm-cancel]");
+    if (confirmationCancel) {
+      if (confirmationCancel.classList.contains("vvip-create-confirmation__backdrop")) {
+        closeConfirmation(true);
+      } else {
+        cancelConfirmation();
+      }
       return;
     }
     if (event.target.closest("[data-create-confirm-accept]")) {
@@ -727,7 +842,15 @@
   });
 
   window.VVIP_PR31_CREATE_LISTING = Object.freeze({
-    open: openShell,
+    open: requestOpenShell,
+    resume: resumeDraft,
+    startNew: requestNewDraft,
+    requestDelete: requestDeleteDraft,
+    sessionPreview: function () {
+      return localPhotos.length
+        ? { url: localPhotos[0].url, count: localPhotos.length }
+        : { url: "", count: savedPhotoNames.length };
+    },
     close: requestCloseShell,
     escapeText: escapeText,
     parseSafePrice: parseSafePrice,

@@ -11,10 +11,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/vvip-p03-profile.css">
   <link rel="stylesheet" href="styles/vvip-pr31-create-listing-shell.css">
+  <link rel="stylesheet" href="styles/vvip-pr32-draft-preview.css">
   <script defer crossorigin="anonymous" data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk" src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"></script>
   <script defer src="scripts/vvip-pr30-resilience.js"></script>
   <script defer src="scripts/vvip-p03-profile.js"></script>
   <script defer src="scripts/vvip-p03-sign-out.js"></script>
+  <script defer src="scripts/vvip-pr32-draft-preview.js"></script>
   <script defer src="scripts/vvip-pr31-create-listing-shell.js"></script>
 </head>
 <body data-profile-mode="private" data-vvip-account-center data-vvip-private-owner-only>
@@ -51,7 +53,10 @@
           <article class="managed-card"><div class="managed-visual managed-visual--auto"><span>قطع وخدمات السيارات</span></div><div><span class="listing-state">نشط</span><h3>طقم فرامل أصلي</h3><strong>1,240 ر.س</strong><p>جدة</p><div class="managed-actions"><button type="button" data-preview-listing="account-auto">معاينة</button><button type="button" data-coming-soon="edit">تعديل لاحقًا</button><button type="button" data-coming-soon="pause">إيقاف لاحقًا</button></div></div></article>
           <article class="managed-card"><div class="managed-visual managed-visual--estate"><span>عقارات</span></div><div><span class="listing-state">مسودة</span><h3>مكتب جاهز للأعمال</h3><strong>145,000 ر.س / سنة</strong><p>جدة — الروضة</p><div class="managed-actions"><button type="button" data-preview-listing="account-office">معاينة</button><button type="button" data-coming-soon="edit">تعديل لاحقًا</button><button type="button" data-coming-soon="pause">إيقاف لاحقًا</button></div></div></article>
         </div>
-        <div data-vvip-local-draft-list></div>
+        <div class="vvip-draft-preview vvip-draft-preview--account" data-vvip-local-draft-preview data-draft-context="account">
+          <div data-vvip-local-draft-card></div>
+          <div class="vvip-draft-empty" data-vvip-draft-empty-state><p>لا توجد مسودات محلية حاليًا.</p><button type="button" data-open-create-listing>إنشاء إعلان</button></div>
+        </div>
       </section>
 
       <div class="account-columns">

@@ -11,10 +11,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/vvip-pr29-home-marketplace.css">
   <link rel="stylesheet" href="styles/vvip-pr31-create-listing-shell.css">
+  <link rel="stylesheet" href="styles/vvip-pr32-draft-preview.css">
   <script defer crossorigin="anonymous" data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk" src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"></script>
   <script defer src="scripts/vvip-pr30-resilience.js"></script>
   <script defer src="auth-clerk-index.js"></script>
   <script defer src="scripts/vvip-pr29-home-marketplace.js"></script>
+  <script defer src="scripts/vvip-pr32-draft-preview.js"></script>
   <script defer src="scripts/vvip-pr31-create-listing-shell.js"></script>
 </head>
 <body data-vvip-pr29-app>
@@ -42,6 +44,12 @@
         <span class="visually-hidden">البحث في إعلانات السوق</span>
         <input type="search" data-listing-search placeholder="ابحث عن سيارة، مواد، عقار..." autocomplete="off" aria-controls="marketplace-listings">
       </label>
+    </section>
+
+    <section class="vvip-draft-preview vvip-draft-preview--home" data-vvip-local-draft-preview data-draft-context="home" hidden>
+      <div class="vvip-draft-preview__heading"><div><span class="eyebrow">محفوظة على هذا الجهاز</span><h2>مسودتك الحالية</h2></div></div>
+      <div data-vvip-local-draft-card></div>
+      <div data-vvip-draft-empty-state hidden><p>يمكنك إنشاء إعلان وحفظه كمسودة محلية قبل النشر لاحقًا.</p></div>
     </section>
 
     <section class="marketplace" id="marketplace" aria-labelledby="marketplace-title">
