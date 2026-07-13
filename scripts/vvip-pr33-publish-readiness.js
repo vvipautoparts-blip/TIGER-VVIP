@@ -204,10 +204,24 @@
     }
   }
 
+  function setFieldWarning(fieldName, message) {
+    const root = shellRoot();
+    if (!root) return;
+    const warning = root.querySelector('[data-vvip-validation-warning="' + fieldName + '"]');
+    if (warning) {
+      warning.textContent = message || "";
+      warning.hidden = !message;
+    }
+  }
+
   function clearValidationErrors() {
     const root = shellRoot();
     if (!root) return;
     root.querySelectorAll("[data-vvip-validation-error]").forEach(function (node) {
+      node.textContent = "";
+      node.hidden = true;
+    });
+    root.querySelectorAll("[data-vvip-validation-warning]").forEach(function (node) {
       node.textContent = "";
       node.hidden = true;
     });
@@ -356,6 +370,7 @@
     renderValidationErrors: renderValidationErrors,
     clearValidationErrors: clearValidationErrors,
     setFieldError: setFieldError,
+    setFieldWarning: setFieldWarning,
     showReadinessSheet: showReadinessSheet,
     updateReadinessStatus: updateReadinessStatus
   });

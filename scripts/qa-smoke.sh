@@ -14,6 +14,7 @@ for file in \
   scripts/vvip-pr31-create-listing-shell.js \
   scripts/vvip-pr32-draft-preview.js \
   scripts/vvip-pr33-publish-readiness.js \
+  scripts/qa-pr33-accessibility.sh \
   styles/vvip-pr29-home-marketplace.css \
   styles/vvip-pr31-create-listing-shell.css \
   styles/vvip-pr32-draft-preview.css \
@@ -699,8 +700,8 @@ for marker in [
     "data-vvip-readiness-status",
     "data-vvip-readiness-sheet",
     "data-vvip-validation-error",
+    "data-vvip-validation-warning",
     "data-vvip-safe-publish-action",
-    "data-vvip-publish-disabled",
     "data-vvip-mobile-safe-shell",
 ]:
     if marker not in combined:
@@ -718,6 +719,7 @@ for helper in [
     "function renderValidationErrors",
     "function clearValidationErrors",
     "function setFieldError",
+    "function setFieldWarning",
     "function showReadinessSheet",
     "function updateReadinessStatus",
 ]:
@@ -771,6 +773,7 @@ for contract in [
     ".vvip-readiness-panel",
     ".vvip-readiness-sheet",
     ".vvip-field-error",
+    ".vvip-field-warning",
     "position: sticky",
     "overflow-x: hidden",
     "#f0f2f5",
@@ -846,6 +849,8 @@ assert.equal(blocked.ready, false);
 assert.deepEqual(blocked.missing.sort(), ["location", "price", "sector", "title"]);
 assert.equal(blocked.errors.title, "اكتب اسم الإعلان بوضوح.");
 JS_PR33_HELPERS
+
+bash scripts/qa-pr33-accessibility.sh
 
 echo "[smoke] validating auth preview and safe return path"
 python3 <<'PY_AUTH'

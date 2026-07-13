@@ -133,7 +133,7 @@
               <label><span>اسم الإعلان / العنوان</span><input name="title" maxlength="80" autocomplete="off" required><small class="vvip-field-error" data-vvip-validation-error="title" role="alert" hidden></small></label>
               <label><span>السعر</span><input name="price" type="text" inputmode="decimal" autocomplete="off" required><small class="vvip-field-error" data-vvip-validation-error="price" role="alert" hidden></small></label>
               <label><span>المدينة / المنطقة</span><input name="location" maxlength="60" autocomplete="address-level2" required><small class="vvip-field-error" data-vvip-validation-error="location" role="alert" hidden></small></label>
-              <label class="vvip-field-wide"><span>وصف مختصر</span><textarea name="summary" maxlength="280" rows="3"></textarea><small class="vvip-field-error" data-vvip-validation-error="summary" role="status" hidden></small></label>
+              <label class="vvip-field-wide"><span>وصف مختصر</span><textarea name="summary" maxlength="280" rows="3"></textarea><small class="vvip-field-error" data-vvip-validation-error="summary" role="alert" hidden></small><small class="vvip-field-warning" data-vvip-validation-warning="summary" role="status" hidden></small></label>
               <label class="vvip-field-wide"><span>مواصفات أساسية</span><input name="specs" maxlength="240" placeholder="افصل بين المواصفات بفاصلة"></label>
             </div>
 
@@ -193,7 +193,7 @@
               <button type="button" data-vvip-readiness-open>فحص جاهزية الإعلان</button>
             </section>
             <p class="vvip-create-disclaimer">VVIP TIGER منصة عرض وتواصل فقط وليست طرفًا في البيع أو الدفع أو التوصيل أو العقود.</p>
-            <div class="vvip-create-actions vvip-create-actions--review"><button class="vvip-create-primary" type="button" data-save-local-draft>حفظ المسودة المحلية</button><button type="button" data-vvip-safe-publish-action data-vvip-publish-disabled aria-disabled="true">النشر الحقيقي لاحقًا</button><button type="button" data-create-back data-edit-details>رجوع للتعديل</button><button type="button" data-create-close>إغلاق</button></div>
+            <div class="vvip-create-actions vvip-create-actions--review"><button class="vvip-create-primary" type="button" data-save-local-draft>حفظ المسودة المحلية</button><button type="button" data-vvip-safe-publish-action>النشر الحقيقي لاحقًا</button><button type="button" data-create-back data-edit-details>رجوع للتعديل</button><button type="button" data-create-close>إغلاق</button></div>
           </section>
         </form>
       </section>
@@ -315,7 +315,7 @@
       });
       api.renderValidationErrors(detailErrors);
       if (validation.warnings.includes("summary")) {
-        api.setFieldError("summary", "أضف وصفًا مختصرًا يساعد المستخدمين على فهم الإعلان.");
+        api.setFieldWarning("summary", "أضف وصفًا مختصرًا يساعد المستخدمين على فهم الإعلان.");
       }
       const firstBlocker = validation.blockers.find(function (name) {
         return name === "title" || name === "price" || name === "location" || name === "summary";
@@ -923,6 +923,7 @@
     const api = readinessApi();
     if (api && event.target && event.target.name) {
       api.setFieldError(event.target.name, "");
+      api.setFieldWarning(event.target.name, "");
       setError("details", "");
     }
   });

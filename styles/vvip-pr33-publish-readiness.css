@@ -40,6 +40,18 @@ body.vvip-readiness-open {
   display: none;
 }
 
+.vvip-field-warning {
+  margin: 2px 0 0;
+  color: var(--pr33-warning);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.vvip-field-warning[hidden] {
+  display: none;
+}
+
 .vvip-field-grid [aria-invalid="true"],
 .vvip-sector-grid [aria-invalid="true"] {
   border-color: var(--pr33-danger);
@@ -65,8 +77,7 @@ body.vvip-readiness-open {
   transform: translateY(1px);
 }
 
-.vvip-create-actions button:disabled,
-[data-vvip-publish-disabled] {
+.vvip-create-actions button:disabled {
   cursor: not-allowed;
   opacity: 0.72;
 }
