@@ -1157,6 +1157,43 @@ echo "[smoke] validating no database-scope diff"
 python3 <<'PY_DIFF'
 import subprocess
 
+PR34_BRANCH = "feat/pr34-listing-persistence-runtime"
+PR34_ALLOWED_PATHS = {
+    "scripts/listing/listing-contract.js",
+    "scripts/listing/listing-repository.js",
+    "scripts/listing/listing-contract.test.js",
+    "scripts/qa-pr34-hour1.sh",
+    "scripts/qa-smoke.sh",
+    "docs/superpowers/specs/2026-07-14-pr34-listing-contract-design.md",
+    "docs/superpowers/plans/2026-07-14-pr34-listing-contract-plan.md",
+    "docs/launch/pr34/CHANGE_CONTROL_MANIFEST.md",
+    "docs/launch/pr34/HOUR1_QA_EVIDENCE.md",
+    "docs/launch/pr34/HOUR1_FINAL_REPORT.md",
+}
+
+
+def scope_error(branch, paths):
+    if branch == PR34_BRANCH:
+        undeclared = sorted(set(paths) - PR34_ALLOWED_PATHS)
+        if undeclared:
+            return "[smoke][fail] undeclared PR34 scope changed: " + ", ".join(undeclared)
+        return None
+
+    forbidden_roots = ("backups/", "approved/", "docs/")
+    for name in paths:
+        if name.startswith(forbidden_roots):
+            return f"[smoke][fail] forbidden PR30 scope changed: {name}"
+    return None
+
+
+# Scope-regression coverage: default remains protected and PR34 fails closed.
+if scope_error("main", ["docs/unauthorized.md"]) is None:
+    raise SystemExit("[smoke][fail] scope regression: default mode allowed docs change")
+if scope_error(PR34_BRANCH, sorted(PR34_ALLOWED_PATHS)) is not None:
+    raise SystemExit("[smoke][fail] scope regression: PR34 rejected declared paths")
+if scope_error(PR34_BRANCH, ["docs/launch/pr34/UNDECLARED.md"]) is None:
+    raise SystemExit("[smoke][fail] scope regression: PR34 allowed undeclared path")
+
 changed = subprocess.run(
     ["git", "diff", "HEAD", "--name-only"],
     check=True,
@@ -1173,6 +1210,13 @@ untracked = subprocess.run(
 
 changed.extend(untracked)
 
+branch = subprocess.run(
+    ["git", "branch", "--show-current"],
+    check=True,
+    capture_output=True,
+    text=True,
+).stdout.strip()
+
 backup_paths = [name for name in untracked if name.startswith("backups/")]
 if backup_paths:
     raise SystemExit(
@@ -1180,10 +1224,9 @@ if backup_paths:
         + ", ".join(backup_paths)
     )
 
-forbidden_roots = ("backups/", "approved/", "docs/")
-for name in changed:
-    if name.startswith(forbidden_roots):
-        raise SystemExit(f"[smoke][fail] forbidden PR30 scope changed: {name}")
+error = scope_error(branch, changed)
+if error:
+    raise SystemExit(error)
 
 blocked_roots = [
     "supa" + "base/",
