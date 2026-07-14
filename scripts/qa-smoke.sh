@@ -1160,8 +1160,75 @@ PY_LOGGING
 
 echo "[smoke] validating no database-scope diff"
 python3 <<'PY_DIFF'
+import os
 import subprocess
 from pathlib import Path
+
+PR34_BRANCH = "feat/pr34-listing-persistence-runtime"
+PR34_ALLOWED_PATHS = {
+    "scripts/listing/listing-contract.js",
+    "scripts/listing/listing-repository.js",
+    "scripts/listing/listing-contract.test.js",
+    "scripts/qa-pr34-hour1.sh",
+    "scripts/qa-smoke.sh",
+    "docs/superpowers/specs/2026-07-14-pr34-listing-contract-design.md",
+    "docs/superpowers/plans/2026-07-14-pr34-listing-contract-plan.md",
+    "docs/launch/pr34/CHANGE_CONTROL_MANIFEST.md",
+    "docs/launch/pr34/HOUR1_QA_EVIDENCE.md",
+    "docs/launch/pr34/HOUR1_FINAL_REPORT.md",
+}
+
+allowlist_path = Path("docs/launch/pr35/CHANGED_FILES.allowlist")
+pr35_allowed = (
+    set(allowlist_path.read_text(encoding="utf-8").splitlines())
+    if allowlist_path.exists()
+    else set()
+)
+
+
+def scope_error(branch, paths):
+    if branch == PR34_BRANCH:
+        undeclared = sorted(set(paths) - PR34_ALLOWED_PATHS)
+        if undeclared:
+            return (
+                "[smoke][fail] undeclared PR34 scope changed: "
+                + ", ".join(undeclared)
+            )
+        return None
+
+    forbidden_roots = ("backups/", "approved/", "docs/")
+    for name in paths:
+        if name.startswith(forbidden_roots) and name not in pr35_allowed:
+            return f"[smoke][fail] forbidden PR30 scope changed: {name}"
+    return None
+
+
+if scope_error("main", ["docs/unauthorized.md"]) is None:
+    raise SystemExit(
+        "[smoke][fail] scope regression: default mode allowed docs change"
+    )
+
+if scope_error(PR34_BRANCH, sorted(PR34_ALLOWED_PATHS)) is not None:
+    raise SystemExit(
+        "[smoke][fail] scope regression: PR34 rejected declared paths"
+    )
+
+if scope_error(
+    PR34_BRANCH,
+    ["docs/launch/pr34/UNDECLARED.md"],
+) is None:
+    raise SystemExit(
+        "[smoke][fail] scope regression: PR34 allowed undeclared path"
+    )
+
+pr35_sample = "docs/launch/pr35/SECURITY_THREAT_MODEL.md"
+if (
+    pr35_sample in pr35_allowed
+    and scope_error("main", [pr35_sample]) is not None
+):
+    raise SystemExit(
+        "[smoke][fail] scope regression: PR35 rejected declared path"
+    )
 
 changed = subprocess.run(
     ["git", "diff", "HEAD", "--name-only"],
@@ -1179,19 +1246,48 @@ untracked = subprocess.run(
 
 changed.extend(untracked)
 
-backup_paths = [name for name in untracked if name.startswith("backups/")]
+def resolve_branch():
+    current = subprocess.run(
+        ["git", "branch", "--show-current"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+    if current:
+        return current
+
+    for variable in (
+        "GITHUB_HEAD_REF",
+        "GITHUB_REF_NAME",
+        "CI_COMMIT_REF_NAME",
+        "BRANCH_NAME",
+    ):
+        value = os.environ.get(variable, "").strip()
+        if value.startswith("refs/heads/"):
+            value = value[len("refs/heads/"):]
+        if value and value != "HEAD":
+            return value
+
+    return ""
+
+
+branch = resolve_branch()
+
+backup_paths = [
+    name for name in untracked
+    if name.startswith("backups/")
+]
+
 if backup_paths:
     raise SystemExit(
         "[smoke][fail] repository backup remains untracked: "
         + ", ".join(backup_paths)
     )
 
-allowlist_path = Path("docs/launch/pr35/CHANGED_FILES.allowlist")
-pr35_allowed = set(allowlist_path.read_text(encoding="utf-8").splitlines()) if allowlist_path.exists() else set()
-forbidden_roots = ("backups/", "approved/", "docs/")
-for name in changed:
-    if name.startswith(forbidden_roots) and name not in pr35_allowed:
-        raise SystemExit(f"[smoke][fail] forbidden PR30 scope changed: {name}")
+error = scope_error(branch, changed)
+if error:
+    raise SystemExit(error)
 
 blocked_roots = [
     "supa" + "base/",
@@ -1200,11 +1296,20 @@ blocked_roots = [
     "r" + "ls/",
     "pol" + "icy/",
 ]
+
 for name in changed:
     lowered = name.lower()
-    review_sql = name.startswith("docs/security/sql-review/pr35/") and name in pr35_allowed
-    if (lowered.endswith("." + "sql") or any(root in lowered for root in blocked_roots)) and not review_sql:
-        raise SystemExit(f"[smoke][fail] database-scope file changed: {name}")
+    review_sql = (
+        name.startswith("docs/security/sql-review/pr35/")
+        and name in pr35_allowed
+    )
+    if (
+        lowered.endswith("." + "sql")
+        or any(root in lowered for root in blocked_roots)
+    ) and not review_sql:
+        raise SystemExit(
+            f"[smoke][fail] database-scope file changed: {name}"
+        )
 PY_DIFF
 
 echo "[smoke][pass] PR29 legacy eradication checks succeeded"
