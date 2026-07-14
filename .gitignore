@@ -9,6 +9,10 @@ supabase/.temp/
 *.desktop-approved.*
 test-results/
 tests/
+!tests/
+tests/*
+!tests/pr35/
+!tests/pr35/**
 
 # Local generated files
 node_modules/

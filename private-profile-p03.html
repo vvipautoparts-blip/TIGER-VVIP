@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="styles/vvip-pr31-create-listing-shell.css">
   <link rel="stylesheet" href="styles/vvip-pr32-draft-preview.css">
   <link rel="stylesheet" href="styles/vvip-pr33-publish-readiness.css">
+  <link rel="stylesheet" href="styles/vvip-pr35-owner-care.css">
   <script defer crossorigin="anonymous" data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk" src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"></script>
   <script defer src="scripts/vvip-pr30-resilience.js"></script>
   <script defer src="scripts/vvip-p03-profile.js"></script>
@@ -20,6 +21,7 @@
   <script defer src="scripts/vvip-pr32-draft-preview.js"></script>
   <script defer src="scripts/vvip-pr31-create-listing-shell.js"></script>
   <script defer src="scripts/vvip-pr33-publish-readiness.js"></script>
+  <script type="module" src="scripts/pr35/pr35-bootstrap.js"></script>
 </head>
 <body data-profile-mode="private" data-vvip-account-center data-vvip-private-owner-only>
   <div class="network-notice" data-network-notice role="status" hidden></div>
@@ -36,6 +38,10 @@
       <section class="account-summary account-card" data-account-data-card tabindex="-1">
         <div class="account-initials" data-profile-initials>م</div>
         <div><span class="account-label">حساب المالك</span><h2 data-profile-name>مستخدم</h2><div class="account-status-row"><span>الحالة: <b>نشط</b></span><span>النوع: مستخدم عادي</span></div><p>هذا مركز خاص لإدارة الحساب، وليس صفحة عامة.</p></div>
+        <div class="pr35-profile-actions" data-profile-actions-menu data-subject-id="profile-user" hidden>
+          <button type="button" data-profile-actions-trigger aria-haspopup="menu" aria-expanded="false" aria-label="إجراءات تشغيلية للحساب">⋮</button>
+          <div role="menu" aria-label="إجراءات الحساب التشغيلية" hidden><button type="button" role="menuitem" data-profile-assign>إضافة تكليف تشغيلي</button><button type="button" role="menuitem" data-profile-suspend>تعليق تكليف</button><button type="button" role="menuitem" data-profile-revoke>سحب تكليف</button></div>
+        </div>
       </section>
 
       <section class="account-section" data-vvip-account-actions aria-labelledby="quick-actions-title">
@@ -46,6 +52,7 @@
           <button type="button" data-account-action="data" data-scroll-target="account-data">بيانات الحساب</button>
           <button type="button" data-account-action="security" data-scroll-target="account-security">الأمان</button>
           <button type="button" data-account-action="care" data-vvip-tiger-care-entry>Tiger Care</button>
+          <a class="account-button account-button--quiet" href="owner-control.html?preview=owner" data-pr35-owner-link hidden>مركز تحكم المالك</a>
         </div>
       </section>
 
