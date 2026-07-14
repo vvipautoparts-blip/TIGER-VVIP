@@ -22,7 +22,7 @@ export async function submitCareRequest({ adapter, queue, payload, context, onli
     : Object.freeze({ state: 'failed', code: queued?.code || 'QUEUE_UNAVAILABLE' });
 }
 
-export function createCareController({ root = document, adapter, identity, queue, clock = () => new Date().toISOString(), online = () => navigator.onLine }) {
+export function createCareController({ root = document, adapter, identity, queue, local = false, clock = () => new Date().toISOString(), online = () => navigator.onLine }) {
   let layer; let opener; let requestController;
   function close() { requestController?.abort(); if (!layer) return; layer.remove(); layer = null; opener?.focus(); opener = null; }
   function open(trigger) {
@@ -30,7 +30,7 @@ export function createCareController({ root = document, adapter, identity, queue
     layer = el('div', { class: 'pr35-layer', 'data-care-dialog': '' });
     const dialog = el('section', { class: 'pr35-sheet', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'pr35-care-title', tabindex: '-1' });
     const title = el('h2', { id: 'pr35-care-title' }, translate('care.title'));
-    const disclosure = el('p', { class: 'pr35-disclosure' }, translate('mode.local'));
+    const disclosure = el('p', { class: 'pr35-disclosure' }, translate(local ? 'mode.local' : 'mode.productionUnavailable'));
     const form = el('form', { class: 'pr35-form', 'data-care-form': '' });
     const category = el('select', { name: 'category', required: '', 'aria-label': 'نوع الطلب' });
     CARE_CATEGORIES.forEach((id) => category.append(el('option', { value: id }, labels[id])));

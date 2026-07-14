@@ -47,7 +47,7 @@ async function boot() {
   if (document.querySelector('[data-vvip-tiger-care-entry]')) {
     const { createCareController } = await import('./pr35-care-controller.js');
     const queue = createUserSubmissionQueue(sessionStorage, window.Clerk?.session?.id || careIdentity().id || 'anonymous');
-    const care = createCareController({ adapter: careAdapter, identity: careIdentity, clock: now, queue });
+    const care = createCareController({ adapter: careAdapter, identity: careIdentity, clock: now, queue, local });
     document.querySelectorAll('[data-vvip-tiger-care-entry]').forEach((button) => button.addEventListener('click', (event) => { event.stopImmediatePropagation(); care.open(button); }, true));
   }
   const actionHost = document.querySelector('[data-profile-actions-menu]'); const ownerRoot = document.querySelector('[data-owner-root]');

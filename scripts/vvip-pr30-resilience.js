@@ -50,13 +50,13 @@
     "[data-close-sheet]",
     "[data-open-signout]",
     "[data-confirm-signout]",
-    "[data-cancel-signout]"
-    ,"[data-vvip-tiger-care-entry]"
-    ,"[data-profile-actions-trigger]"
-    ,"[data-profile-assign]"
-    ,"[data-profile-suspend]"
-    ,"[data-profile-revoke]"
-    ,"[data-new-assignment]"
+    "[data-cancel-signout]",
+    "[data-vvip-tiger-care-entry]",
+    "[data-profile-actions-trigger]",
+    "[data-profile-assign]",
+    "[data-profile-suspend]",
+    "[data-profile-revoke]",
+    "[data-new-assignment]"
   ].join(",");
   const RECOVERY_MESSAGE =
     "حدث تعذر مؤقت. يمكنك المتابعة من السوق أو الرجوع للرئيسية.";

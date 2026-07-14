@@ -69,3 +69,17 @@ exit 0; and `git diff --check` exit 0.
   readiness, focus restoration, dialog/menu semantics, live status, 44px
   targets, reduced motion, and responsive layout. Manual screen-reader/device
   testing remains a known limitation.
+
+## Copilot five-finding closure verification
+
+Verified at: 2026-07-14T21:32:32Z
+
+- `node --test tests/pr35/ui-behavior.test.mjs` — PASS after confirmed RED phase.
+- `node --test tests/pr35/drafts-network.test.mjs` — PASS.
+- `node --test tests/pr35/*.test.mjs` — PASS.
+- `bash "$ROOT/projected-pr35-qa.sh" "$(pwd -P)" "$EXPECTED_BASE" "$RUN_ID" "$RUN_DIR"` — PASS.
+- `bash scripts/qa-smoke.sh` — PASS.
+- `git diff --check` — PASS.
+- Production SQL applied: NO.
+- Remote Supabase changed: NO.
+- Clerk changed: NO.

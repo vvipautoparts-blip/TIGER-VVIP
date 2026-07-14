@@ -129,3 +129,44 @@ test('shared UI meets RTL, focus, motion, touch and stable loading contracts', a
   assert.match(css, /min-block-size/);
   assert.match(css, /\[dir="ltr"\]/);
 });
+
+test('Tiger Care disclosure is mode-aware and bootstrap forwards local mode', async () => {
+  const [care, bootstrap] = await Promise.all([
+    read('scripts/pr35/pr35-care-controller.js'),
+    read('scripts/pr35/pr35-bootstrap.js')
+  ]);
+  assert.match(care, /local\s*\?\s*['"]mode\.local['"]\s*:\s*['"]mode\.productionUnavailable['"]/);
+  assert.match(bootstrap, /createCareController\(\{[^}]*\blocal\b[^}]*\}\)/s);
+});
+
+test('assignment confirmation copy reflects local versus secure runtime', async () => {
+  const source = await read('scripts/pr35/pr35-owner-controller.js');
+  assert.match(source, /local\s*\?\s*['"]تأكيد التكليف المحلي['"]\s*:\s*['"]تأكيد التكليف الآمن['"]/);
+});
+
+test('owner search debounce matches the documented weak-network budget', async () => {
+  const [source, budget] = await Promise.all([
+    read('scripts/pr35/pr35-owner-controller.js'),
+    read('docs/launch/pr35/PERFORMANCE_AND_WEAK_NETWORK_BUDGET.md')
+  ]);
+  assert.match(source, /setTimeout\([\s\S]*?,\s*250\)/);
+  assert.match(budget, /250\s*ms/i);
+});
+
+test('owner controller has no unused ROLE_TEMPLATES import', async () => {
+  const source = await read('scripts/pr35/pr35-owner-controller.js');
+  assert.doesNotMatch(source, /\bROLE_TEMPLATES\b/);
+});
+
+test('resilience action allowlist uses consistent trailing-comma formatting', async () => {
+  const source = await read('scripts/vvip-pr30-resilience.js');
+  assert.doesNotMatch(source, /\n\s*,\s*['"]\[data-/);
+  for (const selector of [
+    '[data-vvip-tiger-care-entry]',
+    '[data-profile-actions-trigger]',
+    '[data-profile-assign]',
+    '[data-profile-suspend]',
+    '[data-profile-revoke]',
+    '[data-new-assignment]'
+  ]) assert.match(source, new RegExp(selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+});

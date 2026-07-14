@@ -66,3 +66,15 @@ No Round 3 findings were rejected; all three concrete runtime findings reproduce
 | Round 4 review absent from allowlist | Valid as final change-control reconciliation. `CODEX_REVIEW_ROUND4.md` and this required final report are included in lexical order in the exact changed-file allowlist. |
 
 No Round 4 findings were false positives. Aggregate QA completed with exit `0` at `2026-07-14T18:57:58Z`; production, remote, and manual browser verification remain unclaimed.
+
+## Copilot review closure — five findings
+
+Verified at: 2026-07-14T21:32:32Z
+
+1. Tiger Care disclosure is now mode-aware and never labels a production/unconfigured route as a local demo.
+2. Assignment confirmation copy now reflects local preview versus secure runtime.
+3. Owner search debounce now matches the approved 250 ms weak-network budget.
+4. The unused `ROLE_TEMPLATES` import was removed.
+5. `KNOWN_ACTIONS` now uses consistent trailing-comma formatting.
+
+Regression coverage was added before production edits and observed failing, then passing after the minimal corrections. The governing values remain amanah in user-facing status, justice in permission boundaries, privacy, and fail-closed behavior.
