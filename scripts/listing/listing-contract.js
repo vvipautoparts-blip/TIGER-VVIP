@@ -70,8 +70,10 @@
     if (!value || typeof value !== "object" || Array.isArray(value)) return result;
     Object.keys(value).sort().slice(0, 30).forEach((key) => {
       const safeKey = String(key).replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 50);
-      if (!safeKey || !["string", "number", "boolean"].includes(typeof value[key])) return;
-      const safeValue = typeof value[key] === "string" ? sanitizeText(value[key], 140) : value[key];
+      const rawValue = value[key];
+      if (!safeKey || !["string", "number", "boolean"].includes(typeof rawValue)) return;
+      if (typeof rawValue === "number" && !Number.isFinite(rawValue)) return;
+      const safeValue = typeof rawValue === "string" ? sanitizeText(rawValue, 140) : rawValue;
       if (safeValue !== "") result[safeKey] = safeValue;
     });
     return result;
@@ -121,8 +123,9 @@
     });
     if (!source.sectorAttributes || typeof source.sectorAttributes !== "object" || Array.isArray(source.sectorAttributes)) errors.push(error("sectorAttributes", "invalid_attributes"));
     if (!STATUSES.includes(source.status)) errors.push(error("status", "invalid_status"));
-    const images = sanitizeImages(source.images);
-    if (!Array.isArray(source.images)) errors.push(error("images", "invalid_images"));
+    const imageInput = source.images === undefined ? [] : source.images;
+    const images = sanitizeImages(imageInput);
+    if (source.images !== undefined && !Array.isArray(source.images)) errors.push(error("images", "invalid_images"));
     else if (images.length > MAX_IMAGES) errors.push(error("images", "too_many_images"));
     const ids = new Set();
     const ordered = images.every((image, index) => identifierValid(image.imageId, 100) && image.position === index && !ids.has(image.imageId) && ids.add(image.imageId));

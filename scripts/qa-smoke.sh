@@ -1160,6 +1160,7 @@ PY_LOGGING
 
 echo "[smoke] validating no database-scope diff"
 python3 <<'PY_DIFF'
+import os
 import subprocess
 from pathlib import Path
 
@@ -1245,12 +1246,33 @@ untracked = subprocess.run(
 
 changed.extend(untracked)
 
-branch = subprocess.run(
-    ["git", "branch", "--show-current"],
-    check=True,
-    capture_output=True,
-    text=True,
-).stdout.strip()
+def resolve_branch():
+    current = subprocess.run(
+        ["git", "branch", "--show-current"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+    if current:
+        return current
+
+    for variable in (
+        "GITHUB_HEAD_REF",
+        "GITHUB_REF_NAME",
+        "CI_COMMIT_REF_NAME",
+        "BRANCH_NAME",
+    ):
+        value = os.environ.get(variable, "").strip()
+        if value.startswith("refs/heads/"):
+            value = value[len("refs/heads/"):]
+        if value and value != "HEAD":
+            return value
+
+    return ""
+
+
+branch = resolve_branch()
 
 backup_paths = [
     name for name in untracked

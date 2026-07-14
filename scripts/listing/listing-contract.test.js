@@ -119,3 +119,58 @@ test("Supabase repository is an interface only", async () => {
   const repository = new repositories.SupabaseListingRepository();
   await assert.rejects(repository.create(validInput()), /adapter_not_configured/);
 });
+
+test("drops non-finite numeric sector attributes", () => {
+  const result = contract.createListing(validInput({
+    sectorAttributes: {
+      finite: 12,
+      nan: Number.NaN,
+      infinity: Number.POSITIVE_INFINITY,
+      negativeInfinity: Number.NEGATIVE_INFINITY
+    }
+  }), { now: "2026-07-14T12:00:00.000Z" });
+
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.value.sectorAttributes, { finite: 12 });
+});
+
+test("treats omitted images as an empty optional collection", () => {
+  const input = validInput({ coverImageId: null });
+  delete input.images;
+
+  const result = contract.createListing(
+    input,
+    { now: "2026-07-14T12:00:00.000Z" }
+  );
+
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.value.images, []);
+  assert.equal(result.value.coverImageId, null);
+});
+
+test("local repository update requires a new idempotency key", async () => {
+  const repository = new repositories.LocalListingRepository({
+    now: () => "2026-07-14T12:00:00.000Z"
+  });
+
+  await repository.create(validInput());
+
+  await assert.rejects(
+    repository.update(
+      "lst_01",
+      { title: "تحديث بلا مفتاح جديد" },
+      { ownerClerkUserId: "user_01" }
+    ),
+    (error) => (
+      error
+      && error.message === "listing_validation_failed"
+      && Array.isArray(error.errors)
+      && error.errors.some(
+        (entry) => (
+          entry.field === "idempotencyKey"
+          && entry.code === "required"
+        )
+      )
+    )
+  );
+});

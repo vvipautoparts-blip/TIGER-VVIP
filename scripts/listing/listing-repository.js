@@ -43,11 +43,16 @@
     async update(listingId, patch, context) {
       const existing = this.records.get(listingId);
       if (!existing || !context || existing.ownerClerkUserId !== context.ownerClerkUserId) return null;
-      const idempotencyKey = patch && patch.idempotencyKey;
+      const idempotencyKey = patch && Object.hasOwn(patch, "idempotencyKey")
+        ? patch.idempotencyKey
+        : undefined;
       const key = `update:${existing.ownerClerkUserId}:${listingId}:${idempotencyKey}`;
       if (this.idempotency.has(key)) return clone(this.idempotency.get(key));
       const immutable = { listingId: existing.listingId, ownerClerkUserId: existing.ownerClerkUserId, createdAt: existing.createdAt };
-      const candidate = Object.assign({}, existing, patch, immutable, { updatedAt: this.now() });
+      const candidate = Object.assign({}, existing, patch, immutable, {
+        idempotencyKey,
+        updatedAt: this.now()
+      });
       const result = contract.createListing(candidate, { now: candidate.updatedAt });
       if (!result.ok) throw Object.assign(new Error("listing_validation_failed"), { errors: result.errors });
       const stored = clone(result.value);
