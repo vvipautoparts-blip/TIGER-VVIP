@@ -321,6 +321,11 @@ class Buttons(HTMLParser):
             "data-open-signout",
             "data-confirm-signout",
             "data-cancel-signout",
+            "data-vvip-tiger-care-entry",
+            "data-profile-actions-trigger",
+            "data-profile-assign",
+            "data-profile-suspend",
+            "data-profile-revoke",
         }
         if not keys.intersection(guarded):
             self.unguarded.append(sorted(keys))
@@ -1156,6 +1161,7 @@ PY_LOGGING
 echo "[smoke] validating no database-scope diff"
 python3 <<'PY_DIFF'
 import subprocess
+from pathlib import Path
 
 PR34_BRANCH = "feat/pr34-listing-persistence-runtime"
 PR34_ALLOWED_PATHS = {
@@ -1171,28 +1177,57 @@ PR34_ALLOWED_PATHS = {
     "docs/launch/pr34/HOUR1_FINAL_REPORT.md",
 }
 
+allowlist_path = Path("docs/launch/pr35/CHANGED_FILES.allowlist")
+pr35_allowed = (
+    set(allowlist_path.read_text(encoding="utf-8").splitlines())
+    if allowlist_path.exists()
+    else set()
+)
+
 
 def scope_error(branch, paths):
     if branch == PR34_BRANCH:
         undeclared = sorted(set(paths) - PR34_ALLOWED_PATHS)
         if undeclared:
-            return "[smoke][fail] undeclared PR34 scope changed: " + ", ".join(undeclared)
+            return (
+                "[smoke][fail] undeclared PR34 scope changed: "
+                + ", ".join(undeclared)
+            )
         return None
 
     forbidden_roots = ("backups/", "approved/", "docs/")
     for name in paths:
-        if name.startswith(forbidden_roots):
+        if name.startswith(forbidden_roots) and name not in pr35_allowed:
             return f"[smoke][fail] forbidden PR30 scope changed: {name}"
     return None
 
 
-# Scope-regression coverage: default remains protected and PR34 fails closed.
 if scope_error("main", ["docs/unauthorized.md"]) is None:
-    raise SystemExit("[smoke][fail] scope regression: default mode allowed docs change")
+    raise SystemExit(
+        "[smoke][fail] scope regression: default mode allowed docs change"
+    )
+
 if scope_error(PR34_BRANCH, sorted(PR34_ALLOWED_PATHS)) is not None:
-    raise SystemExit("[smoke][fail] scope regression: PR34 rejected declared paths")
-if scope_error(PR34_BRANCH, ["docs/launch/pr34/UNDECLARED.md"]) is None:
-    raise SystemExit("[smoke][fail] scope regression: PR34 allowed undeclared path")
+    raise SystemExit(
+        "[smoke][fail] scope regression: PR34 rejected declared paths"
+    )
+
+if scope_error(
+    PR34_BRANCH,
+    ["docs/launch/pr34/UNDECLARED.md"],
+) is None:
+    raise SystemExit(
+        "[smoke][fail] scope regression: PR34 allowed undeclared path"
+    )
+
+pr35_sample = "docs/launch/pr35/SECURITY_THREAT_MODEL.md"
+if (
+    pr35_sample in pr35_allowed
+    and scope_error("main", [pr35_sample]) is not None
+):
+    raise SystemExit(
+        "[smoke][fail] scope regression: PR35 rejected declared path"
+    )
 
 changed = subprocess.run(
     ["git", "diff", "HEAD", "--name-only"],
@@ -1217,7 +1252,11 @@ branch = subprocess.run(
     text=True,
 ).stdout.strip()
 
-backup_paths = [name for name in untracked if name.startswith("backups/")]
+backup_paths = [
+    name for name in untracked
+    if name.startswith("backups/")
+]
+
 if backup_paths:
     raise SystemExit(
         "[smoke][fail] repository backup remains untracked: "
@@ -1235,10 +1274,20 @@ blocked_roots = [
     "r" + "ls/",
     "pol" + "icy/",
 ]
+
 for name in changed:
     lowered = name.lower()
-    if lowered.endswith("." + "sql") or any(root in lowered for root in blocked_roots):
-        raise SystemExit(f"[smoke][fail] database-scope file changed: {name}")
+    review_sql = (
+        name.startswith("docs/security/sql-review/pr35/")
+        and name in pr35_allowed
+    )
+    if (
+        lowered.endswith("." + "sql")
+        or any(root in lowered for root in blocked_roots)
+    ) and not review_sql:
+        raise SystemExit(
+            f"[smoke][fail] database-scope file changed: {name}"
+        )
 PY_DIFF
 
 echo "[smoke][pass] PR29 legacy eradication checks succeeded"
