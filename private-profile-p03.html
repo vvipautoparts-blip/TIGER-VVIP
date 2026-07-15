@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="styles/vvip-pr35-owner-care.css">
   <link rel="stylesheet" href="styles/vvip-pr36-media.css">
   <link rel="stylesheet" href="styles/vvip-pr38-onboarding.css">
+  <link rel="stylesheet" href="styles/vvip-pr39-profile.css">
   <script defer crossorigin="anonymous" data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk" src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="scripts/supabase-config.js"></script>
@@ -66,6 +67,9 @@
           <button type="button" data-account-action="listings" data-scroll-target="my-listings">إعلاناتي</button>
           <button type="button" data-account-action="data" data-scroll-target="account-data">بيانات الحساب</button>
           <button type="button" data-account-action="security" data-scroll-target="account-security">الأمان</button>
+          <a class="account-button account-button--quiet" href="public-profile-p05.html">عرض الملف العام</a>
+          <a class="account-button account-button--quiet" href="edit-profile-p05.html">تعديل الملف</a>
+          <a class="account-button account-button--quiet" href="account-settings-p05.html">إعدادات الحساب</a>
           <button type="button" data-account-action="care" data-vvip-tiger-care-entry>Tiger Care</button>
           <a class="account-button account-button--quiet" href="owner-control.html?preview=owner" data-pr35-owner-link hidden>مركز تحكم المالك</a>
         </div>
@@ -76,6 +80,17 @@
         <p class="pr38-account-type-status-row">الحالة الحالية: <strong data-pr38-account-type-status>غير محدد</strong></p>
         <p class="pr38-account-type-hint">اختيار النوع لا يمنح صلاحية نشر تلقائيًا، وصلاحية النشر تبقى غير مفعلة حتى الاعتماد الرسمي.</p>
         <a class="account-button account-button--primary" href="onboarding-p04.html?return_to=private-profile-p03.html" data-safe-nav data-nav-target="onboarding-p04.html?return_to=private-profile-p03.html">إعداد نوع الحساب</a>
+      </section>
+
+      <section class="account-section account-card" aria-labelledby="pr39-account-management-title">
+        <div class="account-section__heading"><span class="account-kicker">P05 PROFILE</span><h2 id="pr39-account-management-title">إدارة الملف والحساب</h2></div>
+        <p>الملف العام والملف الخاص يعتمدان نفس الهوية، مع فصل كامل بين نوع الحساب وصلاحية النشر.</p>
+        <p>اسم المستخدم الفريد: حجز اسم المستخدم الفريد سيُفعّل بعد ربط خدمة التحقق الرسمية.</p>
+        <div class="pr39-actions">
+          <a class="pr39-btn pr39-btn-primary" href="public-profile-p05.html">فتح الملف العام</a>
+          <a class="pr39-btn" href="edit-profile-p05.html">تعديل الملف</a>
+          <a class="pr39-btn" href="account-settings-p05.html">إدارة الإعدادات</a>
+        </div>
       </section>
 
       <section class="account-section" id="my-listings" data-vvip-my-listings tabindex="-1">

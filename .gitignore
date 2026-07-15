@@ -11,6 +11,8 @@ test-results/
 tests/
 !tests/
 tests/*
+!tests/pr39-p05-profile-account-management.test.py
+!tests/pr39-p05-profile-account-management.runtime.test.cjs
 !tests/pr36/
 !tests/pr36/*
 !tests/pr35/
