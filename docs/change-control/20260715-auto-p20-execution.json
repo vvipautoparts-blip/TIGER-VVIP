@@ -1,0 +1,12 @@
+{
+  "phase": "P20",
+  "baseline": "7b30f96a99dcc928d3486ab11eb07dab6ff9f19a",
+  "branch": "feat/auto-p20-repository-closure",
+  "mode": "documentation_and_review_only",
+  "production_changes": false,
+  "sql_changes": false,
+  "rls_changes": false,
+  "migrations_changes": false,
+  "destructive_actions": false,
+  "date": "2026-07-15"
+}
