@@ -1,0 +1,12 @@
+{
+  "phase": "P16",
+  "baseline": "9ac2601908cc6f1792cf93699b940d01a49cfbbf",
+  "branch": "feat/auto-p16-repository-closure",
+  "mode": "documentation_and_review_only",
+  "production_changes": false,
+  "sql_changes": false,
+  "rls_changes": false,
+  "migrations_changes": false,
+  "destructive_actions": false,
+  "date": "2026-07-15"
+}

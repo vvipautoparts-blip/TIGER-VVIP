@@ -5,10 +5,10 @@ language: Arabic First
 market: Jordan First
 source_of_truth: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml
 human_readable_version: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md
-current_phase: P16
-last_completed_phase: P15
-next_authorized_phase: P16
-execution_lock: P16
+current_phase: P17
+last_completed_phase: P16
+next_authorized_phase: P17
+execution_lock: P17
 general_rules:
   - phase_one_at_a_time
   - start_from_clean_synced_main
@@ -473,7 +473,7 @@ phases:
   - id: P16
     priority: 16
     name: Sector Publishing Permissions
-    status: pending
+    status: completed
     depends_on:
       - P15
     scope:
