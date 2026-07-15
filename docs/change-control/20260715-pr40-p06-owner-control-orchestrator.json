@@ -1,0 +1,37 @@
+{
+  "phase": "P06",
+  "pr": "PR40",
+  "baseline": "32bd53579500a327a67ad39feda077cf6c9285df",
+  "branch": "feat/pr40-p06-owner-control-orchestrator",
+  "objective": "Establish Owner Control Orchestrator foundation for P06 with read-only runtime visibility and checkpoint integrity.",
+  "scope": [
+    "orchestrator state schema and config",
+    "checkpoint and append-only log files",
+    "python orchestrator command surface",
+    "owner-control read-only phase visualization"
+  ],
+  "out_of_scope": [
+    "production deployment",
+    "sql or migration changes",
+    "rls changes",
+    "payments",
+    "destructive account operations"
+  ],
+  "commands": [
+    "python3 tests/pr40-p06-orchestrator.test.py",
+    "node tests/pr40-p06-owner-control.runtime.test.cjs"
+  ],
+  "security": {
+    "production_changes": false,
+    "sql_changes": false,
+    "rls_changes": false,
+    "migrations_changes": false,
+    "secrets_added": false,
+    "destructive_actions": false
+  },
+  "rollback": [
+    "revert commit for PR40 branch",
+    "restore owner-control.html before PR40",
+    "remove scripts/orchestrator and scripts/p06 additions"
+  ]
+}

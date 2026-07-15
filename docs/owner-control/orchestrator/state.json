@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "updated_on": "2026-07-15T21:32:09Z",
+  "status": "planning",
+  "current_phase": "P06",
+  "next_authorized_phase": "P06",
+  "phase_queue": [
+    "P06",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P11",
+    "P12",
+    "P13",
+    "P14",
+    "P15",
+    "P16",
+    "P17",
+    "P18",
+    "P19",
+    "P20",
+    "P21",
+    "P22",
+    "P23",
+    "P24",
+    "P25",
+    "P26",
+    "P27",
+    "P28",
+    "P29",
+    "P30",
+    "P31",
+    "P32",
+    "P33",
+    "P34"
+  ],
+  "phase_states": [
+    {
+      "id": "P06",
+      "status": "planning",
+      "updated_on": "2026-07-15T00:00:00Z",
+      "evidence": [
+        "safety-checkpoint:32bd53579500a327a67ad39feda077cf6c9285df"
+      ]
+    }
+  ],
+  "last_checkpoint": {
+    "phase": "P06",
+    "path": "docs/owner-control/orchestrator/checkpoints/p06-initial.checkpoint.json",
+    "sha256": "e3e8502ac8685f6110ddd574779ff8573f0d63ee92ef2b68e14f1a6b3e1f04e3",
+    "created_on": "2026-07-15T00:00:00Z"
+  },
+  "emergency_stop": {
+    "active": false,
+    "reason": ""
+  },
+  "integrity": {
+    "sha256_manifest": true,
+    "last_verified_sha256": "e3e8502ac8685f6110ddd574779ff8573f0d63ee92ef2b68e14f1a6b3e1f04e3"
+  }
+}
