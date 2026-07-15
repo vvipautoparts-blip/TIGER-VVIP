@@ -1,0 +1,12 @@
+{
+  "phase": "P09",
+  "baseline": "ac9a5da0e8c2d1579615dc88d701ddb6545a8bab",
+  "branch": "feat/auto-p09-repository-closure",
+  "mode": "documentation_and_review_only",
+  "production_changes": false,
+  "sql_changes": false,
+  "rls_changes": false,
+  "migrations_changes": false,
+  "destructive_actions": false,
+  "date": "2026-07-15"
+}
