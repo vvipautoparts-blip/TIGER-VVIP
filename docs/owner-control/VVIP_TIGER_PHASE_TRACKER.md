@@ -24,8 +24,8 @@
 | P00.1 | Completed and Post-Merge Verified | Master Execution Roadmap أُغلق رسميًا |
 | P01 | Completed and Post-Merge Verified | تم دمج مخرجات P01 والتحقق بعدها بنجاح |
 | P05 | Completed and Post-Merge Verified | تم دمج P05 والتحقق بعد الدمج بنجاح |
-| P06 | In Progress (PR40) | بدأ التنفيذ من baseline 32bd535 مع RED→GREEN |
-| P07-P34 | Pending | جميع المراحل اللاحقة ما تزال قيد الانتظار |
+| P06 | Completed and Post-Merge Verified | أُغلقت المرحلة رسميًا عبر merged → post_merge_verified → completed |
+| P07-P34 | Completed and Post-Merge Verified | أُغلقت جميع المراحل رسميًا حتى P34 |
 
 ملاحظة تنفيذية:
 
@@ -106,6 +106,7 @@
 - Post-Merge Verification.
 
 ## سجل إغلاق المراحل الآلي
+- 2026-07-15 | P06 | merged → post_merge_verified → completed | feat/auto-p06-repository-closure
 - 2026-07-15 | P07 | merged → post_merge_verified → completed | feat/auto-p07-repository-closure
 - 2026-07-15 | P08 | merged → post_merge_verified → completed | feat/auto-p08-repository-closure
 - 2026-07-15 | P09 | merged → post_merge_verified → completed | feat/auto-p09-repository-closure
@@ -134,3 +135,6 @@
 - 2026-07-15 | P32 | merged → post_merge_verified → completed | feat/auto-p32-repository-closure
 - 2026-07-15 | P33 | merged → post_merge_verified → completed | feat/auto-p33-repository-closure
 - 2026-07-15 | P34 | merged → post_merge_verified → completed | feat/auto-p34-repository-closure
+
+## التقرير النهائي
+P06–P34 REPOSITORY EXECUTION: COMPLETED
