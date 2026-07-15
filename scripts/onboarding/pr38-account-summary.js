@@ -20,12 +20,71 @@
     }
   });
 
+  const STORAGE_ERROR_TEXT = Object.freeze({
+    ar: {
+      read_failed: "تعذر قراءة المسودة المحلية على هذا الجهاز.",
+      write_failed: "تعذر حفظ المسودة محليًا على هذا الجهاز.",
+      remove_failed: "تعذر إزالة المسودة المحلية على هذا الجهاز.",
+      unknown: "تعذر الوصول إلى التخزين المحلي على هذا الجهاز."
+    },
+    en: {
+      read_failed: "Unable to read the local draft on this device.",
+      write_failed: "Unable to save the local draft on this device.",
+      remove_failed: "Unable to remove the local draft on this device.",
+      unknown: "Unable to access local storage on this device."
+    }
+  });
+
   function getTypesApi() {
     return window.VVIP_PR38_ACCOUNT_TYPES || null;
   }
 
   function normalizeLang(lang) {
     return String(lang || "ar").toLowerCase().startsWith("en") ? "en" : "ar";
+  }
+
+  function getStorageErrorMessage(code, lang) {
+    const language = normalizeLang(lang);
+    const group = STORAGE_ERROR_TEXT[language] || STORAGE_ERROR_TEXT.ar;
+    return group[code] || group.unknown;
+  }
+
+  function safeStorageGetItem(storage, key) {
+    if (!storage || typeof storage.getItem !== "function") {
+      return { ok: false, value: null, error: "read_failed" };
+    }
+
+    try {
+      return { ok: true, value: storage.getItem(key), error: null };
+    } catch (error) {
+      return { ok: false, value: null, error: "read_failed" };
+    }
+  }
+
+  function safeStorageSetItem(storage, key, value) {
+    if (!storage || typeof storage.setItem !== "function") {
+      return { ok: false, error: "write_failed" };
+    }
+
+    try {
+      storage.setItem(key, value);
+      return { ok: true, error: null };
+    } catch (error) {
+      return { ok: false, error: "write_failed" };
+    }
+  }
+
+  function safeStorageRemoveItem(storage, key) {
+    if (!storage || typeof storage.removeItem !== "function") {
+      return { ok: false, error: "remove_failed" };
+    }
+
+    try {
+      storage.removeItem(key);
+      return { ok: true, error: null };
+    } catch (error) {
+      return { ok: false, error: "remove_failed" };
+    }
   }
 
   function knownKeysOnly(value) {
@@ -94,27 +153,34 @@
     });
   }
 
-  function readDraftFromStorage(storage) {
-    if (!storage || typeof storage.getItem !== "function") return null;
+  function readDraftResultFromStorage(storage) {
+    const rawResult = safeStorageGetItem(storage, DRAFT_STORAGE_KEY);
+    if (!rawResult.ok) {
+      return { draft: null, error: rawResult.error };
+    }
 
-    const raw = storage.getItem(DRAFT_STORAGE_KEY);
-    if (!raw) return null;
+    const raw = rawResult.value;
+    if (!raw) return { draft: null, error: null };
 
     let parsed = null;
     try {
       parsed = JSON.parse(raw);
     } catch (error) {
-      storage.removeItem(DRAFT_STORAGE_KEY);
-      return null;
+      safeStorageRemoveItem(storage, DRAFT_STORAGE_KEY);
+      return { draft: null, error: null };
     }
 
     const sanitized = sanitizeDraftPayload(parsed);
     if (!sanitized) {
-      storage.removeItem(DRAFT_STORAGE_KEY);
-      return null;
+      safeStorageRemoveItem(storage, DRAFT_STORAGE_KEY);
+      return { draft: null, error: null };
     }
 
-    return sanitized;
+    return { draft: sanitized, error: null };
+  }
+
+  function readDraftFromStorage(storage) {
+    return readDraftResultFromStorage(storage).draft;
   }
 
   function getStatusLabelFromDraft(draft, lang) {
@@ -131,8 +197,14 @@
 
     const lang = normalizeLang(scope.documentElement && scope.documentElement.lang || "ar");
     const safeStorage = storage || window.localStorage;
-    const draft = readDraftFromStorage(safeStorage);
-    statusNode.textContent = getStatusLabelFromDraft(draft, lang);
+    const draftResult = readDraftResultFromStorage(safeStorage);
+
+    if (draftResult.error) {
+      statusNode.textContent = getStorageErrorMessage(draftResult.error, lang);
+      return;
+    }
+
+    statusNode.textContent = getStatusLabelFromDraft(draftResult.draft, lang);
   }
 
   if (typeof document !== "undefined") {
@@ -146,6 +218,11 @@
     sanitizeDraftPayload: sanitizeDraftPayload,
     createDraftPayload: createDraftPayload,
     buildDraftSummary: buildDraftSummary,
+    getStorageErrorMessage: getStorageErrorMessage,
+    safeStorageGetItem: safeStorageGetItem,
+    safeStorageSetItem: safeStorageSetItem,
+    safeStorageRemoveItem: safeStorageRemoveItem,
+    readDraftResultFromStorage: readDraftResultFromStorage,
     readDraftFromStorage: readDraftFromStorage,
     getStatusLabelFromDraft: getStatusLabelFromDraft,
     applyProfileDraftStatus: applyProfileDraftStatus

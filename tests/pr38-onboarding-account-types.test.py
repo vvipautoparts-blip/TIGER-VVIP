@@ -86,7 +86,17 @@ def test_static_contract() -> None:
     assert re.search(r"<fieldset[\s\S]*?<legend", onboarding_html, re.I), "fieldset/legend is required"
 
     assert "onboarding-p04.html" in profile_html, "profile entry to onboarding is required"
+    assert "scripts/onboarding/pr38-account-types.js" in profile_html
     assert "scripts/onboarding/pr38-account-summary.js" in profile_html
+
+    profile_script_order = [
+        profile_html.find("scripts/onboarding/pr38-account-types.js"),
+        profile_html.find("scripts/onboarding/pr38-account-summary.js"),
+    ]
+    assert all(position >= 0 for position in profile_script_order), "profile onboarding scripts missing"
+    assert profile_script_order == sorted(profile_script_order), (
+        "private profile must load account-types before account-summary"
+    )
 
     script_order = [
         onboarding_html.find("scripts/onboarding/pr38-account-types.js"),

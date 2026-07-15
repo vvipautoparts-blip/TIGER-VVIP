@@ -42,6 +42,8 @@
     lang: "ar"
   };
 
+  let lastMessageText = "";
+
   function getTypesApi() {
     return window.VVIP_PR38_ACCOUNT_TYPES || null;
   }
@@ -69,8 +71,17 @@
   }
 
   function setMessage(text) {
+    lastMessageText = String(text || "");
     if (!ui.message) return;
-    ui.message.textContent = String(text || "");
+    ui.message.textContent = lastMessageText;
+  }
+
+  function storageErrorMessage(errorCode) {
+    const summaryApi = getSummaryApi();
+    if (summaryApi && typeof summaryApi.getStorageErrorMessage === "function") {
+      return summaryApi.getStorageErrorMessage(errorCode, state.lang);
+    }
+    return "تعذر الوصول إلى التخزين المحلي على هذا الجهاز.";
   }
 
   function setStep(active) {
@@ -152,22 +163,69 @@
   function readDraft() {
     const summaryApi = getSummaryApi();
     if (!summaryApi || typeof summaryApi.readDraftFromStorage !== "function") return null;
-    return summaryApi.readDraftFromStorage(window.localStorage);
+
+    if (typeof summaryApi.readDraftResultFromStorage === "function") {
+      const result = summaryApi.readDraftResultFromStorage(window.localStorage);
+      if (result && result.error) {
+        setMessage(storageErrorMessage(result.error));
+      }
+      return result ? result.draft : null;
+    }
+
+    try {
+      return summaryApi.readDraftFromStorage(window.localStorage);
+    } catch (error) {
+      setMessage(storageErrorMessage("read_failed"));
+      return null;
+    }
   }
 
   function saveDraft(accountTypeId) {
     const summaryApi = getSummaryApi();
-    if (!summaryApi) return null;
+    if (!summaryApi) return false;
     const payload = summaryApi.createDraftPayload(accountTypeId);
-    if (!payload) return null;
-    window.localStorage.setItem(summaryApi.storageKey, JSON.stringify(payload));
+    if (!payload) return false;
+
+    const serialized = JSON.stringify(payload);
+    if (typeof summaryApi.safeStorageSetItem === "function") {
+      const writeResult = summaryApi.safeStorageSetItem(window.localStorage, summaryApi.storageKey, serialized);
+      if (!writeResult.ok) {
+        setMessage(storageErrorMessage(writeResult.error));
+        return false;
+      }
+      return payload;
+    }
+
+    try {
+      window.localStorage.setItem(summaryApi.storageKey, serialized);
+    } catch (error) {
+      setMessage(storageErrorMessage("write_failed"));
+      return false;
+    }
+
     return payload;
   }
 
   function clearDraft() {
     const summaryApi = getSummaryApi();
-    if (!summaryApi) return;
-    window.localStorage.removeItem(summaryApi.storageKey);
+    if (!summaryApi) return false;
+
+    if (typeof summaryApi.safeStorageRemoveItem === "function") {
+      const removeResult = summaryApi.safeStorageRemoveItem(window.localStorage, summaryApi.storageKey);
+      if (!removeResult.ok) {
+        setMessage(storageErrorMessage(removeResult.error));
+        return false;
+      }
+      return true;
+    }
+
+    try {
+      window.localStorage.removeItem(summaryApi.storageKey);
+      return true;
+    } catch (error) {
+      setMessage(storageErrorMessage("remove_failed"));
+      return false;
+    }
   }
 
   function cancelOnboarding() {
@@ -185,6 +243,32 @@
     const node = document.querySelector("input[name='pr38-account-type'][value='" + existing.accountTypeId + "']");
     if (node) node.checked = true;
     refreshContinueButton();
+  }
+
+  function triggerRadioSelection(radio) {
+    if (!radio) return false;
+
+    radio.checked = true;
+
+    const EventCtor = window && typeof window.Event === "function"
+      ? window.Event
+      : null;
+
+    if (EventCtor) {
+      try {
+        radio.dispatchEvent(new EventCtor("change", { bubbles: true }));
+        return true;
+      } catch (error) {
+        // Fall through to a click-based fallback.
+      }
+    }
+
+    if (typeof radio.click === "function") {
+      radio.click();
+      return true;
+    }
+
+    return false;
   }
 
   function bindEvents() {
@@ -230,12 +314,9 @@
     }
 
     document.addEventListener("keydown", function (event) {
-      if ((event.key === "Enter" || event.key === " ") && document.activeElement && document.activeElement.matches("label.pr38-type-option")) {
-        const radio = document.activeElement.querySelector("input[type='radio']");
-        if (radio) {
-          radio.checked = true;
-          radio.dispatchEvent(new Event("change", { bubbles: true }));
-        }
+      if ((event.key === "Enter" || event.key === " ") && document.activeElement && document.activeElement.matches("input[name='pr38-account-type']")) {
+        event.preventDefault();
+        triggerRadioSelection(document.activeElement);
       }
 
       if (event.key === "Escape") {
@@ -312,6 +393,10 @@
       readDraft: readDraft,
       saveDraft: saveDraft,
       clearDraft: clearDraft,
+      triggerRadioSelection: triggerRadioSelection,
+      getLastMessage: function () {
+        return lastMessageText;
+      },
       cancelOnboarding: cancelOnboarding,
       completeToHome: completeToHome
     })
