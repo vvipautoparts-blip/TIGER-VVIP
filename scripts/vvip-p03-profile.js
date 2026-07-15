@@ -81,19 +81,48 @@
     });
   }
 
-  function renderAccount(user) {
-    const email = user && user.primaryEmailAddress &&
-      user.primaryEmailAddress.emailAddress || "غير مضاف";
+  function renderAccount(user, profile) {
+    const clerkEmail = user && user.primaryEmailAddress &&
+      user.primaryEmailAddress.emailAddress || "";
+    const profileEmail = profile && profile.email || "";
+    const email = profileEmail || clerkEmail || "غير مضاف";
     const phone = user && user.primaryPhoneNumber &&
       user.primaryPhoneNumber.phoneNumber || "غير مضاف";
+    const profileName = profile &&
+      (profile.display_name || profile.full_name) || "";
     const suppliedName = user &&
       (user.fullName || [user.firstName, user.lastName].filter(Boolean).join(" "));
-    const name = suppliedName || email.split("@")[0] || "مستخدم";
+    const name = profileName || suppliedName || email.split("@")[0] || "مستخدم";
 
     setText("[data-profile-name]", name);
     setText("[data-profile-initials]", initials(name));
     setText("[data-account-email]", email);
     setText("[data-account-phone]", phone);
+  }
+
+  async function syncOfficialProfile(user, session) {
+    if (
+      !window.VVIPProfileIdentity ||
+      typeof window.VVIPProfileIdentity.resolveOwnProfile !== "function"
+    ) {
+      console.warn("VVIP_PROFILE_IDENTITY_BRIDGE_UNAVAILABLE");
+      return;
+    }
+
+    const result = await window.VVIPProfileIdentity.resolveOwnProfile({
+      user: user,
+      session: session
+    });
+
+    if (result && result.ok === true && result.profile) {
+      renderAccount(user, result.profile);
+      return;
+    }
+
+    console.warn(
+      "VVIP_PROFILE_IDENTITY_SAFE_FALLBACK",
+      result && result.status ? result.status : "profile_unavailable"
+    );
   }
 
   function reveal() {
@@ -112,7 +141,7 @@
         primaryEmailAddress: { emailAddress: "member@example.com" },
         primaryPhoneNumber: null
       });
-      reveal();
+      reveal.call(null);
       return;
     }
 
@@ -125,6 +154,13 @@
       }
       renderAccount(window.Clerk.user);
       reveal();
+
+      void syncOfficialProfile(
+        window.Clerk.user,
+        window.Clerk.session
+      ).catch(function () {
+        console.warn("VVIP_PROFILE_IDENTITY_BACKGROUND_RECOVERY");
+      });
     } catch (error) {
       console.warn("VVIP_ACCOUNT_AUTH_RECOVERY");
       if (authGate) {
