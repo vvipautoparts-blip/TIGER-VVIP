@@ -1,0 +1,12 @@
+{
+  "phase": "P34",
+  "baseline": "5400cdc736521c30e3dde0d758126e2f82bcf1e5",
+  "branch": "feat/auto-p34-repository-closure",
+  "mode": "documentation_and_review_only",
+  "production_changes": false,
+  "sql_changes": false,
+  "rls_changes": false,
+  "migrations_changes": false,
+  "destructive_actions": false,
+  "date": "2026-07-15"
+}
