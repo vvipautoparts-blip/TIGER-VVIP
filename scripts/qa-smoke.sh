@@ -394,15 +394,11 @@ behaviors = [
     "vvip_pr31_create_listing_draft",
     "function escapeText",
     "function parseSafePrice",
-    "URL.createObjectURL",
-    "URL.revokeObjectURL",
-    "photoNames",
     "selectedLocalPhotoCount",
     "لا يمكن حفظ المسودة محليًا الآن، لكن يمكنك مراجعة البيانات قبل الإغلاق.",
     "تم حفظ المسودة المحلية وهي جاهزة للمراجعة لاحقًا.",
     "تم حفظ المسودة محليًا، وتحتاج إلى إكمال بعض الحقول.",
     "تعذر فتح نموذج الإعلان مؤقتًا. يمكنك متابعة التصفح والعودة لاحقًا.",
-    "المعاينة محلية فقط ولن يتم رفع الصور في هذه المرحلة.",
     "هذا النموذج تجريبي آمن ولا ينشر الإعلان الآن.",
     "data-vvip-create-confirmation",
     "data-create-confirm-title",
@@ -417,6 +413,15 @@ behaviors = [
     "إغلاق النموذج",
     'class="vvip-create-confirmation__backdrop" type="button" tabindex="-1"',
 ]
+from pathlib import Path
+pr36_active = (
+    Path("scripts/media/pr36-controller.js").is_file()
+    and Path("docs/launch/pr36/CHANGE_CONTROL_MANIFEST.json").is_file()
+)
+if pr36_active:
+    behaviors.extend(["VVIP_PR36_MEDIA", "photoMetadata", "لا رفع ولا نشر في هذه المرحلة."])
+else:
+    behaviors.extend(["URL.createObjectURL", "URL.revokeObjectURL", "photoNames", "المعاينة محلية فقط ولن يتم رفع الصور في هذه المرحلة."])
 for behavior in behaviors:
     if behavior not in runtime:
         raise SystemExit(f"[smoke][fail] missing PR31 behavior: {behavior}")
@@ -626,8 +631,9 @@ if 'CACHE_NAME = CACHE_PREFIX + "v21"' not in service_worker:
     raise SystemExit("[smoke][fail] service worker cache was not bumped for PR32")
 PY_PR32
 
-node <<'JS_PR32_HELPERS'
+PR36_SMOKE_ENABLED="$(test -f scripts/media/pr36-controller.js && test -f docs/launch/pr36/CHANGE_CONTROL_MANIFEST.json && printf 1 || printf 0)" node <<'JS_PR32_HELPERS'
 const assert = require("node:assert/strict");
+const pr36Enabled = process.env.PR36_SMOKE_ENABLED === "1";
 const memory = new Map();
 global.window = {
   localStorage: {
@@ -650,8 +656,14 @@ const normalized = drafts.normalizeDraft({
 });
 assert.equal(normalized.title, "قطعة");
 assert.equal(normalized.price, 120);
-assert.equal(normalized.photoCount, 1);
-assert.equal(normalized.photoFileNames[0], "front.jpg");
+if (pr36Enabled) {
+  assert.equal(normalized.photoCount, 0);
+  assert.deepEqual(normalized.photoMetadata, []);
+  assert.equal(Object.hasOwn(normalized, "photoFileNames"), false);
+} else {
+  assert.equal(normalized.photoCount, 1);
+  assert.equal(normalized.photoFileNames[0], "front.jpg");
+}
 const explicitlyIncomplete = drafts.normalizeDraft({
   sector: "automotive",
   title: "قطعة أصلية",
@@ -678,7 +690,8 @@ assert.equal(drafts.readLocalDraft().status, "empty");
 JS_PR32_HELPERS
 
 echo "[smoke] validating PR33 publish readiness"
-python3 <<'PY_PR33'
+PR36_SMOKE_ENABLED="$(test -f scripts/media/pr36-controller.js && test -f docs/launch/pr36/CHANGE_CONTROL_MANIFEST.json && printf 1 || printf 0)" python3 <<'PY_PR33'
+import os
 from pathlib import Path
 
 home = Path("index.html").read_text(encoding="utf-8")
@@ -737,7 +750,6 @@ for text in [
     "أدخل سعرًا صحيحًا أكبر من صفر.",
     "حدد المدينة أو المنطقة.",
     "أضف وصفًا مختصرًا يساعد المستخدمين على فهم الإعلان.",
-    "الصور ستُرفع لاحقًا عند تفعيل النشر الحقيقي.",
     "فحص جاهزية الإعلان",
     "جاهز للمراجعة",
     "النشر الحقيقي قيد التجهيز",
@@ -748,6 +760,10 @@ for text in [
 ]:
     if text not in combined:
         raise SystemExit(f"[smoke][fail] missing PR33 copy: {text}")
+
+photo_copy = "لا رفع ولا نشر في هذه المرحلة." if os.environ.get("PR36_SMOKE_ENABLED") == "1" else "الصور ستُرفع لاحقًا عند تفعيل النشر الحقيقي."
+if photo_copy not in combined:
+    raise SystemExit(f"[smoke][fail] missing PR33 photo copy: {photo_copy}")
 
 for metadata in [
     "readinessStatus",
@@ -1165,6 +1181,7 @@ import subprocess
 from pathlib import Path
 
 PR34_BRANCH = "feat/pr34-listing-persistence-runtime"
+PR36_BRANCH = "feat/pr36-secure-seven-photo-processing"
 PR34_ALLOWED_PATHS = {
     "scripts/listing/listing-contract.js",
     "scripts/listing/listing-repository.js",
@@ -1187,6 +1204,16 @@ pr35_allowed = (
 
 
 def scope_error(branch, paths):
+    if branch == PR36_BRANCH:
+        manifest = Path("docs/launch/pr36/CHANGE_CONTROL_MANIFEST.json")
+        if not manifest.exists():
+            return "[smoke][fail] PR36 manifest is missing"
+        import json
+        allowed = set(json.loads(manifest.read_text(encoding="utf-8"))["allowed_paths"])
+        undeclared = sorted(set(paths) - allowed)
+        if undeclared:
+            return "[smoke][fail] undeclared PR36 scope changed: " + ", ".join(undeclared)
+        return None
     if branch == PR34_BRANCH:
         undeclared = sorted(set(paths) - PR34_ALLOWED_PATHS)
         if undeclared:
@@ -1212,6 +1239,12 @@ if scope_error(PR34_BRANCH, sorted(PR34_ALLOWED_PATHS)) is not None:
     raise SystemExit(
         "[smoke][fail] scope regression: PR34 rejected declared paths"
     )
+
+if scope_error(PR36_BRANCH, ["docs/launch/pr36/CHANGE_CONTROL_MANIFEST.json"]) is not None:
+    raise SystemExit("[smoke][fail] scope regression: PR36 rejected its manifest")
+
+if scope_error(PR36_BRANCH, ["docs/launch/pr36/UNDECLARED.md"]) is None:
+    raise SystemExit("[smoke][fail] scope regression: PR36 allowed undeclared path")
 
 if scope_error(
     PR34_BRANCH,

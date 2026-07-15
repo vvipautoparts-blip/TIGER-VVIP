@@ -11,6 +11,8 @@ test-results/
 tests/
 !tests/
 tests/*
+!tests/pr36/
+!tests/pr36/*
 !tests/pr35/
 !tests/pr35/**
 
