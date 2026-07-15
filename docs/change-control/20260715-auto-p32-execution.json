@@ -1,0 +1,12 @@
+{
+  "phase": "P32",
+  "baseline": "93e3235783b2f71ad7a54fb69c35ba3830b42ab1",
+  "branch": "feat/auto-p32-repository-closure",
+  "mode": "documentation_and_review_only",
+  "production_changes": false,
+  "sql_changes": false,
+  "rls_changes": false,
+  "migrations_changes": false,
+  "destructive_actions": false,
+  "date": "2026-07-15"
+}
