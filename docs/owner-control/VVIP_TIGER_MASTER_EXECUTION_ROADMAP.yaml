@@ -5,10 +5,10 @@ language: Arabic First
 market: Jordan First
 source_of_truth: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml
 human_readable_version: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md
-current_phase: P18
-last_completed_phase: P17
-next_authorized_phase: P18
-execution_lock: P18
+current_phase: P19
+last_completed_phase: P18
+next_authorized_phase: P19
+execution_lock: P19
 general_rules:
   - phase_one_at_a_time
   - start_from_clean_synced_main
@@ -519,7 +519,7 @@ phases:
   - id: P18
     priority: 18
     name: Payment Gateway
-    status: pending
+    status: completed
     depends_on:
       - P17
     scope:
