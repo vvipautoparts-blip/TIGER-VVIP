@@ -116,3 +116,4 @@
 - 2026-07-15 | P14 | merged → post_merge_verified → completed | feat/auto-p14-repository-closure
 - 2026-07-15 | P15 | merged → post_merge_verified → completed | feat/auto-p15-repository-closure
 - 2026-07-15 | P16 | merged → post_merge_verified → completed | feat/auto-p16-repository-closure
+- 2026-07-15 | P17 | merged → post_merge_verified → completed | feat/auto-p17-repository-closure

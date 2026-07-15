@@ -1,0 +1,12 @@
+{
+  "phase": "P17",
+  "baseline": "a1b55dd7cb6d09bf2a74a2fe13d7cefb5eae1a10",
+  "branch": "feat/auto-p17-repository-closure",
+  "mode": "documentation_and_review_only",
+  "production_changes": false,
+  "sql_changes": false,
+  "rls_changes": false,
+  "migrations_changes": false,
+  "destructive_actions": false,
+  "date": "2026-07-15"
+}
