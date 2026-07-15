@@ -104,3 +104,6 @@
 - خطة الرجوع.
 - تاريخ الدمج.
 - Post-Merge Verification.
+
+## سجل إغلاق المراحل الآلي
+- 2026-07-15 | P07 | merged → post_merge_verified → completed | feat/auto-p07-repository-closure
