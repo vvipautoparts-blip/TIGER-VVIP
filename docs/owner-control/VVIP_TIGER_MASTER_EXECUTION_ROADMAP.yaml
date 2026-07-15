@@ -5,10 +5,10 @@ language: Arabic First
 market: Jordan First
 source_of_truth: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml
 human_readable_version: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md
-current_phase: P24
-last_completed_phase: P23
-next_authorized_phase: P24
-execution_lock: P24
+current_phase: P25
+last_completed_phase: P24
+next_authorized_phase: P25
+execution_lock: P25
 general_rules:
   - phase_one_at_a_time
   - start_from_clean_synced_main
@@ -659,7 +659,7 @@ phases:
   - id: P24
     priority: 24
     name: Secure AI Assistance
-    status: pending
+    status: completed
     depends_on:
       - P23
     scope:

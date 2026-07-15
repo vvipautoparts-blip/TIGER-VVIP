@@ -1,0 +1,12 @@
+{
+  "phase": "P24",
+  "baseline": "9e6a3805f241c9a953b4e0eb8e7fda6cb7d3e52d",
+  "branch": "feat/auto-p24-repository-closure",
+  "mode": "documentation_and_review_only",
+  "production_changes": false,
+  "sql_changes": false,
+  "rls_changes": false,
+  "migrations_changes": false,
+  "destructive_actions": false,
+  "date": "2026-07-15"
+}
