@@ -5,10 +5,10 @@ language: Arabic First
 market: Jordan First
 source_of_truth: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml
 human_readable_version: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md
-current_phase: P20
-last_completed_phase: P19
-next_authorized_phase: P20
-execution_lock: P20
+current_phase: P21
+last_completed_phase: P20
+next_authorized_phase: P21
+execution_lock: P21
 general_rules:
   - phase_one_at_a_time
   - start_from_clean_synced_main
@@ -565,7 +565,7 @@ phases:
   - id: P20
     priority: 20
     name: Tiger Care
-    status: pending
+    status: completed
     depends_on:
       - P19
     scope:
