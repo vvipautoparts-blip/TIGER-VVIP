@@ -1,0 +1,12 @@
+{
+  "phase": "P29",
+  "baseline": "791479c45305d23d0b0f8c1d119547b9259dd907",
+  "branch": "feat/auto-p29-repository-closure",
+  "mode": "documentation_and_review_only",
+  "production_changes": false,
+  "sql_changes": false,
+  "rls_changes": false,
+  "migrations_changes": false,
+  "destructive_actions": false,
+  "date": "2026-07-15"
+}

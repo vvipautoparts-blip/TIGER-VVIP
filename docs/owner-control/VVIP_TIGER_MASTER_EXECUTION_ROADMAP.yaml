@@ -5,10 +5,10 @@ language: Arabic First
 market: Jordan First
 source_of_truth: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml
 human_readable_version: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md
-current_phase: P29
-last_completed_phase: P28
-next_authorized_phase: P29
-execution_lock: P29
+current_phase: P30
+last_completed_phase: P29
+next_authorized_phase: P30
+execution_lock: P30
 general_rules:
   - phase_one_at_a_time
   - start_from_clean_synced_main
@@ -776,7 +776,7 @@ phases:
   - id: P29
     priority: 29
     name: Final Clerk/Supabase Security Hardening
-    status: pending
+    status: completed
     depends_on:
       - P28
     scope:
