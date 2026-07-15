@@ -1,0 +1,12 @@
+{
+  "phase": "P21",
+  "baseline": "723ddb4fc52a0e923569f9b3a1e1e74533951f87",
+  "branch": "feat/auto-p21-repository-closure",
+  "mode": "documentation_and_review_only",
+  "production_changes": false,
+  "sql_changes": false,
+  "rls_changes": false,
+  "migrations_changes": false,
+  "destructive_actions": false,
+  "date": "2026-07-15"
+}
