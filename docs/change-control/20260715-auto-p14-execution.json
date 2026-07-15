@@ -1,0 +1,12 @@
+{
+  "phase": "P14",
+  "baseline": "025147225a05913c7d949f2871a9f1f57c7a31a5",
+  "branch": "feat/auto-p14-repository-closure",
+  "mode": "documentation_and_review_only",
+  "production_changes": false,
+  "sql_changes": false,
+  "rls_changes": false,
+  "migrations_changes": false,
+  "destructive_actions": false,
+  "date": "2026-07-15"
+}
