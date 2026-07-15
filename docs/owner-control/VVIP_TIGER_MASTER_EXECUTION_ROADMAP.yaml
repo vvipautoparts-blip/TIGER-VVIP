@@ -5,10 +5,10 @@ language: Arabic First
 market: Jordan First
 source_of_truth: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml
 human_readable_version: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md
-current_phase: P13
-last_completed_phase: P12
-next_authorized_phase: P13
-execution_lock: P13
+current_phase: P14
+last_completed_phase: P13
+next_authorized_phase: P14
+execution_lock: P14
 general_rules:
   - phase_one_at_a_time
   - start_from_clean_synced_main
@@ -402,7 +402,7 @@ phases:
   - id: P13
     priority: 13
     name: Feed, Listing Cards and Details
-    status: pending
+    status: completed
     depends_on:
       - P12
     scope:
