@@ -5,10 +5,10 @@ language: Arabic First
 market: Jordan First
 source_of_truth: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml
 human_readable_version: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md
-current_phase: P22
-last_completed_phase: P21
-next_authorized_phase: P22
-execution_lock: P22
+current_phase: P23
+last_completed_phase: P22
+next_authorized_phase: P23
+execution_lock: P23
 general_rules:
   - phase_one_at_a_time
   - start_from_clean_synced_main
@@ -612,7 +612,7 @@ phases:
   - id: P22
     priority: 22
     name: Admin and Sector Dashboards
-    status: pending
+    status: completed
     depends_on:
       - P21
     scope:
