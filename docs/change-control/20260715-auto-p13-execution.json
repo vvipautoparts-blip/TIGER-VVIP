@@ -1,0 +1,12 @@
+{
+  "phase": "P13",
+  "baseline": "2fa1d4ebe6e488239345c54b9c645cc51d792d58",
+  "branch": "feat/auto-p13-repository-closure",
+  "mode": "documentation_and_review_only",
+  "production_changes": false,
+  "sql_changes": false,
+  "rls_changes": false,
+  "migrations_changes": false,
+  "destructive_actions": false,
+  "date": "2026-07-15"
+}
