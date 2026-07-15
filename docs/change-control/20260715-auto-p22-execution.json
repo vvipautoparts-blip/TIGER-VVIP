@@ -1,0 +1,12 @@
+{
+  "phase": "P22",
+  "baseline": "37599178851bfcd77c23d8a889e168a2efc645dc",
+  "branch": "feat/auto-p22-repository-closure",
+  "mode": "documentation_and_review_only",
+  "production_changes": false,
+  "sql_changes": false,
+  "rls_changes": false,
+  "migrations_changes": false,
+  "destructive_actions": false,
+  "date": "2026-07-15"
+}
