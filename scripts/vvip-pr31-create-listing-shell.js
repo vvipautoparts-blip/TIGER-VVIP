@@ -67,8 +67,7 @@
   let form;
   let currentStep = 0;
   let selectedSector = "";
-  let localPhotos = [];
-  let savedPhotoNames = [];
+  let mediaController = null;
   let dirty = false;
   let lastFocusedElement = null;
   let confirmationLastFocus = null;
@@ -167,10 +166,8 @@
 
           <section class="vvip-create-step" data-vvip-create-listing-media-step data-create-step="2" hidden>
             <div class="vvip-create-copy"><h3>الصور والمعاينة</h3><p>المعاينة محلية فقط ولن يتم رفع الصور في هذه المرحلة.</p></div>
-            <label class="vvip-file-picker" data-local-file-picker><span>اختيار صور من الجهاز</span><input type="file" accept="image/*" multiple data-create-photo-input></label>
-            <p class="vvip-file-fallback" data-file-api-fallback hidden>اختيار الصور غير متاح في هذا المتصفح، ويمكنك متابعة المسودة دون صور.</p>
-            <div class="vvip-photo-preview" data-create-photo-preview aria-live="polite"></div>
-            <p class="vvip-create-hint">الصور ستُرفع لاحقًا عند تفعيل النشر الحقيقي. يمكنك إضافة صور لاحقًا عند تفعيل الرفع الحقيقي.</p>
+            <div class="vvip-pr36-media" data-create-photo-preview></div>
+            <p class="vvip-create-hint">تُعالج الصور محليًا على جهازك فقط. لا رفع ولا نشر في هذه المرحلة.</p>
             <div class="vvip-create-actions"><button type="button" data-create-back>السابق</button><button class="vvip-create-primary" type="button" data-create-next>مراجعة المسودة</button></div>
           </section>
 
@@ -219,6 +216,35 @@
     confirmation = layer.nextElementSibling;
     document.body.append(layer, confirmation);
     form = layer.querySelector("form");
+    mountSecureMedia();
+  }
+
+  function mountSecureMedia() {
+    const api = window.VVIP_PR36_MEDIA;
+    const root = layer.querySelector("[data-create-photo-preview]");
+    function showUnavailable() {
+      if (!root) return;
+      const message = document.createElement("p");
+      message.setAttribute("data-pr36-media-unavailable", "");
+      message.setAttribute("role", "status");
+      message.textContent = "معالجة الصور غير متاحة بأمان في هذا المتصفح، ويمكنك متابعة المسودة دون صور.";
+      root.replaceChildren(message);
+    }
+    if (!root || !api || typeof api.createBrowserSession !== "function" || typeof api.mountMediaController !== "function") {
+      showUnavailable();
+      return;
+    }
+    try {
+      const session = api.createBrowserSession(window, document);
+      if (!session) {
+        showUnavailable();
+        return;
+      }
+      mediaController = api.mountMediaController({ root: root, session: session, document: document, window: window, onChange: function () { dirty = true; } });
+    } catch (error) {
+      mediaController = null;
+      showUnavailable();
+    }
   }
 
   function field(name) {
@@ -243,7 +269,7 @@
       summary: field("summary") ? field("summary").value : "",
       specs: field("specs") ? field("specs").value : "",
       sectorDetails: sectorDetails,
-      selectedLocalPhotoCount: currentPhotoNames().length
+      selectedLocalPhotoCount: currentPhotoMetadata().images.length
     };
   }
 
@@ -352,13 +378,8 @@
     if (node) node.textContent = value || "—";
   }
 
-  function currentPhotoNames() {
-    if (localPhotos.length) {
-      return localPhotos.map(function (entry) {
-        return escapeText(entry.file.name).slice(0, 180);
-      });
-    }
-    return savedPhotoNames.slice();
+  function currentPhotoMetadata() {
+    return mediaController ? mediaController.displaySnapshot() : { images: [], coverImageId: null };
   }
 
   function renderReview() {
@@ -381,7 +402,7 @@
       chip.textContent = value;
       specsHost.appendChild(chip);
     });
-    reviewText("[data-review-photo-count]", "الصور المحلية المحددة: " + currentPhotoNames().length);
+    reviewText("[data-review-photo-count]", "الصور المحلية المعالجة: " + currentPhotoMetadata().images.length);
     const api = readinessApi();
     if (api && typeof api.updateReadinessStatus === "function") {
       api.updateReadinessStatus(validationInput());
@@ -412,8 +433,8 @@
       return;
     }
     if (currentStep === 1 && !validateDetails()) return;
-    if (currentStep === 2 && !currentPhotoNames().length) {
-      feedback("يمكنك إضافة صور لاحقًا عند تفعيل الرفع الحقيقي.");
+    if (currentStep === 2 && !currentPhotoMetadata().images.length) {
+      feedback("يمكنك متابعة المسودة دون صور، ولن يتم رفع أو نشر شيء في هذه المرحلة.");
     }
     setStep(currentStep + 1);
   }
@@ -422,66 +443,11 @@
     setStep(editDetails ? 1 : currentStep - 1);
   }
 
-  function revokePhotoUrls() {
-    localPhotos.forEach(function (entry) {
-      window.URL.revokeObjectURL(entry.url);
-    });
-    localPhotos = [];
-  }
-
-  function renderPhotoPreview() {
-    const host = layer.querySelector("[data-create-photo-preview]");
-    host.replaceChildren();
-    if (!localPhotos.length) {
-      const empty = document.createElement("p");
-      empty.textContent = savedPhotoNames.length
-        ? "المسودة تذكر " + savedPhotoNames.length + " ملفات سابقة دون حفظ الصور نفسها."
-        : "لم يتم اختيار صور محلية.";
-      host.appendChild(empty);
-      return;
-    }
-    localPhotos.forEach(function (entry) {
-      const figure = document.createElement("figure");
-      const image = document.createElement("img");
-      const caption = document.createElement("figcaption");
-      image.src = entry.url;
-      image.alt = "معاينة محلية: " + escapeText(entry.file.name);
-      caption.textContent = escapeText(entry.file.name);
-      figure.append(image, caption);
-      host.appendChild(figure);
-    });
-  }
-
-  function handlePhotos(input) {
-    revokePhotoUrls();
-    savedPhotoNames = [];
-    Array.from(input.files || []).forEach(function (file) {
-      if (!file.type || !file.type.startsWith("image/")) return;
-      localPhotos.push({ file: file, url: window.URL.createObjectURL(file) });
-    });
-    dirty = true;
-    renderPhotoPreview();
-  }
-
-  function fileApiAvailable() {
-    return Boolean(window.File && window.URL &&
-      typeof window.URL.createObjectURL === "function" &&
-      typeof window.URL.revokeObjectURL === "function");
-  }
-
-  function configureFilePicker() {
-    const picker = layer.querySelector("[data-local-file-picker]");
-    const input = layer.querySelector("[data-create-photo-input]");
-    const fallback = layer.querySelector("[data-file-api-fallback]");
-    const available = fileApiAvailable();
-    picker.hidden = !available;
-    fallback.hidden = available;
-    input.disabled = !available;
-  }
+  function configureFilePicker() {}
 
   function draftPayload() {
     const details = collectDetails();
-    const photoNames = currentPhotoNames();
+    const photos = currentPhotoMetadata();
     const validation = currentValidation();
     const readiness = validation || {
       ready: Boolean(details.sector && details.title && details.price !== null && details.location),
@@ -500,8 +466,9 @@
       summary: details.summary,
       specs: details.specs,
       sectorDetails: details.sectorDetails,
-      photoNames: photoNames,
-      selectedLocalPhotoCount: photoNames.length,
+      photoMetadata: photos.images,
+      coverImageId: photos.coverImageId,
+      selectedLocalPhotoCount: photos.images.length,
       lastStep: currentStep,
       readinessStatus: readiness.ready ? "ready" : "incomplete",
       readinessScore: readiness.score,
@@ -533,7 +500,8 @@
       summary: draft.summary,
       specs: draft.specs,
       sectorDetails: draft.sectorFields,
-      photoNames: draft.photoFileNames,
+      photoMetadata: draft.photoMetadata,
+      coverImageId: draft.coverImageId,
       selectedLocalPhotoCount: draft.photoCount,
       lastStep: draft.lastStep,
       incomplete: draft.incomplete,
@@ -561,8 +529,6 @@
     Object.keys(SECTOR_FIELD_LABELS[draft.sector] || {}).forEach(function (name) {
       fillField(name, escapeText(draft.sectorDetails[name]).slice(0, 140));
     });
-    savedPhotoNames = draft.photoNames.slice();
-    renderPhotoPreview();
     dirty = false;
   }
 
@@ -584,7 +550,6 @@
       return;
     }
     dirty = false;
-    savedPhotoNames = draft.photoNames.slice();
     feedback(draft.readinessStatus === "ready"
       ? "تم حفظ المسودة المحلية وهي جاهزة للمراجعة لاحقًا."
       : "تم حفظ المسودة محليًا، وتحتاج إلى إكمال بعض الحقول.");
@@ -613,8 +578,7 @@
   }
 
   function resetShell() {
-    revokePhotoUrls();
-    savedPhotoNames = [];
+    if (mediaController) mediaController.reset();
     form.reset();
     selectedSector = "";
     dirty = false;
@@ -630,7 +594,6 @@
     setError("details", "");
     const api = readinessApi();
     if (api && typeof api.clearValidationErrors === "function") api.clearValidationErrors();
-    renderPhotoPreview();
     setStep(0);
     const drafts = window.VVIP_PR32_DRAFTS;
     if (drafts && typeof drafts.renderDraftPreview === "function") {
@@ -866,7 +829,6 @@
 
   buildShell();
   configureFilePicker();
-  renderPhotoPreview();
 
   document.addEventListener("click", function (event) {
     const open = event.target.closest("[data-open-create-listing]");
@@ -927,9 +889,6 @@
       setError("details", "");
     }
   });
-  layer.querySelector("[data-create-photo-input]").addEventListener("change", function (event) {
-    handlePhotos(event.target);
-  });
   document.addEventListener("keydown", function (event) {
     if (!confirmation.hidden) {
       if (event.key === "Escape") {
@@ -955,9 +914,8 @@
     startNew: requestNewDraft,
     requestDelete: requestDeleteDraft,
     sessionPreview: function () {
-      return localPhotos.length
-        ? { url: localPhotos[0].url, count: localPhotos.length }
-        : { url: "", count: savedPhotoNames.length };
+      const snapshot = currentPhotoMetadata();
+      return { url: "", count: snapshot.images.length };
     },
     currentDraft: function () {
       return layer && !layer.hidden ? draftPayload() : null;

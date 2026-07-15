@@ -145,7 +145,7 @@
       warnings.push("sectorDetails");
     }
 
-    const photoCount = Math.max(0, Math.min(100, Number(
+    const photoCount = Math.max(0, Math.min(7, Number(
       input.photoCount == null ? input.selectedLocalPhotoCount : input.photoCount
     ) || 0));
     if (!photoCount) warnings.push("photos");

@@ -38,9 +38,18 @@
     return Number.isFinite(price) && price > 0 ? price : null;
   }
 
-  function safeFileName(value) {
-    const pieces = cleanText(value, 220).split(/[\\/]/);
-    return cleanText(pieces[pieces.length - 1], 180);
+  function sanitizePhotoMetadata(input) {
+    if (!Array.isArray(input)) return [];
+    const seen = new Set();
+    return input.slice(0, 7).map(function (item, position) {
+      if (!item || typeof item !== "object") return null;
+      const mimeType = ["image/jpeg", "image/webp"].includes(item.mimeType) ? item.mimeType : "";
+      const width = Number(item.width), height = Number(item.height), sizeBytes = Number(item.sizeBytes);
+      const imageId = cleanText(item.imageId, 80);
+      if (!imageId || seen.has(imageId) || !mimeType || !Number.isInteger(width) || !Number.isInteger(height) || !Number.isInteger(sizeBytes) || width < 1 || height < 1 || width > 1600 || height > 1200 || width * 3 !== height * 4 || sizeBytes < 1 || sizeBytes > 15 * 1024 * 1024) return null;
+      seen.add(imageId);
+      return { imageId: imageId, position: position, altText: cleanText(item.altText, 140), mimeType: mimeType, width: width, height: height, sizeBytes: sizeBytes };
+    }).filter(function (item) { return item && item.imageId; });
   }
 
   function sanitizeDraft(input) {
@@ -54,18 +63,8 @@
     SECTOR_FIELDS[input.sector].forEach(function (name) {
       sectorFields[name] = cleanText(sourceFields[name], 140);
     });
-    const sourceNames = Array.isArray(input.photoFileNames)
-      ? input.photoFileNames
-      : Array.isArray(input.photoNames)
-        ? input.photoNames
-        : [];
-    const photoFileNames = sourceNames.map(safeFileName).filter(Boolean).slice(0, 50);
-    const requestedCount = Number(input.photoCount == null
-      ? input.selectedLocalPhotoCount
-      : input.photoCount);
-    const photoCount = Number.isFinite(requestedCount)
-      ? Math.max(photoFileNames.length, Math.min(100, Math.max(0, Math.floor(requestedCount))))
-      : photoFileNames.length;
+    const photoMetadata = sanitizePhotoMetadata(input.photoMetadata);
+    const photoCount = photoMetadata.length;
     const requestedStep = Number(input.lastStep);
     const lastStep = Number.isInteger(requestedStep) && requestedStep >= 1 && requestedStep <= 3
       ? requestedStep
@@ -105,7 +104,8 @@
       specs: cleanText(input.specs, 240),
       sectorFields: sectorFields,
       photoCount: photoCount,
-      photoFileNames: photoFileNames,
+      photoMetadata: photoMetadata,
+      coverImageId: photoMetadata.some(function (item) { return item.imageId === input.coverImageId; }) ? input.coverImageId : (photoMetadata[0] ? photoMetadata[0].imageId : null),
       lastStep: lastStep,
       incomplete: readinessStatus !== "ready",
       readinessStatus: readinessStatus,
@@ -158,7 +158,8 @@
       specs: draft.specs,
       sectorFields: draft.sectorFields,
       photoCount: draft.photoCount,
-      photoFileNames: draft.photoFileNames,
+      photoMetadata: draft.photoMetadata,
+      coverImageId: draft.coverImageId,
       lastStep: draft.lastStep,
       readinessStatus: draft.readinessStatus,
       readinessScore: draft.readinessScore,
