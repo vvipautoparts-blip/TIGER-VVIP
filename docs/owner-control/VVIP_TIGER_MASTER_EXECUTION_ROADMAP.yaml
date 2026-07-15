@@ -5,10 +5,10 @@ language: Arabic First
 market: Jordan First
 source_of_truth: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml
 human_readable_version: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md
-current_phase: P06
-last_completed_phase: P05
-next_authorized_phase: P06
-execution_lock: P06
+current_phase: P08
+last_completed_phase: P07
+next_authorized_phase: P08
+execution_lock: P08
 general_rules:
   - phase_one_at_a_time
   - start_from_clean_synced_main
@@ -235,7 +235,7 @@ phases:
   - id: P06
     priority: 6
     name: Owner Control Center
-    status: in_progress
+    status: completed
     depends_on:
       - P05
     scope:
@@ -259,7 +259,7 @@ phases:
   - id: P07
     priority: 7
     name: Full Data Schema Design — Review Only
-    status: pending
+    status: completed
     depends_on:
       - P06
     scope:
