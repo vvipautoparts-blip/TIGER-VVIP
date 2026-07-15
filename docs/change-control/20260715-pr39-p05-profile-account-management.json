@@ -1,0 +1,102 @@
+{
+  "phase": "P05",
+  "pr": "PR39",
+  "baseline": "2ea13a3417004653324e2c27fedeeb779e8299cd",
+  "branch": "feat/pr39-p05-profile-account-management",
+  "worktree": "/workspaces/TIGER-VVIP-PR39-P05",
+  "objective": "Implement unified public/private profile experience and safe account-management UX without destructive backend actions.",
+  "approved_facebook_profile_model": true,
+  "owner_mode_contract": "Owner mode is granted only when Clerk session identity matches the rendered subject identity. Any uncertainty falls back to visitor mode.",
+  "visitor_mode_contract": "Visitor mode never shows owner tools or private account controls and can be entered explicitly using view-as-visitor.",
+  "public_fields": [
+    "displayName",
+    "publicUsername",
+    "avatarUrl",
+    "coverUrl",
+    "publicBio",
+    "publicLocation",
+    "accountType",
+    "publishingPermission"
+  ],
+  "private_fields": [
+    "displayName",
+    "publicUsername",
+    "accountType",
+    "publishingPermission",
+    "accountStatus"
+  ],
+  "files": [
+    ".gitignore",
+    "private-profile-p03.html",
+    "public-profile-p05.html",
+    "edit-profile-p05.html",
+    "account-settings-p05.html",
+    "styles/vvip-pr39-profile.css",
+    "scripts/profile/pr39-profile-contract.js",
+    "scripts/profile/pr39-profile-controller.js",
+    "scripts/profile/pr39-profile-editor.js",
+    "scripts/profile/pr39-account-management.js",
+    "scripts/profile/pr39-profile-preview.js",
+    "tests/pr39-p05-profile-account-management.test.py",
+    "tests/pr39-p05-profile-account-management.runtime.test.cjs",
+    "docs/change-control/20260715-pr39-p05-profile-account-management.json"
+  ],
+  "out_of_scope": [
+    "Supabase schema updates",
+    "SQL/RLS/migrations",
+    "Clerk dashboard changes",
+    "Direct backend writes for profile persistence",
+    "Destructive deactivation/deletion execution"
+  ],
+  "gitignore_scope_note": "Added explicit exceptions for PR39 official test files only so they are tracked without force add; PR35/PR36 ignore behavior remains unchanged.",
+  "test_first": {
+    "red_reason": "Required P05 pages/scripts missing before implementation"
+  },
+  "tests": [
+    "python3 tests/pr39-p05-profile-account-management.test.py",
+    "node tests/pr39-p05-profile-account-management.runtime.test.cjs"
+  ],
+  "browser_scenarios": [
+    "A Public Profile Visitor",
+    "B Public Profile Owner",
+    "C View as Visitor",
+    "D Private Account Center",
+    "E Edit Profile",
+    "F Account Settings",
+    "G Temporary Deactivation",
+    "H Multi-step Deletion",
+    "I Logout Session",
+    "J Responsive"
+  ],
+  "security_checks": [
+    "No service_role",
+    "No JWT/token exposure",
+    "No direct profiles update",
+    "No rpc/delete destructive calls"
+  ],
+  "privacy_checks": [
+    "No public email/phone",
+    "No PII localStorage persistence",
+    "Only PR38 account-type draft storage contract allowed"
+  ],
+  "accessibility_checks": [
+    "lang ar + dir rtl",
+    "aria-live messages",
+    "keyboard-accessible menu behavior",
+    "focus-visible styles",
+    "prefers-reduced-motion"
+  ],
+  "production_changes": false,
+  "clerk_dashboard_changes": false,
+  "supabase_schema_changes": false,
+  "sql_changes": false,
+  "rls_changes": false,
+  "migrations_changes": false,
+  "automatic_merge": false,
+  "destructive_account_actions": false,
+  "rollback": [
+    "git revert <pr39_commit_sha>",
+    "re-run PR39 static/runtime tests",
+    "verify private-profile-p03 navigation restores previous state"
+  ]
+}

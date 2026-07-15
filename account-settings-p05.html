@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f0f2f5">
+  <title>إعدادات الحساب — VVIP TIGER</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/vvip-pr39-profile.css">
+  <script defer src="scripts/profile/pr39-account-management.js"></script>
+</head>
+<body data-page="account-settings">
+  <header class="pr39-header">
+    <a href="private-profile-p03.html" class="pr39-brand">VVIP TIGER</a>
+    <nav class="pr39-header-actions" aria-label="روابط سريعة">
+      <a href="public-profile-p05.html">الملف العام</a>
+      <a href="edit-profile-p05.html">تعديل الملف</a>
+    </nav>
+  </header>
+
+  <main class="pr39-settings-grid">
+    <section class="pr39-card">
+      <h1>إعدادات الحساب</h1>
+      <p aria-live="polite">يتم عرض الإعدادات المتاحة فعليًا فقط دون نجاح وهمي.</p>
+    </section>
+
+    <section class="pr39-card">
+      <h2>الملف والهوية العامة</h2>
+      <p>يمكن تعديل البيانات العامة عبر صفحة تعديل الملف.</p>
+      <a class="pr39-btn" href="edit-profile-p05.html">فتح تعديل الملف</a>
+    </section>
+
+    <section class="pr39-card">
+      <h2>الخصوصية</h2>
+      <p>يتم عرض البيانات العامة فقط، ولا يتم كشف البريد أو الهاتف في الملف العام.</p>
+    </section>
+
+    <section class="pr39-card">
+      <h2>الجلسة والأمان</h2>
+      <p>تسجيل الخروج ينهي الجلسة الحالية فقط دون حذف بيانات الحساب.</p>
+    </section>
+
+    <section class="pr39-card">
+      <h2>اللغة والعرض</h2>
+      <p>العربية RTL هي الوضع الافتراضي. دعم الإنجليزية يضاف تدريجيًا.</p>
+    </section>
+
+    <section class="pr39-card">
+      <h2>نوع الحساب وصلاحية النشر</h2>
+      <p>نوع الحساب منفصل عن صلاحية النشر. الصلاحية الافتراضية: none.</p>
+    </section>
+
+    <section class="pr39-card">
+      <h2>Tiger Care</h2>
+      <p>تم استلام طلبك، وسيتم التواصل معك خلال 24 ساعة.</p>
+      <p>فتح الخدمة الرسمية سيتم من مركز Tiger Care عند اكتمال الربط.</p>
+    </section>
+
+    <section class="pr39-card" data-pr39-deactivation>
+      <h2>التعطيل المؤقت للحساب</h2>
+      <p data-status aria-live="polite"></p>
+      <div data-step>
+        <p>التعطيل المؤقت يختلف عن تسجيل الخروج وحذف الحساب.</p>
+        <button class="pr39-btn" type="button" data-next>متابعة</button>
+      </div>
+      <div data-step hidden>
+        <label>سبب اختياري
+          <input type="text" maxlength="120" placeholder="سبب اختياري">
+        </label>
+        <div class="pr39-actions">
+          <button class="pr39-btn" type="button" data-back>رجوع</button>
+          <button class="pr39-btn" type="button" data-next>متابعة</button>
+        </div>
+      </div>
+      <div data-step hidden>
+        <p>قد يصبح الملف غير ظاهر وقد تتوقف الإعلانات، وقد تتأثر الرسائل مؤقتًا.</p>
+        <div class="pr39-actions">
+          <button class="pr39-btn" type="button" data-back>رجوع</button>
+          <button class="pr39-btn" type="button" data-next>متابعة</button>
+        </div>
+      </div>
+      <div data-step hidden>
+        <p>أفهم أن طلب التعطيل يحتاج خدمة إدارة حساب رسمية ولا يغيّر الحالة الآن.</p>
+        <div class="pr39-actions">
+          <button class="pr39-btn" type="button" data-back>رجوع</button>
+          <button class="pr39-btn pr39-btn-danger" type="button" data-submit>طلب تعطيل الحساب مؤقتًا</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="pr39-card" data-pr39-deletion>
+      <h2>الحذف متعدد الخطوات</h2>
+      <p data-status aria-live="polite"></p>
+      <div data-step>
+        <p>الحذف قد يؤثر على الملف والمنشورات والصور وفق السياسة الرسمية.</p>
+        <button class="pr39-btn" type="button" data-next>متابعة</button>
+      </div>
+      <div data-step hidden>
+        <p>قد يشمل الحذف مستقبلًا: الملف، المنشورات، الصور، وبعض البيانات المسموح حذفها قانونيًا.</p>
+        <div class="pr39-actions">
+          <button class="pr39-btn" type="button" data-back>رجوع</button>
+          <button class="pr39-btn" type="button" data-next>متابعة</button>
+        </div>
+      </div>
+      <div data-step hidden>
+        <p>قد تبقى سجلات قانونية وأمنية حسب سياسة الخصوصية.</p>
+        <div class="pr39-actions">
+          <button class="pr39-btn" type="button" data-back>رجوع</button>
+          <button class="pr39-btn" type="button" data-next>متابعة</button>
+        </div>
+      </div>
+      <div data-step hidden>
+        <label>سبب اختياري
+          <input type="text" maxlength="120" placeholder="سبب اختياري">
+        </label>
+        <div class="pr39-actions">
+          <button class="pr39-btn" type="button" data-back>رجوع</button>
+          <button class="pr39-btn" type="button" data-next>متابعة</button>
+        </div>
+      </div>
+      <div data-step hidden data-requires-phrase="حذف حسابي">
+        <label>اكتب عبارة التأكيد
+          <input type="text" placeholder="حذف حسابي" data-confirm-phrase>
+        </label>
+        <div class="pr39-actions">
+          <button class="pr39-btn" type="button" data-back>رجوع</button>
+          <button class="pr39-btn" type="button" data-next>متابعة</button>
+        </div>
+      </div>
+      <div data-step hidden>
+        <p>تأكيد نهائي: لن يتم حذف فعلي في هذه المرحلة حتى اكتمال الربط الرسمي.</p>
+        <div class="pr39-actions">
+          <button class="pr39-btn" type="button" data-back>رجوع</button>
+          <button class="pr39-btn pr39-btn-danger" type="button" data-submit>إرسال طلب حذف الحساب</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
