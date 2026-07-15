@@ -1,0 +1,254 @@
+:root {
+  --pr38-bg: #f0f2f5;
+  --pr38-card: #ffffff;
+  --pr38-border: #d7deea;
+  --pr38-text: #13233a;
+  --pr38-muted: #5a6a84;
+  --pr38-navy: #0f2a4b;
+  --pr38-gold: #c9a646;
+  --pr38-focus: #1d4ed8;
+  --pr38-shadow: 0 10px 24px rgba(15, 42, 75, 0.08);
+}
+
+body[data-pr38-onboarding] {
+  margin: 0;
+  background: radial-gradient(circle at top right, rgba(201, 166, 70, 0.14), transparent 40%), var(--pr38-bg);
+  color: var(--pr38-text);
+  font-family: "Cairo", sans-serif;
+  min-height: 100dvh;
+}
+
+.pr38-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.92);
+  border-bottom: 1px solid var(--pr38-border);
+  backdrop-filter: blur(8px);
+}
+
+.pr38-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--pr38-navy);
+  text-decoration: none;
+}
+
+.pr38-brand__icon {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  background: var(--pr38-navy);
+  color: #fff;
+  font-weight: 800;
+}
+
+.pr38-brand__text {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.pr38-brand__text small {
+  color: var(--pr38-muted);
+  font-size: 12px;
+}
+
+.pr38-main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 14px 14px 32px;
+  display: grid;
+  gap: 12px;
+}
+
+.pr38-card {
+  background: var(--pr38-card);
+  border: 1px solid var(--pr38-border);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: var(--pr38-shadow);
+}
+
+.pr38-kicker {
+  display: inline-block;
+  color: var(--pr38-muted);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.pr38-subtitle {
+  margin: 6px 0 0;
+  color: var(--pr38-muted);
+}
+
+.pr38-message {
+  min-height: 20px;
+  margin: 10px 0 0;
+  color: var(--pr38-navy);
+  font-weight: 600;
+}
+
+.pr38-type-fieldset {
+  margin: 0;
+  border: 1px solid var(--pr38-border);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.pr38-type-fieldset legend {
+  color: var(--pr38-navy);
+  font-weight: 700;
+  padding: 0 8px;
+}
+
+.pr38-help {
+  margin: 0 0 10px;
+  color: var(--pr38-muted);
+  font-size: 14px;
+}
+
+.pr38-types-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.pr38-type-option {
+  border: 1px solid var(--pr38-border);
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+  display: grid;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.pr38-type-option:has(input:checked) {
+  border-color: var(--pr38-gold);
+  box-shadow: 0 0 0 2px rgba(201, 166, 70, 0.2);
+}
+
+.pr38-type-option input {
+  inline-size: 18px;
+  block-size: 18px;
+}
+
+.pr38-type-option__title {
+  font-weight: 700;
+}
+
+.pr38-type-option__description {
+  color: var(--pr38-muted);
+  font-size: 14px;
+}
+
+.pr38-review-list {
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.pr38-review-list div {
+  border: 1px solid var(--pr38-border);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.pr38-review-list dt {
+  color: var(--pr38-muted);
+  font-size: 14px;
+}
+
+.pr38-review-list dd {
+  margin: 4px 0 0;
+  font-weight: 700;
+}
+
+.pr38-note {
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(15, 42, 75, 0.06);
+}
+
+.pr38-actions {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pr38-button {
+  appearance: none;
+  border: 1px solid var(--pr38-border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font: inherit;
+  font-weight: 700;
+  color: var(--pr38-text);
+  background: #fff;
+  cursor: pointer;
+}
+
+.pr38-button--primary {
+  background: linear-gradient(180deg, #14365f, #0f2a4b);
+  border-color: #0f2a4b;
+  color: #fff;
+}
+
+.pr38-button--quiet {
+  background: #fff;
+}
+
+.pr38-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pr38-button:focus-visible,
+.pr38-type-option:focus-within,
+.pr38-brand:focus-visible {
+  outline: 3px solid var(--pr38-focus);
+  outline-offset: 2px;
+}
+
+.pr38-account-type-card {
+  border: 1px solid var(--pr38-border);
+  background: #fff;
+}
+
+.pr38-account-type-status-row {
+  margin: 8px 0;
+}
+
+.pr38-account-type-hint {
+  margin: 0 0 10px;
+  color: var(--pr38-muted);
+}
+
+@media (min-width: 700px) {
+  .pr38-main {
+    padding-top: 22px;
+  }
+
+  .pr38-types-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
