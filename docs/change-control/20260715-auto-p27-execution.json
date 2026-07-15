@@ -1,0 +1,12 @@
+{
+  "phase": "P27",
+  "baseline": "f458d176d2fcf570d4ec421318b70d91b0ded6c0",
+  "branch": "feat/auto-p27-repository-closure",
+  "mode": "documentation_and_review_only",
+  "production_changes": false,
+  "sql_changes": false,
+  "rls_changes": false,
+  "migrations_changes": false,
+  "destructive_actions": false,
+  "date": "2026-07-15"
+}
