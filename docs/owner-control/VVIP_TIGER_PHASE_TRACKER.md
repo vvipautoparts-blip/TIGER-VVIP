@@ -1,6 +1,6 @@
 # VVIP TIGER — متتبع المراحل الرسمي
 
-آخر تحديث: 2026-07-10
+آخر تحديث: 2026-07-15
 
 ## الحالات
 
@@ -23,8 +23,9 @@
 | P00 | Completed and Post-Merge Verified | Discovery Experience Shell أُغلق رسميًا |
 | P00.1 | Completed and Post-Merge Verified | Master Execution Roadmap أُغلق رسميًا |
 | P01 | Completed and Post-Merge Verified | تم دمج مخرجات P01 والتحقق بعدها بنجاح |
-| P02 | Next Authorized Phase, Not Started | لا يبدأ قبل إنشاء فرعه وChange Control Manifest الخاص به |
-| P03-P34 | Pending | جميع المراحل اللاحقة ما تزال قيد الانتظار |
+| P05 | Completed and Post-Merge Verified | تم دمج P05 والتحقق بعد الدمج بنجاح |
+| P06 | In Progress (PR40) | بدأ التنفيذ من baseline 32bd535 مع RED→GREEN |
+| P07-P34 | Pending | جميع المراحل اللاحقة ما تزال قيد الانتظار |
 
 ملاحظة تنفيذية:
 

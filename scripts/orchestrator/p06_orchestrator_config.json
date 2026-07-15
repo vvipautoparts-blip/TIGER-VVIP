@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "phase_queue": [
+    "P06",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P11",
+    "P12",
+    "P13",
+    "P14",
+    "P15",
+    "P16",
+    "P17",
+    "P18",
+    "P19",
+    "P20",
+    "P21",
+    "P22",
+    "P23",
+    "P24",
+    "P25",
+    "P26",
+    "P27",
+    "P28",
+    "P29",
+    "P30",
+    "P31",
+    "P32",
+    "P33",
+    "P34"
+  ],
+  "forbidden_actions": [
+    "direct_main_push",
+    "destructive_git_reset",
+    "unapproved_sql_apply",
+    "unapproved_production_change"
+  ],
+  "integrity": {
+    "sha256_manifest": true
+  }
+}

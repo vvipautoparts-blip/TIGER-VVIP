@@ -13,6 +13,8 @@ tests/
 tests/*
 !tests/pr39-p05-profile-account-management.test.py
 !tests/pr39-p05-profile-account-management.runtime.test.cjs
+!tests/pr40-p06-orchestrator.test.py
+!tests/pr40-p06-owner-control.runtime.test.cjs
 !tests/pr36/
 !tests/pr36/*
 !tests/pr35/

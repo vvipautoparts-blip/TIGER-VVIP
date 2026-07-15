@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vvip-tiger.local/schemas/p06-orchestrator-state.schema.json",
+  "title": "VVIP TIGER Orchestrator State",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "updated_on",
+    "status",
+    "current_phase",
+    "next_authorized_phase",
+    "phase_queue",
+    "phase_states",
+    "last_checkpoint",
+    "emergency_stop",
+    "integrity"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "updated_on": {
+      "type": "string",
+      "minLength": 10
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "planning",
+        "red",
+        "implementing",
+        "green",
+        "preview",
+        "pr_open",
+        "reviewing",
+        "merged",
+        "post_merge_verified",
+        "completed",
+        "blocked",
+        "owner_approval_required"
+      ]
+    },
+    "current_phase": {
+      "type": "string",
+      "pattern": "^P(0|00(\\.1)?|[1-9]|[12][0-9]|3[0-4])$"
+    },
+    "next_authorized_phase": {
+      "type": "string",
+      "pattern": "^P(0|00(\\.1)?|[1-9]|[12][0-9]|3[0-4])$"
+    },
+    "phase_queue": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^P([6-9]|[12][0-9]|3[0-4])$"
+      }
+    },
+    "phase_states": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "status", "updated_on"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^P([6-9]|[12][0-9]|3[0-4])$"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "planning",
+              "red",
+              "implementing",
+              "green",
+              "preview",
+              "pr_open",
+              "reviewing",
+              "merged",
+              "post_merge_verified",
+              "completed",
+              "blocked",
+              "owner_approval_required"
+            ]
+          },
+          "updated_on": {
+            "type": "string",
+            "minLength": 10
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "last_checkpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["phase", "path", "sha256", "created_on"],
+      "properties": {
+        "phase": {
+          "type": "string",
+          "pattern": "^P([6-9]|[12][0-9]|3[0-4])$"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "created_on": {
+          "type": "string",
+          "minLength": 10
+        }
+      }
+    },
+    "emergency_stop": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["active", "reason"],
+      "properties": {
+        "active": { "type": "boolean" },
+        "reason": { "type": "string" }
+      }
+    },
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sha256_manifest", "last_verified_sha256"],
+      "properties": {
+        "sha256_manifest": { "type": "boolean" },
+        "last_verified_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    }
+  }
+}

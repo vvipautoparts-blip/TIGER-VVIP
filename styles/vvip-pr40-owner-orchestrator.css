@@ -1,0 +1,71 @@
+.pr40-orchestrator-card {
+  margin-top: 16px;
+  border: 1px solid rgba(10, 32, 39, 0.16);
+  border-radius: 14px;
+  background: linear-gradient(145deg, #f4fbfa 0%, #eef6f8 100%);
+  padding: 14px;
+}
+
+.pr40-orchestrator-card h2 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+  color: #08242e;
+}
+
+.pr40-orchestrator-status {
+  margin: 0;
+  color: #1c3740;
+  font-size: 0.92rem;
+}
+
+.pr40-orchestrator-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 8px;
+}
+
+.pr40-orchestrator-list li {
+  border-radius: 10px;
+  border: 1px solid rgba(8, 36, 46, 0.14);
+  background: #ffffff;
+  padding: 8px 10px;
+  font-size: 0.88rem;
+}
+
+.pr40-orchestrator-list .tone-success {
+  border-color: rgba(20, 120, 86, 0.35);
+  background: #effbf5;
+}
+
+.pr40-orchestrator-list .tone-warning {
+  border-color: rgba(174, 118, 8, 0.3);
+  background: #fff7e8;
+}
+
+.pr40-orchestrator-list .tone-danger {
+  border-color: rgba(166, 37, 37, 0.3);
+  background: #fff0f0;
+}
+
+.pr40-orchestrator-list .tone-info {
+  border-color: rgba(18, 86, 151, 0.28);
+  background: #eef6ff;
+}
+
+.pr40-orchestrator-list .tone-muted {
+  border-color: rgba(53, 76, 86, 0.2);
+  background: #f6f9fa;
+}
+
+@media (max-width: 680px) {
+  .pr40-orchestrator-card {
+    padding: 12px;
+  }
+
+  .pr40-orchestrator-list {
+    grid-template-columns: 1fr;
+  }
+}
