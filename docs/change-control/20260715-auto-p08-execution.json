@@ -1,0 +1,12 @@
+{
+  "phase": "P08",
+  "baseline": "a99c47fe4924ecb48f838d4df4d2ce1886e3bc6f",
+  "branch": "feat/auto-p08-repository-closure",
+  "mode": "documentation_and_review_only",
+  "production_changes": false,
+  "sql_changes": false,
+  "rls_changes": false,
+  "migrations_changes": false,
+  "destructive_actions": false,
+  "date": "2026-07-15"
+}
