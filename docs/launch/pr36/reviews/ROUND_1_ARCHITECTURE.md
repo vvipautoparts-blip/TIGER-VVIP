@@ -98,3 +98,18 @@ Fresh final gate:
 Interactive browser/DevTools, real decoder variance, worker execution/fallback, screen-reader behavior, physical 320 px layout, and live object-URL accounting remain outside this automated round and are not claimed. Persisted PR32 photo metadata intentionally cannot restore photo bytes after a page/session reset; it is historical display metadata, not a second live photo authority.
 
 `PR36_REVIEW_1_ARCHITECTURE: PASS`
+
+## Final surgical closure V6 — architecture verification
+
+Fresh independent verification confirmed:
+
+- PR36 owns the seven-photo media lifecycle through one canonical path.
+- PR31 delegates media ownership to PR36.
+- PR32 persists sanitized bounded metadata only.
+- PR33 clamps readiness photo count to 0..7.
+- Canonical pages load every PR36 dependency once and in order.
+- Crop controls synchronize from the selected provisional transform.
+- The editor remains non-modal and does not trap Tab navigation.
+- Smoke behavior is no longer selected by the active branch name.
+
+Result: **PASS**

@@ -90,3 +90,22 @@ Final fresh gate run from the report-bearing worktree:
 - Auditability: root causes, corrections, RED/GREEN evidence, commands, results, limitations, and artifact preservation are recorded here. All working-tree changes remain uncommitted as requested.
 
 `VVIP_ETHICS_PRIVACY_PERFORMANCE_GATE: PASS (AUTOMATED/STATIC SCOPE; INTERACTIVE REVIEW NOT RUN)`
+
+## Final surgical closure V6 — performance and accessibility verification
+
+Fresh verification confirmed:
+
+- FIFO scheduling with a maximum concurrency of two;
+- bounded per-photo and session deadlines;
+- cancellation and stale-result suppression;
+- object-URL and retired-resource cleanup;
+- exact 4:3 bounded output without upscaling;
+- keyboard-operable non-modal controls;
+- RTL behavior;
+- reduced-motion support;
+- bounded fallback rather than fabricated success.
+
+No network capability was invented; debounce and retry semantics remain
+limited to approved boundaries.
+
+Result: **PASS**

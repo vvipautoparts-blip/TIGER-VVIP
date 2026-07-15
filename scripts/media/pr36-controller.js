@@ -130,7 +130,25 @@
 
     async function applyEdit() { if (!editingId) return false; const id = editingId; await session.previewEdit(id, { zoom: Number(zoom.value), panX: Number(panX.value), panY: Number(panY.value) }); const preview = session.provisionalSnapshot().find(function (item) { return item.imageId === id; }); if (preview) cropPreview.src = preview.url; setStatus("تم تحديث المعاينة المحلية.", false); return true; }
     function debounceEdit() { win.clearTimeout(timer); timer = win.setTimeout(function () { applyEdit().catch(function (error) { setStatus(ERROR_COPY[error.code] || ERROR_COPY.capability_unavailable, true); }); }, 250); }
-    function openEditor(id, focusOrigin) { const preview = session.provisionalSnapshot().find(function (item) { return item.imageId === id; }); editingId = id; lastFocus = focusOrigin; cropPreview.src = preview ? preview.url : ""; editor.hidden = false; editor.focus(); setStatus("اضبط القص بنسبة 4 إلى 3 ثم أكد المعالجة.", false); }
+    function synchronizeEditorControls(transform) {
+      const current = transform || {};
+      const zoomValue = Number(current.zoom);
+      const panXValue = Number(current.panX);
+      const panYValue = Number(current.panY);
+      zoom.value = String(Number.isFinite(zoomValue) ? Math.max(1, Math.min(4, zoomValue)) : 1);
+      panX.value = String(Number.isFinite(panXValue) ? Math.max(-1, Math.min(1, panXValue)) : 0);
+      panY.value = String(Number.isFinite(panYValue) ? Math.max(-1, Math.min(1, panYValue)) : 0);
+    }
+    function openEditor(id, focusOrigin) {
+      const preview = session.provisionalSnapshot().find(function (item) { return item.imageId === id; });
+      editingId = id;
+      lastFocus = focusOrigin;
+      synchronizeEditorControls(preview && preview.transform);
+      cropPreview.src = preview ? preview.url : "";
+      editor.hidden = false;
+      editor.focus();
+      setStatus("اضبط القص بنسبة 4 إلى 3 ثم أكد المعالجة.", false);
+    }
     function closeEditor(message, isError) { win.clearTimeout(timer); timer = null; editor.hidden = true; cropPreview.removeAttribute && cropPreview.removeAttribute("src"); cropPreview.src = ""; editingId = null; setStatus(message, Boolean(isError)); if (lastFocus && typeof lastFocus.focus === "function") lastFocus.focus(); }
     async function selected() {
       setStatus("جاري التحقق من الصور محليًا…", false);

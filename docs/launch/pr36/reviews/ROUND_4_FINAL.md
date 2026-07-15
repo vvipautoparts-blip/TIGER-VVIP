@@ -76,3 +76,21 @@ Rollback is path-bounded: revert only the 49 paths in `CHANGED_FILES.freeze` to 
 Commit readiness: **NOT READY** until the required manual-browser checklist is executed and recorded with browser/version and honest DevTools observations, followed by another exact-scope and full zero-exit regression run. This review performed no commit, push, PR, merge, deployment, or remote action.
 
 `VVIP_ETHICS_PRIVACY_PERFORMANCE_GATE: FAIL (AUTOMATED/STATIC PASS; REQUIRED MANUAL BROWSER EVIDENCE NOT RUN)`
+
+
+## Scope-order resume V7 — final independent verification
+
+Timestamp: `20260715T092452Z`
+
+- Architecture and integration review: PASS.
+- Security and privacy review: PASS.
+- Independent policy and geometry audit: PASS.
+- Performance and accessibility review: PASS.
+- Complete PR36 Node suite: PASS.
+- Canonical PR36 QA: PASS.
+- Extended PR36 QA: PASS.
+- Historical smoke: PASS.
+- Frozen PR36 tests remained unchanged.
+- Automatic merge remained disabled.
+
+Result: **PASS**

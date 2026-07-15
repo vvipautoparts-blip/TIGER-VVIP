@@ -44,10 +44,38 @@ import json, subprocess
 from pathlib import Path
 m=json.loads(Path('docs/launch/pr36/CHANGE_CONTROL_MANIFEST.json').read_text())
 allowed=set(m['allowed_paths'])
-changed=set(subprocess.run(['git','diff','HEAD','--name-only'],capture_output=True,text=True,check=True).stdout.splitlines())
-changed.update(subprocess.run(['git','ls-files','--others','--exclude-standard'],capture_output=True,text=True,check=True).stdout.splitlines())
+base=m.get('base_sha')
+if not isinstance(base,str) or not base:
+    raise SystemExit('[pr36][fail] manifest base_sha is missing')
+if subprocess.run(
+    ['git','cat-file','-e',base+'^{commit}'],
+    stdout=subprocess.DEVNULL,
+    stderr=subprocess.DEVNULL,
+).returncode != 0:
+    raise SystemExit('[pr36][fail] manifest base_sha is not available locally')
+if subprocess.run(
+    ['git','merge-base','--is-ancestor',base,'HEAD'],
+    stdout=subprocess.DEVNULL,
+    stderr=subprocess.DEVNULL,
+).returncode != 0:
+    raise SystemExit('[pr36][fail] manifest base_sha is not an ancestor of HEAD')
+if m.get('scope_path_count') != len(allowed):
+    raise SystemExit('[pr36][fail] manifest scope_path_count is inaccurate')
+changed=set(subprocess.run(
+    ['git','diff',base,'--name-only'],
+    capture_output=True,
+    text=True,
+    check=True,
+).stdout.splitlines())
+changed.update(subprocess.run(
+    ['git','ls-files','--others','--exclude-standard'],
+    capture_output=True,
+    text=True,
+    check=True,
+).stdout.splitlines())
 extra=sorted(changed-allowed)
-if extra: raise SystemExit('[pr36][fail] undeclared changed paths: '+', '.join(extra))
+if extra:
+    raise SystemExit('[pr36][fail] undeclared changed paths: '+', '.join(extra))
 freeze=Path('docs/launch/pr36/CHANGED_FILES.freeze').read_text().splitlines()
 if freeze != sorted(set(freeze)):
     raise SystemExit('[pr36][fail] freeze is not sorted and unique')
@@ -56,9 +84,9 @@ if set(freeze) != allowed:
 if changed != allowed:
     missing=sorted(allowed-changed)
     raise SystemExit('[pr36][fail] exact planned scope is incomplete: '+', '.join(missing))
-for path in changed:
-    if path.endswith('.sql') or path.startswith(('supabase/','migrations/','backups/')):
-        raise SystemExit('[pr36][fail] forbidden path changed: '+path)
+for changed_path in changed:
+    if changed_path.endswith('.sql') or changed_path.startswith(('supabase/','migrations/','backups/')):
+        raise SystemExit('[pr36][fail] forbidden path changed: '+changed_path)
 PY
 
 if [[ "$mode" == "--focused" ]]; then echo "[pr36] focused gate passed"; exit 0; fi

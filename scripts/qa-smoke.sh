@@ -413,9 +413,12 @@ behaviors = [
     "إغلاق النموذج",
     'class="vvip-create-confirmation__backdrop" type="button" tabindex="-1"',
 ]
-import subprocess
-branch = subprocess.run(["git", "branch", "--show-current"], capture_output=True, text=True, check=True).stdout.strip()
-if branch == "feat/pr36-secure-seven-photo-processing":
+from pathlib import Path
+pr36_active = (
+    Path("scripts/media/pr36-controller.js").is_file()
+    and Path("docs/launch/pr36/CHANGE_CONTROL_MANIFEST.json").is_file()
+)
+if pr36_active:
     behaviors.extend(["VVIP_PR36_MEDIA", "photoMetadata", "لا رفع ولا نشر في هذه المرحلة."])
 else:
     behaviors.extend(["URL.createObjectURL", "URL.revokeObjectURL", "photoNames", "المعاينة محلية فقط ولن يتم رفع الصور في هذه المرحلة."])
@@ -628,9 +631,9 @@ if 'CACHE_NAME = CACHE_PREFIX + "v21"' not in service_worker:
     raise SystemExit("[smoke][fail] service worker cache was not bumped for PR32")
 PY_PR32
 
-PR36_SMOKE_BRANCH="$(git branch --show-current)" node <<'JS_PR32_HELPERS'
+PR36_SMOKE_ENABLED="$(test -f scripts/media/pr36-controller.js && test -f docs/launch/pr36/CHANGE_CONTROL_MANIFEST.json && printf 1 || printf 0)" node <<'JS_PR32_HELPERS'
 const assert = require("node:assert/strict");
-const branch = process.env.PR36_SMOKE_BRANCH || "";
+const pr36Enabled = process.env.PR36_SMOKE_ENABLED === "1";
 const memory = new Map();
 global.window = {
   localStorage: {
@@ -653,7 +656,7 @@ const normalized = drafts.normalizeDraft({
 });
 assert.equal(normalized.title, "قطعة");
 assert.equal(normalized.price, 120);
-if (branch === "feat/pr36-secure-seven-photo-processing") {
+if (pr36Enabled) {
   assert.equal(normalized.photoCount, 0);
   assert.deepEqual(normalized.photoMetadata, []);
   assert.equal(Object.hasOwn(normalized, "photoFileNames"), false);
@@ -687,7 +690,7 @@ assert.equal(drafts.readLocalDraft().status, "empty");
 JS_PR32_HELPERS
 
 echo "[smoke] validating PR33 publish readiness"
-PR36_SMOKE_BRANCH="$(git branch --show-current)" python3 <<'PY_PR33'
+PR36_SMOKE_ENABLED="$(test -f scripts/media/pr36-controller.js && test -f docs/launch/pr36/CHANGE_CONTROL_MANIFEST.json && printf 1 || printf 0)" python3 <<'PY_PR33'
 import os
 from pathlib import Path
 
@@ -758,7 +761,7 @@ for text in [
     if text not in combined:
         raise SystemExit(f"[smoke][fail] missing PR33 copy: {text}")
 
-photo_copy = "لا رفع ولا نشر في هذه المرحلة." if os.environ.get("PR36_SMOKE_BRANCH") == "feat/pr36-secure-seven-photo-processing" else "الصور ستُرفع لاحقًا عند تفعيل النشر الحقيقي."
+photo_copy = "لا رفع ولا نشر في هذه المرحلة." if os.environ.get("PR36_SMOKE_ENABLED") == "1" else "الصور ستُرفع لاحقًا عند تفعيل النشر الحقيقي."
 if photo_copy not in combined:
     raise SystemExit(f"[smoke][fail] missing PR33 photo copy: {photo_copy}")
 

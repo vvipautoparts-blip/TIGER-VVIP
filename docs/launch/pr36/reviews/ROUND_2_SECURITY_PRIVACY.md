@@ -59,3 +59,25 @@ All commands below were run on the corrected current tree and freshly observed a
 Amanah is preserved by tying PASS only to the fresh zero exits above and stating browser limitations. Justice is preserved through deterministic limits and equal fail-closed handling. Privacy is preserved through local-only processing and metadata-only persistence. Accessibility remains intact because fixes do not alter keyboard, RTL, live-region, or calm Arabic error behavior. No insecure fallback, silent upload, privileged offline action, or data-bearing error path was introduced.
 
 `VVIP_ETHICS_PRIVACY_PERFORMANCE_GATE: PASS`
+
+## Final surgical closure V6 — security and privacy verification
+
+The two files omitted from the displayed Copilot file review were audited
+independently:
+
+- `pr36-policy.js`
+- `pr36-geometry.js`
+
+Fresh verification confirmed:
+
+- seven-photo, byte, header, pixel, timeout and concurrency limits;
+- signature/MIME agreement before decoding;
+- image-bomb and malformed-dimension rejection;
+- exact 4:3 output geometry with no upscaling;
+- bounded zoom and pan;
+- sanitized metadata projection only;
+- header-byte wiping after validation;
+- no fetch, storage, database, Clerk or Supabase capability;
+- no embedded secret pattern.
+
+Result: **PASS**
