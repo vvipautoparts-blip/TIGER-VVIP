@@ -25,6 +25,12 @@
 
 - ملف [VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml](./VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml) هو المرجع الرسمي المنظم لترتيب المراحل والاعتماد والأولويات.
 - ملف [VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md](./VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md) هو النسخة المقروءة للمالك.
+- ملف [VVIP_TIGER_UNIFIED_PLATFORM_AND_OPERATING_MODEL.yaml](./VVIP_TIGER_UNIFIED_PLATFORM_AND_OPERATING_MODEL.yaml) هو المرجع الرسمي المنظم لهندسة المنصة الموحدة ونموذجها التشغيلي والإداري.
+- ملف [VVIP_TIGER_UNIFIED_PLATFORM_AND_OPERATING_MODEL.md](./VVIP_TIGER_UNIFIED_PLATFORM_AND_OPERATING_MODEL.md) هو النسخة المقروءة للمالك والإدارة.
+- ملف [VVIP_TIGER_UNIFIED_UI_AND_NAVIGATION_STANDARD.md](./VVIP_TIGER_UNIFIED_UI_AND_NAVIGATION_STANDARD.md) هو مرجع تجربة الواجهة والتنقل الموحدين في P02.
+- ملف [vvip-unified-ui-tokens.json](./vvip-unified-ui-tokens.json) هو مرجع توكنات الواجهة الرسمية.
+- ملف [VVIP_TIGER_IMAGE_AND_MEDIA_STANDARD.md](./VVIP_TIGER_IMAGE_AND_MEDIA_STANDARD.md) هو مرجع تجربة الصور والمعرض في P02.
+- ملف [VVIP_TIGER_IMAGE_AND_MEDIA_STANDARD.yaml](./VVIP_TIGER_IMAGE_AND_MEDIA_STANDARD.yaml) هو النسخة المنظمة لنفس المعيار.
 - يتابع [VVIP_TIGER_PHASE_TRACKER.md](./VVIP_TIGER_PHASE_TRACKER.md) التنفيذ اليومي وحالة الفروع والدمج.
 - تمثل [phase-status.json](./phase-status.json) الحالة الآلية الحالية القابلة للقراءة البرمجية.
 - تثبت وثائق الإكمال إغلاق كل مرحلة بعد الدمج والتحقق.

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>الرئيسية - VVIP TIGER</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/vvip-app-shell.css?v=20260710-final" />
+  <style>
+    body {
+      margin: 0;
+      font-family: "Cairo", sans-serif;
+      color: var(--vvip-primary-text);
+      background: var(--vvip-page-background);
+    }
+
+    .home-layout {
+      width: min(1280px, calc(100% - 20px));
+      margin: 10px auto;
+      display: grid;
+      grid-template-columns: 270px minmax(0, 680px) 270px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .home-card {
+      border: 1px solid var(--vvip-border);
+      background: var(--vvip-surface);
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 2px 8px rgba(5, 5, 5, 0.05);
+    }
+
+    .home-search {
+      display: block;
+      text-decoration: none;
+      border: 1px solid var(--vvip-border);
+      background: var(--vvip-page-background);
+      border-radius: 999px;
+      min-height: 42px;
+      padding: 0 14px;
+      color: var(--vvip-secondary-text);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+
+    .chips {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .chip {
+      border: 1px solid var(--vvip-border);
+      border-radius: 999px;
+      min-height: 36px;
+      padding: 0 14px;
+      background: var(--vvip-surface);
+      color: var(--vvip-primary-text);
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .chip.is-active {
+      background: #e7f3ff;
+      color: var(--vvip-social-blue-active);
+      border-color: #b7d3ff;
+    }
+
+    .home-empty {
+      text-align: center;
+      color: var(--vvip-secondary-text);
+      line-height: 1.8;
+      padding: 26px 14px;
+    }
+
+    .home-empty strong {
+      color: var(--vvip-primary-text);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .home-actions {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      min-height: 40px;
+      border-radius: 10px;
+      border: 1px solid #166fe5;
+      background: var(--vvip-social-blue);
+      color: #fff;
+      padding: 0 14px;
+      font: inherit;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .btn-secondary {
+      min-height: 40px;
+      border-radius: 10px;
+      border: 1px solid var(--vvip-border);
+      background: var(--vvip-surface-hover);
+      color: var(--vvip-primary-text);
+      padding: 0 14px;
+      font: inherit;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    @media (max-width: 1180px) {
+      .home-layout {
+        grid-template-columns: minmax(0, 680px);
+        justify-content: center;
+      }
+
+      .home-side {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="home-layout" aria-label="VVIP TIGER Home">
+    <aside class="home-side home-card" aria-label="مركز المساعدة">
+      <h2>اختصارات</h2>
+      <p>السوق الموحد، الطلبات، والدعم ضمن منصة واحدة.</p>
+    </aside>
+
+    <section class="home-main" aria-label="العمود الرئيسي">
+      <article class="home-card">
+        <a class="home-search" href="market.html" aria-label="بحث موحد">
+          <span>⌕</span>
+          <span>ابحث عن قطعة، خدمة، مادة، عقار أو مورد...</span>
+        </a>
+
+        <div class="chips" role="tablist" aria-label="فلاتر القطاعات">
+          <a class="chip is-active" href="market.html?sector=all" role="tab" aria-current="page">الكل</a>
+          <a class="chip" href="market.html?sector=automotive" role="tab">السيارات والخدمات</a>
+          <a class="chip" href="market.html?sector=materials" role="tab">المواد والمستلزمات</a>
+          <a class="chip" href="market.html?sector=real-estate" role="tab">العقارات</a>
+        </div>
+
+        <div class="home-actions" aria-label="إجراءات المنصة الموحدة">
+          <a class="btn-primary" href="create-listing-preview.html">إنشاء إعلان</a>
+          <a class="btn-secondary" href="market.html">فتح السوق والبحث</a>
+        </div>
+      </article>
+
+      <article class="home-card home-empty" aria-label="حالة المحتوى">
+        <strong>الموجز الموحد للمنصة</strong>
+        <p>لا توجد منشورات متاحة في هذه المعاينة حاليًا.</p>
+        <p>جميع القطاعات متاحة للتصفح من نفس الحساب، واختيار القطاع يصبح إلزاميًا فقط داخل إنشاء الإعلان.</p>
+      </article>
+    </section>
+
+    <aside class="home-side home-card" aria-label="جهة الحساب">
+      <h2>الحساب</h2>
+      <p>الملف العام والملف الخاص لنفس الحساب ضمن منصة VVIP TIGER.</p>
+    </aside>
+  </main>
+
+  <script src="scripts/vvip-route-map.js?v=20260710-final" defer></script>
+  <script src="scripts/vvip-app-shell.js?v=20260710-final" defer></script>
+</body>
+</html>

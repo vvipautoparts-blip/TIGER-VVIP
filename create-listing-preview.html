@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>إنشاء إعلان - VVIP TIGER</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/vvip-app-shell.css?v=20260711-p02" />
+  <style>
+    body {
+      margin: 0;
+      font-family: "Cairo", sans-serif;
+      color: var(--vvip-primary-text);
+      background: var(--vvip-page-background);
+    }
+
+    .listing-wrap {
+      width: min(980px, calc(100% - 20px));
+      margin: 12px auto;
+      display: grid;
+      gap: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--vvip-border);
+      border-radius: 12px;
+      background: var(--vvip-surface);
+      box-shadow: 0 2px 8px rgba(5, 5, 5, 0.05);
+      padding: 14px;
+    }
+
+    .flow {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      margin-top: 10px;
+    }
+
+    .step {
+      min-height: 34px;
+      border-radius: 999px;
+      padding: 0 12px;
+      border: 1px solid var(--vvip-border);
+      background: var(--vvip-surface);
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: var(--vvip-primary-text);
+    }
+
+    .step.active {
+      background: #e7f3ff;
+      border-color: #b7d3ff;
+      color: var(--vvip-social-blue-active);
+    }
+
+    .grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .structured-panel {
+      border: 1px dashed var(--vvip-border);
+      border-radius: 10px;
+      background: #f8fafc;
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .structured-grid {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .structured-grid input {
+      min-height: 40px;
+      border: 1px solid var(--vvip-border);
+      border-radius: 8px;
+      background: #fff;
+      font: inherit;
+      padding: 0 10px;
+      box-sizing: border-box;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 0.9rem;
+      color: var(--vvip-secondary-text);
+      font-weight: 700;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      min-height: 42px;
+      border: 1px solid var(--vvip-border);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--vvip-primary-text);
+      font: inherit;
+      padding: 0 12px;
+      box-sizing: border-box;
+    }
+
+    .field textarea {
+      min-height: 96px;
+      padding-top: 10px;
+      resize: vertical;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    .btn-row {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .btn {
+      min-height: 42px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      font: inherit;
+      font-weight: 700;
+      padding: 0 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--vvip-social-blue);
+      border-color: var(--vvip-social-blue-hover);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: var(--vvip-surface-hover);
+      border-color: var(--vvip-border);
+      color: var(--vvip-primary-text);
+    }
+
+    .status {
+      margin-top: 8px;
+      border-radius: 10px;
+      border: 1px solid var(--vvip-border);
+      background: #fff;
+      color: var(--vvip-secondary-text);
+      padding: 10px 12px;
+      line-height: 1.8;
+    }
+
+    .status.success {
+      background: #ecfdf3;
+      border-color: #bbf7d0;
+      color: #14532d;
+    }
+
+    .status.warning {
+      background: #fffbeb;
+      border-color: #fde68a;
+      color: #92400e;
+    }
+
+    @media (max-width: 760px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .structured-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="listing-wrap" aria-label="Create Listing Preview">
+    <section class="card">
+      <h1>إنشاء إعلان داخل المنصة الموحدة</h1>
+      <p>التصفح مفتوح في كل القطاعات من نفس الحساب. اختيار القطاع يصبح إلزاميًا فقط في هذا المسار.</p>
+      <div class="flow" aria-label="مسار إنشاء الإعلان">
+        <span class="step active">اختيار القطاع</span>
+        <span class="step">اختيار التصنيف</span>
+        <span class="step">الحقول المنظمة</span>
+        <span class="step">الصور</span>
+        <span class="step">الاسم والسعر والموقع والوصف</span>
+        <span class="step">المعاينة</span>
+        <span class="step">فحص الصلاحية</span>
+        <span class="step">النشر</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="grid">
+        <div class="field">
+          <label for="listing-sector">قطاع الإعلان</label>
+          <select id="listing-sector" required>
+            <option value="">اختر القطاع</option>
+            <option value="automotive">السيارات والخدمات</option>
+            <option value="materials">المواد والمستلزمات</option>
+            <option value="real-estate">العقارات</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="listing-category">التصنيف</label>
+          <select id="listing-category" required>
+            <option value="">اختر التصنيف</option>
+            <option value="general">عام</option>
+          </select>
+        </div>
+
+        <div class="field full">
+          <label for="listing-structured">الحقول المنظمة حسب القطاع</label>
+          <div id="structured-fields" class="structured-panel" aria-live="polite">
+            <p>اختر قطاع الإعلان أولًا لعرض الحقول المنظمة الخاصة به.</p>
+          </div>
+        </div>
+
+        <div class="field full">
+          <label>الصور</label>
+          <a class="btn btn-secondary" href="p02-image-media-preview.html">فتح معاينة الصور والقص</a>
+        </div>
+
+        <div class="field">
+          <label for="listing-title">اسم الإعلان</label>
+          <input id="listing-title" type="text" placeholder="أدخل الاسم" />
+        </div>
+
+        <div class="field">
+          <label for="listing-price">السعر</label>
+          <input id="listing-price" type="number" min="0" step="0.01" placeholder="0.00" />
+        </div>
+
+        <div class="field">
+          <label for="listing-location">المدينة / المنطقة</label>
+          <input id="listing-location" type="text" placeholder="المدينة أو المنطقة" />
+        </div>
+
+        <div class="field">
+          <label for="listing-access">حالة صلاحية النشر (معاينة فقط)</label>
+          <select id="listing-access">
+            <option value="allowed">يسمح بالنشر في القطاع المختار</option>
+            <option value="approval-required">يحتاج اعتماد قبل النشر</option>
+          </select>
+        </div>
+
+        <div class="field full">
+          <label for="listing-desc">وصف مختصر</label>
+          <textarea id="listing-desc" placeholder="وصف موجز للإعلان"></textarea>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button id="preview-btn" class="btn btn-secondary" type="button">المعاينة</button>
+        <button id="publish-check-btn" class="btn btn-primary" type="button">فحص صلاحية النشر</button>
+        <button id="publish-btn" class="btn btn-primary" type="button">النشر</button>
+        <button id="request-approval-btn" class="btn btn-secondary" type="button">إرسال طلب اعتماد</button>
+      </div>
+
+      <div id="listing-status" class="status" role="status" aria-live="polite">
+        هذه معاينة واجهة P02 فقط: لا يوجد حفظ أو رفع أو تنفيذ صلاحيات Backend.
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      var statusEl = document.getElementById("listing-status");
+      var previewBtn = document.getElementById("preview-btn");
+      var publishCheckBtn = document.getElementById("publish-check-btn");
+      var publishBtn = document.getElementById("publish-btn");
+      var requestApprovalBtn = document.getElementById("request-approval-btn");
+      var accessEl = document.getElementById("listing-access");
+      var sectorEl = document.getElementById("listing-sector");
+      var categoryEl = document.getElementById("listing-category");
+      var structuredFields = document.getElementById("structured-fields");
+
+      var sectorTemplates = {
+        "automotive": ["الماركة", "الموديل", "سنة الصنع", "نوع الخدمة أو القطعة"],
+        "materials": ["نوع المادة", "الوحدة", "الكمية", "جهة التوريد"],
+        "real-estate": ["نوع العقار", "المساحة", "عدد الغرف", "حالة العقار"]
+      };
+
+      function setStatus(text, kind) {
+        statusEl.className = "status" + (kind ? " " + kind : "");
+        statusEl.textContent = text;
+      }
+
+      function renderStructuredFields() {
+        var sector = sectorEl.value;
+        if (!sector || !sectorTemplates[sector]) {
+          structuredFields.innerHTML = "<p>اختر قطاع الإعلان أولًا لعرض الحقول المنظمة الخاصة به.</p>";
+          return;
+        }
+
+        var labels = sectorTemplates[sector];
+        var html = '<div class="structured-grid">';
+        for (var i = 0; i < labels.length; i += 1) {
+          html += '<input type="text" placeholder="' + labels[i] + '" aria-label="' + labels[i] + '" />';
+        }
+        html += '</div>';
+        structuredFields.innerHTML = html;
+      }
+
+      sectorEl.addEventListener("change", function () {
+        renderStructuredFields();
+      });
+
+      previewBtn.addEventListener("click", function () {
+        if (!sectorEl.value || !categoryEl.value) {
+          setStatus("قبل المعاينة اختر قطاع الإعلان والتصنيف داخل مسار إنشاء الإعلان.", "warning");
+          return;
+        }
+        setStatus("تم فتح معاينة المسار بنجاح. يمكنك متابعة إدخال البيانات ثم فحص صلاحية النشر.", "success");
+      });
+
+      publishCheckBtn.addEventListener("click", function () {
+        if (!sectorEl.value || !categoryEl.value) {
+          setStatus("اختيار القطاع والتصنيف مطلوب قبل فحص صلاحية النشر.", "warning");
+          return;
+        }
+
+        if (accessEl.value === "allowed") {
+          setStatus("صلاحية النشر متاحة لهذا القطاع في المعاينة. يمكنك إكمال المسار حتى النشر.", "success");
+          return;
+        }
+
+        setStatus("يحتاج النشر في هذا القطاع إلى اعتماد. يمكنك إرسال طلب اعتماد ومتابعة التصفح بشكل طبيعي.", "warning");
+      });
+
+      publishBtn.addEventListener("click", function () {
+        if (!sectorEl.value || !categoryEl.value) {
+          setStatus("لا يمكن النشر قبل اختيار القطاع والتصنيف وإكمال البيانات الأساسية.", "warning");
+          return;
+        }
+
+        if (accessEl.value !== "allowed") {
+          setStatus("لا يتوفر نشر مباشر في هذا القطاع حاليًا. استخدم زر طلب الاعتماد ثم واصل التصفح بشكل طبيعي.", "warning");
+          return;
+        }
+
+        setStatus("تمت محاكاة النشر بنجاح داخل معاينة P02 فقط بدون تنفيذ Backend.", "success");
+      });
+
+      requestApprovalBtn.addEventListener("click", function () {
+        setStatus("تم تسجيل طلب الاعتماد في المعاينة فقط. التصفح مستمر بشكل طبيعي داخل المنصة الموحدة.", "success");
+      });
+
+      renderStructuredFields();
+    })();
+  </script>
+
+  <script src="scripts/vvip-route-map.js?v=20260711-p02" defer></script>
+  <script src="scripts/vvip-app-shell.js?v=20260711-p02" defer></script>
+</body>
+</html>

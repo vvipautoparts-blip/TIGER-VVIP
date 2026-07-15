@@ -1,0 +1,294 @@
+:root {
+  --vvip-social-blue: #1877f2;
+  --vvip-social-blue-active: #0866ff;
+  --vvip-social-blue-hover: #166fe5;
+  --vvip-page-background: #f0f2f5;
+  --vvip-surface: #ffffff;
+  --vvip-surface-hover: #e4e6eb;
+  --vvip-primary-text: #050505;
+  --vvip-secondary-text: #65676b;
+  --vvip-border: #ced0d4;
+  --vvip-icon-muted: #65676b;
+  --vvip-success: #31a24c;
+  --vvip-danger: #e41e3f;
+  --vvip-warning: #f7b928;
+  --vvip-brand-navy: #0b1f3a;
+  --vvip-premium-gold: #d4af37;
+  --vvip-premium-gold-dark: #a88416;
+  --vvip-focus: 0 0 0 2px rgba(8, 102, 255, 0.35);
+  --vvip-header-height: 56px;
+  --vvip-bottom-nav-height: 64px;
+}
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+  background: var(--vvip-page-background);
+}
+
+body.vvip-shell-has-bottom-nav {
+  padding-top: calc(var(--vvip-header-height) + 10px);
+  padding-bottom: calc(var(--vvip-bottom-nav-height) + env(safe-area-inset-bottom) + 12px);
+}
+
+.vvip-shell-header {
+  position: fixed;
+  top: 0;
+  inset-inline: 0;
+  height: var(--vvip-header-height);
+  z-index: 210;
+  background: var(--vvip-surface);
+  border-bottom: 1px solid var(--vvip-border);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+}
+
+.vvip-shell-header__right,
+.vvip-shell-header__left {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vvip-shell-header__right {
+  justify-content: flex-start;
+}
+
+.vvip-shell-header__left {
+  justify-content: flex-end;
+}
+
+.vvip-shell-logo {
+  width: 40px;
+  height: 40px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 999px;
+  background: var(--vvip-brand-navy);
+  color: var(--vvip-surface);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+}
+
+.vvip-shell-search {
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid var(--vvip-border);
+  background: var(--vvip-page-background);
+  color: var(--vvip-secondary-text);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+.vvip-shell-header__center {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.vvip-shell-header__center a,
+.vvip-shell-header__center button,
+.vvip-shell-icon-btn {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--vvip-icon-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  position: relative;
+}
+
+.vvip-shell-header__center a:hover,
+.vvip-shell-header__center button:hover,
+.vvip-shell-icon-btn:hover {
+  background: var(--vvip-surface-hover);
+}
+
+.vvip-shell-header__center a[aria-current="page"],
+.vvip-shell-header__center button[aria-current="page"] {
+  color: var(--vvip-social-blue-active);
+}
+
+.vvip-shell-header__center a[aria-current="page"]::after,
+.vvip-shell-header__center button[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  inset-inline: 8px;
+  bottom: -9px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--vvip-social-blue-active);
+}
+
+.vvip-shell-header__center button[disabled],
+.vvip-shell-bottom-nav button[disabled],
+.vvip-shell-account-menu button[disabled] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.vvip-shell-bottom-nav {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 220;
+  height: calc(var(--vvip-bottom-nav-height) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--vvip-surface);
+  border-top: 1px solid var(--vvip-border);
+  box-shadow: 0 -4px 18px rgba(5, 5, 5, 0.06);
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.vvip-shell-nav-item {
+  border: 0;
+  background: transparent;
+  color: var(--vvip-secondary-text);
+  text-decoration: none;
+  min-height: 48px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.vvip-shell-nav-item[aria-current="page"] {
+  color: var(--vvip-social-blue-active);
+}
+
+.vvip-shell-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.vvip-shell-account-menu {
+  position: fixed;
+  top: calc(var(--vvip-header-height) + 8px);
+  inset-inline-start: 12px;
+  z-index: 260;
+  width: min(340px, calc(100vw - 24px));
+  background: var(--vvip-surface);
+  border: 1px solid var(--vvip-border);
+  border-radius: 12px;
+  box-shadow: 0 14px 30px rgba(5, 5, 5, 0.14);
+  padding: 8px;
+  display: grid;
+  gap: 4px;
+}
+
+.vvip-shell-account-menu[aria-hidden="true"] {
+  display: none;
+}
+
+.vvip-shell-account-menu a,
+.vvip-shell-account-menu button {
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  text-decoration: none;
+  background: transparent;
+  color: var(--vvip-primary-text);
+  min-height: 40px;
+  font-size: 0.9rem;
+  text-align: start;
+  padding: 9px 12px;
+  cursor: pointer;
+}
+
+.vvip-shell-account-menu a:hover,
+.vvip-shell-account-menu button:hover {
+  background: var(--vvip-surface-hover);
+}
+
+.vvip-shell-toast {
+  position: fixed;
+  inset-inline: 50%;
+  transform: translateX(-50%) translateY(10px);
+  bottom: calc(var(--vvip-bottom-nav-height) + env(safe-area-inset-bottom) + 12px);
+  background: #111827;
+  color: #fff;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-size: 0.88rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 280;
+  max-width: min(92vw, 680px);
+  text-align: center;
+}
+
+.vvip-shell-toast.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: none;
+  box-shadow: var(--vvip-focus);
+}
+
+@media (max-width: 1024px) {
+  .vvip-shell-header {
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+  }
+
+  .vvip-shell-header__center {
+    display: none;
+  }
+
+  .vvip-shell-search {
+    max-width: min(62vw, 320px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+@media (min-width: 1025px) {
+  .vvip-shell-bottom-nav {
+    display: none;
+  }
+
+  body.vvip-shell-has-bottom-nav {
+    padding-bottom: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

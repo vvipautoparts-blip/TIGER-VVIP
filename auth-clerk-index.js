@@ -28,39 +28,31 @@ window.addEventListener("load", async function () {
       authBox.innerHTML = "";
 
       if (window.Clerk.isSignedIn) {
-        const email =
-          window.Clerk.user &&
-          window.Clerk.user.primaryEmailAddress &&
-          window.Clerk.user.primaryEmailAddress.emailAddress
-            ? window.Clerk.user.primaryEmailAddress.emailAddress
-            : "VIP Member";
-
         authBox.innerHTML = `
           <div class="success-box vvip-gate-success">
             <span class="vvip-gate-auth-pill">تم التحقق بنجاح</span>
             <h2>أهلًا بك في VVIP TIGER ✅</h2>
             <p>تم فتح بوابة الدخول الخاصة بحسابك.</p>
-            <p class="vvip-gate-email"><strong>${email}</strong></p>
 
             <div id="clerk-user-button" style="margin:16px 0;"></div>
 
             <div class="vvip-actions" style="margin-top:18px;display:flex;gap:12px;justify-content:center;align-items:center;flex-wrap:wrap;direction:rtl;">
               <a
-                href="clerk-private-profile.html"
-                aria-label="فتح البروفايل الخاص"
-                title="فتح البروفايل الخاص"
+                href="home.html"
+                aria-label="الدخول إلى المنصة"
+                title="الدخول إلى المنصة"
                 style="border:0;border-radius:16px;padding:14px 22px;background:#1877f2;color:#ffffff !important;text-decoration:none;font-weight:900;font-size:16px;line-height:1.2;display:inline-flex;align-items:center;justify-content:center;min-width:210px;box-shadow:0 14px 32px rgba(24,119,242,.24);"
               >
-                <span style="color:#ffffff !important;display:inline-block;">فتح البروفايل الخاص</span>
+                <span style="color:#ffffff !important;display:inline-block;">الدخول إلى المنصة</span>
               </a>
 
               <a
-                href="public-profile.html"
-                aria-label="متابعة إلى الصفحة العامة"
-                title="متابعة إلى الصفحة العامة"
+                href="clerk-private-profile.html"
+                aria-label="إدارة الحساب"
+                title="إدارة الحساب"
                 style="border:0;border-radius:16px;padding:14px 22px;background:#0f172a;color:#ffffff !important;text-decoration:none;font-weight:900;font-size:16px;line-height:1.2;display:inline-flex;align-items:center;justify-content:center;min-width:210px;box-shadow:0 14px 32px rgba(15,23,42,.20);"
               >
-                <span style="color:#ffffff !important;display:inline-block;">متابعة إلى الصفحة العامة</span>
+                <span style="color:#ffffff !important;display:inline-block;">إدارة الحساب</span>
               </a>
 
               <button

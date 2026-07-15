@@ -12,8 +12,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css?v=20260707-vvip-gate" />
-  <!-- VVIP_DISCOVERY_EXPERIENCE:STYLE -->
-  <link rel="stylesheet" href="styles/vvip-discovery-shell.css" data-vvip-discovery-style />
 <script
   defer
   crossorigin="anonymous"
@@ -30,6 +28,7 @@
 <script defer src="auth-clerk-index.js?v=20260707-vvip-gate"></script>
   <link rel="stylesheet" href="vvip-identity.css?v=20260708-7-1" />
   <link rel="stylesheet" href="styles/vvip-visual-trust-layer.css">
+  <link rel="stylesheet" href="styles/vvip-app-shell.css?v=20260711-p02" />
 </head>
 <body class="fb-auth-page vvip-gate-page">
 
@@ -121,7 +120,7 @@
 
       <!-- Logged-in actions -->
       <div id="profile-actions" class="fb-profile-actions" style="display:none;">
-        <button id="continue-public-btn" class="fb-login-btn" type="button">متابعة إلى الصفحة العامة</button>
+        <button id="continue-public-btn" class="fb-login-btn" type="button">الدخول إلى المنصة</button>
         <div class="fb-profile-row">
           <button id="avatar-private-btn" class="avatar-btn" type="button" aria-label="الانتقال إلى البروفايل الخاص">
             <span id="avatar-fallback" class="avatar-fallback">U</span>
@@ -132,10 +131,10 @@
 
       <!-- Hidden nav for JS compat -->
       <nav style="display:none;" data-page-rail>
-        <a href="index.html" data-page-target="index"></a>
-        <a href="public-profile.html" data-page-target="public-profile"></a>
-        <a href="clerk-private-profile.html" data-page-target="private-profile"></a>
-        <a href="reset-password.html" data-page-target="reset-password"></a>
+        <a href="index.html" data-page-target="index" aria-label="العودة للدخول"></a>
+        <a href="home.html" data-page-target="public-profile" aria-label="فتح الرئيسية"></a>
+        <a href="clerk-private-profile.html" data-page-target="private-profile" aria-label="فتح الملف الخاص"></a>
+        <a href="reset-password.html" data-page-target="reset-password" aria-label="استعادة كلمة المرور"></a>
       </nav>
       <!-- Hidden compat elements -->
       <h2 class="card-title" style="display:none;"></h2>
@@ -177,9 +176,6 @@
 
   <div id="app-toast-root" class="app-toast-root" aria-live="polite" aria-atomic="true"></div>
 
-  <!-- VVIP_DISCOVERY_EXPERIENCE:SCRIPTS -->
-  <script src="scripts/vvip-discovery-config.js" defer data-vvip-discovery-config></script>
-  <script src="scripts/vvip-discovery-shell.js" defer data-vvip-discovery-runtime></script>
   <script src="scripts/vvip-safe-ux-guard.js" defer></script>
 </body>
 </html>

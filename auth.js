@@ -87,7 +87,7 @@
     navPrivate: { ar: "البروفايل الخاص", en: "Private profile" },
     navReset: { ar: "استعادة كلمة المرور", en: "Reset password" },
     continueLabel: { ar: "متابعة باستخدام", en: "Continue with" },
-    continuePublic: { ar: "متابعة إلى البروفايل العام", en: "Continue to public profile" },
+    continuePublic: { ar: "الدخول إلى المنصة", en: "Enter the platform" },
     resetLink: { ar: "نسيت كلمة المرور؟ إعادة تعيين بالإيميل", en: "Forgot your password? Reset via email" },
     logout: { ar: "تسجيل الخروج", en: "Log out" },
     avatarAria: { ar: "الانتقال إلى البروفايل الخاص", en: "Go to private profile" },
@@ -434,7 +434,7 @@
         return;
       }
       showToast(tx(AUTH_TEXT.signInSuccess), "success");
-      window.location.href = "public-profile.html";
+      window.location.href = "home.html";
     } catch (err) {
       const code = String(err && err.code ? err.code : "");
       let msg = authLang === "en" ? "Sign-in failed." : "فشل تسجيل الدخول.";
@@ -523,7 +523,7 @@
 
   if (continuePublicBtn) {
     continuePublicBtn.addEventListener("click", function () {
-      window.location.href = "public-profile.html";
+      window.location.href = "home.html";
     });
   }
 

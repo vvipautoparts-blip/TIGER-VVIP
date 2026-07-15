@@ -42,6 +42,33 @@
 12. `VVIP_TIGER_P01_REPOSITORY_AUDIT_COMPLETION.md`
    وثيقة إكمال وتحقق مرحلة P01.
 
+13. `VVIP_TIGER_SPECIALIST_REVIEW_GATE.md`
+   مرجع بوابة المراجعة التخصصية الداخلية للتنفيذ قبل/بعد كل حزمة تغييرات.
+
+14. `specialist-review-gate.json`
+   نسخة منظمة قابلة للقراءة الآلية لبوابة المراجعة التخصصية.
+
+15. `P02_APP_SHELL_AND_NAVIGATION.md`
+   مرجع مرحلة P02 لبنية App Shell وخريطة التنقل الموحدة.
+
+16. `VVIP_TIGER_UNIFIED_PLATFORM_AND_OPERATING_MODEL.yaml`
+   المرجع الرسمي المنظم لهندسة المنصة الموحدة والنموذج التشغيلي والإداري.
+
+17. `VVIP_TIGER_UNIFIED_PLATFORM_AND_OPERATING_MODEL.md`
+   النسخة المقروءة للمالك والإدارة من نفس المرجع الرسمي.
+
+18. `VVIP_TIGER_UNIFIED_UI_AND_NAVIGATION_STANDARD.md`
+   المرجع القياسي الرسمي لتجربة الواجهة والتنقل الموحدين في P02.
+
+19. `vvip-unified-ui-tokens.json`
+   توكنات الألوان والأحجام والحالات المعتمدة للواجهة الموحدة.
+
+20. `VVIP_TIGER_IMAGE_AND_MEDIA_STANDARD.md`
+   المرجع القياسي الرسمي لتجربة الصور والمعرض ومعالجة الوسائط المحلية في P02.
+
+21. `VVIP_TIGER_IMAGE_AND_MEDIA_STANDARD.yaml`
+   النسخة القابلة للقراءة الآلية من معيار الصور والوسائط المعتمد.
+
 ## قاعدة إلزامية
 
 لا يبدأ أي كود أو فرع أو Pull Request أو SQL أو تعديل Runtime قبل عرض واعتماد:

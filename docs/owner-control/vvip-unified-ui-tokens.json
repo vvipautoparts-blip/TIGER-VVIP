@@ -1,0 +1,98 @@
+{
+  "version": "2026-07-10-p02",
+  "phase": "P02",
+  "status": "in_progress",
+  "colors": {
+    "vvip-social-blue": "#1877F2",
+    "vvip-social-blue-active": "#0866FF",
+    "vvip-social-blue-hover": "#166FE5",
+    "vvip-page-background": "#F0F2F5",
+    "vvip-surface": "#FFFFFF",
+    "vvip-surface-hover": "#E4E6EB",
+    "vvip-primary-text": "#050505",
+    "vvip-secondary-text": "#65676B",
+    "vvip-border": "#CED0D4",
+    "vvip-icon-muted": "#65676B",
+    "vvip-success": "#31A24C",
+    "vvip-danger": "#E41E3F",
+    "vvip-warning": "#F7B928",
+    "vvip-brand-navy": "#0B1F3A",
+    "vvip-premium-gold": "#D4AF37",
+    "vvip-premium-gold-dark": "#A88416"
+  },
+  "layout": {
+    "desktop_header_height_px": 56,
+    "mobile_header_height_px": 56,
+    "mobile_bottom_nav_height_px": 64,
+    "mobile_bottom_nav_min": 60,
+    "mobile_bottom_nav_max": 68,
+    "content_max_center_px": 680,
+    "desktop_breakpoint_min_px": 1025
+  },
+  "controls": {
+    "icon_button": {
+      "size_px": [40, 44],
+      "minimum_tap_target_px": 44,
+      "shape": "circle"
+    },
+    "primary_button": {
+      "height_px": [40, 44],
+      "radius_px": 8,
+      "background": "#1877F2",
+      "text": "#FFFFFF"
+    },
+    "secondary_button": {
+      "height_px": [40, 44],
+      "radius_px": 8,
+      "background": "#E4E6EB",
+      "text": "#050505"
+    },
+    "filter_chip": {
+      "height_px": [34, 38],
+      "radius": "999px",
+      "active_background": "#E7F3FF",
+      "active_text": "#0866FF"
+    }
+  },
+  "navigation": {
+    "mobile_bottom_order": [
+      "home",
+      "market",
+      "createListing",
+      "messages_or_notifications",
+      "publicProfile"
+    ],
+    "single_bottom_nav_only": true,
+    "single_navigation_controller_only": true,
+    "single_route_map_only": true
+  },
+  "media": {
+    "photos_only": true,
+    "video_enabled": false,
+    "maximum_photos_per_listing": 7,
+    "minimum_photos_per_listing": 1,
+    "first_photo_is_cover": true,
+    "aspect_ratio": "4:3",
+    "sizes": {
+      "master": { "width": 1600, "height": 1200 },
+      "large": { "width": 1200, "height": 900 },
+      "card": { "width": 800, "height": 600 },
+      "thumbnail": { "width": 400, "height": 300 }
+    },
+    "mime": {
+      "primary": "image/webp",
+      "fallback": "image/jpeg"
+    }
+  },
+  "rules": {
+    "no_video": true,
+    "no_fake_success": true,
+    "no_fake_connected_features": true,
+    "reserved_routes_disabled": true,
+    "public_profile_no_email": true,
+    "public_profile_no_internal_ids": true,
+    "focus_visible_required": true,
+    "rtl_required": true,
+    "reduced_motion_required": true
+  }
+}

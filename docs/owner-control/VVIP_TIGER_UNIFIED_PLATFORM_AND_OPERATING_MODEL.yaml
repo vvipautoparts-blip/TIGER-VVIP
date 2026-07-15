@@ -1,0 +1,396 @@
+model_version: 2026-07-10
+project: VVIP TIGER
+title: VVIP TIGER Unified Platform and Operating Model
+phase_context:
+  current_phase: P02
+  current_phase_status: in_progress
+  next_phase: P03
+  next_phase_status: pending
+  scope_type: documentation_only
+  starts_new_phase: false
+  runtime_changes_allowed: false
+  notes:
+    - this_reference_does_not_replace_master_roadmap
+    - this_reference_is_linked_from_master_roadmap
+linked_references:
+  ui_navigation_standard_md: docs/owner-control/VVIP_TIGER_UNIFIED_UI_AND_NAVIGATION_STANDARD.md
+  ui_tokens_json: docs/owner-control/vvip-unified-ui-tokens.json
+  image_media_standard_md: docs/owner-control/VVIP_TIGER_IMAGE_AND_MEDIA_STANDARD.md
+  image_media_standard_yaml: docs/owner-control/VVIP_TIGER_IMAGE_AND_MEDIA_STANDARD.yaml
+
+platform_truth:
+  unified_platform: true
+  single_account: true
+  single_sign_in: true
+  public_and_private_profile_same_account: true
+  unified_search: true
+  unified_feed: true
+  unified_navigation: true
+  unified_tiger_care: true
+  unified_messages_and_notifications: true
+
+sector_model:
+  sectors:
+    - id: automotive_parts_and_services
+      ar: السيارات وقطع الغيار والخدمات
+    - id: materials_supplies_and_provisions
+      ar: المواد والتموين والمستلزمات
+    - id: real_estate
+      ar: العقارات
+  sector_is_filter_and_classification_only: true
+  not_separate_company: true
+  not_separate_application: true
+  not_separate_sign_in_gateway: true
+  not_separate_identity: true
+
+route_and_experience_architecture:
+  entry:
+    target: index.html
+    phase: P02
+    status: ready
+  authentication:
+    provider: Clerk
+    phase: existing_and_P03_review
+    status: existing
+  onboarding:
+    status: reserved
+    phase: P04
+    availability: coming_later
+  home_feed:
+    status: unified_platform_home
+    phase: P02_and_P13
+  discovery_marketplace:
+    status: unified_search_and_filters
+    phase: P02_and_P12
+  public_profile:
+    purpose: public_identity_visible_to_others
+    phase: P05
+  private_profile:
+    purpose: private_account_management
+    protected: true
+    phase: P05
+  create_listing:
+    status: reserved
+    phase: P09
+    availability: disabled
+  messages:
+    one_to_one_only: true
+    phase: P14
+    availability: coming_later
+  sharing:
+    one_to_one_only: true
+    phase: P15
+    availability: coming_later
+  notifications:
+    phase: P19
+    availability: coming_later
+  tiger_care:
+    internal_support_module: true
+    separate_company: false
+    phase: P20
+  owner_control_center:
+    owner_only: true
+    phase: P06
+    availability: reserved
+  admin_dashboards:
+    protected: true
+    phase: P22
+    availability: reserved
+  unresolved_route_policy:
+    - reserved
+    - disabled
+    - coming_later
+    - no_404_for_known_reserved_route
+    - no_false_claim_route_is_ready
+
+user_journey:
+  flow:
+    - sign_in
+    - clerk_authentication
+    - check_if_new_account
+    - onboarding_in_P04
+    - account_type_selection
+    - enter_unified_app_shell
+    - browse_all_sectors
+    - publish_by_sector_entitlement
+    - one_to_one_communication
+    - final_agreement_outside_platform_liability
+  account_types:
+    - Buyer Viewer
+    - Buyer Standard
+    - Individual Seller
+    - Parts Shop
+    - Maintenance Center
+    - Electrical/Hybrid Center
+    - General Service Center
+    - Dealer/Distributor
+    - Company/Institution
+    - Supplier
+    - Retailer
+    - Office
+    - Broker
+    - Service Provider
+    - Personal VIP
+    - Admin-approved account types
+  implementation_note:
+    store_and_permission_execution_phase: P04_and_P16
+    not_in_P02: true
+
+administrative_model:
+  platform_owner:
+    role: highest_governance_and_control
+  general_manager:
+    role: general_management_and_operations
+  sector_managers:
+    - automotive
+    - materials_and_supplies
+    - real_estate
+  city_region_managers:
+    role:
+      - local_activity_coordination
+      - teams_and_delegate_followup
+      - market_needs_followup
+      - reporting
+    unrestricted_admin_power: false
+  field_supervisors:
+    optional: true
+    role:
+      - delegate_followup
+      - performance_review
+      - field_training
+  delegates_ambassadors:
+    role:
+      - introduce_businesses_and_offices_to_platform
+      - support_registration_and_activation
+      - initial_training
+      - collect_market_feedback
+      - raise_support_requests
+    permissions:
+      - no_unrestricted_delete
+      - no_final_moderation_approval
+      - no_financial_admin_access
+      - no_owner_access
+  separate_operational_functions:
+    - customer_service
+    - tiger_care
+    - technical_support
+    - moderation
+    - complaints_and_appeals
+    - security_and_privacy
+    - legal_and_financial_review
+    - reporting_and_analytics
+
+matrix_governance:
+  model: matrix
+  sector_manager_responsibility:
+    - sector_rules
+    - sector_classification
+    - sector_quality
+  city_region_manager_responsibility:
+    - geographic_activity
+    - local_teams
+  delegate_assignment:
+    - can_be_sector_specialized
+    - can_work_cross_sector_with_approval
+  conflict_control:
+    - no_automatic_publish_or_penalty_approval_for_financially_interested_actor
+    - sensitive_decisions_require_separation_of_duties_and_documented_approval
+    - disputes_escalate_to_general_manager_or_competent_authority
+
+future_commission_framework:
+  status: TBD
+  fixed_numbers:
+    delegate_percentage: TBD
+    field_supervisor_percentage: TBD
+    city_region_manager_percentage: TBD
+    sector_manager_percentage_if_approved: TBD
+    commission_amount: TBD
+    commission_duration: TBD
+    commission_cap: TBD
+    delegates_count: TBD
+  potential_parties:
+    - delegate
+    - field_supervisor
+    - city_region_manager
+    - sector_manager_if_approved
+  eligibility_conditions:
+    - verified_attribution
+    - real_account
+    - paid_and_confirmed_activation
+    - no_fraud
+    - no_duplicate_account
+    - no_refunded_payment
+    - approval_workflow_passed
+    - payout_waiting_period_completed
+  mandatory_system_requirements:
+    - commission_ledger
+    - attribution_record
+    - approval_history
+    - audit_trail
+    - payout_status
+    - payout_hold_period
+    - maximum_cap
+    - clawback
+    - refund_reversal
+    - fraud_detection
+    - duplicate_account_prevention
+    - conflict_of_interest_control
+    - tax_and_accounting_review
+    - legal_review
+    - owner_approval
+  hard_rules:
+    - no_commission_for_registration_only
+    - no_commission_for_fake_account
+    - no_commission_before_payment_verification
+    - financially_benefiting_actor_cannot_solely_approve_commission_event
+    - administrative_authority_must_be_separated_from_financial_benefit
+  implementation_phases:
+    - P17_subscriptions_and_entitlements
+    - P18_payments_and_financial_events
+    - P22_admin_dashboards_and_approvals
+    - P25_analytics
+    - P30_legal_tax_and_privacy_review
+    - P31_staging_and_financial_testing
+
+staffing_and_capacity:
+  planning_estimate_only: true
+  final_count: TBD
+  determined_by:
+    - users_count
+    - governorates_and_cities_count
+    - listings_volume
+    - reports_volume
+    - tiger_care_request_volume
+    - budget
+    - response_speed
+    - performance_indicators
+  note:
+    - previous_counts_such_as_18_are_not_final_commitments
+
+locked_product_rules:
+  posts_limit_per_week: 4
+  max_images_per_listing: 7
+  video_allowed: false
+  auto_delete_listing_after_days: 120
+  required_fields:
+    - name
+    - price
+  price_rules:
+    greater_than_zero: true
+    decimal_supported: true
+  search_support:
+    - city
+    - region
+  listing_content_ratio:
+    structured_fields_percent: 80
+    short_description_percent: 20
+  user_listing_control:
+    - user_can_edit_own_listing
+    - user_can_delete_own_listing
+  communication_rules:
+    one_to_one_only: true
+    groups_allowed: false
+    public_rooms_allowed: false
+    bulk_repost_allowed: false
+    one_to_one_sharing_only: true
+  trial:
+    free_months: 4
+  browsing:
+    unified_across_all_sectors: true
+  commercial_publishing:
+    requires_sector_entitlement: true
+  amanah_financial_commitment:
+    net_profit_charity_percent: 1
+    purpose: khair_islah_ihsan
+  platform_liability_disclaimer:
+    platform_is_not_party_to:
+      - sale
+      - payment
+      - delivery
+      - contracts
+
+privacy_and_protection:
+  email_private_for_login_only: true
+  public_identity_is_username: true
+  public_profile_must_not_expose:
+    - email
+    - clerk_internal_data
+    - admin_data
+  private_profile_protected: true
+  admin_notes_internal: true
+  messages_private: true
+  commission_data_internal: true
+  delegates_and_managers_data_not_public_without_need: true
+  least_privilege_required: true
+  admin_critical_actions_require_audit_log: true
+  no_direct_admin_numbers_to_users: true
+  admin_communication_via_tiger_care: true
+
+amanah_and_ihsan_policy:
+  principles:
+    - no_deception
+    - no_fake_success
+    - no_fake_price_or_fake_availability
+    - no_commission_on_fraud
+    - no_user_exploitation
+    - fair_review
+    - right_to_appeal
+    - respectful_language
+    - privacy_protection
+    - harm_prevention
+    - separate_financial_interest_from_penalty_or_approval_decisions
+    - quality_and_excellence
+    - one_percent_for_charity_under_future_transparent_financial_policy
+  implementation_style:
+    appears_in_behavior_and_policy_and_protection: true
+    not_in_decorative_code_phrases: true
+
+specialist_review_frame:
+  required_fields:
+    - Security Impact
+    - Performance Impact
+    - Privacy Impact
+    - UX Impact
+    - Amanah and Ihsan Impact
+    - Legal Impact
+    - Financial Impact
+    - Relevant Specialist
+    - Human Approval Required
+    - Target Phase
+    - Evidence
+    - Rollback Requirement
+  required_human_reviews_future:
+    - legal_specialist
+    - accountant_or_tax_specialist
+    - payments_specialist
+    - database_and_rls_specialist
+    - authentication_specialist
+    - security_specialist
+    - privacy_specialist
+  integrity_rule:
+    - do_not_claim_human_review_unless_it_happened
+
+decision_register:
+  - id: UPM-001
+    decision: platform_is_unified_not_multi_company
+    target_phase: P02
+  - id: UPM-002
+    decision: single_account_and_single_sign_in
+    target_phase: P02
+  - id: UPM-003
+    decision: sectors_are_filters_inside_one_platform
+    target_phase: P02
+  - id: UPM-004
+    decision: route_reservation_without_fake_readiness
+    target_phase: P02
+  - id: UPM-005
+    decision: commission_framework_is_future_and_numbers_are_TBD
+    target_phase: P17_to_P31
+
+references:
+  owner_master_reference: docs/owner-control/VVIP_TIGER_OWNER_MASTER_REFERENCE.md
+  master_execution_roadmap_yaml: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml
+  master_execution_roadmap_md: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md
+  p02_shell_reference: docs/owner-control/P02_APP_SHELL_AND_NAVIGATION.md
+  specialist_gate: docs/owner-control/VVIP_TIGER_SPECIALIST_REVIEW_GATE.md
+  change_control_manifest: docs/change-control/20260711-p02-app-shell-navigation.json

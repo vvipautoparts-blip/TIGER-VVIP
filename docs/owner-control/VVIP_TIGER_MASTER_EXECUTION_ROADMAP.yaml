@@ -5,6 +5,8 @@ language: Arabic First
 market: Jordan First
 source_of_truth: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml
 human_readable_version: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md
+unified_platform_operating_model_yaml: docs/owner-control/VVIP_TIGER_UNIFIED_PLATFORM_AND_OPERATING_MODEL.yaml
+unified_platform_operating_model_md: docs/owner-control/VVIP_TIGER_UNIFIED_PLATFORM_AND_OPERATING_MODEL.md
 current_phase: P02
 last_completed_phase: P01
 next_authorized_phase: P02
@@ -126,7 +128,7 @@ phases:
   - id: P02
     priority: 2
     name: App Shell and Navigation Architecture
-    status: next_authorized
+    status: in_progress
     depends_on:
       - P01
     scope:

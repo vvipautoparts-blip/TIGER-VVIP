@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>السوق الموحد - VVIP TIGER</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/vvip-app-shell.css?v=20260710-final" />
+  <style>
+    body {
+      margin: 0;
+      font-family: "Cairo", sans-serif;
+      color: var(--vvip-primary-text);
+      background: var(--vvip-page-background);
+    }
+
+    .market-wrap {
+      width: min(980px, calc(100% - 20px));
+      margin: 12px auto;
+      display: grid;
+      gap: 12px;
+    }
+
+    .market-card {
+      border: 1px solid var(--vvip-border);
+      border-radius: 12px;
+      background: var(--vvip-surface);
+      padding: 14px;
+      box-shadow: 0 2px 8px rgba(5, 5, 5, 0.05);
+    }
+
+    .market-search {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid var(--vvip-border);
+      border-radius: 999px;
+      min-height: 44px;
+      padding: 0 16px;
+      font: inherit;
+      color: var(--vvip-primary-text);
+      background: var(--vvip-page-background);
+    }
+
+    .chips {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .chip {
+      border: 1px solid var(--vvip-border);
+      border-radius: 999px;
+      min-height: 36px;
+      padding: 0 14px;
+      background: var(--vvip-surface);
+      color: var(--vvip-primary-text);
+      display: inline-flex;
+      align-items: center;
+      font-weight: 700;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+
+    .chip.is-active {
+      background: #e7f3ff;
+      border-color: #b7d3ff;
+      color: var(--vvip-social-blue-active);
+    }
+
+    .market-actions {
+      margin-top: 12px;
+      display: flex;
+      justify-content: flex-start;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-secondary {
+      min-height: 40px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: var(--vvip-surface-hover);
+      color: var(--vvip-primary-text);
+      padding: 0 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .advanced-panel {
+      margin-top: 12px;
+      display: none;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .advanced-panel.is-open {
+      display: grid;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      color: var(--vvip-secondary-text);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .field input,
+    .field select {
+      min-height: 40px;
+      border: 1px solid var(--vvip-border);
+      border-radius: 8px;
+      padding: 0 12px;
+      font: inherit;
+      background: #fff;
+    }
+
+    .market-empty {
+      text-align: center;
+      padding: 28px 14px;
+      color: var(--vvip-secondary-text);
+      line-height: 1.8;
+    }
+
+    @media (max-width: 760px) {
+      .advanced-panel {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="market-wrap" aria-label="Unified Marketplace">
+    <section class="market-card">
+      <input class="market-search" type="search" aria-label="بحث موحد" placeholder="ابحث عن قطعة، خدمة، مادة، عقار أو مورد..." />
+
+      <div class="chips" role="tablist" aria-label="فلاتر القطاعات">
+        <a class="chip is-active" href="market.html?sector=all" role="tab" aria-current="page">الكل</a>
+        <a class="chip" href="market.html?sector=automotive" role="tab">السيارات والخدمات</a>
+        <a class="chip" href="market.html?sector=materials" role="tab">المواد والمستلزمات</a>
+        <a class="chip" href="market.html?sector=real-estate" role="tab">العقارات</a>
+      </div>
+
+      <div class="market-actions">
+        <a class="btn-secondary" href="create-listing-preview.html">إنشاء إعلان</a>
+        <button id="advanced-search-trigger" class="btn-secondary" type="button" aria-expanded="false" aria-controls="advanced-search-panel">البحث المتقدم</button>
+      </div>
+
+      <div id="advanced-search-panel" class="advanced-panel" aria-label="خيارات البحث المتقدم">
+        <div class="field">
+          <label for="city-filter">المدينة</label>
+          <input id="city-filter" type="text" />
+        </div>
+        <div class="field">
+          <label for="region-filter">المنطقة</label>
+          <input id="region-filter" type="text" />
+        </div>
+        <div class="field">
+          <label for="price-from-filter">السعر من</label>
+          <input id="price-from-filter" type="number" min="0" step="0.01" />
+        </div>
+        <div class="field">
+          <label for="price-to-filter">السعر إلى</label>
+          <input id="price-to-filter" type="number" min="0" step="0.01" />
+        </div>
+        <div class="field">
+          <label for="category-filter">التصنيف</label>
+          <select id="category-filter">
+            <option>عام</option>
+            <option>مستقبلي حسب القطاع</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="advertiser-type-filter">نوع المعلن</label>
+          <select id="advertiser-type-filter">
+            <option>الكل</option>
+            <option>فرد</option>
+            <option>منشأة</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="sort-filter">الترتيب</label>
+          <select id="sort-filter">
+            <option>الأحدث</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <section class="market-card market-empty" aria-label="حالة نتائج البحث">
+      <p>لا توجد نتائج حقيقية متاحة في هذه المعاينة حاليًا.</p>
+      <p>معاينة تصميمية - ليست بيانات حقيقية.</p>
+      <p>القطاعات هنا فلاتر داخل منصة واحدة، وليست بوابات منفصلة.</p>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      var trigger = document.getElementById("advanced-search-trigger");
+      var panel = document.getElementById("advanced-search-panel");
+      if (!trigger || !panel) return;
+      trigger.addEventListener("click", function () {
+        var open = panel.classList.toggle("is-open");
+        trigger.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+    })();
+  </script>
+  <script src="scripts/vvip-route-map.js?v=20260710-final" defer></script>
+  <script src="scripts/vvip-app-shell.js?v=20260710-final" defer></script>
+</body>
+</html>

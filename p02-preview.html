@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VVIP TIGER Preview</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="stylesheet" href="styles/vvip-app-shell.css?v=20260711-p02" />
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Cairo", system-ui, sans-serif;
+      background: #f0f2f5;
+      color: #050505;
+    }
+
+    .p02-wrap {
+      width: min(1160px, calc(100% - 20px));
+      margin: 14px auto;
+      display: grid;
+      gap: 12px;
+    }
+
+    .p02-card {
+      border: 1px solid #ced0d4;
+      border-radius: 16px;
+      background: #ffffff;
+      padding: 14px;
+      box-shadow: 0 4px 14px rgba(5, 5, 5, 0.08);
+    }
+
+    .p02-card h1,
+    .p02-card h2,
+    .p02-card p {
+      margin: 0;
+    }
+
+    .p02-card h1 {
+      font-size: 1.18rem;
+      color: #050505;
+    }
+
+    .p02-card p {
+      margin-top: 8px;
+      color: #65676b;
+      line-height: 1.8;
+    }
+
+    .p02-route-grid {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .p02-route {
+      border: 1px solid #ced0d4;
+      border-radius: 12px;
+      padding: 10px;
+      background: #ffffff;
+      display: grid;
+      gap: 4px;
+      font-size: 0.9rem;
+    }
+
+    .p02-route strong {
+      color: #050505;
+    }
+
+    .p02-route small {
+      color: #65676b;
+    }
+
+    @media (max-width: 700px) {
+      .p02-route-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="p02-wrap">
+    <section class="p02-card" aria-label="VVIP TIGER navigation preview">
+      <h1>VVIP TIGER Navigation Preview</h1>
+      <p>
+        هذه معاينة آمنة لرحلة التنقل الموحدة داخل منصة VVIP TIGER.
+        لا تحتوي الصفحة أي بيانات حساسة أو محتوى داخلي خاص.
+      </p>
+
+      <div class="p02-route-grid" aria-label="Navigation map preview">
+        <article class="p02-route"><strong>Login / Entry</strong><small>index.html</small></article>
+        <article class="p02-route"><strong>Feed / Home</strong><small>home.html</small></article>
+        <article class="p02-route"><strong>Unified Marketplace</strong><small>market.html</small></article>
+        <article class="p02-route"><strong>Public Profile</strong><small>public-profile.html</small></article>
+        <article class="p02-route"><strong>Private Profile</strong><small>clerk-private-profile.html</small></article>
+        <article class="p02-route"><strong>Image and Media Preview</strong><small>p02-image-media-preview.html</small></article>
+        <article class="p02-route"><strong>Create Listing Preview</strong><small>create-listing-preview.html</small></article>
+        <article class="p02-route"><strong>Notifications</strong><small>Coming Later (Disabled)</small></article>
+        <article class="p02-route"><strong>Menu / Settings</strong><small>Coming Later (Disabled)</small></article>
+        <article class="p02-route"><strong>Logout</strong><small>Action Route</small></article>
+      </div>
+    </section>
+  </main>
+
+  <script src="scripts/vvip-route-map.js?v=20260710-final" defer></script>
+  <script src="scripts/vvip-app-shell.js?v=20260710-final" defer></script>
+</body>
+</html>

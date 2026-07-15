@@ -1,0 +1,53 @@
+{
+  "id": "vvip-tiger-specialist-review-gate",
+  "version": "2026-07-11-p02",
+  "project": "VVIP TIGER",
+  "phase": "P02",
+  "type": "technical-internal-review-framework",
+  "human_specialist_required": false,
+  "reviews": [
+    "Security Review",
+    "Performance Review",
+    "Privacy Review",
+    "UX and Accessibility Review",
+    "Database Review",
+    "Authentication Review",
+    "Payments Review",
+    "Legal Review",
+    "DevOps Review",
+    "Amanah and Ihsan Review"
+  ],
+  "mandatory_fields": [
+    "Relevant Specialty",
+    "Pre-Execution Review",
+    "Security Impact",
+    "Performance Impact",
+    "Privacy Impact",
+    "UX and Accessibility Impact",
+    "Amanah and Ihsan Impact",
+    "Risk Level",
+    "Pass Criteria",
+    "Stop Conditions",
+    "Rollback Plan",
+    "Post-Execution Evidence",
+    "Final Result"
+  ],
+  "pre_check": [
+    "Baseline state verified",
+    "P02 scope-only confirmed",
+    "No direct main changes",
+    "No production changes"
+  ],
+  "post_check": [
+    "Runtime navigation validation",
+    "Duplicate ID check",
+    "Missing target check",
+    "Secret scan",
+    "Unicode control scan",
+    "RTL and accessibility checks",
+    "Rollback path documented"
+  ],
+  "evidence_required": true,
+  "rollback_required": true,
+  "final_result": "PENDING"
+}

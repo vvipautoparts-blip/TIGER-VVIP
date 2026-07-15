@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>VVIP TIGER - Image and Media Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/vvip-app-shell.css?v=20260711-p02" />
+  <link rel="stylesheet" href="styles/vvip-listing-media.css?v=20260711-p02" />
+</head>
+<body class="vvip-media-page">
+  <main class="vvip-media-wrap" aria-label="P02 Image and Media Preview">
+    <section class="vvip-media-card">
+      <h1 class="vvip-media-title">P02 - Image and Media Preview</h1>
+      <p class="vvip-media-note">معاينة تصميمية محلية - لا يتم رفع أو حفظ الصور</p>
+    </section>
+
+    <section class="vvip-media-card" aria-label="Uploader and status">
+      <div class="vvip-media-toolbar">
+        <input id="image-picker" class="vvip-media-input" type="file" accept="image/jpeg,image/png,image/webp" aria-label="اختيار صورة" />
+        <button id="pick-image-btn" class="vvip-btn vvip-btn-primary" type="button">اختيار صورة</button>
+        <button id="set-cover-current" class="vvip-btn vvip-btn-secondary" type="button">تعيين النشطة كغلاف</button>
+        <button id="delete-current" class="vvip-btn vvip-btn-danger" type="button">حذف النشطة</button>
+      </div>
+      <div id="media-status" class="vvip-status" role="status" aria-live="polite"></div>
+      <div id="media-progress" class="vvip-status" aria-live="polite"></div>
+      <div class="vvip-skeleton" aria-hidden="true">
+        <div class="vvip-skeleton-bar"></div>
+        <div class="vvip-skeleton-bar" style="width: 72%"></div>
+      </div>
+    </section>
+
+    <section class="vvip-media-card" aria-label="Listing Card Preview">
+      <div class="vvip-listing-media" id="card-media">
+        <div class="vvip-media-overlay">
+          <span class="vvip-media-chip" id="card-count">0 صور</span>
+          <button class="vvip-media-action" type="button" aria-label="حفظ الإعلان" title="حفظ">حفظ</button>
+        </div>
+      </div>
+      <div class="vvip-card-body">
+        <div class="vvip-card-title">اسم الإعلان</div>
+        <div class="vvip-card-price">السعر</div>
+        <div class="vvip-card-meta">المدينة - اختياري</div>
+      </div>
+    </section>
+
+    <section class="vvip-media-card" aria-label="Images order and controls">
+      <h2 class="vvip-media-title">ترتيب الصور (حد أقصى 7)</h2>
+      <p class="vvip-media-note">اسحب الصور لإعادة الترتيب. صورة واحدة فقط تحمل شارة الغلاف.</p>
+      <div id="thumb-grid" class="vvip-thumb-grid"></div>
+    </section>
+
+    <section class="vvip-media-card" aria-label="Listing Details Gallery">
+      <h2 class="vvip-media-title">معرض التفاصيل</h2>
+      <div class="vvip-gallery-main" id="details-main"></div>
+      <div id="details-counter" class="vvip-media-note">0 من 0</div>
+      <div id="details-strip" class="vvip-gallery-strip" role="tablist" aria-label="صور مصغرة"></div>
+    </section>
+
+    <section class="vvip-media-card" aria-label="Runtime behaviors">
+      <h2 class="vvip-media-title">حالات الواجهة</h2>
+      <p class="vvip-media-note">الحالات المطبقة: Empty, Loading, Error, Success, Disabled, Processing, Delete Confirmation, Toast, Bottom Sheet on mobile.</p>
+    </section>
+  </main>
+
+  <section id="crop-modal" class="vvip-modal" aria-hidden="true" aria-label="Crop Preview 4:3">
+    <div class="vvip-modal-sheet">
+      <h2 class="vvip-media-title">قص الصورة بنسبة 4:3</h2>
+      <div id="crop-stage" class="vvip-crop-stage">
+        <img id="crop-image" alt="معاينة القص" draggable="false" width="1600" height="1200" />
+      </div>
+      <div class="vvip-crop-controls">
+        <label for="crop-zoom">Zoom</label>
+        <input id="crop-zoom" type="range" min="1" max="3" step="0.01" value="1" />
+        <button id="crop-reset" class="vvip-btn vvip-btn-secondary" type="button">إعادة ضبط</button>
+        <button id="crop-cancel" class="vvip-btn vvip-btn-secondary" type="button">إلغاء</button>
+        <button id="crop-apply" class="vvip-btn vvip-btn-primary" type="button">اعتماد الصورة</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="media-toast" class="vvip-toast" role="status" aria-live="polite"></div>
+
+  <script src="scripts/vvip-route-map.js?v=20260711-p02" defer></script>
+  <script src="scripts/vvip-app-shell.js?v=20260711-p02" defer></script>
+  <script src="scripts/vvip-listing-media-preview.js?v=20260711-p02" defer></script>
+</body>
+</html>

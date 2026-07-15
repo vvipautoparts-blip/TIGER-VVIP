@@ -1,0 +1,114 @@
+version: 2026-07-10
+project: VVIP TIGER
+phase: P02
+status: in_progress
+media_policy:
+  photos_only: true
+  video_enabled: false
+  maximum_photos_per_listing: 7
+  minimum_photos_per_listing: 1
+  first_photo_is_cover: true
+  user_can_reorder: true
+  user_can_delete_before_publish: true
+  user_can_replace_before_publish: true
+image_standard:
+  aspect_ratio: "4:3"
+  output_formats:
+    primary: image/webp
+    fallback: image/jpeg
+  derivatives:
+    master:
+      width: 1600
+      height: 1200
+    large:
+      width: 1200
+      height: 900
+    card:
+      width: 800
+      height: 600
+    thumbnail:
+      width: 400
+      height: 300
+processing_flow:
+  steps:
+    - pick_image
+    - validate_type_and_size
+    - open_crop_4_3
+    - drag_zoom_reset
+    - approve
+    - local_processing_only
+    - derivatives_created
+    - gallery_append
+  cancellation_behavior:
+    save: false
+    append_to_gallery: false
+    success_toast: false
+    revoke_object_url: true
+lifecycle:
+  success_path:
+    - temporary_source
+    - validated
+    - cropped
+    - normalized
+    - compressed
+    - derivatives_created
+    - temporary_source_deleted
+    - ready
+  error_path:
+    - temporary_source
+    - error
+    - temporary_source_deleted
+privacy:
+  strip_metadata_future:
+    - gps_latitude
+    - gps_longitude
+    - device_name
+    - device_serial
+    - camera_metadata
+    - non_essential_exif
+  allowed_input_mime_future:
+    - image/jpeg
+    - image/png
+    - image/webp
+  heic_heif:
+    status: reserved
+public_payload:
+  allowed:
+    - public_delivery_url
+    - width
+    - height
+    - aspect_ratio
+    - display_order
+    - is_cover
+    - alt_text
+  forbidden:
+    - owner_id
+    - raw_storage_path
+    - checksum
+    - crop_history
+    - processing_logs
+    - deletion_job_id
+p02_local_preview:
+  uses_api: false
+  uses_supabase: false
+  uses_database: false
+  stores_images_in_localstorage: false
+  memory_only: true
+  clears_on_refresh: true
+  revoke_object_url_required: true
+ui_rules:
+  show_above_media:
+    - save_button
+    - photo_count
+    - verified_or_vip_badge_if_true
+  show_below_media:
+    - listing_title
+    - listing_price
+    - optional_city_or_region
+  do_not_show:
+    - private_email
+    - internal_ids
+    - technical_metadata
+    - storage_path
+    - exif
+    - gps

@@ -2,6 +2,11 @@
 
 هذه النسخة المقروءة للمالك. المرجع المنظم الرسمي هو [VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml](./VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml).
 
+مرجع هندسة المنصة الموحدة والنموذج التشغيلي والإداري مرتبط رسميًا عبر:
+
+- [VVIP_TIGER_UNIFIED_PLATFORM_AND_OPERATING_MODEL.yaml](./VVIP_TIGER_UNIFIED_PLATFORM_AND_OPERATING_MODEL.yaml)
+- [VVIP_TIGER_UNIFIED_PLATFORM_AND_OPERATING_MODEL.md](./VVIP_TIGER_UNIFIED_PLATFORM_AND_OPERATING_MODEL.md)
+
 ## الحالة العامة
 
 - المشروع: VVIP TIGER

@@ -1,0 +1,62 @@
+{
+  "id": "20260711-p02-app-shell-navigation",
+  "title": "P02 App Shell and Navigation Architecture",
+  "phase": "P02",
+  "status": "in_progress",
+  "runtime_change": true,
+  "production_change": false,
+  "database_change": false,
+  "auth_provider_change": false,
+  "sql_change": false,
+  "payment_change": false,
+  "risk_level": "medium",
+  "specialist_review_required": true,
+  "mobile_preview_required": true,
+  "owner_visual_approval_required": true,
+  "security_gate": "in_progress",
+  "performance_gate": "in_progress",
+  "privacy_gate": "in_progress",
+  "accessibility_gate": "in_progress",
+  "amanah_ihsan_gate": "in_progress",
+  "rollback_plan": [
+    "git restore --staged --worktree -- <p02-modified-files>",
+    "revert commit after merge if required"
+  ],
+  "stop_conditions": [
+    "scope includes non-P02 systems",
+    "secret exposure detected",
+    "missing navigation target persists",
+    "owner-approval simulation attempted",
+    "main branch becomes dirty or out-of-sync"
+  ],
+  "allowed_scope": [
+    "Route map",
+    "Shared app shell",
+    "Shared navigation controller",
+    "Navigation styles",
+    "Runtime navigation hardening",
+    "P02 preview page",
+    "Specialist review documentation"
+  ],
+  "forbidden_scope": [
+    "Clerk configuration changes",
+    "Supabase database changes",
+    "SQL",
+    "migrations",
+    "RLS",
+    "Payments",
+    "Production deployment",
+    "P03 implementation"
+  ],
+  "reference_links": {
+    "master_roadmap_yaml": "docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml",
+    "master_roadmap_md": "docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md",
+    "unified_platform_operating_model_yaml": "docs/owner-control/VVIP_TIGER_UNIFIED_PLATFORM_AND_OPERATING_MODEL.yaml",
+    "unified_platform_operating_model_md": "docs/owner-control/VVIP_TIGER_UNIFIED_PLATFORM_AND_OPERATING_MODEL.md",
+    "p02_reference": "docs/owner-control/P02_APP_SHELL_AND_NAVIGATION.md",
+    "ui_standard": "docs/owner-control/VVIP_TIGER_UNIFIED_UI_AND_NAVIGATION_STANDARD.md",
+    "ui_tokens": "docs/owner-control/vvip-unified-ui-tokens.json",
+    "image_media_standard": "docs/owner-control/VVIP_TIGER_IMAGE_AND_MEDIA_STANDARD.md",
+    "image_media_standard_yaml": "docs/owner-control/VVIP_TIGER_IMAGE_AND_MEDIA_STANDARD.yaml"
+  }
+}
