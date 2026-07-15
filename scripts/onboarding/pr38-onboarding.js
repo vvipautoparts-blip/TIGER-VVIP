@@ -52,12 +52,18 @@
     return window.VVIP_PR38_ACCOUNT_SUMMARY || null;
   }
 
+  function isAllowedPreviewHost(hostname) {
+    const host = String(hostname || "").toLowerCase();
+    const localHost = host === "localhost" || host === "127.0.0.1" || host === "::1" || host === "[::1]" || host === "0.0.0.0";
+    if (localHost) return true;
+    return host !== "app.github.dev" && host.endsWith(".app.github.dev");
+  }
+
   function isLocalPreviewAllowed() {
     const params = new URLSearchParams(window.location.search || "");
     const preview = params.get("preview");
-    const host = window.location.hostname;
-    const localHost = host === "localhost" || host === "127.0.0.1" || host === "::1" || host === "[::1]" || host === "0.0.0.0";
-    return localHost && preview === "onboarding";
+    if (preview !== "onboarding") return false;
+    return isAllowedPreviewHost(window.location.hostname);
   }
 
   function safeReturnPath() {
@@ -394,6 +400,8 @@
       saveDraft: saveDraft,
       clearDraft: clearDraft,
       triggerRadioSelection: triggerRadioSelection,
+      isAllowedPreviewHost: isAllowedPreviewHost,
+      isLocalPreviewAllowed: isLocalPreviewAllowed,
       getLastMessage: function () {
         return lastMessageText;
       },

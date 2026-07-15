@@ -360,6 +360,60 @@ const radioForFallback = {
 assert(noEventHooks.triggerRadioSelection(radioForFallback) === true, "radio fallback should return true");
 assert(clickCalls === 1, "radio fallback should call click() when Event constructor is unavailable");
 
+const previewMatrix = [
+  {
+    name: "localhost + preview=onboarding",
+    host: "localhost",
+    search: "?preview=onboarding",
+    expected: true
+  },
+  {
+    name: "codespaces subdomain + preview=onboarding",
+    host: "stunning-space-rotary-phone-5vgj999xwq79f76rq-8011.app.github.dev",
+    search: "?preview=onboarding",
+    expected: true
+  },
+  {
+    name: "app.github.dev root without subdomain",
+    host: "app.github.dev",
+    search: "?preview=onboarding",
+    expected: false
+  },
+  {
+    name: "spoofed attacker domain",
+    host: "evilapp.github.dev.attacker.com",
+    search: "?preview=onboarding",
+    expected: false
+  },
+  {
+    name: "production domain",
+    host: "vvipautoparts.com",
+    search: "?preview=onboarding",
+    expected: false
+  },
+  {
+    name: "codespaces host without preview parameter",
+    host: "stunning-space-rotary-phone-5vgj999xwq79f76rq-8011.app.github.dev",
+    search: "",
+    expected: false
+  }
+];
+
+for (const previewCase of previewMatrix) {
+  const previewContext = createContext(createStorage(), Event);
+  previewContext.contextObject.location.hostname = previewCase.host;
+  previewContext.contextObject.location.search = previewCase.search;
+  runInBrowserLikeContext("scripts/onboarding/pr38-account-types.js", previewContext.context);
+  runInBrowserLikeContext("scripts/onboarding/pr38-account-summary.js", previewContext.context);
+  runInBrowserLikeContext("scripts/onboarding/pr38-onboarding.js", previewContext.context);
+  const previewHooks = previewContext.contextObject.window.VVIP_PR38_ONBOARDING.testHooks;
+  const result = previewHooks.isLocalPreviewAllowed();
+  assert(
+    result === previewCase.expected,
+    `preview gate mismatch for ${previewCase.name}: expected ${previewCase.expected} got ${result}`
+  );
+}
+
 const onboardingHtml = read("onboarding-p04.html");
 assert(/<html[^>]+lang=["']ar["'][^>]+dir=["']rtl["']/i.test(onboardingHtml), "RTL contract missing");
 assert(/<meta[^>]+name=["']viewport["']/i.test(onboardingHtml), "viewport missing");
