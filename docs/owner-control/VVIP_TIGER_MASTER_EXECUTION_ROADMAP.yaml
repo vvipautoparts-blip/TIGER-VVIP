@@ -5,10 +5,10 @@ language: Arabic First
 market: Jordan First
 source_of_truth: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml
 human_readable_version: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md
-current_phase: P25
-last_completed_phase: P24
-next_authorized_phase: P25
-execution_lock: P25
+current_phase: P26
+last_completed_phase: P25
+next_authorized_phase: P26
+execution_lock: P26
 general_rules:
   - phase_one_at_a_time
   - start_from_clean_synced_main
@@ -682,7 +682,7 @@ phases:
   - id: P25
     priority: 25
     name: Analytics and Advertising Storage
-    status: pending
+    status: completed
     depends_on:
       - P24
     scope:
