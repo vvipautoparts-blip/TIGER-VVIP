@@ -15,11 +15,14 @@
   <link rel="stylesheet" href="styles/vvip-pr33-publish-readiness.css">
   <link rel="stylesheet" href="styles/vvip-pr35-owner-care.css">
   <link rel="stylesheet" href="styles/vvip-pr36-media.css">
+  <link rel="stylesheet" href="styles/vvip-pr38-onboarding.css">
   <script defer crossorigin="anonymous" data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk" src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="scripts/supabase-config.js"></script>
   <script defer src="scripts/vvip-pr30-resilience.js"></script>
   <script defer src="scripts/vvip-p03-profile-identity.js"></script>
+  <script defer src="scripts/onboarding/pr38-account-types.js"></script>
+  <script defer src="scripts/onboarding/pr38-account-summary.js"></script>
   <script defer src="scripts/vvip-p03-profile.js"></script>
   <script defer src="scripts/vvip-p03-sign-out.js"></script>
   <script defer src="scripts/media/pr36-signature.js"></script>
@@ -66,6 +69,13 @@
           <button type="button" data-account-action="care" data-vvip-tiger-care-entry>Tiger Care</button>
           <a class="account-button account-button--quiet" href="owner-control.html?preview=owner" data-pr35-owner-link hidden>مركز تحكم المالك</a>
         </div>
+      </section>
+
+      <section class="account-section account-card pr38-account-type-card" aria-labelledby="account-type-title">
+        <div class="account-section__heading"><span class="account-kicker">P04 ACCOUNT TYPE</span><h2 id="account-type-title">إعداد نوع الحساب</h2></div>
+        <p class="pr38-account-type-status-row">الحالة الحالية: <strong data-pr38-account-type-status>غير محدد</strong></p>
+        <p class="pr38-account-type-hint">اختيار النوع لا يمنح صلاحية نشر تلقائيًا، وصلاحية النشر تبقى غير مفعلة حتى الاعتماد الرسمي.</p>
+        <a class="account-button account-button--primary" href="onboarding-p04.html?return_to=private-profile-p03.html" data-safe-nav data-nav-target="onboarding-p04.html?return_to=private-profile-p03.html">إعداد نوع الحساب</a>
       </section>
 
       <section class="account-section" id="my-listings" data-vvip-my-listings tabindex="-1">

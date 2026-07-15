@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f0f2f5">
+  <title>إعداد نوع الحساب — VVIP TIGER</title>
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/vvip-pr38-onboarding.css">
+  <script defer crossorigin="anonymous" data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk" src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"></script>
+  <script defer src="scripts/onboarding/pr38-account-types.js"></script>
+  <script defer src="scripts/onboarding/pr38-account-summary.js"></script>
+  <script defer src="scripts/onboarding/pr38-onboarding.js"></script>
+</head>
+<body data-pr38-onboarding>
+  <header class="pr38-topbar">
+    <a class="pr38-brand" href="index.html" data-pr38-safe-nav="index.html" aria-label="VVIP TIGER — الرئيسية">
+      <span class="pr38-brand__icon" aria-hidden="true">V</span>
+      <span class="pr38-brand__text"><strong>VVIP TIGER</strong><small>Onboarding P04</small></span>
+    </a>
+    <button class="pr38-button pr38-button--quiet" type="button" data-pr38-cancel>إلغاء</button>
+  </header>
+
+  <main class="pr38-main" aria-labelledby="pr38-title">
+    <section class="pr38-card">
+      <span class="pr38-kicker">P04 ACCOUNT TYPE</span>
+      <h1 id="pr38-title">إعداد نوع الحساب</h1>
+      <p class="pr38-subtitle">اختر نوع الحساب المناسب. نوع الحساب منفصل عن صلاحية النشر.</p>
+      <p class="pr38-message" data-pr38-live-message role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="pr38-card" data-pr38-step="choose" aria-label="اختيار نوع الحساب">
+      <form data-pr38-form>
+        <fieldset class="pr38-type-fieldset">
+          <legend>أنواع الحسابات المعتمدة</legend>
+          <p class="pr38-help">لا يوجد اختيار قطاع في هذه الخطوة، ولا تفعيل نشر تلقائي.</p>
+          <div class="pr38-types-grid" data-pr38-types-grid></div>
+        </fieldset>
+        <div class="pr38-actions">
+          <button class="pr38-button pr38-button--primary" type="button" data-pr38-continue disabled>متابعة</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="pr38-card" data-pr38-step="review" aria-label="مراجعة الاختيار" hidden>
+      <h2>مراجعة نوع الحساب</h2>
+      <dl class="pr38-review-list">
+        <div><dt>النوع المختار</dt><dd data-pr38-review-name>—</dd></div>
+        <div><dt>الوصف</dt><dd data-pr38-review-description>—</dd></div>
+        <div><dt>صلاحية النشر</dt><dd data-pr38-review-permission>غير مفعلة — none</dd></div>
+      </dl>
+      <p class="pr38-note">نوع الحساب منفصل عن صلاحية النشر.</p>
+      <div class="pr38-actions">
+        <button class="pr38-button pr38-button--quiet" type="button" data-pr38-back>رجوع</button>
+        <button class="pr38-button pr38-button--primary" type="button" data-pr38-save-draft>حفظ المسودة</button>
+      </div>
+    </section>
+
+    <section class="pr38-card" data-pr38-step="success" aria-label="تم الحفظ" hidden>
+      <h2>تم الحفظ بنجاح</h2>
+      <p data-pr38-success-message>تم حفظ اختيار نوع الحساب كمسودة على هذا الجهاز، ولم يتم تفعيله رسميًا بعد.</p>
+      <div class="pr38-actions">
+        <button class="pr38-button pr38-button--primary" type="button" data-pr38-go-home>العودة إلى الرئيسية</button>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
