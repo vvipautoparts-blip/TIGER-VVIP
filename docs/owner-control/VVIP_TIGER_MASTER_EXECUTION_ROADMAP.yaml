@@ -5,10 +5,10 @@ language: Arabic First
 market: Jordan First
 source_of_truth: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml
 human_readable_version: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md
-current_phase: P26
-last_completed_phase: P25
-next_authorized_phase: P26
-execution_lock: P26
+current_phase: P27
+last_completed_phase: P26
+next_authorized_phase: P27
+execution_lock: P27
 general_rules:
   - phase_one_at_a_time
   - start_from_clean_synced_main
@@ -705,7 +705,7 @@ phases:
   - id: P26
     priority: 26
     name: PWA and Mobile Readiness
-    status: pending
+    status: completed
     depends_on:
       - P25
     scope:
