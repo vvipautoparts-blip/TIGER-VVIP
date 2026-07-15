@@ -1,0 +1,12 @@
+{
+  "phase": "P25",
+  "baseline": "d6e6971456f21e681abf4c3e4a1cc0a350fbbf1a",
+  "branch": "feat/auto-p25-repository-closure",
+  "mode": "documentation_and_review_only",
+  "production_changes": false,
+  "sql_changes": false,
+  "rls_changes": false,
+  "migrations_changes": false,
+  "destructive_actions": false,
+  "date": "2026-07-15"
+}
