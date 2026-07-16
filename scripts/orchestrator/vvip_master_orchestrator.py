@@ -134,10 +134,6 @@ def cmd_integrity_check(_: argparse.Namespace) -> int:
     expected = cp.get("sha256", "")
     if actual != expected:
         raise SystemExit("Integrity check failed: sha256 mismatch.")
-    state.setdefault("integrity", {})["last_verified_sha256"] = actual
-    state["updated_on"] = utc_now()
-    write_json(STATE_PATH, state)
-    append_log("integrity-check", state.get("status", "planning"), state.get("current_phase", "P06"), "sha256 verified")
     print("integrity-check: OK")
     return 0
 
