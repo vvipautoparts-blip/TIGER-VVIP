@@ -1,0 +1,2309 @@
+{
+  "phase": "P07",
+  "name": "Complete Database Architecture - Review Only",
+  "review_only": true,
+  "entities": [
+    {
+      "name": "profiles",
+      "purpose": "Primary internal profile root keyed by Clerk canonical subject identity.",
+      "columns": [
+        {
+          "name": "profile_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "clerk_user_id",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "display_name",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "account_status",
+          "data_type": "text",
+          "nullable": false,
+          "default": "active"
+        },
+        {
+          "name": "created_at",
+          "data_type": "timestamptz",
+          "nullable": false,
+          "default": "now()"
+        },
+        {
+          "name": "updated_at",
+          "data_type": "timestamptz",
+          "nullable": false,
+          "default": "now()"
+        },
+        {
+          "name": "closed_at",
+          "data_type": "timestamptz",
+          "nullable": true,
+          "default": null
+        }
+      ],
+      "primary_key": {
+        "columns": [
+          "profile_id"
+        ]
+      },
+      "foreign_keys": [],
+      "unique_constraints": [
+        {
+          "name": "uq_profiles_clerk",
+          "columns": [
+            "clerk_user_id"
+          ]
+        }
+      ],
+      "check_constraints": [
+        {
+          "name": "ck_profiles_status",
+          "expression": "account_status in ('active','pending','suspended','closed')"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_profiles_clerk_user_id",
+          "columns": [
+            "clerk_user_id"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_profiles_status",
+          "columns": [
+            "account_status"
+          ],
+          "kind": "btree"
+        }
+      ],
+      "owner": "user",
+      "data_classification": "sensitive",
+      "retention": "until account deletion + legal hold window",
+      "lifecycle_states": [
+        "active",
+        "pending",
+        "suspended",
+        "closed"
+      ]
+    },
+    {
+      "name": "account_types",
+      "purpose": "Maps profiles to account and sector enrollment types.",
+      "columns": [
+        {
+          "name": "account_type_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "profile_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "account_type_code",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "sector_code",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "is_active",
+          "data_type": "boolean",
+          "nullable": false,
+          "default": "true"
+        },
+        {
+          "name": "effective_from",
+          "data_type": "timestamptz",
+          "nullable": false,
+          "default": "now()"
+        }
+      ],
+      "primary_key": {
+        "columns": [
+          "account_type_id"
+        ]
+      },
+      "foreign_keys": [
+        {
+          "column": "profile_id",
+          "ref_entity": "profiles",
+          "ref_column": "profile_id",
+          "on_delete": "cascade",
+          "on_update": "cascade"
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_account_types_profile_sector",
+          "columns": [
+            "profile_id",
+            "account_type_code",
+            "sector_code"
+          ]
+        }
+      ],
+      "check_constraints": [
+        {
+          "name": "ck_account_type_code",
+          "expression": "account_type_code <> ''"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_account_types_profile",
+          "columns": [
+            "profile_id"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_account_types_sector",
+          "columns": [
+            "sector_code"
+          ],
+          "kind": "btree"
+        }
+      ],
+      "owner": "user",
+      "data_classification": "private",
+      "retention": "account lifetime",
+      "lifecycle_states": [
+        "active",
+        "disabled"
+      ]
+    },
+    {
+      "name": "sector_publishing_permissions",
+      "purpose": "Authoritative publishing permissions per profile and sector.",
+      "columns": [
+        {
+          "name": "permission_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "profile_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "sector_code",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "posting_cap",
+          "data_type": "integer",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "permission_state",
+          "data_type": "text",
+          "nullable": false,
+          "default": "active"
+        },
+        {
+          "name": "updated_at",
+          "data_type": "timestamptz",
+          "nullable": false,
+          "default": "now()"
+        }
+      ],
+      "primary_key": {
+        "columns": [
+          "permission_id"
+        ]
+      },
+      "foreign_keys": [
+        {
+          "column": "profile_id",
+          "ref_entity": "profiles",
+          "ref_column": "profile_id",
+          "on_delete": "cascade",
+          "on_update": "cascade"
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_permissions_profile_sector",
+          "columns": [
+            "profile_id",
+            "sector_code"
+          ]
+        }
+      ],
+      "check_constraints": [
+        {
+          "name": "ck_posting_cap",
+          "expression": "posting_cap >= 0"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_permissions_profile",
+          "columns": [
+            "profile_id"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_permissions_sector",
+          "columns": [
+            "sector_code"
+          ],
+          "kind": "btree"
+        }
+      ],
+      "owner": "platform",
+      "data_classification": "admin",
+      "retention": "while entitlement active + audit window",
+      "lifecycle_states": [
+        "active",
+        "revoked"
+      ]
+    },
+    {
+      "name": "listings",
+      "purpose": "Marketplace listing records across sectors with mandatory pricing, location, and 120-day publication lifetime contract.",
+      "columns": [
+        {
+          "name": "listing_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "profile_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "sector_code",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "category_code",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "lifecycle_state",
+          "data_type": "text",
+          "nullable": false,
+          "default": "draft"
+        },
+        {
+          "name": "title_ar",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "title_en",
+          "data_type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "short_summary",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "description",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "price_amount",
+          "data_type": "numeric(14,2)",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "currency_code",
+          "data_type": "char(3)",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "region_code",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "city_code",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "area_text",
+          "data_type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "search_norm_ar",
+          "data_type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "published_at",
+          "data_type": "timestamptz",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "expires_at",
+          "data_type": "timestamptz",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "archived_at",
+          "data_type": "timestamptz",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "deleted_at",
+          "data_type": "timestamptz",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "data_type": "timestamptz",
+          "nullable": false,
+          "default": "now()"
+        },
+        {
+          "name": "updated_at",
+          "data_type": "timestamptz",
+          "nullable": false,
+          "default": "now()"
+        }
+      ],
+      "primary_key": {
+        "columns": [
+          "listing_id"
+        ]
+      },
+      "foreign_keys": [
+        {
+          "column": "profile_id",
+          "ref_entity": "profiles",
+          "ref_column": "profile_id",
+          "on_delete": "cascade",
+          "on_update": "cascade"
+        }
+      ],
+      "unique_constraints": [],
+      "check_constraints": [
+        {
+          "name": "ck_listings_state",
+          "expression": "lifecycle_state in ('draft','pending_review','published','expired','archived','deleted')"
+        },
+        {
+          "name": "ck_listings_price_positive",
+          "expression": "price_amount > 0"
+        },
+        {
+          "name": "ck_listings_currency_code_iso",
+          "expression": "currency_code ~ '^[A-Z]{3}$'"
+        },
+        {
+          "name": "ck_listings_location_required",
+          "expression": "coalesce(region_code, '') <> '' and coalesce(city_code, '') <> ''"
+        },
+        {
+          "name": "ck_listings_category_required",
+          "expression": "coalesce(category_code, '') <> ''"
+        },
+        {
+          "name": "ck_listings_publish_expiry_120_days",
+          "expression": "(published_at is null and expires_at is null) or (published_at is not null and expires_at = published_at + interval '120 days')"
+        },
+        {
+          "name": "ck_listings_state_draft_null_timestamps",
+          "expression": "(lifecycle_state = 'draft' and published_at is null and expires_at is null) or lifecycle_state <> 'draft'"
+        },
+        {
+          "name": "ck_listings_state_pending_review_null_timestamps",
+          "expression": "(lifecycle_state = 'pending_review' and published_at is null and expires_at is null) or lifecycle_state <> 'pending_review'"
+        },
+        {
+          "name": "ck_listings_state_published_coherence",
+          "expression": "(lifecycle_state = 'published' and published_at is not null and expires_at is not null and expires_at = published_at + interval '120 days' and archived_at is null and deleted_at is null) or lifecycle_state <> 'published'"
+        },
+        {
+          "name": "ck_listings_state_expired_timestamps",
+          "expression": "(lifecycle_state = 'expired' and published_at is not null and expires_at is not null) or lifecycle_state <> 'expired'"
+        },
+        {
+          "name": "ck_listings_state_archived_requires_archived_at",
+          "expression": "(lifecycle_state = 'archived' and archived_at is not null) or lifecycle_state <> 'archived'"
+        },
+        {
+          "name": "ck_listings_state_deleted_requires_deleted_at",
+          "expression": "(lifecycle_state = 'deleted' and deleted_at is not null) or lifecycle_state <> 'deleted'"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_listings_profile",
+          "columns": [
+            "profile_id"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_listings_sector_state",
+          "columns": [
+            "sector_code",
+            "lifecycle_state"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_listings_category_code",
+          "columns": [
+            "category_code"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_listings_region_city",
+          "columns": [
+            "region_code",
+            "city_code"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_listings_published_at",
+          "columns": [
+            "published_at"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_listings_search_norm_ar",
+          "columns": [
+            "search_norm_ar"
+          ],
+          "kind": "btree"
+        }
+      ],
+      "owner": "user",
+      "data_classification": "public",
+      "retention": "active/published for 120 days then expire; archived/deleted per policy",
+      "lifecycle_states": [
+        "draft",
+        "pending_review",
+        "published",
+        "expired",
+        "archived",
+        "deleted"
+      ],
+      "lifecycle_transition_matrix": [
+        "draft->pending_review",
+        "pending_review->published",
+        "pending_review->draft",
+        "published->expired",
+        "published->archived",
+        "expired->archived",
+        "archived->deleted"
+      ]
+    },
+    {
+      "name": "listing_media",
+      "purpose": "Stores processed listing image derivatives only with 4:3 ratio, crop/zoom metadata, ordering, and cover contract.",
+      "columns": [
+        {
+          "name": "media_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "listing_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "storage_key",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "mime_type",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "width",
+          "data_type": "integer",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "height",
+          "data_type": "integer",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "aspect_ratio",
+          "data_type": "text",
+          "nullable": false,
+          "default": "4:3"
+        },
+        {
+          "name": "byte_size",
+          "data_type": "integer",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "checksum",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "crop_x",
+          "data_type": "integer",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "crop_y",
+          "data_type": "integer",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "crop_width",
+          "data_type": "integer",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "crop_height",
+          "data_type": "integer",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "zoom_level",
+          "data_type": "numeric(5,2)",
+          "nullable": false,
+          "default": "1.0"
+        },
+        {
+          "name": "display_order",
+          "data_type": "integer",
+          "nullable": false,
+          "default": "1"
+        },
+        {
+          "name": "is_cover",
+          "data_type": "boolean",
+          "nullable": false,
+          "default": "false"
+        },
+        {
+          "name": "processing_state",
+          "data_type": "text",
+          "nullable": false,
+          "default": "processed"
+        },
+        {
+          "name": "media_state",
+          "data_type": "text",
+          "nullable": false,
+          "default": "active"
+        },
+        {
+          "name": "created_at",
+          "data_type": "timestamptz",
+          "nullable": false,
+          "default": "now()"
+        },
+        {
+          "name": "deleted_at",
+          "data_type": "timestamptz",
+          "nullable": true,
+          "default": null
+        }
+      ],
+      "primary_key": {
+        "columns": [
+          "media_id"
+        ]
+      },
+      "foreign_keys": [
+        {
+          "column": "listing_id",
+          "ref_entity": "listings",
+          "ref_column": "listing_id",
+          "on_delete": "cascade",
+          "on_update": "cascade"
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_listing_media_order",
+          "columns": [
+            "listing_id",
+            "display_order"
+          ]
+        }
+      ],
+      "check_constraints": [
+        {
+          "name": "ck_listing_media_order",
+          "expression": "display_order >= 1 and display_order <= 7"
+        },
+        {
+          "name": "ck_listing_media_images_only",
+          "expression": "mime_type in ('image/jpeg','image/png','image/webp')"
+        },
+        {
+          "name": "ck_listing_media_aspect_ratio_4_3",
+          "expression": "aspect_ratio = '4:3'"
+        },
+        {
+          "name": "ck_listing_media_processed_only",
+          "expression": "processing_state in ('processed','published_ready') and storage_key like 'processed/%'"
+        },
+        {
+          "name": "ck_listing_media_dimensions_positive",
+          "expression": "width > 0 and height > 0 and crop_width > 0 and crop_height > 0"
+        },
+        {
+          "name": "ck_listing_media_zoom_range",
+          "expression": "zoom_level >= 1 and zoom_level <= 5"
+        },
+        {
+          "name": "ck_listing_media_byte_size_positive",
+          "expression": "byte_size > 0"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_listing_media_listing",
+          "columns": [
+            "listing_id"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_listing_media_cover",
+          "columns": [
+            "listing_id",
+            "is_cover"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_listing_media_state",
+          "columns": [
+            "media_state",
+            "processing_state"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "uq_listing_media_active_cover_partial",
+          "columns": [
+            "listing_id"
+          ],
+          "kind": "btree",
+          "unique": true,
+          "predicate": "is_cover = true and media_state = 'active'"
+        }
+      ],
+      "owner": "user",
+      "data_classification": "private",
+      "retention": "processed derivative only; temporary original discarded after successful processing",
+      "lifecycle_states": [
+        "active",
+        "hidden",
+        "deleted"
+      ],
+      "service_invariants": [
+        "Publishing gate requires at least one active media row.",
+        "Publishing gate requires exactly one cover among active media rows.",
+        "Cover switch is atomic: clear old cover, set new cover, verify exactly one cover remains active."
+      ]
+    },
+    {
+      "name": "listing_publication_quota_windows",
+      "purpose": "Weekly publication quota contract enforcing baseline 4 posts per account per week.",
+      "columns": [
+        {
+          "name": "quota_window_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "profile_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "week_start",
+          "data_type": "date",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "week_end",
+          "data_type": "date",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "limit_count",
+          "data_type": "integer",
+          "nullable": false,
+          "default": "4"
+        },
+        {
+          "name": "used_count",
+          "data_type": "integer",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "reserved_count",
+          "data_type": "integer",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "created_at",
+          "data_type": "timestamptz",
+          "nullable": false,
+          "default": "now()"
+        },
+        {
+          "name": "updated_at",
+          "data_type": "timestamptz",
+          "nullable": false,
+          "default": "now()"
+        }
+      ],
+      "primary_key": {
+        "columns": [
+          "quota_window_id"
+        ]
+      },
+      "foreign_keys": [
+        {
+          "column": "profile_id",
+          "ref_entity": "profiles",
+          "ref_column": "profile_id",
+          "on_delete": "cascade",
+          "on_update": "cascade"
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_listing_quota_profile_week_start",
+          "columns": [
+            "profile_id",
+            "week_start"
+          ]
+        }
+      ],
+      "check_constraints": [
+        {
+          "name": "ck_listing_quota_limit_count_base",
+          "expression": "limit_count = 4"
+        },
+        {
+          "name": "ck_listing_quota_used_non_negative",
+          "expression": "used_count >= 0"
+        },
+        {
+          "name": "ck_listing_quota_reserved_non_negative",
+          "expression": "reserved_count >= 0"
+        },
+        {
+          "name": "ck_listing_quota_usage_within_limit",
+          "expression": "used_count + reserved_count <= limit_count"
+        },
+        {
+          "name": "ck_listing_quota_exact_week_window",
+          "expression": "week_end = week_start + interval '7 days'"
+        },
+        {
+          "name": "ck_listing_quota_week_start_canonical_utc_monday",
+          "expression": "week_start_utc_monday_00_00 (design invariant: week_start must be Monday 00:00 UTC canonical boundary)"
+        },
+        {
+          "name": "ck_listing_quota_non_overlapping_profile_week_windows",
+          "expression": "non_overlapping_profile_week_windows (design invariant under canonical [week_start, week_end) windows)"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_listing_quota_profile_week",
+          "columns": [
+            "profile_id",
+            "week_start"
+          ],
+          "kind": "btree"
+        }
+      ],
+      "owner": "platform",
+      "data_classification": "private",
+      "retention": "rolling weekly windows with compliance audit history",
+      "lifecycle_states": [
+        "open",
+        "closed"
+      ]
+    },
+    {
+      "name": "trials",
+      "purpose": "Tracks a single base free-trial contract per profile with exact four calendar months duration.",
+      "columns": [
+        {
+          "name": "trial_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "profile_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "trial_plan",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "starts_at",
+          "data_type": "timestamptz",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "ends_at",
+          "data_type": "timestamptz",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "trial_status",
+          "data_type": "text",
+          "nullable": false,
+          "default": "scheduled"
+        }
+      ],
+      "primary_key": {
+        "columns": [
+          "trial_id"
+        ]
+      },
+      "foreign_keys": [
+        {
+          "column": "profile_id",
+          "ref_entity": "profiles",
+          "ref_column": "profile_id",
+          "on_delete": "cascade",
+          "on_update": "cascade"
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_trials_profile_plan",
+          "columns": [
+            "profile_id",
+            "trial_plan"
+          ]
+        }
+      ],
+      "check_constraints": [
+        {
+          "name": "ck_trials_base_plan",
+          "expression": "trial_plan = 'free_4_months_base'"
+        },
+        {
+          "name": "ck_trials_dates_4_months",
+          "expression": "ends_at = starts_at + interval '4 months'"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_trials_profile",
+          "columns": [
+            "profile_id"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_trials_status",
+          "columns": [
+            "trial_status"
+          ],
+          "kind": "btree"
+        }
+      ],
+      "owner": "platform",
+      "data_classification": "private",
+      "retention": "24 months after 4-month trial end",
+      "lifecycle_states": [
+        "scheduled",
+        "active",
+        "expired",
+        "revoked"
+      ]
+    },
+    {
+      "name": "subscriptions",
+      "purpose": "Subscription contracts and billing cadence metadata.",
+      "columns": [
+        {
+          "name": "subscription_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "profile_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "subscription_plan",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "billing_cycle",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "subscription_status",
+          "data_type": "text",
+          "nullable": false,
+          "default": "active"
+        },
+        {
+          "name": "renews_at",
+          "data_type": "timestamptz",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "data_type": "timestamptz",
+          "nullable": false,
+          "default": "now()"
+        }
+      ],
+      "primary_key": {
+        "columns": [
+          "subscription_id"
+        ]
+      },
+      "foreign_keys": [
+        {
+          "column": "profile_id",
+          "ref_entity": "profiles",
+          "ref_column": "profile_id",
+          "on_delete": "cascade",
+          "on_update": "cascade"
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_subscriptions_profile_plan_created",
+          "columns": [
+            "profile_id",
+            "subscription_plan",
+            "created_at"
+          ]
+        }
+      ],
+      "check_constraints": [
+        {
+          "name": "ck_subscriptions_status",
+          "expression": "subscription_status in ('active','paused','canceled')"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_subscriptions_profile",
+          "columns": [
+            "profile_id"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_subscriptions_status",
+          "columns": [
+            "subscription_status"
+          ],
+          "kind": "btree"
+        }
+      ],
+      "owner": "platform",
+      "data_classification": "sensitive",
+      "retention": "7 years for finance compliance",
+      "lifecycle_states": [
+        "active",
+        "paused",
+        "canceled"
+      ]
+    },
+    {
+      "name": "entitlements",
+      "purpose": "Computed capability quotas derived from active subscriptions.",
+      "columns": [
+        {
+          "name": "entitlement_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "subscription_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "capability_key",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "quota_limit",
+          "data_type": "integer",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "quota_used",
+          "data_type": "integer",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "entitlement_status",
+          "data_type": "text",
+          "nullable": false,
+          "default": "active"
+        }
+      ],
+      "primary_key": {
+        "columns": [
+          "entitlement_id"
+        ]
+      },
+      "foreign_keys": [
+        {
+          "column": "subscription_id",
+          "ref_entity": "subscriptions",
+          "ref_column": "subscription_id",
+          "on_delete": "cascade",
+          "on_update": "cascade"
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_entitlements_subscription_capability",
+          "columns": [
+            "subscription_id",
+            "capability_key"
+          ]
+        }
+      ],
+      "check_constraints": [
+        {
+          "name": "ck_entitlements_quota_limit",
+          "expression": "quota_limit >= 0"
+        },
+        {
+          "name": "ck_entitlements_quota_used",
+          "expression": "quota_used >= 0 and quota_used <= quota_limit"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_entitlements_subscription",
+          "columns": [
+            "subscription_id"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_entitlements_capability",
+          "columns": [
+            "capability_key"
+          ],
+          "kind": "btree"
+        }
+      ],
+      "owner": "platform",
+      "data_classification": "private",
+      "retention": "same as subscription + 12 months",
+      "lifecycle_states": [
+        "active",
+        "exhausted",
+        "disabled"
+      ]
+    },
+    {
+      "name": "conversations",
+      "purpose": "One-to-one canonical conversation channel keyed by unordered participant pair.",
+      "columns": [
+        {
+          "name": "conversation_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "participant_low_profile_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "participant_high_profile_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "conversation_state",
+          "data_type": "text",
+          "nullable": false,
+          "default": "open"
+        },
+        {
+          "name": "last_message_at",
+          "data_type": "timestamptz",
+          "nullable": true,
+          "default": null
+        }
+      ],
+      "primary_key": {
+        "columns": [
+          "conversation_id"
+        ]
+      },
+      "foreign_keys": [
+        {
+          "column": "participant_low_profile_id",
+          "ref_entity": "profiles",
+          "ref_column": "profile_id",
+          "on_delete": "cascade",
+          "on_update": "cascade"
+        },
+        {
+          "column": "participant_high_profile_id",
+          "ref_entity": "profiles",
+          "ref_column": "profile_id",
+          "on_delete": "cascade",
+          "on_update": "cascade"
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_conversations_canonical_pair",
+          "columns": [
+            "participant_low_profile_id",
+            "participant_high_profile_id"
+          ]
+        }
+      ],
+      "check_constraints": [
+        {
+          "name": "ck_conversations_canonical_pair_order",
+          "expression": "participant_low_profile_id < participant_high_profile_id"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_conversations_participant_low",
+          "columns": [
+            "participant_low_profile_id"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_conversations_participant_high",
+          "columns": [
+            "participant_high_profile_id"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_conversations_last_message",
+          "columns": [
+            "last_message_at"
+          ],
+          "kind": "btree"
+        }
+      ],
+      "owner": "user",
+      "data_classification": "private",
+      "retention": "soft-delete 365 days after closure",
+      "lifecycle_states": [
+        "open",
+        "muted",
+        "closed"
+      ]
+    },
+    {
+      "name": "messages",
+      "purpose": "Message events within one-to-one conversations.",
+      "columns": [
+        {
+          "name": "message_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "conversation_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "sender_profile_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "message_type",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "body",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "sent_at",
+          "data_type": "timestamptz",
+          "nullable": false,
+          "default": "now()"
+        },
+        {
+          "name": "deleted_at",
+          "data_type": "timestamptz",
+          "nullable": true,
+          "default": null
+        }
+      ],
+      "primary_key": {
+        "columns": [
+          "message_id"
+        ]
+      },
+      "foreign_keys": [
+        {
+          "column": "conversation_id",
+          "ref_entity": "conversations",
+          "ref_column": "conversation_id",
+          "on_delete": "cascade",
+          "on_update": "cascade"
+        },
+        {
+          "column": "sender_profile_id",
+          "ref_entity": "profiles",
+          "ref_column": "profile_id",
+          "on_delete": "restrict",
+          "on_update": "cascade"
+        }
+      ],
+      "unique_constraints": [],
+      "check_constraints": [
+        {
+          "name": "ck_messages_sent_at",
+          "expression": "sent_at is not null"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_messages_conversation_sent_at",
+          "columns": [
+            "conversation_id",
+            "sent_at"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_messages_sender",
+          "columns": [
+            "sender_profile_id"
+          ],
+          "kind": "btree"
+        }
+      ],
+      "owner": "user",
+      "data_classification": "private",
+      "retention": "soft-delete 365 days; legal hold support",
+      "lifecycle_states": [
+        "sent",
+        "delivered",
+        "read",
+        "deleted"
+      ]
+    },
+    {
+      "name": "reports",
+      "purpose": "User-submitted moderation and abuse reports.",
+      "columns": [
+        {
+          "name": "report_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "reporter_profile_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "target_kind",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "target_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "reason_code",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "report_status",
+          "data_type": "text",
+          "nullable": false,
+          "default": "open"
+        },
+        {
+          "name": "created_at",
+          "data_type": "timestamptz",
+          "nullable": false,
+          "default": "now()"
+        }
+      ],
+      "primary_key": {
+        "columns": [
+          "report_id"
+        ]
+      },
+      "foreign_keys": [
+        {
+          "column": "reporter_profile_id",
+          "ref_entity": "profiles",
+          "ref_column": "profile_id",
+          "on_delete": "restrict",
+          "on_update": "cascade"
+        }
+      ],
+      "unique_constraints": [],
+      "check_constraints": [
+        {
+          "name": "ck_reports_target_kind",
+          "expression": "target_kind in ('listing','message','profile')"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_reports_reporter",
+          "columns": [
+            "reporter_profile_id"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_reports_target",
+          "columns": [
+            "target_kind",
+            "target_id"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_reports_status",
+          "columns": [
+            "report_status"
+          ],
+          "kind": "btree"
+        }
+      ],
+      "owner": "user",
+      "data_classification": "sensitive",
+      "retention": "24 months minimum",
+      "lifecycle_states": [
+        "open",
+        "triaged",
+        "closed"
+      ]
+    },
+    {
+      "name": "moderation_cases",
+      "purpose": "Operational moderation case management.",
+      "columns": [
+        {
+          "name": "case_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "report_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "severity",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "case_status",
+          "data_type": "text",
+          "nullable": false,
+          "default": "queued"
+        },
+        {
+          "name": "assigned_admin_profile_id",
+          "data_type": "uuid",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "resolved_at",
+          "data_type": "timestamptz",
+          "nullable": true,
+          "default": null
+        }
+      ],
+      "primary_key": {
+        "columns": [
+          "case_id"
+        ]
+      },
+      "foreign_keys": [
+        {
+          "column": "report_id",
+          "ref_entity": "reports",
+          "ref_column": "report_id",
+          "on_delete": "cascade",
+          "on_update": "cascade"
+        },
+        {
+          "column": "assigned_admin_profile_id",
+          "ref_entity": "profiles",
+          "ref_column": "profile_id",
+          "on_delete": "set null",
+          "on_update": "cascade"
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_moderation_case_report",
+          "columns": [
+            "report_id"
+          ]
+        }
+      ],
+      "check_constraints": [
+        {
+          "name": "ck_moderation_severity",
+          "expression": "severity in ('low','medium','high','critical')"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_cases_status",
+          "columns": [
+            "case_status"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_cases_assigned_admin",
+          "columns": [
+            "assigned_admin_profile_id"
+          ],
+          "kind": "btree"
+        }
+      ],
+      "owner": "platform",
+      "data_classification": "admin",
+      "retention": "5 years for compliance",
+      "lifecycle_states": [
+        "queued",
+        "investigating",
+        "resolved",
+        "appealed"
+      ]
+    },
+    {
+      "name": "tiger_care_tickets",
+      "purpose": "Tiger Care support ticket workflow.",
+      "columns": [
+        {
+          "name": "ticket_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "requester_profile_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "category",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "priority",
+          "data_type": "text",
+          "nullable": false,
+          "default": "medium"
+        },
+        {
+          "name": "ticket_status",
+          "data_type": "text",
+          "nullable": false,
+          "default": "open"
+        },
+        {
+          "name": "closed_at",
+          "data_type": "timestamptz",
+          "nullable": true,
+          "default": null
+        }
+      ],
+      "primary_key": {
+        "columns": [
+          "ticket_id"
+        ]
+      },
+      "foreign_keys": [
+        {
+          "column": "requester_profile_id",
+          "ref_entity": "profiles",
+          "ref_column": "profile_id",
+          "on_delete": "cascade",
+          "on_update": "cascade"
+        }
+      ],
+      "unique_constraints": [],
+      "check_constraints": [
+        {
+          "name": "ck_ticket_priority",
+          "expression": "priority in ('low','medium','high')"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_tickets_requester",
+          "columns": [
+            "requester_profile_id"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_tickets_status",
+          "columns": [
+            "ticket_status"
+          ],
+          "kind": "btree"
+        }
+      ],
+      "owner": "user",
+      "data_classification": "private",
+      "retention": "36 months after closure",
+      "lifecycle_states": [
+        "open",
+        "in_progress",
+        "resolved",
+        "closed"
+      ]
+    },
+    {
+      "name": "notifications",
+      "purpose": "Notification delivery and read state timeline.",
+      "columns": [
+        {
+          "name": "notification_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "profile_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "notification_type",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "channel",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "delivery_state",
+          "data_type": "text",
+          "nullable": false,
+          "default": "queued"
+        },
+        {
+          "name": "delivered_at",
+          "data_type": "timestamptz",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "data_type": "timestamptz",
+          "nullable": false,
+          "default": "now()"
+        }
+      ],
+      "primary_key": {
+        "columns": [
+          "notification_id"
+        ]
+      },
+      "foreign_keys": [
+        {
+          "column": "profile_id",
+          "ref_entity": "profiles",
+          "ref_column": "profile_id",
+          "on_delete": "cascade",
+          "on_update": "cascade"
+        }
+      ],
+      "unique_constraints": [],
+      "check_constraints": [
+        {
+          "name": "ck_notifications_delivery",
+          "expression": "delivery_state in ('queued','sent','failed','read')"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_notifications_profile",
+          "columns": [
+            "profile_id"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_notifications_delivery_state",
+          "columns": [
+            "delivery_state"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_notifications_created_at",
+          "columns": [
+            "created_at"
+          ],
+          "kind": "btree"
+        }
+      ],
+      "owner": "platform",
+      "data_classification": "private",
+      "retention": "18 months",
+      "lifecycle_states": [
+        "queued",
+        "sent",
+        "failed",
+        "read"
+      ]
+    },
+    {
+      "name": "audit_logs",
+      "purpose": "Immutable audit trail for sensitive actions and admin operations.",
+      "columns": [
+        {
+          "name": "audit_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "actor_profile_id",
+          "data_type": "uuid",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "action_key",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "target_kind",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "target_id",
+          "data_type": "uuid",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "metadata",
+          "data_type": "jsonb",
+          "nullable": false,
+          "default": "'{}'::jsonb"
+        },
+        {
+          "name": "created_at",
+          "data_type": "timestamptz",
+          "nullable": false,
+          "default": "now()"
+        }
+      ],
+      "primary_key": {
+        "columns": [
+          "audit_id"
+        ]
+      },
+      "foreign_keys": [
+        {
+          "column": "actor_profile_id",
+          "ref_entity": "profiles",
+          "ref_column": "profile_id",
+          "on_delete": "set null",
+          "on_update": "cascade"
+        }
+      ],
+      "unique_constraints": [],
+      "check_constraints": [
+        {
+          "name": "ck_audit_action_key",
+          "expression": "action_key <> ''"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_audit_actor",
+          "columns": [
+            "actor_profile_id"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_audit_target",
+          "columns": [
+            "target_kind",
+            "target_id"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_audit_created_at",
+          "columns": [
+            "created_at"
+          ],
+          "kind": "btree"
+        }
+      ],
+      "owner": "platform",
+      "data_classification": "admin",
+      "retention": "7 years minimum",
+      "lifecycle_states": [
+        "recorded",
+        "sealed"
+      ]
+    },
+    {
+      "name": "account_lifecycle_events",
+      "purpose": "Timeline of account state transitions.",
+      "columns": [
+        {
+          "name": "event_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "profile_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "event_type",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "old_state",
+          "data_type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "new_state",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "data_type": "timestamptz",
+          "nullable": false,
+          "default": "now()"
+        }
+      ],
+      "primary_key": {
+        "columns": [
+          "event_id"
+        ]
+      },
+      "foreign_keys": [
+        {
+          "column": "profile_id",
+          "ref_entity": "profiles",
+          "ref_column": "profile_id",
+          "on_delete": "cascade",
+          "on_update": "cascade"
+        }
+      ],
+      "unique_constraints": [],
+      "check_constraints": [
+        {
+          "name": "ck_account_lifecycle_event_type",
+          "expression": "event_type <> ''"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_account_lifecycle_profile",
+          "columns": [
+            "profile_id"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_account_lifecycle_created_at",
+          "columns": [
+            "created_at"
+          ],
+          "kind": "btree"
+        }
+      ],
+      "owner": "platform",
+      "data_classification": "admin",
+      "retention": "7 years",
+      "lifecycle_states": [
+        "recorded"
+      ]
+    },
+    {
+      "name": "listing_lifecycle_events",
+      "purpose": "Timeline of listing state transitions.",
+      "columns": [
+        {
+          "name": "event_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "listing_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "profile_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "event_type",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "old_state",
+          "data_type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "new_state",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "data_type": "timestamptz",
+          "nullable": false,
+          "default": "now()"
+        }
+      ],
+      "primary_key": {
+        "columns": [
+          "event_id"
+        ]
+      },
+      "foreign_keys": [
+        {
+          "column": "listing_id",
+          "ref_entity": "listings",
+          "ref_column": "listing_id",
+          "on_delete": "cascade",
+          "on_update": "cascade"
+        },
+        {
+          "column": "profile_id",
+          "ref_entity": "profiles",
+          "ref_column": "profile_id",
+          "on_delete": "restrict",
+          "on_update": "cascade"
+        }
+      ],
+      "unique_constraints": [],
+      "check_constraints": [
+        {
+          "name": "ck_listing_lifecycle_event_type",
+          "expression": "event_type <> ''"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_listing_lifecycle_listing",
+          "columns": [
+            "listing_id"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_listing_lifecycle_created_at",
+          "columns": [
+            "created_at"
+          ],
+          "kind": "btree"
+        }
+      ],
+      "owner": "platform",
+      "data_classification": "admin",
+      "retention": "7 years",
+      "lifecycle_states": [
+        "recorded"
+      ]
+    },
+    {
+      "name": "media_lifecycle_events",
+      "purpose": "Timeline of media state transitions and compliance actions.",
+      "columns": [
+        {
+          "name": "event_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "media_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "listing_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "event_type",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "old_state",
+          "data_type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "new_state",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "data_type": "timestamptz",
+          "nullable": false,
+          "default": "now()"
+        }
+      ],
+      "primary_key": {
+        "columns": [
+          "event_id"
+        ]
+      },
+      "foreign_keys": [
+        {
+          "column": "media_id",
+          "ref_entity": "listing_media",
+          "ref_column": "media_id",
+          "on_delete": "cascade",
+          "on_update": "cascade"
+        },
+        {
+          "column": "listing_id",
+          "ref_entity": "listings",
+          "ref_column": "listing_id",
+          "on_delete": "cascade",
+          "on_update": "cascade"
+        }
+      ],
+      "unique_constraints": [],
+      "check_constraints": [
+        {
+          "name": "ck_media_lifecycle_event_type",
+          "expression": "event_type <> ''"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_media_lifecycle_media",
+          "columns": [
+            "media_id"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_media_lifecycle_created_at",
+          "columns": [
+            "created_at"
+          ],
+          "kind": "btree"
+        }
+      ],
+      "owner": "platform",
+      "data_classification": "admin",
+      "retention": "7 years",
+      "lifecycle_states": [
+        "recorded"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "from": "profiles",
+      "to": "account_types",
+      "type": "one_to_many",
+      "label": "has"
+    },
+    {
+      "from": "profiles",
+      "to": "sector_publishing_permissions",
+      "type": "one_to_many",
+      "label": "governs"
+    },
+    {
+      "from": "profiles",
+      "to": "listings",
+      "type": "one_to_many",
+      "label": "owns"
+    },
+    {
+      "from": "listings",
+      "to": "listing_media",
+      "type": "one_to_many",
+      "label": "has"
+    },
+    {
+      "from": "profiles",
+      "to": "listing_publication_quota_windows",
+      "type": "one_to_many",
+      "label": "caps_publication_by_week"
+    },
+    {
+      "from": "profiles",
+      "to": "trials",
+      "type": "one_to_zero_or_one",
+      "label": "receives"
+    },
+    {
+      "from": "profiles",
+      "to": "subscriptions",
+      "type": "one_to_many",
+      "label": "owns"
+    },
+    {
+      "from": "subscriptions",
+      "to": "entitlements",
+      "type": "one_to_many",
+      "label": "grants"
+    },
+    {
+      "from": "profiles",
+      "to": "conversations",
+      "type": "one_to_many",
+      "label": "participates"
+    },
+    {
+      "from": "conversations",
+      "to": "messages",
+      "type": "one_to_many",
+      "label": "has"
+    },
+    {
+      "from": "profiles",
+      "to": "reports",
+      "type": "one_to_many",
+      "label": "submits"
+    },
+    {
+      "from": "reports",
+      "to": "moderation_cases",
+      "type": "one_to_one",
+      "label": "escalates"
+    },
+    {
+      "from": "profiles",
+      "to": "tiger_care_tickets",
+      "type": "one_to_many",
+      "label": "opens"
+    },
+    {
+      "from": "profiles",
+      "to": "notifications",
+      "type": "one_to_many",
+      "label": "receives"
+    },
+    {
+      "from": "profiles",
+      "to": "audit_logs",
+      "type": "one_to_many",
+      "label": "generates"
+    },
+    {
+      "from": "profiles",
+      "to": "account_lifecycle_events",
+      "type": "one_to_many",
+      "label": "records"
+    },
+    {
+      "from": "listings",
+      "to": "listing_lifecycle_events",
+      "type": "one_to_many",
+      "label": "records"
+    },
+    {
+      "from": "profiles",
+      "to": "listing_lifecycle_events",
+      "type": "one_to_many",
+      "label": "triggers"
+    },
+    {
+      "from": "listing_media",
+      "to": "media_lifecycle_events",
+      "type": "one_to_many",
+      "label": "records"
+    },
+    {
+      "from": "listings",
+      "to": "media_lifecycle_events",
+      "type": "one_to_many",
+      "label": "scopes"
+    }
+  ]
+}

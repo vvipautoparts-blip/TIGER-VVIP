@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vvip-tiger.local/schemas/p07-evidence-manifest.json",
+  "type": "object",
+  "required": ["phase", "title", "safety", "deliverables", "tests", "coverage_matrix", "supporting_dependencies"],
+  "properties": {
+    "phase": {"type": "string", "const": "P07"},
+    "title": {"type": "string", "minLength": 8},
+    "safety": {
+      "type": "object",
+      "required": ["no_production_change", "no_sql_execution", "no_migration_execution", "no_rls_execution", "no_storage_policy_execution"],
+      "properties": {
+        "no_production_change": {"type": "boolean", "const": true},
+        "no_sql_execution": {"type": "boolean", "const": true},
+        "no_migration_execution": {"type": "boolean", "const": true},
+        "no_rls_execution": {"type": "boolean", "const": true},
+        "no_storage_policy_execution": {"type": "boolean", "const": true}
+      }
+    },
+    "deliverables": {"type": "array", "minItems": 7, "items": {"type": "string"}},
+    "tests": {"type": "array", "minItems": 3, "items": {"type": "string"}},
+    "supporting_dependencies": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["pr", "status", "purpose"],
+        "properties": {
+          "pr": {"type": "integer", "minimum": 1},
+          "status": {"type": "string", "minLength": 3},
+          "purpose": {"type": "string", "minLength": 10}
+        }
+      }
+    },
+    "coverage_matrix": {"type": "string"}
+  }
+}
