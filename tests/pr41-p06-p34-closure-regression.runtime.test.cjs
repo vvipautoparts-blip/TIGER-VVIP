@@ -13,6 +13,16 @@ const PHASE_STATUS_PATH = path.resolve(
   "..",
   "docs/owner-control/phase-status.json"
 );
+const ROADMAP_PATH = path.resolve(
+  __dirname,
+  "..",
+  "docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml"
+);
+const TRUTH_AUDIT_PATH = path.resolve(
+  __dirname,
+  "..",
+  "docs/owner-control/VVIP_TIGER_P07_P34_TRUTH_AUDIT.md"
+);
 const CHANGE_CONTROL_DIR = path.resolve(
   __dirname,
   "..",
@@ -31,6 +41,55 @@ function hasLine(content, expected) {
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
+}
+
+function getPhaseRoadmapBlock(roadmap, phaseId) {
+  const marker = `- id: ${phaseId}`;
+  const start = roadmap.indexOf(marker);
+  if (start < 0) return "";
+
+  const next = roadmap.indexOf("\n  - id:", start + marker.length);
+  if (next < 0) return roadmap.slice(start);
+  return roadmap.slice(start, next);
+}
+
+function listFilesRecursive(baseDir) {
+  const out = [];
+  function walk(current) {
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      const full = path.join(current, entry.name);
+      if (entry.isDirectory()) {
+        walk(full);
+      } else {
+        out.push(full);
+      }
+    }
+  }
+  walk(baseDir);
+  return out;
+}
+
+function hasRuntimeEvidenceForPhase(repoRoot, phaseNumber) {
+  const tokenA = `p${String(phaseNumber).padStart(2, "0")}`.toLowerCase();
+  const tokenB = `pr${phaseNumber}`.toLowerCase();
+  const candidateDirs = [
+    path.join(repoRoot, "scripts"),
+    path.join(repoRoot, "tests"),
+    path.join(repoRoot, "styles")
+  ];
+
+  for (const dir of candidateDirs) {
+    if (!fs.existsSync(dir)) continue;
+    const files = listFilesRecursive(dir);
+    for (const file of files) {
+      const rel = path.relative(repoRoot, file).replace(/\\/g, "/").toLowerCase();
+      if (rel.includes(tokenA) || rel.includes(tokenB)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 function isPhaseInP07P34(phaseId) {
@@ -54,7 +113,10 @@ function getAutoPhaseModeMap() {
 }
 
 (function main() {
+  const repoRoot = path.resolve(__dirname, "..");
   const content = fs.readFileSync(PHASE_TRACKER_PATH, "utf8");
+  const roadmap = fs.readFileSync(ROADMAP_PATH, "utf8");
+  const audit = fs.readFileSync(TRUTH_AUDIT_PATH, "utf8");
   const status = readJson(PHASE_STATUS_PATH);
   const autoModes = getAutoPhaseModeMap();
 
@@ -100,6 +162,73 @@ function getAutoPhaseModeMap() {
       phaseMap.get(phaseId) !== "completed",
       `${phaseId} cannot be marked completed while its execution mode is documentation_and_review_only`
     );
+  }
+
+  // PR40 runtime classification must never regress into review-only completion.
+  assert(
+    hasLine(audit, "| #40 | MERGED | Runtime Implementation |"),
+    "PR40 must remain classified as Runtime Implementation"
+  );
+  assert(
+    !audit.includes("| #40 | MERGED | Complete Review-Only Deliverable |"),
+    "PR40 runtime phase cannot be classified as Complete Review-Only Deliverable"
+  );
+
+  // PR41-PR68 must be preliminary/review-only artifacts, not complete deliverables.
+  assert(
+    hasLine(audit, "| #41 | MERGED | Partial / Preliminary Review-Only Design |"),
+    "PR41 corrected classification is missing"
+  );
+  assert(
+    hasLine(audit, "| #42 | MERGED | Partial / Preliminary Review-Only Design |"),
+    "PR42 corrected classification is missing"
+  );
+  for (let pr = 43; pr <= 68; pr += 1) {
+    assert(
+      audit.includes(`| #${pr} | MERGED | Preliminary Design + Metadata/Status-Only |`),
+      `PR${pr} must be classified as Preliminary Design + Metadata/Status-Only`
+    );
+  }
+
+  assert(
+    hasLine(audit, "PR41–PR68 preserved as preliminary planning/design artifacts."),
+    "Audit conclusion statement for PR41-PR68 is missing"
+  );
+  assert(
+    hasLine(audit, "They are not full implementation evidence and are not complete phase deliverables."),
+    "Audit conclusion evidence statement is missing"
+  );
+
+  // Phrase guard: if Complete Review-Only Deliverable appears, an explicit full Evidence Manifest statement is required.
+  if (audit.includes("Complete Review-Only Deliverable")) {
+    assert(
+      audit.includes("Evidence Manifest Coverage: Full Roadmap Requirements"),
+      "Complete Review-Only Deliverable phrase cannot be used without explicit full Evidence Manifest coverage"
+    );
+  }
+
+  // Phase closure guard: a phase cannot be closed using design docs/tracker alone.
+  // Implementation phases require runtime evidence files; review-only phases require complete evidence manifest coverage.
+  for (let i = 7; i <= 34; i += 1) {
+    const phaseId = `P${String(i).padStart(2, "0")}`;
+    const phaseStatus = phaseMap.get(phaseId);
+    const block = getPhaseRoadmapBlock(roadmap, phaseId);
+
+    if (phaseStatus !== "completed") continue;
+
+    const isReviewOnlyPhase = /review only/i.test(block);
+    if (isReviewOnlyPhase) {
+      assert(
+        audit.includes("Evidence Manifest Coverage: Full Roadmap Requirements") &&
+          audit.includes(`Evidence Manifest: ${phaseId} Full Roadmap Coverage`),
+        `${phaseId} review-only closure requires full evidence manifest coverage`
+      );
+    } else {
+      assert(
+        hasRuntimeEvidenceForPhase(repoRoot, i),
+        `${phaseId} cannot be closed without implementation files for the phase`
+      );
+    }
   }
 
   console.log("PR41 TRUTHFUL PHASE STATE REGRESSION PASS");

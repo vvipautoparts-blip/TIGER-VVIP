@@ -9,3 +9,5 @@
 {"ts":"2026-07-16T00:00:00Z","phase":"P07","event":"truth-recovery","status":"planning","note":"Reclassified P07 as next_authorized and reset P08-P34 to pending after PR40-PR70 audit"}
 {"ts": "2026-07-16T04:51:57Z", "phase": "P07", "event": "integrity-check", "status": "planning", "note": "sha256 verified"}
 {"ts": "2026-07-16T04:52:24Z", "phase": "P07", "event": "integrity-check", "status": "planning", "note": "sha256 verified"}
+{"ts":"2026-07-16T00:00:00Z","phase":"P07","event":"truthful-recovery-checkpoint","status":"planning","note":"Attached p07-truthful-recovery checkpoint and corrected PR41-PR68 classification model"}
+{"ts": "2026-07-16T05:02:19Z", "phase": "P07", "event": "integrity-check", "status": "planning", "note": "sha256 verified"}
