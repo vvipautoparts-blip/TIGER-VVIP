@@ -1,0 +1,205 @@
+erDiagram
+  PROFILES ||--o{ ACCOUNT_TYPES : has
+  PROFILES ||--o{ SECTOR_PUBLISHING_PERMISSIONS : governs
+  PROFILES ||--o{ LISTINGS : owns
+  LISTINGS ||--o{ LISTING_MEDIA : has
+  PROFILES ||--o{ TRIALS : receives
+  PROFILES ||--o{ SUBSCRIPTIONS : owns
+  SUBSCRIPTIONS ||--o{ ENTITLEMENTS : grants
+  PROFILES ||--o{ CONVERSATIONS : participates
+  CONVERSATIONS ||--o{ MESSAGES : has
+  PROFILES ||--o{ REPORTS : submits
+  REPORTS ||--|| MODERATION_CASES : escalates
+  PROFILES ||--o{ TIGER_CARE_TICKETS : opens
+  PROFILES ||--o{ NOTIFICATIONS : receives
+  PROFILES ||--o{ AUDIT_LOGS : generates
+  PROFILES ||--o{ CLERK_SUPABASE_IDENTITY_MAP : maps
+  PROFILES ||--o{ ACCOUNT_LIFECYCLE_EVENTS : records
+  LISTINGS ||--o{ LISTING_LIFECYCLE_EVENTS : records
+  PROFILES ||--o{ LISTING_LIFECYCLE_EVENTS : triggers
+  LISTING_MEDIA ||--o{ MEDIA_LIFECYCLE_EVENTS : records
+  LISTINGS ||--o{ MEDIA_LIFECYCLE_EVENTS : scopes
+
+  PROFILES {
+    uuid profile_id PK
+    string clerk_user_id UK
+    string supabase_user_id UK
+    string display_name
+    string account_status
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  ACCOUNT_TYPES {
+    uuid account_type_id PK
+    uuid profile_id FK
+    string account_type_code
+    string sector_code
+    boolean is_active
+    timestamp effective_from
+  }
+
+  SECTOR_PUBLISHING_PERMISSIONS {
+    uuid permission_id PK
+    uuid profile_id FK
+    string sector_code
+    int posting_cap
+    string permission_state
+    timestamp updated_at
+  }
+
+  LISTINGS {
+    uuid listing_id PK
+    uuid profile_id FK
+    string sector_code
+    string lifecycle_state
+    string title_ar
+    string title_en
+    string search_norm_ar
+    timestamp published_at
+    timestamp archived_at
+    timestamp created_at
+  }
+
+  LISTING_MEDIA {
+    uuid media_id PK
+    uuid listing_id FK
+    string media_kind
+    string storage_key
+    int display_order
+    boolean is_primary
+    string media_state
+    timestamp deleted_at
+  }
+
+  TRIALS {
+    uuid trial_id PK
+    uuid profile_id FK
+    string trial_plan
+    timestamp starts_at
+    timestamp ends_at
+    string trial_status
+  }
+
+  SUBSCRIPTIONS {
+    uuid subscription_id PK
+    uuid profile_id FK
+    string subscription_plan
+    string billing_cycle
+    string subscription_status
+    timestamp renews_at
+    timestamp created_at
+  }
+
+  ENTITLEMENTS {
+    uuid entitlement_id PK
+    uuid subscription_id FK
+    string capability_key
+    int quota_limit
+    int quota_used
+    string entitlement_status
+  }
+
+  CONVERSATIONS {
+    uuid conversation_id PK
+    uuid participant_a_profile_id FK
+    uuid participant_b_profile_id FK
+    string conversation_state
+    timestamp last_message_at
+  }
+
+  MESSAGES {
+    uuid message_id PK
+    uuid conversation_id FK
+    uuid sender_profile_id FK
+    string message_type
+    string body
+    timestamp sent_at
+    timestamp deleted_at
+  }
+
+  REPORTS {
+    uuid report_id PK
+    uuid reporter_profile_id FK
+    string target_kind
+    uuid target_id
+    string reason_code
+    string report_status
+    timestamp created_at
+  }
+
+  MODERATION_CASES {
+    uuid case_id PK
+    uuid report_id FK
+    string severity
+    string case_status
+    uuid assigned_admin_profile_id FK
+    timestamp resolved_at
+  }
+
+  TIGER_CARE_TICKETS {
+    uuid ticket_id PK
+    uuid requester_profile_id FK
+    string category
+    string priority
+    string ticket_status
+    timestamp closed_at
+  }
+
+  NOTIFICATIONS {
+    uuid notification_id PK
+    uuid profile_id FK
+    string notification_type
+    string channel
+    string delivery_state
+    timestamp delivered_at
+    timestamp created_at
+  }
+
+  AUDIT_LOGS {
+    uuid audit_id PK
+    uuid actor_profile_id FK
+    string action_key
+    string target_kind
+    uuid target_id
+    json metadata
+    timestamp created_at
+  }
+
+  CLERK_SUPABASE_IDENTITY_MAP {
+    uuid identity_map_id PK
+    uuid profile_id FK
+    string clerk_user_id
+    string supabase_user_id
+    string link_state
+    timestamp updated_at
+  }
+
+  ACCOUNT_LIFECYCLE_EVENTS {
+    uuid event_id PK
+    uuid profile_id FK
+    string event_type
+    string old_state
+    string new_state
+    timestamp created_at
+  }
+
+  LISTING_LIFECYCLE_EVENTS {
+    uuid event_id PK
+    uuid listing_id FK
+    uuid profile_id FK
+    string event_type
+    string old_state
+    string new_state
+    timestamp created_at
+  }
+
+  MEDIA_LIFECYCLE_EVENTS {
+    uuid event_id PK
+    uuid media_id FK
+    uuid listing_id FK
+    string event_type
+    string old_state
+    string new_state
+    timestamp created_at
+  }
