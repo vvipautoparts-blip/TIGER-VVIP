@@ -1,0 +1,16 @@
+{
+  "type": "supporting_fix",
+  "phase": "P07",
+  "title": "Make orchestrator integrity-check read-only",
+  "reason": "integrity-check was mutating state.json and log.ndjson, invalidating verification evidence",
+  "scope": [
+    "scripts/orchestrator/vvip_master_orchestrator.py",
+    "tests/pr73-orchestrator-integrity-readonly.test.py"
+  ],
+  "production_changes": false,
+  "sql_execution": false,
+  "migrations_execution": false,
+  "rls_execution": false,
+  "storage_policy_execution": false,
+  "date": "2026-07-16"
+}
