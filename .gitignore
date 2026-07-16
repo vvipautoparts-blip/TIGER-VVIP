@@ -15,6 +15,9 @@ tests/*
 !tests/pr39-p05-profile-account-management.runtime.test.cjs
 !tests/pr40-p06-orchestrator.test.py
 !tests/pr40-p06-owner-control.runtime.test.cjs
+!tests/pr72-p07-schema-validation.test.py
+!tests/pr72-p07-database-architecture.review.test.cjs
+!tests/pr72-p07-erd-dictionary-integrity.runtime.test.cjs
 !tests/pr36/
 !tests/pr36/*
 !tests/pr35/

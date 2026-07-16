@@ -37,7 +37,7 @@ def validate(instance_path: Path, schema_path: Path) -> None:
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
     validator_class = load_validator_class()
     validator = validator_class(schema)
-    errors = sorted(validator.iter_errors(instance), key=lambda e: e.path)
+    errors = sorted(validator.iter_errors(instance), key=lambda e: list(e.path))
     if errors:
         formatted = "\n".join(f"- {'.'.join(map(str, e.path))}: {e.message}" for e in errors)
         raise AssertionError(f"schema validation failed for {instance_path.name}:\n{formatted}")

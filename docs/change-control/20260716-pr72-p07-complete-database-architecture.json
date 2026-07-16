@@ -10,10 +10,18 @@
   "rls_execution": false,
   "storage_policy_execution": false,
   "preliminary_reference": "PR41",
-  "supporting_dependency": {
-    "pr": 73,
-    "status": "merged_and_post_merge_verified"
-  },
+  "supporting_dependencies": [
+    {
+      "pr": 73,
+      "status": "merged_and_post_merge_verified",
+      "purpose": "orchestrator integrity-check readonly enforcement"
+    },
+    {
+      "pr": 74,
+      "status": "merged_and_post_merge_verified",
+      "purpose": "artifact existence guards and actionable failure protection"
+    }
+  ],
   "real_start_after": "PR71 post-merge verification",
   "date": "2026-07-16"
 }
