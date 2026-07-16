@@ -1,0 +1,10 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const html = fs.readFileSync('user-journey-preview/index.html', 'utf8');
+const script = fs.readFileSync('user-journey-preview/user-journey.js', 'utf8');
+assert.match(html, /id="entry"/);
+assert.match(script, /type-select/);
+assert.match(script, /متابعة إلى Home الموحد/);
+assert.match(script, /القطاعات فلاتر وليست بوابات منفصلة/);
+assert.doesNotMatch(script, /اختيار قطاع عند الدخول/);
+console.log('ux-r02-unified-entry: PASS');
