@@ -29,6 +29,14 @@ Branch: feat/pr72-p07-complete-database-architecture
 All 37 requirements are mapped in docs/owner-control/p07/P07_COVERAGE_MATRIX.json
 and validated through the PR72 coverage and integrity tests.
 
+Final architecture gate focus in this revision:
+
+- Clerk canonical identity resolution (Clerk JWT sub -> profiles.clerk_user_id).
+- Canonical unordered conversation pairs.
+- Canonical Monday 00:00 UTC quota windows with exact 7-day duration.
+- Enforceable single-cover design via partial unique index and atomic switch invariant.
+- Base trial cardinality per profile fixed to one_to_zero_or_one.
+
 ## Preliminary Reference Policy
 
 PR41 is treated as Preliminary Design Reference only.
@@ -37,6 +45,6 @@ This PR72 package is the real P07 architecture baseline used for P08 planning in
 ## Supporting Dependency
 
 - PR73: merged_and_post_merge_verified
-	- Purpose: orchestrator integrity-check readonly enforcement.
+  - Purpose: orchestrator integrity-check readonly enforcement.
 - PR74: merged_and_post_merge_verified
-	- Purpose: artifact existence guards and actionable failure protection.
+  - Purpose: artifact existence guards and actionable failure protection.

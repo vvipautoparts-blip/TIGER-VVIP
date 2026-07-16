@@ -29,7 +29,7 @@ PR41 is Preliminary Design Reference only and is not used as complete closure ev
 - [x] 22. Index strategy
 - [x] 23. Data ownership rules
 - [x] 24. Public/private/sensitive/admin classifications
-- [x] 25. Clerk-to-Supabase identity mapping
+- [x] 25. Clerk canonical identity resolution
 - [x] 26. Account lifecycle
 - [x] 27. Listing lifecycle
 - [x] 28. Media lifecycle
@@ -53,14 +53,18 @@ PR41 is Preliminary Design Reference only and is not used as complete closure ev
 ### Identity and Ownership
 
 - Every user-owned entity references profiles.profile_id.
-- clerk_user_id and supabase_user_id remain uniquely constrained.
-- identity mapping is represented by clerk_supabase_identity_map.
+- Clerk JWT sub resolves canonically to profiles.clerk_user_id.
+- Supabase-auth identity columns are not required in profiles under the Clerk-first model.
+- Conversations use canonical unordered pair keys participant_low_profile_id and participant_high_profile_id.
 
 ### Lifecycle Contracts
 
 - account lifecycle tracked in account_lifecycle_events.
 - listing lifecycle tracked in listing_lifecycle_events with state transitions.
 - media lifecycle tracked in media_lifecycle_events and listing_media soft-delete metadata.
+- listing publication quota windows use Monday 00:00 UTC canonical week_start and exact 7-day [week_start, week_end) windows.
+- listing published lifecycle enforces timestamp coherence and exact 120-day expiry relation.
+- listing cover enforcement uses partial unique index on is_cover for active media plus atomic cover-switch service invariant.
 
 ### Data Classification
 

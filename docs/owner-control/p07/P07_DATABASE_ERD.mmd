@@ -4,7 +4,7 @@ erDiagram
   PROFILES ||--o{ LISTINGS : owns
   LISTINGS ||--o{ LISTING_MEDIA : has
   PROFILES ||--o{ LISTING_PUBLICATION_QUOTA_WINDOWS : caps_publication_by_week
-  PROFILES ||--o{ TRIALS : receives
+  PROFILES ||--o| TRIALS : receives
   PROFILES ||--o{ SUBSCRIPTIONS : owns
   SUBSCRIPTIONS ||--o{ ENTITLEMENTS : grants
   PROFILES ||--o{ CONVERSATIONS : participates
@@ -14,7 +14,6 @@ erDiagram
   PROFILES ||--o{ TIGER_CARE_TICKETS : opens
   PROFILES ||--o{ NOTIFICATIONS : receives
   PROFILES ||--o{ AUDIT_LOGS : generates
-  PROFILES ||--o| CLERK_SUPABASE_IDENTITY_MAP : maps
   PROFILES ||--o{ ACCOUNT_LIFECYCLE_EVENTS : records
   LISTINGS ||--o{ LISTING_LIFECYCLE_EVENTS : records
   PROFILES ||--o{ LISTING_LIFECYCLE_EVENTS : triggers
@@ -24,11 +23,11 @@ erDiagram
   PROFILES {
     uuid profile_id PK
     string clerk_user_id UK
-    string supabase_user_id UK
     string display_name
     string account_status
     timestamp created_at
     timestamp updated_at
+    timestamp closed_at
   }
 
   ACCOUNT_TYPES {
@@ -138,8 +137,8 @@ erDiagram
 
   CONVERSATIONS {
     uuid conversation_id PK
-    uuid participant_a_profile_id FK
-    uuid participant_b_profile_id FK
+    uuid participant_low_profile_id FK
+    uuid participant_high_profile_id FK
     string conversation_state
     timestamp last_message_at
   }
@@ -200,15 +199,6 @@ erDiagram
     uuid target_id
     json metadata
     timestamp created_at
-  }
-
-  CLERK_SUPABASE_IDENTITY_MAP {
-    uuid identity_map_id PK
-    uuid profile_id FK
-    string clerk_user_id
-    string supabase_user_id
-    string link_state
-    timestamp updated_at
   }
 
   ACCOUNT_LIFECYCLE_EVENTS {

@@ -61,6 +61,18 @@ function hasCheck(entity, pattern) {
   return (entity.check_constraints || []).some((c) => pattern.test(String(c.expression || "")));
 }
 
+function hasIndex(entity, columns, options = {}) {
+  const normalized = columns.map((c) => normalizeEntity(c));
+  return (entity.indexes || []).some((i) => {
+    const got = (i.columns || []).map((c) => normalizeEntity(c));
+    const sameCols = got.length === normalized.length && got.every((v, idx) => v === normalized[idx]);
+    if (!sameCols) return false;
+    if (options.unique !== undefined && Boolean(i.unique) !== Boolean(options.unique)) return false;
+    if (options.predicate && !options.predicate.test(String(i.predicate || ""))) return false;
+    return true;
+  });
+}
+
 function hasUnique(entity, cols) {
   const normalized = cols.map((c) => normalizeEntity(c));
   return (entity.unique_constraints || []).some((u) => {
@@ -82,6 +94,76 @@ function expectContractFailure(mutator, verify, expectedMessage) {
 
 function deepClone(value) {
   return JSON.parse(JSON.stringify(value));
+}
+
+function verifyFinalIdentityAndInvariantContracts(dict, erdParsed) {
+  const dictEntities = new Map((dict.entities || []).map((e) => [normalizeEntity(e.name), e]));
+
+  const profiles = getEntity(dictEntities, "profiles");
+  assert(hasColumn(profiles, "clerk_user_id"), "profiles must include clerk_user_id canonical identity");
+  assert(!hasColumn(profiles, "supabase_user_id"), "profiles must not require supabase_user_id under Clerk-only auth model");
+  assert(hasCheck(profiles, /active.*pending.*suspended.*closed/i), "profiles.account_status must be active/pending/suspended/closed");
+  assert((profiles.lifecycle_states || []).includes("closed"), "profiles lifecycle must include closed status");
+  assert((profiles.lifecycle_states || []).includes("pending"), "profiles lifecycle must include pending status");
+
+  const identityMap = dictEntities.get("clerk_supabase_identity_map");
+  assert(!identityMap, "clerk_supabase_identity_map must not exist in Clerk-only canonical identity model");
+
+  const conversations = getEntity(dictEntities, "conversations");
+  assert(hasColumn(conversations, "participant_low_profile_id"), "conversations must use participant_low_profile_id canonical key");
+  assert(hasColumn(conversations, "participant_high_profile_id"), "conversations must use participant_high_profile_id canonical key");
+  assert(!hasColumn(conversations, "participant_a_profile_id"), "conversations must not keep participant_a_profile_id in canonical model");
+  assert(!hasColumn(conversations, "participant_b_profile_id"), "conversations must not keep participant_b_profile_id in canonical model");
+  assert(hasUnique(conversations, ["participant_low_profile_id", "participant_high_profile_id"]), "conversations must enforce unique canonical pair");
+  assert(hasCheck(conversations, /participant_low_profile_id\s*<\s*participant_high_profile_id/i), "conversations must enforce canonical participant ordering");
+
+  const erdConv = (erdParsed.relations || []).find((r) => r.from === "profiles" && r.to === "conversations");
+  assert(erdConv, "ERD missing profiles -> conversations relation");
+
+  const quota = getEntity(dictEntities, "listing_publication_quota_windows");
+  assert(hasCheck(quota, /week_end\s*=\s*week_start\s*\+\s*interval\s*'7\s*days'/i), "quota windows must enforce exact 7-day week_end contract");
+  assert(hasCheck(quota, /week_start_utc_monday_00_00|date_trunc\('week',\s*week_start\s+at\s+time\s+zone\s+'utc'\)\s*=\s*week_start/i), "quota windows must enforce canonical UTC Monday week_start boundary");
+  assert(hasCheck(quota, /non_overlapping_profile_week_windows/i), "quota windows must encode non-overlap contract for same profile");
+
+  const listings = getEntity(dictEntities, "listings");
+  assert(hasCheck(listings, /lifecycle_state\s*=\s*'draft'.*published_at\s+is\s+null.*expires_at\s+is\s+null/i), "listings draft state must require null published_at/expires_at");
+  assert(hasCheck(listings, /lifecycle_state\s*=\s*'pending_review'.*published_at\s+is\s+null.*expires_at\s+is\s+null/i), "listings pending_review state must require null published_at/expires_at");
+  assert(hasCheck(listings, /lifecycle_state\s*=\s*'published'.*published_at\s+is\s+not\s+null.*expires_at\s+is\s+not\s+null.*expires_at\s*=\s*published_at\s*\+\s*interval\s*'120\s*days'.*archived_at\s+is\s+null.*deleted_at\s+is\s+null/i), "listings published state must enforce timestamp coherence and 120-day expiry");
+  assert(hasCheck(listings, /lifecycle_state\s*=\s*'expired'.*published_at\s+is\s+not\s+null.*expires_at\s+is\s+not\s+null/i), "listings expired state must preserve publication timestamps");
+  assert(hasCheck(listings, /lifecycle_state\s*=\s*'archived'.*archived_at\s+is\s+not\s+null/i), "listings archived state must require archived_at");
+  assert(hasCheck(listings, /lifecycle_state\s*=\s*'deleted'.*deleted_at\s+is\s+not\s+null/i), "listings deleted state must require deleted_at");
+  assert(Array.isArray(listings.lifecycle_transition_matrix), "listings must include lifecycle_transition_matrix contract");
+  const transitions = listings.lifecycle_transition_matrix || [];
+  const requiredTransitions = [
+    "draft->pending_review",
+    "pending_review->published",
+    "pending_review->draft",
+    "published->expired",
+    "published->archived",
+    "expired->archived",
+    "archived->deleted"
+  ];
+  for (const step of requiredTransitions) {
+    assert(transitions.includes(step), `missing listing lifecycle transition: ${step}`);
+  }
+
+  const media = getEntity(dictEntities, "listing_media");
+  assert(!hasCheck(media, /exactly_one_cover_per_listing/i), "listing_media must not use non-executable fake cover check constraint");
+  assert(
+    hasIndex(media, ["listing_id"], { unique: true, predicate: /is_cover\s*=\s*true.*media_state\s*=\s*'active'/i }),
+    "listing_media must define partial unique index contract for active cover"
+  );
+  const serviceInvariants = media.service_invariants || [];
+  assert(serviceInvariants.some((x) => /exactly one cover/i.test(String(x))), "listing_media must include exactly-one-cover publishing invariant");
+  assert(serviceInvariants.some((x) => /atomic/i.test(String(x))), "listing_media must include atomic cover-switch invariant");
+
+  const trialsRel = (dict.relationships || []).find((r) => normalizeEntity(r.from) === "profiles" && normalizeEntity(r.to) === "trials");
+  assert(trialsRel, "missing profiles -> trials relationship");
+  assert(String(trialsRel.type || "") === "one_to_zero_or_one", "profiles -> trials relationship must be one_to_zero_or_one for base trial contract");
+
+  const erdTrialsRel = (erdParsed.relations || []).find((r) => r.from === "profiles" && r.to === "trials");
+  assert(erdTrialsRel, "ERD missing profiles -> trials relation");
+  assert(tokenToCardinalityType(erdTrialsRel.cardinalityToken) === "one_to_zero_or_one", "ERD profiles -> trials cardinality must be one_to_zero_or_one");
 }
 
 function verifyOwnerDecisionContracts(dict, erdParsed) {
@@ -117,7 +199,7 @@ function verifyOwnerDecisionContracts(dict, erdParsed) {
   assert(hasCheck(quota, /used_count\s*>=\s*0/i), "quota windows must enforce used_count >= 0");
   assert(hasCheck(quota, /reserved_count\s*>=\s*0/i), "quota windows must enforce reserved_count >= 0");
   assert(hasCheck(quota, /used_count\s*\+\s*reserved_count\s*<=\s*limit_count/i), "quota windows must enforce used+reserved <= limit");
-  assert(hasCheck(quota, /week_end\s*>\s*week_start/i), "quota windows must enforce week_end > week_start");
+  assert(hasCheck(quota, /week_end\s*=\s*week_start\s*\+\s*interval\s*'7\s*days'/i), "quota windows must enforce exact seven-day window");
 
   const media = getEntity(dictEntities, "listing_media");
   for (const col of ["mime_type", "width", "height", "aspect_ratio", "byte_size", "checksum", "crop_x", "crop_y", "crop_width", "crop_height", "zoom_level", "processing_state", "is_cover"]) {
@@ -127,7 +209,7 @@ function verifyOwnerDecisionContracts(dict, erdParsed) {
   assert(hasCheck(media, /display_order.*<=\s*7/i), "listing_media must enforce max 7 images");
   assert(hasCheck(media, /aspect_ratio.*4\s*:\s*3|aspect_ratio.*4\/3/i), "listing_media must enforce 4:3 aspect ratio");
   assert(hasCheck(media, /processed/i), "listing_media must enforce processed-only storage contract");
-  assert(hasCheck(media, /exactly_one_cover_per_listing/i), "listing_media must document exactly-one-cover contract");
+  assert(hasIndex(media, ["listing_id"], { unique: true, predicate: /is_cover\s*=\s*true.*media_state\s*=\s*'active'/i }), "listing_media must define partial unique active-cover index contract");
 
   const mediaRel = (dict.relationships || []).find((r) => normalizeEntity(r.from) === "profiles" && normalizeEntity(r.to) === "listing_publication_quota_windows");
   assert(mediaRel, "missing profiles -> listing_publication_quota_windows relationship");
@@ -194,39 +276,77 @@ function verifyOwnerDecisionContracts(dict, erdParsed) {
     assert(Array.isArray(row.tests) && row.tests.length > 0, `requirement ${i} missing tests`);
   }
 
-  // 7) identity-map cardinality must be one-to-zero-or-one (unique profile_id FK)
-  const identityEntity = dictEntities.get("clerk_supabase_identity_map");
-  assert(identityEntity, "missing entity: clerk_supabase_identity_map");
-
-  const profileFk = (identityEntity.foreign_keys || []).find(
-    (fk) => normalizeEntity(fk.column) === "profile_id" && normalizeEntity(fk.ref_entity) === "profiles" && normalizeEntity(fk.ref_column) === "profile_id"
-  );
-  assert(profileFk, "clerk_supabase_identity_map must define FK profile_id -> profiles.profile_id");
-
-  const hasUniqueProfile = (identityEntity.unique_constraints || []).some(
-    (uq) => Array.isArray(uq.columns) && uq.columns.length === 1 && normalizeEntity(uq.columns[0]) === "profile_id"
-  );
-  assert(hasUniqueProfile, "clerk_supabase_identity_map must enforce unique profile_id to model one-to-zero-or-one mapping");
-
-  const dictIdentityRel = (dict.relationships || []).find(
-    (r) => normalizeEntity(r.from) === "profiles" && normalizeEntity(r.to) === "clerk_supabase_identity_map" && String(r.label || "").trim().toLowerCase() === "maps"
-  );
-  assert(dictIdentityRel, "dictionary missing profiles -> clerk_supabase_identity_map relation");
-  assert(dictIdentityRel.type === "one_to_zero_or_one", "dictionary identity-map relation must be one_to_zero_or_one");
-
-  const erdIdentityRel = erdParsed.relations.find(
-    (r) => r.from === "profiles" && r.to === "clerk_supabase_identity_map" && r.label === "maps"
-  );
-  assert(erdIdentityRel, "ERD missing profiles -> clerk_supabase_identity_map relation");
-
-  const erdIdentityType = tokenToCardinalityType(erdIdentityRel.cardinalityToken);
-  assert(erdIdentityType === "one_to_zero_or_one", `ERD identity-map cardinality must be one_to_zero_or_one, got: ${erdIdentityRel.cardinalityToken}`);
-  assert(erdIdentityType === dictIdentityRel.type, "ERD and dictionary cardinality mismatch for identity-map relation");
+  // 7) final identity and invariants contract gate
+  verifyFinalIdentityAndInvariantContracts(dict, erdParsed);
 
   // 8) owner decision contracts must be represented in architecture artifacts
   verifyOwnerDecisionContracts(dict, erdParsed);
 
   // 9) negative contract checks must fail when owner contracts regress
+  expectContractFailure(() => {
+    const bad = deepClone(dict);
+    const profiles = bad.entities.find((e) => normalizeEntity(e.name) === "profiles");
+    profiles.check_constraints = [{ name: "ck_profiles_status", expression: "account_status in ('active','suspended','deleted')" }];
+    return bad;
+  }, (bad) => verifyFinalIdentityAndInvariantContracts(bad, erdParsed), "active/pending/suspended/closed");
+
+  expectContractFailure(() => {
+    const bad = deepClone(dict);
+    const profiles = bad.entities.find((e) => normalizeEntity(e.name) === "profiles");
+    profiles.columns.push({ name: "supabase_user_id", data_type: "text", nullable: false, default: null });
+    return bad;
+  }, (bad) => verifyFinalIdentityAndInvariantContracts(bad, erdParsed), "must not require supabase_user_id");
+
+  expectContractFailure(() => {
+    const bad = deepClone(dict);
+    bad.entities.push({ name: "clerk_supabase_identity_map", columns: [], foreign_keys: [], unique_constraints: [], check_constraints: [], indexes: [], lifecycle_states: ["active"] });
+    return bad;
+  }, (bad) => verifyFinalIdentityAndInvariantContracts(bad, erdParsed), "must not exist in Clerk-only canonical identity model");
+
+  expectContractFailure(() => {
+    const bad = deepClone(dict);
+    const conv = bad.entities.find((e) => normalizeEntity(e.name) === "conversations");
+    conv.columns = conv.columns.filter((c) => normalizeEntity(c.name) !== "participant_low_profile_id" && normalizeEntity(c.name) !== "participant_high_profile_id");
+    conv.columns.push({ name: "participant_a_profile_id" }, { name: "participant_b_profile_id" });
+    return bad;
+  }, (bad) => verifyFinalIdentityAndInvariantContracts(bad, erdParsed), "canonical key");
+
+  expectContractFailure(() => {
+    const bad = deepClone(dict);
+    const quota = bad.entities.find((e) => normalizeEntity(e.name) === "listing_publication_quota_windows");
+    quota.check_constraints = [{ name: "ck_listing_quota_window_bounds", expression: "week_end > week_start" }];
+    return bad;
+  }, (bad) => verifyFinalIdentityAndInvariantContracts(bad, erdParsed), "exact 7-day week_end");
+
+  expectContractFailure(() => {
+    const bad = deepClone(dict);
+    const quota = bad.entities.find((e) => normalizeEntity(e.name) === "listing_publication_quota_windows");
+    quota.check_constraints = (quota.check_constraints || []).filter((c) => !/week_start_utc_monday_00_00|date_trunc\('week'/i.test(String(c.expression || "")));
+    return bad;
+  }, (bad) => verifyFinalIdentityAndInvariantContracts(bad, erdParsed), "canonical UTC Monday");
+
+  expectContractFailure(() => {
+    const bad = deepClone(dict);
+    const listings = bad.entities.find((e) => normalizeEntity(e.name) === "listings");
+    listings.check_constraints = (listings.check_constraints || []).filter((c) => !/lifecycle_state\s*=\s*'published'.*published_at\s+is\s+not\s+null/i.test(String(c.expression || "")));
+    return bad;
+  }, (bad) => verifyFinalIdentityAndInvariantContracts(bad, erdParsed), "published state must enforce timestamp coherence");
+
+  expectContractFailure(() => {
+    const bad = deepClone(dict);
+    const media = bad.entities.find((e) => normalizeEntity(e.name) === "listing_media");
+    media.check_constraints = media.check_constraints || [];
+    media.check_constraints.push({ name: "ck_fake_cover", expression: "exactly_one_cover_per_listing" });
+    return bad;
+  }, (bad) => verifyFinalIdentityAndInvariantContracts(bad, erdParsed), "must not use non-executable fake cover check");
+
+  expectContractFailure(() => {
+    const bad = deepClone(dict);
+    const rel = bad.relationships.find((r) => normalizeEntity(r.from) === "profiles" && normalizeEntity(r.to) === "trials");
+    if (rel) rel.type = "one_to_many";
+    return bad;
+  }, (bad) => verifyFinalIdentityAndInvariantContracts(bad, erdParsed), "must be one_to_zero_or_one");
+
   expectContractFailure(() => {
     const bad = deepClone(dict);
     const listings = bad.entities.find((e) => normalizeEntity(e.name) === "listings");
@@ -264,7 +384,7 @@ function verifyOwnerDecisionContracts(dict, erdParsed) {
   const idxCount = dict.entities.reduce((acc, e) => acc + (e.indexes || []).length, 0);
   const relCount = (dict.relationships || []).length;
 
-  const ownerDecisionContractsCovered = 12;
+  const ownerDecisionContractsCovered = 19;
 
   console.log(JSON.stringify({
     test: "PR72 ERD-DICTIONARY INTEGRITY PASS",

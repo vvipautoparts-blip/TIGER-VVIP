@@ -5,7 +5,7 @@
   "entities": [
     {
       "name": "profiles",
-      "purpose": "Primary identity and profile root for all user-owned data.",
+      "purpose": "Primary internal profile root keyed by Clerk canonical subject identity.",
       "columns": [
         {
           "name": "profile_id",
@@ -15,12 +15,6 @@
         },
         {
           "name": "clerk_user_id",
-          "data_type": "text",
-          "nullable": false,
-          "default": null
-        },
-        {
-          "name": "supabase_user_id",
           "data_type": "text",
           "nullable": false,
           "default": null
@@ -48,6 +42,12 @@
           "data_type": "timestamptz",
           "nullable": false,
           "default": "now()"
+        },
+        {
+          "name": "closed_at",
+          "data_type": "timestamptz",
+          "nullable": true,
+          "default": null
         }
       ],
       "primary_key": {
@@ -62,18 +62,12 @@
           "columns": [
             "clerk_user_id"
           ]
-        },
-        {
-          "name": "uq_profiles_supabase",
-          "columns": [
-            "supabase_user_id"
-          ]
         }
       ],
       "check_constraints": [
         {
           "name": "ck_profiles_status",
-          "expression": "account_status in ('active','suspended','deleted')"
+          "expression": "account_status in ('active','pending','suspended','closed')"
         }
       ],
       "indexes": [
@@ -81,13 +75,6 @@
           "name": "idx_profiles_clerk_user_id",
           "columns": [
             "clerk_user_id"
-          ],
-          "kind": "btree"
-        },
-        {
-          "name": "idx_profiles_supabase_user_id",
-          "columns": [
-            "supabase_user_id"
           ],
           "kind": "btree"
         },
@@ -104,8 +91,9 @@
       "retention": "until account deletion + legal hold window",
       "lifecycle_states": [
         "active",
+        "pending",
         "suspended",
-        "deleted"
+        "closed"
       ]
     },
     {
@@ -467,6 +455,30 @@
         {
           "name": "ck_listings_publish_expiry_120_days",
           "expression": "(published_at is null and expires_at is null) or (published_at is not null and expires_at = published_at + interval '120 days')"
+        },
+        {
+          "name": "ck_listings_state_draft_null_timestamps",
+          "expression": "(lifecycle_state = 'draft' and published_at is null and expires_at is null) or lifecycle_state <> 'draft'"
+        },
+        {
+          "name": "ck_listings_state_pending_review_null_timestamps",
+          "expression": "(lifecycle_state = 'pending_review' and published_at is null and expires_at is null) or lifecycle_state <> 'pending_review'"
+        },
+        {
+          "name": "ck_listings_state_published_coherence",
+          "expression": "(lifecycle_state = 'published' and published_at is not null and expires_at is not null and expires_at = published_at + interval '120 days' and archived_at is null and deleted_at is null) or lifecycle_state <> 'published'"
+        },
+        {
+          "name": "ck_listings_state_expired_timestamps",
+          "expression": "(lifecycle_state = 'expired' and published_at is not null and expires_at is not null) or lifecycle_state <> 'expired'"
+        },
+        {
+          "name": "ck_listings_state_archived_requires_archived_at",
+          "expression": "(lifecycle_state = 'archived' and archived_at is not null) or lifecycle_state <> 'archived'"
+        },
+        {
+          "name": "ck_listings_state_deleted_requires_deleted_at",
+          "expression": "(lifecycle_state = 'deleted' and deleted_at is not null) or lifecycle_state <> 'deleted'"
         }
       ],
       "indexes": [
@@ -525,6 +537,15 @@
         "expired",
         "archived",
         "deleted"
+      ],
+      "lifecycle_transition_matrix": [
+        "draft->pending_review",
+        "pending_review->published",
+        "pending_review->draft",
+        "published->expired",
+        "published->archived",
+        "expired->archived",
+        "archived->deleted"
       ]
     },
     {
@@ -703,10 +724,6 @@
         {
           "name": "ck_listing_media_byte_size_positive",
           "expression": "byte_size > 0"
-        },
-        {
-          "name": "ck_listing_media_exactly_one_cover_design_contract",
-          "expression": "exactly_one_cover_per_listing (design contract; enforced by service transaction for active listing media)"
         }
       ],
       "indexes": [
@@ -732,6 +749,15 @@
             "processing_state"
           ],
           "kind": "btree"
+        },
+        {
+          "name": "uq_listing_media_active_cover_partial",
+          "columns": [
+            "listing_id"
+          ],
+          "kind": "btree",
+          "unique": true,
+          "predicate": "is_cover = true and media_state = 'active'"
         }
       ],
       "owner": "user",
@@ -741,6 +767,11 @@
         "active",
         "hidden",
         "deleted"
+      ],
+      "service_invariants": [
+        "Publishing gate requires at least one active media row.",
+        "Publishing gate requires exactly one cover among active media rows.",
+        "Cover switch is atomic: clear old cover, set new cover, verify exactly one cover remains active."
       ]
     },
     {
@@ -843,8 +874,16 @@
           "expression": "used_count + reserved_count <= limit_count"
         },
         {
-          "name": "ck_listing_quota_window_bounds",
-          "expression": "week_end > week_start"
+          "name": "ck_listing_quota_exact_week_window",
+          "expression": "week_end = week_start + interval '7 days'"
+        },
+        {
+          "name": "ck_listing_quota_week_start_canonical_utc_monday",
+          "expression": "week_start_utc_monday_00_00 (design invariant: week_start must be Monday 00:00 UTC canonical boundary)"
+        },
+        {
+          "name": "ck_listing_quota_non_overlapping_profile_week_windows",
+          "expression": "non_overlapping_profile_week_windows (design invariant under canonical [week_start, week_end) windows)"
         }
       ],
       "indexes": [
@@ -867,7 +906,7 @@
     },
     {
       "name": "trials",
-      "purpose": "Tracks one base free-trial contract per account with four calendar months duration.",
+      "purpose": "Tracks a single base free-trial contract per profile with exact four calendar months duration.",
       "columns": [
         {
           "name": "trial_id",
@@ -1168,7 +1207,7 @@
     },
     {
       "name": "conversations",
-      "purpose": "One-to-one conversation channel metadata.",
+      "purpose": "One-to-one canonical conversation channel keyed by unordered participant pair.",
       "columns": [
         {
           "name": "conversation_id",
@@ -1177,13 +1216,13 @@
           "default": null
         },
         {
-          "name": "participant_a_profile_id",
+          "name": "participant_low_profile_id",
           "data_type": "uuid",
           "nullable": false,
           "default": null
         },
         {
-          "name": "participant_b_profile_id",
+          "name": "participant_high_profile_id",
           "data_type": "uuid",
           "nullable": false,
           "default": null
@@ -1208,14 +1247,14 @@
       },
       "foreign_keys": [
         {
-          "column": "participant_a_profile_id",
+          "column": "participant_low_profile_id",
           "ref_entity": "profiles",
           "ref_column": "profile_id",
           "on_delete": "cascade",
           "on_update": "cascade"
         },
         {
-          "column": "participant_b_profile_id",
+          "column": "participant_high_profile_id",
           "ref_entity": "profiles",
           "ref_column": "profile_id",
           "on_delete": "cascade",
@@ -1224,31 +1263,31 @@
       ],
       "unique_constraints": [
         {
-          "name": "uq_conversations_pair",
+          "name": "uq_conversations_canonical_pair",
           "columns": [
-            "participant_a_profile_id",
-            "participant_b_profile_id"
+            "participant_low_profile_id",
+            "participant_high_profile_id"
           ]
         }
       ],
       "check_constraints": [
         {
-          "name": "ck_conversations_distinct",
-          "expression": "participant_a_profile_id <> participant_b_profile_id"
+          "name": "ck_conversations_canonical_pair_order",
+          "expression": "participant_low_profile_id < participant_high_profile_id"
         }
       ],
       "indexes": [
         {
-          "name": "idx_conversations_participant_a",
+          "name": "idx_conversations_participant_low",
           "columns": [
-            "participant_a_profile_id"
+            "participant_low_profile_id"
           ],
           "kind": "btree"
         },
         {
-          "name": "idx_conversations_participant_b",
+          "name": "idx_conversations_participant_high",
           "columns": [
-            "participant_b_profile_id"
+            "participant_high_profile_id"
           ],
           "kind": "btree"
         },
@@ -1864,119 +1903,6 @@
       ]
     },
     {
-      "name": "clerk_supabase_identity_map",
-      "purpose": "Identity contract bridge between Clerk and Supabase identifiers.",
-      "columns": [
-        {
-          "name": "identity_map_id",
-          "data_type": "uuid",
-          "nullable": false,
-          "default": null
-        },
-        {
-          "name": "profile_id",
-          "data_type": "uuid",
-          "nullable": false,
-          "default": null
-        },
-        {
-          "name": "clerk_user_id",
-          "data_type": "text",
-          "nullable": false,
-          "default": null
-        },
-        {
-          "name": "supabase_user_id",
-          "data_type": "text",
-          "nullable": false,
-          "default": null
-        },
-        {
-          "name": "link_state",
-          "data_type": "text",
-          "nullable": false,
-          "default": "linked"
-        },
-        {
-          "name": "updated_at",
-          "data_type": "timestamptz",
-          "nullable": false,
-          "default": "now()"
-        }
-      ],
-      "primary_key": {
-        "columns": [
-          "identity_map_id"
-        ]
-      },
-      "foreign_keys": [
-        {
-          "column": "profile_id",
-          "ref_entity": "profiles",
-          "ref_column": "profile_id",
-          "on_delete": "cascade",
-          "on_update": "cascade"
-        }
-      ],
-      "unique_constraints": [
-        {
-          "name": "uq_identity_map_clerk",
-          "columns": [
-            "clerk_user_id"
-          ]
-        },
-        {
-          "name": "uq_identity_map_supabase",
-          "columns": [
-            "supabase_user_id"
-          ]
-        },
-        {
-          "name": "uq_identity_map_profile",
-          "columns": [
-            "profile_id"
-          ]
-        }
-      ],
-      "check_constraints": [
-        {
-          "name": "ck_identity_link_state",
-          "expression": "link_state in ('linked','unlinked','conflict')"
-        }
-      ],
-      "indexes": [
-        {
-          "name": "idx_identity_map_clerk",
-          "columns": [
-            "clerk_user_id"
-          ],
-          "kind": "btree"
-        },
-        {
-          "name": "idx_identity_map_supabase",
-          "columns": [
-            "supabase_user_id"
-          ],
-          "kind": "btree"
-        },
-        {
-          "name": "idx_identity_map_profile",
-          "columns": [
-            "profile_id"
-          ],
-          "kind": "btree"
-        }
-      ],
-      "owner": "platform",
-      "data_classification": "sensitive",
-      "retention": "account lifetime + 24 months",
-      "lifecycle_states": [
-        "linked",
-        "unlinked",
-        "conflict"
-      ]
-    },
-    {
       "name": "account_lifecycle_events",
       "purpose": "Timeline of account state transitions.",
       "columns": [
@@ -2292,7 +2218,7 @@
     {
       "from": "profiles",
       "to": "trials",
-      "type": "one_to_many",
+      "type": "one_to_zero_or_one",
       "label": "receives"
     },
     {
@@ -2348,12 +2274,6 @@
       "to": "audit_logs",
       "type": "one_to_many",
       "label": "generates"
-    },
-    {
-      "from": "profiles",
-      "to": "clerk_supabase_identity_map",
-      "type": "one_to_zero_or_one",
-      "label": "maps"
     },
     {
       "from": "profiles",

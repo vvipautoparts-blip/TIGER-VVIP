@@ -66,7 +66,14 @@ function validateOwnerDecisionCoverage(coverage) {
     "original discarded",
     "one-to-one communication",
     "audit append-only",
-    "public media read only for published listings"
+    "public media read only for published listings",
+    "clerk is canonical auth identity",
+    "account statuses match active/pending/suspended/closed",
+    "canonical unordered conversation pair",
+    "canonical utc weekly quota window",
+    "listing lifecycle timestamp coherence",
+    "enforceable single-cover design",
+    "one base trial per profile"
   ];
   for (const name of required) {
     const row = contracts.find((x) => String(x.contract || "").toLowerCase() === name.toLowerCase());
@@ -107,6 +114,14 @@ function validateOwnerDecisionCoverage(coverage) {
   const manifest = read("docs/owner-control/p07/P07_EVIDENCE_MANIFEST.md");
   assert(manifest.includes("NO PRODUCTION CHANGE"), "manifest must include no-production-change pledge");
 
+  assert(architecture.toLowerCase().includes("clerk jwt sub") && architecture.toLowerCase().includes("profiles.clerk_user_id"), "architecture review must document clerk jwt subject resolution against profiles.clerk_user_id");
+  assert(!architecture.toLowerCase().includes("clerk_supabase_identity_map"), "architecture review must not depend on clerk_supabase_identity_map");
+  assert(!architecture.toLowerCase().includes("supabase_user_id"), "architecture review must not require supabase auth identity in profiles");
+  assert(architecture.toLowerCase().includes("canonical") && architecture.toLowerCase().includes("conversation"), "architecture review must document canonical conversation pair model");
+  assert(architecture.toLowerCase().includes("monday 00:00 utc"), "architecture review must document canonical utc weekly window");
+  assert(architecture.toLowerCase().includes("partial unique index") && architecture.toLowerCase().includes("is_cover"), "architecture review must document cover partial unique index contract");
+  assert(architecture.toLowerCase().includes("atomic") && architecture.toLowerCase().includes("cover"), "architecture review must document atomic cover-switch invariant");
+
   const manifestJson = JSON.parse(read("docs/owner-control/p07/P07_EVIDENCE_MANIFEST.json"));
   validateEvidenceDependencies(manifestJson);
 
@@ -123,7 +138,8 @@ function validateOwnerDecisionCoverage(coverage) {
   assert(rls.includes("no update") || rls.includes("update: denied"), "audit_logs must deny update");
   assert(rls.includes("no delete") || rls.includes("delete: denied"), "audit_logs must deny delete");
   assert(rls.includes("public read only when parent listing is published"), "listing_media must be public-readable only when parent listing is published");
-  assert(rls.includes("no direct client access"), "identity map must deny direct client access");
+  assert(rls.includes("clerk jwt sub") && rls.includes("profiles.clerk_user_id"), "RLS matrix must document Clerk JWT subject mapping to profiles.clerk_user_id");
+  assert(!rls.includes("clerk_supabase_identity_map"), "RLS matrix must not include clerk_supabase_identity_map in final identity model");
 
   const coverage = JSON.parse(read("docs/owner-control/p07/P07_COVERAGE_MATRIX.json"));
   validateOwnerDecisionCoverage(coverage);
@@ -131,6 +147,10 @@ function validateOwnerDecisionCoverage(coverage) {
   // Negative checks required by owner review.
   expectFailure(() => validateEvidenceDependencies({ supporting_dependencies: [{ pr: 73, status: "merged_and_post_merge_verified", purpose: "only one dependency" }] }), "PR74");
   expectFailure(() => validateOwnerDecisionCoverage({ owner_decision_contracts: [] }), "mandatory price > 0");
+  expectFailure(() => {
+    const bad = "clerk_supabase_identity_map required";
+    assert(!bad.includes("clerk_supabase_identity_map"), "architecture review must not depend on clerk_supabase_identity_map");
+  }, "must not depend on clerk_supabase_identity_map");
   expectFailure(() => {
     const badStorage = "listing image original\ncanonical source object";
     assert(!badStorage.includes("listing image original"), "storage policy must not include durable listing image original contract");
