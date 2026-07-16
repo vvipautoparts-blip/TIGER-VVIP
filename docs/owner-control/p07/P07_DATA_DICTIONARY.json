@@ -2010,7 +2010,7 @@
     {
       "from": "profiles",
       "to": "clerk_supabase_identity_map",
-      "type": "one_to_many",
+      "type": "one_to_zero_or_one",
       "label": "maps"
     },
     {

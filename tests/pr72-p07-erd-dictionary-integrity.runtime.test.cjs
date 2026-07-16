@@ -23,10 +23,12 @@ function parseErdEntitiesAndRelations(content) {
   for (const line of content.split(/\r?\n/)) {
     const rel = line.match(/^\s*([A-Z0-9_]+)\s+[|}{o-]+\s+([A-Z0-9_]+)\s*:\s*(.+)\s*$/);
     if (rel) {
+      const cardinalityToken = line.match(/^\s*[A-Z0-9_]+\s+([|}{o-]+)\s+[A-Z0-9_]+\s*:/);
       relations.push({
         from: normalizeEntity(rel[1]),
         to: normalizeEntity(rel[2]),
-        label: rel[3].trim().toLowerCase()
+        label: rel[3].trim().toLowerCase(),
+        cardinalityToken: (cardinalityToken ? cardinalityToken[1] : "").trim()
       });
     }
 
@@ -35,6 +37,14 @@ function parseErdEntitiesAndRelations(content) {
   }
 
   return { entities, relations };
+}
+
+function tokenToCardinalityType(token) {
+  const normalized = String(token || "").replace(/\s+/g, "");
+  if (normalized === "||--o{") return "one_to_many";
+  if (normalized === "||--o|") return "one_to_zero_or_one";
+  if (normalized === "||--||") return "one_to_one";
+  return null;
 }
 
 (function main() {
@@ -92,6 +102,35 @@ function parseErdEntitiesAndRelations(content) {
     assert(Array.isArray(row.artifacts) && row.artifacts.length > 0, `requirement ${i} missing artifacts`);
     assert(Array.isArray(row.tests) && row.tests.length > 0, `requirement ${i} missing tests`);
   }
+
+  // 7) identity-map cardinality must be one-to-zero-or-one (unique profile_id FK)
+  const identityEntity = dictEntities.get("clerk_supabase_identity_map");
+  assert(identityEntity, "missing entity: clerk_supabase_identity_map");
+
+  const profileFk = (identityEntity.foreign_keys || []).find(
+    (fk) => normalizeEntity(fk.column) === "profile_id" && normalizeEntity(fk.ref_entity) === "profiles" && normalizeEntity(fk.ref_column) === "profile_id"
+  );
+  assert(profileFk, "clerk_supabase_identity_map must define FK profile_id -> profiles.profile_id");
+
+  const hasUniqueProfile = (identityEntity.unique_constraints || []).some(
+    (uq) => Array.isArray(uq.columns) && uq.columns.length === 1 && normalizeEntity(uq.columns[0]) === "profile_id"
+  );
+  assert(hasUniqueProfile, "clerk_supabase_identity_map must enforce unique profile_id to model one-to-zero-or-one mapping");
+
+  const dictIdentityRel = (dict.relationships || []).find(
+    (r) => normalizeEntity(r.from) === "profiles" && normalizeEntity(r.to) === "clerk_supabase_identity_map" && String(r.label || "").trim().toLowerCase() === "maps"
+  );
+  assert(dictIdentityRel, "dictionary missing profiles -> clerk_supabase_identity_map relation");
+  assert(dictIdentityRel.type === "one_to_zero_or_one", "dictionary identity-map relation must be one_to_zero_or_one");
+
+  const erdIdentityRel = erdParsed.relations.find(
+    (r) => r.from === "profiles" && r.to === "clerk_supabase_identity_map" && r.label === "maps"
+  );
+  assert(erdIdentityRel, "ERD missing profiles -> clerk_supabase_identity_map relation");
+
+  const erdIdentityType = tokenToCardinalityType(erdIdentityRel.cardinalityToken);
+  assert(erdIdentityType === "one_to_zero_or_one", `ERD identity-map cardinality must be one_to_zero_or_one, got: ${erdIdentityRel.cardinalityToken}`);
+  assert(erdIdentityType === dictIdentityRel.type, "ERD and dictionary cardinality mismatch for identity-map relation");
 
   // extra quality counters for reportability
   const fkCount = dict.entities.reduce((acc, e) => acc + (e.foreign_keys || []).length, 0);

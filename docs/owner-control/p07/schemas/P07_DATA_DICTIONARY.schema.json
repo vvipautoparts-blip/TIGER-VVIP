@@ -6,7 +6,7 @@
   "properties": {
     "phase": {"type": "string", "const": "P07"},
     "name": {"type": "string", "minLength": 5},
-    "review_only": {"type": "boolean"},
+    "review_only": {"type": "boolean", "const": true},
     "entities": {
       "type": "array",
       "minItems": 17,
