@@ -25,8 +25,9 @@
 | P01 | Completed and Post-Merge Verified | تم دمج مخرجات P01 والتحقق بعدها بنجاح |
 | P05 | Completed and Post-Merge Verified | تم دمج P05 والتحقق بعد الدمج بنجاح |
 | P06 | Completed and Post-Merge Verified | أُغلقت المرحلة رسميًا عبر merged → post_merge_verified → completed |
-| P07 | Planning / Next Authorized | مرحلة التصميم التالية المصرح بها فقط دون إغلاق تنفيذي |
-| P08-P34 | Implementation Pending | لم يبدأ التنفيذ البرمجي الكامل بعد |
+| P07 | Completed and Post-Merge Verified | أُغلقت المرحلة رسميًا بعد دمج PR72 والتحقق على main |
+| P08 | Planning / Next Authorized | المرحلة التالية المصرح بها للتخطيط دون تنفيذ |
+| P09-P34 | Implementation Pending | لم يبدأ التنفيذ البرمجي الكامل بعد |
 
 ملاحظة تنفيذية:
 
@@ -110,6 +111,8 @@
 - 2026-07-15 | P06 | merged → post_merge_verified → completed | feat/auto-p06-repository-closure
 - 2026-07-16 | P07 | reclassified to planning / next_authorized | truth-audit PR40 + PR41-PR70
 - 2026-07-16 | P08-P34 | reclassified to implementation pending | docs-only closure packages are not runtime completion
+- 2026-07-16 | P07 | merged → post_merge_verified → completed | PR72 merge commit 2bbcee2ac492c9e0cbb84a4f6ecd21ca4be4d87a
+- 2026-07-16 | P08 | authorized as next phase (planning only) | post-merge closure lock advanced to P08
 
 ## التقرير النهائي
-P06 COMPLETED | P07 NEXT AUTHORIZED | P08–P34 IMPLEMENTATION PENDING
+P07 COMPLETED | P08 NEXT AUTHORIZED | P09–P34 PENDING

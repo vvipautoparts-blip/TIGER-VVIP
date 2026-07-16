@@ -3,10 +3,10 @@
   "project": "VVIP TIGER",
   "updated_on": "2026-07-16",
   "roadmap_version": "1.0",
-  "current_phase": "P07",
-  "last_completed_phase": "P06",
-  "next_authorized_phase": "P07",
-  "execution_lock": "P07",
+  "current_phase": "P08",
+  "last_completed_phase": "P07",
+  "next_authorized_phase": "P08",
+  "execution_lock": "P08",
   "visibility": "repository-internal-owner-reference",
   "runtime_owner_page_enabled": false,
   "rules": {
@@ -83,13 +83,13 @@
       "id": "P07",
       "priority": 7,
       "title": "Full Data Schema Design — Review Only",
-      "status": "next_authorized"
+      "status": "completed"
     },
     {
       "id": "P08",
       "priority": 8,
       "title": "Secure Migrations, RLS and Storage Policies",
-      "status": "pending"
+      "status": "next_authorized"
     },
     {
       "id": "P09",

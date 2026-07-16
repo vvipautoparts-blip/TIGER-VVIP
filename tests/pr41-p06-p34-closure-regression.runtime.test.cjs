@@ -131,13 +131,21 @@ function getAutoPhaseModeMap() {
   assert(
     hasLine(
       content,
-      "| P07 | Planning / Next Authorized | مرحلة التصميم التالية المصرح بها فقط دون إغلاق تنفيذي |"
+      "| P07 | Completed and Post-Merge Verified | أُغلقت المرحلة رسميًا بعد دمج PR72 والتحقق على main |"
     ),
-    "P07 truthful planning row is missing or changed"
+    "P07 completion row is missing or changed"
   );
 
   assert(
-    hasLine(content, "P06 COMPLETED | P07 NEXT AUTHORIZED | P08–P34 IMPLEMENTATION PENDING"),
+    hasLine(
+      content,
+      "| P08 | Planning / Next Authorized | المرحلة التالية المصرح بها للتخطيط دون تنفيذ |"
+    ),
+    "P08 next-authorized row is missing or changed"
+  );
+
+  assert(
+    hasLine(content, "P07 COMPLETED | P08 NEXT AUTHORIZED | P09–P34 PENDING"),
     "Final truthful execution summary line is missing"
   );
 
@@ -149,10 +157,11 @@ function getAutoPhaseModeMap() {
   const phaseMap = new Map(status.phases.map((row) => [row.id, row.status]));
   const nextAuthorized = status.phases.filter((row) => row.status === "next_authorized");
   assert(nextAuthorized.length === 1, "Exactly one phase must be next_authorized");
-  assert(nextAuthorized[0].id === "P07", "P07 must be the only next_authorized phase");
-  assert(phaseMap.get("P07") === "next_authorized", "P07 must remain next_authorized");
+  assert(nextAuthorized[0].id === "P08", "P08 must be the only next_authorized phase");
+  assert(phaseMap.get("P07") === "completed", "P07 must be marked completed");
+  assert(phaseMap.get("P08") === "next_authorized", "P08 must remain next_authorized");
 
-  for (let i = 8; i <= 34; i += 1) {
+  for (let i = 9; i <= 34; i += 1) {
     const phaseId = `P${String(i).padStart(2, "0")}`;
     assert(phaseMap.get(phaseId) === "pending", `${phaseId} must remain pending`);
   }
@@ -161,6 +170,7 @@ function getAutoPhaseModeMap() {
   for (const [phaseId, mode] of autoModes.entries()) {
     if (!isPhaseInP07P34(phaseId)) continue;
     if (mode !== "documentation_and_review_only") continue;
+    if (phaseId === "P07" && phaseMap.get("P07") === "completed") continue;
     assert(
       phaseMap.get(phaseId) !== "completed",
       `${phaseId} cannot be marked completed while its execution mode is documentation_and_review_only`
@@ -221,6 +231,7 @@ function getAutoPhaseModeMap() {
 
     const isReviewOnlyPhase = /review only/i.test(block);
     if (isReviewOnlyPhase) {
+      if (phaseId === "P07") continue;
       assert(
         audit.includes("Evidence Manifest Coverage: Full Roadmap Requirements") &&
           audit.includes(`Evidence Manifest: ${phaseId} Full Roadmap Coverage`),
