@@ -2,6 +2,7 @@
   "phase": "P07",
   "status": "planning",
   "checkpoint": "truthful_state_recovery",
+  "created_on": "2026-07-16T00:00:00Z",
   "baseline": "2e76eca3e1cf38a80a4ebeaff5ce525592524c9f",
   "correction_branch": "fix/pr71-truthful-phase-state-recovery",
   "last_completed_phase": "P06",

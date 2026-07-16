@@ -147,6 +147,9 @@ function getAutoPhaseModeMap() {
   );
 
   const phaseMap = new Map(status.phases.map((row) => [row.id, row.status]));
+  const nextAuthorized = status.phases.filter((row) => row.status === "next_authorized");
+  assert(nextAuthorized.length === 1, "Exactly one phase must be next_authorized");
+  assert(nextAuthorized[0].id === "P07", "P07 must be the only next_authorized phase");
   assert(phaseMap.get("P07") === "next_authorized", "P07 must remain next_authorized");
 
   for (let i = 8; i <= 34; i += 1) {

@@ -126,7 +126,7 @@ phases:
   - id: P02
     priority: 2
     name: App Shell and Navigation Architecture
-    status: next_authorized
+    status: pending
     depends_on:
       - P01
     scope:

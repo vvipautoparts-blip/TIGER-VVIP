@@ -11,3 +11,5 @@
 {"ts": "2026-07-16T04:52:24Z", "phase": "P07", "event": "integrity-check", "status": "planning", "note": "sha256 verified"}
 {"ts":"2026-07-16T00:00:00Z","phase":"P07","event":"truthful-recovery-checkpoint","status":"planning","note":"Attached p07-truthful-recovery checkpoint and corrected PR41-PR68 classification model"}
 {"ts": "2026-07-16T05:02:19Z", "phase": "P07", "event": "integrity-check", "status": "planning", "note": "sha256 verified"}
+{"ts":"2026-07-16T00:00:00Z","phase":"P07","event":"copilot-review-fix","status":"planning","note":"Enforced single next_authorized lock and aligned checkpoint metadata consistency"}
+{"ts": "2026-07-16T05:04:21Z", "phase": "P07", "event": "integrity-check", "status": "planning", "note": "sha256 verified"}
