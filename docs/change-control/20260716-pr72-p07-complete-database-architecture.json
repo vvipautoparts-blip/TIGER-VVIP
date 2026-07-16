@@ -10,6 +10,10 @@
   "rls_execution": false,
   "storage_policy_execution": false,
   "preliminary_reference": "PR41",
+  "supporting_dependency": {
+    "pr": 73,
+    "status": "merged_and_post_merge_verified"
+  },
   "real_start_after": "PR71 post-merge verification",
   "date": "2026-07-16"
 }

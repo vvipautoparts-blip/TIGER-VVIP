@@ -33,3 +33,8 @@ and validated through the PR72 coverage and integrity tests.
 
 PR41 is treated as Preliminary Design Reference only.
 This PR72 package is the real P07 architecture baseline used for P08 planning inputs.
+
+## Supporting Dependency
+
+PR73 is a required supporting dependency and is now merged with post-merge verification complete.
+It enforces read-only behavior for orchestrator integrity checks outside PR72 scope.
