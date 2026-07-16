@@ -7,11 +7,12 @@ const { spawnSync } = require('child_process');
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'p08-secret-'));
 const f = path.join(tmp, 'secrets.env');
-const token = 'ghp_123456789012345678901234567890123456';
+const token = `ghp_${'1'.repeat(36)}`;
+const serviceRoleValue = `service_role_${'a'.repeat(26)}`;
 fs.writeFileSync(
   f,
   [
-    'SUPABASE_SERVICE_ROLE_KEY="service_role_abcdefghijklmnopqrstuvwxyz"',
+    `SUPABASE_SERVICE_ROLE_KEY="${serviceRoleValue}"`,
     `GITHUB_PAT="${token}"`,
     'JWT_SECRET="very-secret-value-123"'
   ].join('\n') + '\n'
