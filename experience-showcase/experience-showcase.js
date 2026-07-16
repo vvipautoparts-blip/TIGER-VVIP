@@ -1,0 +1,1 @@
+document.querySelectorAll('.open').forEach((link)=>link.addEventListener('click',()=>sessionStorage.setItem('ux-r03-last-preview',link.getAttribute('href'))));

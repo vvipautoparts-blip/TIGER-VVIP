@@ -1,0 +1,1 @@
+const assert=require('node:assert/strict');const fs=require('node:fs');const html=fs.readFileSync('experience-showcase/index.html','utf8');['../operations-console/','../user-journey-preview/','../design-system-preview/'].forEach(route=>assert.match(html,new RegExp(route.replace(/[./]/g,'\\$&'))));assert.doesNotMatch(html,/<iframe/i);console.log('ux-r03-showcase-links: PASS');
