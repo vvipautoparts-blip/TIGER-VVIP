@@ -5,10 +5,10 @@ language: Arabic First
 market: Jordan First
 source_of_truth: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml
 human_readable_version: docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md
-current_phase: P07
-last_completed_phase: P06
-next_authorized_phase: P07
-execution_lock: P07
+current_phase: P08
+last_completed_phase: P07
+next_authorized_phase: P08
+execution_lock: P08
 general_rules:
   - phase_one_at_a_time
   - start_from_clean_synced_main
@@ -259,7 +259,7 @@ phases:
   - id: P07
     priority: 7
     name: Full Data Schema Design — Review Only
-    status: next_authorized
+    status: completed
     depends_on:
       - P06
     scope:
@@ -284,7 +284,7 @@ phases:
   - id: P08
     priority: 8
     name: Secure Migrations, RLS and Storage Policies
-    status: pending
+    status: next_authorized
     depends_on:
       - P07
     scope:
