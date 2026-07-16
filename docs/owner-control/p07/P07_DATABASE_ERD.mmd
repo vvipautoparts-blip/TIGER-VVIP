@@ -3,6 +3,7 @@ erDiagram
   PROFILES ||--o{ SECTOR_PUBLISHING_PERMISSIONS : governs
   PROFILES ||--o{ LISTINGS : owns
   LISTINGS ||--o{ LISTING_MEDIA : has
+  PROFILES ||--o{ LISTING_PUBLICATION_QUOTA_WINDOWS : caps_publication_by_week
   PROFILES ||--o{ TRIALS : receives
   PROFILES ||--o{ SUBSCRIPTIONS : owns
   SUBSCRIPTIONS ||--o{ ENTITLEMENTS : grants
@@ -52,24 +53,59 @@ erDiagram
     uuid listing_id PK
     uuid profile_id FK
     string sector_code
+    string category_code
     string lifecycle_state
     string title_ar
     string title_en
+    string short_summary
+    string description
+    numeric price_amount
+    char currency_code
+    string region_code
+    string city_code
+    string area_text
     string search_norm_ar
     timestamp published_at
+    timestamp expires_at
     timestamp archived_at
+    timestamp deleted_at
     timestamp created_at
+    timestamp updated_at
   }
 
   LISTING_MEDIA {
     uuid media_id PK
     uuid listing_id FK
-    string media_kind
     string storage_key
+    string mime_type
+    int width
+    int height
+    string aspect_ratio
+    int byte_size
+    string checksum
+    int crop_x
+    int crop_y
+    int crop_width
+    int crop_height
+    numeric zoom_level
     int display_order
-    boolean is_primary
+    boolean is_cover
+    string processing_state
     string media_state
+    timestamp created_at
     timestamp deleted_at
+  }
+
+  LISTING_PUBLICATION_QUOTA_WINDOWS {
+    uuid quota_window_id PK
+    uuid profile_id FK
+    date week_start
+    date week_end
+    int limit_count
+    int used_count
+    int reserved_count
+    timestamp created_at
+    timestamp updated_at
   }
 
   TRIALS {

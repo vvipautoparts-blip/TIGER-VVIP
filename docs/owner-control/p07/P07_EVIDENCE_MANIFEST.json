@@ -28,10 +28,17 @@
     "tests/pr72-p07-erd-dictionary-integrity.runtime.test.cjs",
     "tests/pr72-p07-schema-validation.test.py"
   ],
-  "supporting_dependency": {
-    "pr": 73,
-    "status": "merged_and_post_merge_verified",
-    "purpose": "orchestrator integrity-check readonly enforcement"
-  },
+  "supporting_dependencies": [
+    {
+      "pr": 73,
+      "status": "merged_and_post_merge_verified",
+      "purpose": "orchestrator integrity-check readonly enforcement"
+    },
+    {
+      "pr": 74,
+      "status": "merged_and_post_merge_verified",
+      "purpose": "artifact existence guards and actionable failure protection"
+    }
+  ],
   "coverage_matrix": "docs/owner-control/p07/P07_COVERAGE_MATRIX.json"
 }

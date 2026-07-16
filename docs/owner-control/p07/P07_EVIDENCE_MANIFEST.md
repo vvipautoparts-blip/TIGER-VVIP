@@ -36,5 +36,7 @@ This PR72 package is the real P07 architecture baseline used for P08 planning in
 
 ## Supporting Dependency
 
-PR73 is a required supporting dependency and is now merged with post-merge verification complete.
-It enforces read-only behavior for orchestrator integrity checks outside PR72 scope.
+- PR73: merged_and_post_merge_verified
+	- Purpose: orchestrator integrity-check readonly enforcement.
+- PR74: merged_and_post_merge_verified
+	- Purpose: artifact existence guards and actionable failure protection.

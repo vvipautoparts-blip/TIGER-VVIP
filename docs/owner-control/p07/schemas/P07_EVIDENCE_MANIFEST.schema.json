@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://vvip-tiger.local/schemas/p07-evidence-manifest.json",
   "type": "object",
-  "required": ["phase", "title", "safety", "deliverables", "tests", "coverage_matrix"],
+  "required": ["phase", "title", "safety", "deliverables", "tests", "coverage_matrix", "supporting_dependencies"],
   "properties": {
     "phase": {"type": "string", "const": "P07"},
     "title": {"type": "string", "minLength": 8},
@@ -19,6 +19,19 @@
     },
     "deliverables": {"type": "array", "minItems": 7, "items": {"type": "string"}},
     "tests": {"type": "array", "minItems": 3, "items": {"type": "string"}},
+    "supporting_dependencies": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["pr", "status", "purpose"],
+        "properties": {
+          "pr": {"type": "integer", "minimum": 1},
+          "status": {"type": "string", "minLength": 3},
+          "purpose": {"type": "string", "minLength": 10}
+        }
+      }
+    },
     "coverage_matrix": {"type": "string"}
   }
 }

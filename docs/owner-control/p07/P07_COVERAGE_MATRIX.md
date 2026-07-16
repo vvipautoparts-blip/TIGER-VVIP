@@ -15,3 +15,20 @@ Reference file for machine checks: docs/owner-control/p07/P07_COVERAGE_MATRIX.js
 | 37 Coverage Tests | tests/pr72-p07-*.test.* | full PR72 gate suite |
 
 Result target in this branch: fully covered for review-only P07 architecture.
+
+## Owner Decision Contracts
+
+| Contract | Artifact | Section | Test |
+|---|---|---|---|
+| mandatory price > 0 | P07_DATA_DICTIONARY.json | listings.check_constraints.ck_listings_price_positive | pr72-p07-erd-dictionary-integrity.runtime.test.cjs |
+| mandatory location | P07_DATA_DICTIONARY.json | listings.check_constraints.ck_listings_location_required | pr72-p07-erd-dictionary-integrity.runtime.test.cjs |
+| 120-day listing lifetime | P07_DATA_DICTIONARY.json | listings.check_constraints.ck_listings_publish_expiry_120_days | pr72-p07-erd-dictionary-integrity.runtime.test.cjs |
+| 4 posts/week/account | P07_DATA_DICTIONARY.json + P07_DATABASE_ERD.mmd | listing_publication_quota_windows | pr72-p07-erd-dictionary-integrity.runtime.test.cjs |
+| 4-month free trial | P07_DATA_DICTIONARY.json | trials.check_constraints.ck_trials_dates_4_months | pr72-p07-erd-dictionary-integrity.runtime.test.cjs |
+| photos only | P07_DATA_DICTIONARY.json + P07_STORAGE_POLICY_MATRIX_REVIEW_ONLY.md | listing_media image contracts | pr72-p07-erd-dictionary-integrity.runtime.test.cjs + pr72-p07-database-architecture.review.test.cjs |
+| maximum 7 photos | P07_DATA_DICTIONARY.json | listing_media.display_order bounds | pr72-p07-erd-dictionary-integrity.runtime.test.cjs |
+| fixed 4:3 processed derivative | P07_DATA_DICTIONARY.json + P07_STORAGE_POLICY_MATRIX_REVIEW_ONLY.md | listing_media aspect/processing | pr72-p07-erd-dictionary-integrity.runtime.test.cjs + pr72-p07-database-architecture.review.test.cjs |
+| original discarded | P07_STORAGE_POLICY_MATRIX_REVIEW_ONLY.md | temporary quarantine flow | pr72-p07-database-architecture.review.test.cjs |
+| one-to-one communication | P07_DATA_DICTIONARY.json | conversations.uq_conversations_pair | pr72-p07-erd-dictionary-integrity.runtime.test.cjs |
+| audit append-only | P07_RLS_DESIGN_MATRIX_REVIEW_ONLY.md | audit_logs policy | pr72-p07-database-architecture.review.test.cjs |
+| public media read only for published listings | P07_RLS_DESIGN_MATRIX_REVIEW_ONLY.md | listing_media policy | pr72-p07-database-architecture.review.test.cjs |

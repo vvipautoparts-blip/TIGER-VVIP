@@ -299,7 +299,7 @@
     },
     {
       "name": "listings",
-      "purpose": "Marketplace listing records across sectors.",
+      "purpose": "Marketplace listing records across sectors with mandatory pricing, location, and 120-day publication lifetime contract.",
       "columns": [
         {
           "name": "listing_id",
@@ -315,6 +315,12 @@
         },
         {
           "name": "sector_code",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "category_code",
           "data_type": "text",
           "nullable": false,
           "default": null
@@ -338,6 +344,48 @@
           "default": null
         },
         {
+          "name": "short_summary",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "description",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "price_amount",
+          "data_type": "numeric(14,2)",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "currency_code",
+          "data_type": "char(3)",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "region_code",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "city_code",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "area_text",
+          "data_type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
           "name": "search_norm_ar",
           "data_type": "text",
           "nullable": true,
@@ -350,13 +398,31 @@
           "default": null
         },
         {
+          "name": "expires_at",
+          "data_type": "timestamptz",
+          "nullable": true,
+          "default": null
+        },
+        {
           "name": "archived_at",
           "data_type": "timestamptz",
           "nullable": true,
           "default": null
         },
         {
+          "name": "deleted_at",
+          "data_type": "timestamptz",
+          "nullable": true,
+          "default": null
+        },
+        {
           "name": "created_at",
+          "data_type": "timestamptz",
+          "nullable": false,
+          "default": "now()"
+        },
+        {
+          "name": "updated_at",
           "data_type": "timestamptz",
           "nullable": false,
           "default": "now()"
@@ -380,7 +446,27 @@
       "check_constraints": [
         {
           "name": "ck_listings_state",
-          "expression": "lifecycle_state in ('draft','published','archived','deleted')"
+          "expression": "lifecycle_state in ('draft','pending_review','published','expired','archived','deleted')"
+        },
+        {
+          "name": "ck_listings_price_positive",
+          "expression": "price_amount > 0"
+        },
+        {
+          "name": "ck_listings_currency_code_iso",
+          "expression": "currency_code ~ '^[A-Z]{3}$'"
+        },
+        {
+          "name": "ck_listings_location_required",
+          "expression": "coalesce(region_code, '') <> '' and coalesce(city_code, '') <> ''"
+        },
+        {
+          "name": "ck_listings_category_required",
+          "expression": "coalesce(category_code, '') <> ''"
+        },
+        {
+          "name": "ck_listings_publish_expiry_120_days",
+          "expression": "(published_at is null and expires_at is null) or (published_at is not null and expires_at = published_at + interval '120 days')"
         }
       ],
       "indexes": [
@@ -396,6 +482,21 @@
           "columns": [
             "sector_code",
             "lifecycle_state"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_listings_category_code",
+          "columns": [
+            "category_code"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_listings_region_city",
+          "columns": [
+            "region_code",
+            "city_code"
           ],
           "kind": "btree"
         },
@@ -416,17 +517,19 @@
       ],
       "owner": "user",
       "data_classification": "public",
-      "retention": "soft-delete 180 days then archive",
+      "retention": "active/published for 120 days then expire; archived/deleted per policy",
       "lifecycle_states": [
         "draft",
+        "pending_review",
         "published",
+        "expired",
         "archived",
         "deleted"
       ]
     },
     {
       "name": "listing_media",
-      "purpose": "Stores metadata for listing media objects and order.",
+      "purpose": "Stores processed listing image derivatives only with 4:3 ratio, crop/zoom metadata, ordering, and cover contract.",
       "columns": [
         {
           "name": "media_id",
@@ -441,16 +544,76 @@
           "default": null
         },
         {
-          "name": "media_kind",
+          "name": "storage_key",
           "data_type": "text",
           "nullable": false,
           "default": null
         },
         {
-          "name": "storage_key",
+          "name": "mime_type",
           "data_type": "text",
           "nullable": false,
           "default": null
+        },
+        {
+          "name": "width",
+          "data_type": "integer",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "height",
+          "data_type": "integer",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "aspect_ratio",
+          "data_type": "text",
+          "nullable": false,
+          "default": "4:3"
+        },
+        {
+          "name": "byte_size",
+          "data_type": "integer",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "checksum",
+          "data_type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "crop_x",
+          "data_type": "integer",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "crop_y",
+          "data_type": "integer",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "crop_width",
+          "data_type": "integer",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "crop_height",
+          "data_type": "integer",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "zoom_level",
+          "data_type": "numeric(5,2)",
+          "nullable": false,
+          "default": "1.0"
         },
         {
           "name": "display_order",
@@ -459,16 +622,28 @@
           "default": "1"
         },
         {
-          "name": "is_primary",
+          "name": "is_cover",
           "data_type": "boolean",
           "nullable": false,
           "default": "false"
+        },
+        {
+          "name": "processing_state",
+          "data_type": "text",
+          "nullable": false,
+          "default": "processed"
         },
         {
           "name": "media_state",
           "data_type": "text",
           "nullable": false,
           "default": "active"
+        },
+        {
+          "name": "created_at",
+          "data_type": "timestamptz",
+          "nullable": false,
+          "default": "now()"
         },
         {
           "name": "deleted_at",
@@ -504,6 +679,34 @@
         {
           "name": "ck_listing_media_order",
           "expression": "display_order >= 1 and display_order <= 7"
+        },
+        {
+          "name": "ck_listing_media_images_only",
+          "expression": "mime_type in ('image/jpeg','image/png','image/webp')"
+        },
+        {
+          "name": "ck_listing_media_aspect_ratio_4_3",
+          "expression": "aspect_ratio = '4:3'"
+        },
+        {
+          "name": "ck_listing_media_processed_only",
+          "expression": "processing_state in ('processed','published_ready') and storage_key like 'processed/%'"
+        },
+        {
+          "name": "ck_listing_media_dimensions_positive",
+          "expression": "width > 0 and height > 0 and crop_width > 0 and crop_height > 0"
+        },
+        {
+          "name": "ck_listing_media_zoom_range",
+          "expression": "zoom_level >= 1 and zoom_level <= 5"
+        },
+        {
+          "name": "ck_listing_media_byte_size_positive",
+          "expression": "byte_size > 0"
+        },
+        {
+          "name": "ck_listing_media_exactly_one_cover_design_contract",
+          "expression": "exactly_one_cover_per_listing (design contract; enforced by service transaction for active listing media)"
         }
       ],
       "indexes": [
@@ -515,17 +718,25 @@
           "kind": "btree"
         },
         {
-          "name": "idx_listing_media_primary",
+          "name": "idx_listing_media_cover",
           "columns": [
             "listing_id",
-            "is_primary"
+            "is_cover"
+          ],
+          "kind": "btree"
+        },
+        {
+          "name": "idx_listing_media_state",
+          "columns": [
+            "media_state",
+            "processing_state"
           ],
           "kind": "btree"
         }
       ],
       "owner": "user",
       "data_classification": "private",
-      "retention": "aligned with listing lifecycle",
+      "retention": "processed derivative only; temporary original discarded after successful processing",
       "lifecycle_states": [
         "active",
         "hidden",
@@ -533,8 +744,130 @@
       ]
     },
     {
+      "name": "listing_publication_quota_windows",
+      "purpose": "Weekly publication quota contract enforcing baseline 4 posts per account per week.",
+      "columns": [
+        {
+          "name": "quota_window_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "profile_id",
+          "data_type": "uuid",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "week_start",
+          "data_type": "date",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "week_end",
+          "data_type": "date",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "limit_count",
+          "data_type": "integer",
+          "nullable": false,
+          "default": "4"
+        },
+        {
+          "name": "used_count",
+          "data_type": "integer",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "reserved_count",
+          "data_type": "integer",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "created_at",
+          "data_type": "timestamptz",
+          "nullable": false,
+          "default": "now()"
+        },
+        {
+          "name": "updated_at",
+          "data_type": "timestamptz",
+          "nullable": false,
+          "default": "now()"
+        }
+      ],
+      "primary_key": {
+        "columns": [
+          "quota_window_id"
+        ]
+      },
+      "foreign_keys": [
+        {
+          "column": "profile_id",
+          "ref_entity": "profiles",
+          "ref_column": "profile_id",
+          "on_delete": "cascade",
+          "on_update": "cascade"
+        }
+      ],
+      "unique_constraints": [
+        {
+          "name": "uq_listing_quota_profile_week_start",
+          "columns": [
+            "profile_id",
+            "week_start"
+          ]
+        }
+      ],
+      "check_constraints": [
+        {
+          "name": "ck_listing_quota_limit_count_base",
+          "expression": "limit_count = 4"
+        },
+        {
+          "name": "ck_listing_quota_used_non_negative",
+          "expression": "used_count >= 0"
+        },
+        {
+          "name": "ck_listing_quota_reserved_non_negative",
+          "expression": "reserved_count >= 0"
+        },
+        {
+          "name": "ck_listing_quota_usage_within_limit",
+          "expression": "used_count + reserved_count <= limit_count"
+        },
+        {
+          "name": "ck_listing_quota_window_bounds",
+          "expression": "week_end > week_start"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_listing_quota_profile_week",
+          "columns": [
+            "profile_id",
+            "week_start"
+          ],
+          "kind": "btree"
+        }
+      ],
+      "owner": "platform",
+      "data_classification": "private",
+      "retention": "rolling weekly windows with compliance audit history",
+      "lifecycle_states": [
+        "open",
+        "closed"
+      ]
+    },
+    {
       "name": "trials",
-      "purpose": "Tracks trial windows and eligibility state per profile.",
+      "purpose": "Tracks one base free-trial contract per account with four calendar months duration.",
       "columns": [
         {
           "name": "trial_id",
@@ -589,18 +922,21 @@
       ],
       "unique_constraints": [
         {
-          "name": "uq_trials_profile_plan_start",
+          "name": "uq_trials_profile_plan",
           "columns": [
             "profile_id",
-            "trial_plan",
-            "starts_at"
+            "trial_plan"
           ]
         }
       ],
       "check_constraints": [
         {
-          "name": "ck_trials_dates",
-          "expression": "ends_at > starts_at"
+          "name": "ck_trials_base_plan",
+          "expression": "trial_plan = 'free_4_months_base'"
+        },
+        {
+          "name": "ck_trials_dates_4_months",
+          "expression": "ends_at = starts_at + interval '4 months'"
         }
       ],
       "indexes": [
@@ -621,7 +957,7 @@
       ],
       "owner": "platform",
       "data_classification": "private",
-      "retention": "24 months after trial end",
+      "retention": "24 months after 4-month trial end",
       "lifecycle_states": [
         "scheduled",
         "active",
@@ -1946,6 +2282,12 @@
       "to": "listing_media",
       "type": "one_to_many",
       "label": "has"
+    },
+    {
+      "from": "profiles",
+      "to": "listing_publication_quota_windows",
+      "type": "one_to_many",
+      "label": "caps_publication_by_week"
     },
     {
       "from": "profiles",

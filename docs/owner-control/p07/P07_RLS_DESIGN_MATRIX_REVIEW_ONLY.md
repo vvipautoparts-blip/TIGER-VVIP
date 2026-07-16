@@ -4,11 +4,11 @@ This document is review-only and does not apply SQL or RLS in production.
 
 | Entity | Owner Role | Sector Admin Role | Platform Admin Role | Public | Notes |
 |---|---|---|---|---|---|
-| profiles | read own, update own | read sector subset | full read for moderation scope | no | sensitive profile data remains private |
+| profiles | read own private profile, update own | read sector-safe projection only | full read for moderation scope | public projection only | sector admin cannot read sensitive fields solely by sector membership |
 | account_types | read own, update own | read sector subset | full read/write review | no | used for eligibility and publishing caps |
 | sector_publishing_permissions | read own | read sector | full write | no | admin-managed policy table |
 | listings | read own draft, write own | read sector, moderate sector | full write for moderation | published only | lifecycle-aware access |
-| listing_media | read/write own listing | read sector listing media | full write moderation | no | storage links remain private |
+| listing_media | read/write own listing based on listing state | read sector listing media for moderation | full write moderation | public read only when parent listing is published | no public access for draft/pending_review/archived/deleted listings |
 | trials | read own | no | full write | no | billing-adjacent, sensitive |
 | subscriptions | read own | no | full write | no | sensitive financial state |
 | entitlements | read own derived | no | full write | no | quota enforcement |
@@ -18,8 +18,8 @@ This document is review-only and does not apply SQL or RLS in production.
 | moderation_cases | no | read assigned sector cases | full write | no | admin/safety domain |
 | tiger_care_tickets | create/read own | no | full write for support | no | customer support |
 | notifications | read own | no | full write | no | user inbox model |
-| audit_logs | no | no | read/write | no | admin-only immutable record |
-| clerk_supabase_identity_map | no | no | read/write | no | sensitive identity bridge |
+| audit_logs | no | no | platform service: insert, authorized admin: read | no | append-only immutable record; no update; no delete |
+| clerk_supabase_identity_map | no direct client access | no | tightly authorized diagnostics only | no | trusted service resolution only; no broad admin write without audit/control |
 | account_lifecycle_events | no | no | read/write | no | compliance and incident review |
 | listing_lifecycle_events | no | read sector subset | read/write | no | moderation lineage |
 | media_lifecycle_events | no | read sector subset | read/write | no | media compliance lineage |
@@ -28,3 +28,4 @@ This document is review-only and does not apply SQL or RLS in production.
 
 - Policy expressions are mapped in P08 and reviewed here only.
 - No SQL execution, migration, or production mutation is performed in P07.
+- Audit logs are append-only by design: platform service may insert, authorized admins may read, update/delete denied.

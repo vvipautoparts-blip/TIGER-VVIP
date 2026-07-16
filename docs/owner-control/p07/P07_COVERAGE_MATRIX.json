@@ -1,5 +1,80 @@
 {
   "phase": "P07",
+  "owner_decision_contracts": [
+    {
+      "contract": "mandatory price > 0",
+      "section": "listings.check_constraints.ck_listings_price_positive",
+      "artifacts": ["docs/owner-control/p07/P07_DATA_DICTIONARY.json", "docs/owner-control/p07/P07_DATABASE_ERD.mmd"],
+      "tests": ["tests/pr72-p07-erd-dictionary-integrity.runtime.test.cjs"]
+    },
+    {
+      "contract": "mandatory location",
+      "section": "listings.check_constraints.ck_listings_location_required",
+      "artifacts": ["docs/owner-control/p07/P07_DATA_DICTIONARY.json"],
+      "tests": ["tests/pr72-p07-erd-dictionary-integrity.runtime.test.cjs"]
+    },
+    {
+      "contract": "120-day listing lifetime",
+      "section": "listings.check_constraints.ck_listings_publish_expiry_120_days",
+      "artifacts": ["docs/owner-control/p07/P07_DATA_DICTIONARY.json"],
+      "tests": ["tests/pr72-p07-erd-dictionary-integrity.runtime.test.cjs"]
+    },
+    {
+      "contract": "4 posts/week/account",
+      "section": "listing_publication_quota_windows",
+      "artifacts": ["docs/owner-control/p07/P07_DATA_DICTIONARY.json", "docs/owner-control/p07/P07_DATABASE_ERD.mmd"],
+      "tests": ["tests/pr72-p07-erd-dictionary-integrity.runtime.test.cjs"]
+    },
+    {
+      "contract": "4-month free trial",
+      "section": "trials.check_constraints.ck_trials_dates_4_months",
+      "artifacts": ["docs/owner-control/p07/P07_DATA_DICTIONARY.json"],
+      "tests": ["tests/pr72-p07-erd-dictionary-integrity.runtime.test.cjs"]
+    },
+    {
+      "contract": "photos only",
+      "section": "listing_media.check_constraints.ck_listing_media_images_only",
+      "artifacts": ["docs/owner-control/p07/P07_DATA_DICTIONARY.json", "docs/owner-control/p07/P07_STORAGE_POLICY_MATRIX_REVIEW_ONLY.md"],
+      "tests": ["tests/pr72-p07-erd-dictionary-integrity.runtime.test.cjs", "tests/pr72-p07-database-architecture.review.test.cjs"]
+    },
+    {
+      "contract": "maximum 7 photos",
+      "section": "listing_media.check_constraints.ck_listing_media_order",
+      "artifacts": ["docs/owner-control/p07/P07_DATA_DICTIONARY.json"],
+      "tests": ["tests/pr72-p07-erd-dictionary-integrity.runtime.test.cjs"]
+    },
+    {
+      "contract": "fixed 4:3 processed derivative",
+      "section": "listing_media.check_constraints.ck_listing_media_aspect_ratio_4_3",
+      "artifacts": ["docs/owner-control/p07/P07_DATA_DICTIONARY.json", "docs/owner-control/p07/P07_STORAGE_POLICY_MATRIX_REVIEW_ONLY.md"],
+      "tests": ["tests/pr72-p07-erd-dictionary-integrity.runtime.test.cjs", "tests/pr72-p07-database-architecture.review.test.cjs"]
+    },
+    {
+      "contract": "original discarded",
+      "section": "storage policy temporary quarantine flow",
+      "artifacts": ["docs/owner-control/p07/P07_STORAGE_POLICY_MATRIX_REVIEW_ONLY.md"],
+      "tests": ["tests/pr72-p07-database-architecture.review.test.cjs"]
+    },
+    {
+      "contract": "one-to-one communication",
+      "section": "conversations.unique_constraints.uq_conversations_pair",
+      "artifacts": ["docs/owner-control/p07/P07_DATA_DICTIONARY.json"],
+      "tests": ["tests/pr72-p07-erd-dictionary-integrity.runtime.test.cjs"]
+    },
+    {
+      "contract": "audit append-only",
+      "section": "P07_RLS_DESIGN_MATRIX_REVIEW_ONLY.md#audit_logs",
+      "artifacts": ["docs/owner-control/p07/P07_RLS_DESIGN_MATRIX_REVIEW_ONLY.md"],
+      "tests": ["tests/pr72-p07-database-architecture.review.test.cjs"]
+    },
+    {
+      "contract": "public media read only for published listings",
+      "section": "P07_RLS_DESIGN_MATRIX_REVIEW_ONLY.md#listing_media",
+      "artifacts": ["docs/owner-control/p07/P07_RLS_DESIGN_MATRIX_REVIEW_ONLY.md"],
+      "tests": ["tests/pr72-p07-database-architecture.review.test.cjs"]
+    }
+  ],
+  "owner_decision_contracts_count": 12,
   "coverage": [
     {"id": 1, "requirement": "ERD كامل", "artifacts": ["docs/owner-control/p07/P07_DATABASE_ERD.mmd"], "tests": ["tests/pr72-p07-database-architecture.review.test.cjs", "tests/pr72-p07-erd-dictionary-integrity.runtime.test.cjs"]},
     {"id": 2, "requirement": "Machine-readable data dictionary", "artifacts": ["docs/owner-control/p07/P07_DATA_DICTIONARY.json"], "tests": ["tests/pr72-p07-schema-validation.test.py", "tests/pr72-p07-erd-dictionary-integrity.runtime.test.cjs"]},
