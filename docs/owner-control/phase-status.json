@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
   "project": "VVIP TIGER",
-  "updated_on": "2026-07-15",
+  "updated_on": "2026-07-16",
   "roadmap_version": "1.0",
-  "current_phase": "P34",
-  "last_completed_phase": "P34",
-  "next_authorized_phase": "P34",
-  "execution_lock": "P34",
+  "current_phase": "P07",
+  "last_completed_phase": "P06",
+  "next_authorized_phase": "P07",
+  "execution_lock": "P07",
   "visibility": "repository-internal-owner-reference",
   "runtime_owner_page_enabled": false,
   "rules": {
@@ -83,169 +83,169 @@
       "id": "P07",
       "priority": 7,
       "title": "Full Data Schema Design — Review Only",
-      "status": "completed"
+      "status": "next_authorized"
     },
     {
       "id": "P08",
       "priority": 8,
       "title": "Secure Migrations, RLS and Storage Policies",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P09",
       "priority": 9,
       "title": "Listings Engine",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P10",
       "priority": 10,
       "title": "Three-Sector Structured Fields",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P11",
       "priority": 11,
       "title": "Image Media Pipeline",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P12",
       "priority": 12,
       "title": "Supabase Discovery Backend Adapter",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P13",
       "priority": 13,
       "title": "Feed, Listing Cards and Details",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P14",
       "priority": 14,
       "title": "Private One-to-One Communication",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P15",
       "priority": 15,
       "title": "Private Sharing and Invitations",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P16",
       "priority": 16,
       "title": "Sector Publishing Permissions",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P17",
       "priority": 17,
       "title": "Trial, Subscriptions and Entitlements",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P18",
       "priority": 18,
       "title": "Payment Gateway",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P19",
       "priority": 19,
       "title": "Notifications Center",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P20",
       "priority": 20,
       "title": "Tiger Care",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P21",
       "priority": 21,
       "title": "Moderation and Trust & Safety",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P22",
       "priority": 22,
       "title": "Admin and Sector Dashboards",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P23",
       "priority": 23,
       "title": "Inactivity, Retention and Deletion",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P24",
       "priority": 24,
       "title": "Secure AI Assistance",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P25",
       "priority": 25,
       "title": "Analytics and Advertising Storage",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P26",
       "priority": 26,
       "title": "PWA and Mobile Readiness",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P27",
       "priority": 27,
       "title": "Accessibility, RTL and Languages",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P28",
       "priority": 28,
       "title": "Performance and Scalability",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P29",
       "priority": 29,
       "title": "Final Clerk/Supabase Security Hardening",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P30",
       "priority": 30,
       "title": "Legal and Privacy Policies",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P31",
       "priority": 31,
       "title": "Staging, End-to-End and Disaster Recovery",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P32",
       "priority": 32,
       "title": "Launch Readiness",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P33",
       "priority": 33,
       "title": "Gradual Launch",
-      "status": "completed"
+      "status": "pending"
     },
     {
       "id": "P34",
       "priority": 34,
       "title": "Post-Launch Operations and Growth",
-      "status": "completed"
+      "status": "pending"
     }
   ]
 }

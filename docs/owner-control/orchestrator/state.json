@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_on": "2026-07-15T22:44:00Z",
-  "status": "completed",
-  "current_phase": "P34",
-  "next_authorized_phase": "P34",
+  "updated_on": "2026-07-16T04:52:24Z",
+  "status": "planning",
+  "current_phase": "P07",
+  "next_authorized_phase": "P07",
   "phase_queue": [
     "P06",
     "P07",
@@ -47,19 +47,20 @@
       ]
     },
     {
-      "id": "P34",
-      "status": "completed",
-      "updated_on": "2026-07-15T22:44:00Z",
+      "id": "P07",
+      "status": "planning",
+      "updated_on": "2026-07-16T00:00:00Z",
       "evidence": [
-        "phase-tracker:P06-P34-closure-recorded"
+        "authorization:next_authorized",
+        "truth-audit:pr40-pr70-reviewed"
       ]
     }
   ],
   "last_checkpoint": {
     "phase": "P06",
     "path": "docs/owner-control/orchestrator/checkpoints/p06-post-merge-closure.checkpoint.json",
-    "sha256": "bc0fc7eda7d2d83105de3c1b105034255f7513fdf911fbdf8fb143dede46e04c",
-    "created_on": "2026-07-15T22:44:00Z"
+    "sha256": "d4c98c9357f70d8bde210e81a97afaa6e72b777fe0b81e28bbab41501c2837a7",
+    "created_on": "2026-07-16T00:00:00Z"
   },
   "emergency_stop": {
     "active": false,
@@ -67,6 +68,6 @@
   },
   "integrity": {
     "sha256_manifest": true,
-    "last_verified_sha256": "bc0fc7eda7d2d83105de3c1b105034255f7513fdf911fbdf8fb143dede46e04c"
+    "last_verified_sha256": "d4c98c9357f70d8bde210e81a97afaa6e72b777fe0b81e28bbab41501c2837a7"
   }
 }
