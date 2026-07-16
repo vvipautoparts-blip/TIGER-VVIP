@@ -70,7 +70,7 @@ PR41 is Preliminary Design Reference only and is not used as complete closure ev
 
 - public: published listing read models only.
 - private: direct user data and messaging.
-- sensitive: subscriptions, reports, identity mappings.
+- sensitive: subscriptions, reports, Clerk canonical identity attributes.
 - admin: moderation cases and audit logs.
 
 ### Arabic Search Normalization

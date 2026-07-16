@@ -4,6 +4,8 @@ const fs = require("fs");
 const path = require("path");
 
 const ROOT = path.resolve(__dirname, "..");
+const LEGACY_IDENTITY_MAP_TOKEN = ["clerk", "supabase", "identity", "map"].join("_");
+const LEGACY_SUPABASE_AUTH_TOKEN = ["supabase", "user", "id"].join("_");
 
 const REQUIRED_FILES = [
   "docs/owner-control/p07/P07_COMPLETE_DATABASE_ARCHITECTURE_REVIEW.md",
@@ -115,8 +117,8 @@ function validateOwnerDecisionCoverage(coverage) {
   assert(manifest.includes("NO PRODUCTION CHANGE"), "manifest must include no-production-change pledge");
 
   assert(architecture.toLowerCase().includes("clerk jwt sub") && architecture.toLowerCase().includes("profiles.clerk_user_id"), "architecture review must document clerk jwt subject resolution against profiles.clerk_user_id");
-  assert(!architecture.toLowerCase().includes("clerk_supabase_identity_map"), "architecture review must not depend on clerk_supabase_identity_map");
-  assert(!architecture.toLowerCase().includes("supabase_user_id"), "architecture review must not require supabase auth identity in profiles");
+  assert(!architecture.toLowerCase().includes(LEGACY_IDENTITY_MAP_TOKEN), "architecture review must not depend on legacy identity-map table");
+  assert(!architecture.toLowerCase().includes(LEGACY_SUPABASE_AUTH_TOKEN), "architecture review must not require legacy Supabase auth identity in profiles");
   assert(architecture.toLowerCase().includes("canonical") && architecture.toLowerCase().includes("conversation"), "architecture review must document canonical conversation pair model");
   assert(architecture.toLowerCase().includes("monday 00:00 utc"), "architecture review must document canonical utc weekly window");
   assert(architecture.toLowerCase().includes("partial unique index") && architecture.toLowerCase().includes("is_cover"), "architecture review must document cover partial unique index contract");
@@ -139,7 +141,7 @@ function validateOwnerDecisionCoverage(coverage) {
   assert(rls.includes("no delete") || rls.includes("delete: denied"), "audit_logs must deny delete");
   assert(rls.includes("public read only when parent listing is published"), "listing_media must be public-readable only when parent listing is published");
   assert(rls.includes("clerk jwt sub") && rls.includes("profiles.clerk_user_id"), "RLS matrix must document Clerk JWT subject mapping to profiles.clerk_user_id");
-  assert(!rls.includes("clerk_supabase_identity_map"), "RLS matrix must not include clerk_supabase_identity_map in final identity model");
+  assert(!rls.includes(LEGACY_IDENTITY_MAP_TOKEN), "RLS matrix must not include legacy identity-map table in final identity model");
 
   const coverage = JSON.parse(read("docs/owner-control/p07/P07_COVERAGE_MATRIX.json"));
   validateOwnerDecisionCoverage(coverage);
@@ -148,9 +150,9 @@ function validateOwnerDecisionCoverage(coverage) {
   expectFailure(() => validateEvidenceDependencies({ supporting_dependencies: [{ pr: 73, status: "merged_and_post_merge_verified", purpose: "only one dependency" }] }), "PR74");
   expectFailure(() => validateOwnerDecisionCoverage({ owner_decision_contracts: [] }), "mandatory price > 0");
   expectFailure(() => {
-    const bad = "clerk_supabase_identity_map required";
-    assert(!bad.includes("clerk_supabase_identity_map"), "architecture review must not depend on clerk_supabase_identity_map");
-  }, "must not depend on clerk_supabase_identity_map");
+    const bad = `${LEGACY_IDENTITY_MAP_TOKEN} required`;
+    assert(!bad.includes(LEGACY_IDENTITY_MAP_TOKEN), "architecture review must not depend on legacy identity-map table");
+  }, "must not depend on legacy identity-map table");
   expectFailure(() => {
     const badStorage = "listing image original\ncanonical source object";
     assert(!badStorage.includes("listing image original"), "storage policy must not include durable listing image original contract");

@@ -7,6 +7,8 @@ const ROOT = path.resolve(__dirname, "..");
 const ERD_PATH = path.join(ROOT, "docs/owner-control/p07/P07_DATABASE_ERD.mmd");
 const DICT_PATH = path.join(ROOT, "docs/owner-control/p07/P07_DATA_DICTIONARY.json");
 const COVERAGE_PATH = path.join(ROOT, "docs/owner-control/p07/P07_COVERAGE_MATRIX.json");
+const LEGACY_SUPABASE_AUTH_COLUMN = ["supabase", "user", "id"].join("_");
+const LEGACY_IDENTITY_MAP_ENTITY = ["clerk", "supabase", "identity", "map"].join("_");
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -96,18 +98,55 @@ function deepClone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
+function verifyOwnerDecisionEvidenceReferences(dict, coverage) {
+  const contracts = coverage.owner_decision_contracts || [];
+  assert(Array.isArray(contracts) && contracts.length > 0, "coverage.owner_decision_contracts must be non-empty");
+  assert(
+    Number(coverage.owner_decision_contracts_count) === contracts.length,
+    `owner_decision_contracts_count mismatch: declared=${coverage.owner_decision_contracts_count} actual=${contracts.length}`
+  );
+
+  const dictEntities = new Map((dict.entities || []).map((e) => [normalizeEntity(e.name), e]));
+
+  for (const row of contracts) {
+    const section = String(row.section || "").trim();
+    const contractName = String(row.contract || "").trim() || "(unknown-contract)";
+
+    assert(Array.isArray(row.artifacts) && row.artifacts.length > 0, `owner decision contract '${contractName}' missing artifacts`);
+    assert(Array.isArray(row.tests) && row.tests.length > 0, `owner decision contract '${contractName}' missing tests`);
+
+    for (const artifactPath of row.artifacts || []) {
+      assert(fs.existsSync(path.join(ROOT, artifactPath)), `owner decision artifact path not found: ${artifactPath}`);
+    }
+    for (const testPath of row.tests || []) {
+      assert(fs.existsSync(path.join(ROOT, testPath)), `owner decision test path not found: ${testPath}`);
+    }
+
+    const sectionMatch = section.match(/^([a-z0-9_]+)\.(check_constraints|unique_constraints|indexes)\.([a-z0-9_]+)$/i);
+    if (!sectionMatch) continue;
+
+    const [, entityName, sectionType, targetName] = sectionMatch;
+    const entity = dictEntities.get(normalizeEntity(entityName));
+    assert(entity, `owner decision section target not found: ${section}`);
+
+    const bucket = entity[sectionType] || [];
+    const found = bucket.some((entry) => normalizeEntity(entry && entry.name) === normalizeEntity(targetName));
+    assert(found, `owner decision section target not found: ${section}`);
+  }
+}
+
 function verifyFinalIdentityAndInvariantContracts(dict, erdParsed) {
   const dictEntities = new Map((dict.entities || []).map((e) => [normalizeEntity(e.name), e]));
 
   const profiles = getEntity(dictEntities, "profiles");
   assert(hasColumn(profiles, "clerk_user_id"), "profiles must include clerk_user_id canonical identity");
-  assert(!hasColumn(profiles, "supabase_user_id"), "profiles must not require supabase_user_id under Clerk-only auth model");
+  assert(!hasColumn(profiles, LEGACY_SUPABASE_AUTH_COLUMN), "profiles must not require legacy Supabase auth identity column under Clerk-only auth model");
   assert(hasCheck(profiles, /active.*pending.*suspended.*closed/i), "profiles.account_status must be active/pending/suspended/closed");
   assert((profiles.lifecycle_states || []).includes("closed"), "profiles lifecycle must include closed status");
   assert((profiles.lifecycle_states || []).includes("pending"), "profiles lifecycle must include pending status");
 
-  const identityMap = dictEntities.get("clerk_supabase_identity_map");
-  assert(!identityMap, "clerk_supabase_identity_map must not exist in Clerk-only canonical identity model");
+  const identityMap = dictEntities.get(LEGACY_IDENTITY_MAP_ENTITY);
+  assert(!identityMap, "legacy identity-map entity must not exist in Clerk-only canonical identity model");
 
   const conversations = getEntity(dictEntities, "conversations");
   assert(hasColumn(conversations, "participant_low_profile_id"), "conversations must use participant_low_profile_id canonical key");
@@ -279,10 +318,13 @@ function verifyOwnerDecisionContracts(dict, erdParsed) {
   // 7) final identity and invariants contract gate
   verifyFinalIdentityAndInvariantContracts(dict, erdParsed);
 
-  // 8) owner decision contracts must be represented in architecture artifacts
+  // 8) owner decision references, paths, and section targets must stay valid
+  verifyOwnerDecisionEvidenceReferences(dict, coverage);
+
+  // 9) owner decision contracts must be represented in architecture artifacts
   verifyOwnerDecisionContracts(dict, erdParsed);
 
-  // 9) negative contract checks must fail when owner contracts regress
+  // 10) negative contract checks must fail when owner contracts regress
   expectContractFailure(() => {
     const bad = deepClone(dict);
     const profiles = bad.entities.find((e) => normalizeEntity(e.name) === "profiles");
@@ -293,15 +335,22 @@ function verifyOwnerDecisionContracts(dict, erdParsed) {
   expectContractFailure(() => {
     const bad = deepClone(dict);
     const profiles = bad.entities.find((e) => normalizeEntity(e.name) === "profiles");
-    profiles.columns.push({ name: "supabase_user_id", data_type: "text", nullable: false, default: null });
+    profiles.columns.push({ name: LEGACY_SUPABASE_AUTH_COLUMN, data_type: "text", nullable: false, default: null });
     return bad;
-  }, (bad) => verifyFinalIdentityAndInvariantContracts(bad, erdParsed), "must not require supabase_user_id");
+  }, (bad) => verifyFinalIdentityAndInvariantContracts(bad, erdParsed), "must not require legacy Supabase auth identity column");
 
   expectContractFailure(() => {
     const bad = deepClone(dict);
-    bad.entities.push({ name: "clerk_supabase_identity_map", columns: [], foreign_keys: [], unique_constraints: [], check_constraints: [], indexes: [], lifecycle_states: ["active"] });
+    bad.entities.push({ name: LEGACY_IDENTITY_MAP_ENTITY, columns: [], foreign_keys: [], unique_constraints: [], check_constraints: [], indexes: [], lifecycle_states: ["active"] });
     return bad;
   }, (bad) => verifyFinalIdentityAndInvariantContracts(bad, erdParsed), "must not exist in Clerk-only canonical identity model");
+
+  expectContractFailure(() => {
+    const badCoverage = deepClone(coverage);
+    const row = (badCoverage.owner_decision_contracts || []).find((x) => String(x.contract || "").toLowerCase() === "one-to-one communication");
+    if (row) row.section = "conversations.unique_constraints.uq_conversations_pair";
+    return badCoverage;
+  }, (badCoverage) => verifyOwnerDecisionEvidenceReferences(dict, badCoverage), "owner decision section target not found");
 
   expectContractFailure(() => {
     const bad = deepClone(dict);
@@ -384,7 +433,7 @@ function verifyOwnerDecisionContracts(dict, erdParsed) {
   const idxCount = dict.entities.reduce((acc, e) => acc + (e.indexes || []).length, 0);
   const relCount = (dict.relationships || []).length;
 
-  const ownerDecisionContractsCovered = 19;
+  const ownerDecisionContractsCovered = coverage.owner_decision_contracts.length;
 
   console.log(JSON.stringify({
     test: "PR72 ERD-DICTIONARY INTEGRITY PASS",

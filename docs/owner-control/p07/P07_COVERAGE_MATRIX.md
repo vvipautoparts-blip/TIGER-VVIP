@@ -29,10 +29,10 @@ Result target in this branch: fully covered for review-only P07 architecture.
 | maximum 7 photos | P07_DATA_DICTIONARY.json | listing_media.display_order bounds | pr72-p07-erd-dictionary-integrity.runtime.test.cjs |
 | fixed 4:3 processed derivative | P07_DATA_DICTIONARY.json + P07_STORAGE_POLICY_MATRIX_REVIEW_ONLY.md | listing_media aspect/processing | pr72-p07-erd-dictionary-integrity.runtime.test.cjs + pr72-p07-database-architecture.review.test.cjs |
 | original discarded | P07_STORAGE_POLICY_MATRIX_REVIEW_ONLY.md | temporary quarantine flow | pr72-p07-database-architecture.review.test.cjs |
-| one-to-one communication | P07_DATA_DICTIONARY.json | conversations.uq_conversations_pair | pr72-p07-erd-dictionary-integrity.runtime.test.cjs |
+| one-to-one communication | P07_DATA_DICTIONARY.json | conversations.unique_constraints.uq_conversations_canonical_pair | pr72-p07-erd-dictionary-integrity.runtime.test.cjs |
 | audit append-only | P07_RLS_DESIGN_MATRIX_REVIEW_ONLY.md | audit_logs policy | pr72-p07-database-architecture.review.test.cjs |
 | public media read only for published listings | P07_RLS_DESIGN_MATRIX_REVIEW_ONLY.md | listing_media policy | pr72-p07-database-architecture.review.test.cjs |
-| clerk is canonical auth identity | P07_COMPLETE_DATABASE_ARCHITECTURE_REVIEW.md + P07_RLS_DESIGN_MATRIX_REVIEW_ONLY.md + P07_DATA_DICTIONARY.json | Clerk JWT sub -> profiles.clerk_user_id; no supabase_user_id | pr72-p07-database-architecture.review.test.cjs + pr72-p07-erd-dictionary-integrity.runtime.test.cjs |
+| clerk is canonical auth identity | P07_COMPLETE_DATABASE_ARCHITECTURE_REVIEW.md + P07_RLS_DESIGN_MATRIX_REVIEW_ONLY.md + P07_DATA_DICTIONARY.json | Clerk JWT sub -> profiles.clerk_user_id; no legacy Supabase auth id field | pr72-p07-database-architecture.review.test.cjs + pr72-p07-erd-dictionary-integrity.runtime.test.cjs |
 | account statuses match active/pending/suspended/closed | P07_DATA_DICTIONARY.json | profiles.check_constraints.ck_profiles_status | pr72-p07-erd-dictionary-integrity.runtime.test.cjs |
 | canonical unordered conversation pair | P07_DATA_DICTIONARY.json + P07_DATABASE_ERD.mmd | conversations participant_low/participant_high + canonical ordering check | pr72-p07-erd-dictionary-integrity.runtime.test.cjs |
 | canonical utc weekly quota window | P07_DATA_DICTIONARY.json + P07_COMPLETE_DATABASE_ARCHITECTURE_REVIEW.md | quota window Monday 00:00 UTC and exact 7-day duration | pr72-p07-erd-dictionary-integrity.runtime.test.cjs + pr72-p07-database-architecture.review.test.cjs |

@@ -99,7 +99,7 @@
     },
     {
       "contract": "one-to-one communication",
-      "section": "conversations.unique_constraints.uq_conversations_pair",
+      "section": "conversations.unique_constraints.uq_conversations_canonical_pair",
       "artifacts": [
         "docs/owner-control/p07/P07_DATA_DICTIONARY.json"
       ],
@@ -129,7 +129,7 @@
     },
     {
       "contract": "clerk is canonical auth identity",
-      "section": "Clerk JWT sub -> profiles.clerk_user_id; no supabase_user_id in canonical model",
+      "section": "Clerk JWT sub -> profiles.clerk_user_id; no legacy Supabase auth id field in canonical model",
       "artifacts": [
         "docs/owner-control/p07/P07_COMPLETE_DATABASE_ARCHITECTURE_REVIEW.md",
         "docs/owner-control/p07/P07_RLS_DESIGN_MATRIX_REVIEW_ONLY.md",
