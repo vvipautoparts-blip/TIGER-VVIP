@@ -1,0 +1,16 @@
+{
+  "type": "post_merge_correction",
+  "phase": "P07",
+  "title": "Add explicit orchestrator artifact existence guards in PR73 regression test",
+  "reason": "prevent unhelpful FileNotFoundError by asserting required artifacts exist and are files before hashing",
+  "scope": [
+    "tests/pr73-orchestrator-integrity-readonly.test.py",
+    "docs/change-control/20260716-pr74-orchestrator-integrity-artifact-guards.json"
+  ],
+  "production_changes": false,
+  "sql_execution": false,
+  "migrations_execution": false,
+  "rls_execution": false,
+  "storage_policy_execution": false,
+  "date": "2026-07-16"
+}
