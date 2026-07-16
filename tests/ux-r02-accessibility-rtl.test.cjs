@@ -1,0 +1,11 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const html = fs.readFileSync('user-journey-preview/index.html', 'utf8');
+const css = fs.readFileSync('user-journey-preview/user-journey.css', 'utf8');
+assert.match(html, /lang="ar" dir="rtl"/);
+assert.match(html, /skip-link/);
+assert.match(html, /aria-live="polite"/);
+assert.match(css, /focus-visible/);
+assert.match(css, /safe-area-inset-bottom/);
+assert.match(css, /@media\(max-width:760px\)/);
+console.log('ux-r02-accessibility-rtl: PASS');

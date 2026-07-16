@@ -1,0 +1,10 @@
+const assert = require('node:assert/strict');
+const { execFileSync } = require('node:child_process');
+const output = execFileSync('node', ['--input-type=module', '-e', "import { USER_TYPES, canMessage, canPublish } from './user-journey-preview/user-types.js'; console.log(JSON.stringify({ count: USER_TYPES.length, viewerMessage: canMessage('viewer'), viewerPublish: canPublish('viewer', 'Authorized'), buyerMessage: canMessage('standard_buyer'), buyerPublish: canPublish('standard_buyer', 'Not authorized') }));"], { encoding: 'utf8' });
+const result = JSON.parse(output);
+assert.equal(result.count, 11);
+assert.equal(result.viewerMessage, false);
+assert.equal(result.viewerPublish, false);
+assert.equal(result.buyerMessage, true);
+assert.equal(result.buyerPublish, false);
+console.log('ux-r02-user-type-rules: PASS');
