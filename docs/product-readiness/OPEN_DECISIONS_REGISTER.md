@@ -1,6 +1,8 @@
 # OPEN DECISIONS REGISTER
 
-All decisions in this register are owner-approved as of 2026-07-17. No item remains pending.
+All decisions in this register are owner-approved as of 2026-07-17.
+
+No owner decision in this register remains unresolved. Deferred implementation parameters remain intentionally undecided or unimplemented.
 
 | Decision ID | Owner Decision | Decision Date | Status | Dependency |
 | --- | --- | --- | --- | --- |

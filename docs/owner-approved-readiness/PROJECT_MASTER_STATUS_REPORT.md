@@ -15,10 +15,12 @@ PR #81 merged: YES
 ## Status Areas
 
 - Decisions ODR-001 to ODR-009: OWNER APPROVED.
-- Product readiness package: in preparation.
+- Product readiness package creation inside PR #82: completed.
+- Owner review, approval, and merge of PR #82: pending.
+- Operational testing and execution run: not started.
 - Legal draft status: draft only, counsel review required.
-- Content status: owner-approved alignment in progress.
-- Taxonomy status: owner-approved alignment in progress.
+- Content status: owner-approved alignment documented in PR #82.
+- Taxonomy status: owner-approved alignment documented in PR #82.
 - Backlog status: not started; planning only.
 - Testing status: planning only.
 - Training status: planning only.

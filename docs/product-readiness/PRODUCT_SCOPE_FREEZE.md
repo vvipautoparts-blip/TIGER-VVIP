@@ -24,6 +24,7 @@
 - Four months are free from registration.
 - Publisher accounts move to a future monthly subscription after the free period.
 - Buyer and browsing accounts remain free.
+- Subscription-only direction after launch is owner-approved.
 - Annual billing may be considered later.
 - Subscription amount is not authorized in this mission.
 - Commission is 0%.
@@ -32,6 +33,14 @@
 - No commissions, settlement, payment gateway, or escrow are included in the 60-day launch.
 - Monetization decisions remain post-launch owner decisions.
 - VVIP TIGER remains a discovery and private-contact platform only.
+
+## Deferred Financial Implementation Parameters
+
+- Subscription price.
+- Tax model and rates.
+- Payment gateway selection and activation.
+- Billing activation timeline.
+- Accounting and settlement workflow.
 
 ## Business, Retention, And Deletion Rules
 
