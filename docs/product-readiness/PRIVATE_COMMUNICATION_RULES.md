@@ -11,7 +11,7 @@
 ## Sharing And Invite Model
 
 - Share with an existing friend is allowed.
-- Request to join as a new friend is allowed.
+- Sending a one-to-one friend request to a new friend is allowed.
 - Session invitation limit: `20` invites per session.
 
 ## Privacy Boundary

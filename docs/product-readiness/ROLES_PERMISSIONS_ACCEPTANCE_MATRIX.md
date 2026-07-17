@@ -17,7 +17,7 @@ This document is not backend authorization and does not prove runtime enforcemen
 | Buyer Viewer | Public browsing surfaces | Browse listings and profiles with limited interaction | Create listing or access seller-only tools | Access denied on listing creation form |
 | Buyer Standard | Browsing and standard buyer interactions | Search, save, initiate allowed private interactions | Perform admin/moderation actions | Access denied on admin dashboards |
 | Individual Seller | Seller listing workflow and own profile state | Create/manage own listings within limits | Access other sellers' private controls | Access denied on foreign listing edit endpoints |
-| Shops / centers / dealers / companies / service providers | Business-capable listing surfaces and profile context | Publish and manage listings under account type constraints | Assume admin privileges without assignment | Access denied on role-management screens |
+| Shops / service centers / dealers / companies / service providers | Business-capable listing surfaces and profile context | Publish and manage listings under account type constraints | Assume admin privileges without assignment | Access denied on role-management screens |
 
 ## Minimum Access-Denied Scenarios
 

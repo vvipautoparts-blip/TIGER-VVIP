@@ -6,9 +6,10 @@
 - Capture requester, sector, category, summary, and timestamp.
 - Send confirmation message immediately.
 
-Official user message:
+Official user messages:
 
-`تم استلام طلبك، وسيتم التواصل معك خلال 24 ساعة.`
+- Arabic: `تم استلام طلبك، وسيتم التواصل معك خلال 24 ساعة.`
+- English: `Your request has been received, and we will contact you within 24 hours.`
 
 ## 2. Classification
 

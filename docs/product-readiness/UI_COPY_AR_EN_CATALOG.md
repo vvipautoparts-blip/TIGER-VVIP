@@ -60,7 +60,7 @@ Use short, respectful, and clear wording.
 | --- | --- | --- |
 | Send message | إرسال رسالة | Send Message |
 | Share with friend | مشاركة مع صديق | Share with Friend |
-| Join request sent | تم إرسال طلب الانضمام | Join request sent |
+| Friend request sent | تم إرسال طلب صداقة | Friend request sent |
 | Session invite limit reached | تم الوصول لحد الدعوات في الجلسة | Session invite limit reached |
 
 ## Private Share
