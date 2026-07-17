@@ -51,7 +51,14 @@ Official user messages:
 - Do not request passwords, OTP codes, or token secrets.
 - Keep sensitive fields redacted in shared responses.
 
-## 9. Response Templates
+## 9. Role Boundary
+
+- Tiger Care handles support intake and support follow-up.
+- Tiger Care is not moderation.
+- Tiger Care is not business verification review.
+- Tiger Care is not admin governance.
+
+## 10. Response Templates
 
 ### Acknowledgment
 
@@ -68,7 +75,7 @@ Official user messages:
 - Arabic: تم إغلاق الطلب بعد المعالجة. يمكنك إعادة فتحه إذا ظهرت معلومات جديدة.
 - English: The request has been resolved and closed. You may reopen it if new information appears.
 
-## 10. Future Audit Log Requirement
+## 11. Future Audit Log Requirement
 
 Minimum future audit fields:
 

@@ -5,6 +5,7 @@
 Controlled, limited launch rehearsal in Jordan with strict participant and incident controls.
 
 This plan does not claim current production readiness.
+It is now superseded by the owner-approved consolidation package for decision reference, while remaining useful as a controlled-launch rehearsal outline.
 
 ## Pre-Launch Preparation
 
@@ -76,3 +77,7 @@ Any checkpoint may trigger `No-Go` if severe unresolved incidents remain.
 ## Mandatory Statement
 
 No statement in this plan should be interpreted as production-ready approval at this time.
+
+## Cross Reference
+
+- See [docs/owner-approved-readiness/PROJECT_MASTER_STATUS_REPORT.md](../owner-approved-readiness/PROJECT_MASTER_STATUS_REPORT.md) for the approved decision baseline.

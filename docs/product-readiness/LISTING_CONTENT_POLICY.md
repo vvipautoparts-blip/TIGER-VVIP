@@ -5,6 +5,7 @@
 - Maximum `4` listings per account per week.
 - Maximum `7` images per listing.
 - Images only. Video is not allowed.
+- Administrative exception may be granted only by owner decision.
 
 ## Image Standards
 
@@ -16,10 +17,17 @@
 
 - Price is required.
 - Price must be greater than `0`.
+- Decimal prices are allowed.
 
 ## Retention Rule
 
 - Listing and listing images are deleted after `120` days according to platform policy.
+
+## Data Structure Guidance
+
+- Structured listing data should be about 80%.
+- Short free text should be about 20%.
+- The balance is intended to keep search quality high without removing human context.
 
 ## Listing Lifecycle States
 

@@ -3,6 +3,7 @@
 ## Training Objective
 
 Enable each operational role to execute daily and weekly responsibilities consistently before controlled launch.
+This plan remains a training layer above the owner-approved policy set.
 
 ## Target Trainees
 
@@ -88,3 +89,7 @@ Result options:
 - `Pass`
 - `Conditional Pass`
 - `Re-Training Required`
+
+## Cross Reference
+
+- See [docs/owner-approved-readiness/OWNER_DECISIONS_FINAL.md](../owner-approved-readiness/OWNER_DECISIONS_FINAL.md) for the approved decision baseline.

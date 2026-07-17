@@ -57,6 +57,12 @@
 
 - Ready for owner review: `YES`
 
+## Later Owner-Approved Consolidation
+
+- See [docs/owner-approved-readiness/OWNER_DECISIONS_FINAL.md](../owner-approved-readiness/OWNER_DECISIONS_FINAL.md) for the owner-approved decision set.
+- See [docs/owner-approved-readiness/PROJECT_MASTER_STATUS_REPORT.md](../owner-approved-readiness/PROJECT_MASTER_STATUS_REPORT.md) for the consolidated project state.
+- This historical P08 record remains unchanged in status: `P08: INCOMPLETE`, `P09: NOT STARTED`.
+
 ## Open Questions
 
 - Refer to `OPEN_DECISIONS_REGISTER.md` for all unresolved owner decisions.
