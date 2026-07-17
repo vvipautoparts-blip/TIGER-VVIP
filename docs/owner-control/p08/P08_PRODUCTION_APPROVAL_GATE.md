@@ -11,3 +11,7 @@ Production is not authorized by PR76. Approval requires all of the following:
 - Remote read-only inspection confirms the reviewed baseline.
 
 The current local migration dependency blocker means this gate is closed.
+
+## Closure Evidence Orchestration
+
+Use the [P08 Closure Readiness Package](../p08-closure/README.md) to track blockers, evidence, read-only inspection, local recovery, RLS and Storage verification, backup, rollback, and sign-off. The Production gate remains closed until the required evidence is reviewed and passed.
