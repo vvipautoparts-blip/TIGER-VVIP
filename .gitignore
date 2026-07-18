@@ -40,3 +40,6 @@ package.json
 
 # P08 public.profiles bootstrap regression test
 !tests/p08-profiles-bootstrap-order.test.cjs
+
+# P08 OTP least-privilege regression test
+!tests/p08-otp-least-privilege.test.cjs
