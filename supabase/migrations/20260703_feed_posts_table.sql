@@ -16,12 +16,18 @@ create table if not exists public.feed_posts (
 
 alter table public.feed_posts enable row level security;
 
-create policy if not exists "Anyone can read feed posts"
+drop policy if exists "Anyone can read feed posts"
+on public.feed_posts;
+
+create policy "Anyone can read feed posts"
 on public.feed_posts
 for select
 using (true);
 
-create policy if not exists "Anyone can insert feed posts"
+drop policy if exists "Anyone can insert feed posts"
+on public.feed_posts;
+
+create policy "Anyone can insert feed posts"
 on public.feed_posts
 for insert
 with check (true);

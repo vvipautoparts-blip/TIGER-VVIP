@@ -28,3 +28,15 @@ package.json
 
 # Local safety backups generated during controlled implementation phases
 .local-backups/
+
+# P08 OTP migration-order regression test
+!tests/p08-otp-migration-order.test.cjs
+
+# P08 PostgreSQL policy-syntax regression test
+!tests/p08-postgres-policy-syntax.test.cjs
+
+# P08 migration-version uniqueness regression test
+!tests/p08-migration-version-uniqueness.test.cjs
+
+# P08 public.profiles bootstrap regression test
+!tests/p08-profiles-bootstrap-order.test.cjs
