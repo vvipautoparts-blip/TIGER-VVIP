@@ -42,7 +42,12 @@ window.addEventListener("load", async function () {
   const host = document.getElementById("clerk-sign-in");
   try {
     if (!window.Clerk) throw new Error("Clerk runtime unavailable");
-    await window.Clerk.load();
+    if (!window.__internal_ClerkUICtor) {
+      throw new Error("Clerk UI runtime unavailable");
+    }
+    await window.Clerk.load({
+      ui: { ClerkUI: window.__internal_ClerkUICtor }
+    });
     if (window.Clerk.isSignedIn) {
       finishSignedIn();
       return;
