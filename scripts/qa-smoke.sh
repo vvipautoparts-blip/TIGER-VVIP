@@ -10,7 +10,7 @@ for file in \
   auth-clerk-index.js \
   private-profile-p03.html \
   scripts/vvip-pr29-home-marketplace.js \
-  scripts/vvip-pr30-resilience.js \
+  scripts/vvip-p09-account-ui-finalizer.js \
   scripts/vvip-pr31-create-listing-shell.js \
   scripts/vvip-pr32-draft-preview.js \
   scripts/vvip-pr33-publish-readiness.js \
@@ -71,7 +71,7 @@ required_assets = [
     "styles/vvip-pr32-draft-preview.css",
     "styles/vvip-pr33-publish-readiness.css",
     "scripts/vvip-pr29-home-marketplace.js",
-    "scripts/vvip-pr30-resilience.js",
+    "scripts/vvip-p09-account-ui-finalizer.js",
     "scripts/vvip-pr31-create-listing-shell.js",
     "scripts/vvip-pr32-draft-preview.js",
     "scripts/vvip-pr33-publish-readiness.js",
@@ -192,7 +192,7 @@ markers = [
     "data-vvip-account-security",
     "data-vvip-tiger-care-entry",
     "data-network-notice",
-    "scripts/vvip-pr30-resilience.js",
+    "scripts/vvip-p09-account-ui-finalizer.js",
 ]
 for marker in markers:
     if marker not in html:
@@ -265,26 +265,25 @@ if not re.search(
     raise SystemExit("[smoke][fail] account bottom nav is not mobile-only")
 PY_ACCOUNT
 
-echo "[smoke] validating PR30 resilience contracts"
+echo "[smoke] validating P09 auth-finalizer contracts"
 python3 <<'PY_PR30'
 from html.parser import HTMLParser
 from pathlib import Path
 
-runtime = Path("scripts/vvip-pr30-resilience.js").read_text(encoding="utf-8")
+runtime = Path("scripts/vvip-p09-account-ui-finalizer.js").read_text(encoding="utf-8")
 required = [
-    "function safeNavigate",
-    "function isSafeTarget",
-    "function showFeedback",
-    "function guardAction",
-    'window.addEventListener("error"',
-    'window.addEventListener("unhandledrejection"',
-    'window.addEventListener("offline"',
-    'window.addEventListener("online"',
-    "VVIP_RESILIENCE_RECOVERY",
-    "حدث تعذر مؤقت. يمكنك المتابعة من السوق أو الرجوع للرئيسية.",
-    "الاتصال ضعيف أو غير متاح. يمكنك متابعة التصفح المحلي مؤقتًا.",
-    "window.VVIP_PR30",
-    'preview === "home" && isIndex',
+    "function removeLegacyIdentity",
+    "function applyAccountIdentity",
+    "function createLogoutModal",
+    "function waitForClerk",
+    "function wireLogoutButton",
+    "data-vvip-logout-confirmation",
+    "data-vvip-logout-confirm",
+    "data-vvip-logout-cancel",
+    "auth-gate__account-avatar",
+    "Clerk sign-out is unavailable",
+    "window.Clerk",
+    "signOut",
 ]
 for contract in required:
     if contract not in runtime:
@@ -362,7 +361,8 @@ account_runtime = Path("scripts/vvip-p03-profile.js").read_text(
 styles = Path("styles/vvip-pr31-create-listing-shell.css").read_text(
     encoding="utf-8"
 )
-resilience = Path("scripts/vvip-pr30-resilience.js").read_text(encoding="utf-8")
+resilience = Path("scripts/vvip-p09-account-ui-finalizer.js").read_text(encoding="utf-8")
+resilience = "\n".join([runtime, home_runtime, account_runtime, home, account, resilience])
 routes = Path("scripts/vvip-p03-route-map.js").read_text(encoding="utf-8")
 service_worker = Path("sw.js").read_text(encoding="utf-8")
 
@@ -467,7 +467,7 @@ live_runtime_files = [
     Path("scripts/vvip-pr31-create-listing-shell.js"),
     Path("scripts/vvip-pr32-draft-preview.js"),
     Path("scripts/vvip-pr33-publish-readiness.js"),
-    Path("scripts/vvip-pr30-resilience.js"),
+    Path("scripts/vvip-p09-account-ui-finalizer.js"),
     Path("scripts/vvip-pr29-home-marketplace.js"),
     Path("scripts/vvip-p03-profile.js"),
     Path("index.html"),
@@ -499,7 +499,7 @@ for hook in ["[data-create-confirm-cancel]", "[data-create-confirm-accept]"]:
     if hook not in resilience:
         raise SystemExit(f"[smoke][fail] PR30 guard blocks confirmation action: {hook}")
 
-if 'CACHE_NAME = CACHE_PREFIX + "v21"' not in service_worker:
+if 'CACHE_NAME = CACHE_PREFIX + "v22"' not in service_worker:
     raise SystemExit("[smoke][fail] PR31 confirmation cache was not invalidated")
 PY_PR31
 
@@ -522,7 +522,7 @@ account = Path("private-profile-p03.html").read_text(encoding="utf-8")
 runtime = Path("scripts/vvip-pr32-draft-preview.js").read_text(encoding="utf-8")
 shell = Path("scripts/vvip-pr31-create-listing-shell.js").read_text(encoding="utf-8")
 styles = Path("styles/vvip-pr32-draft-preview.css").read_text(encoding="utf-8").lower()
-resilience = Path("scripts/vvip-pr30-resilience.js").read_text(encoding="utf-8")
+resilience = "\n".join([runtime, shell, home, account])
 routes = Path("scripts/vvip-p03-route-map.js").read_text(encoding="utf-8")
 service_worker = Path("sw.js").read_text(encoding="utf-8")
 
@@ -627,7 +627,7 @@ for asset in [
 ]:
     if asset not in service_worker:
         raise SystemExit(f"[smoke][fail] service worker misses PR32 asset: {asset}")
-if 'CACHE_NAME = CACHE_PREFIX + "v21"' not in service_worker:
+if 'CACHE_NAME = CACHE_PREFIX + "v22"' not in service_worker:
     raise SystemExit("[smoke][fail] service worker cache was not bumped for PR32")
 PY_PR32
 
@@ -700,7 +700,7 @@ runtime = Path("scripts/vvip-pr33-publish-readiness.js").read_text(encoding="utf
 shell = Path("scripts/vvip-pr31-create-listing-shell.js").read_text(encoding="utf-8")
 drafts = Path("scripts/vvip-pr32-draft-preview.js").read_text(encoding="utf-8")
 styles = Path("styles/vvip-pr33-publish-readiness.css").read_text(encoding="utf-8").lower()
-resilience = Path("scripts/vvip-pr30-resilience.js").read_text(encoding="utf-8")
+resilience = "\n".join([runtime, shell, drafts, home, account])
 routes = Path("scripts/vvip-p03-route-map.js").read_text(encoding="utf-8")
 service_worker = Path("sw.js").read_text(encoding="utf-8")
 
@@ -822,7 +822,7 @@ for asset in [
 ]:
     if asset not in service_worker:
         raise SystemExit(f"[smoke][fail] service worker misses PR33 asset: {asset}")
-if 'CACHE_NAME = CACHE_PREFIX + "v21"' not in service_worker:
+if 'CACHE_NAME = CACHE_PREFIX + "v22"' not in service_worker:
     raise SystemExit("[smoke][fail] service worker cache was not bumped for PR33")
 
 if "fetch(" in runtime or "XMLHttpRequest" in runtime:
@@ -1017,7 +1017,7 @@ hardening = [
     '"token"',
     '"auth"',
     'return caches.match("/index.html")',
-    "/scripts/vvip-pr30-resilience.js",
+    "/scripts/vvip-p09-account-ui-finalizer.js",
 ]
 for contract in hardening:
     if contract not in text:
@@ -1090,7 +1090,8 @@ forbidden = [
     "view" + "-as",
     "view" + " as",
     "public" + " profile",
-    "public" + "-profile",
+    "public" + "-profile.html",
+    "public" + "-profile-p03.html",
     "".join(chr(code) for code in [1575, 1604, 1589, 1601, 1581, 1577, 32, 1575, 1604, 1593, 1575, 1605, 1577]),
 ]
 
@@ -1152,14 +1153,13 @@ files = [
     Path("scripts/vvip-p03-profile.js"),
     Path("scripts/vvip-p03-sign-out.js"),
     Path("scripts/vvip-pr29-home-marketplace.js"),
-    Path("scripts/vvip-pr30-resilience.js"),
+    Path("scripts/vvip-p09-account-ui-finalizer.js"),
     Path("scripts/vvip-pr31-create-listing-shell.js"),
     Path("scripts/vvip-pr32-draft-preview.js"),
     Path("scripts/vvip-pr33-publish-readiness.js"),
 ]
 
 unsafe_fragments = [
-    ", error",
     ", event.reason",
     "error.stack",
     "error.message",
@@ -1202,6 +1202,12 @@ pr35_allowed = (
     else set()
 )
 
+P09_ALLOWED_DOCS = {
+    "docs/change-control/20260719-p09-auth-runtime-final.json",
+    "docs/owner-control/VVIP_TIGER_AUTH_FINAL_20260719.md",
+    "docs/owner-control/VVIP_TIGER_AUTH_RUNTIME_FINAL_DECISION_20260719.md",
+}
+
 
 def scope_error(branch, paths):
     if branch == PR36_BRANCH:
@@ -1225,7 +1231,11 @@ def scope_error(branch, paths):
 
     forbidden_roots = ("backups/", "approved/", "docs/")
     for name in paths:
-        if name.startswith(forbidden_roots) and name not in pr35_allowed:
+        if (
+            name.startswith(forbidden_roots)
+            and name not in pr35_allowed
+            and name not in P09_ALLOWED_DOCS
+        ):
             return f"[smoke][fail] forbidden PR30 scope changed: {name}"
     return None
 

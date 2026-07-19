@@ -1,0 +1,182 @@
+/*
+ * VVIP TIGER — Remembered Account
+ * Uses the active Clerk user without persisting personal data.
+ */
+
+.auth-gate__account-avatar {
+  display: block;
+  width: clamp(145px, 20vh, 215px);
+  height: clamp(145px, 20vh, 215px);
+  margin: 0 auto;
+  object-fit: cover;
+  border: 6px solid rgba(255, 255, 255, 0.98);
+  border-radius: 50%;
+  background: #0876cc;
+  box-shadow:
+    0 0 0 6px rgba(106, 219, 255, 0.30),
+    0 0 36px rgba(227, 252, 255, 0.92),
+    0 18px 38px rgba(0, 58, 126, 0.28);
+}
+
+.auth-gate__account-avatar[hidden] {
+  display: none;
+}
+
+.auth-gate[data-vvip-auth-state="remembered"]
+.auth-gate__clerk,
+.auth-gate[data-vvip-auth-state="remembered"]
+.auth-gate__loader {
+  display: none !important;
+}
+
+.auth-gate__remembered-account {
+  position: relative;
+  z-index: 4;
+  display: grid;
+  justify-items: center;
+  width: 100%;
+  margin-top: clamp(16px, 2.6vh, 25px);
+  text-align: center;
+}
+
+.auth-gate__remembered-account[hidden] {
+  display: none;
+}
+
+.auth-gate__account-name {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(1.25rem, 3vw, 1.65rem);
+  font-weight: 900;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  text-shadow:
+    0 4px 12px rgba(0, 47, 108, 0.36);
+}
+
+.auth-gate__account-message {
+  margin: 7px 0 0;
+  color: rgba(232, 248, 255, 0.91);
+  font-size: 0.87rem;
+  font-weight: 600;
+  line-height: 1.7;
+}
+
+.auth-gate__account-actions {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  margin-top: 19px;
+}
+
+.auth-gate__account-button {
+  width: 100%;
+  min-height: 54px;
+  padding: 10px 18px;
+  border-radius: 13px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  transition:
+    transform 140ms ease,
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.auth-gate__account-button:hover {
+  transform: translateY(-1px);
+}
+
+.auth-gate__account-button:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.62);
+  outline-offset: 3px;
+}
+
+.auth-gate__account-button:disabled {
+  cursor: wait;
+  opacity: 0.68;
+  transform: none;
+}
+
+.auth-gate__account-button--primary {
+  border: 1px solid rgba(205, 246, 255, 0.98);
+  color: #ffffff;
+  background:
+    linear-gradient(
+      135deg,
+      #13caff,
+      #078cf0 48%,
+      #0964db
+    );
+  box-shadow:
+    0 12px 29px rgba(0, 67, 161, 0.31),
+    0 0 15px rgba(100, 225, 255, 0.32);
+}
+
+.auth-gate__account-button--secondary {
+  border: 1px solid rgba(190, 230, 255, 0.70);
+  color: #ffffff;
+  background: rgba(3, 65, 132, 0.56);
+}
+
+.auth-gate__account-button--logout {
+  border: 1px solid rgba(255, 213, 213, 0.58);
+  color: #fff4f4;
+  background: rgba(101, 24, 48, 0.42);
+}
+
+.auth-gate__account-button--logout:hover {
+  border-color: rgba(255, 230, 230, 0.82);
+  background: rgba(124, 28, 54, 0.56);
+}
+
+@media (max-height: 900px) and (min-width: 641px) {
+  .auth-gate__account-avatar {
+    width: 142px;
+    height: 142px;
+    border-width: 5px;
+  }
+
+  .auth-gate__remembered-account {
+    margin-top: 12px;
+  }
+
+  .auth-gate__account-actions {
+    margin-top: 13px;
+  }
+
+  .auth-gate__account-button {
+    min-height: 47px;
+  }
+}
+
+@media (max-width: 640px) {
+  .auth-gate__account-avatar {
+    width: 140px;
+    height: 140px;
+    border-width: 5px;
+  }
+
+  .auth-gate__remembered-account {
+    margin-top: 13px;
+  }
+
+  .auth-gate__account-message {
+    font-size: 0.8rem;
+  }
+
+  .auth-gate__account-button {
+    min-height: 50px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-gate__account-button {
+    transition: none;
+  }
+
+  .auth-gate__account-button:hover {
+    transform: none;
+  }
+}

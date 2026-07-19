@@ -49,6 +49,24 @@ window.addEventListener("load", async function () {
       ui: { ClerkUI: window.__internal_ClerkUICtor }
     });
     if (window.Clerk.isSignedIn) {
+      const rememberedAccount =
+        window.VVIP_P09_REMEMBERED_ACCOUNT;
+
+      if (
+        rememberedAccount &&
+        typeof rememberedAccount.show === "function"
+      ) {
+        window.VVIP_PR29 &&
+          window.VVIP_PR29.showGate();
+
+        await rememberedAccount.show({
+          clerk: window.Clerk,
+          continueToApp: finishSignedIn
+        });
+
+        return;
+      }
+
       finishSignedIn();
       return;
     }

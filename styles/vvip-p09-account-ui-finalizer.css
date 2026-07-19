@@ -1,0 +1,138 @@
+/*
+ * الصورة الشخصية تلغي دائرة VVIP عند وجودها.
+ * hidden يجب أن يتغلب على قواعد display السابقة.
+ */
+.auth-gate__mark[hidden],
+.auth-gate__account-avatar[hidden] {
+  display: none !important;
+}
+
+body.vvip-logout-open {
+  overflow: hidden;
+}
+
+.vvip-logout-confirmation {
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(4, 22, 48, 0.68);
+  backdrop-filter: blur(7px);
+}
+
+.vvip-logout-confirmation[hidden] {
+  display: none !important;
+}
+
+.vvip-logout-confirmation__dialog {
+  width: min(500px, 100%);
+  padding: 29px;
+  border: 1px solid rgba(190, 231, 255, 0.76);
+  border-radius: 24px;
+  direction: rtl;
+  color: #ffffff;
+  text-align: right;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(12, 111, 190, 0.97),
+      rgba(3, 54, 119, 0.98)
+    );
+  box-shadow:
+    0 24px 70px rgba(0, 25, 65, 0.48),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24);
+}
+
+.vvip-logout-confirmation__dialog h2 {
+  margin: 0;
+  font-size: clamp(1.6rem, 4vw, 2rem);
+  line-height: 1.4;
+}
+
+.vvip-logout-confirmation__dialog p {
+  margin: 11px 0 0;
+  color: rgba(236, 249, 255, 0.9);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.vvip-logout-confirmation__error {
+  color: #ffd7d7 !important;
+  font-weight: 800;
+}
+
+.vvip-logout-confirmation__error[hidden] {
+  display: none !important;
+}
+
+.vvip-logout-confirmation__actions {
+  display: flex;
+  gap: 11px;
+  justify-content: flex-start;
+  margin-top: 24px;
+}
+
+.vvip-logout-confirmation__actions button {
+  min-height: 50px;
+  padding: 10px 22px;
+  border-radius: 12px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 900;
+}
+
+.vvip-logout-confirmation__cancel {
+  border: 1px solid rgba(220, 241, 255, 0.76);
+  color: #072c5b;
+  background: #ffffff;
+}
+
+.vvip-logout-confirmation__confirm {
+  border: 1px solid rgba(255, 213, 213, 0.82);
+  color: #ffffff;
+  background: #a92f39;
+}
+
+.vvip-logout-confirmation__actions button:focus-visible {
+  outline: 3px solid rgba(114, 224, 255, 0.82);
+  outline-offset: 3px;
+}
+
+.vvip-logout-confirmation__actions button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+@media (max-width: 640px) {
+  .vvip-logout-confirmation {
+    padding: 14px;
+  }
+
+  .vvip-logout-confirmation__dialog {
+    padding: 23px 19px;
+    border-radius: 20px;
+  }
+
+  .vvip-logout-confirmation__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .vvip-logout-confirmation__actions button {
+    width: 100%;
+    padding-inline: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vvip-logout-confirmation {
+    backdrop-filter: none;
+  }
+}
+
+/* VVIP AUTH GATE HIDDEN CONTRACT */
+.auth-gate[hidden] {
+  display: none !important;
+}
