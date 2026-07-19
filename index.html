@@ -14,10 +14,14 @@
   <link rel="stylesheet" href="styles/vvip-pr32-draft-preview.css">
   <link rel="stylesheet" href="styles/vvip-pr33-publish-readiness.css">
   <link rel="stylesheet" href="styles/vvip-pr36-media.css">
+  <link rel="stylesheet" href="styles/vvip-p09-future-auth.css">
+  <link rel="stylesheet" href="styles/vvip-p09-final-auth.css">
   <script defer crossorigin="anonymous" src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/ui@1/dist/ui.browser.js"></script>
   <script defer crossorigin="anonymous" data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk" src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"></script>
-  <script defer src="scripts/vvip-pr30-resilience.js"></script>
-  <script defer src="auth-clerk-index.js"></script>
+<script defer src="scripts/vvip-p09-remembered-account.js?v=20260719-hide-gate-final"></script>
+  <script defer src="scripts/vvip-p09-account-ui-finalizer.js"></script>
+<script defer src="auth-clerk-index.js"></script>
+  <script defer src="scripts/vvip-p09-auth-ready-bridge.js?v=20260719-ready-final"></script>
   <script defer src="scripts/vvip-pr29-home-marketplace.js"></script>
   <script defer src="scripts/media/pr36-signature.js"></script>
   <script defer src="scripts/media/pr36-policy.js"></script>
@@ -30,12 +34,51 @@
   <script defer src="scripts/vvip-pr32-draft-preview.js"></script>
   <script defer src="scripts/vvip-pr31-create-listing-shell.js"></script>
   <script defer src="scripts/vvip-pr33-publish-readiness.js"></script>
+<link rel="stylesheet" href="styles/vvip-p09-remembered-account.css">
+  <script defer src="scripts/vvip-identity-policy.js"></script>
+  <link rel="stylesheet" href="styles/vvip-p09-account-ui-finalizer.css?v=20260719-hide-gate-final">
 </head>
 <body data-vvip-pr29-app>
   <div class="network-notice" data-network-notice role="status" hidden></div>
-  <section class="auth-gate" data-vvip-auth-gate hidden>
-    <div class="auth-gate__brand"><span class="brand-mark">VVIP</span><h1>VVIP TIGER</h1><p>بوابتك الآمنة إلى المنصة الموحدة.</p></div>
-    <div class="auth-gate__card"><span class="eyebrow">CLERK SECURE ACCESS</span><h2>سجّل الدخول للمتابعة</h2><p>استخدم حسابك للوصول إلى الإعلانات والتواصل داخل المنصة.</p><div id="clerk-main-auth"><div id="clerk-sign-in"></div></div></div>
+  <section class="auth-gate" data-vvip-auth-gate hidden aria-labelledby="vvip-auth-title" data-vvip-auth-state="loading">
+    <div class="auth-gate__atmosphere" aria-hidden="true">
+      <span class="auth-gate__orb auth-gate__orb--one"></span>
+      <span class="auth-gate__orb auth-gate__orb--two"></span>
+      <span class="auth-gate__grid"></span>
+    </div>
+
+    <article class="auth-gate__card">
+      <span class="auth-gate__edge" aria-hidden="true"></span>
+
+      <header class="auth-gate__identity">
+
+        <div class="auth-gate__mark" aria-hidden="true">VVIP</div>
+
+        <h1 id="vvip-auth-title">VVIP TIGER</h1>
+
+      </header>
+
+
+      <div
+        id="vvip-auth-loader"
+        class="auth-gate__loader"
+        role="status"
+        aria-label="Loading secure authentication"
+      >
+        <span
+          class="auth-gate__loader-spinner"
+          aria-hidden="true"
+        ></span>
+      </div>
+
+<div id="clerk-main-auth" class="auth-gate__clerk">
+        <div id="clerk-sign-in"></div>
+      </div>
+
+    </article>
+    <p class="auth-gate__copyright">
+      © 2026 VVIP TIGER. All rights reserved.
+    </p>
   </section>
 
   <main class="app-shell" data-vvip-unified-home hidden>
@@ -93,5 +136,6 @@
     <section class="detail-sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" tabindex="-1"><button class="sheet-close" type="button" data-sheet-close aria-label="إغلاق">×</button><div data-sheet-content></div></section>
   </div>
   <div class="toast" data-app-toast role="status" aria-live="polite" hidden></div>
+  <script defer src="scripts/vvip-p09-entry-override.js?v=20260719-button-live-final"></script>
 </body>
 </html>

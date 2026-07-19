@@ -1,0 +1,781 @@
+/*
+ * VVIP TIGER — Approved Sky Login
+ * المرجع النهائي المعتمد من المالك.
+ * لا صور خارجية، لا مكتبات إضافية، Clerk حقيقي.
+ */
+
+:root {
+  --sky-050: #f2fbff;
+  --sky-100: #dff6ff;
+  --sky-200: #b9eaff;
+  --sky-300: #73d4ff;
+  --sky-400: #2db7ff;
+  --sky-500: #0798ed;
+  --sky-600: #0876cc;
+  --sky-700: #075da9;
+  --sky-800: #06417d;
+  --sky-900: #052b59;
+  --sky-950: #031a3b;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body:not(.is-home) {
+  margin: 0;
+  background: var(--sky-500);
+}
+
+.auth-gate {
+  position: relative;
+  isolation: isolate;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  place-items: center !important;
+  align-content: center;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: clamp(18px, 3vh, 38px);
+  overflow: hidden;
+  box-sizing: border-box;
+  color: #ffffff;
+  background:
+    radial-gradient(
+      circle at 12% 3%,
+      rgba(255, 255, 255, 0.96) 0,
+      rgba(255, 255, 255, 0.23) 9%,
+      transparent 23%
+    ),
+    repeating-radial-gradient(
+      circle at 50% 44%,
+      transparent 0 76px,
+      rgba(225, 247, 255, 0.15) 77px 79px
+    ),
+    linear-gradient(
+      135deg,
+      #7cddff 0%,
+      #27b8ff 28%,
+      #078fe5 66%,
+      #066dc3 100%
+    );
+}
+
+/* غيوم خفيفة مصنوعة بـCSS دون ملفات صور. */
+.auth-gate::before,
+.auth-gate::after {
+  position: absolute;
+  z-index: -1;
+  bottom: -8%;
+  width: 57%;
+  height: 48%;
+  content: "";
+  pointer-events: none;
+  opacity: 0.96;
+  filter: blur(1px);
+  background:
+    radial-gradient(
+      ellipse at 12% 70%,
+      rgba(255, 255, 255, 0.96) 0 14%,
+      transparent 15%
+    ),
+    radial-gradient(
+      ellipse at 28% 57%,
+      rgba(255, 255, 255, 0.96) 0 18%,
+      transparent 19%
+    ),
+    radial-gradient(
+      ellipse at 46% 69%,
+      rgba(255, 255, 255, 0.93) 0 21%,
+      transparent 22%
+    ),
+    radial-gradient(
+      ellipse at 67% 60%,
+      rgba(255, 255, 255, 0.91) 0 19%,
+      transparent 20%
+    ),
+    radial-gradient(
+      ellipse at 86% 75%,
+      rgba(255, 255, 255, 0.88) 0 17%,
+      transparent 18%
+    );
+}
+
+.auth-gate::before {
+  left: -8%;
+}
+
+.auth-gate::after {
+  right: -8%;
+  transform: scaleX(-1);
+}
+
+.auth-gate__atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.auth-gate__grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.12;
+  background:
+    repeating-radial-gradient(
+      circle at center,
+      transparent 0 63px,
+      rgba(255, 255, 255, 0.35) 64px 65px
+    );
+}
+
+.auth-gate__orb {
+  display: none;
+}
+
+/* البطاقة الوحيدة */
+.auth-gate__card {
+  position: relative;
+  z-index: 3;
+  grid-column: 1 !important;
+  justify-self: center !important;
+  width: min(650px, calc(100vw - 30px));
+  margin: 0 auto;
+  padding: clamp(26px, 4vh, 44px)
+    clamp(24px, 4vw, 50px)
+    clamp(22px, 3vh, 34px);
+  overflow: hidden;
+  box-sizing: border-box;
+  border: 2px solid rgba(228, 249, 255, 0.93);
+  border-radius: 34px;
+  color: #ffffff;
+  text-align: center;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(11, 140, 222, 0.88) 0%,
+      rgba(4, 99, 174, 0.94) 42%,
+      rgba(3, 43, 94, 0.97) 100%
+    );
+  box-shadow:
+    0 30px 80px rgba(1, 54, 116, 0.42),
+    0 0 34px rgba(226, 250, 255, 0.72),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(16px) saturate(130%);
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
+}
+
+.auth-gate__card::before {
+  position: absolute;
+  inset: 8px;
+  content: "";
+  pointer-events: none;
+  border: 1px solid rgba(220, 247, 255, 0.18);
+  border-radius: 27px;
+}
+
+.auth-gate__card::after {
+  position: absolute;
+  top: -25%;
+  left: -18%;
+  width: 72%;
+  aspect-ratio: 1;
+  content: "";
+  pointer-events: none;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle,
+      rgba(217, 249, 255, 0.46),
+      transparent 67%
+    );
+}
+
+.auth-gate__edge {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      #ffffff,
+      transparent
+    ) top / 52% 2px no-repeat,
+    linear-gradient(
+      90deg,
+      transparent,
+      #62cfff,
+      transparent
+    ) bottom / 60% 2px no-repeat;
+}
+
+.auth-gate__identity {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+}
+
+/* دائرة VVIP الكبيرة */
+.auth-gate__mark {
+  display: grid;
+  place-items: center;
+  width: clamp(190px, 25vw, 250px);
+  height: clamp(190px, 25vw, 250px);
+  margin: 0 auto;
+  border: 7px solid rgba(255, 255, 255, 0.98);
+  border-radius: 50%;
+  color: #ffffff;
+  direction: ltr;
+  background:
+    radial-gradient(
+      circle at 34% 23%,
+      #3ee0ff 0%,
+      #069ff0 31%,
+      #0568d9 61%,
+      #033b98 100%
+    );
+  box-shadow:
+    0 0 0 6px rgba(106, 219, 255, 0.30),
+    0 0 35px rgba(227, 252, 255, 0.92),
+    inset 0 -26px 42px rgba(3, 48, 151, 0.37),
+    inset 0 14px 28px rgba(255, 255, 255, 0.21);
+  font-size: clamp(3.8rem, 8vw, 6.1rem);
+  font-weight: 900;
+  letter-spacing: -0.08em;
+  text-shadow:
+    0 6px 14px rgba(0, 33, 92, 0.34),
+    0 0 13px rgba(255, 255, 255, 0.35);
+}
+
+.auth-gate__identity h1 {
+  margin: clamp(18px, 3vh, 28px) 0 0;
+  color: #ffffff;
+  font-size: clamp(3rem, 6.2vw, 5.3rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+  direction: ltr;
+  text-shadow:
+    0 5px 12px rgba(0, 35, 86, 0.45),
+    0 0 16px rgba(255, 255, 255, 0.18);
+}
+
+.auth-gate__identity h1::after {
+  display: block;
+  width: 92%;
+  height: 2px;
+  margin: 21px auto 0;
+  content: "";
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.92),
+      transparent
+    );
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
+}
+
+.auth-gate__secure-label,
+.auth-gate__tagline,
+.auth-gate__assurance {
+  display: none !important;
+}
+
+.auth-gate__clerk {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  margin-top: clamp(20px, 3vh, 28px);
+  direction: ltr;
+}
+
+#clerk-sign-in,
+#clerk-sign-in .cl-rootBox,
+#clerk-sign-in .cl-cardBox,
+#clerk-sign-in .cl-card {
+  width: 100%;
+  max-width: none;
+}
+
+#clerk-sign-in .cl-cardBox,
+#clerk-sign-in .cl-card,
+#clerk-sign-in .cl-main,
+#clerk-sign-in .cl-footer,
+#clerk-sign-in .cl-footerAction,
+#clerk-sign-in .cl-footerPages {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+#clerk-sign-in .cl-card {
+  padding: 0 !important;
+}
+
+#clerk-sign-in .cl-header,
+#clerk-sign-in .cl-headerTitle,
+#clerk-sign-in .cl-headerSubtitle {
+  display: none !important;
+}
+
+#clerk-sign-in .cl-main {
+  gap: 16px;
+}
+
+/* زر Google الأبيض */
+#clerk-sign-in .cl-socialButtonsBlockButton {
+  min-height: 58px;
+  border: 1px solid rgba(255, 255, 255, 0.94);
+  border-radius: 13px;
+  color: #092352;
+  background: #ffffff;
+  box-shadow:
+    0 10px 25px rgba(0, 54, 111, 0.17);
+}
+
+#clerk-sign-in .cl-socialButtonsBlockButton:hover {
+  color: #06204c;
+  background: #f5fcff;
+}
+
+#clerk-sign-in .cl-socialButtonsBlockButtonText {
+  color: #092352;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+/* الفاصل */
+#clerk-sign-in .cl-dividerLine {
+  background: rgba(211, 240, 255, 0.46);
+}
+
+#clerk-sign-in .cl-dividerText {
+  color: #ffffff;
+}
+
+/* حقل البريد */
+#clerk-sign-in .cl-formFieldLabel {
+  color: #d8f2ff;
+  font-weight: 600;
+}
+
+#clerk-sign-in .cl-formFieldInput {
+  min-height: 58px;
+  border: 1px solid rgba(150, 215, 255, 0.60);
+  border-radius: 13px;
+  color: #ffffff;
+  background: rgba(2, 48, 105, 0.64);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+#clerk-sign-in .cl-formFieldInput::placeholder {
+  color: rgba(213, 237, 255, 0.70);
+}
+
+#clerk-sign-in .cl-formFieldInput:focus {
+  border-color: #ffffff;
+  box-shadow:
+    0 0 0 3px rgba(100, 210, 255, 0.22),
+    0 0 19px rgba(116, 220, 255, 0.27);
+}
+
+/* زر المتابعة */
+#clerk-sign-in .cl-formButtonPrimary {
+  min-height: 60px;
+  border: 1px solid rgba(191, 240, 255, 0.96);
+  border-radius: 13px;
+  color: #ffffff;
+  background:
+    linear-gradient(
+      135deg,
+      #11c8ff 0%,
+      #078ff3 46%,
+      #0965e2 100%
+    );
+  box-shadow:
+    0 11px 28px rgba(0, 65, 164, 0.30),
+    0 0 14px rgba(91, 222, 255, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+#clerk-sign-in .cl-formButtonPrimary:hover {
+  background:
+    linear-gradient(
+      135deg,
+      #36d5ff,
+      #099cf9 48%,
+      #0b70eb
+    );
+}
+
+#clerk-sign-in .cl-footerActionText,
+#clerk-sign-in .cl-footerPages,
+#clerk-sign-in .cl-footerPagesText {
+  color: rgba(234, 248, 255, 0.86) !important;
+}
+
+#clerk-sign-in .cl-footerActionLink,
+#clerk-sign-in .cl-footerPagesLink {
+  color: #28d2ff !important;
+  font-weight: 800;
+}
+
+#clerk-sign-in .cl-internal-b3fm6y,
+#clerk-sign-in .cl-internal-1dauvpw {
+  color: rgba(222, 244, 255, 0.76) !important;
+  background: transparent !important;
+}
+
+.auth-gate__copyright {
+  position: relative;
+  z-index: 3;
+  grid-column: 1;
+  margin: 16px 0 0;
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 0.83rem;
+  font-weight: 600;
+  text-align: center;
+  direction: ltr;
+  text-shadow: 0 2px 8px rgba(0, 51, 111, 0.58);
+}
+
+@supports not (
+  (backdrop-filter: blur(1px)) or
+  (-webkit-backdrop-filter: blur(1px))
+) {
+  .auth-gate__card {
+    background: #076bb7;
+  }
+}
+
+@media (max-width: 640px) {
+  .auth-gate {
+    align-content: start;
+    padding: 10px;
+  }
+
+  .auth-gate__card {
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px 14px 18px;
+    border-radius: 25px;
+  }
+
+  .auth-gate__mark {
+    width: clamp(145px, 45vw, 185px);
+    height: clamp(145px, 45vw, 185px);
+    border-width: 5px;
+    font-size: clamp(3rem, 15vw, 4.7rem);
+  }
+
+  .auth-gate__identity h1 {
+    margin-top: 18px;
+    font-size: clamp(2.45rem, 11vw, 3.3rem);
+  }
+
+  .auth-gate__identity h1::after {
+    margin-top: 16px;
+  }
+
+  .auth-gate__clerk {
+    margin-top: 17px;
+  }
+
+  #clerk-sign-in .cl-socialButtonsBlockButton,
+  #clerk-sign-in .cl-formFieldInput,
+  #clerk-sign-in .cl-formButtonPrimary {
+    min-height: 52px;
+  }
+
+  .auth-gate__copyright {
+    margin-top: 10px;
+    font-size: 0.71rem;
+  }
+}
+
+@media (max-height: 780px) and (min-width: 641px) {
+  .auth-gate {
+    align-content: start;
+    padding-block: 12px;
+  }
+
+  .auth-gate__card {
+    padding-top: 18px;
+    padding-bottom: 17px;
+  }
+
+  .auth-gate__mark {
+    width: 155px;
+    height: 155px;
+    border-width: 5px;
+    font-size: 3.8rem;
+  }
+
+  .auth-gate__identity h1 {
+    margin-top: 13px;
+    font-size: 3.2rem;
+  }
+
+  .auth-gate__identity h1::after {
+    margin-top: 13px;
+  }
+
+  .auth-gate__clerk {
+    margin-top: 13px;
+  }
+
+  #clerk-sign-in .cl-socialButtonsBlockButton,
+  #clerk-sign-in .cl-formFieldInput,
+  #clerk-sign-in .cl-formButtonPrimary {
+    min-height: 49px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-gate *,
+  .auth-gate *::before,
+  .auth-gate *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* VVIP_SKY_POLISH_START */
+
+/* Final approved sky layout: one centered card, smooth sky, soft clouds. */
+.auth-gate {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  place-items: center !important;
+  align-content: center !important;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: clamp(10px, 2vh, 22px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  background:
+    radial-gradient(
+      circle at 8% 2%,
+      rgba(255, 255, 255, 0.92) 0%,
+      rgba(255, 255, 255, 0.20) 11%,
+      transparent 25%
+    ),
+    repeating-radial-gradient(
+      circle at 50% 42%,
+      transparent 0 79px,
+      rgba(231, 249, 255, 0.12) 80px 81px
+    ),
+    linear-gradient(
+      135deg,
+      #91e4ff 0%,
+      #38c3ff 27%,
+      #0d9dec 58%,
+      #0872c8 100%
+    ) !important;
+}
+
+/* Replace the oversized white circles with softer edge clouds. */
+.auth-gate::before,
+.auth-gate::after {
+  position: absolute !important;
+  z-index: -1 !important;
+  bottom: -35px !important;
+  width: min(500px, 43vw) !important;
+  height: min(245px, 25vw) !important;
+  content: "" !important;
+  pointer-events: none !important;
+  opacity: 0.68 !important;
+  filter: blur(8px) !important;
+  background:
+    radial-gradient(
+      ellipse at 8% 75%,
+      rgba(255,255,255,.94) 0 8%,
+      transparent 9%
+    ),
+    radial-gradient(
+      ellipse at 24% 61%,
+      rgba(255,255,255,.96) 0 14%,
+      transparent 15%
+    ),
+    radial-gradient(
+      ellipse at 43% 71%,
+      rgba(255,255,255,.93) 0 18%,
+      transparent 19%
+    ),
+    radial-gradient(
+      ellipse at 63% 57%,
+      rgba(255,255,255,.90) 0 16%,
+      transparent 17%
+    ),
+    radial-gradient(
+      ellipse at 82% 72%,
+      rgba(255,255,255,.85) 0 18%,
+      transparent 19%
+    ) !important;
+}
+
+.auth-gate::before {
+  left: -55px !important;
+  right: auto !important;
+}
+
+.auth-gate::after {
+  right: -55px !important;
+  left: auto !important;
+  transform: scaleX(-1) !important;
+}
+
+/* One centered card that fits the active viewport. */
+.auth-gate__card {
+  grid-column: 1 !important;
+  justify-self: center !important;
+  width: min(590px, calc(100vw - 22px)) !important;
+  margin: 0 auto !important;
+  padding:
+    clamp(14px, 2vh, 24px)
+    clamp(20px, 3.3vw, 40px)
+    clamp(13px, 1.8vh, 21px) !important;
+  border-radius: 30px !important;
+}
+
+/* Approved large VVIP emblem, sized safely for short screens. */
+.auth-gate__mark {
+  width: clamp(145px, 20vh, 215px) !important;
+  height: clamp(145px, 20vh, 215px) !important;
+  border-width: 6px !important;
+  font-size: clamp(3.4rem, 8vh, 5.3rem) !important;
+}
+
+/* Keep the platform name bright white and on one line. */
+.auth-gate__identity h1 {
+  margin-top: clamp(10px, 1.8vh, 18px) !important;
+  color: #ffffff !important;
+  background: none !important;
+  font-size: clamp(2.7rem, 6.3vh, 4.4rem) !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  text-shadow:
+    0 5px 14px rgba(0, 38, 94, 0.46),
+    0 0 18px rgba(255, 255, 255, 0.25) !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.auth-gate__identity h1::after {
+  width: 88% !important;
+  margin-top: clamp(9px, 1.5vh, 15px) !important;
+}
+
+.auth-gate__clerk {
+  margin-top: clamp(10px, 1.7vh, 17px) !important;
+}
+
+#clerk-sign-in .cl-main {
+  gap: clamp(8px, 1.2vh, 13px) !important;
+}
+
+#clerk-sign-in .cl-socialButtonsBlockButton,
+#clerk-sign-in .cl-formFieldInput {
+  min-height: clamp(46px, 5.5vh, 54px) !important;
+}
+
+#clerk-sign-in .cl-formButtonPrimary {
+  min-height: clamp(47px, 5.7vh, 56px) !important;
+}
+
+#clerk-sign-in .cl-footer {
+  padding-top: 7px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.auth-gate__copyright {
+  margin-top: clamp(5px, 1vh, 10px) !important;
+}
+
+/* Compact desktop preview and laptop screens. */
+@media (max-height: 900px) and (min-width: 641px) {
+  .auth-gate {
+    align-content: start !important;
+    padding-block: 8px !important;
+  }
+
+  .auth-gate__card {
+    padding: 12px 32px 10px !important;
+  }
+
+  .auth-gate__mark {
+    width: 142px !important;
+    height: 142px !important;
+    border-width: 5px !important;
+    font-size: 3.55rem !important;
+  }
+
+  .auth-gate__identity h1 {
+    margin-top: 9px !important;
+    font-size: 3.05rem !important;
+  }
+
+  .auth-gate__identity h1::after {
+    margin-top: 8px !important;
+  }
+
+  .auth-gate__clerk {
+    margin-top: 8px !important;
+  }
+
+  #clerk-sign-in .cl-main {
+    gap: 7px !important;
+  }
+
+  #clerk-sign-in .cl-socialButtonsBlockButton,
+  #clerk-sign-in .cl-formFieldInput,
+  #clerk-sign-in .cl-formButtonPrimary {
+    min-height: 45px !important;
+  }
+}
+
+/* Mobile layout. */
+@media (max-width: 640px) {
+  .auth-gate {
+    align-content: start !important;
+    padding: 7px !important;
+  }
+
+  .auth-gate__card {
+    width: 100% !important;
+    padding: 14px 12px 12px !important;
+    border-radius: 23px !important;
+  }
+
+  .auth-gate__mark {
+    width: 140px !important;
+    height: 140px !important;
+    font-size: 3.45rem !important;
+  }
+
+  .auth-gate__identity h1 {
+    margin-top: 10px !important;
+    font-size: clamp(2.3rem, 11vw, 2.95rem) !important;
+  }
+
+  .auth-gate::before,
+  .auth-gate::after {
+    width: 270px !important;
+    height: 130px !important;
+    opacity: 0.48 !important;
+  }
+}
+
+/* VVIP_SKY_POLISH_END */

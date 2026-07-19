@@ -158,15 +158,17 @@ test('owner controller has no unused ROLE_TEMPLATES import', async () => {
   assert.doesNotMatch(source, /\bROLE_TEMPLATES\b/);
 });
 
-test('resilience action allowlist uses consistent trailing-comma formatting', async () => {
-  const source = await read('scripts/vvip-pr30-resilience.js');
-  assert.doesNotMatch(source, /\n\s*,\s*['"]\[data-/);
-  for (const selector of [
-    '[data-vvip-tiger-care-entry]',
-    '[data-profile-actions-trigger]',
-    '[data-profile-assign]',
-    '[data-profile-suspend]',
-    '[data-profile-revoke]',
-    '[data-new-assignment]'
-  ]) assert.match(source, new RegExp(selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+test('PR30 runtime is retired while profile action hooks remain available', async () => {
+  const [profileHtml, finalizer] = await Promise.all([
+    read('private-profile-p03.html'),
+    read('scripts/vvip-p09-account-ui-finalizer.js')
+  ]);
+  assert.doesNotMatch(profileHtml, /vvip-pr30-resilience\.js/);
+  assert.match(profileHtml, /data-vvip-tiger-care-entry/);
+  assert.match(profileHtml, /data-profile-actions-trigger/);
+  assert.match(profileHtml, /data-profile-assign/);
+  assert.match(profileHtml, /data-profile-suspend/);
+  assert.match(profileHtml, /data-profile-revoke/);
+  assert.match(finalizer, /data-vvip-logout-confirmation/);
+  assert.match(finalizer, /signOut/);
 });
