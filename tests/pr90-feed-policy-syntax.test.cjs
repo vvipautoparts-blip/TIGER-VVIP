@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const migration = fs.readFileSync(
-  path.resolve(__dirname, '../supabase/migrations/20260702_feed_posts_table.sql'),
+  path.resolve(__dirname, '../supabase/migrations/20260703_feed_posts_table.sql'),
   'utf8',
 );
 
