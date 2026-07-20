@@ -1,0 +1,26 @@
+﻿risk_id,title,description,probability,impact,score,owner,mitigation,contingency,status
+RSK-001,صلاحية GitHub للقراءة فقط,الاتصال الحالي لا يسمح بإنشاء فرع أو PR,5,5,25,Owner,منح GitHub App صلاحية Contents/PR write للمستودع المحدد,تسليم overlay وpatch موقّع حتى تفعيل الصلاحية,open
+RSK-002,Supabase غير نشط,المشروع المتصل بحالة INACTIVE,5,5,25,Backend Lead,تفعيل مشروع Development/Branch قبل DDL,عدم لمس Production والاحتفاظ بالمigrations,open
+RSK-003,تضارب الهوية,وجود تاريخ Firebase/Clerk ومسارات قديمة,4,5,20,Security,جرد Runtime واختبارات جلسات وإزالة المسارات الموازية,Rollback إلى بوابة Clerk المثبتة,open
+RSK-004,RLS غير مكتمل,إمكانية تسرب بيانات بين المستخدمين,4,5,20,Security,اختبارات مستخدم A/B وسياسات لكل جدول,تعطيل الميزات المتأثرة,open
+RSK-005,إطلاق دولي غير قانوني,اختلاف القوانين والفئات والدفع,4,5,20,Legal,Country Capability Matrix ومراجعة قبل التفعيل,تعطيل الدولة أو الميزة,open
+RSK-006,انفجار النطاق,إضافة ميزات خارج Global V1,5,4,20,Product,Change Control وBacklog,تأجيل تلقائي للإصدار التالي,open
+RSK-007,بحث ضعيف بالعربية,اختلاف الهمزات والتشكيل والمرادفات,4,4,16,Search Lead,Normalization وقواميس وقياس zero-result,Fallback للفئات والاقتراحات,open
+RSK-008,اعتماد مورد بحث,صعوبة الخروج من مزود واحد,3,4,12,Architecture,Search Adapter وتصدير الفهرس,العودة إلى Postgres FTS مؤقتًا,open
+RSK-009,بطء الإنترنت,حزم كبيرة وصور مرتفعة,5,4,20,Frontend,Budgets وصور responsive وpagination,Lite Mode,open
+RSK-010,تكلفة 4M مستخدم,نمو مفاجئ في التخزين والبحث والرسائل,4,5,20,FinOps,Budgets وتنبيهات واختبارات تكلفة,Limits وthrottling مرحلي,open
+RSK-011,Spam واحتيال,حسابات ورسائل وإعلانات مسيئة,5,5,25,Trust & Safety,Rate limits وسمعة وبلاغات ومراجعة,تعليق آلي قابل للاستئناف,open
+RSK-012,فشل الدفع,Webhook مكرر أو مفقود,3,5,15,Finance,Idempotency وLedger ومطابقة يومية,تعليق التفعيل والتحقق اليدوي,open
+RSK-013,فقد صور,حذف غير متزامن أو ملفات يتيمة,3,4,12,Media Lead,Lifecycle jobs ومراجع ملكية,استعادة من backup/quarantine,open
+RSK-014,تسريب أسرار,مفاتيح في الواجهة أو السجلات,3,5,15,Security,Secret scan وVault وredaction,تدوير فوري وإبطال المفاتيح,open
+RSK-015,محتوى ديني غير لائق,قص أو توظيف مقدس في سياق تجاري أو خطأ,2,5,10,Content Governance,سياسة مراجعة ومساحات مخصصة,إزالة فورية ومراجعة بشرية,open
+RSK-016,ادعاء حماية دينية,خلط البركة بالحماية التقنية,3,4,12,Security,نص واضح يفصل القيم عن الأمن التقني,تصحيح المحتوى والتدريب,open
+RSK-017,تعارض القديم والجديد,خرائط P وG مختلفة,4,4,16,PMO,Legacy mapping وعدم حذف السجل القديم,إيقاف الانتقال حتى التسوية,open
+RSK-018,فشل النسخ الاحتياطي,وجود backup دون تجربة restore,3,5,15,SRE,اختبار استعادة دوري وRPO/RTO,وضع read-only وخطة DR,open
+RSK-019,ضغط المحادثات,Realtime وعدد اتصالات كبير,3,5,15,Backend,Capacity tiers وpresence محدود,Polling متدرج وتعطيل مؤشرات غير أساسية,open
+RSK-020,إشعارات متكررة,تجربة مزعجة وتكلفة عالية,4,3,12,Notifications,Dedup keys وتجميع وتفضيلات,كتم مؤقت وإعادة معالجة,open
+RSK-021,صلاحيات موظفين واسعة,وصول غير مبرر للرسائل والبيانات,3,5,15,Security,RBAC/ABAC وتدقيق Just-in-Time,إلغاء الجلسات والتحقيق,open
+RSK-022,فشل الهجرة,عدم تطابق migration محلي/بعيد,3,5,15,Database,Branch preview وdrift check,Rollback migration واستعادة,open
+RSK-023,عدم قابلية الوصول,فشل قارئ الشاشة أو التباين,3,4,12,UX,WCAG tests ومراجعة بشرية,منع الإطلاق للرحلات الأساسية,open
+RSK-024,غياب مراقبة,اكتشاف متأخر للأعطال,4,5,20,SRE,Logs/Metrics/Traces/Alerts,War room وhealth checks,open
+RSK-025,مؤشرات إنجاز وهمية,اعتبار الشاشة أو الوثيقة ميزة مكتملة,5,4,20,QA,Definition of Done وأدلة runtime,إعادة الحالة إلى review/backlog,open

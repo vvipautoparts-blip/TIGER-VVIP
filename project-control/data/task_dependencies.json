@@ -1,0 +1,562 @@
+[
+  {
+    "task_code": "G00-02",
+    "depends_on_task_code": "G00-01",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G00-03",
+    "depends_on_task_code": "G00-02",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G01-01",
+    "depends_on_task_code": "G00-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G01-02",
+    "depends_on_task_code": "G01-01",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G01-03",
+    "depends_on_task_code": "G01-02",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G02-01",
+    "depends_on_task_code": "G01-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G02-02",
+    "depends_on_task_code": "G02-01",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G02-03",
+    "depends_on_task_code": "G02-02",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G03-01",
+    "depends_on_task_code": "G02-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G03-02",
+    "depends_on_task_code": "G03-01",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G03-03",
+    "depends_on_task_code": "G03-02",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G04-01",
+    "depends_on_task_code": "G02-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G04-02",
+    "depends_on_task_code": "G04-01",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G04-03",
+    "depends_on_task_code": "G04-02",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G05-01",
+    "depends_on_task_code": "G04-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G05-02",
+    "depends_on_task_code": "G05-01",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G05-03",
+    "depends_on_task_code": "G05-02",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G06-01",
+    "depends_on_task_code": "G00-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G06-01",
+    "depends_on_task_code": "G02-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G06-02",
+    "depends_on_task_code": "G06-01",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G06-03",
+    "depends_on_task_code": "G06-02",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G07-01",
+    "depends_on_task_code": "G04-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G07-01",
+    "depends_on_task_code": "G05-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G07-01",
+    "depends_on_task_code": "G06-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G07-02",
+    "depends_on_task_code": "G07-01",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G07-03",
+    "depends_on_task_code": "G07-02",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G08-01",
+    "depends_on_task_code": "G06-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G08-01",
+    "depends_on_task_code": "G07-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G08-02",
+    "depends_on_task_code": "G08-01",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G08-03",
+    "depends_on_task_code": "G08-02",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G09-01",
+    "depends_on_task_code": "G05-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G09-01",
+    "depends_on_task_code": "G08-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G09-02",
+    "depends_on_task_code": "G09-01",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G09-03",
+    "depends_on_task_code": "G09-02",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G09-04",
+    "depends_on_task_code": "G09-03",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G10-01",
+    "depends_on_task_code": "G05-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G10-01",
+    "depends_on_task_code": "G09-04",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G10-02",
+    "depends_on_task_code": "G10-01",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G10-03",
+    "depends_on_task_code": "G10-02",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G11-01",
+    "depends_on_task_code": "G09-04",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G11-01",
+    "depends_on_task_code": "G10-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G11-02",
+    "depends_on_task_code": "G11-01",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G11-03",
+    "depends_on_task_code": "G11-02",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G12-01",
+    "depends_on_task_code": "G04-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G12-01",
+    "depends_on_task_code": "G05-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G12-01",
+    "depends_on_task_code": "G09-04",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G12-02",
+    "depends_on_task_code": "G12-01",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G12-03",
+    "depends_on_task_code": "G12-02",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G13-01",
+    "depends_on_task_code": "G12-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G13-02",
+    "depends_on_task_code": "G13-01",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G13-03",
+    "depends_on_task_code": "G13-02",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G14-01",
+    "depends_on_task_code": "G05-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G14-01",
+    "depends_on_task_code": "G09-04",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G14-01",
+    "depends_on_task_code": "G12-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G14-02",
+    "depends_on_task_code": "G14-01",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G14-03",
+    "depends_on_task_code": "G14-02",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G15-01",
+    "depends_on_task_code": "G04-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G15-01",
+    "depends_on_task_code": "G14-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G15-02",
+    "depends_on_task_code": "G15-01",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G15-03",
+    "depends_on_task_code": "G15-02",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G16-01",
+    "depends_on_task_code": "G05-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G16-01",
+    "depends_on_task_code": "G06-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G16-01",
+    "depends_on_task_code": "G14-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G16-01",
+    "depends_on_task_code": "G15-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G16-02",
+    "depends_on_task_code": "G16-01",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G16-03",
+    "depends_on_task_code": "G16-02",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G17-01",
+    "depends_on_task_code": "G04-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G17-01",
+    "depends_on_task_code": "G05-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G17-01",
+    "depends_on_task_code": "G06-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G17-01",
+    "depends_on_task_code": "G16-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G17-02",
+    "depends_on_task_code": "G17-01",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G17-03",
+    "depends_on_task_code": "G17-02",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G18-01",
+    "depends_on_task_code": "G07-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G18-01",
+    "depends_on_task_code": "G09-04",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G18-01",
+    "depends_on_task_code": "G11-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G18-01",
+    "depends_on_task_code": "G12-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G18-01",
+    "depends_on_task_code": "G13-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G18-02",
+    "depends_on_task_code": "G18-01",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G18-03",
+    "depends_on_task_code": "G18-02",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G19-01",
+    "depends_on_task_code": "G05-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G19-01",
+    "depends_on_task_code": "G09-04",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G19-01",
+    "depends_on_task_code": "G11-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G19-01",
+    "depends_on_task_code": "G17-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G19-02",
+    "depends_on_task_code": "G19-01",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G19-03",
+    "depends_on_task_code": "G19-02",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G20-01",
+    "depends_on_task_code": "G02-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G20-01",
+    "depends_on_task_code": "G03-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G20-01",
+    "depends_on_task_code": "G05-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G20-01",
+    "depends_on_task_code": "G11-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G20-01",
+    "depends_on_task_code": "G12-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G20-01",
+    "depends_on_task_code": "G17-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G20-02",
+    "depends_on_task_code": "G20-01",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G20-03",
+    "depends_on_task_code": "G20-02",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G21-01",
+    "depends_on_task_code": "G00-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G21-01",
+    "depends_on_task_code": "G04-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G21-01",
+    "depends_on_task_code": "G05-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G21-01",
+    "depends_on_task_code": "G06-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G21-01",
+    "depends_on_task_code": "G14-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G21-01",
+    "depends_on_task_code": "G17-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G21-02",
+    "depends_on_task_code": "G21-01",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G21-03",
+    "depends_on_task_code": "G21-02",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G22-01",
+    "depends_on_task_code": "G11-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G22-01",
+    "depends_on_task_code": "G12-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G22-01",
+    "depends_on_task_code": "G14-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G22-01",
+    "depends_on_task_code": "G15-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G22-01",
+    "depends_on_task_code": "G16-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G22-01",
+    "depends_on_task_code": "G17-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G22-01",
+    "depends_on_task_code": "G18-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G22-01",
+    "depends_on_task_code": "G20-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G22-01",
+    "depends_on_task_code": "G21-03",
+    "type": "phase_gate"
+  },
+  {
+    "task_code": "G22-02",
+    "depends_on_task_code": "G22-01",
+    "type": "recommended_sequence"
+  },
+  {
+    "task_code": "G22-03",
+    "depends_on_task_code": "G22-02",
+    "type": "recommended_sequence"
+  }
+]

@@ -1,0 +1,39 @@
+{
+  "project": "VVIP TIGER",
+  "system": "Centralized Project Control System",
+  "version": "2.1.0",
+  "generated_at_utc": "2026-07-20T10:45:24.416279+00:00",
+  "canonical_source": "VVIP_TIGER_Global_Implementation_Specification_AR_v2.docx",
+  "counts": {
+    "source_documents": 3,
+    "phases": 23,
+    "tasks": 70,
+    "developer_steps": 553,
+    "build_items": 420,
+    "security_items": 280,
+    "qa_items": 420,
+    "acceptance_rows": 420,
+    "dependencies": 112,
+    "strategic_archive_sections": 27,
+    "decisions": 18,
+    "risks": 25,
+    "vendors": 15,
+    "launch_gates": 15,
+    "strategic_backlog_items": 20,
+    "country_capabilities": 249,
+    "search_facets": 15,
+    "test_cases": 54,
+    "requirements_catalog": 2093,
+    "legacy_mappings": 11
+  },
+  "principles": [
+    "لا حذف: كل مصدر محفوظ بالنص الخام ونسخة Word وبصمة SHA-256.",
+    "مصدر حقيقة واحد: ملف التنفيذ الشامل V2 هو المصدر المنظم الأساسي.",
+    "كل مهمة تحمل رمزًا ثابتًا وتربط بالمرحلة والأولوية والحالة والاعتمادات.",
+    "التنفيذ الإنتاجي يتطلب مراجعة وتطبيقًا في Development/Staging قبل Production.",
+    "أي عنصر مؤجل يبقى في السجل الاستراتيجي ولا يختفي من النظام.",
+    "كل دولة معطلة افتراضيًا حتى اعتماد قابلياتها.",
+    "الطابع الديني قيمي ومحترم ولا يحل محل الأمن التقني.",
+    "اختبارات الأداء تتدرج حتى 50 ألف مستخدم افتراضي متزامن وتُعاير ببيانات Beta."
+  ]
+}

@@ -1,0 +1,44 @@
+name: Project Control Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'project-control/**'
+      - 'docs/global/**'
+      - 'docs/superpowers/**'
+      - 'supabase/migrations/20260720*.sql'
+      - '.github/workflows/project-control-integrity.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'project-control/**'
+      - 'docs/global/**'
+      - 'docs/superpowers/**'
+      - 'supabase/migrations/20260720*.sql'
+
+permissions:
+  contents: read
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run project-control tests
+        run: node --test project-control/tests/project_control_integrity.test.mjs
+      - name: Validate canonical sources and counts
+        run: node project-control/scripts/validate_project_control.mjs
+      - name: Check patch whitespace
+        run: git diff --check
+      - name: Verify no secret-like production keys
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -RInE '(sk_live_|service_role[^a-zA-Z]|postgres(ql)?://[^[:space:]]+:[^[:space:]]+@)' project-control docs/global supabase/migrations; then
+            echo 'Secret-like production material detected.' >&2
+            exit 1
+          fi

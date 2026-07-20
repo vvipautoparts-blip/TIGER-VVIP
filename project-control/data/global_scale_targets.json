@@ -1,0 +1,104 @@
+{
+  "version": "1.0.0",
+  "target_registered_users_year_1": 4000000,
+  "principle": "Capacity targets are launch gates, not usage forecasts. Recalibrate from beta telemetry while keeping 2x observed peak headroom.",
+  "load_test_tiers": [
+    {
+      "tier": "LT-1",
+      "concurrent_virtual_users": 10000,
+      "purpose": "core browse/search baseline"
+    },
+    {
+      "tier": "LT-2",
+      "concurrent_virtual_users": 25000,
+      "purpose": "public beta surge"
+    },
+    {
+      "tier": "LT-3",
+      "concurrent_virtual_users": 50000,
+      "purpose": "global GA resilience gate"
+    }
+  ],
+  "slos": [
+    {
+      "id": "SLO-AVAIL-CORE",
+      "metric": "core_availability",
+      "target": 99.95,
+      "unit": "percent_monthly",
+      "scope": "auth,browse,search,listing-details"
+    },
+    {
+      "id": "SLO-API-READ",
+      "metric": "api_read_latency_p95",
+      "target": 500,
+      "unit": "ms"
+    },
+    {
+      "id": "SLO-API-WRITE",
+      "metric": "api_write_latency_p95",
+      "target": 800,
+      "unit": "ms"
+    },
+    {
+      "id": "SLO-SEARCH",
+      "metric": "search_latency_p95",
+      "target": 700,
+      "unit": "ms"
+    },
+    {
+      "id": "SLO-LCP",
+      "metric": "lcp_p75",
+      "target": 2500,
+      "unit": "ms"
+    },
+    {
+      "id": "SLO-INP",
+      "metric": "inp_p75",
+      "target": 200,
+      "unit": "ms"
+    },
+    {
+      "id": "SLO-CLS",
+      "metric": "cls_p75",
+      "target": 0.1,
+      "unit": "score"
+    },
+    {
+      "id": "SLO-ERROR",
+      "metric": "server_error_rate",
+      "target": 0.5,
+      "unit": "percent_max"
+    },
+    {
+      "id": "SLO-RPO",
+      "metric": "database_rpo",
+      "target": 5,
+      "unit": "minutes_max"
+    },
+    {
+      "id": "SLO-RTO",
+      "metric": "service_rto",
+      "target": 60,
+      "unit": "minutes_max"
+    },
+    {
+      "id": "SLO-WEAK-NET",
+      "metric": "first_useful_content_constrained_network_p75",
+      "target": 5000,
+      "unit": "ms"
+    }
+  ],
+  "weak_network_profile": {
+    "downlink_kbps": 400,
+    "uplink_kbps": 150,
+    "rtt_ms": 400,
+    "packet_loss_percent": 1
+  },
+  "budgets": {
+    "initial_html_kb_gzip": 35,
+    "critical_css_kb_gzip": 25,
+    "initial_js_kb_gzip": 170,
+    "listing_card_image_kb": 120,
+    "search_response_kb": 80
+  }
+}
