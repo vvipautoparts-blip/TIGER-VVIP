@@ -19,6 +19,10 @@ check(deps.length===manifest.counts.dependencies,'dependency count mismatch');
 check(new Set(tasks.map(t=>t.code)).size===tasks.length,'duplicate task code');
 const codes=new Set(tasks.map(t=>t.code));
 for(const d of deps){check(codes.has(d.task_code),`missing task ${d.task_code}`);check(codes.has(d.depends_on_task_code),`missing dependency ${d.depends_on_task_code}`)}
+for(const row of readText('data/test_case_catalog.csv').trim().split(/\r?\n/).slice(1)){
+  const [testCaseId,,taskCode]=row.replace(/^\uFEFF/,'').split(',');
+  check(codes.has(taskCode),`${testCaseId} references missing task ${taskCode}`);
+}
 for(const f of ['decision_log.csv','risk_register.csv','vendor_register.csv','launch_gate_register.csv','artifact_register.csv','strategic_backlog.csv']){
   check(readText(`data/${f}`).trim().split(/\r?\n/).length>1,`${f} is empty`);
 }

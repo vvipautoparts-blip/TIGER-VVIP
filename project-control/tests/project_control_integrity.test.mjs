@@ -54,6 +54,15 @@ test('dependencies reference existing tasks and remain acyclic', () => {
   assert.equal(hasCycle([...codes], dependencies), false, 'dependency graph must be acyclic');
 });
 
+test('test case catalog references existing tasks', () => {
+  const codes = new Set(tasks.map(item => item.code));
+  const rows = csvRows('data/test_case_catalog.csv').slice(1);
+  for (const row of rows) {
+    const [testCaseId, , taskCode] = row.replace(/^\uFEFF/, '').split(',');
+    assert.ok(codes.has(taskCode), `${testCaseId} references missing task ${taskCode}`);
+  }
+});
+
 test('all operational registers contain real records', () => {
   for (const file of [
     'data/decision_log.csv',

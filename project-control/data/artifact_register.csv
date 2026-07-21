@@ -19,11 +19,11 @@ ART-0017,,csv,strategic_backlog.csv,data/strategic_backlog.csv,2.1.0,eba7ed8e360
 ART-0018,,csv,task_dependencies.csv,data/task_dependencies.csv,2.1.0,1a34e985a43adb72cbe366f015773c055e0400e8185819ac4fe4b9d04037ee84,,generated_verified
 ART-0019,,json,task_dependencies.json,data/task_dependencies.json,2.1.0,3484483be28ef26c328fd9bc6c832f13080259c6a75d4e8faef03ff236efd2f0,,generated_verified
 ART-0020,,json,tasks.json,data/tasks.json,2.1.0,b8fc2a020de2a349d6147fb12c9d9b000bcafef9e3427f532f417a1205338861,,generated_verified
-ART-0021,,csv,test_case_catalog.csv,data/test_case_catalog.csv,2.1.0,53e5ea4e816a22fb74ead838f99cf9600e9c8fe9af087dfac1006ad895663f71,,generated_verified
+ART-0021,,csv,test_case_catalog.csv,data/test_case_catalog.csv,2.1.0,aaf526701ae59a4aa314c154f3c2b7ba0f4a72d7a34794f25be35866f1fb2c9f,,generated_verified
 ART-0022,,csv,vendor_register.csv,data/vendor_register.csv,2.1.0,1af13ee2abea428f8d797dd598a625a255f72258d6849a8d5a8139eecb874eaa,,generated_verified
 ART-0023,,sql,001_project_control_schema.sql,database/001_project_control_schema.sql,2.1.0,c01b6f6222235ea8b3299333cc5b51029488e5f2a9064c87abfbf9f8f39c1521,,generated_verified
 ART-0024,,sql,002_project_control_seed.sql,database/002_project_control_seed.sql,2.1.0,a1f410b3daf9da0a4d4215617d89043b49248e510add95944b817afbf945b761,,generated_verified
-ART-0025,,sql,003_project_control_extended_seed.sql,database/003_project_control_extended_seed.sql,2.1.0,26f6dc5011c973bcf9d39e429170fbef45c4662b8cc3e0c46f3b6ff0f1c8e43e,,generated_verified
+ART-0025,,sql,003_project_control_extended_seed.sql,database/003_project_control_extended_seed.sql,2.1.0,65db935c2b6f81ffc4faca3c668a788a8820e531faa346f5f7c691db2751154a,,generated_verified
 ART-0026,,md,FAITH_AND_CULTURAL_INTEGRITY_POLICY_AR.md,docs/FAITH_AND_CULTURAL_INTEGRITY_POLICY_AR.md,2.1.0,25afc670f3c3be5612cef7c8ee1c82f1c0789a5c94167514cf3d95b467da5c40,,generated_verified
 ART-0027,,md,GLOBAL_ARCHITECTURE_DECISION_AR.md,docs/GLOBAL_ARCHITECTURE_DECISION_AR.md,2.1.0,3a4ccf45543b8e5ee9f653c76f901be313901f493ccb37b171b659dcdd7c47e6,,generated_verified
 ART-0028,,md,GLOBAL_EXECUTION_CHARTER_AR.md,docs/GLOBAL_EXECUTION_CHARTER_AR.md,2.1.0,d9e12ea2648beeebf0369926542dad7f326423adbc1b647ff325bf663c8f4e01,,generated_verified
@@ -38,7 +38,7 @@ ART-0036,,md,2026-07-20-global-platform-control-plane-implementation.md,docs/sup
 ART-0037,,md,2026-07-20-global-platform-control-plane-design.md,docs/superpowers/specs/2026-07-20-global-platform-control-plane-design.md,2.1.0,ddb35fb1e823152bd21c52a8cddbe1926eb718327cc8fc5b030a7c954c185ddf,,generated_verified
 ART-0038,,json,project_task.schema.json,schemas/project_task.schema.json,2.1.0,6a2f4f91d0e1250bfc31c847a62b33e324d9c1c1497a1ef197659851fce4e364,,generated_verified
 ART-0039,,mjs,import_project_control.mjs,scripts/import_project_control.mjs,2.1.0,92a94950e528154c6d634c1e7e29c1d8c65dc007aa69294b33d5011abca5887b,,generated_verified
-ART-0040,,mjs,validate_project_control.mjs,scripts/validate_project_control.mjs,2.1.0,65fd5b1d57e5eaa1c0b94eedb1cbedbcbd29530329df24939c66da47742d6453,,generated_verified
+ART-0040,,mjs,validate_project_control.mjs,scripts/validate_project_control.mjs,2.1.0,65576f7748a5ee8c019585baef69372446056548c08b4329b0e3a868a6880a85,,generated_verified
 ART-0041,,docx,VVIP_TIGER_Global_Execution_Plan_AR.docx,sources/VVIP_TIGER_Global_Execution_Plan_AR.docx,2.1.0,edd11e409f4ae90075ff641dddd8b3fc6ff1319e13b43aea297c02a9db1dae2f,,generated_verified
 ART-0042,,json,VVIP_TIGER_Global_Execution_Plan_AR.json,sources/VVIP_TIGER_Global_Execution_Plan_AR.json,2.1.0,a34174dd68ad48640b5e351960779043d028cc058fcdc4470d0c4ae60fdcceb7,,generated_verified
 ART-0043,,md,VVIP_TIGER_Global_Execution_Plan_AR.md,sources/VVIP_TIGER_Global_Execution_Plan_AR.md,2.1.0,243c0a5f4e7d7ddee7c22b029495c1cd09d7dae0833125c123bfd041473291ce,,generated_verified
@@ -48,4 +48,4 @@ ART-0046,,md,VVIP_TIGER_Global_Execution_Specification_V2_AR.md,sources/VVIP_TIG
 ART-0047,,docx,VVIP_TIGER_Global_Implementation_Specification_AR_v2.docx,sources/VVIP_TIGER_Global_Implementation_Specification_AR_v2.docx,2.1.0,2b8c290cb2c90910d8a50e048b477b5ee2caafd70fdc2e02785674c192af91ca,,generated_verified
 ART-0048,,json,VVIP_TIGER_Global_Implementation_Specification_AR_v2.json,sources/VVIP_TIGER_Global_Implementation_Specification_AR_v2.json,2.1.0,faca1b2393ea8bc4c57e46f09a91ff6d7841ea0b5dfa66e12ba55d9ca4f14263,,generated_verified
 ART-0049,,md,VVIP_TIGER_Global_Implementation_Specification_AR_v2.md,sources/VVIP_TIGER_Global_Implementation_Specification_AR_v2.md,2.1.0,37d331d858426fde02233b1cbecefa23d5f75488c488d7816199f5128049b66d,,generated_verified
-ART-0050,,mjs,project_control_integrity.test.mjs,tests/project_control_integrity.test.mjs,2.1.0,320e361eae1d72cf8c52275d098a7afcc249c45e64b3abae5a65e93ca3fea92e,,generated_verified
+ART-0050,,mjs,project_control_integrity.test.mjs,tests/project_control_integrity.test.mjs,2.1.0,45a76be6843d551b6d94ac7db4b1d9294db675afb92908e42103656a16eeeaff,,generated_verified
