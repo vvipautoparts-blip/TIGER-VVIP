@@ -3,7 +3,8 @@
 # This script commits and pushes changes every time it's called
 # Add to .git/hooks or run via cron/systemd timer for periodic pushes
 
-cd /workspaces/TIGER-VVIP || exit 1
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$ROOT_DIR" || exit 1
 
 # Colors for output
 RED='\033[0;31m'
@@ -13,8 +14,8 @@ NC='\033[0m' # No Color
 
 echo -e "${YELLOW}[AUTO GIT]${NC} Starting auto-commit and push..."
 
-# Check if there are changes
-if git diff-index --quiet HEAD --; then
+# Check tracked and untracked paths before staging.
+if [ -z "$(git status --porcelain)" ]; then
     echo -e "${YELLOW}[AUTO GIT]${NC} No changes to commit."
     exit 0
 fi
@@ -46,8 +47,14 @@ else
     exit 1
 fi
 
-# Push
-if git push origin main 2>/dev/null; then
+# Push the checked-out branch; never redirect changes to a hard-coded branch.
+CURRENT_BRANCH=$(git branch --show-current)
+if [ -z "$CURRENT_BRANCH" ]; then
+    echo -e "${RED}[AUTO GIT]${NC} ❌ Cannot push from detached HEAD"
+    exit 1
+fi
+
+if git push origin "$CURRENT_BRANCH" 2>/dev/null; then
     echo -e "${GREEN}[AUTO GIT]${NC} ✅ Pushed to GitHub"
 else
     echo -e "${RED}[AUTO GIT]${NC} ⚠️  Push failed (may be offline or auth issue)"

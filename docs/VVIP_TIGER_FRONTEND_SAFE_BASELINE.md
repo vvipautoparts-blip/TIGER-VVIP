@@ -39,7 +39,7 @@
 
 `81b8ea4 merge: add Profile UX Polish foundation`
 
-تم تحسين مسافات البروفايل والكروت والأزرار، واعتماد `.local-backups/` داخل `.gitignore`.
+تم تحسين مسافات البروفايل والكروت والأزرار، ويعتمد التراجع على مراجع Git الآمنة بدل مجلدات نسخ محلية.
 
 ### 4. Navigation & Button Stability
 

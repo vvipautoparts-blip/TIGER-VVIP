@@ -46,4 +46,28 @@ assert.strictEqual(
   0,
   `Audit should accept Supabase numeric versions and database role grants:\n${validRes.stdout}\n${validRes.stderr}`
 );
-console.log('PASS: migration audit detects duplicate/empty/non-sql/bad-name/newline issues');
+
+const reviewedDangerousSql = spawnSync(
+  'bash',
+  ['scripts/security/p08-steel-shield/scan-dangerous-sql.sh'],
+  { encoding: 'utf8' }
+);
+assert.strictEqual(
+  reviewedDangerousSql.status,
+  0,
+  `Hash-pinned applied migrations should pass reviewed baseline:\n${reviewedDangerousSql.stdout}\n${reviewedDangerousSql.stderr}`
+);
+assert.match(reviewedDangerousSql.stdout, /REVIEWED_BASELINE/);
+
+const dangerousFixture = path.join(tmp, 'dangerous-migrations');
+fs.mkdirSync(dangerousFixture, { recursive: true });
+fs.writeFileSync(path.join(dangerousFixture, '20260104_danger.sql'), 'drop database production;\n');
+const dangerousResult = spawnSync(
+  'bash',
+  ['scripts/security/p08-steel-shield/scan-dangerous-sql.sh', dangerousFixture],
+  { encoding: 'utf8' }
+);
+assert.notStrictEqual(dangerousResult.status, 0, 'New dangerous SQL must fail closed');
+assert.match(dangerousResult.stdout, /CRITICAL:DROP_DATABASE/);
+
+console.log('PASS: migration audit and hash-pinned dangerous SQL baseline validated');

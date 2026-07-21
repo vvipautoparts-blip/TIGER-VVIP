@@ -77,7 +77,7 @@ supabase.auth.onAuthStateChange((event, session) => {
 ### 3.3 Redirect URL (مهم)
 ```
 https://vvipautoparts-blip.github.io/TIGER-VVIP/
-http://localhost:8000/
+http://localhost:800/
 ```
 يجب إضافة كلا الرابطين في Google Cloud و Supabase.
 

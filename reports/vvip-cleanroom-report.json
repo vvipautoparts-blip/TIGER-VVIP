@@ -1,0 +1,6313 @@
+{
+  "accepted": true,
+  "exact_duplicates": [
+    {
+      "disposition": "intentional",
+      "paths": [
+        "docs/global/OLD_TO_GLOBAL_PHASE_RECONCILIATION_AR.md",
+        "project-control/docs/OLD_TO_GLOBAL_PHASE_RECONCILIATION_AR.md"
+      ],
+      "reason": "project-control package mirror",
+      "sha256": "fe85a129ff2689ab1c586914c85d3ed4315f9f443e258b93899c2b949fb52117",
+      "size": 474
+    },
+    {
+      "disposition": "intentional",
+      "paths": [
+        "clerk-private-profile.html",
+        "private-profile.html"
+      ],
+      "reason": "route compatibility aliases",
+      "sha256": "1f44c4129b0cac19e05005de841a1c37ca8a5b4f0c35fd070b7e9ff9be1eacf1",
+      "size": 542
+    },
+    {
+      "disposition": "intentional",
+      "paths": [
+        "docs/global/GLOBAL_LAUNCH_DEFINITION_OF_DONE_AR.md",
+        "project-control/docs/GLOBAL_LAUNCH_DEFINITION_OF_DONE_AR.md"
+      ],
+      "reason": "project-control package mirror",
+      "sha256": "442b342324794cbc2aceb6e1a4cd42f155f786624e98ca4964b4167d67c9014c",
+      "size": 582
+    },
+    {
+      "disposition": "intentional",
+      "paths": [
+        "docs/global/IMPLEMENTATION_BLOCKERS_AR.md",
+        "project-control/docs/IMPLEMENTATION_BLOCKERS_AR.md"
+      ],
+      "reason": "project-control package mirror",
+      "sha256": "9d18a842d3a52818f9af833a2969e72836118b978c0208901c3439c66114afb9",
+      "size": 631
+    },
+    {
+      "disposition": "intentional",
+      "paths": [
+        "docs/global/GLOBAL_ARCHITECTURE_DECISION_AR.md",
+        "project-control/docs/GLOBAL_ARCHITECTURE_DECISION_AR.md"
+      ],
+      "reason": "project-control package mirror",
+      "sha256": "3a4ccf45543b8e5ee9f653c76f901be313901f493ccb37b171b659dcdd7c47e6",
+      "size": 1584
+    },
+    {
+      "disposition": "intentional",
+      "paths": [
+        "docs/superpowers/specs/2026-07-20-global-platform-control-plane-design.md",
+        "project-control/docs/superpowers/specs/2026-07-20-global-platform-control-plane-design.md"
+      ],
+      "reason": "project-control package mirror",
+      "sha256": "ddb35fb1e823152bd21c52a8cddbe1926eb718327cc8fc5b030a7c954c185ddf",
+      "size": 1604
+    },
+    {
+      "disposition": "intentional",
+      "paths": [
+        "docs/global/FAITH_AND_CULTURAL_INTEGRITY_POLICY_AR.md",
+        "project-control/docs/FAITH_AND_CULTURAL_INTEGRITY_POLICY_AR.md"
+      ],
+      "reason": "project-control package mirror",
+      "sha256": "25afc670f3c3be5612cef7c8ee1c82f1c0789a5c94167514cf3d95b467da5c40",
+      "size": 2056
+    },
+    {
+      "disposition": "intentional",
+      "paths": [
+        "docs/global/GLOBAL_SCALE_AND_SLO_SPEC_AR.md",
+        "project-control/docs/GLOBAL_SCALE_AND_SLO_SPEC_AR.md"
+      ],
+      "reason": "project-control package mirror",
+      "sha256": "989d3b8d1be5bafcdd613da6fe9797add4de4db859299b97dfe1e4221fb343a5",
+      "size": 2112
+    },
+    {
+      "disposition": "intentional",
+      "paths": [
+        "docs/launch/pr35/CHANGED_FILES.allowlist",
+        "docs/launch/pr35/CHANGED_FILES.final"
+      ],
+      "reason": "change-control verification pair",
+      "sha256": "62543d55f37d7d328a8365043709d441af3b16b0cb26710e018e72e1c08b7436",
+      "size": 2128
+    },
+    {
+      "disposition": "intentional",
+      "paths": [
+        "docs/global/GLOBAL_EXECUTION_CHARTER_AR.md",
+        "project-control/docs/GLOBAL_EXECUTION_CHARTER_AR.md"
+      ],
+      "reason": "project-control package mirror",
+      "sha256": "d9e12ea2648beeebf0369926542dad7f326423adbc1b647ff325bf663c8f4e01",
+      "size": 2543
+    },
+    {
+      "disposition": "intentional",
+      "paths": [
+        "docs/global/GLOBAL_SEARCH_EXPERIENCE_SPEC_AR.md",
+        "project-control/docs/GLOBAL_SEARCH_EXPERIENCE_SPEC_AR.md"
+      ],
+      "reason": "project-control package mirror",
+      "sha256": "81cb6bcc28155a9755e69925f402b420fc2708f323e1b2ef71adf8114a93a561",
+      "size": 3074
+    },
+    {
+      "disposition": "intentional",
+      "paths": [
+        "docs/superpowers/plans/2026-07-20-global-platform-control-plane-implementation.md",
+        "project-control/docs/superpowers/plans/2026-07-20-global-platform-control-plane-implementation.md"
+      ],
+      "reason": "project-control package mirror",
+      "sha256": "3c37b6b10e38437283dd265ce17867b7199ccb060f55dc6d46d18abf7435706c",
+      "size": 5925
+    },
+    {
+      "disposition": "intentional",
+      "paths": [
+        "project-control/database/001_project_control_schema.sql",
+        "supabase/migrations/202607200001_project_control_schema.sql"
+      ],
+      "reason": "source package and deployable migration",
+      "sha256": "c01b6f6222235ea8b3299333cc5b51029488e5f2a9064c87abfbf9f8f39c1521",
+      "size": 12659
+    },
+    {
+      "disposition": "intentional",
+      "paths": [
+        "project-control/database/002_project_control_seed.sql",
+        "supabase/migrations/202607200002_project_control_core_seed.sql"
+      ],
+      "reason": "source package and deployable migration",
+      "sha256": "a1f410b3daf9da0a4d4215617d89043b49248e510add95944b817afbf945b761",
+      "size": 856652
+    },
+    {
+      "disposition": "intentional",
+      "paths": [
+        "project-control/database/003_project_control_extended_seed.sql",
+        "supabase/migrations/202607200003_project_control_extended_seed.sql"
+      ],
+      "reason": "source package and deployable migration",
+      "sha256": "65db935c2b6f81ffc4faca3c668a788a8820e531faa346f5f7c691db2751154a",
+      "size": 1643949
+    }
+  ],
+  "gates": {
+    "broken_symlinks": {
+      "count": 0,
+      "status": "pass"
+    },
+    "forbidden_legacy_identifiers": {
+      "count": 0,
+      "status": "pass"
+    },
+    "git_diff_check": {
+      "count": 0,
+      "status": "pass"
+    },
+    "local_reference_integrity": {
+      "count": 0,
+      "status": "pass"
+    },
+    "package_manager_consistency": {
+      "count": 0,
+      "details": {
+        "authoritative": "none",
+        "errors": [],
+        "lockfiles": []
+      },
+      "status": "pass"
+    },
+    "portable_workspace_paths": {
+      "count": 0,
+      "status": "pass"
+    },
+    "production_supabase_references": {
+      "count": 0,
+      "status": "pass"
+    },
+    "scope": {
+      "count": 0,
+      "details": {
+        "branch": true,
+        "remote": true,
+        "repository_root": true,
+        "required_ancestors": {
+          "2c46f09": true,
+          "eab212d": true
+        }
+      },
+      "status": "pass"
+    },
+    "secret_scan": {
+      "count": 0,
+      "status": "pass"
+    },
+    "tracked_duplicate_explanations": {
+      "count": 0,
+      "status": "pass"
+    },
+    "tracked_garbage": {
+      "count": 0,
+      "status": "pass"
+    },
+    "unique_migration_versions": {
+      "count": 0,
+      "details": {
+        "duplicate_versions": [],
+        "invalid_names": []
+      },
+      "status": "pass"
+    },
+    "walk_errors": {
+      "count": 0,
+      "status": "pass"
+    }
+  },
+  "git_status": [
+    {
+      "path": ".firebase/hosting..cache",
+      "status": "D "
+    },
+    {
+      "path": ".git-auto-push.sh",
+      "status": "M "
+    },
+    {
+      "path": ".gitignore",
+      "status": "M "
+    },
+    {
+      "path": ".vscode/launch.json",
+      "status": "M "
+    },
+    {
+      "path": "ACCOUNT-CHOOSER-SPEC.md",
+      "status": "M "
+    },
+    {
+      "path": "AGENTS.md",
+      "status": "M "
+    },
+    {
+      "path": "FEATURE-VERIFICATION.md",
+      "status": "M "
+    },
+    {
+      "path": "FEATURES-COMPLETE.md",
+      "status": "M "
+    },
+    {
+      "path": "FINAL-VERIFICATION.md",
+      "status": "M "
+    },
+    {
+      "path": "FIREBASE-EMAIL-SETUP.md",
+      "status": "M "
+    },
+    {
+      "path": "GOOGLE-ONE-TAP-SETUP.md",
+      "status": "M "
+    },
+    {
+      "path": "IMPLEMENTATION_CHECKLIST.md",
+      "status": "M "
+    },
+    {
+      "path": "PROJECT-SUMMARY.md",
+      "status": "M "
+    },
+    {
+      "path": "QA-FINAL-REPORT.md",
+      "status": "M "
+    },
+    {
+      "path": "README.md",
+      "status": "M "
+    },
+    {
+      "path": "RLS-QUICK-REFERENCE.md",
+      "status": "M "
+    },
+    {
+      "path": "SETUP-GUIDE.md",
+      "status": "M "
+    },
+    {
+      "path": "SUPABASE-EDGE-OTP-GUIDE.md",
+      "status": "M "
+    },
+    {
+      "path": "USER-GUIDE.md",
+      "status": "M "
+    },
+    {
+      "path": "approved/FINAL-QA-APPROVAL.md",
+      "status": "D "
+    },
+    {
+      "path": "approved/MOBILE-PUBLIC-APPROVED-README.md",
+      "status": "D "
+    },
+    {
+      "path": "approved/PRIVATE-PROFILE-APPROVED-README.md",
+      "status": "D "
+    },
+    {
+      "path": "approved/auth-clerk-index-before-profile-button-fix-20260707.js",
+      "status": "D "
+    },
+    {
+      "path": "approved/auth-clerk-index-before-vvip-gate-login-20260707.js",
+      "status": "D "
+    },
+    {
+      "path": "approved/clerk-private-profile-before-official-ui-20260707.html",
+      "status": "D "
+    },
+    {
+      "path": "approved/clerk-private-profile-before-supabase-bridge-20260707.html",
+      "status": "D "
+    },
+    {
+      "path": "approved/clerk-private-profile-before-tiger-care-card-20260707.html",
+      "status": "D "
+    },
+    {
+      "path": "approved/clerk-private-profile-before-vip-membership-center-20260707.html",
+      "status": "D "
+    },
+    {
+      "path": "approved/enhanced-components.final-approved.css",
+      "status": "D "
+    },
+    {
+      "path": "approved/index-before-supabase-auth-20260704-191914.html",
+      "status": "D "
+    },
+    {
+      "path": "approved/index-before-supabase-auth-20260704-192024.html",
+      "status": "D "
+    },
+    {
+      "path": "approved/index-before-vvip-gate-login-20260707.html",
+      "status": "D "
+    },
+    {
+      "path": "approved/index-supabase-auth-approved.html",
+      "status": "D "
+    },
+    {
+      "path": "approved/index-supabase-auth-final.html",
+      "status": "D "
+    },
+    {
+      "path": "approved/legacy-auth-audit-7-1/clerk-private-profile-before-linkrel-fix-20260708.html",
+      "status": "D "
+    },
+    {
+      "path": "approved/legacy-auth-redirect-7-1/private-profile-before-redirect-20260708.html",
+      "status": "D "
+    },
+    {
+      "path": "approved/legacy-auth-redirect-7-1/sw-before-legacy-auth-audit-20260708.js",
+      "status": "D "
+    },
+    {
+      "path": "approved/mobile-public-buttons-audit-report.md",
+      "status": "D "
+    },
+    {
+      "path": "approved/nav-cleanup-7-1/public-profile-before-private-link-cleanup-20260708.html",
+      "status": "D "
+    },
+    {
+      "path": "approved/nav-cleanup-7-1/vvip-identity-before-clarity-patch-20260708.css",
+      "status": "D "
+    },
+    {
+      "path": "approved/private-desktop-audit.txt",
+      "status": "D "
+    },
+    {
+      "path": "approved/private-mobile-audit.md",
+      "status": "D "
+    },
+    {
+      "path": "approved/private-profile-auth-guard-approved.html",
+      "status": "D "
+    },
+    {
+      "path": "approved/private-profile-auth-guard-final.html",
+      "status": "D "
+    },
+    {
+      "path": "approved/private-profile-before-auth-guard.html",
+      "status": "D "
+    },
+    {
+      "path": "approved/private-profile-buttons-audit-report.txt",
+      "status": "D "
+    },
+    {
+      "path": "approved/private-profile.desktop-approved.html",
+      "status": "D "
+    },
+    {
+      "path": "approved/private-profile.final-approved.html",
+      "status": "D "
+    },
+    {
+      "path": "approved/public-desktop-audit.md",
+      "status": "D "
+    },
+    {
+      "path": "approved/public-mobile-audit.md",
+      "status": "D "
+    },
+    {
+      "path": "approved/public-profile.final-approved.html",
+      "status": "D "
+    },
+    {
+      "path": "approved/public-profile.mobile-approved.html",
+      "status": "D "
+    },
+    {
+      "path": "approved/require-auth-approved.js",
+      "status": "D "
+    },
+    {
+      "path": "approved/require-auth-final.js",
+      "status": "D "
+    },
+    {
+      "path": "approved/service-worker-clerk-cache-7-1/sw-before-clerk-cache-cleanup-20260708.js",
+      "status": "D "
+    },
+    {
+      "path": "approved/social-ui-before-force-post-options-menu-20260708.js",
+      "status": "D "
+    },
+    {
+      "path": "approved/social-ui-before-post-options-menu-tiger-care-20260707.js",
+      "status": "D "
+    },
+    {
+      "path": "approved/social-ui-before-tiger-care-feedback-fix-20260708.js",
+      "status": "D "
+    },
+    {
+      "path": "approved/styles-before-post-options-menu-tiger-care-20260707.css",
+      "status": "D "
+    },
+    {
+      "path": "approved/styles-before-tiger-care-feedback-fix-20260708.css",
+      "status": "D "
+    },
+    {
+      "path": "approved/styles-before-vvip-gate-login-20260707.css",
+      "status": "D "
+    },
+    {
+      "path": "approved/supabase-auth-bridge-approved.js",
+      "status": "D "
+    },
+    {
+      "path": "approved/supabase-auth-bridge-final.js",
+      "status": "D "
+    },
+    {
+      "path": "approved/supabase-config-approved.js",
+      "status": "D "
+    },
+    {
+      "path": "approved/supabase-config-final.js",
+      "status": "D "
+    },
+    {
+      "path": "approved/sw-before-post-options-cache-fix-20260708.js",
+      "status": "D "
+    },
+    {
+      "path": "approved/visual-identity-pass-7-1/clerk-private-profile-before-visual-identity-20260708.html",
+      "status": "D "
+    },
+    {
+      "path": "approved/visual-identity-pass-7-1/enhanced-components-before-visual-identity-20260708.css",
+      "status": "D "
+    },
+    {
+      "path": "approved/visual-identity-pass-7-1/index-before-visual-identity-20260708.html",
+      "status": "D "
+    },
+    {
+      "path": "approved/visual-identity-pass-7-1/public-profile-before-visual-identity-20260708.html",
+      "status": "D "
+    },
+    {
+      "path": "approved/visual-identity-pass-7-1/styles-before-visual-identity-20260708.css",
+      "status": "D "
+    },
+    {
+      "path": "backups/clerk-private-profile.before-atomic-profile-resolver.html",
+      "status": "D "
+    },
+    {
+      "path": "backups/clerk-private-profile.before-jwt-rls-bridge.html",
+      "status": "D "
+    },
+    {
+      "path": "backups/clerk-private-profile.before-pr15-launch-hardening.html",
+      "status": "D "
+    },
+    {
+      "path": "backups/clerk-private-profile.before-profile-resilience-shell.html",
+      "status": "D "
+    },
+    {
+      "path": "backups/clerk-private-profile.before-self-healing-profile-gateway.html",
+      "status": "D "
+    },
+    {
+      "path": "backups/visual-trust-layer/clerk-private-profile.html.before-visual-trust-layer",
+      "status": "D "
+    },
+    {
+      "path": "backups/visual-trust-layer/index.html.before-visual-trust-layer",
+      "status": "D "
+    },
+    {
+      "path": "backups/visual-trust-layer/phase-2-2/public-profile.before-readable-lock.20260709-184736.html",
+      "status": "D "
+    },
+    {
+      "path": "backups/visual-trust-layer/phase-2-2/vvip-visual-trust-layer.before-readable-lock.20260709-184736.css",
+      "status": "D "
+    },
+    {
+      "path": "backups/visual-trust-layer/private-profile.html.before-visual-trust-layer",
+      "status": "D "
+    },
+    {
+      "path": "backups/visual-trust-layer/styles.css.before-visual-trust-layer",
+      "status": "D "
+    },
+    {
+      "path": "docs/VVIP_TIGER_CLERK_SUPABASE_LINK_SUCCESS.md",
+      "status": "M "
+    },
+    {
+      "path": "docs/VVIP_TIGER_FRONTEND_SAFE_BASELINE.md",
+      "status": "M "
+    },
+    {
+      "path": "docs/VVIP_TIGER_MEMORY_MAP.md",
+      "status": "M "
+    },
+    {
+      "path": "docs/VVIP_TIGER_OFFICIAL_PRIVATE_PROFILE_UI.md",
+      "status": "M "
+    },
+    {
+      "path": "docs/change-control/20260715-pr39-p05-profile-account-management.json",
+      "status": "M "
+    },
+    {
+      "path": "docs/launch/pr34/CHANGE_CONTROL_MANIFEST.md",
+      "status": "M "
+    },
+    {
+      "path": "docs/launch/pr34/HOUR1_FINAL_REPORT.md",
+      "status": "M "
+    },
+    {
+      "path": "docs/launch/pr34/HOUR1_QA_EVIDENCE.md",
+      "status": "M "
+    },
+    {
+      "path": "docs/launch/pr35/ARCHITECTURE_FILE_MAP.md",
+      "status": "M "
+    },
+    {
+      "path": "docs/launch/pr35/CODEX_REVIEW_ROUND1.md",
+      "status": "M "
+    },
+    {
+      "path": "docs/launch/pr35/CODEX_REVIEW_ROUND2.md",
+      "status": "M "
+    },
+    {
+      "path": "docs/launch/pr35/CODEX_REVIEW_ROUND3.md",
+      "status": "M "
+    },
+    {
+      "path": "docs/launch/pr35/CODEX_REVIEW_ROUND4.md",
+      "status": "M "
+    },
+    {
+      "path": "docs/launch/pr35/LEGACY_AND_UNUSED_FILE_AUDIT.md",
+      "status": "M "
+    },
+    {
+      "path": "docs/launch/pr36/STALE_ARTIFACT_AUDIT.md",
+      "status": "M "
+    },
+    {
+      "path": "docs/owner-control/VVIP_TIGER_IMPLEMENTATION_GAP_MATRIX.md",
+      "status": "M "
+    },
+    {
+      "path": "docs/product-readiness/P08_WAIT_READINESS_REPORT.md",
+      "status": "M "
+    },
+    {
+      "path": "docs/security/launch-hardening/pr15/VVIP_TIGER_PR15_CLERK_PRIVATE_PROFILE_RUNTIME_HARDENING.md",
+      "status": "M "
+    },
+    {
+      "path": "docs/ux-r01/UX_R01_EXISTING_ADMIN_UI_AUDIT.md",
+      "status": "M "
+    },
+    {
+      "path": "docs/ux-r02/UX_R02_EXISTING_USER_UI_AUDIT.md",
+      "status": "M "
+    },
+    {
+      "path": "scripts/qa-smoke.sh",
+      "status": "M "
+    },
+    {
+      "path": "scripts/security/p08-steel-shield/scan-dangerous-sql.sh",
+      "status": "M "
+    },
+    {
+      "path": "supabase/config.toml",
+      "status": "M "
+    },
+    {
+      "path": "tests/__pycache__/pr39-p05-profile-account-management.test.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": "tests/__pycache__/test_vvip_cleanroom.cpython-312-pytest-9.1.1.pyc",
+      "status": "!!"
+    },
+    {
+      "path": "tests/p08-profiles-bootstrap-contract.test.cjs",
+      "status": "M "
+    },
+    {
+      "path": "tests/p08-steel-shield-migration-audit.test.cjs",
+      "status": "M "
+    },
+    {
+      "path": "tests/pr38-onboarding-account-types.runtime.test.cjs",
+      "status": "M "
+    },
+    {
+      "path": "tests/pr39-p05-profile-account-management.runtime.test.cjs",
+      "status": "M "
+    },
+    {
+      "path": "tests/pr39-p05-profile-account-management.test.py",
+      "status": " M"
+    },
+    {
+      "path": "tests/test_vvip_cleanroom.py",
+      "status": "A "
+    },
+    {
+      "path": "tools/__pycache__/vvip_cleanroom.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": "tools/vvip_cleanroom.py",
+      "status": "A "
+    }
+  ],
+  "inventory": [
+    {
+      "classifications": [
+        "untracked file"
+      ],
+      "path": ".agents",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": ".firebaserc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": ".git-auto-push.sh",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": ".github",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": ".github/workflows",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": ".github/workflows/pages.yml",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": ".github/workflows/project-control-integrity.yml",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": ".gitignore",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": ".vscode",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": ".vscode/launch.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": ".vscode/mcp.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": ".vscode/settings.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "migration",
+        "secret-sensitive file",
+        "tracked source"
+      ],
+      "path": "20260708_vvip_tiger_profiles_remove_legacy_auth_uid_policies.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "migration",
+        "tracked source"
+      ],
+      "path": "20260708_vvip_tiger_public_profiles_clerk_runtime_fix.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "ACCOUNT-CHOOSER-SPEC.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "ADMIN-ROLE-SPEC.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "ADMIN-SETUP-GUIDE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "ADMIN-SETUP.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "AGENTS.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "ANDROID-HTTPS-DEPLOY.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": "CNAME",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "DOCUMENTATION-INDEX.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "EMAIL-TEMPLATE-VARIABLES.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "EMAIL-VERIFICATION-SETUP.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "FEATURE-VERIFICATION.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "FEATURES-COMPLETE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "FINAL-VERIFICATION.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "FIREBASE-EMAIL-SETUP.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "GOOGLE-ONE-TAP-SETUP.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "IMPLEMENTATION_CHECKLIST.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "PHASE-3-READINESS-CHECK.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "PRODUCT-REQUIREMENTS-ADDENDUM.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "PROJECT-SUMMARY.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "PROJECT_CONTROL_INSTALL_AR.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "QA-FINAL-REPORT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "README.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "RLS-EMAIL-VERIFICATION-POLICIES.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "RLS-IMPLEMENTATION-GUIDE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "RLS-POLICIES.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "RLS-QUICK-REFERENCE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "SESSION-SUMMARY.txt",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "SETUP-GUIDE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "SUPABASE-EDGE-OTP-GUIDE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "TEST-ACCOUNTS-GUIDE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "TIGER-AutoParts-Prompts.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "UNIFIED-PLATFORM-STATUS.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "USER-GUIDE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "VVIP-AUTH-SYSTEM-SPEC.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "account-settings-p05.html",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked source"
+      ],
+      "path": "auth-clerk-index.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked source"
+      ],
+      "path": "auth-flow.html",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked source"
+      ],
+      "path": "auth-supabase.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked source"
+      ],
+      "path": "auth.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "tracked source"
+      ],
+      "path": "clerk-private-profile.html",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "clerk-test.html",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "data-deletion.html",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "design-system-preview",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "design-system-preview/component-data.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "design-system-preview/component-library.css",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "design-system-preview/design-system.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "design-system-preview/design-tokens.css",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "design-system-preview/index.html",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/PROFILE_RESILIENCE_SHELL_CLOSURE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_AUTH_AUDIT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_AUTH_SCAN.txt",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_CLERK_PROFILE_TABLE_LOG.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_CLERK_RLS_APPLY_LOG.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_CLERK_SUPABASE_LINK_SUCCESS.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_DB_AUDIT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_FINAL_FRONTEND_SAFETY_SWEEP.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_FINAL_FRONTEND_SAFETY_SWEEP_REVIEW.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_FRONTEND_SAFE_BASELINE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_LEGACY_AUTH_AUDIT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_MANUAL_DB_APPLY_LOG.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_MEMORY_MAP.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_NAVIGATION_BUTTON_AUDIT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_NAVIGATION_BUTTON_STABILITY_PATCH.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_NAVIGATION_SMOKE_AUDIT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_OFFICIAL_PRIVATE_PROFILE_UI.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_OFFICIAL_PRODUCT_BLUEPRINT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_PAGE_FLOW_USER_JOURNEY_AUDIT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_PAGE_FLOW_USER_JOURNEY_PATCH.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_POST_OPTIONS_TIGER_CARE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_PROFILE_NAVIGATION_STABILITY_AUDIT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_PROFILE_SOURCE_OF_TRUTH.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_PUBLIC_PAGES_CONSISTENCY_AUDIT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_PUBLIC_PAGES_CONSISTENCY_PATCH.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_REPOSITORY_HOUSEKEEPING_AUDIT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_VISUAL_TRUST_LAYER.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_VVIP_GATE_LOGIN.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/VVIP_TIGER_ZERO_VISIBLE_ERROR_EXPERIENCE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260710-discovery-experience-shell.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260710-master-execution-roadmap.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260711-p01-repository-gap-matrix.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p07-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p08-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p09-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p10-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p11-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p12-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p13-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p14-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p15-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p16-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p17-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p18-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p19-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p20-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p21-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p22-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p23-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p24-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p25-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p26-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p27-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p28-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p29-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p30-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p31-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p32-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p33-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-auto-p34-execution.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-pr38-onboarding-account-types.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-pr39-p05-profile-account-management.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260715-pr40-p06-owner-control-orchestrator.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260716-pr72-p07-complete-database-architecture.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260716-pr73-orchestrator-integrity-readonly.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/change-control/20260716-pr74-orchestrator-integrity-artifact-guards.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/global",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "tracked documentation"
+      ],
+      "path": "docs/global/FAITH_AND_CULTURAL_INTEGRITY_POLICY_AR.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "tracked documentation"
+      ],
+      "path": "docs/global/GLOBAL_ARCHITECTURE_DECISION_AR.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "tracked documentation"
+      ],
+      "path": "docs/global/GLOBAL_EXECUTION_CHARTER_AR.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "tracked documentation"
+      ],
+      "path": "docs/global/GLOBAL_LAUNCH_DEFINITION_OF_DONE_AR.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "tracked documentation"
+      ],
+      "path": "docs/global/GLOBAL_SCALE_AND_SLO_SPEC_AR.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "tracked documentation"
+      ],
+      "path": "docs/global/GLOBAL_SEARCH_EXPERIENCE_SPEC_AR.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "tracked documentation"
+      ],
+      "path": "docs/global/IMPLEMENTATION_BLOCKERS_AR.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "backup/copy",
+        "exact duplicate",
+        "suspicious near-duplicate filename",
+        "tracked documentation"
+      ],
+      "path": "docs/global/OLD_TO_GLOBAL_PHASE_RECONCILIATION_AR.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/governance",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/governance/VVIP_TIGER_FAST_FEELING_AND_INSTANT_UX_STANDARD.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/governance/VVIP_TIGER_SURGICAL_EXECUTION_RULE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/VVIP_TIGER_48H_REAL_TRIAL_LAUNCH_PLAN.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/p08",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/p08/P08_CLERK_GATE_ROOT_CAUSE_EVIDENCE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr16",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr16/VVIP_TIGER_PR16_HTML_FILES.tsv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr16/VVIP_TIGER_PR16_LAUNCH_SHELL_INSPECTION.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr16/VVIP_TIGER_PR16_LINKS_AND_BUTTONS_SCAN.tsv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr17",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr17/VVIP_TIGER_PR17_LAUNCH_SHELL_TARGET_SELECTION.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr17/VVIP_TIGER_PR17_TOP_ACTION_FILES.tsv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr17/VVIP_TIGER_PR17_TOP_HTML_FILES.tsv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr18",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr18/VVIP_TIGER_PR18_HTML_SCRIPT_REFERENCES.tsv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr18/VVIP_TIGER_PR18_LIVE_ACTION_SURFACE_SCAN.tsv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr18/VVIP_TIGER_PR18_LIVE_RUNTIME_CANDIDATE_FILES.tsv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr18/VVIP_TIGER_PR18_LIVE_RUNTIME_TARGET_INSPECTION.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr19",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr19/PR19_FIRST_NARROW_LAUNCH_SHELL_RUNTIME_GUARD_REPORT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr34",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr34/CHANGE_CONTROL_MANIFEST.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr34/HOUR1_FINAL_REPORT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr34/HOUR1_QA_EVIDENCE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr35",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr35/ARCHITECTURE_AND_DATA_FLOW.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr35/ARCHITECTURE_FILE_MAP.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr35/CHANGED_FILES.allowlist",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr35/CHANGED_FILES.final",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr35/CHANGE_CONTROL_MANIFEST.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked generated artifact"
+      ],
+      "path": "docs/launch/pr35/CODEX_REVIEW_ROUND1.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked generated artifact"
+      ],
+      "path": "docs/launch/pr35/CODEX_REVIEW_ROUND2.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked generated artifact"
+      ],
+      "path": "docs/launch/pr35/CODEX_REVIEW_ROUND3.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked generated artifact"
+      ],
+      "path": "docs/launch/pr35/CODEX_REVIEW_ROUND4.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr35/FINAL_REPORT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr35/LEGACY_AND_UNUSED_FILE_AUDIT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr35/PERFORMANCE_AND_WEAK_NETWORK_BUDGET.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr35/PERMISSION_CATALOG.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr35/PR_BODY.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr35/QA_EVIDENCE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr35/REVIEW_RESOLUTION_LOG.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr35/SECURITY_THREAT_MODEL.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr35/TIGER_CARE_WORKFLOW.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr35/qa",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr35/qa/INTEGRATION_PRELIMINARY_EVIDENCE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr35/qa/SECURITY_EVIDENCE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr36",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr36/CHANGED_FILES.freeze",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr36/CHANGE_CONTROL_MANIFEST.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr36/DECISIONS.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr36/FINAL_QA_REPORT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr36/FINAL_REPORT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr36/IMPLEMENTATION_REPORT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr36/MANUAL_BROWSER_EVIDENCE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr36/QA_EVIDENCE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr36/RED_GREEN_EVIDENCE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr36/REVIEW_RESOLUTION_LOG.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr36/REVIEW_ROUND1_ARCHITECTURE_SPEC.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr36/REVIEW_ROUND2_SECURITY_PRIVACY.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr36/REVIEW_ROUND3_PERFORMANCE_ACCESSIBILITY.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr36/REVIEW_ROUND4_FINAL.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr36/STALE_ARTIFACT_AUDIT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr36/reviews",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr36/reviews/ROUND_1_ARCHITECTURE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr36/reviews/ROUND_2_SECURITY_PRIVACY.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr36/reviews/ROUND_3_PERFORMANCE_ACCESSIBILITY.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/launch/pr36/reviews/ROUND_4_FINAL.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P07_FULL_DATA_SCHEMA_DESIGN.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P08_SECURE_MIGRATIONS_RLS_AND_STORAGE_POLICIES.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P09_LISTINGS_ENGINE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P10_THREE_SECTOR_STRUCTURED_FIELDS.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P11_IMAGE_MEDIA_PIPELINE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P12_SUPABASE_DISCOVERY_BACKEND_ADAPTER.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P13_FEED_LISTING_CARDS_AND_DETAILS.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P14_PRIVATE_ONE_TO_ONE_COMMUNICATION.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P15_PRIVATE_SHARING_AND_INVITATIONS.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P16_SECTOR_PUBLISHING_PERMISSIONS.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P17_TRIAL_SUBSCRIPTIONS_AND_ENTITLEMENTS.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P18_PAYMENT_GATEWAY.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P19_NOTIFICATIONS_CENTER.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P20_TIGER_CARE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P21_MODERATION_AND_TRUST_SAFETY.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P22_ADMIN_AND_SECTOR_DASHBOARDS.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P23_INACTIVITY_RETENTION_AND_DELETION.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P24_SECURE_AI_ASSISTANCE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P25_ANALYTICS_AND_ADVERTISING_STORAGE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P26_PWA_AND_MOBILE_READINESS.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P27_ACCESSIBILITY_RTL_AND_LANGUAGES.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P28_PERFORMANCE_AND_SCALABILITY.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P29_FINAL_CLERK_SUPABASE_SECURITY_HARDENING.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P30_LEGAL_AND_PRIVACY_POLICIES.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P31_STAGING_END_TO_END_AND_DISASTER_RECOVERY.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P32_LAUNCH_READINESS.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P33_GRADUAL_LAUNCH.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/P34_POST_LAUNCH_OPERATIONS_AND_GROWTH.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/README.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/VVIP_TIGER_DISCOVERY_EXPERIENCE_SPEC.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/VVIP_TIGER_EXECUTION_CHARTER.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/VVIP_TIGER_FILE_INVENTORY.csv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/VVIP_TIGER_IMPLEMENTATION_GAP_MATRIX.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP_COMPLETION.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/VVIP_TIGER_OWNER_MASTER_REFERENCE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/VVIP_TIGER_P01_PRIORITY_FINDINGS.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/VVIP_TIGER_P01_REPOSITORY_AUDIT_COMPLETION.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/VVIP_TIGER_P07_P34_TRUTH_AUDIT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/VVIP_TIGER_PHASE_TRACKER.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/VVIP_TIGER_PR22_DISCOVERY_SHELL_COMPLETION.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/VVIP_TIGER_REPOSITORY_AUDIT_REPORT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/VVIP_TIGER_VALUES_AND_NAMES_CHARTER.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/orchestrator",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/orchestrator/checkpoints",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/orchestrator/checkpoints/p06-initial.checkpoint.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/orchestrator/checkpoints/p06-post-merge-closure.checkpoint.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/orchestrator/checkpoints/p07-post-merge-closure.checkpoint.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/orchestrator/checkpoints/p07-truthful-recovery.checkpoint.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/orchestrator/log.ndjson",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/orchestrator/state.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p07",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p07/P07_COMPLETE_DATABASE_ARCHITECTURE_REVIEW.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p07/P07_COVERAGE_MATRIX.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p07/P07_COVERAGE_MATRIX.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p07/P07_DATABASE_ERD.mmd",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p07/P07_DATA_DICTIONARY.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p07/P07_EVIDENCE_MANIFEST.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p07/P07_EVIDENCE_MANIFEST.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p07/P07_MIGRATION_ORDERING_PLAN_REVIEW_ONLY.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p07/P07_RLS_DESIGN_MATRIX_REVIEW_ONLY.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p07/P07_ROLLBACK_PLAN_REVIEW_ONLY.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p07/P07_STORAGE_POLICY_MATRIX_REVIEW_ONLY.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p07/schemas",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p07/schemas/P07_DATA_DICTIONARY.schema.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p07/schemas/P07_EVIDENCE_MANIFEST.schema.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p08",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p08/P08_COVERAGE_MATRIX.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p08/P08_COVERAGE_MATRIX.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p08/P08_CURRENT_SECURITY_AND_SCHEMA_AUDIT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p08/P08_EVIDENCE_MANIFEST.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p08/P08_EVIDENCE_MANIFEST.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p08/P08_PRE_DEPLOYMENT_ASSERTIONS.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p08/P08_PRODUCTION_APPROVAL_GATE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p08/P08_RLS_POLICY_MATRIX.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p08/P08_RLS_POLICY_MATRIX.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p08/P08_ROLLBACK_AND_RECOVERY_RUNBOOK.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p08/P08_SECURE_MIGRATION_SEQUENCE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p08/P08_STORAGE_POLICY_MATRIX.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/p08/P08_STORAGE_POLICY_MATRIX.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/owner-control/phase-status.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/product-readiness",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/product-readiness/JORDAN_48H_CONTROLLED_LAUNCH_PLAN.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/product-readiness/LISTING_CONTENT_POLICY.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/product-readiness/MOBILE_STORE_READINESS_CHECKLIST.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/product-readiness/MODERATION_AND_REPORTING_SOP.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/product-readiness/OPEN_DECISIONS_REGISTER.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/product-readiness/OPERATIONAL_TRAINING_PLAN.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/product-readiness/P08_WAIT_READINESS_REPORT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/product-readiness/PRIVATE_COMMUNICATION_RULES.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/product-readiness/PRODUCT_SCOPE_FREEZE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/product-readiness/READINESS_TRACEABILITY_MATRIX.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/product-readiness/README.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/product-readiness/ROLES_PERMISSIONS_ACCEPTANCE_MATRIX.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/product-readiness/THREE_SECTOR_TAXONOMY.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/product-readiness/TIGER_CARE_OPERATIONS_SOP.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/product-readiness/UAT_OWNER_ACCEPTANCE_PLAN.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "backup/copy",
+        "suspicious near-duplicate filename",
+        "tracked documentation"
+      ],
+      "path": "docs/product-readiness/UI_COPY_AR_EN_CATALOG.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/RPC_HARDENED_SECURITY_SCENARIOS_20260709.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/RPC_REVIEW_FINDINGS_20260709.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/SUPABASE_CLERK_SECURITY_AUDIT_LOCK_20260709.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/launch-hardening",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/launch-hardening/pr14",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/launch-hardening/pr14/VVIP_TIGER_PR14_CLERK_PRIVATE_PROFILE_LAUNCH_HARDENING_INSPECTION.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/launch-hardening/pr14/VVIP_TIGER_PR14_CLERK_PRIVATE_PROFILE_SAFE_FINDINGS.tsv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/launch-hardening/pr15",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/launch-hardening/pr15/VVIP_TIGER_PR15_CLERK_PRIVATE_PROFILE_RUNTIME_HARDENING.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/p08-steel-shield",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "backup/copy",
+        "secret-sensitive file",
+        "suspicious near-duplicate filename",
+        "tracked documentation"
+      ],
+      "path": "docs/security/p08-steel-shield/BACKUP_RESTORE_ROLLBACK.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/p08-steel-shield/DATA_LOSS_PREVENTION.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/p08-steel-shield/INCIDENT_RESPONSE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/p08-steel-shield/MIGRATION_INTEGRITY.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/p08-steel-shield/PRODUCTION_WRITE_GATE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/p08-steel-shield/README.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/p08-steel-shield/SECRETS_AND_ACCESS_CONTROL.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/p08-steel-shield/THREAT_MODEL.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/p08-steel-shield/THREE_ROUND_VERIFICATION.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/production-apply",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "backup/copy",
+        "secret-sensitive file",
+        "suspicious near-duplicate filename",
+        "tracked documentation"
+      ],
+      "path": "docs/security/production-apply/SUPABASE_MANUAL_BACKUP_PRODUCTION_APPLY_PLAN_DRAFT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/retrofit-audit",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/retrofit-audit-classification",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/retrofit-audit-classification/VVIP_TIGER_RETROFIT_AUDIT_CLASSIFICATION_PLAN.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/retrofit-audit-classification/VVIP_TIGER_RETROFIT_AUDIT_CLASSIFICATION_SUMMARY.tsv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/retrofit-audit/VVIP_TIGER_EXISTING_CODE_PROTECTION_RETROFIT_AUDIT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/retrofit-audit/VVIP_TIGER_EXISTING_CODE_PROTECTION_SCAN.tsv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/secrets-logging-hardening",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/secrets-logging-hardening/VVIP_TIGER_SECRETS_LOGGING_B1_HARDENING_PREP.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/secrets-logging-hardening/VVIP_TIGER_SECRETS_LOGGING_B1_REVIEW_QUEUE.tsv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/secrets-logging-hardening/VVIP_TIGER_SECRETS_LOGGING_B1_TOP_FILES.tsv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/secrets-logging-hardening/first-target-inspection",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/secrets-logging-hardening/first-target-inspection/VVIP_TIGER_B1_FIRST_RUNTIME_TARGET_INSPECTION.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/secrets-logging-hardening/first-target-inspection/VVIP_TIGER_B1_FIRST_RUNTIME_TARGET_QUEUE.tsv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/secrets-logging-hardening/first-target-inspection/VVIP_TIGER_B1_RUNTIME_TARGET_CANDIDATES.tsv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/secrets-logging-review",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/secrets-logging-review/VVIP_TIGER_SECRETS_AND_LOGGING_FINDINGS.tsv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/secrets-logging-review/VVIP_TIGER_SECRETS_AND_LOGGING_REVIEW.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/secrets-logging-review/VVIP_TIGER_SECRETS_AND_LOGGING_SUMMARY.tsv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/secrets-logging-triage",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/secrets-logging-triage/VVIP_TIGER_SECRETS_LOGGING_HIGH_RISK_FILES.tsv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/secrets-logging-triage/VVIP_TIGER_SECRETS_LOGGING_HIGH_RISK_SUMMARY.tsv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/secrets-logging-triage/VVIP_TIGER_SECRETS_LOGGING_HIGH_RISK_TRIAGE_PLAN.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/secrets-logging-triage/VVIP_TIGER_SECRETS_LOGGING_HIGH_RISK_TRIAGE_QUEUE.tsv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/sql-review",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "migration",
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/sql-review/20260709_vvip_tiger_atomic_profile_resolver_rpc_hardened_review.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/sql-review/pr35",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "migration",
+        "secret-sensitive file",
+        "tracked documentation"
+      ],
+      "path": "docs/security/sql-review/pr35/20260714_pr35_owner_control_tiger_care_review.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/superpowers",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/superpowers/plans",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/superpowers/plans/2026-07-14-pr34-listing-contract-plan.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/superpowers/plans/2026-07-14-pr35-owner-control-tiger-care-plan.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/superpowers/plans/2026-07-15-pr36-secure-seven-photo-processing.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "tracked documentation"
+      ],
+      "path": "docs/superpowers/plans/2026-07-20-global-platform-control-plane-implementation.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/superpowers/specs",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/superpowers/specs/2026-07-14-pr34-listing-contract-design.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/superpowers/specs/2026-07-14-pr35-owner-control-tiger-care-design.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/superpowers/specs/2026-07-15-pr36-secure-seven-photo-processing-design.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/superpowers/specs/2026-07-18-vvip-tiger-global-platform-and-p08-clerk-recovery-design.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "tracked documentation"
+      ],
+      "path": "docs/superpowers/specs/2026-07-20-global-platform-control-plane-design.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r01",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r01/UX_R01_EXISTING_ADMIN_UI_AUDIT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r01/UX_R01_PERMISSION_MATRIX.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r01/UX_R01_ROLE_CATALOG.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r01/UX_R01_SCREEN_CATALOG.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r01/UX_R01_SECURITY_BOUNDARY.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r01/UX_R01_USER_FLOWS.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r01/UX_R01_VISUAL_REVIEW_CHECKLIST.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r02",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r02/UX_R02_COMMUNICATION_AND_TIGER_CARE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r02/UX_R02_COMPLETE_USER_FLOW.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r02/UX_R02_EXISTING_USER_UI_AUDIT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r02/UX_R02_IMAGE_PIPELINE_PREVIEW.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r02/UX_R02_LISTING_CREATION_FLOW.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r02/UX_R02_SCREEN_CATALOG.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r02/UX_R02_SECURITY_BOUNDARY.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r02/UX_R02_USER_TYPE_CATALOG.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r02/UX_R02_VISUAL_REVIEW_CHECKLIST.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r03",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r03/UX_R03_ACCESSIBILITY_RULES.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r03/UX_R03_COLOR_SYSTEM.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r03/UX_R03_COMPONENT_CATALOG.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r03/UX_R03_EXPERIENCE_MAP.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r03/UX_R03_PRODUCTION_HANDOFF_BOUNDARY.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r03/UX_R03_RESPONSIVE_RULES.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r03/UX_R03_TYPOGRAPHY_AND_SPACING.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r03/UX_R03_VISUAL_CONSISTENCY_AUDIT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ux-r03/UX_R03_VISUAL_REVIEW_CHECKLIST.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "edit-profile-p05.html",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "email-templates",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "email-templates/confirm-email-en.html",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "email-templates/confirm-email.html",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "enhanced-components.css",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "experience-showcase",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "experience-showcase/experience-showcase.css",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "experience-showcase/experience-showcase.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "experience-showcase/index.html",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": "firebase.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "icons",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "asset",
+        "tracked source"
+      ],
+      "path": "icons/icon-192.png",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "asset",
+        "tracked source"
+      ],
+      "path": "icons/icon-192.svg",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "asset",
+        "tracked source"
+      ],
+      "path": "icons/icon-512.png",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "asset",
+        "tracked source"
+      ],
+      "path": "icons/icon-512.svg",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "asset",
+        "tracked source"
+      ],
+      "path": "icons/tiger-logo.png",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "index.html",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": "manifest.webmanifest",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "onboarding-p04.html",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "operations-console",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "operations-console/README.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "operations-console/index.html",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "operations-console/mock-operations-data.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "operations-console/operations-console.css",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "operations-console/operations-console.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "operations-console/role-permissions.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "owner-control.html",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "privacy-policy.html",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "private-profile-p03.html",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "tracked source"
+      ],
+      "path": "private-profile.html",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "project-control/README_AR.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/dashboard",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/dashboard/VVIP_TIGER_Project_Control_Center_AR.html",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/data",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/data/artifact_register.csv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/data/country_capability_matrix.csv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/data/decision_log.csv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": "project-control/data/global_scale_targets.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/data/launch_gate_register.csv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/data/legacy_phase_mapping.csv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": "project-control/data/manifest.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/data/master_task_registry.csv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": "project-control/data/phases.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": "project-control/data/requirements_catalog.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/data/requirements_traceability.csv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/data/risk_register.csv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": "project-control/data/search_facets.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": "project-control/data/source_registry.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": "project-control/data/strategic_archive.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/data/strategic_backlog.csv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/data/task_dependencies.csv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": "project-control/data/task_dependencies.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": "project-control/data/tasks.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/data/test_case_catalog.csv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/data/vendor_register.csv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/database",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "tracked source"
+      ],
+      "path": "project-control/database/001_project_control_schema.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "tracked source"
+      ],
+      "path": "project-control/database/002_project_control_seed.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "tracked source"
+      ],
+      "path": "project-control/database/003_project_control_extended_seed.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/docs",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "tracked documentation"
+      ],
+      "path": "project-control/docs/FAITH_AND_CULTURAL_INTEGRITY_POLICY_AR.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "tracked documentation"
+      ],
+      "path": "project-control/docs/GLOBAL_ARCHITECTURE_DECISION_AR.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "tracked documentation"
+      ],
+      "path": "project-control/docs/GLOBAL_EXECUTION_CHARTER_AR.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "tracked documentation"
+      ],
+      "path": "project-control/docs/GLOBAL_LAUNCH_DEFINITION_OF_DONE_AR.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "tracked documentation"
+      ],
+      "path": "project-control/docs/GLOBAL_SCALE_AND_SLO_SPEC_AR.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "tracked documentation"
+      ],
+      "path": "project-control/docs/GLOBAL_SEARCH_EXPERIENCE_SPEC_AR.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "tracked documentation"
+      ],
+      "path": "project-control/docs/IMPLEMENTATION_BLOCKERS_AR.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "backup/copy",
+        "exact duplicate",
+        "suspicious near-duplicate filename",
+        "tracked documentation"
+      ],
+      "path": "project-control/docs/OLD_TO_GLOBAL_PHASE_RECONCILIATION_AR.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "project-control/docs/PROJECT_CONTROL_INTEGRATION_AR.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/docs/VVIP_TIGER_Centralization_Execution_Report_AR.docx",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/docs/superpowers",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/docs/superpowers/plans",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "tracked documentation"
+      ],
+      "path": "project-control/docs/superpowers/plans/2026-07-20-global-platform-control-plane-implementation.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/docs/superpowers/specs",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "tracked documentation"
+      ],
+      "path": "project-control/docs/superpowers/specs/2026-07-20-global-platform-control-plane-design.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/schemas",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": "project-control/schemas/project_task.schema.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/scripts",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/scripts/import_project_control.mjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/scripts/validate_project_control.mjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/sources",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/sources/VVIP_TIGER_Global_Execution_Plan_AR.docx",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": "project-control/sources/VVIP_TIGER_Global_Execution_Plan_AR.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "project-control/sources/VVIP_TIGER_Global_Execution_Plan_AR.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/sources/VVIP_TIGER_Global_Execution_Specification_V2_AR.docx",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": "project-control/sources/VVIP_TIGER_Global_Execution_Specification_V2_AR.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "project-control/sources/VVIP_TIGER_Global_Execution_Specification_V2_AR.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/sources/VVIP_TIGER_Global_Implementation_Specification_AR_v2.docx",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": "project-control/sources/VVIP_TIGER_Global_Implementation_Specification_AR_v2.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "project-control/sources/VVIP_TIGER_Global_Implementation_Specification_AR_v2.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "project-control/tests",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "test fixture",
+        "tracked source"
+      ],
+      "path": "project-control/tests/project_control_integrity.test.mjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "public-profile-p05.html",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "reports",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked generated artifact"
+      ],
+      "path": "reports/VVIP_CLEANROOM_REPORT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked generated artifact"
+      ],
+      "path": "reports/vvip-cleanroom-report.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "requirements-dev.txt",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "reset-password.html",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "reset-password.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/listing",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/listing/listing-contract.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/listing/listing-contract.test.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/listing/listing-repository.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/media",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/media/pr36-canvas-adapter.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/media/pr36-controller.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/media/pr36-geometry.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/media/pr36-media-worker.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/media/pr36-policy.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/media/pr36-scheduler.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/media/pr36-session.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/media/pr36-signature.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/media/pr36-worker-adapter.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/onboarding",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/onboarding/pr38-account-summary.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/onboarding/pr38-account-types.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/onboarding/pr38-onboarding.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/orchestrator",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": "scripts/orchestrator/p06_orchestrator_config.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": "scripts/orchestrator/p06_orchestrator_state.schema.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": "scripts/orchestrator/vvip_master_orchestrator.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/p06",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/p06/p06-owner-control-readonly.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/pr35",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/pr35/pr35-assignment-repository.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/pr35/pr35-audit.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/pr35/pr35-bootstrap.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/pr35/pr35-care-controller.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/pr35/pr35-contracts.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/pr35/pr35-drafts.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/pr35/pr35-i18n.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/pr35/pr35-local-adapter.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/pr35/pr35-network.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/pr35/pr35-owner-controller.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/pr35/pr35-policy.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/pr35/pr35-production-adapter.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/pr35/pr35-routing.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/pr35/pr35-sanitize.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/pr35/pr35-scope.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/pr35/pr35-sla.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/pr35/pr35-tiger-care.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/profile",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/profile/pr39-account-management.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/profile/pr39-profile-contract.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/profile/pr39-profile-controller.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/profile/pr39-profile-editor.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/profile/pr39-profile-preview.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": "scripts/qa-pr33-accessibility.sh",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": "scripts/qa-pr34-hour1.sh",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": "scripts/qa-pr35-owner-control-tiger-care.sh",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": "scripts/qa-pr36-secure-photo-processing.sh",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": "scripts/qa-pr36-secure-seven-photo-processing.sh",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": "scripts/qa-smoke.sh",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked source"
+      ],
+      "path": "scripts/require-auth.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked source"
+      ],
+      "path": "scripts/security",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked source"
+      ],
+      "path": "scripts/security/p08-steel-shield",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "secret-sensitive file",
+        "tracked source"
+      ],
+      "path": "scripts/security/p08-steel-shield/audit-migration-versions.sh",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "secret-sensitive file",
+        "tracked source"
+      ],
+      "path": "scripts/security/p08-steel-shield/create-readonly-integrity-manifest.sh",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "secret-sensitive file",
+        "tracked source"
+      ],
+      "path": "scripts/security/p08-steel-shield/scan-dangerous-sql.sh",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "secret-sensitive file",
+        "tracked source"
+      ],
+      "path": "scripts/security/p08-steel-shield/scan-secret-leaks.sh",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "secret-sensitive file",
+        "tracked source"
+      ],
+      "path": "scripts/security/p08-steel-shield/verify-production-gate.sh",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked source"
+      ],
+      "path": "scripts/supabase-auth-bridge.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/supabase-config.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/vvip-p03-private-share.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/vvip-p03-profile-clean-runtime.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/vvip-p03-profile-identity.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/vvip-p03-profile-remote-sync.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/vvip-p03-profile-store.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/vvip-p03-profile.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/vvip-p03-route-map.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/vvip-p03-sign-out.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/vvip-pr29-home-marketplace.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/vvip-pr30-resilience.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/vvip-pr31-create-listing-shell.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/vvip-pr32-draft-preview.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/vvip-pr33-publish-readiness.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/vvip-safe-ux-guard.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "styles",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "styles.css",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "styles/vvip-p03-profile.css",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "styles/vvip-p03-shell.css",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "styles/vvip-p03-tokens.css",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "styles/vvip-pr29-home-marketplace.css",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "styles/vvip-pr31-create-listing-shell.css",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "styles/vvip-pr32-draft-preview.css",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "styles/vvip-pr33-publish-readiness.css",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "styles/vvip-pr35-owner-care.css",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "styles/vvip-pr36-media.css",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "styles/vvip-pr38-onboarding.css",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "styles/vvip-pr39-profile.css",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "styles/vvip-pr40-owner-orchestrator.css",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "styles/vvip-visual-trust-layer.css",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "supabase",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "supabase-schema.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": "supabase/.gitignore",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": "supabase/config.toml",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked source"
+      ],
+      "path": "supabase/functions",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked source"
+      ],
+      "path": "supabase/functions/phone-verification",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked source"
+      ],
+      "path": "supabase/functions/phone-verification/index.ts",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked source"
+      ],
+      "path": "supabase/functions/send-verification-email",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked source"
+      ],
+      "path": "supabase/functions/send-verification-email/index.ts",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "supabase/migrations",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "migration",
+        "tracked source"
+      ],
+      "path": "supabase/migrations/20260626_parts_vehicle_registry_id_compat.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "migration",
+        "tracked source"
+      ],
+      "path": "supabase/migrations/20260627_vehicle_registry_compat.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "migration",
+        "tracked source"
+      ],
+      "path": "supabase/migrations/20260628_otp_codes_rls_open.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "migration",
+        "tracked source"
+      ],
+      "path": "supabase/migrations/20260702_ai_analytics_ads_tables.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "migration",
+        "tracked source"
+      ],
+      "path": "supabase/migrations/20260703_feed_posts_table.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "migration",
+        "tracked source"
+      ],
+      "path": "supabase/migrations/20260706_public_profiles_bootstrap.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "migration",
+        "secret-sensitive file",
+        "tracked source"
+      ],
+      "path": "supabase/migrations/20260707_vvip_tiger_auth_profile_bridge.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "migration",
+        "tracked source"
+      ],
+      "path": "supabase/migrations/20260708_vvip_tiger_clerk_profiles_table.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "migration",
+        "tracked source"
+      ],
+      "path": "supabase/migrations/20260709_vvip_tiger_profiles_clerk_jwt_rls_bridge.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "migration",
+        "tracked source"
+      ],
+      "path": "supabase/migrations/20260710_vvip_tiger_atomic_profile_resolver_rpc.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "migration",
+        "tracked source"
+      ],
+      "path": "supabase/migrations/202607200001_project_control_schema.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "migration",
+        "tracked source"
+      ],
+      "path": "supabase/migrations/202607200002_project_control_core_seed.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "exact duplicate",
+        "migration",
+        "tracked source"
+      ],
+      "path": "supabase/migrations/202607200003_project_control_extended_seed.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "sw.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "terms-of-service.html",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": "tests/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": "tests/__pycache__/pr39-p05-profile-account-management.test.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": "tests/__pycache__/test_vvip_cleanroom.cpython-312-pytest-9.1.1.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/p08-clerk-gate-runtime.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/p08-otp-legacy-migration-guard.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/p08-profiles-bootstrap-contract.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "test fixture",
+        "tracked source"
+      ],
+      "path": "tests/p08-profiles-bootstrap-local.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/p08-profiles-migration-order.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "backup/copy",
+        "executable script",
+        "suspicious near-duplicate filename",
+        "tracked source"
+      ],
+      "path": "tests/p08-steel-shield-backup-rollback.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": "tests/p08-steel-shield-docs-completeness.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": "tests/p08-steel-shield-migration-audit.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": "tests/p08-steel-shield-no-remote-write.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": "tests/p08-steel-shield-production-gate.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": "tests/p08-steel-shield-scope.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": "tests/p08-steel-shield-secret-scan.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/pr35",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "test fixture",
+        "tracked source"
+      ],
+      "path": "tests/pr35/assignment-repository.test.mjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "test fixture",
+        "tracked source"
+      ],
+      "path": "tests/pr35/audit.test.mjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "test fixture",
+        "tracked source"
+      ],
+      "path": "tests/pr35/contracts.test.mjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "test fixture",
+        "tracked source"
+      ],
+      "path": "tests/pr35/drafts-network.test.mjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "test fixture",
+        "tracked source"
+      ],
+      "path": "tests/pr35/fixtures.mjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "test fixture",
+        "tracked source"
+      ],
+      "path": "tests/pr35/policy-scope.test.mjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "test fixture",
+        "tracked source"
+      ],
+      "path": "tests/pr35/production-boundary.test.mjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "test fixture",
+        "tracked source"
+      ],
+      "path": "tests/pr35/routing-sla.test.mjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "test fixture",
+        "tracked source"
+      ],
+      "path": "tests/pr35/sanitize.test.mjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "test fixture",
+        "tracked source"
+      ],
+      "path": "tests/pr35/tiger-care.test.mjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "test fixture",
+        "tracked source"
+      ],
+      "path": "tests/pr35/ui-behavior.test.mjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/pr36",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "test fixture",
+        "tracked source"
+      ],
+      "path": "tests/pr36/canvas-adapter.test.mjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "test fixture",
+        "tracked source"
+      ],
+      "path": "tests/pr36/controller-accessibility.test.mjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "test fixture",
+        "tracked source"
+      ],
+      "path": "tests/pr36/fixtures.mjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "test fixture",
+        "tracked source"
+      ],
+      "path": "tests/pr36/geometry.test.mjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "test fixture",
+        "tracked source"
+      ],
+      "path": "tests/pr36/integration.test.mjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "test fixture",
+        "tracked source"
+      ],
+      "path": "tests/pr36/policy-signature.test.mjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "test fixture",
+        "tracked source"
+      ],
+      "path": "tests/pr36/scheduler.test.mjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "test fixture",
+        "tracked source"
+      ],
+      "path": "tests/pr36/session.test.mjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "test fixture",
+        "tracked source"
+      ],
+      "path": "tests/pr36/worker-adapter.test.mjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/pr38-onboarding-account-types.runtime.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": "tests/pr38-onboarding-account-types.test.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/pr39-p05-profile-account-management.runtime.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": "tests/pr39-p05-profile-account-management.test.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": "tests/pr40-p06-orchestrator.test.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/pr40-p06-owner-control.runtime.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/pr41-p06-p34-closure-regression.runtime.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/pr72-p07-database-architecture.review.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/pr72-p07-erd-dictionary-integrity.runtime.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": "tests/pr72-p07-schema-validation.test.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": "tests/pr73-orchestrator-integrity-readonly.test.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/pr76-p08-rls-matrix-integrity.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/pr76-p08-security-design.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/pr76-p08-storage-matrix-integrity.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/pr90-analytics-policy-syntax.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/pr90-feed-migration-version.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/pr90-feed-policy-syntax.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": "tests/test_vvip_cleanroom.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/ux-r01-accessibility-structure.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/ux-r01-navigation-guard.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/ux-r01-no-production-connectivity.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/ux-r01-role-permission-matrix.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/ux-r02-accessibility-rtl.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/ux-r02-image-rules.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/ux-r02-in-place-details.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/ux-r02-listing-flow.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/ux-r02-no-production-connectivity.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/ux-r02-private-communication.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/ux-r02-unified-entry.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/ux-r02-user-type-rules.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/ux-r03-accessibility.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/ux-r03-component-catalog.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/ux-r03-design-tokens.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/ux-r03-no-production-connectivity.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/ux-r03-responsive-guards.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/ux-r03-sector-unity.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/ux-r03-showcase-links.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tools",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": "tools/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": "tools/__pycache__/vvip_cleanroom.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": "tools/vvip_cleanroom.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "user-journey-preview",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "user-journey-preview/index.html",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "user-journey-preview/mock-user-data.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "user-journey-preview/user-journey.css",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "user-journey-preview/user-journey.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "user-journey-preview/user-types.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "vvip-identity.css",
+      "type": "file"
+    }
+  ],
+  "migrations": {
+    "duplicate_versions": [],
+    "files": [
+      "20260626_parts_vehicle_registry_id_compat.sql",
+      "20260627_vehicle_registry_compat.sql",
+      "20260628_otp_codes_rls_open.sql",
+      "20260702_ai_analytics_ads_tables.sql",
+      "20260703_feed_posts_table.sql",
+      "20260706_public_profiles_bootstrap.sql",
+      "20260707_vvip_tiger_auth_profile_bridge.sql",
+      "20260708_vvip_tiger_clerk_profiles_table.sql",
+      "20260709_vvip_tiger_profiles_clerk_jwt_rls_bridge.sql",
+      "20260710_vvip_tiger_atomic_profile_resolver_rpc.sql",
+      "202607200001_project_control_schema.sql",
+      "202607200002_project_control_core_seed.sql",
+      "202607200003_project_control_extended_seed.sql"
+    ],
+    "invalid_names": []
+  },
+  "package_manager": {
+    "authoritative": "none",
+    "errors": [],
+    "lockfiles": []
+  },
+  "repository": ".",
+  "schema_version": 1,
+  "scope": {
+    "branch": true,
+    "remote": true,
+    "repository_root": true,
+    "required_ancestors": {
+      "2c46f09": true,
+      "eab212d": true
+    }
+  },
+  "summary": {
+    "classification_counts": {
+      "asset": 5,
+      "backup/copy": 6,
+      "cache": 5,
+      "exact duplicate": 30,
+      "executable script": 27,
+      "ignored generated artifact": 5,
+      "migration": 17,
+      "secret-sensitive file": 73,
+      "suspicious near-duplicate filename": 6,
+      "test fixture": 22,
+      "tracked configuration": 30,
+      "tracked documentation": 377,
+      "tracked generated artifact": 6,
+      "tracked source": 283,
+      "untracked file": 1
+    },
+    "directories": 87,
+    "files": 615,
+    "ignored_paths": 5,
+    "symlinks": 0,
+    "tracked_paths": 612
+  },
+  "suspicious_names": [
+    "docs/global/OLD_TO_GLOBAL_PHASE_RECONCILIATION_AR.md",
+    "docs/product-readiness/UI_COPY_AR_EN_CATALOG.md",
+    "docs/security/p08-steel-shield/BACKUP_RESTORE_ROLLBACK.md",
+    "docs/security/production-apply/SUPABASE_MANUAL_BACKUP_PRODUCTION_APPLY_PLAN_DRAFT.md",
+    "project-control/docs/OLD_TO_GLOBAL_PHASE_RECONCILIATION_AR.md",
+    "tests/p08-steel-shield-backup-rollback.test.cjs"
+  ],
+  "working_tree_changes": [
+    {
+      "path": ".firebase/hosting..cache",
+      "status": "D"
+    },
+    {
+      "path": ".git-auto-push.sh",
+      "status": "M"
+    },
+    {
+      "path": ".gitignore",
+      "status": "M"
+    },
+    {
+      "path": ".vscode/launch.json",
+      "status": "M"
+    },
+    {
+      "path": "ACCOUNT-CHOOSER-SPEC.md",
+      "status": "M"
+    },
+    {
+      "path": "AGENTS.md",
+      "status": "M"
+    },
+    {
+      "path": "FEATURE-VERIFICATION.md",
+      "status": "M"
+    },
+    {
+      "path": "FEATURES-COMPLETE.md",
+      "status": "M"
+    },
+    {
+      "path": "FINAL-VERIFICATION.md",
+      "status": "M"
+    },
+    {
+      "path": "FIREBASE-EMAIL-SETUP.md",
+      "status": "M"
+    },
+    {
+      "path": "GOOGLE-ONE-TAP-SETUP.md",
+      "status": "M"
+    },
+    {
+      "path": "IMPLEMENTATION_CHECKLIST.md",
+      "status": "M"
+    },
+    {
+      "path": "PROJECT-SUMMARY.md",
+      "status": "M"
+    },
+    {
+      "path": "QA-FINAL-REPORT.md",
+      "status": "M"
+    },
+    {
+      "path": "README.md",
+      "status": "M"
+    },
+    {
+      "path": "RLS-QUICK-REFERENCE.md",
+      "status": "M"
+    },
+    {
+      "path": "SETUP-GUIDE.md",
+      "status": "M"
+    },
+    {
+      "path": "SUPABASE-EDGE-OTP-GUIDE.md",
+      "status": "M"
+    },
+    {
+      "path": "USER-GUIDE.md",
+      "status": "M"
+    },
+    {
+      "path": "approved/FINAL-QA-APPROVAL.md",
+      "status": "D"
+    },
+    {
+      "path": "approved/MOBILE-PUBLIC-APPROVED-README.md",
+      "status": "D"
+    },
+    {
+      "path": "approved/PRIVATE-PROFILE-APPROVED-README.md",
+      "status": "D"
+    },
+    {
+      "path": "approved/auth-clerk-index-before-profile-button-fix-20260707.js",
+      "status": "D"
+    },
+    {
+      "path": "approved/auth-clerk-index-before-vvip-gate-login-20260707.js",
+      "status": "D"
+    },
+    {
+      "path": "approved/clerk-private-profile-before-official-ui-20260707.html",
+      "status": "D"
+    },
+    {
+      "path": "approved/clerk-private-profile-before-supabase-bridge-20260707.html",
+      "status": "D"
+    },
+    {
+      "path": "approved/clerk-private-profile-before-tiger-care-card-20260707.html",
+      "status": "D"
+    },
+    {
+      "path": "approved/clerk-private-profile-before-vip-membership-center-20260707.html",
+      "status": "D"
+    },
+    {
+      "path": "approved/enhanced-components.final-approved.css",
+      "status": "D"
+    },
+    {
+      "path": "approved/index-before-supabase-auth-20260704-191914.html",
+      "status": "D"
+    },
+    {
+      "path": "approved/index-before-supabase-auth-20260704-192024.html",
+      "status": "D"
+    },
+    {
+      "path": "approved/index-before-vvip-gate-login-20260707.html",
+      "status": "D"
+    },
+    {
+      "path": "approved/index-supabase-auth-approved.html",
+      "status": "D"
+    },
+    {
+      "path": "approved/index-supabase-auth-final.html",
+      "status": "D"
+    },
+    {
+      "path": "approved/legacy-auth-audit-7-1/clerk-private-profile-before-linkrel-fix-20260708.html",
+      "status": "D"
+    },
+    {
+      "path": "approved/legacy-auth-redirect-7-1/private-profile-before-redirect-20260708.html",
+      "status": "D"
+    },
+    {
+      "path": "approved/legacy-auth-redirect-7-1/sw-before-legacy-auth-audit-20260708.js",
+      "status": "D"
+    },
+    {
+      "path": "approved/mobile-public-buttons-audit-report.md",
+      "status": "D"
+    },
+    {
+      "path": "approved/nav-cleanup-7-1/public-profile-before-private-link-cleanup-20260708.html",
+      "status": "D"
+    },
+    {
+      "path": "approved/nav-cleanup-7-1/vvip-identity-before-clarity-patch-20260708.css",
+      "status": "D"
+    },
+    {
+      "path": "approved/private-desktop-audit.txt",
+      "status": "D"
+    },
+    {
+      "path": "approved/private-mobile-audit.md",
+      "status": "D"
+    },
+    {
+      "path": "approved/private-profile-auth-guard-approved.html",
+      "status": "D"
+    },
+    {
+      "path": "approved/private-profile-auth-guard-final.html",
+      "status": "D"
+    },
+    {
+      "path": "approved/private-profile-before-auth-guard.html",
+      "status": "D"
+    },
+    {
+      "path": "approved/private-profile-buttons-audit-report.txt",
+      "status": "D"
+    },
+    {
+      "path": "approved/private-profile.desktop-approved.html",
+      "status": "D"
+    },
+    {
+      "path": "approved/private-profile.final-approved.html",
+      "status": "D"
+    },
+    {
+      "path": "approved/public-desktop-audit.md",
+      "status": "D"
+    },
+    {
+      "path": "approved/public-mobile-audit.md",
+      "status": "D"
+    },
+    {
+      "path": "approved/public-profile.final-approved.html",
+      "status": "D"
+    },
+    {
+      "path": "approved/public-profile.mobile-approved.html",
+      "status": "D"
+    },
+    {
+      "path": "approved/require-auth-approved.js",
+      "status": "D"
+    },
+    {
+      "path": "approved/require-auth-final.js",
+      "status": "D"
+    },
+    {
+      "path": "approved/service-worker-clerk-cache-7-1/sw-before-clerk-cache-cleanup-20260708.js",
+      "status": "D"
+    },
+    {
+      "path": "approved/social-ui-before-force-post-options-menu-20260708.js",
+      "status": "D"
+    },
+    {
+      "path": "approved/social-ui-before-post-options-menu-tiger-care-20260707.js",
+      "status": "D"
+    },
+    {
+      "path": "approved/social-ui-before-tiger-care-feedback-fix-20260708.js",
+      "status": "D"
+    },
+    {
+      "path": "approved/styles-before-post-options-menu-tiger-care-20260707.css",
+      "status": "D"
+    },
+    {
+      "path": "approved/styles-before-tiger-care-feedback-fix-20260708.css",
+      "status": "D"
+    },
+    {
+      "path": "approved/styles-before-vvip-gate-login-20260707.css",
+      "status": "D"
+    },
+    {
+      "path": "approved/supabase-auth-bridge-approved.js",
+      "status": "D"
+    },
+    {
+      "path": "approved/supabase-auth-bridge-final.js",
+      "status": "D"
+    },
+    {
+      "path": "approved/supabase-config-approved.js",
+      "status": "D"
+    },
+    {
+      "path": "approved/supabase-config-final.js",
+      "status": "D"
+    },
+    {
+      "path": "approved/sw-before-post-options-cache-fix-20260708.js",
+      "status": "D"
+    },
+    {
+      "path": "approved/visual-identity-pass-7-1/clerk-private-profile-before-visual-identity-20260708.html",
+      "status": "D"
+    },
+    {
+      "path": "approved/visual-identity-pass-7-1/enhanced-components-before-visual-identity-20260708.css",
+      "status": "D"
+    },
+    {
+      "path": "approved/visual-identity-pass-7-1/index-before-visual-identity-20260708.html",
+      "status": "D"
+    },
+    {
+      "path": "approved/visual-identity-pass-7-1/public-profile-before-visual-identity-20260708.html",
+      "status": "D"
+    },
+    {
+      "path": "approved/visual-identity-pass-7-1/styles-before-visual-identity-20260708.css",
+      "status": "D"
+    },
+    {
+      "path": "backups/clerk-private-profile.before-atomic-profile-resolver.html",
+      "status": "D"
+    },
+    {
+      "path": "backups/clerk-private-profile.before-jwt-rls-bridge.html",
+      "status": "D"
+    },
+    {
+      "path": "backups/clerk-private-profile.before-pr15-launch-hardening.html",
+      "status": "D"
+    },
+    {
+      "path": "backups/clerk-private-profile.before-profile-resilience-shell.html",
+      "status": "D"
+    },
+    {
+      "path": "backups/clerk-private-profile.before-self-healing-profile-gateway.html",
+      "status": "D"
+    },
+    {
+      "path": "backups/visual-trust-layer/clerk-private-profile.html.before-visual-trust-layer",
+      "status": "D"
+    },
+    {
+      "path": "backups/visual-trust-layer/index.html.before-visual-trust-layer",
+      "status": "D"
+    },
+    {
+      "path": "backups/visual-trust-layer/phase-2-2/public-profile.before-readable-lock.20260709-184736.html",
+      "status": "D"
+    },
+    {
+      "path": "backups/visual-trust-layer/phase-2-2/vvip-visual-trust-layer.before-readable-lock.20260709-184736.css",
+      "status": "D"
+    },
+    {
+      "path": "backups/visual-trust-layer/private-profile.html.before-visual-trust-layer",
+      "status": "D"
+    },
+    {
+      "path": "backups/visual-trust-layer/styles.css.before-visual-trust-layer",
+      "status": "D"
+    },
+    {
+      "path": "docs/VVIP_TIGER_CLERK_SUPABASE_LINK_SUCCESS.md",
+      "status": "M"
+    },
+    {
+      "path": "docs/VVIP_TIGER_FRONTEND_SAFE_BASELINE.md",
+      "status": "M"
+    },
+    {
+      "path": "docs/VVIP_TIGER_MEMORY_MAP.md",
+      "status": "M"
+    },
+    {
+      "path": "docs/VVIP_TIGER_OFFICIAL_PRIVATE_PROFILE_UI.md",
+      "status": "M"
+    },
+    {
+      "path": "docs/change-control/20260715-pr39-p05-profile-account-management.json",
+      "status": "M"
+    },
+    {
+      "path": "docs/launch/pr34/CHANGE_CONTROL_MANIFEST.md",
+      "status": "M"
+    },
+    {
+      "path": "docs/launch/pr34/HOUR1_FINAL_REPORT.md",
+      "status": "M"
+    },
+    {
+      "path": "docs/launch/pr34/HOUR1_QA_EVIDENCE.md",
+      "status": "M"
+    },
+    {
+      "path": "docs/launch/pr35/ARCHITECTURE_FILE_MAP.md",
+      "status": "M"
+    },
+    {
+      "path": "docs/launch/pr35/CODEX_REVIEW_ROUND1.md",
+      "status": "M"
+    },
+    {
+      "path": "docs/launch/pr35/CODEX_REVIEW_ROUND2.md",
+      "status": "M"
+    },
+    {
+      "path": "docs/launch/pr35/CODEX_REVIEW_ROUND3.md",
+      "status": "M"
+    },
+    {
+      "path": "docs/launch/pr35/CODEX_REVIEW_ROUND4.md",
+      "status": "M"
+    },
+    {
+      "path": "docs/launch/pr35/LEGACY_AND_UNUSED_FILE_AUDIT.md",
+      "status": "M"
+    },
+    {
+      "path": "docs/launch/pr36/STALE_ARTIFACT_AUDIT.md",
+      "status": "M"
+    },
+    {
+      "path": "docs/owner-control/VVIP_TIGER_IMPLEMENTATION_GAP_MATRIX.md",
+      "status": "M"
+    },
+    {
+      "path": "docs/product-readiness/P08_WAIT_READINESS_REPORT.md",
+      "status": "M"
+    },
+    {
+      "path": "docs/security/launch-hardening/pr15/VVIP_TIGER_PR15_CLERK_PRIVATE_PROFILE_RUNTIME_HARDENING.md",
+      "status": "M"
+    },
+    {
+      "path": "docs/ux-r01/UX_R01_EXISTING_ADMIN_UI_AUDIT.md",
+      "status": "M"
+    },
+    {
+      "path": "docs/ux-r02/UX_R02_EXISTING_USER_UI_AUDIT.md",
+      "status": "M"
+    },
+    {
+      "path": "scripts/qa-smoke.sh",
+      "status": "M"
+    },
+    {
+      "path": "scripts/security/p08-steel-shield/scan-dangerous-sql.sh",
+      "status": "M"
+    },
+    {
+      "path": "supabase/config.toml",
+      "status": "M"
+    },
+    {
+      "path": "tests/p08-profiles-bootstrap-contract.test.cjs",
+      "status": "M"
+    },
+    {
+      "path": "tests/p08-steel-shield-migration-audit.test.cjs",
+      "status": "M"
+    },
+    {
+      "path": "tests/pr38-onboarding-account-types.runtime.test.cjs",
+      "status": "M"
+    },
+    {
+      "path": "tests/pr39-p05-profile-account-management.runtime.test.cjs",
+      "status": "M"
+    },
+    {
+      "path": "tests/pr39-p05-profile-account-management.test.py",
+      "status": "M"
+    },
+    {
+      "path": "tests/test_vvip_cleanroom.py",
+      "status": "A"
+    },
+    {
+      "path": "tools/vvip_cleanroom.py",
+      "status": "A"
+    }
+  ]
+}

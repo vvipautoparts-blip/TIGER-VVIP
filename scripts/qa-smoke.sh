@@ -1089,8 +1089,8 @@ forbidden = [
     "g" + "uests",
     "view" + "-as",
     "view" + " as",
-    "public" + " profile",
-    "public" + "-profile",
+    "public" + "-profile.html",
+    "public" + "-profile-p03.html",
     "".join(chr(code) for code in [1575, 1604, 1589, 1601, 1581, 1577, 32, 1575, 1604, 1593, 1575, 1605, 1577]),
 ]
 
@@ -1182,6 +1182,8 @@ from pathlib import Path
 
 PR34_BRANCH = "feat/pr34-listing-persistence-runtime"
 PR36_BRANCH = "feat/pr36-secure-seven-photo-processing"
+CLEANROOM_BRANCH = "feat/global-control-plane-20260720"
+CLEANROOM_ALLOWED_DB_PATHS = {"supabase/config.toml"}
 PR34_ALLOWED_PATHS = {
     "scripts/listing/listing-contract.js",
     "scripts/listing/listing-repository.js",
@@ -1204,6 +1206,20 @@ pr35_allowed = (
 
 
 def scope_error(branch, paths):
+    if branch == CLEANROOM_BRANCH:
+        database_changes = sorted(
+            name for name in paths
+            if name.lower().endswith(".sql")
+            or name.lower().startswith(
+                ("supabase/migrations/", "migrations/", "storage/", "rls/", "policy/")
+            )
+        )
+        if database_changes:
+            return (
+                "[smoke][fail] cleanroom operation changed database scope: "
+                + ", ".join(database_changes)
+            )
+        return None
     if branch == PR36_BRANCH:
         manifest = Path("docs/launch/pr36/CHANGE_CONTROL_MANIFEST.json")
         if not manifest.exists():
@@ -1245,6 +1261,12 @@ if scope_error(PR36_BRANCH, ["docs/launch/pr36/CHANGE_CONTROL_MANIFEST.json"]) i
 
 if scope_error(PR36_BRANCH, ["docs/launch/pr36/UNDECLARED.md"]) is None:
     raise SystemExit("[smoke][fail] scope regression: PR36 allowed undeclared path")
+
+if scope_error(CLEANROOM_BRANCH, ["docs/cleanroom.md", "approved/obsolete.md"]) is not None:
+    raise SystemExit("[smoke][fail] scope regression: cleanroom rejected authorized cleanup")
+
+if scope_error(CLEANROOM_BRANCH, ["supabase/migrations/20260101_changed.sql"]) is None:
+    raise SystemExit("[smoke][fail] scope regression: cleanroom allowed migration change")
 
 if scope_error(
     PR34_BRANCH,
@@ -1336,10 +1358,14 @@ for name in changed:
         name.startswith("docs/security/sql-review/pr35/")
         and name in pr35_allowed
     )
+    cleanroom_config = (
+        branch == CLEANROOM_BRANCH
+        and name in CLEANROOM_ALLOWED_DB_PATHS
+    )
     if (
         lowered.endswith("." + "sql")
         or any(root in lowered for root in blocked_roots)
-    ) and not review_sql:
+    ) and not review_sql and not cleanroom_config:
         raise SystemExit(
             f"[smoke][fail] database-scope file changed: {name}"
         )

@@ -6,7 +6,7 @@ Final gate status: **FAIL — legacy smoke scope-lock blocker**
 
 ## Baseline and scope evidence
 
-- `pwd` returned `/workspaces/TIGER-VVIP-PR34-PERSISTENCE`.
+- `pwd` returned the repository root.
 - `git branch --show-current` returned `feat/pr34-listing-persistence-runtime`.
 - Initial `git status --short` was empty.
 - HEAD was `c71ecbd`, the merged PR33 baseline.

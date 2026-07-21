@@ -11,7 +11,7 @@
 | **اسم المشروع** | TIGER VVIP AutoParts |
 | **النسخة** | 1.0 (مكتملة) |
 | **الحالة** | ✅ جاهز للإنتاج |
-| **الخادم** | http://localhost:8000 |
+| **الخادم** | http://localhost:800 |
 | **الملفات** | 18 ملف (Code + Docs) |
 | **الأسطر** | 2,500+ سطر كود |
 | **الميزات** | 33 نقطة مكتملة |
@@ -25,9 +25,9 @@
 
 ### 1️⃣ تشغيل التطبيق
 ```bash
-cd /workspaces/TIGER-VVIP
-python -m http.server 8000
-# ثم افتح: http://localhost:8000
+cd "$(git rev-parse --show-toplevel)"
+python -m http.server 800
+# ثم افتح: http://localhost:800
 ```
 
 ### 2️⃣ اختبار الدخول
@@ -404,7 +404,7 @@ python -m http.server 8000
 💬 الواتساب:      wa.me/962780003302
 📧 البريد:        info@tigervvip.com
 📍 الموقع:        عمان - العبدلي، الأردن
-🌐 الويب:         http://localhost:8000
+🌐 الويب:         http://localhost:800
 ```
 
 ---

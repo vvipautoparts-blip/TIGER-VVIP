@@ -8,7 +8,7 @@
 ## Worktree And Branch
 
 - Branch: `docs/p08-wait-product-launch-readiness`
-- Worktree: `/workspaces/TIGER-VVIP-P08-WAIT-READINESS`
+- Worktree: repository root
 
 ## Files Created
 

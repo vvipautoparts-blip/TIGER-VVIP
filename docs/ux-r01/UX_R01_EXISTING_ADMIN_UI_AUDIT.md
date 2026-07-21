@@ -24,7 +24,7 @@ This audit records the repository state before the isolated UX-R01 role-based op
 
 ## Legacy Or Experimental Files
 
-- `approved/` and `backups/` contain historical approval snapshots and must not be edited.
+- Historical approval snapshots were removed from the active tree after canonical-file proof and remain recoverable from Git history.
 - Earlier owner-control, Clerk bridge, Supabase bridge, and profile recovery files are outside this frontend-only preview.
 - SQL, migrations, Supabase functions, authentication scripts, service worker, and production profile pages are out of scope.
 

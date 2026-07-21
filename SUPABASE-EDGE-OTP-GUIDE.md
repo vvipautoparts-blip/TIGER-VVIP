@@ -5,7 +5,7 @@
 ## 1. الملفات الجاهزة
 
 - الدالة: [supabase/functions/phone-verification/index.ts](supabase/functions/phone-verification/index.ts)
-- الربط في الواجهة: [social-ui.js](social-ui.js)
+- لا يوجد مستهلك Frontend نشط حاليًا؛ يجب ربط الواجهة بالدالة صراحة قبل اعتبار التحقق الهاتفي مفعّلًا.
 
 ## 2. المتطلبات
 
@@ -68,7 +68,7 @@ localStorage.setItem("TIGER_SUPABASE_URL", "https://YOUR_PROJECT.supabase.co");
 localStorage.setItem("TIGER_SUPABASE_ANON_KEY", "YOUR_REAL_ANON_KEY");
 ```
 
-ثم اعتمد على [social-ui.js](social-ui.js) لتفعيل المزامنة والواجهات الحالية.
+ثم أضف مستهلكًا صريحًا في Runtime الحالي مع اختبار عقد الطلب قبل تفعيل الميزة للمستخدمين.
 
 ## 7. عقد الطلب الذي تستقبله الدالة
 

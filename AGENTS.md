@@ -12,32 +12,32 @@
 - App URL during local preview: `http://localhost:800`
 - Supabase Edge Function deploy: `npm exec --yes supabase -- functions deploy phone-verification`
 - Smoke checks: `./scripts/qa-smoke.sh`
-- There is no established automated test suite in this repo. After UI or logic changes, validate with a focused manual smoke check in the browser.
+- Repository checks include Node, Python, shell smoke, security, migration, and Project Control integrity tests. After UI changes, also validate with a focused browser smoke check.
 
 ## Code Map
 
-- [index.html](./index.html): authentication entry page (Google/Facebook) and routing buttons to public/private pages.
-- [styles.css](./styles.css): visual system and responsive styling.
-- [auth.js](./auth.js): Firebase auth flow, user snapshot persistence, and role bootstrap.
-- [public-profile.html](./public-profile.html): public feed page (page 3) with composer, feed list, and comments sheet.
-- [private-profile.html](./private-profile.html): private profile page (page 4) with profile tabs and posts list.
-- [social-ui.js](./social-ui.js): feed/profile interactions, optional Supabase sync, bilingual UI dictionary, and language toggle logic.
+- [index.html](./index.html): canonical unified marketplace and authentication entry page.
+- [styles/vvip-pr29-home-marketplace.css](./styles/vvip-pr29-home-marketplace.css): canonical home visual system and responsive styling.
+- [auth-clerk-index.js](./auth-clerk-index.js): Clerk authentication gate for the unified home.
+- [scripts/vvip-pr29-home-marketplace.js](./scripts/vvip-pr29-home-marketplace.js): unified marketplace feed and interaction runtime.
+- [private-profile-p03.html](./private-profile-p03.html): canonical private account center; compatibility routes redirect here.
+- [scripts/vvip-p03-profile.js](./scripts/vvip-p03-profile.js): private account-center interactions.
 - [reset-password.html](./reset-password.html) and [reset-password.js](./reset-password.js): email password reset flow via Firebase.
 - [supabase/functions/phone-verification/index.ts](./supabase/functions/phone-verification/index.ts): Deno Edge Function for internal phone verification delivery.
-- [supabase/migrations/20260702_feed_posts_table.sql](./supabase/migrations/20260702_feed_posts_table.sql): feed posts table and policies used by the social feed sync.
+- [supabase/migrations/20260703_feed_posts_table.sql](./supabase/migrations/20260703_feed_posts_table.sql): preserved feed posts schema and policies.
 - [sw.js](./sw.js) and [manifest.webmanifest](./manifest.webmanifest): PWA behavior.
 
 ## Project Conventions
 
-- Keep the app static and page-based (`index.html`, `public-profile.html`, `private-profile.html`) unless the user asks for a different structure.
-- Preserve bilingual content patterns. UI text commonly uses `data-i18n-ar`, `data-i18n-en`, and the `currentLang` state in [social-ui.js](./social-ui.js).
+- Keep the app static and page-based (`index.html`, `private-profile-p03.html`) unless the user asks for a different structure.
+- Preserve bilingual Arabic/English content patterns and RTL behavior in the canonical page runtimes.
 - Preserve RTL behavior for Arabic views.
-- Match the existing visual language in [styles.css](./styles.css); this project intentionally follows a Facebook-style layout and palette.
-- When changing auth or registration, trace both DOM changes in [index.html](./index.html) and behavior in [auth.js](./auth.js).
+- Match the existing visual language in [styles/vvip-pr29-home-marketplace.css](./styles/vvip-pr29-home-marketplace.css); this project intentionally follows a Facebook-style layout and palette.
+- When changing auth or registration, trace both DOM changes in [index.html](./index.html) and behavior in [auth-clerk-index.js](./auth-clerk-index.js).
 
 ## Supabase Notes
 
-- Social feed sync in [social-ui.js](./social-ui.js) reads optional runtime keys from browser storage:
+- Optional Supabase browser integration uses these runtime keys:
 	- `TIGER_SUPABASE_URL`
 	- `TIGER_SUPABASE_ANON_KEY`
 - If runtime keys are missing or Supabase is unavailable, the feed intentionally falls back to local mode.
@@ -46,15 +46,14 @@
 
 ## Session And Access Rules
 
-- Auth state is managed by Firebase in [auth.js](./auth.js).
+- The canonical home authentication gate is managed in [auth-clerk-index.js](./auth-clerk-index.js).
 - Lightweight role and user snapshot state is stored in browser localStorage keys such as `autoparts_role` and `autoparts_user_snapshot`.
-- Preserve role-based gating for creation and profile features implemented in [social-ui.js](./social-ui.js).
+- Preserve role-based gating for creation and profile features implemented in the canonical scripts under [scripts](./scripts/).
 
 ## Data And Seed Files
 
 - Use [ADMIN-SETUP.sql](./ADMIN-SETUP.sql) for admin bootstrap.
-- Use [TEST-ACCOUNTS-SETUP.sql](./TEST-ACCOUNTS-SETUP.sql) and [TEST-USERS.md](./TEST-USERS.md) for test account setup.
-- Use [DEMO-PAYROLL-SEED.sql](./DEMO-PAYROLL-SEED.sql) and [DEMO-PAYROLL-RESET.sql](./DEMO-PAYROLL-RESET.sql) only for demo payroll scenarios.
+- Use [TEST-ACCOUNTS-GUIDE.md](./TEST-ACCOUNTS-GUIDE.md) for test-account guidance.
 - Avoid changing seed SQL unless the task explicitly involves onboarding or demo data.
 
 ## Documentation To Link Instead Of Repeating
@@ -68,8 +67,8 @@
 
 ## Agent Guidance
 
-- Prefer root-cause fixes in [social-ui.js](./social-ui.js) and [auth.js](./auth.js) over patching text or markup symptoms only.
+- Prefer root-cause fixes in the canonical scripts loaded by [index.html](./index.html) and [private-profile-p03.html](./private-profile-p03.html) over patching markup symptoms only.
 - Before editing broad UI sections, search for the corresponding IDs in both page markup and related script files:
-	- auth flow: [index.html](./index.html) + [auth.js](./auth.js)
-	- feed/profile flow: [public-profile.html](./public-profile.html), [private-profile.html](./private-profile.html) + [social-ui.js](./social-ui.js)
+	- auth flow: [index.html](./index.html) + [auth-clerk-index.js](./auth-clerk-index.js)
+	- marketplace/account flow: [index.html](./index.html), [private-profile-p03.html](./private-profile-p03.html) + their loaded scripts
 - If the change touches auth, OTP, sessions, roles, service worker caching, or hosting routing, mention manual verification steps in the final response because there is no automated suite covering them.

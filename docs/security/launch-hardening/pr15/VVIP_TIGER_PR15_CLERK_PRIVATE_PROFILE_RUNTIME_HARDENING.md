@@ -78,9 +78,7 @@ The visible experience remains calmer and safer.
 Rollback options:
 
 1. Revert this PR.
-2. Restore from backup:
-
-    backups/clerk-private-profile.before-pr15-launch-hardening.html
+2. Restore the pre-change version from Git history or the clean-room safety reference.
 
 ---
 

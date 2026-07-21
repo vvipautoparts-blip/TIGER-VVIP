@@ -4,7 +4,7 @@ Generated: 2026-07-14T18:16:48Z
 
 OpenAI Codex v0.144.4
 --------
-workdir: /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL
+workdir: <repository-root>
 model: gpt-5.6-sol
 provider: openai
 approval: never
@@ -18,7 +18,7 @@ current changes
 2026-07-14T18:15:37.602124Z ERROR codex_core::shell_snapshot: Shell snapshot validation failed: Snapshot command exited with status exit status: 2: /home/codespace/.codex/shell_snapshots/019f61d7-70cb-7433-9be6-886bc436ce18.tmp-1784052936920940694: line 2547: syntax error near unexpected token `('
 
 exec
-/bin/bash -lc "cat /home/codespace/.codex/plugins/cache/openai-curated-remote/superpowers/6.1.1/skills/using-superpowers/SKILL.md && printf '\\n---REVIEW---\\n' && cat /home/codespace/.codex/plugins/cache/openai-curated-remote/superpowers/6.1.1/skills/requesting-code-review/SKILL.md && printf '\\n---STATUS---\\n' && git status --short && printf '\\n---DIFFSTAT---\\n' && git diff --stat && git diff --cached --stat" in /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL
+/bin/bash -lc "cat /home/codespace/.codex/plugins/cache/openai-curated-remote/superpowers/6.1.1/skills/using-superpowers/SKILL.md && printf '\\n---REVIEW---\\n' && cat /home/codespace/.codex/plugins/cache/openai-curated-remote/superpowers/6.1.1/skills/requesting-code-review/SKILL.md && printf '\\n---STATUS---\\n' && git status --short && printf '\\n---DIFFSTAT---\\n' && git diff --stat && git diff --cached --stat" in <repository-root>
  succeeded in 324ms:
 ---
 name: using-superpowers
@@ -211,7 +211,7 @@ See template at: [code-reviewer.md](code-reviewer.md)
  4 files changed, 29 insertions(+), 2 deletions(-)
 
 exec
-/bin/bash -lc "git diff -- . ':"'!docs'"' && printf '\\n---UNTRACKED---\\n' && find docs/launch/pr35 docs/security/sql-review/pr35 docs/superpowers scripts/pr35 tests -type f -maxdepth 6 -print | sort && printf '\\n---ROOTFILES---\\n' && ls -l owner-control.html styles/vvip-pr35-owner-care.css scripts/qa-pr35-owner-control-tiger-care.sh AGENTS.override.md" in /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL
+/bin/bash -lc "git diff -- . ':"'!docs'"' && printf '\\n---UNTRACKED---\\n' && find docs/launch/pr35 docs/security/sql-review/pr35 docs/superpowers scripts/pr35 tests -type f -maxdepth 6 -print | sort && printf '\\n---ROOTFILES---\\n' && ls -l owner-control.html styles/vvip-pr35-owner-care.css scripts/qa-pr35-owner-control-tiger-care.sh AGENTS.override.md" in <repository-root>
  succeeded in 211ms:
 diff --git a/.gitignore b/.gitignore
 index 35397a2..ce0d071 100644
@@ -393,7 +393,7 @@ tests/pr35/ui-behavior.test.mjs
 -rw-rw-rw- 1 codespace codespace 5183 Jul 14 14:52 styles/vvip-pr35-owner-care.css
 
 exec
-/bin/bash -lc 'for f in scripts/pr35/*.js; do echo "--- $f"; nl -ba "$f"; done' in /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL
+/bin/bash -lc 'for f in scripts/pr35/*.js; do echo "--- $f"; nl -ba "$f"; done' in <repository-root>
  succeeded in 234ms:
 --- scripts/pr35/pr35-assignment-repository.js
      1	import { validateCorrelationKey, validateIdempotencyKey, validatePageRequest, ROLE_IDS, PERMISSION_IDS } from './pr35-contracts.js';
@@ -1359,7 +1359,7 @@ exec
     80	}
 
 exec
-/bin/bash -lc 'for f in scripts/pr35/pr35-contracts.js scripts/pr35/pr35-policy.js scripts/pr35/pr35-local-adapter.js scripts/pr35/pr35-owner-controller.js scripts/pr35/pr35-care-controller.js scripts/pr35/pr35-network.js scripts/pr35/pr35-drafts.js; do echo "--- $f"; nl -ba "$f"; done' in /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL
+/bin/bash -lc 'for f in scripts/pr35/pr35-contracts.js scripts/pr35/pr35-policy.js scripts/pr35/pr35-local-adapter.js scripts/pr35/pr35-owner-controller.js scripts/pr35/pr35-care-controller.js scripts/pr35/pr35-network.js scripts/pr35/pr35-drafts.js; do echo "--- $f"; nl -ba "$f"; done' in <repository-root>
  succeeded in 209ms:
 --- scripts/pr35/pr35-contracts.js
      1	const frozen = (values) => Object.freeze([...values]);
@@ -1837,7 +1837,7 @@ exec
     51	}
 
 exec
-/bin/bash -lc "nl -ba scripts/pr35/pr35-local-adapter.js | sed -n '90,170p'; nl -ba scripts/pr35/pr35-owner-controller.js | sed -n '1,100p'; printf '\\n---TEST---\\n'; node --test tests/pr35/*.test.mjs" in /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL
+/bin/bash -lc "nl -ba scripts/pr35/pr35-local-adapter.js | sed -n '90,170p'; nl -ba scripts/pr35/pr35-owner-controller.js | sed -n '1,100p'; printf '\\n---TEST---\\n'; node --test tests/pr35/*.test.mjs" in <repository-root>
  exited 1 in 933ms:
     90	      const next = Object.freeze({ ...ticket, internalNotes: immutableList([...ticket.internalNotes, note]), timeline, updatedAt: at }); tickets.set(id, next);
     91	      return Object.freeze({ ok: true, code: 'INTERNAL_NOTE_ADDED', data: clone(note), audit: Object.freeze({ action: 'care.internal_note.create', reason: context.reason }) });
@@ -1985,7 +1985,7 @@ test at tests/pr35/production-boundary.test.mjs:1:1
   'test failed'
 
 exec
-/bin/bash -lc 'node --test --test-reporter=spec tests/pr35/production-boundary.test.mjs; nl -ba tests/pr35/production-boundary.test.mjs; cat package.json 2>/dev/null || true; bash scripts/qa-pr35-owner-control-tiger-care.sh' in /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL
+/bin/bash -lc 'node --test --test-reporter=spec tests/pr35/production-boundary.test.mjs; nl -ba tests/pr35/production-boundary.test.mjs; cat package.json 2>/dev/null || true; bash scripts/qa-pr35-owner-control-tiger-care.sh' in <repository-root>
  exited 1 in 1056ms:
 ✖ tests/pr35/production-boundary.test.mjs (59.713197ms)
 ℹ tests 1
@@ -2105,7 +2105,7 @@ test at tests/pr35/production-boundary.test.mjs:1:1
   'test failed'
 
 exec
-/bin/bash -lc 'node tests/pr35/production-boundary.test.mjs; echo exit:$?; grep -inE '"'https?://|supabase_url|anon_key|service_role|api[_-]?key|bearer ' scripts/pr35/pr35-production-adapter.js scripts/pr35/pr35-assignment-repository.js; tail -5 docs/security/sql-review/pr35/*.sql; sort -c docs/launch/pr35/CHANGED_FILES.allowlist; echo sort:"'$?' in /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL
+/bin/bash -lc 'node tests/pr35/production-boundary.test.mjs; echo exit:$?; grep -inE '"'https?://|supabase_url|anon_key|service_role|api[_-]?key|bearer ' scripts/pr35/pr35-production-adapter.js scripts/pr35/pr35-assignment-repository.js; tail -5 docs/security/sql-review/pr35/*.sql; sort -c docs/launch/pr35/CHANGED_FILES.allowlist; echo sort:"'$?' in <repository-root>
  succeeded in 259ms:
 ✔ production adapters contain no endpoint or credential and document fail-closed configuration (1.205408ms)
 ✔ review-only SQL covers the Pass 05 schema and fail-closed RLS design (1.0565ms)
@@ -2144,7 +2144,7 @@ test at tests/pr35/production-boundary.test.mjs:44:1
   +   'docs/launch/pr35/CODEX_REVIEW_ROUND1.md'
     ]
 
-      at TestContext.<anonymous> (file:///workspaces/TIGER-VVIP-PR35-OWNER-CONTROL/tests/pr35/production-boundary.test.mjs:50:10)
+      at TestContext.<anonymous> (file://<repository-root>/tests/pr35/production-boundary.test.mjs:50:10)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1306:25)
       at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
@@ -2168,7 +2168,7 @@ sort: docs/launch/pr35/CHANGED_FILES.allowlist:51: disorder: docs/launch/pr35/CO
 sort:1
 
 exec
-/bin/bash -lc "cat scripts/pr35/pr35-i18n.js; nl -ba docs/launch/pr35/CHANGED_FILES.allowlist | tail -10; grep -R \"createUserSubmissionQueue\\|withRequestPolicy\" -n --exclude='*.test.mjs' . | head -20" in /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL
+/bin/bash -lc "cat scripts/pr35/pr35-i18n.js; nl -ba docs/launch/pr35/CHANGED_FILES.allowlist | tail -10; grep -R \"createUserSubmissionQueue\\|withRequestPolicy\" -n --exclude='*.test.mjs' . | head -20" in <repository-root>
  succeeded in 604ms:
 const ar = {
   'mode.local': 'وضع عرض محلي — لا يتم الحفظ في قاعدة بيانات بعيدة.',
@@ -2231,23 +2231,23 @@ The patch can assign a synthetic identity to unauthenticated production users an
 
 Full review comments:
 
-- [P1] Require an authenticated identity for Care submissions — /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL/scripts/pr35/pr35-bootstrap.js:13-13
+- [P1] Require an authenticated identity for Care submissions — <repository-root>/scripts/pr35/pr35-bootstrap.js:13-13
   In production, when Clerk has no current user, this fallback creates an active `demo-member` identity. If a production transport is later configured, an unauthenticated visitor can submit requests attributed to that shared identifier instead of receiving `IDENTITY_REQUIRED`; reserve demo identities for local preview and return a missing/inactive identity otherwise.
 
-- [P1] Queue the request before reporting an offline pending state — /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL/scripts/pr35/pr35-care-controller.js:41-41
+- [P1] Queue the request before reporting an offline pending state — <repository-root>/scripts/pr35/pr35-care-controller.js:41-41
   When submission fails while offline, this reports that the request is pending on the device, but the controller never invokes `createUserSubmissionQueue` or persists the payload anywhere. Closing or reloading the page loses the request and nothing is sent when connectivity returns, so either enqueue it before showing this state or report an ordinary failed submission.
 
-- [P2] Keep the changed-files allowlist sorted — /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL/docs/launch/pr35/CHANGED_FILES.allowlist:51-51
+- [P2] Keep the changed-files allowlist sorted — <repository-root>/docs/launch/pr35/CHANGED_FILES.allowlist:51-51
   This entry is appended after the test paths rather than in lexical order, causing `tests/pr35/production-boundary.test.mjs` and therefore the PR35 QA script to fail at the allowlist ordering assertion.
 The patch can assign a synthetic identity to unauthenticated production users and falsely reports offline requests as queued despite not persisting them. The newly added QA suite also currently fails because its allowlist is unsorted.
 
 Full review comments:
 
-- [P1] Require an authenticated identity for Care submissions — /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL/scripts/pr35/pr35-bootstrap.js:13-13
+- [P1] Require an authenticated identity for Care submissions — <repository-root>/scripts/pr35/pr35-bootstrap.js:13-13
   In production, when Clerk has no current user, this fallback creates an active `demo-member` identity. If a production transport is later configured, an unauthenticated visitor can submit requests attributed to that shared identifier instead of receiving `IDENTITY_REQUIRED`; reserve demo identities for local preview and return a missing/inactive identity otherwise.
 
-- [P1] Queue the request before reporting an offline pending state — /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL/scripts/pr35/pr35-care-controller.js:41-41
+- [P1] Queue the request before reporting an offline pending state — <repository-root>/scripts/pr35/pr35-care-controller.js:41-41
   When submission fails while offline, this reports that the request is pending on the device, but the controller never invokes `createUserSubmissionQueue` or persists the payload anywhere. Closing or reloading the page loses the request and nothing is sent when connectivity returns, so either enqueue it before showing this state or report an ordinary failed submission.
 
-- [P2] Keep the changed-files allowlist sorted — /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL/docs/launch/pr35/CHANGED_FILES.allowlist:51-51
+- [P2] Keep the changed-files allowlist sorted — <repository-root>/docs/launch/pr35/CHANGED_FILES.allowlist:51-51
   This entry is appended after the test paths rather than in lexical order, causing `tests/pr35/production-boundary.test.mjs` and therefore the PR35 QA script to fail at the allowlist ordering assertion.

@@ -4,10 +4,10 @@ Generated: 2026-07-14T18:46:49+00:00
 
 
 ===== 2026-07-14T18:45:44+00:00 =====
-COMMAND: ['codex', '--ask-for-approval', 'never', '--sandbox', 'read-only', '--cd', '/workspaces/TIGER-VVIP-PR35-OWNER-CONTROL', 'review', '--uncommitted']
+COMMAND: ['codex', '--ask-for-approval', 'never', '--sandbox', 'read-only', '--cd', '<repository-root>', 'review', '--uncommitted']
 OpenAI Codex v0.144.4
 --------
-workdir: /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL
+workdir: <repository-root>
 model: gpt-5.6-sol
 provider: openai
 approval: never
@@ -21,7 +21,7 @@ current changes
 2026-07-14T18:45:47.088235Z ERROR codex_core::shell_snapshot: Shell snapshot validation failed: Snapshot command exited with status exit status: 2: /home/codespace/.codex/shell_snapshots/019f61f3-0c04-7e50-9dcb-0c9f44fb31bf.tmp-1784054746132447298: line 2547: syntax error near unexpected token `('
 
 exec
-/bin/bash -lc "cat /home/codespace/.codex/plugins/cache/openai-curated-remote/superpowers/6.1.1/skills/using-superpowers/SKILL.md && printf '\\n---ROOT AGENTS---\\n' && find .. -name AGENTS.md -print" in /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL
+/bin/bash -lc "cat /home/codespace/.codex/plugins/cache/openai-curated-remote/superpowers/6.1.1/skills/using-superpowers/SKILL.md && printf '\\n---ROOT AGENTS---\\n' && find .. -name AGENTS.md -print" in <repository-root>
  succeeded in 424ms:
 ---
 name: using-superpowers
@@ -93,7 +93,7 @@ User instructions (CLAUDE.md, AGENTS.md, GEMINI.md, etc, direct requests) take p
 ../TIGER-VVIP/AGENTS.md
 
 exec
-/bin/bash -lc "cat AGENTS.md; printf '\\n---STATUS---\\n'; git status --short; printf '\\n---DIFF STAT---\\n'; git diff --stat; git diff --cached --stat" in /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL
+/bin/bash -lc "cat AGENTS.md; printf '\\n---STATUS---\\n'; git status --short; printf '\\n---DIFF STAT---\\n'; git diff --stat; git diff --cached --stat" in <repository-root>
  succeeded in 252ms:
 # AGENTS.md
 
@@ -193,7 +193,7 @@ exec
  4 files changed, 29 insertions(+), 2 deletions(-)
 
 exec
-/bin/bash -lc "find docs/launch/pr35 docs/security/sql-review/pr35 docs/superpowers scripts/pr35 tests -type f -print | sort; printf '\\n---OTHER---\\n'; ls -l owner-control.html styles/vvip-pr35-owner-care.css scripts/qa-pr35-owner-control-tiger-care.sh AGENTS.override.md; printf '\\n---DIFF---\\n'; git diff -- .gitignore private-profile-p03.html scripts/qa-smoke.sh scripts/vvip-pr30-resilience.js" in /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL
+/bin/bash -lc "find docs/launch/pr35 docs/security/sql-review/pr35 docs/superpowers scripts/pr35 tests -type f -print | sort; printf '\\n---OTHER---\\n'; ls -l owner-control.html styles/vvip-pr35-owner-care.css scripts/qa-pr35-owner-control-tiger-care.sh AGENTS.override.md; printf '\\n---DIFF---\\n'; git diff -- .gitignore private-profile-p03.html scripts/qa-smoke.sh scripts/vvip-pr30-resilience.js" in <repository-root>
  succeeded in 269ms:
 docs/launch/pr35/ARCHITECTURE_AND_DATA_FLOW.md
 docs/launch/pr35/ARCHITECTURE_FILE_MAP.md
@@ -376,7 +376,7 @@ index ef902a9..f7a883e 100644
      "حدث تعذر مؤقت. يمكنك المتابعة من السوق أو الرجوع للرئيسية.";
 
 exec
-/bin/bash -lc ./scripts/qa-pr35-owner-control-tiger-care.sh in /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL
+/bin/bash -lc ./scripts/qa-pr35-owner-control-tiger-care.sh in <repository-root>
  exited 1 in 2765ms:
 [pr35-qa] contracts and hostile input
 ✔ tests/pr35/contracts.test.mjs (81.501634ms)
@@ -471,7 +471,7 @@ exec
 [smoke][fail] forbidden PR30 scope changed: docs/launch/pr35/CODEX_REVIEW_ROUND2.md
 
 exec
-/bin/bash -lc 'cat docs/launch/pr35/CHANGED_FILES.allowlist; for f in scripts/pr35/*.js; do echo ---$f; sed -n '"'1,260p' \""'$f"; done' in /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL
+/bin/bash -lc 'cat docs/launch/pr35/CHANGED_FILES.allowlist; for f in scripts/pr35/*.js; do echo ---$f; sed -n '"'1,260p' \""'$f"; done' in <repository-root>
  succeeded in 303ms:
 .gitignore
 docs/launch/pr35/ARCHITECTURE_AND_DATA_FLOW.md
@@ -1509,7 +1509,7 @@ export function appendTimelineEvent(timeline, event) {
 }
 
 exec
-/bin/bash -lc "sed -n '1,320p' scripts/pr35/pr35-local-adapter.js; echo ---CARE; sed -n '1,320p' scripts/pr35/pr35-care-controller.js; echo ---OWNER; sed -n '1,380p' scripts/pr35/pr35-owner-controller.js; echo ---NETWORK; cat scripts/pr35/pr35-network.js scripts/pr35/pr35-drafts.js" in /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL
+/bin/bash -lc "sed -n '1,320p' scripts/pr35/pr35-local-adapter.js; echo ---CARE; sed -n '1,320p' scripts/pr35/pr35-care-controller.js; echo ---OWNER; sed -n '1,380p' scripts/pr35/pr35-owner-controller.js; echo ---NETWORK; cat scripts/pr35/pr35-network.js scripts/pr35/pr35-drafts.js" in <repository-root>
  succeeded in 210ms:
 import { validateIdempotencyKey, validateCorrelationKey } from './pr35-contracts.js';
 import { validateCareRequest, safeCareText, projectTicketForRequester, transitionTicket, appendTimelineEvent } from './pr35-tiger-care.js';
@@ -1881,7 +1881,7 @@ export function createUserSubmissionQueue(sessionStorage, sessionId) {
 }
 
 exec
-/bin/bash -lc "nl -ba scripts/pr35/pr35-owner-controller.js | sed -n '25,48p'; nl -ba docs/launch/pr35/CHANGED_FILES.allowlist | sed -n '1,25p'; nl -ba scripts/pr35/pr35-assignment-repository.js | sed -n '60,82p'; grep -n \"owner\" tests/pr35/assignment-repository.test.mjs tests/pr35/policy-scope.test.mjs" in /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL
+/bin/bash -lc "nl -ba scripts/pr35/pr35-owner-controller.js | sed -n '25,48p'; nl -ba docs/launch/pr35/CHANGED_FILES.allowlist | sed -n '1,25p'; nl -ba scripts/pr35/pr35-assignment-repository.js | sed -n '60,82p'; grep -n \"owner\" tests/pr35/assignment-repository.test.mjs tests/pr35/policy-scope.test.mjs" in <repository-root>
  succeeded in 254ms:
     25	  const setStatus = (message, state = 'idle') => { const node = root.querySelector('[data-owner-status]'); if (node) { node.textContent = message; node.dataset.state = state; } };
     26	  function closeDialog() { if (!activeDialog) return; activeDialog.remove(); activeDialog = null; returnFocus?.focus(); }
@@ -1972,25 +1972,25 @@ The patch contains an owner-authority bypass, prevents creation of several requi
 
 Full review comments:
 
-- [P1] Require an owner assignment before revoking owner authority — /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL/scripts/pr35/pr35-assignment-repository.js:73-75
+- [P1] Require an owner assignment before revoking owner authority — <repository-root>/scripts/pr35/pr35-assignment-repository.js:73-75
   When the target assignment has role `owner`, this checks only `authorization.owner.manage`; an actor with a non-owner assignment containing that permission can therefore suspend or revoke an owner's assignment. Since `canDelegate` allows an owner to grant this permission alongside a non-owner role, this violates the explicit owner-only revocation rule. Verify that an effective owner-role assignment authorizes the operation, as `canDelegate` does.
 
-- [P1] Collect every identifier required by the selected scope — /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL/scripts/pr35/pr35-owner-controller.js:33-34
+- [P1] Collect every identifier required by the selected scope — <repository-root>/scripts/pr35/pr35-owner-controller.js:33-34
   The assignment form always submits only `sectorId`. Selecting `region`, `area`, or `team` consequently produces a scope missing `regionId`, `areaId`, or `teamId`; `normalizeScope` rejects it and the UI cannot create any assignment below sector scope. Render and require the identifiers implied by the selected scope level.
 
-- [P1] Add the round-two review file to the change allowlist — /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL/docs/launch/pr35/CHANGED_FILES.allowlist:5-7
+- [P1] Add the round-two review file to the change allowlist — <repository-root>/docs/launch/pr35/CHANGED_FILES.allowlist:5-7
   With the current untracked `docs/launch/pr35/CODEX_REVIEW_ROUND2.md`, the historical smoke test fails because this allowlist includes round one but omits round two. Running `./scripts/qa-pr35-owner-control-tiger-care.sh` reaches `[smoke][fail] forbidden PR30 scope changed: docs/launch/pr35/CODEX_REVIEW_ROUND2.md`, so the required regression suite cannot pass.
 The patch contains an owner-authority bypass, prevents creation of several required scoped assignments, and currently fails its own historical smoke suite.
 
 Full review comments:
 
-- [P1] Require an owner assignment before revoking owner authority — /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL/scripts/pr35/pr35-assignment-repository.js:73-75
+- [P1] Require an owner assignment before revoking owner authority — <repository-root>/scripts/pr35/pr35-assignment-repository.js:73-75
   When the target assignment has role `owner`, this checks only `authorization.owner.manage`; an actor with a non-owner assignment containing that permission can therefore suspend or revoke an owner's assignment. Since `canDelegate` allows an owner to grant this permission alongside a non-owner role, this violates the explicit owner-only revocation rule. Verify that an effective owner-role assignment authorizes the operation, as `canDelegate` does.
 
-- [P1] Collect every identifier required by the selected scope — /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL/scripts/pr35/pr35-owner-controller.js:33-34
+- [P1] Collect every identifier required by the selected scope — <repository-root>/scripts/pr35/pr35-owner-controller.js:33-34
   The assignment form always submits only `sectorId`. Selecting `region`, `area`, or `team` consequently produces a scope missing `regionId`, `areaId`, or `teamId`; `normalizeScope` rejects it and the UI cannot create any assignment below sector scope. Render and require the identifiers implied by the selected scope level.
 
-- [P1] Add the round-two review file to the change allowlist — /workspaces/TIGER-VVIP-PR35-OWNER-CONTROL/docs/launch/pr35/CHANGED_FILES.allowlist:5-7
+- [P1] Add the round-two review file to the change allowlist — <repository-root>/docs/launch/pr35/CHANGED_FILES.allowlist:5-7
   With the current untracked `docs/launch/pr35/CODEX_REVIEW_ROUND2.md`, the historical smoke test fails because this allowlist includes round one but omits round two. Running `./scripts/qa-pr35-owner-control-tiger-care.sh` reaches `[smoke][fail] forbidden PR30 scope changed: docs/launch/pr35/CODEX_REVIEW_ROUND2.md`, so the required regression suite cannot pass.
 
 RETURN_CODE: 0

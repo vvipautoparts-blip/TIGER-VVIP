@@ -71,9 +71,7 @@ index.html
 
 - clerk-private-profile.html
 
-وتم إنشاء نسخة احتياطية:
-
-- approved/clerk-private-profile-before-official-ui-20260707.html
+تم الاحتفاظ بإمكانية التراجع عبر سجل Git بدل نسخة ملف مكررة داخل المستودع.
 
 وتم حفظ التعديل في GitHub بالرسالة:
 
