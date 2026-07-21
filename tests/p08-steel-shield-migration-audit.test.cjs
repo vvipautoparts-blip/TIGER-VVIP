@@ -27,4 +27,23 @@ assert.match(output, /EMPTY_FILE/);
 assert.match(output, /UNEXPECTED_NON_SQL/);
 assert.match(output, /INVALID_FILENAME/);
 assert.match(output, /NO_TRAILING_NEWLINE/);
+
+const validMigrations = path.join(tmp, 'valid-migrations');
+fs.mkdirSync(validMigrations, { recursive: true });
+fs.writeFileSync(
+  path.join(validMigrations, '202607200001_project_control_schema.sql'),
+  'grant usage on schema project_control to service_role;\n'
+);
+
+const validRes = spawnSync(
+  'bash',
+  ['scripts/security/p08-steel-shield/audit-migration-versions.sh', validMigrations],
+  { encoding: 'utf8' }
+);
+
+assert.strictEqual(
+  validRes.status,
+  0,
+  `Audit should accept Supabase numeric versions and database role grants:\n${validRes.stdout}\n${validRes.stderr}`
+);
 console.log('PASS: migration audit detects duplicate/empty/non-sql/bad-name/newline issues');
