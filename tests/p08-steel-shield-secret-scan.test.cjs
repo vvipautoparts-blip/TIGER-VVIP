@@ -22,4 +22,30 @@ const res = spawnSync('bash', ['scripts/security/p08-steel-shield/scan-secret-le
 assert.notStrictEqual(res.status, 0, 'Secret scan should fail when secrets are detected');
 assert.match(res.stdout, /\[REDACTED\]/);
 assert.doesNotMatch(res.stdout, new RegExp(token), 'Output must not expose full token');
+
+const safe = path.join(tmp, 'safe');
+fs.mkdirSync(path.join(safe, 'supabase', '.temp'), { recursive: true });
+fs.writeFileSync(
+  path.join(safe, 'documentation.txt'),
+  [
+    'Read SUPABASE_ACCESS_TOKEN from the process environment.',
+    'Read CLERK_SECRET_KEY from the process environment.',
+    'Example only: DATABASE_URL=postgresql://...',
+  ].join('\n') + '\n'
+);
+fs.writeFileSync(
+  path.join(safe, 'supabase', '.temp', 'pooler-url'),
+  'postgresql://local-cli-state.invalid/placeholder\n'
+);
+
+const safeRes = spawnSync(
+  'bash',
+  ['scripts/security/p08-steel-shield/scan-secret-leaks.sh', safe],
+  { encoding: 'utf8' }
+);
+assert.strictEqual(
+  safeRes.status,
+  0,
+  `Secret scan should ignore variable names, documentation placeholders, and local CLI state:\n${safeRes.stdout}\n${safeRes.stderr}`
+);
 console.log('PASS: secret scanner redacts findings and avoids full secret leakage');
