@@ -1,0 +1,137 @@
+[
+  {
+    "id": "FACET-001",
+    "key": "country",
+    "label_ar": "الدولة",
+    "label_en": "Country",
+    "type": "single",
+    "scope": "global",
+    "order": 1
+  },
+  {
+    "id": "FACET-002",
+    "key": "city",
+    "label_ar": "المدينة",
+    "label_en": "City",
+    "type": "single",
+    "scope": "global",
+    "order": 2
+  },
+  {
+    "id": "FACET-003",
+    "key": "neighbourhood",
+    "label_ar": "المنطقة",
+    "label_en": "Neighbourhood",
+    "type": "single",
+    "scope": "global",
+    "order": 3
+  },
+  {
+    "id": "FACET-004",
+    "key": "category",
+    "label_ar": "الفئة",
+    "label_en": "Category",
+    "type": "hierarchy",
+    "scope": "global",
+    "order": 4
+  },
+  {
+    "id": "FACET-005",
+    "key": "price",
+    "label_ar": "السعر",
+    "label_en": "Price",
+    "type": "range",
+    "scope": "global",
+    "order": 5
+  },
+  {
+    "id": "FACET-006",
+    "key": "currency",
+    "label_ar": "العملة",
+    "label_en": "Currency",
+    "type": "single",
+    "scope": "global",
+    "order": 6
+  },
+  {
+    "id": "FACET-007",
+    "key": "condition",
+    "label_ar": "الحالة",
+    "label_en": "Condition",
+    "type": "multi",
+    "scope": "goods",
+    "order": 7
+  },
+  {
+    "id": "FACET-008",
+    "key": "with_images",
+    "label_ar": "مع صور",
+    "label_en": "With images",
+    "type": "boolean",
+    "scope": "global",
+    "order": 8
+  },
+  {
+    "id": "FACET-009",
+    "key": "with_video",
+    "label_ar": "مع فيديو",
+    "label_en": "With video",
+    "type": "boolean",
+    "scope": "global",
+    "order": 9
+  },
+  {
+    "id": "FACET-010",
+    "key": "verified_user",
+    "label_ar": "مستخدم موثّق",
+    "label_en": "Verified user",
+    "type": "boolean",
+    "scope": "global",
+    "order": 10
+  },
+  {
+    "id": "FACET-011",
+    "key": "verified_business",
+    "label_ar": "منشأة موثّقة",
+    "label_en": "Verified business",
+    "type": "boolean",
+    "scope": "global",
+    "order": 11
+  },
+  {
+    "id": "FACET-012",
+    "key": "delivery_available",
+    "label_ar": "توصيل متاح",
+    "label_en": "Delivery available",
+    "type": "boolean",
+    "scope": "goods",
+    "order": 12
+  },
+  {
+    "id": "FACET-013",
+    "key": "published_at",
+    "label_ar": "تاريخ النشر",
+    "label_en": "Published date",
+    "type": "date_range",
+    "scope": "global",
+    "order": 13
+  },
+  {
+    "id": "FACET-014",
+    "key": "seller_rating",
+    "label_ar": "تقييم البائع",
+    "label_en": "Seller rating",
+    "type": "range",
+    "scope": "global",
+    "order": 14
+  },
+  {
+    "id": "FACET-015",
+    "key": "promoted",
+    "label_ar": "مميّز",
+    "label_en": "Promoted",
+    "type": "boolean_disclosed",
+    "scope": "global",
+    "order": 15
+  }
+]

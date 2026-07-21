@@ -9,7 +9,7 @@
 3. فعّل **Google+ API**
 4. اذهب إلى **Credentials** → Create OAuth 2.0 Client ID (Web Application)
 5. أضف Redirect URIs:
-   - `http://127.0.0.1:8000/`
+   - `http://127.0.0.1:800/`
    - `https://vvipautoparts-blip.github.io/TIGER-VVIP/`
 
 ### 2. استخدام Client ID

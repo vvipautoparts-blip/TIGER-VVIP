@@ -44,8 +44,8 @@ VVIP TIGER منصة رقمية فخمة، راقية، Mobile First، موجهة
 
 ## 3. وضع المشروع الحالي عند بداية التنفيذ
 
-- Repository path: `/workspaces/TIGER-VVIP`
-- Git branch: `main`
+- Repository path: the root returned by `git rev-parse --show-toplevel`
+- Git branch: the currently checked-out release branch
 - GitHub status: up to date with `origin/main`
 - Working tree: clean
 - Current project contains approved files, auth files, Supabase files, public/private profile pages, social UI files, and approved snapshots.
@@ -405,7 +405,7 @@ Current important files include:
 - `scripts/profile-loader.js`
 - `supabase-schema.sql`
 - `supabase/migrations`
-- `approved/`
+- سجل Git ومراجع الأمان للرجوع إلى النسخ التاريخية
 - Existing setup and QA documentation files
 
 These must not be deleted or broken during the execution phase without a clear reason and Git checkpoint.

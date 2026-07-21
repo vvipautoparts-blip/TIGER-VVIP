@@ -28,12 +28,12 @@ This repository is now a multi-page static app (not SPA):
 1. Run local preview:
 
 ```bash
-python -m http.server 8000
+python -m http.server 800
 ```
 
 2. Open:
 
-- `http://localhost:8000/index.html`
+- `http://localhost:800/index.html`
 
 3. Run smoke checks:
 

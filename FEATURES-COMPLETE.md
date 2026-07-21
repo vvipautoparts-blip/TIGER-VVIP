@@ -146,7 +146,7 @@
 | [ADMIN-ROLE-SPEC.md](./ADMIN-ROLE-SPEC.md) | مواصفات نظام الأدوار |
 | [RLS-POLICIES.sql](./RLS-POLICIES.sql) | SQL policies للنسخ |
 | [RLS-IMPLEMENTATION-GUIDE.md](./RLS-IMPLEMENTATION-GUIDE.md) | دليل تطبيق RLS |
-| [TEST-USERS.md](./TEST-USERS.md) | حسابات اختبار متاحة |
+| [TEST-ACCOUNTS-GUIDE.md](./TEST-ACCOUNTS-GUIDE.md) | إرشادات حسابات الاختبار |
 | [ADMIN-SETUP.sql](./ADMIN-SETUP.sql) | تهيئة حساب مسؤول |
 
 ---
@@ -226,7 +226,7 @@ Previous: Bug fixes and initial features
 
 ## 📞 الدعم والمساعدة
 
-- **البيئة المحلية:** `python -m http.server 8000`
+- **البيئة المحلية:** `python -m http.server 800`
 - **اختبار الدوال:** استخدم browser console
 - **علم الأخطاء:** تحقق من console logs
 - **مراجع:** اطّلع على [SETUP-GUIDE.md](./SETUP-GUIDE.md)

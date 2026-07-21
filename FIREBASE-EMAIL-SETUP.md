@@ -50,8 +50,8 @@ Templates → Email Templates → Email Verification
    - https://tigerautoparts.shop/
    - https://tigerautoparts.shop/index.html
    - https://auto-parts-aa00a.firebaseapp.com/__/auth/handler
-   - http://localhost:8080/
-   - http://127.0.0.1:8080/
+   - http://localhost:800/
+   - http://127.0.0.1:800/
 ```
 
 ### Facebook App

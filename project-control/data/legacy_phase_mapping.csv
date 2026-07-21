@@ -1,0 +1,12 @@
+﻿mapping_id,legacy_phases,global_phases,rule,notes
+MAP-01,P00|P00.1|P01,G00|G01,preserve_and_reconcile,"discovery,roadmap,audit -> governance and repository foundation"
+MAP-02,P02|P03|P04|P05,G03|G04,preserve_and_reconcile,"shell,identity,onboarding,profiles"
+MAP-03,P06,G12|G22,preserve_and_reconcile,owner control and centralized operations
+MAP-04,P07|P08,G03|G18,preserve_and_reconcile,"schema,RLS,storage,security"
+MAP-05,P09|P10|P11|P12|P13,G05|G06|G07,preserve_and_reconcile,"listing engine,fields,media,feed,search"
+MAP-06,P14|P15|P19,G08|G09,preserve_and_reconcile,"messaging,sharing,notifications"
+MAP-07,P16|P17|P18,G05|G13,preserve_and_reconcile,"permissions,subscriptions,payments"
+MAP-08,P20|P21|P22|P23,G10|G11|G12|G19,preserve_and_reconcile,"care,moderation,admin,retention"
+MAP-09,P24|P25,G16,preserve_and_reconcile,AI and analytics
+MAP-10,P26|P27|P28|P29,G14|G15|G17|G18,preserve_and_reconcile,"PWA,languages,performance,hardening"
+MAP-11,P30|P31|P32|P33|P34,G19|G20|G21|G22,preserve_and_reconcile,"legal,testing,launch,operations"

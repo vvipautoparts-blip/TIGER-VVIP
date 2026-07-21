@@ -32,7 +32,7 @@ function createStorage() {
 function createContext() {
   const clipboard = { text: "", writeText(value) { this.text = String(value); return Promise.resolve(); } };
   const location = {
-    href: "http://localhost:8000/public-profile-p05.html",
+    href: "http://localhost:800/public-profile-p05.html",
     hostname: "localhost",
     search: "",
     replacedTo: "",

@@ -1,0 +1,4139 @@
+[
+  {
+    "title": "فهرس المحتويات",
+    "records": [
+      {
+        "index": 10,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "الفهرس التالي قابل للنقر داخل Word. كما يمكن استخدام جزء التنقل Navigation Pane لاستعراض جميع المهام والملاحق."
+      },
+      {
+        "index": 11,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "كيفية استخدام التقرير"
+      },
+      {
+        "index": 12,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "الملخص التنفيذي"
+      },
+      {
+        "index": 13,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "القرارات المعمارية الأساسية المقترحة"
+      },
+      {
+        "index": 14,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "الوضع الحالي المثبت وخطة الانتقال"
+      },
+      {
+        "index": 15,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "خارطة المراحل ونسبة الإنجاز"
+      },
+      {
+        "index": 16,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "المسارات المتوازية والفريق"
+      },
+      {
+        "index": 17,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "المهام التنفيذية التفصيلية"
+      },
+      {
+        "index": 18,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "G00 — تثبيت الرؤية والنطاق العالمي"
+      },
+      {
+        "index": 19,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "G01 — تدقيق الحالة الحالية وتنظيف المستودع"
+      },
+      {
+        "index": 20,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "G02 — منظومة التطوير والنشر والحوكمة"
+      },
+      {
+        "index": 21,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "G03 — البنية السحابية العالمية الأساسية"
+      },
+      {
+        "index": 22,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "G04 — الهوية والدخول وربط Clerk مع Supabase"
+      },
+      {
+        "index": 23,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "G05 — قاعدة البيانات والأمان وRLS والتخزين"
+      },
+      {
+        "index": 24,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "G06 — النموذج العالمي للدول واللغات والعملات"
+      },
+      {
+        "index": 25,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "G07 — التسجيل وOnboarding والملفات الشخصية"
+      },
+      {
+        "index": 26,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "G08 — محرك القطاعات والفئات والحقول الديناميكية"
+      },
+      {
+        "index": 27,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "G09 — محرك الإعلانات العالمي"
+      },
+      {
+        "index": 28,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "G10 — الصور والوسائط وCDN"
+      },
+      {
+        "index": 29,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "G11 — Feed والبحث والاكتشاف والتفاصيل"
+      },
+      {
+        "index": 30,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "G12 — المحادثات الفردية الآمنة"
+      },
+      {
+        "index": 31,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "G13 — الإشعارات والمشاركة والدعوات"
+      },
+      {
+        "index": 32,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "G14 — Trust & Safety والمراجعة والاستئناف"
+      },
+      {
+        "index": 33,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "G15 — Tiger Care والدعم متعدد اللغات"
+      },
+      {
+        "index": 34,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "G16 — الإدارة العالمية والصلاحيات"
+      },
+      {
+        "index": 35,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "G17 — الاشتراكات والمدفوعات والإيرادات"
+      },
+      {
+        "index": 36,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "G18 — الترجمة والوصول وPWA والهاتف"
+      },
+      {
+        "index": 37,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "G19 — التحليلات والذكاء الاصطناعي المحدود"
+      },
+      {
+        "index": 38,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "G20 — الأداء والتوسع والتعافي من الكوارث"
+      },
+      {
+        "index": 39,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "G21 — القانون والخصوصية والامتثال العالمي"
+      },
+      {
+        "index": 40,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "G22 — الاختبارات الخارجية وUAT والإطلاق العالمي"
+      },
+      {
+        "index": 41,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "الملحق A — المعمارية التقنية النهائية"
+      },
+      {
+        "index": 42,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "الملحق B — قاموس البيانات ومخطط الجداول"
+      },
+      {
+        "index": 43,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "الملحق C — مصفوفة RLS والصلاحيات على البيانات"
+      },
+      {
+        "index": 44,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "الملحق D — كتالوج API والعقود"
+      },
+      {
+        "index": 45,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "الملحق E — جرد الشاشات وحالاتها"
+      },
+      {
+        "index": 46,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "الملحق F — رحلات المستخدم الأساسية"
+      },
+      {
+        "index": 47,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "الملحق G — مصفوفة الأدوار والصلاحيات"
+      },
+      {
+        "index": 48,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "الملحق H — Country Capability Matrix"
+      },
+      {
+        "index": 49,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "الملحق I — الأحداث والإشعارات والتحليلات"
+      },
+      {
+        "index": 50,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "الملحق J — سجل حالات الاختبار الحرجة"
+      },
+      {
+        "index": 51,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "الملحق K — مؤشرات الخدمة والأداء SLO/SLI"
+      },
+      {
+        "index": 52,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "الملحق L — سجل المخاطر"
+      },
+      {
+        "index": 53,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "الملحق M — اختيار الموردين وخطة الخروج"
+      },
+      {
+        "index": 54,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "الملحق N — نموذج الميزانية والموارد"
+      },
+      {
+        "index": 55,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "الملحق O — الجدول الزمني المتوازي 44 أسبوعًا"
+      },
+      {
+        "index": 56,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "الملحق P — بوابات الإطلاق وقائمة التحقق"
+      },
+      {
+        "index": 57,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "الملحق Q — التشغيل بعد الإطلاق"
+      },
+      {
+        "index": 58,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "الملحق R — Definition of Done الموحد"
+      },
+      {
+        "index": 59,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "الملحق S — المراجع الرسمية الأساسية"
+      },
+      {
+        "index": 60,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "الخاتمة والقرار التنفيذي"
+      },
+      {
+        "index": 61,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "title": "كيفية استخدام التقرير",
+    "records": [
+      {
+        "index": 63,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "هذه المواصفة تقسم المشروع إلى مراحل ومهام مرقمة. يجب أن يحمل كل Issue وBranch وPull Request رقم المهمة. ويجب ألا يقرر المبرمج قواعد المنتج أو القانون أو الصلاحيات بصورة منفردة؛ القرار يسجل في ADR/Decision Log ثم يتحول إلى كود واختبار."
+      },
+      {
+        "index": 64,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "ابدأ بفصل «الوضع الحالي وخطة الانتقال» قبل لمس الملفات الحالية."
+      },
+      {
+        "index": 65,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "استخدم بطاقة كل مهمة لتحديد المدخلات، عمل المبرمج، الاختبارات، المخرجات، المخاطر، ومعيار القبول."
+      },
+      {
+        "index": 66,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "استخدم الملاحق كمصدر تفصيلي للجداول وواجهات API والشاشات والصلاحيات والاختبارات."
+      },
+      {
+        "index": 67,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "تفتح الدول والميزات من Country Capability Matrix؛ عالمية المنصة لا تعني تشغيل كل خدمة قانونيًا في كل دولة دون مراجعة."
+      },
+      {
+        "index": 68,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "أي زيادة في Global V1 بعد الاعتماد تسجل كتغيير نطاق مع أثر زمني ومالي."
+      }
+    ]
+  },
+  {
+    "title": "الملخص التنفيذي",
+    "records": [
+      {
+        "index": 70,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "يمكن تجهيز VVIP TIGER كنواة عالمية واحدة من البداية، مع الاستفادة من الموجود وعدم إعادة البناء العشوائي. الترتيب الصحيح يبدأ بإغلاق فجوات المستودع والهوية وRLS، ثم الحسابات، taxonomy، الإعلانات، الوسائط، البحث، الرسائل، الثقة والدعم، الإدارة والدفع، PWA، الأداء والامتثال، ثم الإطلاق بالموجات."
+      },
+      {
+        "index": 71,
+        "type": "table",
+        "rows": [
+          [
+            "المؤشر",
+            "التقدير التنفيذي"
+          ],
+          [
+            "الإنجاز الحالي مقابل Global V1 الكامل",
+            "نحو 25%–30%؛ معظم القوة الحالية في الرؤية والواجهات، لا في الخدمات الإنتاجية المتصلة."
+          ],
+          [
+            "الفريق الأسرع المسؤول",
+            "7–9 أشخاص أساسيين مع مختصين جزئيين."
+          ],
+          [
+            "المدة الواقعية",
+            "8–10 أشهر مع أربعة مسارات متوازية وقرارات خلال 24–48 ساعة."
+          ],
+          [
+            "فريق 5–7",
+            "11–14 شهرًا تقريبًا."
+          ],
+          [
+            "مطور أو مطوران",
+            "18–24 شهرًا أو أكثر مع مخاطر اعتماد عالية."
+          ],
+          [
+            "معنى 100%",
+            "اكتمال نطاق Global V1 وتشغيله التجاري وفق بوابات الأمان والقانون والتشغيل؛ التطوير يستمر بعد الإطلاق."
+          ]
+        ]
+      },
+      {
+        "index": 72,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "title": "القرارات المعمارية الأساسية المقترحة",
+    "records": [
+      {
+        "index": 74,
+        "type": "table",
+        "rows": [
+          [
+            "القرار",
+            "التطبيق",
+            "سبب الاعتماد"
+          ],
+          [
+            "نواة عالمية واحدة",
+            "تطبيق واحد + Configuration حسب الدولة واللغة والقطاع.",
+            "تجنب نسخ منفصلة وصيانة متكررة."
+          ],
+          [
+            "Modular Monolith",
+            "وحدات مجال واضحة داخل نشر موحد، مع adapters للخدمات.",
+            "أسرع وأبسط من Microservices في V1 وقابل للفصل لاحقًا."
+          ],
+          [
+            "Clerk فقط للهوية",
+            "مصدر وحيد للمصادقة والجلسات؛ ملف العمل في Supabase.",
+            "منع تضارب الجلسات والحسابات."
+          ],
+          [
+            "Supabase/Postgres",
+            "بيانات، RLS، Storage وRealtime ضمن سياسات دقيقة.",
+            "تسريع التنفيذ مع قوة Postgres."
+          ],
+          [
+            "PWA أولًا",
+            "ويب عالمي Responsive قابل للتثبيت؛ Native بعد ثبوت الحاجة.",
+            "اختصار 2–3 أشهر وتوحيد الإصدار."
+          ],
+          [
+            "لا Escrow في V1",
+            "الدفع لاشتراك المنصة وترويج الإعلان فقط.",
+            "تجنب تعقيد حفظ أموال المستخدمين والتراخيص والتسوية."
+          ],
+          [
+            "18+ كخط أساس",
+            "Age gate وسياسة واضحة؛ فتح الأعمار الأصغر مشروع قانوني وتقني مستقل.",
+            "تقليل مخاطر حماية الأطفال في الإطلاق الأول."
+          ],
+          [
+            "Deny by default",
+            "كل وصول حساس يحتاج سياسة صريحة واختبارًا.",
+            "حماية البيانات حتى لو تم تجاوز الواجهة."
+          ]
+        ]
+      },
+      {
+        "index": 75,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "title": "الوضع الحالي المثبت وخطة الانتقال",
+    "records": [
+      {
+        "index": 77,
+        "type": "table",
+        "rows": [
+          [
+            "حقيقة المستودع حتى 20 يوليو 2026\nالمصدر الرسمي الموجود على GitHub هو vvipautoparts-blip/TIGER-VVIP. سجل الحالة الرسمي يضع P08 مرحلة حالية وP09 معلقة. آخر إصلاح مدمج عالج تحميل واجهة Clerk، لكنه لم ينفذ SQL أو migrations أو تغيير Supabase بعيد أو نشر إنتاجي. لذلك يبدأ التنفيذ بإغلاق P08 فعليًا وامتصاص عمل P09 المنقح عبر PRs صغيرة."
+          ]
+        ]
+      },
+      {
+        "index": 78,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      },
+      {
+        "index": 79,
+        "type": "table",
+        "rows": [
+          [
+            "العنصر الحالي",
+            "الحالة الواقعية",
+            "قرار الانتقال"
+          ],
+          [
+            "واجهات UX-R01/R02/R03",
+            "مراجع وتجارب محلية وMock Data في أجزاء مهمة.",
+            "إعادة استخدام الهوية والمكونات بعد ربطها بخدمات حقيقية واختبارات."
+          ],
+          [
+            "Clerk sign-in",
+            "إصلاح Runtime مدمج واختبارات مركزة.",
+            "اعتماد Clerk وحيدًا، ثم إكمال الجسر والجلسات والحذف والحظر."
+          ],
+          [
+            "P08",
+            "مسموح رسميًا لكن RLS/Storage/Migrations البعيدة غير مغلقة بالكامل.",
+            "بوابة مانعة قبل بيانات مستخدمين حقيقية."
+          ],
+          [
+            "P09 المحلي",
+            "عمل واسع غير مدمج وقد يحتوي تعارضات أو اختبارات غير خضراء.",
+            "جرد Keep/Fix/Reject وتقسيمه إلى PRs صغيرة."
+          ],
+          [
+            "مخطط البيانات",
+            "تصميم قوي ومراجعات، لكن التصميم لا يساوي تطبيقًا بعيدًا.",
+            "تحويله إلى migrations واختبارات RLS وrestore."
+          ],
+          [
+            "الإعلانات/الرسائل/الدفع",
+            "رحلات أو تصاميم في أجزاء؛ Backend الإنتاجي غير مكتمل.",
+            "تنفيذ عمودي متصل حسب هذه الخطة، لا إضافة صفحات منفصلة."
+          ]
+        ]
+      },
+      {
+        "index": 80,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      },
+      {
+        "index": 81,
+        "type": "paragraph",
+        "style": "Heading 2",
+        "text": "خطة الانتقال من الحالة الحالية — أول 20 يوم عمل"
+      },
+      {
+        "index": 82,
+        "type": "paragraph",
+        "style": "List Number",
+        "text": "اليوم 1–3: تجميد main، نسخ احتياطي، جرد الفروع والملفات والأسرار وحالة الاختبارات."
+      },
+      {
+        "index": 83,
+        "type": "paragraph",
+        "style": "List Number",
+        "text": "اليوم 4–6: بناء Truth Matrix لكل ملف/شاشة: مدمج، يعمل، Mock، محلي، مكرر، مهجور."
+      },
+      {
+        "index": 84,
+        "type": "paragraph",
+        "style": "List Number",
+        "text": "اليوم 7–9: استخراج P09 المحلي في commits صغيرة؛ رفض أي ملف لا يملك سببًا واختبارًا."
+      },
+      {
+        "index": 85,
+        "type": "paragraph",
+        "style": "List Number",
+        "text": "اليوم 10–12: إعداد CI، Branch Protection، Staging منفصل، Secret Manager، وقوالب PR."
+      },
+      {
+        "index": 86,
+        "type": "paragraph",
+        "style": "List Number",
+        "text": "اليوم 13–16: تدقيق Supabase البعيد، migrations، RLS، buckets، النسخ الاحتياطية، وعدم تطبيق تغيير قبل تقرير فرق."
+      },
+      {
+        "index": 87,
+        "type": "paragraph",
+        "style": "List Number",
+        "text": "اليوم 17–20: إغلاق Clerk كهوية وحيدة، اختبارات حسابين، ثم اعتماد خطة تنفيذ G04–G05."
+      }
+    ]
+  },
+  {
+    "title": "خارطة المراحل ونسبة الإنجاز",
+    "records": [
+      {
+        "index": 89,
+        "type": "table",
+        "rows": [
+          [
+            "المرحلة",
+            "العنوان",
+            "النتيجة",
+            "مدة المرحلة",
+            "الإنجاز التراكمي"
+          ],
+          [
+            "G00",
+            "تثبيت الرؤية والنطاق العالمي",
+            "اعتماد تعريف Global V1، القطاعات، الفئات المستهدفة، نموذج الإيراد، وسياسة عدم الاحتفاظ بأموال الصفقات.",
+            "2 أسبوع",
+            "30%"
+          ],
+          [
+            "G01",
+            "تدقيق الحالة الحالية وتنظيف المستودع",
+            "تثبيت مصدر الحقيقة، فرز الملفات والفروع، حماية main، وتحويل المستودع إلى خاص.",
+            "2-3 أسابيع",
+            "33%"
+          ],
+          [
+            "G02",
+            "منظومة التطوير والنشر والحوكمة",
+            "CI/CD، البيئات، إدارة الأسرار، Feature Flags، المراجعات، وخطة التراجع.",
+            "3 أسابيع",
+            "36%"
+          ],
+          [
+            "G03",
+            "البنية السحابية العالمية الأساسية",
+            "DNS وCDN وWAF والمراقبة والنسخ الاحتياطي والطوابير والبريد والإشعارات.",
+            "3-4 أسابيع",
+            "40%"
+          ],
+          [
+            "G04",
+            "الهوية والدخول وربط Clerk مع Supabase",
+            "نظام هوية موحد، الجلسات، MFA للإدارة، Webhooks وربط الملف الداخلي.",
+            "5-7 أسابيع",
+            "43%"
+          ],
+          [
+            "G05",
+            "قاعدة البيانات والأمان وRLS والتخزين",
+            "المخططات، migrations، الصلاحيات، Storage Policies، التدقيق والاستعادة.",
+            "5-7 أسابيع",
+            "46%"
+          ],
+          [
+            "G06",
+            "النموذج العالمي للدول واللغات والعملات",
+            "Capability Matrix، المناطق الزمنية، وحدات القياس، والقيود القانونية المحلية.",
+            "3-4 أسابيع",
+            "49%"
+          ],
+          [
+            "G07",
+            "التسجيل وOnboarding والملفات الشخصية",
+            "أنواع الحسابات، الخصوصية، التحقق، إدارة الحساب، التصدير والحذف.",
+            "4 أسابيع",
+            "52%"
+          ],
+          [
+            "G08",
+            "محرك القطاعات والفئات والحقول الديناميكية",
+            "تعريف القطاعات والفئات والحقول وقواعد التحقق من لوحة الإدارة.",
+            "4-5 أسابيع",
+            "55%"
+          ],
+          [
+            "G09",
+            "محرك الإعلانات العالمي",
+            "المسودات، المراجعة، النشر، الرفض، التجديد، الانتهاء، والأرشفة.",
+            "6-8 أسابيع",
+            "59%"
+          ],
+          [
+            "G10",
+            "الصور والوسائط وCDN",
+            "رفع آمن، ضغط، صور مصغرة، غلاف، ترتيب، حذف، وحماية التخزين.",
+            "3 أسابيع",
+            "62%"
+          ],
+          [
+            "G11",
+            "Feed والبحث والاكتشاف والتفاصيل",
+            "بحث وفلاتر وترتيب وSEO وروابط مشاركة وإعلانات محفوظة.",
+            "4-5 أسابيع",
+            "65%"
+          ],
+          [
+            "G12",
+            "المحادثات الفردية الآمنة",
+            "Realtime، القراءة، الحظر، الإبلاغ، مكافحة Spam وسياسات الاحتفاظ.",
+            "4-5 أسابيع",
+            "68%"
+          ],
+          [
+            "G13",
+            "الإشعارات والمشاركة والدعوات",
+            "داخل المنصة والبريد وPush، التفضيلات، Deep Links، وحدود الدعوات.",
+            "3-4 أسابيع",
+            "71%"
+          ],
+          [
+            "G14",
+            "Trust & Safety والمراجعة والاستئناف",
+            "البلاغات، القرارات، العقوبات، الاستئناف، ومكافحة الاحتيال.",
+            "5-6 أسابيع",
+            "75%"
+          ],
+          [
+            "G15",
+            "Tiger Care والدعم متعدد اللغات",
+            "التذاكر، SLA، التصعيد، الردود، الرضا، والتقارير.",
+            "4 أسابيع",
+            "78%"
+          ],
+          [
+            "G16",
+            "الإدارة العالمية والصلاحيات",
+            "لوحة المالك، إدارة الدول والقطاعات والموظفين وAudit Logs.",
+            "4-5 أسابيع",
+            "81%"
+          ],
+          [
+            "G17",
+            "الاشتراكات والمدفوعات والإيرادات",
+            "الباقات، Hosted Checkout، Webhooks، الفواتير، الاسترداد والضرائب.",
+            "5-7 أسابيع",
+            "84%"
+          ],
+          [
+            "G18",
+            "الترجمة والوصول وPWA والهاتف",
+            "RTL/LTR، اللغات، WCAG، التثبيت، Offline Shell، Push، وتجارب الأجهزة.",
+            "4-5 أسابيع",
+            "87%"
+          ],
+          [
+            "G19",
+            "التحليلات والذكاء الاصطناعي المحدود",
+            "Funnels، مؤشرات الأداء، تحسين الوصف واقتراح الفئة ضمن حدود آمنة.",
+            "3-4 أسابيع",
+            "90%"
+          ],
+          [
+            "G20",
+            "الأداء والتوسع والتعافي من الكوارث",
+            "Load/Stress، فهارس، Cache، Autoscaling، RPO/RTO، واستعادة كاملة.",
+            "4-6 أسابيع",
+            "94%"
+          ],
+          [
+            "G21",
+            "القانون والخصوصية والامتثال العالمي",
+            "الشروط والسياسات والاحتفاظ والحذف والقاصرين والموردين والموافقات.",
+            "4-6 أسابيع بالتوازي",
+            "97%"
+          ],
+          [
+            "G22",
+            "الاختبارات الخارجية وUAT والإطلاق العالمي",
+            "Penetration Test، Closed Beta، Public Beta، ثم Global GA والتشغيل.",
+            "6-8 أسابيع",
+            "100%"
+          ]
+        ]
+      },
+      {
+        "index": 90,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "title": "المسارات المتوازية والفريق",
+    "records": [
+      {
+        "index": 92,
+        "type": "table",
+        "rows": [
+          [
+            "المسار",
+            "النطاق",
+            "الأدوار الأساسية"
+          ],
+          [
+            "A — Core Product",
+            "الهوية، الحسابات، taxonomy، الإعلانات، البحث، الرسائل.",
+            "Technical Lead، 2 Full-Stack، Frontend."
+          ],
+          [
+            "B — Platform & Security",
+            "CI/CD، البيانات، RLS، التخزين، المراقبة، النسخ والتعافي.",
+            "Backend Security، DevOps/SRE، QA."
+          ],
+          [
+            "C — Global & Commercial",
+            "الدول، اللغات، القانون، الباقات، الدفع، الفواتير.",
+            "Product، Backend، Legal/Tax، Localization."
+          ],
+          [
+            "D — Quality & Operations",
+            "الأتمتة، الإدارة، Trust، Tiger Care، الإطلاق والتشغيل.",
+            "QA، Operations، Support/Moderation Lead."
+          ]
+        ]
+      },
+      {
+        "index": 93,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      },
+      {
+        "index": 94,
+        "type": "table",
+        "rows": [
+          [
+            "الدور",
+            "العدد",
+            "التسليم الأساسي"
+          ],
+          [
+            "Product Owner",
+            "1",
+            "قرارات المنتج والأسواق والباقات خلال 24–48 ساعة."
+          ],
+          [
+            "Technical Lead / Architect",
+            "1",
+            "المعمارية، ADRs، تقسيم الوحدات، مراجعة الكود والتكامل."
+          ],
+          [
+            "Full-Stack Engineers",
+            "2",
+            "تنفيذ الخدمات والواجهات والاختبارات."
+          ],
+          [
+            "Backend / Database Security",
+            "1",
+            "Supabase، migrations، RLS، webhooks، الأداء."
+          ],
+          [
+            "Frontend / PWA",
+            "1",
+            "التصميم الموحد، الهاتف، i18n، الوصول."
+          ],
+          [
+            "QA Automation",
+            "1",
+            "Unit/Integration/E2E/Security regression والأدلة."
+          ],
+          [
+            "DevOps / SRE",
+            "0.5–1",
+            "CI/CD، البنية، observability، backup/DR/on-call."
+          ],
+          [
+            "مختصون جزئيون",
+            "حسب المرحلة",
+            "UX، Legal/Privacy، Tax/Payment، PenTest، Translation، Moderation."
+          ]
+        ]
+      },
+      {
+        "index": 95,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "title": "الملحق A — المعمارية التقنية النهائية",
+    "records": [
+      {
+        "index": 2541,
+        "type": "table",
+        "rows": [
+          [
+            "النمط المعتمد\nModular Monolith منظم إلى وحدات مجال مستقلة منطقيًا، ينشر كتطبيق/خدمات قليلة في Global V1. الاتصالات الخارجية تمر عبر Adapters. يتم فصل خدمة مستقلة فقط عند وجود سبب مثبت: حمل، عزل أمني، فريق مستقل، أو دورة نشر مختلفة."
+          ]
+        ]
+      },
+      {
+        "index": 2542,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      },
+      {
+        "index": 2543,
+        "type": "table",
+        "rows": [
+          [
+            "الطبقة",
+            "المكونات",
+            "المسؤولية"
+          ],
+          [
+            "Experience",
+            "Web/PWA، Design System، i18n، Accessibility",
+            "عرض الرحلات، validation مساعد، offline shell؛ لا قرارات صلاحية نهائية."
+          ],
+          [
+            "Application",
+            "Use Cases، Commands/Queries، DTOs",
+            "تنسيق حالات العمل، transactions، authorization hooks."
+          ],
+          [
+            "Domain",
+            "Users، Listings، Media، Messaging، Trust، Billing",
+            "قواعد العمل والحالات والانتقالات دون اعتماد على الموردين."
+          ],
+          [
+            "Data",
+            "Postgres/Supabase، Migrations، RLS، Indexes",
+            "المصدر الحقيقي للبيانات والعزل والأداء."
+          ],
+          [
+            "Async",
+            "Outbox، Queue، Workers، Scheduled Jobs",
+            "البريد، الصور، webhooks، retention، notifications، reconciliation."
+          ],
+          [
+            "Providers",
+            "Clerk، Payment، Email، Push، CDN/WAF، Monitoring",
+            "خدمات مدارة خلف adapters مع خطة خروج."
+          ],
+          [
+            "Operations",
+            "CI/CD، Feature Flags، Observability، Backup/DR",
+            "النشر الآمن، المراقبة، الاستعادة، التحكم في المخاطر."
+          ]
+        ]
+      },
+      {
+        "index": 2544,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      },
+      {
+        "index": 2545,
+        "type": "paragraph",
+        "style": "Heading 2",
+        "text": "هيكل مستودع مرجعي"
+      },
+      {
+        "index": 2546,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "apps/web/                     واجهة PWA وserver routes\nsrc/modules/<domain>/\n  domain/                    الكيانات والقواعد والحالات\n  application/               use-cases وDTOs\n  infrastructure/            repositories وprovider adapters\n  ui/                        screens/components/hooks\nsupabase/migrations/          migrations مرتبة وغير قابلة للتعديل بعد التطبيق\nsupabase/tests/               RLS/SQL regression tests\ntests/unit|integration|e2e/   اختبارات الطبقات والرحلات\ndocs/adr/                     قرارات المعمارية\ndocs/contracts/               API، events، permissions، data dictionary\nrunbooks/                     النشر والتراجع والحوادث والتعافي"
+      }
+    ]
+  },
+  {
+    "title": "الملحق B — قاموس البيانات ومخطط الجداول",
+    "records": [
+      {
+        "index": 2548,
+        "type": "table",
+        "rows": [
+          [
+            "الجدول",
+            "الغرض",
+            "حقول أساسية",
+            "علاقات",
+            "قاعدة الوصول",
+            "الاحتفاظ"
+          ],
+          [
+            "app_users",
+            "معرف المستخدم الداخلي المرتبط بـClerk.",
+            "id, clerk_user_id, status, country_id, locale, created_at",
+            "identity_links, profiles",
+            "خاص؛ المستخدم يقرأ ذاته والإدارة scoped.",
+            "حياة الحساب + سياسة حذف."
+          ],
+          [
+            "identity_links",
+            "مزودات الهوية ومعرفاتها وحالة التحقق.",
+            "id, user_id, provider, provider_subject, verified_at",
+            "app_users",
+            "خاص؛ server only للكتابة.",
+            "حسب الحساب."
+          ],
+          [
+            "profiles",
+            "الملف العام والخاص المنفصل منطقيًا.",
+            "user_id, display_name, avatar_media_id, bio, visibility",
+            "app_users, media_assets",
+            "العام حسب visibility؛ الخاص للمالك.",
+            "حتى حذف الحساب."
+          ],
+          [
+            "organizations",
+            "الشركات/المكاتب.",
+            "id, legal_name, display_name, country_id, status",
+            "organization_members",
+            "عام جزئي/خاص حسب الحقول.",
+            "حسب الحساب التجاري."
+          ],
+          [
+            "organization_members",
+            "عضوية وأدوار الشركة.",
+            "org_id, user_id, role, status",
+            "organizations, app_users",
+            "الأعضاء والإدارة scoped.",
+            "حتى إلغاء العضوية + audit."
+          ],
+          [
+            "verification_cases",
+            "حالات توثيق الفرد/الشركة.",
+            "id, subject_type/id, level, status, evidence_refs",
+            "app_users/orgs",
+            "مقيد جدًا؛ verifier فقط.",
+            "وفق القانون والحد الأدنى."
+          ],
+          [
+            "countries",
+            "الدول برمز ISO.",
+            "id, iso2, iso3, default_currency, timezone_policy",
+            "country_capabilities",
+            "قراءة عامة؛ إدارة عالمية للكتابة.",
+            "دائم."
+          ],
+          [
+            "regions",
+            "التقسيمات الإدارية والمدن.",
+            "id, country_id, parent_id, type, localized_name",
+            "countries",
+            "قراءة عامة.",
+            "دائم/إصدارات."
+          ],
+          [
+            "country_capabilities",
+            "تشغيل الميزات حسب الدولة.",
+            "country_id, capability_key, enabled, constraints_json, effective_at",
+            "countries",
+            "قراءة cache؛ إدارة مخولة فقط.",
+            "مع سجل تغييرات."
+          ],
+          [
+            "policy_versions",
+            "نسخ الشروط والسياسات.",
+            "id, policy_type, country_id, locale, version, effective_at",
+            "consent_records",
+            "قراءة عامة للنافذة الحالية.",
+            "دائم."
+          ],
+          [
+            "consent_records",
+            "إثبات الموافقة.",
+            "id, user_id, policy_version_id, action, timestamp, evidence",
+            "app_users, policy_versions",
+            "المستخدم يرى سجله؛ compliance يراجع.",
+            "حسب القانون."
+          ],
+          [
+            "sectors",
+            "القطاعات العالمية.",
+            "id, code, status, sort_order",
+            "categories",
+            "قراءة عامة؛ الإدارة للكتابة.",
+            "دائم."
+          ],
+          [
+            "categories",
+            "شجرة الفئات.",
+            "id, sector_id, parent_id, code, status",
+            "field_definitions",
+            "قراءة عامة.",
+            "دائم/إصدارات."
+          ],
+          [
+            "field_definitions",
+            "تعريف الحقول الديناميكية.",
+            "id, category_id, key, data_type, validation_json, version",
+            "category_field_rules",
+            "قراءة حسب النسخة؛ إدارة فقط.",
+            "لا تحذف النسخة المستخدمة."
+          ],
+          [
+            "category_field_rules",
+            "إلزام/ظهور الحقول حسب دولة/نوع حساب.",
+            "id, field_id, country_id, required, constraints_json",
+            "field_definitions",
+            "قراءة للتطبيق؛ إدارة فقط.",
+            "إصدارات."
+          ],
+          [
+            "publishing_entitlements",
+            "من يحق له النشر وحدوده.",
+            "subject_type/id, sector/category, country_id, limits, valid_until",
+            "plans/subscriptions",
+            "خاص للمالك والإدارة.",
+            "مدة الاستحقاق + audit."
+          ],
+          [
+            "listings",
+            "السجل الرئيسي للإعلان.",
+            "id, owner_user/org, category_id, country/region, state, price, currency, version",
+            "listing_versions, media",
+            "المعلن حسب state؛ المالك يدير ذاته.",
+            "soft delete ثم retention."
+          ],
+          [
+            "listing_versions",
+            "لقطات الإعلان قبل/بعد التغييرات.",
+            "id, listing_id, version, snapshot_json, actor, reason",
+            "listings",
+            "المالك/المراجعة حسب الصلاحية.",
+            "دائم نسبيًا/audit."
+          ],
+          [
+            "listing_attributes",
+            "قيم الحقول الديناميكية.",
+            "listing_id, field_definition_id, value_*",
+            "listings, field_definitions",
+            "تورث RLS الإعلان.",
+            "مع الإعلان."
+          ],
+          [
+            "listing_state_events",
+            "انتقالات الحالة وأسبابها.",
+            "id, listing_id, from_state, to_state, actor, reason_code",
+            "listings",
+            "المالك يرى المناسب؛ الإدارة scoped.",
+            "Audit retention."
+          ],
+          [
+            "media_assets",
+            "أصل الملف وحالات المعالجة.",
+            "id, owner_id, bucket, path, mime, bytes, status, checksum",
+            "media_variants",
+            "خاص افتراضيًا؛ سياسات bucket.",
+            "حتى انعدام المراجع + grace."
+          ],
+          [
+            "media_variants",
+            "نسخ thumbnail/optimized.",
+            "asset_id, variant, path, width, height, bytes",
+            "media_assets",
+            "مثل الأصل.",
+            "مع الأصل."
+          ],
+          [
+            "listing_media",
+            "ربط الصور بالإعلان وترتيبها.",
+            "listing_id, asset_id, position, is_cover",
+            "listings, media_assets",
+            "تورث RLS الإعلان.",
+            "مع الإعلان."
+          ],
+          [
+            "favorites",
+            "الإعلانات المحفوظة.",
+            "user_id, listing_id, created_at",
+            "app_users, listings",
+            "المستخدم فقط.",
+            "حتى الإزالة/الحذف."
+          ],
+          [
+            "recent_views",
+            "المشاهدات الأخيرة الاختيارية.",
+            "user_id/session, listing_id, viewed_at",
+            "listings",
+            "المستخدم فقط/consent.",
+            "قصير 30–90 يومًا."
+          ],
+          [
+            "conversations",
+            "محادثة فردية وسياق الإعلان.",
+            "id, listing_id, participant_a/b, status, last_message_at",
+            "messages",
+            "الطرفان فقط؛ استثناء موثق.",
+            "حسب retention."
+          ],
+          [
+            "messages",
+            "الرسائل.",
+            "id, conversation_id, sender_id, client_id, body, status, created_at",
+            "conversations, message_receipts",
+            "طرفا المحادثة فقط.",
+            "سياسة محددة وقانونية."
+          ],
+          [
+            "message_receipts",
+            "مؤشر القراءة/التسليم.",
+            "conversation_id, user_id, last_read_message_id, read_at",
+            "messages",
+            "المشارك فقط.",
+            "مع المحادثة."
+          ],
+          [
+            "blocks",
+            "حظر بين حسابين.",
+            "blocker_id, blocked_id, created_at",
+            "app_users",
+            "صاحب الحظر فقط؛ enforcement server.",
+            "حتى الإلغاء."
+          ],
+          [
+            "invites",
+            "دعوات المشاركة.",
+            "id, inviter, invitee/email_hash, token_hash, status, expires_at",
+            "app_users",
+            "الأطراف المعنية فقط.",
+            "قصير + audit."
+          ],
+          [
+            "notifications",
+            "مركز الإشعار.",
+            "id, user_id, event_type, payload_safe, dedupe_key, read_at",
+            "notification_deliveries",
+            "المستخدم فقط.",
+            "90–365 يومًا حسب النوع."
+          ],
+          [
+            "notification_deliveries",
+            "تسليم القنوات.",
+            "notification_id, channel, provider_id, status, attempts",
+            "notifications",
+            "server/operations.",
+            "تشغيلي محدود."
+          ],
+          [
+            "reports",
+            "البلاغات الموحدة.",
+            "id, reporter_id, target_type/id, category, priority, status",
+            "moderation_cases",
+            "المبلّغ يرى الحالة؛ المراجع scoped.",
+            "قانوني/تشغيلي."
+          ],
+          [
+            "evidence_snapshots",
+            "لقطة الدليل وقت البلاغ.",
+            "report_id, snapshot, media_refs, hash",
+            "reports",
+            "مقيد جدًا.",
+            "حسب الاحتياج القانوني."
+          ],
+          [
+            "moderation_cases",
+            "حالة المراجعة.",
+            "id, report_id, assignee, decision, severity, due_at",
+            "moderation_actions, appeals",
+            "moderators scoped.",
+            "Audit retention."
+          ],
+          [
+            "moderation_actions",
+            "العقوبة/الإجراء.",
+            "case_id, action_type, subject, start/end, reason_code",
+            "moderation_cases",
+            "المتأثر يرى الملخص؛ الإدارة التفاصيل.",
+            "دائم نسبيًا."
+          ],
+          [
+            "appeals",
+            "الاستئناف وقراره.",
+            "id, action_id, appellant, status, reviewer, decision",
+            "moderation_actions",
+            "المستأنف والمراجع المستقل.",
+            "Audit retention."
+          ],
+          [
+            "support_tickets",
+            "تذاكر Tiger Care.",
+            "id, requester, category, priority, status, assignee, sla_due",
+            "support_messages",
+            "المستخدم وموظف assigned.",
+            "حسب سياسة الدعم."
+          ],
+          [
+            "support_messages",
+            "رسائل التذكرة وملاحظات داخلية.",
+            "id, ticket_id, author, visibility, body, attachments",
+            "support_tickets",
+            "العام للأطراف؛ الداخلي للموظفين.",
+            "مع التذكرة."
+          ],
+          [
+            "roles",
+            "تعريف الأدوار.",
+            "id, code, scope_type",
+            "role_bindings",
+            "إدارة فقط.",
+            "دائم."
+          ],
+          [
+            "role_bindings",
+            "ربط الدور بالمستخدم والنطاق.",
+            "user_id, role_id, country/region/sector/org, valid_until",
+            "roles, app_users",
+            "الإدارة المخولة فقط.",
+            "مع audit."
+          ],
+          [
+            "plans",
+            "خطط الاشتراك.",
+            "id, code, country_id, currency, billing_period, active",
+            "plan_entitlements",
+            "قراءة عامة حسب الدولة.",
+            "إصدارات."
+          ],
+          [
+            "plan_entitlements",
+            "ميزات وحدود الخطة.",
+            "plan_id, entitlement_key, limit_value",
+            "plans",
+            "قراءة للتطبيق.",
+            "مع الخطة."
+          ],
+          [
+            "subscriptions",
+            "حالة الاشتراك.",
+            "id, subject, plan_id, provider_ref, status, period_start/end",
+            "payment_events",
+            "المشترك والمالية scoped.",
+            "مالي وفق القانون."
+          ],
+          [
+            "payment_events",
+            "Webhook الخام والتحقق.",
+            "provider, event_id, signature_ok, payload_encrypted, received_at, processed_at",
+            "transactions",
+            "server/finance فقط.",
+            "مالي/أمني."
+          ],
+          [
+            "transactions",
+            "العملية المالية المنطقية.",
+            "id, subscription_id, type, amount, currency, status, provider_ref",
+            "ledger_entries, invoices",
+            "المستخدم يرى خاصته؛ المالية scoped.",
+            "مالي طويل."
+          ],
+          [
+            "ledger_entries",
+            "قيود غير قابلة للتعديل.",
+            "id, transaction_id, account, debit, credit, currency",
+            "transactions",
+            "Finance/audit فقط.",
+            "حسب القانون."
+          ],
+          [
+            "invoices",
+            "الفاتورة والضرائب.",
+            "id, user/org, number, country, tax_fields, total, status",
+            "transactions",
+            "العميل والمالية.",
+            "قانوني."
+          ],
+          [
+            "promotions",
+            "ترويج الإعلان.",
+            "id, listing_id, entitlement/transaction, start/end, status",
+            "listings",
+            "المالك/العامة حسب الحالة.",
+            "مالي + إعلان."
+          ],
+          [
+            "audit_logs",
+            "تدقيق العمليات الحساسة.",
+            "id, actor, action, resource, before/after_redacted, correlation_id",
+            "كل المجالات",
+            "مقيد؛ append-only.",
+            "طويل وفق المخاطر."
+          ],
+          [
+            "security_events",
+            "أحداث الدخول والإساءة.",
+            "id, actor/ip_hash, type, severity, metadata_redacted",
+            "app_users",
+            "Security فقط.",
+            "حسب السياسة."
+          ],
+          [
+            "webhook_receipts",
+            "منع replay للـwebhooks.",
+            "provider, event_id, signature, status, attempts",
+            "payment/identity",
+            "server only.",
+            "تشغيلي/مالي."
+          ],
+          [
+            "outbox_events",
+            "أحداث موثوقة بعد transaction.",
+            "id, aggregate, event_type, payload, status, attempts",
+            "workers",
+            "server only.",
+            "قصير بعد النجاح."
+          ],
+          [
+            "job_runs",
+            "تشغيل الوظائف المجدولة.",
+            "id, job_name, started/ended, status, metrics, error_redacted",
+            "operations",
+            "Operations.",
+            "تشغيلي."
+          ],
+          [
+            "feature_flags",
+            "تشغيل الميزات.",
+            "key, scope_type/id, value, rollout, expires_at",
+            "country capabilities",
+            "قراءة cache؛ إدارة محدودة.",
+            "مع التاريخ."
+          ],
+          [
+            "data_requests",
+            "طلبات الوصول/التصدير/الحذف.",
+            "id, user_id, type, status, due_at, proof, completed_at",
+            "app_users",
+            "المستخدم/Privacy team.",
+            "قانوني."
+          ]
+        ]
+      },
+      {
+        "index": 2549,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      },
+      {
+        "index": 2550,
+        "type": "paragraph",
+        "style": "Heading 2",
+        "text": "قواعد تصميم البيانات الإلزامية"
+      },
+      {
+        "index": 2551,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "كل جدول متعدد المستخدمين يحمل owner/subject/context واضحًا يمكن لـRLS استعماله."
+      },
+      {
+        "index": 2552,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "كل جدول حساس يحمل created_at/updated_at، ومَن أنشأ أو غيّر عند الحاجة، وversion للتزامن."
+      },
+      {
+        "index": 2553,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "لا تخزن الدولة أو العملة أو الحالة كنص مترجم؛ استخدم code ثابتًا وترجمة منفصلة."
+      },
+      {
+        "index": 2554,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "لا تعدل migration مطبقة؛ أنشئ migration جديدة وقاعدة forward-fix."
+      },
+      {
+        "index": 2555,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "قيود NOT NULL/UNIQUE/CHECK/FK تمنع الحالة غير الصحيحة في قاعدة البيانات، لا في الواجهة فقط."
+      },
+      {
+        "index": 2556,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "الفهارس تصمم من الاستعلامات والـEXPLAIN، ولا تضاف عشوائيًا."
+      },
+      {
+        "index": 2557,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "كل حقل PII يصنف: عام، داخلي، سري، شديد الحساسية؛ ويحدد له retention والوصول."
+      }
+    ]
+  },
+  {
+    "title": "الملحق C — مصفوفة RLS والصلاحيات على البيانات",
+    "records": [
+      {
+        "index": 2559,
+        "type": "table",
+        "rows": [
+          [
+            "المورد",
+            "الزائر",
+            "المستخدم",
+            "مالك السجل",
+            "الدعم",
+            "الإدارة",
+            "قاعدة السياسة"
+          ],
+          [
+            "profiles_public",
+            "قراءة المعلن فقط",
+            "قراءة حسب visibility",
+            "تعديل ملفه العام",
+            "قراءة حسب الحاجة",
+            "إدارة scoped",
+            "SELECT visibility; UPDATE owner"
+          ],
+          [
+            "profiles_private",
+            "ممنوع",
+            "قراءة/تعديل الذات",
+            "الذات فقط",
+            "محدود جدًا حسب التذكرة",
+            "مقيد ومبرر",
+            "user_id=auth subject"
+          ],
+          [
+            "organizations",
+            "العام فقط",
+            "قراءة العام",
+            "عضو مخول يعدل",
+            "قراءة ضمن التحقق",
+            "إدارة scoped",
+            "membership role + scope"
+          ],
+          [
+            "listings",
+            "published فقط",
+            "published حسب الدولة",
+            "CRUD لإعلاناته ضمن state",
+            "قراءة حسب التذكرة",
+            "مراجعة scoped",
+            "owner + state + country capability"
+          ],
+          [
+            "listing_versions",
+            "ممنوع",
+            "ممنوع",
+            "قراءة نسخه",
+            "ممنوع افتراضيًا",
+            "مراجع scoped",
+            "owner/reviewer only"
+          ],
+          [
+            "media_assets",
+            "public variants فقط",
+            "حسب مرجع مسموح",
+            "رفع/حذف أصوله غير المرتبطة أو المسموح",
+            "حسب تذكرة",
+            "مراجع scoped",
+            "owner + signed/private policy"
+          ],
+          [
+            "favorites/recent",
+            "ممنوع",
+            "الذات فقط",
+            "الذات فقط",
+            "ممنوع",
+            "ممنوع افتراضيًا",
+            "user_id=subject"
+          ],
+          [
+            "conversations",
+            "ممنوع",
+            "المشارك فقط",
+            "المشارك فقط",
+            "ممنوع افتراضيًا",
+            "استثناء قانوني موثق",
+            "participant check"
+          ],
+          [
+            "messages",
+            "ممنوع",
+            "المشارك فقط",
+            "إرسال بصفته ومحادثة غير محظورة",
+            "ممنوع افتراضيًا",
+            "استثناء مقيد",
+            "conversation participant + block check"
+          ],
+          [
+            "notifications",
+            "ممنوع",
+            "الذات فقط",
+            "mark read الذات",
+            "ممنوع",
+            "عمليات delivery فقط",
+            "user_id=subject"
+          ],
+          [
+            "reports",
+            "ممنوع",
+            "يرى بلاغه وحالته المحدودة",
+            "إنشاء بلاغ",
+            "حسب assignment",
+            "moderator scoped",
+            "reporter or assignee"
+          ],
+          [
+            "moderation_cases",
+            "ممنوع",
+            "قرار عام متعلق به فقط",
+            "لا كتابة",
+            "ممنوع",
+            "المراجع حسب النطاق",
+            "role binding + scope"
+          ],
+          [
+            "support_tickets",
+            "ممنوع",
+            "صاحب التذكرة",
+            "إضافة رسالة عامة",
+            "assigned only",
+            "admin scoped",
+            "requester or assigned"
+          ],
+          [
+            "subscriptions/invoices",
+            "ممنوع",
+            "ذاته/شركته",
+            "إلغاء حسب policy",
+            "دعم مالي محدود",
+            "finance scoped",
+            "subject membership"
+          ],
+          [
+            "payment_events/ledger",
+            "ممنوع",
+            "ممنوع",
+            "ممنوع",
+            "ممنوع",
+            "Finance/audit فقط",
+            "service role + separate service"
+          ],
+          [
+            "audit/security",
+            "ممنوع",
+            "ممنوع",
+            "ممنوع",
+            "ممنوع",
+            "Security/Audit محدد",
+            "append-only, no client"
+          ]
+        ]
+      },
+      {
+        "index": 2560,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      },
+      {
+        "index": 2561,
+        "type": "table",
+        "rows": [
+          [
+            "اختبار إلزامي\nلكل صف أعلاه يجب وجود اختبار سماح واختبار منع. الاختبار ينفذ بطلب مباشر/SQL تحت هوية المستخدم، وليس بالنظر إلى اختفاء الزر من الشاشة."
+          ]
+        ]
+      },
+      {
+        "index": 2562,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "title": "الملحق D — كتالوج API والعقود",
+    "records": [
+      {
+        "index": 2564,
+        "type": "table",
+        "rows": [
+          [
+            "الطريقة",
+            "المسار",
+            "الفاعل",
+            "التحقق",
+            "النتيجة",
+            "أخطاء متوقعة"
+          ],
+          [
+            "POST",
+            "/api/v1/auth/webhooks/clerk",
+            "Clerk webhook",
+            "توقيع webhook",
+            "إنشاء/تحديث/تعليق identity بطريقة idempotent",
+            "400/401/409/202"
+          ],
+          [
+            "GET",
+            "/api/v1/me",
+            "مستخدم",
+            "Session",
+            "بيانات الحساب والقدرات",
+            "401/403"
+          ],
+          [
+            "PATCH",
+            "/api/v1/me",
+            "مستخدم",
+            "Session + owner",
+            "تعديل locale/privacy/basic fields",
+            "400/409"
+          ],
+          [
+            "POST",
+            "/api/v1/me/export",
+            "مستخدم",
+            "Session + recent auth",
+            "طلب تصدير",
+            "202/429"
+          ],
+          [
+            "DELETE",
+            "/api/v1/me",
+            "مستخدم",
+            "Session + recent auth",
+            "طلب حذف/تعطيل",
+            "202/409"
+          ],
+          [
+            "GET",
+            "/api/v1/countries",
+            "عام",
+            "لا شيء",
+            "الدول والقدرات العامة",
+            "200"
+          ],
+          [
+            "GET",
+            "/api/v1/taxonomy",
+            "عام",
+            "لا شيء",
+            "القطاعات والفئات والحقول حسب البلد",
+            "200/304"
+          ],
+          [
+            "POST",
+            "/api/v1/organizations",
+            "مستخدم موثق",
+            "Session",
+            "إنشاء شركة",
+            "400/403/409"
+          ],
+          [
+            "POST",
+            "/api/v1/organizations/:id/members",
+            "مسؤول شركة",
+            "Role + scope",
+            "دعوة عضو",
+            "403/409/429"
+          ],
+          [
+            "POST",
+            "/api/v1/listings",
+            "ناشر",
+            "Entitlement",
+            "إنشاء مسودة",
+            "400/403/409/429"
+          ],
+          [
+            "GET",
+            "/api/v1/listings/:id",
+            "عام/مصرح",
+            "State/RLS",
+            "تفاصيل الإعلان",
+            "403/404/410"
+          ],
+          [
+            "PATCH",
+            "/api/v1/listings/:id",
+            "مالك",
+            "Owner + version",
+            "تعديل المسودة/المسموح",
+            "400/403/409"
+          ],
+          [
+            "POST",
+            "/api/v1/listings/:id/submit",
+            "مالك",
+            "Owner + capability",
+            "إرسال للمراجعة",
+            "400/403/409"
+          ],
+          [
+            "POST",
+            "/api/v1/listings/:id/pause",
+            "مالك",
+            "Owner",
+            "إيقاف",
+            "403/409"
+          ],
+          [
+            "POST",
+            "/api/v1/listings/:id/renew",
+            "مالك",
+            "Owner + entitlement",
+            "تجديد",
+            "402/403/409"
+          ],
+          [
+            "POST",
+            "/api/v1/listings/:id/close",
+            "مالك",
+            "Owner",
+            "مباع/مغلق",
+            "403/409"
+          ],
+          [
+            "GET",
+            "/api/v1/discovery",
+            "عام",
+            "Capability",
+            "Feed cursor + filters",
+            "400/429"
+          ],
+          [
+            "GET",
+            "/api/v1/search",
+            "عام",
+            "Capability",
+            "بحث وفلاتر",
+            "400/429"
+          ],
+          [
+            "POST",
+            "/api/v1/favorites/:listingId",
+            "مستخدم",
+            "Session",
+            "حفظ",
+            "404/409"
+          ],
+          [
+            "DELETE",
+            "/api/v1/favorites/:listingId",
+            "مستخدم",
+            "Session",
+            "إزالة حفظ",
+            "404"
+          ],
+          [
+            "POST",
+            "/api/v1/media/uploads",
+            "مالك",
+            "Session + quota",
+            "إنشاء رفع موقّع",
+            "400/403/413/429"
+          ],
+          [
+            "POST",
+            "/api/v1/media/:id/complete",
+            "مالك",
+            "Owner + checksum",
+            "إكمال ومعالجة",
+            "400/409/422"
+          ],
+          [
+            "DELETE",
+            "/api/v1/media/:id",
+            "مالك",
+            "Owner + references",
+            "حذف",
+            "403/409"
+          ],
+          [
+            "POST",
+            "/api/v1/conversations",
+            "مستخدم",
+            "Session + listing visibility",
+            "إنشاء/إرجاع محادثة",
+            "403/404/409"
+          ],
+          [
+            "GET",
+            "/api/v1/conversations",
+            "مستخدم",
+            "Participant",
+            "قائمة cursor",
+            "401"
+          ],
+          [
+            "GET",
+            "/api/v1/conversations/:id/messages",
+            "مشارك",
+            "Participant",
+            "رسائل cursor",
+            "403/404"
+          ],
+          [
+            "POST",
+            "/api/v1/conversations/:id/messages",
+            "مشارك",
+            "Participant + not blocked",
+            "إرسال idempotent",
+            "400/403/409/429"
+          ],
+          [
+            "POST",
+            "/api/v1/conversations/:id/read",
+            "مشارك",
+            "Participant",
+            "تحديث read cursor",
+            "403/409"
+          ],
+          [
+            "POST",
+            "/api/v1/users/:id/block",
+            "مستخدم",
+            "Session",
+            "حظر",
+            "400/409"
+          ],
+          [
+            "POST",
+            "/api/v1/reports",
+            "مستخدم",
+            "Session",
+            "بلاغ مع evidence snapshot",
+            "400/403/429"
+          ],
+          [
+            "GET",
+            "/api/v1/reports/:id",
+            "مبلّغ/مراجع",
+            "Owner/role",
+            "حالة البلاغ",
+            "403/404"
+          ],
+          [
+            "POST",
+            "/api/v1/appeals",
+            "متأثر",
+            "Session + eligibility",
+            "استئناف",
+            "400/403/409"
+          ],
+          [
+            "POST",
+            "/api/v1/support/tickets",
+            "مستخدم",
+            "Session",
+            "فتح تذكرة",
+            "400/429"
+          ],
+          [
+            "POST",
+            "/api/v1/support/tickets/:id/messages",
+            "طرف/موظف",
+            "Ticket access",
+            "إضافة رسالة",
+            "403/409"
+          ],
+          [
+            "GET",
+            "/api/v1/notifications",
+            "مستخدم",
+            "Session",
+            "إشعارات cursor",
+            "401"
+          ],
+          [
+            "POST",
+            "/api/v1/notifications/read",
+            "مستخدم",
+            "Owner",
+            "mark read batch",
+            "400"
+          ],
+          [
+            "POST",
+            "/api/v1/billing/checkout",
+            "مستخدم/شركة",
+            "Entitlement + country",
+            "جلسة دفع",
+            "400/402/403/409"
+          ],
+          [
+            "POST",
+            "/api/v1/billing/webhooks/:provider",
+            "مزود",
+            "Signed webhook",
+            "تسجيل ومعالجة idempotent",
+            "400/401/202"
+          ],
+          [
+            "POST",
+            "/api/v1/subscriptions/:id/cancel",
+            "مشترك",
+            "Owner",
+            "إلغاء وفق policy",
+            "403/409"
+          ],
+          [
+            "GET",
+            "/api/v1/invoices",
+            "مشترك",
+            "Owner/org membership",
+            "قائمة فواتير",
+            "403"
+          ],
+          [
+            "GET",
+            "/api/v1/admin/*",
+            "موظف",
+            "Role + scope + MFA",
+            "لوحات وعمليات scoped",
+            "401/403/429"
+          ]
+        ]
+      },
+      {
+        "index": 2565,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      },
+      {
+        "index": 2566,
+        "type": "paragraph",
+        "style": "Heading 2",
+        "text": "قواعد API الإلزامية"
+      },
+      {
+        "index": 2567,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "إصدار /v1 وعقد OpenAPI أو JSON Schema قابل للاختبار."
+      },
+      {
+        "index": 2568,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "الخطأ يرجع code ثابتًا ورسالة محلية على العميل؛ لا يرجع stack trace أو تفاصيل قاعدة البيانات."
+      },
+      {
+        "index": 2569,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "كل write حساس يقبل idempotency key أو version عند احتمال التكرار/التزامن."
+      },
+      {
+        "index": 2570,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "Pagination بالـcursor للبيانات المتغيرة؛ حد أقصى واضح للصفحة."
+      },
+      {
+        "index": 2571,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "Rate limit حسب actor/IP hash/device/context مع رسائل Retry-After."
+      },
+      {
+        "index": 2572,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "Correlation ID عبر request → DB/outbox → worker → provider → log."
+      },
+      {
+        "index": 2573,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "Admin API منفصل منطقيًا، MFA، scope، audit، ومنع العمليات الجماعية بلا preview/confirmation."
+      }
+    ]
+  },
+  {
+    "title": "الملحق E — جرد الشاشات وحالاتها",
+    "records": [
+      {
+        "index": 2575,
+        "type": "table",
+        "rows": [
+          [
+            "الرمز",
+            "الشاشة",
+            "الوصول",
+            "المكونات",
+            "الحالات الإلزامية",
+            "ملاحظة"
+          ],
+          [
+            "PUB-01",
+            "Landing / اختيار اللغة والدولة",
+            "عام",
+            "لغة، دولة، CTA",
+            "loading/error/unsupported country",
+            "SEO + accessibility"
+          ],
+          [
+            "AUTH-01",
+            "تسجيل الدخول",
+            "زائر",
+            "Email/Google، reset",
+            "provider error/locked/rate limited",
+            "Clerk واحد"
+          ],
+          [
+            "AUTH-02",
+            "إنشاء حساب",
+            "زائر",
+            "terms/age/country",
+            "duplicate/invalid/unsupported",
+            "consent evidence"
+          ],
+          [
+            "ONB-01",
+            "Onboarding — النوع والدولة",
+            "مستخدم جديد",
+            "individual/company/locale",
+            "save/resume/error",
+            "server state"
+          ],
+          [
+            "ONB-02",
+            "Onboarding — الملف",
+            "مستخدم جديد",
+            "name/avatar/privacy/interests",
+            "validation/upload failed",
+            "RTL/mobile"
+          ],
+          [
+            "ACC-01",
+            "الحساب والإعدادات",
+            "مستخدم",
+            "profile/privacy/locale/sessions",
+            "reauth/conflict",
+            "private data"
+          ],
+          [
+            "ACC-02",
+            "الجلسات والأجهزة",
+            "مستخدم",
+            "list/revoke/MFA",
+            "current session/revoked",
+            "security events"
+          ],
+          [
+            "ACC-03",
+            "تنزيل/حذف البيانات",
+            "مستخدم",
+            "request/status/confirm",
+            "legal hold/pending",
+            "recent auth"
+          ],
+          [
+            "PRO-01",
+            "الملف العام",
+            "عام/مستخدم",
+            "public fields/listings/badges",
+            "private/blocked/removed",
+            "SEO per visibility"
+          ],
+          [
+            "ORG-01",
+            "ملف الشركة",
+            "عام/عضو",
+            "public info/listings/verification",
+            "restricted/suspended",
+            "country rules"
+          ],
+          [
+            "ORG-02",
+            "إدارة أعضاء الشركة",
+            "مسؤول شركة",
+            "invite/roles/remove",
+            "limit/conflict",
+            "audit"
+          ],
+          [
+            "HOME-01",
+            "Home/Feed",
+            "عام/مستخدم",
+            "sectors/filters/cursor",
+            "empty/offline/error",
+            "stable order"
+          ],
+          [
+            "SEA-01",
+            "البحث",
+            "عام/مستخدم",
+            "query/filter/sort",
+            "no results/invalid/slow",
+            "accessible filters"
+          ],
+          [
+            "LST-01",
+            "تفاصيل الإعلان",
+            "عام/مصرح",
+            "media/attributes/owner/contact",
+            "expired/removed/blocked",
+            "share/SEO"
+          ],
+          [
+            "LST-02",
+            "إنشاء/تعديل الإعلان",
+            "ناشر",
+            "steps/autosave/preview",
+            "validation/conflict/quota",
+            "dynamic schema"
+          ],
+          [
+            "LST-03",
+            "إعلاناتي",
+            "ناشر",
+            "state tabs/actions",
+            "empty/expired/rejected",
+            "state actions"
+          ],
+          [
+            "MED-01",
+            "رفع وترتيب الصور",
+            "ناشر",
+            "upload/crop/order/cover",
+            "too large/malware/processing",
+            "resume/retry"
+          ],
+          [
+            "FAV-01",
+            "المحفوظات",
+            "مستخدم",
+            "list/remove",
+            "empty/removed listing",
+            "private"
+          ],
+          [
+            "MSG-01",
+            "قائمة المحادثات",
+            "مستخدم",
+            "unread/search/cursor",
+            "empty/offline",
+            "participant only"
+          ],
+          [
+            "MSG-02",
+            "المحادثة",
+            "مشارك",
+            "messages/send/read/report",
+            "blocked/retry/attachment fail",
+            "realtime"
+          ],
+          [
+            "NOT-01",
+            "الإشعارات",
+            "مستخدم",
+            "read/filter/deep link",
+            "empty/deduped",
+            "preferences"
+          ],
+          [
+            "SUP-01",
+            "Tiger Care — التذاكر",
+            "مستخدم",
+            "create/list/status",
+            "SLA/error",
+            "localized"
+          ],
+          [
+            "SUP-02",
+            "تفاصيل التذكرة",
+            "طرف/موظف",
+            "messages/attachments/status",
+            "closed/reopened",
+            "internal note hidden"
+          ],
+          [
+            "TRU-01",
+            "إنشاء بلاغ",
+            "مستخدم",
+            "category/evidence/confirm",
+            "duplicate/rate limited",
+            "reporter privacy"
+          ],
+          [
+            "TRU-02",
+            "حالة البلاغ/الاستئناف",
+            "متأثر",
+            "status/decision/appeal",
+            "ineligible/expired",
+            "limited disclosure"
+          ],
+          [
+            "BIL-01",
+            "الباقات",
+            "عام/مستخدم",
+            "country prices/features",
+            "unavailable/currency",
+            "clear terms"
+          ],
+          [
+            "BIL-02",
+            "Checkout result",
+            "مشترك",
+            "pending/success/failure",
+            "webhook pending/retry",
+            "do not trust redirect"
+          ],
+          [
+            "BIL-03",
+            "الاشتراك والفواتير",
+            "مشترك",
+            "status/cancel/invoices",
+            "past due/refund",
+            "financial privacy"
+          ],
+          [
+            "ADM-01",
+            "Owner dashboard",
+            "Owner",
+            "global KPIs/incidents/cost",
+            "partial data/degraded",
+            "MFA/audit"
+          ],
+          [
+            "ADM-02",
+            "إدارة الدول والقدرات",
+            "Global Admin",
+            "flags/rules/effective dates",
+            "conflict/preview",
+            "four-eyes optional"
+          ],
+          [
+            "ADM-03",
+            "إدارة taxonomy",
+            "Admin scoped",
+            "tree/fields/version/preview",
+            "used version/delete blocked",
+            "audit"
+          ],
+          [
+            "ADM-04",
+            "مراجعة الإعلانات",
+            "Moderator",
+            "queue/evidence/decision",
+            "conflict/SLA",
+            "scope"
+          ],
+          [
+            "ADM-05",
+            "البلاغات والاستئناف",
+            "Moderator",
+            "case/action/appeal",
+            "independence/conflict",
+            "audit"
+          ],
+          [
+            "ADM-06",
+            "Tiger Care console",
+            "Support",
+            "queue/SLA/replies",
+            "assignment conflict",
+            "scope/internal notes"
+          ],
+          [
+            "ADM-07",
+            "المالية والتسوية",
+            "Finance",
+            "transactions/reconcile/refund",
+            "mismatch/locked period",
+            "least privilege"
+          ],
+          [
+            "SYS-01",
+            "حالات النظام",
+            "الجميع",
+            "404/403/410/429/500/offline/maintenance",
+            "localized recovery",
+            "no sensitive details"
+          ]
+        ]
+      },
+      {
+        "index": 2576,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "title": "الملحق F — رحلات المستخدم الأساسية",
+    "records": [
+      {
+        "index": 2578,
+        "type": "table",
+        "rows": [
+          [
+            "الرحلة",
+            "التسلسل",
+            "بوابة النجاح"
+          ],
+          [
+            "J-01 التسجيل العالمي",
+            "لغة/دولة → Age/Terms → Clerk sign-up → Webhook → app_user → Onboarding → ملف مكتمل → Home",
+            "حساب واحد، consent مسجل، country capability ناجحة."
+          ],
+          [
+            "J-02 استعادة الحساب",
+            "Forgot password → Clerk verification → session جديدة → security event → revoke sessions اختياري",
+            "لا كشف لوجود البريد؛ rate limit."
+          ],
+          [
+            "J-03 إنشاء إعلان",
+            "Entitlement check → draft → category schema → autosave → media ready → preview → submit → review → publish → feed",
+            "كل transition موثق والإعلان لا يظهر قبل publish."
+          ],
+          [
+            "J-04 تعديل إعلان منشور",
+            "فتح النسخة → version check → edit allowed fields → re-review حسب السياسة → publish new version",
+            "لا فقد للتعديل المتزامن ولا تغيير خفي."
+          ],
+          [
+            "J-05 البحث والتواصل",
+            "Feed/search → listing detail → block/eligibility checks → get/create conversation → send → notification",
+            "طرفان فقط ورسالة idempotent."
+          ],
+          [
+            "J-06 بلاغ واستئناف",
+            "Report → evidence snapshot → priority/assignment → decision/action → user notice → appeal → independent review",
+            "المبلّغ محمي والقرار قابل للتدقيق."
+          ],
+          [
+            "J-07 Tiger Care",
+            "Create ticket → classify → SLA → assign → reply → resolve → reopen/CSAT",
+            "الملاحظات الداخلية غير مكشوفة."
+          ],
+          [
+            "J-08 اشتراك",
+            "Select plan/country → server checkout → hosted payment → signed webhook → ledger/subscription → notification/invoice",
+            "عدم التفعيل من redirect؛ reconciliation."
+          ],
+          [
+            "J-09 إلغاء/استرداد",
+            "Cancel request → policy/result → webhook/status → entitlement end/grace → invoice/refund record",
+            "أثر مالي موثق وقابل للمطابقة."
+          ],
+          [
+            "J-10 حذف الحساب",
+            "Recent auth → request → legal hold check → disable access → export window → anonymize/delete jobs → provider deletion → proof",
+            "لا حذف يخرق السجلات القانونية ولا يبقي وصولًا."
+          ],
+          [
+            "J-11 تفعيل دولة",
+            "Legal checklist → capability config → translations/pricing/payment/support → Staging country tests → beta cohort → public flag",
+            "Rollback فوري دون نشر."
+          ],
+          [
+            "J-12 حادثة حرجة",
+            "Alert → SEV classification → incident commander → containment/kill switch → comms → recovery → evidence → postmortem",
+            "MTTA/MTTR موثق وعدم طمس الدليل."
+          ]
+        ]
+      },
+      {
+        "index": 2579,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "title": "الملحق G — مصفوفة الأدوار والصلاحيات",
+    "records": [
+      {
+        "index": 2581,
+        "type": "table",
+        "rows": [
+          [
+            "الدور",
+            "المسموح",
+            "الحدود"
+          ],
+          [
+            "User",
+            "ملفه، إعلاناته، رسائله، تذاكره، اشتراكه",
+            "لا بيانات الآخرين الخاصة ولا Admin."
+          ],
+          [
+            "Organization Owner",
+            "إدارة الشركة والأعضاء والإعلانات والفواتير",
+            "ضمن الشركة والدولة والقطاع."
+          ],
+          [
+            "Organization Member",
+            "وظائف يحددها دور الشركة",
+            "لا تغيير مالك الشركة/الدفع دون تفويض."
+          ],
+          [
+            "Support Agent",
+            "تذاكر assigned وبيانات الحد الأدنى",
+            "لا رسائل خاصة أو دفع كامل أو حظر."
+          ],
+          [
+            "Moderator",
+            "حالات محتوى ضمن دولة/قطاع",
+            "لا مالية ولا تغيير global config."
+          ],
+          [
+            "Appeal Reviewer",
+            "استئناف لم يشارك بقراره الأول",
+            "استقلالية مطلوبة."
+          ],
+          [
+            "Country Admin",
+            "المستخدمون والمحتوى والقدرات التشغيلية لدولته",
+            "لا دولة أخرى ولا أسرار مزود."
+          ],
+          [
+            "Sector Manager",
+            "taxonomy/quality/metrics لقطاع محدد",
+            "لا المستخدمين خارج الحاجة."
+          ],
+          [
+            "Finance Viewer",
+            "فواتير وtransactions وتقارير",
+            "قراءة فقط، PII محدود."
+          ],
+          [
+            "Finance Operator",
+            "refund/reconcile ضمن حدود",
+            "four-eyes فوق حد مالي."
+          ],
+          [
+            "Security Analyst",
+            "security events/audit/incidents",
+            "لا تعديل بيانات العمل إلا containment موثق."
+          ],
+          [
+            "Global Admin",
+            "إعدادات عالمية scoped ومراجعة",
+            "لا قراءة الرسائل افتراضيًا."
+          ],
+          [
+            "Owner",
+            "رؤية مؤشرات وقرارات قصوى",
+            "MFA، إجراءات حساسة مزدوجة، audit كامل."
+          ],
+          [
+            "Service Role",
+            "وظيفة خادمية محددة",
+            "لا يستخدم من العميل؛ مفتاح منفصل ودور محدود."
+          ]
+        ]
+      },
+      {
+        "index": 2582,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "title": "الملحق H — Country Capability Matrix",
+    "records": [
+      {
+        "index": 2584,
+        "type": "table",
+        "rows": [
+          [
+            "المفتاح",
+            "المعنى",
+            "قيمة البداية",
+            "مالك القرار"
+          ],
+          [
+            "signup_enabled",
+            "هل إنشاء الحساب متاح؟",
+            "false لدولة غير مراجعة",
+            "Product + Legal approval"
+          ],
+          [
+            "minimum_age",
+            "العمر الأدنى",
+            "18 في Global V1",
+            "Legal per country"
+          ],
+          [
+            "listing_enabled",
+            "نشر الإعلانات",
+            "false حتى taxonomy/moderation جاهزة",
+            "Operations"
+          ],
+          [
+            "messaging_enabled",
+            "المحادثات",
+            "قد تتوقف في دولة/حادث",
+            "Trust/Security"
+          ],
+          [
+            "paid_subscription_enabled",
+            "الدفع",
+            "حسب مزود/قانون/ضرائب",
+            "Finance/Legal"
+          ],
+          [
+            "allowed_currencies",
+            "عملات العرض/الفوترة",
+            "ISO 4217 قائمة",
+            "Finance"
+          ],
+          [
+            "default_locale",
+            "اللغة الافتراضية",
+            "BCP47 locale",
+            "Localization"
+          ],
+          [
+            "allowed_locales",
+            "اللغات المدعومة",
+            "قائمة",
+            "Product"
+          ],
+          [
+            "timezone_policy",
+            "منطقة/تحديد تلقائي",
+            "IANA timezone",
+            "Platform"
+          ],
+          [
+            "measurement_system",
+            "متري/إمبراطوري",
+            "metric/imperial",
+            "Product"
+          ],
+          [
+            "seller_verification_level",
+            "توثيق الفرد/التاجر",
+            "none/basic/enhanced",
+            "Trust/Legal"
+          ],
+          [
+            "restricted_categories",
+            "فئات ممنوعة",
+            "قائمة code + reason",
+            "Legal/Trust"
+          ],
+          [
+            "media_limits",
+            "عدد/حجم/فيديو",
+            "قيود حسب الدولة/الخطة",
+            "Product/Cost"
+          ],
+          [
+            "retention_profile",
+            "سياسة الاحتفاظ",
+            "profile code",
+            "Privacy"
+          ],
+          [
+            "policy_bundle",
+            "نسخ الشروط والخصوصية",
+            "version ids",
+            "Legal"
+          ],
+          [
+            "tax_profile",
+            "ضريبة/فاتورة",
+            "profile code",
+            "Tax/Finance"
+          ],
+          [
+            "support_hours",
+            "ساعات ولغات الدعم",
+            "schedule",
+            "Operations"
+          ],
+          [
+            "moderation_sla",
+            "مهل المراجعة",
+            "duration by severity",
+            "Trust"
+          ],
+          [
+            "launch_wave",
+            "internal/closed/public/GA",
+            "enum",
+            "Launch committee"
+          ],
+          [
+            "emergency_mode",
+            "normal/read-only/disabled",
+            "enum",
+            "Incident commander"
+          ]
+        ]
+      },
+      {
+        "index": 2585,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      },
+      {
+        "index": 2586,
+        "type": "table",
+        "rows": [
+          [
+            "قاعدة فتح الدول\nلا يكفي أن الكود يدعم الدولة. قبل تفعيل signup/listing/payment يجب اكتمال الترجمة، الأسعار والضرائب، السياسات، الفئات المحظورة، الدعم، المراجعة، الاختبارات، وخطة الحوادث للدولة."
+          ]
+        ]
+      },
+      {
+        "index": 2587,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "title": "الملحق I — الأحداث والإشعارات والتحليلات",
+    "records": [
+      {
+        "index": 2589,
+        "type": "table",
+        "rows": [
+          [
+            "الحدث",
+            "المستهلكون",
+            "Payload الأدنى",
+            "ضابط"
+          ],
+          [
+            "user.signed_up",
+            "Analytics + welcome",
+            "user_id,country,locale,method",
+            "لا بريد/اسم في analytics"
+          ],
+          [
+            "onboarding.completed",
+            "Analytics",
+            "account_type,country,steps_duration",
+            "قياس funnel"
+          ],
+          [
+            "listing.draft_created",
+            "Analytics",
+            "listing_id,category,country",
+            "لا وصف/صور"
+          ],
+          [
+            "listing.submitted",
+            "Moderator queue + user notice",
+            "listing_id,category,priority",
+            "Outbox"
+          ],
+          [
+            "listing.published",
+            "User notice + followers/search index",
+            "listing_id,published_at",
+            "dedupe"
+          ],
+          [
+            "listing.rejected",
+            "User notice",
+            "listing_id,reason_code,appeal_allowed",
+            "نص مترجم"
+          ],
+          [
+            "message.created",
+            "Realtime + push/email",
+            "conversation_id,message_id,recipient",
+            "لا body في push/log"
+          ],
+          [
+            "message.reported",
+            "Trust queue",
+            "message_id,report_id,severity",
+            "evidence snapshot"
+          ],
+          [
+            "report.created",
+            "Trust queue + acknowledgement",
+            "report_id,target_type,priority",
+            "reporter private"
+          ],
+          [
+            "moderation.actioned",
+            "User notice + audit",
+            "case_id,action,reason_code",
+            "legal text"
+          ],
+          [
+            "appeal.decided",
+            "User notice + quality analytics",
+            "appeal_id,outcome",
+            "independent reviewer"
+          ],
+          [
+            "ticket.created",
+            "Support queue + acknowledgement",
+            "ticket_id,category,priority",
+            "SLA timer"
+          ],
+          [
+            "ticket.sla_at_risk",
+            "Support escalation",
+            "ticket_id,due_at",
+            "internal only"
+          ],
+          [
+            "checkout.created",
+            "Analytics",
+            "plan,country,currency",
+            "لا card data"
+          ],
+          [
+            "payment.succeeded",
+            "Subscription + invoice + user notice",
+            "transaction_id,amount,currency",
+            "webhook source"
+          ],
+          [
+            "payment.failed",
+            "Dunning + user notice",
+            "transaction_id,reason_class",
+            "لا تفاصيل حساسة"
+          ],
+          [
+            "subscription.changed",
+            "Entitlements + notice",
+            "subscription_id,old/new status",
+            "idempotent"
+          ],
+          [
+            "security.login_anomaly",
+            "Security alert",
+            "user_id,risk_score,ip_hash",
+            "restricted"
+          ],
+          [
+            "data_request.created",
+            "Privacy queue",
+            "request_id,type,due_at",
+            "restricted"
+          ],
+          [
+            "incident.started",
+            "On-call/comms",
+            "incident_id,severity,service",
+            "internal"
+          ]
+        ]
+      },
+      {
+        "index": 2590,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "title": "الملحق J — سجل حالات الاختبار الحرجة",
+    "records": [
+      {
+        "index": 2592,
+        "type": "table",
+        "rows": [
+          [
+            "الرمز",
+            "الحالة",
+            "النوع",
+            "الأولوية"
+          ],
+          [
+            "AUTH-TC-001",
+            "تسجيل بريد ناجح ثم profile واحد",
+            "E2E",
+            "P0"
+          ],
+          [
+            "AUTH-TC-002",
+            "Google login لا ينشئ حسابًا مكررًا",
+            "Integration/E2E",
+            "P0"
+          ],
+          [
+            "AUTH-TC-003",
+            "Webhook مكرر/out-of-order",
+            "Integration",
+            "P0"
+          ],
+          [
+            "AUTH-TC-004",
+            "Sign-out/revoke session",
+            "E2E/Security",
+            "P0"
+          ],
+          [
+            "RLS-TC-001",
+            "A لا يقرأ private profile لـB",
+            "DB/API",
+            "P0"
+          ],
+          [
+            "RLS-TC-002",
+            "A لا يعدل listing لـB",
+            "DB/API",
+            "P0"
+          ],
+          [
+            "RLS-TC-003",
+            "غير المشارك لا يقرأ conversation/messages",
+            "DB/API",
+            "P0"
+          ],
+          [
+            "RLS-TC-004",
+            "Support لا يقرأ message private",
+            "DB/API",
+            "P0"
+          ],
+          [
+            "LST-TC-001",
+            "draft→submit→publish transitions",
+            "Integration/E2E",
+            "P0"
+          ],
+          [
+            "LST-TC-002",
+            "منع transition غير مسموح",
+            "Unit/API",
+            "P0"
+          ],
+          [
+            "LST-TC-003",
+            "تعارض version من جهازين",
+            "Integration",
+            "P1"
+          ],
+          [
+            "LST-TC-004",
+            "انتهاء وتجديد وحدود الباقة",
+            "Integration",
+            "P1"
+          ],
+          [
+            "MED-TC-001",
+            "ملف مزيف/ضار يرفض",
+            "Security",
+            "P0"
+          ],
+          [
+            "MED-TC-002",
+            "رفع منقطع يعاد دون duplicate",
+            "E2E",
+            "P1"
+          ],
+          [
+            "MED-TC-003",
+            "private URL لا يفتح لغير المالك",
+            "Storage",
+            "P0"
+          ],
+          [
+            "MED-TC-004",
+            "orphan cleanup لا يحذف مرجعًا فعالًا",
+            "Integration",
+            "P0"
+          ],
+          [
+            "SEA-TC-001",
+            "cursor لا يكرر/يفقد نتائج",
+            "Integration",
+            "P1"
+          ],
+          [
+            "SEA-TC-002",
+            "إعلان خاص/محذوف لا يظهر",
+            "Security",
+            "P0"
+          ],
+          [
+            "SEA-TC-003",
+            "فلاتر الدولة/العملة/الفئة صحيحة",
+            "E2E",
+            "P1"
+          ],
+          [
+            "MSG-TC-001",
+            "إنشاء conversation idempotent",
+            "Integration",
+            "P0"
+          ],
+          [
+            "MSG-TC-002",
+            "blocked user لا يرسل مباشرة عبر API",
+            "Security",
+            "P0"
+          ],
+          [
+            "MSG-TC-003",
+            "إعادة اتصال وترتيب الرسائل",
+            "E2E",
+            "P1"
+          ],
+          [
+            "MSG-TC-004",
+            "rate limit/spam",
+            "Security",
+            "P1"
+          ],
+          [
+            "TRU-TC-001",
+            "بلاغ يحفظ evidence snapshot",
+            "Integration",
+            "P0"
+          ],
+          [
+            "TRU-TC-002",
+            "قرار واستئناف بمراجع مستقل",
+            "Workflow",
+            "P1"
+          ],
+          [
+            "SUP-TC-001",
+            "المستخدم لا يرى internal note",
+            "Security",
+            "P0"
+          ],
+          [
+            "SUP-TC-002",
+            "SLA escalation يعمل",
+            "Integration",
+            "P1"
+          ],
+          [
+            "PAY-TC-001",
+            "نجاح من webhook لا redirect",
+            "Integration",
+            "P0"
+          ],
+          [
+            "PAY-TC-002",
+            "تكرار webhook لا يكرر القيد",
+            "Integration",
+            "P0"
+          ],
+          [
+            "PAY-TC-003",
+            "refund/partial refund/reconcile",
+            "Integration",
+            "P0"
+          ],
+          [
+            "PAY-TC-004",
+            "دولة غير مفعلة لا تنشئ checkout",
+            "API",
+            "P0"
+          ],
+          [
+            "I18N-TC-001",
+            "RTL/LTR والنص الطويل",
+            "Visual/E2E",
+            "P1"
+          ],
+          [
+            "A11Y-TC-001",
+            "keyboard/focus/screen reader basics",
+            "Manual/Automated",
+            "P1"
+          ],
+          [
+            "PWA-TC-001",
+            "update/offline/reconnect",
+            "Device",
+            "P1"
+          ],
+          [
+            "DR-TC-001",
+            "استعادة Backup مع تحقق counts/checksum",
+            "DR drill",
+            "P0"
+          ],
+          [
+            "INC-TC-001",
+            "Kill switch/read-only",
+            "Game day",
+            "P0"
+          ],
+          [
+            "LOAD-TC-001",
+            "حمل الهدف ضمن SLO",
+            "Performance",
+            "P0"
+          ],
+          [
+            "LEGAL-TC-001",
+            "policy version/consent صحيح للدولة",
+            "E2E",
+            "P0"
+          ],
+          [
+            "DSAR-TC-001",
+            "export/delete/legal hold",
+            "Privacy test",
+            "P0"
+          ]
+        ]
+      },
+      {
+        "index": 2593,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "title": "الملحق K — مؤشرات الخدمة والأداء SLO/SLI",
+    "records": [
+      {
+        "index": 2595,
+        "type": "table",
+        "rows": [
+          [
+            "المؤشر",
+            "الهدف الأولي",
+            "القياس",
+            "ملاحظة"
+          ],
+          [
+            "توافر Web/API",
+            "99.9% شهريًا بعد GA",
+            "Uptime probes + successful requests",
+            "توقف rollout إذا أقل من 99.5% في beta."
+          ],
+          [
+            "زمن API read",
+            "p95 ≤ 500ms؛ p99 ≤ 1.2s للقراءات الشائعة",
+            "Tracing",
+            "استثناء provider موثق."
+          ],
+          [
+            "زمن API write",
+            "p95 ≤ 800ms مع async للعمل الثقيل",
+            "Tracing",
+            "لا انتظار معالجة الصور."
+          ],
+          [
+            "تحميل LCP",
+            "p75 ≤ 2.5s على هاتف متوسط/شبكة مستهدفة",
+            "RUM/Lab",
+            "حسب المنطقة."
+          ],
+          [
+            "خطأ خادم",
+            "<0.5% للطلبات المؤهلة",
+            "APM",
+            "P0 إذا أثر على الدفع/الدخول."
+          ],
+          [
+            "تسليم رسالة Realtime",
+            "p95 ≤ 2s ضمن منطقة مستقرة",
+            "Synthetic/RUM",
+            "fallback polling."
+          ],
+          [
+            "معالجة Webhook",
+            "ack ≤ 2s، processing ضمن 1 دقيقة غالبًا",
+            "Queue metrics",
+            "DLQ alert."
+          ],
+          [
+            "دقة الدفع",
+            "100% idempotency، صفر قيد مكرر",
+            "Reconciliation",
+            "مانع إطلاق."
+          ],
+          [
+            "RPO",
+            "≤ 15 دقيقة للبيانات الحرجة إن كانت الخدمة تدعم",
+            "Backup/PITR",
+            "قرار تكلفة."
+          ],
+          [
+            "RTO",
+            "≤ 4 ساعات Global V1؛ هدف أقل للخدمات الحرجة",
+            "DR drill",
+            "يحدّث بعد القياس."
+          ],
+          [
+            "MTTA SEV-1",
+            "≤ 10 دقائق",
+            "On-call",
+            "24/7 للحالات الحرجة."
+          ],
+          [
+            "MTTR SEV-1",
+            "≤ 60 دقيقة containment؛ الاستعادة حسب الحادث",
+            "Incident records",
+            "تواصل مستخدمين."
+          ],
+          [
+            "مراجعة إعلان عادي",
+            "هدف 24 ساعة في الدول المفتوحة",
+            "Moderation metrics",
+            "حسب ساعات العمل."
+          ],
+          [
+            "First response support",
+            "حسب الخطة/الأولوية؛ مثال P1 خلال ساعة",
+            "Ticket SLA",
+            "يعلن للمستخدم."
+          ],
+          [
+            "استعادة Backup",
+            "نجاح 100% في drill ربع سنوي",
+            "DR evidence",
+            "مانع استمرار إذا فشل."
+          ]
+        ]
+      },
+      {
+        "index": 2596,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "title": "الملحق L — سجل المخاطر",
+    "records": [
+      {
+        "index": 2598,
+        "type": "table",
+        "rows": [
+          [
+            "رقم",
+            "الخطر",
+            "الاحتمال",
+            "الأثر",
+            "المالك",
+            "الوقاية",
+            "الاستجابة"
+          ],
+          [
+            "R-01",
+            "تسريب بين المستخدمين بسبب RLS ناقص",
+            "متوسط",
+            "كارثي",
+            "Backend Security",
+            "Deny default + A/B tests",
+            "إيقاف writes/feature وإصلاح فوري."
+          ],
+          [
+            "R-02",
+            "تعارض Clerk/Supabase أو حسابات مكررة",
+            "متوسط",
+            "عال",
+            "Identity Lead",
+            "Webhook idempotency + unique constraints",
+            "merge/reconciliation runbook."
+          ],
+          [
+            "R-03",
+            "دمج P09 المحلي واسع دون فصل",
+            "عال",
+            "عال",
+            "Technical Lead",
+            "Keep/Fix/Reject + PRs صغيرة",
+            "revert branches."
+          ],
+          [
+            "R-04",
+            "مفتاح سري في repo/log/client",
+            "متوسط",
+            "كارثي",
+            "DevOps/Security",
+            "secret scan/manager/redaction",
+            "rotate/revoke/incident."
+          ],
+          [
+            "R-05",
+            "فقد بيانات أثناء migration",
+            "منخفض-متوسط",
+            "كارثي",
+            "DB Lead",
+            "backup/dry run/transaction/checks",
+            "restore/forward-fix."
+          ],
+          [
+            "R-06",
+            "ملفات ضارة أو وصول للصور الخاصة",
+            "متوسط",
+            "عال",
+            "Media/Security",
+            "quarantine/magic bytes/storage policy",
+            "disable upload/revoke URLs."
+          ],
+          [
+            "R-07",
+            "تكرار خصم أو اشتراك بسبب Webhook",
+            "متوسط",
+            "كارثي",
+            "Payment Lead",
+            "idempotency/ledger/reconcile",
+            "freeze payment/refund."
+          ],
+          [
+            "R-08",
+            "فتح دولة بلا امتثال/دعم",
+            "متوسط",
+            "عال",
+            "Product/Legal",
+            "country gate/checklist",
+            "disable capability."
+          ],
+          [
+            "R-09",
+            "تضخم النطاق وتغيير القرارات",
+            "عال",
+            "عال",
+            "Product Owner",
+            "Global V1 contract/change control",
+            "defer to backlog."
+          ],
+          [
+            "R-10",
+            "فريق صغير يعتمد على شخص واحد",
+            "عال",
+            "عال",
+            "Owner",
+            "documentation/pairing/code review",
+            "contract backup/handover."
+          ],
+          [
+            "R-11",
+            "تكلفة خدمات غير منضبطة",
+            "متوسط",
+            "عال",
+            "SRE/Finance",
+            "budgets/quotas/cost dashboards",
+            "rate limit/degrade."
+          ],
+          [
+            "R-12",
+            "Spam/احتيال يسبق المراجعة",
+            "عال",
+            "عال",
+            "Trust Lead",
+            "rate limits/signals/manual queue",
+            "restrict publishing."
+          ],
+          [
+            "R-13",
+            "موظف بصلاحية مفرطة",
+            "متوسط",
+            "كارثي",
+            "Security/Admin",
+            "scoped roles/MFA/audit/four-eyes",
+            "revoke sessions/incident."
+          ],
+          [
+            "R-14",
+            "رسائل خاصة متاحة للدعم",
+            "منخفض-متوسط",
+            "كارثي",
+            "Messaging/Security",
+            "RLS/no default access/legal procedure",
+            "disable admin query/audit."
+          ],
+          [
+            "R-15",
+            "Search index يعرض محذوف/خاص",
+            "متوسط",
+            "عال",
+            "Discovery Lead",
+            "eventual deletion tests/source filter",
+            "remove index/disable search."
+          ],
+          [
+            "R-16",
+            "Service Worker يعرض نسخة قديمة/خاصة",
+            "متوسط",
+            "متوسط-عال",
+            "PWA Lead",
+            "safe cache/version/update strategy",
+            "unregister/purge CDN."
+          ],
+          [
+            "R-17",
+            "ترجمة قانونية خاطئة",
+            "متوسط",
+            "عال",
+            "Legal/Localization",
+            "human review/versioning",
+            "disable country/policy rollback."
+          ],
+          [
+            "R-18",
+            "فشل restore رغم وجود backup",
+            "منخفض-متوسط",
+            "كارثي",
+            "SRE",
+            "quarterly restore drills",
+            "incident/alternate backup."
+          ],
+          [
+            "R-19",
+            "مزود خارجي يتوقف أو يغير شروطه",
+            "متوسط",
+            "عال",
+            "Architect",
+            "adapter/exit plan/fallback",
+            "degrade/switch provider."
+          ],
+          [
+            "R-20",
+            "AI يخرج محتوى خاطئ أو يكشف بيانات",
+            "متوسط",
+            "عال",
+            "AI/Security",
+            "redaction/human-in-loop/no sensitive data",
+            "disable flag/provider."
+          ],
+          [
+            "R-21",
+            "عدم كفاية المراجعين عالميًا",
+            "عال",
+            "عال",
+            "Operations",
+            "country waves/SLA/capacity plan",
+            "pause publishing."
+          ],
+          [
+            "R-22",
+            "نزاع دفع/Chargeback",
+            "متوسط",
+            "متوسط-عال",
+            "Finance",
+            "evidence/terms/reconciliation",
+            "suspend entitlement/refund process."
+          ],
+          [
+            "R-23",
+            "انتهاك حقوق المستخدم في الحذف/التصدير",
+            "متوسط",
+            "عال",
+            "Privacy Lead",
+            "DSAR workflow/tests/deadlines",
+            "manual response + fix."
+          ],
+          [
+            "R-24",
+            "إطلاق دفعة واحدة يسبب حملًا وفوضى",
+            "عال",
+            "عال",
+            "Launch Lead",
+            "cohorts/flags/waves/on-call",
+            "rollback wave."
+          ]
+        ]
+      },
+      {
+        "index": 2599,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "title": "الملحق M — اختيار الموردين وخطة الخروج",
+    "records": [
+      {
+        "index": 2601,
+        "type": "table",
+        "rows": [
+          [
+            "المجال",
+            "الخيار المبدئي",
+            "معايير الاختيار",
+            "خطة الخروج"
+          ],
+          [
+            "الهوية",
+            "Clerk",
+            "MFA، social/email، webhook، مناطق/امتثال، SLA، تكلفة MAU",
+            "Identity adapter + export mapping + no business data in provider"
+          ],
+          [
+            "قاعدة البيانات/Storage/Realtime",
+            "Supabase",
+            "Postgres/RLS/PITR/egress/storage/realtime limits",
+            "SQL portable، migrations owned، storage abstraction"
+          ],
+          [
+            "الاستضافة/PWA",
+            "Vercel/Cloudflare/بديل عالمي",
+            "regions، CDN، WAF، functions، cost، observability",
+            "container/build portable + DNS control"
+          ],
+          [
+            "البريد",
+            "مزود عالمي",
+            "deliverability، regions، templates، suppression، cost",
+            "Email adapter + domain ownership"
+          ],
+          [
+            "Push",
+            "Web Push/FCM/APNs عبر adapter",
+            "platform coverage، tokens، privacy",
+            "token model owned"
+          ],
+          [
+            "الدفع",
+            "مزود Hosted Checkout مناسب للشركة والأسواق",
+            "merchant availability، countries/currencies، tax، refunds، webhooks",
+            "billing adapter + internal ledger"
+          ],
+          [
+            "Monitoring",
+            "Sentry/OTel-compatible stack",
+            "logs/traces/RUM/redaction/retention/cost",
+            "OpenTelemetry + export"
+          ],
+          [
+            "Analytics",
+            "Privacy-aware product analytics",
+            "consent، data region، export، event volume",
+            "event catalog + warehouse export"
+          ],
+          [
+            "Search",
+            "Postgres FTS أولًا ثم managed عند الحاجة",
+            "languages، filters، latency، cost",
+            "search service interface + rebuild index"
+          ],
+          [
+            "Translation",
+            "TMS",
+            "workflow، reviewer، ICU/plurals، export",
+            "locale files owned"
+          ],
+          [
+            "Queue/Jobs",
+            "Managed queue/scheduler",
+            "delivery guarantees، retries، DLQ، regions",
+            "outbox + worker interface"
+          ]
+        ]
+      },
+      {
+        "index": 2602,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      },
+      {
+        "index": 2603,
+        "type": "table",
+        "rows": [
+          [
+            "ملاحظة الميزانية\nلا يثبت رقم مالي دقيق قبل معرفة بلد تسجيل الشركة، الموردين، حجم الصور والرسائل، اللغات، ودول الدفع. المطلوب في G00–G03 إعداد ثلاث سيناريوهات: Beta، 10 آلاف مستخدم نشط، 100 ألف مستخدم نشط، مع تنبيه 50%/75%/90% من سقف كل خدمة."
+          ]
+        ]
+      },
+      {
+        "index": 2604,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "title": "الملحق N — نموذج الميزانية والموارد",
+    "records": [
+      {
+        "index": 2606,
+        "type": "table",
+        "rows": [
+          [
+            "البند",
+            "طريقة التقدير",
+            "ما يجب مراقبته"
+          ],
+          [
+            "فريق التطوير",
+            "عدد الأفراد × الأشهر × تكلفة الشهر + 15% هامش",
+            "سرعة، bus factor، إعادة العمل."
+          ],
+          [
+            "القانون والخصوصية",
+            "دول الإطلاق × مراجعة محلية + سياسات/عقود",
+            "عدد الدول وليس عدد المستخدمين فقط."
+          ],
+          [
+            "الأمن",
+            "مراجعة معمارية + PenTest + إعادة اختبار",
+            "نطاق endpoints/apps."
+          ],
+          [
+            "الترجمة",
+            "الكلمات × اللغات × مراجعة بشرية",
+            "النصوص القانونية والدعم."
+          ],
+          [
+            "قاعدة البيانات",
+            "compute + storage + backups + egress",
+            "DB size، connections، slow queries."
+          ],
+          [
+            "الوسائط/CDN",
+            "GB stored + transformations + egress",
+            "متوسط الصور/إعلان وviews."
+          ],
+          [
+            "الهوية",
+            "MAU + MFA/SMS إن استخدم",
+            "طرق الدخول والدول."
+          ],
+          [
+            "البريد/Push",
+            "حجم الإشعارات والتسليم",
+            "bounce/complaint/dedupe."
+          ],
+          [
+            "المراقبة",
+            "events/log GB/traces/RUM",
+            "sampling وretention."
+          ],
+          [
+            "الدفع",
+            "نسبة + رسوم + refund/chargeback/tax tools",
+            "نجاح الدفع ومطابقة الإيراد."
+          ],
+          [
+            "الدعم والمراجعة",
+            "التذاكر/البلاغات × زمن المعالجة",
+            "SLA واللغات والساعات."
+          ],
+          [
+            "احتياطي",
+            "15%–25% من تنفيذ Global V1",
+            "تغيير قانون/مورد/حمل."
+          ]
+        ]
+      },
+      {
+        "index": 2607,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "title": "الملحق O — الجدول الزمني المتوازي 44 أسبوعًا",
+    "records": [
+      {
+        "index": 2609,
+        "type": "table",
+        "rows": [
+          [
+            "الأسبوع",
+            "مسار المنتج",
+            "مسار المنصة",
+            "مسار الجودة",
+            "مسار العالمية/التشغيل"
+          ],
+          [
+            "1–2",
+            "G00 نطاق وقرارات",
+            "G01 جرد وTruth Matrix",
+            "QA baseline",
+            "Legal country shortlist"
+          ],
+          [
+            "3–4",
+            "G01 انتقال P09",
+            "G02 CI/بيئات",
+            "Regression baseline",
+            "Vendor shortlist"
+          ],
+          [
+            "5–8",
+            "G04 الهوية",
+            "G05 schema/RLS",
+            "Auth/RLS automation",
+            "G06 country model"
+          ],
+          [
+            "9–12",
+            "G07 onboarding/profiles",
+            "G05 storage/backup",
+            "E2E accounts",
+            "Policies draft"
+          ],
+          [
+            "13–18",
+            "G08 taxonomy + G09 listings",
+            "G10 media pipeline",
+            "Listing/media tests",
+            "Moderation design"
+          ],
+          [
+            "19–22",
+            "G11 feed/search",
+            "Performance indexes/cache",
+            "Search/E2E/a11y",
+            "Country content"
+          ],
+          [
+            "23–26",
+            "G12 messaging",
+            "G13 notifications/jobs",
+            "Realtime/spam tests",
+            "Support preparation"
+          ],
+          [
+            "27–30",
+            "G14 trust + G15 Tiger Care",
+            "G16 admin/audit",
+            "Permission/workflow tests",
+            "Moderator/support hiring"
+          ],
+          [
+            "31–34",
+            "G17 billing",
+            "Reconcile/ledger/security",
+            "Payment/E2E",
+            "Tax/terms final"
+          ],
+          [
+            "35–37",
+            "G18 PWA/i18n/a11y",
+            "G19 analytics/AI limited",
+            "Devices/accessibility",
+            "Translation review"
+          ],
+          [
+            "38–40",
+            "G20 load/DR",
+            "G21 privacy/legal",
+            "PenTest/restore",
+            "Launch country sign-off"
+          ],
+          [
+            "41",
+            "Internal Alpha",
+            "Observability tuning",
+            "Go/no-go rehearsal",
+            "Runbooks/on-call"
+          ],
+          [
+            "42",
+            "Closed Beta",
+            "Capacity/support",
+            "Daily QA triage",
+            "Feedback"
+          ],
+          [
+            "43",
+            "Public Beta waves",
+            "Cost/security watch",
+            "Regression",
+            "Country activation"
+          ],
+          [
+            "44",
+            "Global GA",
+            "24/7 critical on-call",
+            "Launch verification",
+            "Post-launch review"
+          ]
+        ]
+      },
+      {
+        "index": 2610,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "title": "الملحق P — بوابات الإطلاق وقائمة التحقق",
+    "records": [
+      {
+        "index": 2612,
+        "type": "table",
+        "rows": [
+          [
+            "المجال",
+            "شرط الإطلاق"
+          ],
+          [
+            "Product",
+            "التسجيل→ملف→إعلان→بحث→محادثة يعمل End-to-End في اللغات الأساسية."
+          ],
+          [
+            "Identity",
+            "Clerk وحيد؛ reset/logout/revoke/MFA admin؛ لا duplicate profiles."
+          ],
+          [
+            "Data",
+            "Migrations متطابقة؛ RLS/Storage جميعها خضراء؛ لا service key في العميل."
+          ],
+          [
+            "Media",
+            "فحص/ضغط/quarantine/private access/cleanup يعمل."
+          ],
+          [
+            "Trust",
+            "بلاغ/قرار/إشعار/استئناف/SLA وموظفون فعليون."
+          ],
+          [
+            "Support",
+            "Tiger Care، قوالب، ساعات، تصعيد، on-call."
+          ],
+          [
+            "Billing",
+            "Webhook/ledger/reconcile/refund/invoice/country gates ناجحة."
+          ],
+          [
+            "Legal",
+            "سياسات الدولة واللغة، consent، age، restricted categories، privacy rights."
+          ],
+          [
+            "Security",
+            "صفر Critical/High مفتوح؛ PenTest retest؛ secrets rotated."
+          ],
+          [
+            "Reliability",
+            "Load SLO، backup restore، read-only/kill switch، incident rehearsal."
+          ],
+          [
+            "Operations",
+            "Dashboards/alerts/runbooks/owners/contact tree/status communication."
+          ],
+          [
+            "Launch",
+            "Feature flags/cohorts/country waves/rollback criteria/go-no-go signatures."
+          ]
+        ]
+      },
+      {
+        "index": 2613,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      },
+      {
+        "index": 2614,
+        "type": "table",
+        "rows": [
+          [
+            "موانع مطلقة\nتسريب بيانات، فشل RLS، خطأ دفع أو قيد مكرر، فشل Restore، ثغرة حرجة/عالية، عدم وجود بلاغ واستئناف ودعم، غياب سياسة قانونية لدولة مفتوحة، أو عدم وجود Rollback/Incident Owner."
+          ]
+        ]
+      },
+      {
+        "index": 2615,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "title": "الملحق Q — التشغيل بعد الإطلاق",
+    "records": [
+      {
+        "index": 2617,
+        "type": "table",
+        "rows": [
+          [
+            "الدورية",
+            "المهام"
+          ],
+          [
+            "لحظي/24×7 للحالات الحرجة",
+            "Uptime، auth، payment، DB، security، queue DLQ، incident paging."
+          ],
+          [
+            "يومي",
+            "مراجعة error rate، reconciliation، moderation backlog، support SLA، cost anomaly، failed jobs."
+          ],
+          [
+            "أسبوعي",
+            "Release train، vulnerability triage، capacity trend، abuse pattern، country rollout review."
+          ],
+          [
+            "شهري",
+            "SLO report، revenue/retention، privacy requests، access review، vendor cost، risk register."
+          ],
+          [
+            "ربع سنوي",
+            "DR restore، incident game day، penetration delta، role recertification، policy/vendor review."
+          ],
+          [
+            "سنوي/عند تغيير جوهري",
+            "Legal/security assessment، architecture review، data retention purge proof، roadmap reset."
+          ]
+        ]
+      },
+      {
+        "index": 2618,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      },
+      {
+        "index": 2619,
+        "type": "paragraph",
+        "style": "Heading 2",
+        "text": "تصنيف الحوادث"
+      },
+      {
+        "index": 2620,
+        "type": "table",
+        "rows": [
+          [
+            "التصنيف",
+            "مثال",
+            "استجابة أولية",
+            "سلطة"
+          ],
+          [
+            "SEV-1",
+            "تسريب، دفع خاطئ واسع، توقف شامل",
+            "≤10 دقائق؛ Incident Commander؛ kill switch",
+            "Security/SRE + Owner"
+          ],
+          [
+            "SEV-2",
+            "تعطل ميزة أساسية أو دولة",
+            "≤30 دقيقة؛ احتواء وcomms",
+            "Service Owner"
+          ],
+          [
+            "SEV-3",
+            "خلل محدود مع workaround",
+            "نفس يوم العمل",
+            "Team Lead"
+          ],
+          [
+            "SEV-4",
+            "تحسين/عيب شكلي",
+            "Backlog/Sprint",
+            "Product"
+          ]
+        ]
+      },
+      {
+        "index": 2621,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "title": "الملحق R — Definition of Done الموحد",
+    "records": [
+      {
+        "index": 2623,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "المتطلبات ومعايير القبول والقرارات موثقة ولا توجد نقطة غامضة جوهرية."
+      },
+      {
+        "index": 2624,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "التصميم ونموذج البيانات وAPI/event contract مراجع قبل التنفيذ عند الحاجة."
+      },
+      {
+        "index": 2625,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "الكود يتبع حدود الوحدة ولا يكرر منطق الصلاحية أو الحالة."
+      },
+      {
+        "index": 2626,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "Unit/Integration/E2E/Security tests المناسبة موجودة وCI أخضر."
+      },
+      {
+        "index": 2627,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "RLS/Storage/Role tests مثبتة للبيانات الحساسة."
+      },
+      {
+        "index": 2628,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "الواجهة تغطي Loading/Empty/Error/Forbidden/Offline/Success وRTL/LTR والهاتف."
+      },
+      {
+        "index": 2629,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "Logs/metrics/traces بلا أسرار، مع alert عند الخطر."
+      },
+      {
+        "index": 2630,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "Migration/Feature Flag/Rollback أو forward-fix جاهز ومجرّب حسب الخطر."
+      },
+      {
+        "index": 2631,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "Staging evidence وQA sign-off وSecurity/Legal sign-off عند اللزوم."
+      },
+      {
+        "index": 2632,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "Documentation، API/data dictionary، runbook وchange log محدثة."
+      },
+      {
+        "index": 2633,
+        "type": "paragraph",
+        "style": "List Bullet",
+        "text": "Product Owner قبل النتيجة، ولا تعتبر المهمة مكتملة لمجرد merge."
+      }
+    ]
+  },
+  {
+    "title": "الملحق S — المراجع الرسمية الأساسية",
+    "records": [
+      {
+        "index": 2635,
+        "type": "table",
+        "rows": [
+          [
+            "المرجع",
+            "العنوان",
+            "الرابط/المصدر"
+          ],
+          [
+            "REF-01",
+            "Clerk Webhooks Overview",
+            "https://clerk.com/docs/guides/development/webhooks/overview"
+          ],
+          [
+            "REF-02",
+            "Clerk Syncing Data",
+            "https://clerk.com/docs/guides/development/webhooks/syncing"
+          ],
+          [
+            "REF-03",
+            "Supabase Row Level Security",
+            "https://supabase.com/docs/guides/database/postgres/row-level-security"
+          ],
+          [
+            "REF-04",
+            "Supabase Storage Access Control",
+            "https://supabase.com/docs/guides/storage/security/access-control"
+          ],
+          [
+            "REF-05",
+            "Supabase Backups",
+            "https://supabase.com/docs/guides/platform/backups"
+          ],
+          [
+            "REF-06",
+            "W3C WCAG 2.2",
+            "https://www.w3.org/TR/WCAG22/"
+          ],
+          [
+            "REF-07",
+            "OWASP ASVS",
+            "https://owasp.org/www-project-application-security-verification-standard/"
+          ],
+          [
+            "REF-08",
+            "NIST Secure Software Development Framework SP 800-218",
+            "https://csrc.nist.gov/pubs/sp/800/218/final"
+          ],
+          [
+            "REF-09",
+            "NIST Incident Response SP 800-61 Rev.3",
+            "https://csrc.nist.gov/pubs/sp/800/61/r3/final"
+          ],
+          [
+            "REF-10",
+            "GDPR Official Text",
+            "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02016R0679-20160504"
+          ],
+          [
+            "REF-11",
+            "EU Digital Services Act Official Text",
+            "https://eur-lex.europa.eu/eli/reg/2022/2065/oj/eng"
+          ],
+          [
+            "REF-12",
+            "FTC COPPA FAQ",
+            "https://www.ftc.gov/business-guidance/resources/complying-coppa-frequently-asked-questions"
+          ],
+          [
+            "REF-13",
+            "PCI SSC SAQ A Eligibility FAQ",
+            "https://www.pcisecuritystandards.org/faqs/1588/"
+          ],
+          [
+            "REF-14",
+            "ISO 3166 Country Codes",
+            "https://www.iso.org/iso-3166-country-codes.html"
+          ],
+          [
+            "REF-15",
+            "ISO 4217 Currency Codes",
+            "https://www.iso.org/iso-4217-currency-codes.html"
+          ],
+          [
+            "REF-REPO-01",
+            "VVIP TIGER phase-status.json and PR88 evidence",
+            "المستودع الرسمي vvipautoparts-blip/TIGER-VVIP — تدقيق 20 يوليو 2026"
+          ]
+        ]
+      },
+      {
+        "index": 2636,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": ""
+      },
+      {
+        "index": 2637,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "تنبيه قانوني: المراجع العامة تساعد على التصميم، لكنها لا تستبدل رأي محامٍ مرخص في بلد تسجيل الشركة وكل سوق يتم فتحه، ولا تحدد وحدها الضرائب أو تراخيص النشاط أو صياغة العقود المحلية."
+      }
+    ]
+  },
+  {
+    "title": "الخاتمة والقرار التنفيذي",
+    "records": [
+      {
+        "index": 2639,
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "هذه النسخة تعالج النواقص الأساسية في التقرير السابق: المخطط الفني، قاموس البيانات، RLS، API، الشاشات، الرحلات، الأدوار، الدول، الأحداث، الاختبارات، SLOs، المخاطر، الموردين، الميزانية، الجدول المتوازي، بوابات الإطلاق والتشغيل. التنفيذ الصحيح يبدأ الآن بـG00–G05، لا بإضافة شاشات جديدة. وعند إغلاق G22 وبوابات الملحق P تكون VVIP TIGER قد وصلت إلى 100% من Global V1 وجاهزة للإطلاق التجاري العالمي الحقيقي."
+      }
+    ]
+  }
+]

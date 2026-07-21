@@ -1,7 +1,7 @@
 # PR34 Hour 1 — Change Control Manifest
 
 Date: 2026-07-14
-Worktree: `/workspaces/TIGER-VVIP-PR34-PERSISTENCE`
+Worktree: repository root
 Branch: `feat/pr34-listing-persistence-runtime`
 
 ## Authorization

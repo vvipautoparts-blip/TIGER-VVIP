@@ -1,0 +1,8311 @@
+[
+  {
+    "index": 0,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "VVIP TIGER"
+  },
+  {
+    "index": 1,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المواصفة التنفيذية والتقنية الشاملة لبناء وإطلاق المنصة العالمية"
+  },
+  {
+    "index": 2,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الإصدار 2.0 — من الوضع الحالي إلى الإطلاق التجاري العالمي والتشغيل المستمر"
+  },
+  {
+    "index": 3,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 4,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 5,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 6,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 7,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 8,
+    "type": "table",
+    "rows": [
+      [
+        "بيان",
+        "قيمة"
+      ],
+      [
+        "مالك الوثيقة",
+        "مشروع VVIP TIGER"
+      ],
+      [
+        "نوع الوثيقة",
+        "Product + Technical + Security + Operations Execution Specification"
+      ],
+      [
+        "الإصدار",
+        "2.0"
+      ],
+      [
+        "تاريخ الإصدار",
+        "20 يوليو 2026"
+      ],
+      [
+        "النطاق",
+        "Global V1 — منصة عالمية متعددة الدول واللغات والعملات"
+      ],
+      [
+        "حالة الوثيقة",
+        "مرجع معتمد للتخطيط والتنفيذ والتعاقد والمراجعة"
+      ]
+    ]
+  },
+  {
+    "index": 9,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 10,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 11,
+    "type": "paragraph",
+    "style": "Heading 1",
+    "text": "ضبط الوثيقة والاعتماد"
+  },
+  {
+    "index": 12,
+    "type": "table",
+    "rows": [
+      [
+        "الإصدار",
+        "التاريخ",
+        "الوصف",
+        "حالة الاعتماد"
+      ],
+      [
+        "1.0",
+        "20 يوليو 2026",
+        "خارطة الطريق التنفيذية الأساسية",
+        "مستبدلة بهذا الإصدار"
+      ],
+      [
+        "2.0",
+        "20 يوليو 2026",
+        "إضافة المواصفات التقنية والملاحق والجداول التشغيلية",
+        "معتمدة كأساس التنفيذ"
+      ]
+    ]
+  },
+  {
+    "index": 13,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 14,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "طريقة استخدام الوثيقة"
+  },
+  {
+    "index": 15,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "كل Pull Request يجب أن يحمل رقم مهمة مطابقًا لهذه الوثيقة، وأن يرفق أدلة الاختبار وخطة التراجع."
+  },
+  {
+    "index": 16,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا تعني عبارة «تمت الشاشة» اكتمال المهمة؛ الاكتمال يتطلب Backend وصلاحيات واختبارات وStaging وتوثيقًا."
+  },
+  {
+    "index": 17,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "أي تغيير في النطاق يسجل في سجل القرارات مع أثره على الوقت والتكلفة والأمن."
+  },
+  {
+    "index": 18,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "الوثيقة تصف Global V1. الميزات غير الواردة تؤجل إلى Release لاحق إلا بقرار تغيير رسمي."
+  },
+  {
+    "index": 19,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "الملاحق التقنية في نهاية الملف جزء ملزم من المواصفة، وليست معلومات اختيارية."
+  },
+  {
+    "index": 20,
+    "type": "paragraph",
+    "style": "Heading 1",
+    "text": "الفهرس التنفيذي"
+  },
+  {
+    "index": 21,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "1. الملخص التنفيذي وتعريف النهاية العالمية"
+  },
+  {
+    "index": 22,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "2. الحالة الحالية والفجوات"
+  },
+  {
+    "index": 23,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "3. المبادئ المعمارية العالمية"
+  },
+  {
+    "index": 24,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "4. الفريق والحوكمة والمسارات المتوازية"
+  },
+  {
+    "index": 25,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "5. الخطة الزمنية ونسب الإنجاز"
+  },
+  {
+    "index": 26,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "6. مراحل ومهام التنفيذ التفصيلية"
+  },
+  {
+    "index": 27,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "7. مواصفة قاعدة البيانات وERD النصي"
+  },
+  {
+    "index": 28,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "8. مصفوفة الصلاحيات وRLS"
+  },
+  {
+    "index": 29,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "9. سجل الشاشات ورحلات المستخدم"
+  },
+  {
+    "index": 30,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "10. كتالوج API والأحداث والأخطاء"
+  },
+  {
+    "index": 31,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "11. حالات الإعلانات والمحادثات والدفع"
+  },
+  {
+    "index": 32,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "12. مصفوفة الدول واللغات والعملات"
+  },
+  {
+    "index": 33,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "13. الاختبارات ومعايير الأداء"
+  },
+  {
+    "index": 34,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "14. الأمن والخصوصية والامتثال"
+  },
+  {
+    "index": 35,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "15. التشغيل العالمي وإدارة الحوادث"
+  },
+  {
+    "index": 36,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "16. سجل المخاطر والموردين والتكاليف"
+  },
+  {
+    "index": 37,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "17. قائمة الإطلاق والتسليم النهائي"
+  },
+  {
+    "index": 38,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 39,
+    "type": "paragraph",
+    "style": "Heading 1",
+    "text": "1. الملخص التنفيذي وتعريف النهاية العالمية"
+  },
+  {
+    "index": 40,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الهدف النهائي هو إطلاق VVIP TIGER كمنصة عالمية واحدة تعمل من خلال نواة برمجية موحدة وقابلة للتهيئة حسب الدولة واللغة والعملة، مع سوق إعلانات متعدد القطاعات، ملفات شخصية، تواصل فردي، دعم ومراجعة، اشتراكات، إدارة عالمية، وبنية أمنية وتشغيلية قابلة للتوسع. لا تتعامل Global V1 بأموال الصفقات بين المستخدمين، بل تبيع اشتراكات وخدمات ترويجية للمنصة فقط."
+  },
+  {
+    "index": 41,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "1.1 تعريف 100% من Global V1"
+  },
+  {
+    "index": 42,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "المستخدم يستطيع التسجيل والدخول وإكمال ملفه من أي دولة مفعلة وباللغة المدعومة."
+  },
+  {
+    "index": 43,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "المستخدم يستطيع إنشاء إعلان بعملة وموقع وحقول مناسبة لقطاعه ودولته، ورفعه للمراجعة ونشره وإدارته."
+  },
+  {
+    "index": 44,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "الإعلانات المنشورة تظهر في البحث والـFeed، وتعمل روابطها على الهاتف والكمبيوتر."
+  },
+  {
+    "index": 45,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "التواصل فردي وآمن، والإشعارات تصل داخل المنصة وبالبريد وPush بحسب إعدادات المستخدم."
+  },
+  {
+    "index": 46,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "توجد آليات بلاغ واستئناف ودعم Tiger Care وسجل إداري قابل للتدقيق."
+  },
+  {
+    "index": 47,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "الاشتراكات والدفع تعمل عبر Hosted Checkout دون تخزين بيانات البطاقة في المنصة."
+  },
+  {
+    "index": 48,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "توجد سياسات خصوصية وحذف وتصدير بيانات واحتفاظ حسب المناطق القانونية المستهدفة."
+  },
+  {
+    "index": 49,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "تنجح اختبارات الأمان والأداء والاستعادة والدفع والصلاحيات ولا توجد ثغرة حرجة مفتوحة."
+  },
+  {
+    "index": 50,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "يعمل الإطلاق العالمي العام عبر Capability Matrix مع إمكانية إيقاف دولة أو ميزة أو الدفع فورًا."
+  },
+  {
+    "index": 51,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "توجد مراقبة وتشغيل واستجابة للحوادث ونسخ احتياطي واستعادة موثقة بعد الإطلاق."
+  },
+  {
+    "index": 52,
+    "type": "table",
+    "rows": [
+      [
+        "المؤشر",
+        "الحالة الحالية المقدرة",
+        "المستهدف عند الإطلاق"
+      ],
+      [
+        "الرؤية والتوثيق",
+        "متقدم",
+        "100% ومعتمد"
+      ],
+      [
+        "الواجهة وتجربة المستخدم",
+        "متوسط إلى متقدم",
+        "مكتملة لكل المسارات"
+      ],
+      [
+        "الهوية والملفات",
+        "جزئي",
+        "إنتاجي وآمن"
+      ],
+      [
+        "قاعدة البيانات وRLS",
+        "غير مغلقة",
+        "مطبقة ومختبرة"
+      ],
+      [
+        "الإعلانات والبحث",
+        "نماذج وMock جزئي",
+        "إنتاجي عالمي"
+      ],
+      [
+        "المحادثات والإشعارات",
+        "تصميم جزئي",
+        "إنتاجي وآمن"
+      ],
+      [
+        "الدفع والاشتراكات",
+        "غير مكتمل",
+        "إنتاجي ومطابق"
+      ],
+      [
+        "التشغيل العالمي",
+        "غير مكتمل",
+        "24/7 للحالات الحرجة"
+      ]
+    ]
+  },
+  {
+    "index": 53,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 54,
+    "type": "paragraph",
+    "style": "Heading 1",
+    "text": "2. الحالة الحالية والفجوات"
+  },
+  {
+    "index": 55,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "هذه الوثيقة تفترض الاستفادة من التصميمات والملفات الحالية، لكنها لا تعتبرها مكتملة إلا بعد التحقق في المستودع وStaging. الأولوية هي إنهاء P08 أمنيًا، ثم دمج نظام الهوية الموحد P09 على دفعات صغيرة، ثم بناء المسار الإنتاجي الرأسي."
+  },
+  {
+    "index": 56,
+    "type": "table",
+    "rows": [
+      [
+        "المجال",
+        "ما يحتفظ به",
+        "ما يحتاج الإكمال",
+        "قرار التنفيذ"
+      ],
+      [
+        "الهوية",
+        "Clerk وواجهة الدخول الحالية",
+        "توحيد Runtime وربط Supabase وMFA للإدارة",
+        "إصلاح ودمج تدريجي"
+      ],
+      [
+        "التصميم",
+        "نظام التصميم ورحلات UX",
+        "ربط Backend وحالات الخطأ والفراغ والوصول",
+        "إعادة استخدام لا إعادة تصميم"
+      ],
+      [
+        "قاعدة البيانات",
+        "تصميم P07",
+        "migrations حقيقية وRLS وفهارس وRetention",
+        "إغلاق P08 قبل بيانات حقيقية"
+      ],
+      [
+        "الإعلانات",
+        "واجهات ونماذج رحلة",
+        "محرك حالات وحقول ديناميكية وAPI ومراجعة",
+        "بناء وحدة إنتاجية واحدة"
+      ],
+      [
+        "الإدارة",
+        "نماذج لوحات",
+        "RBAC وAudit وعمليات حقيقية",
+        "ربط تدريجي"
+      ],
+      [
+        "الوثائق",
+        "حوكمة قوية",
+        "مواصفات تقنية وجداول تشغيل",
+        "تحديث مستمر من الكود"
+      ]
+    ]
+  },
+  {
+    "index": 57,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 58,
+    "type": "paragraph",
+    "style": "Heading 1",
+    "text": "3. المبادئ المعمارية العالمية"
+  },
+  {
+    "index": 59,
+    "type": "table",
+    "rows": [
+      [
+        "المكوّن",
+        "القرار المعتمد"
+      ],
+      [
+        "نمط التطبيق",
+        "Modular Monolith منظم إلى وحدات Domains؛ يمنع تعقيد Microservices المبكر."
+      ],
+      [
+        "الواجهة",
+        "تطبيق ويب Responsive وPWA أولًا، مع Design System وi18n مركزي."
+      ],
+      [
+        "الهوية",
+        "Clerk هو مصدر الهوية والجلسات؛ Supabase يحتفظ بالملف والصلاحيات والبيانات التطبيقية."
+      ],
+      [
+        "البيانات",
+        "PostgreSQL/Supabase مع migrations قابلة للتكرار، RLS افتراضيًا، وفهارس مبنية على الاستعلامات."
+      ],
+      [
+        "الملفات",
+        "Storage خاص/عام وفق Bucket Policies، معالجة صور غير متزامنة وCDN."
+      ],
+      [
+        "الخدمات الخلفية",
+        "Server-side API/Edge Functions للعمليات الحساسة، Webhooks موقعة، Queues للمهام البطيئة."
+      ],
+      [
+        "الدفع",
+        "Hosted Checkout ومزود عالمي؛ لا تخزين لأرقام البطاقات ولا Escrow في V1."
+      ],
+      [
+        "التوسع",
+        "منطقة بيانات أساسية + CDN عالمي، ثم توسع متعدد المناطق عند مؤشرات فعلية."
+      ],
+      [
+        "الأمان",
+        "Fail Closed، أقل صلاحية، Audit للأحداث الحساسة، Secret Manager، MFA للأدوار الإدارية."
+      ],
+      [
+        "الإطلاق",
+        "Feature Flags وCountry Capability Matrix وRollback آلي وموجات Beta."
+      ]
+    ]
+  },
+  {
+    "index": 60,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 61,
+    "type": "paragraph",
+    "style": "Heading 1",
+    "text": "4. الفريق والحوكمة والمسارات المتوازية"
+  },
+  {
+    "index": 62,
+    "type": "table",
+    "rows": [
+      [
+        "الدور",
+        "العدد",
+        "المسؤوليات الأساسية"
+      ],
+      [
+        "Product Owner",
+        "1",
+        "اعتماد النطاق والقرارات خلال 24–48 ساعة وقبول UAT."
+      ],
+      [
+        "Technical Lead",
+        "1",
+        "المعمارية، مراجعة PR، الأمن، التكامل، منع الانحراف."
+      ],
+      [
+        "Full-Stack Engineer",
+        "2",
+        "الحسابات والإعلانات والبحث والرسائل والإدارة."
+      ],
+      [
+        "Backend/DB Security",
+        "1",
+        "Schema وmigrations وRLS وWebhooks والأداء."
+      ],
+      [
+        "Frontend/PWA",
+        "1",
+        "الشاشات وRTL/i18n والوصول والهاتف."
+      ],
+      [
+        "QA Automation",
+        "1",
+        "Test catalog وE2E وRegression وأدلة الإطلاق."
+      ],
+      [
+        "DevOps/SRE",
+        "1",
+        "CI/CD وStaging والمراقبة والنسخ والتعافي."
+      ],
+      [
+        "Security/Legal/Translation",
+        "جزئي",
+        "تدقيق تخصصي في نقاط البوابات."
+      ]
+    ]
+  },
+  {
+    "index": 63,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 64,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "4.1 المسارات المتوازية"
+  },
+  {
+    "index": 65,
+    "type": "table",
+    "rows": [
+      [
+        "المسار",
+        "النطاق",
+        "شرط عدم التعارض"
+      ],
+      [
+        "A — Core Product",
+        "الهوية، الحساب، الإعلان، البحث، الرسائل",
+        "يلتزم بعقود API وSchema مجمدة لكل Sprint."
+      ],
+      [
+        "B — Platform & Security",
+        "RLS، CI/CD، المراقبة، النسخ، الأسرار",
+        "يملك بوابة الدمج ولا يسمح بتجاوز أمني."
+      ],
+      [
+        "C — Global & Compliance",
+        "الدول، اللغات، الدفع، الخصوصية",
+        "ينشر Configuration وليس Forks للدول."
+      ],
+      [
+        "D — QA & Operations",
+        "الاختبارات، الدعم، المراجعة، الإطلاق",
+        "يبني الاختبارات مع التطوير لا بعده."
+      ]
+    ]
+  },
+  {
+    "index": 66,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 67,
+    "type": "paragraph",
+    "style": "Heading 1",
+    "text": "5. الخطة الزمنية ونسب الإنجاز"
+  },
+  {
+    "index": 68,
+    "type": "table",
+    "rows": [
+      [
+        "المجموعة",
+        "الفترة",
+        "النسبة التراكمية",
+        "النتيجة"
+      ],
+      [
+        "التأسيس والأمان",
+        "الشهر 1–2",
+        "35%",
+        "مستودع منضبط، Staging، هوية وRLS مغلقان."
+      ],
+      [
+        "المنتج الأساسي",
+        "الشهر 3–5",
+        "65%",
+        "حسابات وإعلانات وصور وبحث حقيقي."
+      ],
+      [
+        "التواصل والتشغيل",
+        "الشهر 5–7",
+        "82%",
+        "محادثات وإشعارات وإدارة ودعم ومراجعة."
+      ],
+      [
+        "الدفع والعالمية",
+        "الشهر 7–8",
+        "92%",
+        "دول ولغات واشتراكات وPWA."
+      ],
+      [
+        "الجودة والامتثال",
+        "الشهر 8–9",
+        "98%",
+        "أداء وأمن وقانون وتعافٍ واختبار خارجي."
+      ],
+      [
+        "الإطلاق",
+        "الشهر 9–10",
+        "100%",
+        "Closed Beta ثم Public Beta ثم GA."
+      ]
+    ]
+  },
+  {
+    "index": 69,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 70,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "ملاحظة: النسبة الحالية بالنسبة إلى النطاق العالمي الكامل تقدر بنحو 25–30%. النسب التالية لا تحتسب «الواجهة المرئية» وحدها، بل تعتمد على اكتمال البيانات والأمن والاختبار والتشغيل."
+  },
+  {
+    "index": 71,
+    "type": "paragraph",
+    "style": "Heading 1",
+    "text": "6. مراحل ومهام التنفيذ التفصيلية"
+  },
+  {
+    "index": 72,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "G00 — تثبيت المنتج العالمي والنطاق"
+  },
+  {
+    "index": 73,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G00-01 — عقد Global V1"
+  },
+  {
+    "index": 74,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "تثبيت الوظائف الداخلة والمؤجلة ومسؤولية المنصة وحدود الصفقة."
+      ],
+      [
+        "فائدة المستخدم",
+        "وضوح الخدمة وعدم تضارب الوعود."
+      ],
+      [
+        "فائدة المنصة",
+        "منع تضخم النطاق وتقدير موثوق."
+      ],
+      [
+        "المتطلبات السابقة",
+        "قرار المالك والقطاعات النهائية."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "Product Owner, Technical Lead"
+      ],
+      [
+        "المدة المتوقعة",
+        "1–2 أسبوع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 75,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 76,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 77,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "عقد ورشة قرارات وتسجيل كل قرار في ADR."
+  },
+  {
+    "index": 78,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء Product Scope يحتوي Personas وJobs-to-be-done والرحلات الأساسية."
+  },
+  {
+    "index": 79,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تعريف Out-of-scope صراحة وربطه بإصدارات مستقبلية."
+  },
+  {
+    "index": 80,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "اعتماد معايير نجاح تجارية وتشغيلية لكل رحلة."
+  },
+  {
+    "index": 81,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 82,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "ملف product_contract.yaml قابل للقراءة آليًا."
+  },
+  {
+    "index": 83,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "سجل قرارات ADR مع رقم وتاريخ ومالك."
+  },
+  {
+    "index": 84,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 85,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "منع تضمين ميزات قانونية أو مالية غير معتمدة."
+  },
+  {
+    "index": 86,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 87,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "مراجعة جميع القصص ضد النطاق."
+  },
+  {
+    "index": 88,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "اختبار Traceability من المتطلب إلى المهمة."
+  },
+  {
+    "index": 89,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 90,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "توقيع المالك والقائد التقني."
+  },
+  {
+    "index": 91,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا يوجد متطلب أساسي بلا مالك أو معيار قبول."
+  },
+  {
+    "index": 92,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 93,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "وثيقة العقد، قائمة النطاق، سجل المؤجل."
+  },
+  {
+    "index": 94,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 95,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "تغيير القرارات بعد البناء.",
+        "العودة لآخر إصدار معتمد من العقد."
+      ]
+    ]
+  },
+  {
+    "index": 96,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 97,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G00-02 — نموذج الإيرادات وحدود المسؤولية"
+  },
+  {
+    "index": 98,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "اعتماد الاشتراكات والترويج دون حفظ أموال صفقات المستخدمين."
+      ],
+      [
+        "فائدة المستخدم",
+        "رسوم واضحة وتقليل نزاعات البيع."
+      ],
+      [
+        "فائدة المنصة",
+        "دخل متكرر مع تقليل تعقيد مالي وقانوني."
+      ],
+      [
+        "المتطلبات السابقة",
+        "G00-01."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "Product, Finance, Legal, Backend"
+      ],
+      [
+        "المدة المتوقعة",
+        "1 أسبوع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 99,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 100,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 101,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تصميم الباقات وحدود الإعلانات والمزايا."
+  },
+  {
+    "index": 102,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تعريف حق المستخدم عند الإلغاء والانتهاء."
+  },
+  {
+    "index": 103,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إعداد نموذج أسعار قابل للتهيئة حسب الدولة والعملة."
+  },
+  {
+    "index": 104,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تعريف الفواتير والاسترجاع والضريبة دون Escrow."
+  },
+  {
+    "index": 105,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 106,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "plans, prices, entitlements, invoices, refunds."
+  },
+  {
+    "index": 107,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "واجهة Pricing Service مركزية."
+  },
+  {
+    "index": 108,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 109,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "عدم تخزين البطاقة؛ Hosted Checkout فقط."
+  },
+  {
+    "index": 110,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "فصل دور Finance عن Admin العام."
+  },
+  {
+    "index": 111,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 112,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "اختبار انتقال الباقة والانتهاء والاسترجاع."
+  },
+  {
+    "index": 113,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 114,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "مصفوفة باقات معتمدة."
+  },
+  {
+    "index": 115,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا ميزة مدفوعة بلا Entitlement server-side."
+  },
+  {
+    "index": 116,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 117,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Price book، Subscription rules، legal assumptions."
+  },
+  {
+    "index": 118,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 119,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "دخول المنصة في تنظيم مالي غير مقصود.",
+        "تعطيل الدفع مع استمرار الخدمة المجانية."
+      ]
+    ]
+  },
+  {
+    "index": 120,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 121,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "G01 — الحوكمة والمستودع وCI/CD"
+  },
+  {
+    "index": 122,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G01-01 — تنظيف المستودع وترحيل P09"
+  },
+  {
+    "index": 123,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "إنشاء مصدر حقيقة واحد ونقل العمل الصحيح من الفروع المحلية دون كسر main."
+      ],
+      [
+        "فائدة المستخدم",
+        "استقرار أسرع وأخطاء أقل."
+      ],
+      [
+        "فائدة المنصة",
+        "تقليل الدين التقني وتسهيل المراجعة."
+      ],
+      [
+        "المتطلبات السابقة",
+        "نسخة احتياطية وInventory للملفات."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "Tech Lead, Full-Stack, QA"
+      ],
+      [
+        "المدة المتوقعة",
+        "2–3 أسابيع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 124,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 125,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 126,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء manifest لكل الملفات المعدلة وغير المتتبعة."
+  },
+  {
+    "index": 127,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تصنيف الملفات: احتفاظ، دمج، استبدال، أرشفة، حذف."
+  },
+  {
+    "index": 128,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تقسيم P09 إلى PRs صغيرة: runtime، صفحات، اختبارات، تنظيف."
+  },
+  {
+    "index": 129,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إجراء diff وظيفي وبصري قبل كل دمج."
+  },
+  {
+    "index": 130,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "منع حذف أي ملف resilience قبل إثبات عدم استخدامه."
+  },
+  {
+    "index": 131,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 132,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا تغييرات Schema في نفس PR الخاص بالواجهة."
+  },
+  {
+    "index": 133,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "توثيق SHA وRollback لكل دفعة."
+  },
+  {
+    "index": 134,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 135,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Secret scan قبل رفع الفروع."
+  },
+  {
+    "index": 136,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "منع مفاتيح test المرتبطة بحسابات حقيقية."
+  },
+  {
+    "index": 137,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 138,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "General tests، focused tests، visual regression."
+  },
+  {
+    "index": 139,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 140,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "git status نظيف."
+  },
+  {
+    "index": 141,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "كل PR أقل نطاقًا ويمكن التراجع عنه منفردًا."
+  },
+  {
+    "index": 142,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 143,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Repository inventory، migration PR plan، evidence."
+  },
+  {
+    "index": 144,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 145,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "دمج كتلة كبيرة غير قابلة للمراجعة.",
+        "إرجاع PR واحد دون التأثير على بقية الدفعات."
+      ]
+    ]
+  },
+  {
+    "index": 146,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 147,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G01-02 — CI/CD والبيئات"
+  },
+  {
+    "index": 148,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "إنشاء خط بناء ونشر موثوق لDevelopment وStaging وProduction."
+      ],
+      [
+        "فائدة المستخدم",
+        "إصدارات مستقرة وأعطال أقل."
+      ],
+      [
+        "فائدة المنصة",
+        "سرعة نشر مع قابلية التراجع والتدقيق."
+      ],
+      [
+        "المتطلبات السابقة",
+        "G01-01."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "DevOps, Tech Lead, QA"
+      ],
+      [
+        "المدة المتوقعة",
+        "2 أسبوع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 149,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 150,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 151,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إعداد checks: lint, unit, integration, build, secret, dependency."
+  },
+  {
+    "index": 152,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء Preview environment لكل PR عند الإمكان."
+  },
+  {
+    "index": 153,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "فصل متغيرات البيئات ومنع Production secrets في CI logs."
+  },
+  {
+    "index": 154,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء deployment approval لProduction."
+  },
+  {
+    "index": 155,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء rollback إلى آخر artifact موثوق."
+  },
+  {
+    "index": 156,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 157,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "environment registry، release manifests، migration status."
+  },
+  {
+    "index": 158,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 159,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Branch protection، least privilege tokens، signed artifacts."
+  },
+  {
+    "index": 160,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 161,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "اختبار فشل build وفشل migration وrollback."
+  },
+  {
+    "index": 162,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 163,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا نشر عند فشل check."
+  },
+  {
+    "index": 164,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Staging مطابق تكوينيًا للإنتاج دون بيانات حقيقية."
+  },
+  {
+    "index": 165,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 166,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Workflow files، runbook، release checklist."
+  },
+  {
+    "index": 167,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 168,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "نشر migration غير متوافقة.",
+        "Blue/green أو rollback artifact مع DB backward compatibility."
+      ]
+    ]
+  },
+  {
+    "index": 169,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 170,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "G02 — الهوية وقاعدة البيانات والأمان"
+  },
+  {
+    "index": 171,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G02-01 — توحيد Clerk وربط الملف الداخلي"
+  },
+  {
+    "index": 172,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "جعل Clerk مصدر الهوية الوحيد وربطه بملف Supabase واحد."
+      ],
+      [
+        "فائدة المستخدم",
+        "دخول بسيط وآمن وعدم فقدان الحساب."
+      ],
+      [
+        "فائدة المنصة",
+        "منع الازدواج وتحسين الدعم والتحليلات."
+      ],
+      [
+        "المتطلبات السابقة",
+        "G01-02 وقرار Clerk."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "Backend Security, Frontend, QA"
+      ],
+      [
+        "المدة المتوقعة",
+        "3–4 أسابيع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 173,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 174,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 175,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تحميل Clerk Runtime مرة واحدة فقط."
+  },
+  {
+    "index": 176,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء auth adapter موحد للواجهة والخادم."
+  },
+  {
+    "index": 177,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء webhook endpoint موقّع لمعالجة user.created/updated/deleted."
+  },
+  {
+    "index": 178,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "استخدام idempotency key وحفظ event id."
+  },
+  {
+    "index": 179,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء profile عند أول دخول إذا تأخر webhook."
+  },
+  {
+    "index": 180,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تطبيق MFA للأدوار الإدارية."
+  },
+  {
+    "index": 181,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تسجيل device/session events غير الحساسة."
+  },
+  {
+    "index": 182,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 183,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "profiles(id UUID, clerk_user_id UNIQUE, status, locale, country_code)."
+  },
+  {
+    "index": 184,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "identity_events(event_id UNIQUE, type, processed_at, result)."
+  },
+  {
+    "index": 185,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "GET /me، PATCH /me، POST /webhooks/clerk."
+  },
+  {
+    "index": 186,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 187,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "التحقق من التوقيع والتوقيت."
+  },
+  {
+    "index": 188,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا service role في المتصفح."
+  },
+  {
+    "index": 189,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "منع login للحساب blocked/deleted."
+  },
+  {
+    "index": 190,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 191,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Webhook replay، duplicate event، deleted account، two users isolation."
+  },
+  {
+    "index": 192,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 193,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "حساب واحد ينتج ملفًا واحدًا."
+  },
+  {
+    "index": 194,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "تسجيل الخروج ينهي الجلسة."
+  },
+  {
+    "index": 195,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "MFA إلزامي للإدارة."
+  },
+  {
+    "index": 196,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 197,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Migration، webhook service، auth adapter، tests، runbook."
+  },
+  {
+    "index": 198,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 199,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "عدم تطابق Clerk وSupabase.",
+        "تعطيل webhook والعودة إلى read-only sync مع reconciliation job."
+      ]
+    ]
+  },
+  {
+    "index": 200,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 201,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G02-02 — migrations وRLS وStorage Policies"
+  },
+  {
+    "index": 202,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "إغلاق P08 فعليًا قبل بيانات المستخدمين."
+      ],
+      [
+        "فائدة المستخدم",
+        "خصوصية وثقة ومنع الوصول المتبادل."
+      ],
+      [
+        "فائدة المنصة",
+        "تقليل خطر الاختراق والمسؤولية القانونية."
+      ],
+      [
+        "المتطلبات السابقة",
+        "G02-01 وSchema أولي."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "DB Security, DevOps, QA"
+      ],
+      [
+        "المدة المتوقعة",
+        "4–6 أسابيع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 203,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 204,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 205,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تحويل Schema إلى migrations مرتبة وقابلة للإعادة."
+  },
+  {
+    "index": 206,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تفعيل RLS لكل جدول تطبيق."
+  },
+  {
+    "index": 207,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "كتابة policies وفق owner, participant, role, country scope."
+  },
+  {
+    "index": 208,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء private/public buckets منفصلة."
+  },
+  {
+    "index": 209,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إضافة اختبارات SQL لكل policy."
+  },
+  {
+    "index": 210,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تشغيل remote drift audit وbackup restore drill."
+  },
+  {
+    "index": 211,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 212,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "migration_history، audit_logs، access_test_fixtures."
+  },
+  {
+    "index": 213,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا جدول تطبيق بدون RLS إلا باستثناء موثق."
+  },
+  {
+    "index": 214,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 215,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "deny-by-default، service role server-only، signed URLs."
+  },
+  {
+    "index": 216,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 217,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "A/B user isolation، anonymous access، admin scope، expired URL."
+  },
+  {
+    "index": 218,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 219,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "كل اختبار سلبي ينجح بالمنع."
+  },
+  {
+    "index": 220,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا drift غير موثق بين repo وremote."
+  },
+  {
+    "index": 221,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "استعادة Backup مثبتة."
+  },
+  {
+    "index": 222,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 223,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "SQL migrations، policy matrix، test report، restore evidence."
+  },
+  {
+    "index": 224,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 225,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "سياسة واسعة تكشف بيانات.",
+        "إيقاف الكتابة وتطبيق deny-all emergency policy ثم rollback migration."
+      ]
+    ]
+  },
+  {
+    "index": 226,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 227,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "G03 — الدول واللغات والملفات الشخصية"
+  },
+  {
+    "index": 228,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G03-01 — Country Capability Matrix"
+  },
+  {
+    "index": 229,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "تمكين المنصة عالميًا عبر إعدادات لا عبر Fork لكل دولة."
+      ],
+      [
+        "فائدة المستخدم",
+        "تجربة مناسبة للدولة والعملة والقانون."
+      ],
+      [
+        "فائدة المنصة",
+        "فتح وإغلاق الأسواق بسرعة وأمان."
+      ],
+      [
+        "المتطلبات السابقة",
+        "G00 وG02."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "Backend, Admin Frontend, Legal"
+      ],
+      [
+        "المدة المتوقعة",
+        "3 أسابيع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 230,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 231,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 232,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء countries وcountry_capabilities وcountry_restrictions."
+  },
+  {
+    "index": 233,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إدارة feature flags لكل دولة."
+  },
+  {
+    "index": 234,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تحديد locales, currencies, timezones, units."
+  },
+  {
+    "index": 235,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء لوحة إدارية مع audit لأي تغيير."
+  },
+  {
+    "index": 236,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "توفير fallback عالمي عند نقص الإعداد."
+  },
+  {
+    "index": 237,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 238,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "countries(code ISO2 PK, name_key, default_currency, default_locale)."
+  },
+  {
+    "index": 239,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "capabilities(signup, listing, messaging, payment, verification)."
+  },
+  {
+    "index": 240,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 241,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "منع تغيير capability الحساس دون صلاحية ومراجعة."
+  },
+  {
+    "index": 242,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 243,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "دولة مفعلة/غير مفعلة، دفع متوقف، فئة ممنوعة."
+  },
+  {
+    "index": 244,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 245,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا يعتمد الكود على اسم دولة ثابت."
+  },
+  {
+    "index": 246,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "يمكن تعطيل الدفع أو النشر خلال دقائق."
+  },
+  {
+    "index": 247,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 248,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Schema، admin UI، seed data، matrix template."
+  },
+  {
+    "index": 249,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 250,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "إعداد خاطئ يفتح دولة غير جاهزة.",
+        "Global kill switch وrollback للنسخة السابقة من configuration."
+      ]
+    ]
+  },
+  {
+    "index": 251,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 252,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G03-02 — Onboarding والملفات"
+  },
+  {
+    "index": 253,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "إنشاء رحلة تسجيل عالمية وملف عام/خاص وإدارة الخصوصية."
+      ],
+      [
+        "فائدة المستخدم",
+        "بداية واضحة وتحكم في البيانات."
+      ],
+      [
+        "فائدة المنصة",
+        "بيانات منظمة وثقة وتحويل أفضل."
+      ],
+      [
+        "المتطلبات السابقة",
+        "G02 وG03-01."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "Frontend, Backend, Privacy, QA"
+      ],
+      [
+        "المدة المتوقعة",
+        "3–4 أسابيع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 254,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 255,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 256,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "بناء wizard قابل للاستكمال."
+  },
+  {
+    "index": 257,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "جمع الحد الأدنى فقط ثم progressive profiling."
+  },
+  {
+    "index": 258,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "دعم Individual/Business والتحقق عند الحاجة."
+  },
+  {
+    "index": 259,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إضافة public profile projection منفصلة عن private profile."
+  },
+  {
+    "index": 260,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تنفيذ export, deactivate, deletion request."
+  },
+  {
+    "index": 261,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 262,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "profiles, profile_private, business_profiles, onboarding_state, consents."
+  },
+  {
+    "index": 263,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "POST /onboarding/step، GET/PATCH /profile."
+  },
+  {
+    "index": 264,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 265,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Data minimization، field-level access، consent evidence."
+  },
+  {
+    "index": 266,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 267,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Resume onboarding، invalid country، privacy toggles، deletion lifecycle."
+  },
+  {
+    "index": 268,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 269,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "المستخدم يكمل الرحلة على هاتف متوسط."
+  },
+  {
+    "index": 270,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا تظهر البيانات الخاصة في public API."
+  },
+  {
+    "index": 271,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 272,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Screens، APIs، migrations، consent copy، tests."
+  },
+  {
+    "index": 273,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 274,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "طلب بيانات أكثر من اللازم.",
+        "إخفاء الحقول الاختيارية والعودة إلى الحد الأدنى."
+      ]
+    ]
+  },
+  {
+    "index": 275,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 276,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "G04 — محرك القطاعات والإعلانات والوسائط"
+  },
+  {
+    "index": 277,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G04-01 — Schema ديناميكي للقطاعات"
+  },
+  {
+    "index": 278,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "إضافة القطاعات والفئات والحقول دون نسخ التطبيق."
+      ],
+      [
+        "فائدة المستخدم",
+        "نماذج دقيقة حسب نوع الإعلان."
+      ],
+      [
+        "فائدة المنصة",
+        "توسع أسرع وإدارة مركزية."
+      ],
+      [
+        "المتطلبات السابقة",
+        "G03."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "Backend, Frontend, Product"
+      ],
+      [
+        "المدة المتوقعة",
+        "3–4 أسابيع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 279,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 280,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 281,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء sector/category/field definitions بإصدارات."
+  },
+  {
+    "index": 282,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "دعم أنواع نص، رقم، اختيار، تاريخ، موقع، وحدة."
+  },
+  {
+    "index": 283,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Validation server-side حسب schema version."
+  },
+  {
+    "index": 284,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "منع حذف field مستخدم؛ deprecate بدلًا منه."
+  },
+  {
+    "index": 285,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء admin preview ونشر configuration."
+  },
+  {
+    "index": 286,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 287,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "sectors, categories, category_fields, field_options, schema_versions."
+  },
+  {
+    "index": 288,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "GET /catalog/schema?country&category."
+  },
+  {
+    "index": 289,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 290,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "منع حقول HTML غير منقاة."
+  },
+  {
+    "index": 291,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Audit لأي تغيير Configuration."
+  },
+  {
+    "index": 292,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 293,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Schema version compatibility، required/optional، localization."
+  },
+  {
+    "index": 294,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 295,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "يمكن إضافة فئة دون deployment."
+  },
+  {
+    "index": 296,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "الإعلانات القديمة تبقى قابلة للعرض."
+  },
+  {
+    "index": 297,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 298,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Catalog service، admin UI، migration strategy."
+  },
+  {
+    "index": 299,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 300,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "تغيير schema يكسر إعلانات قديمة.",
+        "العودة إلى schema version سابقة."
+      ]
+    ]
+  },
+  {
+    "index": 301,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 302,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G04-02 — محرك حالات الإعلان"
+  },
+  {
+    "index": 303,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "تنفيذ دورة حياة الإعلان من المسودة إلى الأرشفة."
+      ],
+      [
+        "فائدة المستخدم",
+        "تحكم واضح وشفافية في المراجعة."
+      ],
+      [
+        "فائدة المنصة",
+        "محتوى منظم وقابل للتدقيق وتحقيق الإيرادات."
+      ],
+      [
+        "المتطلبات السابقة",
+        "G04-01."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "Full-Stack, Moderation, QA"
+      ],
+      [
+        "المدة المتوقعة",
+        "5–6 أسابيع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 304,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 305,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 306,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تنفيذ state machine مركزية."
+  },
+  {
+    "index": 307,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Autosave مع optimistic concurrency/version."
+  },
+  {
+    "index": 308,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Submit validation ثم moderation queue."
+  },
+  {
+    "index": 309,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "قبول/رفض مع reason code وإعادة تقديم."
+  },
+  {
+    "index": 310,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Expiry job وrenewal rules."
+  },
+  {
+    "index": 311,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "فرض plan entitlements server-side."
+  },
+  {
+    "index": 312,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "حفظ listing revisions وaudit trail."
+  },
+  {
+    "index": 313,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 314,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "listings, listing_attributes, listing_revisions, listing_status_history."
+  },
+  {
+    "index": 315,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "POST /listings، PATCH /listings/:id، POST /submit|approve|reject|pause|renew."
+  },
+  {
+    "index": 316,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 317,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Owner-only mutations، moderation scoped role، content sanitization."
+  },
+  {
+    "index": 318,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 319,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "كل transition مسموح وممنوع، concurrent edit، expired plan."
+  },
+  {
+    "index": 320,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 321,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا انتقال مباشر إلى published دون policy."
+  },
+  {
+    "index": 322,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "كل رفض يحمل سببًا."
+  },
+  {
+    "index": 323,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا تعديل لمستخدم آخر."
+  },
+  {
+    "index": 324,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 325,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "State machine، APIs، UI، migrations، tests."
+  },
+  {
+    "index": 326,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 327,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "حالات متضاربة أو نشر غير مصرح.",
+        "Freeze publishing وإعادة الحالة من history."
+      ]
+    ]
+  },
+  {
+    "index": 328,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 329,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G04-03 — Pipeline الصور والملفات"
+  },
+  {
+    "index": 330,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "رفع ومعالجة وتقديم صور آمنة وسريعة."
+      ],
+      [
+        "فائدة المستخدم",
+        "رفع سلس وصور واضحة وسريعة."
+      ],
+      [
+        "فائدة المنصة",
+        "تقليل التكلفة وتحسين الأداء ومنع ملفات ضارة."
+      ],
+      [
+        "المتطلبات السابقة",
+        "G02-02 وG04-02."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "Backend, Frontend, DevOps, QA"
+      ],
+      [
+        "المدة المتوقعة",
+        "2–3 أسابيع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 331,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 332,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 333,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء presigned upload flow."
+  },
+  {
+    "index": 334,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "فحص MIME والحجم والعدد."
+  },
+  {
+    "index": 335,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إزالة EXIF وإنشاء thumbnails/WebP."
+  },
+  {
+    "index": 336,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Queue للمعالجة مع retry وdead-letter."
+  },
+  {
+    "index": 337,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "ربط الصور بالإعلان وترتيبها واختيار الغلاف."
+  },
+  {
+    "index": 338,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "garbage collection للملفات اليتيمة."
+  },
+  {
+    "index": 339,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 340,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "media_assets, media_variants, upload_sessions."
+  },
+  {
+    "index": 341,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "POST /media/upload-session، POST /complete، DELETE /media/:id."
+  },
+  {
+    "index": 342,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 343,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Private upload bucket، virus scan عند الملفات، signed delivery."
+  },
+  {
+    "index": 344,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 345,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "ملف خاطئ، انقطاع، تكرار complete، حذف أثناء المعالجة."
+  },
+  {
+    "index": 346,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 347,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا يصبح الإعلان منشورًا قبل اكتمال الصورة المطلوبة."
+  },
+  {
+    "index": 348,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا ملفات يتيمة بعد فترة التنظيف."
+  },
+  {
+    "index": 349,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 350,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Worker، buckets، policies، UI، monitoring."
+  },
+  {
+    "index": 351,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 352,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "تكلفة تخزين أو رفع ضار.",
+        "تعطيل uploads مع بقاء القراءة، وتنظيف الدفعة المتأثرة."
+      ]
+    ]
+  },
+  {
+    "index": 353,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 354,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "G05 — البحث والـFeed والتفاصيل"
+  },
+  {
+    "index": 355,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G05-01 — Discovery API والبحث"
+  },
+  {
+    "index": 356,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "عرض الإعلانات حسب الدولة والقطاع والفلاتر بسرعة."
+      ],
+      [
+        "فائدة المستخدم",
+        "العثور على المحتوى المناسب بسهولة."
+      ],
+      [
+        "فائدة المنصة",
+        "زيادة التفاعل والتحويل والإيرادات."
+      ],
+      [
+        "المتطلبات السابقة",
+        "G04."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "Backend, Frontend, DBA, QA"
+      ],
+      [
+        "المدة المتوقعة",
+        "4–5 أسابيع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 357,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 358,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 359,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تصميم query contract موحد."
+  },
+  {
+    "index": 360,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء indexes مركبة وfull-text حسب اللغات."
+  },
+  {
+    "index": 361,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Cursor pagination ثابتة."
+  },
+  {
+    "index": 362,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "فلترة country capability وحالة published."
+  },
+  {
+    "index": 363,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Ranking أولي: recency, locality, quality, sponsored واضح."
+  },
+  {
+    "index": 364,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Cache للقراءات العامة مع invalidation."
+  },
+  {
+    "index": 365,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 366,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "GET /listings، GET /listings/:slug، GET /search/suggestions."
+  },
+  {
+    "index": 367,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "search_documents/materialized view عند الحاجة."
+  },
+  {
+    "index": 368,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 369,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "عدم كشف draft/private fields."
+  },
+  {
+    "index": 370,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Rate limit وanti-scraping تدريجي."
+  },
+  {
+    "index": 371,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 372,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "فلاتر مركبة، pagination stability، hidden listing، multilingual search."
+  },
+  {
+    "index": 373,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 374,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "P95 API ضمن الهدف."
+  },
+  {
+    "index": 375,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا يظهر غير المنشور."
+  },
+  {
+    "index": 376,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "النتائج قابلة للمشاركة."
+  },
+  {
+    "index": 377,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 378,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Search service، indexes، feed UI، performance report."
+  },
+  {
+    "index": 379,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 380,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "استعلامات بطيئة أو نتائج غير متسقة.",
+        "تعطيل ranking المعقد والعودة إلى ترتيب زمني مفهرس."
+      ]
+    ]
+  },
+  {
+    "index": 381,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 382,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "G06 — المحادثات والإشعارات والدعوات"
+  },
+  {
+    "index": 383,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G06-01 — محادثات فردية آمنة"
+  },
+  {
+    "index": 384,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "تواصل واحد لواحد مرتبط بالإعلان عند الحاجة."
+      ],
+      [
+        "فائدة المستخدم",
+        "تواصل خاص وسهل مع البائع."
+      ],
+      [
+        "فائدة المنصة",
+        "رفع قيمة السوق والاحتفاظ بالمستخدم."
+      ],
+      [
+        "المتطلبات السابقة",
+        "G02 وG04."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "Backend, Frontend, Security, QA"
+      ],
+      [
+        "المدة المتوقعة",
+        "4–5 أسابيع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 385,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 386,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 387,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء conversation uniqueness policy."
+  },
+  {
+    "index": 388,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إرسال الرسالة عبر API ثم Realtime event."
+  },
+  {
+    "index": 389,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Cursor pagination وترتيب server timestamp."
+  },
+  {
+    "index": 390,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "read receipts وunread counters."
+  },
+  {
+    "index": 391,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "block/report وrate limiting."
+  },
+  {
+    "index": 392,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Retention وحذف منطقي مع legal hold عند الحاجة."
+  },
+  {
+    "index": 393,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 394,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "conversations, conversation_participants, messages, message_receipts, blocks."
+  },
+  {
+    "index": 395,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "POST /conversations، POST /messages، GET /messages."
+  },
+  {
+    "index": 396,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 397,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "RLS: participants only."
+  },
+  {
+    "index": 398,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "الموظف لا يقرأ المحتوى افتراضيًا."
+  },
+  {
+    "index": 399,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Content limits وspam controls."
+  },
+  {
+    "index": 400,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 401,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "طرف ثالث، مستخدم محظور، reconnect، duplicate send، deleted listing."
+  },
+  {
+    "index": 402,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 403,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا قراءة إلا للطرفين."
+  },
+  {
+    "index": 404,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "الرسالة المكررة لا تحفظ مرتين."
+  },
+  {
+    "index": 405,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 406,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Schema، APIs، realtime policy، UI، tests."
+  },
+  {
+    "index": 407,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 408,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "كشف الرسائل أو spam.",
+        "تعطيل الإرسال والإبقاء على read-only، وتطبيق emergency rate limit."
+      ]
+    ]
+  },
+  {
+    "index": 409,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 410,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G06-02 — Notification Center"
+  },
+  {
+    "index": 411,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "إشعارات موحدة داخلية وبريد وPush مع تفضيلات."
+      ],
+      [
+        "فائدة المستخدم",
+        "معرفة الأحداث المهمة دون إزعاج."
+      ],
+      [
+        "فائدة المنصة",
+        "عودة المستخدم وتقليل فقدان العمليات."
+      ],
+      [
+        "المتطلبات السابقة",
+        "G06-01 وPWA أساس."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "Backend, Frontend, DevOps, QA"
+      ],
+      [
+        "المدة المتوقعة",
+        "3–4 أسابيع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 412,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 413,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 414,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تعريف event catalog وقوالب محلية."
+  },
+  {
+    "index": 415,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء outbox pattern لمنع فقد الإشعار."
+  },
+  {
+    "index": 416,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Workers للبريد وPush مع retry."
+  },
+  {
+    "index": 417,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "deduplication وaggregation."
+  },
+  {
+    "index": 418,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "preferences وquiet hours."
+  },
+  {
+    "index": 419,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "deep links آمنة."
+  },
+  {
+    "index": 420,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 421,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "notification_events, notification_deliveries, preferences, templates."
+  },
+  {
+    "index": 422,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "GET /notifications، PATCH /preferences."
+  },
+  {
+    "index": 423,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 424,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "عدم تضمين بيانات حساسة في push lock-screen."
+  },
+  {
+    "index": 425,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Unsubscribe صحيح."
+  },
+  {
+    "index": 426,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 427,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Retry، duplicate event، invalid token، locale fallback."
+  },
+  {
+    "index": 428,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 429,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "كل حدث حرج له delivery trace."
+  },
+  {
+    "index": 430,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا إرسال بعد opt-out."
+  },
+  {
+    "index": 431,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 432,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Event catalog، templates، workers، UI، dashboards."
+  },
+  {
+    "index": 433,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 434,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "إرسال مكرر أو كشف معلومات.",
+        "إيقاف channel محدد دون تعطيل البقية."
+      ]
+    ]
+  },
+  {
+    "index": 435,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 436,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "G07 — الثقة والدعم والإدارة"
+  },
+  {
+    "index": 437,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G07-01 — Trust & Safety والمراجعة"
+  },
+  {
+    "index": 438,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "إدارة البلاغات والقرارات والاستئناف عالميًا."
+      ],
+      [
+        "فائدة المستخدم",
+        "حماية من الاحتيال والمحتوى الضار وإنصاف في الاعتراض."
+      ],
+      [
+        "فائدة المنصة",
+        "تقليل المخاطر القانونية وبناء الثقة."
+      ],
+      [
+        "المتطلبات السابقة",
+        "G04 وG06."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "Trust Lead, Backend, Admin UI, Legal, QA"
+      ],
+      [
+        "المدة المتوقعة",
+        "4–5 أسابيع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 439,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 440,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 441,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء taxonomy للمخالفات والعقوبات."
+  },
+  {
+    "index": 442,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "ربط البلاغ بالمحتوى snapshot."
+  },
+  {
+    "index": 443,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Queues حسب الدولة واللغة والخطورة."
+  },
+  {
+    "index": 444,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "قرار مع reason code وevidence."
+  },
+  {
+    "index": 445,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "استئناف بواسطة مراجع مختلف للحالات الحساسة."
+  },
+  {
+    "index": 446,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "حفظ audit وlegal hold."
+  },
+  {
+    "index": 447,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 448,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "reports, moderation_cases, decisions, appeals, evidence_refs."
+  },
+  {
+    "index": 449,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "POST /reports، PATCH /cases/:id/decision."
+  },
+  {
+    "index": 450,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 451,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "صلاحيات scoped، إخفاء هوية المبلغ عند الحاجة، audit غير قابل للتعديل."
+  },
+  {
+    "index": 452,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 453,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "بلاغ مكرر، تضارب مصالح، appeal، illegal content emergency."
+  },
+  {
+    "index": 454,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 455,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "كل قرار قابل للتعليل والتدقيق."
+  },
+  {
+    "index": 456,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "SLA حسب الخطورة."
+  },
+  {
+    "index": 457,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 458,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Policies، admin screens، reports API، training guide."
+  },
+  {
+    "index": 459,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 460,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "قرارات خاطئة أو تأخر محتوى خطير.",
+        "تعطيل المحتوى مؤقتًا مع مراجعة عاجلة وإمكانية الاستعادة."
+      ]
+    ]
+  },
+  {
+    "index": 461,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 462,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G07-02 — Tiger Care والدعم"
+  },
+  {
+    "index": 463,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "نظام تذاكر متعدد اللغات مع SLA وتصعيد."
+      ],
+      [
+        "فائدة المستخدم",
+        "حل المشكلات وتتبعها بوضوح."
+      ],
+      [
+        "فائدة المنصة",
+        "تقليل فقد المستخدم وقياس جودة الخدمة."
+      ],
+      [
+        "المتطلبات السابقة",
+        "G03 وG06-02."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "Support Lead, Full-Stack, QA"
+      ],
+      [
+        "المدة المتوقعة",
+        "3–4 أسابيع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 464,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 465,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 466,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء tickets, comments, assignments, SLA timers."
+  },
+  {
+    "index": 467,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "ربط التذكرة بالمستخدم أو الإعلان أو الدفع دون كشف زائد."
+  },
+  {
+    "index": 468,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "قوالب رد وملاحظات داخلية."
+  },
+  {
+    "index": 469,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تصعيد تلقائي وتقارير backlog."
+  },
+  {
+    "index": 470,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "قياس CSAT بعد الإغلاق."
+  },
+  {
+    "index": 471,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 472,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "support_tickets, support_messages, sla_events, satisfaction."
+  },
+  {
+    "index": 473,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "POST /support/tickets، admin queue APIs."
+  },
+  {
+    "index": 474,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 475,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "عزل الدول والأدوار، redaction للبيانات الحساسة."
+  },
+  {
+    "index": 476,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 477,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "SLA breach، reassignment، user attachment، closed reopen."
+  },
+  {
+    "index": 478,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 479,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "المستخدم يرى الحالة."
+  },
+  {
+    "index": 480,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "كل تجاوز SLA يظهر في التقرير."
+  },
+  {
+    "index": 481,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 482,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "User portal، agent console، reports، runbook."
+  },
+  {
+    "index": 483,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 484,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "تسرب بيانات بين التذاكر.",
+        "تعطيل attachments أو role متأثر وإعادة تعيين الصلاحيات."
+      ]
+    ]
+  },
+  {
+    "index": 485,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 486,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G07-03 — الإدارة العالمية وRBAC"
+  },
+  {
+    "index": 487,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "تشغيل الدول والقطاعات والمستخدمين بصلاحيات دقيقة."
+      ],
+      [
+        "فائدة المستخدم",
+        "خدمة مستقرة وقرارات أسرع."
+      ],
+      [
+        "فائدة المنصة",
+        "قابلية التوسع التشغيلي دون منح صلاحية مطلقة."
+      ],
+      [
+        "المتطلبات السابقة",
+        "G03 وG07-01."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "Tech Lead, Security, Admin Frontend, QA"
+      ],
+      [
+        "المدة المتوقعة",
+        "4 أسابيع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 488,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 489,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 490,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تعريف roles وpermissions كبيانات versioned."
+  },
+  {
+    "index": 491,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء scoped assignments: global/country/region/sector."
+  },
+  {
+    "index": 492,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "فحص الصلاحية server-side لكل action."
+  },
+  {
+    "index": 493,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "MFA وstep-up للأفعال الحرجة."
+  },
+  {
+    "index": 494,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Audit before/after values."
+  },
+  {
+    "index": 495,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "فصل duty للمالية والاستئناف."
+  },
+  {
+    "index": 496,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 497,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "roles, permissions, role_bindings, admin_actions."
+  },
+  {
+    "index": 498,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "GET /admin/me/permissions، privileged APIs."
+  },
+  {
+    "index": 499,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 500,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Least privilege، just-in-time عند الحاجة، no shared accounts."
+  },
+  {
+    "index": 501,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 502,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "كل دور وكل scope، revoked role، expired session، step-up."
+  },
+  {
+    "index": 503,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 504,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا API إدارية تعتمد على إخفاء زر."
+  },
+  {
+    "index": 505,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "كل فعل حساس مسجل."
+  },
+  {
+    "index": 506,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 507,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "RBAC matrix، middleware، admin UI، tests."
+  },
+  {
+    "index": 508,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 509,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "Privilege escalation.",
+        "Revoke all bindings وactivate owner-only emergency mode."
+      ]
+    ]
+  },
+  {
+    "index": 510,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 511,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "G08 — الاشتراكات والدفع"
+  },
+  {
+    "index": 512,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G08-01 — Entitlements والباقات"
+  },
+  {
+    "index": 513,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "فصل المزايا عن واجهة الأسعار وإدارتها مركزيًا."
+      ],
+      [
+        "فائدة المستخدم",
+        "يعرف المستخدم حدوده ومزاياه بوضوح."
+      ],
+      [
+        "فائدة المنصة",
+        "تجارب وأسعار مرنة دون كود مكرر."
+      ],
+      [
+        "المتطلبات السابقة",
+        "G00-02 وG04."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "Backend, Product, QA"
+      ],
+      [
+        "المدة المتوقعة",
+        "3 أسابيع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 514,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 515,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 516,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء plans/features/entitlements."
+  },
+  {
+    "index": 517,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "حساب effective entitlement من subscription وgrace."
+  },
+  {
+    "index": 518,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "فرض الحدود عند API."
+  },
+  {
+    "index": 519,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Metering للإعلانات والترقيات."
+  },
+  {
+    "index": 520,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تاريخ تغييرات الأسعار دون تغيير المشترك القديم إلا بسياسة."
+  },
+  {
+    "index": 521,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 522,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "plans, plan_prices, subscriptions, entitlements, usage_counters."
+  },
+  {
+    "index": 523,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "GET /billing/entitlements."
+  },
+  {
+    "index": 524,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 525,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "منع تزوير الباقة client-side."
+  },
+  {
+    "index": 526,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Audit لتعديلات الخطة."
+  },
+  {
+    "index": 527,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 528,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Upgrade/downgrade، expired، grace، limit race."
+  },
+  {
+    "index": 529,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 530,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا يمكن تجاوز الحد بطلبات متزامنة."
+  },
+  {
+    "index": 531,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "واجهة توضح السبب والترقية."
+  },
+  {
+    "index": 532,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 533,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Billing domain، UI، tests، price book."
+  },
+  {
+    "index": 534,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 535,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "عدم اتساق الحدود.",
+        "Fallback إلى أقل صلاحية آمنة مع تسوية يدوية."
+      ]
+    ]
+  },
+  {
+    "index": 536,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 537,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G08-02 — Hosted Checkout وWebhooks"
+  },
+  {
+    "index": 538,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "تحصيل الاشتراكات عالميًا بأمان وقابلية مطابقة."
+      ],
+      [
+        "فائدة المستخدم",
+        "دفع واضح واسترجاع منظم."
+      ],
+      [
+        "فائدة المنصة",
+        "دخل حقيقي مع تقليل نطاق PCI."
+      ],
+      [
+        "المتطلبات السابقة",
+        "G08-01 ومزود دفع معتمد."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "Payments Backend, Finance, Security, QA"
+      ],
+      [
+        "المدة المتوقعة",
+        "4–6 أسابيع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 539,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 540,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 541,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء checkout session server-side."
+  },
+  {
+    "index": 542,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "ربط customer/subscription ids داخليًا."
+  },
+  {
+    "index": 543,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "التحقق من webhook signature وidempotency."
+  },
+  {
+    "index": 544,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "حفظ ledger entries غير قابلة للتعديل."
+  },
+  {
+    "index": 545,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "معالجة success/failure/refund/chargeback."
+  },
+  {
+    "index": 546,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "reconciliation job يومي."
+  },
+  {
+    "index": 547,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "فواتير وضريبة حسب الإعداد."
+  },
+  {
+    "index": 548,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 549,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "payment_customers, payment_events, ledger_entries, invoices, refunds."
+  },
+  {
+    "index": 550,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "POST /checkout، POST /webhooks/payment، billing portal."
+  },
+  {
+    "index": 551,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 552,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا بيانات بطاقة."
+  },
+  {
+    "index": 553,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Secrets server-side."
+  },
+  {
+    "index": 554,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Replay protection."
+  },
+  {
+    "index": 555,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Finance role separated."
+  },
+  {
+    "index": 556,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 557,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Duplicate webhook، out-of-order events، refund، chargeback، failure."
+  },
+  {
+    "index": 558,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 559,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "كل دفعة تطابق المزود والLedger."
+  },
+  {
+    "index": 560,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا Entitlement قبل حدث موثوق."
+  },
+  {
+    "index": 561,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 562,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Integration، webhook logs، reconciliation report، runbook."
+  },
+  {
+    "index": 563,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 564,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "تفعيل خدمة دون دفع أو فقد حدث.",
+        "تعطيل checkout، تجميد entitlements الجديدة، reconciliation وإعادة replay موثق."
+      ]
+    ]
+  },
+  {
+    "index": 565,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 566,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "G09 — العالمية وPWA والأداء"
+  },
+  {
+    "index": 567,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G09-01 — i18n وRTL والوصول"
+  },
+  {
+    "index": 568,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "دعم العربية والإنجليزية ثم لغات إضافية من نظام ترجمة مركزي."
+      ],
+      [
+        "فائدة المستخدم",
+        "تجربة مفهومة وقابلة للاستخدام للجميع."
+      ],
+      [
+        "فائدة المنصة",
+        "توسع عالمي وتقليل نسخ الكود."
+      ],
+      [
+        "المتطلبات السابقة",
+        "G03 وواجهات مستقرة."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "Frontend, Translator, QA"
+      ],
+      [
+        "المدة المتوقعة",
+        "3–4 أسابيع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 569,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 570,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 571,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "استخراج كل النصوص إلى keys."
+  },
+  {
+    "index": 572,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "دعم plural/gender/date/currency formatting."
+  },
+  {
+    "index": 573,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "RTL/LTR switch دون CSS forks."
+  },
+  {
+    "index": 574,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "ترجمة email/push/legal."
+  },
+  {
+    "index": 575,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "WCAG keyboard, labels, contrast, focus, reduced motion."
+  },
+  {
+    "index": 576,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 577,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "translation catalog versioned، locale fallback."
+  },
+  {
+    "index": 578,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 579,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "عدم وضع بيانات حساسة في نصوص client logs."
+  },
+  {
+    "index": 580,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 581,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Pseudo-localization، long text، screen reader، keyboard."
+  },
+  {
+    "index": 582,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 583,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا نص hard-coded في المسارات الرئيسية."
+  },
+  {
+    "index": 584,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "اجتياز تدقيق الوصول المستهدف."
+  },
+  {
+    "index": 585,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 586,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Catalog، style fixes، accessibility report."
+  },
+  {
+    "index": 587,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 588,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "ترجمة قانونية خاطئة أو layout مكسور.",
+        "Fallback إلى الإنجليزية المعتمدة وتعطيل locale غير الجاهز."
+      ]
+    ]
+  },
+  {
+    "index": 589,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 590,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G09-02 — PWA والهاتف"
+  },
+  {
+    "index": 591,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "تقديم تجربة تثبيت وإشعارات وعمل موثوق على الهاتف."
+      ],
+      [
+        "فائدة المستخدم",
+        "وصول أسرع دون انتظار تطبيق Native."
+      ],
+      [
+        "فائدة المنصة",
+        "تقليل الوقت والتكلفة وزيادة الاستخدام."
+      ],
+      [
+        "المتطلبات السابقة",
+        "G06-02 وG09-01."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "Frontend/PWA, QA, DevOps"
+      ],
+      [
+        "المدة المتوقعة",
+        "3–4 أسابيع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 592,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 593,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 594,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Manifest وicons وservice worker."
+  },
+  {
+    "index": 595,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Cache shell فقط وعدم cache لبيانات خاصة بلا سياسة."
+  },
+  {
+    "index": 596,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "update prompt وversion handling."
+  },
+  {
+    "index": 597,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Push permission UX."
+  },
+  {
+    "index": 598,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Deep links والكاميرا والرفع وsafe area."
+  },
+  {
+    "index": 599,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "اختبار أجهزة متوسطة وiOS/Android."
+  },
+  {
+    "index": 600,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 601,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "push_subscriptions، device_installations."
+  },
+  {
+    "index": 602,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 603,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا تخزين tokens حساسة في cache."
+  },
+  {
+    "index": 604,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Logout يمسح البيانات المحلية."
+  },
+  {
+    "index": 605,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 606,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Offline، update، revoked push، low memory، interrupted upload."
+  },
+  {
+    "index": 607,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 608,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "المسار الرئيسي يعمل على الهاتف."
+  },
+  {
+    "index": 609,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا stale private data بعد logout."
+  },
+  {
+    "index": 610,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 611,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "PWA files، mobile QA matrix، install guide."
+  },
+  {
+    "index": 612,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 613,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "Cache يعرض بيانات قديمة أو خاصة.",
+        "تعطيل service worker وإصدار cache purge."
+      ]
+    ]
+  },
+  {
+    "index": 614,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 615,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G09-03 — الأداء والمراقبة والتوسع"
+  },
+  {
+    "index": 616,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "تحقيق مؤشرات أداء واستقرار ومراقبة عالمية."
+      ],
+      [
+        "فائدة المستخدم",
+        "سرعة وثقة حتى مع نمو الاستخدام."
+      ],
+      [
+        "فائدة المنصة",
+        "خفض التكلفة واكتشاف الأعطال قبل اتساعها."
+      ],
+      [
+        "المتطلبات السابقة",
+        "جميع الوحدات الأساسية."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "SRE, DBA, Backend, QA"
+      ],
+      [
+        "المدة المتوقعة",
+        "4–5 أسابيع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 617,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 618,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 619,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إضافة metrics/traces/log correlation."
+  },
+  {
+    "index": 620,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تحديد SLO وalerts."
+  },
+  {
+    "index": 621,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Load/soak tests بسيناريوهات حقيقية."
+  },
+  {
+    "index": 622,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تحسين indexes وN+1 والصور."
+  },
+  {
+    "index": 623,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Queues مع retry وdead-letter."
+  },
+  {
+    "index": 624,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Autoscaling وcost budgets."
+  },
+  {
+    "index": 625,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "CDN/WAF tuning."
+  },
+  {
+    "index": 626,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 627,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "operational_metrics, alert_rules, performance budgets."
+  },
+  {
+    "index": 628,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 629,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "تنقيح logs من PII، حماية dashboards."
+  },
+  {
+    "index": 630,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 631,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Load peak، provider outage، queue backlog، DB failover."
+  },
+  {
+    "index": 632,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 633,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "تحقيق SLO لمدة Beta."
+  },
+  {
+    "index": 634,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "تنبيه قابل للتنفيذ بلا ضوضاء مفرطة."
+  },
+  {
+    "index": 635,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 636,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Dashboards، load report، capacity plan، alerts."
+  },
+  {
+    "index": 637,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 638,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "تحسين مبكر خاطئ أو تكاليف مفاجئة.",
+        "خفض features costly وscale limits وread-only mode."
+      ]
+    ]
+  },
+  {
+    "index": 639,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 640,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "G10 — الخصوصية والقانون والأمن والتعافي"
+  },
+  {
+    "index": 641,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G10-01 — الخصوصية والاحتفاظ والحذف"
+  },
+  {
+    "index": 642,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "تنفيذ حقوق المستخدم وسياسات البيانات حسب المنطقة."
+      ],
+      [
+        "فائدة المستخدم",
+        "تحكم وثقة ووضوح في البيانات."
+      ],
+      [
+        "فائدة المنصة",
+        "امتثال وتقليل مخاطر الاحتفاظ الزائد."
+      ],
+      [
+        "المتطلبات السابقة",
+        "G03 وSchema نهائي."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "Privacy, Legal, Backend, QA"
+      ],
+      [
+        "المدة المتوقعة",
+        "4–6 أسابيع بالتوازي"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 643,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 644,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 645,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تصنيف البيانات وpurpose/retention لكل حقل."
+  },
+  {
+    "index": 646,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Consent records وcookie preferences."
+  },
+  {
+    "index": 647,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Data export job آمن."
+  },
+  {
+    "index": 648,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Deletion workflow مع cooling period وlegal holds."
+  },
+  {
+    "index": 649,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Vendor register وDPA."
+  },
+  {
+    "index": 650,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Age gate 18+ لـV1 ما لم يعتمد غير ذلك."
+  },
+  {
+    "index": 651,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 652,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "data_subject_requests, consents, retention_jobs, legal_holds."
+  },
+  {
+    "index": 653,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 654,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Identity verification لطلبات الحقوق."
+  },
+  {
+    "index": 655,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Encrypted exports قصيرة الصلاحية."
+  },
+  {
+    "index": 656,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 657,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Export، delete، hold، revoked consent، unauthorized request."
+  },
+  {
+    "index": 658,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 659,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "طلب المستخدم قابل للتتبع ضمن SLA."
+  },
+  {
+    "index": 660,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا حذف يخالف hold ولا احتفاظ بلا أساس."
+  },
+  {
+    "index": 661,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 662,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Policies، workflows، retention matrix، legal sign-off."
+  },
+  {
+    "index": 663,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 664,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "حذف ناقص أو كشف export.",
+        "إيقاف automation والتحويل لمراجعة يدوية موثقة."
+      ]
+    ]
+  },
+  {
+    "index": 665,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 666,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G10-02 — الأمن المتقدم واختبار الاختراق"
+  },
+  {
+    "index": 667,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "تخفيض المخاطر التقنية قبل فتح العالم."
+      ],
+      [
+        "فائدة المستخدم",
+        "حماية الحساب والرسائل والدفع."
+      ],
+      [
+        "فائدة المنصة",
+        "منع حوادث مكلفة وحماية السمعة."
+      ],
+      [
+        "المتطلبات السابقة",
+        "Feature complete على Staging."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "Security, Tech Lead, QA"
+      ],
+      [
+        "المدة المتوقعة",
+        "3–5 أسابيع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 668,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 669,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 670,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Threat model لكل domain."
+  },
+  {
+    "index": 671,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "SAST/DAST/dependency/secret scans."
+  },
+  {
+    "index": 672,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "اختبار authorization, XSS, CSRF, SSRF, upload, webhook."
+  },
+  {
+    "index": 673,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Penetration test خارجي."
+  },
+  {
+    "index": 674,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إصلاح findings حسب SLA."
+  },
+  {
+    "index": 675,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Security headers وWAF rules وrate limits."
+  },
+  {
+    "index": 676,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 677,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "security_findings register، exception approvals."
+  },
+  {
+    "index": 678,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 679,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا إغلاق finding critical/high دون دليل."
+  },
+  {
+    "index": 680,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 681,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Abuse cases، credential stuffing، IDOR، replay، privilege escalation."
+  },
+  {
+    "index": 682,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 683,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا Critical مفتوح."
+  },
+  {
+    "index": 684,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "High إما مغلق أو risk acceptance رسمي محدود."
+  },
+  {
+    "index": 685,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 686,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Threat model، pentest report، remediation evidence."
+  },
+  {
+    "index": 687,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 688,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "إطلاق مع ثغرة معروفة.",
+        "تأجيل الإطلاق أو تعطيل الوحدة المتأثرة."
+      ]
+    ]
+  },
+  {
+    "index": 689,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 690,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G10-03 — النسخ الاحتياطي والتعافي والحوادث"
+  },
+  {
+    "index": 691,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "ضمان الاستعادة والتعامل المنظم مع الأعطال."
+      ],
+      [
+        "فائدة المستخدم",
+        "استمرار الخدمة وحماية البيانات."
+      ],
+      [
+        "فائدة المنصة",
+        "تقليل الخسائر والوقت الضائع والالتزامات."
+      ],
+      [
+        "المتطلبات السابقة",
+        "G09-03."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "SRE, Security, Owner, Support"
+      ],
+      [
+        "المدة المتوقعة",
+        "3–4 أسابيع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 692,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 693,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 694,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تعريف RPO/RTO."
+  },
+  {
+    "index": 695,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Backups مشفرة ومراقبة."
+  },
+  {
+    "index": 696,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Restore drill إلى بيئة معزولة."
+  },
+  {
+    "index": 697,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Incident severity وon-call."
+  },
+  {
+    "index": 698,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Runbooks للدفع والهوية والDB والتسريب."
+  },
+  {
+    "index": 699,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Read-only mode وkill switches."
+  },
+  {
+    "index": 700,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Postmortem بلا لوم."
+  },
+  {
+    "index": 701,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 702,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "incident_log, recovery_evidence, backup_inventory."
+  },
+  {
+    "index": 703,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 704,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "فصل مفاتيح النسخ، اختبار صلاحية الاستعادة."
+  },
+  {
+    "index": 705,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 706,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "DB loss، provider outage، compromised key، bad deploy."
+  },
+  {
+    "index": 707,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 708,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "استعادة كاملة ضمن RTO."
+  },
+  {
+    "index": 709,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "كل SEV-1 له تدريب tabletop."
+  },
+  {
+    "index": 710,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 711,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "DR plan، runbooks، contact tree، restore report."
+  },
+  {
+    "index": 712,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 713,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "نسخ غير قابلة للاستعادة.",
+        "الاعتماد على نسخة مستقلة ثانية وإيقاف الكتابة حتى التحقق."
+      ]
+    ]
+  },
+  {
+    "index": 714,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 715,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "G11 — الاختبارات والإطلاق والتشغيل"
+  },
+  {
+    "index": 716,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G11-01 — Test Catalog وUAT"
+  },
+  {
+    "index": 717,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "إثبات أن جميع المتطلبات تعمل وتبقى مستقرة."
+      ],
+      [
+        "فائدة المستخدم",
+        "تجربة أقل أخطاء."
+      ],
+      [
+        "فائدة المنصة",
+        "قرار إطلاق مبني على دليل لا الانطباع."
+      ],
+      [
+        "المتطلبات السابقة",
+        "كل المراحل السابقة."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "QA Lead, Owner, All Engineers"
+      ],
+      [
+        "المدة المتوقعة",
+        "4–5 أسابيع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 718,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 719,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 720,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "ترميز حالات الاختبار حسب domain."
+  },
+  {
+    "index": 721,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "ربط requirement→code→test→evidence."
+  },
+  {
+    "index": 722,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "E2E للرحلات الأساسية."
+  },
+  {
+    "index": 723,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Cross-browser/device/accessibility."
+  },
+  {
+    "index": 724,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Contract tests وRLS matrix."
+  },
+  {
+    "index": 725,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Owner UAT وdefect triage."
+  },
+  {
+    "index": 726,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 727,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "test_cases, test_runs, evidence links."
+  },
+  {
+    "index": 728,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 729,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "بيانات اختبار صناعية لا حقيقية."
+  },
+  {
+    "index": 730,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 731,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Happy/negative/edge/recovery/security."
+  },
+  {
+    "index": 732,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 733,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "100% من P0/P1 pass."
+  },
+  {
+    "index": 734,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا defect blocker/critical."
+  },
+  {
+    "index": 735,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "توقيع UAT."
+  },
+  {
+    "index": 736,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 737,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Test catalog، reports، UAT sign-off."
+  },
+  {
+    "index": 738,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 739,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "اختبارات متأخرة أو غير مستقرة.",
+        "تجميد features وإصلاح flakiness قبل الإطلاق."
+      ]
+    ]
+  },
+  {
+    "index": 740,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 741,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G11-02 — الإطلاق العالمي بالموجات"
+  },
+  {
+    "index": 742,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "فتح المنصة تدريجيًا مع مراقبة وقدرة تراجع."
+      ],
+      [
+        "فائدة المستخدم",
+        "خدمة مستقرة وتوسع آمن."
+      ],
+      [
+        "فائدة المنصة",
+        "تقليل أثر الأخطاء وتعلم من الاستخدام الحقيقي."
+      ],
+      [
+        "المتطلبات السابقة",
+        "G11-01 وLegal/Security sign-off."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "Owner, Tech Lead, SRE, QA, Support"
+      ],
+      [
+        "المدة المتوقعة",
+        "6–8 أسابيع"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 743,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 744,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 745,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Internal alpha ببيانات صناعية."
+  },
+  {
+    "index": 746,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Closed beta 100–300 مستخدم من لغات ودول متعددة."
+  },
+  {
+    "index": 747,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Public beta مع free features ودفع محدود حسب الدول."
+  },
+  {
+    "index": 748,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "GA بعد SLO ومؤشرات الثقة."
+  },
+  {
+    "index": 749,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Canary وfeature flags وrollback."
+  },
+  {
+    "index": 750,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "War room ومراقبة 24/7 في نافذة الإطلاق."
+  },
+  {
+    "index": 751,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 752,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "launch cohorts, feature flag audit, release health."
+  },
+  {
+    "index": 753,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 754,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا فتح دولة دون capability/legal/payment readiness."
+  },
+  {
+    "index": 755,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 756,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Signup، publish، message، payment، incident drill."
+  },
+  {
+    "index": 757,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 758,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "المؤشرات ضمن الحدود لمدة محددة."
+  },
+  {
+    "index": 759,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا SEV-1 مفتوح."
+  },
+  {
+    "index": 760,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "الدعم والمراجعة staffed."
+  },
+  {
+    "index": 761,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 762,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Launch plan، go/no-go record، rollback evidence."
+  },
+  {
+    "index": 763,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 764,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "توسع أسرع من قدرة الدعم أو البنية.",
+        "إغلاق cohort أو دولة أو ميزة دون إغلاق المنصة كلها."
+      ]
+    ]
+  },
+  {
+    "index": 765,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 766,
+    "type": "paragraph",
+    "style": "Heading 3",
+    "text": "G11-03 — التشغيل المستمر بعد الإطلاق"
+  },
+  {
+    "index": 767,
+    "type": "table",
+    "rows": [
+      [
+        "البند",
+        "التفصيل"
+      ],
+      [
+        "الهدف",
+        "تحويل المشروع إلى خدمة عالمية مستدامة."
+      ],
+      [
+        "فائدة المستخدم",
+        "دعم وتحسينات مستمرة."
+      ],
+      [
+        "فائدة المنصة",
+        "حماية الإيرادات والسمعة والتوسع المنضبط."
+      ],
+      [
+        "المتطلبات السابقة",
+        "الإطلاق العام."
+      ],
+      [
+        "الأدوار المسؤولة",
+        "Operations, SRE, Product, Support"
+      ],
+      [
+        "المدة المتوقعة",
+        "مستمر"
+      ],
+      [
+        "التنفيذ بالتوازي",
+        "جزئيًا"
+      ]
+    ]
+  },
+  {
+    "index": 768,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 769,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "عمل المبرمج بالتفصيل"
+  },
+  {
+    "index": 770,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "On-call rotations وSLA."
+  },
+  {
+    "index": 771,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تقارير يومية/أسبوعية/شهرية."
+  },
+  {
+    "index": 772,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Patch cadence وتحديث dependencies."
+  },
+  {
+    "index": 773,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Capacity/cost reviews."
+  },
+  {
+    "index": 774,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Moderation quality audits."
+  },
+  {
+    "index": 775,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Roadmap based on analytics لا الانطباع."
+  },
+  {
+    "index": 776,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Quarterly DR and access reviews."
+  },
+  {
+    "index": 777,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "البيانات وواجهات الخدمة"
+  },
+  {
+    "index": 778,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "operational scorecards, incident trends, cost allocations."
+  },
+  {
+    "index": 779,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأمن والخصوصية"
+  },
+  {
+    "index": 780,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Periodic access recertification، key rotation."
+  },
+  {
+    "index": 781,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الاختبارات المطلوبة"
+  },
+  {
+    "index": 782,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "SLO burn، backlog، cost spike، moderation error rate."
+  },
+  {
+    "index": 783,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "معايير القبول وتعريف الاكتمال"
+  },
+  {
+    "index": 784,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "استقرار SLO وميزانية وتذاكر."
+  },
+  {
+    "index": 785,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "كل تحسين مرتبط بمؤشر."
+  },
+  {
+    "index": 786,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخرجات الواجب تسليمها"
+  },
+  {
+    "index": 787,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Operating handbook، dashboards، review calendar."
+  },
+  {
+    "index": 788,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "المخاطر وخطة التراجع"
+  },
+  {
+    "index": 789,
+    "type": "table",
+    "rows": [
+      [
+        "المخاطر الرئيسية",
+        "خطة التراجع"
+      ],
+      [
+        "تراكم دين تشغيلي.",
+        "تجميد الميزات الجديدة وإنشاء stability sprint."
+      ]
+    ]
+  },
+  {
+    "index": 790,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 791,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 792,
+    "type": "paragraph",
+    "style": "Heading 1",
+    "text": "7. مواصفة قاعدة البيانات وERD النصي"
+  },
+  {
+    "index": 793,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "الأسماء التالية مقترحة كمرجع موحد. يجوز تعديل الاسم في التصميم النهائي بشرط الحفاظ على المعنى والعلاقات والفهارس وسياسات الوصول."
+  },
+  {
+    "index": 794,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "الهوية والحسابات"
+  },
+  {
+    "index": 795,
+    "type": "table",
+    "rows": [
+      [
+        "الجدول",
+        "الحقول الأساسية",
+        "الغرض"
+      ],
+      [
+        "profiles",
+        "id UUID PK؛ clerk_user_id UNIQUE؛ status؛ country_code؛ locale؛ created_at؛ deleted_at",
+        "ملف التطبيق الأساسي"
+      ],
+      [
+        "profile_private",
+        "profile_id PK/FK؛ phone؛ birth_year؛ address؛ verification_state",
+        "بيانات خاصة مع RLS أشد"
+      ],
+      [
+        "business_profiles",
+        "profile_id PK/FK؛ legal_name؛ registration_no؛ verification_state",
+        "حسابات الشركات"
+      ],
+      [
+        "consents",
+        "id؛ profile_id؛ policy_version؛ purpose؛ granted_at؛ revoked_at",
+        "دليل الموافقات"
+      ],
+      [
+        "identity_events",
+        "event_id UNIQUE؛ event_type؛ processed_at؛ result",
+        "Idempotency لـClerk"
+      ]
+    ]
+  },
+  {
+    "index": 796,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 797,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "الكتالوج والإعلانات"
+  },
+  {
+    "index": 798,
+    "type": "table",
+    "rows": [
+      [
+        "الجدول",
+        "الحقول الأساسية",
+        "الغرض"
+      ],
+      [
+        "sectors",
+        "id؛ slug؛ status؛ sort_order",
+        "القطاعات"
+      ],
+      [
+        "categories",
+        "id؛ sector_id؛ parent_id؛ country_scope؛ status",
+        "الفئات الهرمية"
+      ],
+      [
+        "category_fields",
+        "id؛ category_id؛ key؛ type؛ required؛ schema_version",
+        "الحقول الديناميكية"
+      ],
+      [
+        "listings",
+        "id؛ owner_id؛ category_id؛ country؛ city؛ price؛ currency؛ status؛ version",
+        "الإعلان"
+      ],
+      [
+        "listing_attributes",
+        "listing_id؛ field_id؛ value_json",
+        "قيم الحقول"
+      ],
+      [
+        "listing_revisions",
+        "id؛ listing_id؛ version؛ snapshot_json؛ actor_id",
+        "تاريخ التعديلات"
+      ],
+      [
+        "listing_status_history",
+        "id؛ listing_id؛ from_status؛ to_status؛ reason؛ actor",
+        "تدقيق الحالات"
+      ]
+    ]
+  },
+  {
+    "index": 799,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 800,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "الوسائط"
+  },
+  {
+    "index": 801,
+    "type": "table",
+    "rows": [
+      [
+        "الجدول",
+        "الحقول الأساسية",
+        "الغرض"
+      ],
+      [
+        "media_assets",
+        "id؛ owner_id؛ listing_id؛ state؛ mime؛ size؛ hash",
+        "الأصل المرفوع"
+      ],
+      [
+        "media_variants",
+        "id؛ asset_id؛ variant؛ width؛ height؛ storage_path",
+        "النسخ المحسنة"
+      ],
+      [
+        "upload_sessions",
+        "id؛ owner_id؛ expires_at؛ completed_at",
+        "إدارة الرفع"
+      ]
+    ]
+  },
+  {
+    "index": 802,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 803,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "المحادثات والإشعارات"
+  },
+  {
+    "index": 804,
+    "type": "table",
+    "rows": [
+      [
+        "الجدول",
+        "الحقول الأساسية",
+        "الغرض"
+      ],
+      [
+        "conversations",
+        "id؛ listing_id؛ created_at؛ status",
+        "المحادثة"
+      ],
+      [
+        "conversation_participants",
+        "conversation_id؛ profile_id؛ role؛ last_read_at",
+        "الأطراف"
+      ],
+      [
+        "messages",
+        "id؛ conversation_id؛ sender_id؛ body؛ client_id UNIQUE؛ created_at",
+        "الرسائل"
+      ],
+      [
+        "blocks",
+        "blocker_id؛ blocked_id؛ reason؛ created_at",
+        "الحظر"
+      ],
+      [
+        "notification_events",
+        "id؛ type؛ subject_id؛ payload_safe؛ created_at",
+        "الحدث"
+      ],
+      [
+        "notification_deliveries",
+        "id؛ event_id؛ recipient_id؛ channel؛ state؛ attempts",
+        "التسليم"
+      ]
+    ]
+  },
+  {
+    "index": 805,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 806,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "الثقة والدعم والإدارة"
+  },
+  {
+    "index": 807,
+    "type": "table",
+    "rows": [
+      [
+        "الجدول",
+        "الحقول الأساسية",
+        "الغرض"
+      ],
+      [
+        "reports",
+        "id؛ reporter_id؛ target_type؛ target_id؛ category؛ state",
+        "البلاغ"
+      ],
+      [
+        "moderation_cases",
+        "id؛ report_id؛ country؛ severity؛ assignee؛ state",
+        "القضية"
+      ],
+      [
+        "moderation_decisions",
+        "id؛ case_id؛ action؛ reason_code؛ actor؛ created_at",
+        "القرار"
+      ],
+      [
+        "appeals",
+        "id؛ decision_id؛ appellant؛ state؛ reviewer",
+        "الاستئناف"
+      ],
+      [
+        "support_tickets",
+        "id؛ requester_id؛ category؛ priority؛ state؛ sla_due_at",
+        "التذكرة"
+      ],
+      [
+        "roles/permissions/bindings",
+        "RBAC مع scope عالمي/دولة/قطاع",
+        "الإدارة"
+      ]
+    ]
+  },
+  {
+    "index": 808,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 809,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "الدفع والتشغيل"
+  },
+  {
+    "index": 810,
+    "type": "table",
+    "rows": [
+      [
+        "الجدول",
+        "الحقول الأساسية",
+        "الغرض"
+      ],
+      [
+        "subscriptions",
+        "id؛ profile_id؛ plan_id؛ state؛ provider_ref؛ period_end",
+        "الاشتراك"
+      ],
+      [
+        "entitlements",
+        "profile_id؛ feature_key؛ limit_value؛ source؛ expires_at",
+        "الصلاحيات المدفوعة"
+      ],
+      [
+        "payment_events",
+        "provider_event_id UNIQUE؛ type؛ payload_hash؛ processed_at",
+        "Webhooks"
+      ],
+      [
+        "ledger_entries",
+        "id؛ account؛ amount؛ currency؛ direction؛ reference؛ immutable",
+        "السجل المالي"
+      ],
+      [
+        "audit_logs",
+        "id؛ actor؛ action؛ target؛ before_hash؛ after_hash؛ metadata_safe",
+        "التدقيق"
+      ],
+      [
+        "incidents",
+        "id؛ severity؛ service؛ started_at؛ resolved_at؛ summary",
+        "الحوادث"
+      ]
+    ]
+  },
+  {
+    "index": 811,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 812,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "7.1 العلاقات الأساسية"
+  },
+  {
+    "index": 813,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "profile واحد يرتبط به صفر أو واحد business_profile وعدة listings وsubscriptions وsupport_tickets."
+  },
+  {
+    "index": 814,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "listing ينتمي إلى owner وcategory، وله attributes وrevisions وmedia_assets وstatus_history."
+  },
+  {
+    "index": 815,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "conversation تحتوي طرفين فقط في Global V1، ويمكن ربطها بإعلان واحد."
+  },
+  {
+    "index": 816,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "message لا تقرأ إلا عبر membership في conversation، ويستخدم client_id لمنع التكرار."
+  },
+  {
+    "index": 817,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "moderation_case تربط بلاغًا أو اكتشافًا آليًا، وقراراتها قابلة للاستئناف."
+  },
+  {
+    "index": 818,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "payment_event لا يعدّل Ledger مباشرة دون handler idempotent وtransaction."
+  },
+  {
+    "index": 819,
+    "type": "paragraph",
+    "style": "Heading 1",
+    "text": "8. مصفوفة الصلاحيات وRLS"
+  },
+  {
+    "index": 820,
+    "type": "table",
+    "rows": [
+      [
+        "المورد",
+        "الزائر",
+        "مستخدم مسجل",
+        "مالك السجل",
+        "Moderator",
+        "Support",
+        "Owner/Admin"
+      ],
+      [
+        "profiles-public",
+        "قراءة المنشور فقط",
+        "قراءة",
+        "تعديل حقوله",
+        "قراءة محدودة",
+        "قراءة",
+        "مقيد بالتدقيق"
+      ],
+      [
+        "profile_private",
+        "ممنوع",
+        "ممنوع",
+        "قراءة/تعديل",
+        "ممنوع افتراضيًا",
+        "حسب حاجة موثقة",
+        "مقيد بالتدقيق"
+      ],
+      [
+        "listings published",
+        "قراءة",
+        "قراءة",
+        "إدارة إعلانه",
+        "مراجعة ضمن scope",
+        "قراءة للدعم",
+        "كامل مع audit"
+      ],
+      [
+        "listings draft",
+        "ممنوع",
+        "ممنوع",
+        "قراءة/تعديل",
+        "مراجعة بعد submit",
+        "ممنوع",
+        "كامل مع audit"
+      ],
+      [
+        "media private upload",
+        "ممنوع",
+        "ممنوع",
+        "رفع/حذف قبل النشر",
+        "قراءة عند البلاغ",
+        "ممنوع",
+        "مقيد"
+      ],
+      [
+        "conversations/messages",
+        "ممنوع",
+        "الأطراف فقط",
+        "الأطراف فقط",
+        "ممنوع افتراضيًا",
+        "Metadata فقط",
+        "وصول استثنائي موثق"
+      ],
+      [
+        "support tickets",
+        "ممنوع",
+        "صاحب التذكرة",
+        "صاحب التذكرة",
+        "لا",
+        "حسب assignment",
+        "كامل مع audit"
+      ],
+      [
+        "moderation cases",
+        "ممنوع",
+        "بلاغاته فقط",
+        "بلاغاته",
+        "حسب country/sector",
+        "محدود",
+        "كامل"
+      ],
+      [
+        "billing",
+        "ممنوع",
+        "بياناته فقط",
+        "بياناته فقط",
+        "ممنوع",
+        "ممنوع",
+        "Finance/Owner فقط"
+      ]
+    ]
+  },
+  {
+    "index": 821,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 822,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "كل خانة في هذه المصفوفة يجب أن تتحول إلى Policy واختبار آلي إيجابي وسلبي. لا يسمح بعبارات عامة مثل «الإدارة ترى كل شيء» دون تقييد الدور والنطاق والتدقيق."
+  },
+  {
+    "index": 823,
+    "type": "paragraph",
+    "style": "Heading 1",
+    "text": "9. سجل الشاشات ورحلات المستخدم"
+  },
+  {
+    "index": 824,
+    "type": "table",
+    "rows": [
+      [
+        "الرمز",
+        "الشاشة",
+        "الوصول",
+        "الحالات الإلزامية",
+        "حدث التحليل"
+      ],
+      [
+        "AUTH-01",
+        "تسجيل الدخول",
+        "عام",
+        "البريد/Google، الخطأ، التحميل، MFA للإدارة",
+        "login_started/succeeded/failed"
+      ],
+      [
+        "ONB-01",
+        "اختيار اللغة والدولة",
+        "مستخدم جديد",
+        "غير مدعومة، دولة مغلقة، استكمال لاحق",
+        "onboarding_country_selected"
+      ],
+      [
+        "ONB-02",
+        "نوع الحساب والملف",
+        "مستخدم جديد",
+        "فرد/شركة، تحقق، خصوصية",
+        "onboarding_completed"
+      ],
+      [
+        "HOME-01",
+        "الصفحة الرئيسية",
+        "عام/مسجل",
+        "تحميل، فارغ، خطأ، فلاتر",
+        "feed_viewed"
+      ],
+      [
+        "SEARCH-01",
+        "البحث",
+        "عام/مسجل",
+        "لا نتائج، فلاتر، pagination",
+        "search_performed"
+      ],
+      [
+        "LIST-01",
+        "إنشاء إعلان",
+        "مسجل مخول",
+        "Autosave، validation، plan limit",
+        "listing_draft_created"
+      ],
+      [
+        "LIST-02",
+        "تفاصيل الإعلان",
+        "حسب الحالة",
+        "منشور/منتهي/محذوف/مالك",
+        "listing_viewed"
+      ],
+      [
+        "MEDIA-01",
+        "إدارة الصور",
+        "مالك الإعلان",
+        "رفع/فشل/إعادة/ترتيب",
+        "media_uploaded"
+      ],
+      [
+        "CHAT-01",
+        "قائمة المحادثات",
+        "مسجل",
+        "فارغ/غير مقروء/حظر",
+        "inbox_viewed"
+      ],
+      [
+        "CHAT-02",
+        "المحادثة",
+        "طرفاها",
+        "إرسال/فشل/قراءة/بلاغ",
+        "message_sent"
+      ],
+      [
+        "NOTIF-01",
+        "الإشعارات",
+        "مسجل",
+        "غير مقروء/فلترة/إعدادات",
+        "notification_opened"
+      ],
+      [
+        "SUP-01",
+        "Tiger Care",
+        "مسجل",
+        "تذكرة/رد/إغلاق/تقييم",
+        "support_ticket_created"
+      ],
+      [
+        "BILL-01",
+        "الباقات",
+        "حسب الدولة",
+        "دفع غير متاح/حالي/ترقية",
+        "plan_viewed"
+      ],
+      [
+        "BILL-02",
+        "إدارة الاشتراك",
+        "مشترك",
+        "إلغاء/فشل/فاتورة/استرجاع",
+        "subscription_changed"
+      ],
+      [
+        "ADM-01",
+        "لوحة المالك",
+        "Owner",
+        "KPIs/alerts/kill switches",
+        "admin_dashboard_viewed"
+      ],
+      [
+        "MOD-01",
+        "قائمة المراجعة",
+        "Moderator scoped",
+        "SLA/قرار/استئناف",
+        "moderation_decision_made"
+      ]
+    ]
+  },
+  {
+    "index": 825,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 826,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "9.1 الرحلات الحرجة"
+  },
+  {
+    "index": 827,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "رحلة التسجيل"
+  },
+  {
+    "index": 828,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "اختيار اللغة والدولة"
+  },
+  {
+    "index": 829,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء الهوية"
+  },
+  {
+    "index": 830,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "قبول السياسات"
+  },
+  {
+    "index": 831,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "اختيار نوع الحساب"
+  },
+  {
+    "index": 832,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إكمال الحد الأدنى للملف"
+  },
+  {
+    "index": 833,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "الدخول إلى Home"
+  },
+  {
+    "index": 834,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "رحلة الإعلان"
+  },
+  {
+    "index": 835,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء مسودة"
+  },
+  {
+    "index": 836,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "اختيار القطاع والفئة"
+  },
+  {
+    "index": 837,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إدخال الحقول"
+  },
+  {
+    "index": 838,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "رفع الصور"
+  },
+  {
+    "index": 839,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "معاينة"
+  },
+  {
+    "index": 840,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إرسال للمراجعة"
+  },
+  {
+    "index": 841,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "قرار"
+  },
+  {
+    "index": 842,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "نشر"
+  },
+  {
+    "index": 843,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "رحلة التواصل"
+  },
+  {
+    "index": 844,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "فتح التفاصيل"
+  },
+  {
+    "index": 845,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "بدء محادثة"
+  },
+  {
+    "index": 846,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إرسال رسالة"
+  },
+  {
+    "index": 847,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "وصول إشعار"
+  },
+  {
+    "index": 848,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "قراءة ورد"
+  },
+  {
+    "index": 849,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "حظر/بلاغ عند الحاجة"
+  },
+  {
+    "index": 850,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "رحلة الاشتراك"
+  },
+  {
+    "index": 851,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "عرض الباقات"
+  },
+  {
+    "index": 852,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء Checkout"
+  },
+  {
+    "index": 853,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "دفع مستضاف"
+  },
+  {
+    "index": 854,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "Webhook موثوق"
+  },
+  {
+    "index": 855,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "تفعيل Entitlement"
+  },
+  {
+    "index": 856,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "فاتورة/بوابة إدارة"
+  },
+  {
+    "index": 857,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "رحلة البلاغ"
+  },
+  {
+    "index": 858,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "اختيار الهدف والسبب"
+  },
+  {
+    "index": 859,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إرسال الدليل"
+  },
+  {
+    "index": 860,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إنشاء Case"
+  },
+  {
+    "index": 861,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "قرار موضح"
+  },
+  {
+    "index": 862,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "إشعار الأطراف"
+  },
+  {
+    "index": 863,
+    "type": "paragraph",
+    "style": "List Number",
+    "text": "استئناف مستقل"
+  },
+  {
+    "index": 864,
+    "type": "paragraph",
+    "style": "Heading 1",
+    "text": "10. كتالوج API والأحداث والأخطاء"
+  },
+  {
+    "index": 865,
+    "type": "table",
+    "rows": [
+      [
+        "الطريقة",
+        "المسار",
+        "الصلاحية",
+        "النتيجة",
+        "أخطاء رئيسية"
+      ],
+      [
+        "GET",
+        "/api/v1/me",
+        "جلسة Clerk",
+        "ملف المستخدم المصرح",
+        "401/403"
+      ],
+      [
+        "PATCH",
+        "/api/v1/me",
+        "مالك الحساب",
+        "تعديل حقول مسموحة مع validation",
+        "400/409"
+      ],
+      [
+        "POST",
+        "/api/v1/listings",
+        "listing:create",
+        "إنشاء مسودة",
+        "400/403/429"
+      ],
+      [
+        "PATCH",
+        "/api/v1/listings/{id}",
+        "owner",
+        "تعديل مع version",
+        "400/403/409"
+      ],
+      [
+        "POST",
+        "/api/v1/listings/{id}/submit",
+        "owner",
+        "تحقق ونقل pending_review",
+        "422/409"
+      ],
+      [
+        "POST",
+        "/api/v1/admin/listings/{id}/approve",
+        "moderator scope",
+        "نشر أو جدولة",
+        "403/409"
+      ],
+      [
+        "GET",
+        "/api/v1/listings",
+        "عام",
+        "بحث وفلاتر cursor",
+        "400/429"
+      ],
+      [
+        "POST",
+        "/api/v1/conversations",
+        "مسجل",
+        "إنشاء/إرجاع محادثة فريدة",
+        "403/409"
+      ],
+      [
+        "POST",
+        "/api/v1/conversations/{id}/messages",
+        "participant",
+        "إرسال idempotent",
+        "403/409/429"
+      ],
+      [
+        "POST",
+        "/api/v1/reports",
+        "مسجل",
+        "إنشاء بلاغ",
+        "400/429"
+      ],
+      [
+        "POST",
+        "/api/v1/support/tickets",
+        "مسجل",
+        "إنشاء تذكرة",
+        "400/429"
+      ],
+      [
+        "POST",
+        "/api/v1/billing/checkout",
+        "billing enabled",
+        "إنشاء جلسة دفع",
+        "403/409"
+      ],
+      [
+        "POST",
+        "/api/v1/webhooks/clerk",
+        "signature",
+        "مزامنة الهوية idempotent",
+        "400/401"
+      ],
+      [
+        "POST",
+        "/api/v1/webhooks/payment",
+        "signature",
+        "معالجة حدث الدفع",
+        "400/401"
+      ]
+    ]
+  },
+  {
+    "index": 866,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 867,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "10.1 قواعد API الملزمة"
+  },
+  {
+    "index": 868,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "JSON schema موثق لكل request/response."
+  },
+  {
+    "index": 869,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Error envelope موحد: code, message_key, field_errors, correlation_id."
+  },
+  {
+    "index": 870,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Idempotency-Key للعمليات المالية والإرسال والإنشاء القابل للتكرار."
+  },
+  {
+    "index": 871,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Cursor pagination بدل offset في البيانات المتغيرة."
+  },
+  {
+    "index": 872,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Rate limits حسب الهوية والجهاز والعنوان والعملية."
+  },
+  {
+    "index": 873,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Audit event للأفعال الإدارية والمالية والحذف."
+  },
+  {
+    "index": 874,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Versioning تحت /api/v1 وتوافق خلفي خلال نافذة الإصدار."
+  },
+  {
+    "index": 875,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "10.2 كتالوج رموز الخطأ"
+  },
+  {
+    "index": 876,
+    "type": "table",
+    "rows": [
+      [
+        "الرمز",
+        "المعنى",
+        "المعالجة في الواجهة"
+      ],
+      [
+        "AUTH_SESSION_REQUIRED",
+        "جلسة غير موجودة/منتهية",
+        "إعادة الدخول مع حفظ الوجهة"
+      ],
+      [
+        "AUTH_ACCOUNT_BLOCKED",
+        "الحساب موقوف",
+        "إظهار قناة استئناف"
+      ],
+      [
+        "PERMISSION_DENIED",
+        "لا توجد صلاحية",
+        "عدم كشف تفاصيل المورد"
+      ],
+      [
+        "VALIDATION_FAILED",
+        "حقول غير صالحة",
+        "ربط الأخطاء بالحقول"
+      ],
+      [
+        "VERSION_CONFLICT",
+        "تعديل متزامن",
+        "تحديث البيانات وطلب الدمج"
+      ],
+      [
+        "PLAN_LIMIT_REACHED",
+        "تم بلوغ حد الباقة",
+        "عرض الحد وخيار الترقية"
+      ],
+      [
+        "COUNTRY_FEATURE_DISABLED",
+        "الميزة غير متاحة بالدولة",
+        "رسالة محلية دون زر معطل"
+      ],
+      [
+        "RATE_LIMITED",
+        "طلبات كثيرة",
+        "وقت إعادة المحاولة"
+      ],
+      [
+        "PAYMENT_PENDING",
+        "الدفع لم يحسم",
+        "عدم تكرار الدفع تلقائيًا"
+      ],
+      [
+        "SERVICE_TEMPORARILY_UNAVAILABLE",
+        "عطل مؤقت",
+        "Retry مضبوط ورقم تتبع"
+      ]
+    ]
+  },
+  {
+    "index": 877,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 878,
+    "type": "paragraph",
+    "style": "Heading 1",
+    "text": "11. حالات الإعلانات والمحادثات والدفع"
+  },
+  {
+    "index": 879,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "11.1 State Machine للإعلان"
+  },
+  {
+    "index": 880,
+    "type": "table",
+    "rows": [
+      [
+        "من",
+        "إلى",
+        "المنفذ",
+        "الشرط"
+      ],
+      [
+        "draft",
+        "pending_review",
+        "المالك",
+        "اكتمال الحقول والصور والحدود"
+      ],
+      [
+        "pending_review",
+        "published",
+        "المراجع/قاعدة آلية معتمدة",
+        "نجاح السياسات وعدم المخالفة"
+      ],
+      [
+        "pending_review",
+        "rejected",
+        "المراجع",
+        "سبب رفض موحد"
+      ],
+      [
+        "rejected",
+        "draft",
+        "المالك",
+        "التعديل لإعادة الإرسال"
+      ],
+      [
+        "published",
+        "paused",
+        "المالك/الإدارة",
+        "توقف مؤقت"
+      ],
+      [
+        "paused",
+        "published",
+        "المالك/الإدارة",
+        "الباقة والمدة ساريتان"
+      ],
+      [
+        "published",
+        "expired",
+        "النظام",
+        "بلوغ تاريخ الانتهاء"
+      ],
+      [
+        "expired",
+        "published",
+        "المالك",
+        "تجديد ناجح"
+      ],
+      [
+        "published",
+        "sold",
+        "المالك",
+        "إغلاق طوعي"
+      ],
+      [
+        "أي حالة",
+        "removed",
+        "الإدارة",
+        "مخالفة/طلب قانوني"
+      ],
+      [
+        "draft/rejected/expired/sold",
+        "archived",
+        "المالك/النظام",
+        "وفق سياسة الاحتفاظ"
+      ]
+    ]
+  },
+  {
+    "index": 881,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 882,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "11.2 قواعد المحادثة"
+  },
+  {
+    "index": 883,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "طرفان فقط في V1؛ لا مجموعات ولا Broadcast."
+  },
+  {
+    "index": 884,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "يمكن اعتماد محادثة واحدة لكل (listing, buyer, seller) لمنع التكرار."
+  },
+  {
+    "index": 885,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "client_message_id فريد لكل مرسل لمنع حفظ الرسالة مرتين."
+  },
+  {
+    "index": 886,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "الحظر يمنع الرسائل الجديدة ولا يحذف الدليل السابق تلقائيًا."
+  },
+  {
+    "index": 887,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "حذف الحساب يتبع سياسة الاحتفاظ والالتزامات القانونية؛ لا يمحو Evidence بلا مراجعة."
+  },
+  {
+    "index": 888,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "المرفقات تبدأ بالصور فقط أو تؤجل؛ الملفات العامة تحتاج فحصًا منفصلًا."
+  },
+  {
+    "index": 889,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "11.3 حالات الاشتراك والدفع"
+  },
+  {
+    "index": 890,
+    "type": "table",
+    "rows": [
+      [
+        "الكيان",
+        "الحالات",
+        "ملاحظات"
+      ],
+      [
+        "Subscription",
+        "trialing, active, past_due, grace, canceled, expired",
+        "Entitlement محسوب server-side"
+      ],
+      [
+        "Invoice",
+        "draft, open, paid, void, uncollectible, refunded",
+        "مرجع المزود محفوظ"
+      ],
+      [
+        "Payment Event",
+        "received, verified, processed, failed, ignored_duplicate",
+        "لا يعالج مرتين"
+      ],
+      [
+        "Refund",
+        "requested, approved, processing, succeeded, failed",
+        "صلاحية Finance فقط"
+      ],
+      [
+        "Chargeback",
+        "opened, evidence_due, won, lost",
+        "تعليق مزايا حسب السياسة لا تلقائيًا دائمًا"
+      ]
+    ]
+  },
+  {
+    "index": 891,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 892,
+    "type": "paragraph",
+    "style": "Heading 1",
+    "text": "12. مصفوفة الدول واللغات والعملات"
+  },
+  {
+    "index": 893,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "لا يمكن إدراج جميع دول العالم قانونيًا داخل الوثيقة كحالة ثابتة. المطلوب هو سجل تشغيلي حي، وتبدأ كل دولة بحالة CLOSED حتى اكتمال المراجعة. القالب التالي إلزامي لكل دولة."
+  },
+  {
+    "index": 894,
+    "type": "table",
+    "rows": [
+      [
+        "الحقل",
+        "مثال/الوصف"
+      ],
+      [
+        "ISO2/ISO3",
+        "رمز الدولة الرسمي"
+      ],
+      [
+        "signup_enabled",
+        "هل التسجيل متاح؟"
+      ],
+      [
+        "listing_enabled",
+        "هل النشر متاح؟"
+      ],
+      [
+        "messaging_enabled",
+        "هل التواصل متاح؟"
+      ],
+      [
+        "payment_enabled",
+        "هل الاشتراك المدفوع متاح؟"
+      ],
+      [
+        "default_locale / supported_locales",
+        "اللغة الافتراضية والمدعومة"
+      ],
+      [
+        "default_currency / allowed_currencies",
+        "عملة العرض والدفع"
+      ],
+      [
+        "minimum_age",
+        "18 في Global V1 ما لم يعتمد خلافه"
+      ],
+      [
+        "seller_verification",
+        "none/basic/business/KYC partner"
+      ],
+      [
+        "restricted_categories",
+        "قائمة محظورات محلية"
+      ],
+      [
+        "tax_invoice_rules",
+        "متطلبات الضريبة والفاتورة"
+      ],
+      [
+        "privacy_policy_version",
+        "النص القانوني المطبق"
+      ],
+      [
+        "data_region_requirement",
+        "إن وجد"
+      ],
+      [
+        "legal_review_status",
+        "not_started/in_review/approved/blocked"
+      ],
+      [
+        "launch_wave",
+        "closed/beta/GA"
+      ]
+    ]
+  },
+  {
+    "index": 895,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 896,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "12.1 اللغات الأولى المقترحة"
+  },
+  {
+    "index": 897,
+    "type": "table",
+    "rows": [
+      [
+        "اللغة",
+        "المرحلة",
+        "المطلوب"
+      ],
+      [
+        "العربية",
+        "الإطلاق",
+        "RTL كامل، نصوص ودعم ومحتوى قانوني مراجع"
+      ],
+      [
+        "الإنجليزية",
+        "الإطلاق",
+        "لغة fallback عالمية"
+      ],
+      [
+        "الفرنسية",
+        "Beta/GA حسب الأسواق",
+        "مراجعة بشرية وقانونية"
+      ],
+      [
+        "الإسبانية",
+        "Beta/GA حسب الأسواق",
+        "مراجعة بشرية وقانونية"
+      ],
+      [
+        "لغات أخرى",
+        "بعد تحقق الطلب",
+        "لا تفتح قبل جاهزية الدعم والمراجعة"
+      ]
+    ]
+  },
+  {
+    "index": 898,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 899,
+    "type": "paragraph",
+    "style": "Heading 1",
+    "text": "13. الاختبارات ومعايير الأداء"
+  },
+  {
+    "index": 900,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "13.1 سجل حالات الاختبار"
+  },
+  {
+    "index": 901,
+    "type": "table",
+    "rows": [
+      [
+        "المعرف",
+        "الحالة",
+        "الأولوية",
+        "النوع"
+      ],
+      [
+        "AUTH-TC-001",
+        "مستخدم جديد يسجل ويكمل الملف",
+        "P0",
+        "E2E"
+      ],
+      [
+        "AUTH-TC-007",
+        "Webhook Clerk مكرر لا ينشئ ملفين",
+        "P0",
+        "Integration"
+      ],
+      [
+        "RLS-TC-001",
+        "A لا يقرأ private profile لـB",
+        "P0",
+        "DB"
+      ],
+      [
+        "RLS-TC-014",
+        "طرف ثالث لا يقرأ محادثة",
+        "P0",
+        "DB/API"
+      ],
+      [
+        "LIST-TC-003",
+        "لا نشر دون حقول مطلوبة",
+        "P1",
+        "Integration"
+      ],
+      [
+        "LIST-TC-011",
+        "تعارض version يعيد 409",
+        "P1",
+        "Integration"
+      ],
+      [
+        "MEDIA-TC-005",
+        "رفض ملف MIME مزيف",
+        "P0",
+        "Security"
+      ],
+      [
+        "SEARCH-TC-004",
+        "لا يظهر draft",
+        "P0",
+        "API"
+      ],
+      [
+        "CHAT-TC-009",
+        "إرسال مكرر client_id يحفظ مرة",
+        "P1",
+        "Integration"
+      ],
+      [
+        "MOD-TC-006",
+        "المراجع خارج الدولة لا يقرر",
+        "P0",
+        "Authorization"
+      ],
+      [
+        "PAY-TC-002",
+        "Webhook مكرر لا يكرر Ledger",
+        "P0",
+        "Integration"
+      ],
+      [
+        "PAY-TC-010",
+        "حدث out-of-order يسوى بشكل صحيح",
+        "P0",
+        "Integration"
+      ],
+      [
+        "DR-TC-001",
+        "استعادة قاعدة ضمن RTO",
+        "P0",
+        "Operational"
+      ],
+      [
+        "PWA-TC-003",
+        "Logout يمسح cache الخاص",
+        "P0",
+        "Security"
+      ],
+      [
+        "A11Y-TC-001",
+        "الرحلة الرئيسية بلوحة المفاتيح",
+        "P1",
+        "Manual/Auto"
+      ]
+    ]
+  },
+  {
+    "index": 902,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 903,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "13.2 أهداف الأداء والتشغيل"
+  },
+  {
+    "index": 904,
+    "type": "table",
+    "rows": [
+      [
+        "المؤشر",
+        "هدف Global V1",
+        "بوابة الإطلاق"
+      ],
+      [
+        "Availability",
+        "99.9% شهريًا للخدمات الأساسية",
+        "لا Beta عامة دون قياس أسبوعين"
+      ],
+      [
+        "API P95 قراءة",
+        "≤ 500ms من المنطقة الأساسية دون زمن الشبكة الخارجية",
+        "95% من السيناريوهات"
+      ],
+      [
+        "API P95 كتابة",
+        "≤ 800ms للعمليات العادية",
+        "باستثناء معالجة الوسائط/الدفع غير المتزامنة"
+      ],
+      [
+        "LCP الهاتف",
+        "≤ 2.5s للصفحات الأساسية على شبكة متوسطة",
+        "مراقبة ميدانية وLab"
+      ],
+      [
+        "خطأ الدفع",
+        "< 0.5% بسبب المنصة",
+        "يفصل عن رفض البنك"
+      ],
+      [
+        "RPO",
+        "≤ 15 دقيقة للبيانات الحرجة",
+        "حسب قدرات المزود"
+      ],
+      [
+        "RTO",
+        "≤ 4 ساعات للإصدار الأول",
+        "Restore drill ناجح"
+      ],
+      [
+        "مراجعة بلاغ حرج",
+        "≤ 1 ساعة",
+        "تغطية تشغيلية متاحة"
+      ],
+      [
+        "دعم عادي",
+        "رد أول ≤ 24 ساعة",
+        "SLA موثق"
+      ],
+      [
+        "Crash-free sessions",
+        "≥ 99.5%",
+        "PWA/Web"
+      ]
+    ]
+  },
+  {
+    "index": 905,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 906,
+    "type": "paragraph",
+    "style": "Heading 1",
+    "text": "14. الأمن والخصوصية والامتثال"
+  },
+  {
+    "index": 907,
+    "type": "table",
+    "rows": [
+      [
+        "مجال الخطر",
+        "الضابط الإلزامي",
+        "الدليل"
+      ],
+      [
+        "الاستيلاء على الحساب",
+        "MFA للإدارة، rate limit، session revocation",
+        "اختبارات واختبار سجل الجلسات"
+      ],
+      [
+        "IDOR/RLS",
+        "Authorization server-side وRLS deny-by-default",
+        "مصفوفة واختبارات حسابين"
+      ],
+      [
+        "XSS",
+        "Output encoding، sanitization، CSP",
+        "DAST وtests"
+      ],
+      [
+        "CSRF",
+        "SameSite، tokens/Clerk patterns، server validation",
+        "Security review"
+      ],
+      [
+        "SSRF/Webhooks",
+        "Allowlist، signature، timeout، no arbitrary URL fetch",
+        "Tests/replay"
+      ],
+      [
+        "رفع الملفات",
+        "MIME sniff، size، scan، isolated bucket",
+        "Security test"
+      ],
+      [
+        "تسريب الأسرار",
+        "Secret manager، scan، rotation",
+        "CI report"
+      ],
+      [
+        "الخصوصية",
+        "Minimization، retention، export/delete",
+        "DSR test"
+      ],
+      [
+        "المراجعة",
+        "Audit، reason codes، appeal",
+        "Case audit"
+      ],
+      [
+        "الدفع",
+        "Hosted checkout، signature، ledger reconciliation",
+        "PCI scope review"
+      ],
+      [
+        "الموردون",
+        "DPA، data map، exit plan",
+        "Vendor register"
+      ]
+    ]
+  },
+  {
+    "index": 908,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 909,
+    "type": "paragraph",
+    "style": "Heading 1",
+    "text": "15. التشغيل العالمي وإدارة الحوادث"
+  },
+  {
+    "index": 910,
+    "type": "table",
+    "rows": [
+      [
+        "الدرجة",
+        "مثال",
+        "الاستجابة",
+        "التواصل"
+      ],
+      [
+        "SEV-1",
+        "تسريب بيانات، دفع خاطئ واسع، توقف شامل",
+        "استدعاء فوري، قائد حادث، kill switch",
+        "تحديثات دورية وبيان بعد التحقق"
+      ],
+      [
+        "SEV-2",
+        "توقف ميزة أساسية أو دولة كبيرة",
+        "استجابة خلال 30 دقيقة",
+        "Status update داخلي/خارجي حسب الأثر"
+      ],
+      [
+        "SEV-3",
+        "تدهور أداء أو خطأ محدود",
+        "خلال ساعات العمل أو on-call حسب الأثر",
+        "تذكرة ومراقبة"
+      ],
+      [
+        "SEV-4",
+        "مشكلة تجميلية/طلب تحسين",
+        "Backlog",
+        "لا إعلان عام"
+      ]
+    ]
+  },
+  {
+    "index": 911,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 912,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "15.1 Runbooks المطلوبة"
+  },
+  {
+    "index": 913,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "عطل Clerk أو فشل تسجيل الدخول."
+  },
+  {
+    "index": 914,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "توقف Supabase أو قاعدة البيانات."
+  },
+  {
+    "index": 915,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "فشل migrations بعد النشر."
+  },
+  {
+    "index": 916,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "تراكم Queue أو تعطل معالجة الصور."
+  },
+  {
+    "index": 917,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "توقف البريد أو Push."
+  },
+  {
+    "index": 918,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "خطأ Webhook الدفع أو عدم مطابقة Ledger."
+  },
+  {
+    "index": 919,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "تسريب مفتاح أو حساب إداري."
+  },
+  {
+    "index": 920,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "ارتفاع البلاغات أو حملة Spam."
+  },
+  {
+    "index": 921,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "إيقاف دولة أو فئة أو الدفع عبر Kill Switch."
+  },
+  {
+    "index": 922,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "استعادة Backup والتحويل إلى Read-only."
+  },
+  {
+    "index": 923,
+    "type": "paragraph",
+    "style": "Heading 1",
+    "text": "16. سجل المخاطر والموردين والتكاليف"
+  },
+  {
+    "index": 924,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "16.1 سجل المخاطر"
+  },
+  {
+    "index": 925,
+    "type": "table",
+    "rows": [
+      [
+        "الرقم",
+        "الخطر",
+        "الاحتمال",
+        "الأثر",
+        "المالك",
+        "المعالجة"
+      ],
+      [
+        "R-001",
+        "تضخم النطاق",
+        "عالٍ",
+        "عالٍ",
+        "Product Owner",
+        "Global V1 contract وتجميد sprint"
+      ],
+      [
+        "R-002",
+        "RLS خاطئة",
+        "متوسط",
+        "حرج",
+        "DB Security",
+        "اختبارات حسابين وdeny-by-default"
+      ],
+      [
+        "R-003",
+        "اعتماد زائد على مزود",
+        "متوسط",
+        "عالٍ",
+        "Tech Lead",
+        "Adapter وexport وexit plan"
+      ],
+      [
+        "R-004",
+        "تكلفة صور مرتفعة",
+        "متوسط",
+        "متوسط",
+        "SRE",
+        "Compression، limits، budgets"
+      ],
+      [
+        "R-005",
+        "نقص مراجعين لغويين",
+        "عالٍ",
+        "عالٍ",
+        "Operations",
+        "فتح الدول تدريجيًا"
+      ],
+      [
+        "R-006",
+        "Chargebacks",
+        "متوسط",
+        "متوسط",
+        "Finance",
+        "Hosted provider، evidence، limits"
+      ],
+      [
+        "R-007",
+        "إطلاق عالمي سريع",
+        "عالٍ",
+        "حرج",
+        "Owner",
+        "Cohorts وcountry flags"
+      ],
+      [
+        "R-008",
+        "اختبارات غير مستقرة",
+        "متوسط",
+        "عالٍ",
+        "QA",
+        "Flaky test budget وتجميد الإطلاق"
+      ],
+      [
+        "R-009",
+        "تسرب سر",
+        "منخفض/متوسط",
+        "حرج",
+        "Security",
+        "Secret scan وrotation"
+      ],
+      [
+        "R-010",
+        "غياب دعم 24/7 للحالات الحرجة",
+        "متوسط",
+        "عالٍ",
+        "Operations",
+        "On-call وجدول escalation"
+      ]
+    ]
+  },
+  {
+    "index": 926,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 927,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "16.2 سجل الموردين المطلوب"
+  },
+  {
+    "index": 928,
+    "type": "table",
+    "rows": [
+      [
+        "الفئة",
+        "المعايير",
+        "قرار الخروج"
+      ],
+      [
+        "الهوية",
+        "دعم دولي، MFA، Webhooks، export",
+        "Auth adapter وخطة ترحيل المستخدمين"
+      ],
+      [
+        "قاعدة البيانات",
+        "PITR، RLS، Region، SLA",
+        "Backups قابلة للاستعادة وSQL portable"
+      ],
+      [
+        "CDN/WAF",
+        "PoPs عالمية، DDoS، logs",
+        "DNS switch وخطة cache purge"
+      ],
+      [
+        "البريد",
+        "Deliverability، locales، suppression",
+        "قوالب مستقلة وprovider abstraction"
+      ],
+      [
+        "Push",
+        "Web push وmobile compatibility",
+        "تخزين subscriptions بمعيار مفتوح"
+      ],
+      [
+        "الدفع",
+        "الدول والعملات والضرائب وHosted Checkout",
+        "Ledger داخلي وعدم الاعتماد على API في العرض"
+      ],
+      [
+        "Monitoring",
+        "Errors/traces/logs وretention",
+        "OpenTelemetry/exports"
+      ],
+      [
+        "Translation",
+        "Workflow ومراجعة بشرية",
+        "ملفات locale قابلة للتصدير"
+      ]
+    ]
+  },
+  {
+    "index": 929,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": ""
+  },
+  {
+    "index": 930,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "16.3 نموذج تقدير التكلفة"
+  },
+  {
+    "index": 931,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "تحدد الأرقام بعد اختيار الموردين والدول، لكن يجب إعداد نموذج شهري لثلاثة أحجام: 1,000 و10,000 و100,000 مستخدم نشط. يشمل النموذج: فريق التطوير، قاعدة البيانات، التخزين والنقل، البريد وPush، المراقبة، الدفع، الدعم والمراجعة، الأمن، القانون والترجمة، واحتياطي 15–25%. يجب وضع تنبيه عند 70% و90% من ميزانية كل خدمة."
+  },
+  {
+    "index": 932,
+    "type": "paragraph",
+    "style": "Heading 1",
+    "text": "17. قائمة الإطلاق والتسليم النهائي"
+  },
+  {
+    "index": 933,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Global V1 contract موقع ولا توجد P0 requirements بلا مالك."
+  },
+  {
+    "index": 934,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "main محمي وCI أخضر وProduction deploy approval مفعل."
+  },
+  {
+    "index": 935,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Clerk/Supabase reconciliation = صفر أخطاء غير معالجة."
+  },
+  {
+    "index": 936,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "كل جداول التطبيق RLS ومغطاة باختبارات إيجابية وسلبية."
+  },
+  {
+    "index": 937,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Backup restore drill ناجح ضمن RTO/RPO."
+  },
+  {
+    "index": 938,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "المسارات: التسجيل، الإعلان، البحث، الرسائل، البلاغ، الدعم، الدفع تمر E2E."
+  },
+  {
+    "index": 939,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "لا Critical/Blocker مفتوح، وHigh المقبولة موثقة ومحدودة."
+  },
+  {
+    "index": 940,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Country capability/legal/payment matrix معتمدة لكل دولة مفتوحة."
+  },
+  {
+    "index": 941,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "سياسات الخصوصية والشروط والاسترجاع والمحتوى منشورة بالإصدارات الصحيحة."
+  },
+  {
+    "index": 942,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "فريق الدعم والمراجعة وon-call جاهز وجداول التصعيد مختبرة."
+  },
+  {
+    "index": 943,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Dashboards وalerts وstatus communication جاهزة."
+  },
+  {
+    "index": 944,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Kill switches وrollback وread-only mode مختبرة."
+  },
+  {
+    "index": 945,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Closed Beta وPublic Beta استوفت مؤشرات الانتقال."
+  },
+  {
+    "index": 946,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "قرار Go/No-Go موقع من Owner وTech وSecurity وQA وOperations."
+  },
+  {
+    "index": 947,
+    "type": "paragraph",
+    "style": "Heading 2",
+    "text": "17.1 حزمة التسليم للمبرمج/الشركة"
+  },
+  {
+    "index": 948,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Source code وGit history نظيف."
+  },
+  {
+    "index": 949,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Infrastructure-as-code أو وصف تكويني قابل لإعادة البناء."
+  },
+  {
+    "index": 950,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Database migrations وseed وRLS tests."
+  },
+  {
+    "index": 951,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "API specification وevent/error catalogs."
+  },
+  {
+    "index": 952,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Test reports وcoverage وE2E evidence."
+  },
+  {
+    "index": 953,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Security reports وthreat model وpentest remediation."
+  },
+  {
+    "index": 954,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Operations runbooks وDR وincident contacts."
+  },
+  {
+    "index": 955,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Vendor accounts ownership transferred للمالك."
+  },
+  {
+    "index": 956,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Environment variables register دون كشف القيم في الوثيقة."
+  },
+  {
+    "index": 957,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Admin/user manuals وtraining recordings."
+  },
+  {
+    "index": 958,
+    "type": "paragraph",
+    "style": "List Bullet",
+    "text": "Open issues وtechnical debt register وnext release roadmap."
+  },
+  {
+    "index": 959,
+    "type": "paragraph",
+    "style": "Heading 1",
+    "text": "الخلاصة وقرار التنفيذ"
+  },
+  {
+    "index": 960,
+    "type": "paragraph",
+    "style": "Normal",
+    "text": "يمكن تنفيذ VVIP TIGER كمنصة عالمية حقيقية دون إعادة البناء الكامل، بشرط اعتماد هذه المواصفة كمرجع، إغلاق الهوية وP08 أمنيًا أولًا، ثم بناء مسار الإعلان والبحث والتواصل والدفع على نواة عالمية قابلة للتهيئة. أسرع مدة مسؤولة بفريق 7–9 متخصصين هي 8–10 أشهر إلى Global V1، بينما يقل الفريق أو تأخر القرارات يرفع المدة. لا يجوز اعتبار المشروع 100% قبل اجتياز قائمة الإطلاق والتشغيل الفعلي بالموجات."
+  }
+]

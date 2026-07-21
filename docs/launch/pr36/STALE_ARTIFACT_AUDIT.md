@@ -4,8 +4,8 @@ Classification only: no tracked, historical, backup, migration, or uncertain fil
 
 | Artifact | Classification/evidence | PR36 disposition |
 |---|---|---|
-| `.vscode/launch.json` | PR35 reports retired public-profile URLs; suspicious developer config. | Preserve unchanged for separate owner review. |
-| `approved/`, `backups/` | Historical/duplicate snapshots reported by PR35. | Preserve every tracked file; never use as PR36 runtime. |
+| `.vscode/launch.json` | PR35 reported retired public-profile URLs. | Repaired later by clean-room stabilization. |
+| Historical/duplicate snapshots reported by PR35 | Removed after canonical-file and runtime-reference proof. | Recover from Git history only if required. |
 | `private-profile.html`, `clerk-private-profile.html` | Redirect compatibility shims; `private-profile-p03.html` is canonical. | Preserve; add no PR36 include. |
 | Absent `public-profile.html`, `public-profile-p03.html`, `social-ui.js` | Retired surfaces guarded against restoration by PR35. | Do not recreate. |
 | Root `auth.js`, `styles.css` and older references | Uncertain legacy surfaces not in current canonical PR29–PR35 import map. | Preserve unchanged. |

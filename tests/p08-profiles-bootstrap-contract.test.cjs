@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const { execFileSync, spawnSync } = require('node:child_process');
 
 const migrationsDirectory = path.resolve(__dirname, '../supabase/migrations');
 const repositoryRoot = path.resolve(__dirname, '..');
@@ -18,20 +19,26 @@ function stripLineComments(sql) {
   return sql.replace(/--.*$/gm, '');
 }
 
-test('profiles regression fixtures are explicitly allowlisted', () => {
-  const gitignore = fs.readFileSync(path.join(repositoryRoot, '.gitignore'), 'utf8');
+test('profiles regression fixtures are tracked and not ignored', () => {
+  const paths = [
+    'tests/p08-profiles-bootstrap-contract.test.cjs',
+    'tests/p08-profiles-bootstrap-local.sql',
+    'tests/p08-profiles-migration-order.test.cjs',
+  ];
+  const tracked = new Set(
+    execFileSync('git', ['ls-files', '--', ...paths], {
+      cwd: repositoryRoot,
+      encoding: 'utf8',
+    }).trim().split(/\r?\n/).filter(Boolean),
+  );
+  assert.deepEqual(tracked, new Set(paths), 'all profiles regression fixtures must remain tracked');
 
-  for (const name of [
-    'p08-profiles-bootstrap-contract.test.cjs',
-    'p08-profiles-bootstrap-local.sql',
-    'p08-profiles-migration-order.test.cjs',
-  ]) {
-    assert.match(
-      gitignore,
-      new RegExp(`^!tests/${name.replaceAll('.', '\\.')}\\s*$`, 'm'),
-      `${name} must be explicitly allowlisted in .gitignore`,
-    );
-  }
+  const ignored = spawnSync('git', ['check-ignore', '--', ...paths], {
+    cwd: repositoryRoot,
+    encoding: 'utf8',
+  });
+  assert.equal(ignored.status, 1, 'tracked profiles regression fixtures must not be ignored');
+  assert.equal(ignored.stdout, '');
 });
 
 test('cross-user insert probe uses an unseeded Clerk identity', () => {

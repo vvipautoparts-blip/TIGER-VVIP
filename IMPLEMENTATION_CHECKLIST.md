@@ -36,7 +36,7 @@ Direction: Mobile First, AWS-ready, premium global execution
 
 ## 1. حالة المشروع عند بداية التنفيذ
 
-- [x] المسار الحالي: /workspaces/TIGER-VVIP
+- [x] المسار الحالي: جذر المستودع (`git rev-parse --show-toplevel`)
 - [x] الفرع الحالي: main
 - [x] المشروع متزامن مع origin/main
 - [x] working tree كان clean قبل إنشاء ملفات التوثيق

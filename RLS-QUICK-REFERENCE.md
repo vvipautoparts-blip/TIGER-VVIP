@@ -2,7 +2,7 @@
 
 ## Current Status
 ✅ **File:** `RLS-EMAIL-VERIFICATION-POLICIES.sql` ready
-✅ **Location:** `/workspaces/TIGER-VVIP/RLS-EMAIL-VERIFICATION-POLICIES.sql`
+✅ **Location:** `RLS-EMAIL-VERIFICATION-POLICIES.sql` at the repository root
 
 ---
 
@@ -27,7 +27,7 @@
 
 ### **Step 2: Copy & Paste Entire SQL File**
 ```
-1. Open: /workspaces/TIGER-VVIP/RLS-EMAIL-VERIFICATION-POLICIES.sql
+1. Open: `RLS-EMAIL-VERIFICATION-POLICIES.sql` from the repository root
 2. Copy ALL content (Ctrl+A, Ctrl+C)
 3. Paste into Supabase SQL Editor
 ```

@@ -22,4 +22,4 @@
 
 ## Explicit non-targets
 
-`private-profile.html` and `clerk-private-profile.html` are redirect shims. `social-ui.js` and public-profile files are absent and must not be restored. `approved/`, `backups/`, root legacy auth/style files, migrations, Edge Functions, Firebase configuration, and Clerk configuration are outside PR35.
+`private-profile.html` and `clerk-private-profile.html` are redirect shims. The retired feed runtime and public-profile files are absent and must not be restored. Historical source snapshots are available from Git history; root legacy auth/style files, migrations, Edge Functions, Firebase configuration, and Clerk configuration were outside PR35.

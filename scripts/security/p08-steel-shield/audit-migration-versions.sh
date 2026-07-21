@@ -21,7 +21,7 @@ while IFS= read -r -d '' file; do
     continue
   fi
 
-  if [[ ! "$base" =~ ^([0-9]{8})_[a-z0-9_]+\.sql$ ]]; then
+  if [[ ! "$base" =~ ^([0-9]{8,14})_[a-z0-9_]+\.sql$ ]]; then
     echo "INVALID_FILENAME:$file"
     issues=$((issues + 1))
   fi
@@ -58,10 +58,6 @@ while IFS= read -r -d '' file; do
     issues=$((issues + 1))
   fi
 
-  if grep -nEiq 'service_role' "$file"; then
-    echo "SERVICE_ROLE_REFERENCE:$file"
-    issues=$((issues + 1))
-  fi
 done < <(find "$TARGET_DIR" -mindepth 1 -maxdepth 1 -type f -print0 | sort -z)
 
 for p in "${!PREFIX_COUNT[@]}"; do

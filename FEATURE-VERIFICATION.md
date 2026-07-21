@@ -119,7 +119,7 @@ Result: ✅ Shows "لا توجد بريدات محفوظة"
 // 1. Login as super_admin user
 
 // 2. Navigate to #admin-dashboard
-URL: http://localhost:8000/#admin-dashboard
+URL: http://localhost:800/#admin-dashboard
 
 // 3. Click on "المستخدمون" (Users) tab or section
 
@@ -200,7 +200,7 @@ URL: http://localhost:8000/#admin-dashboard
 | [index.html](./index.html) | HTML markup للبريد والـ admin |
 | [styles.css](./styles.css) | تنسيق البريد والـ admin |
 | [auth.js](./auth.js) | منطق المصادقة |
-| [social-ui.js](./social-ui.js) | منطق الحفظ والعرض والبحث |
+| [scripts/vvip-pr29-home-marketplace.js](./scripts/vvip-pr29-home-marketplace.js) | منطق العرض والبحث في السوق الموحد الحالي |
 | [ACCOUNT-CHOOSER-SPEC.md](./ACCOUNT-CHOOSER-SPEC.md) | مواصفة OAuth |
 | [ADMIN-ROLE-SPEC.md](./ADMIN-ROLE-SPEC.md) | مواصفة RLS |
 | [SETUP-GUIDE.md](./SETUP-GUIDE.md) | دليل الإعداد الأساسي |
@@ -212,10 +212,10 @@ URL: http://localhost:8000/#admin-dashboard
 ### البيئة المحلية
 ```bash
 # التشغيل المحلي
-python -m http.server 8000
+python -m http.server 800
 
 # الوصول
-http://localhost:8000
+http://localhost:800
 ```
 
 ### للاختبار

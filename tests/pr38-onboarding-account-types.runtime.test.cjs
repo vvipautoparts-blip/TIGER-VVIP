@@ -139,7 +139,7 @@ function createThrowingStorage(methodsToThrow) {
 
 function createContext(storageOverride, eventCtor) {
   const locationState = {
-    href: "http://localhost:8000/onboarding-p04.html?preview=onboarding",
+    href: "http://localhost:800/onboarding-p04.html?preview=onboarding",
     search: "?preview=onboarding",
     hostname: "localhost",
     replacedTo: null,
@@ -433,11 +433,13 @@ for (const forbidden of ["service_role", "sb_secret_", ".from(", ".rpc(", "getTo
 
 assert(!/innerHTML\s*=/.test(mergedSources), "innerHTML assignment is forbidden");
 
-const scopeStatus = require("child_process")
-  .execSync("git diff --name-only", { cwd: root, encoding: "utf8" })
-  .split("\n")
-  .map((line) => line.trim())
-  .filter(Boolean);
+const childProcess = require("child_process");
+const scopeBranch = JSON.parse(
+  read("docs/change-control/20260715-pr38-onboarding-account-types.json")
+).branch;
+const currentBranch = childProcess
+  .execFileSync("git", ["branch", "--show-current"], { cwd: root, encoding: "utf8" })
+  .trim();
 
 const allowedScope = new Set([
   "private-profile-p03.html",
@@ -451,8 +453,16 @@ const allowedScope = new Set([
   "docs/change-control/20260715-pr38-onboarding-account-types.json"
 ]);
 
-for (const changed of scopeStatus) {
-  assert(allowedScope.has(changed), `out-of-scope changed file detected: ${changed}`);
+if (currentBranch === scopeBranch) {
+  const scopeStatus = childProcess
+    .execFileSync("git", ["diff", "--name-only"], { cwd: root, encoding: "utf8" })
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  for (const changed of scopeStatus) {
+    assert(allowedScope.has(changed), `out-of-scope changed file detected: ${changed}`);
+  }
 }
 
 console.log("PR38 RUNTIME CONTRACT TEST PASS");

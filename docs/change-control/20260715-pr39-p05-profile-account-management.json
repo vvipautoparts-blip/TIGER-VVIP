@@ -3,7 +3,7 @@
   "pr": "PR39",
   "baseline": "2ea13a3417004653324e2c27fedeeb779e8299cd",
   "branch": "feat/pr39-p05-profile-account-management",
-  "worktree": "/workspaces/TIGER-VVIP-PR39-P05",
+  "worktree": ".",
   "objective": "Implement unified public/private profile experience and safe account-management UX without destructive backend actions.",
   "approved_facebook_profile_model": true,
   "owner_mode_contract": "Owner mode is granted only when Clerk session identity matches the rendered subject identity. Any uncertainty falls back to visitor mode.",

@@ -5,12 +5,12 @@ This guide reflects the current repository state (multi-page static app).
 ## 1) Local Run
 
 ```bash
-python -m http.server 8000
+python -m http.server 800
 ```
 
 Open:
 
-- `http://localhost:8000/index.html`
+- `http://localhost:800/index.html`
 
 ## 2) Required Files (Current)
 

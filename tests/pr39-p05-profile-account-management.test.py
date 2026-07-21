@@ -80,7 +80,6 @@ def test_pr39_static_contract() -> None:
 	edit_html = read("edit-profile-p05.html")
 	settings_html = read("account-settings-p05.html")
 	css = read("styles/vvip-pr39-profile.css")
-	gitignore_text = read(".gitignore")
 	contract_js = read("scripts/profile/pr39-profile-contract.js")
 	controller_js = read("scripts/profile/pr39-profile-controller.js")
 	editor_js = read("scripts/profile/pr39-profile-editor.js")
@@ -93,8 +92,27 @@ def test_pr39_static_contract() -> None:
 
 	assert "focus-visible" in css
 	assert "prefers-reduced-motion" in css
-	assert "!tests/pr39-p05-profile-account-management.test.py" in gitignore_text
-	assert "!tests/pr39-p05-profile-account-management.runtime.test.cjs" in gitignore_text
+	fixture_paths = [
+		"tests/pr39-p05-profile-account-management.test.py",
+		"tests/pr39-p05-profile-account-management.runtime.test.cjs",
+	]
+	tracked = set(
+		subprocess.run(
+			["git", "ls-files", "--", *fixture_paths],
+			cwd=ROOT,
+			text=True,
+			capture_output=True,
+			check=True,
+		).stdout.splitlines()
+	)
+	assert tracked == set(fixture_paths), "PR39 regression fixtures must remain tracked"
+	ignored = subprocess.run(
+		["git", "check-ignore", "--", *fixture_paths],
+		cwd=ROOT,
+		text=True,
+		capture_output=True,
+	)
+	assert ignored.returncode == 1, "tracked PR39 regression fixtures must not be ignored"
 
 	assert "OWNER_MODE" in contract_js
 	assert "VISITOR_MODE" in contract_js

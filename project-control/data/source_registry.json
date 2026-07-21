@@ -1,0 +1,29 @@
+[
+  {
+    "source_id": "VVIP_TIGER_Global_Execution_Plan_AR",
+    "file_name": "VVIP_TIGER_Global_Execution_Plan_AR.docx",
+    "sha256": "edd11e409f4ae90075ff641dddd8b3fc6ff1319e13b43aea297c02a9db1dae2f",
+    "size_bytes": 73249,
+    "record_count": 1503,
+    "canonical": false,
+    "ingested_at_utc": "2026-07-20T09:56:00.217688+00:00"
+  },
+  {
+    "source_id": "VVIP_TIGER_Global_Execution_Specification_V2_AR",
+    "file_name": "VVIP_TIGER_Global_Execution_Specification_V2_AR.docx",
+    "sha256": "16b2b6b049988e2e90eeec107f96fb0284e6bb882fd899f455da04bc6170de24",
+    "size_bytes": 84219,
+    "record_count": 961,
+    "canonical": false,
+    "ingested_at_utc": "2026-07-20T09:56:00.553313+00:00"
+  },
+  {
+    "source_id": "VVIP_TIGER_Global_Implementation_Specification_AR_v2",
+    "file_name": "VVIP_TIGER_Global_Implementation_Specification_AR_v2.docx",
+    "sha256": "2b8c290cb2c90910d8a50e048b477b5ee2caafd70fdc2e02785674c192af91ca",
+    "size_bytes": 182064,
+    "record_count": 2640,
+    "canonical": true,
+    "ingested_at_utc": "2026-07-20T09:56:01.047193+00:00"
+  }
+]

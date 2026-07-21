@@ -1,33 +1,39 @@
-# Local generated temporary artifacts
-tmp/
-
-# Supabase CLI local temp/cache
-supabase/.temp/
-
-# VVIP temporary backups and test artifacts
-*.backup*
-*.desktop-approved.*
-test-results/
-tests/
-!tests/
-tests/*
-!tests/p08-profiles-bootstrap-contract.test.cjs
-!tests/p08-profiles-bootstrap-local.sql
-!tests/p08-profiles-migration-order.test.cjs
-!tests/pr39-p05-profile-account-management.test.py
-!tests/pr39-p05-profile-account-management.runtime.test.cjs
-!tests/pr40-p06-orchestrator.test.py
-!tests/pr40-p06-owner-control.runtime.test.cjs
-!tests/pr36/
-!tests/pr36/*
-!tests/pr35/
-!tests/pr35/**
-
-# Local generated files
+# Dependency and tool output
 node_modules/
-reports/*.log
-package-lock.json
-package.json
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.eslintcache
 
-# Local safety backups generated during controlled implementation phases
-.local-backups/
+# Coverage and build/test output
+coverage/
+.coverage
+htmlcov/
+test-results/
+dist/
+build/
+out/
+
+# Local CLI/cache output
+supabase/.temp/
+/tmp/
+/.firebase/hosting.*.cache
+
+# Logs and editor/OS temporary files
+*.log
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.DS_Store
+Thumbs.db
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+*.bak
+*.backup
+*.orig
+*.rej

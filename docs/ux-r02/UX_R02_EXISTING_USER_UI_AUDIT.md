@@ -11,7 +11,7 @@
 ## Approved, Legacy, And Experimental Surfaces
 
 - The current index and P03/P05 pages are existing product surfaces and are not modified by UX-R02.
-- `approved/` and `backups/` are historical snapshots and are protected from modification.
+- Historical snapshots were removed from the active tree after canonical-file proof and remain recoverable from Git history.
 - Older `private-profile.html`, `public-profile.html`, Clerk bridge files, SQL, migrations, Supabase assets, and authentication scripts are out of scope.
 
 ## Reusable Concepts
