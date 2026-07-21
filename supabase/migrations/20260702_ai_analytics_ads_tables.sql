@@ -18,12 +18,18 @@ create index if not exists feed_analytics_events_actor_handle_idx
 
 alter table public.feed_analytics_events enable row level security;
 
-create policy if not exists "Anyone can read analytics events"
+drop policy if exists "Anyone can read analytics events"
+on public.feed_analytics_events;
+
+create policy "Anyone can read analytics events"
 on public.feed_analytics_events
 for select
 using (true);
 
-create policy if not exists "Anyone can insert analytics events"
+drop policy if exists "Anyone can insert analytics events"
+on public.feed_analytics_events;
+
+create policy "Anyone can insert analytics events"
 on public.feed_analytics_events
 for insert
 with check (true);
@@ -45,12 +51,18 @@ create index if not exists ad_campaign_settings_actor_handle_updated_at_idx
 
 alter table public.ad_campaign_settings enable row level security;
 
-create policy if not exists "Anyone can read ad campaign settings"
+drop policy if exists "Anyone can read ad campaign settings"
+on public.ad_campaign_settings;
+
+create policy "Anyone can read ad campaign settings"
 on public.ad_campaign_settings
 for select
 using (true);
 
-create policy if not exists "Anyone can insert ad campaign settings"
+drop policy if exists "Anyone can insert ad campaign settings"
+on public.ad_campaign_settings;
+
+create policy "Anyone can insert ad campaign settings"
 on public.ad_campaign_settings
 for insert
 with check (true);
