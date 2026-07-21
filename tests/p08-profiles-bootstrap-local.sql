@@ -160,7 +160,7 @@ begin
 
   begin
     insert into public.profiles (email, clerk_user_id)
-    values ('profile-isolation-forbidden@example.invalid', 'clerk_profile_isolation_b');
+    values ('profile-isolation-forbidden@example.invalid', 'clerk_profile_isolation_forbidden');
     raise exception 'cross-user profile insert unexpectedly succeeded';
   exception
     when insufficient_privilege then

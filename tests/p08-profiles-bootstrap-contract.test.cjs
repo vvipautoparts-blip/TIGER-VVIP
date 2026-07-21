@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const migrationsDirectory = path.resolve(__dirname, '../supabase/migrations');
+const repositoryRoot = path.resolve(__dirname, '..');
 const migrationFiles = fs
   .readdirSync(migrationsDirectory)
   .filter((name) => name.endsWith('.sql'))
@@ -16,6 +17,42 @@ function readMigration(name) {
 function stripLineComments(sql) {
   return sql.replace(/--.*$/gm, '');
 }
+
+test('profiles regression fixtures are explicitly allowlisted', () => {
+  const gitignore = fs.readFileSync(path.join(repositoryRoot, '.gitignore'), 'utf8');
+
+  for (const name of [
+    'p08-profiles-bootstrap-contract.test.cjs',
+    'p08-profiles-bootstrap-local.sql',
+    'p08-profiles-migration-order.test.cjs',
+  ]) {
+    assert.match(
+      gitignore,
+      new RegExp(`^!tests/${name.replaceAll('.', '\\.')}\\s*$`, 'm'),
+      `${name} must be explicitly allowlisted in .gitignore`,
+    );
+  }
+});
+
+test('cross-user insert probe uses an unseeded Clerk identity', () => {
+  const sql = stripLineComments(
+    fs.readFileSync(path.join(__dirname, 'p08-profiles-bootstrap-local.sql'), 'utf8'),
+  );
+  const seed = sql.match(
+    /insert\s+into\s+public\.profiles[\s\S]+?values\s+\([^;]+?'([^']+)'\s*\)\s*;/i,
+  );
+  const probe = sql.match(
+    /values\s*\(\s*'profile-isolation-forbidden@example\.invalid'\s*,\s*'([^']+)'\s*\)/i,
+  );
+
+  assert.notEqual(seed, null, 'expected the two-user profiles seed');
+  assert.notEqual(probe, null, 'expected the cross-user insert probe');
+  assert.doesNotMatch(
+    seed[0],
+    new RegExp(`'${probe[1]}'`),
+    'cross-user insert probe must not reuse a seeded unique clerk_user_id',
+  );
+});
 
 test('public.profiles is created before the first dependent migration', () => {
   let creation = null;
