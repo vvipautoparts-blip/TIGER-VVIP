@@ -8,7 +8,7 @@
 -- Security:
 -- No anon access.
 -- No delete policy.
--- No service_role in frontend.
+-- No privileged backend credential is exposed to frontend code.
 -- Email is only a legacy recovery hint, not the primary identity source.
 -- The function never returns tokens or secrets.
 
