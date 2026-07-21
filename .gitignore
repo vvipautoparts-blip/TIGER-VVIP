@@ -11,6 +11,9 @@ test-results/
 tests/
 !tests/
 tests/*
+!tests/p08-profiles-bootstrap-contract.test.cjs
+!tests/p08-profiles-bootstrap-local.sql
+!tests/p08-profiles-migration-order.test.cjs
 !tests/pr39-p05-profile-account-management.test.py
 !tests/pr39-p05-profile-account-management.runtime.test.cjs
 !tests/pr40-p06-orchestrator.test.py
