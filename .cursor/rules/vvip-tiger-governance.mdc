@@ -1,0 +1,55 @@
+---
+description: VVIP TIGER development governance — Cursor Agent is the sole writer; owner approves git and production actions.
+alwaysApply: true
+---
+
+# VVIP TIGER — Agent Governance
+
+## Roles
+
+- **Cursor Agent**: sole author of code and config changes in this repository.
+- **BLACKBOX AI**: read-only reviewer; see `docs/ai/BLACKBOX_REVIEW_PROMPT.md`.
+- **GitHub Actions**: automated final gate via `scripts/quality-gate.sh`.
+- **Project owner**: explicit approval for `git add`, `commit`, `push`, `merge`, and production Supabase operations.
+
+## Before any edit
+
+1. Read relevant files and trace IDs across HTML and scripts (see `AGENTS.md`).
+2. State analysis, scope, and a minimal plan before modifying files.
+3. Use a **dedicated branch per task**; never commit directly to `main`.
+4. For bugs, add or run a failing test first when reasonably possible (RED → GREEN).
+5. Prefer the **smallest correct diff**; no drive-by refactors or unrelated fixes.
+
+## Hard prohibitions (agent)
+
+- No unauthorized file, branch, or worktree deletion.
+- No secrets, tokens, or environment keys in chat, commits, or logs.
+- No `commit`, `push`, or `merge` without **explicit owner approval** in the current task.
+- No Supabase production operations: `link`, `db push`, `db reset`, `migration repair`, or disabling RLS.
+- No `git reset --hard`, `git clean -fd`, `git push --force`, or `rm -rf` on the repository.
+- No backup copies inside the repository tree.
+- No edits to `supabase/migrations/` unless the task explicitly authorizes migration work (owner + review chain).
+- No Firebase deploy or hosting config changes unless explicitly requested.
+- Do not replace an existing file without reading and understanding it first.
+
+## Scope discipline
+
+- Stay within the task scope documented in the PR template.
+- Do not change platform UI behavior unless the task requires it.
+- Link setup docs (`SETUP-GUIDE.md`, `SUPABASE-EDGE-OTP-GUIDE.md`) instead of duplicating long procedures.
+
+## Pre-commit verification (agent)
+
+Before asking the owner to approve `commit`:
+
+```bash
+bash scripts/quality-gate.sh
+```
+
+Report `VVIP_QUALITY_GATE=PASS` or `FAIL` and fix governance-related failures before requesting approval.
+
+## Reference
+
+- Operating model: `docs/ai/VVIP_AI_OPERATING_MODEL.md`
+- Supabase safety: `docs/ai/SUPABASE_SAFETY_POLICY.md`
+- Recovery status (read-only): `bash scripts/vvip-recovery-status.sh`
