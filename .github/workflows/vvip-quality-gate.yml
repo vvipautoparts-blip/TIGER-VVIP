@@ -34,5 +34,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt pytest
 
+      - name: Fetch main comparison reference
+
+        run: git fetch --no-tags --prune origin main:refs/remotes/origin/main
+
+
       - name: Run VVIP quality gate
         run: bash scripts/quality-gate.sh
