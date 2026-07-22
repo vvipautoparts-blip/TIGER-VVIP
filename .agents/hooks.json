@@ -1,0 +1,17 @@
+{
+  "vvip-manager-read-only-gate": {
+    "enabled": true,
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /workspaces/TIGER-VVIP/scripts/antigravity/read_only_gate.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
