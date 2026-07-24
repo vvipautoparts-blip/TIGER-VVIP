@@ -18,7 +18,7 @@ const ProfileSchema = z.object({
 
 export async function updateUserProfile(formData: FormData) {
   const { userId } = await auth();
-  
+
   // Guard against null userId for security
   if (!userId) {
     throw new Error("Authentication required: userId is null");
