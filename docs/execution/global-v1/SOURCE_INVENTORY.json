@@ -1,0 +1,92 @@
+{
+  "generated": "2026-07-24T13:15:43Z",
+  "branch": "feat/global-v1-foundation-20260724-092530",
+  "head": "ba3c428018db748caa59bc986e0dc54095a372f6",
+  "sources": [
+    {
+      "id": "S1",
+      "path": "docs/specifications/VVIPTIGER 20268-1.docx",
+      "title": "VVIP TIGER — المواصفة التنفيذية العالمية النهائية المدمجة",
+      "internal_version": "VVIPTIGER 20268-1",
+      "approval_state": "APPROVED_PRIMARY",
+      "sha256": "22cc932c049232a1ed31cca35db3314eef25a17651d53901b673f9ceacac6bfd",
+      "extraction_method": "ZIP/XML + MD mirror at docs/specifications/VVIP_TIGER_GLOBAL_EXECUTION_SPEC_FINAL_AR.md",
+      "extracted_md": "docs/specifications/VVIP_TIGER_GLOBAL_EXECUTION_SPEC_FINAL_AR.md",
+      "precedence": 2,
+      "notes": "Highest approved Word spec. Supersedes all older specs."
+    },
+    {
+      "id": "S2",
+      "path": "project-control/sources/VVIP_TIGER_Global_Implementation_Specification_AR_v2.docx",
+      "title": "VVIP TIGER — المواصفة التنفيذية العالمية الشاملة v2.0",
+      "internal_version": "2.0",
+      "approval_state": "APPROVED_REFERENCE",
+      "sha256": "2b8c290cb2c90910d8a50e048b477b5ee2caafd70fdc2e02785674c192af91ca",
+      "extraction_method": "ZIP/XML + MD mirror at project-control/sources/VVIP_TIGER_Global_Implementation_Specification_AR_v2.md",
+      "extracted_md": "project-control/sources/VVIP_TIGER_Global_Implementation_Specification_AR_v2.md",
+      "paragraph_count_approx": 6456,
+      "table_count_approx": "many",
+      "precedence": 3,
+      "notes": "Comprehensive implementation spec. G00-G22 phases. Superseded by S1 where conflicting."
+    },
+    {
+      "id": "S3",
+      "path": "project-control/sources/VVIP_TIGER_Global_Execution_Specification_V2_AR.docx",
+      "title": "VVIP TIGER — المواصفة التنفيذية والتقنية الشاملة v2.0",
+      "internal_version": "2.0",
+      "approval_state": "APPROVED_REFERENCE",
+      "sha256": "16b2b6b049988e2e90eeec107f96fb0284e6bb882fd899f455da04bc6170de24",
+      "extraction_method": "ZIP/XML + MD mirror at project-control/sources/VVIP_TIGER_Global_Execution_Specification_V2_AR.md",
+      "extracted_md": "project-control/sources/VVIP_TIGER_Global_Execution_Specification_V2_AR.md",
+      "paragraph_count_approx": 2271,
+      "precedence": 4,
+      "notes": "Technical and security spec. Superseded by S1 where conflicting."
+    },
+    {
+      "id": "S4",
+      "path": "project-control/sources/VVIP_TIGER_Global_Execution_Plan_AR.docx",
+      "title": "VVIP TIGER — الخطة التنفيذية الشاملة v1.0",
+      "internal_version": "1.0",
+      "approval_state": "APPROVED_REFERENCE",
+      "sha256": "edd11e409f4ae90075ff641dddd8b3fc6ff1319e13b43aea297c02a9db1dae2f",
+      "extraction_method": "ZIP/XML + MD mirror at project-control/sources/VVIP_TIGER_Global_Execution_Plan_AR.md",
+      "extracted_md": "project-control/sources/VVIP_TIGER_Global_Execution_Plan_AR.md",
+      "paragraph_count_approx": 3277,
+      "precedence": 5,
+      "notes": "Original execution plan. Superseded by S2/S3 where conflicting."
+    },
+    {
+      "id": "S5",
+      "path": "docs/VVIP_TIGER_OFFICIAL_PRODUCT_BLUEPRINT.md",
+      "title": "VVIP TIGER Official Product Blueprint",
+      "approval_state": "APPROVED_REFERENCE",
+      "precedence": 4,
+      "notes": "Product constitution. Clerk+Supabase. Sectors: Auto parts, Materials, Real estate."
+    },
+    {
+      "id": "S6",
+      "path": "docs/VVIP_TIGER_MEMORY_MAP.md",
+      "title": "VVIP TIGER Memory Map",
+      "approval_state": "APPROVED_REFERENCE",
+      "precedence": 4,
+      "notes": "Approved map of memory and decisions."
+    },
+    {
+      "id": "S7",
+      "path": "IMPLEMENTATION_CHECKLIST.md",
+      "title": "VVIP TIGER Implementation Checklist",
+      "approval_state": "REFERENCE",
+      "precedence": 5,
+      "notes": "Phased execution plan."
+    }
+  ],
+  "precedence_chain": [
+    "1. Latest owner instruction",
+    "2. S1 - VVIPTIGER 20268-1.docx (latest approved Word spec)",
+    "3. Approved Change Control and ADRs",
+    "4. S2/S3/S5/S6 - Implementation specs and product blueprint",
+    "5. S4 - Original execution plan checklist",
+    "6. Existing code and tests",
+    "7. Older superseded references"
+  ]
+}
