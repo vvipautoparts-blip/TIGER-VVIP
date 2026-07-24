@@ -1,5 +1,5 @@
 {
-  "accepted": true,
+  "accepted": false,
   "exact_duplicates": [
     {
       "disposition": "unexplained",
@@ -400,9 +400,9 @@
       "status": "pass"
     },
     "scope": {
-      "count": 0,
+      "count": 1,
       "details": {
-        "branch": true,
+        "branch": false,
         "remote": true,
         "repository_root": true,
         "required_ancestors": {
@@ -410,7 +410,7 @@
           "eab212d": true
         }
       },
-      "status": "pass"
+      "status": "fail"
     },
     "secret_scan": {
       "count": 0,
@@ -438,6 +438,30 @@
     }
   },
   "git_status": [
+    {
+      "path": ".agents/hooks.json",
+      "status": " M"
+    },
+    {
+      "path": ".pytest_cache/.gitignore",
+      "status": "!!"
+    },
+    {
+      "path": ".pytest_cache/CACHEDIR.TAG",
+      "status": "!!"
+    },
+    {
+      "path": ".pytest_cache/README.md",
+      "status": "!!"
+    },
+    {
+      "path": ".pytest_cache/v/cache/lastfailed",
+      "status": "!!"
+    },
+    {
+      "path": ".pytest_cache/v/cache/nodeids",
+      "status": "!!"
+    },
     {
       "path": ".venv/.gitignore",
       "status": "!!"
@@ -504,6 +528,10 @@
     },
     {
       "path": ".venv/bin/python3.12",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/__pycache__/_virtualenv.cpython-312.pyc",
       "status": "!!"
     },
     {
@@ -639,7 +667,35 @@
       "status": "!!"
     },
     {
+      "path": ".venv/lib/python3.12/site-packages/pip/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/__pycache__/__main__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
       "path": ".venv/lib/python3.12/site-packages/pip/_internal/__init__.py",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/__pycache__/build_env.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/__pycache__/configuration.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/__pycache__/exceptions.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/__pycache__/self_outdated_check.cpython-312.pyc",
       "status": "!!"
     },
     {
@@ -652,6 +708,50 @@
     },
     {
       "path": ".venv/lib/python3.12/site-packages/pip/_internal/cli/__init__.py",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/cli/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/cli/__pycache__/autocompletion.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/cli/__pycache__/base_command.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/cli/__pycache__/cmdoptions.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/cli/__pycache__/command_context.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/cli/__pycache__/main.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/cli/__pycache__/main_parser.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/cli/__pycache__/parser.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/cli/__pycache__/progress_bars.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/cli/__pycache__/spinners.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/cli/__pycache__/status_codes.cpython-312.pyc",
       "status": "!!"
     },
     {
@@ -704,6 +804,18 @@
     },
     {
       "path": ".venv/lib/python3.12/site-packages/pip/_internal/commands/__init__.py",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/commands/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/commands/__pycache__/install.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/commands/__pycache__/show.cpython-312.pyc",
       "status": "!!"
     },
     {
@@ -811,6 +923,22 @@
       "status": "!!"
     },
     {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/index/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/index/__pycache__/collector.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/index/__pycache__/package_finder.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/index/__pycache__/sources.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
       "path": ".venv/lib/python3.12/site-packages/pip/_internal/index/collector.py",
       "status": "!!"
     },
@@ -824,6 +952,18 @@
     },
     {
       "path": ".venv/lib/python3.12/site-packages/pip/_internal/locations/__init__.py",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/locations/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/locations/__pycache__/_sysconfig.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/locations/__pycache__/base.cpython-312.pyc",
       "status": "!!"
     },
     {
@@ -847,6 +987,18 @@
       "status": "!!"
     },
     {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/metadata/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/metadata/__pycache__/_json.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/metadata/__pycache__/base.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
       "path": ".venv/lib/python3.12/site-packages/pip/_internal/metadata/_json.py",
       "status": "!!"
     },
@@ -856,6 +1008,22 @@
     },
     {
       "path": ".venv/lib/python3.12/site-packages/pip/_internal/metadata/importlib/__init__.py",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/metadata/importlib/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/metadata/importlib/__pycache__/_compat.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/metadata/importlib/__pycache__/_dists.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/metadata/importlib/__pycache__/_envs.cpython-312.pyc",
       "status": "!!"
     },
     {
@@ -876,6 +1044,54 @@
     },
     {
       "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__init__.py",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__pycache__/candidate.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__pycache__/direct_url.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__pycache__/format_control.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__pycache__/index.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__pycache__/link.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__pycache__/release_control.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__pycache__/scheme.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__pycache__/search_scope.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__pycache__/selection_prefs.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__pycache__/target_python.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__pycache__/wheel.cpython-312.pyc",
       "status": "!!"
     },
     {
@@ -931,6 +1147,26 @@
       "status": "!!"
     },
     {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/network/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/network/__pycache__/auth.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/network/__pycache__/cache.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/network/__pycache__/session.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/network/__pycache__/utils.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
       "path": ".venv/lib/python3.12/site-packages/pip/_internal/network/auth.py",
       "status": "!!"
     },
@@ -963,6 +1199,10 @@
       "status": "!!"
     },
     {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/operations/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
       "path": ".venv/lib/python3.12/site-packages/pip/_internal/operations/check.py",
       "status": "!!"
     },
@@ -988,6 +1228,18 @@
     },
     {
       "path": ".venv/lib/python3.12/site-packages/pip/_internal/req/__init__.py",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/req/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/req/__pycache__/req_file.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/req/__pycache__/req_install.cpython-312.pyc",
       "status": "!!"
     },
     {
@@ -1076,6 +1328,94 @@
     },
     {
       "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__init__.py",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/_log.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/appdirs.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/compat.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/compatibility_tags.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/datetime.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/deprecation.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/egg_link.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/filesystem.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/filetypes.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/glibc.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/hashes.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/logging.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/misc.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/packaging.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/pylock.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/retry.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/subprocess.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/temp_dir.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/urls.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/virtualenv.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/wheel.cpython-312.pyc",
       "status": "!!"
     },
     {
@@ -1183,6 +1523,30 @@
       "status": "!!"
     },
     {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/vcs/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/vcs/__pycache__/bazaar.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/vcs/__pycache__/git.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/vcs/__pycache__/mercurial.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/vcs/__pycache__/subversion.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/vcs/__pycache__/versioncontrol.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
       "path": ".venv/lib/python3.12/site-packages/pip/_internal/vcs/bazaar.py",
       "status": "!!"
     },
@@ -1215,11 +1579,43 @@
       "status": "!!"
     },
     {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/LICENSE.txt",
       "status": "!!"
     },
     {
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/__init__.py",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/__pycache__/adapter.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/__pycache__/cache.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/__pycache__/controller.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/__pycache__/filewrapper.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/__pycache__/serialize.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/__pycache__/wrapper.cpython-312.pyc",
       "status": "!!"
     },
     {
@@ -1236,6 +1632,18 @@
     },
     {
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/caches/__init__.py",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/caches/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/caches/__pycache__/file_cache.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/caches/__pycache__/redis_cache.cpython-312.pyc",
       "status": "!!"
     },
     {
@@ -1280,6 +1688,14 @@
     },
     {
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/certifi/__main__.py",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/certifi/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/certifi/__pycache__/core.cpython-312.pyc",
       "status": "!!"
     },
     {
@@ -1371,6 +1787,26 @@
       "status": "!!"
     },
     {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/idna/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/idna/__pycache__/core.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/idna/__pycache__/idnadata.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/idna/__pycache__/intranges.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/idna/__pycache__/package_data.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/idna/codec.py",
       "status": "!!"
     },
@@ -1411,6 +1847,22 @@
       "status": "!!"
     },
     {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/msgpack/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/msgpack/__pycache__/exceptions.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/msgpack/__pycache__/ext.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/msgpack/__pycache__/fallback.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/msgpack/exceptions.py",
       "status": "!!"
     },
@@ -1436,6 +1888,62 @@
     },
     {
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__init__.py",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/_elffile.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/_manylinux.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/_musllinux.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/_parser.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/_tokenizer.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/direct_url.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/markers.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/pylock.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/requirements.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/specifiers.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/tags.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/utils.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/version.cpython-312.pyc",
       "status": "!!"
     },
     {
@@ -1539,6 +2047,22 @@
       "status": "!!"
     },
     {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/platformdirs/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/platformdirs/__pycache__/api.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/platformdirs/__pycache__/unix.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/platformdirs/__pycache__/version.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/platformdirs/android.py",
       "status": "!!"
     },
@@ -1579,6 +2103,42 @@
       "status": "!!"
     },
     {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/__pycache__/filter.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/__pycache__/lexer.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/__pycache__/modeline.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/__pycache__/plugin.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/__pycache__/regexopt.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/__pycache__/style.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/__pycache__/token.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/__pycache__/util.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/console.py",
       "status": "!!"
     },
@@ -1588,6 +2148,10 @@
     },
     {
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/filters/__init__.py",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/filters/__pycache__/__init__.cpython-312.pyc",
       "status": "!!"
     },
     {
@@ -1608,6 +2172,14 @@
     },
     {
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/lexers/__init__.py",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/lexers/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/lexers/__pycache__/_mapping.cpython-312.pyc",
       "status": "!!"
     },
     {
@@ -1647,6 +2219,14 @@
       "status": "!!"
     },
     {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/styles/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/styles/__pycache__/_mapping.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/styles/_mapping.py",
       "status": "!!"
     },
@@ -1671,11 +2251,23 @@
       "status": "!!"
     },
     {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pyproject_hooks/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pyproject_hooks/__pycache__/_impl.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pyproject_hooks/_impl.py",
       "status": "!!"
     },
     {
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pyproject_hooks/_in_process/__init__.py",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pyproject_hooks/_in_process/__pycache__/__init__.cpython-312.pyc",
       "status": "!!"
     },
     {
@@ -1692,6 +2284,74 @@
     },
     {
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__init__.py",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/__version__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/_internal_utils.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/adapters.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/api.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/auth.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/certs.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/compat.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/cookies.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/exceptions.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/hooks.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/models.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/packages.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/sessions.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/status_codes.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/structures.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/utils.cpython-312.pyc",
       "status": "!!"
     },
     {
@@ -1816,6 +2476,254 @@
     },
     {
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__main__.py",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_cell_widths.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_emoji_codes.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_emoji_replace.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_export_format.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_extension.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_fileno.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_log_render.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_loop.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_null_file.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_palettes.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_pick.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_ratio.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_spinners.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_wrap.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/abc.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/align.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/ansi.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/box.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/cells.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/color.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/color_triplet.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/columns.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/console.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/constrain.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/containers.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/control.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/default_styles.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/emoji.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/errors.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/file_proxy.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/filesize.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/highlighter.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/jupyter.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/live.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/live_render.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/logging.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/markup.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/measure.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/padding.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/pager.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/palette.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/panel.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/pretty.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/progress.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/progress_bar.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/protocol.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/region.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/repr.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/scope.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/screen.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/segment.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/spinner.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/style.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/styled.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/syntax.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/table.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/terminal_theme.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/text.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/theme.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/themes.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/traceback.cpython-312.pyc",
       "status": "!!"
     },
     {
@@ -2203,6 +3111,54 @@
       "status": "!!"
     },
     {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/__pycache__/_base_connection.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/__pycache__/_collections.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/__pycache__/_request_methods.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/__pycache__/_version.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/__pycache__/connection.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/__pycache__/connectionpool.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/__pycache__/exceptions.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/__pycache__/fields.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/__pycache__/filepost.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/__pycache__/poolmanager.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/__pycache__/response.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/_base_connection.py",
       "status": "!!"
     },
@@ -2228,6 +3184,14 @@
     },
     {
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/contrib/__init__.py",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/contrib/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/contrib/__pycache__/socks.cpython-312.pyc",
       "status": "!!"
     },
     {
@@ -2279,6 +3243,14 @@
       "status": "!!"
     },
     {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/http2/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/http2/__pycache__/probe.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/http2/connection.py",
       "status": "!!"
     },
@@ -2300,6 +3272,58 @@
     },
     {
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__init__.py",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/__init__.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/connection.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/proxy.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/request.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/response.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/retry.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/ssl_.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/ssl_match_hostname.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/ssltransport.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/timeout.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/url.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/util.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/wait.cpython-312.pyc",
       "status": "!!"
     },
     {
@@ -2367,6 +3391,70 @@
       "status": "!!"
     },
     {
+      "path": "docs/execution/GLOBAL_V1_REQUIREMENTS_MATRIX.md",
+      "status": " M"
+    },
+    {
+      "path": "docs/execution/GLOBAL_V1_TRACEABILITY_MATRIX.csv",
+      "status": " M"
+    },
+    {
+      "path": "docs/execution/global-v1/SOURCE_READING_ATTESTATION.md",
+      "status": " M"
+    },
+    {
+      "path": "docs/execution/global-v1/TERMINAL_BASELINE.txt",
+      "status": " M"
+    },
+    {
+      "path": "docs/specifications/VVIP_TIGER_GLOBAL_EXECUTION_SPEC_FINAL_AR.manifest.txt",
+      "status": " M"
+    },
+    {
+      "path": "docs/specifications/VVIP_TIGER_GLOBAL_EXECUTION_SPEC_FINAL_AR.md",
+      "status": " M"
+    },
+    {
+      "path": "scripts/antigravity-manager-start.sh",
+      "status": " M"
+    },
+    {
+      "path": "scripts/antigravity-manager-verify.sh",
+      "status": " M"
+    },
+    {
+      "path": "supabase/.temp/gotrue-version",
+      "status": "!!"
+    },
+    {
+      "path": "supabase/.temp/linked-project.json",
+      "status": "!!"
+    },
+    {
+      "path": "supabase/.temp/pooler-url",
+      "status": "!!"
+    },
+    {
+      "path": "supabase/.temp/postgres-version",
+      "status": "!!"
+    },
+    {
+      "path": "supabase/.temp/project-ref",
+      "status": "!!"
+    },
+    {
+      "path": "supabase/.temp/rest-version",
+      "status": "!!"
+    },
+    {
+      "path": "supabase/.temp/storage-migration",
+      "status": "!!"
+    },
+    {
+      "path": "supabase/.temp/storage-version",
+      "status": "!!"
+    },
+    {
       "path": "tests/__pycache__/pr38-onboarding-account-types.test.cpython-312.pyc",
       "status": "!!"
     },
@@ -2387,19 +3475,130 @@
       "status": "!!"
     },
     {
+      "path": "tests/__pycache__/test_antigravity_read_only_gate.cpython-312-pytest-9.1.1.pyc",
+      "status": "!!"
+    },
+    {
+      "path": "tests/__pycache__/test_antigravity_read_only_gate.cpython-312.pyc",
+      "status": "!!"
+    },
+    {
       "path": "tests/__pycache__/test_vvip_cleanroom.cpython-312-pytest-9.1.1.pyc",
       "status": "!!"
     },
     {
       "path": "tools/__pycache__/vvip_cleanroom.cpython-312.pyc",
       "status": "!!"
-    },
-    {
-      "path": "tools/vvip_cleanroom.py",
-      "status": " M"
     }
   ],
   "inventory": [
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": ".agent",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": ".agent/rules",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": ".agent/rules/antigravity-strict-manager.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": ".agents",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": ".agents/hooks.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": ".agents/rules",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": ".agents/rules/vvip-tiger-delivery-manager.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": ".agents/skills",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": ".agents/skills/vvip-delivery-manager",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": ".agents/skills/vvip-delivery-manager/SKILL.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": ".clinerules",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": ".cursor",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": ".cursor/rules",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": ".cursor/rules/vvip-tiger-governance.mdc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "environment file",
+        "secret-sensitive file",
+        "tracked source"
+      ],
+      "path": ".env.local",
+      "type": "file"
+    },
     {
       "classifications": [
         "tracked configuration"
@@ -2421,6 +3620,13 @@
       ],
       "path": ".github",
       "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": ".github/pull_request_template.md",
+      "type": "file"
     },
     {
       "classifications": [
@@ -2447,7 +3653,78 @@
       "classifications": [
         "tracked configuration"
       ],
+      "path": ".github/workflows/vvip-quality-gate.yml",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
       "path": ".gitignore",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".pytest_cache",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".pytest_cache/.gitignore",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".pytest_cache/CACHEDIR.TAG",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".pytest_cache/README.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".pytest_cache/v",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".pytest_cache/v/cache",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".pytest_cache/v/cache/lastfailed",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".pytest_cache/v/cache/nodeids",
       "type": "file"
     },
     {
@@ -2610,6 +3887,22 @@
       ],
       "path": ".venv/lib/python3.12/site-packages",
       "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/__pycache__/_virtualenv.cpython-312.pyc",
+      "type": "file"
     },
     {
       "classifications": [
@@ -3038,6 +4331,30 @@
     },
     {
       "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/__pycache__/__main__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
         "ignored generated artifact"
       ],
       "path": ".venv/lib/python3.12/site-packages/pip/_internal",
@@ -3049,6 +4366,54 @@
         "ignored generated artifact"
       ],
       "path": ".venv/lib/python3.12/site-packages/pip/_internal/__init__.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/__pycache__/build_env.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/__pycache__/configuration.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/__pycache__/exceptions.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/__pycache__/self_outdated_check.cpython-312.pyc",
       "type": "file"
     },
     {
@@ -3080,6 +4445,102 @@
         "ignored generated artifact"
       ],
       "path": ".venv/lib/python3.12/site-packages/pip/_internal/cli/__init__.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/cli/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/cli/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/cli/__pycache__/autocompletion.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/cli/__pycache__/base_command.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/cli/__pycache__/cmdoptions.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/cli/__pycache__/command_context.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/cli/__pycache__/main.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/cli/__pycache__/main_parser.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/cli/__pycache__/parser.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/cli/__pycache__/progress_bars.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/cli/__pycache__/spinners.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/cli/__pycache__/status_codes.cpython-312.pyc",
       "type": "file"
     },
     {
@@ -3191,6 +4652,38 @@
         "ignored generated artifact"
       ],
       "path": ".venv/lib/python3.12/site-packages/pip/_internal/commands/__init__.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/commands/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/commands/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/commands/__pycache__/install.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/commands/__pycache__/show.cpython-312.pyc",
       "type": "file"
     },
     {
@@ -3417,6 +4910,46 @@
     },
     {
       "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/index/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/index/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/index/__pycache__/collector.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/index/__pycache__/package_finder.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/index/__pycache__/sources.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
         "executable script",
         "ignored generated artifact"
       ],
@@ -3452,6 +4985,38 @@
         "ignored generated artifact"
       ],
       "path": ".venv/lib/python3.12/site-packages/pip/_internal/locations/__init__.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/locations/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/locations/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/locations/__pycache__/_sysconfig.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/locations/__pycache__/base.cpython-312.pyc",
       "type": "file"
     },
     {
@@ -3503,6 +5068,38 @@
     },
     {
       "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/metadata/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/metadata/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/metadata/__pycache__/_json.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/metadata/__pycache__/base.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
         "executable script",
         "ignored generated artifact"
       ],
@@ -3530,6 +5127,46 @@
         "ignored generated artifact"
       ],
       "path": ".venv/lib/python3.12/site-packages/pip/_internal/metadata/importlib/__init__.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/metadata/importlib/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/metadata/importlib/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/metadata/importlib/__pycache__/_compat.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/metadata/importlib/__pycache__/_dists.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/metadata/importlib/__pycache__/_envs.cpython-312.pyc",
       "type": "file"
     },
     {
@@ -3577,6 +5214,110 @@
         "ignored generated artifact"
       ],
       "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__init__.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__pycache__/candidate.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__pycache__/direct_url.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__pycache__/format_control.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__pycache__/index.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__pycache__/link.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__pycache__/release_control.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__pycache__/scheme.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__pycache__/search_scope.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__pycache__/selection_prefs.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__pycache__/target_python.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/models/__pycache__/wheel.cpython-312.pyc",
       "type": "file"
     },
     {
@@ -3692,6 +5433,55 @@
     },
     {
       "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/network/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/network/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact",
+        "secret-sensitive file"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/network/__pycache__/auth.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/network/__pycache__/cache.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/network/__pycache__/session.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/network/__pycache__/utils.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
         "executable script",
         "ignored generated artifact",
         "secret-sensitive file"
@@ -3765,6 +5555,22 @@
     },
     {
       "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/operations/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/operations/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
         "executable script",
         "ignored generated artifact"
       ],
@@ -3831,6 +5637,38 @@
         "ignored generated artifact"
       ],
       "path": ".venv/lib/python3.12/site-packages/pip/_internal/req/__init__.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/req/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/req/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/req/__pycache__/req_file.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/req/__pycache__/req_install.cpython-312.pyc",
       "type": "file"
     },
     {
@@ -4039,6 +5877,192 @@
         "ignored generated artifact"
       ],
       "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__init__.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/_log.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/appdirs.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/compat.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/compatibility_tags.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/datetime.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/deprecation.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/egg_link.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/filesystem.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/filetypes.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/glibc.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/hashes.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/logging.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/misc.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/packaging.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/pylock.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/retry.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/subprocess.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "backup/copy",
+        "cache",
+        "ignored generated artifact",
+        "suspicious near-duplicate filename"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/temp_dir.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/urls.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/virtualenv.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/wheel.cpython-312.pyc",
       "type": "file"
     },
     {
@@ -4260,6 +6284,62 @@
     },
     {
       "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/vcs/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/vcs/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/vcs/__pycache__/bazaar.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/vcs/__pycache__/git.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/vcs/__pycache__/mercurial.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/vcs/__pycache__/subversion.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_internal/vcs/__pycache__/versioncontrol.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
         "executable script",
         "ignored generated artifact"
       ],
@@ -4330,6 +6410,22 @@
     },
     {
       "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
         "ignored generated artifact"
       ],
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol",
@@ -4349,6 +6445,70 @@
         "ignored generated artifact"
       ],
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/__init__.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/__pycache__/adapter.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/__pycache__/cache.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/__pycache__/controller.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/__pycache__/filewrapper.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/__pycache__/serialize.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/__pycache__/wrapper.cpython-312.pyc",
       "type": "file"
     },
     {
@@ -4388,6 +6548,38 @@
         "ignored generated artifact"
       ],
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/caches/__init__.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/caches/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/caches/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/caches/__pycache__/file_cache.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/caches/__pycache__/redis_cache.cpython-312.pyc",
       "type": "file"
     },
     {
@@ -4483,6 +6675,30 @@
         "ignored generated artifact"
       ],
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/certifi/__main__.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/certifi/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/certifi/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/certifi/__pycache__/core.cpython-312.pyc",
       "type": "file"
     },
     {
@@ -4677,6 +6893,54 @@
     },
     {
       "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/idna/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/idna/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/idna/__pycache__/core.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/idna/__pycache__/idnadata.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/idna/__pycache__/intranges.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/idna/__pycache__/package_data.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
         "executable script",
         "ignored generated artifact"
       ],
@@ -4764,6 +7028,46 @@
     },
     {
       "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/msgpack/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/msgpack/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/msgpack/__pycache__/exceptions.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/msgpack/__pycache__/ext.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/msgpack/__pycache__/fallback.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
         "executable script",
         "ignored generated artifact"
       ],
@@ -4823,6 +7127,126 @@
         "ignored generated artifact"
       ],
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__init__.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/_elffile.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/_manylinux.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/_musllinux.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/_parser.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/_tokenizer.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/direct_url.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/markers.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/pylock.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/requirements.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/specifiers.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/tags.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/utils.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/packaging/__pycache__/version.cpython-312.pyc",
       "type": "file"
     },
     {
@@ -5048,6 +7472,46 @@
     },
     {
       "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/platformdirs/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/platformdirs/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/platformdirs/__pycache__/api.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/platformdirs/__pycache__/unix.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/platformdirs/__pycache__/version.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
         "executable script",
         "ignored generated artifact"
       ],
@@ -5135,6 +7599,86 @@
     },
     {
       "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/__pycache__/filter.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/__pycache__/lexer.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/__pycache__/modeline.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/__pycache__/plugin.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/__pycache__/regexopt.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/__pycache__/style.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/__pycache__/token.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/__pycache__/util.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
         "executable script",
         "ignored generated artifact"
       ],
@@ -5162,6 +7706,22 @@
         "ignored generated artifact"
       ],
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/filters/__init__.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/filters/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/filters/__pycache__/__init__.cpython-312.pyc",
       "type": "file"
     },
     {
@@ -5216,6 +7776,30 @@
         "ignored generated artifact"
       ],
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/lexers/__init__.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/lexers/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/lexers/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/lexers/__pycache__/_mapping.cpython-312.pyc",
       "type": "file"
     },
     {
@@ -5299,6 +7883,30 @@
     },
     {
       "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/styles/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/styles/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pygments/styles/__pycache__/_mapping.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
         "executable script",
         "ignored generated artifact"
       ],
@@ -5354,6 +7962,30 @@
     },
     {
       "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pyproject_hooks/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pyproject_hooks/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pyproject_hooks/__pycache__/_impl.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
         "executable script",
         "ignored generated artifact"
       ],
@@ -5373,6 +8005,22 @@
         "ignored generated artifact"
       ],
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pyproject_hooks/_in_process/__init__.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pyproject_hooks/_in_process/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/pyproject_hooks/_in_process/__pycache__/__init__.cpython-312.pyc",
       "type": "file"
     },
     {
@@ -5412,6 +8060,151 @@
         "ignored generated artifact"
       ],
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__init__.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/__version__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/_internal_utils.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/adapters.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/api.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact",
+        "secret-sensitive file"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/auth.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/certs.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/compat.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/cookies.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/exceptions.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/hooks.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/models.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/packages.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/sessions.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/status_codes.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/structures.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/utils.cpython-312.pyc",
       "type": "file"
     },
     {
@@ -5682,6 +8475,510 @@
         "ignored generated artifact"
       ],
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__main__.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_cell_widths.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_emoji_codes.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_emoji_replace.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_export_format.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_extension.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_fileno.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_log_render.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_loop.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_null_file.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_palettes.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_pick.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_ratio.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_spinners.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/_wrap.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/abc.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/align.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/ansi.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/box.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/cells.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/color.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/color_triplet.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/columns.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/console.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/constrain.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/containers.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/control.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/default_styles.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/emoji.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/errors.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/file_proxy.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/filesize.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/highlighter.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/jupyter.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/live.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/live_render.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/logging.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/markup.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/measure.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/padding.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/pager.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/palette.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/panel.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/pretty.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/progress.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/progress_bar.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/protocol.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/region.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/repr.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/scope.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/screen.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/segment.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/spinner.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/style.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/styled.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/syntax.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/table.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/terminal_theme.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/text.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/theme.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/themes.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/rich/__pycache__/traceback.cpython-312.pyc",
       "type": "file"
     },
     {
@@ -6482,6 +9779,110 @@
     },
     {
       "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/__pycache__/_base_connection.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/__pycache__/_collections.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/__pycache__/_request_methods.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/__pycache__/_version.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/__pycache__/connection.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/__pycache__/connectionpool.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/__pycache__/exceptions.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/__pycache__/fields.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/__pycache__/filepost.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/__pycache__/poolmanager.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/__pycache__/response.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
         "executable script",
         "ignored generated artifact"
       ],
@@ -6542,6 +9943,30 @@
         "ignored generated artifact"
       ],
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/contrib/__init__.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/contrib/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/contrib/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/contrib/__pycache__/socks.cpython-312.pyc",
       "type": "file"
     },
     {
@@ -6655,6 +10080,30 @@
     },
     {
       "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/http2/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/http2/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/http2/__pycache__/probe.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
         "executable script",
         "ignored generated artifact"
       ],
@@ -6705,6 +10154,118 @@
         "ignored generated artifact"
       ],
       "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__init__.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/__init__.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/connection.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/proxy.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/request.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/response.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/retry.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/ssl_.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/ssl_match_hostname.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/ssltransport.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/timeout.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/url.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/util.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": ".venv/lib/python3.12/site-packages/pip/_vendor/urllib3/util/__pycache__/wait.cpython-312.pyc",
       "type": "file"
     },
     {
@@ -7124,6 +10685,27 @@
     },
     {
       "classifications": [
+        "tracked source"
+      ],
+      "path": "app",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "app/actions",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "app/actions/profile.ts",
+      "type": "file"
+    },
+    {
+      "classifications": [
         "secret-sensitive file",
         "tracked source"
       ],
@@ -7167,6 +10749,27 @@
         "tracked source"
       ],
       "path": "clerk-test.html",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "components",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "components/profile",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "components/profile/ProfileForm.tsx",
       "type": "file"
     },
     {
@@ -7435,6 +11038,48 @@
       "classifications": [
         "tracked documentation"
       ],
+      "path": "docs/ai",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ai/BLACKBOX_REVIEW_PROMPT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ai/SUPABASE_SAFETY_POLICY.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ai/VVIP_AI_OPERATING_MODEL.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ai/VVIP_ANTIGRAVITY_MANAGER_CHARTER.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/ai/VVIP_ANTIGRAVITY_MANAGER_PROMPT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
       "path": "docs/change-control",
       "type": "directory"
     },
@@ -7695,6 +11340,155 @@
         "tracked documentation"
       ],
       "path": "docs/change-control/20260716-pr74-orchestrator-integrity-artifact-guards.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/execution",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/execution/GLOBAL_V1_EVIDENCE_INDEX.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/execution/GLOBAL_V1_EXECUTION_LEDGER.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/execution/GLOBAL_V1_FOUNDATION_MANIFEST.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "backup/copy",
+        "suspicious near-duplicate filename",
+        "tracked documentation"
+      ],
+      "path": "docs/execution/GLOBAL_V1_GOVERNANCE_CONFLICT_REGISTER.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/execution/GLOBAL_V1_REQUIREMENTS_MATRIX.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/execution/GLOBAL_V1_RESUME_STATE.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/execution/GLOBAL_V1_TRACEABILITY_MATRIX.csv",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/execution/global-v1",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/execution/global-v1/BLOCKERS.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/execution/global-v1/DECISION_LOG.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/execution/global-v1/DELETION_MANIFEST.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/execution/global-v1/EXECUTION_STATE.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/execution/global-v1/FINAL_READINESS_REPORT.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/execution/global-v1/REQUIREMENTS_TRACEABILITY.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/execution/global-v1/REQUIREMENTS_TRACEABILITY.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/execution/global-v1/RUN_LEDGER.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/execution/global-v1/SOURCE_INVENTORY.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/execution/global-v1/SOURCE_READING_ATTESTATION.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/execution/global-v1/TERMINAL_BASELINE.txt",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/execution/global-v1/TEST_EVIDENCE.md",
       "type": "file"
     },
     {
@@ -9359,6 +13153,34 @@
       "classifications": [
         "tracked documentation"
       ],
+      "path": "docs/specifications",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/specifications/VVIPTIGER 20268-1.docx",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/specifications/VVIP_TIGER_GLOBAL_EXECUTION_SPEC_FINAL_AR.manifest.txt",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
+      "path": "docs/specifications/VVIP_TIGER_GLOBAL_EXECUTION_SPEC_FINAL_AR.md",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked documentation"
+      ],
       "path": "docs/superpowers",
       "type": "directory"
     },
@@ -10370,8 +14192,46 @@
       "classifications": [
         "tracked source"
       ],
+      "path": "scripts/antigravity",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": "scripts/antigravity-manager-start.sh",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": "scripts/antigravity-manager-verify.sh",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": "scripts/antigravity/read_only_gate.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
       "path": "scripts/listing",
       "type": "directory"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/listing/listing-api-contract.js",
+      "type": "file"
     },
     {
       "classifications": [
@@ -10753,6 +14613,14 @@
     },
     {
       "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": "scripts/quality-gate.sh",
+      "type": "file"
+    },
+    {
+      "classifications": [
         "secret-sensitive file",
         "tracked source"
       ],
@@ -10825,6 +14693,14 @@
         "secret-sensitive file",
         "tracked source"
       ],
+      "path": "scripts/security/vvip-security-headers.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "secret-sensitive file",
+        "tracked source"
+      ],
       "path": "scripts/supabase-auth-bridge.js",
       "type": "file"
     },
@@ -10833,6 +14709,20 @@
         "tracked source"
       ],
       "path": "scripts/supabase-config.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked configuration"
+      ],
+      "path": "scripts/vvip-i18n-translations.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "scripts/vvip-i18n.js",
       "type": "file"
     },
     {
@@ -10924,6 +14814,14 @@
         "tracked source"
       ],
       "path": "scripts/vvip-pr33-publish-readiness.js",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
+      "path": "scripts/vvip-recovery-status.sh",
       "type": "file"
     },
     {
@@ -11057,6 +14955,80 @@
         "tracked configuration"
       ],
       "path": "supabase/.gitignore",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "backup/copy",
+        "cache",
+        "ignored generated artifact",
+        "suspicious near-duplicate filename"
+      ],
+      "path": "supabase/.temp",
+      "type": "directory"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": "supabase/.temp/gotrue-version",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": "supabase/.temp/linked-project.json",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": "supabase/.temp/pooler-url",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": "supabase/.temp/postgres-version",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": "supabase/.temp/project-ref",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": "supabase/.temp/rest-version",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": "supabase/.temp/storage-migration",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": "supabase/.temp/storage-version",
       "type": "file"
     },
     {
@@ -11223,6 +15195,22 @@
     },
     {
       "classifications": [
+        "migration",
+        "tracked source"
+      ],
+      "path": "supabase/migrations/202607230001_fix_security_and_jod_localization.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "migration",
+        "tracked source"
+      ],
+      "path": "supabase/migrations/202607240001_global_v1_core_schema.sql",
+      "type": "file"
+    },
+    {
+      "classifications": [
         "tracked source"
       ],
       "path": "sw.js",
@@ -11295,7 +15283,58 @@
         "cache",
         "ignored generated artifact"
       ],
+      "path": "tests/__pycache__/test_antigravity_read_only_gate.cpython-312-pytest-9.1.1.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
+      "path": "tests/__pycache__/test_antigravity_read_only_gate.cpython-312.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "cache",
+        "ignored generated artifact"
+      ],
       "path": "tests/__pycache__/test_vvip_cleanroom.cpython-312-pytest-9.1.1.pyc",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/global-v1-core-schema.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/global-v1-i18n.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/global-v1-listing-api.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/global-v1-rls-isolation.test.cjs",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "tracked source"
+      ],
+      "path": "tests/global-v1-security-headers.test.cjs",
       "type": "file"
     },
     {
@@ -11695,6 +15734,14 @@
         "executable script",
         "tracked source"
       ],
+      "path": "tests/test_antigravity_read_only_gate.py",
+      "type": "file"
+    },
+    {
+      "classifications": [
+        "executable script",
+        "tracked source"
+      ],
       "path": "tests/test_vvip_cleanroom.py",
       "type": "file"
     },
@@ -11927,7 +15974,9 @@
       "20260710_vvip_tiger_atomic_profile_resolver_rpc.sql",
       "202607200001_project_control_schema.sql",
       "202607200002_project_control_core_seed.sql",
-      "202607200003_project_control_extended_seed.sql"
+      "202607200003_project_control_extended_seed.sql",
+      "202607230001_fix_security_and_jod_localization.sql",
+      "202607240001_global_v1_core_schema.sql"
     ],
     "invalid_names": []
   },
@@ -11939,7 +15988,7 @@
   "repository": ".",
   "schema_version": 1,
   "scope": {
-    "branch": true,
+    "branch": false,
     "remote": true,
     "repository_root": true,
     "required_ancestors": {
@@ -11950,39 +15999,75 @@
   "summary": {
     "classification_counts": {
       "asset": 5,
-      "backup/copy": 7,
-      "cache": 9,
+      "backup/copy": 10,
+      "cache": 313,
       "empty file": 17,
+      "environment file": 1,
       "exact duplicate": 75,
-      "executable script": 421,
-      "ignored generated artifact": 569,
-      "migration": 17,
-      "secret-sensitive file": 76,
-      "suspicious near-duplicate filename": 7,
+      "executable script": 427,
+      "ignored generated artifact": 873,
+      "migration": 19,
+      "secret-sensitive file": 80,
+      "suspicious near-duplicate filename": 10,
       "test fixture": 22,
-      "tracked configuration": 30,
-      "tracked documentation": 377,
+      "tracked configuration": 33,
+      "tracked documentation": 412,
       "tracked generated artifact": 6,
-      "tracked source": 283
+      "tracked source": 317
     },
-    "directories": 164,
-    "files": 1097,
-    "ignored_paths": 569,
+    "directories": 220,
+    "files": 1417,
+    "ignored_paths": 873,
     "symlinks": 4,
-    "tracked_paths": 612
+    "tracked_paths": 667
   },
   "suspicious_names": [
+    ".venv/lib/python3.12/site-packages/pip/_internal/utils/__pycache__/temp_dir.cpython-312.pyc",
     ".venv/lib/python3.12/site-packages/pip/_internal/utils/temp_dir.py",
+    "docs/execution/GLOBAL_V1_GOVERNANCE_CONFLICT_REGISTER.md",
     "docs/global/OLD_TO_GLOBAL_PHASE_RECONCILIATION_AR.md",
     "docs/product-readiness/UI_COPY_AR_EN_CATALOG.md",
     "docs/security/p08-steel-shield/BACKUP_RESTORE_ROLLBACK.md",
     "docs/security/production-apply/SUPABASE_MANUAL_BACKUP_PRODUCTION_APPLY_PLAN_DRAFT.md",
     "project-control/docs/OLD_TO_GLOBAL_PHASE_RECONCILIATION_AR.md",
+    "supabase/.temp",
     "tests/p08-steel-shield-backup-rollback.test.cjs"
   ],
   "working_tree_changes": [
     {
-      "path": "tools/vvip_cleanroom.py",
+      "path": ".agents/hooks.json",
+      "status": "M"
+    },
+    {
+      "path": "docs/execution/GLOBAL_V1_REQUIREMENTS_MATRIX.md",
+      "status": "M"
+    },
+    {
+      "path": "docs/execution/GLOBAL_V1_TRACEABILITY_MATRIX.csv",
+      "status": "M"
+    },
+    {
+      "path": "docs/execution/global-v1/SOURCE_READING_ATTESTATION.md",
+      "status": "M"
+    },
+    {
+      "path": "docs/execution/global-v1/TERMINAL_BASELINE.txt",
+      "status": "M"
+    },
+    {
+      "path": "docs/specifications/VVIP_TIGER_GLOBAL_EXECUTION_SPEC_FINAL_AR.manifest.txt",
+      "status": "M"
+    },
+    {
+      "path": "docs/specifications/VVIP_TIGER_GLOBAL_EXECUTION_SPEC_FINAL_AR.md",
+      "status": "M"
+    },
+    {
+      "path": "scripts/antigravity-manager-start.sh",
+      "status": "M"
+    },
+    {
+      "path": "scripts/antigravity-manager-verify.sh",
       "status": "M"
     }
   ]

@@ -1,14 +1,14 @@
 # VVIP TIGER Clean-room Report
 
-Overall result: **PASS**
+Overall result: **FAIL**
 
 ## Inventory summary
 
-- Files: 1097
-- Directories: 164
+- Files: 1417
+- Directories: 220
 - Symlinks: 4
-- Git-tracked paths: 612
-- Git-ignored paths observed: 569
+- Git-tracked paths: 667
+- Git-ignored paths observed: 873
 
 ## Acceptance gates
 
@@ -21,7 +21,7 @@ Overall result: **PASS**
 | `package_manager_consistency` | PASS | 0 |
 | `portable_workspace_paths` | PASS | 0 |
 | `production_supabase_references` | PASS | 0 |
-| `scope` | PASS | 0 |
+| `scope` | FAIL | 1 |
 | `secret_scan` | PASS | 0 |
 | `tracked_duplicate_explanations` | PASS | 0 |
 | `tracked_garbage` | PASS | 0 |
