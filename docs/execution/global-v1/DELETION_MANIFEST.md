@@ -1,6 +1,6 @@
 # VVIP TIGER — Deletion Manifest
 
-**Branch:** feat/global-v1-foundation-20260724-092530  
+**Branch:** feat/global-v1-foundation-20260724-092530
 **Policy:** No file deleted without verified non-use, replacement confirmation, and rollback commit in Git history.
 
 ## No Deletions in This Mission

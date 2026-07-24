@@ -1,6 +1,6 @@
 # VVIP TIGER — Blockers
 
-**Branch:** feat/global-v1-foundation-20260724-092530  
+**Branch:** feat/global-v1-foundation-20260724-092530
 **Updated:** 2026-07-24T13:15:43Z
 
 ## External Blockers (Require Owner Action)

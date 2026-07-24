@@ -4,8 +4,8 @@
 
 ## ADR-001: Fix Migration Audit Baseline (D001)
 
-**Date:** 2026-07-24  
-**Status:** ACCEPTED  
+**Date:** 2026-07-24
+**Status:** ACCEPTED
 **Decision Maker:** Principal Engineer (Autonomous Mission)
 
 ### Context
@@ -29,8 +29,8 @@ Revert the hash from scan-dangerous-sql.sh. The migration itself should not be r
 
 ## ADR-002: Primary Source of Truth
 
-**Date:** 2026-07-24  
-**Status:** ACCEPTED  
+**Date:** 2026-07-24
+**Status:** ACCEPTED
 
 ### Decision
 VVIPTIGER 20268-1.docx (SHA-256: 22cc932c049232a1ed31cca35db3314eef25a17651d53901b673f9ceacac6bfd) is the highest authority. All implementation decisions derive from this document when it conflicts with older code or documentation.
@@ -47,8 +47,8 @@ Precedence chain:
 
 ## ADR-003: Python .venv Repair Strategy
 
-**Date:** 2026-07-24  
-**Status:** ACCEPTED  
+**Date:** 2026-07-24
+**Status:** ACCEPTED
 
 ### Context
 `.venv` pip is broken: `ModuleNotFoundError: No module named 'pip._internal.operations.build'`. Quality gate script falls back to creating a temporary venv.
@@ -63,8 +63,8 @@ System python3 venv: 27 tests pass, 0 fail.
 
 ## ADR-004: Global V1 Database Schema Strategy
 
-**Date:** 2026-07-24  
-**Status:** ACCEPTED  
+**Date:** 2026-07-24
+**Status:** ACCEPTED
 
 ### Decision
 Build Global V1 database migrations incrementally in migration files ordered by timestamp. The application schema (not project_control schema) needs:
