@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 /workspaces/TIGER-VVIP/scripts/antigravity/read_only_gate.py",
+            "command": "python3 scripts/antigravity/read_only_gate.py",
             "timeout": 10
           }
         ]

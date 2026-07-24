@@ -40,7 +40,7 @@
 - الاختبار: `NOT_YET_EXECUTED`
 - الدليل: `NOT_YET_CREATED`
 
-المصدر: `/workspaces/TIGER-VVIP/docs/specifications/VVIPTIGER 20268-1.docx`
+المصدر: `docs/specifications/VVIPTIGER 20268-1.docx`
 
 ### VVIP-GV1-0002 — P2 — GENERAL_PRODUCT
 

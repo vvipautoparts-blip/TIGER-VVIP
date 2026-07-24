@@ -1,6 +1,6 @@
 # VVIP TIGER — المرجع التنفيذي النهائي المستخرج
 
-- المصدر: `/workspaces/TIGER-VVIP/docs/specifications/VVIPTIGER 20268-1.docx`
+- المصدر: `/docs/specifications/VVIPTIGER 20268-1.docx`
 - تاريخ الاستخراج: `2026-07-24T09:30:05.113670+00:00`
 - حجم المصدر: `111008` بايت
 - SHA-256: `22cc932c049232a1ed31cca35db3314eef25a17651d53901b673f9ceacac6bfd`
@@ -2708,9 +2708,9 @@ FINAL_STATUS=FAILED_ROLLED_BACK_SAFELY
 
 أنت القائد التنفيذي والهندسي والأمني لمشروع VVIP TIGER.
 
-المستودع: /workspaces/TIGER-VVIP
+المستودع: .
 
-المرجع الأعلى: /workspaces/TIGER-VVIP/docs/specifications/VVIPTIGER 20268-1.docx
+المرجع الأعلى: docs/specifications/VVIPTIGER 20268-1.docx
 
 اسم المهمة: VVIP TIGER GLOBAL V1 COMPLETE VERIFIED EXECUTION
 
@@ -5630,8 +5630,8 @@ VVIP TIGER | VVIPTIGER 20268-1 | المرجع التنفيذي العالمي
 - 19. أمر التنفيذ الموحد للإيجنت
 - يُنسخ النص التالي كاملًا إلى Cline أو الإيجنت داخل المستودع بعد وضع هذا الملف في المسار المحدد. هذا الأمر لا يحل محل الوثيقة؛ بل يلزم الإيجنت بقراءتها وتنفيذها بالكامل.
 - أنت القائد التنفيذي والهندسي والأمني لمشروع VVIP TIGER.
-- المستودع: /workspaces/TIGER-VVIP
-- المرجع الأعلى: /workspaces/TIGER-VVIP/docs/specifications/VVIPTIGER 20268-1.docx
+- المستودع: .
+- المرجع الأعلى: docs/specifications/VVIPTIGER 20268-1.docx
 - اسم المهمة: VVIP TIGER GLOBAL V1 COMPLETE VERIFIED EXECUTION
 - اقرأ ملف Word كاملًا حرفًا وجداول وملاحق ومعايير قبول ومخاطر وخطط تراجع. استخرج نسخة Markdown قابلة للبحث ومصفوفة Traceability، ثم نفّذ جميع المراحل G00 إلى G17 بالترتيب القائم على الاعتماديات دون إسقاط أو تأجيل أي متطلب وارد في المرجع.
 - قواعد ملزمة:

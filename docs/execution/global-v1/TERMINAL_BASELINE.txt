@@ -1,6 +1,6 @@
 VVIP TIGER TERMINAL BASELINE
 UTC_TIME=2026-07-24T13:13:15Z
-PROJECT=/workspaces/TIGER-VVIP
+PROJECT=REPO_ROOT
 BRANCH=feat/global-v1-foundation-20260724-092530
 HEAD=ba3c428018db748caa59bc986e0dc54095a372f6
 
@@ -21,33 +21,33 @@ fd2a9bd chore: add AI governance and VVIP quality gate
 7277feb Merge pull request #92 from vvipautoparts-blip/fix/vvip-cleanroom-official-root-20260721181956
 
 === WORKTREES ===
-/workspaces/TIGER-VVIP                                   ba3c428 [feat/global-v1-foundation-20260724-092530]
-/workspaces/TIGER-VVIP-AFTER-PR36                        5a46779 (detached HEAD)
-/workspaces/TIGER-VVIP-DOCS-CLEAN-20260718               f0edbdb [docs/vvip-global-governance-p08-design-clean-20260718]
-/workspaces/TIGER-VVIP-GLOBAL-CONTROL-20260720           3cd59fd (detached HEAD)
-/workspaces/TIGER-VVIP-LEGAL-POLICY-EXPORT               ae45596 [docs/vvip-tiger-master-policies-export]
-/workspaces/TIGER-VVIP-MIGRATION-RECONCILIATION-20260702 2d5ba42 [fix/migration-history-reconciliation-20260702]
-/workspaces/TIGER-VVIP-OWNER-APPROVED-READINESS          e3d428c [docs/owner-approved-readiness-consolidation]
-/workspaces/TIGER-VVIP-P08-CLERK-RECOVERY-20260718       da64e0f [fix/p08-clerk-gate-root-cause-20260718]
-/workspaces/TIGER-VVIP-P08-CLOSURE-READINESS             643c26f [docs/p08-closure-readiness]
-/workspaces/TIGER-VVIP-P08-LEAST-PRIVILEGE               7488297 [security/p08-least-privilege-policies]
-/workspaces/TIGER-VVIP-P08-OTP-BOOTSTRAP                 f9e1628 [docs/vvip-global-governance-p08-design-20260718]
-/workspaces/TIGER-VVIP-P08-STEEL-SHIELD                  e7be80f [security/p08-steel-shield-preflight]
-/workspaces/TIGER-VVIP-P08-WAIT-READINESS                6efdbf1 [docs/p08-wait-product-launch-readiness]
-/workspaces/TIGER-VVIP-P09-FUTURE-LOGIN-20260719         d262219 [feat/p09-future-single-login-20260719]
-/workspaces/TIGER-VVIP-PR38-ONBOARDING                   46fbebb [feat/pr38-p04-onboarding-account-types]
-/workspaces/TIGER-VVIP-PR38-ONBOARDING-ACCOUNT-TYPES     946b47b [feat/pr38-onboarding-account-types]
-/workspaces/TIGER-VVIP-PR39-P05                          e5626ce [feat/pr39-p05-profile-account-management]
-/workspaces/TIGER-VVIP-PR40-P06                          0401090 [feat/pr40-p06-owner-control-orchestrator]
-/workspaces/TIGER-VVIP-PR41-P07                          6999b5a [feat/pr41-p07-full-data-schema-review]
-/workspaces/TIGER-VVIP-PR71-TRUTH-RECOVERY               0a2be14 [fix/pr71-truthful-phase-state-recovery]
-/workspaces/TIGER-VVIP-PR72-P07-DATABASE-ARCHITECTURE    442d0af [feat/pr72-p07-complete-database-architecture]
-/workspaces/TIGER-VVIP-PR73-ORCHESTRATOR-INTEGRITY       2cb81e6 [fix/pr73-orchestrator-integrity-readonly]
-/workspaces/TIGER-VVIP-PR74-ORCHESTRATOR-GUARDS          c5eabc0 [fix/pr74-orchestrator-integrity-artifact-guards]
-/workspaces/TIGER-VVIP-PR75-P07-CLOSURE                  79a5967 [chore/pr75-p07-post-merge-closure]
-/workspaces/TIGER-VVIP-PR76-P08-SECURITY-DESIGN          c83415c [feat/pr76-p08-security-audit-and-policy-design]
-/workspaces/TIGER-VVIP-PR77-P08-OTP-MIGRATION-REPAIR     ae45596 [fix/pr77-p08-legacy-otp-migration-chain]
-/workspaces/TIGER-VVIP-PROFILES-BOOTSTRAP-20260721       df5653c [fix/p08-profiles-bootstrap-20260721]
-/workspaces/TIGER-VVIP-UX-R01-ROLE-CONSOLE               565cad8 [feat/ux-r01-role-operations-console]
-/workspaces/TIGER-VVIP-UX-R02-USER-JOURNEY               d2f0ce0 [feat/ux-r02-unified-user-journey-preview]
-/workspaces/TIGER-VVIP-UX-R03-DESIGN-SYSTEM              21d0081 [feat/ux-r03-unified-design-system-showcase]
+REPO_ROOT                                   ba3c428 [feat/global-v1-foundation-20260724-092530]
+REPO_ROOT-AFTER-PR36                        5a46779 (detached HEAD)
+REPO_ROOT-DOCS-CLEAN-20260718               f0edbdb [docs/vvip-global-governance-p08-design-clean-20260718]
+REPO_ROOT-GLOBAL-CONTROL-20260720           3cd59fd (detached HEAD)
+REPO_ROOT-LEGAL-POLICY-EXPORT               ae45596 [docs/vvip-tiger-master-policies-export]
+REPO_ROOT-MIGRATION-RECONCILIATION-20260702 2d5ba42 [fix/migration-history-reconciliation-20260702]
+REPO_ROOT-OWNER-APPROVED-READINESS          e3d428c [docs/owner-approved-readiness-consolidation]
+REPO_ROOT-P08-CLERK-RECOVERY-20260718       da64e0f [fix/p08-clerk-gate-root-cause-20260718]
+REPO_ROOT-P08-CLOSURE-READINESS             643c26f [docs/p08-closure-readiness]
+REPO_ROOT-P08-LEAST-PRIVILEGE               7488297 [security/p08-least-privilege-policies]
+[REDACTED-WORKTREE]                 f9e1628 [docs/vvip-global-governance-p08-design-20260718]
+REPO_ROOT-P08-STEEL-SHIELD                  e7be80f [security/p08-steel-shield-preflight]
+REPO_ROOT-P08-WAIT-READINESS                6efdbf1 [docs/p08-wait-product-launch-readiness]
+[REDACTED-WORKTREE]         d262219 [feat/p09-future-single-login-20260719]
+REPO_ROOT-PR38-ONBOARDING                   46fbebb [feat/pr38-p04-onboarding-account-types]
+REPO_ROOT-PR38-ONBOARDING-ACCOUNT-TYPES     946b47b [feat/pr38-onboarding-account-types]
+REPO_ROOT-PR39-P05                          e5626ce [feat/pr39-p05-profile-account-management]
+REPO_ROOT-PR40-P06                          0401090 [feat/pr40-p06-owner-control-orchestrator]
+REPO_ROOT-PR41-P07                          6999b5a [feat/pr41-p07-full-data-schema-review]
+REPO_ROOT-PR71-TRUTH-RECOVERY               0a2be14 [fix/pr71-truthful-phase-state-recovery]
+REPO_ROOT-PR72-P07-DATABASE-ARCHITECTURE    442d0af [feat/pr72-p07-complete-database-architecture]
+REPO_ROOT-PR73-ORCHESTRATOR-INTEGRITY       2cb81e6 [fix/pr73-orchestrator-integrity-readonly]
+REPO_ROOT-PR74-ORCHESTRATOR-GUARDS          c5eabc0 [fix/pr74-orchestrator-integrity-artifact-guards]
+REPO_ROOT-PR75-P07-CLOSURE                  79a5967 [chore/pr75-p07-post-merge-closure]
+REPO_ROOT-PR76-P08-SECURITY-DESIGN          c83415c [feat/pr76-p08-security-audit-and-policy-design]
+REPO_ROOT-PR77-P08-OTP-MIGRATION-REPAIR     ae45596 [fix/pr77-p08-legacy-otp-migration-chain]
+REPO_ROOT-PROFILES-BOOTSTRAP-20260721       df5653c [fix/p08-profiles-bootstrap-20260721]
+REPO_ROOT-UX-R01-ROLE-CONSOLE               565cad8 [feat/ux-r01-role-operations-console]
+REPO_ROOT-UX-R02-USER-JOURNEY               d2f0ce0 [feat/ux-r02-unified-user-journey-preview]
+REPO_ROOT-UX-R03-DESIGN-SYSTEM              21d0081 [feat/ux-r03-unified-design-system-showcase]
