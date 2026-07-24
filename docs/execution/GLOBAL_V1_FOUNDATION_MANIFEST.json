@@ -1,0 +1,56 @@
+{
+  "generated_at": "2026-07-24T09:33:43.927717+00:00",
+  "branch": "feat/global-v1-foundation-20260724-092530",
+  "base_head": "edca737af4d27511f97fbc758c15dd2d24f4b53e",
+  "source_docx": "docs/specifications/VVIPTIGER 20268-1.docx",
+  "source_docx_sha256": "22cc932c049232a1ed31cca35db3314eef25a17651d53901b673f9ceacac6bfd",
+  "source_markdown": "docs/specifications/VVIP_TIGER_GLOBAL_EXECUTION_SPEC_FINAL_AR.md",
+  "source_markdown_sha256": "c9c0420c7b228827a9ee65a8be2b21b82682671c09b39e93a709620a4a1a4e20",
+  "requirement_count": 691,
+  "priority_counts": {
+    "P0": 171,
+    "P1": 57,
+    "P2": 463
+  },
+  "domain_counts": {
+    "GENERAL_PRODUCT": 292,
+    "OPERATIONS_RELEASE": 42,
+    "SECURITY_PRIVACY": 74,
+    "DATA_DATABASE": 49,
+    "LISTINGS_MARKETPLACE": 19,
+    "GOVERNANCE_ETHICS": 4,
+    "IDENTITY_ACCESS": 56,
+    "PERFORMANCE_SCALE": 21,
+    "UX_ACCESSIBILITY": 35,
+    "SEARCH_DISCOVERY": 21,
+    "MESSAGING_SUPPORT": 28,
+    "PAYMENTS_BILLING": 24,
+    "AI_AUTOMATION": 26
+  },
+  "generated_files": {
+    "docs/execution/GLOBAL_V1_REQUIREMENTS_MATRIX.md": {
+      "size": 273295,
+      "sha256": "9682793486a15ed7f03128035db86017cda7cc12069d0d0eeb51dc4a9c5cc9a7"
+    },
+    "docs/execution/GLOBAL_V1_TRACEABILITY_MATRIX.csv": {
+      "size": 212264,
+      "sha256": "9c03fd90d999738acab8ad7c4fad0f11ddfecbaf4cd45135d8d78a659b8de0f7"
+    },
+    "docs/execution/GLOBAL_V1_EXECUTION_LEDGER.md": {
+      "size": 1006,
+      "sha256": "91ccdb0721170077157bc99d36745686b866c39603edc7985f5f44fd1522ca18"
+    },
+    "docs/execution/GLOBAL_V1_RESUME_STATE.md": {
+      "size": 704,
+      "sha256": "e9922a707084ded0393a903b6d7b945a57ae5c61cbf00c1139f99cb1206a2651"
+    },
+    "docs/execution/GLOBAL_V1_GOVERNANCE_CONFLICT_REGISTER.md": {
+      "size": 1176,
+      "sha256": "f312d189ae71927d001d18a54eded7f7d70d9236fd9b5ccc1320d9c46d9ef1ca"
+    },
+    "docs/execution/GLOBAL_V1_EVIDENCE_INDEX.md": {
+      "size": 825,
+      "sha256": "0302e2e71003e8bceace6e4ccb7ba09ea4ed33f38493a55e8443bfe554f8a2d6"
+    }
+  }
+}
