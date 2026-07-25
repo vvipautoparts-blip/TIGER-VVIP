@@ -1,9 +1,9 @@
 # VVIP TIGER — Final Business Model Conflict Inventory
 
-**Decision:** VVIP-TIGER-BM-2026-07-25  
-**Branch:** feat/final-publishing-cards-model-20260725  
-**Scanned commit:** 7e0997f3ed7d9c877f51c8c19dfc9fb350847c45  
-**Generated:** 2026-07-25T08:36:08Z  
+**Decision:** VVIP-TIGER-BM-2026-07-25
+**Branch:** feat/final-publishing-cards-model-20260725
+**Scanned commit:** 7e0997f3ed7d9c877f51c8c19dfc9fb350847c45
+**Generated:** 2026-07-25T08:36:08Z
 **Mode:** Inventory only — no implementation deleted or modified.
 
 ## Authoritative interpretation
@@ -5144,7 +5144,7 @@ RLS-EMAIL-VERIFICATION-POLICIES.sql:29:CREATE POLICY "Users can insert their own
 RLS-EMAIL-VERIFICATION-POLICIES.sql:37:CREATE POLICY "Super admins can view all profiles"
 RLS-EMAIL-VERIFICATION-POLICIES.sql:49:CREATE POLICY "Super admins can update any profile"
 RLS-EMAIL-VERIFICATION-POLICIES.sql:61:CREATE POLICY "Super admins can delete profiles"
-RLS-EMAIL-VERIFICATION-POLICIES.sql:75:-- ALTER TABLE profiles 
+RLS-EMAIL-VERIFICATION-POLICIES.sql:75:-- ALTER TABLE profiles
 RLS-IMPLEMENTATION-GUIDE.md:156:    .order('created_at', { ascending: false });
 RLS-POLICIES.sql:11:ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 RLS-POLICIES.sql:17:CREATE POLICY "Users can view own profile"
