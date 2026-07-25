@@ -963,6 +963,10 @@
   },
   "git_status": [
     {
+      "path": ".gitignore",
+      "status": " M"
+    },
+    {
       "path": ".venv/bin/Activate.ps1",
       "status": "!!"
     },
@@ -26978,5 +26982,10 @@
     "project-control/docs/OLD_TO_GLOBAL_PHASE_RECONCILIATION_AR.md",
     "tests/p08-steel-shield-backup-rollback.test.cjs"
   ],
-  "working_tree_changes": []
+  "working_tree_changes": [
+    {
+      "path": ".gitignore",
+      "status": "M"
+    }
+  ]
 }
