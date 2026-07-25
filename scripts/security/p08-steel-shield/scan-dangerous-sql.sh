@@ -42,7 +42,7 @@ declare -A reviewed_migration_hashes=(
   # exact 27-grant reconciliation, and independent red-team review. DROP POLICY replaces the
   # vulnerable policies; auth.jwt() is read-only; NOT NULL is guarded by a fail-closed data check;
   # UPDATE tokens are trigger/policy declarations; explicit grants are least-privilege DML only.
-  ["supabase/migrations/20260725210915_eb002_global_v1_security_corrections.sql"]="66fbc9aa2f2ef661aee41390667b564d49d1c22c4e488d38d1afb06a2cbd48b6"
+  ["supabase/migrations/20260725210915_eb002_global_v1_security_corrections.sql"]="891a4ca68a65dc91896a3c6bcfd94c9a4659997708f1ae0328794566bccc74de"
 )
 
 reviewed_baseline_path() {

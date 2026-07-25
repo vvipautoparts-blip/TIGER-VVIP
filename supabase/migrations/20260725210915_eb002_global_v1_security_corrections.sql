@@ -27,6 +27,13 @@ $$;
 alter table public.vvip_conversations
   alter column listing_id set not null;
 
+alter table public.vvip_conversations
+  drop constraint vvip_conversations_listing_id_fkey,
+  add constraint vvip_conversations_listing_id_fkey
+    foreign key (listing_id)
+    references public.vvip_listings(id)
+    on delete restrict;
+
 drop policy if exists "User starts conversation" on public.vvip_conversations;
 create policy "User starts listing conversation"
   on public.vvip_conversations

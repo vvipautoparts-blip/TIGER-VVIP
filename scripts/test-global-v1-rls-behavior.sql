@@ -41,6 +41,40 @@ BEGIN
 END;
 $$;
 
+CREATE OR REPLACE FUNCTION pg_temp.expect_sqlstate(
+  sql_statement text,
+  expected_sqlstate text,
+  assertion_label text
+)
+RETURNS void
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  BEGIN
+    EXECUTE sql_statement;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLSTATE IS DISTINCT FROM expected_sqlstate THEN
+        RAISE EXCEPTION
+          'ASSERTION FAILED: % | expected SQLSTATE=% actual SQLSTATE=% error=%',
+          assertion_label,
+          expected_sqlstate,
+          SQLSTATE,
+          SQLERRM;
+      END IF;
+
+      RAISE NOTICE 'PASS expected SQLSTATE: % | SQLSTATE=%',
+        assertion_label,
+        SQLSTATE;
+      RETURN;
+  END;
+
+  RAISE EXCEPTION
+    'ASSERTION FAILED: Statement unexpectedly succeeded: %',
+    assertion_label;
+END;
+$$;
+
 CREATE OR REPLACE FUNCTION pg_temp.assert_affected_rows(
   sql_statement text,
   expected_rows bigint,
@@ -325,6 +359,36 @@ SELECT pg_temp.expect_error(
   'H1: conversation requires a listing context'
 );
 
+SELECT pg_temp.expect_error(
+  $sql$
+    INSERT INTO public.vvip_conversations (
+      id, listing_id, participant_a, participant_b
+    )
+    VALUES (
+      'eb002000-0000-4000-8000-000000000024',
+      'eb002000-0000-4000-8000-000000000001',
+      'eb002_user_a',
+      'eb002_user_a'
+    )
+  $sql$,
+  'H1: user cannot start a self-conversation'
+);
+
+SELECT pg_temp.expect_error(
+  $sql$
+    INSERT INTO public.vvip_conversations (
+      id, listing_id, participant_a, participant_b
+    )
+    VALUES (
+      'eb002000-0000-4000-8000-000000000025',
+      'eb002000-0000-4000-8000-000000000006',
+      'eb002_user_a',
+      'eb002_user_c'
+    )
+  $sql$,
+  'H1: user cannot start a conversation for an unpublished listing'
+);
+
 INSERT INTO public.vvip_conversations (
   id,
   listing_id,
@@ -336,6 +400,41 @@ VALUES (
   'eb002000-0000-4000-8000-000000000002',
   'eb002_user_a',
   'eb002_user_b'
+);
+
+SELECT pg_temp.expect_sqlstate(
+  $sql$
+    INSERT INTO public.vvip_conversations (
+      id, listing_id, participant_a, participant_b
+    )
+    VALUES (
+      'eb002000-0000-4000-8000-000000000026',
+      'eb002000-0000-4000-8000-000000000002',
+      'eb002_user_a',
+      'eb002_user_b'
+    )
+  $sql$,
+  '23505',
+  'Duplicate listing conversation is rejected'
+);
+
+SELECT pg_temp.expect_sqlstate(
+  $sql$
+    UPDATE public.vvip_conversations
+    SET participant_b = 'eb002_user_c'
+    WHERE id = 'eb002000-0000-4000-8000-000000000021'
+  $sql$,
+  '42501',
+  'API participant cannot mutate conversation participants'
+);
+
+SELECT pg_temp.expect_sqlstate(
+  $sql$
+    ALTER TABLE public.vvip_listings
+    DISABLE TRIGGER vvip_listings_enforce_status_transition
+  $sql$,
+  '42501',
+  'Authenticated API role cannot disable the listing transition trigger'
 );
 
 SELECT
@@ -436,6 +535,42 @@ SELECT pg_temp.assert_true(
       AND status = 'published'
   ),
   'Privileged publication transition persists inside the test transaction'
+);
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claims',
+  '{"sub":"eb002_user_c","role":"authenticated"}',
+  true
+);
+
+SELECT pg_temp.assert_true(
+  NOT EXISTS (
+    SELECT 1
+    FROM public.vvip_conversations
+    WHERE id = 'eb002000-0000-4000-8000-000000000021'
+  ),
+  'Third party cannot read another users conversation'
+);
+
+SELECT pg_temp.assert_true(
+  NOT EXISTS (
+    SELECT 1
+    FROM public.vvip_messages
+    WHERE id = 'eb002000-0000-4000-8000-000000000031'
+  ),
+  'Third party cannot read another users message'
+);
+
+RESET ROLE;
+
+SELECT pg_temp.expect_sqlstate(
+  $sql$
+    DELETE FROM public.vvip_listings
+    WHERE id = 'eb002000-0000-4000-8000-000000000002'
+  $sql$,
+  '23503',
+  'ON DELETE RESTRICT preserves listing context for active conversations'
 );
 
 SELECT

@@ -19,6 +19,11 @@ assert.match(correction, /grant update[\s\S]+to authenticated;/i);
 assert.match(correction, /grant delete[\s\S]+vvip_favorites[\s\S]+vvip_user_blocks[\s\S]+to authenticated;/i);
 
 assert.match(correction, /alter column listing_id set not null/i);
+assert.match(
+	correction,
+	/drop constraint vvip_conversations_listing_id_fkey,[\s\S]+foreign key \(listing_id\)[\s\S]+on delete restrict/i
+);
+assert.doesNotMatch(correction, /foreign key \(listing_id\)[\s\S]+on delete set null/i);
 assert.match(correction, /participant_a = \(auth\.jwt\(\) ->> 'sub'\)/i);
 assert.match(correction, /participant_b = \([\s\S]+listing\.clerk_user_id[\s\S]+listing\.status = 'published'/i);
 assert.match(correction, /create policy "User starts listing conversation"/i);
