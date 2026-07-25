@@ -17,7 +17,7 @@ Overall result: **FAIL**
 | `broken_symlinks` | PASS | 0 |
 | `forbidden_legacy_identifiers` | PASS | 0 |
 | `git_diff_check` | PASS | 0 |
-| `local_reference_integrity` | FAIL | 2 |
+| `local_reference_integrity` | PASS | 0 |
 | `package_manager_consistency` | PASS | 0 |
 | `portable_workspace_paths` | PASS | 0 |
 | `production_supabase_references` | PASS | 0 |
@@ -44,7 +44,6 @@ Authoritative package manager: **none**.
 - intentional: `docs/superpowers/specs/2026-07-20-global-platform-control-plane-design.md`, `project-control/docs/superpowers/specs/2026-07-20-global-platform-control-plane-design.md` — project-control package mirror
 - intentional: `docs/global/FAITH_AND_CULTURAL_INTEGRITY_POLICY_AR.md`, `project-control/docs/FAITH_AND_CULTURAL_INTEGRITY_POLICY_AR.md` — project-control package mirror
 - intentional: `docs/global/GLOBAL_SCALE_AND_SLO_SPEC_AR.md`, `project-control/docs/GLOBAL_SCALE_AND_SLO_SPEC_AR.md` — project-control package mirror
-- intentional: `docs/launch/pr35/CHANGED_FILES.allowlist`, `docs/launch/pr35/CHANGED_FILES.final` — change-control verification pair
 - intentional: `docs/global/GLOBAL_EXECUTION_CHARTER_AR.md`, `project-control/docs/GLOBAL_EXECUTION_CHARTER_AR.md` — project-control package mirror
 - intentional: `docs/global/GLOBAL_SEARCH_EXPERIENCE_SPEC_AR.md`, `project-control/docs/GLOBAL_SEARCH_EXPERIENCE_SPEC_AR.md` — project-control package mirror
 - intentional: `docs/superpowers/plans/2026-07-20-global-platform-control-plane-implementation.md`, `project-control/docs/superpowers/plans/2026-07-20-global-platform-control-plane-implementation.md` — project-control package mirror

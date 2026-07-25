@@ -1004,7 +1004,7 @@ tests/pr72-p07-erd-dictionary-integrity.runtime.test.cjs:221:  assert(hasCheck(l
 ```text
 ADMIN-SETUP.sql:74:SELECT count(*) AS commissions_visible
 ADMIN-SETUP.sql:75:FROM public.commissions;
-AGENTS.md:22:- [scripts/vvip-pr29-home-marketplace.js](scripts/vvip-pr29-home-marketplace.js): unified marketplace feed and interaction runtime.
+AGENTS.md:22:- [scripts/vvip-pr29-home-marketplace.js](../../../scripts/vvip-pr29-home-marketplace.js): unified marketplace feed and interaction runtime.
 docs/VVIP_TIGER_DB_AUDIT.md:51:- commissions
 docs/launch/VVIP_TIGER_48H_REAL_TRIAL_LAUNCH_PLAN.md:123:Day 2 focuses on making the platform feel real and usable.
 docs/launch/pr16/VVIP_TIGER_PR16_LAUNCH_SHELL_INSPECTION.md:122:The next practical code phase should make the visible platform feel safer and more complete without touching backend configuration.
@@ -1072,7 +1072,7 @@ ADMIN-ROLE-SPEC.md:181:    return;
 ADMIN-ROLE-SPEC.md:191:    return;
 ADMIN-ROLE-SPEC.md:209:  if (!isAdminRole(currentUserProfile?.role)) return;
 ADMIN-SETUP.sql:67:-- Step 5: policy sanity checks (should return rows)
-AGENTS.md:26:- [supabase/functions/phone-verification/index.ts](supabase/functions/phone-verification/index.ts): Deno Edge Function for internal phone verification delivery.
+AGENTS.md:26:- [supabase/functions/phone-verification/index.ts](../../../supabase/functions/phone-verification/index.ts): Deno Edge Function for internal phone verification delivery.
 EMAIL-VERIFICATION-SETUP.md:153:4. ✅ Should return empty (no access to other profiles)
 EMAIL-VERIFICATION-SETUP.md:264:5. **Monitor** - Check server logs for email delivery
 PHASE-3-READINESS-CHECK.sql:15:-- 2) Show mismatched rows (must return 0 rows before Phase 3).
@@ -1604,7 +1604,7 @@ docs/launch/pr35/CODEX_REVIEW_ROUND1.md:2235:  In production, when Clerk has no 
 docs/launch/pr35/CODEX_REVIEW_ROUND1.md:2238:  When submission fails while offline, this reports that the request is pending on the device, but the controller never invokes `createUserSubmissionQueue` or persists the payload anywhere. Closing or reloading the page loses the request and nothing is sent when connectivity returns, so either enqueue it before showing this state or report an ordinary failed submission.
 docs/launch/pr35/CODEX_REVIEW_ROUND1.md:2247:  In production, when Clerk has no current user, this fallback creates an active `demo-member` identity. If a production transport is later configured, an unauthenticated visitor can submit requests attributed to that shared identifier instead of receiving `IDENTITY_REQUIRED`; reserve demo identities for local preview and return a missing/inactive identity otherwise.
 docs/launch/pr35/CODEX_REVIEW_ROUND1.md:2250:  When submission fails while offline, this reports that the request is pending on the device, but the controller never invokes `createUserSubmissionQueue` or persists the payload anywhere. Closing or reloading the page loses the request and nothing is sent when connectivity returns, so either enqueue it before showing this state or report an ordinary failed submission.
-docs/launch/pr35/CODEX_REVIEW_ROUND2.md:123:- [supabase/functions/phone-verification/index.ts](supabase/functions/phone-verification/index.ts): Deno Edge Function for internal phone verification delivery.
+docs/launch/pr35/CODEX_REVIEW_ROUND2.md:123:- [supabase/functions/phone-verification/index.ts](../../../supabase/functions/phone-verification/index.ts): Deno Edge Function for internal phone verification delivery.
 docs/launch/pr35/CODEX_REVIEW_ROUND2.md:463:[smoke] validating auth preview and safe return path
 docs/launch/pr35/CODEX_REVIEW_ROUND2.md:539:    return fail('REMOTE_ENFORCEMENT_FAILED');
 docs/launch/pr35/CODEX_REVIEW_ROUND2.md:541:  if (!result.ok) return Object.freeze(clone(result));
@@ -2395,7 +2395,7 @@ docs/launch/pr35/CODEX_REVIEW_ROUND3.md:2738:   310	create function public.pr35_
 docs/launch/pr35/CODEX_REVIEW_ROUND3.md:2756:   328	-- changes by non-owner; append audit atomically; return a confirmed receipt.
 docs/launch/pr35/CODEX_REVIEW_ROUND3.md:2784:  When the browser reports `navigator.onLine === true` but the request fails because of DNS, timeout, captive portal, or a dropped connection, the production adapter converts the exception to a failed result and this branch returns `failed` immediately. The submission is therefore not added to the permitted user queue even though the network is effectively unavailable, which is a common weak-network case. Treat transport/network failure codes as queueable independently of the unreliable online hint.
 docs/launch/pr35/CODEX_REVIEW_ROUND3.md:2796:  When the browser reports `navigator.onLine === true` but the request fails because of DNS, timeout, captive portal, or a dropped connection, the production adapter converts the exception to a failed result and this branch returns `failed` immediately. The submission is therefore not added to the permitted user queue even though the network is effectively unavailable, which is a common weak-network case. Treat transport/network failure codes as queueable independently of the unreliable online hint.
-docs/launch/pr35/CODEX_REVIEW_ROUND4.md:115:- [supabase/functions/phone-verification/index.ts](supabase/functions/phone-verification/index.ts): Deno Edge Function for internal phone verification delivery.
+docs/launch/pr35/CODEX_REVIEW_ROUND4.md:115:- [supabase/functions/phone-verification/index.ts](../../../supabase/functions/phone-verification/index.ts): Deno Edge Function for internal phone verification delivery.
 docs/launch/pr35/CODEX_REVIEW_ROUND4.md:250:[Subagent returns]:
 docs/launch/pr35/CODEX_REVIEW_ROUND4.md:489:    12	    return fail('REMOTE_ENFORCEMENT_FAILED');
 docs/launch/pr35/CODEX_REVIEW_ROUND4.md:491:    14	  if (!result.ok) return Object.freeze(clone(result));

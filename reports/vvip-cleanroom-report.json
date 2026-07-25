@@ -105,16 +105,6 @@
     {
       "disposition": "intentional",
       "paths": [
-        "docs/launch/pr35/CHANGED_FILES.allowlist",
-        "docs/launch/pr35/CHANGED_FILES.final"
-      ],
-      "reason": "change-control verification pair",
-      "sha256": "62543d55f37d7d328a8365043709d441af3b16b0cb26710e018e72e1c08b7436",
-      "size": 2128
-    },
-    {
-      "disposition": "intentional",
-      "paths": [
         "docs/global/GLOBAL_EXECUTION_CHARTER_AR.md",
         "project-control/docs/GLOBAL_EXECUTION_CHARTER_AR.md"
       ],
@@ -187,22 +177,8 @@
       "status": "pass"
     },
     "local_reference_integrity": {
-      "count": 2,
-      "details": [
-        {
-          "kind": "missing",
-          "line": 0,
-          "source": "docs/execution/global-v1/CONFLICT_INVENTORY_2026-07-25.md",
-          "target": "scripts/vvip-pr29-home-marketplace.js"
-        },
-        {
-          "kind": "missing",
-          "line": 0,
-          "source": "docs/execution/global-v1/CONFLICT_INVENTORY_2026-07-25.md",
-          "target": "supabase/functions/phone-verification/index.ts"
-        }
-      ],
-      "status": "fail"
+      "count": 0,
+      "status": "pass"
     },
     "package_manager_consistency": {
       "count": 0,
@@ -2303,6 +2279,14 @@
     {
       "path": ".venv/pyvenv.cfg",
       "status": "!!"
+    },
+    {
+      "path": "docs/execution/global-v1/CONFLICT_INVENTORY_2026-07-25.md",
+      "status": "M "
+    },
+    {
+      "path": "docs/launch/pr35/CHANGED_FILES.allowlist",
+      "status": "M "
     }
   ],
   "inventory": [
@@ -8422,7 +8406,6 @@
     },
     {
       "classifications": [
-        "exact duplicate",
         "tracked documentation"
       ],
       "path": "docs/launch/pr35/CHANGED_FILES.allowlist",
@@ -8430,7 +8413,6 @@
     },
     {
       "classifications": [
-        "exact duplicate",
         "tracked documentation"
       ],
       "path": "docs/launch/pr35/CHANGED_FILES.final",
@@ -12493,7 +12475,7 @@
       "backup/copy": 9,
       "empty file": 13,
       "environment file": 1,
-      "exact duplicate": 35,
+      "exact duplicate": 33,
       "executable script": 523,
       "ignored generated artifact": 575,
       "migration": 19,
@@ -12522,5 +12504,14 @@
     "project-control/docs/OLD_TO_GLOBAL_PHASE_RECONCILIATION_AR.md",
     "tests/p08-steel-shield-backup-rollback.test.cjs"
   ],
-  "working_tree_changes": []
+  "working_tree_changes": [
+    {
+      "path": "docs/execution/global-v1/CONFLICT_INVENTORY_2026-07-25.md",
+      "status": "M"
+    },
+    {
+      "path": "docs/launch/pr35/CHANGED_FILES.allowlist",
+      "status": "M"
+    }
+  ]
 }
