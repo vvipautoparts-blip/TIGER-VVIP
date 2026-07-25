@@ -1,9 +1,9 @@
 # VVIP TIGER — Final Business Model Decision
 
-**Decision ID:** VVIP-TIGER-BM-2026-07-25  
-**Status:** FINAL AND AUTHORITATIVE  
-**Baseline:** f917ca5d653fbc859d04fe9e9fa52f63e68ac722  
-**Owner:** Platform Management and Founding Partner  
+**Decision ID:** VVIP-TIGER-BM-2026-07-25
+**Status:** FINAL AND AUTHORITATIVE
+**Baseline:** f917ca5d653fbc859d04fe9e9fa52f63e68ac722
+**Owner:** Platform Management and Founding Partner
 **Effective date:** 25 July 2026
 
 ## 1. Final platform role
