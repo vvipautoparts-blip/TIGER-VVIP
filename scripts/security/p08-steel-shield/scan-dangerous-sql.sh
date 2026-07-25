@@ -31,6 +31,13 @@ declare -A reviewed_migration_hashes=(
   ["supabase/migrations/202607200001_project_control_schema.sql"]="c01b6f6222235ea8b3299333cc5b51029488e5f2a9064c87abfbf9f8f39c1521"
   ["supabase/migrations/202607200002_project_control_core_seed.sql"]="a1f410b3daf9da0a4d4215617d89043b49248e510add95944b817afbf945b761"
   ["supabase/migrations/202607200003_project_control_extended_seed.sql"]="65db935c2b6f81ffc4faca3c668a788a8820e531faa346f5f7c691db2751154a"
+  ["supabase/migrations/202607230001_fix_security_and_jod_localization.sql"]="37d5fa2a5a99188504fc1398bc2f179c7d1ba38f83c9c51f8bfd66649d648be7"
+  # Global V1 core schema: new table creation with RLS policies (DROP POLICY IF EXISTS + CREATE POLICY + auth.jwt() usage)
+  # Reviewed 2026-07-24: Creates sectors, categories, listings, conversations, messages, notifications,
+  # reports, support_tickets, consents, user_blocks. All CRITICAL flags are false positives:
+  # DROP_POLICY = idempotent policy recreation; AUTH_SCHEMA_DIRECT_MUTATION = auth.jwt() read-only JWT claim.
+  # No DROP DATABASE, DROP SCHEMA, TRUNCATE, DELETE without WHERE, DISABLE RLS.
+  ["supabase/migrations/202607240001_global_v1_core_schema.sql"]="ac94c63757a4baa2f83ea2df6f01ccd0a4746ef703d4393ebbbcfd42dc44141a"
 )
 
 reviewed_baseline_path() {

@@ -1,0 +1,23 @@
+# VVIP TIGER V2.0 STRICT ENGINEERING RULES
+
+1. ZERO PLACEHOLDERS & COMPLETENESS:
+   - Never write '// TODO', '// Implement later', or incomplete functions.
+   - Every Server Action, UI component, and DB migration must be 100% production-ready.
+
+2. SECURITY & RLS COMPLIANCE:
+   - All Supabase tables MUST enforce Row Level Security (RLS) by default.
+   - Never use service-role keys on the client-side.
+   - Validate all API and form inputs strictly using Zod schemas matching DB definitions.
+
+3. ARCHITECTURE & LOCALIZATION:
+   - Respect the Modular Monolith architecture.
+   - Enforce JOD dynamic currency baseline and respect the Country Capability Matrix configurations.
+   - Maintain strict isolation between Public and Private profiles (`profiles` vs `profile_private`).
+
+4. ERROR HANDLING & API CONTRACTS:
+   - Return structured error responses for all Server Actions: { success: boolean, data?: T, error?: { code: string, message: string } }.
+   - Ensure Webhooks (Clerk, Payments) are idempotent and log to `payment_events` / `identity_events`.
+
+5. CODE QUALITY & STATE MACHINES:
+   - Enforce strict state transitions for listings (draft -> pending_review -> published -> etc.).
+   - Always update database types and clean TypeScript definitions alongside UI changes.
