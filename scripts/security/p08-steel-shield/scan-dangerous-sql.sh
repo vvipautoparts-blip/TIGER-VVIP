@@ -38,6 +38,11 @@ declare -A reviewed_migration_hashes=(
   # DROP_POLICY = idempotent policy recreation; AUTH_SCHEMA_DIRECT_MUTATION = auth.jwt() read-only JWT claim.
   # No DROP DATABASE, DROP SCHEMA, TRUNCATE, DELETE without WHERE, DISABLE RLS.
   ["supabase/migrations/202607240001_global_v1_core_schema.sql"]="ac94c63757a4baa2f83ea2df6f01ccd0a4746ef703d4393ebbbcfd42dc44141a"
+  # EB-002 corrective migration: reviewed 2026-07-25 after local reset, executable RLS tests,
+  # exact 27-grant reconciliation, and independent red-team review. DROP POLICY replaces the
+  # vulnerable policies; auth.jwt() is read-only; NOT NULL is guarded by a fail-closed data check;
+  # UPDATE tokens are trigger/policy declarations; explicit grants are least-privilege DML only.
+  ["supabase/migrations/20260725210915_eb002_global_v1_security_corrections.sql"]="66fbc9aa2f2ef661aee41390667b564d49d1c22c4e488d38d1afb06a2cbd48b6"
 )
 
 reviewed_baseline_path() {
