@@ -12,32 +12,58 @@ const qualityGate = fs.readFileSync(
   'utf8'
 );
 
-test('isolated quality snapshot excludes Git-ignored local files', () => {
-  const gitListLine = qualityGate
-    .split('\n')
-    .find((line) => line.includes('git ls-files'));
+test('isolated snapshot mirrors tracked workspace changes and deletions', () => {
+  assert.ok(
+    qualityGate.includes('if ! git diff --quiet HEAD --; then'),
+    'snapshot must detect tracked working-tree changes'
+  );
 
-  assert.ok(gitListLine, 'Git-aware snapshot command must exist');
+  assert.ok(
+    qualityGate.includes('git diff --binary --full-index HEAD -- |'),
+    'tracked modifications and deletions must be represented as a binary-safe patch'
+  );
 
-  for (const option of [
-    '-z',
-    '--cached',
-    '--others',
-    '--exclude-standard'
-  ]) {
+  assert.ok(
+    qualityGate.includes(
+      'git -C "$WORK" apply --whitespace=nowarn -'
+    ),
+    'tracked workspace changes must be applied to the isolated clone'
+  );
+});
+
+test('untracked snapshot excludes ignored and local environment files', () => {
+  const block = qualityGate.match(
+    /git ls-files([\s\S]*?)\|\ntar --null/
+  );
+
+  assert.ok(block, 'Git untracked-file snapshot block must exist');
+
+  for (const option of ['-z', '--others', '--exclude-standard']) {
     assert.ok(
-      gitListLine.includes(option),
-      `git ls-files snapshot must include ${option}`
+      block[1].includes(option),
+      `untracked snapshot must include ${option}`
     );
   }
 
   assert.ok(
-    qualityGate.includes(
-      'tar --null --verbatim-files-from -T - -cf - |'
-    ),
-    'tar must consume the NUL-delimited Git file list'
+    !block[1].includes('--cached'),
+    'tracked files must come from the clone and tracked-change patch, not --cached'
   );
 
+  for (const exclusion of [
+    "':(exclude).env'",
+    "':(exclude).env.*'",
+    "':(exclude).venv'",
+    "':(exclude).venv/**'"
+  ]) {
+    assert.ok(
+      block[1].includes(exclusion),
+      `snapshot must explicitly exclude ${exclusion}`
+    );
+  }
+});
+
+test('snapshot does not archive the complete workspace', () => {
   assert.ok(
     !qualityGate.includes('-cf - . |'),
     'snapshot must not archive the complete workspace'

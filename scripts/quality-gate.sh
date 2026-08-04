@@ -146,7 +146,17 @@ git clone --quiet --no-hardlinks "$ORIGINAL_ROOT" "$WORK"
 
 git -C "$WORK" remote set-url origin "https://github.com/vvipautoparts-blip/TIGER-VVIP"
 
-git ls-files -z --cached --others --exclude-standard |
+if ! git diff --quiet HEAD --; then
+    git diff --binary --full-index HEAD -- |
+    git -C "$WORK" apply --whitespace=nowarn -
+fi
+
+git ls-files -z --others --exclude-standard -- \
+    . \
+    ':(exclude).env' \
+    ':(exclude).env.*' \
+    ':(exclude).venv' \
+    ':(exclude).venv/**' |
 tar --null --verbatim-files-from -T - -cf - |
 (
     cd "$WORK"
