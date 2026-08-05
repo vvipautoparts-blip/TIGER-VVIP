@@ -7,12 +7,12 @@
   "artifacts": [
     {
       "path": "contracts/owner_constitution.json",
-      "sha256": "215fc2d760b7beb1d006cf0295aebcc46c02403aab9a329eca8a0d58e094222b",
+      "sha256": "2205c4a47d43e1d343c5b8a3ad2e9de097d3f58889d2a4fd2db41e78052c82f4",
       "authority": "OWNER_FINAL_CONSTITUTION"
     },
     {
       "path": "contracts/conflict_registry.json",
-      "sha256": "675137499ab4c0a47a397af8b98cc5bcf433d44d5c2aaee416ffbd09ac48a423",
+      "sha256": "65e5de21a50d94a9af63851d7a486bfaea545cc3849cab878b153e0ac8b6f9ad",
       "authority": "OWNER_FINAL_CONFLICT_REGISTRY"
     }
   ]
