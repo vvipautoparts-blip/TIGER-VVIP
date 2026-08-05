@@ -144,6 +144,9 @@ test("rollback artifact is review-only outside migrations and never remote", () 
 test("local rehearsal is explicit local-only and repeatable", () => {
   const script = readRequired(verifierPath);
   assert.match(script, /VVIP_ALLOW_LOCAL_SUPABASE_RESET/);
+  assert.match(script, /export\s+PGHOST=127\.0\.0\.1/);
+  assert.match(script, /export\s+PGPORT=54322/);
+  assert.doesNotMatch(script, /inet_server_(addr|port)/i);
   assert.match(script, /supabase\s+db\s+reset\s+--local/g);
   assert.equal((script.match(/supabase\s+db\s+reset\s+--local/g) || []).length, 2);
   assert.match(script, /project-ref|linked/i);
