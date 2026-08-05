@@ -110,10 +110,13 @@ test("dangerous SQL review exception is bound to the exact migration bytes", () 
   const migrationBytes = fs.readFileSync(migrationPath);
   const actualHash = crypto.createHash("sha256").update(migrationBytes).digest("hex");
   const scanner = readRequired(scannerPath);
-  const escapedPath = migrationRelativePath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const match = scanner.match(new RegExp(`\\[\\"${escapedPath}\\"\\]="([a-f0-9]{64})"`));
-  const reviewedHash = match?.[1] ?? null;
+  const expectedPrefix = `  [\"${migrationRelativePath}\"]=\"`;
+  const reviewLines = scanner.split(/\r?\n/)
+    .filter((line) => line.startsWith(expectedPrefix));
 
+  assert.equal(reviewLines.length, 1, "migration must have exactly one content-addressed review entry");
+  const reviewedHash = reviewLines[0].slice(expectedPrefix.length, -1);
+  assert.match(reviewedHash, /^[a-f0-9]{64}$/);
   assert.equal(
     reviewedHash,
     actualHash,
