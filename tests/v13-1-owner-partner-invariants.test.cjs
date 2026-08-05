@@ -87,6 +87,27 @@ test("self elevation is denied after immutable target checks", async () => {
   })).code, "SELF_ELEVATION_DENIED");
 });
 
+test("delegated actors need explicit delegation permission", async () => {
+  const { canDelegateAuthority } = await loadPolicy();
+  const actor = {
+    id: "country-admin-1",
+    accountState: "active",
+    authorityClass: "DELEGATED",
+    roleIds: ["country_admin"],
+    permissionIds: ["country.governance.read"],
+    effectiveAssignmentIds: ["assignment-country-admin-1"],
+    scope: { level: "country", countryCode: "JO" }
+  };
+  const decision = canDelegateAuthority(request({
+    actor,
+    target: { actorId: "sector-manager-1", authorityClass: "DELEGATED", roleId: "sector_manager" },
+    requestedPermissionIds: ["country.governance.read"],
+    requestedScope: { level: "sector", countryCode: "JO", sectorId: "vehicles" }
+  }));
+  assert.equal(decision.allowed, false);
+  assert.equal(decision.code, "PERMISSION_DENIED");
+});
+
 test("partner can manage lower roles globally across countries", async () => {
   const { canDelegateAuthority } = await loadPolicy();
   const jordan = canDelegateAuthority(request({ requestedScope: { level: "country", countryCode: "JO" } }));
