@@ -28,9 +28,25 @@
       contextApi &&
       typeof contextApi.changeActiveMarket === "function"
     );
-    const repositoryAvailable = !!(
+    const hasLocalPersistence = !!(
       repository && typeof repository.saveSelection === "function"
     );
+    const hasProductionPersistence = !!(
+      repository && typeof repository.saveActiveMarket === "function"
+    );
+    const repositoryAvailable = hasLocalPersistence || hasProductionPersistence;
+
+    function persistCandidate(currentContext, candidateContext) {
+      if (hasLocalPersistence) {
+        return repository.saveSelection(candidateContext);
+      }
+
+      return repository.saveActiveMarket(Object.freeze({
+        accountId: currentContext.accountId,
+        requestedActiveMarketCountry: candidateContext.activeMarketCountry,
+        expectedRevision: currentContext.revision
+      }));
+    }
 
     function changeActiveMarket(currentContext, requestedCountry, operationOptions) {
       if (!contractAvailable) {
@@ -56,7 +72,7 @@
         );
       }
 
-      const persisted = repository.saveSelection(candidate.value);
+      const persisted = persistCandidate(currentContext, candidate.value);
       if (!persisted || persisted.ok !== true) {
         return failure(
           persisted && persisted.error ? persisted.error : "PERSISTENCE_FAILED",
