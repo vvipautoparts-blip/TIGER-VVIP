@@ -2,6 +2,7 @@
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const { createHash } = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const { pathToFileURL } = require("node:url");
@@ -15,6 +16,10 @@ const NOW = "2026-08-05T12:01:00.000Z";
 
 async function loadModule() {
   return import(`${moduleUrl}?security=${Date.now()}-${Math.random()}`);
+}
+
+function digestSha256(value) {
+  return createHash("sha256").update(value, "utf8").digest("hex");
 }
 
 function permissions() {
@@ -96,12 +101,14 @@ function target(overrides = {}) {
   };
 }
 
-async function createHandler(runTransaction) {
+async function createHandler(runTransaction, overrides = {}) {
   const { createAuthorizationServerCommandHandler } = await loadModule();
   return createAuthorizationServerCommandHandler({
     loadTrustedState: async () => trustedState(),
     runTransaction,
-    clock: () => NOW
+    clock: () => NOW,
+    digestSha256,
+    ...overrides
   });
 }
 
@@ -216,6 +223,36 @@ test("delegated mutation uses the trusted target loaded inside the same transact
     "audit",
     "store"
   ]);
+});
+
+test("idempotency hashing requires an injected exact SHA-256 digest with no fallback", async () => {
+  const { createAuthorizationServerCommandHandler } = await loadModule();
+
+  const missingTransaction = transactionFor(target());
+  const missingDigestHandler = createAuthorizationServerCommandHandler({
+    loadTrustedState: async () => trustedState(),
+    runTransaction: missingTransaction.runTransaction,
+    clock: () => NOW
+  });
+  assert.deepEqual(await missingDigestHandler.execute(suspendRequest()), {
+    ok: false,
+    code: "CONFIGURATION_REQUIRED"
+  });
+  assert.deepEqual(missingTransaction.calls, []);
+
+  const malformedTransaction = transactionFor(target());
+  const malformedDigestHandler = await createHandler(malformedTransaction.runTransaction, {
+    digestSha256: async () => "deadbeef"
+  });
+  assert.deepEqual(await malformedDigestHandler.execute(suspendRequest()), {
+    ok: false,
+    code: "REMOTE_ENFORCEMENT_FAILED"
+  });
+  assert.deepEqual(malformedTransaction.calls, []);
+
+  const source = fs.readFileSync(handlerPath, "utf8");
+  assert.match(source, /digestSha256/);
+  assert.doesNotMatch(source, /fallbackHash|Math\.imul|globalThis\.crypto/);
 });
 
 test("server handler contains no endpoint credential driver environment or browser dependency", () => {
