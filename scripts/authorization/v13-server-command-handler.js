@@ -15,6 +15,20 @@ import {
 const POLLUTION_KEYS = new Set(["__proto__", "prototype", "constructor"]);
 const MAX_CANONICAL_DEPTH = 12;
 const MAX_CANONICAL_ENTRIES = 256;
+const TRANSACTION_DENIAL_CODES = new Set([
+  "IDEMPOTENCY_CONFLICT",
+  "OWNER_ROOT_IMMUTABLE",
+  "PEER_PARTNER_MUTATION_DENIED",
+  "SELF_ELEVATION_DENIED",
+  "UNKNOWN_ROLE",
+  "UNKNOWN_PERMISSION",
+  "INVALID_PERMISSION_LIST",
+  "PERMISSION_DENIED",
+  "UNOWNED_PERMISSION_DENIED",
+  "DELEGATION_AUTHORITY_EXCEEDED",
+  "INVALID_SCOPE",
+  "SCOPE_ESCALATION_DENIED"
+]);
 
 const OPERATION_POLICY = Object.freeze({
   createAssignment: Object.freeze({
@@ -199,8 +213,21 @@ function assignmentPolicyDecision(request, actor, policy) {
   });
 }
 
-function partnerPolicyDecision(request, actor) {
+function partnerPolicyDecision(request, actor, policy) {
   const command = request.command;
+  if (policy.action !== "create") {
+    if (actor.authorityClass !== "OWNER_ROOT"
+      || !actor.permissionIds?.includes("authorization.partner.manage")) {
+      return Object.freeze({ ok: false, code: "PEER_PARTNER_MUTATION_DENIED" });
+    }
+    if (!boundedText(command.membershipId, LIMITS.IDENTIFIER)) {
+      return Object.freeze({ ok: false, code: "INVALID_ASSIGNMENT" });
+    }
+    if (!boundedText(command.legalDecisionReference, LIMITS.LEGAL_REFERENCE)) {
+      return Object.freeze({ ok: false, code: "LEGAL_DECISION_REFERENCE_REQUIRED" });
+    }
+    return Object.freeze({ ok: true, code: "OK" });
+  }
   return validatePartnerMembershipCommand({
     subjectId: command.subjectId,
     reason: request.reason,
@@ -214,13 +241,95 @@ function partnerPolicyDecision(request, actor) {
   });
 }
 
-function validTransactionPort(tx) {
+function mutationTargetId(request, policy) {
+  if (policy.action === "create") return null;
+  const value = policy.family === "assignment"
+    ? request.command.assignmentId
+    : request.command.membershipId;
+  return boundedText(value, LIMITS.IDENTIFIER) ? value.trim() : null;
+}
+
+function validTransactionPort(tx, requiresTrustedTarget) {
   return tx
     && typeof tx === "object"
     && typeof tx.findIdempotencyReceipt === "function"
+    && (!requiresTrustedTarget || typeof tx.loadAuthorizationTarget === "function")
     && typeof tx.persistAuthorizationCommand === "function"
     && typeof tx.appendAuthorizationAudit === "function"
     && typeof tx.storeIdempotencyReceipt === "function";
+}
+
+function normalizeTrustedTarget(value, policy, targetId) {
+  if (!isPlainObject(value) || containsPollutionKey(value)) {
+    throw new TypeError("TRUSTED_TARGET_INVALID");
+  }
+  const normalized = normalizeCanonicalValue(value, {
+    seen: new Set(),
+    entryCount: 0
+  });
+  if (!boundedText(normalized.id, LIMITS.IDENTIFIER)
+    || normalized.id !== targetId
+    || !boundedActorId(normalized.subjectId)
+    || !AUTHORITY_CLASSES.includes(normalized.authorityClass)
+    || !boundedText(normalized.roleId, LIMITS.IDENTIFIER)
+    || !Array.isArray(normalized.permissionIds)
+    || normalized.permissionIds.length > LIMITS.PERMISSION_LIST
+    || normalized.permissionIds.some((permission) => !boundedText(permission, LIMITS.IDENTIFIER))
+    || new Set(normalized.permissionIds).size !== normalized.permissionIds.length
+    || !isPlainObject(normalized.scope)
+    || !boundedText(normalized.state, LIMITS.IDENTIFIER)) {
+    throw new TypeError("TRUSTED_TARGET_INVALID");
+  }
+  if (policy.family === "assignment" && normalized.authorityClass === "PARTNER_GLOBAL_ADMIN") {
+    return deepFreeze(normalized);
+  }
+  if (policy.family === "partner" && normalized.authorityClass !== "PARTNER_GLOBAL_ADMIN") {
+    throw new TypeError("TRUSTED_TARGET_CLASS_INVALID");
+  }
+  return deepFreeze(normalized);
+}
+
+function trustedTargetPolicyDecision(actor, policy, trustedTarget) {
+  if (trustedTarget.authorityClass === "OWNER_ROOT" || trustedTarget.roleId === "owner") {
+    return Object.freeze({ allowed: false, code: "OWNER_ROOT_IMMUTABLE" });
+  }
+  if (policy.family === "assignment") {
+    if (trustedTarget.authorityClass === "PARTNER_GLOBAL_ADMIN" || trustedTarget.roleId === "partner") {
+      return Object.freeze({ allowed: false, code: "PEER_PARTNER_MUTATION_DENIED" });
+    }
+    return canDelegateAuthority({
+      actor,
+      target: {
+        actorId: trustedTarget.subjectId,
+        authorityClass: trustedTarget.authorityClass,
+        roleId: trustedTarget.roleId
+      },
+      requestedPermissionIds: trustedTarget.permissionIds,
+      requestedScope: trustedTarget.scope
+    });
+  }
+  return Object.freeze({
+    allowed: trustedTarget.authorityClass === "PARTNER_GLOBAL_ADMIN",
+    code: trustedTarget.authorityClass === "PARTNER_GLOBAL_ADMIN"
+      ? "AUTHORIZED"
+      : "PEER_PARTNER_MUTATION_DENIED"
+  });
+}
+
+function commandForPersistence(request, policy, targetId) {
+  if (policy.action === "create") {
+    return normalizeCanonicalValue(request.command, {
+      seen: new Set(),
+      entryCount: 0
+    });
+  }
+  if (policy.family === "assignment") {
+    return Object.freeze({ assignmentId: targetId });
+  }
+  return Object.freeze({
+    membershipId: targetId,
+    legalDecisionReference: request.command.legalDecisionReference.trim()
+  });
 }
 
 function stableDataFromPersistence(persisted, policy) {
@@ -331,6 +440,8 @@ export function createAuthorizationServerCommandHandler({
 
     const policy = OPERATION_POLICY[request.operation];
     if (!policy) return fail("INVALID_ASSIGNMENT");
+    const targetId = mutationTargetId(request, policy);
+    if (policy.action !== "create" && !targetId) return fail("INVALID_ASSIGNMENT");
 
     const now = clock();
     let trustedState;
@@ -354,7 +465,7 @@ export function createAuthorizationServerCommandHandler({
 
     const actor = actorFromValidatedEnvelope(request.envelope, trustedState);
     const policyDecision = policy.family === "partner"
-      ? partnerPolicyDecision(request, actor)
+      ? partnerPolicyDecision(request, actor, policy)
       : assignmentPolicyDecision(request, actor, policy);
     const allowed = policy.family === "partner" ? policyDecision.ok : policyDecision.allowed;
     if (!allowed) return fail(policyDecision.code);
@@ -369,7 +480,10 @@ export function createAuthorizationServerCommandHandler({
     let transactionResult;
     try {
       transactionResult = await runTransaction(async (tx) => {
-        if (!validTransactionPort(tx)) throw new TypeError("TRANSACTION_PORT_INVALID");
+        const requiresTrustedTarget = policy.action !== "create";
+        if (!validTransactionPort(tx, requiresTrustedTarget)) {
+          throw new TypeError("TRANSACTION_PORT_INVALID");
+        }
         const prior = await tx.findIdempotencyReceipt(request.idempotencyKey);
         if (prior !== null && prior !== undefined) {
           if (!prior || typeof prior !== "object" || prior.requestHash !== requestHash) {
@@ -378,15 +492,27 @@ export function createAuthorizationServerCommandHandler({
           return projectStoredSuccess(prior.result);
         }
 
-        const persisted = await tx.persistAuthorizationCommand({
+        let trustedTarget = null;
+        if (requiresTrustedTarget) {
+          const rawTarget = await tx.loadAuthorizationTarget({
+            operation: request.operation,
+            family: policy.family,
+            targetId
+          });
+          trustedTarget = normalizeTrustedTarget(rawTarget, policy, targetId);
+          const targetDecision = trustedTargetPolicyDecision(actor, policy, trustedTarget);
+          if (!targetDecision.allowed) return fail(targetDecision.code);
+        }
+
+        const persistenceInput = {
           operation: request.operation,
-          command: normalizeCanonicalValue(request.command, {
-            seen: new Set(),
-            entryCount: 0
-          }),
+          command: commandForPersistence(request, policy, targetId),
           actorId: request.authenticatedActorId,
           now
-        });
+        };
+        if (trustedTarget) persistenceInput.trustedTarget = trustedTarget;
+
+        const persisted = await tx.persistAuthorizationCommand(deepFreeze(persistenceInput));
         const data = stableDataFromPersistence(persisted, policy);
         const audit = await tx.appendAuthorizationAudit({
           operation: request.operation,
@@ -427,8 +553,8 @@ export function createAuthorizationServerCommandHandler({
       return fail("REMOTE_ENFORCEMENT_FAILED");
     }
     if (transactionResult.value.ok === false
-      && transactionResult.value.code === "IDEMPOTENCY_CONFLICT") {
-      return fail("IDEMPOTENCY_CONFLICT");
+      && TRANSACTION_DENIAL_CODES.has(transactionResult.value.code)) {
+      return fail(transactionResult.value.code);
     }
     try {
       return projectStoredSuccess(transactionResult.value);
