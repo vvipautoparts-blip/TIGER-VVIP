@@ -21,6 +21,10 @@ const scannerPath = path.join(
   root,
   "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
 );
+const designPath = path.join(
+  root,
+  "docs/superpowers/specs/2026-08-05-v13-1-authorization-local-migration-design.md"
+);
 
 const protectedTables = [
   "vvip_authority_roles",
@@ -100,7 +104,14 @@ test("foundation contains no privileged write RPC or production bootstrap data",
 test("owner and audit defense-in-depth guards are present", () => {
   const sql = readRequired(migrationPath);
   assert.match(sql, /vvip_one_active_owner_root/i);
-  assert.match(sql, /OWNER_ROOT_IMMUTABLE/);
+  assert.match(
+    sql,
+    /if\s+TG_OP\s*=\s*'UPDATE'[\s\S]{0,240}OLD\.authority_class\s*=\s*'OWNER_ROOT'[\s\S]{0,160}NEW\.authority_class\s*=\s*'OWNER_ROOT'[\s\S]{0,160}OWNER_ROOT_IMMUTABLE/i
+  );
+  assert.match(
+    sql,
+    /if\s+TG_OP\s*=\s*'DELETE'[\s\S]{0,160}OLD\.authority_class\s*=\s*'OWNER_ROOT'[\s\S]{0,160}OWNER_ROOT_IMMUTABLE/i
+  );
   assert.match(sql, /CLIENT_AUTHORITY_FIELDS_DENIED/);
   assert.match(sql, /AUTHORIZATION_AUDIT_APPEND_ONLY/);
   assert.match(sql, /before\s+update\s+or\s+delete\s+on\s+public\.vvip_authorization_audit_events/i);
@@ -137,9 +148,26 @@ test("rollback artifact is review-only outside migrations and never remote", () 
 test("local rehearsal is explicit local-only and repeatable", () => {
   const script = readRequired(verifierPath);
   assert.match(script, /VVIP_ALLOW_LOCAL_SUPABASE_RESET/);
+  assert.match(script, /export\s+PGHOST=127\.0\.0\.1/);
+  assert.match(script, /export\s+PGPORT=54322/);
+  assert.doesNotMatch(script, /inet_server_(addr|port)/i);
   assert.match(script, /supabase\s+db\s+reset\s+--local/g);
   assert.equal((script.match(/supabase\s+db\s+reset\s+--local/g) || []).length, 2);
   assert.match(script, /project-ref|linked/i);
   assert.doesNotMatch(script, /supabase\s+db\s+push|migration\s+up\s+--linked|--db-url|supabase\.co/i);
   assert.doesNotMatch(script, /v13_1_authorization_foundation_rollback_review\.sql/);
+});
+
+test("design documents the JWT helper as invoker-security", () => {
+  const design = readRequired(designPath);
+  const sectionStart = design.indexOf("## 5. Identity model");
+  const sectionEnd = design.indexOf("## 6. Tables");
+  assert.notEqual(sectionStart, -1);
+  assert.notEqual(sectionEnd, -1);
+  const identitySection = design.slice(sectionStart, sectionEnd);
+
+  assert.match(identitySection, /create function public\.vvip_current_actor_id\(\)/i);
+  assert.doesNotMatch(identitySection, /security\s+definer/i);
+  assert.match(identitySection, /invoker-security/i);
+  assert.match(identitySection, /Execution is revoked from `public`, `anon`, and `authenticated`/i);
 });

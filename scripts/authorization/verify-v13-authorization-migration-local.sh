@@ -57,9 +57,6 @@ verify_local_authorization_foundation() {
             --set=ON_ERROR_STOP=1 \
             --tuples-only \
             --no-align <<'SQL'
-select inet_server_addr()::text;
-select inet_server_port();
-
 select count(*)
 from pg_catalog.pg_class c
 join pg_catalog.pg_namespace n on n.oid = c.relnamespace
@@ -141,7 +138,7 @@ where n.nspname = 'public'
 SQL
     )
 
-    local expected=(127.0.0.1 54322 8 8 0 0 0 2)
+    local expected=(8 8 0 0 0 2)
     if [ "${#results[@]}" -ne "${#expected[@]}" ]; then
         echo "LOCAL_AUTHORIZATION_VERIFY=UNEXPECTED_RESULT_COUNT" >&2
         printf 'RESULT=%s\n' "${results[@]}" >&2

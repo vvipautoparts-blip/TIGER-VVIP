@@ -72,14 +72,13 @@ create function public.vvip_current_actor_id()
 returns text
 language sql
 stable
-security definer
 set search_path = pg_catalog, public
 as $function$
     select nullif(current_setting('request.jwt.claim.sub', true), '');
 $function$;
 ```
 
-Execution is revoked from `public`, `anon`, and `authenticated` in this slice. The helper exists for later server-reviewed policy/RPC work, not direct browser use.
+The helper remains invoker-security: it reads only the current session claim, uses a fixed `search_path`, and receives no elevated database privilege. Execution is revoked from `public`, `anon`, and `authenticated` in this slice. The helper exists for later server-reviewed policy/RPC work, not direct browser use.
 
 ## 6. Tables
 
@@ -102,11 +101,11 @@ A partial unique index permits at most one active `OWNER_ROOT`. It does not crea
 
 A principal mutation trigger rejects:
 
-- update or delete of an owner-root row with `OWNER_ROOT_IMMUTABLE`;
+- any update where either the previous or proposed authority class is `OWNER_ROOT`, and deletion of an owner-root row, with `OWNER_ROOT_IMMUTABLE`;
 - direct browser-originated insert, update, or delete with `CLIENT_AUTHORITY_FIELDS_DENIED`;
 - partner-to-partner mutation with `PEER_PARTNER_MUTATION_DENIED` when a later trusted path supplies actor context.
 
-Because this foundation grants no mutation privilege and defines no write RPC, these trigger checks are defense in depth rather than the primary authorization boundary.
+This prevents both mutation of the existing owner and promotion of another principal to `OWNER_ROOT` through a generic update path. Because this foundation grants no mutation privilege and defines no write RPC, these trigger checks are defense in depth rather than the primary authorization boundary.
 
 ## 8. RLS and privileges
 
@@ -162,8 +161,10 @@ A shell script may run only against the local Supabase stack. It must:
 - require `supabase` CLI;
 - require an explicit `VVIP_ALLOW_LOCAL_SUPABASE_RESET=1` environment flag;
 - reject any linked remote project reference;
+- force the libpq client endpoint to `127.0.0.1:54322` and clear service or alternate-host settings that could redirect it;
 - call only `supabase db reset --local`;
 - query the local database to confirm tables, RLS, privileges, empty authority state, and trigger presence;
+- avoid treating Docker-internal PostgreSQL listener addresses as the client connection endpoint;
 - run a second local reset to prove repeatability;
 - never call `supabase db push`, `migration up --linked`, or any remote database command.
 
@@ -219,4 +220,4 @@ The slice is complete only when:
 - CodeQL and Dependency Review pass on the exact final SHA;
 - the migration contains zero production identities or country data;
 - PR evidence states clearly that no remote database command was executed;
-- the PR remains Draft while its parent stack is unmerged.
+- the PR remains unmerged while its parent stack is unmerged; review readiness does not authorize integration.

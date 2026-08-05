@@ -48,7 +48,7 @@ declare -A reviewed_migration_hashes=(
   # tables ENABLE and FORCE RLS; browser roles receive explicit revocations and no grants;
   # no owner, partner, country, seal, endpoint, secret, policy, or privileged write RPC is seeded.
   # Dedicated contract tests pin this exact SHA-256 and reject byte-level drift.
-  ["supabase/migrations/20260805_v13_1_authorization_foundation.sql"]="80f224f3329cf387e608c1bffe1922d2540c64027ebdce063b3e8d5307cff94d"
+  ["supabase/migrations/20260805_v13_1_authorization_foundation.sql"]="9e65d4c705922674b611ba929423688872a83729cff578c7106c73cdc7c4d6c5"
 )
 
 reviewed_baseline_path() {

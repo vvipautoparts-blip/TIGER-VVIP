@@ -208,7 +208,15 @@ language plpgsql
 set search_path = pg_catalog, public
 as $function$
 begin
-    if TG_OP in ('UPDATE', 'DELETE') and OLD.authority_class = 'OWNER_ROOT' then
+    if TG_OP = 'UPDATE'
+       and (
+           OLD.authority_class = 'OWNER_ROOT'
+           or NEW.authority_class = 'OWNER_ROOT'
+       ) then
+        raise exception 'OWNER_ROOT_IMMUTABLE';
+    end if;
+
+    if TG_OP = 'DELETE' and OLD.authority_class = 'OWNER_ROOT' then
         raise exception 'OWNER_ROOT_IMMUTABLE';
     end if;
 
