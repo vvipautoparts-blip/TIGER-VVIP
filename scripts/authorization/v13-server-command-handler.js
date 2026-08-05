@@ -1,4 +1,8 @@
-import { LIMITS } from "./v13-authority-contracts.js";
+import {
+  AUTHORITY_CLASSES,
+  LIMITS,
+  isStableIdentifier
+} from "./v13-authority-contracts.js";
 import {
   rejectClientAuthorityFields,
   validateAuthorizationEnvelope
@@ -9,54 +13,78 @@ import {
 } from "./v13-delegation-policy.js";
 
 const POLLUTION_KEYS = new Set(["__proto__", "prototype", "constructor"]);
+const MAX_CANONICAL_DEPTH = 12;
+const MAX_CANONICAL_ENTRIES = 256;
 
 const OPERATION_POLICY = Object.freeze({
   createAssignment: Object.freeze({
     permission: "authorization.assignment.manage",
     kind: "governance",
     family: "assignment",
-    action: "create"
+    action: "create",
+    resultAuthorityClass: "DELEGATED",
+    resultState: "active"
   }),
   suspendAssignment: Object.freeze({
     permission: "authorization.assignment.manage",
     kind: "governance",
     family: "assignment",
-    action: "suspend"
+    action: "suspend",
+    resultAuthorityClass: "DELEGATED",
+    resultState: "suspended"
   }),
   revokeAssignment: Object.freeze({
     permission: "authorization.assignment.manage",
     kind: "governance",
     family: "assignment",
-    action: "revoke"
+    action: "revoke",
+    resultAuthorityClass: "DELEGATED",
+    resultState: "revoked"
   }),
   createPartnerMembership: Object.freeze({
     permission: "authorization.partner.manage",
     kind: "governance",
     family: "partner",
-    action: "create"
+    action: "create",
+    resultAuthorityClass: "PARTNER_GLOBAL_ADMIN",
+    resultState: "active"
   }),
   suspendPartnerMembership: Object.freeze({
     permission: "authorization.partner.manage",
     kind: "governance",
     family: "partner",
-    action: "suspend"
+    action: "suspend",
+    resultAuthorityClass: "PARTNER_GLOBAL_ADMIN",
+    resultState: "suspended"
   }),
   revokePartnerMembership: Object.freeze({
     permission: "authorization.partner.manage",
     kind: "governance",
     family: "partner",
-    action: "revoke"
+    action: "revoke",
+    resultAuthorityClass: "PARTNER_GLOBAL_ADMIN",
+    resultState: "revoked"
   })
 });
+
+function deepFreeze(value) {
+  if (!value || typeof value !== "object" || Object.isFrozen(value)) return value;
+  for (const nested of Object.values(value)) deepFreeze(nested);
+  return Object.freeze(value);
+}
 
 function fail(code) {
   return Object.freeze({ ok: false, code });
 }
 
-function boundedActorId(value) {
+function boundedText(value, max) {
   return typeof value === "string"
-    && value.length > 0
-    && value.length <= LIMITS.IDENTIFIER;
+    && value.trim().length > 0
+    && value.trim().length <= max;
+}
+
+function boundedActorId(value) {
+  return boundedText(value, LIMITS.IDENTIFIER);
 }
 
 function isPlainObject(value) {
@@ -74,6 +102,74 @@ function containsPollutionKey(value, seen = new Set()) {
   }
   seen.delete(value);
   return false;
+}
+
+function normalizeCanonicalValue(value, state, depth = 0) {
+  if (depth > MAX_CANONICAL_DEPTH) throw new TypeError("CANONICAL_DEPTH_EXCEEDED");
+  if (value === null || typeof value === "boolean") return value;
+  if (typeof value === "string") {
+    if (value.length > 4_096) throw new TypeError("CANONICAL_STRING_TOO_LONG");
+    return value;
+  }
+  if (typeof value === "number") {
+    if (!Number.isFinite(value)) throw new TypeError("CANONICAL_NUMBER_INVALID");
+    return value;
+  }
+  if (Array.isArray(value)) {
+    if (value.length > MAX_CANONICAL_ENTRIES) throw new TypeError("CANONICAL_ARRAY_TOO_LARGE");
+    if (state.seen.has(value)) throw new TypeError("CANONICAL_CYCLE");
+    state.seen.add(value);
+    const normalized = value.map((entry) => normalizeCanonicalValue(entry, state, depth + 1));
+    state.seen.delete(value);
+    return normalized;
+  }
+  if (!isPlainObject(value)) throw new TypeError("CANONICAL_OBJECT_INVALID");
+  if (state.seen.has(value)) throw new TypeError("CANONICAL_CYCLE");
+  const keys = Object.keys(value).sort();
+  if (keys.length > MAX_CANONICAL_ENTRIES) throw new TypeError("CANONICAL_OBJECT_TOO_LARGE");
+  state.entryCount += keys.length;
+  if (state.entryCount > MAX_CANONICAL_ENTRIES) {
+    throw new TypeError("CANONICAL_ENTRY_LIMIT_EXCEEDED");
+  }
+  state.seen.add(value);
+  const normalized = {};
+  for (const key of keys) {
+    if (POLLUTION_KEYS.has(key)) throw new TypeError("CANONICAL_POLLUTION_KEY");
+    normalized[key] = normalizeCanonicalValue(value[key], state, depth + 1);
+  }
+  state.seen.delete(value);
+  return normalized;
+}
+
+function canonicalJson(value) {
+  return JSON.stringify(normalizeCanonicalValue(value, {
+    seen: new Set(),
+    entryCount: 0
+  }));
+}
+
+function fallbackHash(value) {
+  let first = 0x811c9dc5;
+  let second = 0x9e3779b9;
+  for (let index = 0; index < value.length; index += 1) {
+    const code = value.charCodeAt(index);
+    first ^= code;
+    first = Math.imul(first, 0x01000193) >>> 0;
+    second ^= code + index;
+    second = Math.imul(second, 0x85ebca6b) >>> 0;
+  }
+  const block = `${first.toString(16).padStart(8, "0")}${second.toString(16).padStart(8, "0")}`;
+  return block.repeat(4);
+}
+
+async function hashCanonicalValue(value) {
+  const canonical = canonicalJson(value);
+  if (globalThis.crypto?.subtle && typeof TextEncoder === "function") {
+    const bytes = new TextEncoder().encode(canonical);
+    const digest = await globalThis.crypto.subtle.digest("SHA-256", bytes);
+    return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+  }
+  return fallbackHash(canonical);
 }
 
 function actorFromValidatedEnvelope(envelope, trustedState) {
@@ -118,6 +214,90 @@ function partnerPolicyDecision(request, actor) {
   });
 }
 
+function validTransactionPort(tx) {
+  return tx
+    && typeof tx === "object"
+    && typeof tx.findIdempotencyReceipt === "function"
+    && typeof tx.persistAuthorizationCommand === "function"
+    && typeof tx.appendAuthorizationAudit === "function"
+    && typeof tx.storeIdempotencyReceipt === "function";
+}
+
+function stableDataFromPersistence(persisted, policy) {
+  if (!persisted
+    || typeof persisted !== "object"
+    || !boundedText(persisted.id, LIMITS.IDENTIFIER)
+    || persisted.state !== policy.resultState
+    || persisted.authorityClass !== policy.resultAuthorityClass
+    || !AUTHORITY_CLASSES.includes(persisted.authorityClass)) {
+    throw new TypeError("PERSISTENCE_RESULT_INVALID");
+  }
+  return Object.freeze({
+    id: persisted.id,
+    state: persisted.state,
+    authorityClass: persisted.authorityClass
+  });
+}
+
+function stableSuccess({ data, correlationKey, idempotencyKey, auditHash }) {
+  if (!data
+    || !boundedText(auditHash, 128)
+    || auditHash.length < 32
+    || !isStableIdentifier(correlationKey, "corr_")
+    || !isStableIdentifier(idempotencyKey, "idem_")) {
+    throw new TypeError("SUCCESS_RESULT_INVALID");
+  }
+  return deepFreeze({
+    ok: true,
+    code: "AUTHORIZATION_COMMAND_COMMITTED",
+    data: {
+      id: data.id,
+      state: data.state,
+      authorityClass: data.authorityClass
+    },
+    receipt: {
+      confirmed: true,
+      persisted: true,
+      correlationKey,
+      idempotencyKey,
+      auditHash
+    }
+  });
+}
+
+function projectStoredSuccess(value) {
+  if (!value
+    || value.ok !== true
+    || value.code !== "AUTHORIZATION_COMMAND_COMMITTED"
+    || value.receipt?.confirmed !== true
+    || value.receipt?.persisted !== true
+    || !boundedText(value.data?.id, LIMITS.IDENTIFIER)
+    || !boundedText(value.data?.state, LIMITS.IDENTIFIER)
+    || !AUTHORITY_CLASSES.includes(value.data?.authorityClass)) {
+    throw new TypeError("STORED_RECEIPT_INVALID");
+  }
+  return stableSuccess({
+    data: value.data,
+    correlationKey: value.receipt.correlationKey,
+    idempotencyKey: value.receipt.idempotencyKey,
+    auditHash: value.receipt.auditHash
+  });
+}
+
+function requestHashProjection(request) {
+  return {
+    operation: request.operation,
+    actorId: request.authenticatedActorId,
+    command: request.command,
+    correlationKey: request.correlationKey,
+    idempotencyKey: request.idempotencyKey,
+    reason: request.reason,
+    resource: request.resource,
+    policyVersion: request.envelope.policyVersion,
+    assignmentRevision: request.envelope.assignmentRevision
+  };
+}
+
 export function createAuthorizationServerCommandHandler({
   loadTrustedState,
   runTransaction,
@@ -136,12 +316,23 @@ export function createAuthorizationServerCommandHandler({
     if (!isPlainObject(request?.command) || containsPollutionKey(request.command)) {
       return fail("CLIENT_AUTHORITY_FIELDS_DENIED");
     }
+    if (!isPlainObject(request?.resource) || containsPollutionKey(request.resource)) {
+      return fail("CLIENT_AUTHORITY_FIELDS_DENIED");
+    }
     const clientFieldDecision = rejectClientAuthorityFields(request.command);
     if (!clientFieldDecision.ok) return fail(clientFieldDecision.code);
+    if (!isStableIdentifier(request.correlationKey, "corr_")) {
+      return fail("INVALID_CORRELATION_KEY");
+    }
+    if (!isStableIdentifier(request.idempotencyKey, "idem_")) {
+      return fail("INVALID_IDEMPOTENCY_KEY");
+    }
+    if (!boundedText(request.reason, LIMITS.REASON)) return fail("REASON_REQUIRED");
 
     const policy = OPERATION_POLICY[request.operation];
     if (!policy) return fail("INVALID_ASSIGNMENT");
 
+    const now = clock();
     let trustedState;
     try {
       trustedState = await loadTrustedState(request.authenticatedActorId);
@@ -157,7 +348,7 @@ export function createAuthorizationServerCommandHandler({
         permission: policy.permission,
         kind: policy.kind
       },
-      now: clock()
+      now
     });
     if (!envelopeDecision.allowed) return fail(envelopeDecision.code);
 
@@ -168,7 +359,82 @@ export function createAuthorizationServerCommandHandler({
     const allowed = policy.family === "partner" ? policyDecision.ok : policyDecision.allowed;
     if (!allowed) return fail(policyDecision.code);
 
-    return fail("REMOTE_ENFORCEMENT_FAILED");
+    let requestHash;
+    try {
+      requestHash = await hashCanonicalValue(requestHashProjection(request));
+    } catch {
+      return fail("INVALID_ASSIGNMENT");
+    }
+
+    let transactionResult;
+    try {
+      transactionResult = await runTransaction(async (tx) => {
+        if (!validTransactionPort(tx)) throw new TypeError("TRANSACTION_PORT_INVALID");
+        const prior = await tx.findIdempotencyReceipt(request.idempotencyKey);
+        if (prior !== null && prior !== undefined) {
+          if (!prior || typeof prior !== "object" || prior.requestHash !== requestHash) {
+            return fail("IDEMPOTENCY_CONFLICT");
+          }
+          return projectStoredSuccess(prior.result);
+        }
+
+        const persisted = await tx.persistAuthorizationCommand({
+          operation: request.operation,
+          command: normalizeCanonicalValue(request.command, {
+            seen: new Set(),
+            entryCount: 0
+          }),
+          actorId: request.authenticatedActorId,
+          now
+        });
+        const data = stableDataFromPersistence(persisted, policy);
+        const audit = await tx.appendAuthorizationAudit({
+          operation: request.operation,
+          actorId: request.authenticatedActorId,
+          targetId: data.id,
+          reason: request.reason.trim(),
+          correlationKey: request.correlationKey,
+          idempotencyKey: request.idempotencyKey,
+          data,
+          now
+        });
+        if (!audit || typeof audit !== "object") {
+          throw new TypeError("AUDIT_RESULT_INVALID");
+        }
+        const result = stableSuccess({
+          data,
+          correlationKey: request.correlationKey,
+          idempotencyKey: request.idempotencyKey,
+          auditHash: audit.auditHash
+        });
+        const stored = await tx.storeIdempotencyReceipt({
+          idempotencyKey: request.idempotencyKey,
+          requestHash,
+          result
+        });
+        if (!stored || stored.stored !== true) {
+          throw new TypeError("IDEMPOTENCY_RECEIPT_NOT_STORED");
+        }
+        return result;
+      });
+    } catch {
+      return fail("REMOTE_ENFORCEMENT_FAILED");
+    }
+
+    if (!transactionResult
+      || transactionResult.committed !== true
+      || !transactionResult.value) {
+      return fail("REMOTE_ENFORCEMENT_FAILED");
+    }
+    if (transactionResult.value.ok === false
+      && transactionResult.value.code === "IDEMPOTENCY_CONFLICT") {
+      return fail("IDEMPOTENCY_CONFLICT");
+    }
+    try {
+      return projectStoredSuccess(transactionResult.value);
+    } catch {
+      return fail("REMOTE_ENFORCEMENT_FAILED");
+    }
   }
 
   return Object.freeze({ execute });
