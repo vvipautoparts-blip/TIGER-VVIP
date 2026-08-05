@@ -20,7 +20,7 @@
     "codeql": "PENDING_FINAL_HEAD",
     "runtime_diff": "NONE",
     "database_migration_diff": "NONE",
-    "pr_metadata": "SYNCING"
+    "pr_metadata": "SYNCHRONIZED_EXTERNALLY"
   },
   "decisions": {
     "max_images_per_listing": 7,
