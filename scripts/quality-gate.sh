@@ -146,15 +146,18 @@ git clone --quiet --no-hardlinks "$ORIGINAL_ROOT" "$WORK"
 
 git -C "$WORK" remote set-url origin "https://github.com/vvipautoparts-blip/TIGER-VVIP"
 
-tar \
-    --exclude='./.git' \
-    --exclude='./.venv' \
-    --exclude='./.pytest_cache' \
-    --exclude='./node_modules' \
-    --exclude='./__pycache__' \
-    --exclude='./.env' \
-    --exclude='./.env.*' \
-    -cf - . |
+if ! git diff --quiet HEAD --; then
+    git diff --binary --full-index HEAD -- |
+    git -C "$WORK" apply --whitespace=nowarn -
+fi
+
+git ls-files -z --others --exclude-standard -- \
+    . \
+    ':(exclude).env' \
+    ':(exclude).env.*' \
+    ':(exclude).venv' \
+    ':(exclude).venv/**' |
+tar --null --verbatim-files-from -T - -cf - |
 (
     cd "$WORK"
     tar -xf -
@@ -191,7 +194,8 @@ else
         "$TEMP_VENV/bin/python" -m pip install \
             --quiet \
             --disable-pip-version-check \
-            -r requirements-dev.txt
+            -r requirements-dev.txt \
+            pytest
     else
         "$TEMP_VENV/bin/python" -m pip install \
             --quiet \
