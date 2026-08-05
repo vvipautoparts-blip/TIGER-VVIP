@@ -19,8 +19,7 @@
     "dependency_review": "PENDING_FINAL_HEAD",
     "codeql": "PENDING_FINAL_HEAD",
     "runtime_diff": "NONE",
-    "database_migration_diff": "NONE",
-    "pr_metadata": "SYNCHRONIZED_EXTERNALLY"
+    "database_migration_diff": "NONE"
   },
   "decisions": {
     "max_images_per_listing": 7,
