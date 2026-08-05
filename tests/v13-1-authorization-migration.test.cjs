@@ -100,7 +100,14 @@ test("foundation contains no privileged write RPC or production bootstrap data",
 test("owner and audit defense-in-depth guards are present", () => {
   const sql = readRequired(migrationPath);
   assert.match(sql, /vvip_one_active_owner_root/i);
-  assert.match(sql, /OWNER_ROOT_IMMUTABLE/);
+  assert.match(
+    sql,
+    /if\s+TG_OP\s*=\s*'UPDATE'[\s\S]{0,240}OLD\.authority_class\s*=\s*'OWNER_ROOT'[\s\S]{0,160}NEW\.authority_class\s*=\s*'OWNER_ROOT'[\s\S]{0,160}OWNER_ROOT_IMMUTABLE/i
+  );
+  assert.match(
+    sql,
+    /if\s+TG_OP\s*=\s*'DELETE'[\s\S]{0,160}OLD\.authority_class\s*=\s*'OWNER_ROOT'[\s\S]{0,160}OWNER_ROOT_IMMUTABLE/i
+  );
   assert.match(sql, /CLIENT_AUTHORITY_FIELDS_DENIED/);
   assert.match(sql, /AUTHORIZATION_AUDIT_APPEND_ONLY/);
   assert.match(sql, /before\s+update\s+or\s+delete\s+on\s+public\.vvip_authorization_audit_events/i);
