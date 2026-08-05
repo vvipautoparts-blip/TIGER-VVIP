@@ -428,8 +428,13 @@ export function createAuthorizationServerCommandHandler({
     if (!isPlainObject(request?.resource) || containsPollutionKey(request.resource)) {
       return fail("CLIENT_AUTHORITY_FIELDS_DENIED");
     }
-    const clientFieldDecision = rejectClientAuthorityFields(request.command);
-    if (!clientFieldDecision.ok) return fail(clientFieldDecision.code);
+
+    const policy = OPERATION_POLICY[request.operation];
+    if (!policy) return fail("INVALID_ASSIGNMENT");
+    if (policy.action === "create") {
+      const clientFieldDecision = rejectClientAuthorityFields(request.command);
+      if (!clientFieldDecision.ok) return fail(clientFieldDecision.code);
+    }
     if (!isStableIdentifier(request.correlationKey, "corr_")) {
       return fail("INVALID_CORRELATION_KEY");
     }
@@ -438,8 +443,6 @@ export function createAuthorizationServerCommandHandler({
     }
     if (!boundedText(request.reason, LIMITS.REASON)) return fail("REASON_REQUIRED");
 
-    const policy = OPERATION_POLICY[request.operation];
-    if (!policy) return fail("INVALID_ASSIGNMENT");
     const targetId = mutationTargetId(request, policy);
     if (policy.action !== "create" && !targetId) return fail("INVALID_ASSIGNMENT");
 
