@@ -1,316 +1,183 @@
 # V13.1 Executable Authority Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans and superpowers:test-driven-development task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **Execution method:** TDD, isolated branch, draft PR, GitHub Actions, evidence before merge.
 
-**Goal:** تثبيت قرار المالك النهائي لـV13.1 بوصفه دستورًا تنفيذيًا يفرض سبع صور، يمنع أي رقم ظهور عالمي ثابت، ويسمح بالدردشة والتوصيل والوساطة دستوريًا مع إبقائها محجوبة إنتاجيًا حتى عقودها واختباراتها وأدلتها.
+## Goal
 
-**Architecture:** حزمة تحكم إضافية تحت `project-control/v13.1/`، لا تغير Runtime أو قاعدة البيانات في هذه الشريحة. عقد JSON حتمي، اختبارات Node، مدقق Fail-Closed، وسجل تعارضات، ثم Gate إضافية في Quality Gate.
+تثبيت V13.1 بوصفه السلطة النهائية القابلة للقراءة آليًا، مع القرارات التالية:
 
-**Tech Stack:** Node.js 22 built-ins, `node:test`, JSON, SHA-256, Bash, GitHub Actions.
+- 7 صور لكل إعلان، بلا زيادة مدفوعة.
+- لا رقم ظهور عالمي ثابت.
+- الدردشة والتوصيل والوساطة متاحة لجميع المستخدمين دون موافقات.
+- زر واتساب متاح لجميع المستخدمين دون موافقات.
+- واتساب مجرد تحويل خارجي إلى التطبيق المثبّت على جهاز المستخدم، بلا مراسلة أو تخزين أو إدارة حساب من المنصة.
 
-## Global Constraints
+## Constraints
 
 - لا تعديل مباشر على `main`.
-- لا Framework أو Bundler أو Dependency جديدة.
-- القرار النهائي للصور: 7 صور لكل إعلان، بلا زيادة مدفوعة.
-- الفيديو غير مفعّل.
-- `global_fixed_impressions = null` دائمًا في النواة.
-- 250 و400 ممنوعان كقيمتين عالميتين.
-- كمية الظهور وسعره يحددان في ختم الدولة فقط.
-- الدردشة والتوصيل والوساطة مسموحة دستوريًا ومحجوبة تشغيليًا حتى عقود مستقلة واختبارات وأدلة.
-- واتساب خارجي فقط، مجهز ومعطل.
-- الإنتاج والدول تبقى محجوبة.
-- لا Runtime أو Auth أو RLS أو Migration في شريحة الدستور.
-- جميع التغييرات عبر TDD وPR وCI وخطة رجوع.
+- لا Dependency جديدة.
+- لا Runtime أو Database Migration داخل شريحة السلطة الدستورية.
+- لا أسرار أو قيم رسمية مخترعة.
+- كل سلوك جديد يبدأ باختبار RED ثم تنفيذ GREEN.
+- الإنتاج والدول لا توصف بأنها جاهزة قبل بواباتها الفعلية.
 
 ---
 
-### Task 1: Prove RED for the Owner Constitution
+## Task 1 — Constitution RED/GREEN
 
 **Files:**
-- Create: `tests/v13-1-owner-constitution.test.cjs`
 
-**Interfaces:**
-- Consumes: `project-control/v13.1/contracts/owner_constitution.json`.
-- Produces: executable owner-decision contract.
+- `tests/v13-1-owner-constitution.test.cjs`
+- `project-control/v13.1/contracts/owner_constitution.json`
 
-- [x] **Step 1: Write tests for authority, images, exposure, capabilities, WhatsApp and overrides**
-- [x] **Step 2: Open a draft PR so GitHub Actions evaluates the proposed merge result**
-- [x] **Step 3: Observe the expected failure**
+- [x] كتابة اختبار سلطة V13.1.
+- [x] كتابة اختبار 7 صور وعدم الارتباط بالسعر.
+- [x] كتابة اختبار منع الرقم العالمي للظهور.
+- [x] كتابة اختبار الوصول العام للدردشة والتوصيل والوساطة.
+- [x] كتابة اختبار واتساب كتحويل خارجي فقط.
+- [x] كتابة اختبار يمنع أي موافقة أو منحة لزر واتساب.
+- [x] مشاهدة RED في GitHub Actions.
+- [x] تحديث العقد بالحد الأدنى لتحقيق القرار.
 
-Expected failure:
+العقد النهائي لواتساب يجب أن يتضمن:
+
+```json
+{
+  "integration_mode": "EXTERNAL_HANDOFF_ONLY",
+  "handoff_type": "DEVICE_APP_DEEP_LINK",
+  "target_application": "WHATSAPP_INSTALLED_ON_USER_DEVICE",
+  "availability_policy": "FULL_GENERAL_AVAILABILITY",
+  "access_scope": "ALL_USERS",
+  "approval_required": false,
+  "user_self_access_allowed": true,
+  "internal_message_transport": false,
+  "platform_sends_messages": false,
+  "platform_receives_messages": false,
+  "platform_reads_messages": false,
+  "platform_stores_messages": false,
+  "platform_manages_whatsapp_account": false,
+  "whatsapp_api_integration": false
+}
+```
+
+---
+
+## Task 2 — Fail-Closed Validator
+
+**Files:**
+
+- `tests/v13-1-authority-validator.test.cjs`
+- `project-control/scripts/validate_v13_1_authority.mjs`
+
+- [x] اختبار فقدان أو تلف الدستور.
+- [x] اختبار حد الصور.
+- [x] اختبار الرقم العالمي للظهور.
+- [x] اختبار منع تقييد القدرات العامة.
+- [x] اختبار منع دور مراسلة داخلي لواتساب.
+- [x] اختبار منع جميع الموافقات والمنح لواتساب.
+- [x] مشاهدة RED بسبب المدقق القديم.
+- [x] تحديث المدقق بالرموز الجديدة.
+
+رموز الفشل المطلوبة:
 
 ```text
-V13.1 owner constitution must exist as an executable repository contract
+V13_CAPABILITY_ACCESS_RESTRICTED
+V13_WHATSAPP_EXTERNAL_HANDOFF_REQUIRED
+V13_WHATSAPP_APPROVAL_FORBIDDEN
 ```
-
-- [x] **Step 4: Confirm unrelated tests still pass**
-
-Evidence: Quality Gate run 29 reached the new test, passed the existing suites, and failed only the six new constitutional assertions.
 
 ---
 
-### Task 2: Implement the Minimal Final Constitution
+## Task 3 — Conflict Registry and SHA-256 Manifest
 
 **Files:**
-- Create: `project-control/v13.1/contracts/owner_constitution.json`
-- Create: `docs/architecture/v13.1/V13_1_OWNER_FINAL_AMENDMENT.md`
-- Create: `docs/architecture/v13.1/V13_1_EXECUTION_STATUS.json`
-- Create: `docs/architecture/v13.1/V13_1_SCOPE_GUARD.md`
-- Create: `project-control/v13.1/README_AR.md`
 
-**Interfaces:**
-- Produces the final immutable decision projection consumed by later validators and Runtime plans.
+- `project-control/v13.1/contracts/conflict_registry.json`
+- `project-control/v13.1/authority-manifest.json`
+- `tests/v13-1-authority-manifest.test.cjs`
 
-- [x] **Step 1: Set constitutional identity and fail-closed production state**
+- [x] إنشاء سجل التعارضات الستة.
+- [x] ربط كل تعارض بالقاعدة النهائية.
+- [x] إنشاء Manifest لبصمة الدستور وسجل التعارضات.
+- [x] اختبار فقدان السجل والـManifest.
+- [x] اختبار Hash tampering.
+- [x] تحديث المدقق لفحص SHA-256.
+- [x] تحديث بصمة الدستور بعد قرار إلغاء الموافقات.
 
-```json
-{
-  "constitution_id": "V13.1",
-  "authority": "OWNER_FINAL_CONSTITUTION",
-  "precedence": "SUPERSEDES_INCOMPATIBLE_LEGACY_RULES",
-  "production_state": "BLOCKED_PENDING_CONTRACTS_TESTS_EVIDENCE"
-}
-```
+---
 
-- [x] **Step 2: Set exact media policy**
+## Task 4 — Documentation Consistency
 
-```json
-{
-  "max_images_per_listing": 7,
-  "video_enabled": false,
-  "image_limit_price_dependent": false
-}
-```
+**Files:**
 
-- [x] **Step 3: Set country-seal-only exposure policy**
+- `docs/architecture/v13.1/V13_1_OWNER_FINAL_AMENDMENT.md`
+- `docs/architecture/v13.1/V13_1_EXECUTION_STATUS.json`
+- `docs/architecture/v13.1/V13_1_SCOPE_GUARD.md`
+- `project-control/v13.1/README_AR.md`
+- `docs/superpowers/specs/2026-08-05-v13-1-executable-authority-design.md`
+- هذا الملف.
 
-```json
-{
-  "global_fixed_impressions": null,
-  "quantity_authority": "COUNTRY_SEAL_ONLY",
-  "price_authority": "COUNTRY_SEAL_ONLY",
-  "forbidden_global_values": [250, 400]
-}
-```
+- [x] إزالة لغة «محجوب تشغيليًا» من سياسة الوصول العامة.
+- [x] إزالة لغة «واتساب معطل» و«قرار تفعيل منفصل».
+- [x] إزالة شروط موافقة المالك أو الشركاء.
+- [x] تثبيت أن المنصة لا تتعامل مع رسائل واتساب.
+- [x] إبقاء الفرق واضحًا بين سياسة الوصول واكتمال Runtime الفعلي.
 
-- [x] **Step 4: Separate constitutional allowance from activation**
+---
 
-For `internal_chat`, `delivery`, and `mediation`:
+## Task 5 — Dedicated Quality Gate
 
-```json
-{
-  "constitutionally_allowed": true,
-  "activation_state": "BLOCKED_PENDING_DEDICATED_CONTRACTS_TESTS_EVIDENCE"
-}
-```
+**Files:**
 
-- [x] **Step 5: Keep external WhatsApp disabled**
+- `tests/v13-1-quality-gate-contract.test.cjs`
+- `scripts/quality-gate.sh`
 
-```json
-{
-  "prepared": true,
-  "integration_mode": "EXTERNAL_ONLY",
-  "activation_state": "DISABLED",
-  "internal_message_transport": false
-}
-```
+- [ ] كتابة اختبار RED يطلب `GATE_v13_1_authority_integrity`.
+- [ ] تشغيل الاختبار ومشاهدة الفشل المقصود.
+- [ ] إضافة المدقق بعد `validate_project_control`.
+- [ ] تشغيل `bash -n scripts/quality-gate.sh`.
+- [ ] تشغيل الاختبارات الموجهة.
+- [ ] تشغيل Quality Gate المعزولة كاملة.
 
-- [x] **Step 6: Add explicit legacy overrides**
-
-Required legacy IDs:
+العلامة المطلوبة:
 
 ```text
-GLOBAL_IMAGE_LIMIT_10
-GLOBAL_FIXED_IMPRESSIONS_250
-GLOBAL_FIXED_IMPRESSIONS_400
-CHAT_FORBIDDEN
-DELIVERY_FORBIDDEN
-MEDIATION_FORBIDDEN
+GATE_v13_1_authority_integrity=PASS
 ```
 
-- [x] **Step 7: Run GitHub Actions GREEN verification**
+---
 
-Expected: VVIP Quality Gate success after implementing the contract.
+## Task 6 — PR Completion
+
+- [ ] تحديث عنوان ووصف PR ليعكسا القرار النهائي.
+- [ ] التحقق من عدم وجود Runtime أو Migration في Diff.
+- [ ] التحقق من عدم وجود أسرار.
+- [ ] نجاح VVIP Quality Gate.
+- [ ] نجاح Project Control Integrity.
+- [ ] نجاح Dependency Review.
+- [ ] نجاح CodeQL.
+- [ ] مراجعة كل ملفات PR بحثًا عن حكم متعارض.
+- [ ] تحويل PR من Draft إلى Ready فقط بعد اكتمال الأدلة.
+- [ ] الدمج باستخدام Head SHA المراجع فقط.
 
 ---
 
-### Task 3: Remove Active Documentation Contradictions
+## Subsequent Runtime Program
 
-**Files:**
-- Modify: `docs/superpowers/specs/2026-08-05-v13-1-executable-authority-design.md`
-- Modify: `docs/superpowers/plans/2026-08-05-v13-1-executable-authority-implementation.md`
+بعد دمج شريحة السلطة، يبدأ التنفيذ البرمجي الكامل بخطط مستقلة مرتبة:
 
-**Interfaces:**
-- Both documents must mirror the executable contract and never override it.
+1. الحساب العالمي وسياقات الدول.
+2. الصلاحيات وRLS.
+3. الإعلان وسبع صور.
+4. الظهور وختم الدولة.
+5. المحفظة والدفتر المزدوج.
+6. القطاعات السبعة والبحث.
+7. الدردشة لجميع المستخدمين.
+8. التوصيل لجميع المستخدمين.
+9. الوساطة لجميع المستخدمين.
+10. زر التحويل الخارجي إلى واتساب لجميع المستخدمين بلا موافقات.
+11. نظام الشاشات وإمكانية الوصول.
+12. الأمن والتعافي وSLO.
+13. حزمة الأردن والPilot المحكوم.
 
-- [x] **Step 1: Replace 10-image language with exactly seven images**
-- [x] **Step 2: Replace absolute chat/delivery/mediation prohibition with allowed-but-gated language**
-- [x] **Step 3: Remove any global 400/500 Pilot assumption from the active design**
-- [x] **Step 4: Record WhatsApp as external-only and disabled**
-- [ ] **Step 5: Add a regression test that scans active V13.1 files for contradictory claims**
-
-Run after implementation:
-
-```bash
-node --test tests/v13-1-active-document-consistency.test.cjs
-```
-
-Expected: PASS.
-
----
-
-### Task 4: Add the Fail-Closed Authority Validator
-
-**Files:**
-- Create: `project-control/scripts/validate_v13_1_authority.mjs`
-- Create: `project-control/tests/v13_1_authority_integrity.test.mjs`
-
-**Interfaces:**
-- CLI: `node project-control/scripts/validate_v13_1_authority.mjs`
-- Success stdout: JSON object with `status`, `constitution_id`, `production_state`, `checked_at`.
-- Failure stderr: JSON object with `status: "FAIL"` and stable failure codes.
-
-- [ ] **Step 1: Write failing tests for missing/invalid constitution**
-
-Required error codes:
-
-```text
-V13_CONSTITUTION_MISSING
-V13_CONSTITUTION_INVALID
-V13_IMAGE_LIMIT_NOT_SEVEN
-V13_IMAGE_LIMIT_PRICE_DEPENDENT
-V13_GLOBAL_FIXED_IMPRESSIONS_FORBIDDEN
-V13_CAPABILITY_ACTIVATED_WITHOUT_CONTRACT
-V13_WHATSAPP_MUST_REMAIN_DISABLED
-V13_SILENT_LEGACY_CONFLICT
-V13_PRODUCTION_CLAIM_WITHOUT_SEALS
-```
-
-- [ ] **Step 2: Observe RED**
-
-```bash
-node --test project-control/tests/v13_1_authority_integrity.test.mjs
-```
-
-- [ ] **Step 3: Implement minimal validator with Node standard libraries**
-- [ ] **Step 4: Sort failures deterministically**
-- [ ] **Step 5: Run GREEN and all existing tests**
-- [ ] **Step 6: Commit focused validator change**
-
----
-
-### Task 5: Add Negative Fixtures
-
-**Files:**
-- Create fixture directories under `project-control/tests/fixtures/v13_1/`.
-
-**Interfaces:**
-- Each fixture copies the valid baseline and overrides one field.
-
-- [ ] **Step 1: Add ten-images fixture**
-- [ ] **Step 2: Add price-dependent-images fixture**
-- [ ] **Step 3: Add global-250 fixture**
-- [ ] **Step 4: Add global-400 fixture**
-- [ ] **Step 5: Add activated-chat-without-contract fixture**
-- [ ] **Step 6: Add activated-delivery-without-contract fixture**
-- [ ] **Step 7: Add activated-mediation-without-contract fixture**
-- [ ] **Step 8: Add enabled-WhatsApp fixture**
-- [ ] **Step 9: Add missing-legacy-override fixture**
-- [ ] **Step 10: Add false-production-allowed fixture**
-- [ ] **Step 11: Run all negative cases and verify exact error codes**
-
----
-
-### Task 6: Add Conflict Registry and Manifest
-
-**Files:**
-- Create: `project-control/v13.1/contracts/conflict_registry.json`
-- Create: `project-control/v13.1/authority-manifest.json`
-- Create: `docs/architecture/v13.1/V13_1_CONFLICT_OVERLAY.md`
-
-**Interfaces:**
-- Conflict registry maps every old rule to the governing final rule.
-- Manifest contains SHA-256 for executable contracts and schemas, excluding itself.
-
-- [ ] **Step 1: Write failing tests for missing conflicts and hash drift**
-- [ ] **Step 2: Observe RED**
-- [ ] **Step 3: Seed explicit conflicts**
-- [ ] **Step 4: Generate contract hashes**
-- [ ] **Step 5: Verify any silent legacy conflict fails CI**
-- [ ] **Step 6: Commit registry and manifest**
-
----
-
-### Task 7: Integrate a Dedicated V13.1 Quality Gate
-
-**Files:**
-- Create: `tests/v13-1-quality-gate-contract.test.cjs`
-- Modify: `scripts/quality-gate.sh`
-
-**Interfaces:**
-- New marker: `GATE_v13_1_authority_integrity=PASS|FAIL`.
-
-- [ ] **Step 1: Write failing static gate test**
-- [ ] **Step 2: Observe RED**
-- [ ] **Step 3: Add the gate after `validate_project_control`**
-
-```bash
-if [ -f project-control/scripts/validate_v13_1_authority.mjs ]; then
-    run_clean_gate \
-        "v13_1_authority_integrity" \
-        node project-control/scripts/validate_v13_1_authority.mjs
-else
-    echo "GATE_v13_1_authority_integrity=SKIP"
-fi
-```
-
-- [ ] **Step 4: Run syntax, focused tests and full isolated gate**
-- [ ] **Step 5: Confirm official workspace unchanged**
-
----
-
-### Task 8: Complete the Constitutional PR
-
-**Files:**
-- No Runtime or Migration files.
-
-- [ ] **Step 1: Run `git diff --check`**
-- [ ] **Step 2: Run all focused V13.1 tests**
-- [ ] **Step 3: Run full `bash scripts/quality-gate.sh`**
-- [ ] **Step 4: Verify CodeQL, Dependency Review and Project Control Integrity**
-- [ ] **Step 5: Review PR diff for contradictions and secrets**
-- [ ] **Step 6: Mark PR ready only when all checks are green**
-- [ ] **Step 7: Merge only with exact head SHA and post-merge verification**
-
----
-
-## Subsequent Full-Programming Plans
-
-After the constitutional PR, create and execute separate TDD plans in this order:
-
-1. Global account and country contexts.
-2. Authorization envelopes and RLS.
-3. Listing lifecycle and seven-image Runtime alignment.
-4. Exposure capacity and country seal.
-5. Wallet and double-entry ledger.
-6. Seven-sector taxonomy, fields, search and filters.
-7. Internal chat.
-8. Delivery.
-9. Mediation.
-10. External WhatsApp disabled adapter and activation guard.
-11. UX screen system and accessibility.
-12. Security, resilience, SLO and recovery.
-13. Jordan activation capsule and controlled Pilot.
-
-Each plan must produce working, independently testable software and cannot infer missing legal, tax, payment or privacy values.
-
-## Verification Standard
-
-A task is complete only when:
-
-- its test was observed failing for the intended reason;
-- minimal implementation made it pass;
-- all existing tests remain green;
-- GitHub Actions validates the proposed merge result;
-- no secret, silent conflict, Runtime overclaim or production activation was introduced.
+لا تعتبر أي شريحة مكتملة إلا بعد RED وGREEN وFull Gate وPR Evidence.
