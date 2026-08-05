@@ -156,8 +156,9 @@ VVIP_QUALITY_GATE=PASS
 ## Task 6 — PR Completion
 
 - [ ] تحديث عنوان ووصف PR ليعكسا القرار النهائي.
-- [ ] التحقق من عدم وجود Runtime أو Migration في Diff.
-- [ ] التحقق من عدم وجود أسرار.
+- [x] التحقق من عدم وجود Runtime أو Migration في Diff.
+- [x] التحقق من أن التغيير محصور في العقود والمدقق والاختبارات والوثائق وإضافة Gate واحدة.
+- [ ] التحقق من عدم وجود أسرار على Head النهائي.
 - [ ] نجاح VVIP Quality Gate على Head النهائي.
 - [ ] نجاح Project Control Integrity على Head النهائي.
 - [ ] نجاح Dependency Review على Head النهائي.
@@ -165,6 +166,15 @@ VVIP_QUALITY_GATE=PASS
 - [ ] مراجعة كل ملفات PR بحثًا عن حكم متعارض.
 - [ ] تحويل PR من Draft إلى Ready فقط بعد اكتمال الأدلة.
 - [ ] الدمج باستخدام Head SHA المراجع فقط.
+
+نطاق Diff المراجع:
+
+```text
+Runtime files: 0
+Database migrations: 0
+Authority/contracts/tests/docs: 14 files
+Quality gate integration: 1 file
+```
 
 ---
 
