@@ -59,9 +59,17 @@
     "external_whatsapp": {
       "prepared": true,
       "implementation_state": "FULLY_PREPARED",
-      "integration_mode": "EXTERNAL_ONLY",
+      "integration_mode": "EXTERNAL_HANDOFF_ONLY",
+      "handoff_type": "DEVICE_APP_DEEP_LINK",
+      "target_application": "WHATSAPP_INSTALLED_ON_USER_DEVICE",
       "default_access_state": "DISABLED",
       "internal_message_transport": false,
+      "platform_sends_messages": false,
+      "platform_receives_messages": false,
+      "platform_reads_messages": false,
+      "platform_stores_messages": false,
+      "platform_manages_whatsapp_account": false,
+      "whatsapp_api_integration": false,
       "user_self_enable_allowed": false,
       "grant_required": true,
       "grant_authority_roles": [
