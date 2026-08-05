@@ -132,17 +132,23 @@ V13_WHATSAPP_APPROVAL_FORBIDDEN
 - `tests/v13-1-quality-gate-contract.test.cjs`
 - `scripts/quality-gate.sh`
 
-- [ ] كتابة اختبار RED يطلب `GATE_v13_1_authority_integrity`.
-- [ ] تشغيل الاختبار ومشاهدة الفشل المقصود.
-- [ ] إضافة المدقق بعد `validate_project_control`.
-- [ ] تشغيل `bash -n scripts/quality-gate.sh`.
-- [ ] تشغيل الاختبارات الموجهة.
-- [ ] تشغيل Quality Gate المعزولة كاملة.
+- [x] كتابة اختبار RED يطلب `GATE_v13_1_authority_integrity`.
+- [x] تشغيل الاختبار ومشاهدة الفشل المقصود: 3 اختبارات جديدة فشلت وحدها.
+- [x] إضافة المدقق بعد `validate_project_control` وقبل فحوص الأمن.
+- [x] نجاح فحص Bash داخل Quality Gate.
+- [x] نجاح الاختبارات الموجهة والعامة: `91/91` لا فشل.
+- [x] نجاح Quality Gate المعزولة كاملة.
 
-العلامة المطلوبة:
+دليل التنفيذ:
 
 ```text
 GATE_v13_1_authority_integrity=PASS
+GATE_scan_secret_leaks=PASS
+GATE_scan_dangerous_sql=PASS
+ISOLATED_WORKTREE=CLEAN
+OFFICIAL_WORKSPACE=UNCHANGED
+TEMP_WORKSPACE_REMOVED=YES
+VVIP_QUALITY_GATE=PASS
 ```
 
 ---
@@ -152,10 +158,10 @@ GATE_v13_1_authority_integrity=PASS
 - [ ] تحديث عنوان ووصف PR ليعكسا القرار النهائي.
 - [ ] التحقق من عدم وجود Runtime أو Migration في Diff.
 - [ ] التحقق من عدم وجود أسرار.
-- [ ] نجاح VVIP Quality Gate.
-- [ ] نجاح Project Control Integrity.
-- [ ] نجاح Dependency Review.
-- [ ] نجاح CodeQL.
+- [ ] نجاح VVIP Quality Gate على Head النهائي.
+- [ ] نجاح Project Control Integrity على Head النهائي.
+- [ ] نجاح Dependency Review على Head النهائي.
+- [ ] نجاح CodeQL على Head النهائي.
 - [ ] مراجعة كل ملفات PR بحثًا عن حكم متعارض.
 - [ ] تحويل PR من Draft إلى Ready فقط بعد اكتمال الأدلة.
 - [ ] الدمج باستخدام Head SHA المراجع فقط.
