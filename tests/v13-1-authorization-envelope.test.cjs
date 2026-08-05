@@ -99,6 +99,12 @@ test("expired stale revision and stale policy envelopes fail closed", async () =
   assert.equal(validate(module, envelope, { trustedState: { policyVersion: "V13.2" } }).code, "STALE_AUTHORIZATION_ENVELOPE");
 });
 
+test("an envelope carrying a non-V13.1 policy is stale rather than malformed", async () => {
+  const module = await loadEnvelope();
+  const envelope = { ...module.createAuthorizationEnvelope(trustedInput()), policyVersion: "V13.0" };
+  assert.equal(validate(module, envelope).code, "STALE_AUTHORIZATION_ENVELOPE");
+});
+
 test("session invalidation and inactive identity are denied before permissions", async () => {
   const module = await loadEnvelope();
   const envelope = module.createAuthorizationEnvelope(trustedInput());
