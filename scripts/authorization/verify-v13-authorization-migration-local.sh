@@ -40,16 +40,26 @@ for remote_variable in \
     fi
 done
 
-LOCAL_DATABASE_URL="postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+# Force libpq onto the standard Supabase local database. External libpq service
+# configuration is removed so a caller cannot redirect this rehearsal remotely.
+unset PGHOSTADDR PGSERVICE PGSERVICEFILE PGSSLMODE
+export PGHOST=127.0.0.1
+export PGPORT=54322
+export PGUSER=postgres
+export PGDATABASE=postgres
+export PGPASSWORD=postgres
 
 verify_local_authorization_foundation() {
     local results
     mapfile -t results < <(
-        psql "$LOCAL_DATABASE_URL" \
+        psql \
             --no-psqlrc \
             --set=ON_ERROR_STOP=1 \
             --tuples-only \
             --no-align <<'SQL'
+select inet_server_addr()::text;
+select inet_server_port();
+
 select count(*)
 from pg_catalog.pg_class c
 join pg_catalog.pg_namespace n on n.oid = c.relnamespace
@@ -131,7 +141,7 @@ where n.nspname = 'public'
 SQL
     )
 
-    local expected=(8 8 0 0 0 2)
+    local expected=(127.0.0.1 54322 8 8 0 0 0 2)
     if [ "${#results[@]}" -ne "${#expected[@]}" ]; then
         echo "LOCAL_AUTHORIZATION_VERIFY=UNEXPECTED_RESULT_COUNT" >&2
         printf 'RESULT=%s\n' "${results[@]}" >&2
