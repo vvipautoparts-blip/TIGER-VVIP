@@ -72,6 +72,8 @@ test('valid final V13.1 authority package passes deterministically', () => {
   );
   assert.equal(report.max_images_per_listing, 7);
   assert.equal(report.global_fixed_impressions, null);
+  assert.equal(report.full_general_access_capability_count, 3);
+  assert.deepEqual(report.whatsapp_grant_authority_roles, ['OWNER', 'PARTNER']);
 });
 
 test('missing constitution fails closed', () => {
@@ -145,15 +147,20 @@ for (const fixedValue of [250, 400]) {
 }
 
 for (const capabilityName of ['internal_chat', 'delivery', 'mediation']) {
-  test(`${capabilityName} cannot activate without its dedicated contract`, () => {
+  test(`${capabilityName} cannot be restricted to owner or partner grants`, () => {
     const fixture = withMutatedConstitution((constitution) => {
-      constitution.capabilities[capabilityName].activation_state = 'ACTIVE';
+      constitution.capabilities[capabilityName].availability_policy =
+        'OWNER_OR_PARTNER_GRANT_ONLY';
+      constitution.capabilities[capabilityName].access_scope = 'SELECTED_USERS';
+      constitution.capabilities[capabilityName].owner_or_partner_grant_required =
+        true;
+      constitution.capabilities[capabilityName].user_self_access_allowed = false;
     });
 
     try {
       assertFailureCode(
         runValidator(fixture.root),
-        'V13_CAPABILITY_ACTIVATED_WITHOUT_CONTRACT'
+        'V13_CAPABILITY_ACCESS_RESTRICTED'
       );
     } finally {
       fixture.cleanup();
@@ -161,9 +168,9 @@ for (const capabilityName of ['internal_chat', 'delivery', 'mediation']) {
   });
 }
 
-test('external WhatsApp must remain disabled and external-only', () => {
+test('WhatsApp must remain external-only and disabled by default', () => {
   const fixture = withMutatedConstitution((constitution) => {
-    constitution.capabilities.external_whatsapp.activation_state = 'ACTIVE';
+    constitution.capabilities.external_whatsapp.default_access_state = 'ENABLED';
     constitution.capabilities.external_whatsapp.integration_mode = 'INTERNAL';
     constitution.capabilities.external_whatsapp.internal_message_transport = true;
   });
@@ -171,7 +178,27 @@ test('external WhatsApp must remain disabled and external-only', () => {
   try {
     assertFailureCode(
       runValidator(fixture.root),
-      'V13_WHATSAPP_MUST_REMAIN_DISABLED'
+      'V13_WHATSAPP_EXTERNAL_DEFAULT_DISABLED_REQUIRED'
+    );
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('WhatsApp cannot be self-enabled or granted by any role except owner or partner', () => {
+  const fixture = withMutatedConstitution((constitution) => {
+    constitution.capabilities.external_whatsapp.user_self_enable_allowed = true;
+    constitution.capabilities.external_whatsapp.grant_authority_roles = [
+      'OWNER',
+      'PARTNER',
+      'USER'
+    ];
+  });
+
+  try {
+    assertFailureCode(
+      runValidator(fixture.root),
+      'V13_WHATSAPP_OWNER_PARTNER_GATE_REQUIRED'
     );
   } finally {
     fixture.cleanup();
