@@ -15,6 +15,7 @@ import {
 const POLLUTION_KEYS = new Set(["__proto__", "prototype", "constructor"]);
 const MAX_CANONICAL_DEPTH = 12;
 const MAX_CANONICAL_ENTRIES = 256;
+const SHA256_HEX_PATTERN = /^[a-f0-9]{64}$/;
 const TRANSACTION_DENIAL_CODES = new Set([
   "IDEMPOTENCY_CONFLICT",
   "OWNER_ROOT_IMMUTABLE",
@@ -162,28 +163,12 @@ function canonicalJson(value) {
   }));
 }
 
-function fallbackHash(value) {
-  let first = 0x811c9dc5;
-  let second = 0x9e3779b9;
-  for (let index = 0; index < value.length; index += 1) {
-    const code = value.charCodeAt(index);
-    first ^= code;
-    first = Math.imul(first, 0x01000193) >>> 0;
-    second ^= code + index;
-    second = Math.imul(second, 0x85ebca6b) >>> 0;
+async function hashCanonicalValue(value, digestSha256) {
+  const digest = await digestSha256(canonicalJson(value));
+  if (typeof digest !== "string" || !SHA256_HEX_PATTERN.test(digest)) {
+    throw new TypeError("SHA256_DIGEST_INVALID");
   }
-  const block = `${first.toString(16).padStart(8, "0")}${second.toString(16).padStart(8, "0")}`;
-  return block.repeat(4);
-}
-
-async function hashCanonicalValue(value) {
-  const canonical = canonicalJson(value);
-  if (globalThis.crypto?.subtle && typeof TextEncoder === "function") {
-    const bytes = new TextEncoder().encode(canonical);
-    const digest = await globalThis.crypto.subtle.digest("SHA-256", bytes);
-    return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
-  }
-  return fallbackHash(canonical);
+  return digest;
 }
 
 function actorFromValidatedEnvelope(envelope, trustedState) {
@@ -410,11 +395,13 @@ function requestHashProjection(request) {
 export function createAuthorizationServerCommandHandler({
   loadTrustedState,
   runTransaction,
-  clock
+  clock,
+  digestSha256
 } = {}) {
   const configured = typeof loadTrustedState === "function"
     && typeof runTransaction === "function"
-    && typeof clock === "function";
+    && typeof clock === "function"
+    && typeof digestSha256 === "function";
 
   async function execute(request) {
     if (!configured) return fail("CONFIGURATION_REQUIRED");
@@ -475,9 +462,12 @@ export function createAuthorizationServerCommandHandler({
 
     let requestHash;
     try {
-      requestHash = await hashCanonicalValue(requestHashProjection(request));
+      requestHash = await hashCanonicalValue(
+        requestHashProjection(request),
+        digestSha256
+      );
     } catch {
-      return fail("INVALID_ASSIGNMENT");
+      return fail("REMOTE_ENFORCEMENT_FAILED");
     }
 
     let transactionResult;
