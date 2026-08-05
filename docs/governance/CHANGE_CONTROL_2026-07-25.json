@@ -1,0 +1,63 @@
+{
+  "decision_id": "VVIP-TIGER-BM-2026-07-25",
+  "status": "FINAL_AND_AUTHORITATIVE",
+  "effective_date": "2026-07-25",
+  "baseline_commit": "f917ca5d653fbc859d04fe9e9fa52f63e68ac722",
+  "platform_role": {
+    "publishing_platform": true,
+    "search_and_discovery": true,
+    "direct_user_communication": true,
+    "seller": false,
+    "buyer": false,
+    "transaction_broker": false,
+    "parts_payment_intermediary": false,
+    "escrow_provider": false,
+    "shipping_provider": false
+  },
+  "free_user_policy": {
+    "browsing_requires_subscription": false,
+    "search_requires_subscription": false,
+    "publishing_requires_active_entitlement": true
+  },
+  "publishing_cards": [
+    {
+      "reference_price_jod": 10,
+      "monthly_post_quota": 1,
+      "benefits_status": "FINAL"
+    },
+    {
+      "reference_price_jod": 35,
+      "monthly_post_quota": 4,
+      "benefits_status": "FINAL"
+    },
+    {
+      "reference_price_jod": 80,
+      "monthly_post_quota": null,
+      "benefits_status": "OWNER_DECISION_REQUIRED"
+    },
+    {
+      "reference_price_jod": 120,
+      "monthly_post_quota": null,
+      "benefits_status": "OWNER_DECISION_REQUIRED"
+    }
+  ],
+  "currency_policy": {
+    "authoritative_reference_currency": "JOD",
+    "general_currency_engine": false,
+    "listing_price_conversion": false,
+    "internal_commercial_rounding_rules": false,
+    "provider_local_currency_checkout": true,
+    "record_reference_jod": true,
+    "record_collected_amount_and_currency": true
+  },
+  "payment_scope": {
+    "publishing_cards_only": true,
+    "vehicle_parts_checkout": false,
+    "transaction_commission": false,
+    "provider_hosted_checkout": true,
+    "signed_webhook_required": true,
+    "idempotency_required": true,
+    "replay_protection_required": true
+  },
+  "supersedes_conflicting_previous_requirements": true
+}

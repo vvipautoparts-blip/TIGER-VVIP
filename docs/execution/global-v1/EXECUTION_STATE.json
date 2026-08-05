@@ -20,8 +20,18 @@
     "G10_privacy_security_recovery": "PARTIAL"
   },
   "test_results": {
-    "node_cjs_tests": { "total": 52, "pass": 52, "fail": 0, "status": "PASS" },
-    "python_tests": { "total": 27, "pass": 27, "fail": 0, "status": "PASS" },
+    "node_cjs_tests": {
+      "total": 52,
+      "pass": 52,
+      "fail": 0,
+      "status": "PASS"
+    },
+    "python_tests": {
+      "total": 27,
+      "pass": 27,
+      "fail": 0,
+      "status": "PASS"
+    },
     "quality_gate": "PARTIAL (pytest not accessible in .venv but system python works)"
   },
   "defects_found": [
@@ -45,5 +55,17 @@
   "pending_commits": [
     "fix(security): add 202607230001 migration to reviewed baseline hash list",
     "docs(global-v1): execution state, source inventory, requirements traceability"
-  ]
+  ],
+  "protocol_version": "VVIP-TIGER-BM-2026-07-25",
+  "authoritative_owner_decision": "docs/governance/FINAL_BUSINESS_MODEL_DECISION_2026-07-25.md",
+  "change_control": "docs/governance/CHANGE_CONTROL_2026-07-25.json",
+  "baseline_commit": "f917ca5d653fbc859d04fe9e9fa52f63e68ac722",
+  "current_phase": "FINAL_BUSINESS_MODEL_CONFLICT_INVENTORY",
+  "status": "CONFLICT_INVENTORY_GENERATED",
+  "current_action_id": "BM-2026-07-25-INVENTORY",
+  "current_requirement_id": "FINAL-PUBLISHING-CARDS-MODEL",
+  "last_verified_commit": "f917ca5d653fbc859d04fe9e9fa52f63e68ac722",
+  "next_safe_action": "Classify inventory findings and create a dependency-backed safe-removal manifest before changing implementation.",
+  "resume_instructions": "Continue from the latest verified commit. Do not restart from zero and do not delete matched implementation without dependency and test evidence.",
+  "conflict_inventory": "docs/execution/global-v1/CONFLICT_INVENTORY_2026-07-25.md"
 }
