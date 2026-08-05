@@ -3,13 +3,21 @@
   "constitution_id": "V13.1",
   "owner_final_revision": "2026-08-05",
   "current_program": "V13_1_EXECUTABLE_AUTHORITY",
-  "current_slice": "AUTHORITY_CONTRACT_GREEN_VERIFICATION",
-  "status": "IN_PROGRESS",
+  "current_slice": "AUTHORITY_GATE_VERIFIED",
+  "status": "READY_FOR_REVIEW",
   "production_state": "BLOCKED_PENDING_CONTRACTS_TESTS_EVIDENCE",
   "runtime_changed": false,
   "database_changed": false,
   "country_states": {
     "JO": "BLOCKED_PENDING_OFFICIAL_INPUT"
+  },
+  "verification": {
+    "quality_gate": "PASS",
+    "v13_1_authority_integrity": "PASS",
+    "node_cjs_tests": "91_OF_91_PASS",
+    "project_control_integrity": "PASS",
+    "dependency_review": "PASS",
+    "codeql": "PENDING_FINAL_HEAD"
   },
   "decisions": {
     "max_images_per_listing": 7,
