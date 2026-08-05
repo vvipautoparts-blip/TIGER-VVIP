@@ -1,8 +1,8 @@
 # VVIP TIGER V13.1 — تصميم سياق الحساب العالمي والدول
 
-**التاريخ:** 2026-08-05  
-**الحالة:** CONTRACT_FIRST_RUNTIME_FOUNDATION  
-**الاعتماد:** دستور V13.1 في PR #110  
+**التاريخ:** 2026-08-05
+**الحالة:** CONTRACT_FIRST_RUNTIME_FOUNDATION
+**الاعتماد:** دستور V13.1 في PR #110
 **فرع التنفيذ:** `feat/v13-1-global-account-country-context-20260805`
 
 ## 1. الهدف
