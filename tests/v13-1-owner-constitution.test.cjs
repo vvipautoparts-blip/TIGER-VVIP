@@ -24,7 +24,10 @@ test('V13.1 is the final constitutional authority and production stays fail-clos
   assert.equal(constitution.constitution_id, 'V13.1');
   assert.equal(constitution.authority, 'OWNER_FINAL_CONSTITUTION');
   assert.equal(constitution.precedence, 'SUPERSEDES_INCOMPATIBLE_LEGACY_RULES');
-  assert.equal(constitution.production_state, 'BLOCKED_PENDING_CONTRACTS_TESTS_EVIDENCE');
+  assert.equal(
+    constitution.production_state,
+    'BLOCKED_PENDING_CONTRACTS_TESTS_EVIDENCE'
+  );
 });
 
 test('the final global listing image limit is exactly seven and never price-dependent', () => {
@@ -45,34 +48,38 @@ test('impression quantity has no global fixed value and is controlled only by a 
   assert.equal(constitution.exposure.global_fixed_impressions, null);
   assert.equal(constitution.exposure.quantity_authority, 'COUNTRY_SEAL_ONLY');
   assert.equal(constitution.exposure.price_authority, 'COUNTRY_SEAL_ONLY');
-  assert.deepEqual(
-    constitution.exposure.forbidden_global_values,
-    [250, 400]
-  );
+  assert.deepEqual(constitution.exposure.forbidden_global_values, [250, 400]);
 });
 
-test('chat delivery and mediation are constitutionally allowed but cannot activate without dedicated contracts', () => {
+test('chat delivery and mediation have full general availability for all users', () => {
   const constitution = loadConstitution();
 
   for (const capabilityName of ['internal_chat', 'delivery', 'mediation']) {
     const capability = constitution.capabilities[capabilityName];
     assert.equal(capability.constitutionally_allowed, true, capabilityName);
     assert.equal(
-      capability.activation_state,
-      'BLOCKED_PENDING_DEDICATED_CONTRACTS_TESTS_EVIDENCE',
+      capability.availability_policy,
+      'FULL_GENERAL_AVAILABILITY',
       capabilityName
     );
+    assert.equal(capability.access_scope, 'ALL_USERS', capabilityName);
+    assert.equal(capability.owner_or_partner_grant_required, false, capabilityName);
+    assert.equal(capability.user_self_access_allowed, true, capabilityName);
   }
 });
 
-test('external WhatsApp is prepared as an external-only integration and remains disabled', () => {
+test('WhatsApp is the only owner-or-partner gated capability', () => {
   const constitution = loadConstitution();
   const whatsapp = constitution.capabilities.external_whatsapp;
 
   assert.equal(whatsapp.prepared, true);
   assert.equal(whatsapp.integration_mode, 'EXTERNAL_ONLY');
-  assert.equal(whatsapp.activation_state, 'DISABLED');
+  assert.equal(whatsapp.default_access_state, 'DISABLED');
   assert.equal(whatsapp.internal_message_transport, false);
+  assert.equal(whatsapp.user_self_enable_allowed, false);
+  assert.equal(whatsapp.grant_required, true);
+  assert.deepEqual(whatsapp.grant_authority_roles, ['OWNER', 'PARTNER']);
+  assert.equal(whatsapp.grantee_scope, 'ANY_USER');
 });
 
 test('legacy conflicts are explicitly superseded instead of remaining active silently', () => {
