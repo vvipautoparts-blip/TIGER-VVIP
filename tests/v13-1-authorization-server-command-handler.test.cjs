@@ -2,6 +2,7 @@
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const { createHash } = require("node:crypto");
 const path = require("node:path");
 const { pathToFileURL } = require("node:url");
 
@@ -11,6 +12,10 @@ const moduleUrl = pathToFileURL(
 
 async function loadHandlerModule() {
   return import(`${moduleUrl}?test=${Date.now()}-${Math.random()}`);
+}
+
+function sha256Digest(value) {
+  return createHash("sha256").update(value, "utf8").digest("hex");
 }
 
 const NOW = "2026-08-05T12:01:00.000Z";
@@ -129,7 +134,8 @@ async function createHandler(overrides = {}) {
       calls.push("tx");
       return { committed: false, value: null };
     }),
-    clock: overrides.clock || (() => NOW)
+    clock: overrides.clock || (() => NOW),
+    digestSha256: overrides.digestSha256 || sha256Digest
   });
   return { handler, calls };
 }
