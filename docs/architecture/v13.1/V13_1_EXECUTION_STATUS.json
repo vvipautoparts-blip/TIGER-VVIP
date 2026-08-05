@@ -3,7 +3,7 @@
   "constitution_id": "V13.1",
   "owner_final_revision": "2026-08-05",
   "current_program": "V13_1_EXECUTABLE_AUTHORITY",
-  "current_slice": "AUTHORITY_GATE_VERIFIED",
+  "current_slice": "AUTHORITY_PR_FINAL_VERIFICATION",
   "status": "READY_FOR_REVIEW",
   "production_state": "BLOCKED_PENDING_CONTRACTS_TESTS_EVIDENCE",
   "runtime_changed": false,
@@ -12,12 +12,14 @@
     "JO": "BLOCKED_PENDING_OFFICIAL_INPUT"
   },
   "verification": {
-    "quality_gate": "PASS",
-    "v13_1_authority_integrity": "PASS",
-    "node_cjs_tests": "91_OF_91_PASS",
-    "project_control_integrity": "PASS",
-    "dependency_review": "PASS",
-    "codeql": "PENDING_FINAL_HEAD"
+    "quality_gate": "PENDING_FINAL_HEAD",
+    "v13_1_authority_integrity": "PENDING_FINAL_HEAD",
+    "node_cjs_tests": "PENDING_FINAL_HEAD",
+    "project_control_integrity": "PENDING_FINAL_HEAD",
+    "dependency_review": "PENDING_FINAL_HEAD",
+    "codeql": "PENDING_FINAL_HEAD",
+    "runtime_diff": "NONE",
+    "database_migration_diff": "NONE"
   },
   "decisions": {
     "max_images_per_listing": 7,
