@@ -34,52 +34,46 @@
   "capabilities": {
     "internal_chat": {
       "constitutionally_allowed": true,
-      "activation_state": "BLOCKED_PENDING_DEDICATED_CONTRACTS_TESTS_EVIDENCE",
-      "required_contract_domains": [
-        "AUTHORIZATION",
-        "PRIVACY",
-        "MODERATION",
-        "RETENTION",
-        "AUDIT",
-        "ABUSE_PREVENTION"
-      ]
+      "availability_policy": "FULL_GENERAL_AVAILABILITY",
+      "access_scope": "ALL_USERS",
+      "owner_or_partner_grant_required": false,
+      "user_self_access_allowed": true,
+      "standard_security_controls_apply": true
     },
     "delivery": {
       "constitutionally_allowed": true,
-      "activation_state": "BLOCKED_PENDING_DEDICATED_CONTRACTS_TESTS_EVIDENCE",
-      "required_contract_domains": [
-        "PARTY_RESPONSIBILITIES",
-        "GEOGRAPHIC_SCOPE",
-        "STATE_MACHINE",
-        "FAILURE_HANDLING",
-        "AUDIT",
-        "LEGAL_APPROVAL"
-      ]
+      "availability_policy": "FULL_GENERAL_AVAILABILITY",
+      "access_scope": "ALL_USERS",
+      "owner_or_partner_grant_required": false,
+      "user_self_access_allowed": true,
+      "standard_security_controls_apply": true
     },
     "mediation": {
       "constitutionally_allowed": true,
-      "activation_state": "BLOCKED_PENDING_DEDICATED_CONTRACTS_TESTS_EVIDENCE",
-      "required_contract_domains": [
-        "LEGAL_BOUNDARIES",
-        "FINANCIAL_BOUNDARIES",
-        "AUTHORIZATION",
-        "AUDIT",
-        "DISPUTE_HANDLING",
-        "OWNER_APPROVAL"
-      ]
+      "availability_policy": "FULL_GENERAL_AVAILABILITY",
+      "access_scope": "ALL_USERS",
+      "owner_or_partner_grant_required": false,
+      "user_self_access_allowed": true,
+      "standard_security_controls_apply": true
     },
     "external_whatsapp": {
       "prepared": true,
+      "implementation_state": "FULLY_PREPARED",
       "integration_mode": "EXTERNAL_ONLY",
-      "activation_state": "DISABLED",
+      "default_access_state": "DISABLED",
       "internal_message_transport": false,
-      "activation_requires": [
-        "EXPLICIT_OWNER_DECISION",
-        "PRIVACY_REVIEW",
-        "SECURITY_TESTS",
-        "USER_CONSENT_COPY",
-        "EVIDENCE"
-      ]
+      "user_self_enable_allowed": false,
+      "grant_required": true,
+      "grant_authority_roles": [
+        "OWNER",
+        "PARTNER"
+      ],
+      "revocation_authority_roles": [
+        "OWNER",
+        "PARTNER"
+      ],
+      "grantee_scope": "ANY_USER",
+      "grant_audit_required": true
     }
   },
   "legacy_overrides": [
@@ -101,20 +95,20 @@
     {
       "legacy_rule_id": "CHAT_FORBIDDEN",
       "classification": "SUPERSEDED_BY_V13_1_OWNER_FINAL",
-      "effective_rule": "ALLOWED_CONSTITUTIONALLY_BLOCKED_OPERATIONALLY"
+      "effective_rule": "FULL_GENERAL_AVAILABILITY_ALL_USERS"
     },
     {
       "legacy_rule_id": "DELIVERY_FORBIDDEN",
       "classification": "SUPERSEDED_BY_V13_1_OWNER_FINAL",
-      "effective_rule": "ALLOWED_CONSTITUTIONALLY_BLOCKED_OPERATIONALLY"
+      "effective_rule": "FULL_GENERAL_AVAILABILITY_ALL_USERS"
     },
     {
       "legacy_rule_id": "MEDIATION_FORBIDDEN",
       "classification": "SUPERSEDED_BY_V13_1_OWNER_FINAL",
-      "effective_rule": "ALLOWED_CONSTITUTIONALLY_BLOCKED_OPERATIONALLY"
+      "effective_rule": "FULL_GENERAL_AVAILABILITY_ALL_USERS"
     }
   ],
-  "activation_invariant": "CONSTITUTIONAL_ALLOWANCE_DOES_NOT_EQUAL_PRODUCTION_ACTIVATION",
+  "capability_access_invariant": "WHATSAPP_IS_THE_ONLY_OWNER_OR_PARTNER_GATED_CAPABILITY",
   "change_control": {
     "direct_main_changes": false,
     "pull_request_required": true,
