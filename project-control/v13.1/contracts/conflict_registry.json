@@ -31,24 +31,24 @@
       "legacy_rule_id": "CHAT_FORBIDDEN",
       "classification": "SUPERSEDED_BY_V13_1_OWNER_FINAL",
       "enforcement": "BLOCK_LEGACY_RULE",
-      "effective_rule": "CHAT_ALLOWED_CONSTITUTIONALLY_BLOCKED_OPERATIONALLY",
-      "owner_decision": "CHAT_CONSTITUTIONAL_ALLOWANCE_2026_08_05",
+      "effective_rule": "FULL_GENERAL_AVAILABILITY_ALL_USERS",
+      "owner_decision": "CHAT_FULL_GENERAL_ACCESS_2026_08_05",
       "migration_state": "CONTRACT_ENFORCED"
     },
     {
       "legacy_rule_id": "DELIVERY_FORBIDDEN",
       "classification": "SUPERSEDED_BY_V13_1_OWNER_FINAL",
       "enforcement": "BLOCK_LEGACY_RULE",
-      "effective_rule": "DELIVERY_ALLOWED_CONSTITUTIONALLY_BLOCKED_OPERATIONALLY",
-      "owner_decision": "DELIVERY_CONSTITUTIONAL_ALLOWANCE_2026_08_05",
+      "effective_rule": "FULL_GENERAL_AVAILABILITY_ALL_USERS",
+      "owner_decision": "DELIVERY_FULL_GENERAL_ACCESS_2026_08_05",
       "migration_state": "CONTRACT_ENFORCED"
     },
     {
       "legacy_rule_id": "MEDIATION_FORBIDDEN",
       "classification": "SUPERSEDED_BY_V13_1_OWNER_FINAL",
       "enforcement": "BLOCK_LEGACY_RULE",
-      "effective_rule": "MEDIATION_ALLOWED_CONSTITUTIONALLY_BLOCKED_OPERATIONALLY",
-      "owner_decision": "MEDIATION_CONSTITUTIONAL_ALLOWANCE_2026_08_05",
+      "effective_rule": "FULL_GENERAL_AVAILABILITY_ALL_USERS",
+      "owner_decision": "MEDIATION_FULL_GENERAL_ACCESS_2026_08_05",
       "migration_state": "CONTRACT_ENFORCED"
     }
   ]
