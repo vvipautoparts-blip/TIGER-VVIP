@@ -81,6 +81,10 @@ export function canDelegateAuthority({
     return decision(false, unknown ? "UNKNOWN_PERMISSION" : "INVALID_PERMISSION_LIST");
   }
 
+  if (!actor.permissionIds?.includes("authorization.permission.delegate")) {
+    return decision(false, "PERMISSION_DENIED");
+  }
+
   let actorScope;
   let normalizedRequestedScope;
   try {
