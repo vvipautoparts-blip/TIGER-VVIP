@@ -393,14 +393,14 @@ function emitSuccess(constitution, registry, manifest) {
           constitution.listing_media.max_images_per_listing,
         global_fixed_impressions:
           constitution.exposure.global_fixed_impressions,
-        full_general_access_capability_count: 4,
+        full_general_access_capability_count:
+          GENERAL_CAPABILITY_NAMES.length + 1,
         whatsapp_handoff_type:
           constitution.capabilities.external_whatsapp.handoff_type,
         whatsapp_approval_required:
           constitution.capabilities.external_whatsapp.approval_required,
         conflict_count: registry.conflicts.length,
-        manifest_artifact_count: manifest.artifacts.length,
-        checked_at: new Date().toISOString()
+        manifest_artifact_count: manifest.artifacts.length
       },
       null,
       2
