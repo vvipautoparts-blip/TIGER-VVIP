@@ -7,7 +7,7 @@
   "artifacts": [
     {
       "path": "contracts/owner_constitution.json",
-      "sha256": "2205c4a47d43e1d343c5b8a3ad2e9de097d3f58889d2a4fd2db41e78052c82f4",
+      "sha256": "2b8ac071b58a4e98751aa49199034dfe322c7121102e92bc95b9f261d1f5b45c",
       "authority": "OWNER_FINAL_CONSTITUTION"
     },
     {
