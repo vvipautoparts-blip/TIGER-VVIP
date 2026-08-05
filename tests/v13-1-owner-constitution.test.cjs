@@ -68,7 +68,7 @@ test('chat delivery and mediation have full general availability for all users',
   }
 });
 
-test('WhatsApp is an external device-app handoff with no platform messaging role', () => {
+test('WhatsApp is an approval-free handoff to the app installed on the user device', () => {
   const constitution = loadConstitution();
   const whatsapp = constitution.capabilities.external_whatsapp;
 
@@ -80,6 +80,10 @@ test('WhatsApp is an external device-app handoff with no platform messaging role
     whatsapp.target_application,
     'WHATSAPP_INSTALLED_ON_USER_DEVICE'
   );
+  assert.equal(whatsapp.availability_policy, 'FULL_GENERAL_AVAILABILITY');
+  assert.equal(whatsapp.access_scope, 'ALL_USERS');
+  assert.equal(whatsapp.approval_required, false);
+  assert.equal(whatsapp.user_self_access_allowed, true);
   assert.equal(whatsapp.internal_message_transport, false);
   assert.equal(whatsapp.platform_sends_messages, false);
   assert.equal(whatsapp.platform_receives_messages, false);
@@ -87,27 +91,10 @@ test('WhatsApp is an external device-app handoff with no platform messaging role
   assert.equal(whatsapp.platform_stores_messages, false);
   assert.equal(whatsapp.platform_manages_whatsapp_account, false);
   assert.equal(whatsapp.whatsapp_api_integration, false);
-});
-
-test('WhatsApp handoff activation requires unanimous owner and all-partner approval', () => {
-  const constitution = loadConstitution();
-  const whatsapp = constitution.capabilities.external_whatsapp;
-
-  assert.equal(whatsapp.default_access_state, 'DISABLED');
-  assert.equal(whatsapp.user_self_enable_allowed, false);
-  assert.equal(whatsapp.grant_required, true);
-  assert.equal(
-    whatsapp.approval_policy,
-    'OWNER_AND_ALL_ACTIVE_PARTNERS_UNANIMOUS'
-  );
-  assert.deepEqual(whatsapp.required_approver_groups, [
-    'OWNER',
-    'ALL_ACTIVE_PARTNERS'
-  ]);
-  assert.equal(whatsapp.unanimous_approval_required, true);
-  assert.equal(whatsapp.single_approver_sufficient, false);
-  assert.equal(whatsapp.grantee_scope, 'ANY_USER');
-  assert.equal(whatsapp.grant_audit_required, true);
+  assert.equal('approval_policy' in whatsapp, false);
+  assert.equal('required_approver_groups' in whatsapp, false);
+  assert.equal('grant_required' in whatsapp, false);
+  assert.equal('grant_authority_roles' in whatsapp, false);
 });
 
 test('legacy conflicts are explicitly superseded instead of remaining active silently', () => {
