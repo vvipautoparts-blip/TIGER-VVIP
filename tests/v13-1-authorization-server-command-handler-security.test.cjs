@@ -255,6 +255,73 @@ test("idempotency hashing requires an injected exact SHA-256 digest with no fall
   assert.doesNotMatch(source, /fallbackHash|Math\.imul|globalThis\.crypto/);
 });
 
+test("ignored mutation authority fields do not change semantic idempotency", async () => {
+  const calls = [];
+  const receipts = new Map();
+  const tx = {
+    async findIdempotencyReceipt(idempotencyKey) {
+      calls.push("find");
+      return receipts.get(idempotencyKey) || null;
+    },
+    async loadAuthorizationTarget(input) {
+      calls.push(`load:${input.targetId}`);
+      return target();
+    },
+    async persistAuthorizationCommand() {
+      calls.push("persist");
+      return {
+        id: "assignment-0001",
+        state: "suspended",
+        authorityClass: "DELEGATED"
+      };
+    },
+    async appendAuthorizationAudit() {
+      calls.push("audit");
+      return { auditHash: "b".repeat(64) };
+    },
+    async storeIdempotencyReceipt(input) {
+      calls.push("store");
+      receipts.set(input.idempotencyKey, {
+        requestHash: input.requestHash,
+        result: input.result
+      });
+      return { stored: true };
+    }
+  };
+  const handler = await createHandler(async (work) => ({
+    committed: true,
+    value: await work(tx)
+  }));
+
+  const first = await handler.execute(suspendRequest({
+    command: {
+      assignmentId: "assignment-0001",
+      roleId: "owner",
+      permissionIds: ["authorization.owner.manage"],
+      scope: { level: "platform" }
+    }
+  }));
+  const replay = await handler.execute(suspendRequest({
+    command: {
+      assignmentId: "assignment-0001",
+      roleId: "partner",
+      permissionIds: ["authorization.partner.manage"],
+      scope: { level: "team", countryCode: "US", teamId: "attacker-team" }
+    }
+  }));
+
+  assert.equal(first.ok, true);
+  assert.deepEqual(replay, first);
+  assert.deepEqual(calls, [
+    "find",
+    "load:assignment-0001",
+    "persist",
+    "audit",
+    "store",
+    "find"
+  ]);
+});
+
 test("server handler contains no endpoint credential driver environment or browser dependency", () => {
   const source = fs.readFileSync(handlerPath, "utf8");
   assert.doesNotMatch(source,
