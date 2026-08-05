@@ -299,6 +299,24 @@ else
     echo "GATE_v13_1_authority_integrity=SKIP"
 fi
 
+AUTHORIZATION_TESTS=(
+    tests/v13-1-authority-contracts.test.cjs
+    tests/v13-1-country-scope-authorization.test.cjs
+    tests/v13-1-authorization-envelope.test.cjs
+    tests/v13-1-owner-partner-invariants.test.cjs
+    tests/v13-1-authorization-repository.test.cjs
+    tests/v13-1-authorization-rls-contract.test.cjs
+)
+
+if [ -f scripts/authorization/v13-authority-contracts.js ]; then
+    # run_clean_gate emits GATE_v13_1_authorization_integrity=PASS only after all tests succeed.
+    run_clean_gate \
+        "v13_1_authorization_integrity" \
+        node --test "${AUTHORIZATION_TESTS[@]}"
+else
+    echo "GATE_v13_1_authorization_integrity=SKIP"
+fi
+
 if [ -f scripts/security/p08-steel-shield/scan-secret-leaks.sh ]; then
     run_clean_gate \
         "scan_secret_leaks" \
