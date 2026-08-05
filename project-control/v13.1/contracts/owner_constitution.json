@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "constitution_id": "V13.1",
+  "owner_final_revision": "2026-08-05",
+  "authority": "OWNER_FINAL_CONSTITUTION",
+  "precedence": "SUPERSEDES_INCOMPATIBLE_LEGACY_RULES",
+  "production_state": "BLOCKED_PENDING_CONTRACTS_TESTS_EVIDENCE",
+  "listing_media": {
+    "max_images_per_listing": 7,
+    "video_enabled": false,
+    "image_limit_price_dependent": false,
+    "supersedes": [
+      "GLOBAL_IMAGE_LIMIT_10",
+      "ANY_PAID_IMAGE_LIMIT_INCREASE"
+    ]
+  },
+  "exposure": {
+    "global_fixed_impressions": null,
+    "quantity_authority": "COUNTRY_SEAL_ONLY",
+    "price_authority": "COUNTRY_SEAL_ONLY",
+    "forbidden_global_values": [
+      250,
+      400
+    ],
+    "country_seal_requirements": [
+      "LEGAL_APPROVAL",
+      "TAX_APPROVAL",
+      "PAYMENT_APPROVAL",
+      "CAPACITY_VALIDATION",
+      "UNIT_ECONOMICS_VALIDATION",
+      "OWNER_APPROVAL"
+    ]
+  },
+  "capabilities": {
+    "internal_chat": {
+      "constitutionally_allowed": true,
+      "activation_state": "BLOCKED_PENDING_DEDICATED_CONTRACTS_TESTS_EVIDENCE",
+      "required_contract_domains": [
+        "AUTHORIZATION",
+        "PRIVACY",
+        "MODERATION",
+        "RETENTION",
+        "AUDIT",
+        "ABUSE_PREVENTION"
+      ]
+    },
+    "delivery": {
+      "constitutionally_allowed": true,
+      "activation_state": "BLOCKED_PENDING_DEDICATED_CONTRACTS_TESTS_EVIDENCE",
+      "required_contract_domains": [
+        "PARTY_RESPONSIBILITIES",
+        "GEOGRAPHIC_SCOPE",
+        "STATE_MACHINE",
+        "FAILURE_HANDLING",
+        "AUDIT",
+        "LEGAL_APPROVAL"
+      ]
+    },
+    "mediation": {
+      "constitutionally_allowed": true,
+      "activation_state": "BLOCKED_PENDING_DEDICATED_CONTRACTS_TESTS_EVIDENCE",
+      "required_contract_domains": [
+        "LEGAL_BOUNDARIES",
+        "FINANCIAL_BOUNDARIES",
+        "AUTHORIZATION",
+        "AUDIT",
+        "DISPUTE_HANDLING",
+        "OWNER_APPROVAL"
+      ]
+    },
+    "external_whatsapp": {
+      "prepared": true,
+      "integration_mode": "EXTERNAL_ONLY",
+      "activation_state": "DISABLED",
+      "internal_message_transport": false,
+      "activation_requires": [
+        "EXPLICIT_OWNER_DECISION",
+        "PRIVACY_REVIEW",
+        "SECURITY_TESTS",
+        "USER_CONSENT_COPY",
+        "EVIDENCE"
+      ]
+    }
+  },
+  "legacy_overrides": [
+    {
+      "legacy_rule_id": "GLOBAL_IMAGE_LIMIT_10",
+      "classification": "SUPERSEDED_BY_V13_1_OWNER_FINAL",
+      "effective_rule": "MAX_IMAGES_PER_LISTING_7"
+    },
+    {
+      "legacy_rule_id": "GLOBAL_FIXED_IMPRESSIONS_250",
+      "classification": "SUPERSEDED_BY_V13_1_OWNER_FINAL",
+      "effective_rule": "COUNTRY_SEAL_ONLY"
+    },
+    {
+      "legacy_rule_id": "GLOBAL_FIXED_IMPRESSIONS_400",
+      "classification": "SUPERSEDED_BY_V13_1_OWNER_FINAL",
+      "effective_rule": "COUNTRY_SEAL_ONLY"
+    },
+    {
+      "legacy_rule_id": "CHAT_FORBIDDEN",
+      "classification": "SUPERSEDED_BY_V13_1_OWNER_FINAL",
+      "effective_rule": "ALLOWED_CONSTITUTIONALLY_BLOCKED_OPERATIONALLY"
+    },
+    {
+      "legacy_rule_id": "DELIVERY_FORBIDDEN",
+      "classification": "SUPERSEDED_BY_V13_1_OWNER_FINAL",
+      "effective_rule": "ALLOWED_CONSTITUTIONALLY_BLOCKED_OPERATIONALLY"
+    },
+    {
+      "legacy_rule_id": "MEDIATION_FORBIDDEN",
+      "classification": "SUPERSEDED_BY_V13_1_OWNER_FINAL",
+      "effective_rule": "ALLOWED_CONSTITUTIONALLY_BLOCKED_OPERATIONALLY"
+    }
+  ],
+  "activation_invariant": "CONSTITUTIONAL_ALLOWANCE_DOES_NOT_EQUAL_PRODUCTION_ACTIVATION",
+  "change_control": {
+    "direct_main_changes": false,
+    "pull_request_required": true,
+    "tests_required": true,
+    "evidence_required": true,
+    "rollback_required": true
+  }
+}
