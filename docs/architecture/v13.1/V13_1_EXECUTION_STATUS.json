@@ -3,7 +3,7 @@
   "constitution_id": "V13.1",
   "owner_final_revision": "2026-08-05",
   "current_program": "V13_1_EXECUTABLE_AUTHORITY",
-  "current_slice": "OWNER_CONSTITUTION_RED_TEST",
+  "current_slice": "AUTHORITY_CONTRACT_GREEN_VERIFICATION",
   "status": "IN_PROGRESS",
   "production_state": "BLOCKED_PENDING_CONTRACTS_TESTS_EVIDENCE",
   "runtime_changed": false,
@@ -14,9 +14,9 @@
   "decisions": {
     "max_images_per_listing": 7,
     "global_fixed_impressions": null,
-    "internal_chat": "ALLOWED_CONSTITUTIONALLY_BLOCKED_OPERATIONALLY",
-    "delivery": "ALLOWED_CONSTITUTIONALLY_BLOCKED_OPERATIONALLY",
-    "mediation": "ALLOWED_CONSTITUTIONALLY_BLOCKED_OPERATIONALLY",
-    "external_whatsapp": "PREPARED_EXTERNAL_ONLY_DISABLED"
+    "internal_chat": "FULL_GENERAL_AVAILABILITY_ALL_USERS",
+    "delivery": "FULL_GENERAL_AVAILABILITY_ALL_USERS",
+    "mediation": "FULL_GENERAL_AVAILABILITY_ALL_USERS",
+    "external_whatsapp": "DEVICE_APP_DEEP_LINK_ALL_USERS_NO_APPROVAL"
   }
 }
