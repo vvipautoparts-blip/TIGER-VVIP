@@ -304,7 +304,7 @@ function trustedTargetPolicyDecision(actor, policy, trustedTarget) {
         authorityClass: trustedTarget.authorityClass,
         roleId: trustedTarget.roleId
       },
-      requestedPermissionIds: trustedTarget.permissionIds,
+      requestedPermissionIds: [],
       requestedScope: trustedTarget.scope
     });
   }
