@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "constitution_id": "V13.1",
+  "owner_final_revision": "2026-08-05",
+  "algorithm": "sha256",
+  "production_state": "BLOCKED_PENDING_CONTRACTS_TESTS_EVIDENCE",
+  "artifacts": [
+    {
+      "path": "contracts/owner_constitution.json",
+      "sha256": "215fc2d760b7beb1d006cf0295aebcc46c02403aab9a329eca8a0d58e094222b",
+      "authority": "OWNER_FINAL_CONSTITUTION"
+    },
+    {
+      "path": "contracts/conflict_registry.json",
+      "sha256": "675137499ab4c0a47a397af8b98cc5bcf433d44d5c2aaee416ffbd09ac48a423",
+      "authority": "OWNER_FINAL_CONFLICT_REGISTRY"
+    }
+  ]
+}
