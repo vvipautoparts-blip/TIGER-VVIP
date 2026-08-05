@@ -62,26 +62,17 @@
       "integration_mode": "EXTERNAL_HANDOFF_ONLY",
       "handoff_type": "DEVICE_APP_DEEP_LINK",
       "target_application": "WHATSAPP_INSTALLED_ON_USER_DEVICE",
-      "default_access_state": "DISABLED",
+      "availability_policy": "FULL_GENERAL_AVAILABILITY",
+      "access_scope": "ALL_USERS",
+      "approval_required": false,
+      "user_self_access_allowed": true,
       "internal_message_transport": false,
       "platform_sends_messages": false,
       "platform_receives_messages": false,
       "platform_reads_messages": false,
       "platform_stores_messages": false,
       "platform_manages_whatsapp_account": false,
-      "whatsapp_api_integration": false,
-      "user_self_enable_allowed": false,
-      "grant_required": true,
-      "grant_authority_roles": [
-        "OWNER",
-        "PARTNER"
-      ],
-      "revocation_authority_roles": [
-        "OWNER",
-        "PARTNER"
-      ],
-      "grantee_scope": "ANY_USER",
-      "grant_audit_required": true
+      "whatsapp_api_integration": false
     }
   },
   "legacy_overrides": [
@@ -116,7 +107,7 @@
       "effective_rule": "FULL_GENERAL_AVAILABILITY_ALL_USERS"
     }
   ],
-  "capability_access_invariant": "WHATSAPP_IS_THE_ONLY_OWNER_OR_PARTNER_GATED_CAPABILITY",
+  "capability_access_invariant": "ALL_DECLARED_CAPABILITIES_HAVE_FULL_GENERAL_AVAILABILITY_WITHOUT_APPROVAL",
   "change_control": {
     "direct_main_changes": false,
     "pull_request_required": true,
