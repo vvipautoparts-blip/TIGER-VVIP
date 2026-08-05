@@ -1,7 +1,9 @@
 -- REVIEW ONLY — DO NOT APPLY
 -- V13.1 authorization envelopes and row-level-security contract.
 -- This auditable design artifact is intentionally outside supabase/migrations.
--- It contains no remote execution instruction, project identifier, endpoint, or secret.
+-- Clerk subjects are opaque text identifiers from auth.jwt()->>'sub'.
+-- Internal record identifiers may remain UUID, but actor/principal identifiers must remain text.
+-- It contains no remote execution instruction, endpoint, secret, or production bootstrap identity.
 
 create table if not exists public.vvip_authority_roles (
     role_id text primary key,
@@ -18,16 +20,18 @@ create table if not exists public.vvip_authority_permissions (
 );
 
 create table if not exists public.vvip_authority_principals (
-    principal_id uuid primary key,
+    principal_id text primary key,
     authority_class text not null
         check (authority_class in ('OWNER_ROOT', 'PARTNER_GLOBAL_ADMIN', 'DELEGATED')),
     principal_state text not null
         check (principal_state in ('active', 'suspended', 'revoked')),
     assignment_revision bigint not null default 1 check (assignment_revision > 0),
     legal_decision_reference text,
-    created_by uuid,
+    created_by text,
     created_at timestamptz not null default now(),
     updated_at timestamptz not null default now(),
+    check (length(principal_id) between 1 and 128),
+    check (created_by is null or length(created_by) between 1 and 128),
     check (
         authority_class <> 'PARTNER_GLOBAL_ADMIN'
         or nullif(btrim(legal_decision_reference), '') is not null
@@ -40,7 +44,7 @@ create unique index if not exists vvip_one_active_owner_root
 
 create table if not exists public.vvip_authority_assignments (
     assignment_id uuid primary key,
-    principal_id uuid not null references public.vvip_authority_principals(principal_id),
+    principal_id text not null references public.vvip_authority_principals(principal_id),
     role_id text not null references public.vvip_authority_roles(role_id),
     permission_ids text[] not null default '{}',
     scope_level text not null
@@ -54,8 +58,9 @@ create table if not exists public.vvip_authority_assignments (
         check (assignment_state in ('pending', 'active', 'suspended', 'revoked', 'expired')),
     starts_at timestamptz not null,
     expires_at timestamptz,
-    granted_by uuid not null,
+    granted_by text not null,
     created_at timestamptz not null default now(),
+    check (length(granted_by) between 1 and 128),
     check (expires_at is null or starts_at < expires_at),
     check (
         (scope_level = 'platform' and country_code is null and sector_id is null and region_id is null and area_id is null and team_id is null)
@@ -68,10 +73,10 @@ create table if not exists public.vvip_authority_assignments (
 );
 
 create table if not exists public.vvip_authority_assignment_revisions (
-    principal_id uuid primary key references public.vvip_authority_principals(principal_id),
+    principal_id text primary key references public.vvip_authority_principals(principal_id),
     assignment_revision bigint not null check (assignment_revision > 0),
     changed_at timestamptz not null default now(),
-    changed_by uuid not null
+    changed_by text not null check (length(changed_by) between 1 and 128)
 );
 
 create table if not exists public.vvip_country_authority_seals (
@@ -88,7 +93,7 @@ create table if not exists public.vvip_country_authority_seals (
 
 create table if not exists public.vvip_authorization_envelope_audit (
     envelope_id text primary key,
-    actor_id uuid not null,
+    actor_id text not null check (length(actor_id) between 1 and 128),
     authority_class text not null
         check (authority_class in ('OWNER_ROOT', 'PARTNER_GLOBAL_ADMIN', 'DELEGATED')),
     permission_ids text[] not null,
@@ -111,7 +116,7 @@ create table if not exists public.vvip_authorization_audit_events (
     sequence_no bigint generated always as identity,
     previous_hash text,
     event_hash text not null unique,
-    actor_id uuid not null,
+    actor_id text not null check (length(actor_id) between 1 and 128),
     action text not null,
     target_type text not null,
     target_id text not null,
@@ -136,26 +141,16 @@ alter table public.vvip_authorization_audit_events enable row level security;
 alter table public.vvip_authorization_audit_events force row level security;
 
 create or replace function public.vvip_current_actor_id()
-returns uuid
-language plpgsql
+returns text
+language sql
 stable
 security definer
 set search_path = pg_catalog, public
 as $function$
-declare
-    claim_value text;
-begin
-    claim_value := current_setting('request.jwt.claim.sub', true);
-    if claim_value is null or claim_value = '' then
-        return null;
-    end if;
-    return claim_value::uuid;
-exception when others then
-    return null;
-end;
+    select nullif(current_setting('request.jwt.claim.sub', true), '');
 $function$;
 
-create or replace function public.vvip_is_owner_root(p_actor_id uuid)
+create or replace function public.vvip_is_owner_root(p_actor_id text)
 returns boolean
 language sql
 stable
@@ -172,7 +167,7 @@ as $function$
 $function$;
 
 create or replace function public.vvip_has_authorization_permission(
-    p_actor_id uuid,
+    p_actor_id text,
     p_permission_id text
 )
 returns boolean
@@ -232,22 +227,26 @@ end;
 $function$;
 
 create or replace function public.vvip_manage_partner_membership(
-    p_actor_id uuid,
-    p_subject_id uuid,
+    p_actor_id text,
+    p_subject_id text,
     p_action text,
     p_reason text,
     p_legal_decision_reference text,
     p_correlation_key text,
     p_idempotency_key text
 )
-returns uuid
+returns text
 language plpgsql
 security definer
 set search_path = pg_catalog, public
 as $function$
 declare
-    membership_id uuid;
+    membership_id text;
 begin
+    if length(coalesce(p_actor_id, '')) not between 1 and 128
+       or length(coalesce(p_subject_id, '')) not between 1 and 128 then
+        raise exception 'INVALID_ASSIGNMENT';
+    end if;
     if not public.vvip_is_owner_root(p_actor_id) then
         raise exception 'PEER_PARTNER_MUTATION_DENIED';
     end if;
@@ -317,7 +316,7 @@ begin
         null,
         encode(
             digest(
-                p_actor_id::text || p_subject_id::text || p_action || p_idempotency_key,
+                p_actor_id || p_subject_id || p_action || p_idempotency_key,
                 'sha256'
             ),
             'hex'
@@ -325,7 +324,7 @@ begin
         p_actor_id,
         'partner_membership.' || p_action,
         'authority_principal',
-        p_subject_id::text,
+        p_subject_id,
         btrim(p_reason),
         p_correlation_key,
         p_idempotency_key,
@@ -451,15 +450,15 @@ using (
 );
 
 revoke all on function public.vvip_current_actor_id() from public;
-revoke all on function public.vvip_is_owner_root(uuid) from public;
-revoke all on function public.vvip_has_authorization_permission(uuid, text) from public;
+revoke all on function public.vvip_is_owner_root(text) from public;
+revoke all on function public.vvip_has_authorization_permission(text, text) from public;
 revoke all on function public.vvip_country_operation_allowed(text, text) from public;
 revoke all on function public.vvip_assert_country_operation_allowed(text, text) from public;
-revoke all on function public.vvip_manage_partner_membership(uuid, uuid, text, text, text, text, text) from public;
+revoke all on function public.vvip_manage_partner_membership(text, text, text, text, text, text, text) from public;
 revoke all on function public.vvip_guard_authority_principal_mutation() from public;
 revoke all on function public.vvip_reject_authorization_audit_mutation() from public;
 
 -- Review-only least-privilege boundary. No browser role receives principal mutation rights.
-grant execute on function public.vvip_manage_partner_membership(uuid, uuid, text, text, text, text, text) to service_role;
+grant execute on function public.vvip_manage_partner_membership(text, text, text, text, text, text, text) to service_role;
 grant execute on function public.vvip_country_operation_allowed(text, text) to service_role;
 grant execute on function public.vvip_assert_country_operation_allowed(text, text) to service_role;
