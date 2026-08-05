@@ -2,14 +2,13 @@
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 
 const root = path.resolve(__dirname, "..");
-const migrationPath = path.join(
-  root,
-  "supabase/migrations/20260805_v13_1_authorization_foundation.sql"
-);
+const migrationRelativePath = "supabase/migrations/20260805_v13_1_authorization_foundation.sql";
+const migrationPath = path.join(root, migrationRelativePath);
 const rollbackPath = path.join(
   root,
   "docs/security/sql-review/v13.1/v13_1_authorization_foundation_rollback_review.sql"
@@ -17,6 +16,10 @@ const rollbackPath = path.join(
 const verifierPath = path.join(
   root,
   "scripts/authorization/verify-v13-authorization-migration-local.sh"
+);
+const scannerPath = path.join(
+  root,
+  "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
 );
 
 const protectedTables = [
@@ -101,6 +104,23 @@ test("owner and audit defense-in-depth guards are present", () => {
   assert.match(sql, /CLIENT_AUTHORITY_FIELDS_DENIED/);
   assert.match(sql, /AUTHORIZATION_AUDIT_APPEND_ONLY/);
   assert.match(sql, /before\s+update\s+or\s+delete\s+on\s+public\.vvip_authorization_audit_events/i);
+});
+
+test("dangerous SQL review exception is bound to the exact migration bytes", () => {
+  const migrationBytes = fs.readFileSync(migrationPath);
+  const actualHash = crypto.createHash("sha256").update(migrationBytes).digest("hex");
+  const scanner = readRequired(scannerPath);
+  const escapedPath = migrationRelativePath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = scanner.match(new RegExp(`\\[\\"${escapedPath}\\"\\]="([a-f0-9]{64})"`));
+  const reviewedHash = match?.[1] ?? null;
+
+  assert.equal(
+    reviewedHash,
+    actualHash,
+    `migration review must pin exact SHA-256: ${actualHash}`
+  );
+  assert.match(scanner, /actual_hash="\$\(sha256sum "\$file" \| awk '\{print \$1\}'\)"/);
+  assert.match(scanner, /\[\[ "\$actual_hash" == "\$expected_hash" \]\]/);
 });
 
 test("rollback artifact is review-only outside migrations and never remote", () => {
