@@ -157,6 +157,12 @@ function validTrustedState(trustedState, envelope) {
 }
 
 export function validateAuthorizationEnvelope({ envelope, trustedState, resource, operation, now } = {}) {
+  if (envelope && typeof envelope === "object"
+    && typeof envelope.policyVersion === "string"
+    && envelope.policyVersion !== "V13.1") {
+    return denial("STALE_AUTHORIZATION_ENVELOPE");
+  }
+
   let normalizedEnvelope;
   try {
     normalizedEnvelope = createAuthorizationEnvelope(envelope);
