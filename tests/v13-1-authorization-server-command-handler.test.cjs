@@ -134,6 +134,62 @@ async function createHandler(overrides = {}) {
   return { handler, calls };
 }
 
+function createTransactionHarness(overrides = {}) {
+  const receipts = overrides.receipts || new Map();
+  const calls = [];
+  const tx = {
+    async findIdempotencyReceipt(idempotencyKey) {
+      calls.push(`find:${idempotencyKey}`);
+      return receipts.get(idempotencyKey) || null;
+    },
+    async persistAuthorizationCommand(input) {
+      calls.push(`persist:${input.operation}`);
+      if (overrides.persistAuthorizationCommand) {
+        return overrides.persistAuthorizationCommand(input);
+      }
+      return {
+        id: input.operation.includes("Partner") ? "partner-membership-0002" : "assignment-0001",
+        state: input.operation.startsWith("create") ? "active" : "suspended",
+        authorityClass: input.operation.includes("Partner")
+          ? "PARTNER_GLOBAL_ADMIN"
+          : "DELEGATED",
+        sql: "must-not-escape"
+      };
+    },
+    async appendAuthorizationAudit(input) {
+      calls.push(`audit:${input.operation}`);
+      if (overrides.appendAuthorizationAudit) {
+        return overrides.appendAuthorizationAudit(input);
+      }
+      return { auditHash: "a".repeat(64), internalSequence: 91 };
+    },
+    async storeIdempotencyReceipt(input) {
+      calls.push(`store:${input.idempotencyKey}`);
+      if (overrides.storeIdempotencyReceipt) {
+        return overrides.storeIdempotencyReceipt(input);
+      }
+      receipts.set(input.idempotencyKey, {
+        requestHash: input.requestHash,
+        result: input.result
+      });
+      return { stored: true };
+    }
+  };
+
+  async function runTransaction(work) {
+    calls.push("tx:start");
+    if (overrides.throwTransaction) throw new Error("database detail must not escape");
+    const value = await work(tx);
+    calls.push("tx:end");
+    return {
+      committed: overrides.committed !== false,
+      value
+    };
+  }
+
+  return { calls, receipts, runTransaction };
+}
+
 test("unauthenticated requests fail before trusted state or persistence", async () => {
   const { handler, calls } = await createHandler();
   const result = await handler.execute(validRequest({ authenticatedActorId: null }));
@@ -256,4 +312,93 @@ test("partner membership requires owner root and a legal decision reference", as
     code: "PEER_PARTNER_MUTATION_DENIED"
   });
   assert.deepEqual(partner.calls, ["state:partner-1"]);
+});
+
+test("persistence and audit both complete inside one committed transaction", async () => {
+  const transaction = createTransactionHarness();
+  const { handler, calls } = await createHandler({
+    runTransaction: transaction.runTransaction
+  });
+  const result = await handler.execute(validRequest());
+
+  assert.equal(result.ok, true);
+  assert.equal(result.code, "AUTHORIZATION_COMMAND_COMMITTED");
+  assert.deepEqual(result.data, {
+    id: "assignment-0001",
+    state: "active",
+    authorityClass: "DELEGATED"
+  });
+  assert.deepEqual(result.receipt, {
+    confirmed: true,
+    persisted: true,
+    correlationKey: "corr_server_command_0001",
+    idempotencyKey: "idem_server_command_0001",
+    auditHash: "a".repeat(64)
+  });
+  assert.deepEqual(calls, ["state:owner-1"]);
+  assert.deepEqual(transaction.calls, [
+    "tx:start",
+    "find:idem_server_command_0001",
+    "persist:createAssignment",
+    "audit:createAssignment",
+    "store:idem_server_command_0001",
+    "tx:end"
+  ]);
+});
+
+test("partial rolled-back or exceptional transactions never report success", async () => {
+  const cases = [
+    createTransactionHarness({ committed: false }),
+    createTransactionHarness({ appendAuthorizationAudit: async () => null }),
+    createTransactionHarness({ throwTransaction: true })
+  ];
+
+  for (const transaction of cases) {
+    const { handler } = await createHandler({ runTransaction: transaction.runTransaction });
+    const result = await handler.execute(validRequest());
+    assert.deepEqual(result, {
+      ok: false,
+      code: "REMOTE_ENFORCEMENT_FAILED"
+    });
+  }
+});
+
+test("same idempotency request replays exactly and changed payload conflicts", async () => {
+  const transaction = createTransactionHarness();
+  const { handler } = await createHandler({ runTransaction: transaction.runTransaction });
+
+  const first = await handler.execute(validRequest());
+  const replay = await handler.execute(validRequest());
+  const conflict = await handler.execute(validRequest({
+    command: validAssignmentCommand({ roleId: "sales" })
+  }));
+
+  assert.deepEqual(replay, first);
+  assert.deepEqual(conflict, {
+    ok: false,
+    code: "IDEMPOTENCY_CONFLICT"
+  });
+  assert.equal(transaction.calls.filter((entry) => entry.startsWith("persist:")).length, 1);
+  assert.equal(transaction.calls.filter((entry) => entry.startsWith("audit:")).length, 1);
+});
+
+test("success output is deeply frozen and strips unrestricted persistence fields", async () => {
+  const transaction = createTransactionHarness();
+  const { handler } = await createHandler({ runTransaction: transaction.runTransaction });
+  const result = await handler.execute(validRequest());
+
+  assert.equal(Object.isFrozen(result), true);
+  assert.equal(Object.isFrozen(result.data), true);
+  assert.equal(Object.isFrozen(result.receipt), true);
+  assert.deepEqual(Object.keys(result).sort(), ["code", "data", "ok", "receipt"]);
+  assert.deepEqual(Object.keys(result.data).sort(), ["authorityClass", "id", "state"]);
+  assert.deepEqual(Object.keys(result.receipt).sort(), [
+    "auditHash",
+    "confirmed",
+    "correlationKey",
+    "idempotencyKey",
+    "persisted"
+  ]);
+  assert.equal("sql" in result.data, false);
+  assert.equal("trustedState" in result, false);
 });
