@@ -22,6 +22,18 @@ test("authorization SQL is explicitly review-only and outside migrations", () =>
   assert.doesNotMatch(sql, /production\s+(deploy|apply)/i);
 });
 
+test("Clerk subject identifiers remain text throughout the authority boundary", () => {
+  const sql = readSql();
+  assert.match(sql, /principal_id\s+text\s+primary\s+key/i);
+  assert.match(sql, /create\s+or\s+replace\s+function\s+public\.vvip_current_actor_id\(\)\s+returns\s+text/i);
+  assert.match(sql, /return\s+nullif\(current_setting\('request\.jwt\.claim\.sub',\s*true\),\s*''\)/i);
+  assert.match(sql, /p_actor_id\s+text/i);
+  assert.match(sql, /p_subject_id\s+text/i);
+  assert.doesNotMatch(sql, /claim_value::uuid/i);
+  assert.doesNotMatch(sql, /principal_id\s+uuid/i);
+  assert.doesNotMatch(sql, /actor_id\s+uuid/i);
+});
+
 test("every protected authorization table enables and forces RLS", () => {
   const sql = readSql();
   for (const table of [
