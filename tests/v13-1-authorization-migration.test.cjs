@@ -21,6 +21,10 @@ const scannerPath = path.join(
   root,
   "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
 );
+const designPath = path.join(
+  root,
+  "docs/superpowers/specs/2026-08-05-v13-1-authorization-local-migration-design.md"
+);
 
 const protectedTables = [
   "vvip_authority_roles",
@@ -152,4 +156,18 @@ test("local rehearsal is explicit local-only and repeatable", () => {
   assert.match(script, /project-ref|linked/i);
   assert.doesNotMatch(script, /supabase\s+db\s+push|migration\s+up\s+--linked|--db-url|supabase\.co/i);
   assert.doesNotMatch(script, /v13_1_authorization_foundation_rollback_review\.sql/);
+});
+
+test("design documents the JWT helper as invoker-security", () => {
+  const design = readRequired(designPath);
+  const sectionStart = design.indexOf("## 5. Identity model");
+  const sectionEnd = design.indexOf("## 6. Tables");
+  assert.notEqual(sectionStart, -1);
+  assert.notEqual(sectionEnd, -1);
+  const identitySection = design.slice(sectionStart, sectionEnd);
+
+  assert.match(identitySection, /create function public\.vvip_current_actor_id\(\)/i);
+  assert.doesNotMatch(identitySection, /security\s+definer/i);
+  assert.match(identitySection, /invoker-security/i);
+  assert.match(identitySection, /Execution is revoked from `public`, `anon`, and `authenticated`/i);
 });
