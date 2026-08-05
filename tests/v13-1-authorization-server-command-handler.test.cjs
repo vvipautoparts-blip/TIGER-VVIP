@@ -28,6 +28,10 @@ function ownerPermissions() {
   ];
 }
 
+function partnerPermissions() {
+  return ownerPermissions().filter((permission) => permission !== "authorization.partner.manage");
+}
+
 function validEnvelope(overrides = {}) {
   return {
     envelopeId: "authz_env_server_command_0001",
@@ -95,13 +99,31 @@ function validRequest(overrides = {}) {
   };
 }
 
+function validPartnerRequest(overrides = {}) {
+  return validRequest({
+    operation: "createPartnerMembership",
+    command: {
+      subjectId: "partner-2",
+      legalDecisionReference: "legal-decision-2026-001"
+    },
+    idempotencyKey: "idem_partner_command_0001",
+    correlationKey: "corr_partner_command_0001",
+    reason: "Approved partner governance decision",
+    resource: {
+      scope: { level: "platform" },
+      countryCode: null
+    },
+    ...overrides
+  });
+}
+
 async function createHandler(overrides = {}) {
   const { createAuthorizationServerCommandHandler } = await loadHandlerModule();
   const calls = overrides.calls || [];
   const handler = createAuthorizationServerCommandHandler({
     loadTrustedState: overrides.loadTrustedState || (async (actorId) => {
       calls.push(`state:${actorId}`);
-      return validTrustedState();
+      return overrides.trustedState || validTrustedState();
     }),
     runTransaction: overrides.runTransaction || (async () => {
       calls.push("tx");
@@ -149,4 +171,89 @@ test("client authority and prototype-polluting fields are rejected before truste
     code: "CLIENT_AUTHORITY_FIELDS_DENIED"
   });
   assert.deepEqual(second.calls, []);
+});
+
+test("expired stale and permission-deficient envelopes fail before transaction", async () => {
+  const cases = [
+    {
+      envelope: validEnvelope({ expiresAt: NOW }),
+      trustedState: validTrustedState(),
+      code: "ENVELOPE_EXPIRED"
+    },
+    {
+      envelope: validEnvelope(),
+      trustedState: validTrustedState({ assignmentRevision: 4 }),
+      code: "STALE_AUTHORIZATION_ENVELOPE"
+    },
+    {
+      envelope: validEnvelope({
+        permissionIds: ownerPermissions().filter(
+          (permission) => permission !== "authorization.assignment.manage"
+        )
+      }),
+      trustedState: validTrustedState(),
+      code: "PERMISSION_DENIED"
+    }
+  ];
+
+  for (const fixture of cases) {
+    const { handler, calls } = await createHandler({ trustedState: fixture.trustedState });
+    const result = await handler.execute(validRequest({ envelope: fixture.envelope }));
+    assert.deepEqual(result, { ok: false, code: fixture.code });
+    assert.deepEqual(calls, ["state:owner-1"]);
+  }
+});
+
+test("ordinary assignment commands cannot target owner or partner authority", async () => {
+  const cases = [
+    { roleId: "owner", code: "OWNER_ROOT_IMMUTABLE" },
+    { roleId: "partner", code: "PEER_PARTNER_MUTATION_DENIED" }
+  ];
+  for (const fixture of cases) {
+    const { handler, calls } = await createHandler();
+    const result = await handler.execute(validRequest({
+      command: validAssignmentCommand({ roleId: fixture.roleId })
+    }));
+    assert.deepEqual(result, { ok: false, code: fixture.code });
+    assert.deepEqual(calls, ["state:owner-1"]);
+  }
+});
+
+test("partner membership requires owner root and a legal decision reference", async () => {
+  const owner = await createHandler();
+  const missingReference = await owner.handler.execute(validPartnerRequest({
+    command: { subjectId: "partner-2", legalDecisionReference: "" }
+  }));
+  assert.deepEqual(missingReference, {
+    ok: false,
+    code: "LEGAL_DECISION_REFERENCE_REQUIRED"
+  });
+  assert.deepEqual(owner.calls, ["state:owner-1"]);
+
+  const partnerEnvelope = validEnvelope({
+    envelopeId: "authz_env_partner_command_0001",
+    actorId: "partner-1",
+    authorityClass: "PARTNER_GLOBAL_ADMIN",
+    roleIds: ["partner"],
+    permissionIds: [...partnerPermissions(), "authorization.partner.manage"],
+    effectiveAssignmentIds: ["partner-membership-0001"],
+    correlationId: "corr_partner_command_0001"
+  });
+  const partnerState = validTrustedState({
+    actorId: "partner-1",
+    authorityClass: "PARTNER_GLOBAL_ADMIN",
+    roleIds: ["partner"],
+    permissionIds: partnerPermissions(),
+    effectiveAssignmentIds: ["partner-membership-0001"]
+  });
+  const partner = await createHandler({ trustedState: partnerState });
+  const denied = await partner.handler.execute(validPartnerRequest({
+    authenticatedActorId: "partner-1",
+    envelope: partnerEnvelope
+  }));
+  assert.deepEqual(denied, {
+    ok: false,
+    code: "PEER_PARTNER_MUTATION_DENIED"
+  });
+  assert.deepEqual(partner.calls, ["state:partner-1"]);
 });
