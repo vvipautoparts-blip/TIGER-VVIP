@@ -1,6 +1,6 @@
 # PR #128 — Media Manifest Validation Precedence Decision Record
 
-> **Evidence model:** This tracked record documents the diagnosis, RED→GREEN correction, controls, and release-governance policy. Exact final SHA locks and workflow identities belong in pull-request metadata after immutable verification; they are intentionally not embedded here because doing so would mutate the asserted commit.
+> **Evidence model:** This tracked record documents the diagnosis, RED→GREEN correction, controls, and release-governance policy. Exact final SHA locks and workflow identities are maintained exclusively in pull-request metadata after immutable verification so this file cannot create a self-referential attestation loop.
 
 ## Control record
 
