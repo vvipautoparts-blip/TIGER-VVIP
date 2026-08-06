@@ -1,7 +1,6 @@
 import {
   RELEASE_EVIDENCE_TYPES,
   RELEASE_LIMITS,
-  RELEASE_STATES,
   ZERO_TOLERANCE_DOMAINS,
   deepFreeze,
   isCommitSha,
@@ -279,21 +278,19 @@ function deriveTechnicalEvidence(surface) {
 
 function deriveTargetEvidence(input, technicalRequired) {
   const required = new Set(technicalRequired);
-  const requested = input.requestedState;
 
-  if (requested === "REVIEW_ELIGIBLE"
-      || requested === "MERGE_ELIGIBLE"
-      || requested === "RELEASE_ELIGIBLE") {
+  if (input.requestedState !== "SHA_LOCKED") {
     required.add("INDEPENDENT_REVIEW");
   }
 
-  if ((requested === "MERGE_ELIGIBLE" || requested === "RELEASE_ELIGIBLE")
+  if ((input.requestedState === "MERGE_ELIGIBLE"
+      || input.requestedState === "RELEASE_ELIGIBLE")
       && input.changeSurface.stateful
       && !input.changeSurface.production) {
     required.add("ROLLBACK_DRY_RUN");
   }
 
-  if (requested === "RELEASE_ELIGIBLE") {
+  if (input.requestedState === "RELEASE_ELIGIBLE") {
     for (const type of [
       "PROVENANCE",
       "ARTIFACT_DIGEST",
@@ -314,6 +311,7 @@ function deriveTargetEvidence(input, technicalRequired) {
 function analyzeEvidence(evidenceList, expectedHeadSha) {
   const accepted = new Set();
   const rejected = new Set();
+  const failed = new Set();
   const statusesByType = new Map();
   let timeout = false;
   let foreignHead = false;
@@ -338,13 +336,18 @@ function analyzeEvidence(evidenceList, expectedHeadSha) {
     if (previousStatus && previousStatus !== item.status) conflict = true;
     statusesByType.set(item.evidenceType, item.status);
 
-    if (item.status === "PASS") accepted.add(item.evidenceType);
-    else rejected.add(item.evidenceType);
+    if (item.status === "PASS") {
+      accepted.add(item.evidenceType);
+    } else {
+      failed.add(item.evidenceType);
+      rejected.add(item.evidenceType);
+    }
   }
 
   return {
     accepted,
     rejected,
+    failed,
     timeout,
     foreignHead,
     staleReview,
@@ -387,7 +390,7 @@ function waivedMissingEvidence(missing, activeCapabilities) {
   });
 }
 
-function releaseMissing(accepted, requiredTypes) {
+function missingFrom(accepted, requiredTypes) {
   return requiredTypes.filter((type) => !accepted.has(type));
 }
 
@@ -430,7 +433,7 @@ export function evaluateReleaseDecision(input) {
     });
   }
 
-  const zeroToleranceFailures = [...evidenceAnalysis.rejected]
+  const zeroToleranceFailures = [...evidenceAnalysis.failed]
     .filter((type) => ZERO_TOLERANCE_EVIDENCE.has(type));
   if (zeroToleranceFailures.length > 0) {
     return frozenDecision({
@@ -442,7 +445,7 @@ export function evaluateReleaseDecision(input) {
     });
   }
 
-  if (evidenceAnalysis.rejected.size > 0) {
+  if (evidenceAnalysis.failed.size > 0) {
     return frozenDecision({
       ...common,
       state: "BLOCKED",
@@ -451,7 +454,11 @@ export function evaluateReleaseDecision(input) {
     });
   }
 
-  const deviationAnalysis = analyzeDeviations(input.deviations, input.subject, input.nowMs);
+  const deviationAnalysis = analyzeDeviations(
+    input.deviations,
+    input.subject,
+    input.nowMs
+  );
   if (!deviationAnalysis.ok) {
     return frozenDecision({
       ...common,
@@ -461,12 +468,17 @@ export function evaluateReleaseDecision(input) {
     });
   }
 
-  const technicalMissing = releaseMissing(evidenceAnalysis.accepted, technicalRequired);
+  const technicalMissing = missingFrom(
+    evidenceAnalysis.accepted,
+    technicalRequired
+  );
   const waivedMissing = waivedMissingEvidence(
     technicalMissing,
     deviationAnalysis.activeCapabilities
   );
-  const unwaivedMissing = technicalMissing.filter((type) => !waivedMissing.includes(type));
+  const unwaivedMissing = technicalMissing.filter(
+    (type) => !waivedMissing.includes(type)
+  );
 
   if (unwaivedMissing.length > 0) {
     return frozenDecision({
@@ -479,8 +491,7 @@ export function evaluateReleaseDecision(input) {
     });
   }
 
-  const wantsReview = input.requestedState !== "SHA_LOCKED";
-  if (!wantsReview) {
+  if (input.requestedState === "SHA_LOCKED") {
     return frozenDecision({
       ...common,
       state: "SHA_LOCKED",
@@ -497,7 +508,9 @@ export function evaluateReleaseDecision(input) {
       decisionCode: evidenceAnalysis.staleReview
         ? "RELEASE_REVIEW_STALE"
         : "RELEASE_REVIEW_REQUIRED",
-      missingEvidence: evidenceAnalysis.staleReview ? [] : ["INDEPENDENT_REVIEW"],
+      missingEvidence: evidenceAnalysis.staleReview
+        ? []
+        : ["INDEPENDENT_REVIEW"],
       activeDeviations: deviationAnalysis.activeIds,
       nextEligibleState: "REVIEW_ELIGIBLE"
     });
@@ -562,7 +575,7 @@ export function evaluateReleaseDecision(input) {
     });
   }
 
-  const provenanceMissing = releaseMissing(evidenceAnalysis.accepted, [
+  const provenanceMissing = missingFrom(evidenceAnalysis.accepted, [
     "ARTIFACT_DIGEST",
     "PROVENANCE"
   ]);
