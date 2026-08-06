@@ -275,14 +275,15 @@ function validateCursorPayload(payload, request, contract, queryHash, nowMs) {
   }
   const issued = Date.parse(payload.issuedAt);
   const expires = Date.parse(payload.expiresAt);
-  if (!Number.isFinite(issued)
-    || !Number.isFinite(expires)
-    || issued > nowMs
+  if (!Number.isFinite(issued) || !Number.isFinite(expires)) {
+    return fail("INVALID_CURSOR");
+  }
+  if (nowMs >= expires) return fail("CURSOR_EXPIRED");
+  if (issued > nowMs
     || issued >= expires
     || expires - issued > AUTHORIZATION_QUERY_LIMITS.CURSOR_TTL_MS) {
     return fail("INVALID_CURSOR");
   }
-  if (nowMs >= expires) return fail("CURSOR_EXPIRED");
   return Object.freeze({
     ok: true,
     position: payload.position.trim(),
@@ -375,6 +376,14 @@ function normalizeAssignmentItem(item, actor, requestedScope) {
 
 function normalizeAuditItem(item, actor, requestedScope) {
   if (!isPlainObject(item)) throw new TypeError("AUDIT_ITEM_INVALID");
+  let scope;
+  try {
+    scope = normalizeCountryScope(item.scope);
+  } catch {
+    const error = new TypeError("QUERY_SCOPE_DENIED");
+    error.code = "QUERY_SCOPE_DENIED";
+    throw error;
+  }
   frozenClone(item);
   if (!Number.isSafeInteger(item.sequenceNo)
     || item.sequenceNo < 1
@@ -385,14 +394,6 @@ function normalizeAuditItem(item, actor, requestedScope) {
     || !boundedText(item.targetId)
     || !requiredTimestamp(item.createdAt)) {
     throw new TypeError("AUDIT_ITEM_INVALID");
-  }
-  let scope;
-  try {
-    scope = normalizeCountryScope(item.scope);
-  } catch {
-    const error = new TypeError("QUERY_SCOPE_DENIED");
-    error.code = "QUERY_SCOPE_DENIED";
-    throw error;
   }
   if (!scopeAllowed(actor, requestedScope, scope)) {
     const error = new TypeError("QUERY_SCOPE_DENIED");
@@ -474,6 +475,16 @@ export function createAuthorizationQueryHandler({
       trustedState = await loadTrustedState(request.authenticatedActorId);
     } catch {
       return fail("REMOTE_ENFORCEMENT_FAILED");
+    }
+    if (!isPlainObject(trustedState)
+      || trustedState.actorId !== request.authenticatedActorId) {
+      return fail("IDENTITY_DENIED");
+    }
+    if (trustedState.accountState === "suspended") {
+      return fail("ACCOUNT_SUSPENDED");
+    }
+    if (trustedState.accountState !== "active") {
+      return fail("ACCOUNT_INACTIVE");
     }
 
     const envelopeDecision = validateAuthorizationEnvelope({
