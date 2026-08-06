@@ -215,6 +215,30 @@ test("binary and oversized files are hashed but never parsed for references", as
   });
 });
 
+test("governance registry declarations are evidence metadata, not live dependencies", async () => {
+  await withFixture(async (rootDir) => {
+    const candidate = asset("asset:test:dead", "generated/dead.tmp");
+    const fixtureRegistry = registry([candidate]);
+    await mkdir(path.join(rootDir, "generated"), { recursive: true });
+    await mkdir(path.join(rootDir, "project-control/value-governance"), { recursive: true });
+    await writeFile(path.join(rootDir, candidate.path), "disposable\n", "utf8");
+    await writeFile(
+      path.join(rootDir, "project-control/value-governance/registry.v1.json"),
+      `${JSON.stringify(fixtureRegistry, null, 2)}\n`,
+      "utf8"
+    );
+
+    const { collectRepositoryEvidence } = await loadInventoryModule();
+    const evidence = await collectRepositoryEvidence({
+      rootDir,
+      registry: fixtureRegistry,
+      now: FIXED_NOW
+    });
+
+    assert.equal(evidence.assets[0].referenceCount, 0);
+  });
+});
+
 test("inventory implementation has no network or subprocess dependency", async () => {
   await loadInventoryModule();
   const source = await readFile(inventoryPath, "utf8");
