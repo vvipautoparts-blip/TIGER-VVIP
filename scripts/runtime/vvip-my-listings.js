@@ -114,7 +114,7 @@
 
     doc.addEventListener("click", function (event) {
       const account = event.target.closest("[data-account-route]");
-      if (account) {
+      if (account && root.__VVIP_RUNTIME_CONFIG__) {
         event.preventDefault();
         event.stopImmediatePropagation();
         open();
