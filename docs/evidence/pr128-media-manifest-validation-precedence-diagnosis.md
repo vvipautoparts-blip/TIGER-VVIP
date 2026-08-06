@@ -11,8 +11,10 @@
 - Original failing candidate: `cd2a93d84bf40e6e0f88d9057274a74a526d2ac3`
 - Evidence-ledger commit: `cfc1b66546d7e1377268c56a2f85d03894dcdb3e`
 - Precedence-matrix RED commit: `e582727bf712f383c2f8f17af7c5dfeeb1632dab`
-- Final GREEN/SHA-locked candidate: `fbcbd69dc8735724251aabf10cdb99a5a4b22a40`
-- Current PR merge-test SHA: `78ff49745b84109d3805aff83ee97168b6eccbcc`
+- Corrected code commit: `fbcbd69dc8735724251aabf10cdb99a5a4b22a40`
+- Evidence-attestation commit: `250e0b2ca329a9b78c5231474bb57c51a18731ad`
+- Fully verified PR head: `250e0b2ca329a9b78c5231474bb57c51a18731ad`
+- Current PR merge-test SHA before final review: `78ff49745b84109d3805aff83ee97168b6eccbcc`
 - Final decision: `PASS`
 - Decision reason: `VALIDATION_PRECEDENCE_DRIFT_CORRECTED_AND_REGRESSION_LOCKED`
 - Protocol state: `SHA_LOCKED`
@@ -82,16 +84,16 @@ The production change was intentionally minimal: only `assertSafeStructure()` ch
 
 ## Final GREEN evidence
 
-### Workflow identity
+### Fully verified PR head
 
-- Final candidate SHA: `fbcbd69dc8735724251aabf10cdb99a5a4b22a40`
-- VVIP Quality Gate run: `31093667366`
-- Quality Gate job: `92590385790`
-- Project Control Integrity run: `31093669424`
-- Dependency Review run: `31093666864`
-- CodeQL run: `31093666847`
-- Quality Gate execution start: `2026-08-06T10:32:40.869Z`
-- Quality Gate completion: `2026-08-06T10:33:00.494Z`
+- Verified head SHA: `250e0b2ca329a9b78c5231474bb57c51a18731ad`
+- VVIP Quality Gate run: `31093982795`
+- Quality Gate job: `92591428640`
+- Project Control Integrity run: `31093983148`
+- Dependency Review run: `31093983057`
+- CodeQL run: `31093983236`
+- Quality Gate execution start: `2026-08-06T10:37:38.282Z`
+- Quality Gate completion: `2026-08-06T10:37:47.795Z`
 
 ### Runner and toolchain
 
@@ -174,14 +176,14 @@ Release eligibility additionally requires:
 
 ## Rollback
 
-This correction is fully reversible by reverting commit `fbcbd69dc8735724251aabf10cdb99a5a4b22a40` or closing PR #128. No database, storage, production, or user-data rollback is required because this slice has no remote side effects.
+The behavior correction is fully reversible by reverting `fbcbd69dc8735724251aabf10cdb99a5a4b22a40` or closing PR #128. No database, storage, production, or user-data rollback is required because this slice has no remote side effects.
 
 ## Non-blocking CI maintenance observation
 
-The runner reported that some third-party setup actions still target deprecated Node.js 20 internally and were forced by GitHub to Node.js 24. This did not affect the result and is outside PR #128. It must be handled in a separate CI-maintenance PR so that media-contract scope and rollback remain surgical.
+The runner reported that `actions/setup-node@v4` and `actions/setup-python@v5` still target deprecated Node.js 20 internally and were forced by GitHub to Node.js 24. This did not affect the result and is outside PR #128. It must be handled in a separate CI-maintenance PR so that media-contract scope and rollback remain surgical.
 
 ## Final decision
 
 `PASS — SHA_LOCKED`
 
-PR #128 is technically green on the exact final candidate SHA. It remains a draft stacked PR and is not yet merge-eligible or release-eligible. PR #129 remains a verification-only lab and must be closed without merge after this record is committed.
+PR #128 is technically green on the full attested head `250e0b2ca329a9b78c5231474bb57c51a18731ad`. It remains a draft stacked PR and is not yet merge-eligible or release-eligible. PR #129 is a verification-only lab and must be closed without merge.
