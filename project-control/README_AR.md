@@ -37,3 +37,22 @@
 - أضيفت 54 حالة اختبار أساسية و2093 متطلبًا بصيغة JSON قابلة للاستيراد.
 - شغّل: `node --test tests/project_control_integrity.test.mjs` ثم `node scripts/validate_project_control.mjs`.
 - لا تزال الكتابة إلى المستودع وتطبيق Supabase محجوبتين خارجيًا كما هو موثق في `docs/IMPLEMENTATION_BLOCKERS_AR.md`.
+
+## محرك الحوكمة المستمرة للقيمة — المرحلة الأولى
+
+المرحلة الأولى من **Continuous Value Governance Engine** تعمل بوضع تحليل للقراءة فقط داخل المستودع:
+
+- لا تحذف الملفات ولا تعدّلها ولا تنفذ Auto-Cleanup فعليًا.
+- لا تصل إلى Production أو Supabase البعيد أو الشبكة أو الأسرار.
+- عناصر Class A تنتج خطة مرشحة غير قابلة للتنفيذ ومربوطة ببصمة محتوى وخطة تراجع.
+- عناصر Class B تنتج توصية عزل فقط، ولا تصل إلى الإزالة في هذه المرحلة.
+- عناصر Class C القانونية والمالية والأمنية والرقابية وسلطة المالك والشركاء تبقى محمية.
+- التقارير لا تتضمن بيانات شخصية أو أسرارًا أو مسارات محلية مطلقة.
+- غياب الأدلة أو تعارضها يؤدي إلى `NO_ACTION`، ولا يُفسر كإذن بالحذف.
+
+أوامر الفحص:
+
+```bash
+node project-control/value-governance/cli.mjs --check
+node project-control/value-governance/cli.mjs --report-json
+```
