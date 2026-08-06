@@ -11,6 +11,8 @@ import {
   validateRegistry
 } from "./registry.mjs";
 
+const HOUR_MS = 60 * 60 * 1_000;
+
 const KNOWN_EVIDENCE_CODES = new Set([
   "ASSET_MISSING",
   "CANONICAL_REPLACEMENT_VERIFIED",
@@ -125,9 +127,23 @@ function buildDecision(asset, {
   });
 }
 
-function evaluateAsset(asset, evidence, policy) {
+function temporalEvidenceState(generatedAt, evaluatedAt, staleEvidenceHours) {
+  const generatedAtMs = Date.parse(generatedAt);
+  const evaluatedAtMs = Date.parse(evaluatedAt);
+  if (!Number.isFinite(generatedAtMs) || !Number.isFinite(evaluatedAtMs)) {
+    throw new TypeError("EVIDENCE_INVALID");
+  }
+
+  const ageMs = evaluatedAtMs - generatedAtMs;
+  if (ageMs < 0) return "INVALID";
+  if (ageMs > staleEvidenceHours * HOUR_MS) return "STALE";
+  return "FRESH";
+}
+
+function evaluateAsset(asset, evidence, policy, temporalState) {
   if (asset.actionClass === "C" || asset.protectedObligations.length > 0) {
-    const complete = validEvidenceRecord(evidence)
+    const complete = temporalState === "FRESH"
+      && validEvidenceRecord(evidence)
       && !hasUnknownEvidence(evidence)
       && !hasContradictoryEvidence(evidence, evidenceCodeSet(evidence))
       && expectedEvidenceComplete(asset, evidence, evidenceCodeSet(evidence));
@@ -150,9 +166,18 @@ function evaluateAsset(asset, evidence, policy) {
   const codes = evidenceCodeSet(evidence);
   if (hasUnknownEvidence(evidence)
     || codes.has("EVIDENCE_INVALID")
-    || hasContradictoryEvidence(evidence, codes)) {
+    || hasContradictoryEvidence(evidence, codes)
+    || temporalState === "INVALID") {
     return buildDecision(asset, {
       reasonCodes: ["EVIDENCE_INVALID"],
+      confidence: 0,
+      evidence
+    });
+  }
+
+  if (temporalState === "STALE") {
+    return buildDecision(asset, {
+      reasonCodes: ["EVIDENCE_STALE"],
       confidence: 0,
       evidence
     });
@@ -167,10 +192,19 @@ function evaluateAsset(asset, evidence, policy) {
     });
   }
 
+  const confidence = 1;
+  if (confidence < policy.minimumEvidenceConfidence) {
+    return buildDecision(asset, {
+      reasonCodes: ["VALUE_NOT_PROVEN_ZERO"],
+      confidence,
+      evidence
+    });
+  }
+
   if (evidence.referenceCount > 0) {
     return buildDecision(asset, {
       reasonCodes: ["DEPENDENCY_UNRESOLVED"],
-      confidence: 1,
+      confidence,
       evidence
     });
   }
@@ -187,7 +221,7 @@ function evaluateAsset(asset, evidence, policy) {
         "ROLLBACK_REPRODUCIBLE",
         "VALUE_NOT_PRESENT"
       ],
-      confidence: 1,
+      confidence,
       evidence
     });
   }
@@ -199,19 +233,24 @@ function evaluateAsset(asset, evidence, policy) {
       proposedState: "QUARANTINED",
       decision: "QUARANTINE",
       reasonCodes: ["QUARANTINE_REQUIRED"],
-      confidence: 1,
+      confidence,
       evidence
     });
   }
 
   return buildDecision(asset, {
     reasonCodes: ["VALUE_NOT_PROVEN_ZERO"],
-    confidence: 1,
+    confidence,
     evidence
   });
 }
 
-export function evaluateAssets({ policy, registry, evidence } = {}) {
+export function evaluateAssets({
+  policy,
+  registry,
+  evidence,
+  evaluatedAt
+} = {}) {
   const policyDecision = validatePolicy(policy);
   if (!policyDecision.ok) throw new TypeError(policyDecision.code);
   const registryDecision = validateRegistry(registry, policy);
@@ -219,10 +258,18 @@ export function evaluateAssets({ policy, registry, evidence } = {}) {
   if (!isPlainObject(evidence)
     || typeof evidence.generatedAt !== "string"
     || !Number.isFinite(Date.parse(evidence.generatedAt))
+    || typeof evaluatedAt !== "string"
+    || !Number.isFinite(Date.parse(evaluatedAt))
     || !Array.isArray(evidence.assets)
     || evidence.assets.length > 10_000) {
     throw new TypeError("EVIDENCE_INVALID");
   }
+
+  const temporalState = temporalEvidenceState(
+    evidence.generatedAt,
+    evaluatedAt,
+    policy.staleEvidenceHours
+  );
 
   const evidenceByAssetId = new Map();
   for (const record of evidence.assets) {
@@ -250,7 +297,7 @@ export function evaluateAssets({ policy, registry, evidence } = {}) {
           evidence: record
         });
       }
-      return evaluateAsset(asset, record, policy);
+      return evaluateAsset(asset, record, policy, temporalState);
     });
 
   for (const decision of decisions) {
