@@ -29,6 +29,7 @@ const DECISION_STATES = new Set([
 ]);
 const EVIDENCE_TYPES = new Set(RELEASE_EVIDENCE_TYPES);
 const decisionCodePattern = /^[A-Z][A-Z0-9_:-]*$/;
+const blockingReasonPattern = /^[A-Za-z0-9][A-Za-z0-9._:-]*$/;
 
 function contractError(code) {
   return new TypeError(code);
@@ -58,10 +59,17 @@ function isBoundedCode(value) {
     && decisionCodePattern.test(value);
 }
 
-function isBoundedStringArray(value, maximum) {
+function isBoundedBlockingReason(value) {
+  return typeof value === "string"
+    && value.length > 0
+    && value.length <= RELEASE_LIMITS.MAX_SUMMARY_LENGTH
+    && blockingReasonPattern.test(value);
+}
+
+function isBoundedStringArray(value, maximum, validator = isBoundedCode) {
   return Array.isArray(value)
     && value.length <= maximum
-    && value.every(isBoundedCode);
+    && value.every(validator);
 }
 
 function canonicalSet(values) {
@@ -99,7 +107,11 @@ function assertInputStructure(input) {
       || !Array.isArray(input.activeDeviations)
       || input.activeDeviations.length > RELEASE_LIMITS.MAX_DEVIATIONS
       || !input.activeDeviations.every((value) => isReleaseIdentifier(value, "deviation_"))
-      || !isBoundedStringArray(input.blockingReasons, RELEASE_LIMITS.MAX_BLOCKING_REASONS)) {
+      || !isBoundedStringArray(
+        input.blockingReasons,
+        RELEASE_LIMITS.MAX_BLOCKING_REASONS,
+        isBoundedBlockingReason
+      )) {
     throw contractError("RELEASE_CONTRACT_INVALID");
   }
 }
