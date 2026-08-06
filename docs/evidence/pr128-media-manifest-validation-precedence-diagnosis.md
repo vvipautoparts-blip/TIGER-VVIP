@@ -12,9 +12,9 @@
 - Evidence-ledger commit: `cfc1b66546d7e1377268c56a2f85d03894dcdb3e`
 - Precedence-matrix RED commit: `e582727bf712f383c2f8f17af7c5dfeeb1632dab`
 - Corrected code commit: `fbcbd69dc8735724251aabf10cdb99a5a4b22a40`
-- Evidence-attestation commit: `250e0b2ca329a9b78c5231474bb57c51a18731ad`
-- Fully verified PR head: `250e0b2ca329a9b78c5231474bb57c51a18731ad`
-- Current PR merge-test SHA before final review: `78ff49745b84109d3805aff83ee97168b6eccbcc`
+- First evidence-attestation commit: `250e0b2ca329a9b78c5231474bb57c51a18731ad`
+- Final immutable attestation commit: `8045cbe31e111eb93b4ce4e93868ecd6c2e660d7`
+- Fully verified PR head: `8045cbe31e111eb93b4ce4e93868ecd6c2e660d7`
 - Final decision: `PASS`
 - Decision reason: `VALIDATION_PRECEDENCE_DRIFT_CORRECTED_AND_REGRESSION_LOCKED`
 - Protocol state: `SHA_LOCKED`
@@ -86,25 +86,11 @@ The production change was intentionally minimal: only `assertSafeStructure()` ch
 
 ### Fully verified PR head
 
-- Verified head SHA: `250e0b2ca329a9b78c5231474bb57c51a18731ad`
-- VVIP Quality Gate run: `31093982795`
-- Quality Gate job: `92591428640`
-- Project Control Integrity run: `31093983148`
-- Dependency Review run: `31093983057`
-- CodeQL run: `31093983236`
-- Quality Gate execution start: `2026-08-06T10:37:38.282Z`
-- Quality Gate completion: `2026-08-06T10:37:47.795Z`
-
-### Runner and toolchain
-
-- GitHub Actions runner: `2.336.0`
-- Runner image: `ubuntu-24.04` / `20260720.247.2`
-- Operating system: Ubuntu `24.04.4 LTS`
-- Git: `2.54.0`
-- Node: `22.23.1`
-- npm: `10.9.8`
-- Python: `3.12.13`
-- pytest: `9.1.1`
+- Verified head SHA: `8045cbe31e111eb93b4ce4e93868ecd6c2e660d7`
+- VVIP Quality Gate run: `31094210165`
+- Project Control Integrity run: `31094210112`
+- Dependency Review run: `31094210621`
+- CodeQL run: `31094210101`
 
 ### Required gates
 
@@ -157,22 +143,9 @@ Permanent exceptions are prohibited. Security and media-integrity invariants in 
 
 ### Merge and release separation
 
-Merge eligibility requires:
+Merge eligibility requires SHA-locked green evidence, dependency-chain readiness, resolved review threads, required independent approval, and exact-head merge protection.
 
-- SHA-locked green evidence;
-- dependency-chain readiness;
-- resolved review threads;
-- required independent approval;
-- exact-head merge protection.
-
-Release eligibility additionally requires:
-
-- production configuration review;
-- artifact provenance and signed release evidence;
-- rollback rehearsal;
-- canary and abort criteria;
-- observability and incident ownership;
-- confirmation that no remote-database ambiguity exists.
+Release eligibility additionally requires production configuration review, artifact provenance, signed release evidence, rollback rehearsal, canary and abort criteria, observability, incident ownership, and confirmation that no remote-database ambiguity exists.
 
 ## Rollback
 
@@ -186,4 +159,4 @@ The runner reported that `actions/setup-node@v4` and `actions/setup-python@v5` s
 
 `PASS — SHA_LOCKED`
 
-PR #128 is technically green on the full attested head `250e0b2ca329a9b78c5231474bb57c51a18731ad`. It remains a draft stacked PR and is not yet merge-eligible or release-eligible. PR #129 is a verification-only lab and must be closed without merge.
+PR #128 is technically green on the full immutable head `8045cbe31e111eb93b4ce4e93868ecd6c2e660d7`. It remains a draft stacked PR and is not yet merge-eligible or release-eligible. PR #129 is a verification-only lab and must be closed without merge.
