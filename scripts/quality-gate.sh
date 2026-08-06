@@ -306,6 +306,10 @@ AUTHORIZATION_TESTS=(
     tests/v13-1-owner-partner-invariants.test.cjs
     tests/v13-1-authorization-repository.test.cjs
     tests/v13-1-authorization-rls-contract.test.cjs
+    tests/v13-1-authorization-server-command-handler.test.cjs
+    tests/v13-1-authorization-server-command-handler-security.test.cjs
+    tests/v13-1-authorization-semantic-idempotency.test.cjs
+    tests/v13-1-authorization-command-boundary.test.cjs
 )
 
 if [ -f scripts/authorization/v13-authority-contracts.js ]; then
