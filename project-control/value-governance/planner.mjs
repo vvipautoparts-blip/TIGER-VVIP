@@ -180,10 +180,16 @@ export function buildAnalysisReport({ policy, decisions, generatedAt } = {}) {
     throw new TypeError("ANALYSIS_REPORT_INVALID");
   }
 
+  const cleanupPlans = normalizedDecisions
+    .map((decision) => buildNonExecutableCleanupPlan(decision))
+    .filter((plan) => plan !== null)
+    .sort((left, right) => left.assetId.localeCompare(right.assetId));
+
   const semanticProjection = {
     contract: REPORT_CONTRACT,
     policyVersion: policy.policyVersion,
-    decisions: normalizedDecisions
+    decisions: normalizedDecisions,
+    cleanupPlans
   };
 
   return deepFreeze({
@@ -192,6 +198,7 @@ export function buildAnalysisReport({ policy, decisions, generatedAt } = {}) {
     generatedAt: validateGeneratedAt(generatedAt),
     summary: summarize(normalizedDecisions),
     decisions: normalizedDecisions,
+    cleanupPlans,
     planHash: hashCanonical(semanticProjection)
   });
 }
