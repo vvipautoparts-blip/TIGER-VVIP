@@ -131,8 +131,8 @@ function assertSafeStructure(value, seen = new Set(), depth = 0, counter = { ent
     if (!Number.isFinite(value)) throw new TypeError("STRUCTURE_INVALID");
     return;
   }
-  if (typeof value === "undefined"
-    || typeof value === "function"
+  if (typeof value === "undefined") return;
+  if (typeof value === "function"
     || typeof value === "symbol"
     || typeof value === "bigint") {
     throw new TypeError("STRUCTURE_INVALID");
