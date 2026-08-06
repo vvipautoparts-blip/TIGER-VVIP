@@ -196,11 +196,13 @@ async function createHandler({
     },
     readAuthorizationPage: async (input) => {
       calls.push(["page", input]);
-      return page || {
-        items: [assignment()],
-        nextPosition: null,
-        snapshotRevision: "snapshot-authz-0001"
-      };
+      return page === undefined
+        ? {
+          items: [assignment()],
+          nextPosition: null,
+          snapshotRevision: "snapshot-authz-0001"
+        }
+        : page;
     },
     clock,
     digestSha256,
