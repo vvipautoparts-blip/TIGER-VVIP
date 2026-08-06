@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "constitution_id": "V13.1",
+  "owner_final_revision": "2026-08-05",
+  "authority": "OWNER_FINAL_CONSTITUTION",
+  "precedence": "SUPERSEDES_INCOMPATIBLE_LEGACY_RULES",
+  "production_state": "BLOCKED_PENDING_CONTRACTS_TESTS_EVIDENCE",
+  "listing_media": {
+    "max_images_per_listing": 7,
+    "video_enabled": false,
+    "image_limit_price_dependent": false,
+    "supersedes": [
+      "GLOBAL_IMAGE_LIMIT_10",
+      "ANY_PAID_IMAGE_LIMIT_INCREASE"
+    ]
+  },
+  "exposure": {
+    "global_fixed_impressions": null,
+    "quantity_authority": "COUNTRY_SEAL_ONLY",
+    "price_authority": "COUNTRY_SEAL_ONLY",
+    "forbidden_global_values": [
+      250,
+      400
+    ],
+    "country_seal_requirements": [
+      "LEGAL_APPROVAL",
+      "TAX_APPROVAL",
+      "PAYMENT_APPROVAL",
+      "CAPACITY_VALIDATION",
+      "UNIT_ECONOMICS_VALIDATION",
+      "OWNER_APPROVAL"
+    ]
+  },
+  "capabilities": {
+    "internal_chat": {
+      "constitutionally_allowed": true,
+      "availability_policy": "FULL_GENERAL_AVAILABILITY",
+      "access_scope": "ALL_USERS",
+      "owner_or_partner_grant_required": false,
+      "user_self_access_allowed": true,
+      "standard_security_controls_apply": true
+    },
+    "delivery": {
+      "constitutionally_allowed": true,
+      "availability_policy": "FULL_GENERAL_AVAILABILITY",
+      "access_scope": "ALL_USERS",
+      "owner_or_partner_grant_required": false,
+      "user_self_access_allowed": true,
+      "standard_security_controls_apply": true
+    },
+    "mediation": {
+      "constitutionally_allowed": true,
+      "availability_policy": "FULL_GENERAL_AVAILABILITY",
+      "access_scope": "ALL_USERS",
+      "owner_or_partner_grant_required": false,
+      "user_self_access_allowed": true,
+      "standard_security_controls_apply": true
+    },
+    "external_whatsapp": {
+      "prepared": true,
+      "implementation_state": "FULLY_PREPARED",
+      "integration_mode": "EXTERNAL_HANDOFF_ONLY",
+      "handoff_type": "DEVICE_APP_DEEP_LINK",
+      "target_application": "WHATSAPP_INSTALLED_ON_USER_DEVICE",
+      "availability_policy": "FULL_GENERAL_AVAILABILITY",
+      "access_scope": "ALL_USERS",
+      "approval_required": false,
+      "user_self_access_allowed": true,
+      "internal_message_transport": false,
+      "platform_sends_messages": false,
+      "platform_receives_messages": false,
+      "platform_reads_messages": false,
+      "platform_stores_messages": false,
+      "platform_manages_whatsapp_account": false,
+      "whatsapp_api_integration": false
+    }
+  },
+  "legacy_overrides": [
+    {
+      "legacy_rule_id": "GLOBAL_IMAGE_LIMIT_10",
+      "classification": "SUPERSEDED_BY_V13_1_OWNER_FINAL",
+      "effective_rule": "MAX_IMAGES_PER_LISTING_7"
+    },
+    {
+      "legacy_rule_id": "GLOBAL_FIXED_IMPRESSIONS_250",
+      "classification": "SUPERSEDED_BY_V13_1_OWNER_FINAL",
+      "effective_rule": "COUNTRY_SEAL_ONLY"
+    },
+    {
+      "legacy_rule_id": "GLOBAL_FIXED_IMPRESSIONS_400",
+      "classification": "SUPERSEDED_BY_V13_1_OWNER_FINAL",
+      "effective_rule": "COUNTRY_SEAL_ONLY"
+    },
+    {
+      "legacy_rule_id": "CHAT_FORBIDDEN",
+      "classification": "SUPERSEDED_BY_V13_1_OWNER_FINAL",
+      "effective_rule": "FULL_GENERAL_AVAILABILITY_ALL_USERS"
+    },
+    {
+      "legacy_rule_id": "DELIVERY_FORBIDDEN",
+      "classification": "SUPERSEDED_BY_V13_1_OWNER_FINAL",
+      "effective_rule": "FULL_GENERAL_AVAILABILITY_ALL_USERS"
+    },
+    {
+      "legacy_rule_id": "MEDIATION_FORBIDDEN",
+      "classification": "SUPERSEDED_BY_V13_1_OWNER_FINAL",
+      "effective_rule": "FULL_GENERAL_AVAILABILITY_ALL_USERS"
+    }
+  ],
+  "capability_access_invariant": "ALL_DECLARED_CAPABILITIES_HAVE_FULL_GENERAL_AVAILABILITY_WITHOUT_APPROVAL",
+  "change_control": {
+    "direct_main_changes": false,
+    "pull_request_required": true,
+    "tests_required": true,
+    "evidence_required": true,
+    "rollback_required": true
+  }
+}
