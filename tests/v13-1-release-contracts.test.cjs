@@ -161,6 +161,15 @@ test("release contracts states evidence issuers domains limits and errors are ex
     Object.values(module.RELEASE_ERROR_CODES)
   ]) {
     assert.equal(new Set(catalog).size, catalog.length);
+  }
+
+  for (const catalog of [
+    module.RELEASE_STATES,
+    module.RELEASE_TERMINAL_STATES,
+    module.RELEASE_EVIDENCE_TYPES,
+    module.RELEASE_ISSUER_CLASSES,
+    module.ZERO_TOLERANCE_DOMAINS
+  ]) {
     assert.equal(Object.isFrozen(catalog), true);
   }
 
