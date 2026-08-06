@@ -1,6 +1,8 @@
 # PR #128 — Media Manifest Validation Precedence Decision Record
 
-## Final control record
+> **Immutable evidence subject:** This file records the diagnosis, RED→GREEN correction, and tested control results. The final non-self-referential SHA lock is maintained in PR #128 metadata because embedding the current commit SHA inside this tracked file would create a new commit and invalidate its own assertion.
+
+## Control record
 
 - Repository: `vvipautoparts-blip/TIGER-VVIP`
 - Delivery PR: `#128`
@@ -12,9 +14,6 @@
 - Evidence-ledger commit: `cfc1b66546d7e1377268c56a2f85d03894dcdb3e`
 - Precedence-matrix RED commit: `e582727bf712f383c2f8f17af7c5dfeeb1632dab`
 - Corrected code commit: `fbcbd69dc8735724251aabf10cdb99a5a4b22a40`
-- First evidence-attestation commit: `250e0b2ca329a9b78c5231474bb57c51a18731ad`
-- Final immutable attestation commit: `8045cbe31e111eb93b4ce4e93868ecd6c2e660d7`
-- Fully verified PR head: `8045cbe31e111eb93b4ce4e93868ecd6c2e660d7`
 - Final decision: `PASS`
 - Decision reason: `VALIDATION_PRECEDENCE_DRIFT_CORRECTED_AND_REGRESSION_LOCKED`
 - Protocol state: `SHA_LOCKED`
@@ -82,17 +81,11 @@ The production change was intentionally minimal: only `assertSafeStructure()` ch
 6. Missing or malformed seal → `MEDIA_SEAL_REQUIRED`
 7. Remaining identity, media, lifecycle, and timestamp denials in canonical order
 
-## Final GREEN evidence
+## GREEN control results
 
-### Fully verified PR head
+The corrected code and the evidence ledger were repeatedly exercised through the temporary CI PR. The final exact verified head and workflow IDs are preserved in PR #128 metadata without modifying repository bytes.
 
-- Verified head SHA: `8045cbe31e111eb93b4ce4e93868ecd6c2e660d7`
-- VVIP Quality Gate run: `31094210165`
-- Project Control Integrity run: `31094210112`
-- Dependency Review run: `31094210621`
-- CodeQL run: `31094210101`
-
-### Required gates
+Required results:
 
 - VVIP Quality Gate: `PASS`
 - Project Control Integrity: `PASS`
@@ -113,7 +106,7 @@ The production change was intentionally minimal: only `assertSafeStructure()` ch
 - Official workspace: `UNCHANGED`
 - Temporary workspace removed: `YES`
 
-### Security invariants retained
+## Security invariants retained
 
 - Seven-image limit remains exact and non-price-dependent.
 - Video remains disabled.
@@ -159,4 +152,4 @@ The runner reported that `actions/setup-node@v4` and `actions/setup-python@v5` s
 
 `PASS — SHA_LOCKED`
 
-PR #128 is technically green on the full immutable head `8045cbe31e111eb93b4ce4e93868ecd6c2e660d7`. It remains a draft stacked PR and is not yet merge-eligible or release-eligible. PR #129 is a verification-only lab and must be closed without merge.
+PR #128 remains a draft stacked PR and is not yet merge-eligible or release-eligible. PR #129 is a verification-only lab and must be closed without merge.
