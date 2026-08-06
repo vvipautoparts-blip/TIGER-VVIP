@@ -119,16 +119,22 @@ test("media contracts states purposes limits and errors are exact unique and dee
     "MEDIA_CARD_TOO_LARGE"
   ]);
 
-  const uniqueCatalogs = [
-    module.MEDIA_MIME_TYPES,
+  const derivedCatalogs = [
     Object.keys(module.MEDIA_DERIVATIVE_PURPOSES),
+    Object.values(module.MEDIA_ERROR_CODES)
+  ];
+  for (const catalog of derivedCatalogs) {
+    assert.equal(new Set(catalog).size, catalog.length);
+  }
+
+  const frozenCatalogs = [
+    module.MEDIA_MIME_TYPES,
     module.MEDIA_ASSET_STATES,
     module.MEDIA_DERIVATIVE_STATES,
     module.MEDIA_BINDING_STATES,
-    module.MEDIA_DISCLOSURE_CLASSES,
-    Object.values(module.MEDIA_ERROR_CODES)
+    module.MEDIA_DISCLOSURE_CLASSES
   ];
-  for (const catalog of uniqueCatalogs) {
+  for (const catalog of frozenCatalogs) {
     assert.equal(new Set(catalog).size, catalog.length);
     assert.equal(Object.isFrozen(catalog), true);
   }
