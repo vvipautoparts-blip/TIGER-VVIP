@@ -14,8 +14,11 @@
 - Sending a one-to-one friend request to a new friend is allowed.
 - Session invitation limit: `20` invites per session.
 
-## Privacy Boundary
+## Retention And Privacy
 
+- Conversation retention is `90` days after last activity.
+- After the retention period, conversations are deleted or anonymized according to policy.
+- Evidence for reports or security cases may be retained separately when needed.
 - Communication context is private between listing owner and interacting user.
 - Access to conversation metadata/content must follow role and policy boundaries.
 

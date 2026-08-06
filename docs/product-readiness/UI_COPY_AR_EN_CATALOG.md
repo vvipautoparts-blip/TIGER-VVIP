@@ -62,6 +62,7 @@ Use short, respectful, and clear wording.
 | Share with friend | مشاركة مع صديق | Share with Friend |
 | Friend request sent | تم إرسال طلب صداقة | Friend request sent |
 | Session invite limit reached | تم الوصول لحد الدعوات في الجلسة | Session invite limit reached |
+| New friend request allowed | إرسال طلب صداقة لشخص جديد مسموح | Sending a one-to-one friend request to a new friend is allowed. |
 
 ## Private Share
 
@@ -80,6 +81,10 @@ Use short, respectful, and clear wording.
 | Priority | الأولوية | Priority |
 | Submit request | إرسال الطلب | Submit Request |
 | Official confirmation | تم استلام طلبك، وسيتم التواصل معك خلال 24 ساعة. | Your request has been received, and we will contact you within 24 hours. |
+
+## Cross Reference
+
+- See [docs/owner-approved-readiness/LEGAL_TERMS_PRIVACY_AND_DATA_DRAFT_AR_EN.md](../owner-approved-readiness/LEGAL_TERMS_PRIVACY_AND_DATA_DRAFT_AR_EN.md) for the later owner-approved legal wording baseline.
 
 ## Errors
 

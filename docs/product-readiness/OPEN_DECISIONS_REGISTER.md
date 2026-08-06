@@ -1,19 +1,29 @@
 # OPEN DECISIONS REGISTER
 
-Open items only. No final approval is assumed without explicit owner decision.
+All decisions in this register are owner-approved as of 2026-07-17.
 
-| Decision ID | Question | Options | Recommendation | Owner Decision | Status | Dependency |
-| --- | --- | --- | --- | --- | --- | --- |
-| ODR-001 | What is the post-launch revenue model? | Subscription only / commission only / hybrid / phased | Phased: start subscription readiness, defer commission activation | Pending | Open | Legal + finance alignment |
-| ODR-002 | What is the subscription model after free period? | Monthly / quarterly / annual / sector-based | Start with simple monthly then expand | Pending | Open | Billing policy and legal text |
-| ODR-003 | Is commission required and when? | No commission / fixed % / tiered % | Keep disabled at launch; re-evaluate after stabilization | Pending | Open | Contract and accounting model |
-| ODR-004 | What business registration requirements apply by account type? | Mandatory for all / conditional by type / optional initially | Conditional by high-risk or high-volume business types | Pending | Open | Compliance framework |
-| ODR-005 | What is the final business verification flow? | Manual review / hybrid / full automation | Hybrid staged rollout with audit trail | Pending | Open | Ops tooling + policy |
-| ODR-006 | What is the final app direction? | Flutter native / hybrid web app / phased dual path | Keep decision open until post-UAT device evidence | Pending | Open | Engineering capacity and timeline |
-| ODR-007 | What is the conversation retention policy? | 30/90/180 days / role-based retention | Start with conservative retention and legal review | Pending | Open | Privacy and legal approval |
-| ODR-008 | What is the account deletion policy detail? | Immediate / grace period / staged anonymization | Grace period + reversible path before permanent deletion | Pending | Open | Legal + data lifecycle policy |
-| ODR-009 | Which countries follow Jordan and in what order? | GCC first / Levant first / demand-driven | Data-driven expansion after Jordan controlled launch report | Pending | Open | Market readiness and operations scaling |
+No owner decision in this register remains unresolved. Deferred implementation parameters remain intentionally undecided or unimplemented.
+
+| Decision ID | Owner Decision | Decision Date | Status | Dependency |
+| --- | --- | --- | --- | --- |
+| ODR-001 | Subscription only after launch, 0% commission, financial execution outside the 60-day launch window. | 2026-07-17 | Owner Approved | Legal + finance alignment |
+| ODR-002 | Four free months from registration; monthly subscription for publisher accounts after the free period; buyers remain free; amount not authorized here. | 2026-07-17 | Owner Approved | Billing policy and legal text |
+| ODR-003 | Commission is 0%; the platform is not a party to sale, payment, delivery, contract, or warranty. | 2026-07-17 | Owner Approved | Contract and accounting model |
+| ODR-004 | Business registration is required for Shops, Service centers, Dealers / Distributors, and Companies / Institutions; Service Provider is risk-based. | 2026-07-17 | Owner Approved | Compliance framework |
+| ODR-005 | Hybrid verification with phone/email, document upload when needed, human review, audit trail, re-review, and no sensitive public exposure. | 2026-07-17 | Owner Approved | Ops tooling + policy |
+| ODR-006 | One unified cross-platform app with Web/PWA; no separate sector apps; exact framework remains open until spike/device tests. | 2026-07-17 | Owner Approved | Engineering capacity and timeline |
+| ODR-007 | Conversation retention is 90 days after last activity, with separate evidence retention where necessary. | 2026-07-17 | Owner Approved | Privacy and legal approval |
+| ODR-008 | Account deletion uses immediate disablement, a 30-day recovery period, then permanent deletion or anonymization. | 2026-07-17 | Owner Approved | Legal + data lifecycle policy |
+| ODR-009 | Jordan remains the only approved launch country for now; the next country is determined later by the approved scoring framework. | 2026-07-17 | Owner Approved | Market readiness and operations scaling |
+
+## Deferred Implementation Parameters
+
+- Subscription amount.
+- Tax handling.
+- Payment gateway implementation.
+- Exact framework lock-in.
+- International expansion execution.
 
 ## Conflict Handling Rule
 
-If any requirement conflicts with official references, record new decision rows here and keep status `Open` until owner decision is explicit.
+If any future requirement conflicts with the official blueprint or the memory map, the highest-priority source wins and the issue must be recorded before implementation.

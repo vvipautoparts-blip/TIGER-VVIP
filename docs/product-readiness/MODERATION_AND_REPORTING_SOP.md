@@ -50,9 +50,11 @@ Action must match severity, recurrence, and evidence quality.
 - Moderator can review and action within policy matrix.
 - Moderator cannot change owner-level governance or legal policy.
 - Moderator cannot permanently remove evidence outside approved process.
+- Tiger Care handles support intake, not moderation rulings.
 
 ## 8. Operating Notes
 
 - Keep user-facing communication concise and respectful.
 - Avoid disclosing private internal reasoning that risks security abuse.
+- Escalate legal, privacy, or safety issues immediately.
 - Escalate legal/safety-sensitive incidents immediately.

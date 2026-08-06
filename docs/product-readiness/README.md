@@ -5,6 +5,8 @@
 This package is a parallel, non-official execution track created while waiting for Supabase Support ticket `SU-424152`.
 It is documentation-only and does not include backend, migration, deployment, or production work.
 
+Owner-approved consolidation work now continues in [docs/owner-approved-readiness/](../owner-approved-readiness/) and must be read together with this historical P08 package.
+
 ## In Scope
 
 - Product readiness documentation for owner review.
@@ -69,4 +71,5 @@ When a conflict appears:
 
 This package does not claim production readiness.
 This package does not claim backend authorization exists.
+This package does not replace the later owner-approved readiness consolidation package.
 This package does not change official phase status.

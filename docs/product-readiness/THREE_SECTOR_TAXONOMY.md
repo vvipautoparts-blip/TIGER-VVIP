@@ -4,110 +4,114 @@
 
 ### Main Categories
 
-- Spare parts
-- Mechanical services
-- Electrical services
-- Body and paint
-- Tires and batteries
-- Diagnostics and maintenance
+- Parts
+- Maintenance
+- Electrical / Hybrid
+- General services
+- Dealers / distributors
 
-### Example Subcategories
+### Example Fields And Subcategories
 
-- Engine, transmission, suspension, brakes, AC
-- Workshop service, mobile service, emergency support
+- Vehicle class.
+- Make.
+- Model.
+- Year.
+- Part or service name.
+- Condition.
+- Price.
+- Location.
+- Compatibility.
+- Seller/business type.
+- Engine, transmission, suspension, brakes, AC.
+- Workshop service, mobile service, emergency support.
 
 ## Sector 2: Materials And Supplies
 
 ### Main Categories
 
 - Construction materials
+- Electrical materials
+- Plumbing
 - Industrial supplies
-- Electrical supplies
-- Plumbing supplies
-- Packaging and warehouse supplies
+- Tools
+- Safety supplies
+- Finishing materials
+- Other suggestion pending admin approval
 
-### Example Subcategories
+### Example Fields
 
-- Cement, steel, insulation
-- Wiring, breakers, control accessories
+- Material name.
+- Unit type.
+- Quantity or stock indicator.
+- Delivery capability indicator.
+- Price.
+- Location.
 
 ## Sector 3: Real Estate
 
 ### Main Categories
 
-- Residential
-- Commercial
+- House
+- Apartment
 - Land
-- Short-term and long-term leasing
-
-### Example Subcategories
-
-- Apartment, villa, office, store, warehouse, plot
+- Villa
+- Shop
+- Office
+- Warehouse
+- Farm
+- Commercial property
+- Sale
+- Rent
 
 ## Required And Optional Fields
 
 ### Required Fields (All Sectors)
 
-- Listing title
-- Sector
-- Main category
-- Price (`> 0`)
-- Currency
-- Governorate/region
-- City/area
-- At least 1 image, up to 7 images
-- Listing owner account reference
+- Listing title.
+- Sector.
+- Main category.
+- Price (`> 0`).
+- Currency.
+- Governorate/region.
+- City/area.
+- At least 1 image, up to 7 images.
+- Listing owner account reference.
 
 ### Optional Fields (All Sectors)
 
-- Description
-- Contact preference
-- Secondary location details
-- Additional attributes by category
+- Description.
+- Contact preference.
+- Secondary location details.
+- Additional attributes by category.
 
 ## Shared Fields Across Sectors
 
-- Title
-- Description
-- Sector/category/subcategory
-- Price/currency
-- Location
-- Images
-- Listing status
-- Created/updated timestamps
-
-## Sector-Specific Fields
-
-### Auto Parts And Services
-
-- Vehicle make/model/year compatibility
-- Condition (new/used)
-- Service type and availability
-
-### Materials And Supplies
-
-- Unit type (kg, ton, piece, box, meter)
-- Quantity/stock indicator
-- Delivery capability indicator
-
-### Real Estate
-
-- Property type
-- Area size (sqm)
-- Furnishing state
-- Bedrooms/bathrooms where applicable
-- Sale/rent mode
+- Title.
+- Description.
+- Sector/category/subcategory.
+- Price/currency.
+- Location.
+- Images.
+- Listing status.
+- Created/updated timestamps.
 
 ## Predefined Values Vs Free Text
 
 - Predefined: sector, category, subcategory, currency, status, standard conditions.
-- Free text: title, description, optional notes.
-- Rule: predefined values should be used whenever consistency/search quality is required.
+- Free text: title, description, short notes.
+- Rule: structured data should be roughly 80% and free text roughly 20% for consistency.
 
 ## Price, Location, And Image Rules
 
 - Price is mandatory and must be greater than zero.
+- Decimal prices are allowed.
 - Location fields are mandatory for discovery relevance.
 - Images are required, image-only, max 7.
-- Aspect ratio target is `4:3` after editing flow.
+- Aspect ratio target is `4:3`.
+- Cover image selection is required.
+- Reorder is allowed.
 - No video is allowed in listing media.
+
+## Boundary
+
+- No backend implementation is executed by this document.

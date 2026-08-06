@@ -2,6 +2,7 @@
 
 Documentation checklist only.
 No actual store publishing is executed by this package.
+The approved mobile direction is documented in the owner-approved consolidation package.
 
 ## Platforms
 
@@ -70,3 +71,7 @@ No actual store publishing is executed by this package.
 - No real store upload.
 - No production release action.
 - No dependency change is required by this checklist.
+
+## Cross Reference
+
+- See [docs/owner-approved-readiness/MOBILE_APPLICATION_DIRECTION.md](../owner-approved-readiness/MOBILE_APPLICATION_DIRECTION.md) for the approved app direction.

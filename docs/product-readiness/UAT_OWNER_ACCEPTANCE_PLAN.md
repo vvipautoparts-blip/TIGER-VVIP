@@ -24,6 +24,8 @@ Owner acceptance scenarios across:
 - Permissions
 - Negative cases
 
+The approved scenario baseline is aligned with the owner-approved consolidation package.
+
 ## Test Case Template
 
 | ID | Preconditions | Steps | Expected Result | Evidence | Owner Decision |
@@ -45,3 +47,7 @@ Owner acceptance scenarios across:
 - Record evidence for each case before owner decision.
 - Owner decision must be explicit per case (`Accepted`, `Rejected`, `Needs Fix`).
 - No case implies backend authorization by UI behavior alone.
+
+## Cross Reference
+
+- See [docs/owner-approved-readiness/MASTER_TEST_AND_ACCEPTANCE_PLAN.md](../owner-approved-readiness/MASTER_TEST_AND_ACCEPTANCE_PLAN.md) for the consolidated acceptance plan.
