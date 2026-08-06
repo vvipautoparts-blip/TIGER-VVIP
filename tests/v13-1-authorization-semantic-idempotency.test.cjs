@@ -3,12 +3,19 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const { createHash } = require("node:crypto");
+const fs = require("node:fs");
 const path = require("node:path");
 const { pathToFileURL } = require("node:url");
 
-const moduleUrl = pathToFileURL(
-  path.resolve(__dirname, "../scripts/authorization/v13-server-command-handler.js")
-).href;
+const handlerPath = path.resolve(
+  __dirname,
+  "../scripts/authorization/v13-server-command-handler.js"
+);
+const semanticModulePath = path.resolve(
+  __dirname,
+  "../scripts/authorization/v13-semantic-idempotency.js"
+);
+const moduleUrl = pathToFileURL(handlerPath).href;
 const NOW = "2026-08-05T12:01:00.000Z";
 
 async function loadModule() {
@@ -128,6 +135,7 @@ function trustedTarget(id = "assignment-0001") {
 function transactionHarness() {
   const calls = [];
   const receipts = new Map();
+  const persistenceInputs = [];
   const tx = {
     async findIdempotencyReceipt(idempotencyKey) {
       calls.push(`find:${idempotencyKey}`);
@@ -139,6 +147,7 @@ function transactionHarness() {
     },
     async persistAuthorizationCommand(input) {
       calls.push(`persist:${input.operation}`);
+      persistenceInputs.push(input);
       return {
         id: input.operation === "createAssignment"
           ? "assignment-created-0002"
@@ -162,6 +171,7 @@ function transactionHarness() {
   };
   return {
     calls,
+    persistenceInputs,
     runTransaction: async (work) => ({ committed: true, value: await work(tx) })
   };
 }
@@ -193,6 +203,8 @@ test("semantic hash projection is versioned normalized and excludes transport ke
   assert.equal(projection.operationContractVersion, 1);
   assert.equal("correlationKey" in projection, false);
   assert.equal("idempotencyKey" in projection, false);
+  assert.equal("activeMarketCountry" in projection, false);
+  assert.equal("envelopeId" in projection, false);
   assert.deepEqual(projection.resource, {
     countryCode: "JO",
     scope: { level: "country", countryCode: "JO" }
@@ -207,6 +219,7 @@ test("semantic hash projection is versioned normalized and excludes transport ke
     roleIds: ["owner"],
     scope: { level: "platform" }
   });
+  assert.deepEqual(transaction.persistenceInputs[0].command, projection.command);
 });
 
 test("tracking changes equivalent scope formatting and ignored mutation fields replay exactly", async () => {
@@ -237,6 +250,9 @@ test("tracking changes equivalent scope formatting and ignored mutation fields r
 
   assert.equal(first.ok, true);
   assert.deepEqual(replay, first);
+  assert.deepEqual(transaction.persistenceInputs[0].command, {
+    assignmentId: "assignment-0001"
+  });
   assert.equal(transaction.calls.filter((entry) => entry.startsWith("persist:")).length, 1);
   assert.equal(transaction.calls.filter((entry) => entry.startsWith("audit:")).length, 1);
   assert.equal(transaction.calls.filter((entry) => entry.startsWith("load:")).length, 1);
@@ -268,6 +284,17 @@ test("create permission order and equivalent scope formatting share one semantic
 
   assert.equal(first.ok, true);
   assert.deepEqual(replay, first);
+  assert.deepEqual(transaction.persistenceInputs[0].command, {
+    subjectId: "staff-2",
+    roleId: "country_admin",
+    requestedPermissionIds: [
+      "country.governance.manage",
+      "country.governance.read"
+    ],
+    scope: { level: "country", countryCode: "JO" },
+    startsAt: "2026-08-05T12:00:00.000Z",
+    expiresAt: "2026-09-05T12:00:00.000Z"
+  });
   assert.equal(transaction.calls.filter((entry) => entry.startsWith("persist:")).length, 1);
   assert.equal(transaction.calls.filter((entry) => entry.startsWith("audit:")).length, 1);
 });
@@ -289,4 +316,12 @@ test("changing the semantic reason or mutation target remains a conflict", async
   assert.deepEqual(targetConflict, { ok: false, code: "IDEMPOTENCY_CONFLICT" });
   assert.equal(transaction.calls.filter((entry) => entry.startsWith("persist:")).length, 1);
   assert.equal(transaction.calls.filter((entry) => entry.startsWith("audit:")).length, 1);
+});
+
+test("semantic idempotency module stays pure and infrastructure-free", () => {
+  const source = fs.readFileSync(semanticModulePath, "utf8");
+  assert.doesNotMatch(source,
+    /https?:\/\/|supabase\.co|service[_-]?role|project[_-]?ref|postgres(?:ql)?:\/\/|createClient|db\s+push|--linked/i);
+  assert.doesNotMatch(source,
+    /process\.env|globalThis\.crypto|localStorage|sessionStorage|window\.|document\./);
 });
