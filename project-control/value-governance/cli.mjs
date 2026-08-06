@@ -95,7 +95,12 @@ export async function runValueGovernanceCli({
       registry,
       now: generatedAt
     });
-    const decisions = evaluateAssets({ policy, registry, evidence });
+    const decisions = evaluateAssets({
+      policy,
+      registry,
+      evidence,
+      evaluatedAt: generatedAt
+    });
     const report = buildAnalysisReport({
       policy,
       decisions,
