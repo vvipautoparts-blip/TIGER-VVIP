@@ -16,6 +16,12 @@ const POLLUTION_KEYS = new Set(["__proto__", "prototype", "constructor"]);
 const MAX_CANONICAL_DEPTH = 12;
 const MAX_CANONICAL_ENTRIES = 256;
 const SHA256_HEX_PATTERN = /^[a-f0-9]{64}$/;
+
+export const AUTHORIZATION_IDEMPOTENCY_CONTRACT = Object.freeze({
+  name: "V13.1_AUTHORIZATION_COMMAND",
+  version: 1
+});
+
 const TRANSACTION_DENIAL_CODES = new Set([
   "IDEMPOTENCY_CONFLICT",
   "OWNER_ROOT_IMMUTABLE",
@@ -317,6 +323,36 @@ function commandForPersistence(request, policy, targetId) {
   });
 }
 
+function semanticResourceProjection(resource) {
+  const projected = { scope: resource.scope };
+  if (resource.countryCode !== null && resource.countryCode !== undefined) {
+    projected.countryCode = typeof resource.countryCode === "string"
+      ? resource.countryCode.trim().toUpperCase()
+      : resource.countryCode;
+  }
+  return normalizeCanonicalValue(projected, {
+    seen: new Set(),
+    entryCount: 0
+  });
+}
+
+function semanticRequestHashProjection(request, policy, targetId) {
+  return deepFreeze({
+    contract: AUTHORIZATION_IDEMPOTENCY_CONTRACT,
+    operation: request.operation,
+    family: policy.family,
+    action: policy.action,
+    actorId: request.authenticatedActorId.trim(),
+    command: commandForPersistence(request, policy, targetId),
+    correlationKey: request.correlationKey,
+    idempotencyKey: request.idempotencyKey,
+    reason: request.reason.trim(),
+    resource: semanticResourceProjection(request.resource),
+    policyVersion: request.envelope.policyVersion,
+    assignmentRevision: request.envelope.assignmentRevision
+  });
+}
+
 function stableDataFromPersistence(persisted, policy) {
   if (!persisted
     || typeof persisted !== "object"
@@ -376,20 +412,6 @@ function projectStoredSuccess(value) {
     idempotencyKey: value.receipt.idempotencyKey,
     auditHash: value.receipt.auditHash
   });
-}
-
-function requestHashProjection(request) {
-  return {
-    operation: request.operation,
-    actorId: request.authenticatedActorId,
-    command: request.command,
-    correlationKey: request.correlationKey,
-    idempotencyKey: request.idempotencyKey,
-    reason: request.reason,
-    resource: request.resource,
-    policyVersion: request.envelope.policyVersion,
-    assignmentRevision: request.envelope.assignmentRevision
-  };
 }
 
 export function createAuthorizationServerCommandHandler({
@@ -463,7 +485,7 @@ export function createAuthorizationServerCommandHandler({
     let requestHash;
     try {
       requestHash = await hashCanonicalValue(
-        requestHashProjection(request),
+        semanticRequestHashProjection(request, policy, targetId),
         digestSha256
       );
     } catch {
