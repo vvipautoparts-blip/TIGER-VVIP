@@ -109,9 +109,16 @@ test("analysis report hash is semantic deterministic and timestamp independent",
     "asset:test:dead-artifact",
     "asset:test:old-job"
   ]);
+  assert.equal(forward.cleanupPlans.length, 1);
+  assert.equal(forward.cleanupPlans[0].assetId, "asset:test:dead-artifact");
+  assert.equal(forward.cleanupPlans[0].executable, false);
+  assert.equal(forward.cleanupPlans[0].expectedContentHash, "a".repeat(64));
+  assert.deepEqual(forward.cleanupPlans, reverse.cleanupPlans);
   assert.equal(Object.isFrozen(forward), true);
   assert.equal(Object.isFrozen(forward.decisions), true);
   assert.equal(Object.isFrozen(forward.decisions[0]), true);
+  assert.equal(Object.isFrozen(forward.cleanupPlans), true);
+  assert.equal(Object.isFrozen(forward.cleanupPlans[0]), true);
 });
 
 test("Class A removal candidates produce non-executable content-addressed plans", async () => {
