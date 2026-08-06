@@ -1,8 +1,8 @@
 # Continuous Value Governance Engine — Design
 
-**Status:** Approved design baseline  
-**Date:** 2026-08-06  
-**Platform:** VVIP TIGER  
+**Status:** Approved design baseline
+**Date:** 2026-08-06
+**Platform:** VVIP TIGER
 **Scope:** Repository, product, operations, administration, and controlled Auto-Cleanup governance
 
 ## 1. Decision
@@ -30,7 +30,7 @@ The engine SHALL:
 7. Run dependency, security, legal-retention, data-residency, financial, and rollback checks before destructive action.
 8. Preserve append-only evidence and decision history.
 9. Verify platform health after every removal and automatically roll back when acceptance thresholds fail.
-10. operate without direct changes to `main`, uncontrolled production access, or hidden exceptions.
+10. Operate without direct changes to `main`, uncontrolled production access, or hidden exceptions.
 
 ## 3. Value hierarchy
 
