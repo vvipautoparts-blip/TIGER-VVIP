@@ -32,6 +32,11 @@ const TEXT_EXTENSIONS = new Set([
   ".yml"
 ]);
 const IGNORED_DIRECTORIES = new Set([".git", "node_modules"]);
+const NON_DEPENDENCY_METADATA_PATHS = new Set([
+  "project-control/schemas/value_asset.schema.json",
+  "project-control/value-governance/policy.v1.json",
+  "project-control/value-governance/registry.v1.json"
+]);
 
 function boundedText(value, max) {
   return typeof value === "string"
@@ -123,6 +128,7 @@ async function listReferenceSources(rootDir) {
         continue;
       }
       if (!entry.isFile()) continue;
+      if (NON_DEPENDENCY_METADATA_PATHS.has(relativePath)) continue;
 
       const extension = path.extname(entry.name).toLowerCase();
       if (!TEXT_EXTENSIONS.has(extension)) continue;
