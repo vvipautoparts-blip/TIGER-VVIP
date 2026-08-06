@@ -1,5 +1,5 @@
 ﻿artifact_id,task_code,artifact_type,name,path_or_url,version,sha256,approved_by,status
-ART-0001,,md,README_AR.md,README_AR.md,2.1.0,6044476df0b572e9bbb19c00ead33b1c2d500839fe8f6fb0622882ed8e311240,,generated_verified
+ART-0001,,md,README_AR.md,README_AR.md,2.1.0,8de99c85eb85341bafb8645a142bd8e42d257d9c21176728b3eb702911cb1edb,,generated_verified
 ART-0002,,html,VVIP_TIGER_Project_Control_Center_AR.html,dashboard/VVIP_TIGER_Project_Control_Center_AR.html,2.1.0,76c69c6212f53cde686456062ae8b456e5ee1cac3e4a4f28b2ed55ab7864349a,,generated_verified
 ART-0003,,csv,country_capability_matrix.csv,data/country_capability_matrix.csv,2.1.0,7e27cbf87286fc83432c37eea2c804194db21768c3d747733c9bc2d16ae61d26,,generated_verified
 ART-0004,,csv,decision_log.csv,data/decision_log.csv,2.1.0,a51c8eb85a828f8a5c190f14c3e7729dbe8e2f4b09d2f320914adae39cad64f3,,generated_verified
