@@ -6,12 +6,9 @@
 
 - Repository: `vvipautoparts-blip/TIGER-VVIP`
 - Delivery PR: `#128`
-- Delivery branch: `feat/v13-1-media-first-payload-foundation-20260806`
-- Base PR branch: `feat/v13-1-authorization-query-pipeline-20260806`
-- Base SHA: `088c127b438894ecf97b3e2e2a176e5b870d2db3`
 - Temporary CI PR: `#129` — verification only; never merge
 - Original failing candidate: `cd2a93d84bf40e6e0f88d9057274a74a526d2ac3`
-- Precedence-matrix RED commit: `e582727bf712f383c2f8f17af7c5dfeeb1632dab`
+- RED matrix commit: `e582727bf712f383c2f8f17af7c5dfeeb1632dab`
 - Corrected code commit: `fbcbd69dc8735724251aabf10cdb99a5a4b22a40`
 - Decision: `PASS`
 - Reason: `VALIDATION_PRECEDENCE_DRIFT_CORRECTED_AND_REGRESSION_LOCKED`
@@ -30,14 +27,9 @@ The cause was deterministic validation-precedence drift. Structural validation t
 
 ## RED confirmation
 
-The dedicated validation-precedence matrix was committed before the production correction. The RED execution produced 226/230 PASS with four expected failures and no unexpected failures.
+A dedicated validation-precedence matrix was committed before the production correction. The RED execution produced 226/230 PASS with four expected failures and no unexpected failures.
 
-The failing cases covered:
-
-1. the original missing-country scenario;
-2. the country missing-value matrix;
-3. the country-seal missing-value matrix;
-4. forbidden-field precedence combined with a missing known value.
+The failing cases covered the original missing-country scenario, the country missing-value matrix, the country-seal missing-value matrix, and forbidden-field precedence combined with a missing known value.
 
 Unknown-field precedence and unsafe-structure/prototype-pollution precedence already passed during RED, proving that the correction did not require weakening structural protections.
 
@@ -53,7 +45,7 @@ The approved model is two-pass deterministic validation:
    - Forbidden client-controlled fields have highest domain precedence.
    - Unknown fields remain contract errors.
    - Missing known required fields receive stable field-specific codes.
-   - Invalid present values receive stable format/domain codes.
+   - Invalid present values receive stable domain codes.
    - Lifecycle and timestamp validation follow identity and media-domain validation.
 
 The production correction changed only the treatment of `undefined` inside `assertSafeStructure()`. No gate, allowlist, media limit, lifecycle invariant, storage boundary, or denial code was weakened.
@@ -68,26 +60,6 @@ The production correction changed only the treatment of `undefined` inside `asse
 6. Missing or malformed country seal → `MEDIA_SEAL_REQUIRED`
 7. Remaining identity, media, lifecycle, and timestamp denials in canonical order
 
-## Required verified controls
-
-- VVIP Quality Gate
-- Project Control Integrity
-- Dependency Review
-- CodeQL
-- Complete Node CJS suite
-- Validation-precedence matrix
-- PR35/PR36 focused suite
-- Listing Contract suite
-- Authorization integrity suite
-- Python and cleanroom suites
-- Secret scanner
-- Dangerous SQL scanner
-- QA smoke
-- Clean isolated worktree
-- Unchanged official workspace
-
-The exact verified SHA and workflow run identities are recorded in PR #128 metadata after the final immutable verification run.
-
 ## Security invariants
 
 - The image limit remains exactly seven and is never price-dependent.
@@ -99,20 +71,16 @@ The exact verified SHA and workflow run identities are recorded in PR #128 metad
 
 ## Release Decision Assurance Protocol
 
-### State machine
-
 `DIAGNOSING → RED_CONFIRMED → FIX_IN_PROGRESS → GREEN_CANDIDATE → SHA_LOCKED → REVIEW_ELIGIBLE → MERGE_ELIGIBLE → RELEASE_ELIGIBLE`
 
 No state may be skipped. A successful workflow on another SHA is not evidence for the candidate under decision.
-
-### Result classifications
 
 - `PASS`: all mandatory gates pass on one locked SHA. This allows progression toward review; it does not authorize merge or production release.
 - `KNOWN_ACCEPTABLE_DEVIATION`: prohibited for authentication, authorization, privacy, media integrity, storage isolation, RLS, secrets, SQL safety, and fail-closed behavior. Any non-security deviation requires an expiring signed waiver, named risk owner, compensating control, linked issue, rollback method, and remediation deadline.
 - `FAILURE_OR_SECURITY_DRIFT`: merge and release remain blocked; reproducible RED evidence and a technical correction are mandatory.
 - `TIMEOUT_OR_INCONCLUSIVE`: never success. Rerun once on the identical SHA, then investigate infrastructure without altering product gates.
 
-Permanent exceptions are prohibited. Media-integrity and security invariants in this PR are non-waivable.
+Permanent exceptions are prohibited. Media-integrity and security invariants are non-waivable.
 
 ## Merge and release separation
 
