@@ -19,7 +19,7 @@ test("authorization integrity gate executes after constitution and before securi
   assert.match(script, /GATE_v13_1_authorization_integrity=PASS/);
 });
 
-test("authorization integrity gate covers the complete trusted write path in dependency order", () => {
+test("authorization integrity gate covers complete trusted write and read paths in dependency order", () => {
   const script = fs.readFileSync(qualityGatePath, "utf8");
   const required = [
     "tests/v13-1-authority-contracts.test.cjs",
@@ -31,7 +31,9 @@ test("authorization integrity gate covers the complete trusted write path in dep
     "tests/v13-1-authorization-server-command-handler.test.cjs",
     "tests/v13-1-authorization-server-command-handler-security.test.cjs",
     "tests/v13-1-authorization-semantic-idempotency.test.cjs",
-    "tests/v13-1-authorization-command-boundary.test.cjs"
+    "tests/v13-1-authorization-command-boundary.test.cjs",
+    "tests/v13-1-authorization-query-handler.test.cjs",
+    "tests/v13-1-authorization-query-boundary.test.cjs"
   ];
 
   const positions = required.map((file) => {
@@ -54,6 +56,6 @@ test("authorization integrity gate covers the complete trusted write path in dep
   assert.ok(authorizationRun > arrayEnd, "focused gate must execute the complete authorization array");
   assert.ok(
     positions.every((position) => position > arrayStart && position < arrayEnd),
-    "every required trusted-write test must be inside AUTHORIZATION_TESTS"
+    "every required trusted write and read test must be inside AUTHORIZATION_TESTS"
   );
 });
