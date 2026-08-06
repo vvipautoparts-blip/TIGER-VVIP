@@ -291,6 +291,14 @@ else
     echo "GATE_validate_project_control=SKIP"
 fi
 
+if [ -f project-control/value-governance/cli.mjs ]; then
+    run_clean_gate \
+        "continuous_value_governance" \
+        node project-control/value-governance/cli.mjs --check
+else
+    echo "GATE_continuous_value_governance=SKIP"
+fi
+
 if [ -f scripts/security/p08-steel-shield/scan-secret-leaks.sh ]; then
     run_clean_gate \
         "scan_secret_leaks" \
