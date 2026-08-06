@@ -1,7 +1,7 @@
 # Continuous Value Governance Phase 1 — As-Built Implementation Plan
 
-**Status:** Implemented and verified on the feature branch  
-**Date:** 2026-08-06  
+**Status:** Implemented and verified on the feature branch
+**Date:** 2026-08-06
 **Mode:** `ANALYSIS_ONLY`
 
 ## Goal
