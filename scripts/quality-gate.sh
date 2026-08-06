@@ -310,6 +310,8 @@ AUTHORIZATION_TESTS=(
     tests/v13-1-authorization-server-command-handler-security.test.cjs
     tests/v13-1-authorization-semantic-idempotency.test.cjs
     tests/v13-1-authorization-command-boundary.test.cjs
+    tests/v13-1-authorization-query-handler.test.cjs
+    tests/v13-1-authorization-query-boundary.test.cjs
 )
 
 if [ -f scripts/authorization/v13-authority-contracts.js ]; then
