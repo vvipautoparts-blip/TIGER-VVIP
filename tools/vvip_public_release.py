@@ -65,6 +65,7 @@ INDEX_REMOVE_SCRIPTS = (
     "scripts/vvip-pr32-draft-preview.js",
     "scripts/vvip-pr31-create-listing-shell.js",
     "scripts/vvip-pr33-publish-readiness.js",
+    "scripts/runtime/vvip-my-listings.js",
     "scripts/media/pr36-signature.js",
     "scripts/media/pr36-policy.js",
     "scripts/media/pr36-geometry.js",
@@ -139,8 +140,10 @@ def _transform_index(text: str) -> str:
   <script defer src="runtime-config.js"></script>
   <script defer src="scripts/runtime/vvip-runtime-loader.js"></script>
   <script defer src="scripts/runtime/vvip-marketplace-repository.js"></script>
+  <script defer src="scripts/runtime/vvip-marketplace-rollback.js"></script>
   <script defer src="auth-clerk-index.js"></script>
   <script defer src="scripts/vvip-pr30-resilience.js"></script>
+  <script defer src="scripts/runtime/vvip-my-listings.js"></script>
   <script defer src="scripts/vvip-production-marketplace.js"></script>
 """.rstrip()
     text = text.replace("</head>", f"{injection}\n</head>")
