@@ -1,8 +1,8 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "program": "V14_GLOBAL_LAUNCH_READINESS",
   "sourceBranch": "integration/v14-global-launch-readiness-20260806",
-  "sourceHead": "8e357ee51eaf3be2582e56991919bd74b4e5e732",
+  "verifiedImplementationHead": "8a1b9d95cae9dc5c1efd1bce220589b10f3e1385",
   "pullRequest": 134,
   "statusDate": "2026-08-06",
   "repositoryState": {
@@ -11,27 +11,30 @@
     "legacyEnvironmentFileRemoved": true,
     "publicArtifactAllowlistAdded": true,
     "productionDeploymentWorkflowAdded": true,
+    "storageCompensationAdded": true,
     "remoteDatabaseApplied": false,
     "stagingDeployed": false,
     "productionDeployed": false
   },
   "localIsolatedEvidence": {
     "pythonReleaseTests": {
-      "passed": 4,
+      "passed": 5,
       "failed": 0
     },
     "nodeV14Tests": {
-      "passed": 22,
+      "passed": 24,
       "failed": 0
     },
     "scope": [
       "public artifact builder and release guard",
+      "runtime dependency load ordering and deduplication",
       "Clerk and Supabase runtime boundaries",
       "marketplace repository and listing normalization",
       "marketplace migration and FORCE RLS contracts",
       "append-only audit hardening",
+      "listing and uploaded-media rollback compensation",
       "production money, media and WhatsApp boundaries",
-      "isolated My Listings rendering",
+      "isolated My Listings rendering and account link interception",
       "authentication preview and return-path boundaries"
     ]
   },
