@@ -11,16 +11,18 @@ import {
   canDelegateAuthority,
   validatePartnerMembershipCommand
 } from "./v13-delegation-policy.js";
+import {
+  AUTHORIZATION_IDEMPOTENCY_CONTRACT,
+  createSemanticIdempotencyProjection,
+  normalizeAuthorizationCommandForPersistence
+} from "./v13-semantic-idempotency.js";
+
+export { AUTHORIZATION_IDEMPOTENCY_CONTRACT };
 
 const POLLUTION_KEYS = new Set(["__proto__", "prototype", "constructor"]);
 const MAX_CANONICAL_DEPTH = 12;
 const MAX_CANONICAL_ENTRIES = 256;
 const SHA256_HEX_PATTERN = /^[a-f0-9]{64}$/;
-
-export const AUTHORIZATION_IDEMPOTENCY_CONTRACT = Object.freeze({
-  name: "V13.1_AUTHORIZATION_COMMAND",
-  version: 1
-});
 
 const TRANSACTION_DENIAL_CODES = new Set([
   "IDEMPOTENCY_CONFLICT",
@@ -43,6 +45,7 @@ const OPERATION_POLICY = Object.freeze({
     kind: "governance",
     family: "assignment",
     action: "create",
+    idempotencyVersion: 1,
     resultAuthorityClass: "DELEGATED",
     resultState: "active"
   }),
@@ -51,6 +54,7 @@ const OPERATION_POLICY = Object.freeze({
     kind: "governance",
     family: "assignment",
     action: "suspend",
+    idempotencyVersion: 1,
     resultAuthorityClass: "DELEGATED",
     resultState: "suspended"
   }),
@@ -59,6 +63,7 @@ const OPERATION_POLICY = Object.freeze({
     kind: "governance",
     family: "assignment",
     action: "revoke",
+    idempotencyVersion: 1,
     resultAuthorityClass: "DELEGATED",
     resultState: "revoked"
   }),
@@ -67,6 +72,7 @@ const OPERATION_POLICY = Object.freeze({
     kind: "governance",
     family: "partner",
     action: "create",
+    idempotencyVersion: 1,
     resultAuthorityClass: "PARTNER_GLOBAL_ADMIN",
     resultState: "active"
   }),
@@ -75,6 +81,7 @@ const OPERATION_POLICY = Object.freeze({
     kind: "governance",
     family: "partner",
     action: "suspend",
+    idempotencyVersion: 1,
     resultAuthorityClass: "PARTNER_GLOBAL_ADMIN",
     resultState: "suspended"
   }),
@@ -83,6 +90,7 @@ const OPERATION_POLICY = Object.freeze({
     kind: "governance",
     family: "partner",
     action: "revoke",
+    idempotencyVersion: 1,
     resultAuthorityClass: "PARTNER_GLOBAL_ADMIN",
     resultState: "revoked"
   })
@@ -307,52 +315,6 @@ function trustedTargetPolicyDecision(actor, policy, trustedTarget) {
   });
 }
 
-function commandForPersistence(request, policy, targetId) {
-  if (policy.action === "create") {
-    return normalizeCanonicalValue(request.command, {
-      seen: new Set(),
-      entryCount: 0
-    });
-  }
-  if (policy.family === "assignment") {
-    return Object.freeze({ assignmentId: targetId });
-  }
-  return Object.freeze({
-    membershipId: targetId,
-    legalDecisionReference: request.command.legalDecisionReference.trim()
-  });
-}
-
-function semanticResourceProjection(resource) {
-  const projected = { scope: resource.scope };
-  if (resource.countryCode !== null && resource.countryCode !== undefined) {
-    projected.countryCode = typeof resource.countryCode === "string"
-      ? resource.countryCode.trim().toUpperCase()
-      : resource.countryCode;
-  }
-  return normalizeCanonicalValue(projected, {
-    seen: new Set(),
-    entryCount: 0
-  });
-}
-
-function semanticRequestHashProjection(request, policy, targetId) {
-  return deepFreeze({
-    contract: AUTHORIZATION_IDEMPOTENCY_CONTRACT,
-    operation: request.operation,
-    family: policy.family,
-    action: policy.action,
-    actorId: request.authenticatedActorId.trim(),
-    command: commandForPersistence(request, policy, targetId),
-    correlationKey: request.correlationKey,
-    idempotencyKey: request.idempotencyKey,
-    reason: request.reason.trim(),
-    resource: semanticResourceProjection(request.resource),
-    policyVersion: request.envelope.policyVersion,
-    assignmentRevision: request.envelope.assignmentRevision
-  });
-}
-
 function stableDataFromPersistence(persisted, policy) {
   if (!persisted
     || typeof persisted !== "object"
@@ -485,7 +447,7 @@ export function createAuthorizationServerCommandHandler({
     let requestHash;
     try {
       requestHash = await hashCanonicalValue(
-        semanticRequestHashProjection(request, policy, targetId),
+        createSemanticIdempotencyProjection({ request, policy, targetId }),
         digestSha256
       );
     } catch {
@@ -521,7 +483,7 @@ export function createAuthorizationServerCommandHandler({
 
         const persistenceInput = {
           operation: request.operation,
-          command: commandForPersistence(request, policy, targetId),
+          command: normalizeAuthorizationCommandForPersistence(request, policy, targetId),
           actorId: request.authenticatedActorId,
           now
         };
