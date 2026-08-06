@@ -19,16 +19,10 @@ from typing import Iterable
 
 PUBLIC_ROOT_FILES = (
     "index.html",
-    "private-profile-p03.html",
-    "public-profile-p05.html",
-    "account-settings-p05.html",
-    "edit-profile-p05.html",
-    "onboarding-p04.html",
     "privacy-policy.html",
     "terms-of-service.html",
     "data-deletion.html",
     "manifest.webmanifest",
-    "sw.js",
     "auth-clerk-index.js",
     "vvip-identity.css",
     "enhanced-components.css",
@@ -39,17 +33,10 @@ PUBLIC_PREFIXES = (
     "styles/",
     "icons/",
     "scripts/runtime/",
-    "scripts/media/",
-    "scripts/profile/",
-    "scripts/onboarding/",
-    "scripts/p06/",
 )
 
 PUBLIC_SCRIPT_FILES = (
     "scripts/vvip-pr30-resilience.js",
-    "scripts/vvip-p03-route-map.js",
-    "scripts/vvip-p03-profile.js",
-    "scripts/vvip-p03-sign-out.js",
     "scripts/vvip-production-marketplace.js",
 )
 
@@ -72,6 +59,8 @@ FORBIDDEN_PRODUCTION_MARKERS = {
 }
 
 INDEX_REMOVE_SCRIPTS = (
+    "auth-clerk-index.js",
+    "scripts/vvip-pr30-resilience.js",
     "scripts/vvip-pr29-home-marketplace.js",
     "scripts/vvip-pr32-draft-preview.js",
     "scripts/vvip-pr31-create-listing-shell.js",
