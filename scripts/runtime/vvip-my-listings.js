@@ -113,7 +113,7 @@
     }
 
     doc.addEventListener("click", function (event) {
-      const account = event.target.closest("[data-account-route]");
+      const account = event.target.closest('[data-account-route],a[href$="private-profile-p03.html"]');
       if (account && root.__VVIP_RUNTIME_CONFIG__) {
         event.preventDefault();
         event.stopImmediatePropagation();
