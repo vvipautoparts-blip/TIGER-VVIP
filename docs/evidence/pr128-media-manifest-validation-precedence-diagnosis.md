@@ -1,6 +1,6 @@
 # PR #128 — Media Manifest Validation Precedence Decision Record
 
-> **Evidence model:** This tracked record documents the diagnosis, RED→GREEN correction, controls, and release-governance policy. The exact final SHA lock and workflow identities are maintained in PR #128 metadata after verification so that this file does not create a self-referential attestation loop.
+> **Evidence model:** This tracked record documents the diagnosis, RED→GREEN correction, controls, and release-governance policy. Exact final SHA locks and workflow identities belong in pull-request metadata after immutable verification; they are intentionally not embedded here because doing so would mutate the asserted commit.
 
 ## Control record
 
@@ -10,9 +10,8 @@
 - Original failing candidate: `cd2a93d84bf40e6e0f88d9057274a74a526d2ac3`
 - RED matrix commit: `e582727bf712f383c2f8f17af7c5dfeeb1632dab`
 - Corrected code commit: `fbcbd69dc8735724251aabf10cdb99a5a4b22a40`
-- Decision: `PASS`
-- Reason: `VALIDATION_PRECEDENCE_DRIFT_CORRECTED_AND_REGRESSION_LOCKED`
-- Protocol state: `SHA_LOCKED`
+- Decision class: `PASS`
+- Decision reason: `VALIDATION_PRECEDENCE_DRIFT_CORRECTED_AND_REGRESSION_LOCKED`
 - Merge eligibility: `BLOCKED_PENDING_STACK_DEPENDENCY_AND_REQUIRED_REVIEW`
 - Release eligibility: `BLOCKED_PENDING_PRODUCTION_RELEASE_ASSURANCE`
 
