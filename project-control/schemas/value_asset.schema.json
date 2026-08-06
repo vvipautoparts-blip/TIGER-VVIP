@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vvip-tiger.invalid/schemas/value_asset.schema.json",
+  "title": "VVIP TIGER Continuous Value Governance Asset",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "assetId",
+    "type",
+    "path",
+    "purpose",
+    "accountableRole",
+    "actionClass",
+    "lifecycleState",
+    "protectedObligations",
+    "expectedEvidence",
+    "canonicalReplacement"
+  ],
+  "properties": {
+    "assetId": {
+      "type": "string",
+      "maxLength": 160,
+      "pattern": "^asset:[a-z0-9_-]+(?::[a-z0-9_-]+)*$"
+    },
+    "type": {
+      "type": "string",
+      "maxLength": 64,
+      "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)(?!.*\\u0000)[^/]+(?:/[^/]+)*$"
+    },
+    "purpose": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "accountableRole": {
+      "type": "string",
+      "maxLength": 64,
+      "pattern": "^[A-Z][A-Z0-9_]{1,63}$"
+    },
+    "actionClass": {
+      "enum": ["A", "B", "C"]
+    },
+    "lifecycleState": {
+      "enum": [
+        "DISCOVERED",
+        "ACTIVE",
+        "WATCH",
+        "DEPRECATION_CANDIDATE",
+        "QUARANTINED",
+        "REMOVAL_READY",
+        "REMOVED",
+        "RESTORED",
+        "PROTECTED"
+      ]
+    },
+    "protectedObligations": {
+      "type": "array",
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "accessibility",
+          "audit",
+          "contract",
+          "country_activation",
+          "financial",
+          "identity",
+          "legal",
+          "privacy",
+          "recovery",
+          "retention",
+          "security",
+          "tax"
+        ]
+      }
+    },
+    "expectedEvidence": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "canonical_replacement",
+          "file_exists",
+          "reference_count",
+          "rollback_reproducible",
+          "sha256"
+        ]
+      }
+    },
+    "canonicalReplacement": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "string",
+          "maxLength": 160,
+          "pattern": "^asset:[a-z0-9_-]+(?::[a-z0-9_-]+)*$"
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "actionClass": { "const": "C" } },
+        "required": ["actionClass"]
+      },
+      "then": {
+        "properties": {
+          "lifecycleState": { "enum": ["ACTIVE", "PROTECTED"] }
+        }
+      }
+    }
+  ]
+}
