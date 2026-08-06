@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "program": "V14_GLOBAL_LAUNCH_READINESS",
+  "sourceBranch": "integration/v14-global-launch-readiness-20260806",
+  "sourceHead": "8e357ee51eaf3be2582e56991919bd74b4e5e732",
+  "pullRequest": 134,
+  "statusDate": "2026-08-06",
+  "repositoryState": {
+    "runtimeImplementationChanged": true,
+    "databaseMigrationsAdded": true,
+    "legacyEnvironmentFileRemoved": true,
+    "publicArtifactAllowlistAdded": true,
+    "productionDeploymentWorkflowAdded": true,
+    "remoteDatabaseApplied": false,
+    "stagingDeployed": false,
+    "productionDeployed": false
+  },
+  "localIsolatedEvidence": {
+    "pythonReleaseTests": {
+      "passed": 4,
+      "failed": 0
+    },
+    "nodeV14Tests": {
+      "passed": 22,
+      "failed": 0
+    },
+    "scope": [
+      "public artifact builder and release guard",
+      "Clerk and Supabase runtime boundaries",
+      "marketplace repository and listing normalization",
+      "marketplace migration and FORCE RLS contracts",
+      "append-only audit hardening",
+      "production money, media and WhatsApp boundaries",
+      "isolated My Listings rendering",
+      "authentication preview and return-path boundaries"
+    ]
+  },
+  "githubState": {
+    "requiredReviewer": "nzuodezuode-byte",
+    "approvalReceived": false,
+    "autoMergeEnabled": true,
+    "exactHeadWorkflowRunsObserved": false,
+    "existingPublicDeploymentSha": "4cc292e626fea39f3b0e56b98781d521efef789d"
+  },
+  "productionDecision": "BLOCKED_EXTERNAL_ACTIVATION",
+  "blockingRequirements": [
+    "one approving review from a write-permission reviewer",
+    "exact-head GitHub Actions evidence",
+    "Clerk production publishable key and production domain configuration",
+    "Supabase production URL and public publishable key",
+    "Clerk configuration as a Supabase third-party authentication provider",
+    "remote migration ledger reconciliation",
+    "database backup and restore rehearsal",
+    "official authority assignments and an ACTIVE/VALID country seal",
+    "Staging deployment and end-to-end verification",
+    "Production Canary and rollback evidence"
+  ],
+  "releaseRule": "Do not claim global production launch until every blocking requirement is evidenced on the deployed SHA."
+}
