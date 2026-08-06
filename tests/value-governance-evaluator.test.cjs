@@ -9,6 +9,7 @@ const evaluatorUrl = pathToFileURL(path.resolve(
   __dirname,
   "../project-control/value-governance/evaluator.mjs"
 )).href;
+const EVALUATED_AT = "2026-08-06T06:30:00.000Z";
 
 async function loadEvaluatorModule() {
   return import(`${evaluatorUrl}?test=${Date.now()}-${Math.random()}`);
@@ -78,11 +79,15 @@ function evidenceFor(target, overrides = {}) {
   };
 }
 
-function evidence(assets) {
+function evidence(assets, generatedAt = "2026-08-06T06:00:00.000Z") {
   return {
-    generatedAt: "2026-08-06T06:00:00.000Z",
+    generatedAt,
     assets
   };
+}
+
+function evaluateAt(evaluateAssets, input, evaluatedAt = EVALUATED_AT) {
+  return evaluateAssets({ ...input, evaluatedAt });
 }
 
 test("protected Class C assets always remain protected", async () => {
@@ -97,7 +102,7 @@ test("protected Class C assets always remain protected", async () => {
     expectedEvidence: ["file_exists", "sha256"]
   });
 
-  const decisions = evaluateAssets({
+  const decisions = evaluateAt(evaluateAssets, {
     policy: policy(),
     registry: registry([protectedAsset]),
     evidence: evidence([evidenceFor(protectedAsset)])
@@ -122,7 +127,7 @@ test("missing or incomplete evidence never authorizes quarantine or removal", as
   const { evaluateAssets } = await loadEvaluatorModule();
   const candidate = asset();
 
-  const decisions = evaluateAssets({
+  const decisions = evaluateAt(evaluateAssets, {
     policy: policy(),
     registry: registry([candidate]),
     evidence: evidence([evidenceFor(candidate, {
@@ -147,10 +152,35 @@ test("missing or incomplete evidence never authorizes quarantine or removal", as
   });
 });
 
+test("stale evidence fails closed before quarantine or removal", async () => {
+  const { evaluateAssets } = await loadEvaluatorModule();
+  const candidate = asset();
+  const decisions = evaluateAt(evaluateAssets, {
+    policy: policy(),
+    registry: registry([candidate]),
+    evidence: evidence(
+      [evidenceFor(candidate)],
+      "2026-08-04T06:00:00.000Z"
+    )
+  });
+
+  assert.deepEqual(decisions[0], {
+    assetId: candidate.assetId,
+    path: candidate.path,
+    currentState: "DEPRECATION_CANDIDATE",
+    proposedState: "DEPRECATION_CANDIDATE",
+    actionClass: "A",
+    decision: "NO_ACTION",
+    reasonCodes: ["EVIDENCE_STALE"],
+    confidence: 0,
+    evidenceHashes: ["a".repeat(64)]
+  });
+});
+
 test("only fully proven Class A candidates reach REMOVAL_READY", async () => {
   const { evaluateAssets } = await loadEvaluatorModule();
   const candidate = asset();
-  const decisions = evaluateAssets({
+  const decisions = evaluateAt(evaluateAssets, {
     policy: policy(),
     registry: registry([candidate]),
     evidence: evidence([evidenceFor(candidate)])
@@ -182,7 +212,7 @@ test("Class B may be quarantined but never marked removal ready in phase one", a
     actionClass: "B",
     lifecycleState: "DEPRECATION_CANDIDATE"
   });
-  const decisions = evaluateAssets({
+  const decisions = evaluateAt(evaluateAssets, {
     policy: policy(),
     registry: registry([reversible]),
     evidence: evidence([evidenceFor(reversible)])
@@ -196,7 +226,7 @@ test("Class B may be quarantined but never marked removal ready in phase one", a
 test("unknown or contradictory evidence fails closed", async () => {
   const { evaluateAssets } = await loadEvaluatorModule();
   const candidate = asset();
-  const decisions = evaluateAssets({
+  const decisions = evaluateAt(evaluateAssets, {
     policy: policy(),
     registry: registry([candidate]),
     evidence: evidence([evidenceFor(candidate, {
@@ -228,12 +258,12 @@ test("registry and evidence ordering do not change canonical decisions", async (
   const firstEvidence = evidenceFor(firstAsset);
   const secondEvidence = evidenceFor(secondAsset);
 
-  const forward = evaluateAssets({
+  const forward = evaluateAt(evaluateAssets, {
     policy: policy(),
     registry: registry([firstAsset, secondAsset]),
     evidence: evidence([firstEvidence, secondEvidence])
   });
-  const reverse = evaluateAssets({
+  const reverse = evaluateAt(evaluateAssets, {
     policy: policy(),
     registry: registry([secondAsset, firstAsset]),
     evidence: evidence([secondEvidence, firstEvidence])
