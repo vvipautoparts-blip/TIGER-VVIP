@@ -103,6 +103,21 @@ Browser roles have no direct table authority. The service boundary owns creation
 
 A database mutation guard prevents deletion, mutation of transaction-binding fields, or transition back from a terminal state.
 
+## Supabase persistence adapter
+
+`scripts/ai/sovereign-stepup-supabase-consumer.js` provides the bounded server adapter for the persistent consumption RPC.
+
+It:
+
+- accepts only exact non-secret transaction fields;
+- validates authorization ID, owner, action, Release DNA, payload, scope, environment and time before any RPC;
+- calls only `consume_ai_owner_stepup_authorization`;
+- does not send raw credentials, passcodes, WebAuthn assertions, secrets, or private keys;
+- deliberately does not use a caller-provided verification digest as database execution authority;
+- fails closed on network/database errors or malformed RPC responses.
+
+The adapter is repository-implemented, but it still requires a real server-side Supabase client and approved staging migration application before runtime verification.
+
 ## Protected Tool Executor
 
 `scripts/ai/sovereign-protected-tool-executor.js` is the final L4 execution gate.
@@ -160,7 +175,8 @@ The repository implementation is not equivalent to a live authentication deploym
 - configure a trusted WebAuthn/passkey or equivalent phishing-resistant IdP server adapter;
 - enroll and verify the real owner identity through that provider;
 - apply the migration in an approved non-production environment;
-- implement the production server persistence consumer against the Supabase RPC;
+- wire the implemented Supabase persistence adapter to the real server-only Supabase client;
+- wire all live L4 executor call sites through the protected executor and prove the bypass sentinel covers the deployed source tree;
 - verify replay, concurrency, expiry, scope mismatch and forged-client scenarios against the live staging database;
 - verify audit events for successful and denied step-up actions;
 - perform manual owner step-up acceptance in staging;
