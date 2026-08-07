@@ -26,5 +26,8 @@ test("Steel Shield recognizes the exact LC-03 migration as reviewed", () => {
   });
   const output = `${result.stdout || ""}\n${result.stderr || ""}`;
   assert.equal(result.status, 0, output);
-  assert.match(output, new RegExp(`\\[reviewed\\] ${migrationRel.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`), output);
+  assert.ok(
+    output.includes(`REVIEWED_BASELINE:${migrationRel}`),
+    `missing exact reviewed-baseline marker for ${migrationRel}\n${output}`
+  );
 });
