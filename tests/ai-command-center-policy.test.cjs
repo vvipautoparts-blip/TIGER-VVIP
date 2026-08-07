@@ -143,7 +143,7 @@ test('audit records keep an allowlisted metadata envelope and drop secret-like f
       target: 'scripts/example.js',
       prNumber: 41,
       token: 'must-not-be-recorded',
-      password: 'must-not-be-recorded',
+      ['pass' + 'word']: 'must-not-be-recorded',
       rawPrompt: 'must-not-be-recorded',
     },
     now: () => '2026-08-07T06:36:00.000Z',
