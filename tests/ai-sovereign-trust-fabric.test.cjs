@@ -33,13 +33,15 @@ test('trust fabric defines the complete privileged control-plane tables', () => 
   }
 });
 
-test('approval rows bind owner, agent, action, exact payload digest, expiry and lifecycle state', () => {
+test('approval rows bind owner, agent, action, exact payload and scope digests, expiry and lifecycle state', () => {
   const sql = migration();
   assert.match(sql, /owner_subject\s+text\s+not null/i);
   assert.match(sql, /requesting_agent\s+text\s+not null/i);
   assert.match(sql, /action\s+text\s+not null/i);
   assert.match(sql, /payload_digest\s+text\s+not null/i);
+  assert.match(sql, /scope_digest\s+text\s+not null/i);
   assert.match(sql, /payload_digest\s*~\s*'\^\[0-9a-f\]\{64\}\$'/i);
+  assert.match(sql, /scope_digest\s*~\s*'\^\[0-9a-f\]\{64\}\$'/i);
   assert.match(sql, /expires_at\s+timestamptz\s+not null/i);
   assert.match(sql, /status\s+text\s+not null\s+default\s+'pending'/i);
   for (const status of ['pending', 'approved', 'rejected', 'consumed', 'expired', 'revoked']) {
@@ -47,11 +49,12 @@ test('approval rows bind owner, agent, action, exact payload digest, expiry and 
   }
 });
 
-test('L4 approval consumption is atomic, exact-match, expiring, and service-role only', () => {
+test('L4 approval consumption is atomic, exact payload/scope match, expiring, and service-role only', () => {
   const sql = migration();
   assert.match(sql, /create or replace function public\.consume_ai_owner_approval/i);
   assert.match(sql, /for update/i);
   assert.match(sql, /payload_digest\s*=\s*p_payload_digest/i);
+  assert.match(sql, /scope_digest\s*=\s*p_scope_digest/i);
   assert.match(sql, /owner_subject\s*=\s*p_owner_subject/i);
   assert.match(sql, /requesting_agent\s*=\s*p_agent/i);
   assert.match(sql, /action\s*=\s*p_action/i);
@@ -60,6 +63,12 @@ test('L4 approval consumption is atomic, exact-match, expiring, and service-role
   assert.match(sql, /set\s+status\s*=\s*'consumed'/i);
   assert.match(sql, /revoke all on function public\.consume_ai_owner_approval[\s\S]*from public, anon, authenticated/i);
   assert.match(sql, /grant execute on function public\.consume_ai_owner_approval[\s\S]*to service_role/i);
+});
+
+test('approval immutable-binding trigger includes scope digest and scope document', () => {
+  const sql = migration();
+  assert.match(sql, /new\.scope_digest\s+is distinct from\s+old\.scope_digest/i);
+  assert.match(sql, /new\.scope\s+is distinct from\s+old\.scope/i);
 });
 
 test('audit and usage ledgers are append-only at the database boundary', () => {
