@@ -1,7 +1,7 @@
 # VVIP TIGER — BLACKBOX Trust Fabric Design
 
-Status: **Approved design baseline / implementation not yet authorized beyond AI-01 gates**  
-Date: **2026-08-07**  
+Status: **Approved design baseline / implementation not yet authorized beyond AI-01 gates**
+Date: **2026-08-07**
 Branch: **`feat/ai-01-foundation`**
 
 ## 1. Purpose
