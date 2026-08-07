@@ -32,10 +32,6 @@ jobs:
         run: |
           set -euo pipefail
           test -f supabase/config.toml
-          if grep -R --line-number --fixed-strings -- '--linked' .github/workflows/v14-local-supabase-rehearsal.yml; then
-            echo 'V14_LOCAL_DB_RESET=BLOCKED_UNSAFE_LINKED_FLAG'
-            exit 1
-          fi
           if env | grep -E '^(SUPABASE_ACCESS_TOKEN|SUPABASE_DB_PASSWORD|SUPABASE_PROJECT_REF)=' >/dev/null; then
             echo 'V14_LOCAL_DB_RESET=BLOCKED_REMOTE_CREDENTIAL_ENV'
             exit 1
@@ -53,7 +49,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          supabase db reset --local
+          reset_command=(supabase db reset --local)
+          printf '%q ' "${reset_command[@]}" | grep -q -- '--linked' && {
+            echo 'V14_LOCAL_DB_RESET=BLOCKED_UNSAFE_LINKED_FLAG'
+            exit 1
+          }
+          "${reset_command[@]}"
           echo 'V14_LOCAL_DB_RESET=PASS'
 
       - name: Stop isolated local stack
