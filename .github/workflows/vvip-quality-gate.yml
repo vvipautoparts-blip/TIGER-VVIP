@@ -42,4 +42,17 @@ jobs:
         run: git fetch --no-tags --prune origin main:refs/remotes/origin/main
 
       - name: Run VVIP quality gate
-        run: bash scripts/quality-gate.sh
+        shell: bash
+        run: |
+          set -o pipefail
+          bash scripts/quality-gate.sh 2>&1 | tee /tmp/vvip-quality-gate.log
+          exit "${PIPESTATUS[0]}"
+
+      - name: Upload quality gate diagnostics
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: vvip-quality-gate-${{ github.sha }}
+          path: /tmp/vvip-quality-gate.log
+          if-no-files-found: error
+          retention-days: 14
