@@ -23,6 +23,7 @@ The executable contract tests live at:
 
 ```text
 tests/tigerpay-domain-contracts.test.cjs
+tests/tigerpay-provider-timestamp-contract.test.cjs
 ```
 
 TP-01 performs no network request, no provider signature verification, no database access, no SQL migration, no authentication, no payout execution, and no live payment operation.
@@ -341,9 +342,13 @@ The contract validates:
 - bounded printable provider-event ID,
 - bounded printable provider state,
 - known canonical TigerPay payment state,
-- valid timestamp normalized to ISO format,
+- strict ISO-8601 date-time string with an explicit `Z` or numeric timezone offset,
+- valid calendar/clock/timezone components,
+- timestamp normalization to UTC ISO format,
 - optional TigerPay money value,
 - optional bounded printable provider reference.
+
+Ambiguous locale-style dates such as `08/07/2026`, date-only strings, and timestamps without an explicit timezone are rejected. This prevents host locale, runtime parser, or deployment timezone from changing the meaning of a provider financial event.
 
 ### 12.2 Authority isolation
 
@@ -380,11 +385,11 @@ Those proofs are intentionally separate later milestones.
 
 ---
 
-## 13. TDD Evidence — RED → GREEN
+## 13. TDD Evidence — Initial RED → GREEN
 
 TP-01 was implemented test-first.
 
-### RED
+### Initial RED
 
 Production contract module intentionally absent.
 
@@ -397,7 +402,7 @@ EXPECTED_CAUSE=MODULE_NOT_FOUND
 
 The quality-gate log showed the TigerPay contract tests failing because `scripts/payments/tigerpay-domain-contracts.js` did not yet exist, while the surrounding diff, cleanroom, Python, secret, dangerous-SQL, and smoke gates were not the cause of the RED state.
 
-### GREEN
+### Initial GREEN
 
 Minimal contract module added.
 
@@ -405,7 +410,7 @@ Minimal contract module added.
 HEAD=21257ae081ee15ebdb69e2a2f0c450e78daff3ec
 VVIP_QUALITY_GATE_RUN=222
 RESULT=PASS
-TIGERPAY_TESTS=13/13 PASS
+TIGERPAY_BASE_CONTRACT_TESTS=13/13 PASS
 NODE_CJS_SUITE=76/76 PASS
 SECRET_FINDINGS=0
 DANGEROUS_SQL_CRITICAL=0
@@ -420,7 +425,50 @@ This proves the feature moved from the intended missing-module failure to the im
 
 ---
 
-## 14. Explicitly Deferred Scope
+## 14. Review Hardening TDD — Strict Provider Timestamp
+
+A final code review identified that JavaScript `Date` parsing can accept locale-dependent strings even though provider-event time is a financial evidence field. TP-01 therefore added a second focused TDD cycle.
+
+### Hardening RED
+
+```text
+HEAD=dc7fb1b4860998c3f6438ed58cd8ad90bc829a2d
+VVIP_QUALITY_GATE_RUN=225
+RESULT=FAIL
+EXPECTED_CAUSE=AMBIGUOUS_NON_ISO_TIMESTAMP_WAS_ACCEPTED
+BASE_TIGERPAY_CONTRACT_TESTS=13/13 PASS
+STRICT_TIMESTAMP_REJECT_TEST=FAIL
+STRICT_TIMESTAMP_OFFSET_NORMALIZATION_TEST=PASS
+NODE_CJS_SUITE=77/78 PASS
+```
+
+The failure was isolated to the new regression expectation that `08/07/2026` must be rejected.
+
+### Hardening GREEN
+
+The parser was changed to require an explicit ISO-8601 date-time and timezone, validate calendar/timezone components, and normalize accepted timestamps to UTC.
+
+```text
+HEAD=3371f97a02c973257fc90a66a206a008c6fec9c2
+VVIP_QUALITY_GATE_RUN=226
+RESULT=PASS
+TIGERPAY_BASE_CONTRACT_TESTS=13/13 PASS
+STRICT_TIMESTAMP_TESTS=2/2 PASS
+TIGERPAY_TOTAL_FOCUSED_TESTS=15/15 PASS
+NODE_CJS_SUITE=78/78 PASS
+SECRET_FINDINGS=0
+DANGEROUS_SQL_CRITICAL=0
+DANGEROUS_SQL_HIGH=0
+QA_SMOKE=PASS
+DEPENDENCY_REVIEW_RUN=210 PASS
+PROJECT_CONTROL_INTEGRITY_RUN=311 PASS
+```
+
+CodeQL for the documentation-final head is verified separately by the PR's final automated gate record; no completion claim should rely on an in-progress CodeQL run.
+
+---
+
+## 15. Explicitly Deferred Scope
 
 TP-01 does **not** implement any of the following:
 
@@ -453,11 +501,12 @@ These are later TigerPay milestones and must not be inferred as complete from TP
 
 ---
 
-## 15. TP-01 Completion Statement
+## 16. TP-01 Completion Statement
 
 ```text
 TP01_CANONICAL_CONTRACTS=IMPLEMENTED
 TP01_TDD=RED_TO_GREEN_PROVEN
+TP01_TIMESTAMP_HARDENING=RED_TO_GREEN_PROVEN
 TP01_LIVE_PROVIDER=NONE
 TP01_NETWORK_EXECUTION=NONE
 TP01_PRODUCTION_SQL=NONE
