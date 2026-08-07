@@ -1,0 +1,74 @@
+name: LC03 Supabase Security Rehearsal
+
+on:
+  push:
+    paths:
+      - "supabase/migrations/20260808003000_lc03_supabase_security_hardening.sql"
+      - "tests/lc03-supabase-security-hardening.test.cjs"
+      - ".github/workflows/lc03-supabase-security-rehearsal.yml"
+  pull_request:
+    paths:
+      - "supabase/migrations/20260808003000_lc03_supabase_security_hardening.sql"
+      - "tests/lc03-supabase-security-hardening.test.cjs"
+      - ".github/workflows/lc03-supabase-security-rehearsal.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lc03-supabase-security-rehearsal-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+      - name: Run LC-03 security contract
+        run: node --test tests/lc03-supabase-security-hardening.test.cjs
+
+  local-db-reset:
+    needs: contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.109.0
+      - name: Assert local-only safety contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f supabase/config.toml
+          if env | grep -E '^(SUPABASE_ACCESS_TOKEN|SUPABASE_DB_PASSWORD|SUPABASE_PROJECT_REF)=' >/dev/null; then
+            echo 'LC03_LOCAL_DB_RESET=BLOCKED_REMOTE_CREDENTIAL_ENV'
+            exit 1
+          fi
+          echo 'LC03_LOCAL_ONLY_CONTRACT=PASS'
+      - name: Start isolated local Supabase stack
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase --version
+          supabase start
+      - name: Rebuild database from repository migrations
+        shell: bash
+        run: |
+          set -euo pipefail
+          reset_command=(supabase db reset --local)
+          printf '%q ' "${reset_command[@]}" | grep -q -- '--linked' && {
+            echo 'LC03_LOCAL_DB_RESET=BLOCKED_UNSAFE_LINKED_FLAG'
+            exit 1
+          }
+          "${reset_command[@]}"
+          echo 'LC03_LOCAL_DB_RESET=PASS'
+      - name: Stop isolated local stack
+        if: always()
+        shell: bash
+        run: supabase stop --no-backup || true
