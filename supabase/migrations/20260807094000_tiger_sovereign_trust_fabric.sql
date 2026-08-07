@@ -12,6 +12,7 @@ create table if not exists public.ai_approval_requests (
   requesting_agent text not null,
   action text not null,
   payload_digest text not null,
+  scope_digest text not null,
   scope jsonb not null default '{}'::jsonb,
   decision_passport_id text,
   reason text,
@@ -35,6 +36,7 @@ create table if not exists public.ai_approval_requests (
     action in ('merge_pr', 'deploy_production', 'change_prices')
   ),
   constraint ai_approval_digest_check check (payload_digest ~ '^[0-9a-f]{64}$'),
+  constraint ai_approval_scope_digest_check check (scope_digest ~ '^[0-9a-f]{64}$'),
   constraint ai_approval_scope_object_check check (jsonb_typeof(scope) = 'object'),
   constraint ai_approval_status_check check (
     status in ('pending', 'approved', 'rejected', 'consumed', 'expired', 'revoked')
@@ -53,7 +55,7 @@ create index if not exists ai_approval_requests_status_expiry_idx
 create index if not exists ai_approval_requests_owner_created_idx
   on public.ai_approval_requests (owner_subject, created_at desc);
 create index if not exists ai_approval_requests_payload_idx
-  on public.ai_approval_requests (payload_digest);
+  on public.ai_approval_requests (payload_digest, scope_digest);
 
 create table if not exists public.ai_audit_events (
   id uuid primary key default gen_random_uuid(),
@@ -199,10 +201,11 @@ grant select, insert on table public.ai_usage_ledger to service_role;
 grant select, insert on table public.ai_prompt_versions to service_role;
 grant select, insert, update on table public.ai_agent_runtime_state to service_role;
 
+-- Trigger functions run with invoker rights. SECURITY DEFINER is intentionally
+-- avoided; service_role is the only role with the relevant table mutation grants.
 create or replace function public.reject_ai_append_only_mutation()
 returns trigger
 language plpgsql
-security definer
 set search_path = public, pg_temp
 as $$
 begin
@@ -231,7 +234,6 @@ for each row execute function public.reject_ai_append_only_mutation();
 create or replace function public.guard_ai_approval_mutation()
 returns trigger
 language plpgsql
-security definer
 set search_path = public, pg_temp
 as $$
 begin
@@ -243,6 +245,7 @@ begin
     or new.requesting_agent is distinct from old.requesting_agent
     or new.action is distinct from old.action
     or new.payload_digest is distinct from old.payload_digest
+    or new.scope_digest is distinct from old.scope_digest
     or new.scope is distinct from old.scope
     or new.decision_passport_id is distinct from old.decision_passport_id
     or new.created_at is distinct from old.created_at
@@ -285,12 +288,15 @@ create trigger ai_approval_requests_mutation_guard
 before update or delete on public.ai_approval_requests
 for each row execute function public.guard_ai_approval_mutation();
 
+-- One-time exact L4 consumption. Payload and execution scope are independently
+-- bound so an approval cannot be replayed in another country/environment/resource.
 create or replace function public.consume_ai_owner_approval(
   p_approval_id uuid,
   p_owner_subject text,
   p_agent text,
   p_action text,
   p_payload_digest text,
+  p_scope_digest text,
   p_now timestamptz default now()
 )
 returns table (
@@ -299,7 +305,6 @@ returns table (
   approval_id uuid
 )
 language plpgsql
-security definer
 set search_path = public, pg_temp
 as $$
 declare
@@ -334,6 +339,11 @@ begin
     return;
   end if;
 
+  if v_approval.scope_digest <> p_scope_digest then
+    return query select false, 'EXECUTION_SCOPE_MISMATCH'::text, v_approval.id;
+    return;
+  end if;
+
   if not (v_approval.expires_at >= p_now) then
     update public.ai_approval_requests
       set status = 'expired', updated_at = p_now
@@ -350,6 +360,7 @@ begin
       and requesting_agent = p_agent
       and action = p_action
       and payload_digest = p_payload_digest
+      and scope_digest = p_scope_digest
       and expires_at >= p_now;
 
   get diagnostics v_rows = row_count;
@@ -362,7 +373,7 @@ begin
 end;
 $$;
 
-revoke all on function public.consume_ai_owner_approval(uuid, text, text, text, text, timestamptz) from public, anon, authenticated;
-grant execute on function public.consume_ai_owner_approval(uuid, text, text, text, text, timestamptz) to service_role;
+revoke all on function public.consume_ai_owner_approval(uuid, text, text, text, text, text, timestamptz) from public, anon, authenticated;
+grant execute on function public.consume_ai_owner_approval(uuid, text, text, text, text, text, timestamptz) to service_role;
 
 commit;
