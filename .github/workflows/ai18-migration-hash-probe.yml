@@ -1,0 +1,23 @@
+name: AI18 Migration Hash Probe
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/20260807173000_tiger_sovereign_owner_stepup_authorization.sql'
+      - '.github/workflows/ai18-migration-hash-probe.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  hash-probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Emit exact migration SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          hash="$(sha256sum supabase/migrations/20260807173000_tiger_sovereign_owner_stepup_authorization.sql | awk '{print $1}')"
+          echo "::error title=AI18_MIGRATION_SHA256::$hash"
+          exit 1
