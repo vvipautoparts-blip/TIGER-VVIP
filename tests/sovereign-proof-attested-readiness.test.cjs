@@ -65,7 +65,7 @@ function buildBundle() {
       const payloadDigest = crypto.createHash('sha256').update(`payload:${gate.id}`).digest('hex');
       const scopeDigest = crypto.createHash('sha256').update(`scope:${gate.id}:${environment}`).digest('hex');
       const unsigned = {
-        schemaVersion: 'TIGER_OWNER_DECISION_RECEIPT_V1', receiptId: `odr-${index + 1}`, keyId: 'owner-2026-01',
+        schemaVersion: 'TIGER_OWNER_DECISION_RECEIPT_V1', receiptId: `odr-20260807-${String(index + 1).padStart(6, '0')}`, keyId: 'owner-2026-01',
         ownerSubject: 'owner:primary', action, releaseDigest: releaseDNA.digest, payloadDigest, scopeDigest,
         environment, decision: 'APPROVE', reasonCode: 'OWNER_RELEASE_GATE_APPROVED', nonce: `nonce-20260807-${index + 1}`,
         issuedAt: VERIFIED_AT[gate.id], expiresAt: '2026-08-07T13:30:00.000Z',
