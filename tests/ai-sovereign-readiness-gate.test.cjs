@@ -108,6 +108,7 @@ test('only complete real correctly-scoped and correctly-ordered PASS evidence ca
     SUPABASE_PRODUCTION_APPLY: '2026-08-07T11:10:00.000Z',
     AI_GATEWAY_PRODUCTION_DEPLOY: '2026-08-07T11:20:00.000Z',
     PRODUCTION_POST_DEPLOY_SMOKE: '2026-08-07T11:30:00.000Z',
+    MONITORING_ALERTS_PRODUCTION_VERIFIED: '2026-08-07T11:40:00.000Z',
   };
   for (const [gate, verifiedAt] of Object.entries(timestamps)) evidence.find((item) => item.gate === gate).verifiedAt = verifiedAt;
 
