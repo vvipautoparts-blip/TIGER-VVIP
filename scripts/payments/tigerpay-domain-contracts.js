@@ -110,6 +110,9 @@ const ALLOWED_ID_KINDS = new Set([
   'provider-event',
 ]);
 
+const ISO_8601_PROVIDER_TIMESTAMP =
+  /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,9}))?(Z|([+-])(\d{2}):(\d{2}))$/;
+
 const paymentStateSet = new Set(PAYMENT_STATES);
 const payoutStateSet = new Set(PAYOUT_STATES);
 
@@ -176,7 +179,10 @@ function createIdempotencyKey(input = {}) {
     );
   }
 
-  if (typeof intentId !== 'string' || !/^tp_[A-Za-z0-9_][A-Za-z0-9_-]{2,159}$/.test(intentId)) {
+  if (
+    typeof intentId !== 'string' ||
+    !/^tp_[A-Za-z0-9_][A-Za-z0-9_-]{2,159}$/.test(intentId)
+  ) {
     throw tigerPayError(
       'TIGERPAY_INVALID_INTENT_ID',
       'intentId must be a canonical TigerPay ID'
@@ -209,6 +215,91 @@ function isPrintableBounded(value, maxLength) {
     value.trim().length >= 1 &&
     !/[\u0000-\u001F\u007F]/.test(value)
   );
+}
+
+function isLeapYear(year) {
+  return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+}
+
+function daysInMonth(year, month) {
+  const days = [
+    31,
+    isLeapYear(year) ? 29 : 28,
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31,
+  ];
+  return days[month - 1] || 0;
+}
+
+function parseProviderOccurredAt(occurredAt) {
+  if (typeof occurredAt !== 'string') {
+    throw tigerPayError(
+      'TIGERPAY_INVALID_OCCURRED_AT',
+      'occurredAt must be an ISO-8601 timestamp with an explicit timezone'
+    );
+  }
+
+  const match = ISO_8601_PROVIDER_TIMESTAMP.exec(occurredAt);
+  if (!match) {
+    throw tigerPayError(
+      'TIGERPAY_INVALID_OCCURRED_AT',
+      'occurredAt must be an ISO-8601 timestamp with an explicit timezone'
+    );
+  }
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const hour = Number(match[4]);
+  const minute = Number(match[5]);
+  const second = Number(match[6]);
+  const timezoneHour = match[10] === undefined ? 0 : Number(match[10]);
+  const timezoneMinute = match[11] === undefined ? 0 : Number(match[11]);
+
+  const validCalendar =
+    year >= 1 &&
+    month >= 1 &&
+    month <= 12 &&
+    day >= 1 &&
+    day <= daysInMonth(year, month) &&
+    hour >= 0 &&
+    hour <= 23 &&
+    minute >= 0 &&
+    minute <= 59 &&
+    second >= 0 &&
+    second <= 59;
+
+  const validTimezone =
+    timezoneHour >= 0 &&
+    timezoneHour <= 14 &&
+    timezoneMinute >= 0 &&
+    timezoneMinute <= 59 &&
+    (timezoneHour !== 14 || timezoneMinute === 0);
+
+  if (!validCalendar || !validTimezone) {
+    throw tigerPayError(
+      'TIGERPAY_INVALID_OCCURRED_AT',
+      'occurredAt contains an invalid calendar, clock, or timezone value'
+    );
+  }
+
+  const parsed = new Date(occurredAt);
+  if (Number.isNaN(parsed.getTime())) {
+    throw tigerPayError(
+      'TIGERPAY_INVALID_OCCURRED_AT',
+      'occurredAt must be a valid ISO-8601 timestamp'
+    );
+  }
+
+  return parsed.toISOString();
 }
 
 function normalizeProviderEvent(input = {}) {
@@ -251,16 +342,7 @@ function normalizeProviderEvent(input = {}) {
     );
   }
 
-  const parsedOccurredAt = new Date(occurredAt);
-  if (
-    (typeof occurredAt !== 'string' && !(occurredAt instanceof Date)) ||
-    Number.isNaN(parsedOccurredAt.getTime())
-  ) {
-    throw tigerPayError(
-      'TIGERPAY_INVALID_OCCURRED_AT',
-      'occurredAt must be a valid timestamp'
-    );
-  }
+  const normalizedOccurredAt = parseProviderOccurredAt(occurredAt);
 
   let providerReference = null;
   if (input.providerReference !== undefined && input.providerReference !== null) {
@@ -283,7 +365,7 @@ function normalizeProviderEvent(input = {}) {
     providerEventId,
     providerState,
     canonicalState,
-    occurredAt: parsedOccurredAt.toISOString(),
+    occurredAt: normalizedOccurredAt,
     amount,
     providerReference,
   });
