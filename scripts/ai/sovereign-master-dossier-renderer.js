@@ -4,6 +4,7 @@ const crypto = require('node:crypto');
 const proof = require('./sovereign-proof-system');
 const dossier = require('./sovereign-master-dossier');
 const catalog = require('./sovereign-master-dossier-catalog');
+const enterprise = require('./sovereign-master-dossier-enterprise');
 
 const INPUT_FIELDS = Object.freeze(['releaseDNA', 'claims']);
 const UNSAFE_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
@@ -56,7 +57,7 @@ function renderClaim(claim) {
   if (claim.sources.length > 0) {
     lines.push('- Repository evidence:');
     for (const source of claim.sources) {
-      lines.push(`  - \`${source.path}\` — SHA-256 \`${source.sha256}\` — ${source.byteLength} bytes`);
+      lines.push(`  - \`${source.path}\` — SHA-256 \`${source.sha256}\` — ${source.byteLength} bytes — provenance \`${source.provenanceBoundary}\``);
     }
   } else {
     lines.push('- Repository evidence: none asserted for this truth state.');
@@ -78,6 +79,91 @@ function renderGapTable(gaps) {
   }
   if (gaps.length === 0) lines.push('| — | — | — | — |');
   lines.push('');
+  return lines;
+}
+
+function renderDatabaseSpecs() {
+  const lines = ['### Enterprise Database Field Specifications', ''];
+  for (const [tableName, table] of Object.entries(enterprise.DATABASE_SPECS)) {
+    lines.push(
+      `#### [${table.truthState}] \`public.${tableName}\``,
+      '',
+      table.purpose,
+      '',
+      `- Source contract: \`${table.sourcePath}\``,
+      `- RLS / authority boundary: ${table.rls}`,
+      '',
+      '| Field | Type | Purpose | Security semantics |',
+      '| --- | --- | --- | --- |',
+    );
+    for (const field of table.fields) {
+      lines.push(`| \`${escapeCell(field.name)}\` | \`${escapeCell(field.type)}\` | ${escapeCell(field.purpose)} | ${escapeCell(field.security)} |`);
+    }
+    lines.push('');
+  }
+  return lines;
+}
+
+function renderApiSpecs() {
+  const lines = [
+    '### API and Gateway Inventory',
+    '',
+    '| Interface | Route / boundary | Truth state | Source | Security contract |',
+    '| --- | --- | --- | --- | --- |',
+  ];
+  for (const api of enterprise.API_SPECS) {
+    lines.push(`| ${escapeCell(api.id)} | \`${escapeCell(api.route)}\` | ${escapeCell(api.truthState)} | ${api.sourcePath ? `\`${escapeCell(api.sourcePath)}\`` : '—'} | ${escapeCell(api.security)} |`);
+  }
+  lines.push('', '#### Current TIGER AI request contract', '');
+  const current = enterprise.API_SPECS.find((api) => api.id === 'AI-EDGE-TIGER-SOVEREIGN');
+  lines.push(`Accepted client request fields in the current repository contract: ${current.requestFields.map((field) => `\`${field}\``).join(', ')}.`, '');
+  lines.push('The designed `/v1/ai/*` routes remain design targets and are not presented as deployed endpoints.', '');
+  return lines;
+}
+
+function renderUiSpecs() {
+  const lines = ['### UI Component and Journey Specifications', ''];
+  for (const screen of enterprise.UI_SPECS) {
+    lines.push(`#### [${screen.truthState}] ${screen.id} — ${screen.title}`, '');
+    lines.push(`- Components / journey: ${screen.components.map((component) => `\`${component}\``).join(', ')}`);
+    lines.push(`- Source paths: ${screen.sourcePaths.length ? screen.sourcePaths.map((entry) => `\`${entry}\``).join(', ') : 'none — design/pending evidence only'}`);
+    if (screen.note) lines.push(`- Truth note: ${screen.note}`);
+    lines.push('');
+  }
+  return lines;
+}
+
+function renderSecurityOpsSpecs() {
+  const lines = ['### Automated Operations, Load and Security Evidence Matrix', ''];
+  for (const item of enterprise.SECURITY_OPS_SPECS) {
+    lines.push(`#### [${item.truthState}] ${item.id}`, '', item.requirement, '');
+    lines.push(`- Kind: \`${item.kind}\``);
+    lines.push(`- Source paths: ${item.sourcePaths.length ? item.sourcePaths.map((entry) => `\`${entry}\``).join(', ') : 'none yet'}`, '');
+  }
+  return lines;
+}
+
+function renderOperationsSpecs() {
+  const lines = ['### Operations, DR and Protected Activation Matrix', ''];
+  for (const item of enterprise.OPERATIONS_SPECS) {
+    lines.push(`#### [${item.truthState}] ${item.id}`, '', item.requirement, '');
+    if (item.actions) lines.push(`- Protected actions: ${item.actions.map((action) => `\`${action}\``).join(', ')}`);
+    lines.push(`- Source paths: ${item.sourcePaths.length ? item.sourcePaths.map((entry) => `\`${entry}\``).join(', ') : 'none — real evidence still required'}`, '');
+  }
+  return lines;
+}
+
+function renderWorkPlan() {
+  const lines = [
+    '### Complete Dossier Work Plan',
+    '',
+    '| Phase | Status | Scope | Exit criteria |',
+    '| --- | --- | --- | --- |',
+  ];
+  for (const phase of enterprise.WORK_PLAN) {
+    lines.push(`| ${escapeCell(phase.id)} — ${escapeCell(phase.title)} | ${escapeCell(phase.status)} | ${escapeCell(phase.scope)} | ${escapeCell(phase.exitCriteria.join('; '))} |`);
+  }
+  lines.push('', 'The final phase remains a protected owner gate; the work plan cannot auto-approve merge, database promotion or production activation.', '');
   return lines;
 }
 
@@ -112,6 +198,8 @@ function renderMasterDossier(input) {
     '',
     'This dossier distinguishes repository implementation, design intent, pending real-world evidence, stale proof and blocked release authority. A repository definition is not represented as staging or production execution evidence.',
     '',
+    'Repository source facts currently prove bytes from the checked-out repository only (`CURRENT_CHECKOUT_BYTES`). Trusted commit/build/deployment provenance is a separate work-plan layer and is not implied by the renderer.',
+    '',
     '## Truth-State Summary',
     '',
     '| State | Count |',
@@ -130,7 +218,12 @@ function renderMasterDossier(input) {
     const sectionClaims = input.claims.filter((claim) => claim.sectionId === section.id);
     if (sectionClaims.length === 0) lines.push('_No claims registered for this release section._', '');
     for (const claim of sectionClaims) lines.push(...renderClaim(claim));
-    if (section.id === '06_Gap_Register') lines.push(...renderGapTable(gaps));
+
+    if (section.id === '01_Architecture_Data_Paths') lines.push(...renderDatabaseSpecs(), ...renderApiSpecs());
+    if (section.id === '02_UI_UX_User_Journeys') lines.push(...renderUiSpecs());
+    if (section.id === '03_Automated_Ops_Load_Security') lines.push(...renderSecurityOpsSpecs());
+    if (section.id === '04_Operations_DR_Production_Activation') lines.push(...renderOperationsSpecs());
+    if (section.id === '06_Gap_Register') lines.push(...renderGapTable(gaps), ...renderWorkPlan());
     if (section.id === '07_Release_Passport') {
       lines.push(
         '### Release Authority Boundary',
@@ -144,7 +237,7 @@ function renderMasterDossier(input) {
   lines.push(
     '## Document Integrity',
     '',
-    'The rendered Markdown is a deterministic presentation of the supplied release-bound claims. The Markdown itself is not a source of operational authority.',
+    'The rendered Markdown is a deterministic presentation of the supplied release-bound claims and immutable Enterprise registries. The document itself is not a source of operational authority.',
     '',
   );
 
