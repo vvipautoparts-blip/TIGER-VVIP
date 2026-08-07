@@ -1,0 +1,23 @@
+name: V14 Content Hash Evidence
+
+on:
+  push:
+    branches:
+      - integration/v14-global-launch-readiness-20260806
+
+permissions:
+  contents: read
+
+jobs:
+  hash-v14-migrations:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact branch head
+        uses: actions/checkout@v7
+      - name: Compute exact V14 migration SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha256sum \
+            supabase/migrations/20260806090000_v14_marketplace_foundation.sql \
+            supabase/migrations/20260806100000_v14_marketplace_hardening.sql
