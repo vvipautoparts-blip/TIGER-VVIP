@@ -5,12 +5,16 @@ on:
     paths:
       - "supabase/migrations/20260808003000_lc03_supabase_security_hardening.sql"
       - "tests/lc03-supabase-security-hardening.test.cjs"
+      - "tests/quality-gate-shell-contract.test.cjs"
+      - "scripts/quality-gate.sh"
       - "tests/sql/lc03-legacy-drift-reconciliation.sql"
       - ".github/workflows/lc03-supabase-security-rehearsal.yml"
   pull_request:
     paths:
       - "supabase/migrations/20260808003000_lc03_supabase_security_hardening.sql"
       - "tests/lc03-supabase-security-hardening.test.cjs"
+      - "tests/quality-gate-shell-contract.test.cjs"
+      - "scripts/quality-gate.sh"
       - "tests/sql/lc03-legacy-drift-reconciliation.sql"
       - ".github/workflows/lc03-supabase-security-rehearsal.yml"
   workflow_dispatch:
@@ -33,6 +37,8 @@ jobs:
           node-version: "22"
       - name: Run LC-03 security contract
         run: node --test tests/lc03-supabase-security-hardening.test.cjs
+      - name: Run quality-gate shell contract
+        run: node --test tests/quality-gate-shell-contract.test.cjs
       - name: Emit exact migration SHA-256
         shell: bash
         run: |
