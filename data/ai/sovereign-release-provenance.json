@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "TIGER_RELEASE_PROVENANCE_MANIFEST_V1",
+  "groups": {
+    "frontend": [
+      "owner-control.html",
+      "scripts/ai/vvip-ai-owner-console.js"
+    ],
+    "backend": [
+      "supabase/functions/tiger-sovereign-ai/index.ts",
+      "scripts/ai/sovereign-runtime.js"
+    ],
+    "aiPolicy": [
+      "docs/ai/TIGER_SOVEREIGN_CONSTITUTION.md",
+      "scripts/ai/sovereign-security-kernel.js",
+      "scripts/ai/sovereign-readiness-gate.js"
+    ],
+    "promptModel": [
+      "scripts/ai/sovereign-model-contract.js"
+    ],
+    "toolRegistry": [
+      "scripts/ai/sovereign-tool-registry.js"
+    ],
+    "rlsPolicy": [
+      "supabase/migrations/20260807094000_tiger_sovereign_trust_fabric.sql",
+      "supabase/migrations/20260807104500_tiger_sovereign_runtime_atomicity.sql"
+    ],
+    "securityConfig": [
+      ".github/workflows/codeql.yml",
+      ".github/workflows/dependency-review.yml",
+      ".github/workflows/project-control-integrity.yml",
+      ".github/workflows/vvip-quality-gate.yml",
+      "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
+    ]
+  },
+  "migrationsDirectory": "supabase/migrations"
+}
