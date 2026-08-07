@@ -62,6 +62,15 @@ run_clean_gate() {
     fi
 }
 
+run_diff_check() {
+    if ! git rev-parse --verify --quiet 'refs/remotes/origin/main^{commit}' >/dev/null; then
+        echo "[quality-gate] fetching origin/main inside isolated workspace"
+        git fetch --no-tags --prune origin main:refs/remotes/origin/main
+    fi
+
+    git diff --check origin/main...HEAD
+}
+
 run_cleanroom_verify() {
     echo "===== GATE: cleanroom_verify ====="
 
@@ -213,12 +222,7 @@ echo "===== EXECUTE GATES ====="
 
 run_clean_gate \
     "diff_check" \
-    # VVIP_CI_FETCH_BASE_IN_ISOLATED_WORKSPACE
-    if ! git rev-parse --verify --quiet 'refs/remotes/origin/main^{commit}' >/dev/null; then
-      echo "[quality-gate] fetching origin/main inside isolated workspace"
-      git fetch --no-tags --prune origin main:refs/remotes/origin/main
-    fi
-    git diff --check origin/main...HEAD
+    run_diff_check
 
 run_clean_gate \
     "cleanroom_tests" \
