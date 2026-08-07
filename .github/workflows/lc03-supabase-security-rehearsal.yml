@@ -31,6 +31,13 @@ jobs:
           node-version: "22"
       - name: Run LC-03 security contract
         run: node --test tests/lc03-supabase-security-hardening.test.cjs
+      - name: Emit exact migration SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          hash="$(sha256sum supabase/migrations/20260808003000_lc03_supabase_security_hardening.sql | awk '{print $1}')"
+          test "${#hash}" -eq 64
+          echo "LC03_MIGRATION_SHA256=$hash"
 
   local-db-reset:
     needs: contract
