@@ -291,6 +291,14 @@ else
     echo "GATE_validate_project_control=SKIP"
 fi
 
+if [ -f project-control/value-governance/cli.mjs ]; then
+    run_clean_gate \
+        "continuous_value_governance" \
+        node project-control/value-governance/cli.mjs --check
+else
+    echo "GATE_continuous_value_governance=SKIP"
+fi
+
 if [ -f project-control/scripts/validate_v13_1_authority.mjs ]; then
     run_clean_gate \
         "v13_1_authority_integrity" \
