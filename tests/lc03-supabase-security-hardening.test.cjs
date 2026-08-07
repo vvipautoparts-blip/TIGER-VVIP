@@ -40,16 +40,16 @@ test("PL/pgSQL callers are rewired to the moved private helpers", () => {
 
 test("private country helper remains policy-callable while review helper is not browser-executable", () => {
   const sql = loadMigration();
-  assert.match(sql, /grant execute on function vvip_private\.vvip_marketplace_country_is_active\(text\) to anon, authenticated/i);
-  assert.match(sql, /revoke all on function vvip_private\.vvip_marketplace_actor_can_review\(text\) from public, anon, authenticated/i);
+  assert.match(sql, /grant execute on function vvip_private\.vvip_marketplace_country_is_active\(text\)\s+to anon, authenticated/i);
+  assert.match(sql, /revoke all on function vvip_private\.vvip_marketplace_actor_can_review\(text\)\s+from public, anon, authenticated/i);
 });
 
 test("intentional public RPCs preserve explicit least-privilege grants", () => {
   const sql = loadMigration();
-  assert.match(sql, /revoke all on function public\.vvip_resolve_own_profile\(text\) from public, anon, authenticated/i);
-  assert.match(sql, /grant execute on function public\.vvip_resolve_own_profile\(text\) to authenticated/i);
-  assert.match(sql, /revoke all on function public\.vvip_marketplace_review_listing\(uuid, text, text\) from public, anon, authenticated/i);
-  assert.match(sql, /grant execute on function public\.vvip_marketplace_review_listing\(uuid, text, text\) to authenticated/i);
+  assert.match(sql, /revoke all on function public\.vvip_resolve_own_profile\(text\)\s+from public, anon, authenticated/i);
+  assert.match(sql, /grant execute on function public\.vvip_resolve_own_profile\(text\)\s+to authenticated/i);
+  assert.match(sql, /revoke all on function public\.vvip_marketplace_review_listing\(uuid, text, text\)\s+from public, anon, authenticated/i);
+  assert.match(sql, /grant execute on function public\.vvip_marketplace_review_listing\(uuid, text, text\)\s+to authenticated/i);
 });
 
 test("legacy profile enumeration and trigger helpers fail closed when present", () => {
