@@ -23,6 +23,9 @@ create table if not exists public.ai_runtime_reservations (
   constraint ai_runtime_actual_cost_check check (actual_cost_microusd is null or actual_cost_microusd >= 0),
   constraint ai_runtime_reservation_status_check check (status in ('reserved', 'settled', 'released', 'expired')),
   constraint ai_runtime_reservation_expiry_check check (expires_at > created_at),
+  constraint ai_runtime_reservation_actor_check check (char_length(actor_subject) between 1 and 256),
+  constraint ai_runtime_reservation_agent_check check (char_length(agent_id) between 1 and 128),
+  constraint ai_runtime_reservation_correlation_check check (char_length(correlation_id) between 8 and 128),
   unique (correlation_id, agent_id)
 );
 
@@ -70,7 +73,8 @@ create table if not exists public.ai_audit_chain_heads (
   sequence_no bigint not null default 0,
   updated_at timestamptz not null default now(),
   constraint ai_audit_chain_head_hash_check check (head_hash is null or head_hash ~ '^[0-9a-f]{64}$'),
-  constraint ai_audit_chain_sequence_check check (sequence_no >= 0)
+  constraint ai_audit_chain_sequence_check check (sequence_no >= 0),
+  constraint ai_audit_chain_stream_check check (char_length(stream_key) between 1 and 256)
 );
 
 create table if not exists public.ai_audit_chain_events (
@@ -89,7 +93,17 @@ create table if not exists public.ai_audit_chain_events (
   constraint ai_audit_chain_previous_hash_check check (previous_hash is null or previous_hash ~ '^[0-9a-f]{64}$'),
   constraint ai_audit_chain_event_hash_check check (event_hash ~ '^[0-9a-f]{64}$'),
   constraint ai_audit_chain_metadata_check check (jsonb_typeof(metadata) = 'object'),
+  constraint ai_audit_chain_metadata_size_check check (pg_column_size(metadata) <= 8192),
+  constraint ai_audit_chain_metadata_secret_key_check check (
+    not (metadata ?| array['token', 'password', 'secret', 'authorization', 'rawPrompt', 'raw_prompt'])
+  ),
   constraint ai_audit_chain_sequence_positive_check check (sequence_no > 0),
+  constraint ai_audit_chain_event_stream_check check (char_length(stream_key) between 1 and 256),
+  constraint ai_audit_chain_event_correlation_check check (char_length(correlation_id) between 8 and 128),
+  constraint ai_audit_chain_event_actor_check check (char_length(actor_subject) between 1 and 256),
+  constraint ai_audit_chain_event_agent_check check (char_length(agent_id) between 1 and 128),
+  constraint ai_audit_chain_event_decision_check check (char_length(decision) between 1 and 64),
+  constraint ai_audit_chain_event_reason_check check (char_length(reason_code) between 1 and 128),
   unique (stream_key, sequence_no),
   unique (event_hash)
 );
@@ -118,6 +132,46 @@ grant select, insert, update on table public.ai_runtime_concurrency_counters to 
 grant select, insert, update on table public.ai_audit_chain_heads to service_role;
 grant select, insert on table public.ai_audit_chain_events to service_role;
 
+create or replace function public.guard_ai_runtime_reservation_mutation()
+returns trigger
+language plpgsql
+set search_path = public, pg_temp
+as $$
+begin
+  if tg_op = 'DELETE' then
+    raise exception 'AI_RUNTIME_RESERVATION_DELETE_FORBIDDEN';
+  end if;
+
+  if new.actor_subject is distinct from old.actor_subject
+    or new.agent_id is distinct from old.agent_id
+    or new.correlation_id is distinct from old.correlation_id
+    or new.estimated_cost_microusd is distinct from old.estimated_cost_microusd
+    or new.day_bucket is distinct from old.day_bucket
+    or new.minute_bucket is distinct from old.minute_bucket
+    or new.created_at is distinct from old.created_at
+    or new.expires_at is distinct from old.expires_at then
+    raise exception 'AI_RUNTIME_RESERVATION_IMMUTABLE_BINDING';
+  end if;
+
+  if old.status = 'reserved' and new.status in ('settled', 'released', 'expired') then
+    return new;
+  end if;
+  if old.status = new.status then
+    return new;
+  end if;
+
+  raise exception 'AI_RUNTIME_RESERVATION_INVALID_TRANSITION';
+end;
+$$;
+
+revoke all on function public.guard_ai_runtime_reservation_mutation() from public, anon, authenticated;
+grant execute on function public.guard_ai_runtime_reservation_mutation() to service_role;
+
+drop trigger if exists ai_runtime_reservation_mutation_guard on public.ai_runtime_reservations;
+create trigger ai_runtime_reservation_mutation_guard
+before update or delete on public.ai_runtime_reservations
+for each row execute function public.guard_ai_runtime_reservation_mutation();
+
 create or replace function public.reserve_ai_runtime_capacity(
   p_actor_subject text,
   p_agent_id text,
@@ -138,16 +192,16 @@ as $$
 declare
   v_runtime public.ai_agent_runtime_state%rowtype;
   v_daily public.ai_runtime_daily_counters%rowtype;
-  v_minute public.ai_runtime_minute_counters%rowtype;
+  v_minute_counter public.ai_runtime_minute_counters%rowtype;
   v_concurrency public.ai_runtime_concurrency_counters%rowtype;
   v_existing public.ai_runtime_reservations%rowtype;
   v_reservation_id uuid;
   v_day date := (p_now at time zone 'UTC')::date;
-  v_minute timestamptz := date_trunc('minute', p_now);
+  v_minute_bucket timestamptz := date_trunc('minute', p_now);
 begin
-  if p_actor_subject is null or btrim(p_actor_subject) = ''
-    or p_agent_id is null or btrim(p_agent_id) = ''
-    or p_correlation_id is null or btrim(p_correlation_id) = ''
+  if p_actor_subject is null or btrim(p_actor_subject) = '' or char_length(p_actor_subject) > 256
+    or p_agent_id is null or btrim(p_agent_id) = '' or char_length(p_agent_id) > 128
+    or p_correlation_id is null or char_length(btrim(p_correlation_id)) < 8 or char_length(p_correlation_id) > 128
     or p_estimated_cost_microusd < 0
     or p_ttl_seconds < 5 or p_ttl_seconds > 900 then
     return query select false, 'RESERVATION_INPUT_INVALID'::text, null::uuid, null::bigint;
@@ -202,11 +256,11 @@ begin
   for update;
 
   insert into public.ai_runtime_minute_counters (actor_subject, agent_id, minute_bucket)
-  values (p_actor_subject, p_agent_id, v_minute)
+  values (p_actor_subject, p_agent_id, v_minute_bucket)
   on conflict do nothing;
-  select * into v_minute
+  select * into v_minute_counter
   from public.ai_runtime_minute_counters
-  where actor_subject = p_actor_subject and agent_id = p_agent_id and minute_bucket = v_minute
+  where actor_subject = p_actor_subject and agent_id = p_agent_id and minute_bucket = v_minute_bucket
   for update;
 
   insert into public.ai_runtime_concurrency_counters (actor_subject, agent_id)
@@ -221,7 +275,7 @@ begin
     return query select false, 'BUDGET_EXCEEDED'::text, null::uuid, v_runtime.daily_budget_microusd;
     return;
   end if;
-  if v_minute.request_count + 1 > v_runtime.requests_per_minute then
+  if v_minute_counter.request_count + 1 > v_runtime.requests_per_minute then
     return query select false, 'RATE_LIMIT_EXCEEDED'::text, null::uuid, null::bigint;
     return;
   end if;
@@ -235,7 +289,7 @@ begin
     status, day_bucket, minute_bucket, created_at, expires_at
   ) values (
     p_actor_subject, p_agent_id, p_correlation_id, p_estimated_cost_microusd,
-    'reserved', v_day, v_minute, p_now, p_now + make_interval(secs => p_ttl_seconds)
+    'reserved', v_day, v_minute_bucket, p_now, p_now + make_interval(secs => p_ttl_seconds)
   ) returning id into v_reservation_id;
 
   update public.ai_runtime_daily_counters
@@ -246,7 +300,7 @@ begin
 
   update public.ai_runtime_minute_counters
     set request_count = request_count + 1, updated_at = p_now
-    where actor_subject = p_actor_subject and agent_id = p_agent_id and minute_bucket = v_minute;
+    where actor_subject = p_actor_subject and agent_id = p_agent_id and minute_bucket = v_minute_bucket;
 
   update public.ai_runtime_concurrency_counters
     set active_count = active_count + 1, updated_at = p_now
@@ -287,10 +341,10 @@ begin
     return;
   end if;
 
-  select 1 from public.ai_runtime_daily_counters
+  perform 1 from public.ai_runtime_daily_counters
     where actor_subject = v_reservation.actor_subject and agent_id = v_reservation.agent_id and day_bucket = v_reservation.day_bucket
     for update;
-  select 1 from public.ai_runtime_concurrency_counters
+  perform 1 from public.ai_runtime_concurrency_counters
     where actor_subject = v_reservation.actor_subject and agent_id = v_reservation.agent_id
     for update;
 
@@ -337,10 +391,10 @@ begin
     return;
   end if;
 
-  select 1 from public.ai_runtime_daily_counters
+  perform 1 from public.ai_runtime_daily_counters
     where actor_subject = v_reservation.actor_subject and agent_id = v_reservation.agent_id and day_bucket = v_reservation.day_bucket
     for update;
-  select 1 from public.ai_runtime_concurrency_counters
+  perform 1 from public.ai_runtime_concurrency_counters
     where actor_subject = v_reservation.actor_subject and agent_id = v_reservation.agent_id
     for update;
 
@@ -384,10 +438,10 @@ begin
     limit p_limit
     for update skip locked
   loop
-    select 1 from public.ai_runtime_daily_counters
+    perform 1 from public.ai_runtime_daily_counters
       where actor_subject = v_reservation.actor_subject and agent_id = v_reservation.agent_id and day_bucket = v_reservation.day_bucket
       for update;
-    select 1 from public.ai_runtime_concurrency_counters
+    perform 1 from public.ai_runtime_concurrency_counters
       where actor_subject = v_reservation.actor_subject and agent_id = v_reservation.agent_id
       for update;
 
@@ -431,10 +485,17 @@ declare
   v_head public.ai_audit_chain_heads%rowtype;
   v_next_sequence bigint;
 begin
-  if p_stream_key is null or btrim(p_stream_key) = ''
+  if p_stream_key is null or char_length(btrim(p_stream_key)) < 1 or char_length(p_stream_key) > 256
+    or p_correlation_id is null or char_length(btrim(p_correlation_id)) < 8 or char_length(p_correlation_id) > 128
+    or p_actor_subject is null or char_length(btrim(p_actor_subject)) < 1 or char_length(p_actor_subject) > 256
+    or p_agent_id is null or char_length(btrim(p_agent_id)) < 1 or char_length(p_agent_id) > 128
+    or p_decision is null or char_length(btrim(p_decision)) < 1 or char_length(p_decision) > 64
+    or p_reason_code is null or char_length(btrim(p_reason_code)) < 1 or char_length(p_reason_code) > 128
     or p_event_hash !~ '^[0-9a-f]{64}$'
     or (p_previous_hash is not null and p_previous_hash !~ '^[0-9a-f]{64}$')
-    or jsonb_typeof(p_metadata) <> 'object' then
+    or jsonb_typeof(p_metadata) <> 'object'
+    or pg_column_size(p_metadata) > 8192
+    or p_metadata ?| array['token', 'password', 'secret', 'authorization', 'rawPrompt', 'raw_prompt'] then
     return query select false, 'AUDIT_EVENT_INVALID'::text, null::bigint;
     return;
   end if;
