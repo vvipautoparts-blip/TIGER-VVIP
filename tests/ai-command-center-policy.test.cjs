@@ -86,22 +86,26 @@ test('agent scope blocks actions assigned to another specialist', () => {
   assert.equal(result.reasonCode, 'AGENT_SCOPE_DENIED');
 });
 
-test('owner approval unlocks only an allowed L4 request, never a permanent denial', () => {
+test('client ownerApproved input cannot unlock an L4 action', () => {
   const deploy = authorizeAction({
     agentId: 'technical_manager',
     action: ACTIONS.DEPLOY_PRODUCTION,
     featureEnabled: true,
     ownerApproved: true,
   });
-  assert.equal(deploy.decision, DECISIONS.ALLOW);
-  assert.equal(deploy.reasonCode, 'OWNER_APPROVAL_VERIFIED');
 
+  assert.equal(deploy.decision, DECISIONS.OWNER_APPROVAL_REQUIRED);
+  assert.equal(deploy.reasonCode, 'OWNER_APPROVAL_REQUIRED');
+});
+
+test('client approval input never overrides a permanent denial', () => {
   const forbidden = authorizeAction({
     agentId: 'technical_manager',
     action: ACTIONS.DELETE_DATA,
     featureEnabled: true,
     ownerApproved: true,
   });
+
   assert.equal(forbidden.decision, DECISIONS.DENY);
   assert.equal(forbidden.reasonCode, 'PERMANENTLY_FORBIDDEN');
 });
