@@ -20,6 +20,17 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Assert sanitized Clerk recovery logging
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -F 'console.warn("VVIP_CLERK_GATE_RECOVERY");' auth-clerk-index.js >/dev/null
+          if grep -F 'console.warn("VVIP_CLERK_GATE_RECOVERY",' auth-clerk-index.js >/dev/null; then
+            echo 'V14_AUTH_RECOVERY_LOGGING=UNSAFE'
+            exit 1
+          fi
+          echo 'V14_AUTH_RECOVERY_LOGGING=PASS'
+
       - name: Replace stale auth source-text smoke check
         shell: bash
         run: |
