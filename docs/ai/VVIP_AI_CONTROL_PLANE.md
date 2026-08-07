@@ -1,6 +1,6 @@
 # VVIP TIGER AI-01 — Control Plane Foundation
 
-Status: implementation foundation, dry-run/read/propose only.  
+Status: implementation foundation, dry-run/read/propose only.
 Production mutation: **forbidden** in AI-01.
 
 ## 1. Purpose
