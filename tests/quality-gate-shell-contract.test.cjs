@@ -26,3 +26,15 @@ test("diff check is executed through run_clean_gate rather than as loose shell c
     /run_clean_gate\s*\\\s*\n\s*"diff_check"\s*\\\s*\n\s*#\s*VVIP_CI_FETCH_BASE_IN_ISOLATED_WORKSPACE/
   );
 });
+
+test("isolated snapshot is anchored to the exact source HEAD before synthetic main is created", () => {
+  assert.match(script, /SOURCE_HEAD="\$\(git rev-parse HEAD\)"/);
+  assert.match(script, /git -C "\$WORK" checkout --quiet --detach "\$SOURCE_HEAD"/);
+  assert.match(script, /SNAPSHOT_BASE_HEAD="\$\(git -C "\$WORK" rev-parse HEAD\)"/);
+  assert.match(script, /if \[ "\$SNAPSHOT_BASE_HEAD" != "\$SOURCE_HEAD" \]; then/);
+  assert.match(script, /SNAPSHOT_SOURCE_HEAD_MISMATCH/);
+
+  const exactCheckout = script.indexOf('git -C "$WORK" checkout --quiet --detach "$SOURCE_HEAD"');
+  const syntheticMain = script.indexOf('git checkout --quiet -B main HEAD');
+  assert.ok(exactCheckout >= 0 && syntheticMain > exactCheckout, "synthetic main must be created only after exact source checkout");
+});
