@@ -61,6 +61,13 @@ declare -A reviewed_migration_hashes=(
   # The content-addressed pin is invalidated by any migration edit; remote apply
   # remains independently blocked by the Supabase promotion policy and owner approval.
   ["supabase/migrations/20260807104500_tiger_sovereign_runtime_atomicity.sql"]="892aad6818cf35e4a7135fa272091c5c2e2d7ea0a3173807a34298d2d49119e0"
+  # AI-18 TIGER SOVEREIGN owner step-up authorization: repository-reviewed only,
+  # NOT applied to preview, staging, or production. Exact review:
+  # docs/ai/TIGER_SOVEREIGN_AI18_OWNER_STEPUP_SECURITY_REVIEW.md
+  # The exact content pin covers scanner findings CRITICAL=0, NOT_NULL_RISK=20,
+  # UPDATE_WITHOUT_WHERE=2, OTHER_HIGH=0. Any migration edit invalidates review;
+  # remote apply remains independently protected by DB promotion and owner gates.
+  ["supabase/migrations/20260807173000_tiger_sovereign_owner_stepup_authorization.sql"]="4f5b7622ba45d26c5dc4151b5f2a307de178e9cd3cd8dc7e186997d0d0f3f16b"
 )
 
 reviewed_baseline_path() {
