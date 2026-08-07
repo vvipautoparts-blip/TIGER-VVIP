@@ -6,15 +6,18 @@ on:
       - 'project-control/**'
       - 'docs/global/**'
       - 'docs/superpowers/**'
-      - 'supabase/migrations/20260720*.sql'
+      - 'supabase/migrations/**'
       - '.github/workflows/project-control-integrity.yml'
   push:
-    branches: [main]
+    branches:
+      - main
+      - integration/v14-global-launch-readiness-20260806
     paths:
       - 'project-control/**'
       - 'docs/global/**'
       - 'docs/superpowers/**'
-      - 'supabase/migrations/20260720*.sql'
+      - 'supabase/migrations/**'
+      - '.github/workflows/project-control-integrity.yml'
 
 permissions:
   contents: read
@@ -24,8 +27,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: '22'
       - name: Run project-control tests

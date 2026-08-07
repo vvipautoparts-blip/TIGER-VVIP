@@ -43,6 +43,23 @@ declare -A reviewed_migration_hashes=(
   # vulnerable policies; auth.jwt() is read-only; NOT NULL is guarded by a fail-closed data check;
   # UPDATE tokens are trigger/policy declarations; explicit grants are least-privilege DML only.
   ["supabase/migrations/20260725210915_eb002_global_v1_security_corrections.sql"]="891a4ca68a65dc91896a3c6bcfd94c9a4659997708f1ae0328794566bccc74de"
+  # V13.1 authorization foundation: reviewed 2026-08-05 as an empty schema-only candidate.
+  # Clerk principal identifiers remain opaque text; internal records use UUID. All protected
+  # tables ENABLE and FORCE RLS; browser roles receive explicit revocations and no grants;
+  # no owner, partner, country, seal, endpoint, secret, policy, or privileged write RPC is seeded.
+  # Dedicated contract tests pin this exact SHA-256 and reject byte-level drift.
+  ["supabase/migrations/20260805_v13_1_authorization_foundation.sql"]="9e65d4c705922674b611ba929423688872a83729cff578c7106c73cdc7c4d6c5"
+  # V14 marketplace foundation: reviewed 2026-08-08 after an exact-head local `supabase db reset --local`
+  # rebuilt the canonical migration chain from zero, plus non-production staging RLS behavior probes.
+  # Protected marketplace tables ENABLE+FORCE RLS; country activation fails closed; trusted review
+  # requires OWNER_ROOT or a live scoped assignment; storage is private and ownership-bound.
+  # Scanner AUTH_SCHEMA flags are read-only auth.jwt() claim access; line-oriented SECURITY DEFINER
+  # and policy/grant alerts were manually reconciled against fixed search_path and least-privilege grants.
+  ["supabase/migrations/20260806090000_v14_marketplace_foundation.sql"]="f8f522226590c7812d495e1089d1a29d844fb460e64480bb9349cb31503ce8c5"
+  # V14 marketplace audit hardening: reviewed 2026-08-08 after local rebuild and staging append-only proof.
+  # The SECURITY DEFINER trigger function has an explicit pg_catalog,public search_path and its EXECUTE
+  # privilege is revoked from public, anon, and authenticated; the scanner's same-line heuristic is conservative.
+  ["supabase/migrations/20260806100000_v14_marketplace_hardening.sql"]="f01fd150f94b2b6bbd1f7c9c5cdc085f36ffa511aff326fdfee409b37ccba359"
 )
 
 reviewed_baseline_path() {

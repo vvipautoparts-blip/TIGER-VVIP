@@ -4,54 +4,54 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
+const auth = require("../auth-clerk-index.js");
 
 const root = path.resolve(__dirname, "..");
-
-const indexHtml = fs.readFileSync(
-  path.join(root, "index.html"),
-  "utf8"
-);
-
 const authRuntime = fs.readFileSync(
   path.join(root, "auth-clerk-index.js"),
   "utf8"
 );
+const runtimeLoader = fs.readFileSync(
+  path.join(root, "scripts/runtime/vvip-runtime-loader.js"),
+  "utf8"
+);
 
-test("index loads Clerk UI before Clerk JS", () => {
-  const clerkUiPosition = indexHtml.indexOf(
-    "@clerk/ui@1/dist/ui.browser.js"
+test("runtime loader owns the single Clerk UI bootstrap", () => {
+  assert.match(runtimeLoader, /!root\.__internal_ClerkUICtor/);
+  assert.match(
+    runtimeLoader,
+    /root\.Clerk\.load\s*\(\s*\{\s*ui\s*:\s*\{\s*ClerkUI\s*:\s*root\.__internal_ClerkUICtor\s*\}\s*\}\s*\)/s
   );
 
-  const clerkJsPosition = indexHtml.indexOf(
-    "@clerk/clerk-js@6/dist/clerk.browser.js"
-  );
-
-  assert.notEqual(
-    clerkUiPosition,
-    -1,
-    "index.html must load the Clerk UI browser runtime"
-  );
-
-  assert.notEqual(
-    clerkJsPosition,
-    -1,
-    "index.html must load Clerk JS"
-  );
-
-  assert.ok(
-    clerkUiPosition < clerkJsPosition,
-    "Clerk UI must be loaded before Clerk JS"
-  );
+  assert.doesNotMatch(authRuntime, /__internal_ClerkUICtor/);
+  assert.doesNotMatch(authRuntime, /Clerk\.load\s*\(/);
 });
 
-test("Clerk gate loads Clerk with the UI constructor", () => {
-  assert.match(
-    authRuntime,
-    /if\s*\(\s*!window\.__internal_ClerkUICtor\s*\)/
-  );
+test("auth gate consumes VVIPRuntimeReady and mounts the runtime Clerk", () => {
+  assert.match(authRuntime, /root\.VVIPRuntimeReady/);
+  assert.match(authRuntime, /const clerk = runtime && runtime\.clerk/);
+  assert.match(authRuntime, /clerk\.mountSignIn\s*\(/);
+});
 
-  assert.match(
-    authRuntime,
-    /Clerk\.load\s*\(\s*\{\s*ui\s*:\s*\{\s*ClerkUI\s*:\s*window\.__internal_ClerkUICtor\s*\}\s*\}\s*\)/s
+test("auth gate keeps localhost preview and return paths fail-closed", () => {
+  assert.equal(
+    auth.localPreviewAllowed({ hostname: "localhost", search: "?preview=home" }),
+    true
+  );
+  assert.equal(
+    auth.localPreviewAllowed({ hostname: "example.com", search: "?preview=home" }),
+    false
+  );
+  assert.equal(
+    auth.safeReturnPath({ search: "?return_to=private-profile-p03.html" }),
+    "private-profile-p03.html"
+  );
+  assert.equal(
+    auth.safeReturnPath({ search: "?return_to=https://evil.example" }),
+    ""
+  );
+  assert.equal(
+    auth.safeReturnPath({ search: "?return_to=../../admin" }),
+    ""
   );
 });
