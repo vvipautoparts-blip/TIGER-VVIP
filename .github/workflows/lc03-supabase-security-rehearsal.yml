@@ -5,11 +5,13 @@ on:
     paths:
       - "supabase/migrations/20260808003000_lc03_supabase_security_hardening.sql"
       - "tests/lc03-supabase-security-hardening.test.cjs"
+      - "tests/sql/lc03-legacy-drift-reconciliation.sql"
       - ".github/workflows/lc03-supabase-security-rehearsal.yml"
   pull_request:
     paths:
       - "supabase/migrations/20260808003000_lc03_supabase_security_hardening.sql"
       - "tests/lc03-supabase-security-hardening.test.cjs"
+      - "tests/sql/lc03-legacy-drift-reconciliation.sql"
       - ".github/workflows/lc03-supabase-security-rehearsal.yml"
   workflow_dispatch:
 
@@ -75,6 +77,13 @@ jobs:
           }
           "${reset_command[@]}"
           echo 'LC03_LOCAL_DB_RESET=PASS'
+      - name: Rehearse known Production legacy drift locally
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/lc03-legacy-drift-reconciliation.sql
       - name: Stop isolated local stack
         if: always()
         shell: bash
