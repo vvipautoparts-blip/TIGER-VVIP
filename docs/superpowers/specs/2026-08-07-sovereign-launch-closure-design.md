@@ -1,8 +1,8 @@
 # VVIP TIGER — Sovereign Evidence-First Launch Closure Design
 
-Status: **OWNER-APPROVED DESIGN / RELEASE-CLOSURE BASELINE**  
-Date: **2026-08-07**  
-Target chain: **AI-01 through AI-18**  
+Status: **OWNER-APPROVED DESIGN / RELEASE-CLOSURE BASELINE**
+Date: **2026-08-07**
+Target chain: **AI-01 through AI-18**
 Working branch: **`feat/ai-18-owner-stepup-authorization`**
 
 ## 1. Objective
