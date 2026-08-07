@@ -1,7 +1,7 @@
 # VVIP TIGER — AI-01 Foundation
 
-Status: **implementation foundation / feature disabled by default**  
-Date: **2026-08-07**  
+Status: **implementation foundation / feature disabled by default**
+Date: **2026-08-07**
 Branch: **`feat/ai-01-foundation`**
 
 ## Objective
