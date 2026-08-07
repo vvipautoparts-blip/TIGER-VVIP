@@ -62,6 +62,15 @@ run_clean_gate() {
     fi
 }
 
+run_diff_check() {
+    if ! git rev-parse --verify --quiet 'refs/remotes/origin/main^{commit}' >/dev/null; then
+        echo "[quality-gate] fetching origin/main inside isolated workspace"
+        git fetch --no-tags --prune origin main:refs/remotes/origin/main
+    fi
+
+    git diff --check origin/main...HEAD
+}
+
 run_cleanroom_verify() {
     echo "===== GATE: cleanroom_verify ====="
 
@@ -131,18 +140,35 @@ run_qa_smoke_isolated() {
 
 cd "$ORIGINAL_ROOT"
 
+SOURCE_BRANCH="$(git branch --show-current)"
+SOURCE_HEAD="$(git rev-parse HEAD)"
+
 echo "============================================================"
 echo "VVIP TIGER ISOLATED QUALITY GATE"
 echo "============================================================"
 echo "SOURCE_WORKSPACE=$ORIGINAL_ROOT"
-echo "SOURCE_BRANCH=$(git branch --show-current)"
-echo "SOURCE_HEAD=$(git rev-parse HEAD)"
+echo "SOURCE_BRANCH=$SOURCE_BRANCH"
+echo "SOURCE_HEAD=$SOURCE_HEAD"
 
 SOURCE_STATUS_BEFORE="$(git status --porcelain=v1 -uall)"
 
 echo "===== CREATE ISOLATED SNAPSHOT ====="
 
 git clone --quiet --no-hardlinks "$ORIGINAL_ROOT" "$WORK"
+
+if ! git -C "$WORK" cat-file -e "${SOURCE_HEAD}^{commit}" 2>/dev/null; then
+    git -C "$WORK" fetch --quiet "$ORIGINAL_ROOT" "$SOURCE_HEAD"
+fi
+
+git -C "$WORK" checkout --quiet --detach "$SOURCE_HEAD"
+SNAPSHOT_BASE_HEAD="$(git -C "$WORK" rev-parse HEAD)"
+
+if [ "$SNAPSHOT_BASE_HEAD" != "$SOURCE_HEAD" ]; then
+    echo "SNAPSHOT_SOURCE_HEAD_MISMATCH source=$SOURCE_HEAD isolated=$SNAPSHOT_BASE_HEAD"
+    exit 91
+fi
+
+echo "SNAPSHOT_BASE_HEAD=$SNAPSHOT_BASE_HEAD"
 
 git -C "$WORK" remote set-url origin "https://github.com/vvipautoparts-blip/TIGER-VVIP"
 
@@ -213,12 +239,7 @@ echo "===== EXECUTE GATES ====="
 
 run_clean_gate \
     "diff_check" \
-    # VVIP_CI_FETCH_BASE_IN_ISOLATED_WORKSPACE
-    if ! git rev-parse --verify --quiet 'refs/remotes/origin/main^{commit}' >/dev/null; then
-      echo "[quality-gate] fetching origin/main inside isolated workspace"
-      git fetch --no-tags --prune origin main:refs/remotes/origin/main
-    fi
-    git diff --check origin/main...HEAD
+    run_diff_check
 
 run_clean_gate \
     "cleanroom_tests" \
