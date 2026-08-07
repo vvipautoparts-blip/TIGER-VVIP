@@ -17,6 +17,14 @@ high=0
 # was introduced. The exception is content-addressed: changing even one byte
 # removes the exemption and sends the migration through the normal fail-closed
 # checks below. New migration files never inherit an exception by name pattern.
+#
+# Exception: the AI-03 trust-fabric migration below is NOT an applied-production
+# baseline. It received repository security review only, documented in
+# docs/ai/TIGER_SOVEREIGN_TRUST_FABRIC_SECURITY_REVIEW.md. Its exact hash is
+# pinned solely because this line-oriented scanner reports reviewed CREATE TABLE
+# NOT NULL declarations and bounded multi-line UPDATE statements as dangerous.
+# Any byte change invalidates the pin. Preview/staging/production apply remains
+# independently blocked by the Supabase promotion policy and owner approval.
 declare -A reviewed_migration_hashes=(
   ["supabase/migrations/20260626_parts_vehicle_registry_id_compat.sql"]="d4b9eab67704fe359325a648154133eb30d082185044f73241fdd37b814c716c"
   ["supabase/migrations/20260627_vehicle_registry_compat.sql"]="eeaa1a67a062b7d666b238fdb5c38c5d87d42fdd3bc3df91562d680f1064cde5"
@@ -43,6 +51,16 @@ declare -A reviewed_migration_hashes=(
   # vulnerable policies; auth.jwt() is read-only; NOT NULL is guarded by a fail-closed data check;
   # UPDATE tokens are trigger/policy declarations; explicit grants are least-privilege DML only.
   ["supabase/migrations/20260725210915_eb002_global_v1_security_corrections.sql"]="891a4ca68a65dc91896a3c6bcfd94c9a4659997708f1ae0328794566bccc74de"
+  # AI-03 TIGER SOVEREIGN trust fabric: repository-reviewed only, NOT applied to preview or production.
+  # Exact review: docs/ai/TIGER_SOVEREIGN_TRUST_FABRIC_SECURITY_REVIEW.md
+  # Content-addressed pin is invalidated by any migration edit.
+  ["supabase/migrations/20260807094000_tiger_sovereign_trust_fabric.sql"]="b6a4dbd9417b2bb52a5e156de83526c0643b4b187547c8995a357e73d67b826a"
+  # AI-13 TIGER SOVEREIGN atomic runtime persistence: repository-reviewed only,
+  # NOT applied to preview, staging, or production. Exact review:
+  # docs/ai/TIGER_SOVEREIGN_AI13_RUNTIME_PERSISTENCE_SECURITY_REVIEW.md
+  # The content-addressed pin is invalidated by any migration edit; remote apply
+  # remains independently blocked by the Supabase promotion policy and owner approval.
+  ["supabase/migrations/20260807104500_tiger_sovereign_runtime_atomicity.sql"]="892aad6818cf35e4a7135fa272091c5c2e2d7ea0a3173807a34298d2d49119e0"
 )
 
 reviewed_baseline_path() {
