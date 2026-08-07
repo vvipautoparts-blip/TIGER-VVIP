@@ -1,0 +1,80 @@
+name: V14 Surgical QA Smoke Patch
+
+on:
+  push:
+    branches:
+      - integration/v14-global-launch-readiness-20260806
+    paths:
+      - .github/workflows/v14-surgical-qa-smoke-patch.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch-qa-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact branch
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Replace stale auth source-text smoke check
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('scripts/qa-smoke.sh')
+          source = path.read_text()
+          start_marker = 'echo "[smoke] validating auth preview and safe return path"\n'
+          end_marker = 'PY_AUTH\n'
+
+          start = source.find(start_marker)
+          if start < 0:
+              raise SystemExit('stale auth smoke start marker not found')
+          end = source.find(end_marker, start)
+          if end < 0:
+              raise SystemExit('stale auth smoke end marker not found')
+          end += len(end_marker)
+
+          block = source[start:end]
+          required_stale_literals = [
+              'return isLocalHost && preview === "home";',
+              'SAFE_RETURN_PATHS.has(returnTo)',
+              'location.replace(returnTo)',
+          ]
+          missing = [literal for literal in required_stale_literals if literal not in block]
+          if missing:
+              raise SystemExit(f'unexpected auth smoke block; missing {missing!r}')
+
+          replacement = '''echo "[smoke] validating auth preview and safe return path behavior"\nnode --test tests/auth-clerk-index.test.cjs tests/p08-clerk-gate-runtime.test.cjs tests/vvip-runtime-loader.test.cjs\n'''
+          path.write_text(source[:start] + replacement + source[end:])
+          PY
+
+          git diff --check
+
+      - name: Verify focused auth behavior
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tests/auth-clerk-index.test.cjs tests/p08-clerk-gate-runtime.test.cjs tests/vvip-runtime-loader.test.cjs
+
+      - name: Verify full QA smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/qa-smoke.sh
+
+      - name: Commit behavior-based smoke proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add scripts/qa-smoke.sh
+          git diff --cached --quiet && { echo 'No QA smoke patch to commit'; exit 1; }
+          git commit -m 'fix(qa): validate auth preview behavior'
+          git push origin HEAD:integration/v14-global-launch-readiness-20260806
