@@ -138,7 +138,6 @@
     agentId,
     action,
     featureEnabled = FEATURE_FLAGS.AI_COMMAND_CENTER_ENABLED,
-    ownerApproved = false,
   } = {}) {
     const policy = evaluatePolicy(action);
 
@@ -177,23 +176,13 @@
       });
     }
 
-    if (policy.decision === DECISIONS.OWNER_APPROVAL_REQUIRED && !ownerApproved) {
+    if (policy.decision === DECISIONS.OWNER_APPROVAL_REQUIRED) {
       return Object.freeze({
         action,
         agentId,
         decision: DECISIONS.OWNER_APPROVAL_REQUIRED,
         level: policy.level,
         reasonCode: 'OWNER_APPROVAL_REQUIRED',
-      });
-    }
-
-    if (policy.decision === DECISIONS.OWNER_APPROVAL_REQUIRED && ownerApproved) {
-      return Object.freeze({
-        action,
-        agentId,
-        decision: DECISIONS.ALLOW,
-        level: policy.level,
-        reasonCode: 'OWNER_APPROVAL_VERIFIED',
       });
     }
 
