@@ -87,7 +87,7 @@ test('VERIFIED repository implementation claim requires a same-release trusted r
 
 test('old VERIFIED claims reconcile to STALE for a changed Release DNA and never silently rebind', () => {
   const previous = release();
-  const source = dossier.createRepositorySourceFact({ previous, releaseDNA: previous, path: 'supabase/functions/tiger-sovereign-ai/index.ts' });
+  const source = dossier.createRepositorySourceFact({ releaseDNA: previous, path: 'supabase/functions/tiger-sovereign-ai/index.ts' });
   const claim = dossier.createClaim({
     releaseDNA: previous, id: 'ARCH-AI-GATEWAY-003', sectionId: '01_Architecture_Data_Paths', title: 'Gateway source',
     claimType: 'REPOSITORY_IMPLEMENTATION', truthState: 'VERIFIED', statement: 'Verified for previous release.', sources: [source],
@@ -128,7 +128,7 @@ test('performance target is not measurement evidence and cannot become VERIFIED 
 
 test('automated CI evidence cannot satisfy MANUAL_ACCEPTANCE truth', () => {
   const releaseDNA = release();
-  const source = dossier.createRepositorySourceFact({ releaseDNA, path: 'tests/pr36-media-worker.test.cjs' });
+  const source = dossier.createRepositorySourceFact({ releaseDNA, path: 'tests/pr36/integration.test.mjs' });
   assert.throws(() => dossier.createClaim({
     releaseDNA, id: 'PR36-MANUAL-001', sectionId: '02_UI_UX_User_Journeys', title: 'PR36 real image upload',
     claimType: 'MANUAL_ACCEPTANCE', truthState: 'VERIFIED', statement: 'Real JPG upload path is manually accepted.', sources: [source],
