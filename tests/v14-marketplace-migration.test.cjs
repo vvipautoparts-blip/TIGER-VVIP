@@ -6,7 +6,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const sql = fs.readFileSync(
-  path.join(__dirname, "..", "supabase", "migrations", "20260806_v14_marketplace_foundation.sql"),
+  path.join(__dirname, "..", "supabase", "migrations", "20260806090000_v14_marketplace_foundation.sql"),
   "utf8"
 );
 
