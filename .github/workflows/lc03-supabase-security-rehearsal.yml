@@ -87,7 +87,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' \
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 \
+            -p 54322 \
+            -U postgres \
+            -d postgres \
             -v ON_ERROR_STOP=1 \
             -f tests/sql/lc03-legacy-drift-reconciliation.sql
       - name: Stop isolated local stack
