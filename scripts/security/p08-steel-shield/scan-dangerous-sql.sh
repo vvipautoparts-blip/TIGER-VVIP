@@ -55,6 +55,12 @@ declare -A reviewed_migration_hashes=(
   # Exact review: docs/ai/TIGER_SOVEREIGN_TRUST_FABRIC_SECURITY_REVIEW.md
   # Content-addressed pin is invalidated by any migration edit.
   ["supabase/migrations/20260807094000_tiger_sovereign_trust_fabric.sql"]="b6a4dbd9417b2bb52a5e156de83526c0643b4b187547c8995a357e73d67b826a"
+  # AI-13 TIGER SOVEREIGN atomic runtime persistence: repository-reviewed only,
+  # NOT applied to preview, staging, or production. Exact review:
+  # docs/ai/TIGER_SOVEREIGN_AI13_RUNTIME_PERSISTENCE_SECURITY_REVIEW.md
+  # The content-addressed pin is invalidated by any migration edit; remote apply
+  # remains independently blocked by the Supabase promotion policy and owner approval.
+  ["supabase/migrations/20260807104500_tiger_sovereign_runtime_atomicity.sql"]="892aad6818cf35e4a7135fa272091c5c2e2d7ea0a3173807a34298d2d49119e0"
 )
 
 reviewed_baseline_path() {
