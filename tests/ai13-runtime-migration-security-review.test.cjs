@@ -46,8 +46,8 @@ test('AI-13 review document records exact hash and does not overstate staging or
   assert.match(review, /AI13_REPOSITORY_SECURITY_REVIEW=PASS_WITH_STAGING_EXECUTION_REQUIRED/);
   assert.match(review, /AI13_PRODUCTION_DB_APPROVAL=NOT_GRANTED/);
   assert.match(review, /CRITICAL=0/);
-  assert.match(review, /38 `NOT_NULL_RISK`/);
-  assert.match(review, /21 `UPDATE_WITHOUT_WHERE`/);
+  assert.match(review, /`NOT_NULL_RISK` — 38 findings/);
+  assert.match(review, /`UPDATE_WITHOUT_WHERE` — 21 findings/);
   assert.match(review, /Any one-byte change invalidates this review automatically/);
 });
 
