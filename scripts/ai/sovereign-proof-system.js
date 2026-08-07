@@ -2,6 +2,7 @@
 
 const crypto = require('node:crypto');
 const readiness = require('./sovereign-readiness-gate');
+const createImpactApi = require('./sovereign-proof-change-impact');
 
 const { REQUIRED_GATES, evaluateReadiness } = readiness;
 const GATE_MAP = new Map(REQUIRED_GATES.map((definition) => [definition.id, definition]));
@@ -344,6 +345,8 @@ function createGoldenReleasePassport(input) {
   return deepFreeze({ ...envelope, digest: sha256Canonical(envelope) });
 }
 
+const impactApi = createImpactApi({ REQUIRED_GATES, verifyReleaseDNAIntegrity, deepFreeze });
+
 module.exports = Object.freeze({
   REQUIRED_GATES,
   createReleaseDNA,
@@ -352,4 +355,5 @@ module.exports = Object.freeze({
   verifyEvidenceCapsuleIntegrity,
   evaluateProofReadiness,
   createGoldenReleasePassport,
+  ...impactApi,
 });
