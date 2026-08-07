@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "TIGER_RELEASE_PROVENANCE_MANIFEST_V1",
+  "groups": {
+    "frontend": [
+      "owner-control.html",
+      "scripts/ai/vvip-ai-owner-console.js"
+    ],
+    "backend": [
+      "supabase/functions/tiger-sovereign-ai/index.ts",
+      "scripts/ai/sovereign-runtime.js",
+      "scripts/ai/sovereign-stepup-supabase-consumer.js"
+    ],
+    "aiPolicy": [
+      "docs/ai/TIGER_SOVEREIGN_CONSTITUTION.md",
+      "docs/ai/VVIP_TIGER_SOVEREIGN_EXECUTION_CHARTER.md",
+      "docs/ai/VVIP_TIGER_SOVEREIGN_OWNER_STEPUP_AUTHORIZATION.md",
+      "scripts/ai/sovereign-security-kernel.js",
+      "scripts/ai/sovereign-readiness-gate.js",
+      "scripts/ai/sovereign-owner-stepup-authorization.js",
+      "scripts/ai/sovereign-protected-tool-executor.js"
+    ],
+    "promptModel": [
+      "scripts/ai/sovereign-model-contract.js"
+    ],
+    "toolRegistry": [
+      "scripts/ai/sovereign-tool-registry.js",
+      "scripts/ai/sovereign-protected-tool-executor.js",
+      "scripts/ai/sovereign-stepup-supabase-consumer.js"
+    ],
+    "rlsPolicy": [
+      "supabase/migrations/20260807094000_tiger_sovereign_trust_fabric.sql",
+      "supabase/migrations/20260807104500_tiger_sovereign_runtime_atomicity.sql",
+      "supabase/migrations/20260807173000_tiger_sovereign_owner_stepup_authorization.sql"
+    ],
+    "securityConfig": [
+      ".github/workflows/codeql.yml",
+      ".github/workflows/dependency-review.yml",
+      ".github/workflows/project-control-integrity.yml",
+      ".github/workflows/vvip-quality-gate.yml",
+      "docs/ai/TIGER_SOVEREIGN_AI18_OWNER_STEPUP_SECURITY_REVIEW.md",
+      "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
+    ]
+  },
+  "migrationsDirectory": "supabase/migrations"
+}
