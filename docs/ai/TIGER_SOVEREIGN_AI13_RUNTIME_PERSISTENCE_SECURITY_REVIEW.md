@@ -1,8 +1,8 @@
 # TIGER SOVEREIGN AI-13 — Atomic Runtime Persistence Security Review
 
-Status: **repository security review PASS; preview/staging execution still required**  
-Date: **2026-08-07**  
-Target: `supabase/migrations/20260807104500_tiger_sovereign_runtime_atomicity.sql`  
+Status: **repository security review PASS; preview/staging execution still required**
+Date: **2026-08-07**
+Target: `supabase/migrations/20260807104500_tiger_sovereign_runtime_atomicity.sql`
 Exact SHA-256: `892aad6818cf35e4a7135fa272091c5c2e2d7ea0a3173807a34298d2d49119e0`
 
 ## Review objective
