@@ -14,3 +14,17 @@ test("allows only bounded internal return paths", () => {
   assert.equal(auth.safeReturnPath({ search: "?return_to=https://evil.example" }), "");
   assert.equal(auth.safeReturnPath({ search: "?return_to=../../admin" }), "");
 });
+
+test("recovery logging never exposes client error details", () => {
+  const originalWarn = console.warn;
+  const calls = [];
+  console.warn = (...args) => calls.push(args);
+  try {
+    auth.recover({ code: "SENSITIVE_CLIENT_DETAIL" });
+  } finally {
+    console.warn = originalWarn;
+  }
+
+  assert.deepEqual(calls, [["VVIP_CLERK_GATE_RECOVERY"]]);
+  assert.equal(JSON.stringify(calls).includes("SENSITIVE_CLIENT_DETAIL"), false);
+});
