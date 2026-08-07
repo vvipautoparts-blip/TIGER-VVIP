@@ -873,63 +873,8 @@ JS_PR33_HELPERS
 
 bash scripts/qa-pr33-accessibility.sh
 
-echo "[smoke] validating auth preview and safe return path"
-python3 <<'PY_AUTH'
-from pathlib import Path
-
-text = Path("auth-clerk-index.js").read_text(encoding="utf-8")
-
-required = [
-    'return isLocalHost && preview === "home";',
-    "SAFE_RETURN_PATHS.has(returnTo)",
-    "location.replace(returnTo)",
-]
-
-for contract in required:
-    if contract not in text:
-        raise SystemExit(f"[smoke][fail] missing safe auth contract: {contract}")
-
-allowed_returns = [
-    '"index.html"',
-    '"/index.html"',
-    '"./index.html"',
-    '"private-profile-p03.html"',
-    '"/private-profile-p03.html"',
-    '"./private-profile-p03.html"',
-]
-for value in allowed_returns:
-    if value not in text:
-        raise SystemExit(f"[smoke][fail] safe return allowlist misses: {value}")
-
-preview_files = [
-    Path("auth-clerk-index.js"),
-    Path("scripts/vvip-pr29-home-marketplace.js"),
-    Path("scripts/vvip-p03-profile.js"),
-    Path("scripts/vvip-p03-sign-out.js"),
-]
-loopback_contract = [
-    'location.hostname === "localhost"',
-    'location.hostname === "127.0.0.1"',
-    'location.hostname === "::1"',
-    'location.hostname === "[::1]"',
-    'location.hostname === "0.0.0.0"',
-]
-for file in preview_files:
-    source = file.read_text(encoding="utf-8")
-    for contract in loopback_contract:
-        if contract not in source:
-            raise SystemExit(
-                f"[smoke][fail] incomplete localhost preview guard in {file}: {contract}"
-            )
-
-profile = Path("scripts/vvip-p03-profile.js").read_text(encoding="utf-8")
-signout = Path("scripts/vvip-p03-sign-out.js").read_text(encoding="utf-8")
-private_return = "index.html?return_to=private-profile-p03.html"
-if private_return not in profile:
-    raise SystemExit("[smoke][fail] private account auth return is not canonical")
-if private_return not in signout:
-    raise SystemExit("[smoke][fail] sign-out auth guard races canonical return")
-PY_AUTH
+echo "[smoke] validating auth preview and safe return path behavior"
+node --test tests/auth-clerk-index.test.cjs tests/p08-clerk-gate-runtime.test.cjs tests/vvip-runtime-loader.test.cjs
 
 echo "[smoke] validating route availability"
 python3 <<'PY_ROUTES'
