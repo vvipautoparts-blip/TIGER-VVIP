@@ -1,0 +1,58 @@
+name: V14 Surgical Migration Version Fix
+
+on:
+  push:
+    branches:
+      - integration/v14-global-launch-readiness-20260806
+    paths:
+      - .github/workflows/v14-surgical-migration-version-fix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  rename-v14-migrations:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact branch
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Rename duplicate-version migrations only
+        shell: bash
+        run: |
+          set -euo pipefail
+          old_foundation='supabase/migrations/20260806_v14_marketplace_foundation.sql'
+          old_hardening='supabase/migrations/20260806_v14_marketplace_hardening.sql'
+          new_foundation='supabase/migrations/20260806090000_v14_marketplace_foundation.sql'
+          new_hardening='supabase/migrations/20260806100000_v14_marketplace_hardening.sql'
+
+          test -f "$old_foundation"
+          test -f "$old_hardening"
+          test ! -e "$new_foundation"
+          test ! -e "$new_hardening"
+
+          foundation_before="$(sha256sum "$old_foundation" | awk '{print $1}')"
+          hardening_before="$(sha256sum "$old_hardening" | awk '{print $1}')"
+
+          git mv "$old_foundation" "$new_foundation"
+          git mv "$old_hardening" "$new_hardening"
+
+          test "$(sha256sum "$new_foundation" | awk '{print $1}')" = "$foundation_before"
+          test "$(sha256sum "$new_hardening" | awk '{print $1}')" = "$hardening_before"
+          git diff --check
+
+          echo "V14_MIGRATION_CONTENT_PRESERVED=PASS"
+
+      - name: Commit version-only repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add supabase/migrations/
+          git diff --cached --quiet && { echo 'No migration rename to commit'; exit 1; }
+          git commit -m 'fix(db): give V14 migrations unique versions'
+          git push origin HEAD:integration/v14-global-launch-readiness-20260806
