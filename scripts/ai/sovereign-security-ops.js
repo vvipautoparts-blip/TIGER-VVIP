@@ -116,14 +116,19 @@ const ALLOWED_TRANSITIONS = Object.freeze({
 
 function advanceIncidentState({ incident, targetState, evidence = [], ownerApproved = false, at } = {}) {
   if (!incident || !ALLOWED_TRANSITIONS[incident.state]) return result(false, 'INCIDENT_INVALID');
-  if (!ALLOWED_TRANSITIONS[incident.state].includes(targetState)) return result(false, 'INCIDENT_TRANSITION_DENIED');
   const timestamp = Date.parse(String(at || ''));
   if (!Number.isFinite(timestamp)) return result(false, 'INCIDENT_TIME_INVALID');
   const normalizedEvidence = Array.isArray(evidence) ? evidence.slice(0, 32).map((value) => String(value).slice(0, 256)).filter(Boolean) : [];
-  if (targetState === 'INVESTIGATE' && normalizedEvidence.length === 0) return result(false, 'EVIDENCE_REQUIRED');
+
+  // Recovery-class requests must never get a weaker transition error when the
+  // mandatory human/evidence gates themselves are absent. This preserves the
+  // fail-closed contract even when a caller attempts to skip lifecycle states.
   if (['RECOVER', 'VERIFY', 'CLOSED'].includes(targetState) && (!ownerApproved || normalizedEvidence.length === 0)) {
     return result(false, 'RECOVERY_GATES_NOT_MET');
   }
+  if (!ALLOWED_TRANSITIONS[incident.state].includes(targetState)) return result(false, 'INCIDENT_TRANSITION_DENIED');
+  if (targetState === 'INVESTIGATE' && normalizedEvidence.length === 0) return result(false, 'EVIDENCE_REQUIRED');
+
   const aiEnabled = targetState === 'CLOSED' && ownerApproved;
   return result(true, 'INCIDENT_ADVANCED', {
     incident: deepFreeze({
