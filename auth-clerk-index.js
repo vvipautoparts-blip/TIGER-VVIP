@@ -77,7 +77,7 @@
   }
 
   function recover(error) {
-    console.warn("VVIP_CLERK_GATE_RECOVERY", error && error.code);
+    console.warn("VVIP_CLERK_GATE_RECOVERY");
     showGate();
     const host = root.document && root.document.getElementById("clerk-sign-in");
     if (host) host.innerHTML = '<p class="auth-error">تعذر تحميل بوابة الدخول الآمنة. تحقق من الاتصال ثم حاول مرة أخرى.</p>';
