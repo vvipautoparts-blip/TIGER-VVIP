@@ -44,7 +44,9 @@ The policy engine returns `OWNER_APPROVAL_REQUIRED` for:
 - `deploy_production`
 - `change_prices`
 
-An owner approval cannot expand an agent beyond its own role scope. For example, `user_assistant` cannot change prices even when an approval flag is presented.
+AI-01 browser/runtime code does not contain a trusted path that converts these L4 results to `ALLOW`. A client-controlled approval flag cannot satisfy the gate.
+
+A future trusted owner approval cannot expand an agent beyond its own role scope. For example, `user_assistant` cannot change prices even if a future valid server-side approval exists for a different authorized agent.
 
 ## Fail-closed rules
 
@@ -53,6 +55,7 @@ An owner approval cannot expand an agent beyond its own role scope. For example,
 - Action outside agent scope → `DENY / AGENT_SCOPE_DENIED`
 - AI Command Center feature disabled → `DENY / FEATURE_DISABLED`
 - Permanent forbidden action → `DENY / PERMANENTLY_FORBIDDEN`
+- L4 action in AI-01 browser/runtime → `OWNER_APPROVAL_REQUIRED`
 
 ## Feature flag
 
@@ -77,6 +80,10 @@ Persistent audit storage is **not** enabled in this slice. A future backend migr
 ## Approval design
 
 `createApprovalRequest()` can create a pending request only for an action whose global policy is `OWNER_APPROVAL_REQUIRED` and whose requesting agent is scoped to that action.
+
+AI-01 browser/runtime code never treats `ownerApproved=true` or any equivalent client-controlled value as proof of authorization. L4 actions remain `OWNER_APPROVAL_REQUIRED` until a future server-side verifier validates a persistent, scoped, expiring, one-time approval record bound to the exact action payload.
+
+`createApprovalRequest()` creates only a pending request envelope. It does not authorize execution and it does not consume an approval.
 
 Persistent approval storage and cryptographic binding of approvals to exact action payload digests are deferred to the backend integration slice.
 
@@ -115,7 +122,7 @@ The repository quality gate automatically runs root `tests/*.test.cjs`. The AI-0
 
 - `tests/ai-command-center-policy.test.cjs`
 
-The tests cover default-disable behavior, the four-agent registry, permanent denial, owner-gated actions, fail-closed behavior, specialist scoping, approval creation, and audit metadata redaction.
+The tests cover default-disable behavior, the four-agent registry, permanent denial, owner-gated actions, rejection of client-side L4 approval, fail-closed behavior, specialist scoping, approval creation, and audit metadata redaction.
 
 ## Not implemented yet
 
@@ -129,6 +136,7 @@ The following are intentionally outside this foundation slice:
 - owner-permission mutation
 - persistent AI audit tables
 - persistent owner approval tables
+- trusted server-side L4 approval verification and consumption
 - live financial data adapter
 - live engineering/log adapter
 - user-facing generative writing endpoint
