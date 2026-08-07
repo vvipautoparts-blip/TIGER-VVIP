@@ -14,6 +14,25 @@ const OWNER_GATES = Object.freeze({
   OWNER_PRODUCTION_ACTIVATION: 'ACTIVATE_PRODUCTION',
 });
 
+const OWNER_ISSUED_AT = Object.freeze({
+  MERGE_RELEASE: '2026-08-07T12:20:00.000Z',
+  PROMOTE_DATABASE: '2026-08-07T12:21:00.000Z',
+  ACTIVATE_PRODUCTION: '2026-08-07T12:22:00.000Z',
+});
+
+const GATE_VERIFIED_AT = Object.freeze({
+  OWNER_MERGE_APPROVAL: '2026-08-07T12:20:00.000Z',
+  OWNER_DB_PROMOTION_APPROVAL: '2026-08-07T12:21:00.000Z',
+  OWNER_PRODUCTION_ACTIVATION: '2026-08-07T12:22:00.000Z',
+  SUPABASE_PRODUCTION_APPLY: '2026-08-07T12:30:00.000Z',
+  AI_GATEWAY_PRODUCTION_DEPLOY: '2026-08-07T12:31:00.000Z',
+  LIVE_EVIDENCE_PRODUCTION_SMOKE: '2026-08-07T12:32:00.000Z',
+  PRODUCTION_POST_DEPLOY_SMOKE: '2026-08-07T12:33:00.000Z',
+  MONITORING_ALERTS_PRODUCTION_VERIFIED: '2026-08-07T12:34:00.000Z',
+  PRODUCTION_BACKUP_VERIFIED: '2026-08-07T12:35:00.000Z',
+  COUNTRY_CONFIG_PRODUCTION_VERIFIED: '2026-08-07T12:36:00.000Z',
+});
+
 function makeRelease() {
   return proof.createReleaseDNA({
     commitSha: 'fa9aeb221e7c2c2551f03dcb96377585331f44c8',
@@ -55,7 +74,8 @@ function registry(evidenceKeys, ownerKeys) {
   ]);
 }
 
-function evidenceAttestation(evidenceKeys, capsule, index) {
+function evidenceAttestation(evidenceKeys, capsule) {
+  const issuedAt = new Date(Date.parse(capsule.verifiedAt) + 60_000).toISOString();
   const unsigned = {
     schemaVersion: 'TIGER_EVIDENCE_ATTESTATION_V1',
     keyId: 'evidence-2026-01',
@@ -63,13 +83,13 @@ function evidenceAttestation(evidenceKeys, capsule, index) {
     releaseDigest: capsule.releaseDigest,
     gate: capsule.gate,
     evidenceSha256: capsule.evidenceSha256,
-    issuedAt: `2026-08-07T12:${String(10 + (index % 30)).padStart(2, '0')}:00.000Z`,
+    issuedAt,
     expiresAt: '2026-08-08T13:00:00.000Z',
   };
   return Object.freeze({ ...unsigned, signature: sign(evidenceKeys, attestation.buildEvidenceAttestationMessage(unsigned)) });
 }
 
-function ownerReceipt(ownerKeys, releaseDNA, gate, index) {
+function ownerReceipt(ownerKeys, trustedKeys, releaseDNA, gate, index) {
   const action = OWNER_GATES[gate.id];
   const environment = attestation.OWNER_ACTION_ENVIRONMENTS[action];
   const payloadDigest = crypto.createHash('sha256').update(`payload:${gate.id}`).digest('hex');
@@ -87,13 +107,13 @@ function ownerReceipt(ownerKeys, releaseDNA, gate, index) {
     decision: 'APPROVE',
     reasonCode: 'OWNER_RELEASE_GATE_APPROVED',
     nonce: `nonce-20260807-${String(index + 1).padStart(6, '0')}`,
-    issuedAt: `2026-08-07T12:${String(20 + index).padStart(2, '0')}:00.000Z`,
+    issuedAt: OWNER_ISSUED_AT[action],
     expiresAt: '2026-08-07T13:30:00.000Z',
   };
   const receipt = Object.freeze({ ...unsigned, signature: sign(ownerKeys, attestation.buildOwnerDecisionReceiptMessage(unsigned)) });
   const verified = attestation.verifyOwnerDecisionReceipt({
     receipt,
-    trustedKeys: globalThis.__tigerTestRegistry,
+    trustedKeys,
     releaseDNA,
     expectedAction: action,
     expectedPayloadDigest: payloadDigest,
@@ -109,7 +129,6 @@ function buildSignedProofSet() {
   const evidenceKeys = keyPair();
   const ownerKeys = keyPair();
   const trustedKeys = registry(evidenceKeys, ownerKeys);
-  globalThis.__tigerTestRegistry = trustedKeys;
 
   const capsules = [];
   const evidenceAttestations = [];
@@ -117,7 +136,7 @@ function buildSignedProofSet() {
 
   proof.REQUIRED_GATES.forEach((gate, index) => {
     if (OWNER_GATES[gate.id]) {
-      const owner = ownerReceipt(ownerKeys, releaseDNA, gate, index);
+      const owner = ownerReceipt(ownerKeys, trustedKeys, releaseDNA, gate, index);
       const capsule = proof.createEvidenceCapsule({
         releaseDNA,
         gate: gate.id,
@@ -126,7 +145,7 @@ function buildSignedProofSet() {
         evidenceClass: gate.allowedEvidenceClasses[0],
         environment: gate.allowedEnvironments[0],
         reference: `owner-receipt://${owner.receipt.receiptId}`,
-        verifiedAt: owner.receipt.issuedAt,
+        verifiedAt: OWNER_ISSUED_AT[OWNER_GATES[gate.id]],
         evidenceSha256: owner.receiptDigest,
         fixture: false,
         simulated: false,
@@ -151,16 +170,15 @@ function buildSignedProofSet() {
       evidenceClass: gate.allowedEvidenceClasses[0],
       environment: gate.allowedEnvironments[0],
       reference: `evidence://trusted/${gate.id}`,
-      verifiedAt: '2026-08-07T12:00:00.000Z',
+      verifiedAt: GATE_VERIFIED_AT[gate.id] || '2026-08-07T12:00:00.000Z',
       evidenceSha256: crypto.createHash('sha256').update(`artifact:${gate.id}`).digest('hex'),
       fixture: false,
       simulated: false,
     });
     capsules.push(capsule);
-    evidenceAttestations.push(evidenceAttestation(evidenceKeys, capsule, index));
+    evidenceAttestations.push(evidenceAttestation(evidenceKeys, capsule));
   });
 
-  delete globalThis.__tigerTestRegistry;
   return { releaseDNA, trustedKeys, capsules, evidenceAttestations, ownerProofs };
 }
 
@@ -208,29 +226,27 @@ test('missing one non-owner evidence attestation blocks only that cryptographic 
   assert.equal(result.verifiedOwnerDecisionCount, 3);
 });
 
-test('owner gates cannot be satisfied by an evidence signer attestation instead of owner decision receipts', () => {
+test('owner gates cannot be satisfied by Evidence Signer attestations instead of Owner Decision Receipts', () => {
   const bundle = buildSignedProofSet();
-  const ownerGateId = 'OWNER_MERGE_APPROVAL';
-  const ownerCapsule = bundle.capsules.find((capsule) => capsule.gate === ownerGateId);
-  const evidenceKeys = keyPair();
-  const wrongRegistry = attestation.createTrustedKeyRegistry([
-    {
-      keyId: 'evidence-2026-01', purpose: 'EVIDENCE_SIGNER', algorithm: 'Ed25519', publicKeyPem: publicPem(evidenceKeys),
-      status: 'ACTIVE', validFrom: '2026-08-01T00:00:00.000Z', validTo: '2027-08-01T00:00:00.000Z',
-    },
-  ]);
-  const fakeOwnerEvidence = evidenceAttestation(evidenceKeys, ownerCapsule, 1);
+  const ownerCapsule = bundle.capsules.find((capsule) => capsule.gate === 'OWNER_MERGE_APPROVAL');
+  const fakeOwnerEvidence = {
+    ...bundle.evidenceAttestations[0],
+    capsuleDigest: ownerCapsule.digest,
+    releaseDigest: ownerCapsule.releaseDigest,
+    gate: ownerCapsule.gate,
+    evidenceSha256: ownerCapsule.evidenceSha256,
+  };
 
   assert.throws(
     () => attestation.evaluateAttestedProofReadiness({
       releaseDNA: bundle.releaseDNA,
-      trustedKeys: wrongRegistry,
+      trustedKeys: bundle.trustedKeys,
       capsules: bundle.capsules,
       evidenceAttestations: [...bundle.evidenceAttestations, fakeOwnerEvidence],
-      ownerProofs: [],
+      ownerProofs: bundle.ownerProofs.filter((entry) => entry.gate !== 'OWNER_MERGE_APPROVAL'),
       now: '2026-08-07T12:55:00.000Z',
     }),
-    /OWNER_GATE_REQUIRES_OWNER_DECISION_RECEIPT|TRUSTED_KEY_NOT_FOUND/,
+    /OWNER_GATE_REQUIRES_OWNER_DECISION_RECEIPT/,
   );
 });
 
@@ -253,7 +269,7 @@ test('owner proof must bind exact owner-gate capsule and its receipt digest must
   );
 });
 
-test('duplicate, extra, wrong-release or tampered cryptographic proof material fails closed', () => {
+test('duplicate cryptographic proof material fails closed and changed Release DNA remains blocked', () => {
   const bundle = buildSignedProofSet();
   assert.throws(
     () => attestation.evaluateAttestedProofReadiness({
