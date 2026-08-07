@@ -60,6 +60,12 @@ declare -A reviewed_migration_hashes=(
   # The SECURITY DEFINER trigger function has an explicit pg_catalog,public search_path and its EXECUTE
   # privilege is revoked from public, anon, and authenticated; the scanner's same-line heuristic is conservative.
   ["supabase/migrations/20260806100000_v14_marketplace_hardening.sql"]="f01fd150f94b2b6bbd1f7c9c5cdc085f36ffa511aff326fdfee409b37ccba359"
+  # LC-03 Supabase security hardening: reviewed 2026-08-08 after 7/7 contract tests,
+  # a credential-isolated full local database rebuild, Staging execution, post-change advisor review,
+  # and behavioral probes for public ACTIVE read, DRAFT isolation, inactive-country fail-closed,
+  # unauthorized review rejection, and append-only audit. Internal SECURITY DEFINER helpers move
+  # out of the exposed public RPC schema; intentional authenticated application RPCs remain explicit.
+  ["supabase/migrations/20260808003000_lc03_supabase_security_hardening.sql"]="15fed4de91331ceb252e359f6946de9b02d16d91286157177024141546963955"
 )
 
 reviewed_baseline_path() {
