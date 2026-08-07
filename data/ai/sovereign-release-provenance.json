@@ -7,7 +7,8 @@
     ],
     "backend": [
       "supabase/functions/tiger-sovereign-ai/index.ts",
-      "scripts/ai/sovereign-runtime.js"
+      "scripts/ai/sovereign-runtime.js",
+      "scripts/ai/sovereign-stepup-supabase-consumer.js"
     ],
     "aiPolicy": [
       "docs/ai/TIGER_SOVEREIGN_CONSTITUTION.md",
@@ -23,7 +24,8 @@
     ],
     "toolRegistry": [
       "scripts/ai/sovereign-tool-registry.js",
-      "scripts/ai/sovereign-protected-tool-executor.js"
+      "scripts/ai/sovereign-protected-tool-executor.js",
+      "scripts/ai/sovereign-stepup-supabase-consumer.js"
     ],
     "rlsPolicy": [
       "supabase/migrations/20260807094000_tiger_sovereign_trust_fabric.sql",
