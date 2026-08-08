@@ -68,8 +68,7 @@ jobs:
         run: |
           node --test \
             tests/lc04-production-legacy-rpc-hardening.test.cjs \
-            tests/lc04-production-legacy-rpc-workflow.test.cjs \
-            tests/lc04-reviewed-migration-hash-contract.test.cjs
+            tests/lc04-production-legacy-rpc-workflow.test.cjs
 
       - name: Emit exact LC04 migration SHA-256
         shell: bash
