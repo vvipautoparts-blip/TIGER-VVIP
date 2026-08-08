@@ -49,6 +49,11 @@ declare -A reviewed_migration_hashes=(
   # that rolled back cleanly. This exact artifact narrows browser surfaces and adds
   # advisor-confirmed FK indexes. Any byte drift invalidates this baseline.
   ["supabase/migrations/20260808180000_lc06_rls_performance_hardening.sql"]="ed34063e2f3ba32434e08b45c1f1e415115c092ffb07c6cb810ff974ed467f35"
+  # Global Launch Phase A identity convergence: reviewed after exact-head TDD contracts,
+  # application to the isolated Staging branch, fail-closed legacy-identity behavioral
+  # proof, privilege/policy verification, and complete cleanup of the synthetic proof row.
+  # Approval is byte-exact; any SQL drift invalidates this reviewed baseline automatically.
+  ["supabase/migrations/20260808223000_global_launch_phase_a_identity_convergence.sql"]="173766f1203890d3461db6b67cc95b1d9ca28d23c65026ff9393115ad4433c31"
 )
 
 reviewed_baseline_path() {
