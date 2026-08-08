@@ -121,7 +121,11 @@ test('proof is bound to exact Release DNA digest and source identity', () => {
 
 test('stale, future, and misordered timestamps fail closed', () => {
   assert.throws(
-    () => create(stagingProof({ generated_at: '2026-08-08T11:00:00.000Z' })),
+    () => create(stagingProof({
+      started_at: '2026-08-08T10:58:00.000Z',
+      completed_at: '2026-08-08T10:59:00.000Z',
+      generated_at: '2026-08-08T11:00:00.000Z',
+    })),
     (error) => error.code === 'EVIDENCE_STALE',
   );
   assert.throws(
