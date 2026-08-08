@@ -66,6 +66,14 @@ declare -A reviewed_migration_hashes=(
   # unauthorized review rejection, and append-only audit. Internal SECURITY DEFINER helpers move
   # out of the exposed public RPC schema; intentional authenticated application RPCs remain explicit.
   ["supabase/migrations/20260808003000_lc03_supabase_security_hardening.sql"]="15fed4de91331ceb252e359f6946de9b02d16d91286157177024141546963955"
+  # TSRF semantic-convergence migrations: reviewed 2026-08-08 on exact source
+  # e3c7bb2466f173c0fe06fdefa24420aee92749f7 after clean local migration replay and
+  # fail-closed runtime verification. Steel Shield findings were limited to new-table
+  # NOT NULL declarations and bounded multi-line UPDATE statements whose WHERE clauses
+  # occur on subsequent lines; no wildcard/path-only exemption is used.
+  ["supabase/migrations/20260808130000_tsrf_ai_trust_fabric.sql"]="3033a405060c9dc1bdc4425e3d2b14d2011d86b3afc7a1d243d5e930a4d60d96"
+  ["supabase/migrations/20260808131000_tsrf_ai_runtime_atomicity.sql"]="f047f356ee57c09b86c322c6329bb9897fd06c3f0163fef6bb64fd608c84e747"
+  ["supabase/migrations/20260808132000_tsrf_owner_authorization_leases.sql"]="994a7fdb42ca2d82138ac04a65e8db63cfcd55c08917ff5134e4c184df76e4cb"
 )
 
 reviewed_baseline_path() {
