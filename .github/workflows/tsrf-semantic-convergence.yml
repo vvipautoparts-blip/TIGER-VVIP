@@ -1,0 +1,33 @@
+name: TSRF Semantic Convergence
+
+on:
+  push:
+    branches:
+      - release/tiger-jo-convergence
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Run TSRF semantic convergence contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -f tests/tsrf-semantic-convergence.test.cjs ]; then
+            echo "TSRF_CONTRACT=NOT_YET_PRESENT"
+            exit 0
+          fi
+          node --test tests/tsrf-semantic-convergence.test.cjs
