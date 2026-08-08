@@ -5,9 +5,11 @@ on:
     branches:
       - main
       - integration/v14-global-launch-readiness-20260806
+      - feat/tsrf-global-launch-proof-20260808
   push:
     branches:
       - integration/v14-global-launch-readiness-20260806
+      - feat/tsrf-launch-evidence-plane-20260808
   workflow_dispatch:
 
 permissions:
