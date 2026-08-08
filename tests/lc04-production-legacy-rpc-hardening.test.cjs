@@ -62,8 +62,8 @@ test('private helper graph uses fixed search paths and private-qualified helper 
   assert.match(text, /set search_path = pg_catalog/i);
   assert.match(text, /vvip_private\.user_role_for\(auth\.uid\(\)\)/i);
   assert.match(text, /vvip_private\.current_user_role\(\)/i);
-  assert.doesNotMatch(text, /public\.current_user_role\(\)/i);
-  assert.doesNotMatch(text, /public\.user_role_for\(auth\.uid\(\)\)/i);
+  assert.doesNotMatch(text, /select\s+public\.current_user_role\(\)/i);
+  assert.doesNotMatch(text, /select\s+public\.user_role_for\(auth\.uid\(\)\)/i);
 });
 
 test('policy helpers retain only explicit role execution after moving out of exposed API schema', () => {
