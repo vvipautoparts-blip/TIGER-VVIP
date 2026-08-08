@@ -12,6 +12,13 @@ const {
 } = require('./contracts.cjs');
 const { deriveReleaseDna, computeReleaseDigest } = require('./release-dna.cjs');
 const { createProofCapsule, serializeProofCapsule } = require('./proof-capsule.cjs');
+const {
+  assertStructuredArtifact,
+  assertOutputDirectory,
+  assertCleanSource,
+  writeExclusive,
+  cleanupCreated,
+} = require('./bridge-safety.cjs');
 
 function fail(code, message) {
   throw new EvidenceError(code, message);
@@ -67,77 +74,6 @@ function assertTrustedStagingConfig(config) {
   return config;
 }
 
-function lstatOrFail(fsApi, absolute, missingCode, message) {
-  try {
-    return fsApi.lstatSync(absolute);
-  } catch {
-    fail(missingCode, message);
-  }
-}
-
-function assertArtifact(fsApi, artifactPath) {
-  if (typeof artifactPath !== 'string' || artifactPath.length === 0) {
-    fail('EVIDENCE_ARTIFACT_MISSING', 'Proof artifact is unavailable.');
-  }
-  const absolute = path.resolve(artifactPath);
-  const stat = lstatOrFail(fsApi, absolute, 'EVIDENCE_ARTIFACT_MISSING', 'Proof artifact is unavailable.');
-  if (stat.isSymbolicLink()) {
-    fail('EVIDENCE_ARTIFACT_SYMLINK', 'Proof artifact cannot be a symlink.');
-  }
-  if (!stat.isFile()) {
-    fail('EVIDENCE_ARTIFACT_TYPE_INVALID', 'Proof artifact must be a regular file.');
-  }
-  return absolute;
-}
-
-function assertOutputDirectory(fsApi, repositoryRoot, outputDir) {
-  if (typeof outputDir !== 'string' || outputDir.length === 0) {
-    fail('EVIDENCE_OUTPUT_INVALID', 'Evidence output directory is invalid.');
-  }
-  const absolute = path.resolve(outputDir);
-  const stat = lstatOrFail(fsApi, absolute, 'EVIDENCE_OUTPUT_INVALID', 'Evidence output directory is unavailable.');
-  if (stat.isSymbolicLink()) {
-    fail('EVIDENCE_OUTPUT_SYMLINK', 'Evidence output directory cannot be a symlink.');
-  }
-  if (!stat.isDirectory()) {
-    fail('EVIDENCE_OUTPUT_INVALID', 'Evidence output target must be a directory.');
-  }
-
-  let repositoryReal;
-  let outputReal;
-  try {
-    repositoryReal = fsApi.realpathSync(path.resolve(repositoryRoot));
-    outputReal = fsApi.realpathSync(absolute);
-  } catch {
-    fail('EVIDENCE_OUTPUT_INVALID', 'Evidence output identity cannot be resolved.');
-  }
-  if (outputReal === repositoryReal || outputReal.startsWith(`${repositoryReal}${path.sep}`)) {
-    fail('EVIDENCE_OUTPUT_INSIDE_REPOSITORY', 'Evidence output must remain outside the source repository.');
-  }
-  return absolute;
-}
-
-function assertCleanSource(git, code) {
-  if (!git || typeof git.statusPorcelain !== 'function') {
-    fail('EVIDENCE_GIT_IDENTITY_UNAVAILABLE', 'Trusted Git status provider is unavailable.');
-  }
-  const status = git.statusPorcelain();
-  if (typeof status !== 'string') {
-    fail('EVIDENCE_GIT_IDENTITY_UNAVAILABLE', 'Trusted Git status response is invalid.');
-  }
-  if (status.trim() !== '') {
-    fail(code, 'Source repository is not stable for evidence generation.');
-  }
-}
-
-function writeExclusive(fsApi, target, content) {
-  try {
-    fsApi.writeFileSync(target, content, { encoding: 'utf8', flag: 'wx', mode: 0o600 });
-  } catch {
-    fail('EVIDENCE_OUTPUT_COLLISION', 'Evidence output file could not be created exclusively.');
-  }
-}
-
 function buildStagingEvidence({
   repositoryRoot,
   candidateDir,
@@ -158,10 +94,10 @@ function buildStagingEvidence({
 
   const stagingConfig = assertTrustedStagingConfig(trustedStagingConfig);
   assertCleanSource(git, 'EVIDENCE_SOURCE_DIRTY');
-  const safeArtifactPath = assertArtifact(fsApi, artifactPath);
+  const safeArtifact = assertStructuredArtifact(fsApi, artifactPath);
   const safeOutputDir = assertOutputDirectory(fsApi, repositoryRoot, outputDir);
 
-  if (path.basename(safeArtifactPath) !== proofInput.artifact_name) {
+  if (path.basename(safeArtifact.absolute) !== proofInput.artifact_name) {
     fail('EVIDENCE_ARTIFACT_NAME_MISMATCH', 'Proof artifact name does not match the verified artifact.');
   }
 
@@ -175,7 +111,7 @@ function buildStagingEvidence({
   });
 
   const releaseDigest = computeReleaseDigest(releaseDna);
-  const artifactSha256 = sha256Hex(fsApi.readFileSync(safeArtifactPath));
+  const artifactSha256 = sha256Hex(safeArtifact.bytes);
 
   if (proofInput.release_digest !== releaseDigest) {
     fail('EVIDENCE_RELEASE_DIGEST_MISMATCH', 'Proof release digest does not match independently derived Release DNA.');
@@ -225,13 +161,7 @@ function buildStagingEvidence({
     created.push(paths.manifest);
     assertCleanSource(git, 'EVIDENCE_SOURCE_CHANGED');
   } catch (error) {
-    for (const target of created) {
-      try {
-        fsApi.rmSync(target, { force: true });
-      } catch {
-        // Best-effort cleanup only; the original bounded EvidenceError is preserved.
-      }
-    }
+    cleanupCreated(fsApi, created);
     throw error;
   }
 
