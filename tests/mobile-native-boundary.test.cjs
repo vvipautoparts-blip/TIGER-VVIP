@@ -30,12 +30,16 @@ test('mobile workspace pins the reviewed Capacitor release exactly', () => {
   assert.deepEqual(pkg.devDependencies, { '@capacitor/cli': '8.4.2' });
 });
 
-test('Capacitor identity and web directory are launch-stable', () => {
+test('Capacitor v8 identity, web directory, and production navigation defaults are launch-stable', () => {
   const config = json('mobile/capacitor.config.json');
   assert.equal(config.appId, 'com.vviptiger.app');
   assert.equal(config.appName, 'VVIP TIGER');
   assert.equal(config.webDir, 'www');
-  assert.equal(config.bundledWebRuntime, false);
+  assert.equal(config.bundledWebRuntime, undefined, 'removed legacy Capacitor option must not be reintroduced');
+  assert.equal(config.server?.url, undefined, 'production shell must not load a remote live-reload URL');
+  assert.notEqual(config.server?.cleartext, true, 'production shell must never enable cleartext');
+  assert.ok(!Array.isArray(config.server?.allowNavigation) || config.server.allowNavigation.length === 0,
+    'production shell must not expand WebView navigation hosts');
 });
 
 test('prepare-web is release-manifest and exact-SHA bound', () => {
