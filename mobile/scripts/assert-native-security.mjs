@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const APP_ID = 'com.vviptiger.app';
+const PLATFORMS = new Set(['android', 'ios', 'all']);
 const SECRET_MARKERS = [
   'service_role',
   'SUPABASE_SERVICE_ROLE',
@@ -43,7 +44,28 @@ async function scanShippedWeb(wwwDir) {
   }
 }
 
-export async function assertNativeSecurity(mobileDir) {
+async function assertAndroid(mobileDir) {
+  const manifestPath = path.join(mobileDir, 'android', 'app', 'src', 'main', 'AndroidManifest.xml');
+  const androidManifest = await readFile(manifestPath, 'utf8');
+  if (/android:usesCleartextTraffic\s*=\s*["']true["']/i.test(androidManifest)) {
+    fail('MOBILE_NATIVE_ANDROID_CLEARTEXT_BLOCKED');
+  }
+  if (!/android:usesCleartextTraffic\s*=\s*["']false["']/i.test(androidManifest)) {
+    fail('MOBILE_NATIVE_ANDROID_CLEARTEXT_NOT_EXPLICITLY_DISABLED');
+  }
+}
+
+async function assertIos(mobileDir) {
+  const plistPath = path.join(mobileDir, 'ios', 'App', 'App', 'Info.plist');
+  const plist = await readFile(plistPath, 'utf8');
+  if (/<key>NSAllowsArbitraryLoads<\/key>\s*<true\s*\/>/i.test(plist)) {
+    fail('MOBILE_NATIVE_IOS_ATS_FAIL_OPEN_BLOCKED');
+  }
+}
+
+export async function assertNativeSecurity(mobileDir, platform = 'all') {
+  if (!PLATFORMS.has(platform)) fail('MOBILE_NATIVE_PLATFORM_INVALID', platform || 'missing');
+
   const configPath = path.join(mobileDir, 'capacitor.config.json');
   const config = JSON.parse(await readFile(configPath, 'utf8'));
   if (config.appId !== APP_ID) fail('MOBILE_NATIVE_APP_ID_MISMATCH');
@@ -62,29 +84,25 @@ export async function assertNativeSecurity(mobileDir) {
   const wwwDir = path.join(mobileDir, 'www');
   await scanShippedWeb(wwwDir);
 
-  const manifestPath = path.join(mobileDir, 'android', 'app', 'src', 'main', 'AndroidManifest.xml');
-  const androidManifest = await readFile(manifestPath, 'utf8');
-  if (/android:usesCleartextTraffic\s*=\s*["']true["']/i.test(androidManifest)) {
-    fail('MOBILE_NATIVE_ANDROID_CLEARTEXT_BLOCKED');
-  }
-  if (!/android:usesCleartextTraffic\s*=\s*["']false["']/i.test(androidManifest)) {
-    fail('MOBILE_NATIVE_ANDROID_CLEARTEXT_NOT_EXPLICITLY_DISABLED');
-  }
+  if (platform === 'android' || platform === 'all') await assertAndroid(mobileDir);
+  if (platform === 'ios' || platform === 'all') await assertIos(mobileDir);
 
-  const plistPath = path.join(mobileDir, 'ios', 'App', 'App', 'Info.plist');
-  const plist = await readFile(plistPath, 'utf8');
-  if (/<key>NSAllowsArbitraryLoads<\/key>\s*<true\s*\/>/i.test(plist)) {
-    fail('MOBILE_NATIVE_IOS_ATS_FAIL_OPEN_BLOCKED');
-  }
-
-  return { appId: APP_ID, cleartext: false, remoteServer: false, navigationExpansion: false };
+  return {
+    appId: APP_ID,
+    platform,
+    cleartext: false,
+    remoteServer: false,
+    navigationExpansion: false,
+  };
 }
 
 async function main() {
   const here = path.dirname(fileURLToPath(import.meta.url));
   const mobileDir = path.resolve(here, '..');
-  const result = await assertNativeSecurity(mobileDir);
+  const platform = process.argv[2] || 'all';
+  const result = await assertNativeSecurity(mobileDir, platform);
   console.log('MOBILE_NATIVE_SECURITY=PASS');
+  console.log(`MOBILE_NATIVE_PLATFORM=${result.platform}`);
   console.log(`MOBILE_NATIVE_APP_ID=${result.appId}`);
   console.log('MOBILE_NATIVE_CLEARTEXT=DISABLED');
 }
