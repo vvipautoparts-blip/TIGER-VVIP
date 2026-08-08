@@ -10,15 +10,24 @@
 ## Project Continuity Protocol
 
 - Before broad implementation work, read [MASTER_PROJECT_STATE.md](./docs/MASTER_PROJECT_STATE.md).
+- Before owner-gated launch work, read [OWNER_GLOBAL_LAUNCH_EXECUTION_DIRECTIVE_20260808.md](./docs/global/OWNER_GLOBAL_LAUNCH_EXECUTION_DIRECTIVE_20260808.md).
 - Treat chat history as temporary context, not repository authority.
 - When sources disagree, use this precedence: current repository bytes/refs -> exact-head CI/test/security evidence -> current PR/commit metadata -> `docs/MASTER_PROJECT_STATE.md` -> historical chat/prose.
 - Do not restart or rebuild verified work merely because a new chat/session begins.
-- Use the session sequence `READ -> VERIFY -> PLAN -> EXECUTE -> VERIFY -> CHECKPOINT`.
+- Use the session sequence `READ -> VERIFY -> PLAN -> EXECUTE -> VERIFY -> CHECKPOINT -> CONTINUE`.
 - Classify continuity state explicitly as `APPROVED`, `IMPLEMENTED`, `VERIFIED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, or `STALE`.
 - `IMPLEMENTED` is not `VERIFIED` without evidence; `DEFERRED` is not complete.
 - Before modifying files, resolve the active branch/PR/head SHA/dependency chain and inspect the checks relevant to that exact source state.
 - When the active execution cursor materially changes, update `docs/MASTER_PROJECT_STATE.md` before handing the work to another session.
-- A broad instruction to continue autonomously does not synthesize protected merge, production, financial, or owner/L4 approvals that the repository requires as separate gates.
+
+## Owner Global Launch Authorization
+
+- `OWNER GLOBAL LAUNCH AUTHORIZATION = ACTIVE`.
+- Continue autonomously after successful checkpoints; do not stop merely to repeat status or request routine approval already granted by the owner directive.
+- The owner authorization covers progression through merges, remote migrations, Production configuration/deployment, provider enablement, and necessary bounded launch-cost actions when their technical prerequisites are satisfied and the required tools/accounts are available.
+- Owner authorization does not permit bypassing failed gates, fabricating evidence, exposing secrets, weakening identity/RLS/security controls, ignoring dependency order, or making unbounded financial commitments.
+- Existing cost hard limits remain enforcement controls until a provider-specific change is justified by measured need; do not invent a spending ceiling or payment method.
+- If an action cannot be executed because the required external account/tool/access is unavailable, record the exact external blocker and continue all independent work rather than asking for routine reconfirmation.
 
 ## Binding Identity Architecture
 
@@ -75,9 +84,10 @@
 ## Documentation To Link Instead Of Repeating
 
 - [README.md](./README.md): current project overview.
-- [MASTER_PROJECT_STATE.md](./docs/MASTER_PROJECT_STATE.md): current continuation cursor, blockers, protected boundaries, and next safe action.
+- [MASTER_PROJECT_STATE.md](./docs/MASTER_PROJECT_STATE.md): current continuation cursor, blockers, authorization state, and next action.
+- [OWNER_GLOBAL_LAUNCH_EXECUTION_DIRECTIVE_20260808.md](./docs/global/OWNER_GLOBAL_LAUNCH_EXECUTION_DIRECTIVE_20260808.md): binding owner authorization to continue through global launch without routine reconfirmation.
 - [Federated Identity Sovereignty ADR](./docs/architecture/ADR-2026-08-08-federated-identity-sovereignty.md): binding identity decision.
-- [Federated Identity Known Gap](./docs/security/FEDERATED_IDENTITY_KNOWN_GAP_20260808.md): unresolved/deployment-bound identity remediation record.
+- [Federated Identity Known Gap](./docs/security/FEDERATED_IDENTITY_KNOWN_GAP_20260808.md): deployment-bound identity remediation record.
 - [Legacy Password Runtime Removal](./docs/security/LEGACY_PASSWORD_RUNTIME_REMOVAL_20260808.md): retired password/recovery runtime evidence.
 - [ADMIN-SETUP-GUIDE.md](./ADMIN-SETUP-GUIDE.md): current admin identity boundary notice.
 
@@ -86,4 +96,5 @@
 - Prefer root-cause fixes in canonical loaded code over patching symptoms.
 - Do not reintroduce retired auth files to satisfy stale references; repair the reference or route to the current architecture.
 - If auth, recovery, sessions, roles, RLS, service-worker caching, or hosting routing changes, add/adjust focused automated contracts and run the full Quality Gate.
-- Never claim Production identity readiness while protected migration/launch evidence remains unresolved.
+- Never claim Production identity or global-launch readiness without exact release-candidate environment evidence where the launch contract requires it.
+- After each verified phase, continue automatically to the next safe phase until Global Launch Ready or a genuine external blocker is reached.
