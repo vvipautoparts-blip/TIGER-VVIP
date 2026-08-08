@@ -8,10 +8,16 @@ const path = require("node:path");
 const ROOT = path.resolve(__dirname, "..");
 const WORKER_PATH = path.join(ROOT, "sw-vvip-static.js");
 const REGISTRATION_PATH = path.join(ROOT, "scripts/runtime/vvip-static-delivery.js");
+const RESILIENCE_PATH = path.join(ROOT, "scripts/vvip-pr30-resilience.js");
 
 let worker = null;
 if (fs.existsSync(WORKER_PATH)) {
   worker = require(WORKER_PATH);
+}
+
+let registration = null;
+if (fs.existsSync(REGISTRATION_PATH)) {
+  registration = require(REGISTRATION_PATH);
 }
 
 function headers(values) {
@@ -123,12 +129,44 @@ test("cached static content has a strict sixty-minute freshness bound", () => {
   assert.equal(worker.isFreshCachedResponse(invalid, now), false);
 });
 
-test("primary entry pages load the non-blocking static delivery registration runtime", () => {
+test("registration runtime exports a non-blocking installer and handles already-loaded pages", () => {
+  assert.ok(registration, "registration runtime must be loadable in Node");
+  assert.equal(typeof registration.installRegistration, "function");
+
+  let registrations = 0;
+  let loadListeners = 0;
+  const root = {
+    document: { readyState: "complete" },
+    navigator: {
+      serviceWorker: {
+        register(script, options) {
+          registrations += 1;
+          assert.equal(script, "sw-vvip-static.js");
+          assert.deepEqual(options, { scope: "./" });
+          return Promise.resolve({ scope: "https://vvip.example/" });
+        }
+      }
+    },
+    addEventListener(name) {
+      if (name === "load") loadListeners += 1;
+    },
+    console: { warn() {} }
+  };
+
+  assert.equal(registration.installRegistration(root), true);
+  assert.equal(registrations, 1);
+  assert.equal(loadListeners, 0);
+});
+
+test("shared resilience bootstrap loads the static delivery runtime for both primary entry pages", () => {
   assert.equal(fs.existsSync(REGISTRATION_PATH), true, "registration runtime must exist");
+  const resilience = fs.readFileSync(RESILIENCE_PATH, "utf8");
+  const runtimeMatches = resilience.match(/scripts\/runtime\/vvip-static-delivery\.js/g) || [];
+  assert.equal(runtimeMatches.length, 1, "shared resilience layer must bootstrap static delivery exactly once");
 
   for (const file of ["index.html", "private-profile-p03.html"]) {
     const html = fs.readFileSync(path.join(ROOT, file), "utf8");
-    const matches = html.match(/scripts\/runtime\/vvip-static-delivery\.js/g) || [];
-    assert.equal(matches.length, 1, `${file} must load the registration runtime exactly once`);
+    const matches = html.match(/scripts\/vvip-pr30-resilience\.js/g) || [];
+    assert.equal(matches.length, 1, `${file} must load the shared resilience bootstrap exactly once`);
   }
 });
