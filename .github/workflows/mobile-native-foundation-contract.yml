@@ -4,17 +4,13 @@ on:
   push:
     branches:
       - feat/mobile-native-launch-foundation-20260808
-    paths:
-      - "mobile/**"
-      - "tests/mobile-*.test.cjs"
-      - ".gitignore"
-      - ".github/workflows/mobile-native-foundation-contract.yml"
   pull_request:
     paths:
       - "mobile/**"
       - "tests/mobile-*.test.cjs"
       - ".gitignore"
       - ".github/workflows/mobile-native-foundation-contract.yml"
+      - ".github/workflows/tsrf-staging-evidence.yml"
   workflow_dispatch:
 
 permissions:
