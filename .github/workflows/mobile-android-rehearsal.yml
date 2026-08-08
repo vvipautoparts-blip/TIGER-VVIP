@@ -78,7 +78,7 @@ jobs:
           }
           echo "MOBILE_ANDROID_SDKMANAGER=$sdkmanager"
 
-          "$sdkmanager" --licenses < <(yes) >/dev/null
+          "$sdkmanager" --licenses < <(yes 2>/dev/null) >/dev/null
           "$sdkmanager" "platforms;android-36"
           test -d "$sdk_root/platforms/android-36" || {
             echo 'MOBILE_ANDROID_API36_MISSING_AFTER_INSTALL' >&2
@@ -99,22 +99,26 @@ jobs:
           npm ci --ignore-scripts --no-audit --no-fund
           npm ls --depth=0
 
-      - name: Build exact eligible Web candidate
+      - name: Build exact eligible Web candidate outside source tree
         shell: bash
         run: |
           set -euo pipefail
+          candidate="$RUNNER_TEMP/vvip-mobile-public"
+          rm -rf "$candidate" dist/public
           python tools/vvip_public_release.py \
             --source . \
-            --output dist/public \
+            --output "$candidate" \
             --mode candidate \
             --source-sha "$SOURCE_SHA"
-          python - <<'PY'
-          import json, os
-          manifest = json.load(open('dist/public/release-manifest.json', encoding='utf-8'))
+          python - "$candidate/release-manifest.json" <<'PY'
+          import json, os, sys
+          manifest = json.load(open(sys.argv[1], encoding='utf-8'))
           assert manifest['releaseEligible'] is True, manifest
           assert manifest['sourceSha'] == os.environ['SOURCE_SHA'], manifest
           print('MOBILE_ANDROID_WEB_ARTIFACT=PASS')
           PY
+          mkdir -p dist
+          cp -a "$candidate" dist/public
 
       - name: Prepare exact Web artifact for native shell
         shell: bash
