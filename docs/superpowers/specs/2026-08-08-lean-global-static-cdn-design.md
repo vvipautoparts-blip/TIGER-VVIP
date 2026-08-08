@@ -26,10 +26,11 @@ A request is eligible only when all conditions hold:
 - method is `GET`;
 - URL origin exactly matches the current application origin;
 - request is not a navigation and destination is not `document`;
-- pathname is under one of: `/styles/`, `/scripts/`, `/workers/`, `/icons/`;
+- pathname is inside the active Service Worker scope and then under one of: `/styles/`, `/scripts/`, `/workers/`, `/icons/`;
 - extension is one of: `.css`, `.js`, `.mjs`, `.svg`, `.png`, `.webp`, `.jpg`, `.jpeg`, `.woff2`;
-- pathname is not under an explicit deny prefix;
 - request URL contains no credential-bearing username/password component.
+
+The scope-relative rule supports both root deployments and subpath deployments such as GitHub Pages without accidentally caching files outside the application scope.
 
 ### Never-cache classes
 
@@ -38,6 +39,7 @@ COST-02 must fail closed for:
 - `.html`, `.json`, `.webmanifest` and document navigations;
 - Clerk and every other cross-origin request;
 - Supabase/API/auth/payment/AI routes;
+- requests escaping the current Service Worker scope;
 - `POST`, `PUT`, `PATCH`, `DELETE`, and other non-GET methods;
 - responses with `Cache-Control: no-store`, `private`, or `no-cache`;
 - partial responses (`206`) and non-success responses;
@@ -64,9 +66,9 @@ Security evidence always overrides cost optimization.
 
 ## Registration Boundary
 
-A small browser runtime module registers `/sw-vvip-static.js` only when Service Worker is supported. Registration failure is non-fatal and produces only a generic diagnostic marker. Application behavior must remain functional without Service Worker support.
+A small browser runtime module registers `sw-vvip-static.js` only when Service Worker is supported. Registration failure is non-fatal and produces only the generic diagnostic marker `VVIP_STATIC_DELIVERY_REGISTRATION_FAILED`; no URL, token, credential, or raw error object is logged.
 
-The registration module is loaded by the primary marketplace entry points so direct entry to the public marketplace or private profile can establish the same static acceleration scope.
+The existing shared `scripts/vvip-pr30-resilience.js` layer bootstraps this runtime exactly once. Both primary entry pages already load PR30 Resilience, so COST-02 avoids duplicate HTML edits and keeps one registration path for marketplace and private-profile entry. The registration runtime handles both pre-load and already-loaded document states.
 
 ## Cache Lifecycle
 
@@ -84,24 +86,27 @@ Provider pricing and provider-specific edge/header configuration remain separate
 
 Permanent Node contract tests must prove:
 
-- allowed static request examples are accepted;
-- navigation, HTML, API, JSON, auth, cross-origin, credentialed URL and non-GET requests are rejected;
+- allowed static request examples are accepted at root and scoped deployments;
+- navigation, HTML, API, JSON, auth, scope-escape, cross-origin, credentialed URL and non-GET requests are rejected;
 - response cacheability is fail-closed;
-- cache freshness is bounded;
-- both required entry HTML files load the registration runtime;
+- cache freshness is bounded to 60 minutes;
+- the registration runtime is Node-testable and handles an already-loaded page;
+- shared PR30 Resilience bootstraps the registration runtime exactly once;
+- both primary entry HTML files load PR30 Resilience exactly once;
 - VVIP Quality Gate executes the contract automatically because it runs all `tests/*.test.cjs` tests.
 
 ## Files
 
-Expected implementation scope:
+Implementation scope:
 
 - `sw-vvip-static.js` — service-worker policy and runtime;
 - `scripts/runtime/vvip-static-delivery.js` — resilient registration boundary;
+- `scripts/vvip-pr30-resilience.js` — one shared bootstrap insertion point;
 - `tests/lean-static-delivery.test.cjs` — TDD contract;
-- `index.html` — register static-delivery runtime;
-- `private-profile-p03.html` — register static-delivery runtime;
 - `.github/workflows/vvip-quality-gate.yml` — exact branch CI trigger only;
 - this design and its implementation plan.
+
+No entry HTML file needs a COST-02-specific edit because both required entry pages already load the shared PR30 Resilience layer.
 
 ## Hard Boundaries
 
