@@ -11,6 +11,8 @@ on:
       - ".gitignore"
       - ".github/workflows/mobile-native-foundation-contract.yml"
       - ".github/workflows/tsrf-staging-evidence.yml"
+      - ".github/workflows/mobile-android-rehearsal.yml"
+      - ".github/workflows/mobile-ios-rehearsal.yml"
   workflow_dispatch:
 
 permissions:
@@ -31,8 +33,8 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Run mobile native contracts
-        run: node --test tests/mobile-native-*.test.cjs
+      - name: Run all mobile engineering contracts
+        run: node --test tests/mobile-*.test.cjs
 
       - name: Verify source remains clean
         run: test -z "$(git status --porcelain=v1 -uall)"
