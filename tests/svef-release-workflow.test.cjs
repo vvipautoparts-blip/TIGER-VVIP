@@ -39,8 +39,8 @@ test('workflow checks out and verifies the exact requested or PR-head source SHA
 
 test('workflow builds the V14 candidate exactly once outside the repository', () => {
   const text = workflow();
-  const builds = text.match(/tools\/vvip_public_release\.py/g) || [];
-  assert.equal(builds.length, 1, 'release workflow must have one and only one candidate build');
+  const builds = text.match(/^\s*python\s+tools\/vvip_public_release\.py\b/gm) || [];
+  assert.equal(builds.length, 1, 'release workflow must have one and only one candidate build command');
   assert.match(text, /--output\s+"\$RUNNER_TEMP\/vvip-candidate"/);
   assert.match(text, /--source-sha\s+"\$SOURCE_SHA"/);
   assert.match(text, /--mode\s+candidate/);
