@@ -19,7 +19,6 @@ jobs:
     env:
       SOURCE_SHA: ${{ inputs.source_sha }}
       WORKFLOW_RUN_ID: ${{ github.run_id }}
-      RUNNER_IDENTITY: github-actions:${{ runner.os }}:${{ runner.arch }}
       STAGING_IDENTITY_PROVEN: ${{ vars.TSRF_STAGING_IDENTITY_PROVEN }}
       STAGING_MODEL: ${{ vars.TIGER_AI_OPENAI_MODEL }}
       STAGING_PROMPT_VERSION: ${{ vars.TIGER_AI_PROMPT_VERSION }}
@@ -111,6 +110,8 @@ jobs:
           NODE
 
       - name: Package fail-closed TSRF Staging Evidence
+        env:
+          RUNNER_IDENTITY: github-actions:${{ runner.os }}:${{ runner.arch }}
         shell: bash
         run: |
           set -Eeuo pipefail
