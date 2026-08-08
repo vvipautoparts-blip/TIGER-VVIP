@@ -77,7 +77,6 @@ BEGIN
     FROM public.phone_otp_challenges
     WHERE phone_hash = p_phone_hash
       AND purpose = p_purpose
-      AND consumed_at IS NULL
       AND cooldown_until > now()
   ) THEN
     RAISE EXCEPTION 'OTP_COOLDOWN';
