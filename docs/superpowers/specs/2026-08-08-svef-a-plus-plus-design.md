@@ -36,7 +36,9 @@ No rebuild is permitted after release verification.
 Builds candidate bytes only. It cannot authorize or deploy.
 
 ### 3.2 Machine Attestor
-Produces signed provenance/attestation for the exact artifact and exact source identity. It cannot change artifact bytes or authorize deployment.
+Produces cryptographically verifiable provenance for the exact artifact and exact source identity. It cannot change artifact bytes or authorize deployment.
+
+The preferred repository-native form is an OIDC-backed GitHub artifact attestation/in-toto statement. Verification MUST validate the subject SHA-256 plus expected repository/workflow identity; the presence of an attestation alone is insufficient.
 
 ### 3.3 Independent Verifier
 Recomputes digests, verifies provenance, verifies evidence capsules, and evaluates release policy. It cannot rebuild, authorize, or deploy.
@@ -50,29 +52,50 @@ Can promote only the exact artifact digest approved by the release decision. It 
 ## 4. Work Package A — Immutable Supply Chain + Build Once
 
 ### 4.1 Immutable GitHub Actions
-All release/security workflows MUST pin third-party and GitHub Actions to full immutable commit SHAs. Version tags such as `@v7`, `@v6`, `@v5`, and `@v4` are forbidden in protected release workflows.
+All release/security workflows MUST pin third-party and GitHub Actions to full immutable commit SHAs. Version tags such as `@v7`, `@v6`, `@v5`, `@v4`, `@v2`, and `@v1` are forbidden in protected release workflows.
 
-A repository test MUST fail closed if a protected workflow contains an unpinned `uses:` reference.
+Protected workflows are at least:
+
+- `.github/workflows/vvip-quality-gate.yml`
+- `.github/workflows/codeql.yml`
+- `.github/workflows/dependency-review.yml`
+- `.github/workflows/tiger-cleanguard.yml`
+- `.github/workflows/project-control-integrity.yml`
+- `.github/workflows/v14-release-candidate.yml`
+- `.github/workflows/pages.yml`
+- `.github/workflows/lc03-supabase-security-rehearsal.yml`
+- `.github/workflows/tsrf-semantic-convergence.yml`
+- `.github/workflows/tsrf-phone-otp-rehearsal.yml`
+- `.github/workflows/tsrf-staging-evidence.yml`
+- every new SVEF release/attestation/verifier workflow.
+
+A repository test MUST fail closed if a protected workflow contains a non-local `uses:` reference that is not pinned to a full 40-character lowercase commit SHA.
 
 ### 4.2 Deterministic Candidate Identity
-The V14 candidate remains exact-source bound. The build output MUST publish:
+The V14 candidate remains exact-source bound. The release bundle MUST publish:
 
 - exact source SHA;
 - exact source tree;
 - artifact SHA-256;
 - release manifest;
-- dependency/SBOM digest;
-- provenance/attestation identity.
+- SBOM document and digest;
+- provenance/attestation identity and digest.
+
+The SBOM is a machine-readable JSON document generated from the exact release dependency/material set. Its bytes are hashed and included in Release DNA/Evidence Root. The generator and format/version are recorded inside the SBOM evidence metadata; changing generator or format changes the digest.
 
 ### 4.3 Build Once / Promote Exact Bytes
-Production deployment MUST NOT call `tools/vvip_public_release.py` or otherwise rebuild the final artifact.
+Production deployment MUST NOT call `tools/vvip_public_release.py`, resolve dependencies, compile source, or otherwise rebuild final release bytes.
 
-The production path accepts only a previously built, verified artifact identified by its digest and release decision.
+The production path accepts only a previously built, verified release bundle identified by exact artifact digest and release decision.
 
-Any digest mismatch is `NO_GO`.
+Cross-workflow artifact retrieval MUST bind repository, source SHA, originating workflow run, artifact name, and expected digest before promotion.
+
+Any mismatch is `NO_GO`.
 
 ### 4.4 Dependency and Toolchain Integrity
 Release dependency installation must not perform uncontrolled upgrades. Tool/runtime versions are pinned. Lock/hash validation is fail closed.
+
+Release workflows MUST NOT run `pip install --upgrade pip` or equivalent uncontrolled upgrade steps. Dependency materialization is separated from final artifact verification, and the final release decision records the dependency/SBOM digest.
 
 ## 5. Work Package B — Proof Capsule V2 + Evidence Root
 
@@ -96,23 +119,32 @@ Trusted CI identity fields MUST come from trusted execution context, never proof
 
 V2 remains evidence-only. Authority-shaped fields remain forbidden.
 
-### 5.2 Canonical Evidence Root
+### 5.2 Capsule Attestation
+Canonical V2 capsule bytes are hashed. Where the execution platform supports OIDC-backed attestation, the capsule digest is attested with expected repository/workflow identity. The verifier checks subject digest and signer identity before accepting the capsule as remotely produced evidence.
+
+A plain unsigned JSON file may be used only for LOCAL/NON_RUNTIME intermediate tests; it cannot satisfy a mandatory remote Staging/Production launch proof.
+
+### 5.3 Canonical Evidence Root
 A deterministic Evidence Root is computed from a canonical ordered set containing:
 
-- Release DNA;
-- artifact digest;
+- Release DNA digest;
+- release artifact digest;
 - SBOM digest;
 - provenance digest;
-- all mandatory proof capsule digests;
+- all mandatory proof capsule digests sorted by canonical capsule class;
 - environment identity proof digest;
 - legal proof digest.
 
+Duplicate mandatory capsule classes, missing mandatory classes, unknown classes in a release decision, or inconsistent release/artifact bindings are `BLOCKED`.
+
 The Evidence Root changes if any mandatory evidence byte changes.
 
-### 5.3 Replay and Freshness
-A PASS capsule requires a bounded freshness window, unique/bounded nonce semantics, internally ordered timestamps, and exact Release DNA/artifact binding.
+### 5.4 Replay and Freshness
+A PASS capsule requires a bounded freshness window, internally ordered timestamps, `expires_at`, and exact Release DNA/artifact binding.
 
-Missing nonce, stale evidence, duplicate nonce where single-use is required, or an untrusted workflow identity is `BLOCKED`.
+`evidence_nonce` is a lowercase 256-bit random value encoded as 64 hex characters and generated by the trusted producer, never supplied by an untrusted proof payload. Within one release package the verifier requires every `(capsule_class, evidence_nonce)` pair to be unique. Any duplicate nonce for the same class, stale/expired evidence, or untrusted workflow identity is `BLOCKED`.
+
+Owner authorization replay remains independently protected by the existing single-use owner authorization tables/RPCs.
 
 ## 6. Work Package C — Zero Ambient Authority
 
@@ -136,7 +168,7 @@ Hardening additions:
 - concurrency/race proof;
 - real Staging provider proof;
 - narrow database authority;
-- signed Proof Capsule V2 evidence;
+- Proof Capsule V2 + remote attestation evidence;
 - fail-closed abuse/rate-limit evidence.
 
 ### 6.4 AI Least-Agency Cage
@@ -228,7 +260,18 @@ Forbidden emergency direction:
 
 An environment does not prove itself by setting a boolean.
 
-Remote Staging proof requires independently bound identity facts including repository/environment identity, protected ref policy, runtime endpoint/config fingerprint, and exact source/artifact binding.
+Remote Staging proof requires an OIDC/trusted-platform identity plus repository/environment facts bound into an environment identity document. At minimum the verifier binds:
+
+- repository ID/name;
+- environment name/ID where available;
+- workflow ref/SHA;
+- exact source SHA/tree;
+- exact artifact digest;
+- non-secret runtime configuration digest;
+- endpoint/project identity digest;
+- environment protection/policy digest when exposed by the platform.
+
+The current `TSRF_STAGING_IDENTITY_PROVEN=true` style flag is only an input prerequisite and is NOT sufficient evidence by itself.
 
 Secret values are never written to evidence. Only non-secret references/version identities or digests are permitted.
 
@@ -244,7 +287,7 @@ only when all of the following are true on one immutable release package:
 
 - exact source SHA/tree verified;
 - exact artifact digest verified;
-- artifact provenance verified;
+- artifact provenance verified against expected signer/repository/workflow identity;
 - SBOM verified;
 - protected workflow/action immutability verified;
 - Proof Capsule V2 chain verified;
