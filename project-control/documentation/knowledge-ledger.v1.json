@@ -1,0 +1,162 @@
+{
+  "schema_version": "VVIP-DOC-1",
+  "platform": "VVIP TIGER",
+  "default_visibility": "OWNER_CONTROL_ONLY",
+  "generated_from": "verified project evidence",
+  "entries": [
+    {
+      "id": "LC04-20260808",
+      "recorded_at": "2026-08-08T16:46:02Z",
+      "category": "SECURITY_DATABASE",
+      "title": "LC04 Production legacy RPC hardening",
+      "source_sha": "66c21e29f8eb0f180fbee6fa3246e6a73af9c1ec",
+      "pr_number": 165,
+      "environment": "LOCAL_AND_STAGING_PROOF",
+      "exact_paths": [
+        {
+          "path": "supabase/migrations/20260808134000_lc04_production_legacy_rpc_hardening.sql",
+          "sha256": "86cd92e65b1d7294158798b6828d33fe7c346946ff9d955371fc55f5f13388fa"
+        },
+        {
+          "path": "docs/security/LC04_PRODUCTION_LEGACY_RPC_HARDENING_REVIEW_2026-08-08.md"
+        },
+        {
+          "path": "tests/lc04-reviewed-migration-hash-contract.test.cjs"
+        },
+        {
+          "path": ".github/workflows/lc04-production-legacy-rpc-rehearsal.yml"
+        }
+      ],
+      "decision": "Harden legacy Production-shaped RPC/profile surfaces without mutating Production; move RLS-only helpers out of exposed public RPC space, revoke unsafe browser execution, and make the profile resolver JWT-authoritative.",
+      "verification": [
+        "Exact-head general gates PASS on 66c21e29f8eb0f180fbee6fa3246e6a73af9c1ec",
+        "LC04 isolated local rehearsal PASS",
+        "LC04 applied to Staging only and post-application checks PASS"
+      ],
+      "mutation_boundaries": [
+        "STAGING_DB_MUTATED=YES",
+        "PRODUCTION_DB_MUTATED=NO",
+        "PRODUCTION_EDGE_FUNCTION_MUTATED=NO",
+        "MAIN_MUTATED=NO"
+      ],
+      "confidentiality": "SECURITY_RESTRICTED",
+      "platform_visibility": "OWNER_CONTROL_ONLY"
+    },
+    {
+      "id": "LC05-20260808",
+      "recorded_at": "2026-08-08T17:24:15Z",
+      "category": "SECURITY_CREDENTIAL_SURFACE",
+      "title": "LC05 legacy credential surface isolation",
+      "source_sha": "d6ec2451665dbc571b579b3edd4cd123bf4affe6",
+      "pr_number": 166,
+      "environment": "LOCAL_AND_STAGING_PROOF",
+      "exact_paths": [
+        {
+          "path": "supabase/migrations/20260808135000_lc05_credential_surface_isolation.sql",
+          "sha256": "ebf13f51f5e1e11e1c8224126f8e812fd8e5c79911c6827f328be19192424e3f"
+        },
+        {
+          "path": "docs/security/LC05_CREDENTIAL_SURFACE_ISOLATION_REVIEW_2026-08-08.md"
+        },
+        {
+          "path": "tests/lc05-reviewed-migration-hash-contract.test.cjs"
+        },
+        {
+          "path": ".github/workflows/lc05-credential-surface-isolation-rehearsal.yml"
+        }
+      ],
+      "decision": "Keep legacy otp_codes and email_verifications absent in canonical builds; when legacy tables exist, force RLS, remove browser policies and revoke browser/PUBLIC privileges while preserving the sovereign phone_otp_challenges store.",
+      "verification": [
+        "Exact-head general gates PASS on d6ec2451665dbc571b579b3edd4cd123bf4affe6",
+        "Canonical no-synthesis proof PASS",
+        "Production-drift fixture convergence PASS",
+        "LC05 applied to Staging only; legacy tables remained absent and phone_otp_challenges remained present"
+      ],
+      "mutation_boundaries": [
+        "STAGING_DB_MUTATED=YES",
+        "PRODUCTION_DB_MUTATED=NO",
+        "PRODUCTION_EDGE_FUNCTION_MUTATED=NO",
+        "MAIN_MUTATED=NO"
+      ],
+      "confidentiality": "SECURITY_RESTRICTED",
+      "platform_visibility": "OWNER_CONTROL_ONLY"
+    },
+    {
+      "id": "LC06-20260808",
+      "recorded_at": "2026-08-08T17:41:26Z",
+      "category": "SECURITY_RLS_PERFORMANCE",
+      "title": "LC06 modern RLS and launch-path performance hardening",
+      "source_sha": "b38521fe2e7384b69f23fb6c45c386a98ee7c8f4",
+      "pr_number": 167,
+      "environment": "LOCAL_AND_STAGING",
+      "exact_paths": [
+        {
+          "path": "supabase/migrations/20260808180000_lc06_rls_performance_hardening.sql",
+          "sha256": "ed34063e2f3ba32434e08b45c1f1e415115c092ffb07c6cb810ff974ed467f35"
+        },
+        {
+          "path": "tests/lc06-rls-performance-hardening.test.cjs"
+        },
+        {
+          "path": "tests/sql/lc06-rls-performance-behavior.sql"
+        },
+        {
+          "path": ".github/workflows/lc06-rls-performance-hardening-rehearsal.yml"
+        }
+      ],
+      "decision": "Fail closed for non-Clerk marketplace subjects, seal transitional vvip_clerk_profiles as server-only, remove overlapping marketplace read/write policies, and add four advisor-reported missing FK indexes.",
+      "verification": [
+        "TDD RED captured before migration implementation",
+        "VVIP Quality Gate PASS on b38521fe2e7384b69f23fb6c45c386a98ee7c8f4",
+        "CodeQL PASS on same SHA",
+        "Dependency Review PASS on same SHA",
+        "TIGER CleanGuard PASS on same SHA",
+        "Project Control Integrity PASS on same SHA",
+        "LC04 rehearsal PASS on same SHA",
+        "LC05 rehearsal PASS on same SHA",
+        "LC06 rehearsal PASS on same SHA",
+        "Staging transaction rehearsal PASS and rolled back",
+        "LC06 then applied permanently to Staging; four missing-FK and overlapping-policy advisor findings were removed"
+      ],
+      "mutation_boundaries": [
+        "STAGING_DB_MUTATED=YES",
+        "PRODUCTION_DB_MUTATED=NO",
+        "PRODUCTION_EDGE_FUNCTION_MUTATED=NO",
+        "MAIN_MUTATED=NO"
+      ],
+      "confidentiality": "SECURITY_RESTRICTED",
+      "platform_visibility": "OWNER_CONTROL_ONLY"
+    },
+    {
+      "id": "MOBILE-GLOBAL-20260808",
+      "recorded_at": "2026-08-08T17:41:26Z",
+      "category": "GLOBAL_MOBILE_LAUNCH",
+      "title": "Android and iPhone/iOS global launch requirement",
+      "source_sha": "b38521fe2e7384b69f23fb6c45c386a98ee7c8f4",
+      "pr_number": null,
+      "environment": "REPOSITORY_AUDIT",
+      "exact_paths": [
+        {
+          "path": "docs/product-readiness/MOBILE_STORE_READINESS_CHECKLIST.md"
+        },
+        {
+          "path": "ANDROID-HTTPS-DEPLOY.md"
+        }
+      ],
+      "decision": "Global completion requires Web + Android + iPhone/iOS. Existing mobile state is PWA/checklist readiness only, not native store-ready release. Adopt one shared web core with a secure native mobile layer, separate mobile CI, signing isolation, deep links, push, secure storage, RTL/LTR, real-device tests, store legal assets and owner-gated production environments.",
+      "verification": [
+        "Repository audit confirmed MOBILE_STORE_READINESS_CHECKLIST is documentation-only and explicitly performs no store publishing",
+        "Repository audit confirmed Android guidance is PWA installation through HTTPS/Chrome rather than a native Play Store release",
+        "No native Capacitor/mobile scaffold was confirmed in the audited source"
+      ],
+      "mutation_boundaries": [
+        "ANDROID_STORE_RELEASE_EXECUTED=NO",
+        "IOS_STORE_RELEASE_EXECUTED=NO",
+        "SIGNING_SECRETS_COMMITTED=NO",
+        "PRODUCTION_MUTATED=NO"
+      ],
+      "confidentiality": "INTERNAL",
+      "platform_visibility": "OWNER_CONTROL_ONLY"
+    }
+  ]
+}
