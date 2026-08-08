@@ -16,6 +16,7 @@ on:
       - docs/federated-identity-sovereignty-20260808
       - feat/identity-01-fail-closed-legacy-linking-20260808
       - feat/lean-global-request-sovereignty-20260808
+      - feat/lean-global-cover-media-budget-20260808
   push:
     branches:
       - integration/v14-global-launch-readiness-20260806
@@ -30,6 +31,7 @@ on:
       - feat/identity-01-fail-closed-legacy-linking-20260808
       - feat/lean-global-request-sovereignty-20260808
       - feat/lean-global-cover-media-budget-20260808
+      - feat/lean-global-public-projection-budget-20260808
   workflow_dispatch:
 
 permissions:
