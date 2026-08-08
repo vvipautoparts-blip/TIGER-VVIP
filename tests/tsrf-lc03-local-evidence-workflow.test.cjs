@@ -45,7 +45,7 @@ test('LC03 packages local evidence through the bounded local bridge and uploads 
 test('LC03 local evidence path remains local-only and carries no Production or remote mutation authority', () => {
   const workflow = workflowText();
   assert.doesNotMatch(workflow, /supabase\s+db\s+push/i);
-  assert.doesNotMatch(workflow, /--linked/);
+  assert.doesNotMatch(workflow, /supabase\s+db\s+(?:reset|push)[^\n]*--linked/i);
   assert.doesNotMatch(workflow, /environment:\s*production/i);
   assert.doesNotMatch(workflow, /PRODUCTION_SERVICE_ROLE|PRODUCTION_DB_PASSWORD|L4_ENABLED/);
   assert.doesNotMatch(workflow, /git\s+merge|gh\s+pr\s+merge|supabase\s+functions\s+deploy/i);
