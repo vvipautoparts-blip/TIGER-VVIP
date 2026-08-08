@@ -4,16 +4,26 @@
 
 ## Snapshot
 
-- **State timestamp:** 2026-08-08 23:40 +03:00
+- **State timestamp:** 2026-08-08 23:49 +03:00
 - **Repository:** `vvipautoparts-blip/TIGER-VVIP`
 - **Default branch:** `main`
 - **Audited `main` SHA:** `4cc292e626fea39f3b0e56b98781d521efef789d`
-- **Current execution cursor:** PR `#178` — COST-04 cover-only public media signing
-- **Cursor branch:** `feat/lean-global-cover-media-budget-20260808`
-- **Cursor exact head:** `81402daf4e093a3b4c728d191bded0b3582b697a`
-- **Cursor state:** `VERIFIED` at repository/CI level; Draft + OPEN + UNMERGED
-- **Continuity protocol:** `IMPLEMENTED` on this checkpoint branch; exact-head verification required before classifying the checkpoint itself `VERIFIED`
-- **Required session sequence:** `READ -> VERIFY -> PLAN -> EXECUTE -> VERIFY -> CHECKPOINT`
+- **Current execution cursor:** PR `#179` — current-stack continuity checkpoint above verified COST-04
+- **Current checkpoint branch:** `docs/vvip-tiger-continuity-checkpoint-20260808-2340`
+- **Last verified checkpoint SHA before owner-directive update:** `b8846b4d2b1aa85d6576a7dd41f4e087a79eaf7c`
+- **Underlying verified product cursor:** PR `#178` at `81402daf4e093a3b4c728d191bded0b3582b697a`
+- **OWNER GLOBAL LAUNCH AUTHORIZATION:** `ACTIVE`
+- **Required session sequence:** `READ -> VERIFY -> PLAN -> EXECUTE -> VERIFY -> CHECKPOINT -> CONTINUE`
+
+## Binding owner execution directive
+
+Read [OWNER_GLOBAL_LAUNCH_EXECUTION_DIRECTIVE_20260808.md](./global/OWNER_GLOBAL_LAUNCH_EXECUTION_DIRECTIVE_20260808.md) before broad continuation work.
+
+The owner has explicitly authorized autonomous continuation through global-launch readiness and, when technical/safety prerequisites are satisfied and the necessary tools/accounts are available, the required launch actions themselves.
+
+Routine reconfirmation is not required between normal phases or merely because a new chat/session begins.
+
+Owner authorization covers previously owner-gated merge, remote migration, production deployment, provider configuration, and necessary bounded launch-cost actions. Authorization does **not** permit bypassing failing gates, inventing evidence, exposing secrets, violating identity/security architecture, or making unbounded financial commitments.
 
 ## Source-of-truth precedence
 
@@ -31,12 +41,22 @@ The exact head SHA of the branch containing this ledger must be resolved from Gi
 
 ## Active execution cursor
 
-### PR #178 — COST-04
+### PR #179 — continuity checkpoint
+
+- **Title:** `docs(continuity): checkpoint current VVIP TIGER cursor`
+- **State:** Draft + OPEN + UNMERGED.
+- **Branch:** `docs/vvip-tiger-continuity-checkpoint-20260808-2340`
+- **Base:** PR `#178`, branch `feat/lean-global-cover-media-budget-20260808`
+- **Previously verified exact checkpoint head:** `b8846b4d2b1aa85d6576a7dd41f4e087a79eaf7c`
+- **Previously observed exact-head evidence:** Project Control Integrity `31277653471` PASS; VVIP Quality Gate pull-request `31277653487` PASS; VVIP Quality Gate push `31277636941` PASS.
+- **Current owner-directive edits:** verification pending on the new exact head created after this ledger update.
+
+### Underlying product cursor — PR #178 COST-04
 
 - **Title:** `COST-04: cover-only public media signing`
-- **State:** Draft + OPEN + UNMERGED + mergeable at the 2026-08-08 audit.
+- **State:** Draft + OPEN + UNMERGED + mergeable at the last audit.
 - **Branch:** `feat/lean-global-cover-media-budget-20260808`
-- **Exact source head:** `81402daf4e093a3b4c728d191bded0b3582b697a`
+- **Exact verified source head:** `81402daf4e093a3b4c728d191bded0b3582b697a`
 - **Immediate base:** PR `#177`, branch `feat/lean-global-request-sovereignty-20260808`
 - **Base head:** `765fccc7acebfc930d49f7dddcc9e1e838e1224e`
 
@@ -77,9 +97,10 @@ This is structural cost reduction only. No currency or percentage saving is clai
 - `#172` — AUTH-ADR-01 federated identity sovereignty.
 - `#174` — IDENTITY-01 fail-closed legacy profile linking.
 - `#177` — COST-03 public read request sovereignty.
-- `#178` — COST-04 cover-only public media signing — **current cursor**.
+- `#178` — COST-04 cover-only public media signing.
+- `#179` — current-stack continuity + owner global launch authorization checkpoint — **current control cursor**.
 
-PR `#173` is the earlier continuity sidecar based on PR #172. Its protocol is valid, but its recorded execution cursor became stale after later work. This checkpoint carries that approved continuity model onto the current PR #178 line instead of rewinding the product stack.
+PR `#173` is the earlier continuity sidecar based on PR #172. Its protocol remains historical context but its execution cursor is stale.
 
 ## Identity architecture and remediation status
 
@@ -97,17 +118,17 @@ PR `#173` is the earlier continuity sidecar based on PR #172. Its protocol is va
 
 ### IDENTITY-01
 
-**Status: `VERIFIED` at repository/CI level; remote application remains `BLOCKED`.**
+**Status: `VERIFIED` at repository/CI level; remote application has OWNER AUTHORIZATION but still requires migration safety/rollback evidence before execution.**
 
 PR `#174` exact head `c218bf6f63d4db9f898947405c10bb6d9d5e91b3` prepares a forward-only fail-closed resolver migration that prevents email-only legacy ownership transfer and returns an explicit migration-required state instead.
 
-Observed/recorded exact-head evidence:
+Recorded exact-head evidence:
 
 - VVIP Quality Gate push `31276562500` — PASS.
 - VVIP Quality Gate pull request `31276625600` — PASS.
 - Project Control Integrity `31276625587` — PASS.
 
-The migration has **not** been applied to remote Staging or Production by this workstream.
+The migration has not yet been proven applied to the remote production environment in repository evidence.
 
 ## COST-03 status
 
@@ -121,45 +142,61 @@ Recorded evidence:
 - VVIP Quality Gate pull request `31277019278` — PASS.
 - Project Control Integrity `31277019276` — PASS.
 
-## Parallel protected workstreams
+## Parallel workstreams
 
 ### TIGER SOVEREIGN AI
 
-**Status: `IN_PROGRESS` / protected stack.**
+**Status: `IN_PROGRESS`.**
 
-AI work spans the established Draft stack including AI-13 through AI-18. Repository/automated verification of individual slices is not equivalent to live Staging/Production authority. Do not merge stack members ahead of dependencies and do not infer owner/L4 approvals from a broad continuation instruction.
+AI work spans the established stack including AI-13 through AI-18. The owner directive permits autonomous progression, but dependency order, exact-head tests, staging evidence, least privilege, and AI safety boundaries must still be satisfied before live production authority is activated.
 
 ### Marketplace / V14
 
-**Status: `IN_PROGRESS` / external activation blocked.**
+**Status: `IN_PROGRESS`.**
 
-PR `#134` remains the production-capable marketplace convergence line. The current LEAN GLOBAL/security stack above it does not itself authorize Production activation.
+PR `#134` contains the production-capable marketplace convergence line. Owner authorization is now present for launch progression, but actual activation remains evidence-driven and must use the final verified release candidate rather than an obsolete branch snapshot.
 
 ## Deferred / unresolved evidence
 
-- **PR36 real-image browser E2E:** `DEFERRED`; still a real-evidence gate where referenced by readiness contracts.
-- **Manual owner AI browser acceptance:** `BLOCKED` until performed on the appropriate release candidate.
-- **Remote IDENTITY-01 migration application:** `BLOCKED` behind protected Staging/Production migration evidence.
-- **Real Staging launch evidence:** `BLOCKED` where launch contracts require actual protected environment proof.
-- **Backup/restore/rollback Production drills:** not inferred from repository-only tests.
-- **Android + iPhone release:** not yet authorized as a completed global-launch claim; Web/Android/iPhone launch remains a synchronized release requirement.
+These are execution gaps, not requests for renewed owner approval:
 
-## Hard boundaries — do not infer authority
+- **PR36 real-image browser E2E:** `DEFERRED`; complete when the required real browser/file evidence can be produced.
+- **Manual owner AI browser acceptance:** replace with objective release-candidate acceptance evidence wherever automation/tooling can prove it; any genuinely human-only UI judgment remains an external evidence item.
+- **Remote IDENTITY-01 migration application:** authorized, but requires protected migration/recovery evidence and appropriate provider access.
+- **Real Staging launch evidence:** required where launch contracts demand actual environment proof.
+- **Backup/restore/rollback Production drills:** required before irreversible production mutation where applicable.
+- **Android + iPhone release:** synchronized Web/Android/iPhone launch remains a release target and must be completed or explicitly evidenced as externally blocked.
 
-- `MAIN=LOCKED`
-- `PRODUCTION_DB=LOCKED`
-- `PRODUCTION_EDGE=LOCKED`
-- `REMOTE_MIGRATION=NOT_AUTHORIZED`
-- `PRODUCTION_DEPLOY=NOT_AUTHORIZED`
-- `PROVIDER_PURCHASES=NOT_AUTHORIZED`
-- `REAL_CHARGES=NOT_AUTHORIZED`
-- `MONEY_MOVEMENT=NOT_AUTHORIZED`
-- `PROTECTED_OWNER_L4_DECISIONS=NOT_SYNTHESIZED`
-- `PRIVATE_BUCKET_PUBLICATION=FORBIDDEN`
-- `IDENTITY_CACHE=FORBIDDEN`
+## Authorization state versus safety invariants
+
+### Owner authorization — ACTIVE
+
+The owner has explicitly authorized, when necessary for global launch and when supported by available tools/accounts:
+
+- dependency-chain merges, including progression toward `main`;
+- remote migrations;
+- Production DB/Edge/configuration changes;
+- Production deployment/release;
+- provider configuration and required service enablement;
+- necessary provider purchases or real charges under bounded cost controls;
+- protected launch decisions that were previously awaiting routine owner approval.
+
+Do not ask for repeated routine approval for these categories solely because they are sensitive stages.
+
+### Safety/architecture invariants — still binding
+
+- `EXACT_HEAD_EVIDENCE=REQUIRED`
+- `QUALITY_SECURITY_GATES=MUST_PASS`
+- `DEPENDENCY_ORDER=MUST_BE_VALID`
+- `ROLLBACK_RECOVERY_EVIDENCE=REQUIRED_WHERE_IRREVERSIBLE`
+- `SECRETS_IN_BROWSER_OR_REPO=FORBIDDEN`
+- `EMAIL_AUTO_LINKING=FORBIDDEN`
 - `LOCAL_PASSWORD_AUTHORITY=FORBIDDEN`
+- `PRIVATE_BUCKET_PUBLICATION_AS_COST_SHORTCUT=FORBIDDEN`
+- `FABRICATED_EVIDENCE=FORBIDDEN`
+- `UNBOUNDED_SPEND=FORBIDDEN`
 
-Repository continuation may create ordinary non-production branches, commits, tests, documentation, and Draft PRs within the established safety model. It must not silently cross protected merge, production, financial, provider, or identity-authority gates.
+The current cost policy's numeric hard limits remain enforcement controls until a provider-specific change is justified by measured need. Owner spending authorization does not invent a budget ceiling or payment method.
 
 ## Canonical continuity states
 
@@ -175,21 +212,20 @@ Repository continuation may create ordinary non-production branches, commits, te
 
 ## Exact stopping point
 
-The latest verified repository execution cursor is PR `#178` at exact source head `81402daf4e093a3b4c728d191bded0b3582b697a`. COST-04 is GREEN on that source. It is stacked on verified COST-03, which is stacked on the repository-level IDENTITY-01 remediation. All remain Draft/open/unmerged and all Production/remote protected boundaries remain locked.
+The underlying latest verified product execution cursor is PR `#178` at exact source head `81402daf4e093a3b4c728d191bded0b3582b697a`. The control cursor is PR #179, now being updated to record **OWNER GLOBAL LAUNCH AUTHORIZATION = ACTIVE**. These new control-document edits require fresh exact-head verification before PR #179 is again called verified.
 
-## Next safe action
+## Next automatic action
 
-After this continuity checkpoint itself receives exact-head verification, continue from PR #178 without rebuilding prior work. The next work must remain a **separate, non-production, measurable LEAN GLOBAL slice** chosen only after inspecting the current runtime for the next highest-confidence avoidable request/storage/database cost. Requirements for that next slice:
-
-1. preserve all security/identity/private-read/write boundaries already established;
-2. use TDD RED -> minimal GREEN -> full exact-head Quality Gate;
-3. prove structural reduction with deterministic counters/contracts rather than invented monetary savings;
-4. avoid new paid infrastructure, provider purchase, persistent sensitive caching, or Production mutation;
-5. keep the new PR Draft + stacked on the exact verified COST-04 line;
-6. update this ledger again when the execution cursor materially changes.
+1. verify the updated PR #179 exact head through Quality Gate and Project Control Integrity;
+2. continue automatically into COST-05 from the newest verified current-stack checkpoint;
+3. choose the highest-confidence avoidable request/storage/database cost from current runtime evidence;
+4. use TDD RED -> minimal GREEN -> full exact-head Quality Gate;
+5. continue subsequent security, staging, release-candidate, mobile, migration, deployment, and launch-readiness work without routine reconfirmation;
+6. cross owner-gated actions when their actual technical prerequisites are satisfied and the necessary tools/accounts are available;
+7. checkpoint every material cursor change.
 
 ## Session checkpoint
 
-**Checkpoint status:** `CURRENT_CURSOR_RECORDED_AWAITING_CHECKPOINT_EXACT_HEAD_VERIFICATION`
+**Checkpoint status:** `OWNER_GLOBAL_LAUNCH_AUTHORIZATION_RECORDED_VERIFICATION_PENDING`
 
-A fresh session must resolve this checkpoint PR/ref, PR #178, its exact source SHA, and current workflow state from GitHub before proceeding. It must continue from the latest verified cursor and must not restart VVIP TIGER from zero.
+A fresh session must read this ledger and the binding owner directive, resolve the latest current PR/ref and checks from GitHub, and continue automatically. It must not restart VVIP TIGER from zero and must not request approval that the owner directive already grants.
