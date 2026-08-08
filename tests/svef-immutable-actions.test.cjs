@@ -13,6 +13,7 @@ const PROTECTED = [
   '.github/workflows/tiger-cleanguard.yml',
   '.github/workflows/project-control-integrity.yml',
   '.github/workflows/v14-release-candidate.yml',
+  '.github/workflows/svef-release-candidate.yml',
   '.github/workflows/pages.yml',
   '.github/workflows/lc03-supabase-security-rehearsal.yml',
   '.github/workflows/tsrf-semantic-convergence.yml',
