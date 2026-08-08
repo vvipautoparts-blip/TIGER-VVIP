@@ -12,6 +12,7 @@ on:
       - feat/documentation-sovereign-knowledge-plane-20260808
       - feat/lean-global-cost-governor-20260808
       - feat/lean-global-static-cdn-20260808
+      - fix/tsrf-staging-workflow-context-20260808
   push:
     branches:
       - integration/v14-global-launch-readiness-20260806
@@ -22,6 +23,7 @@ on:
       - feat/lean-global-cost-governor-20260808
       - feat/lean-global-static-cdn-20260808
       - fix/tsrf-staging-workflow-context-20260808
+      - docs/federated-identity-sovereignty-20260808
   workflow_dispatch:
 
 permissions:
