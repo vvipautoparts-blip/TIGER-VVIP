@@ -1,0 +1,94 @@
+name: LC06 RLS Performance Hardening Rehearsal
+
+on:
+  push:
+    branches:
+      - feat/lc06-rls-performance-hardening-20260808
+    paths:
+      - "supabase/migrations/20260808180000_lc06_rls_performance_hardening.sql"
+      - "tests/lc06-rls-performance-hardening.test.cjs"
+      - "tests/sql/lc06-rls-performance-behavior.sql"
+      - ".github/workflows/lc06-rls-performance-hardening-rehearsal.yml"
+  pull_request:
+    paths:
+      - "supabase/migrations/20260808180000_lc06_rls_performance_hardening.sql"
+      - "tests/lc06-rls-performance-hardening.test.cjs"
+      - "tests/sql/lc06-rls-performance-behavior.sql"
+      - ".github/workflows/lc06-rls-performance-hardening-rehearsal.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+concurrency:
+  group: lc06-rls-performance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  local-security-rehearsal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.109.0
+
+      - name: Verify exact source and local-only environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          if env | grep -E '^(SUPABASE_ACCESS_TOKEN|SUPABASE_DB_PASSWORD|SUPABASE_PROJECT_REF)=' >/dev/null; then
+            echo 'LC06_LOCAL_ONLY=BLOCKED_REMOTE_CREDENTIAL_ENV' >&2
+            exit 1
+          fi
+          echo 'LC06_LOCAL_ONLY=PASS'
+
+      - name: Run LC06 static contract
+        run: node --test tests/lc06-rls-performance-hardening.test.cjs
+
+      - name: Start isolated local Supabase stack
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase start
+
+      - name: Rebuild isolated local database
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase db reset --local
+
+      - name: Verify LC06 database behavior
+        shell: bash
+        run: |
+          set -euo pipefail
+          PGPASSWORD=postgres psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -v ON_ERROR_STOP=1 \
+            -f tests/sql/lc06-rls-performance-behavior.sql
+
+      - name: Verify source remains unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          echo 'LC06_LOCAL_REHEARSAL=PASS'
+
+      - name: Stop isolated local stack
+        if: always()
+        shell: bash
+        run: supabase stop --no-backup || true
