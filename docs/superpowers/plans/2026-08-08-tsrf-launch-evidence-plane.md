@@ -1,497 +1,355 @@
 # TSRF Launch Evidence Plane Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **Execution rule:** implement task-by-task with TDD. Every behavior starts RED, then receives the smallest GREEN implementation. A new commit creates a new evidence identity; PASS from older SHAs is historical only.
 
-**Goal:** Build a fail-closed TSRF Evidence Plane that creates deterministic Release DNA, validates strict Proof Capsules, and packages verified Staging evidence without creating release authority.
+**Goal:** Build a fail-closed TSRF Evidence Plane that derives immutable Release DNA from trusted same-SHA surfaces, validates strict Proof Capsules, and packages verified evidence without creating release authority.
 
-**Architecture:** Implement four small CommonJS modules under `scripts/tsrf/evidence/` and one repository-level Node contract test under `tests/`. The modules remain side-effect free except the Staging bridge, which receives filesystem/Git/CI dependencies by injection and writes evidence only to an explicitly supplied external output directory. A dedicated GitHub Actions workflow checks out an exact source SHA, derives trusted run identity from GitHub context, writes canonical evidence artifacts under `$RUNNER_TEMP`, and uploads them with exact-SHA names.
+**Branch:** `feat/tsrf-launch-evidence-plane-20260808`
 
-**Tech Stack:** Node.js 22 built-ins (`node:test`, `node:assert/strict`, `node:crypto`, `node:fs`, `node:path`, `node:child_process`), CommonJS, GitHub Actions, SHA-256, Git.
+**Historical parent RC:** `238082e3f3b71301911380e2214ac04ef9f1f52d` — historical evidence only after this branch changes.
 
-## Global Constraints
+**Tech:** Node.js 22 built-ins, CommonJS, `node:test`, SHA-256, Git, GitHub Actions. No new runtime dependency.
 
-- Parent green RC is `238082e3f3b71301911380e2214ac04ef9f1f52d`; it remains historical evidence only after this branch changes.
-- Implementation branch is `feat/tsrf-launch-evidence-plane-20260808`.
-- Allowed proof environments are `LOCAL`, `STAGING`, and `NON_RUNTIME`; `PRODUCTION` is rejected.
-- `STAGING` requires `kill_switch_state=TRUE`; `LOCAL` and `NON_RUNTIME` require `NOT_APPLICABLE`; `FALSE` is always rejected.
-- Release DNA `environment_class` is exactly `STAGING_CANDIDATE`.
-- `source_sha` is exactly 40 lowercase hexadecimal characters; `source_tree` is exactly 40 lowercase hexadecimal characters.
-- SHA-256 values are exactly 64 lowercase hexadecimal characters.
-- `prompt_sha256` and `model_config_sha256` remain independent Release DNA fields.
-- Trusted `workflow_run_id` and `runner_identity` are derived outside the untrusted proof payload.
-- Evidence modules never merge, deploy, mutate Production DB, enable L4, disable the Staging kill switch, or emit owner-authorization state.
-- Tests use Node's built-in `node:test`; `scripts/quality-gate.sh` already runs `node --test tests/*.test.cjs`.
-- No runtime package dependency is added for this sub-project.
+## 1. Non-negotiable security constraints
 
----
+- Allowed proof environments: `LOCAL`, `STAGING`, `NON_RUNTIME`; `PRODUCTION` is rejected by this sub-project.
+- `STAGING` requires `kill_switch_state=TRUE`.
+- `LOCAL` and `NON_RUNTIME` require `kill_switch_state=NOT_APPLICABLE`.
+- `kill_switch_state=FALSE` is always rejected.
+- `source_sha` and `source_tree` are 40 lowercase hex.
+- SHA-256 values are 64 lowercase hex.
+- `workflow_run_id` and `runner_identity` are trusted-context fields and may not come from untrusted proof payloads.
+- Evidence cannot contain or infer owner/merge/Production authorization.
+- No Production secrets, Production DB mutation, Production deployment, L4 activation, merge, or Staging kill-switch disablement.
+- `prompt_sha256` and `model_config_sha256` remain separate.
+- Remote `STAGING` packaging is fail-closed unless Staging identity/config can be positively proven.
 
-## File Structure
+## 2. Trusted Release DNA derivation contract
 
-- Create `scripts/tsrf/evidence/contracts.cjs`: canonical JSON, constants, bounded error type, primitive validators, capsule environment/class policy, forbidden-field detection, secret-shaped metadata detection.
-- Create `scripts/tsrf/evidence/release-dna.cjs`: strict Release DNA projection, migration ordering normalization, SHA-256 digest calculation.
-- Create `scripts/tsrf/evidence/proof-capsule.cjs`: strict capsule normalization/validation and deep immutable canonical result.
-- Create `scripts/tsrf/evidence/staging-bridge.cjs`: exact Git/tree/artifact/release binding, trusted CI identity injection, safe artifact-path checks, clean-tree guard, and external evidence file output.
-- Create `tests/tsrf-launch-evidence-plane.test.cjs`: RED/GREEN tests for all modules and workflow contract.
-- Create `.github/workflows/tsrf-staging-evidence.yml`: read-only exact-SHA workflow that packages one real existing proof input without fabricating unavailable proof classes.
+Caller-supplied digest strings are never authoritative. `deriveReleaseDna()` computes each field from trusted same-SHA source/build material.
 
----
+### 2.1 Git identity
 
-### Task 1: Core Contracts and Canonicalization
+Derive:
 
-**Files:**
-- Create: `scripts/tsrf/evidence/contracts.cjs`
-- Create/Test: `tests/tsrf-launch-evidence-plane.test.cjs`
+- `source_sha` from `git rev-parse HEAD`.
+- `source_tree` from `git rev-parse HEAD^{tree}`.
 
-**Interfaces:**
-- Produces: `EvidenceError`, `CAPSULE_CLASSES`, `ENVIRONMENT_BY_CLASS`, `CAPSULE_FIELDS`, `RELEASE_DNA_FIELDS`, `canonicalJson(value)`, `sha256Hex(value)`, `assertSha40(name, value)`, `assertSha256(name, value)`, `assertIsoUtc(name, value)`, `assertAllowedCapsuleEnvironment(capsuleClass, environment, killSwitchState)`, `assertNoForbiddenShape(value, path='root')`, `deepFreeze(value)`.
-- Consumers: Tasks 2-4 import these exports directly.
+The derivation API may accept an injected Git adapter for tests, but it accepts no caller-provided source SHA/tree as truth.
 
-- [ ] **Step 1: Write failing canonicalization and policy tests**
+### 2.2 `frontend_build_sha256`
 
-Append tests that require the module before it exists and assert deterministic canonical JSON and strict environment rules:
+Build the V14 public candidate for the same exact HEAD using `tools/vvip_public_release.py` into an isolated temporary directory.
 
-```js
-const {
-  EvidenceError,
-  canonicalJson,
-  assertAllowedCapsuleEnvironment,
-  assertNoForbiddenShape,
-} = require('../scripts/tsrf/evidence/contracts.cjs');
+Validate before hashing:
 
-test('canonicalJson sorts object keys recursively and preserves array order', () => {
-  assert.equal(
-    canonicalJson({ z: 1, a: { y: 2, x: 3 }, list: [{ b: 2, a: 1 }] }),
-    '{"a":{"x":3,"y":2},"list":[{"a":1,"b":2}],"z":1}',
-  );
-});
+1. candidate manifest `sourceSha` equals trusted HEAD;
+2. `releaseEligible === true`;
+3. every manifest `files[path]` digest matches the actual candidate byte content;
+4. no extra candidate file exists outside the manifest except the manifest itself.
 
-test('capsule environment policy is fail closed', () => {
-  assert.doesNotThrow(() =>
-    assertAllowedCapsuleEnvironment('OTP_PROOF_CAPSULE', 'STAGING', 'TRUE'));
-  assert.doesNotThrow(() =>
-    assertAllowedCapsuleEnvironment('DB_REBUILD_PROOF_CAPSULE', 'LOCAL', 'NOT_APPLICABLE'));
-  assert.throws(
-    () => assertAllowedCapsuleEnvironment('OTP_PROOF_CAPSULE', 'PRODUCTION', 'TRUE'),
-    (error) => error instanceof EvidenceError && error.code === 'EVIDENCE_ENVIRONMENT_BLOCKED',
-  );
-  assert.throws(
-    () => assertAllowedCapsuleEnvironment('OTP_PROOF_CAPSULE', 'STAGING', 'FALSE'),
-    (error) => error.code === 'EVIDENCE_KILL_SWITCH_INVALID',
-  );
-});
+Do **not** hash mutable `builtAt`. Derive:
 
-test('authority-shaped metadata is rejected', () => {
-  assert.throws(
-    () => assertNoForbiddenShape({ validation_results: { ownerApproved: true } }),
-    (error) => error.code === 'EVIDENCE_FORBIDDEN_FIELD',
-  );
-});
-```
+`SHA256(canonical_json(manifest.files))`
 
-- [ ] **Step 2: Run the focused test and verify RED**
+where file keys are canonicalized lexicographically.
 
-Run:
+### 2.3 `backend_edge_build_sha256`
 
-```bash
-node --test tests/tsrf-launch-evidence-plane.test.cjs
-```
+Recursively hash every regular `.ts` file under `supabase/functions/`. Produce sorted canonical records `{path, sha256}` and hash their canonical JSON. Symlinks, path escapes, or zero matching files => BLOCKED.
 
-Expected: FAIL because `scripts/tsrf/evidence/contracts.cjs` does not exist.
+### 2.4 `migration_digests`
 
-- [ ] **Step 3: Implement the minimal contracts module**
+Derive from every regular `supabase/migrations/*.sql` file as sorted `{path, sha256}` records. No caller-supplied migration list is trusted.
 
-Use only Node built-ins. `EvidenceError` has shape `new EvidenceError(code, message)` and stores a bounded `code`; messages use static text and never echo untrusted input. `canonicalJson()` recursively sorts object keys, rejects non-finite/floating-point numbers, rejects `undefined`, functions, symbols, BigInt, Date objects, and non-plain objects. `assertNoForbiddenShape()` recursively rejects case-insensitive authority aliases (`authorized`, `authorization`, `approved`, `ownerapproved`, `productionready`, `mergeauthorized`, `productiondbauthorized`, `productionactivationauthorized`) and secret-shaped keys (`secret`, `password`, `token`, `service_role`, `private_key`, `api_key`).
+### 2.5 `ai_policy_sha256`
 
-- [ ] **Step 4: Run focused tests and verify GREEN**
+Hash a fixed exact source set:
 
-Run:
+- `supabase/functions/tiger-sovereign-ai/index.ts`
+- `supabase/migrations/20260808130000_tsrf_ai_trust_fabric.sql`
+- `supabase/migrations/20260808131000_tsrf_ai_runtime_atomicity.sql`
+- `supabase/migrations/20260808132000_tsrf_owner_authorization_leases.sql`
 
-```bash
-node --test tests/tsrf-launch-evidence-plane.test.cjs
-```
+Any missing path => BLOCKED. Hash canonical sorted `{path, sha256}` records.
 
-Expected: PASS for Task 1 tests.
+### 2.6 `prompt_sha256`
 
-- [ ] **Step 5: Commit Task 1**
+Source: `supabase/functions/tiger-sovereign-ai/index.ts` only.
 
-```bash
-git add scripts/tsrf/evidence/contracts.cjs tests/tsrf-launch-evidence-plane.test.cjs
-git commit -m "feat(tsrf): add evidence contract core"
-```
+Extract exactly two source-defined prompt surfaces using strict markers:
 
----
+- the complete `AGENT_INSTRUCTIONS` object;
+- the fixed provider policy instruction literals inside `buildProviderRequest()`.
 
-### Task 2: Deterministic Immutable Release DNA
+Runtime interpolation values (`promptVersion`, `releaseDigest`, agent id, user input) are excluded. Marker missing, duplicated, or ambiguous => BLOCKED. Hash canonical JSON of the extracted source literals.
 
-**Files:**
-- Create: `scripts/tsrf/evidence/release-dna.cjs`
-- Modify/Test: `tests/tsrf-launch-evidence-plane.test.cjs`
+### 2.7 `model_config_sha256`
 
-**Interfaces:**
-- Consumes: Task 1 `canonicalJson`, `sha256Hex`, `assertSha40`, `assertSha256`, `RELEASE_DNA_FIELDS`, `EvidenceError`, `deepFreeze`.
-- Produces: `buildReleaseDna(input)` returning a deeply frozen canonical object, and `computeReleaseDigest(releaseDna)` returning lowercase SHA-256.
+No trustworthy Staging configuration source exists in the repository today, and GitHub currently has no Environment named `staging`. Therefore this field has two modes:
 
-- [ ] **Step 1: Write failing Release DNA tests**
+- `LOCAL/NON_RUNTIME`: derive a **model configuration contract hash** from source-defined, non-secret configuration policy in `tiger-sovereign-ai/index.ts`: provider endpoint constant, environment variable names `TIGER_AI_OPENAI_MODEL`, `TIGER_AI_PROMPT_VERSION`, `TIGER_AI_MAX_OUTPUT_TOKENS`, normalized min/max/default token policy, and identity-verifier HTTPS policy. This proves the executable configuration contract, not a deployed model choice.
+- `STAGING`: require a trusted Staging configuration snapshot supplied by a repository-controlled protected Staging identity. The snapshot must contain actual non-secret values `{model, prompt_version, max_output_tokens, provider_endpoint, identity_verifier_class}` and must not originate from workflow_dispatch/user input. Until such a trusted Staging identity exists, remote STAGING capsule generation returns `BLOCKED_STAGING_IDENTITY_UNPROVEN`.
 
-Add:
+The Evidence Plane MUST NOT invent model names, prompt versions, or environment values.
 
-```js
-const {
-  buildReleaseDna,
-  computeReleaseDigest,
-} = require('../scripts/tsrf/evidence/release-dna.cjs');
+### 2.8 `tool_registry_sha256`
 
-const SHA40_A = 'a'.repeat(40);
-const SHA40_B = 'b'.repeat(40);
-const SHA64_1 = '1'.repeat(64);
-const SHA64_2 = '2'.repeat(64);
-const SHA64_3 = '3'.repeat(64);
+Current gateway is expected to have no tool execution. Derive canonical `[]` only after source validation proves all of:
 
-function validDna(overrides = {}) {
-  return {
-    dna_version: 'TSRF_RELEASE_DNA_V1',
-    source_sha: SHA40_A,
-    source_tree: SHA40_B,
-    frontend_build_sha256: SHA64_1,
-    backend_edge_build_sha256: SHA64_2,
-    migration_digests: [
-      { path: 'supabase/migrations/b.sql', sha256: SHA64_2 },
-      { path: 'supabase/migrations/a.sql', sha256: SHA64_1 },
-    ],
-    ai_policy_sha256: SHA64_1,
-    prompt_sha256: SHA64_2,
-    model_config_sha256: SHA64_3,
-    tool_registry_sha256: SHA64_1,
-    rls_sha256: SHA64_2,
-    security_config_sha256: SHA64_3,
-    environment_class: 'STAGING_CANDIDATE',
-    ...overrides,
-  };
-}
+- provider request contains no `tools` property;
+- source contains the explicit boundary `cannot execute actions or invoke L4 tools`;
+- usage ledger records `tool_calls: 0`;
+- audit metadata records `toolExecution: false`.
 
-test('Release DNA canonicalizes migration order and is deterministic', () => {
-  const first = buildReleaseDna(validDna());
-  const second = buildReleaseDna(validDna({
-    migration_digests: [...validDna().migration_digests].reverse(),
-  }));
-  assert.deepEqual(first, second);
-  assert.equal(computeReleaseDigest(first), computeReleaseDigest(second));
-  assert.equal(first.migration_digests[0].path, 'supabase/migrations/a.sql');
-});
+Any missing guard => BLOCKED.
 
-test('Release DNA keeps prompt and model config as separate bindings', () => {
-  const dna = buildReleaseDna(validDna());
-  assert.notEqual(dna.prompt_sha256, dna.model_config_sha256);
-});
+### 2.9 `rls_sha256`
 
-test('Release DNA rejects unknown fields and wrong environment class', () => {
-  assert.throws(
-    () => buildReleaseDna(validDna({ unexpected: 'x' })),
-    (error) => error.code === 'RELEASE_DNA_UNKNOWN_FIELD',
-  );
-  assert.throws(
-    () => buildReleaseDna(validDna({ environment_class: 'PRODUCTION' })),
-    (error) => error.code === 'RELEASE_DNA_ENVIRONMENT_CLASS_INVALID',
-  );
-});
-```
+Scan regular SQL migrations. Include files containing at least one case-insensitive RLS construct:
 
-- [ ] **Step 2: Run focused tests and verify RED**
+- `ENABLE ROW LEVEL SECURITY`
+- `FORCE ROW LEVEL SECURITY`
+- `CREATE POLICY`
 
-```bash
-node --test tests/tsrf-launch-evidence-plane.test.cjs
-```
+Hash sorted `{path, sha256}` records. Zero matching files => BLOCKED.
 
-Expected: FAIL because `release-dna.cjs` does not exist.
+### 2.10 `security_config_sha256`
 
-- [ ] **Step 3: Implement strict Release DNA projection**
+Hash this fixed source set exactly:
 
-`buildReleaseDna(input)` must require exactly the fields listed in the approved spec, reject duplicates in `migration_digests.path`, normalize path separators to `/`, reject absolute paths and `..`, sort migration records lexicographically by path, validate all hashes, enforce `STAGING_CANDIDATE`, and return `deepFreeze()` output. `computeReleaseDigest()` hashes `Buffer.from(canonicalJson(releaseDna), 'utf8')` with SHA-256.
+- `.github/workflows/vvip-quality-gate.yml`
+- `.github/workflows/codeql.yml`
+- `.github/workflows/dependency-review.yml`
+- `.github/workflows/tiger-cleanguard.yml`
+- `.github/workflows/project-control-integrity.yml`
+- `.github/workflows/tsrf-semantic-convergence.yml`
+- `.github/workflows/lc03-supabase-security-rehearsal.yml`
+- `.github/workflows/tsrf-phone-otp-rehearsal.yml`
+- `scripts/quality-gate.sh`
+- `scripts/security/p08-steel-shield/scan-secret-leaks.sh`
+- `scripts/security/p08-steel-shield/scan-dangerous-sql.sh`
 
-- [ ] **Step 4: Run focused tests and verify GREEN**
+Missing path => BLOCKED. Hash canonical sorted `{path, sha256}` records.
 
-```bash
-node --test tests/tsrf-launch-evidence-plane.test.cjs
-```
+### 2.11 Canonical Release DNA
 
-Expected: PASS through Task 2.
+Output fields are exactly:
 
-- [ ] **Step 5: Commit Task 2**
+- `dna_version`
+- `source_sha`
+- `source_tree`
+- `frontend_build_sha256`
+- `backend_edge_build_sha256`
+- `migration_digests`
+- `ai_policy_sha256`
+- `prompt_sha256`
+- `model_config_sha256`
+- `tool_registry_sha256`
+- `rls_sha256`
+- `security_config_sha256`
+- `environment_class`
 
-```bash
-git add scripts/tsrf/evidence/release-dna.cjs tests/tsrf-launch-evidence-plane.test.cjs
-git commit -m "feat(tsrf): add immutable release dna"
-```
+`environment_class` is `STAGING_CANDIDATE` for this release train. `release_digest = SHA256(canonical_json(release_dna))`.
+
+## 3. Repository files
+
+Create:
+
+- `scripts/tsrf/evidence/contracts.cjs`
+- `scripts/tsrf/evidence/release-dna.cjs`
+- `scripts/tsrf/evidence/proof-capsule.cjs`
+- `scripts/tsrf/evidence/staging-bridge.cjs`
+- `tests/tsrf-launch-evidence-plane.test.cjs`
+- `.github/workflows/tsrf-staging-evidence.yml`
+
+No source-controlled Staging model-value file is created unless a real approved Staging configuration source exists. Unknown operational values remain BLOCKED rather than guessed.
 
 ---
 
-### Task 3: Strict Proof Capsule Core
+## Task 1 — Core contracts and canonicalization
 
-**Files:**
-- Create: `scripts/tsrf/evidence/proof-capsule.cjs`
-- Modify/Test: `tests/tsrf-launch-evidence-plane.test.cjs`
+### RED
 
-**Interfaces:**
-- Consumes: Task 1 validators/canonicalization and Task 2 `computeReleaseDigest`.
-- Produces: `createProofCapsule({ proof, trustedContext, expectedReleaseDna, nowMs, maxAgeMs, futureSkewMs })` returning a deeply frozen canonical capsule; `serializeProofCapsule(capsule)` returning canonical JSON plus trailing newline.
-- Trusted context shape: `{ workflow_run_id: string, runner_identity: string }`.
-- Untrusted proof payload MUST NOT contain `workflow_run_id` or `runner_identity`.
+Create only `tests/tsrf-launch-evidence-plane.test.cjs` first. Tests require the still-missing `contracts.cjs` and cover:
 
-- [ ] **Step 1: Write failing Proof Capsule tests**
+- recursive canonical object-key ordering;
+- array-order preservation;
+- rejection of floats/non-finite/undefined/functions/symbols/BigInt/Date/non-plain objects;
+- strict SHA-40/SHA-256 validation;
+- UTC timestamp validation;
+- `STAGING+TRUE` allowed;
+- `LOCAL/NON_RUNTIME+NOT_APPLICABLE` allowed;
+- PRODUCTION rejected;
+- FALSE kill switch rejected;
+- authority-shaped and secret-shaped metadata rejected;
+- deep freeze.
 
-Add a fixture using fixed timestamps and assert positive STAGING, positive LOCAL DB rebuild, forged CI identity rejection, stale evidence rejection, Production rejection, unknown-field rejection, and immutable output.
+Run `node --test tests/tsrf-launch-evidence-plane.test.cjs`; expected RED is `MODULE_NOT_FOUND` for `scripts/tsrf/evidence/contracts.cjs`.
 
-Use this positive STAGING assertion:
+### GREEN
 
-```js
-const { createProofCapsule } = require('../scripts/tsrf/evidence/proof-capsule.cjs');
+Implement minimal `scripts/tsrf/evidence/contracts.cjs` exporting:
 
-function stagingProof(releaseDigest, overrides = {}) {
-  return {
-    capsule_version: 'TSRF_PROOF_CAPSULE_V1',
-    capsule_class: 'OTP_PROOF_CAPSULE',
-    release_digest: releaseDigest,
-    source_sha: SHA40_A,
-    source_tree: SHA40_B,
-    environment: 'STAGING',
-    test_version: 'otp-rehearsal-v1',
-    artifact_name: 'otp-proof.json',
-    artifact_sha256: SHA64_1,
-    started_at: '2026-08-08T12:00:00.000Z',
-    completed_at: '2026-08-08T12:01:00.000Z',
-    generated_at: '2026-08-08T12:01:05.000Z',
-    kill_switch_state: 'TRUE',
-    validation_results: { contract: 'PASS', behavior: 'PASS' },
-    result: 'PASS',
-    ...overrides,
-  };
-}
+`EvidenceError`, constants/field allowlists, `canonicalJson`, `sha256Hex`, SHA/timestamp validators, environment policy validator, forbidden-shape validator, `deepFreeze`.
 
-test('valid STAGING proof receives trusted CI identity only from trustedContext', () => {
-  const dna = buildReleaseDna(validDna());
-  const digest = computeReleaseDigest(dna);
-  const capsule = createProofCapsule({
-    proof: stagingProof(digest),
-    trustedContext: { workflow_run_id: '31260000000', runner_identity: 'github-actions:ubuntu-latest' },
-    expectedReleaseDna: dna,
-    nowMs: Date.parse('2026-08-08T12:02:00.000Z'),
-    maxAgeMs: 15 * 60 * 1000,
-    futureSkewMs: 30 * 1000,
-  });
-  assert.equal(capsule.workflow_run_id, '31260000000');
-  assert.equal(capsule.runner_identity, 'github-actions:ubuntu-latest');
-  assert.equal(Object.isFrozen(capsule), true);
-  assert.equal(Object.isFrozen(capsule.validation_results), true);
-});
-```
+Bounded error codes must not echo untrusted values.
 
-- [ ] **Step 2: Run focused tests and verify RED**
-
-```bash
-node --test tests/tsrf-launch-evidence-plane.test.cjs
-```
-
-Expected: FAIL because `proof-capsule.cjs` does not exist.
-
-- [ ] **Step 3: Implement strict capsule creation**
-
-The module must enforce exact field allowlists, class/environment policy, timestamp ordering, age/future skew, digest formats, exact release digest recomputation, `result` in `{PASS,BLOCKED}`, and `PASS` only when all `validation_results` values equal `PASS` or explicit non-failure facts from a small scalar allowlist (`TRUE`, `NOT_APPLICABLE`, lowercase digest/string identifiers). It rejects caller-supplied trusted identity fields and secret/authority shapes before copying any payload.
-
-- [ ] **Step 4: Run focused tests and verify GREEN**
-
-```bash
-node --test tests/tsrf-launch-evidence-plane.test.cjs
-```
-
-Expected: PASS through Task 3.
-
-- [ ] **Step 5: Commit Task 3**
-
-```bash
-git add scripts/tsrf/evidence/proof-capsule.cjs tests/tsrf-launch-evidence-plane.test.cjs
-git commit -m "feat(tsrf): add strict proof capsule core"
-```
+Re-run focused suite. Commit only Task 1 source + tests.
 
 ---
 
-### Task 4: Staging Evidence Bridge and Filesystem Safety
+## Task 2 — Trusted deterministic Release DNA
 
-**Files:**
-- Create: `scripts/tsrf/evidence/staging-bridge.cjs`
-- Modify/Test: `tests/tsrf-launch-evidence-plane.test.cjs`
+### RED
 
-**Interfaces:**
-- Consumes: Task 2 `buildReleaseDna`, `computeReleaseDigest`; Task 3 `createProofCapsule`, `serializeProofCapsule`.
-- Produces: `buildStagingEvidence(options)` where options are `{ repositoryRoot, outputDir, artifactPath, releaseDnaInput, proofInput, trustedContext, git, fsApi, nowMs, maxAgeMs, futureSkewMs }`.
-- Injected `git` interface: `headSha(): string`, `treeSha(): string`, `statusPorcelain(): string`.
-- Return shape: `{ capsule, releaseDna, manifest, paths: { capsule, releaseDna, manifest } }`.
+Extend the same test file before implementation. Test an isolated temporary repository fixture and injected Git adapter. Required cases:
 
-- [ ] **Step 1: Write failing bridge tests**
+- source SHA/tree come from Git adapter, not caller values;
+- frontend manifest source mismatch rejected;
+- frontend `releaseEligible=false` rejected;
+- frontend byte/hash mismatch rejected;
+- mutable `builtAt` does not affect frontend build digest;
+- edge file order does not affect digest;
+- migrations derived and sorted automatically;
+- fixed AI policy path missing => BLOCKED;
+- prompt extraction deterministic and model config separate;
+- gateway tool-registry guards produce hash of `[]`; removal of any guard => BLOCKED;
+- RLS source set derived from SQL semantics;
+- fixed security-config path missing => BLOCKED;
+- caller-supplied digest fields are rejected/ignored as authority;
+- same trusted source surfaces => same `release_digest`.
 
-Tests create a temporary repository directory and artifact file under Node `os.tmpdir()`. Inject a fake Git adapter with exact SHA/tree and clean status. Assert a valid STAGING capsule is written outside the repository; assert artifact tampering, source mismatch, tree mismatch, output directory inside repository, symlink escape, and dirty repository all return bounded `EvidenceError` codes.
+### GREEN
 
-- [ ] **Step 2: Run focused tests and verify RED**
+Implement `scripts/tsrf/evidence/release-dna.cjs` exporting:
 
-```bash
-node --test tests/tsrf-launch-evidence-plane.test.cjs
-```
+- `deriveReleaseDna({ repositoryRoot, candidateDir, environmentClass, trustedStagingConfig, git, fsApi })`
+- `computeReleaseDigest(releaseDna)`
 
-Expected: FAIL because `staging-bridge.cjs` does not exist.
+The module computes all hashes itself. For `STAGING_CANDIDATE`, a caller cannot substitute raw component digests.
 
-- [ ] **Step 3: Implement minimal fail-closed bridge**
+`trustedStagingConfig`, when used for actual remote STAGING evidence, must carry a provenance marker from the bridge's trusted environment provider; a normal proof payload cannot set it.
 
-Before writing files: resolve real paths, reject `outputDir` inside `repositoryRoot`, reject missing/non-file artifacts, reject symlinks for artifact/output path components, require clean Git status, compare Git head/tree to Release DNA, hash artifact bytes, build/recompute Release DNA, copy computed `artifact_sha256` into the proof only after independent hashing, and call `createProofCapsule`. Write three UTF-8 files using exclusive creation mode where supported:
+Re-run focused tests; commit Task 2 only after GREEN.
 
-- `proof-capsule.json`
-- `release-dna.json`
-- `manifest.json`
+---
 
-Manifest shape is exactly:
+## Task 3 — Strict Proof Capsule core
+
+### RED
+
+Tests cover:
+
+- positive STAGING capsule;
+- positive LOCAL DB rebuild capsule;
+- exact Release DNA digest recomputation;
+- forged `workflow_run_id` / `runner_identity` in proof payload rejected;
+- stale/future/misordered timestamps rejected;
+- Production rejected;
+- unknown capsule fields rejected;
+- authority/secret shapes rejected;
+- artifact digest format enforced;
+- unsupported class rejected;
+- inconclusive/skipped/cancelled cannot become PASS;
+- output deeply immutable.
+
+### GREEN
+
+Implement `proof-capsule.cjs`:
+
+`createProofCapsule({ proof, trustedContext, expectedReleaseDna, nowMs, maxAgeMs, futureSkewMs })`
+
+and canonical serializer. `result` is only `PASS|BLOCKED`; any unverifiable condition is BLOCKED, never warning-to-PASS.
+
+Commit after focused GREEN.
+
+---
+
+## Task 4 — Evidence Bridge and filesystem safety
+
+### RED
+
+Tests use temp directories and injected Git/filesystem adapters. Cover:
+
+- exact Git HEAD/tree binding;
+- clean worktree required before and after generation;
+- artifact bytes independently hashed;
+- Release DNA derived internally, not passed as authoritative input;
+- output directory must be outside source repository;
+- path traversal rejected;
+- symlink escape rejected;
+- missing/non-regular artifact rejected;
+- source/tree/artifact tampering rejected;
+- STAGING without trusted Staging identity/config => `BLOCKED_STAGING_IDENTITY_UNPROVEN`;
+- LOCAL proof can be packaged with `NOT_APPLICABLE` kill switch;
+- writes only `proof-capsule.json`, `release-dna.json`, `manifest.json`.
+
+### GREEN
+
+Implement `staging-bridge.cjs` with dependency injection and exclusive external writes.
+
+Manifest exact schema:
 
 ```json
 {
   "manifest_version": "TSRF_EVIDENCE_MANIFEST_V1",
-  "proof_capsule_sha256": "<64-lowercase-hex>",
-  "release_dna_sha256": "<64-lowercase-hex>"
+  "proof_capsule_sha256": "<sha256>",
+  "release_dna_sha256": "<sha256>"
 }
 ```
 
-After writes, call `git.statusPorcelain()` again and reject if source repository status changed.
+The bridge never makes a failed binding a warning.
 
-- [ ] **Step 4: Run focused tests and verify GREEN**
-
-```bash
-node --test tests/tsrf-launch-evidence-plane.test.cjs
-```
-
-Expected: PASS through Task 4.
-
-- [ ] **Step 5: Commit Task 4**
-
-```bash
-git add scripts/tsrf/evidence/staging-bridge.cjs tests/tsrf-launch-evidence-plane.test.cjs
-git commit -m "feat(tsrf): add staging evidence bridge"
-```
+Commit after focused GREEN.
 
 ---
 
-### Task 5: Exact-SHA Staging Evidence Workflow Contract
+## Task 5 — Exact-SHA read-only GitHub workflow
 
-**Files:**
-- Create: `.github/workflows/tsrf-staging-evidence.yml`
-- Modify/Test: `tests/tsrf-launch-evidence-plane.test.cjs`
+### RED
 
-**Interfaces:**
-- Workflow input: manual `workflow_dispatch` with `source_sha` (40-char commit SHA), `capsule_class` restricted by workflow logic to an evidence producer currently available to the workflow, `artifact_path` restricted to a repository-produced non-secret artifact copied into `$RUNNER_TEMP` before packaging.
-- Trusted context: `workflow_run_id=${{ github.run_id }}` and `runner_identity=github-actions:${{ runner.os }}:${{ runner.arch }}` are supplied by the workflow, never accepted as user inputs.
+Add workflow text-contract tests before creating `.github/workflows/tsrf-staging-evidence.yml`. They require:
 
-- [ ] **Step 1: Write failing workflow contract test**
+- `permissions: contents: read`;
+- exact `inputs.source_sha` checkout;
+- explicit `git rev-parse HEAD` equality check;
+- trusted `${{ github.run_id }}` and runner identity;
+- evidence output under `${{ runner.temp }}` / `$RUNNER_TEMP`;
+- exact-SHA artifact naming;
+- no caller inputs named `workflow_run_id`, `runner_identity`, `authorized`, `productionReady`, or model/prompt configuration;
+- no `supabase db push`;
+- no Production environment/secrets;
+- no merge/deploy/L4 command;
+- STAGING path fails closed if Staging identity is unavailable.
 
-Read `.github/workflows/tsrf-staging-evidence.yml` as text and assert all of the following markers:
+### GREEN
 
-```js
-assert.match(workflow, /permissions:\s*\n\s*contents:\s*read/);
-assert.match(workflow, /ref:\s*\$\{\{\s*inputs\.source_sha\s*\}\}/);
-assert.match(workflow, /git rev-parse HEAD/);
-assert.match(workflow, /github\.run_id/);
-assert.match(workflow, /runner\.os/);
-assert.match(workflow, /\$RUNNER_TEMP/);
-assert.match(workflow, /tsrf-.*source_sha/i);
-assert.doesNotMatch(workflow, /supabase\s+db\s+push/i);
-assert.doesNotMatch(workflow, /environment:\s*production/i);
-assert.doesNotMatch(workflow, /PRODUCTION_DB_PASSWORD|PRODUCTION_SERVICE_ROLE|L4_ENABLED/);
-```
+Create read-only workflow using `actions/checkout@v7`, Node 22, exact SHA/tree checks, Evidence Bridge invocation, and `actions/upload-artifact@v6`.
 
-Also assert the workflow never accepts inputs named `workflow_run_id`, `runner_identity`, `authorized`, or `productionReady`.
+Because the repository currently has no GitHub Environment named `staging`, the workflow must not claim remote STAGING identity today. It may package eligible LOCAL/NON_RUNTIME evidence and must emit BLOCKED for remote STAGING until a trusted Staging identity/config source exists.
 
-- [ ] **Step 2: Run focused tests and verify RED**
-
-```bash
-node --test tests/tsrf-launch-evidence-plane.test.cjs
-```
-
-Expected: FAIL because the workflow does not exist.
-
-- [ ] **Step 3: Implement read-only workflow**
-
-Use `actions/checkout@v7` with `ref: ${{ inputs.source_sha }}` and `fetch-depth: 0`, Node 22, a shell exact-head check, a shell exact-tree capture, and a Node invocation that imports `staging-bridge.cjs`. All generated output goes under `${{ runner.temp }}/tsrf-evidence`. Upload with `actions/upload-artifact@v6` and an artifact name whose suffix is the exact `inputs.source_sha`. The workflow must fail closed if the caller-selected artifact path cannot be proven to exist and must never deploy to a remote environment.
-
-For the first real packaging source, use the existing deterministic V14 candidate manifest/artifact material only when it is produced for the same exact `source_sha`; if the workflow cannot obtain same-SHA artifact bytes in the same run, exit with `TSRF_EVIDENCE_SOURCE=BLOCKED_NO_SAME_SHA_ARTIFACT` rather than fabricating PASS.
-
-- [ ] **Step 4: Run focused tests and verify GREEN**
-
-```bash
-node --test tests/tsrf-launch-evidence-plane.test.cjs
-```
-
-Expected: PASS for workflow contract tests.
-
-- [ ] **Step 5: Commit Task 5**
-
-```bash
-git add .github/workflows/tsrf-staging-evidence.yml tests/tsrf-launch-evidence-plane.test.cjs
-git commit -m "ci(tsrf): add exact-sha staging evidence workflow"
-```
+Commit after workflow contract GREEN.
 
 ---
 
-### Task 6: Full Verification and Candidate Checkpoint
+## Task 6 — Exact-SHA verification checkpoint
 
-**Files:**
-- Verify only; no source changes unless a failing test identifies a defect covered by this spec.
+On the final implementation SHA only:
 
-**Interfaces:**
-- Produces one exact candidate SHA whose evidence is never mixed with earlier commits.
+1. `node --test tests/tsrf-launch-evidence-plane.test.cjs` => PASS.
+2. `node --test tests/*.test.cjs` => PASS.
+3. `bash scripts/quality-gate.sh` => `VVIP_QUALITY_GATE=PASS`.
+4. Record `git rev-parse HEAD`, `git rev-parse HEAD^{tree}`, clean status.
+5. Same-SHA GitHub gates: Quality, CodeQL, Dependency Review, CleanGuard, Project Control Integrity, Steel Shield `CRITICAL=0 HIGH=0`.
+6. Run Evidence workflow on exact SHA.
+7. Package at least one **real existing** eligible proof source. If only LOCAL/NON_RUNTIME proof is trustworthy, package that and record remote STAGING as BLOCKED rather than fabricate it.
+8. Record exact workflow run IDs and artifact SHA-256s.
 
-- [ ] **Step 1: Run focused Evidence Plane suite**
+The sub-project result may become `EVIDENCE_PLANE_GREEN` only when all approved completion criteria are satisfied. It is never itself Production authorization.
 
-```bash
-node --test tests/tsrf-launch-evidence-plane.test.cjs
-```
+## 4. Subsequent launch work, explicitly out of this plan
 
-Expected: PASS.
+After Evidence Plane GREEN, continue separate gated work for: real Staging identity/config, Staging OTP E2E, PR36 real JPG E2E, AI Shadow, Owner Step-Up negative proofs, Production read-only drift fingerprint, Blackbox P0/P1, cross-browser/mobile, performance/soak, backup restore/rollback, Jordan legal pack/country seal, independent verification, merge, Production DB promotion, and progressive activation.
 
-- [ ] **Step 2: Run all CommonJS tests**
-
-```bash
-node --test tests/*.test.cjs
-```
-
-Expected: PASS.
-
-- [ ] **Step 3: Run isolated full quality gate**
-
-```bash
-bash scripts/quality-gate.sh
-```
-
-Expected final marker: `VVIP_QUALITY_GATE=PASS`, with no source workspace mutation.
-
-- [ ] **Step 4: Verify git cleanliness and exact identity**
-
-```bash
-git status --porcelain=v1 -uall
-git rev-parse HEAD
-git rev-parse HEAD^{tree}
-```
-
-Expected: empty status and full SHA/tree values recorded for the candidate.
-
-- [ ] **Step 5: Open or update a Draft PR for this isolated branch and trigger repository security gates**
-
-Required same-SHA gates before declaring `EVIDENCE_PLANE_GREEN`:
-
-- VVIP Quality Gate = PASS
-- CodeQL = PASS
-- Dependency Review = PASS
-- CleanGuard = PASS
-- Project Control Integrity = PASS
-- Steel Shield = `CRITICAL=0 HIGH=0`
-
-- [ ] **Step 6: Run Staging evidence workflow on the exact candidate SHA**
-
-If same-SHA proof input is available, expected outcome is one valid capsule artifact named with the exact candidate SHA. If Staging identity or same-SHA artifact material cannot be proven, expected outcome is `BLOCKED`; that is a correct fail-closed result and must not be rewritten as PASS.
-
-- [ ] **Step 7: Record the Evidence Plane checkpoint**
-
-Record exact candidate SHA, tree SHA, workflow run IDs, artifact names and SHA-256 values, and the outcome `EVIDENCE_PLANE_GREEN` only if every completion criterion from the approved spec is satisfied. Do not record Production authorization as an Evidence Plane result.
+Existing owner approvals remain recorded but cannot convert a failed evidence gate into PASS.
