@@ -74,6 +74,13 @@ declare -A reviewed_migration_hashes=(
   ["supabase/migrations/20260808130000_tsrf_ai_trust_fabric.sql"]="3033a405060c9dc1bdc4425e3d2b14d2011d86b3afc7a1d243d5e930a4d60d96"
   ["supabase/migrations/20260808131000_tsrf_ai_runtime_atomicity.sql"]="f047f356ee57c09b86c322c6329bb9897fd06c3f0163fef6bb64fd608c84e747"
   ["supabase/migrations/20260808132000_tsrf_owner_authorization_leases.sql"]="994a7fdb42ca2d82138ac04a65e8db63cfcd55c08917ff5134e4c184df76e4cb"
+  # Sovereign phone OTP challenge store: reviewed 2026-08-08 on exact source
+  # 4301569edcb64b248d5b80e65efbb646e9bd3be3 after a full local migration rebuild,
+  # Deno Edge typecheck, exact-source OTP contract, and executable database behavior proof.
+  # Browser roles have no table/RPC authority; issuance/consume are serialized and fail closed;
+  # scanner alerts are new-table NOT NULL declarations, fixed-search-path SECURITY DEFINER RPCs,
+  # and bounded multi-line UPDATE statements. The exception remains exact path + exact SHA-256.
+  ["supabase/migrations/20260808133000_phone_otp_challenges.sql"]="b9524528878d5646884bfdbb04abf06b8e4e73eb9628d0132b02fb06fbe7ee9a"
 )
 
 reviewed_baseline_path() {
