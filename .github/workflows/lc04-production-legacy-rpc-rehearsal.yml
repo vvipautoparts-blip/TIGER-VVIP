@@ -66,6 +66,24 @@ jobs:
             tests/lc04-production-legacy-rpc-hardening.test.cjs \
             tests/lc04-production-legacy-rpc-workflow.test.cjs
 
+      - name: Emit exact LC04 migration SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/lc04-digest"
+          hash="$(sha256sum supabase/migrations/20260808134000_lc04_production_legacy_rpc_hardening.sql | awk '{print $1}')"
+          test "${#hash}" -eq 64
+          printf '%s\n' "$hash" > "$RUNNER_TEMP/lc04-digest/migration.sha256"
+          echo "LC04_MIGRATION_SHA256=$hash"
+
+      - name: Upload LC04 migration digest
+        uses: actions/upload-artifact@v6
+        with:
+          name: lc04-migration-sha256-${{ env.SOURCE_SHA }}
+          path: ${{ runner.temp }}/lc04-digest/migration.sha256
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Start isolated local Supabase stack
         shell: bash
         run: |
