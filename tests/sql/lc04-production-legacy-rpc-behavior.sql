@@ -1,7 +1,9 @@
 \set ON_ERROR_STOP on
 
--- LC04 must remove the observed legacy policy helpers from the exposed public schema.
-do $assert_public_helpers_gone$
+-- Canonical repository rebuilds do not contain the Production-only legacy role helper
+-- graph. LC04 must therefore leave both public and private copies absent rather than
+-- synthesizing legacy functions into a clean environment.
+do $assert_no_synthesized_helpers$
 declare
   signature text;
 begin
@@ -13,22 +15,7 @@ begin
     'public.is_super_admin()',
     'public.is_team_member(uuid)',
     'public.can_publish_owner(uuid)',
-    'public.can_self_update_profile(uuid, text, boolean, uuid, text, text)'
-  ] loop
-    if to_regprocedure(signature) is not null then
-      raise exception 'LC04_PUBLIC_HELPER_STILL_EXPOSED: %', signature;
-    end if;
-  end loop;
-end
-$assert_public_helpers_gone$;
-
--- The moved objects must exist and PUBLIC must not inherit execution.
-do $assert_private_helpers$
-declare
-  signature text;
-  fn oid;
-begin
-  foreach signature in array array[
+    'public.can_self_update_profile(uuid, text, boolean, uuid, text, text)',
     'vvip_private.user_role_for(uuid)',
     'vvip_private.current_user_role()',
     'vvip_private.is_field_representative()',
@@ -38,24 +25,15 @@ begin
     'vvip_private.can_publish_owner(uuid)',
     'vvip_private.can_self_update_profile(uuid, text, boolean, uuid, text, text)'
   ] loop
-    fn := to_regprocedure(signature);
-    if fn is null then
-      raise exception 'LC04_PRIVATE_HELPER_MISSING: %', signature;
-    end if;
-    if has_function_privilege('public', fn, 'EXECUTE') then
-      raise exception 'LC04_PUBLIC_EXECUTE_STILL_GRANTED: %', signature;
-    end if;
-    if not has_function_privilege('anon', fn, 'EXECUTE') then
-      raise exception 'LC04_ANON_POLICY_EXECUTE_MISSING: %', signature;
-    end if;
-    if not has_function_privilege('authenticated', fn, 'EXECUTE') then
-      raise exception 'LC04_AUTH_POLICY_EXECUTE_MISSING: %', signature;
+    if to_regprocedure(signature) is not null then
+      raise exception 'LC04_CANONICAL_HELPER_SYNTHESIZED: %', signature;
     end if;
   end loop;
 end
-$assert_private_helpers$;
+$assert_no_synthesized_helpers$;
 
--- Legacy browser enumeration and execution machinery must not be directly executable.
+-- Legacy browser enumeration and execution machinery, when present in older schemas,
+-- must not be directly executable after canonical rebuild/hardening.
 do $assert_legacy_rpc_locked$
 declare
   signature text;
@@ -111,8 +89,6 @@ begin
 end
 $assert_profile_boundary$;
 
--- Browser table privileges cannot bypass the resolver even if an older permissive RLS
--- policy survives elsewhere in the legacy schema.
 do $assert_profile_privileges$
 begin
   if has_table_privilege('authenticated', 'public.profiles', 'INSERT') then
@@ -130,7 +106,6 @@ begin
 end
 $assert_profile_privileges$;
 
--- Only the authenticated Clerk self-read policy may survive from the Clerk profile trio.
 do $assert_clerk_profile_policies$
 declare
   read_count integer;
@@ -158,26 +133,4 @@ begin
 end
 $assert_clerk_profile_policies$;
 
--- Exercise the moved policy helpers under browser roles. These calls must resolve safely
--- and return false/guest-like values when no request JWT is present, not permission errors.
-begin;
-set local role anon;
-select vvip_private.user_role_for(null::uuid);
-select vvip_private.current_user_role();
-select vvip_private.is_reviewer();
-select vvip_private.is_super_admin();
-select vvip_private.is_team_member(null::uuid);
-select vvip_private.can_publish_owner(null::uuid);
-rollback;
-
-begin;
-set local role authenticated;
-select vvip_private.user_role_for(null::uuid);
-select vvip_private.current_user_role();
-select vvip_private.is_reviewer();
-select vvip_private.is_super_admin();
-select vvip_private.is_team_member(null::uuid);
-select vvip_private.can_publish_owner(null::uuid);
-rollback;
-
-select 'LC04_LOCAL_SECURITY_BEHAVIOR=PASS' as result;
+select 'LC04_CANONICAL_SECURITY_BEHAVIOR=PASS' as result;
