@@ -61,6 +61,10 @@ end
 $assert_legacy_rpc_locked$;
 
 -- Profile resolver is the only browser write boundary for profile creation/recovery.
+-- LC04 originally named the signed-JWT email variable v_jwt_email. IDENTITY-01 later
+-- strengthened the same boundary and renamed that claim to v_verified_email while
+-- removing email-based ownership transfer. Accept either signed-JWT binding shape;
+-- never accept the browser-supplied client hint as ownership authority.
 do $assert_profile_boundary$
 declare
   fn oid := to_regprocedure('public.vvip_resolve_own_profile(text)');
@@ -80,7 +84,8 @@ begin
   if definition ilike '%.clerk.accounts.dev%' then
     raise exception 'LC04_PROFILE_RESOLVER_DEV_ISSUER_HARDCODE';
   end if;
-  if definition not ilike '%where lower(email) = v_jwt_email%' then
+  if definition not ilike '%where lower(email) = v_jwt_email%'
+     and definition not ilike '%where lower(email) = v_verified_email%' then
     raise exception 'LC04_PROFILE_RESOLVER_JWT_EMAIL_BINDING_MISSING';
   end if;
   if definition ilike '%where lower(email) = v_client_email_hint%' then
