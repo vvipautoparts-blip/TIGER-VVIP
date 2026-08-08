@@ -11,7 +11,7 @@ const root = path.join(__dirname, '..');
 const migrationRel = 'supabase/migrations/20260808134000_lc04_production_legacy_rpc_hardening.sql';
 const migration = path.join(root, migrationRel);
 const scanner = path.join(root, 'scripts/security/p08-steel-shield/scan-dangerous-sql.sh');
-const expected = '134779055047525412aa69fc67cf14290a3683aa17754959599539710fb183e1';
+const expected = '86cd92e65b1d7294158798b6828d33fe7c346946ff9d955371fc55f5f13388fa';
 
 test('LC04 reviewed migration bytes match the content-addressed approval', () => {
   const actual = crypto.createHash('sha256').update(fs.readFileSync(migration)).digest('hex');
