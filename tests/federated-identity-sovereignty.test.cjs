@@ -58,6 +58,7 @@ test("binding ADR and known compatibility gap are recorded", () => {
   assert.match(gap, /identity_migration_required/);
   assert.match(gap, /PRODUCTION_IDENTITY_LAUNCH=BLOCKED_ON_REMEDIATION/);
   assert.match(removal, /LEGACY_PASSWORD_RUNTIME=REMOVED/);
+  assert.match(removal, /LOCAL_PASSWORD_RECOVERY=REMOVED/);
 });
 
 test("retired first-party password and recovery runtimes remain absent", () => {
@@ -78,6 +79,13 @@ test("legacy reset URL is a provider-recovery compatibility redirect only", () =
   assert.doesNotMatch(html, /sendPasswordResetEmail/);
   assert.doesNotMatch(html, /id=["']reset-form["']/i);
   assert.doesNotMatch(html, /type=["']password["']/i);
+});
+
+test("legacy PWA cache cannot preserve the retired recovery runtime", () => {
+  const sw = fs.readFileSync(path.join(ROOT, "sw.js"), "utf8");
+  assert.match(sw, /CACHE_PREFIX \+ "v22"/);
+  assert.doesNotMatch(sw, /reset-password\.js/);
+  assert.match(sw, /reset-password\.html/);
 });
 
 test("owned runtime code contains no first-party password authentication path", () => {
