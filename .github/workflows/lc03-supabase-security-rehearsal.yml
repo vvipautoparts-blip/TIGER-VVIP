@@ -6,21 +6,35 @@ on:
       - "supabase/migrations/20260808003000_lc03_supabase_security_hardening.sql"
       - "tests/lc03-supabase-security-hardening.test.cjs"
       - "tests/quality-gate-shell-contract.test.cjs"
+      - "tests/tsrf-evidence-hardening.test.cjs"
+      - "tests/tsrf-lc03-local-evidence-workflow.test.cjs"
+      - "tests/tsrf-release-dna-real-manifest.test.cjs"
       - "scripts/quality-gate.sh"
+      - "scripts/tsrf/evidence/**"
       - "tests/sql/lc03-legacy-drift-reconciliation.sql"
+      - "tools/vvip_public_release.py"
       - ".github/workflows/lc03-supabase-security-rehearsal.yml"
   pull_request:
     paths:
+      - "supabase/migrations/20260808003000_lc03-supabase-security-hardening.sql"
       - "supabase/migrations/20260808003000_lc03_supabase_security_hardening.sql"
       - "tests/lc03-supabase-security-hardening.test.cjs"
       - "tests/quality-gate-shell-contract.test.cjs"
+      - "tests/tsrf-evidence-hardening.test.cjs"
+      - "tests/tsrf-lc03-local-evidence-workflow.test.cjs"
+      - "tests/tsrf-release-dna-real-manifest.test.cjs"
       - "scripts/quality-gate.sh"
+      - "scripts/tsrf/evidence/**"
       - "tests/sql/lc03-legacy-drift-reconciliation.sql"
+      - "tools/vvip_public_release.py"
       - ".github/workflows/lc03-supabase-security-rehearsal.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
+
+env:
+  SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
 
 concurrency:
   group: lc03-supabase-security-rehearsal-${{ github.ref }}
@@ -31,10 +45,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v7
+      - name: Checkout exact source SHA
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 0
       - uses: actions/setup-node@v6
         with:
           node-version: "22"
+      - name: Verify exact source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
       - name: Run LC-03 security contract
         run: node --test tests/lc03-supabase-security-hardening.test.cjs
       - name: Run quality-gate shell contract
@@ -50,12 +74,28 @@ jobs:
   local-db-reset:
     needs: contract
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
     steps:
-      - uses: actions/checkout@v7
+      - name: Checkout exact source SHA
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
       - uses: supabase/setup-cli@v1
         with:
           version: 2.109.0
+      - name: Verify exact source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
       - name: Assert local-only safety contract
         shell: bash
         run: |
@@ -65,7 +105,12 @@ jobs:
             echo 'LC03_LOCAL_DB_RESET=BLOCKED_REMOTE_CREDENTIAL_ENV'
             exit 1
           fi
-          echo 'LC03_LOCAL_ONLY_CONTRACT=PASS'
+          echo 'LC03_LOCAL_DB_RESET=LOCAL_ONLY_PASS'
+      - name: Start evidence clock
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "TSRF_DB_STARTED_AT=$(node -e 'process.stdout.write(new Date().toISOString())')" >> "$GITHUB_ENV"
       - name: Start isolated local Supabase stack
         shell: bash
         run: |
@@ -94,7 +139,110 @@ jobs:
             -d postgres \
             -v ON_ERROR_STOP=1 \
             -f tests/sql/lc03-legacy-drift-reconciliation.sql
+          echo "TSRF_DB_COMPLETED_AT=$(node -e 'process.stdout.write(new Date().toISOString())')" >> "$GITHUB_ENV"
       - name: Stop isolated local stack
         if: always()
         shell: bash
         run: supabase stop --no-backup || true
+      - name: Create LC03 local source proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          proof_dir="$RUNNER_TEMP/tsrf-local-db-proof"
+          rm -rf "$proof_dir"
+          mkdir -p "$proof_dir"
+          export TSRF_SOURCE_TREE="$(git rev-parse HEAD^{tree})"
+          export TSRF_MIGRATION_SHA256="$(sha256sum supabase/migrations/20260808003000_lc03_supabase_security_hardening.sql | awk '{print $1}')"
+          export TSRF_DB_GENERATED_AT="$(node -e 'process.stdout.write(new Date().toISOString())')"
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const proof = {
+            proof_version: 'LC03_LOCAL_DB_REBUILD_V1',
+            source_sha: process.env.SOURCE_SHA,
+            source_tree: process.env.TSRF_SOURCE_TREE,
+            migration_sha256: process.env.TSRF_MIGRATION_SHA256,
+            checks: {
+              local_only_contract: 'PASS',
+              db_reset: 'PASS',
+              legacy_drift_rehearsal: 'PASS',
+            },
+          };
+          fs.writeFileSync(
+            path.join(process.env.RUNNER_TEMP, 'tsrf-local-db-proof', 'source-proof.json'),
+            `${JSON.stringify(proof)}\n`,
+            { encoding: 'utf8', mode: 0o600 },
+          );
+          NODE
+          echo "TSRF_DB_GENERATED_AT=$TSRF_DB_GENERATED_AT" >> "$GITHUB_ENV"
+      - name: Build deterministic same-SHA V14 candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$RUNNER_TEMP/vvip-candidate"
+          python tools/vvip_public_release.py \
+            --source . \
+            --output "$RUNNER_TEMP/vvip-candidate" \
+            --mode candidate \
+            --source-sha "$SOURCE_SHA"
+      - name: Package fail-closed LOCAL DB rebuild evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$RUNNER_TEMP/tsrf-local-evidence"
+          mkdir -p "$RUNNER_TEMP/tsrf-local-evidence"
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const { execFileSync } = require('node:child_process');
+          const { buildLocalDbRebuildEvidence } = require('./scripts/tsrf/evidence/local-bridge.cjs');
+
+          const gitText = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trimEnd();
+          const result = buildLocalDbRebuildEvidence({
+            repositoryRoot: process.cwd(),
+            candidateDir: path.join(process.env.RUNNER_TEMP, 'vvip-candidate'),
+            outputDir: path.join(process.env.RUNNER_TEMP, 'tsrf-local-evidence'),
+            artifactPath: path.join(process.env.RUNNER_TEMP, 'tsrf-local-db-proof', 'source-proof.json'),
+            proof: {
+              test_version: 'lc03-local-db-rebuild-v1',
+              artifact_name: 'source-proof.json',
+              started_at: process.env.TSRF_DB_STARTED_AT,
+              completed_at: process.env.TSRF_DB_COMPLETED_AT,
+              generated_at: process.env.TSRF_DB_GENERATED_AT,
+              validation_results: {
+                local_only_contract: 'PASS',
+                db_reset: 'PASS',
+                legacy_drift_rehearsal: 'PASS',
+              },
+              result: 'PASS',
+            },
+            trustedContext: {
+              workflow_run_id: process.env.GITHUB_RUN_ID,
+              runner_identity: `github-actions:${process.env.RUNNER_OS}:${process.env.RUNNER_ARCH}`,
+            },
+            git: {
+              headSha: () => gitText('rev-parse', 'HEAD'),
+              treeSha: () => gitText('rev-parse', 'HEAD^{tree}'),
+              statusPorcelain: () => gitText('status', '--porcelain=v1', '-uall'),
+            },
+            fsApi: fs,
+            nowMs: Date.now(),
+            maxAgeMs: 15 * 60 * 1000,
+            futureSkewMs: 30 * 1000,
+          });
+          console.log(`TSRF_LOCAL_EVIDENCE_SOURCE_SHA=${result.capsule.source_sha}`);
+          console.log(`TSRF_LOCAL_EVIDENCE_RELEASE_DIGEST=${result.capsule.release_digest}`);
+          NODE
+      - name: Verify evidence generation did not mutate source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+      - name: Upload exact-SHA local DB proof capsule
+        uses: actions/upload-artifact@v6
+        with:
+          name: tsrf-db-rebuild-proof-${{ env.SOURCE_SHA }}
+          path: ${{ runner.temp }}/tsrf-local-evidence
+          if-no-files-found: error
+          retention-days: 14
