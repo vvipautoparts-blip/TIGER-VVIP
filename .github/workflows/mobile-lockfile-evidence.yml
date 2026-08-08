@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   lockfile:
@@ -37,11 +37,17 @@ jobs:
           npm install --package-lock-only --ignore-scripts --no-audit --no-fund
           test -s package-lock.json
 
-      - name: Verify exact dependency graph is installable
+      - name: Verify exact dependency graph and reviewed lock digest
         working-directory: mobile
         shell: bash
         run: |
           set -euo pipefail
+          actual="$(sha256sum package-lock.json | awk '{print $1}')"
+          expected="c9a782347f8a4d1dea3015b3ca8c15ce4b2762aff4494eb282820555203d55dd"
+          test "$actual" = "$expected" || {
+            echo "MOBILE_LOCK_DIGEST_MISMATCH:expected=$expected actual=$actual" >&2
+            exit 1
+          }
           npm ci --ignore-scripts --no-audit --no-fund
           npm ls --depth=0
           node - <<'NODE'
@@ -63,6 +69,22 @@ jobs:
         run: |
           set -euo pipefail
           sha256sum package-lock.json | tee "$RUNNER_TEMP/mobile-package-lock.sha256"
+
+      - name: Persist exact reviewed package lock on the source branch
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -f mobile/package-lock.json
+          if git diff --cached --quiet; then
+            echo 'MOBILE_LOCK_SOURCE_ALREADY_FROZEN=YES'
+            exit 0
+          fi
+          git commit -m 'build(mobile): freeze verified Capacitor dependency lock'
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+          echo 'MOBILE_LOCK_SOURCE_PERSISTED=YES'
 
       - name: Upload lockfile evidence
         uses: actions/upload-artifact@v6
