@@ -5,9 +5,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
 
+const repoRoot = path.join(__dirname, '..');
 const migrationPath = path.join(
-  __dirname,
-  '..',
+  repoRoot,
   'supabase',
   'migrations',
   '20260808180000_lc06_rls_performance_hardening.sql',
@@ -21,6 +21,40 @@ function sql() {
   return fs.readFileSync(migrationPath, 'utf8');
 }
 
+function collectRuntimeReferences(directory, relative = '') {
+  const excludedDirectories = new Set([
+    '.git',
+    '.github',
+    'docs',
+    'node_modules',
+    'supabase',
+    'tests',
+  ]);
+  const references = [];
+
+  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+    if (entry.isDirectory() && excludedDirectories.has(entry.name)) continue;
+
+    const absolute = path.join(directory, entry.name);
+    const nextRelative = path.join(relative, entry.name);
+
+    if (entry.isDirectory()) {
+      references.push(...collectRuntimeReferences(absolute, nextRelative));
+      continue;
+    }
+
+    if (!/\.(?:html?|js|mjs)$/i.test(entry.name)) continue;
+    const text = fs.readFileSync(absolute, 'utf8');
+    if (/vvip_clerk_profiles/i.test(text)) references.push(nextRelative);
+  }
+
+  return references;
+}
+
+test('shipped runtime no longer depends on the transitional vvip_clerk_profiles table', () => {
+  assert.deepEqual(collectRuntimeReferences(repoRoot), []);
+});
+
 test('LC06 binds marketplace actor identity to a real Clerk user subject', () => {
   const text = sql();
   assert.match(text, /create\s+or\s+replace\s+function\s+public\.vvip_marketplace_actor_id\s*\(\s*\)/i);
@@ -28,8 +62,10 @@ test('LC06 binds marketplace actor identity to a real Clerk user subject', () =>
   assert.match(text, /else\s+null/i);
 });
 
-test('LC06 narrows transitional Clerk profile policies to authenticated Clerk users and initplan-safe JWT access', () => {
+test('LC06 seals the transitional Clerk profile table as server-only', () => {
   const text = sql();
+  assert.match(text, /alter\s+table\s+public\.vvip_clerk_profiles\s+enable\s+row\s+level\s+security/i);
+  assert.match(text, /alter\s+table\s+public\.vvip_clerk_profiles\s+force\s+row\s+level\s+security/i);
   for (const policy of [
     'Clerk users can read own vvip profile',
     'Clerk users can insert own vvip profile',
@@ -37,10 +73,8 @@ test('LC06 narrows transitional Clerk profile policies to authenticated Clerk us
   ]) {
     assert.match(text, new RegExp(`drop policy if exists "${policy}"`, 'i'));
   }
-  assert.match(text, /to\s+authenticated/i);
-  assert.match(text, /select\s+auth\.jwt\(\)\s*->>\s*'sub'/i);
-  assert.match(text, /like\s+'user\\_%'\s+escape\s+'\\'/i);
-  assert.doesNotMatch(text, /create\s+policy[\s\S]*?vvip_clerk_profiles[\s\S]*?to\s+public/i);
+  assert.match(text, /revoke\s+all\s+privileges\s+on\s+table\s+public\.vvip_clerk_profiles\s+from\s+public,\s*anon,\s*authenticated/i);
+  assert.doesNotMatch(text, /create\s+policy[\s\S]*?on\s+public\.vvip_clerk_profiles/i);
 });
 
 test('LC06 removes SELECT overlap from marketplace media owner-write policy', () => {
