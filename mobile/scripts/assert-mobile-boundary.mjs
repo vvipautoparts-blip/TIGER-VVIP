@@ -2,14 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-
-const FORBIDDEN_MARKERS = [
-  'service_role',
-  'SUPABASE_SERVICE_ROLE',
-  'CLERK_SECRET',
-  'BEGIN PRIVATE KEY',
-  'BEGIN RSA PRIVATE KEY',
-];
+import { detectServerSecrets } from './secret-detector.mjs';
 
 const TEXT_EXTENSIONS = new Set([
   '.html', '.htm', '.js', '.mjs', '.css', '.json', '.webmanifest', '.xml', '.plist', '.gradle', '.properties',
@@ -82,10 +75,9 @@ export async function assertMobileBoundary(root, expectedSha) {
     if (!allowed.has(relative)) fail('MOBILE_UNLISTED_ARTIFACT_FILE', relative);
     if (!TEXT_EXTENSIONS.has(path.extname(relative).toLowerCase())) continue;
     const text = await readFile(absolute, 'utf8');
-    for (const marker of FORBIDDEN_MARKERS) {
-      if (text.toLowerCase().includes(marker.toLowerCase())) {
-        fail('MOBILE_FORBIDDEN_SECRET_MARKER', `${marker}:${relative}`);
-      }
+    const findings = detectServerSecrets(text);
+    if (findings.length > 0) {
+      fail('MOBILE_FORBIDDEN_SERVER_SECRET', `${findings[0].code}:${relative}`);
     }
   }
 
