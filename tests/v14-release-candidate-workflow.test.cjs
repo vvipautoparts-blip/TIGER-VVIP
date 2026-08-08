@@ -5,13 +5,14 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 
+const CHECKOUT_V7_SHA = "3d3c42e5aac5ba805825da76410c181273ba90b1";
 const workflow = fs.readFileSync(
   path.join(__dirname, "..", ".github", "workflows", "v14-release-candidate.yml"),
   "utf8"
 );
 
 test("V14 release candidate builds outside the checked-out source tree", () => {
-  assert.match(workflow, /uses:\s*actions\/checkout@v7/);
+  assert.match(workflow, new RegExp(`uses:\\s*actions\\/checkout@${CHECKOUT_V7_SHA}`));
   assert.match(workflow, /--source\s+\.\s*\\/);
   assert.match(workflow, /--output\s+"\$RUNNER_TEMP\/vvip-candidate"\s*\\/);
   assert.doesNotMatch(workflow, /--output\s+dist\/candidate/);
