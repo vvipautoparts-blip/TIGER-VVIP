@@ -53,11 +53,6 @@ function fixture() {
     specVersion: '1.6',
     components: [{ type: 'library', name: 'jsonschema', version: '4.23.0' }],
   }));
-  const provenanceBytes = Buffer.from(JSON.stringify({
-    _type: 'https://in-toto.io/Statement/v1',
-    predicateType: 'https://slsa.dev/provenance/v1',
-    subject: [{ name: 'vvip-candidate', digest: { sha256: 'c'.repeat(64) } }],
-  }));
   const materialRecords = Object.freeze([
     Object.freeze({ path: 'requirements-dev.txt', sha256: sha256Hex('jsonschema==4.23.0\n') }),
     Object.freeze({ path: 'supabase/config.toml', sha256: sha256Hex('project_id = "vvip-local"\n') }),
@@ -68,7 +63,7 @@ function fixture() {
     treeSha: () => SOURCE_TREE,
   };
 
-  return { repositoryRoot, candidateDir, sbomBytes, provenanceBytes, materialRecords, git };
+  return { repositoryRoot, candidateDir, sbomBytes, materialRecords, git };
 }
 
 function build(f, overrides = {}) {
@@ -76,7 +71,6 @@ function build(f, overrides = {}) {
     repositoryRoot: f.repositoryRoot,
     candidateDir: f.candidateDir,
     sbomBytes: f.sbomBytes,
-    provenanceBytes: f.provenanceBytes,
     materialRecords: f.materialRecords,
     createdBy: 'github-actions:svef-release-candidate',
     git: f.git,
@@ -92,7 +86,7 @@ function cleanup(t, f) {
   });
 }
 
-test('release bundle derives exact source identity and all digests from trusted bytes', (t) => {
+test('release bundle derives exact source identity and all internal digests from trusted bytes', (t) => {
   const f = fixture();
   cleanup(t, f);
   const manifest = build(f);
@@ -104,7 +98,6 @@ test('release bundle derives exact source identity and all digests from trusted 
     'candidate_manifest_sha256',
     'candidate_content_sha256',
     'sbom_sha256',
-    'provenance_sha256',
     'materials_sha256',
     'created_by',
   ]);
@@ -115,7 +108,6 @@ test('release bundle derives exact source identity and all digests from trusted 
     'candidate_manifest_sha256',
     'candidate_content_sha256',
     'sbom_sha256',
-    'provenance_sha256',
     'materials_sha256',
   ]) assert.match(manifest[field], /^[0-9a-f]{64}$/);
   assert.equal(Object.isFrozen(manifest), true);
@@ -158,16 +150,13 @@ test('candidate bytes are recomputed and undeclared missing or tampered files fa
   assert.throws(() => build(f3), (error) => error.code === 'SVEF_CANDIDATE_FILE_MISSING');
 });
 
-test('SBOM provenance and materials bytes are independently content bound', (t) => {
+test('SBOM and materials bytes are independently content bound before external attestation', (t) => {
   const f = fixture();
   cleanup(t, f);
   const baseline = build(f);
 
   const sbomChanged = build(f, { sbomBytes: Buffer.from(`${f.sbomBytes.toString('utf8')} `) });
   assert.notEqual(sbomChanged.sbom_sha256, baseline.sbom_sha256);
-
-  const provenanceChanged = build(f, { provenanceBytes: Buffer.from(`${f.provenanceBytes.toString('utf8')} `) });
-  assert.notEqual(provenanceChanged.provenance_sha256, baseline.provenance_sha256);
 
   const materialChanged = build(f, {
     materialRecords: Object.freeze([
@@ -178,7 +167,7 @@ test('SBOM provenance and materials bytes are independently content bound', (t) 
   assert.notEqual(materialChanged.materials_sha256, baseline.materials_sha256);
 });
 
-test('caller cannot inject authoritative digest or source identity fields', (t) => {
+test('caller cannot inject authoritative digest source or provenance fields', (t) => {
   const f = fixture();
   cleanup(t, f);
 
@@ -188,7 +177,6 @@ test('caller cannot inject authoritative digest or source identity fields', (t) 
         repositoryRoot: f.repositoryRoot,
         candidateDir: f.candidateDir,
         sbomBytes: f.sbomBytes,
-        provenanceBytes: f.provenanceBytes,
         materialRecords: f.materialRecords,
         createdBy: 'github-actions:svef-release-candidate',
         git: f.git,
