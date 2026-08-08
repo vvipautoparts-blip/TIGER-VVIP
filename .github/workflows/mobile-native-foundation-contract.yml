@@ -31,8 +31,8 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Run mobile boundary contract
-        run: node --test tests/mobile-native-boundary.test.cjs
+      - name: Run mobile native contracts
+        run: node --test tests/mobile-native-*.test.cjs
 
       - name: Verify source remains clean
         run: test -z "$(git status --porcelain=v1 -uall)"
