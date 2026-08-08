@@ -1,0 +1,42 @@
+{
+  "schema_version": "VVIP-COST-1",
+  "platform": "VVIP TIGER",
+  "currency": "USD",
+  "accounting_unit": "minor",
+  "production_mutation_authorized": false,
+  "real_charge_authorized": false,
+  "hard_limit_increase_approval_class": "OWNER_PROTECTED_COST_APPROVAL",
+  "environments": {
+    "local": { "soft_limit_minor": 0, "hard_limit_minor": 0 },
+    "ci": { "soft_limit_minor": 0, "hard_limit_minor": 0 },
+    "staging": { "soft_limit_minor": 0, "hard_limit_minor": 0 },
+    "production": { "soft_limit_minor": 0, "hard_limit_minor": 0 }
+  },
+  "services": [
+    { "id": "static_delivery", "optional_high_cost": false, "default_enabled": true },
+    { "id": "database", "optional_high_cost": false, "default_enabled": true },
+    { "id": "object_storage", "optional_high_cost": false, "default_enabled": true },
+    { "id": "edge_server_compute", "optional_high_cost": false, "default_enabled": true },
+    { "id": "ai_inference", "optional_high_cost": true, "default_enabled": false },
+    { "id": "high_volume_observability", "optional_high_cost": true, "default_enabled": false },
+    { "id": "sms_otp_delivery", "optional_high_cost": true, "default_enabled": false },
+    { "id": "video_processing", "optional_high_cost": true, "default_enabled": false }
+  ],
+  "launch_principles": [
+    "STATIC_FIRST",
+    "PAY_FOR_MEASURED_DEMAND",
+    "ZERO_IDLE_OPTIONAL_WORKERS",
+    "DIRECT_OBJECT_STORAGE_MEDIA",
+    "DATABASE_EFFICIENCY_BEFORE_SCALE",
+    "AI_FAIL_CLOSED_AND_BUDGETED",
+    "BOUNDED_DIAGNOSTIC_TELEMETRY",
+    "SECURITY_EVIDENCE_OVERRIDES_COST_OPTIMIZATION"
+  ],
+  "scaling_rules": [
+    {
+      "id": "SCALE_ONLY_WITH_MEASURED_PRESSURE",
+      "required_evidence": ["staging_usage", "capacity_pressure", "unit_cost_projection"],
+      "owner_approval_required_for_production_hard_limit_increase": true
+    }
+  ]
+}
