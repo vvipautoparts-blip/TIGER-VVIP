@@ -57,36 +57,39 @@ test("COST-02 exports the bounded static-cache contract", () => {
   assert.equal(typeof worker.installRuntime, "function");
 });
 
-test("same-origin static shell assets are eligible", () => {
+test("same-origin static shell assets are eligible at root and scoped deployments", () => {
   assert.ok(worker, "service worker module must be loadable in Node");
   const origin = "https://vvip.example";
   const cases = [
-    request("https://vvip.example/styles/app.css", { destination: "style" }),
-    request("https://vvip.example/scripts/app.js", { destination: "script" }),
-    request("https://vvip.example/workers/media.js", { destination: "worker" }),
-    request("https://vvip.example/icons/icon-192.png", { destination: "image" })
+    [request("https://vvip.example/styles/app.css", { destination: "style" }), "/"],
+    [request("https://vvip.example/scripts/app.js", { destination: "script" }), "/"],
+    [request("https://vvip.example/workers/media.js", { destination: "worker" }), "/"],
+    [request("https://vvip.example/icons/icon-192.png", { destination: "image" }), "/"],
+    [request("https://vvip.example/TIGER-VVIP/styles/app.css", { destination: "style" }), "/TIGER-VVIP/"],
+    [request("https://vvip.example/TIGER-VVIP/scripts/app.js", { destination: "script" }), "/TIGER-VVIP/"]
   ];
-  for (const candidate of cases) {
-    assert.equal(worker.shouldHandleRequest(candidate, origin), true, candidate.url);
+  for (const [candidate, scopePath] of cases) {
+    assert.equal(worker.shouldHandleRequest(candidate, origin, scopePath), true, candidate.url);
   }
 });
 
-test("navigation, data, auth-adjacent, cross-origin, credentialed, and mutation requests fail closed", () => {
+test("navigation, data, auth-adjacent, scope escapes, cross-origin, credentialed, and mutation requests fail closed", () => {
   assert.ok(worker, "service worker module must be loadable in Node");
   const origin = "https://vvip.example";
   const cases = [
-    request("https://vvip.example/index.html", { mode: "navigate", destination: "document" }),
-    request("https://vvip.example/index.html", { destination: "document" }),
-    request("https://vvip.example/manifest.webmanifest", { destination: "manifest" }),
-    request("https://vvip.example/api/listings.json", { destination: "" }),
-    request("https://vvip.example/rest/v1/listings", { destination: "" }),
-    request("https://vvip.example/auth/callback", { destination: "" }),
-    request("https://vvip.example/scripts/app.js", { method: "POST" }),
-    request("https://accounts.example/scripts/clerk.js"),
-    request("https://user:pass@vvip.example/scripts/app.js")
+    [request("https://vvip.example/index.html", { mode: "navigate", destination: "document" }), "/"],
+    [request("https://vvip.example/index.html", { destination: "document" }), "/"],
+    [request("https://vvip.example/manifest.webmanifest", { destination: "manifest" }), "/"],
+    [request("https://vvip.example/api/listings.json", { destination: "" }), "/"],
+    [request("https://vvip.example/rest/v1/listings", { destination: "" }), "/"],
+    [request("https://vvip.example/auth/callback", { destination: "" }), "/"],
+    [request("https://vvip.example/scripts/app.js", { method: "POST" }), "/"],
+    [request("https://accounts.example/scripts/clerk.js"), "/"],
+    [request("https://user:pass@vvip.example/scripts/app.js"), "/"],
+    [request("https://vvip.example/scripts/app.js"), "/TIGER-VVIP/"]
   ];
-  for (const candidate of cases) {
-    assert.equal(worker.shouldHandleRequest(candidate, origin), false, candidate.url);
+  for (const [candidate, scopePath] of cases) {
+    assert.equal(worker.shouldHandleRequest(candidate, origin, scopePath), false, candidate.url);
   }
 });
 
@@ -121,7 +124,6 @@ test("cached static content has a strict sixty-minute freshness bound", () => {
 });
 
 test("primary entry pages load the non-blocking static delivery registration runtime", () => {
-  const registrationRelative = "scripts/runtime/vvip-static-delivery.js";
   assert.equal(fs.existsSync(REGISTRATION_PATH), true, "registration runtime must exist");
 
   for (const file of ["index.html", "private-profile-p03.html"]) {
