@@ -9,6 +9,7 @@ on:
       - "supabase/migrations/20260808133000_phone_otp_challenges.sql"
       - "tests/tsrf-phone-otp-contract.test.cjs"
       - "tests/sql/tsrf-phone-otp-behavior.sql"
+      - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
       - ".github/workflows/tsrf-phone-otp-rehearsal.yml"
   workflow_dispatch:
 
@@ -42,13 +43,23 @@ jobs:
           echo "OTP_SOURCE_SHA=$actual_sha"
       - name: Run sovereign OTP contract
         run: node --test tests/tsrf-phone-otp-contract.test.cjs
-      - name: Emit migration digest
+      - name: Bind migration digest
+        id: digest
         shell: bash
         run: |
           set -Eeuo pipefail
           hash="$(sha256sum supabase/migrations/20260808133000_phone_otp_challenges.sql | awk '{print $1}')"
           test "${#hash}" -eq 64
+          printf '%s\n' "$hash" > /tmp/otp-migration-sha256.txt
+          echo "sha256=$hash" >> "$GITHUB_OUTPUT"
           echo "OTP_MIGRATION_SHA256=$hash"
+      - name: Upload digest evidence
+        uses: actions/upload-artifact@v6
+        with:
+          name: otp-migration-${{ steps.digest.outputs.sha256 }}
+          path: /tmp/otp-migration-sha256.txt
+          if-no-files-found: error
+          retention-days: 14
 
   edge-typecheck:
     needs: contract
