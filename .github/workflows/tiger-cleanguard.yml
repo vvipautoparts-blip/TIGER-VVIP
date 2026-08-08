@@ -38,6 +38,7 @@ jobs:
             tests/value-governance-cli.test.cjs \
             tests/value-governance-contracts.test.cjs \
             tests/value-governance-evaluator.test.cjs \
+            tests/value-governance-inventory.test.cjs \
             tests/value-governance-planner.test.cjs \
             tests/value-governance-registry.test.cjs
 
