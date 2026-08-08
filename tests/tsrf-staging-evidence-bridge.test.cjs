@@ -178,7 +178,7 @@ test('bridge fails closed without positively trusted Staging identity', (t) => {
 test('bridge independently rejects artifact tampering and source binding mismatch', (t) => {
   const fixture = setup();
   t.after(fixture.cleanup);
-  fs.appendFileSync(fixture.artifactPath, 'tamper\n');
+  fs.writeFileSync(fixture.artifactPath, '{"proof":"tampered-but-valid-json"}\n');
   assert.throws(
     () => run(fixture),
     (error) => error.code === 'EVIDENCE_ARTIFACT_HASH_MISMATCH',
