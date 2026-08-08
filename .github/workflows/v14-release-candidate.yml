@@ -16,10 +16,21 @@ jobs:
   candidate:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      SOURCE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          ref: ${{ env.SOURCE_SHA }}
+      - name: Verify exact source SHA
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          echo "EXPECTED_SOURCE_SHA=$SOURCE_SHA"
+          echo "ACTUAL_SOURCE_SHA=$actual_sha"
+          test "$actual_sha" = "$SOURCE_SHA"
       - uses: actions/setup-node@v6
         with:
           node-version: "22"
@@ -47,11 +58,11 @@ jobs:
             --source . \
             --output "$RUNNER_TEMP/vvip-candidate" \
             --mode candidate \
-            --source-sha "$GITHUB_SHA"
+            --source-sha "$SOURCE_SHA"
       - name: Upload candidate evidence
         uses: actions/upload-artifact@v4
         with:
-          name: v14-release-candidate-${{ github.sha }}
+          name: v14-release-candidate-${{ env.SOURCE_SHA }}
           path: ${{ runner.temp }}/vvip-candidate
           if-no-files-found: error
           retention-days: 14
