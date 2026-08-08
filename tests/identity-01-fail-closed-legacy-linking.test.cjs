@@ -63,22 +63,37 @@ test("replacement resolver is subject-first and never restores ownership by emai
   );
 });
 
-test("legacy email match is existence-only and fails closed without profile disclosure", () => {
+test("legacy detection uses verified JWT email only and fails closed without profile disclosure", () => {
   const sql = migrationText();
+  assert.match(
+    sql,
+    /v_verified_email\s+text\s*:=\s*lower\s*\(nullif\s*\(coalesce\s*\([\s\S]*?v_jwt\s*->>\s*'email'[\s\S]*?\),\s*''\)\s*\)/i
+  );
   assert.match(sql, /select\s+exists\s*\(/i);
-  assert.match(sql, /lower\s*\(email\)\s*=\s*v_email/i);
+  assert.match(sql, /lower\s*\(email\)\s*=\s*v_verified_email/i);
   assert.match(
     sql,
     /nullif\s*\(trim\s*\(coalesce\s*\(clerk_user_id,\s*''\)\s*\),\s*''\)\s+is\s+null/i
   );
   assert.match(sql, /'ok',\s*false[\s\S]*?'status',\s*'identity_migration_required'/i);
+
+  const legacyBlock = sql.match(
+    /if\s+v_verified_email\s+is\s+not\s+null\s+then[\s\S]*?'identity_migration_required'[\s\S]*?end\s+if;/i
+  );
+  assert.ok(legacyBlock, "verified-email legacy block must exist");
+  assert.doesNotMatch(legacyBlock[0], /p_email/i);
+  assert.doesNotMatch(legacyBlock[0], /to_jsonb\s*\(v_profile\)/i);
 });
 
 test("new profile creation is explicitly bound to the authenticated subject", () => {
   const sql = migrationText();
   assert.match(
     sql,
-    /insert\s+into\s+public\.profiles\s*\([\s\S]*?email\s*,[\s\S]*?clerk_user_id[\s\S]*?\)\s*values\s*\([\s\S]*?v_email\s*,[\s\S]*?v_clerk_user_id/i
+    /v_profile_email\s+text\s*:=\s*coalesce\s*\(v_verified_email,\s*lower\s*\(nullif\s*\(trim\s*\(coalesce\s*\(p_email,\s*''\)\s*\),\s*''\)\s*\)\s*\)/i
+  );
+  assert.match(
+    sql,
+    /insert\s+into\s+public\.profiles\s*\([\s\S]*?email\s*,[\s\S]*?clerk_user_id[\s\S]*?\)\s*values\s*\([\s\S]*?v_profile_email\s*,[\s\S]*?v_clerk_user_id/i
   );
   assert.match(sql, /'status',\s*'profile_created'/i);
 });
