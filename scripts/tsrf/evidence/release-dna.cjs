@@ -111,7 +111,9 @@ function readRegularFile(fsApi, root, relativePath, missingCode = 'RELEASE_DNA_R
 
 function listRegularFiles(fsApi, root, startRelative, predicate) {
   const rootReal = realRoot(fsApi, root);
-  const start = path.resolve(root, ...normalizeRelative(startRelative).split('/'));
+  const start = startRelative === '.'
+    ? path.resolve(root)
+    : path.resolve(root, ...normalizeRelative(startRelative).split('/'));
   let startStat;
   try {
     startStat = fsApi.lstatSync(start);
