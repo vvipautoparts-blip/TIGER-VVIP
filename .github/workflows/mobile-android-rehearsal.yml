@@ -53,7 +53,6 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-          cache: gradle
 
       - name: Install and verify Android API 36
         shell: bash
