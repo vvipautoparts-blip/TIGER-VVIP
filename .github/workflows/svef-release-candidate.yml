@@ -1,9 +1,10 @@
 name: SVEF Build-Once Release Candidate
 
 on:
-  pull_request:
+  push:
     branches:
       - main
+      - 'feat/svef-*'
   workflow_dispatch:
     inputs:
       source_sha:
@@ -15,9 +16,10 @@ permissions:
   contents: read
   id-token: write
   attestations: write
+  artifact-metadata: write
 
 concurrency:
-  group: svef-release-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || inputs.source_sha }}
+  group: svef-release-${{ github.event_name == 'workflow_dispatch' && inputs.source_sha || github.sha }}
   cancel-in-progress: true
 
 jobs:
@@ -25,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 35
     env:
-      SOURCE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || inputs.source_sha }}
+      SOURCE_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.source_sha || github.sha }}
     steps:
       - name: Checkout exact source SHA
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -203,78 +205,81 @@ jobs:
           echo "digest=$digest" >> "$GITHUB_OUTPUT"
           echo "SVEF_RELEASE_BUNDLE_SHA256=$digest"
 
-      - name: Generate exact-source SLSA provenance predicate
-        shell: bash
-        env:
-          SOURCE_TREE: ${{ steps.source.outputs.source_tree }}
-          BUNDLE_DIGEST: ${{ steps.bundle.outputs.digest }}
-        run: |
-          set -Eeuo pipefail
-          node - <<'NODE'
-          const fs = require('node:fs');
-          const path = require('node:path');
-          const { canonicalJson } = require('./scripts/tsrf/evidence/contracts.cjs');
-          const predicate = {
-            buildDefinition: {
-              buildType: 'https://vvip-tiger.example/svef/build-once/v1',
-              externalParameters: {
-                source_sha: process.env.SOURCE_SHA,
-                source_tree: process.env.SOURCE_TREE,
-              },
-              internalParameters: {
-                repository: process.env.GITHUB_REPOSITORY,
-                repository_id: process.env.GITHUB_REPOSITORY_ID,
-                workflow: process.env.GITHUB_WORKFLOW,
-                workflow_ref: process.env.GITHUB_WORKFLOW_REF,
-                workflow_sha: process.env.GITHUB_WORKFLOW_SHA,
-                run_id: process.env.GITHUB_RUN_ID,
-                run_attempt: process.env.GITHUB_RUN_ATTEMPT,
-                release_bundle_sha256: process.env.BUNDLE_DIGEST,
-              },
-              resolvedDependencies: [{
-                uri: `git+https://github.com/${process.env.GITHUB_REPOSITORY}@${process.env.SOURCE_SHA}`,
-                digest: { gitCommit: process.env.SOURCE_SHA },
-                annotations: { source_tree: process.env.SOURCE_TREE },
-              }],
-            },
-            runDetails: {
-              builder: {
-                id: `https://github.com/${process.env.GITHUB_REPOSITORY}/.github/workflows/svef-release-candidate.yml@${process.env.GITHUB_WORKFLOW_SHA}`,
-              },
-              metadata: {
-                invocationId: `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}/attempts/${process.env.GITHUB_RUN_ATTEMPT}`,
-              },
-            },
-          };
-          const target = path.join(process.env.RUNNER_TEMP, 'svef-release-metadata', 'provenance-predicate.json');
-          fs.writeFileSync(target, `${canonicalJson(predicate)}\n`, { mode: 0o600 });
-          NODE
-          cp "$RUNNER_TEMP/svef-release-metadata/provenance-predicate.json" \
-            "$RUNNER_TEMP/svef-release/provenance-predicate.json"
-          sha256sum "$RUNNER_TEMP/svef-release/provenance-predicate.json" \
-            | tee "$RUNNER_TEMP/svef-release/provenance-predicate.sha256"
-
-      - name: Attest exact release bundle with exact-source provenance
+      - name: Attest exact release bundle with GitHub SLSA provenance
         id: attest
-        uses: actions/attest@daf44fb950173508f38bd2406030372c1d1162b1 # v3
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4.2.1
         with:
           subject-path: ${{ runner.temp }}/svef-release/svef-release-bundle-${{ env.SOURCE_SHA }}.tar.gz
-          predicate-type: https://slsa.dev/provenance/v1
-          predicate-path: ${{ runner.temp }}/svef-release-metadata/provenance-predicate.json
 
-      - name: Preserve attestation bundle and digest
+      - name: Attest CycloneDX SBOM
+        id: attest_sbom
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4.2.1
+        with:
+          subject-path: ${{ runner.temp }}/svef-release/svef-release-bundle-${{ env.SOURCE_SHA }}.tar.gz
+          sbom-path: ${{ runner.temp }}/svef-release-metadata/sbom.cdx.json
+
+      - name: Preserve attestation bundles and digests
         shell: bash
         env:
           ATTESTATION_BUNDLE_PATH: ${{ steps.attest.outputs.bundle-path }}
+          SBOM_ATTESTATION_BUNDLE_PATH: ${{ steps.attest_sbom.outputs.bundle-path }}
         run: |
           set -Eeuo pipefail
           if [[ -z "$ATTESTATION_BUNDLE_PATH" || ! -f "$ATTESTATION_BUNDLE_PATH" ]]; then
             echo 'SVEF_ATTESTATION_UNAVAILABLE' >&2
             exit 1
           fi
-          cp "$ATTESTATION_BUNDLE_PATH" "$RUNNER_TEMP/svef-release/attestation-bundle.jsonl"
-          sha256sum "$RUNNER_TEMP/svef-release/attestation-bundle.jsonl" \
+          if [[ -z "$SBOM_ATTESTATION_BUNDLE_PATH" || ! -f "$SBOM_ATTESTATION_BUNDLE_PATH" ]]; then
+            echo 'SVEF_SBOM_ATTESTATION_UNAVAILABLE' >&2
+            exit 1
+          fi
+          cp "$ATTESTATION_BUNDLE_PATH" "$RUNNER_TEMP/svef-release/attestation-bundle.json"
+          cp "$SBOM_ATTESTATION_BUNDLE_PATH" "$RUNNER_TEMP/svef-release/sbom-attestation-bundle.json"
+          sha256sum "$RUNNER_TEMP/svef-release/attestation-bundle.json" \
             | tee "$RUNNER_TEMP/svef-release/attestation-bundle.sha256"
+          sha256sum "$RUNNER_TEMP/svef-release/sbom-attestation-bundle.json" \
+            | tee "$RUNNER_TEMP/svef-release/sbom-attestation-bundle.sha256"
+
+      - name: Verify signed provenance exact-source binding
+        shell: bash
+        env:
+          BUNDLE_DIGEST: ${{ steps.bundle.outputs.digest }}
+        run: |
+          set -Eeuo pipefail
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const fail = (message) => {
+            console.error(message);
+            process.exit(1);
+          };
+          const bundlePath = path.join(process.env.RUNNER_TEMP, 'svef-release', 'attestation-bundle.json');
+          const sigstore = JSON.parse(fs.readFileSync(bundlePath, 'utf8'));
+          if (!sigstore.dsseEnvelope || typeof sigstore.dsseEnvelope.payload !== 'string') {
+            fail('SVEF_ATTESTATION_DSSE_MISSING');
+          }
+          const statement = JSON.parse(Buffer.from(sigstore.dsseEnvelope.payload, 'base64').toString('utf8'));
+          if (statement.predicateType !== 'https://slsa.dev/provenance/v1') {
+            fail('SVEF_ATTESTATION_PREDICATE_MISMATCH');
+          }
+          const subjects = Array.isArray(statement.subject) ? statement.subject : [];
+          if (!subjects.some((subject) => subject?.digest?.sha256 === process.env.BUNDLE_DIGEST)) {
+            fail('SVEF_ATTESTATION_SUBJECT_MISMATCH');
+          }
+          const github = statement?.predicate?.buildDefinition?.internalParameters?.github;
+          if (github?.event_name === 'pull_request') {
+            fail('SVEF_ATTESTATION_PR_CONTEXT_FORBIDDEN');
+          }
+          const dependencies = statement?.predicate?.buildDefinition?.resolvedDependencies;
+          const exactSource = Array.isArray(dependencies) && dependencies.some(
+            (dependency) => dependency?.digest?.gitCommit === process.env.SOURCE_SHA,
+          );
+          if (!exactSource) {
+            fail('SVEF_ATTESTATION_SOURCE_MISMATCH');
+          }
+          console.log(`SVEF_ATTESTATION_SOURCE_SHA=${process.env.SOURCE_SHA}`);
+          console.log(`SVEF_ATTESTATION_SUBJECT_SHA256=${process.env.BUNDLE_DIGEST}`);
+          NODE
 
       - name: Verify source remained immutable
         shell: bash
