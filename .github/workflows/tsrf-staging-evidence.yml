@@ -1,0 +1,179 @@
+name: TSRF Staging Evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact 40-character source commit SHA to verify
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: staging
+    env:
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      WORKFLOW_RUN_ID: ${{ github.run_id }}
+      RUNNER_IDENTITY: github-actions:${{ runner.os }}:${{ runner.arch }}
+      STAGING_IDENTITY_PROVEN: ${{ vars.TSRF_STAGING_IDENTITY_PROVEN }}
+      STAGING_MODEL: ${{ vars.TIGER_AI_OPENAI_MODEL }}
+      STAGING_PROMPT_VERSION: ${{ vars.TIGER_AI_PROMPT_VERSION }}
+      STAGING_MAX_OUTPUT_TOKENS: ${{ vars.TIGER_AI_MAX_OUTPUT_TOKENS }}
+      STAGING_IDENTITY_VERIFIER_URL: ${{ vars.TIGER_IDENTITY_VERIFIER_URL }}
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.source_sha }}
+          fetch-depth: 0
+
+      - name: Verify exact source and tree identity
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          if [[ ! "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "HEAD_MISMATCH: source_sha is not a full lowercase commit SHA" >&2
+            exit 1
+          fi
+          actual_sha="$(git rev-parse HEAD)"
+          actual_tree="$(git rev-parse HEAD^{tree})"
+          echo "EXPECTED_SOURCE_SHA=$SOURCE_SHA"
+          echo "ACTUAL_SOURCE_SHA=$actual_sha"
+          echo "ACTUAL_SOURCE_TREE=$actual_tree"
+          if [[ "$actual_sha" != "$SOURCE_SHA" ]]; then
+            echo "HEAD_MISMATCH: checkout does not match requested exact SHA" >&2
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Prove protected Staging identity and non-secret runtime configuration
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          if [[ "$STAGING_IDENTITY_PROVEN" != "true" ]]; then
+            echo "BLOCKED_STAGING_IDENTITY_UNPROVEN" >&2
+            exit 1
+          fi
+          if [[ -z "$STAGING_MODEL" || -z "$STAGING_PROMPT_VERSION" || -z "$STAGING_MAX_OUTPUT_TOKENS" || -z "$STAGING_IDENTITY_VERIFIER_URL" ]]; then
+            echo "BLOCKED_STAGING_IDENTITY_UNPROVEN" >&2
+            exit 1
+          fi
+          if [[ ! "$STAGING_MAX_OUTPUT_TOKENS" =~ ^[0-9]+$ ]] || (( STAGING_MAX_OUTPUT_TOKENS < 128 || STAGING_MAX_OUTPUT_TOKENS > 4000 )); then
+            echo "BLOCKED_STAGING_IDENTITY_UNPROVEN" >&2
+            exit 1
+          fi
+          if [[ ! "$STAGING_IDENTITY_VERIFIER_URL" =~ ^https:// ]]; then
+            echo "BLOCKED_STAGING_IDENTITY_UNPROVEN" >&2
+            exit 1
+          fi
+
+      - name: Build deterministic same-SHA V14 candidate
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          rm -rf "$RUNNER_TEMP/vvip-candidate"
+          python tools/vvip_public_release.py \
+            --source . \
+            --output "$RUNNER_TEMP/vvip-candidate" \
+            --mode candidate \
+            --source-sha "$SOURCE_SHA"
+
+      - name: Require same-SHA Staging proof producer handoff
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          proof_dir="$RUNNER_TEMP/tsrf-staging-proof"
+          if [[ ! -f "$proof_dir/proof-input.json" || ! -f "$proof_dir/source-proof.json" ]]; then
+            echo "BLOCKED_NO_SAME_SHA_STAGING_PROOF: same-sha Staging proof producer handoff is absent" >&2
+            exit 1
+          fi
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const proofDir = path.join(process.env.RUNNER_TEMP, 'tsrf-staging-proof');
+          const proof = JSON.parse(fs.readFileSync(path.join(proofDir, 'proof-input.json'), 'utf8'));
+          if (proof.source_sha !== process.env.SOURCE_SHA || proof.environment !== 'STAGING') {
+            console.error('BLOCKED_NO_SAME_SHA_STAGING_PROOF: proof identity does not match exact Staging source');
+            process.exit(1);
+          }
+          NODE
+
+      - name: Package fail-closed TSRF Staging Evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          rm -rf "$RUNNER_TEMP/tsrf-evidence"
+          mkdir -p "$RUNNER_TEMP/tsrf-evidence"
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const { execFileSync } = require('node:child_process');
+          const { buildStagingEvidence } = require('./scripts/tsrf/evidence/staging-bridge.cjs');
+
+          const gitText = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trimEnd();
+          const proofDir = path.join(process.env.RUNNER_TEMP, 'tsrf-staging-proof');
+          const proofInput = JSON.parse(fs.readFileSync(path.join(proofDir, 'proof-input.json'), 'utf8'));
+          const maxOutputTokens = Number(process.env.STAGING_MAX_OUTPUT_TOKENS);
+          const trustedStagingConfig = Object.freeze({
+            provenance: 'GITHUB_ENVIRONMENT_STAGING',
+            environment_name: 'staging',
+            snapshot: Object.freeze({
+              model: process.env.STAGING_MODEL,
+              prompt_version: process.env.STAGING_PROMPT_VERSION,
+              max_output_tokens: maxOutputTokens,
+              provider_endpoint: 'https://api.openai.com/v1/responses',
+              identity_verifier_class: 'HTTPS',
+            }),
+          });
+
+          const result = buildStagingEvidence({
+            repositoryRoot: process.cwd(),
+            candidateDir: path.join(process.env.RUNNER_TEMP, 'vvip-candidate'),
+            outputDir: path.join(process.env.RUNNER_TEMP, 'tsrf-evidence'),
+            artifactPath: path.join(proofDir, 'source-proof.json'),
+            proofInput,
+            trustedContext: {
+              workflow_run_id: process.env.WORKFLOW_RUN_ID,
+              runner_identity: process.env.RUNNER_IDENTITY,
+            },
+            trustedStagingConfig,
+            git: {
+              headSha: () => gitText('rev-parse', 'HEAD'),
+              treeSha: () => gitText('rev-parse', 'HEAD^{tree}'),
+              statusPorcelain: () => gitText('status', '--porcelain=v1', '-uall'),
+            },
+            fsApi: fs,
+            nowMs: Date.now(),
+            maxAgeMs: 15 * 60 * 1000,
+            futureSkewMs: 30 * 1000,
+          });
+          console.log(`TSRF_EVIDENCE_SOURCE_SHA=${result.capsule.source_sha}`);
+          console.log(`TSRF_EVIDENCE_RELEASE_DIGEST=${result.capsule.release_digest}`);
+          NODE
+
+      - name: Verify evidence generation did not mutate source
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test -z "$(git status --porcelain=v1 -uall)"
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+
+      - name: Upload exact-SHA evidence capsule
+        uses: actions/upload-artifact@v6
+        with:
+          name: tsrf-staging-evidence-${{ inputs.source_sha }}
+          path: ${{ runner.temp }}/tsrf-evidence
+          if-no-files-found: error
+          retention-days: 14
