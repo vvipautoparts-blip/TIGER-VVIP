@@ -1,5 +1,6 @@
 'use strict';
 
+// TDD RED witness: contracts.cjs is intentionally absent on this commit.
 const assert = require('node:assert/strict');
 const test = require('node:test');
 
