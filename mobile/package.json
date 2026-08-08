@@ -7,7 +7,9 @@
   },
   "scripts": {
     "prepare:web": "node scripts/prepare-web.mjs",
-    "assert:boundary": "node scripts/assert-mobile-boundary.mjs"
+    "assert:boundary": "node scripts/assert-mobile-boundary.mjs",
+    "native:android": "node scripts/generate-native.mjs android",
+    "native:ios": "node scripts/generate-native.mjs ios"
   },
   "dependencies": {
     "@capacitor/android": "8.4.2",
