@@ -27,7 +27,7 @@ jobs:
       STAGING_IDENTITY_VERIFIER_URL: ${{ vars.TIGER_IDENTITY_VERIFIER_URL }}
     steps:
       - name: Checkout exact source SHA
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ inputs.source_sha }}
           fetch-depth: 0
@@ -50,11 +50,11 @@ jobs:
             exit 1
           fi
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: "22"
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.12"
 
@@ -171,7 +171,7 @@ jobs:
           test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
 
       - name: Upload exact-SHA evidence capsule
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: tsrf-staging-evidence-${{ inputs.source_sha }}
           path: ${{ runner.temp }}/tsrf-evidence
