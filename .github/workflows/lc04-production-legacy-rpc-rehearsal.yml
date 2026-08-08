@@ -8,14 +8,18 @@ on:
       - "supabase/migrations/20260808134000_lc04_production_legacy_rpc_hardening.sql"
       - "tests/lc04-production-legacy-rpc-hardening.test.cjs"
       - "tests/lc04-production-legacy-rpc-workflow.test.cjs"
+      - "tests/lc04-reviewed-migration-hash-contract.test.cjs"
       - "tests/sql/lc04-production-legacy-rpc-behavior.sql"
+      - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
       - ".github/workflows/lc04-production-legacy-rpc-rehearsal.yml"
   pull_request:
     paths:
       - "supabase/migrations/20260808134000_lc04_production_legacy_rpc_hardening.sql"
       - "tests/lc04-production-legacy-rpc-hardening.test.cjs"
       - "tests/lc04-production-legacy-rpc-workflow.test.cjs"
+      - "tests/lc04-reviewed-migration-hash-contract.test.cjs"
       - "tests/sql/lc04-production-legacy-rpc-behavior.sql"
+      - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
       - ".github/workflows/lc04-production-legacy-rpc-rehearsal.yml"
   workflow_dispatch:
 
@@ -64,7 +68,8 @@ jobs:
         run: |
           node --test \
             tests/lc04-production-legacy-rpc-hardening.test.cjs \
-            tests/lc04-production-legacy-rpc-workflow.test.cjs
+            tests/lc04-production-legacy-rpc-workflow.test.cjs \
+            tests/lc04-reviewed-migration-hash-contract.test.cjs
 
       - name: Emit exact LC04 migration SHA-256
         shell: bash
