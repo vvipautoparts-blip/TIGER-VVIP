@@ -1,0 +1,80 @@
+{
+  "schema": "VVIP-IDENTITY-1",
+  "platform": "VVIP TIGER",
+  "status": "BINDING",
+  "authentication_model": "FEDERATED_IDENTITY_ONLY",
+  "local_password_auth_allowed": false,
+  "local_password_collection_allowed": false,
+  "local_password_recovery_allowed": false,
+  "local_password_hash_storage_allowed": false,
+  "supabase_password_auth_allowed": false,
+  "custom_otp_auth_backend_allowed": false,
+  "delegated_recovery_required": true,
+  "identity_anchor": {
+    "primary_key": "ISSUER_PLUS_EXTERNAL_SUBJECT",
+    "email_is_primary_key": false,
+    "phone_is_primary_key": false,
+    "auto_link_by_email_allowed": false
+  },
+  "protocols": {
+    "authentication": [
+      "OIDC"
+    ],
+    "authorization_transport": [
+      "OAUTH2"
+    ],
+    "pkce_required_for_public_clients_when_applicable": true,
+    "state_required_when_applicable": true,
+    "nonce_required_for_oidc_when_applicable": true
+  },
+  "token_policy": {
+    "provider_access_token_persistence_default": "FORBIDDEN",
+    "provider_refresh_token_persistence_default": "FORBIDDEN",
+    "browser_provider_secret_allowed": false,
+    "browser_private_signing_key_allowed": false,
+    "token_logging_allowed": false,
+    "direct_verification_required_claims": [
+      "issuer",
+      "audience",
+      "signature",
+      "expiry"
+    ]
+  },
+  "authorization": {
+    "owned_by": "VVIP_TIGER",
+    "external_authentication_implies_platform_permission": false,
+    "required_controls": [
+      "ROLE_OR_CAPABILITY_ENFORCEMENT",
+      "ACCOUNT_STATUS",
+      "RISK_CONTROLS",
+      "OWNER_APPROVAL_WHEN_REQUIRED",
+      "AUDIT_EVIDENCE",
+      "DATA_ACCESS_POLICY"
+    ]
+  },
+  "data_layer": {
+    "supabase_identity_mapping": "VERIFIED_EXTERNAL_SUBJECT",
+    "rls_required": true,
+    "parallel_supabase_user_password_system_allowed": false
+  },
+  "non_oidc_channel_policy": {
+    "direct_vvip_whatsapp_otp_backend_allowed": false,
+    "external_identity_provider_broker_required": true
+  },
+  "production_evidence_required": [
+    "APPROVED_EXTERNAL_PROVIDER_CONFIGURATION",
+    "FEDERATED_ONLY_STRATEGY_PROVEN",
+    "EXACT_REDIRECT_ALLOWLIST",
+    "PKCE_STATE_NONCE_PROTECTIONS",
+    "NO_BROWSER_PROVIDER_SECRETS",
+    "ISSUER_SUBJECT_ACCOUNT_MAPPING",
+    "NO_EMAIL_ONLY_AUTO_LINKING",
+    "SESSION_SIGNOUT_REVOCATION_TEST",
+    "SUPABASE_RLS_EXTERNAL_SUBJECT_MAPPING",
+    "DELEGATED_RECOVERY_NO_LOCAL_BYPASS"
+  ],
+  "supersession": {
+    "owner_approved_adr_required": true,
+    "silent_local_password_path_forbidden": true
+  }
+}
