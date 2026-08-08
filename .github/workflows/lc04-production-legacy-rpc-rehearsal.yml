@@ -1,0 +1,158 @@
+name: LC04 Production Legacy RPC Rehearsal
+
+on:
+  push:
+    branches:
+      - feat/lc04-production-legacy-rpc-hardening-20260808
+    paths:
+      - "supabase/migrations/20260808134000_lc04_production_legacy_rpc_hardening.sql"
+      - "tests/lc04-production-legacy-rpc-hardening.test.cjs"
+      - "tests/lc04-production-legacy-rpc-workflow.test.cjs"
+      - "tests/lc04-reviewed-migration-hash-contract.test.cjs"
+      - "tests/sql/lc04-production-legacy-rpc-behavior.sql"
+      - "tests/sql/lc04-production-legacy-drift-fixture.sql"
+      - "tests/sql/lc04-production-legacy-drift-convergence.sql"
+      - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
+      - ".github/workflows/lc04-production-legacy-rpc-rehearsal.yml"
+  pull_request:
+    paths:
+      - "supabase/migrations/20260808134000_lc04_production_legacy_rpc_hardening.sql"
+      - "tests/lc04-production-legacy-rpc-hardening.test.cjs"
+      - "tests/lc04-production-legacy-rpc-workflow.test.cjs"
+      - "tests/lc04-reviewed-migration-hash-contract.test.cjs"
+      - "tests/sql/lc04-production-legacy-rpc-behavior.sql"
+      - "tests/sql/lc04-production-legacy-drift-fixture.sql"
+      - "tests/sql/lc04-production-legacy-drift-convergence.sql"
+      - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
+      - ".github/workflows/lc04-production-legacy-rpc-rehearsal.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+concurrency:
+  group: lc04-production-legacy-rpc-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  local-security-rehearsal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.109.0
+
+      - name: Verify exact source and local-only environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          if env | grep -E '^(SUPABASE_ACCESS_TOKEN|SUPABASE_DB_PASSWORD|SUPABASE_PROJECT_REF)=' >/dev/null; then
+            echo 'LC04_LOCAL_ONLY=BLOCKED_REMOTE_CREDENTIAL_ENV' >&2
+            exit 1
+          fi
+          echo 'LC04_LOCAL_ONLY=PASS'
+
+      - name: Run LC04 migration contract
+        run: |
+          node --test \
+            tests/lc04-production-legacy-rpc-hardening.test.cjs \
+            tests/lc04-production-legacy-rpc-workflow.test.cjs \
+            tests/lc04-reviewed-migration-hash-contract.test.cjs
+
+      - name: Emit exact LC04 migration SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/lc04-digest"
+          hash="$(sha256sum supabase/migrations/20260808134000_lc04_production_legacy_rpc_hardening.sql | awk '{print $1}')"
+          test "${#hash}" -eq 64
+          printf '%s\n' "$hash" > "$RUNNER_TEMP/lc04-digest/migration.sha256"
+          echo "LC04_MIGRATION_SHA256=$hash"
+
+      - name: Upload LC04 migration digest
+        uses: actions/upload-artifact@v6
+        with:
+          name: lc04-migration-sha256-${{ env.SOURCE_SHA }}
+          path: ${{ runner.temp }}/lc04-digest/migration.sha256
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Start isolated local Supabase stack
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase --version
+          supabase start
+
+      - name: Rebuild isolated local database
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase db reset --local
+
+      - name: Verify canonical build does not synthesize legacy helpers
+        shell: bash
+        run: |
+          set -euo pipefail
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 \
+            -p 54322 \
+            -U postgres \
+            -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/lc04-production-legacy-rpc-behavior.sql
+
+      - name: Rehearse observed Production legacy helper drift
+        shell: bash
+        run: |
+          set -euo pipefail
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 \
+            -p 54322 \
+            -U postgres \
+            -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/lc04-production-legacy-drift-fixture.sql
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 \
+            -p 54322 \
+            -U postgres \
+            -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f supabase/migrations/20260808134000_lc04_production_legacy_rpc_hardening.sql
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 \
+            -p 54322 \
+            -U postgres \
+            -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/lc04-production-legacy-drift-convergence.sql
+
+      - name: Verify source remains unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          echo 'LC04_LOCAL_REHEARSAL=PASS'
+
+      - name: Stop isolated local stack
+        if: always()
+        shell: bash
+        run: supabase stop --no-backup || true
