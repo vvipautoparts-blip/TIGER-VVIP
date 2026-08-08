@@ -14,7 +14,7 @@ That fallback returns `legacy_profile_recovered` and conflicts with the binding 
 NO_AUTOMATIC_ACCOUNT_LINKING_BY_EMAIL
 ```
 
-Email is an attribute/hint. It is not proof of ownership and must never transfer an existing profile to a new external subject.
+Email is an attribute. It is not proof of ownership and must never transfer an existing profile to a new external subject.
 
 ## Goal
 
@@ -48,41 +48,51 @@ where clerk_user_id = v_clerk_user_id
 
 If found, return `profile_loaded` with that profile.
 
-### 3. Email is non-authoritative
+### 3. Browser email is never identity evidence
 
-The resolver may derive an email hint from JWT email claims and the compatibility `p_email` argument, but that value may not be used to assign `clerk_user_id` on an existing row.
+The compatibility `p_email` argument comes from browser/runtime context and is never trusted for ownership lookup, legacy account detection, or account linking.
+
+It may temporarily be used only as profile/contact data when creating a genuinely new profile already owned by the authenticated subject.
+
+### 4. Legacy detection uses verified JWT email only
+
+The resolver may inspect email claims carried inside the authenticated JWT. Only that verified claim may be used to determine whether an **unbound** historical profile exists for migration handling.
 
 No branch in the replacement function may execute an existing-row ownership transfer such as:
 
 ```sql
 update public.profiles
 set clerk_user_id = v_clerk_user_id
-where lower(email) = v_email;
+where lower(email) = ...;
 ```
 
-### 4. Legacy unbound match fails closed
+The browser-supplied `p_email` must never appear inside the legacy lookup block. This also prevents authenticated callers from probing the legacy account inventory using arbitrary email values.
 
-If there is no subject-bound profile and an unbound historical profile exists with the same normalized email:
+### 5. Legacy unbound match fails closed
+
+If there is no subject-bound profile and an unbound historical profile exists for the JWT-verified email:
 
 ```text
 ok=false
 status=identity_migration_required
-profile=null / omitted
+profile omitted
 ```
 
-The response contains only a generic safe message. It must not expose the legacy profile row or prove additional private data beyond the caller's supplied/claimed email context.
+The response contains only a generic safe message. It must not return or expose the historical profile row.
 
-### 5. New profile creation remains subject-bound
+If the JWT does not carry a verified email, the resolver does not attempt legacy detection from `p_email`.
 
-If no subject-bound profile and no unbound legacy email match exists, a new profile may be created with:
+### 6. New profile creation remains subject-bound
+
+If no subject-bound profile and no verified-email legacy migration condition exists, a new profile may be created with:
 
 ```text
 clerk_user_id = authenticated JWT subject
 ```
 
-The email is stored only as profile/contact data. The subject is the ownership anchor.
+The stored email may use the verified JWT claim or the compatibility hint, but the subject remains the sole ownership anchor. A browser email hint can therefore affect only the caller's newly created profile data; it cannot acquire an existing profile.
 
-### 6. Conflict behavior
+### 7. Conflict behavior
 
 If insertion encounters a uniqueness race/conflict:
 
@@ -110,6 +120,8 @@ The browser bridge can continue calling:
 vvip_resolve_own_profile({ p_email: normalizeEmail(user) })
 ```
 
+That argument is compatibility/profile data only. The database function does not treat it as identity evidence.
+
 When backend returns `identity_migration_required`, current frontend already fails closed because it renders only payloads with `ok === true && profile`; otherwise it returns a safe fallback status/message. A later UX slice may give a dedicated migration/re-verification experience.
 
 ## TDD contract
@@ -122,7 +134,8 @@ A permanent repository test must prove:
 - `identity_migration_required` exists;
 - `legacy_profile_recovered` is absent from the new migration;
 - no email-matching `UPDATE` can assign `clerk_user_id`;
-- legacy unbound matching is existence-only/fail-closed;
+- legacy detection uses JWT-verified email and excludes `p_email`;
+- legacy unbound matching is existence-only/fail-closed and does not return a profile;
 - new insert is explicitly bound to `v_clerk_user_id`;
 - conflict recovery re-reads by subject only;
 - permissions remain revoked for `public`/`anon` and granted only to `authenticated`;
