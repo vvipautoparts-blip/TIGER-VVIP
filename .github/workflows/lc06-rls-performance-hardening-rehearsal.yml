@@ -7,13 +7,17 @@ on:
     paths:
       - "supabase/migrations/20260808180000_lc06_rls_performance_hardening.sql"
       - "tests/lc06-rls-performance-hardening.test.cjs"
+      - "tests/lc06-reviewed-migration-hash-contract.test.cjs"
       - "tests/sql/lc06-rls-performance-behavior.sql"
+      - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
       - ".github/workflows/lc06-rls-performance-hardening-rehearsal.yml"
   pull_request:
     paths:
       - "supabase/migrations/20260808180000_lc06_rls_performance_hardening.sql"
       - "tests/lc06-rls-performance-hardening.test.cjs"
+      - "tests/lc06-reviewed-migration-hash-contract.test.cjs"
       - "tests/sql/lc06-rls-performance-behavior.sql"
+      - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
       - ".github/workflows/lc06-rls-performance-hardening-rehearsal.yml"
   workflow_dispatch:
 
@@ -59,7 +63,30 @@ jobs:
           echo 'LC06_LOCAL_ONLY=PASS'
 
       - name: Run LC06 static contract
-        run: node --test tests/lc06-rls-performance-hardening.test.cjs
+        run: |
+          tests=(tests/lc06-rls-performance-hardening.test.cjs)
+          if test -f tests/lc06-reviewed-migration-hash-contract.test.cjs; then
+            tests+=(tests/lc06-reviewed-migration-hash-contract.test.cjs)
+          fi
+          node --test "${tests[@]}"
+
+      - name: Emit exact LC06 migration SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/lc06-digest"
+          hash="$(sha256sum supabase/migrations/20260808180000_lc06_rls_performance_hardening.sql | awk '{print $1}')"
+          test "${#hash}" -eq 64
+          printf '%s\n' "$hash" > "$RUNNER_TEMP/lc06-digest/migration.sha256"
+          echo "LC06_MIGRATION_SHA256=$hash"
+
+      - name: Upload LC06 migration digest
+        uses: actions/upload-artifact@v6
+        with:
+          name: lc06-migration-sha256-${{ env.SOURCE_SHA }}
+          path: ${{ runner.temp }}/lc06-digest/migration.sha256
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Start isolated local Supabase stack
         shell: bash
