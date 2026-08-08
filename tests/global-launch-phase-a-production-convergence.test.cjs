@@ -1,6 +1,7 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
@@ -17,12 +18,23 @@ function migration() {
   return fs.readFileSync(migrationPath, 'utf8');
 }
 
+function executableSql(sql) {
+  return sql.replace(/^\s*--.*$/gm, '');
+}
+
 test('global launch phase A is forward-only and transactional', () => {
   const sql = migration();
+  const executable = executableSql(sql);
   assert.match(sql, /^-- VVIP TIGER GLOBAL LAUNCH PHASE A/m);
-  assert.match(sql, /begin;/i);
-  assert.match(sql, /commit;/i);
-  assert.doesNotMatch(sql, /drop\s+table|truncate|delete\s+from\s+public\.profiles/i);
+  assert.match(executable, /begin;/i);
+  assert.match(executable, /commit;/i);
+  assert.doesNotMatch(executable, /drop\s+table|\btruncate\b|delete\s+from\s+public\.profiles/i);
+});
+
+test('phase A emits its content address for Steel Shield promotion', () => {
+  const digest = crypto.createHash('sha256').update(migration()).digest('hex');
+  assert.match(digest, /^[a-f0-9]{64}$/);
+  console.log(`GLOBAL_LAUNCH_PHASE_A_SHA256=${digest}`);
 });
 
 test('legacy SECURITY DEFINER helpers move out of public without dropping object identity', () => {
@@ -59,8 +71,9 @@ test('profile authority is subject-first, direct writes are revoked, and email n
 test('legacy credential and transitional profile tables become server-only', () => {
   const sql = migration();
   for (const table of ['otp_codes', 'email_verifications', 'vvip_clerk_profiles']) {
-    assert.match(sql, new RegExp(`revoke all privileges on table public\\.${table} from public, anon, authenticated`, 'i'));
+    assert.ok(sql.includes(`'${table}'`), `${table} must be in the isolation set`);
   }
+  assert.match(sql, /revoke all privileges on table public\.%I from public, anon, authenticated/i);
 });
 
 test('browser enumeration and trigger helpers lose RPC execution', () => {
@@ -71,11 +84,13 @@ test('browser enumeration and trigger helpers lose RPC execution', () => {
     'handle_new_user()',
     'set_profiles_updated_at()',
     'set_vvip_tiger_updated_at()',
+    'handle_new_supabase_user()',
+    'guard_profile_privileged_fields()',
     'rls_auto_enable()',
     'parts_sync_vehicle_reference_ids()',
     'set_updated_at()'
   ]) {
-    const escaped = signature.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    assert.match(sql, new RegExp(`revoke all on function public\\.${escaped} from public, anon, authenticated`, 'i'));
+    assert.ok(sql.includes(`'${signature}'`), `${signature} must be in the RPC lock set`);
   }
+  assert.match(sql, /revoke all on function public\.' \|\| signature \|\| ' from public, anon, authenticated/i);
 });
