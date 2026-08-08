@@ -81,6 +81,12 @@ declare -A reviewed_migration_hashes=(
   # scanner alerts are new-table NOT NULL declarations, fixed-search-path SECURITY DEFINER RPCs,
   # and bounded multi-line UPDATE statements. The exception remains exact path + exact SHA-256.
   ["supabase/migrations/20260808133000_phone_otp_challenges.sql"]="b9524528878d5646884bfdbb04abf06b8e4e73eb9628d0132b02fb06fbe7ee9a"
+  # LC-04 Production legacy RPC hardening: reviewed 2026-08-08 after exact-head static contracts,
+  # a credential-isolated full local database rebuild, role-level behavioral assertions, and
+  # read-only Production catalog analysis of the legacy SECURITY DEFINER helper graph. The migration
+  # preserves policy helper object identity while moving helpers out of public, hardens the Clerk
+  # profile resolver, and removes direct browser profile writes. Any byte drift invalidates review.
+  ["supabase/migrations/20260808134000_lc04_production_legacy_rpc_hardening.sql"]="134779055047525412aa69fc67cf14290a3683aa17754959599539710fb183e1"
 )
 
 reviewed_baseline_path() {
