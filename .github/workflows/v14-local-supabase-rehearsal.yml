@@ -1,0 +1,63 @@
+name: V14 Local Supabase Rehearsal
+
+on:
+  push:
+    branches:
+      - integration/v14-global-launch-readiness-20260806
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v14-local-supabase-rehearsal-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  local-db-reset:
+    name: Local DB reset (no linked project)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v7
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.109.0
+
+      - name: Assert local-only safety contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f supabase/config.toml
+          if env | grep -E '^(SUPABASE_ACCESS_TOKEN|SUPABASE_DB_PASSWORD|SUPABASE_PROJECT_REF)=' >/dev/null; then
+            echo 'V14_LOCAL_DB_RESET=BLOCKED_REMOTE_CREDENTIAL_ENV'
+            exit 1
+          fi
+          echo 'V14_LOCAL_ONLY_CONTRACT=PASS'
+
+      - name: Start isolated local Supabase stack
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase --version
+          supabase start
+
+      - name: Rebuild database from repository migrations
+        shell: bash
+        run: |
+          set -euo pipefail
+          reset_command=(supabase db reset --local)
+          printf '%q ' "${reset_command[@]}" | grep -q -- '--linked' && {
+            echo 'V14_LOCAL_DB_RESET=BLOCKED_UNSAFE_LINKED_FLAG'
+            exit 1
+          }
+          "${reset_command[@]}"
+          echo 'V14_LOCAL_DB_RESET=PASS'
+
+      - name: Stop isolated local stack
+        if: always()
+        shell: bash
+        run: supabase stop --no-backup || true

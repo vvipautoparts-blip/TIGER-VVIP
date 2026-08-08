@@ -4,9 +4,11 @@ on:
   pull_request:
     branches:
       - main
+      - integration/v14-global-launch-readiness-20260806
   push:
     branches:
       - main
+      - integration/v14-global-launch-readiness-20260806
   workflow_dispatch:
 
 permissions:
@@ -20,13 +22,13 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
+        uses: github/codeql-action/init@5595ccaf912efad79be6eef63a5619ff05969be3 # v4
         with:
           languages: javascript-typescript
           build-mode: none
 
       - name: Analyze
-        uses: github/codeql-action/analyze@v4
+        uses: github/codeql-action/analyze@5595ccaf912efad79be6eef63a5619ff05969be3 # v4

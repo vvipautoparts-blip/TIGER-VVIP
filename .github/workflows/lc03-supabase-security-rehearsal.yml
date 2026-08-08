@@ -1,0 +1,100 @@
+name: LC03 Supabase Security Rehearsal
+
+on:
+  push:
+    paths:
+      - "supabase/migrations/20260808003000_lc03_supabase_security_hardening.sql"
+      - "tests/lc03-supabase-security-hardening.test.cjs"
+      - "tests/quality-gate-shell-contract.test.cjs"
+      - "scripts/quality-gate.sh"
+      - "tests/sql/lc03-legacy-drift-reconciliation.sql"
+      - ".github/workflows/lc03-supabase-security-rehearsal.yml"
+  pull_request:
+    paths:
+      - "supabase/migrations/20260808003000_lc03_supabase_security_hardening.sql"
+      - "tests/lc03-supabase-security-hardening.test.cjs"
+      - "tests/quality-gate-shell-contract.test.cjs"
+      - "scripts/quality-gate.sh"
+      - "tests/sql/lc03-legacy-drift-reconciliation.sql"
+      - ".github/workflows/lc03-supabase-security-rehearsal.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lc03-supabase-security-rehearsal-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: "22"
+      - name: Run LC-03 security contract
+        run: node --test tests/lc03-supabase-security-hardening.test.cjs
+      - name: Run quality-gate shell contract
+        run: node --test tests/quality-gate-shell-contract.test.cjs
+      - name: Emit exact migration SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          hash="$(sha256sum supabase/migrations/20260808003000_lc03_supabase_security_hardening.sql | awk '{print $1}')"
+          test "${#hash}" -eq 64
+          echo "LC03_MIGRATION_SHA256=$hash"
+
+  local-db-reset:
+    needs: contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: supabase/setup-cli@ab058987d8d6c725971f6cf9d0b5c98467e30bd1 # v1
+        with:
+          version: 2.109.0
+      - name: Assert local-only safety contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f supabase/config.toml
+          if env | grep -E '^(SUPABASE_ACCESS_TOKEN|SUPABASE_DB_PASSWORD|SUPABASE_PROJECT_REF)=' >/dev/null; then
+            echo 'LC03_LOCAL_DB_RESET=BLOCKED_REMOTE_CREDENTIAL_ENV'
+            exit 1
+          fi
+          echo 'LC03_LOCAL_ONLY_CONTRACT=PASS'
+      - name: Start isolated local Supabase stack
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase --version
+          supabase start
+      - name: Rebuild database from repository migrations
+        shell: bash
+        run: |
+          set -euo pipefail
+          reset_command=(supabase db reset --local)
+          printf '%q ' "${reset_command[@]}" | grep -q -- '--linked' && {
+            echo 'LC03_LOCAL_DB_RESET=BLOCKED_UNSAFE_LINKED_FLAG'
+            exit 1
+          }
+          "${reset_command[@]}"
+          echo 'LC03_LOCAL_DB_RESET=PASS'
+      - name: Rehearse known Production legacy drift locally
+        shell: bash
+        run: |
+          set -euo pipefail
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 \
+            -p 54322 \
+            -U postgres \
+            -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/lc03-legacy-drift-reconciliation.sql
+      - name: Stop isolated local stack
+        if: always()
+        shell: bash
+        run: supabase stop --no-backup || true

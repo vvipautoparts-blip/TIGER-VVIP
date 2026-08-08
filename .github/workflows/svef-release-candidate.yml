@@ -1,0 +1,297 @@
+name: SVEF Build-Once Release Candidate
+
+on:
+  push:
+    branches:
+      - main
+      - 'feat/svef-*'
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact 40-character source commit SHA to build and attest
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+  artifact-metadata: write
+
+concurrency:
+  group: svef-release-${{ github.event_name == 'workflow_dispatch' && inputs.source_sha || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      SOURCE_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.source_sha || github.sha }}
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 0
+
+      - name: Verify exact source and tree identity
+        id: source
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          if [[ ! "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo 'SVEF_SOURCE_SHA_INVALID' >&2
+            exit 1
+          fi
+          actual_sha="$(git rev-parse HEAD)"
+          actual_tree="$(git rev-parse HEAD^{tree})"
+          test "$actual_sha" = "$SOURCE_SHA"
+          echo "source_tree=$actual_tree" >> "$GITHUB_OUTPUT"
+          echo "SVEF_SOURCE_SHA=$actual_sha"
+          echo "SVEF_SOURCE_TREE=$actual_tree"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: "22"
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.12"
+
+      - name: Run exact-source quality gate
+        shell: bash
+        run: bash scripts/quality-gate.sh
+
+      - name: Build V14 candidate exactly once
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          rm -rf "$RUNNER_TEMP/vvip-candidate"
+          python tools/vvip_public_release.py \
+            --source . \
+            --output "$RUNNER_TEMP/vvip-candidate" \
+            --mode candidate \
+            --source-sha "$SOURCE_SHA"
+          test -f "$RUNNER_TEMP/vvip-candidate/release-manifest.json"
+
+      - name: Generate deterministic materials, SBOM, and release-bundle manifest
+        shell: bash
+        env:
+          SOURCE_TREE: ${{ steps.source.outputs.source_tree }}
+        run: |
+          set -Eeuo pipefail
+          metadata="$RUNNER_TEMP/svef-release-metadata"
+          rm -rf "$metadata"
+          mkdir -p "$metadata"
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const { execFileSync } = require('node:child_process');
+          const { sha256Hex, canonicalJson } = require('./scripts/tsrf/evidence/contracts.cjs');
+          const {
+            createReleaseBundleManifest,
+            serializeReleaseBundleManifest,
+          } = require('./scripts/tsrf/svef/release-bundle.cjs');
+
+          const root = process.cwd();
+          const candidateDir = path.join(process.env.RUNNER_TEMP, 'vvip-candidate');
+          const metadataDir = path.join(process.env.RUNNER_TEMP, 'svef-release-metadata');
+          const sourceSha = process.env.SOURCE_SHA;
+          const sourceTree = process.env.SOURCE_TREE;
+          const read = (relative) => fs.readFileSync(path.join(root, relative));
+          const materialPaths = [
+            '.github/workflows/svef-release-candidate.yml',
+            'requirements-dev.txt',
+            'scripts/quality-gate.sh',
+            'scripts/tsrf/svef/release-bundle.cjs',
+            'tools/vvip_public_release.py',
+          ];
+          const materialRecords = materialPaths.sort().map((relative) => ({
+            path: relative,
+            sha256: sha256Hex(read(relative)),
+          }));
+          fs.writeFileSync(
+            path.join(metadataDir, 'materials.json'),
+            `${canonicalJson({
+              schema: 'SVEF_MATERIALS_V1',
+              source_sha: sourceSha,
+              source_tree: sourceTree,
+              node: process.version,
+              python: execFileSync('python', ['--version'], { encoding: 'utf8' }).trim(),
+              materials: materialRecords,
+            })}\n`,
+            { mode: 0o600 },
+          );
+
+          const candidateManifest = JSON.parse(
+            fs.readFileSync(path.join(candidateDir, 'release-manifest.json'), 'utf8'),
+          );
+          const components = Object.entries(candidateManifest.files)
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([name, digest]) => ({
+              type: 'file',
+              name,
+              hashes: [{ alg: 'SHA-256', content: digest }],
+            }));
+          const sbom = {
+            bomFormat: 'CycloneDX',
+            specVersion: '1.6',
+            serialNumber: `urn:uuid:${sourceSha.slice(0, 8)}-${sourceSha.slice(8, 12)}-4${sourceSha.slice(13, 16)}-8${sourceSha.slice(17, 20)}-${sourceSha.slice(20, 32)}`,
+            version: 1,
+            metadata: {
+              component: {
+                type: 'application',
+                name: 'VVIP-TIGER',
+                version: sourceSha,
+              },
+              properties: [
+                { name: 'svef:source_sha', value: sourceSha },
+                { name: 'svef:source_tree', value: sourceTree },
+                { name: 'svef:generator', value: 'SVEF_CYCLONEDX_FILE_INVENTORY_V1' },
+              ],
+            },
+            components,
+          };
+          const sbomBytes = Buffer.from(`${canonicalJson(sbom)}\n`);
+          fs.writeFileSync(path.join(metadataDir, 'sbom.cdx.json'), sbomBytes, { mode: 0o600 });
+
+          const git = {
+            headSha: () => execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
+            treeSha: () => execFileSync('git', ['rev-parse', 'HEAD^{tree}'], { encoding: 'utf8' }).trim(),
+          };
+          const bundleManifest = createReleaseBundleManifest({
+            repositoryRoot: root,
+            candidateDir,
+            sbomBytes,
+            materialRecords,
+            createdBy: 'github-actions:svef-release-candidate',
+            git,
+            fsApi: fs,
+          });
+          fs.writeFileSync(
+            path.join(metadataDir, 'release-bundle-manifest.json'),
+            serializeReleaseBundleManifest(bundleManifest),
+            { mode: 0o600 },
+          );
+          NODE
+
+      - name: Create deterministic release bundle bytes
+        id: bundle
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          root="$RUNNER_TEMP/svef-bundle-root"
+          out="$RUNNER_TEMP/svef-release"
+          rm -rf "$root" "$out"
+          mkdir -p "$root/candidate" "$out"
+          cp -a "$RUNNER_TEMP/vvip-candidate/." "$root/candidate/"
+          cp "$RUNNER_TEMP/svef-release-metadata/sbom.cdx.json" "$root/sbom.cdx.json"
+          cp "$RUNNER_TEMP/svef-release-metadata/materials.json" "$root/materials.json"
+          cp "$RUNNER_TEMP/svef-release-metadata/release-bundle-manifest.json" "$root/release-bundle-manifest.json"
+          archive="$out/svef-release-bundle-${SOURCE_SHA}.tar.gz"
+          tar --sort=name \
+            --mtime='UTC 1970-01-01' \
+            --owner=0 \
+            --group=0 \
+            --numeric-owner \
+            --format=posix \
+            --pax-option=delete=atime,delete=ctime \
+            -C "$root" -cf - . | gzip -n > "$archive"
+          sha256sum "$archive" | tee "$out/svef-release-bundle-${SOURCE_SHA}.sha256"
+          digest="$(sha256sum "$archive" | awk '{print $1}')"
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+          echo "SVEF_RELEASE_BUNDLE_SHA256=$digest"
+
+      - name: Attest exact release bundle with GitHub SLSA provenance
+        id: attest
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4.2.1
+        with:
+          subject-path: ${{ runner.temp }}/svef-release/svef-release-bundle-${{ env.SOURCE_SHA }}.tar.gz
+
+      - name: Attest CycloneDX SBOM
+        id: attest_sbom
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4.2.1
+        with:
+          subject-path: ${{ runner.temp }}/svef-release/svef-release-bundle-${{ env.SOURCE_SHA }}.tar.gz
+          sbom-path: ${{ runner.temp }}/svef-release-metadata/sbom.cdx.json
+
+      - name: Preserve attestation bundles and digests
+        shell: bash
+        env:
+          ATTESTATION_BUNDLE_PATH: ${{ steps.attest.outputs.bundle-path }}
+          SBOM_ATTESTATION_BUNDLE_PATH: ${{ steps.attest_sbom.outputs.bundle-path }}
+        run: |
+          set -Eeuo pipefail
+          if [[ -z "$ATTESTATION_BUNDLE_PATH" || ! -f "$ATTESTATION_BUNDLE_PATH" ]]; then
+            echo 'SVEF_ATTESTATION_UNAVAILABLE' >&2
+            exit 1
+          fi
+          if [[ -z "$SBOM_ATTESTATION_BUNDLE_PATH" || ! -f "$SBOM_ATTESTATION_BUNDLE_PATH" ]]; then
+            echo 'SVEF_SBOM_ATTESTATION_UNAVAILABLE' >&2
+            exit 1
+          fi
+          cp "$ATTESTATION_BUNDLE_PATH" "$RUNNER_TEMP/svef-release/attestation-bundle.json"
+          cp "$SBOM_ATTESTATION_BUNDLE_PATH" "$RUNNER_TEMP/svef-release/sbom-attestation-bundle.json"
+          sha256sum "$RUNNER_TEMP/svef-release/attestation-bundle.json" \
+            | tee "$RUNNER_TEMP/svef-release/attestation-bundle.sha256"
+          sha256sum "$RUNNER_TEMP/svef-release/sbom-attestation-bundle.json" \
+            | tee "$RUNNER_TEMP/svef-release/sbom-attestation-bundle.sha256"
+
+      - name: Verify signed provenance exact-source binding
+        shell: bash
+        env:
+          BUNDLE_DIGEST: ${{ steps.bundle.outputs.digest }}
+        run: |
+          set -Eeuo pipefail
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const fail = (message) => {
+            console.error(message);
+            process.exit(1);
+          };
+          const bundlePath = path.join(process.env.RUNNER_TEMP, 'svef-release', 'attestation-bundle.json');
+          const sigstore = JSON.parse(fs.readFileSync(bundlePath, 'utf8'));
+          if (!sigstore.dsseEnvelope || typeof sigstore.dsseEnvelope.payload !== 'string') {
+            fail('SVEF_ATTESTATION_DSSE_MISSING');
+          }
+          const statement = JSON.parse(Buffer.from(sigstore.dsseEnvelope.payload, 'base64').toString('utf8'));
+          if (statement.predicateType !== 'https://slsa.dev/provenance/v1') {
+            fail('SVEF_ATTESTATION_PREDICATE_MISMATCH');
+          }
+          const subjects = Array.isArray(statement.subject) ? statement.subject : [];
+          if (!subjects.some((subject) => subject?.digest?.sha256 === process.env.BUNDLE_DIGEST)) {
+            fail('SVEF_ATTESTATION_SUBJECT_MISMATCH');
+          }
+          const github = statement?.predicate?.buildDefinition?.internalParameters?.github;
+          if (github?.event_name === 'pull_request') {
+            fail('SVEF_ATTESTATION_PR_CONTEXT_FORBIDDEN');
+          }
+          const dependencies = statement?.predicate?.buildDefinition?.resolvedDependencies;
+          const exactSource = Array.isArray(dependencies) && dependencies.some(
+            (dependency) => dependency?.digest?.gitCommit === process.env.SOURCE_SHA,
+          );
+          if (!exactSource) {
+            fail('SVEF_ATTESTATION_SOURCE_MISMATCH');
+          }
+          console.log(`SVEF_ATTESTATION_SOURCE_SHA=${process.env.SOURCE_SHA}`);
+          console.log(`SVEF_ATTESTATION_SUBJECT_SHA256=${process.env.BUNDLE_DIGEST}`);
+          NODE
+
+      - name: Verify source remained immutable
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+
+      - name: Upload exact SVEF release package
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: svef-release-${{ env.SOURCE_SHA }}
+          path: ${{ runner.temp }}/svef-release
+          if-no-files-found: error
+          retention-days: 14
