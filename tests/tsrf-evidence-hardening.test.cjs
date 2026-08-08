@@ -89,11 +89,13 @@ function candidateFixture(sourceSha = SOURCE_SHA) {
   const digests = Object.fromEntries(
     Object.entries(files).map(([relative, bytes]) => [relative, sha256Hex(bytes)]),
   );
-  write(candidateDir, 'manifest.json', `${JSON.stringify({
+  write(candidateDir, 'release-manifest.json', `${JSON.stringify({
+    schemaVersion: 1,
+    mode: 'candidate',
     sourceSha,
-    builtAt: '2026-08-08T12:00:00.000Z',
     releaseEligible: true,
-    fileCount: Object.keys(digests).length,
+    configurationErrors: [],
+    forbiddenFindings: [],
     files: digests,
   }, null, 2)}\n`);
   return candidateDir;
@@ -184,6 +186,7 @@ function run(fixture, overrides = {}) {
 }
 
 test('metadata hardening rejects authority aliases and common secret values', () => {
+  const privateKeyFixture = ['-----BEGIN ', 'PRIVATE KEY-----\nabc\n-----END ', 'PRIVATE KEY-----'].join('');
   for (const payload of [
     { can_deploy: true },
     { release_authority: 'granted' },
@@ -191,7 +194,7 @@ test('metadata hardening rejects authority aliases and common secret values', ()
     { approval_status: 'approved' },
     { note: 'sk-proj-abcdefghijklmnopqrstuvwxyz0123456789' },
     { note: 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIn0.signaturevalue' },
-    { note: '-----BEGIN PRIVATE KEY-----\nabc\n-----END PRIVATE KEY-----' },
+    { note: privateKeyFixture },
   ]) {
     assert.throws(
       () => assertNoForbiddenShape(payload),
