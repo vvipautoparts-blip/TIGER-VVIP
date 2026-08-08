@@ -46,7 +46,7 @@ test("federated identity policy is binding and passwordless by architecture", ()
   assert.equal(policy.data_layer.parallel_supabase_user_password_system_allowed, false);
 });
 
-test("binding ADR and known compatibility gap are recorded", () => {
+test("binding ADR and identity deployment boundary are recorded", () => {
   const adr = fs.readFileSync(ADR_PATH, "utf8");
   const gap = fs.readFileSync(GAP_PATH, "utf8");
   const removal = fs.readFileSync(REMOVAL_PATH, "utf8");
@@ -56,7 +56,9 @@ test("binding ADR and known compatibility gap are recorded", () => {
   assert.match(adr, /Supabase email\/password authentication must not become a second user credential system/);
   assert.match(gap, /legacy_profile_recovered/);
   assert.match(gap, /identity_migration_required/);
-  assert.match(gap, /PRODUCTION_IDENTITY_LAUNCH=BLOCKED_ON_REMEDIATION/);
+  assert.match(gap, /EMAIL_AUTO_LINKING_REPOSITORY_FIX=PREPARED/);
+  assert.match(gap, /REMOTE_MIGRATION=NOT_APPLIED/);
+  assert.match(gap, /PRODUCTION_IDENTITY_LAUNCH=BLOCKED_ON_DEPLOYED_EVIDENCE/);
   assert.match(removal, /LEGACY_PASSWORD_RUNTIME=REMOVED/);
   assert.match(removal, /LOCAL_PASSWORD_RECOVERY=REMOVED/);
 });
