@@ -11,7 +11,7 @@ const root = path.join(__dirname, '..');
 
 async function loadSecurity() {
   const modulePath = path.join(root, 'mobile', 'scripts', 'assert-native-security.mjs');
-  return import(`${pathToFileURL(modulePath).href}?t=${Date.now()}`);
+  return import(`${pathToFileURL(modulePath).href}?t=${Date.now()}-${Math.random()}`);
 }
 
 async function fixture() {
@@ -35,18 +35,51 @@ async function fixture() {
   return mobileDir;
 }
 
-async function expectBlocked(mobileDir, pattern) {
+async function expectBlocked(mobileDir, pattern, platform = 'all') {
   const { assertNativeSecurity } = await loadSecurity();
-  await assert.rejects(() => assertNativeSecurity(mobileDir), pattern);
+  await assert.rejects(() => assertNativeSecurity(mobileDir, platform), pattern);
 }
 
 test('safe generated native shell passes fail-closed security assertions', async (t) => {
   const mobileDir = await fixture();
   t.after(() => fs.rm(mobileDir, { recursive: true, force: true }));
   const { assertNativeSecurity } = await loadSecurity();
-  const result = await assertNativeSecurity(mobileDir);
+  const result = await assertNativeSecurity(mobileDir, 'all');
   assert.equal(result.appId, 'com.vviptiger.app');
   assert.equal(result.cleartext, false);
+  assert.equal(result.platform, 'all');
+});
+
+test('Android-only mode does not require an iOS tree and still checks Android', async (t) => {
+  const mobileDir = await fixture();
+  t.after(() => fs.rm(mobileDir, { recursive: true, force: true }));
+  await fs.rm(path.join(mobileDir, 'ios'), { recursive: true, force: true });
+  const { assertNativeSecurity } = await loadSecurity();
+  const result = await assertNativeSecurity(mobileDir, 'android');
+  assert.equal(result.platform, 'android');
+
+  const manifest = path.join(mobileDir, 'android', 'app', 'src', 'main', 'AndroidManifest.xml');
+  await fs.writeFile(manifest, '<manifest><application android:usesCleartextTraffic="true" /></manifest>');
+  await expectBlocked(mobileDir, /MOBILE_NATIVE_ANDROID_CLEARTEXT_BLOCKED/, 'android');
+});
+
+test('iOS-only mode does not require an Android tree and still checks ATS', async (t) => {
+  const mobileDir = await fixture();
+  t.after(() => fs.rm(mobileDir, { recursive: true, force: true }));
+  await fs.rm(path.join(mobileDir, 'android'), { recursive: true, force: true });
+  const { assertNativeSecurity } = await loadSecurity();
+  const result = await assertNativeSecurity(mobileDir, 'ios');
+  assert.equal(result.platform, 'ios');
+
+  const plist = path.join(mobileDir, 'ios', 'App', 'App', 'Info.plist');
+  await fs.writeFile(plist, '<plist><dict><key>NSAllowsArbitraryLoads</key><true/></dict></plist>');
+  await expectBlocked(mobileDir, /MOBILE_NATIVE_IOS_ATS_FAIL_OPEN_BLOCKED/, 'ios');
+});
+
+test('unknown security mode fails closed', async (t) => {
+  const mobileDir = await fixture();
+  t.after(() => fs.rm(mobileDir, { recursive: true, force: true }));
+  await expectBlocked(mobileDir, /MOBILE_NATIVE_PLATFORM_INVALID/, 'desktop');
 });
 
 test('remote WebView URL and navigation allowlist expansion are blocked', async (t) => {
