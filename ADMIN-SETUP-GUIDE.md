@@ -1,64 +1,43 @@
-# إعداد المدير العام (Super Admin) - TIGER VVIP
+# إعداد المدير العام — ملاحظة معمارية حالية
 
-هذا الدليل يكمّل السكيمة الجديدة ويجهّز حساب المدير العام الحقيقي داخل Supabase.
+> **الحالة: الدليل القديم الخاص بإنشاء مستخدم Email/Password أصبح غير تنفيذي.**
+>
+> المرجع الملزم الآن هو [Federated Identity Sovereignty ADR](docs/architecture/ADR-2026-08-08-federated-identity-sovereignty.md).
 
-## 1) تنفيذ السكيمة
-1. افتح Supabase Dashboard.
-2. ادخل SQL Editor.
-3. نفّذ كامل ملف:
-   - supabase-schema.sql
+## القاعدة الحالية
 
-## 2) إنشاء مستخدم Auth
-1. من Authentication > Users.
-2. أنشئ مستخدم جديد:
-   - Email: vvipautoparts@gmail.com
-   - Password: كلمة قوية (اخترها من الداشبورد)
-   - Email confirmed: true
+لا يتم إنشاء كلمة مرور VVIP TIGER للمدير ولا لأي مستخدم داخل Supabase أو Firebase. هوية المدير تُثبت أولًا من مزود الهوية الخارجي المعتمد، ثم تمنح VVIP TIGER لذلك الـexternal subject صلاحيات الإدارة داخل طبقة authorization الخاصة بالمنصة.
 
-## 3) ربطه كمدير عام
-1. افتح SQL Editor.
-2. نفّذ ملف:
-   - ADMIN-SETUP.sql
-3. استبدل القيمة:
-   - <ADMIN_USER_ID>
-   بالـ UUID الفعلي من جدول auth.users.
+## ما يبقى مسؤولية VVIP TIGER
 
-## 4) تفعيل التحقق الهاتفي الداخلي
-التطبيق الآن يربط التحقق الهاتفي عبر endpoint داخلي. لذلك:
-1. جهّز Backend endpoint خاص بك (مثلا عبر Edge Function أو API server).
-2. endpoint يستقبل:
-   - phone
-   - code
-    - channel=internal
-3. قبل تحميل [auth.js](auth.js) و[reset-password.js](reset-password.js)، عرّف المتغير:
+- ربط الحساب الداخلي بالـexternal subject الموثق؛
+- الدور والصلاحيات/capabilities؛
+- حالة الحساب والتعليق أو الإلغاء؛
+- سياسات RLS والوصول إلى البيانات؛
+- Owner approvals للعمليات الحساسة؛
+- Audit evidence.
 
-```html
-<script>
-   window.FIREBASE_CONFIG = {
-     apiKey: "YOUR_API_KEY",
-     authDomain: "YOUR_PROJECT.firebaseapp.com",
-     projectId: "YOUR_PROJECT_ID",
-     storageBucket: "YOUR_PROJECT.appspot.com",
-     messagingSenderId: "YOUR_SENDER_ID",
-     appId: "YOUR_APP_ID"
-   };
-</script>
-```
+## ما لا يتم تنفيذه
 
-إذا كنت تحتاج تحقق الهاتف، فالنقطة الحالية هي [supabase/functions/phone-verification/index.ts](supabase/functions/phone-verification/index.ts).
+لا تستخدم هذا الملف لإنشاء:
 
-## 5) اختبار القيود الرئيسية
-1. التسجيل الإداري:
-   - سجل مدير منطقة/مشرف/مندوب.
-   - يجب أن يُنشأ الحساب كـ is_approved=false.
-2. اعتماد المدير:
-   - من لوحة المدير العام اعتمد الحساب.
-3. حد 3 أجهزة:
-   - سجل دخول نفس الحساب من 4 أجهزة/متصفحات مختلفة.
-   - يجب رفض الجهاز الرابع.
-4. الرواتب الأسبوعية:
-   - أكمل عمليات لتسجيل عمولات earned.
-   - من لوحة المدير العام استخدم صرف أسبوعي.
+- مستخدم Supabase Email/Password؛
+- كلمة مرور مدير محلية؛
+- Password reset محلي؛
+- Firebase authentication موازٍ؛
+- ربط حساب إداري بالبريد فقط.
 
-## 6) ملاحظة أمان مهمة
-لا تضع كلمات المرور الثابتة داخل ملفات المشروع. إنشاء كلمة المرور يتم من Supabase Dashboard فقط.
+مسارات المصادقة القديمة القابلة للتنفيذ أزيلت من الشجرة الحالية، كما هو موثق في [Legacy Password Runtime Removal](docs/security/LEGACY_PASSWORD_RUNTIME_REMOVAL_20260808.md).
+
+## إعداد الإدارة قبل Production
+
+إعداد المدير الفعلي يجب أن يمر بإجراء محكوم يثبت:
+
+1. هوية خارجية production-approved؛
+2. external issuer + subject ثابتين؛
+3. تعيين الدور/الصلاحيات من مسار إدارة موثوق؛
+4. RLS/authorization evidence؛
+5. تسجيل التدقيق والموافقة المطلوبة؛
+6. عدم وجود credential أو recovery bypass محلي.
+
+هذا الملف لا يطبق أي تغيير على Production أو على لوحة مزود الهوية.
