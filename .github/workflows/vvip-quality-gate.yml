@@ -18,6 +18,7 @@ on:
       - feat/lc05-credential-surface-isolation-20260808
       - feat/lc06-rls-performance-hardening-20260808
       - feat/lean-global-cost-governor-20260808
+      - feat/lean-global-static-cdn-20260808
   workflow_dispatch:
 
 permissions:
