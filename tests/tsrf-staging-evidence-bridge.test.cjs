@@ -31,11 +31,13 @@ function candidateFixture(sourceSha = SOURCE_SHA) {
   const digests = Object.fromEntries(
     Object.entries(files).map(([relative, bytes]) => [relative, sha256Hex(bytes)]),
   );
-  write(candidateDir, 'manifest.json', `${JSON.stringify({
+  write(candidateDir, 'release-manifest.json', `${JSON.stringify({
+    schemaVersion: 1,
+    mode: 'candidate',
     sourceSha,
-    builtAt: '2026-08-08T12:00:00.000Z',
     releaseEligible: true,
-    fileCount: Object.keys(digests).length,
+    configurationErrors: [],
+    forbiddenFindings: [],
     files: digests,
   }, null, 2)}\n`);
   return candidateDir;
