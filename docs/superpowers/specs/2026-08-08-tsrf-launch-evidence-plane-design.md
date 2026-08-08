@@ -22,7 +22,7 @@ This subsystem is evidence infrastructure only. It MUST NOT merge code, mutate P
 
 The Evidence Plane is intentionally non-authoritative.
 
-It may assert only facts that it can derive or verify from repository state, CI metadata, Staging-class runtime evidence, and content digests. It MUST NOT accept or emit fields such as:
+It may assert only facts that it can derive or verify from repository state, trusted CI metadata, non-Production verification evidence, and content digests. It MUST NOT accept or emit fields such as:
 
 - `authorized`
 - `productionReady`
@@ -34,9 +34,15 @@ It may assert only facts that it can derive or verify from repository state, CI 
 
 Owner authorization remains a separate sovereign ledger and is not inferred from a Proof Capsule.
 
-The Evidence Plane MUST reject `environment=PRODUCTION`. The only remote environment accepted by this sub-project is `STAGING`. Local evidence may be represented as `LOCAL` only when the capsule class explicitly permits it; the Staging Evidence Bridge itself accepts only `STAGING`.
+The Proof Capsule contract permits only `LOCAL`, `STAGING`, or `NON_RUNTIME` evidence environments. `PRODUCTION` is rejected by this sub-project. The Staging Evidence Bridge itself accepts exactly `STAGING`.
 
-If a target cannot be positively proven to be Staging, the result is `BLOCKED` and no remote mutation is permitted.
+Environment/class rules are explicit:
+
+- `DB_REBUILD_PROOF_CAPSULE` may use `LOCAL` for isolated database rebuild/replay evidence.
+- `JO_LEGAL_PROOF_CAPSULE` may use `NON_RUNTIME` because it is a document/legal evidence class rather than a runtime environment.
+- `OTP_PROOF_CAPSULE`, `PR36_IMAGE_PROOF_CAPSULE`, `AI_SHADOW_PROOF_CAPSULE`, `OWNER_SOVEREIGNTY_PROOF_CAPSULE`, `BLACKBOX_PROOF_CAPSULE`, `PERFORMANCE_PROOF_CAPSULE`, and `RECOVERY_PROOF_CAPSULE` require `STAGING` for launch-grade PASS evidence.
+
+If a target cannot be positively proven to be Staging, the Staging Evidence Bridge returns `BLOCKED` and no remote mutation is permitted.
 
 ## 3. Architecture
 
@@ -80,6 +86,10 @@ Every capsule must include:
 
 All digests are lowercase 64-character SHA-256 values. `source_sha` is a full 40-character Git commit SHA. `source_tree` is a full 40-character Git tree SHA. Timestamps are UTC ISO-8601 values.
 
+`kill_switch_state` is restricted to `TRUE` or `NOT_APPLICABLE`. `STAGING` requires `TRUE`; `LOCAL` and `NON_RUNTIME` require `NOT_APPLICABLE`. `FALSE` is never accepted by this sub-project.
+
+`workflow_run_id` and `runner_identity` are trusted-context fields. In CI they MUST be derived from the workflow runtime context and MUST NOT be accepted from an arbitrary proof payload. Pure unit tests may inject them only through an explicitly trusted test dependency.
+
 `result` is restricted to `PASS` or `BLOCKED`. Inconclusive, unknown, skipped, cancelled, stale, or partially verified inputs do not become PASS capsules.
 
 ### 3.2 Immutable Release DNA
@@ -106,6 +116,8 @@ Required Release DNA fields:
 
 `migration_digests` is a sorted list of `{path, sha256}` records. Ordering is canonicalized before hashing.
 
+For this sub-project, `environment_class` is exactly `STAGING_CANDIDATE`. Local and non-runtime proof capsules may bind to the same candidate Release DNA because they prove properties of that candidate; they do not redefine the target environment.
+
 Mutable timestamps, workflow run IDs, approvals, human decisions, artifact retention metadata, and owner authorization data are excluded from Release DNA.
 
 The release digest is:
@@ -124,7 +136,7 @@ The bridge must verify:
 2. checked-out tree equals declared `source_tree`;
 3. Release DNA recomputes to the supplied `release_digest`;
 4. artifact bytes recompute to `artifact_sha256`;
-5. workflow/run metadata is present and non-empty;
+5. workflow run ID and runner identity come from trusted CI context, not the proof payload;
 6. timestamps are internally consistent and within the configured freshness window;
 7. `environment` is exactly `STAGING`;
 8. `kill_switch_state` is exactly `TRUE` for the current TSRF Staging phase;
@@ -152,12 +164,13 @@ If existing repository naming or module layout requires a small adjustment durin
 2. Git supplies the exact source tree hash.
 3. Release DNA generator hashes the defined build/config/source surfaces.
 4. The deterministic Release DNA projection produces `release_digest`.
-5. A proof producer supplies its technical result and artifact.
-6. The bridge independently hashes the artifact and verifies source/tree/release bindings.
-7. The Proof Capsule core validates strict schema, freshness, environment, kill-switch state, and authority-field exclusion.
-8. A canonical capsule JSON file is written to a temporary output directory outside the source tree.
-9. CI uploads that capsule as an artifact named with both capsule class and exact source SHA.
-10. The checked-out repository must remain clean after evidence generation.
+5. A proof producer supplies its technical result and artifact but not trusted CI identity fields.
+6. The orchestration layer obtains `workflow_run_id` and `runner_identity` from trusted workflow context.
+7. The bridge independently hashes the artifact and verifies source/tree/release bindings.
+8. The Proof Capsule core validates strict schema, freshness, environment, kill-switch state, and authority-field exclusion.
+9. A canonical capsule JSON file is written to a temporary output directory outside the source tree.
+10. CI uploads that capsule as an artifact named with both capsule class and exact source SHA.
+11. The checked-out repository must remain clean after evidence generation.
 
 No step writes to Production or grants execution authority.
 
@@ -166,7 +179,7 @@ No step writes to Production or grants execution authority.
 The implementation MUST reject at least the following cases:
 
 - `environment=PRODUCTION`;
-- any environment other than explicitly permitted values;
+- any environment not allowed for the selected capsule class;
 - source SHA mismatch;
 - source tree mismatch;
 - release digest mismatch;
@@ -180,8 +193,11 @@ The implementation MUST reject at least the following cases:
 - duplicate or malformed validation-result keys;
 - secret-shaped keys or values in structured metadata;
 - authority-shaped fields or aliases;
-- `kill_switch_state=false` during this Staging phase;
-- missing workflow/run identity;
+- `kill_switch_state=FALSE`;
+- `STAGING` with any kill-switch value other than `TRUE`;
+- `LOCAL` or `NON_RUNTIME` with any kill-switch value other than `NOT_APPLICABLE`;
+- caller-supplied workflow run identity in the Staging bridge;
+- missing trusted workflow/run identity;
 - unsupported capsule class;
 - inconclusive/skipped/cancelled evidence represented as PASS;
 - symlink/path traversal that escapes the repository or approved artifact directory;
@@ -197,13 +213,16 @@ Minimum positive tests:
 
 - deterministic Release DNA produces the same digest regardless of input object key order;
 - exact source/tree/artifact bindings produce a valid STAGING capsule;
+- a LOCAL `DB_REBUILD_PROOF_CAPSULE` requires `NOT_APPLICABLE` kill-switch state;
 - migration digest input is canonicalized deterministically;
 - capsule output is deeply immutable or otherwise non-mutable by consumers;
+- trusted CI identity is injected outside the untrusted proof payload;
 - repository remains unchanged by evidence generation.
 
 Minimum negative tests:
 
 - Production environment rejected;
+- invalid environment/class combination rejected;
 - mismatched source SHA rejected;
 - mismatched source tree rejected;
 - mismatched release digest rejected;
@@ -212,13 +231,14 @@ Minimum negative tests:
 - unknown field rejected;
 - authorization-shaped field rejected;
 - false kill switch rejected;
+- caller-forged workflow/runner identity rejected by the Staging bridge;
 - unsupported class rejected;
 - malformed timestamp rejected;
 - path traversal/symlink escape rejected;
 - missing proof artifact rejected;
 - inconclusive result cannot become PASS.
 
-The workflow contract must also be tested to ensure exact-SHA checkout, read-only repository permissions, no Production credential dependency, external temporary evidence output, and artifact names bound to the exact source SHA.
+The workflow contract must also be tested to ensure exact-SHA checkout, read-only repository permissions, no Production credential dependency, external temporary evidence output, trusted workflow identity derivation, and artifact names bound to the exact source SHA.
 
 ## 8. CI and Evidence Artifact Contract
 
@@ -279,7 +299,8 @@ This Evidence Plane sub-project is complete only when one new exact SHA satisfie
 - Project Control Integrity PASS;
 - Steel Shield reports `CRITICAL=0 HIGH=0`;
 - evidence generation leaves repository clean;
-- at least one real existing proof source is packaged into a valid STAGING capsule without fabricating any missing proof class.
+- at least one real existing proof source is packaged into a valid capsule without fabricating any missing proof class;
+- if no target can be proven to be Staging, the Staging Bridge demonstrates `BLOCKED` rather than fabricating a STAGING PASS.
 
 Even after these criteria pass, the outcome is `EVIDENCE_PLANE_GREEN`, not Production authorization.
 
