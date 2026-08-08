@@ -1,8 +1,9 @@
-# Federated Identity — Known Compatibility Gap
+# Federated Identity — Legacy Linking Compatibility Gap
 
-- **Status:** OPEN / FAIL-CLOSED REMEDIATION REQUIRED BEFORE PRODUCTION IDENTITY LAUNCH
+- **Status:** REMEDIATION PREPARED / NOT REMOTELY APPLIED
 - **Decision:** `docs/architecture/ADR-2026-08-08-federated-identity-sovereignty.md`
 - **Policy:** `project-control/security/federated-identity-policy.v1.json`
+- **Prepared forward migration:** `supabase/migrations/20260808_vvip_identity_fail_closed_profile_resolver.sql`
 
 ## Existing compliant foundation
 
@@ -12,9 +13,9 @@ The existing Supabase profile resolver and RLS policies identify authenticated u
 (auth.jwt() ->> 'sub') = clerk_user_id
 ```
 
-This is aligned with the new federated identity architecture because the external subject, not the email address, is the authorization anchor.
+This is aligned with the federated identity architecture because the external subject, not the email address, is the authorization anchor.
 
-## Existing incompatible legacy behavior
+## Historical incompatible behavior
 
 Historical migration:
 
@@ -22,44 +23,61 @@ Historical migration:
 supabase/migrations/20260710_vvip_tiger_atomic_profile_resolver_rpc.sql
 ```
 
-contains a legacy recovery path that, when no profile exists for the current Clerk subject, may update a profile by matching the email address and assigning the current `clerk_user_id` when the previous subject field is empty.
+contains a legacy recovery path that, when no profile exists for the current Clerk subject, may update a profile by matching email and assigning the current `clerk_user_id` when the previous subject field is empty.
 
-The function returns status:
+That historical function returns:
 
 ```text
 legacy_profile_recovered
 ```
 
-This was a migration convenience for historical profiles. Under the newly binding Federated Identity Sovereignty ADR, it is no longer an acceptable automatic identity-linking path because email equality alone must not prove account ownership.
+The historical migration is intentionally preserved for audit/provenance and is not rewritten in place.
 
-## Required remediation
+## IDENTITY-01 remediation prepared
 
-Do **not** edit or rewrite the historical migration in place.
+Forward migration:
 
-Create a new forward migration that replaces the resolver behavior so that:
+```text
+supabase/migrations/20260808_vvip_identity_fail_closed_profile_resolver.sql
+```
+
+replaces the resolver behavior in repository state so that:
 
 1. exact authenticated external subject lookup remains first and authoritative;
-2. an existing profile with no external subject is **not** claimed automatically by matching email;
-3. an unbound legacy profile produces a fail-closed status such as `identity_migration_required`;
-4. any legacy identity reassignment occurs only through a separately governed, auditable migration/re-verification procedure;
-5. creation of a genuinely new profile remains bound directly to the authenticated external subject;
-6. RLS continues to enforce subject equality;
-7. no Production migration is applied without protected release authorization and same-SHA evidence.
+2. no existing profile is updated to acquire `clerk_user_id` by email;
+3. legacy detection uses only an email claim carried by the authenticated JWT, never browser-supplied `p_email`;
+4. an unbound legacy profile detected from verified JWT email returns fail-closed `identity_migration_required` without returning the profile;
+5. browser `p_email` remains compatibility/profile data only and cannot search for or claim existing ownership;
+6. genuinely new profiles are created directly under the authenticated external subject;
+7. unique-conflict recovery re-reads by exact subject only;
+8. existing RLS/schema remain unchanged.
 
-## Runtime compatibility
+## What is still not done
 
-The browser may continue sending the current email hint temporarily because it is not itself an authority. After the forward migration, the backend must never use that hint to transfer ownership of an existing unbound profile.
+The prepared migration has **not** been remotely applied to Staging or Production by this repository slice.
 
-A later cleanup may remove `p_email` entirely when schema/runtime compatibility has been proven.
+Therefore repository remediation and deployed-environment remediation are intentionally distinguished:
+
+```text
+REPOSITORY_EMAIL_AUTO_LINK_REMEDIATION=PREPARED
+REMOTE_DATABASE_STATE=UNVERIFIED_BY_IDENTITY_01
+PRODUCTION_DB_MUTATION=NOT_AUTHORIZED
+```
+
+Production identity launch must remain blocked until the forward migration is separately approved/applied through the protected release process and same-SHA environment evidence proves the deployed resolver no longer contains email ownership transfer.
+
+## Future legacy reassignment procedure
+
+`identity_migration_required` is not an invitation to manually assign a subject by email. Any genuine historical account reassignment must use a separately governed re-verification procedure with explicit identity proof, owner/security authorization where required, and audit evidence.
+
+A later compatibility cleanup may remove `p_email` entirely when runtime/provider claim availability is proven.
 
 ## Hard boundary
 
-Until this gap is resolved and verified:
-
 ```text
-FEDERATED_IDENTITY_POLICY=ADOPTED
-CURRENT_IMPLEMENTATION=PARTIAL
-EMAIL_AUTO_LINKING_PATH=KNOWN_GAP
-PRODUCTION_IDENTITY_LAUNCH=BLOCKED_ON_REMEDIATION
+FEDERATED_IDENTITY_POLICY=BINDING
+EMAIL_AUTO_LINKING_REPOSITORY_FIX=PREPARED
+REMOTE_MIGRATION=NOT_APPLIED
+PRODUCTION_IDENTITY_LAUNCH=BLOCKED_ON_DEPLOYED_EVIDENCE
 PRODUCTION_DB_MUTATION=NOT_AUTHORIZED
 ```
