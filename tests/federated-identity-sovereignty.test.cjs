@@ -9,6 +9,7 @@ const ROOT = path.resolve(__dirname, "..");
 const POLICY_PATH = path.join(ROOT, "project-control/security/federated-identity-policy.v1.json");
 const ADR_PATH = path.join(ROOT, "docs/architecture/ADR-2026-08-08-federated-identity-sovereignty.md");
 const GAP_PATH = path.join(ROOT, "docs/security/FEDERATED_IDENTITY_KNOWN_GAP_20260808.md");
+const REMOVAL_PATH = path.join(ROOT, "docs/security/LEGACY_PASSWORD_RUNTIME_REMOVAL_20260808.md");
 
 function collectFiles(target) {
   if (!fs.existsSync(target)) return [];
@@ -48,6 +49,7 @@ test("federated identity policy is binding and passwordless by architecture", ()
 test("binding ADR and known compatibility gap are recorded", () => {
   const adr = fs.readFileSync(ADR_PATH, "utf8");
   const gap = fs.readFileSync(GAP_PATH, "utf8");
+  const removal = fs.readFileSync(REMOVAL_PATH, "utf8");
   assert.match(adr, /Status:\*\* ACCEPTED \/ BINDING/);
   assert.match(adr, /account_identity = \(issuer, subject\)/);
   assert.match(adr, /No automatic account linking by email/);
@@ -55,6 +57,17 @@ test("binding ADR and known compatibility gap are recorded", () => {
   assert.match(gap, /legacy_profile_recovered/);
   assert.match(gap, /identity_migration_required/);
   assert.match(gap, /PRODUCTION_IDENTITY_LAUNCH=BLOCKED_ON_REMEDIATION/);
+  assert.match(removal, /LEGACY_PASSWORD_RUNTIME=REMOVED/);
+});
+
+test("retired first-party password runtimes remain absent", () => {
+  for (const relative of [
+    "auth.js",
+    "auth-supabase.js",
+    "scripts/supabase-auth-bridge.js"
+  ]) {
+    assert.equal(fs.existsSync(path.join(ROOT, relative)), false, `${relative} must remain retired`);
+  }
 });
 
 test("owned runtime code contains no first-party password authentication path", () => {
