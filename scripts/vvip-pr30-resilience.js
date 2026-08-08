@@ -62,6 +62,7 @@
     "حدث تعذر مؤقت. يمكنك المتابعة من السوق أو الرجوع للرئيسية.";
   const OFFLINE_MESSAGE =
     "الاتصال ضعيف أو غير متاح. يمكنك متابعة التصفح المحلي مؤقتًا.";
+  const STATIC_DELIVERY_RUNTIME_SRC = "scripts/runtime/vvip-static-delivery.js";
 
   let feedbackTimer = 0;
 
@@ -159,6 +160,17 @@
     notice.hidden = navigator.onLine;
   }
 
+  function loadStaticDeliveryRuntime() {
+    if (!document || !document.head) return;
+    if (document.querySelector("script[data-vvip-static-delivery-runtime]")) return;
+
+    const script = document.createElement("script");
+    script.src = STATIC_DELIVERY_RUNTIME_SRC;
+    script.async = true;
+    script.setAttribute("data-vvip-static-delivery-runtime", "");
+    document.head.appendChild(script);
+  }
+
   document.addEventListener("click", guardAction, true);
   window.addEventListener("offline", updateNetworkNotice);
   window.addEventListener("online", updateNetworkNotice);
@@ -172,6 +184,7 @@
     showFeedback(RECOVERY_MESSAGE);
   });
 
+  loadStaticDeliveryRuntime();
   updateNetworkNotice();
 
   window.VVIP_PR30 = Object.freeze({
