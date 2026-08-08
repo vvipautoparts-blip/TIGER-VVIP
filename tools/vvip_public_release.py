@@ -8,6 +8,7 @@ and fails closed in production when test/demo markers are present.
 from __future__ import annotations
 
 import argparse
+import base64
 import hashlib
 import json
 import os
@@ -150,6 +151,21 @@ def _transform_index(text: str) -> str:
     return text
 
 
+def _decode_clerk_frontend_api(publishable_key: str) -> str | None:
+    match = re.fullmatch(r"pk_(?:test|live)_(.+)", str(publishable_key or "").strip())
+    if not match:
+        return None
+    payload = match.group(1).replace("-", "+").replace("_", "/")
+    payload += "=" * ((4 - len(payload) % 4) % 4)
+    try:
+        decoded = base64.b64decode(payload, validate=True).decode("utf-8").rstrip("$").strip()
+    except (ValueError, UnicodeDecodeError):
+        return None
+    if not re.fullmatch(r"[A-Za-z0-9.-]+", decoded) or ".." in decoded:
+        return None
+    return decoded.lower()
+
+
 def _runtime_config(environment: str, source_sha: str) -> tuple[str, list[str]]:
     config = {
         "environment": environment,
@@ -161,8 +177,15 @@ def _runtime_config(environment: str, source_sha: str) -> tuple[str, list[str]]:
     }
     errors: list[str] = []
     if environment == "production":
-        if not config["clerkPublishableKey"].startswith("pk_live_"):
+        clerk_key = config["clerkPublishableKey"]
+        if not clerk_key.startswith("pk_live_"):
             errors.append("production Clerk publishable key must start with pk_live_")
+        else:
+            frontend_api = _decode_clerk_frontend_api(clerk_key)
+            if not frontend_api:
+                errors.append("production Clerk publishable key payload is invalid")
+            elif frontend_api == "clerk.accounts.dev" or frontend_api.endswith(".clerk.accounts.dev"):
+                errors.append("production Clerk publishable key resolves to a development frontend API")
         if not re.fullmatch(r"https://[A-Za-z0-9.-]+", config["supabaseUrl"]):
             errors.append("production Supabase URL must be an https origin")
         public_key = config["supabasePublishableKey"]
@@ -184,6 +207,16 @@ def _hashes(output: Path) -> dict[str, str]:
     return result
 
 
+def _contains_active_clerk_dev_domain(text: str) -> bool:
+    if ".clerk.accounts.dev" not in text:
+        return False
+    defensive_guard = re.compile(
+        r"\.endsWith\(\s*[\"']\.clerk\.accounts\.dev[\"']\s*\)",
+        flags=re.IGNORECASE,
+    )
+    return ".clerk.accounts.dev" in defensive_guard.sub("", text)
+
+
 def _scan_markers(output: Path) -> list[dict[str, str]]:
     findings: list[dict[str, str]] = []
     for path in sorted(output.rglob("*")):
@@ -191,7 +224,11 @@ def _scan_markers(output: Path) -> list[dict[str, str]]:
             continue
         text = path.read_text(encoding="utf-8", errors="replace")
         for code, marker in FORBIDDEN_PRODUCTION_MARKERS.items():
-            if marker in text:
+            if code == "CLERK_DEV_DOMAIN":
+                matched = _contains_active_clerk_dev_domain(text)
+            else:
+                matched = marker in text
+            if matched:
                 findings.append({"code": code, "path": path.relative_to(output).as_posix()})
     return findings
 
