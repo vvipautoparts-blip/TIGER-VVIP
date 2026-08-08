@@ -13,10 +13,6 @@ fi
 critical=0
 high=0
 
-# These immutable, already-applied migrations were reviewed before this scanner
-# was introduced. The exception is content-addressed: changing even one byte
-# removes the exemption and sends the migration through the normal fail-closed
-# checks below. New migration files never inherit an exception by name pattern.
 declare -A reviewed_migration_hashes=(
   ["supabase/migrations/20260626_parts_vehicle_registry_id_compat.sql"]="d4b9eab67704fe359325a648154133eb30d082185044f73241fdd37b814c716c"
   ["supabase/migrations/20260627_vehicle_registry_compat.sql"]="eeaa1a67a062b7d666b238fdb5c38c5d87d42fdd3bc3df91562d680f1064cde5"
@@ -32,60 +28,22 @@ declare -A reviewed_migration_hashes=(
   ["supabase/migrations/202607200002_project_control_core_seed.sql"]="a1f410b3daf9da0a4d4215617d89043b49248e510add95944b817afbf945b761"
   ["supabase/migrations/202607200003_project_control_extended_seed.sql"]="65db935c2b6f81ffc4faca3c668a788a8820e531faa346f5f7c691db2751154a"
   ["supabase/migrations/202607230001_fix_security_and_jod_localization.sql"]="37d5fa2a5a99188504fc1398bc2f179c7d1ba38f83c9c51f8bfd66649d648be7"
-  # Global V1 core schema: new table creation with RLS policies (DROP POLICY IF EXISTS + CREATE POLICY + auth.jwt() usage)
-  # Reviewed 2026-07-24: Creates sectors, categories, listings, conversations, messages, notifications,
-  # reports, support_tickets, consents, user_blocks. All CRITICAL flags are false positives:
-  # DROP_POLICY = idempotent policy recreation; AUTH_SCHEMA_DIRECT_MUTATION = auth.jwt() read-only JWT claim.
-  # No DROP DATABASE, DROP SCHEMA, TRUNCATE, DELETE without WHERE, DISABLE RLS.
   ["supabase/migrations/202607240001_global_v1_core_schema.sql"]="ac94c63757a4baa2f83ea2df6f01ccd0a4746ef703d4393ebbbcfd42dc44141a"
-  # EB-002 corrective migration: reviewed 2026-07-25 after local reset, executable RLS tests,
-  # exact 27-grant reconciliation, and independent red-team review. DROP POLICY replaces the
-  # vulnerable policies; auth.jwt() is read-only; NOT NULL is guarded by a fail-closed data check;
-  # UPDATE tokens are trigger/policy declarations; explicit grants are least-privilege DML only.
   ["supabase/migrations/20260725210915_eb002_global_v1_security_corrections.sql"]="891a4ca68a65dc91896a3c6bcfd94c9a4659997708f1ae0328794566bccc74de"
-  # V13.1 authorization foundation: reviewed 2026-08-05 as an empty schema-only candidate.
-  # Clerk principal identifiers remain opaque text; internal records use UUID. All protected
-  # tables ENABLE and FORCE RLS; browser roles receive explicit revocations and no grants;
-  # no owner, partner, country, seal, endpoint, secret, policy, or privileged write RPC is seeded.
-  # Dedicated contract tests pin this exact SHA-256 and reject byte-level drift.
   ["supabase/migrations/20260805_v13_1_authorization_foundation.sql"]="9e65d4c705922674b611ba929423688872a83729cff578c7106c73cdc7c4d6c5"
-  # V14 marketplace foundation: reviewed 2026-08-08 after an exact-head local `supabase db reset --local`
-  # rebuilt the canonical migration chain from zero, plus non-production staging RLS behavior probes.
-  # Protected marketplace tables ENABLE+FORCE RLS; country activation fails closed; trusted review
-  # requires OWNER_ROOT or a live scoped assignment; storage is private and ownership-bound.
-  # Scanner AUTH_SCHEMA flags are read-only auth.jwt() claim access; line-oriented SECURITY DEFINER
-  # and policy/grant alerts were manually reconciled against fixed search_path and least-privilege grants.
   ["supabase/migrations/20260806090000_v14_marketplace_foundation.sql"]="f8f522226590c7812d495e1089d1a29d844fb460e64480bb9349cb31503ce8c5"
-  # V14 marketplace audit hardening: reviewed 2026-08-08 after local rebuild and staging append-only proof.
-  # The SECURITY DEFINER trigger function has an explicit pg_catalog,public search_path and its EXECUTE
-  # privilege is revoked from public, anon, and authenticated; the scanner's same-line heuristic is conservative.
   ["supabase/migrations/20260806100000_v14_marketplace_hardening.sql"]="f01fd150f94b2b6bbd1f7c9c5cdc085f36ffa511aff326fdfee409b37ccba359"
-  # LC-03 Supabase security hardening: reviewed 2026-08-08 after 7/7 contract tests,
-  # a credential-isolated full local database rebuild, Staging execution, post-change advisor review,
-  # and behavioral probes for public ACTIVE read, DRAFT isolation, inactive-country fail-closed,
-  # unauthorized review rejection, and append-only audit. Internal SECURITY DEFINER helpers move
-  # out of the exposed public RPC schema; intentional authenticated application RPCs remain explicit.
   ["supabase/migrations/20260808003000_lc03_supabase_security_hardening.sql"]="15fed4de91331ceb252e359f6946de9b02d16d91286157177024141546963955"
-  # TSRF semantic-convergence migrations: reviewed 2026-08-08 on exact source
-  # e3c7bb2466f173c0fe06fdefa24420aee92749f7 after clean local migration replay and
-  # fail-closed runtime verification. Steel Shield findings were limited to new-table
-  # NOT NULL declarations and bounded multi-line UPDATE statements whose WHERE clauses
-  # occur on subsequent lines; no wildcard/path-only exemption is used.
   ["supabase/migrations/20260808130000_tsrf_ai_trust_fabric.sql"]="3033a405060c9dc1bdc4425e3d2b14d2011d86b3afc7a1d243d5e930a4d60d96"
   ["supabase/migrations/20260808131000_tsrf_ai_runtime_atomicity.sql"]="f047f356ee57c09b86c322c6329bb9897fd06c3f0163fef6bb64fd608c84e747"
   ["supabase/migrations/20260808132000_tsrf_owner_authorization_leases.sql"]="994a7fdb42ca2d82138ac04a65e8db63cfcd55c08917ff5134e4c184df76e4cb"
-  # Sovereign phone OTP challenge store: reviewed 2026-08-08 on exact source
-  # 4301569edcb64b248d5b80e65efbb646e9bd3be3 after a full local migration rebuild,
-  # Deno Edge typecheck, exact-source OTP contract, and executable database behavior proof.
-  # Browser roles have no table/RPC authority; issuance/consume are serialized and fail closed;
-  # scanner alerts are new-table NOT NULL declarations, fixed-search-path SECURITY DEFINER RPCs,
-  # and bounded multi-line UPDATE statements. The exception remains exact path + exact SHA-256.
   ["supabase/migrations/20260808133000_phone_otp_challenges.sql"]="b9524528878d5646884bfdbb04abf06b8e4e73eb9628d0132b02fb06fbe7ee9a"
-  # LC-04 Production legacy RPC hardening: reviewed 2026-08-08 after exact-head static contracts,
-  # a credential-isolated full local database rebuild, canonical no-synthesis proof, Production-drift
-  # convergence simulation, and policy dependency preservation. The migration conditionally preserves
-  # and moves only existing legacy helper OIDs; absent helpers stay absent. Any byte drift invalidates review.
   ["supabase/migrations/20260808134000_lc04_production_legacy_rpc_hardening.sql"]="86cd92e65b1d7294158798b6828d33fe7c346946ff9d955371fc55f5f13388fa"
+  # LC-05 legacy credential isolation: reviewed after exact-head static contracts,
+  # full local migration replay, canonical no-synthesis proof, and Production-drift
+  # convergence that removed all direct browser policies/privileges while preserving
+  # the modern phone_otp_challenges store. Any byte drift invalidates this baseline.
+  ["supabase/migrations/20260808135000_lc05_credential_surface_isolation.sql"]="ebf13f51f5e1e11e1c8224126f8e812fd8e5c79911c6827f328be19192424e3f"
 )
 
 reviewed_baseline_path() {
