@@ -9,9 +9,10 @@ create schema if not exists vvip_private;
 revoke all on schema vvip_private from public, anon, authenticated;
 grant usage on schema vvip_private to anon, authenticated;
 
--- Move legacy RLS helper functions out of the exposed public RPC schema.
--- ALTER FUNCTION ... SET SCHEMA preserves each function OID, so existing pg_policy
--- expressions keep referring to the same function object.
+-- Move only legacy RLS helper functions that actually exist. ALTER FUNCTION ...
+-- SET SCHEMA preserves the function OID, so pg_policy dependencies keep referring
+-- to the same object. An environment that does not contain a legacy helper must not
+-- acquire that helper merely because this convergence migration ran.
 do $move_helpers$
 begin
   if to_regprocedure('public.user_role_for(uuid)') is not null then
@@ -41,162 +42,191 @@ begin
 end
 $move_helpers$;
 
--- Canonicalize the helper graph after the move. All table/auth references are schema
--- qualified and the SECURITY DEFINER search_path is reduced to pg_catalog.
-create or replace function vvip_private.user_role_for(target_user uuid)
-returns text
-language sql
-stable
-security definer
-set search_path = pg_catalog
-as $function$
-  select coalesce(
-    (select p.role from public.profiles p where p.id = target_user limit 1),
-    'guest'
-  );
-$function$;
+-- Fail closed on a partially present dependency graph. This prevents a drifted
+-- environment from getting a helper whose body points to a missing prerequisite.
+do $validate_helper_graph$
+begin
+  if to_regprocedure('vvip_private.current_user_role()') is not null
+     and to_regprocedure('vvip_private.user_role_for(uuid)') is null then
+    raise exception 'LC04_HELPER_GRAPH_INCOMPLETE: current_user_role requires user_role_for';
+  end if;
 
-create or replace function vvip_private.current_user_role()
-returns text
-language sql
-stable
-security definer
-set search_path = pg_catalog
-as $function$
-  select vvip_private.user_role_for(auth.uid());
-$function$;
+  if (
+    to_regprocedure('vvip_private.is_field_representative()') is not null
+    or to_regprocedure('vvip_private.is_reviewer()') is not null
+    or to_regprocedure('vvip_private.is_super_admin()') is not null
+  ) and to_regprocedure('vvip_private.current_user_role()') is null then
+    raise exception 'LC04_HELPER_GRAPH_INCOMPLETE: role predicates require current_user_role';
+  end if;
+end
+$validate_helper_graph$;
 
-create or replace function vvip_private.is_field_representative()
-returns boolean
-language sql
-stable
-security definer
-set search_path = pg_catalog
-as $function$
-  select vvip_private.current_user_role() = 'representative';
-$function$;
+-- Canonicalize only helpers that were actually present/moved. Each dynamic CREATE
+-- OR REPLACE keeps the existing function identity and applies a fixed search_path.
+do $rewrite_helpers$
+begin
+  if to_regprocedure('vvip_private.user_role_for(uuid)') is not null then
+    execute $sql$
+      create or replace function vvip_private.user_role_for(target_user uuid)
+      returns text
+      language sql
+      stable
+      security definer
+      set search_path = pg_catalog
+      as $function$
+        select coalesce(
+          (select p.role from public.profiles p where p.id = target_user limit 1),
+          'guest'
+        );
+      $function$
+    $sql$;
+    execute 'revoke all on function vvip_private.user_role_for(uuid) from public, anon, authenticated';
+    execute 'grant execute on function vvip_private.user_role_for(uuid) to anon, authenticated';
+  end if;
 
-create or replace function vvip_private.is_reviewer()
-returns boolean
-language sql
-stable
-security definer
-set search_path = pg_catalog
-as $function$
-  select vvip_private.current_user_role() in ('super_admin', 'representative');
-$function$;
+  if to_regprocedure('vvip_private.current_user_role()') is not null then
+    execute $sql$
+      create or replace function vvip_private.current_user_role()
+      returns text
+      language sql
+      stable
+      security definer
+      set search_path = pg_catalog
+      as $function$
+        select vvip_private.user_role_for(auth.uid());
+      $function$
+    $sql$;
+    execute 'revoke all on function vvip_private.current_user_role() from public, anon, authenticated';
+    execute 'grant execute on function vvip_private.current_user_role() to anon, authenticated';
+  end if;
 
-create or replace function vvip_private.is_super_admin()
-returns boolean
-language sql
-stable
-security definer
-set search_path = pg_catalog
-as $function$
-  select vvip_private.current_user_role() = 'super_admin';
-$function$;
+  if to_regprocedure('vvip_private.is_field_representative()') is not null then
+    execute $sql$
+      create or replace function vvip_private.is_field_representative()
+      returns boolean
+      language sql
+      stable
+      security definer
+      set search_path = pg_catalog
+      as $function$
+        select vvip_private.current_user_role() = 'representative';
+      $function$
+    $sql$;
+    execute 'revoke all on function vvip_private.is_field_representative() from public, anon, authenticated';
+    execute 'grant execute on function vvip_private.is_field_representative() to anon, authenticated';
+  end if;
 
-create or replace function vvip_private.is_team_member(target_user uuid)
-returns boolean
-language sql
-stable
-security definer
-set search_path = pg_catalog
-as $function$
-  select exists (
-    select 1
-    from public.profiles p
-    where p.id = target_user
-      and p.superior_id = auth.uid()
-  );
-$function$;
+  if to_regprocedure('vvip_private.is_reviewer()') is not null then
+    execute $sql$
+      create or replace function vvip_private.is_reviewer()
+      returns boolean
+      language sql
+      stable
+      security definer
+      set search_path = pg_catalog
+      as $function$
+        select vvip_private.current_user_role() in ('super_admin', 'representative');
+      $function$
+    $sql$;
+    execute 'revoke all on function vvip_private.is_reviewer() from public, anon, authenticated';
+    execute 'grant execute on function vvip_private.is_reviewer() to anon, authenticated';
+  end if;
 
-create or replace function vvip_private.can_publish_owner(target_user uuid)
-returns boolean
-language sql
-stable
-security definer
-set search_path = pg_catalog
-as $function$
-  select exists (
-    select 1
-    from public.profiles p
-    where p.id = target_user
-      and p.role = 'dealer'
-      and p.is_approved = true
-      and coalesce(p.business_status, 'active') = 'active'
-      and coalesce(p.subscription, 'basic') <> 'expired'
-  );
-$function$;
+  if to_regprocedure('vvip_private.is_super_admin()') is not null then
+    execute $sql$
+      create or replace function vvip_private.is_super_admin()
+      returns boolean
+      language sql
+      stable
+      security definer
+      set search_path = pg_catalog
+      as $function$
+        select vvip_private.current_user_role() = 'super_admin';
+      $function$
+    $sql$;
+    execute 'revoke all on function vvip_private.is_super_admin() from public, anon, authenticated';
+    execute 'grant execute on function vvip_private.is_super_admin() to anon, authenticated';
+  end if;
 
-create or replace function vvip_private.can_self_update_profile(
-  target_id uuid,
-  new_role text,
-  new_is_approved boolean,
-  new_superior_id uuid,
-  new_subscription text,
-  new_business_status text
-)
-returns boolean
-language sql
-stable
-security definer
-set search_path = pg_catalog
-as $function$
-  select auth.uid() = target_id
-    and exists (
-      select 1
-      from public.profiles p
-      where p.id = auth.uid()
-        and p.role = new_role
-        and p.is_approved = new_is_approved
-        and p.superior_id is not distinct from new_superior_id
-        and p.subscription = new_subscription
-        and coalesce(p.business_status, 'active') = coalesce(new_business_status, 'active')
-    );
-$function$;
+  if to_regprocedure('vvip_private.is_team_member(uuid)') is not null then
+    execute $sql$
+      create or replace function vvip_private.is_team_member(target_user uuid)
+      returns boolean
+      language sql
+      stable
+      security definer
+      set search_path = pg_catalog
+      as $function$
+        select exists (
+          select 1
+          from public.profiles p
+          where p.id = target_user
+            and p.superior_id = auth.uid()
+        );
+      $function$
+    $sql$;
+    execute 'revoke all on function vvip_private.is_team_member(uuid) from public, anon, authenticated';
+    execute 'grant execute on function vvip_private.is_team_member(uuid) to anon, authenticated';
+  end if;
 
--- The private schema is not a PostgREST API surface. RLS evaluation still needs the
--- helpers to be executable by the two browser database roles.
-revoke all on function vvip_private.user_role_for(uuid)
-  from public, anon, authenticated;
-grant execute on function vvip_private.user_role_for(uuid)
-  to anon, authenticated;
+  if to_regprocedure('vvip_private.can_publish_owner(uuid)') is not null then
+    execute $sql$
+      create or replace function vvip_private.can_publish_owner(target_user uuid)
+      returns boolean
+      language sql
+      stable
+      security definer
+      set search_path = pg_catalog
+      as $function$
+        select exists (
+          select 1
+          from public.profiles p
+          where p.id = target_user
+            and p.role = 'dealer'
+            and p.is_approved = true
+            and coalesce(p.business_status, 'active') = 'active'
+            and coalesce(p.subscription, 'basic') <> 'expired'
+        );
+      $function$
+    $sql$;
+    execute 'revoke all on function vvip_private.can_publish_owner(uuid) from public, anon, authenticated';
+    execute 'grant execute on function vvip_private.can_publish_owner(uuid) to anon, authenticated';
+  end if;
 
-revoke all on function vvip_private.current_user_role()
-  from public, anon, authenticated;
-grant execute on function vvip_private.current_user_role()
-  to anon, authenticated;
-
-revoke all on function vvip_private.is_field_representative()
-  from public, anon, authenticated;
-grant execute on function vvip_private.is_field_representative()
-  to anon, authenticated;
-
-revoke all on function vvip_private.is_reviewer()
-  from public, anon, authenticated;
-grant execute on function vvip_private.is_reviewer()
-  to anon, authenticated;
-
-revoke all on function vvip_private.is_super_admin()
-  from public, anon, authenticated;
-grant execute on function vvip_private.is_super_admin()
-  to anon, authenticated;
-
-revoke all on function vvip_private.is_team_member(uuid)
-  from public, anon, authenticated;
-grant execute on function vvip_private.is_team_member(uuid)
-  to anon, authenticated;
-
-revoke all on function vvip_private.can_publish_owner(uuid)
-  from public, anon, authenticated;
-grant execute on function vvip_private.can_publish_owner(uuid)
-  to anon, authenticated;
-
-revoke all on function vvip_private.can_self_update_profile(uuid, text, boolean, uuid, text, text)
-  from public, anon, authenticated;
-grant execute on function vvip_private.can_self_update_profile(uuid, text, boolean, uuid, text, text)
-  to anon, authenticated;
+  if to_regprocedure('vvip_private.can_self_update_profile(uuid, text, boolean, uuid, text, text)') is not null then
+    execute $sql$
+      create or replace function vvip_private.can_self_update_profile(
+        target_id uuid,
+        new_role text,
+        new_is_approved boolean,
+        new_superior_id uuid,
+        new_subscription text,
+        new_business_status text
+      )
+      returns boolean
+      language sql
+      stable
+      security definer
+      set search_path = pg_catalog
+      as $function$
+        select auth.uid() = target_id
+          and exists (
+            select 1
+            from public.profiles p
+            where p.id = auth.uid()
+              and p.role = new_role
+              and p.is_approved = new_is_approved
+              and p.superior_id is not distinct from new_superior_id
+              and p.subscription = new_subscription
+              and coalesce(p.business_status, 'active') = coalesce(new_business_status, 'active')
+          );
+      $function$
+    $sql$;
+    execute 'revoke all on function vvip_private.can_self_update_profile(uuid, text, boolean, uuid, text, text) from public, anon, authenticated';
+    execute 'grant execute on function vvip_private.can_self_update_profile(uuid, text, boolean, uuid, text, text) to anon, authenticated';
+  end if;
+end
+$rewrite_helpers$;
 
 -- Legacy enumeration/trigger/event-trigger helpers stay out of browser RPC use.
 do $legacy_rpc_lock$
