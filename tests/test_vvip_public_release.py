@@ -44,6 +44,15 @@ class PublicReleaseTests(unittest.TestCase):
         (root / "docs").mkdir()
         (root / "docs" / "internal.md").write_text("private", encoding="utf-8")
 
+    @staticmethod
+    def production_env(clerk_key: str = "pk_live_ZXhhbXBsZS5jbGVyay5hY2NvdW50cy5jb20k") -> dict[str, str]:
+        return {
+            "TIGER_CLERK_PUBLISHABLE_KEY": clerk_key,
+            "TIGER_SUPABASE_URL": "https://example.supabase.co",
+            "TIGER_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_example",
+            "TIGER_DEFAULT_COUNTRY_CODE": "JO",
+        }
+
     def test_candidate_excludes_internal_paths_and_transforms_index(self):
         with tempfile.TemporaryDirectory() as temp:
             source = Path(temp) / "src"
@@ -75,12 +84,7 @@ class PublicReleaseTests(unittest.TestCase):
             output = Path(temp) / "out"
             source.mkdir()
             self.fixture(source, fixture_data=True)
-            env = {
-                "TIGER_CLERK_PUBLISHABLE_KEY": "pk_live_ZXhhbXBsZS5jbGVyay5hY2NvdW50cy5jb20k",
-                "TIGER_SUPABASE_URL": "https://example.supabase.co",
-                "TIGER_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_example",
-            }
-            with mock.patch.dict(os.environ, env, clear=False):
+            with mock.patch.dict(os.environ, self.production_env(), clear=False):
                 with self.assertRaises(RuntimeError):
                     module.build(source, output, mode="production", source_sha="abc")
 
@@ -90,17 +94,39 @@ class PublicReleaseTests(unittest.TestCase):
             output = Path(temp) / "out"
             source.mkdir()
             self.fixture(source)
-            env = {
-                "TIGER_CLERK_PUBLISHABLE_KEY": "pk_live_ZXhhbXBsZS5jbGVyay5hY2NvdW50cy5jb20k",
-                "TIGER_SUPABASE_URL": "https://example.supabase.co",
-                "TIGER_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_example",
-                "TIGER_DEFAULT_COUNTRY_CODE": "JO",
-            }
-            with mock.patch.dict(os.environ, env, clear=False):
+            with mock.patch.dict(os.environ, self.production_env(), clear=False):
                 manifest = module.build(source, output, mode="production", source_sha="abc")
             self.assertTrue(manifest["releaseEligible"])
             self.assertIn("runtime-config.js", manifest["files"])
             self.assertFalse((output / "CNAME").exists())
+
+    def test_production_allows_defensive_clerk_dev_domain_guard(self):
+        with tempfile.TemporaryDirectory() as temp:
+            source = Path(temp) / "src"
+            output = Path(temp) / "out"
+            source.mkdir()
+            self.fixture(source)
+            (source / "scripts" / "runtime" / "vvip-runtime-loader.js").write_text(
+                'if (frontendApi.endsWith(".clerk.accounts.dev")) { throw new Error("blocked"); }\n',
+                encoding="utf-8",
+            )
+            with mock.patch.dict(os.environ, self.production_env(), clear=False):
+                manifest = module.build(source, output, mode="production", source_sha="abc")
+            self.assertTrue(manifest["releaseEligible"])
+            self.assertFalse(
+                any(item["code"] == "CLERK_DEV_DOMAIN" for item in manifest["forbiddenFindings"])
+            )
+
+    def test_production_rejects_active_clerk_dev_domain_even_with_live_prefix(self):
+        with tempfile.TemporaryDirectory() as temp:
+            source = Path(temp) / "src"
+            output = Path(temp) / "out"
+            source.mkdir()
+            self.fixture(source)
+            unsafe_live_key = "pk_live_ZGVtby5jbGVyay5hY2NvdW50cy5kZXYk"
+            with mock.patch.dict(os.environ, self.production_env(unsafe_live_key), clear=False):
+                with self.assertRaises(RuntimeError):
+                    module.build(source, output, mode="production", source_sha="abc")
 
 
 if __name__ == "__main__":
