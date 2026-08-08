@@ -1,0 +1,20 @@
+{
+  "private": true,
+  "name": "vvip-tiger-mobile-shell",
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "prepare:web": "node scripts/prepare-web.mjs",
+    "assert:boundary": "node scripts/assert-mobile-boundary.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.4.2",
+    "@capacitor/core": "8.4.2",
+    "@capacitor/ios": "8.4.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.4.2"
+  }
+}
