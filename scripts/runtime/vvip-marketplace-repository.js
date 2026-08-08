@@ -103,6 +103,48 @@
     return JSON.parse(JSON.stringify(value));
   }
 
+  function mediaPosition(media) {
+    const raw = media && media.position;
+    if (raw === null || raw === undefined || raw === "") return Number.MAX_SAFE_INTEGER;
+    const value = Number(raw);
+    return Number.isFinite(value) ? value : Number.MAX_SAFE_INTEGER;
+  }
+
+  function selectDisplayMedia(mediaList) {
+    const list = Array.isArray(mediaList) ? mediaList : [];
+    let selected = null;
+
+    list.forEach(function (media, index) {
+      const storagePath = String(media && media.storage_path || "").trim();
+      if (!storagePath) return;
+
+      const candidate = {
+        index: index,
+        path: storagePath,
+        coverPriority: media && media.is_cover === true ? 0 : 1,
+        position: mediaPosition(media)
+      };
+
+      if (
+        !selected ||
+        candidate.coverPriority < selected.coverPriority ||
+        (
+          candidate.coverPriority === selected.coverPriority &&
+          candidate.position < selected.position
+        ) ||
+        (
+          candidate.coverPriority === selected.coverPriority &&
+          candidate.position === selected.position &&
+          candidate.index < selected.index
+        )
+      ) {
+        selected = candidate;
+      }
+    });
+
+    return selected;
+  }
+
   function extensionForMime(mime) {
     if (mime === "image/jpeg") return "jpg";
     if (mime === "image/png") return "png";
@@ -165,20 +207,36 @@
     }
 
     async function signedMedia(rows) {
-      const paths = [];
-      (rows || []).forEach(function (listing) {
-        (listing.media || []).forEach(function (media) {
-          if (media.storage_path) paths.push(media.storage_path);
-        });
+      const sourceRows = rows || [];
+      const selections = sourceRows.map(function (listing) {
+        return selectDisplayMedia(listing && listing.media);
       });
-      if (!paths.length) return rows || [];
-      const signed = await client.storage.from("listing-media").createSignedUrls(paths, 900);
-      const signedRows = assertClientResult(signed, "MEDIA_SIGNING_FAILED") || [];
-      const urlMap = new Map(signedRows.map(function (entry) { return [entry.path, entry.signedUrl]; }));
-      return (rows || []).map(function (listing) {
+      const paths = [];
+      const seenPaths = new Set();
+
+      selections.forEach(function (selected) {
+        if (!selected || seenPaths.has(selected.path)) return;
+        seenPaths.add(selected.path);
+        paths.push(selected.path);
+      });
+
+      let urlMap = new Map();
+      if (paths.length) {
+        const signed = await client.storage.from("listing-media").createSignedUrls(paths, 900);
+        const signedRows = assertClientResult(signed, "MEDIA_SIGNING_FAILED") || [];
+        urlMap = new Map(signedRows.map(function (entry) {
+          return [entry.path, entry.signedUrl];
+        }));
+      }
+
+      return sourceRows.map(function (listing, listingIndex) {
+        const selected = selections[listingIndex];
         return Object.assign({}, listing, {
-          media: (listing.media || []).map(function (media) {
-            return Object.assign({}, media, { url: urlMap.get(media.storage_path) || "" });
+          media: (listing.media || []).map(function (media, mediaIndex) {
+            const selectedUrl = selected && mediaIndex === selected.index
+              ? urlMap.get(selected.path) || ""
+              : "";
+            return Object.assign({}, media, { url: selectedUrl });
           })
         });
       });
