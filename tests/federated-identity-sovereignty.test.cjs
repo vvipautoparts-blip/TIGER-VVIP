@@ -58,19 +58,23 @@ test("binding ADR and known compatibility gap are recorded", () => {
 });
 
 test("owned runtime code contains no first-party password authentication path", () => {
+  const rootAuthFiles = fs.readdirSync(ROOT)
+    .filter((name) => /^auth(?:[-.].*)?\.(?:js|html)$/i.test(name))
+    .map((name) => path.join(ROOT, name));
+
   const candidates = [
     ...collectFiles(path.join(ROOT, "scripts")),
     ...collectFiles(path.join(ROOT, "app")),
     ...collectFiles(path.join(ROOT, "supabase/functions")),
-    ...fs.readdirSync(ROOT)
-      .filter((name) => /^auth-.*\.js$/i.test(name))
-      .map((name) => path.join(ROOT, name))
+    ...rootAuthFiles
   ].filter((file) => /\.(?:c?js|mjs|ts|tsx|html)$/i.test(file));
 
   const forbidden = [
     { label: "Supabase password sign-in", re: /\.auth\.signInWithPassword\s*\(/ },
     { label: "Supabase password reset", re: /\.auth\.resetPasswordForEmail\s*\(/ },
     { label: "Supabase local sign-up", re: /\.auth\.signUp\s*\(/ },
+    { label: "Firebase password sign-in", re: /signInWithEmailAndPassword\s*\(/ },
+    { label: "Firebase password reset", re: /sendPasswordResetEmail\s*\(/ },
     { label: "password hash field", re: /\bpassword_hash\b/i },
     { label: "bcrypt credential hashing", re: /\bbcrypt\b/i },
     { label: "argon2 credential hashing", re: /\bargon2\b/i },
