@@ -53,6 +53,12 @@ function fail(code, message) {
   throw new EvidenceError(code, message);
 }
 
+function isPlainObject(value) {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return false;
+  const prototype = Object.getPrototypeOf(value);
+  return prototype === Object.prototype || prototype === null;
+}
+
 function normalizeRelative(relativePath) {
   if (typeof relativePath !== 'string' || !relativePath.trim()) {
     fail('RELEASE_DNA_PATH_INVALID', 'Release DNA source path is invalid.');
@@ -244,7 +250,38 @@ function derivePromptDigest(gatewaySource) {
   return sha256Hex(canonicalJson({ agent_instructions_source: block, provider_policy_literals: policy }));
 }
 
-function deriveModelConfigContract(gatewaySource) {
+function assertTrustedStagingConfig(config, endpoint) {
+  if (!isPlainObject(config)) {
+    fail('RELEASE_DNA_STAGING_CONFIG_UNPROVEN', 'Trusted Staging configuration is invalid.');
+  }
+  if (config.provenance !== 'GITHUB_ENVIRONMENT_STAGING' || config.environment_name !== 'staging' ||
+      !isPlainObject(config.snapshot)) {
+    fail('RELEASE_DNA_STAGING_CONFIG_UNPROVEN', 'Trusted Staging configuration provenance is invalid.');
+  }
+  const snapshot = config.snapshot;
+  const expectedKeys = [
+    'identity_verifier_class',
+    'max_output_tokens',
+    'model',
+    'prompt_version',
+    'provider_endpoint',
+  ];
+  if (canonicalJson(Object.keys(snapshot).sort()) !== canonicalJson(expectedKeys)) {
+    fail('RELEASE_DNA_STAGING_CONFIG_UNPROVEN', 'Trusted Staging configuration fields are invalid.');
+  }
+  if (
+    typeof snapshot.model !== 'string' || snapshot.model.length < 1 || snapshot.model.length > 160 ||
+    typeof snapshot.prompt_version !== 'string' || snapshot.prompt_version.length < 1 || snapshot.prompt_version.length > 128 ||
+    !Number.isSafeInteger(snapshot.max_output_tokens) || snapshot.max_output_tokens < 128 || snapshot.max_output_tokens > 4000 ||
+    snapshot.provider_endpoint !== endpoint ||
+    snapshot.identity_verifier_class !== 'HTTPS'
+  ) {
+    fail('RELEASE_DNA_STAGING_CONFIG_UNPROVEN', 'Trusted Staging configuration values are invalid.');
+  }
+  return snapshot;
+}
+
+function deriveModelConfigDigest(gatewaySource, trustedStagingConfig) {
   const endpointMatch = gatewaySource.match(/const\s+OPENAI_RESPONSES_URL\s*=\s*["']([^"']+)["']/);
   if (!endpointMatch) {
     fail('RELEASE_DNA_MODEL_CONTRACT_UNPROVEN', 'Provider endpoint contract is not source-bound.');
@@ -259,6 +296,11 @@ function deriveModelConfigContract(gatewaySource) {
     if (!gatewaySource.includes(marker)) {
       fail('RELEASE_DNA_MODEL_CONTRACT_UNPROVEN', 'Model configuration safety policy is unproven.');
     }
+  }
+
+  if (trustedStagingConfig !== undefined && trustedStagingConfig !== null) {
+    const snapshot = assertTrustedStagingConfig(trustedStagingConfig, endpointMatch[1]);
+    return sha256Hex(canonicalJson(snapshot));
   }
 
   return sha256Hex(canonicalJson({
@@ -299,6 +341,7 @@ function deriveReleaseDna(options) {
     repositoryRoot,
     candidateDir,
     environmentClass,
+    trustedStagingConfig,
     git,
     fsApi = fs,
   } = options;
@@ -342,7 +385,7 @@ function deriveReleaseDna(options) {
   const aiPolicy = hashRecords(recordsForPaths(fsApi, repositoryRoot, AI_POLICY_PATHS));
   const gatewaySource = readRegularFile(fsApi, repositoryRoot, AI_GATEWAY_PATH).toString('utf8');
   const prompt = derivePromptDigest(gatewaySource);
-  const modelConfig = deriveModelConfigContract(gatewaySource);
+  const modelConfig = deriveModelConfigDigest(gatewaySource, trustedStagingConfig);
   const toolRegistry = deriveToolRegistryDigest(gatewaySource);
 
   const rlsPaths = migrationPaths.filter((relativePath) => {
