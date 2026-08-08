@@ -1,0 +1,105 @@
+name: LC04 Production Legacy RPC Rehearsal
+
+on:
+  push:
+    branches:
+      - feat/lc04-production-legacy-rpc-hardening-20260808
+    paths:
+      - "supabase/migrations/20260808134000_lc04_production_legacy_rpc_hardening.sql"
+      - "tests/lc04-production-legacy-rpc-hardening.test.cjs"
+      - "tests/lc04-production-legacy-rpc-workflow.test.cjs"
+      - "tests/sql/lc04-production-legacy-rpc-behavior.sql"
+      - ".github/workflows/lc04-production-legacy-rpc-rehearsal.yml"
+  pull_request:
+    paths:
+      - "supabase/migrations/20260808134000_lc04_production_legacy_rpc_hardening.sql"
+      - "tests/lc04-production-legacy-rpc-hardening.test.cjs"
+      - "tests/lc04-production-legacy-rpc-workflow.test.cjs"
+      - "tests/sql/lc04-production-legacy-rpc-behavior.sql"
+      - ".github/workflows/lc04-production-legacy-rpc-rehearsal.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+concurrency:
+  group: lc04-production-legacy-rpc-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  local-security-rehearsal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.109.0
+
+      - name: Verify exact source and local-only environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          if env | grep -E '^(SUPABASE_ACCESS_TOKEN|SUPABASE_DB_PASSWORD|SUPABASE_PROJECT_REF)=' >/dev/null; then
+            echo 'LC04_LOCAL_ONLY=BLOCKED_REMOTE_CREDENTIAL_ENV' >&2
+            exit 1
+          fi
+          echo 'LC04_LOCAL_ONLY=PASS'
+
+      - name: Run LC04 migration contract
+        run: |
+          node --test \
+            tests/lc04-production-legacy-rpc-hardening.test.cjs \
+            tests/lc04-production-legacy-rpc-workflow.test.cjs
+
+      - name: Start isolated local Supabase stack
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase --version
+          supabase start
+
+      - name: Rebuild isolated local database
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase db reset --local
+
+      - name: Run LC04 database behavior assertions
+        shell: bash
+        run: |
+          set -euo pipefail
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 \
+            -p 54322 \
+            -U postgres \
+            -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/lc04-production-legacy-rpc-behavior.sql
+
+      - name: Verify source remains unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          echo 'LC04_LOCAL_REHEARSAL=PASS'
+
+      - name: Stop isolated local stack
+        if: always()
+        shell: bash
+        run: supabase stop --no-backup || true
