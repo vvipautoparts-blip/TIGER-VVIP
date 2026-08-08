@@ -31,14 +31,28 @@ test('LC04 workflow fails closed if remote Supabase credentials are present', ()
   assert.match(workflow, /LC04_LOCAL_ONLY=BLOCKED_REMOTE_CREDENTIAL_ENV/);
 });
 
-test('LC04 workflow runs static contract then local database behavioral assertions', () => {
+test('LC04 workflow verifies canonical no-synthesis before Production-drift convergence', () => {
   const workflow = text();
   const staticIndex = workflow.indexOf('Run LC04 migration contract');
   const resetIndex = workflow.indexOf('Rebuild isolated local database');
-  const behaviorIndex = workflow.indexOf('Run LC04 database behavior assertions');
-  assert.ok(staticIndex >= 0 && resetIndex > staticIndex && behaviorIndex > resetIndex);
-  assert.match(workflow, /tests\/lc04-production-legacy-rpc-hardening\.test\.cjs/);
+  const canonicalIndex = workflow.indexOf('Verify canonical build does not synthesize legacy helpers');
+  const driftIndex = workflow.indexOf('Rehearse observed Production legacy helper drift');
+  assert.ok(
+    staticIndex >= 0 && resetIndex > staticIndex && canonicalIndex > resetIndex && driftIndex > canonicalIndex,
+  );
   assert.match(workflow, /tests\/sql\/lc04-production-legacy-rpc-behavior\.sql/);
+  assert.match(workflow, /tests\/sql\/lc04-production-legacy-drift-fixture\.sql/);
+  assert.match(workflow, /20260808134000_lc04_production_legacy_rpc_hardening\.sql/);
+  assert.match(workflow, /tests\/sql\/lc04-production-legacy-drift-convergence\.sql/);
+});
+
+test('LC04 workflow emits exact migration digest evidence before database rehearsal', () => {
+  const workflow = text();
+  assert.match(workflow, /Emit exact LC04 migration SHA-256/);
+  assert.match(workflow, /sha256sum supabase\/migrations\/20260808134000_lc04_production_legacy_rpc_hardening\.sql/);
+  assert.match(workflow, /actions\/upload-artifact@v6/);
+  assert.match(workflow, /lc04-migration-sha256-/);
+  assert.match(workflow, /if-no-files-found:\s*error/);
 });
 
 test('LC04 workflow verifies repository cleanliness after rehearsal', () => {
