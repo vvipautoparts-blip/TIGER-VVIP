@@ -6,6 +6,8 @@
 })(typeof globalThis !== "undefined" ? globalThis : this, function (root) {
   "use strict";
 
+  const PUBLIC_READ_TTL_MS = 30_000;
+
   function marketplaceError(code, cause) {
     const error = new Error(code);
     error.code = code;
@@ -71,6 +73,36 @@
     });
   }
 
+  function normalizePublicFilters(input) {
+    const source = input && typeof input === "object" ? input : {};
+    const countryCode = text(source.countryCode, 2).toUpperCase();
+    const sectorValue = text(source.sector, 32);
+    const sector = sectorValue.toLowerCase() === "all" ? "" : sectorValue;
+    const search = text(source.search, 80).replace(/[%,]/g, "");
+    const limit = Math.max(1, Math.min(60, Number(source.limit) || 30));
+
+    return Object.freeze({
+      countryCode: countryCode,
+      sector: sector,
+      search: search,
+      limit: limit
+    });
+  }
+
+  function publicRequestKey(input) {
+    return JSON.stringify([
+      input.countryCode,
+      input.sector,
+      input.search,
+      input.limit
+    ]);
+  }
+
+  function clonePublicValue(value) {
+    if (value === undefined) return undefined;
+    return JSON.parse(JSON.stringify(value));
+  }
+
   function extensionForMime(mime) {
     if (mime === "image/jpeg") return "jpg";
     if (mime === "image/png") return "png";
@@ -93,12 +125,43 @@
     const client = options && options.client;
     const clerk = options && options.clerk;
     const config = (options && options.config) || {};
+    const now = options && typeof options.now === "function" ? options.now : Date.now;
     const ids = (options && options.randomUUID) || function () {
       if (root.crypto && typeof root.crypto.randomUUID === "function") return root.crypto.randomUUID();
       throw marketplaceError("UUID_GENERATOR_UNAVAILABLE");
     };
     if (!client || typeof client.from !== "function" || !client.storage) {
       throw marketplaceError("SUPABASE_CLIENT_REQUIRED");
+    }
+
+    const publicReadCache = new Map();
+    const publicReadInflight = new Map();
+    let publicReadGeneration = 0;
+
+    function invalidatePublicReads() {
+      publicReadGeneration += 1;
+      publicReadCache.clear();
+      publicReadInflight.clear();
+    }
+
+    function freshPublicSnapshot(key) {
+      const entry = publicReadCache.get(key);
+      if (!entry) return null;
+
+      const current = Number(now());
+      const cachedAt = Number(entry.cachedAt);
+      const age = current - cachedAt;
+      if (
+        !Number.isFinite(current) ||
+        !Number.isFinite(cachedAt) ||
+        age < 0 ||
+        age >= PUBLIC_READ_TTL_MS
+      ) {
+        publicReadCache.delete(key);
+        return null;
+      }
+
+      return clonePublicValue(entry.value);
     }
 
     async function signedMedia(rows) {
@@ -121,20 +184,59 @@
       });
     }
 
-    async function listPublic(filters) {
-      const input = filters || {};
+    async function fetchPublic(input) {
       let query = client
         .from("vvip_marketplace_listings")
         .select("listing_id,active_market_country,sector,title,summary,specifications,price_minor,currency_code,location_label,contact_phone,whatsapp_enabled,published_at,media:vvip_marketplace_listing_media(media_id,storage_path,mime_type,width,height,position,is_cover,alt_text)")
         .eq("status", "ACTIVE")
         .order("published_at", { ascending: false, nullsFirst: false })
-        .limit(Math.max(1, Math.min(60, Number(input.limit) || 30)));
-      if (input.countryCode) query = query.eq("active_market_country", text(input.countryCode, 2).toUpperCase());
-      if (input.sector && input.sector !== "all") query = query.eq("sector", text(input.sector, 32));
-      const search = text(input.search, 80);
-      if (search) query = query.ilike("title", "%" + search.replace(/[%,]/g, "") + "%");
+        .limit(input.limit);
+      if (input.countryCode) query = query.eq("active_market_country", input.countryCode);
+      if (input.sector) query = query.eq("sector", input.sector);
+      if (input.search) query = query.ilike("title", "%" + input.search + "%");
       const rows = assertClientResult(await query, "LISTINGS_READ_FAILED") || [];
       return signedMedia(rows);
+    }
+
+    async function listPublic(filters) {
+      const input = normalizePublicFilters(filters);
+      const key = publicRequestKey(input);
+      const cached = freshPublicSnapshot(key);
+      if (cached) return cached;
+
+      const existing = publicReadInflight.get(key);
+      if (existing) {
+        return clonePublicValue(await existing);
+      }
+
+      const generation = publicReadGeneration;
+      const pending = (async function () {
+        const result = await fetchPublic(input);
+        const snapshot = clonePublicValue(result);
+        const cachedAt = Number(now());
+
+        if (
+          generation === publicReadGeneration &&
+          Number.isFinite(cachedAt)
+        ) {
+          publicReadCache.set(key, {
+            cachedAt: cachedAt,
+            value: snapshot
+          });
+        }
+
+        return snapshot;
+      })();
+
+      publicReadInflight.set(key, pending);
+
+      try {
+        return clonePublicValue(await pending);
+      } finally {
+        if (publicReadInflight.get(key) === pending) {
+          publicReadInflight.delete(key);
+        }
+      }
     }
 
     async function listMine() {
@@ -252,7 +354,9 @@
         decision: decision,
         decision_reason: reason || null
       });
-      return assertClientResult(result, "LISTING_REVIEW_FAILED");
+      const data = assertClientResult(result, "LISTING_REVIEW_FAILED");
+      invalidatePublicReads();
+      return data;
     }
 
     return Object.freeze({
@@ -268,6 +372,7 @@
   }
 
   return Object.freeze({
+    PUBLIC_READ_TTL_MS,
     createMarketplaceRepository,
     normalizeDraft,
     normalizePriceMinor,
