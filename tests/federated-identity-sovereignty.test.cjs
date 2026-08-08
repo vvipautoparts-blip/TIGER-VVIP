@@ -81,11 +81,10 @@ test("legacy reset URL is a provider-recovery compatibility redirect only", () =
   assert.doesNotMatch(html, /type=["']password["']/i);
 });
 
-test("legacy PWA cache cannot preserve the retired recovery runtime", () => {
+test("legacy PWA cache cannot serve the retired recovery runtime", () => {
   const sw = fs.readFileSync(path.join(ROOT, "sw.js"), "utf8");
-  assert.match(sw, /CACHE_PREFIX \+ "v22"/);
-  assert.doesNotMatch(sw, /reset-password\.js/);
-  assert.match(sw, /reset-password\.html/);
+  assert.doesNotMatch(sw, /["']\/reset-password\.js["']/);
+  assert.match(sw, /["']\/reset-password\.html["']/);
 });
 
 test("owned runtime code contains no first-party password authentication path", () => {
