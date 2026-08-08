@@ -1,5 +1,5 @@
 const CACHE_PREFIX = "vvip-tiger-pr29-cache-";
-const CACHE_NAME = CACHE_PREFIX + "v22";
+const CACHE_NAME = CACHE_PREFIX + "v21";
 const ASSETS = [
   "/",
   "/index.html",
