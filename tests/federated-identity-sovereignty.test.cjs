@@ -60,26 +60,36 @@ test("binding ADR and known compatibility gap are recorded", () => {
   assert.match(removal, /LEGACY_PASSWORD_RUNTIME=REMOVED/);
 });
 
-test("retired first-party password runtimes remain absent", () => {
+test("retired first-party password and recovery runtimes remain absent", () => {
   for (const relative of [
     "auth.js",
     "auth-supabase.js",
-    "scripts/supabase-auth-bridge.js"
+    "scripts/supabase-auth-bridge.js",
+    "reset-password.js"
   ]) {
     assert.equal(fs.existsSync(path.join(ROOT, relative)), false, `${relative} must remain retired`);
   }
 });
 
+test("legacy reset URL is a provider-recovery compatibility redirect only", () => {
+  const html = fs.readFileSync(path.join(ROOT, "reset-password.html"), "utf8");
+  assert.match(html, /index\.html\?recovery=provider/);
+  assert.doesNotMatch(html, /firebase/i);
+  assert.doesNotMatch(html, /sendPasswordResetEmail/);
+  assert.doesNotMatch(html, /id=["']reset-form["']/i);
+  assert.doesNotMatch(html, /type=["']password["']/i);
+});
+
 test("owned runtime code contains no first-party password authentication path", () => {
-  const rootAuthFiles = fs.readdirSync(ROOT)
-    .filter((name) => /^auth(?:[-.].*)?\.(?:js|html)$/i.test(name))
+  const rootIdentityFiles = fs.readdirSync(ROOT)
+    .filter((name) => /^(?:auth(?:[-.].*)?|reset-password)\.(?:js|html)$/i.test(name))
     .map((name) => path.join(ROOT, name));
 
   const candidates = [
     ...collectFiles(path.join(ROOT, "scripts")),
     ...collectFiles(path.join(ROOT, "app")),
     ...collectFiles(path.join(ROOT, "supabase/functions")),
-    ...rootAuthFiles
+    ...rootIdentityFiles
   ].filter((file) => /\.(?:c?js|mjs|ts|tsx|html)$/i.test(file));
 
   const forbidden = [
