@@ -167,7 +167,7 @@ function deriveFrontendBuild(fsApi, candidateDir, sourceSha) {
   const manifestBytes = readRegularFile(
     fsApi,
     candidateDir,
-    'manifest.json',
+    'release-manifest.json',
     'RELEASE_DNA_FRONTEND_MANIFEST_MISSING',
   );
   let manifest;
@@ -177,27 +177,37 @@ function deriveFrontendBuild(fsApi, candidateDir, sourceSha) {
     fail('RELEASE_DNA_FRONTEND_MANIFEST_INVALID', 'Candidate manifest is invalid JSON.');
   }
 
-  if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) {
+  if (!isPlainObject(manifest)) {
     fail('RELEASE_DNA_FRONTEND_MANIFEST_INVALID', 'Candidate manifest is invalid.');
+  }
+  if (manifest.schemaVersion !== 1 || manifest.mode !== 'candidate') {
+    fail('RELEASE_DNA_FRONTEND_MANIFEST_INVALID', 'Candidate manifest schema or mode is invalid.');
   }
   if (manifest.sourceSha !== sourceSha) {
     fail('RELEASE_DNA_FRONTEND_SOURCE_MISMATCH', 'Candidate manifest is not bound to trusted HEAD.');
   }
-  if (manifest.releaseEligible !== true) {
-    fail('RELEASE_DNA_FRONTEND_INELIGIBLE', 'Candidate manifest is not release eligible.');
+  if (
+    manifest.releaseEligible !== true ||
+    !Array.isArray(manifest.configurationErrors) || manifest.configurationErrors.length !== 0 ||
+    !Array.isArray(manifest.forbiddenFindings) || manifest.forbiddenFindings.length !== 0
+  ) {
+    fail('RELEASE_DNA_FRONTEND_INELIGIBLE', 'Candidate manifest is not independently release eligible.');
   }
-  if (!manifest.files || typeof manifest.files !== 'object' || Array.isArray(manifest.files)) {
+  if (!isPlainObject(manifest.files)) {
     fail('RELEASE_DNA_FRONTEND_MANIFEST_INVALID', 'Candidate manifest file map is invalid.');
   }
 
   const declaredPaths = Object.keys(manifest.files).sort();
-  if (declaredPaths.length === 0 || manifest.fileCount !== declaredPaths.length) {
-    fail('RELEASE_DNA_FRONTEND_MANIFEST_INVALID', 'Candidate manifest file count is invalid.');
+  if (declaredPaths.length === 0) {
+    fail('RELEASE_DNA_FRONTEND_MANIFEST_INVALID', 'Candidate manifest contains no files.');
   }
 
   const normalizedFiles = {};
   for (const declaredPath of declaredPaths) {
     const normalized = normalizeRelative(declaredPath);
+    if (Object.hasOwn(normalizedFiles, normalized)) {
+      fail('RELEASE_DNA_FRONTEND_MANIFEST_INVALID', 'Candidate manifest contains duplicate normalized paths.');
+    }
     const expected = manifest.files[declaredPath];
     if (typeof expected !== 'string' || !/^[0-9a-f]{64}$/.test(expected)) {
       fail('RELEASE_DNA_FRONTEND_MANIFEST_INVALID', 'Candidate manifest contains an invalid digest.');
@@ -215,7 +225,7 @@ function deriveFrontendBuild(fsApi, candidateDir, sourceSha) {
   }
 
   const actualFiles = listRegularFiles(fsApi, candidateDir, '.', () => true)
-    .filter((relativePath) => relativePath !== 'manifest.json');
+    .filter((relativePath) => relativePath !== 'release-manifest.json');
   if (canonicalJson(actualFiles) !== canonicalJson(Object.keys(normalizedFiles).sort())) {
     fail('RELEASE_DNA_FRONTEND_UNDECLARED_FILE', 'Candidate contains a file outside its manifest.');
   }
