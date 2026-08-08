@@ -31,38 +31,43 @@ begin
 end
 $lc06_actor_clerk$;
 
--- Transitional profile policies must never remain PUBLIC.
-do $lc06_clerk_profile_policies$
+-- The transitional duplicate profile table is server-only after the official RPC migration.
+do $lc06_clerk_profile_server_only$
 declare
-  bad_count integer;
-  expected_count integer;
+  policy_count integer;
+  browser_grant_count integer;
+  force_rls boolean;
 begin
-  select count(*) into bad_count
+  select count(*) into policy_count
   from pg_policies
   where schemaname = 'public'
-    and tablename = 'vvip_clerk_profiles'
-    and 'public' = any(roles);
+    and tablename = 'vvip_clerk_profiles';
 
-  if bad_count <> 0 then
-    raise exception 'LC06_PUBLIC_CLERK_PROFILE_POLICY_REMAINS:%', bad_count;
+  if policy_count <> 0 then
+    raise exception 'LC06_CLERK_PROFILE_POLICIES_REMAIN:%', policy_count;
   end if;
 
-  select count(*) into expected_count
-  from pg_policies
-  where schemaname = 'public'
-    and tablename = 'vvip_clerk_profiles'
-    and roles = array['authenticated']::name[]
-    and policyname in (
-      'Clerk users can read own vvip profile',
-      'Clerk users can insert own vvip profile',
-      'Clerk users can update own vvip profile'
-    );
+  select count(*) into browser_grant_count
+  from information_schema.table_privileges
+  where table_schema = 'public'
+    and table_name = 'vvip_clerk_profiles'
+    and grantee in ('PUBLIC', 'anon', 'authenticated');
 
-  if expected_count <> 3 then
-    raise exception 'LC06_EXPECTED_THREE_AUTHENTICATED_CLERK_PROFILE_POLICIES:%', expected_count;
+  if browser_grant_count <> 0 then
+    raise exception 'LC06_CLERK_PROFILE_BROWSER_GRANTS_REMAIN:%', browser_grant_count;
+  end if;
+
+  select c.relforcerowsecurity into force_rls
+  from pg_class c
+  join pg_namespace n on n.oid = c.relnamespace
+  where n.nspname = 'public'
+    and c.relname = 'vvip_clerk_profiles';
+
+  if force_rls is distinct from true then
+    raise exception 'LC06_CLERK_PROFILE_FORCE_RLS_REQUIRED';
   end if;
 end
-$lc06_clerk_profile_policies$;
+$lc06_clerk_profile_server_only$;
 
 -- The media table must not have an ALL owner policy because ALL overlaps SELECT.
 do $lc06_media_policy_overlap$
