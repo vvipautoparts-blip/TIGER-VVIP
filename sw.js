@@ -1,5 +1,5 @@
 const CACHE_PREFIX = "vvip-tiger-pr29-cache-";
-const CACHE_NAME = CACHE_PREFIX + "v21";
+const CACHE_NAME = CACHE_PREFIX + "v22";
 const ASSETS = [
   "/",
   "/index.html",
@@ -20,7 +20,6 @@ const ASSETS = [
   "/scripts/vvip-p03-profile.js",
   "/scripts/vvip-p03-sign-out.js",
   "/scripts/vvip-p03-route-map.js",
-  "/reset-password.js",
   "/manifest.webmanifest",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
