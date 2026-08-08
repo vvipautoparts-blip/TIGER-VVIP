@@ -90,6 +90,14 @@ const SECRET_KEYS = new Set([
   'apikey',
 ]);
 
+const SECRET_VALUE_PATTERNS = Object.freeze([
+  /\bsk-(?:proj-|svcacct-)?[A-Za-z0-9_-]{20,}\b/,
+  /\bgh[pousr]_[A-Za-z0-9]{20,}\b/,
+  /\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/,
+  /-----BEGIN (?:RSA |EC |OPENSSH |)PRIVATE KEY-----/,
+  /(?:postgres(?:ql)?|mysql|mongodb(?:\+srv)?):\/\/[^:\s/]+:[^@\s/]+@/i,
+]);
+
 function fail(code, message) {
   throw new EvidenceError(code, message);
 }
@@ -102,6 +110,43 @@ function isPlainObject(value) {
 
 function normalizeKey(key) {
   return String(key).replace(/[^a-z0-9]/gi, '').toLowerCase();
+}
+
+function isAuthorityKey(normalized) {
+  if (AUTHORITY_KEYS.has(normalized)) return true;
+  return (
+    normalized.includes('authorization') ||
+    normalized.includes('authorized') ||
+    normalized.includes('approval') ||
+    normalized.includes('approved') ||
+    normalized.includes('authority') ||
+    normalized === 'ownerdecision' ||
+    normalized === 'l4enabled' ||
+    /^(?:can|may)(?:merge|deploy|release|promote|activate|execute)$/.test(normalized)
+  );
+}
+
+function isSecretKey(normalized) {
+  if (SECRET_KEYS.has(normalized)) return true;
+  return (
+    normalized.includes('password') ||
+    normalized.includes('privatekey') ||
+    normalized.includes('apikey') ||
+    normalized.includes('servicerole') ||
+    normalized.includes('accesstoken') ||
+    normalized.includes('refreshtoken') ||
+    normalized.includes('bearertoken') ||
+    normalized.includes('credential') ||
+    normalized.includes('connectionstring') ||
+    normalized === 'databaseurl' ||
+    normalized === 'authorizationheader' ||
+    normalized === 'authheader'
+  );
+}
+
+function containsSecretValue(value) {
+  if (typeof value !== 'string') return false;
+  return SECRET_VALUE_PATTERNS.some((pattern) => pattern.test(value));
 }
 
 function canonicalize(value, stack) {
@@ -200,6 +245,13 @@ function assertAllowedCapsuleEnvironment(capsuleClass, environment, killSwitchSt
 
 function assertNoForbiddenShape(value) {
   const visit = (current) => {
+    if (typeof current === 'string') {
+      if (containsSecretValue(current)) {
+        fail('EVIDENCE_SECRET_VALUE', 'Secret-like values are forbidden in evidence metadata.');
+      }
+      return;
+    }
+
     if (Array.isArray(current)) {
       for (const item of current) visit(item);
       return;
@@ -209,10 +261,10 @@ function assertNoForbiddenShape(value) {
 
     for (const [key, child] of Object.entries(current)) {
       const normalized = normalizeKey(key);
-      if (AUTHORITY_KEYS.has(normalized)) {
+      if (isAuthorityKey(normalized)) {
         fail('EVIDENCE_FORBIDDEN_FIELD', 'Authority-bearing fields are forbidden in evidence.');
       }
-      if (SECRET_KEYS.has(normalized)) {
+      if (isSecretKey(normalized)) {
         fail('EVIDENCE_SECRET_FIELD', 'Secret-shaped fields are forbidden in evidence.');
       }
       visit(child);
