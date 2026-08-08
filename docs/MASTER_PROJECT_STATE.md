@@ -8,7 +8,8 @@
 - **Repository:** `vvipautoparts-blip/TIGER-VVIP`
 - **Default branch:** `main`
 - **Audited `main` SHA:** `4cc292e626fea39f3b0e56b98781d521efef789d`
-- **Continuity protocol:** `IN_PROGRESS`
+- **Continuity protocol:** `IMPLEMENTED / VERIFICATION_PENDING`
+- **Continuity PR:** `#173` — Draft + OPEN + UNMERGED
 - **Required session sequence:** `READ -> VERIFY -> PLAN -> EXECUTE -> VERIFY -> CHECKPOINT`
 
 ## Source-of-truth precedence
@@ -20,6 +21,10 @@
 5. Historical chat/prose.
 
 A stale chat statement must never override current GitHub evidence.
+
+## Self-reference rule
+
+The current head SHA of the branch containing this ledger must be resolved from GitHub PR/ref metadata at session start. This file intentionally does not self-embed its own containing commit SHA because changing the file changes that SHA. Exact SHAs for external product cursors and dependency refs are recorded normally.
 
 ## Active execution cursor
 
@@ -42,10 +47,13 @@ No broader claim is implied beyond the workflows actually observed on this exact
 
 ### Current continuity workstream
 
+- **PR:** `#173` — `docs(continuity): persist VVIP TIGER master project state`
 - **Branch:** `docs/vvip-tiger-continuity-protocol-20260808`
+- **Base:** PR `#172` branch `docs/federated-identity-sovereignty-20260808`
 - **Base source:** exact PR #172 head `0a3fd6f1ad169eb532ed70f5189ac134f6960d1e`
 - **Purpose:** persist this protocol and bind future agent startup/handoff behavior.
-- **State:** `IN_PROGRESS` until exact final continuity head passes the repository checks that GitHub actually runs.
+- **State:** `IMPLEMENTED / VERIFICATION_PENDING` until checks on the current PR #173 head, resolved externally from GitHub, complete successfully.
+- **Prior checkpoint evidence:** Project Control Integrity run `31276510428` passed on earlier PR #173 head `13863e929e9345032e6de683d19d5cf0c348e3a9`; that evidence is historical after subsequent continuity-document edits and is not treated as final-head verification.
 
 ## Binding architecture — identity
 
@@ -94,6 +102,7 @@ The historical migration must not be rewritten. The required remediation is a ne
 - `#170` COST-02 — bounded static CDN delivery lane.
 - `#171` FIX-LAUNCH-01 — repaired TSRF staging workflow context; exact repaired head green for Quality Gate / Project Control.
 - `#172` AUTH-ADR-01 — current identity sovereignty cursor.
+- `#173` continuity protocol — documentation/governance layer only, stacked on #172.
 
 All remain subject to their recorded Draft/merge/production boundaries; continuity work does not silently authorize merge.
 
@@ -156,7 +165,7 @@ The latest audited product/security line is PR `#172` at exact head `0a3fd6f1ad1
 
 ## Next safe action
 
-After the continuity protocol itself is verified, continue with **IDENTITY-01** as a separate non-production, forward-only remediation slice:
+After the continuity protocol itself is verified, continue with **IDENTITY-01** as a separate non-production, forward-only remediation slice based on the PR #172 product/security line rather than making the security fix depend functionally on continuity documentation:
 
 1. inspect the exact historical resolver and current profile/RLS contracts;
 2. write a fail-closed regression contract proving email-only profile ownership transfer is rejected;
@@ -168,6 +177,6 @@ After the continuity protocol itself is verified, continue with **IDENTITY-01** 
 
 ## Session checkpoint
 
-**Checkpoint status:** `CONTINUITY_BOOTSTRAP_IN_PROGRESS`
+**Checkpoint status:** `CONTINUITY_IMPLEMENTED_AWAITING_CURRENT_HEAD_VERIFICATION`
 
-The continuity branch was created from the exact PR #172 head. The design and implementation plan are being committed first. This file must be updated with the final continuity PR number, exact final head, and observed CI evidence before the continuity slice is marked `VERIFIED`.
+PR #173 is the durable continuity carrier. Its current head and exact-head workflow state must always be resolved from GitHub metadata rather than copied into this self-mutating ledger. After PR #173's current head is green, this protocol may be classified `VERIFIED`; the next execution cursor is IDENTITY-01 under the protected boundaries above.
