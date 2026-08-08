@@ -1,0 +1,42 @@
+name: Mobile Native Foundation Contract
+
+on:
+  push:
+    branches:
+      - feat/mobile-native-launch-foundation-20260808
+    paths:
+      - "mobile/**"
+      - "tests/mobile-*.test.cjs"
+      - ".gitignore"
+      - ".github/workflows/mobile-native-foundation-contract.yml"
+  pull_request:
+    paths:
+      - "mobile/**"
+      - "tests/mobile-*.test.cjs"
+      - ".gitignore"
+      - ".github/workflows/mobile-native-foundation-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Run mobile boundary contract
+        run: node --test tests/mobile-native-boundary.test.cjs
+
+      - name: Verify source remains clean
+        run: test -z "$(git status --porcelain=v1 -uall)"
