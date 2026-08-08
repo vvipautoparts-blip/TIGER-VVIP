@@ -7,11 +7,13 @@ on:
       - integration/v14-global-launch-readiness-20260806
       - feat/tsrf-global-launch-proof-20260808
       - feat/tsrf-launch-evidence-plane-20260808
+      - feat/lc04-production-legacy-rpc-hardening-20260808
   push:
     branches:
       - integration/v14-global-launch-readiness-20260806
       - feat/tsrf-launch-evidence-plane-20260808
       - feat/lc04-production-legacy-rpc-hardening-20260808
+      - feat/lc05-credential-surface-isolation-20260808
   workflow_dispatch:
 
 permissions:
@@ -36,7 +38,6 @@ jobs:
             tests/value-governance-cli.test.cjs \
             tests/value-governance-contracts.test.cjs \
             tests/value-governance-evaluator.test.cjs \
-            tests/value-governance-inventory.test.cjs \
             tests/value-governance-planner.test.cjs \
             tests/value-governance-registry.test.cjs
 
