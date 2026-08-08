@@ -58,10 +58,32 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          command -v sdkmanager
-          yes | sdkmanager --licenses >/dev/null
-          sdkmanager "platforms;android-36"
-          test -d "${ANDROID_SDK_ROOT:-$ANDROID_HOME}/platforms/android-36"
+          sdk_root="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}"
+          test -n "$sdk_root" || {
+            echo 'MOBILE_ANDROID_SDK_ROOT_MISSING' >&2
+            exit 1
+          }
+          test -d "$sdk_root" || {
+            echo "MOBILE_ANDROID_SDK_ROOT_INVALID:$sdk_root" >&2
+            exit 1
+          }
+
+          sdkmanager="$sdk_root/cmdline-tools/latest/bin/sdkmanager"
+          if [[ ! -x "$sdkmanager" ]]; then
+            sdkmanager="$(find "$sdk_root/cmdline-tools" -type f -name sdkmanager -perm -111 -print 2>/dev/null | sort -r | head -n 1)"
+          fi
+          test -n "$sdkmanager" && test -x "$sdkmanager" || {
+            echo "MOBILE_ANDROID_SDKMANAGER_MISSING:$sdk_root" >&2
+            exit 1
+          }
+          echo "MOBILE_ANDROID_SDKMANAGER=$sdkmanager"
+
+          "$sdkmanager" --licenses < <(yes) >/dev/null
+          "$sdkmanager" "platforms;android-36"
+          test -d "$sdk_root/platforms/android-36" || {
+            echo 'MOBILE_ANDROID_API36_MISSING_AFTER_INSTALL' >&2
+            exit 1
+          }
           echo 'MOBILE_ANDROID_API36=PASS'
 
       - name: Verify frozen mobile dependency lock
