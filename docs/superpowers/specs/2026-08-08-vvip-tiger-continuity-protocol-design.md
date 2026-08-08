@@ -61,8 +61,8 @@ Use only these state labels for continuity decisions:
 - repository and default branch;
 - default-branch SHA at last audit;
 - active execution cursor;
-- active PR/branch/head/base chain;
-- exact-head verification evidence;
+- active PR/branch/base chain;
+- exact-head verification evidence, resolved from the current GitHub ref/PR;
 - approved architecture and policy boundaries relevant to current work;
 - implemented/verified/in-progress/blocked/deferred items;
 - known conflicts or obsolete work;
@@ -73,9 +73,13 @@ Use only these state labels for continuity decisions:
 
 The document is a navigation and state ledger, not a substitute for Git history, CI logs, or code.
 
+### Self-reference rule
+
+The Master Project State must not attempt to embed the SHA of the commit that contains its own latest update as a durable invariant. Updating the ledger changes that SHA and creates a self-reference loop. The current ledger/continuity branch head must therefore be resolved from GitHub PR/ref metadata at session start. Exact SHAs for external product cursors and dependency refs may still be recorded normally.
+
 ## Session checkpoint rule
 
-Whenever a work session materially changes the current cursor, the Master Project State must be updated before the work is considered handed off. The checkpoint must reference exact branch/PR/SHA evidence where available.
+Whenever a work session materially changes the current cursor, the Master Project State must be updated before the work is considered handed off. The checkpoint must reference exact external branch/PR/SHA evidence where available and identify its own continuity PR/ref without trying to self-embed its containing commit SHA.
 
 A session may end with unresolved work, but unresolved work must be explicitly classified as `IN_PROGRESS`, `BLOCKED`, or `DEFERRED`.
 
@@ -97,4 +101,4 @@ The continuity slice is acceptable when:
 2. `AGENTS.md` directs agents to read the Master Project State and follow the precedence/startup/checkpoint rules;
 3. the protocol design and implementation plan are committed on an isolated documentation branch;
 4. the resulting PR remains Draft and unmerged;
-5. repository checks on the exact continuity head are observed before claiming the slice verified.
+5. repository checks on the current continuity PR head, resolved externally from GitHub, are observed before claiming the slice verified.
