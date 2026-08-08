@@ -24,12 +24,16 @@ function migrationText() {
   return fs.readFileSync(MIGRATION_PATH, "utf8");
 }
 
-test("historical profile resolver migration remains preserved", () => {
+test("historical profile resolver migration remains preserved with authenticated execute", () => {
   const historical = fs.readFileSync(HISTORICAL_PATH, "utf8");
   assert.match(historical, /status', 'legacy_profile_recovered'/);
   assert.match(
     historical,
     /update\s+public\.profiles[\s\S]*?set[\s\S]*?clerk_user_id\s*=\s*v_clerk_user_id/i
+  );
+  assert.match(
+    historical,
+    /grant\s+execute\s+on\s+function\s+public\.vvip_resolve_own_profile\s*\(text\)\s+to\s+authenticated/i
   );
 });
 
@@ -42,8 +46,9 @@ test("IDENTITY-01 adds a forward replacement resolver migration", () => {
     /create\s+or\s+replace\s+function\s+public\.vvip_resolve_own_profile\s*\(p_email\s+text\s+default\s+null\)/i
   );
   assert.match(sql, /language\s+plpgsql/i);
-  assert.match(sql, /security\s+definer/i);
-  assert.match(sql, /set\s+search_path\s*=\s*public/i);
+  assert.match(sql, /security\s+definer\s+set\s+search_path\s*=\s*public/i);
+  assert.match(sql, /current_setting\s*\(\s*'request\.jwt\.claims'\s*,\s*true\s*\)/i);
+  assert.doesNotMatch(sql, /\bauth\./i);
 });
 
 test("replacement resolver is subject-first and never restores ownership by email", () => {
@@ -78,7 +83,7 @@ test("legacy detection uses verified JWT email only and fails closed without pro
   assert.match(sql, /'ok',\s*false[\s\S]*?'status',\s*'identity_migration_required'/i);
 
   const legacyBlock = sql.match(
-    /if\s+v_verified_email\s+is\s+not\s+null\s+then[\s\S]*?'identity_migration_required'[\s\S]*?end\s+if;/i
+    /if\s+length\s*\(v_verified_email\)\s*>\s*0\s+then[\s\S]*?'identity_migration_required'[\s\S]*?end\s+if;/i
   );
   assert.ok(legacyBlock, "verified-email legacy block must exist");
   assert.doesNotMatch(legacyBlock[0], /p_email/i);
@@ -87,10 +92,8 @@ test("legacy detection uses verified JWT email only and fails closed without pro
 
 test("new profile creation is explicitly bound to the authenticated subject", () => {
   const sql = migrationText();
-  assert.match(
-    sql,
-    /v_profile_email\s+text\s*:=\s*coalesce\s*\(v_verified_email,\s*lower\s*\(nullif\s*\(trim\s*\(coalesce\s*\(p_email,\s*''\)\s*\),\s*''\)\s*\)\s*\)/i
-  );
+  assert.match(sql, /v_profile_email\s+text\s*:=\s*coalesce\s*\(/i);
+  assert.match(sql, /v_profile_email\s+text\s*:=\s*coalesce\s*\([\s\S]*?v_verified_email[\s\S]*?p_email[\s\S]*?\);/i);
   assert.match(
     sql,
     /insert\s+into\s+public\.profiles\s*\([\s\S]*?email\s*,[\s\S]*?clerk_user_id[\s\S]*?\)\s*values\s*\([\s\S]*?v_profile_email\s*,[\s\S]*?v_clerk_user_id/i
@@ -107,12 +110,13 @@ test("uniqueness recovery remains subject-only and fail closed", () => {
   assert.match(conflict[0], /'status',\s*'profile_conflict'/i);
 });
 
-test("IDENTITY-01 changes function behavior only, not schema or RLS", () => {
+test("IDENTITY-01 changes function behavior only and introduces no broad grant", () => {
   const sql = migrationText();
   assert.doesNotMatch(sql, /\balter\s+table\b/i);
   assert.doesNotMatch(sql, /\bcreate\s+policy\b/i);
   assert.doesNotMatch(sql, /\bdrop\s+policy\b/i);
   assert.doesNotMatch(sql, /\bdelete\s+from\s+public\.profiles\b/i);
+  assert.doesNotMatch(sql, /\bgrant\s+[\s\S]*?\s+to\s+authenticated\b/i);
 
   assert.match(
     sql,
@@ -121,9 +125,5 @@ test("IDENTITY-01 changes function behavior only, not schema or RLS", () => {
   assert.match(
     sql,
     /revoke\s+all\s+on\s+function\s+public\.vvip_resolve_own_profile\s*\(text\)\s+from\s+anon/i
-  );
-  assert.match(
-    sql,
-    /grant\s+execute\s+on\s+function\s+public\.vvip_resolve_own_profile\s*\(text\)\s+to\s+authenticated/i
   );
 });
