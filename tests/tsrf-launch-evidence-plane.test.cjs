@@ -265,13 +265,16 @@ function makeReleaseFixture() {
     Object.entries(candidateFiles).map(([relativePath, bytes]) => [relativePath, sha256Hex(bytes)]),
   );
   const manifest = {
+    schemaVersion: 1,
+    mode: 'candidate',
     sourceSha: SOURCE_SHA,
     builtAt: '2026-08-08T12:00:00.000Z',
     releaseEligible: true,
-    fileCount: Object.keys(fileDigests).length,
+    configurationErrors: [],
+    forbiddenFindings: [],
     files: fileDigests,
   };
-  write(candidateDir, 'manifest.json', `${JSON.stringify(manifest, null, 2)}\n`);
+  write(candidateDir, 'release-manifest.json', `${JSON.stringify(manifest, null, 2)}\n`);
 
   const git = {
     headSha: () => SOURCE_SHA,
@@ -321,7 +324,7 @@ test('Release DNA derives Git identity and all component digests from trusted so
   assert.match(computeReleaseDigest(dna), /^[0-9a-f]{64}$/);
 });
 
-test('frontend Release DNA binding ignores builtAt but rejects source, eligibility, and byte tampering', (t) => {
+test('frontend Release DNA binding ignores non-DNA metadata but rejects source, eligibility, and byte tampering', (t) => {
   const fixture = makeReleaseFixture();
   t.after(() => {
     fs.rmSync(fixture.repositoryRoot, { recursive: true, force: true });
@@ -329,7 +332,7 @@ test('frontend Release DNA binding ignores builtAt but rejects source, eligibili
   });
 
   const first = derive(fixture);
-  const manifestPath = path.join(fixture.candidateDir, 'manifest.json');
+  const manifestPath = path.join(fixture.candidateDir, 'release-manifest.json');
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
   manifest.builtAt = '2030-01-01T00:00:00.000Z';
   fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
