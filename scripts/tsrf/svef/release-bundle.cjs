@@ -16,7 +16,6 @@ const ALLOWED_KEYS = new Set([
   'repositoryRoot',
   'candidateDir',
   'sbomBytes',
-  'provenanceBytes',
   'materialRecords',
   'createdBy',
   'git',
@@ -30,7 +29,6 @@ const MANIFEST_FIELDS = Object.freeze([
   'candidate_manifest_sha256',
   'candidate_content_sha256',
   'sbom_sha256',
-  'provenance_sha256',
   'materials_sha256',
   'created_by',
 ]);
@@ -254,7 +252,6 @@ function createReleaseBundleManifest(options) {
     repositoryRoot,
     candidateDir,
     sbomBytes,
-    provenanceBytes,
     materialRecords,
     createdBy,
     git,
@@ -278,9 +275,7 @@ function createReleaseBundleManifest(options) {
 
   const candidateManifest = parseCandidateManifest(fsApi, candidate, sourceSha);
   const sbom = bytes(sbomBytes, 'SVEF_SBOM_INVALID', 'SBOM bytes are invalid.');
-  const provenance = bytes(provenanceBytes, 'SVEF_PROVENANCE_INVALID', 'Provenance bytes are invalid.');
   if (sbom.length === 0) fail('SVEF_SBOM_INVALID', 'SBOM bytes cannot be empty.');
-  if (provenance.length === 0) fail('SVEF_PROVENANCE_INVALID', 'Provenance bytes cannot be empty.');
   const materials = normalizeMaterials(materialRecords);
 
   return deepFreeze({
@@ -290,7 +285,6 @@ function createReleaseBundleManifest(options) {
     candidate_manifest_sha256: sha256Hex(candidateManifest.raw),
     candidate_content_sha256: sha256Hex(canonicalJson(candidateManifest.records)),
     sbom_sha256: sha256Hex(sbom),
-    provenance_sha256: sha256Hex(provenance),
     materials_sha256: sha256Hex(canonicalJson(materials)),
     created_by: validateCreatedBy(createdBy),
   });
