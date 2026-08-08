@@ -2,11 +2,11 @@
 -- Fail-closed replacement for public.vvip_resolve_own_profile(text).
 --
 -- Identity authority:
---   auth.jwt()->>'sub' is the ownership anchor.
+--   the signed request JWT subject is the ownership anchor.
 --
 -- Email rules:
---   - JWT email claims may be used only to detect an unbound legacy profile.
---   - p_email is a compatibility profile/contact hint only.
+--   - signed JWT email claims may detect an unbound legacy profile;
+--   - p_email is a compatibility profile/contact hint only;
 --   - no email value may transfer ownership of an existing profile.
 --
 -- This migration changes function behavior only. It does not mutate existing
@@ -17,13 +17,15 @@ begin;
 create or replace function public.vvip_resolve_own_profile(p_email text default null)
 returns jsonb
 language plpgsql
-security definer
-set search_path = public
+security definer set search_path = public
 as $$
 declare
-  v_jwt jsonb := auth.jwt();
+  v_jwt jsonb := coalesce(
+    nullif(current_setting('request.jwt.claims', true), '')::jsonb,
+    '{}'::jsonb
+  );
   v_clerk_user_id text := nullif(v_jwt ->> 'sub', '');
-  v_role text := coalesce(auth.role(), '');
+  v_role text := coalesce(v_jwt ->> 'role', '');
   v_verified_email text := lower(nullif(coalesce(
     v_jwt ->> 'email',
     v_jwt ->> 'email_address',
@@ -73,7 +75,7 @@ begin
   -- Browser-supplied p_email is deliberately excluded from this lookup so an
   -- authenticated caller cannot probe or claim legacy accounts by arbitrary
   -- email values.
-  if v_verified_email is not null then
+  if length(v_verified_email) > 0 then
     select exists(
       select 1
       from public.profiles
@@ -155,9 +157,10 @@ begin
 end;
 $$;
 
+-- CREATE OR REPLACE preserves the existing function ACL established by the
+-- historical migration. Reassert only the fail-closed public/anon revocations.
 revoke all on function public.vvip_resolve_own_profile(text) from public;
 revoke all on function public.vvip_resolve_own_profile(text) from anon;
-grant execute on function public.vvip_resolve_own_profile(text) to authenticated;
 
 comment on function public.vvip_resolve_own_profile(text) is
   'VVIP TIGER subject-first profile resolver. Existing profile ownership is never transferred by email.';
