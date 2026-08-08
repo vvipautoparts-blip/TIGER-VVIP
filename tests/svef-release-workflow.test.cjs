@@ -9,7 +9,7 @@ const WORKFLOW_PATH = path.join(__dirname, '..', '.github', 'workflows', 'svef-r
 const CHECKOUT_V7_SHA = '3d3c42e5aac5ba805825da76410c181273ba90b1';
 const SETUP_NODE_V6_SHA = '249970729cb0ef3589644e2896645e5dc5ba9c38';
 const SETUP_PYTHON_V6_SHA = 'ece7cb06caefa5fff74198d8649806c4678c61a1';
-const ATTEST_V3_SHA = '977bb373ede98d70efdf65b84cb5f73e068dcc2a';
+const ATTEST_V3_SHA = 'daf44fb950173508f38bd2406030372c1d1162b1';
 const UPLOAD_ARTIFACT_V4_SHA = 'ea165f8d65b6e75b540449e92b4886f43607fa02';
 
 function workflow() {
@@ -24,7 +24,8 @@ test('SVEF release candidate has exact-source read/attest permissions and immuta
   assert.match(text, new RegExp(`actions\\/checkout@${CHECKOUT_V7_SHA}`));
   assert.match(text, new RegExp(`actions\\/setup-node@${SETUP_NODE_V6_SHA}`));
   assert.match(text, new RegExp(`actions\\/setup-python@${SETUP_PYTHON_V6_SHA}`));
-  assert.match(text, new RegExp(`actions\\/attest-build-provenance@${ATTEST_V3_SHA}`));
+  assert.match(text, new RegExp(`actions\\/attest@${ATTEST_V3_SHA}`));
+  assert.doesNotMatch(text, /actions\/attest-build-provenance@/);
   assert.match(text, new RegExp(`actions\\/upload-artifact@${UPLOAD_ARTIFACT_V4_SHA}`));
 });
 
@@ -62,13 +63,26 @@ test('workflow creates SBOM materials and deterministic release bundle before at
   assert.match(text, /sha256sum[\s\S]*svef-release-bundle-/);
 });
 
-test('OIDC provenance attests the exact deterministic bundle subject and is retained with release evidence', () => {
+test('custom SLSA predicate binds provenance to exact source SHA/tree instead of PR merge SHA', () => {
+  const text = workflow();
+  assert.match(text, /provenance-predicate\.json/);
+  assert.match(text, /predicateType|predicate-type:\s*https:\/\/slsa\.dev\/provenance\/v1/);
+  assert.match(text, /resolvedDependencies/);
+  assert.match(text, /gitCommit:\s*process\.env\.SOURCE_SHA/);
+  assert.match(text, /source_sha:\s*process\.env\.SOURCE_SHA/);
+  assert.match(text, /source_tree:\s*process\.env\.SOURCE_TREE/);
+  assert.doesNotMatch(text, /resolvedDependencies[\s\S]{0,500}github\.sha/);
+});
+
+test('OIDC attestation signs the exact deterministic bundle and is retained with provenance evidence', () => {
   const text = workflow();
   assert.match(text, /id:\s*attest/);
   assert.match(text, /subject-path:\s*\$\{\{\s*runner\.temp\s*\}\}[\s\S]*svef-release-bundle-/);
+  assert.match(text, /predicate-path:\s*\$\{\{\s*runner\.temp\s*\}\}\/svef-release-metadata\/provenance-predicate\.json/);
   assert.match(text, /steps\.attest\.outputs\.bundle-path/);
   assert.match(text, /attestation-bundle\.jsonl/);
   assert.match(text, /attestation-bundle\.sha256/);
+  assert.match(text, /provenance-predicate\.sha256/);
   assert.match(text, /name:\s*svef-release-\$\{\{\s*env\.SOURCE_SHA\s*\}\}/);
   assert.match(text, /if-no-files-found:\s*error/);
 });
