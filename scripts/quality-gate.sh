@@ -62,6 +62,15 @@ run_clean_gate() {
     fi
 }
 
+run_diff_check() {
+    if ! git rev-parse --verify --quiet 'refs/remotes/origin/main^{commit}' >/dev/null; then
+        echo "[quality-gate] fetching origin/main inside isolated workspace"
+        git fetch --no-tags --prune origin main:refs/remotes/origin/main
+    fi
+
+    git diff --check origin/main...HEAD
+}
+
 run_cleanroom_verify() {
     echo "===== GATE: cleanroom_verify ====="
 
@@ -131,18 +140,35 @@ run_qa_smoke_isolated() {
 
 cd "$ORIGINAL_ROOT"
 
+SOURCE_BRANCH="$(git branch --show-current)"
+SOURCE_HEAD="$(git rev-parse HEAD)"
+
 echo "============================================================"
 echo "VVIP TIGER ISOLATED QUALITY GATE"
 echo "============================================================"
 echo "SOURCE_WORKSPACE=$ORIGINAL_ROOT"
-echo "SOURCE_BRANCH=$(git branch --show-current)"
-echo "SOURCE_HEAD=$(git rev-parse HEAD)"
+echo "SOURCE_BRANCH=$SOURCE_BRANCH"
+echo "SOURCE_HEAD=$SOURCE_HEAD"
 
 SOURCE_STATUS_BEFORE="$(git status --porcelain=v1 -uall)"
 
 echo "===== CREATE ISOLATED SNAPSHOT ====="
 
 git clone --quiet --no-hardlinks "$ORIGINAL_ROOT" "$WORK"
+
+if ! git -C "$WORK" cat-file -e "${SOURCE_HEAD}^{commit}" 2>/dev/null; then
+    git -C "$WORK" fetch --quiet "$ORIGINAL_ROOT" "$SOURCE_HEAD"
+fi
+
+git -C "$WORK" checkout --quiet --detach "$SOURCE_HEAD"
+SNAPSHOT_BASE_HEAD="$(git -C "$WORK" rev-parse HEAD)"
+
+if [ "$SNAPSHOT_BASE_HEAD" != "$SOURCE_HEAD" ]; then
+    echo "SNAPSHOT_SOURCE_HEAD_MISMATCH source=$SOURCE_HEAD isolated=$SNAPSHOT_BASE_HEAD"
+    exit 91
+fi
+
+echo "SNAPSHOT_BASE_HEAD=$SNAPSHOT_BASE_HEAD"
 
 git -C "$WORK" remote set-url origin "https://github.com/vvipautoparts-blip/TIGER-VVIP"
 
@@ -213,12 +239,7 @@ echo "===== EXECUTE GATES ====="
 
 run_clean_gate \
     "diff_check" \
-    # VVIP_CI_FETCH_BASE_IN_ISOLATED_WORKSPACE
-    if ! git rev-parse --verify --quiet 'refs/remotes/origin/main^{commit}' >/dev/null; then
-      echo "[quality-gate] fetching origin/main inside isolated workspace"
-      git fetch --no-tags --prune origin main:refs/remotes/origin/main
-    fi
-    git diff --check origin/main...HEAD
+    run_diff_check
 
 run_clean_gate \
     "cleanroom_tests" \
@@ -289,6 +310,46 @@ if [ -f project-control/scripts/validate_project_control.mjs ]; then
         node project-control/scripts/validate_project_control.mjs
 else
     echo "GATE_validate_project_control=SKIP"
+fi
+
+if [ -f project-control/value-governance/cli.mjs ]; then
+    run_clean_gate \
+        "continuous_value_governance" \
+        node project-control/value-governance/cli.mjs --check
+else
+    echo "GATE_continuous_value_governance=SKIP"
+fi
+
+if [ -f project-control/scripts/validate_v13_1_authority.mjs ]; then
+    run_clean_gate \
+        "v13_1_authority_integrity" \
+        node project-control/scripts/validate_v13_1_authority.mjs
+else
+    echo "GATE_v13_1_authority_integrity=SKIP"
+fi
+
+AUTHORIZATION_TESTS=(
+    tests/v13-1-authority-contracts.test.cjs
+    tests/v13-1-country-scope-authorization.test.cjs
+    tests/v13-1-authorization-envelope.test.cjs
+    tests/v13-1-owner-partner-invariants.test.cjs
+    tests/v13-1-authorization-repository.test.cjs
+    tests/v13-1-authorization-rls-contract.test.cjs
+    tests/v13-1-authorization-server-command-handler.test.cjs
+    tests/v13-1-authorization-server-command-handler-security.test.cjs
+    tests/v13-1-authorization-semantic-idempotency.test.cjs
+    tests/v13-1-authorization-command-boundary.test.cjs
+    tests/v13-1-authorization-query-handler.test.cjs
+    tests/v13-1-authorization-query-boundary.test.cjs
+)
+
+if [ -f scripts/authorization/v13-authority-contracts.js ]; then
+    # run_clean_gate emits GATE_v13_1_authorization_integrity=PASS only after all tests succeed.
+    run_clean_gate \
+        "v13_1_authorization_integrity" \
+        node --test "${AUTHORIZATION_TESTS[@]}"
+else
+    echo "GATE_v13_1_authorization_integrity=SKIP"
 fi
 
 if [ -f scripts/security/p08-steel-shield/scan-secret-leaks.sh ]; then

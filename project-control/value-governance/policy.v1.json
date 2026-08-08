@@ -1,0 +1,12 @@
+{
+  "policyVersion": "CVGE_REPOSITORY_V1",
+  "mode": "ANALYSIS_ONLY",
+  "automaticRemovalClasses": ["A"],
+  "automaticQuarantineClasses": ["B"],
+  "protectedClass": "C",
+  "minimumEvidenceConfidence": 1,
+  "staleEvidenceHours": 24,
+  "allowWorktreeMutation": false,
+  "allowNetwork": false,
+  "allowProduction": false
+}

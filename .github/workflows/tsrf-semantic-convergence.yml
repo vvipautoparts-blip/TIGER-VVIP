@@ -1,0 +1,148 @@
+name: TSRF Semantic Convergence
+
+on:
+  push:
+    branches:
+      - release/tiger-jo-convergence
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Run TSRF semantic convergence contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tests/tsrf-semantic-convergence.test.cjs
+
+  edge-typecheck:
+    needs: contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v7
+
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Typecheck sovereign AI edge gateway
+        run: deno check supabase/functions/tiger-sovereign-ai/index.ts
+
+  local-db-reset:
+    needs: contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v7
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.109.0
+
+      - name: Assert local-only safety contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          if env | grep -E '^(SUPABASE_ACCESS_TOKEN|SUPABASE_DB_PASSWORD|SUPABASE_PROJECT_REF)=' >/dev/null; then
+            echo 'TSRF_LOCAL_DB_RESET=BLOCKED_REMOTE_CREDENTIAL_ENV'
+            exit 1
+          fi
+          echo 'TSRF_LOCAL_ONLY_CONTRACT=PASS'
+
+      - name: Start isolated local Supabase stack
+        run: supabase start
+
+      - name: Rebuild database from repository migrations
+        shell: bash
+        run: |
+          set -euo pipefail
+          reset_command=(supabase db reset --local)
+          printf '%q ' "${reset_command[@]}" | grep -q -- '--linked' && {
+            echo 'TSRF_LOCAL_DB_RESET=BLOCKED_UNSAFE_LINKED_FLAG'
+            exit 1
+          }
+          "${reset_command[@]}"
+          echo 'TSRF_LOCAL_DB_RESET=PASS'
+
+      - name: Verify fail-closed AI runtime defaults
+        shell: bash
+        run: |
+          set -euo pipefail
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 \
+            -p 54322 \
+            -U postgres \
+            -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -Atc "select count(*) from public.ai_agent_runtime_state where enabled=false and shadow_mode=true and kill_switch=true and max_level='L1' and daily_budget_microusd=0 and requests_per_minute=0 and max_concurrency=1;" \
+            | grep -qx '4'
+          echo 'TSRF_AI_FAIL_CLOSED_DEFAULTS=PASS'
+
+      - name: Stop isolated local stack
+        if: always()
+        run: supabase stop --no-backup || true
+
+  quality-gate:
+    needs:
+      - contract
+      - edge-typecheck
+      - local-db-reset
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dev dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt pytest
+
+      - name: Fetch main comparison reference
+        run: git fetch --no-tags --prune origin main:refs/remotes/origin/main
+
+      - name: Run VVIP quality gate
+        shell: bash
+        run: |
+          set -o pipefail
+          bash scripts/quality-gate.sh 2>&1 | tee /tmp/tsrf-quality-gate.log
+          exit "${PIPESTATUS[0]}"
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: tsrf-quality-gate-${{ github.sha }}
+          path: /tmp/tsrf-quality-gate.log
+          if-no-files-found: error
+          retention-days: 14
