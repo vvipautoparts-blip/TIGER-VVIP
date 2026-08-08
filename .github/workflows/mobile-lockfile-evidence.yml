@@ -1,0 +1,75 @@
+name: Mobile Lockfile Evidence
+
+on:
+  push:
+    branches:
+      - feat/mobile-native-launch-foundation-20260808
+    paths:
+      - "mobile/package.json"
+      - ".github/workflows/mobile-lockfile-evidence.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lockfile:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Generate package lock without lifecycle scripts
+        working-directory: mobile
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f package-lock.json
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          test -s package-lock.json
+
+      - name: Verify exact dependency graph is installable
+        working-directory: mobile
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm ls --depth=0
+          node - <<'NODE'
+          const lock = require('./package-lock.json');
+          const expected = ['@capacitor/android','@capacitor/core','@capacitor/ios','@capacitor/cli'];
+          for (const name of expected) {
+            const entry = lock.packages?.[`node_modules/${name}`];
+            if (!entry || entry.version !== '8.4.2') {
+              console.error(`MOBILE_LOCK_VERSION_MISMATCH:${name}:${entry?.version || 'missing'}`);
+              process.exit(1);
+            }
+          }
+          console.log('MOBILE_LOCK_DEPENDENCIES=PASS');
+          NODE
+
+      - name: Emit lock digest
+        working-directory: mobile
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha256sum package-lock.json | tee "$RUNNER_TEMP/mobile-package-lock.sha256"
+
+      - name: Upload lockfile evidence
+        uses: actions/upload-artifact@v6
+        with:
+          name: mobile-package-lock-${{ github.sha }}
+          path: |
+            mobile/package-lock.json
+            ${{ runner.temp }}/mobile-package-lock.sha256
+          if-no-files-found: error
+          retention-days: 14
