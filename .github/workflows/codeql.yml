@@ -8,6 +8,7 @@ on:
       - feat/tsrf-global-launch-proof-20260808
       - feat/tsrf-launch-evidence-plane-20260808
       - feat/lc04-production-legacy-rpc-hardening-20260808
+      - feat/lc05-credential-surface-isolation-20260808
   push:
     branches:
       - main
@@ -15,6 +16,7 @@ on:
       - feat/tsrf-launch-evidence-plane-20260808
       - feat/lc04-production-legacy-rpc-hardening-20260808
       - feat/lc05-credential-surface-isolation-20260808
+      - feat/lc06-rls-performance-hardening-20260808
   workflow_dispatch:
 
 permissions:

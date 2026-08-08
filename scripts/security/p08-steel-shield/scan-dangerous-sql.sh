@@ -44,6 +44,11 @@ declare -A reviewed_migration_hashes=(
   # convergence that removed all direct browser policies/privileges while preserving
   # the modern phone_otp_challenges store. Any byte drift invalidates this baseline.
   ["supabase/migrations/20260808135000_lc05_credential_surface_isolation.sql"]="ebf13f51f5e1e11e1c8224126f8e812fd8e5c79911c6827f328be19192424e3f"
+  # LC-06 modern RLS/performance hardening: reviewed after a TDD RED failure,
+  # full local migration replay + behavioral proof, and a Staging transaction rehearsal
+  # that rolled back cleanly. This exact artifact narrows browser surfaces and adds
+  # advisor-confirmed FK indexes. Any byte drift invalidates this baseline.
+  ["supabase/migrations/20260808180000_lc06_rls_performance_hardening.sql"]="ed34063e2f3ba32434e08b45c1f1e415115c092ffb07c6cb810ff974ed467f35"
 )
 
 reviewed_baseline_path() {
