@@ -57,6 +57,7 @@ jobs:
             --source-root "$GITHUB_WORKSPACE/source" \
             --actual-commit "$actual" \
             --output "$RUNNER_TEMP/source-lock.json"
+          cp source/supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql "$RUNNER_TEMP/migration.sql"
 
       - name: Set up Node.js 22
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
@@ -81,5 +82,6 @@ jobs:
             ${{ runner.temp }}/control-plane-sha.txt
             ${{ runner.temp }}/source-lock.json
             ${{ runner.temp }}/phase-b-static.log
+            ${{ runner.temp }}/migration.sql
           if-no-files-found: error
           retention-days: 30

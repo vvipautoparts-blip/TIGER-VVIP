@@ -61,6 +61,12 @@ test('source proof supports a non-semantic proof refresh path', () => {
   assert.match(yml, /\.srpc\/proof-refresh\.txt/);
 });
 
+test('artifact carries the exact H0 migration copied only after source lock', () => {
+  const yml = source();
+  assert.match(yml, /cp\s+source\/supabase\/migrations\/20260808224500_global_launch_phase_b_marketplace_convergence\.sql\s+"\$RUNNER_TEMP\/migration\.sql"/);
+  assert.match(yml, /\$\{\{\s*runner\.temp\s*\}\}\/migration\.sql/);
+});
+
 test('source proof contains no database execution primitive', () => {
   const yml = source();
   for (const forbidden of [
