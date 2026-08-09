@@ -36,6 +36,8 @@ class PublicReleaseTests(unittest.TestCase):
         (root / "scripts" / "runtime").mkdir()
         (root / "scripts" / "runtime" / "vvip-runtime-loader.js").write_text("", encoding="utf-8")
         (root / "scripts" / "runtime" / "vvip-marketplace-repository.js").write_text("", encoding="utf-8")
+        (root / "scripts" / "runtime" / "vvip-marketplace-rollback.js").write_text("", encoding="utf-8")
+        (root / "scripts" / "runtime" / "vvip-my-listings.js").write_text("", encoding="utf-8")
         (root / "styles").mkdir()
         (root / "styles" / "vvip-production-marketplace.css").write_text("", encoding="utf-8")
         for name in module.PUBLIC_ROOT_FILES:
