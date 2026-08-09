@@ -37,11 +37,16 @@ jobs:
             echo "RELEASE_SHA_INVALID"
             exit 1
           fi
-          ACTUAL_MAIN_SHA="$(git rev-parse HEAD)"
+          git fetch --no-tags origin main
+          ACTUAL_MAIN_SHA="$(git rev-parse origin/main)"
           if [[ "$ACTUAL_MAIN_SHA" != "$EXPECTED_RELEASE_SHA" ]]; then
             echo "RELEASE_SHA_MISMATCH"
             echo "expected=$EXPECTED_RELEASE_SHA"
             echo "actual=$ACTUAL_MAIN_SHA"
+            exit 1
+          fi
+          if [[ "$(git rev-parse HEAD)" != "$EXPECTED_RELEASE_SHA" ]]; then
+            echo "RELEASE_CHECKOUT_MISMATCH"
             exit 1
           fi
           echo "RELEASE_SHA_LOCKED=$ACTUAL_MAIN_SHA"
