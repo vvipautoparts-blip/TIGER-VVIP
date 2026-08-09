@@ -32,9 +32,13 @@ Key rules:
 
 Legacy Firebase/Supabase password runtimes have been removed from the current product tree. Historical compatibility routes such as `reset-password.html` now redirect users back to the external identity entry rather than performing local recovery.
 
-## Known identity launch gap
+## Identity production state
 
-The historical profile resolver still contains a legacy email-based ownership recovery path (`legacy_profile_recovered`). It is explicitly tracked in [Federated Identity Known Gap](docs/security/FEDERATED_IDENTITY_KNOWN_GAP_20260808.md) and must be replaced by a forward, fail-closed migration before Production identity launch.
+The historical email-based profile ownership recovery path has been replaced in deployed Production by the Phase A fail-closed resolver. Production verification confirms no `legacy_profile_recovered` path, an `identity_migration_required` fail-closed status for unbound legacy profiles, exact Clerk-subject ownership lookup, RLS + FORCE RLS on `profiles`, no anonymous table privilege, and authenticated `SELECT` only.
+
+A separate historical credential-retirement task remains before public Production release: the Supabase Auth schema still contains legacy email/password users and refresh-token state even though the current product tree no longer calls Supabase password authentication. The binding federated-only policy requires that parallel credential surface to be retired through its own protected Production security gate; it must not be silently deleted or auto-linked by email.
+
+See [Federated Identity Known Gap](docs/security/FEDERATED_IDENTITY_KNOWN_GAP_20260808.md) and the PRG evidence for the exact deployed-state proof and retirement plan.
 
 ## Runtime boundary
 
@@ -56,4 +60,4 @@ Then open `http://localhost:800/index.html`.
 
 ## Production boundary
 
-Repository readiness does not itself authorize Production deployment, Production database mutation, provider purchases, real charges, or protected identity-provider configuration changes. Those actions require their separate protected release/evidence process.
+Repository readiness does not itself authorize Production deployment, Production database mutation, provider purchases, real charges, protected identity-provider configuration changes, country activation, persistent owner seeding, or real Production data mutation. Those actions require their separate protected release/evidence process.
