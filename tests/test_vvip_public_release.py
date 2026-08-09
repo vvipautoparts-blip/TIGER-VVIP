@@ -75,8 +75,10 @@ class PublicReleaseTests(unittest.TestCase):
             output = Path(temp) / "out"
             source.mkdir()
             self.fixture(source)
-            with self.assertRaises(RuntimeError):
-                module.build(source, output, mode="production", source_sha="abc")
+            missing_env = {name: "" for name in self.production_env()}
+            with mock.patch.dict(os.environ, missing_env, clear=False):
+                with self.assertRaises(RuntimeError):
+                    module.build(source, output, mode="production", source_sha="abc")
 
     def test_production_rejects_fixture_markers(self):
         with tempfile.TemporaryDirectory() as temp:
