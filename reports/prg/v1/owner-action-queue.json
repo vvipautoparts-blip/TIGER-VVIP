@@ -1,9 +1,18 @@
 {
   "schema_version": "PRG_V1_OWNER_ACTION_QUEUE",
-  "generated_at": "2026-08-09T17:47:00+03:00",
+  "generated_at": "2026-08-09T17:52:00+03:00",
   "repository": "vvipautoparts-blip/TIGER-VVIP",
   "policy": "Human-only actions are accumulated; autonomous technical work continues independently.",
   "actions": [
+    {
+      "id": "OA-00",
+      "priority": "IMMEDIATE_PUBLIC_SURFACE_CONTAINMENT",
+      "system": "GitHub Pages",
+      "action": "Temporarily unpublish/disable GitHub Pages until the controlled Production release replaces the stale deployment.",
+      "reason": "The currently public github.io deployment is the old SHA 4cc292e626fea39f3b0e56b98781d521efef789d from 2026-08-05, not H2, and its entry surface contains Clerk Development markers (pk_test_ and .clerk.accounts.dev). It must not be confused with Production.",
+      "requires_secret_sharing": false,
+      "status": "PENDING_OWNER_GITHUB_UI"
+    },
     {
       "id": "OA-01",
       "priority": "BLOCKING_BEFORE_PUBLIC_RELEASE",
@@ -17,7 +26,7 @@
       "id": "OA-02",
       "priority": "BLOCKING_BEFORE_CUSTOM_DOMAIN_RELEASE",
       "system": "GitHub Pages + DNS provider",
-      "action": "In Repository Settings > Pages set Custom domain to tigerautoparts.shop, preferably verify domain ownership first, then configure apex DNS records with the DNS provider. For an Actions-based Pages workflow the repository CNAME file is ignored and does not configure the custom domain.",
+      "action": "In Repository Settings > Pages set Custom domain to tigerautoparts.shop, preferably verify domain ownership first, then configure apex DNS records with the DNS provider. For an Actions-based Pages workflow the repository CNAME file is not relied on as the configuration authority.",
       "reason": "GitHub Pages API currently reports cname=null and the Pages source is a custom GitHub Actions workflow.",
       "requires_secret_sharing": false,
       "status": "PENDING_OWNER_EXTERNAL_UI"
