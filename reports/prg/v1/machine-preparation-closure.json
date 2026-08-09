@@ -1,0 +1,41 @@
+{
+  "schema_version": "PRG_V1_MACHINE_PREPARATION_CLOSURE",
+  "repository": "vvipautoparts-blip/TIGER-VVIP",
+  "h2_sha": "35352136090bd39d9dd6bddc6682c9b9a2d3cafc",
+  "verified_control_sha": "adbecfdbc3c0c9df2566c9b60eade18950d416ee",
+  "verification": {
+    "workflow_run_id": 31321793137,
+    "job_id": 93265819851,
+    "conclusion": "success",
+    "artifact_id": 9040380317,
+    "artifact_digest": "sha256:3ba580a585cc04d3c8777349ba3d826d56793a80df2f6195ec90b67338acdb9d"
+  },
+  "completed_machine_work": {
+    "pcg_closed": true,
+    "ehg_closed": true,
+    "identity_staging_runtime_verified": true,
+    "staging_synthetic_residue_zero": true,
+    "production_read_only_preflight_complete": true,
+    "production_identity_semantically_canonical": true,
+    "production_phase_b_absent_clean": true,
+    "production_advisor_baseline_recorded": true,
+    "production_db_candidate_prepared": true,
+    "provider_readiness_classified": true,
+    "web_release_candidate_prepared": true,
+    "master_project_state_created": true,
+    "owner_intervention_queue_consolidated": true
+  },
+  "remaining_non_machine_dependencies": [
+    "Clerk Production DNS connection",
+    "GitHub Pages custom-domain configuration",
+    "fresh owner-reviewed exact Production DB authorization",
+    "protected Environment approvals and later exact Web authorization"
+  ],
+  "production_db_authorized": false,
+  "production_web_authorized": false,
+  "production_database_mutated_by_prg": false,
+  "production_deployed": false,
+  "country_activated": false,
+  "owner_seeded": false,
+  "state": "PRG_MACHINE_PREPARATION_CLOSED_AWAITING_OWNER_AND_EXTERNAL_ACTIONS"
+}
