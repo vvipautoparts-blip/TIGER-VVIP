@@ -1,0 +1,43 @@
+{
+  "schema_version": "PRG_V1_PRODUCTION_ADVISOR_BASELINE",
+  "production_project_ref": "zelcngyyvbomuzokvuxo",
+  "captured_before_phase_b": true,
+  "phase_b_present_at_capture": false,
+  "security": {
+    "observed_classes": [
+      "rls_enabled_no_policy",
+      "function_search_path_mutable",
+      "authenticated_security_definer_function_executable",
+      "auth_allow_anonymous_sign_ins",
+      "auth_leaked_password_protection"
+    ],
+    "representative_findings": [
+      "RLS enabled with no policy on legacy/server-only surfaces such as email_verifications, otp_codes, vvip_clerk_profiles",
+      "mutable search_path warnings on parts_sync_vehicle_reference_ids and set_updated_at",
+      "authenticated SECURITY DEFINER advisory on vvip_resolve_own_profile(p_email text)",
+      "legacy/current RLS policies that Supabase classifies as allowing anonymous access",
+      "Supabase Auth leaked-password protection disabled"
+    ],
+    "identity_resolver_note": "The vvip_resolve_own_profile SECURITY DEFINER execution is intentional in the federated identity architecture and is separately constrained by authenticated-only execute ACL, hardened search_path, subject-first semantics, and runtime proof. Its advisory is preserved as baseline rather than silently suppressed.",
+    "phase_b_attributable_material_findings": 0,
+    "phase_b_attribution_reason": "Phase B is absent in Production at baseline capture, so none of the current advisor findings can be newly attributable to Phase B."
+  },
+  "performance": {
+    "observed_classes": [
+      "unindexed_foreign_keys",
+      "auth_rls_initplan",
+      "unused_index",
+      "multiple_permissive_policies",
+      "auth_db_connections_absolute"
+    ],
+    "classification": "PRE_EXISTING_BASELINE",
+    "phase_b_attributable_findings": 0
+  },
+  "release_policy": {
+    "do_not_claim_global_zero_warnings": true,
+    "post_phase_b_requirement": "Re-run both security and performance advisors after any authorized Phase B Production migration and compare against this baseline. New Phase-B-attributable material security regressions must equal zero.",
+    "legacy_remediation_scope": "Existing advisor findings are not silently modified as part of PRG Phase B release unless a separate remediation plan explicitly authorizes them."
+  },
+  "production_database_mutated": false,
+  "state": "ADVISOR_BASELINE_RECORDED"
+}
