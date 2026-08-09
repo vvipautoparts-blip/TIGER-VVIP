@@ -1,0 +1,29 @@
+{
+  "schema_version": "PRG_V1_EXTERNAL_READINESS",
+  "observed_at": "2026-08-09T17:32:00+03:00",
+  "clerk": {
+    "production_instance_created": true,
+    "publishable_key_present": true,
+    "raw_publishable_key_recorded": false,
+    "frontend_api_decoded": "clerk.tigerautoparts.shop",
+    "development_frontend_api_rejected": true,
+    "setup_checklist_observed_incomplete": true,
+    "dns_records_connection_independently_verified": false,
+    "google_sign_in_custom_credentials_verified": false,
+    "google_sign_in_requirement": "CONDITIONAL_ON_LAUNCH_AUTH_METHODS"
+  },
+  "github_pages": {
+    "repository_cname_file": "tigerautoparts.shop",
+    "pages_api_cname_before_release": null,
+    "https_enforced": true,
+    "custom_domain_post_deploy_verification_required": true
+  },
+  "blocking_external_prerequisites": [
+    "CLERK_PRODUCTION_DNS_CONNECTION"
+  ],
+  "conditional_external_prerequisites": [
+    "CLERK_GOOGLE_SIGN_IN_CUSTOM_CREDENTIALS_IF_GOOGLE_LOGIN_IS_REQUIRED_AT_LAUNCH"
+  ],
+  "state": "EXTERNAL_PROVIDER_READINESS_INCOMPLETE",
+  "production_authorized": false
+}
