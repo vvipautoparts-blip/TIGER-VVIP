@@ -1,0 +1,52 @@
+{
+  "schema_version": "EHG_V1_BASELINE",
+  "repository": "vvipautoparts-blip/TIGER-VVIP",
+  "h2_sha": "35352136090bd39d9dd6bddc6682c9b9a2d3cafc",
+  "authority_scope": "ENVIRONMENT_HARDENING_ONLY",
+  "production_deploy_authorized": false,
+  "production_database_mutation_authorized": false,
+  "country_activation_authorized": false,
+  "reviewer": {
+    "login": "nzuodezuode-byte",
+    "user_id": 310225379,
+    "repository_permission": "write",
+    "eligible": true
+  },
+  "production-build": {
+    "environment_id": 19549247542,
+    "can_admins_bypass": true,
+    "protection_rules": [],
+    "deployment_branch_policy": null,
+    "target": {
+      "required_reviewer": "nzuodezuode-byte",
+      "prevent_self_review": true,
+      "can_admins_bypass": false,
+      "wait_timer_minutes": 0,
+      "custom_branch_policies": true,
+      "allowed_branches": ["main"],
+      "allowed_tags": []
+    }
+  },
+  "github-pages": {
+    "environment_id": 16980824698,
+    "can_admins_bypass": true,
+    "protection_rule_types": ["branch_policy"],
+    "deployment_branch_policy": {
+      "protected_branches": false,
+      "custom_branch_policies": true
+    },
+    "current_branch_policies": [
+      {"name": "main", "type": "branch"}
+    ],
+    "target": {
+      "required_reviewer": "nzuodezuode-byte",
+      "prevent_self_review": true,
+      "can_admins_bypass": false,
+      "wait_timer_minutes": 0,
+      "custom_branch_policies": true,
+      "allowed_branches": ["main"],
+      "allowed_tags": []
+    }
+  },
+  "state": "EHG_BASELINE_FROZEN"
+}
