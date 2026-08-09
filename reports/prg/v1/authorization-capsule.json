@@ -12,15 +12,19 @@
     "ehg_closed": true,
     "production_state_0_clean_pre_promotion": true,
     "staging_phase_b_dark_launch_zero_business_state": true,
-    "production_identity_fail_closed": true
+    "production_profile_resolver_fail_closed": true,
+    "production_advisors_reviewed": true
   },
-  "required_external_prerequisites": {
+  "blocking_prerequisites": {
+    "stale_github_pages_development_deployment_contained": false,
     "clerk_production_dns_verified": false,
-    "github_pages_custom_domain_configured_and_dns_ready": false
+    "github_pages_custom_domain_configured_and_dns_ready": false,
+    "legacy_supabase_password_credential_surface_retired": false
   },
   "recommended_pre_release_hardening": {
     "release_workflow_hardening_approved": false,
-    "reason": "Current workflow auto-triggers on every main push and uses mutable major action tags/workflow-scoped deploy permissions."
+    "legacy_browser_surface_minimization_deferred": true,
+    "reason": "Current release workflow is fail-closed but auto-triggers on main pushes and uses mutable major tags/workflow-scoped deploy permissions; legacy public-schema SQL grants are also broader than the new runtime requires."
   },
   "future_owner_phrase": "APPROVE_PRODUCTION_RELEASE_EXACT",
   "owner_authorized": false,
@@ -32,9 +36,21 @@
     "persistent_owner_seeding": false,
     "real_application_data_mutation": false,
     "environment_bypass": false,
-    "secret_change": false
+    "secret_change": false,
+    "legacy_auth_credential_retirement": false
   },
-  "state": "AWAITING_EXTERNAL_PREREQUISITES_AND_RELEASE_WORKFLOW_DECISION",
+  "eligibility": {
+    "production_release_authorization_eligible": false,
+    "reason_codes": [
+      "STALE_PUBLIC_PAGES_DEPLOYMENT",
+      "CLERK_DNS_NOT_VERIFIED",
+      "GITHUB_PAGES_CUSTOM_DOMAIN_NOT_READY",
+      "LEGACY_SUPABASE_PASSWORD_CREDENTIALS_PRESENT",
+      "RELEASE_WORKFLOW_HARDENING_DECISION_PENDING"
+    ]
+  },
+  "state": "PRG_PREPARED_WITH_BLOCKERS_NOT_PRODUCTION_AUTHORIZATION_ELIGIBLE",
   "production_mutated": false,
-  "production_deployed": false
+  "production_deployed": false,
+  "country_activated": false
 }
