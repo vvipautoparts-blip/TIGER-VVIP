@@ -10,6 +10,7 @@ on:
       - tools/srpc/source_lock.py
       - tests/test_srpc_source_lock.py
       - tests/srpc-workflow-contracts.test.cjs
+      - .srpc/proof-refresh.txt
 
 permissions:
   contents: read

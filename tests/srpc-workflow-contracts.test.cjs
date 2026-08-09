@@ -56,6 +56,11 @@ test('all GitHub Actions in source proof are pinned to full SHAs', () => {
   assert.match(yml, /actions\/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f/);
 });
 
+test('source proof supports a non-semantic proof refresh path', () => {
+  const yml = source();
+  assert.match(yml, /\.srpc\/proof-refresh\.txt/);
+});
+
 test('source proof contains no database execution primitive', () => {
   const yml = source();
   for (const forbidden of [
