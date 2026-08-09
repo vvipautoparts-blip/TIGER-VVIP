@@ -103,3 +103,58 @@ jobs:
       - name: Deploy exact verified artifact
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Verify deployed production surface
+        env:
+          VVIP_PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          VVIP_SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          base="${VVIP_PAGE_URL%/}/"
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          paths=(
+            index.html
+            privacy-policy.html
+            terms-of-service.html
+            data-deletion.html
+            manifest.webmanifest
+            runtime-config.js
+            sw-vvip-static.js
+            scripts/vvip-safe-ux-guard.js
+            scripts/runtime/vvip-runtime-loader.js
+            scripts/runtime/vvip-marketplace-repository.js
+            scripts/runtime/vvip-marketplace-rollback.js
+            scripts/runtime/vvip-my-listings.js
+            scripts/vvip-pr30-resilience.js
+            scripts/vvip-production-marketplace.js
+            styles/vvip-production-marketplace.css
+            icons/icon-192.png
+            icons/icon-512.png
+          )
+          for path in "${paths[@]}"; do
+            target="$tmp/$(printf '%s' "$path" | tr '/' '_')"
+            ok=0
+            for attempt in 1 2 3 4 5 6 7 8 9 10; do
+              if curl --fail --location --silent --show-error \
+                --connect-timeout 10 --max-time 30 \
+                "${base}${path}" -o "$target"; then
+                ok=1
+                break
+              fi
+              sleep 3
+            done
+            if [ "$ok" -ne 1 ] || [ ! -s "$target" ]; then
+              echo "VVIP_POST_DEPLOY_MISSING=$path" >&2
+              exit 1
+            fi
+          done
+          if ! grep -Fq "$VVIP_SOURCE_SHA" "$tmp/runtime-config.js"; then
+            echo "VVIP_POST_DEPLOY_SHA_MISMATCH" >&2
+            exit 1
+          fi
+          if grep -Fq 'pk_test_' "$tmp/runtime-config.js"; then
+            echo "VVIP_POST_DEPLOY_TEST_CONFIG_FORBIDDEN" >&2
+            exit 1
+          fi
+          echo "VVIP_POST_DEPLOY_SMOKE=PASS"
