@@ -1,0 +1,44 @@
+{
+  "schema_version": "EHG_V1_CLOSURE",
+  "repository": "vvipautoparts-blip/TIGER-VVIP",
+  "closed_at": "2026-08-09T17:27:00+03:00",
+  "h2_sha": "35352136090bd39d9dd6bddc6682c9b9a2d3cafc",
+  "production_build": {
+    "environment_id": 19549247542,
+    "can_admins_bypass": false,
+    "required_reviewer": "nzuodezuode-byte",
+    "prevent_self_review": true,
+    "wait_timer_minutes": 0,
+    "allowed_branches": ["main"],
+    "allowed_tags": [],
+    "verified": true
+  },
+  "github_pages": {
+    "environment_id": 16980824698,
+    "can_admins_bypass": false,
+    "required_reviewer": "nzuodezuode-byte",
+    "prevent_self_review": true,
+    "wait_timer_minutes": 0,
+    "allowed_branches": ["main"],
+    "allowed_tags": [],
+    "verified": true
+  },
+  "human_gate_proof": {
+    "workflow_run_id": 31307088159,
+    "run_attempt": 2,
+    "waiting_job_id": 93256168074,
+    "blocked_before_first_step": true,
+    "runner_assigned": false,
+    "steps_executed": 0,
+    "required_reviewer": "nzuodezuode-byte",
+    "self_approval_available_to_triggering_user": false,
+    "safe_cancellation_verified": true,
+    "final_run_conclusion": "cancelled"
+  },
+  "environment_hardening_gate": "CLOSED",
+  "production_deploy_authorized": false,
+  "production_deployed": false,
+  "production_database_mutated": false,
+  "country_activated": false,
+  "next_gate": "PRODUCTION_RELEASE_GATE"
+}
