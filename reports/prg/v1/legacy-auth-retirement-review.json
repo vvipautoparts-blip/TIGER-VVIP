@@ -1,0 +1,52 @@
+{
+  "schema_version": "PRG_V1_LEGACY_AUTH_RETIREMENT_REVIEW",
+  "observed_at": "2026-08-09T17:44:00+03:00",
+  "project_ref": "zelcngyyvbomuzokvuxo",
+  "binding_policy": "FEDERATED_IDENTITY_ONLY",
+  "repository_runtime_search": {
+    "signInWithPassword_matches": 0,
+    "supabase_auth_matches": 0,
+    "current_identity_provider": "Clerk"
+  },
+  "production_supabase_auth_state": {
+    "auth_users": 7,
+    "email_provider_users": 7,
+    "users_with_nonempty_encrypted_password": 7,
+    "confirmed_email_users": 6,
+    "sessions_total": 4,
+    "sessions_with_future_not_after": 0,
+    "sessions_without_not_after": 4,
+    "refresh_tokens_total": 6,
+    "refresh_tokens_not_revoked": 4,
+    "one_time_tokens_total": 1,
+    "latest_user_created_at": "2026-07-04T20:47:05.31103+00:00",
+    "latest_user_sign_in_at": "2026-07-05T20:35:04.296048+00:00",
+    "latest_session_refreshed_at": "2026-07-05T21:33:21.233614",
+    "latest_refresh_token_updated_at": "2026-07-05T21:33:21.217563+00:00"
+  },
+  "identity_overlap": {
+    "profiles_total": 8,
+    "profiles_with_clerk_subject": 2,
+    "profiles_without_clerk_subject": 6,
+    "auth_user_ids_matching_profile_ids": 7,
+    "legacy_auth_users_with_clerk_profile_by_email_count": 1,
+    "profiles_fk_to_auth_users": false
+  },
+  "risk": {
+    "parallel_password_credentials_still_stored": true,
+    "unrevoked_refresh_tokens_exist": true,
+    "repository_no_longer_uses_supabase_password_auth": true,
+    "policy_violation_if_credential_surface_remains_available": true
+  },
+  "recommended_retirement_sequence": [
+    "Disable Supabase email/password sign-in and signup at the Auth provider/configuration layer.",
+    "Revoke all existing legacy Supabase Auth sessions/refresh tokens.",
+    "Preserve public.profiles records; do not auto-link the six unbound legacy profiles by email.",
+    "Retire/delete the seven legacy Supabase Auth user credentials only through an explicit audited owner/security action after confirming no external consumer depends on them.",
+    "Re-run proof: auth users/sessions/refresh tokens retired or provider disabled + sessions revoked, Clerk profile resolver still fail-closed, no profile rows lost."
+  ],
+  "automatic_retirement_performed": false,
+  "reason": "Credential/provider changes and deletion/revocation are Production security mutations and require a dedicated reviewed gate.",
+  "classification": "BLOCKING_FEDERATED_IDENTITY_CREDENTIAL_RETIREMENT_REQUIRED_BEFORE_PUBLIC_PRODUCTION_RELEASE",
+  "production_authorized": false
+}
