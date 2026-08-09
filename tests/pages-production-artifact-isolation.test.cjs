@@ -14,8 +14,8 @@ function workflow() {
 test('production Pages artifact is built outside the checkout source tree', () => {
   const yaml = workflow();
 
-  assert.match(yaml, /--source\s+"\$GITHUB_WORKSPACE"/);
-  assert.match(yaml, /--output\s+"\$RUNNER_TEMP\/vvip-public"/);
-  assert.doesNotMatch(yaml, /--output\s+dist\/public/);
-  assert.match(yaml, /path:\s*\$\{\{\s*runner\.temp\s*\}\}\/vvip-public/);
+  assert.match(yaml, /--source\s+["']?\$GITHUB_WORKSPACE["']?/);
+  assert.match(yaml, /--output\s+["']?\$RUNNER_TEMP\/vvip-public["']?/);
+  assert.doesNotMatch(yaml, /--output\s+["']?dist\/public["']?/);
+  assert.match(yaml, /path:\s*["']?\$\{\{\s*runner\.temp\s*\}\}\/vvip-public["']?/);
 });
