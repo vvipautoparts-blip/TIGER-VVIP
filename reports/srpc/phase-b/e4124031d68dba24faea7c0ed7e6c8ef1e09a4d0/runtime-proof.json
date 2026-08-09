@@ -1,0 +1,1 @@
+{"checks":{"active_audit_present":true,"audit_mutation_denied":true,"authorized_reviewer_approved":true,"draft_owner_inserted":true,"inactive_country_denied":true,"non_clerk_denied":true,"self_promote_denied":true,"unauthorized_reviewer_denied":true},"status":"PASS"}
