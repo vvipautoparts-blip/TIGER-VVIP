@@ -31,11 +31,14 @@
       "raw_value_recorded": false
     },
     "TIGER_CLERK_PUBLISHABLE_KEY": {
-      "status": "EXTERNAL_INPUT_REQUIRED",
+      "status": "SOURCE_VERIFIED",
+      "source": "Owner-provided Clerk Production API Keys screen",
       "required_prefix": "pk_live_",
       "required_instance": "production",
+      "frontend_api": "clerk.tigerautoparts.shop",
+      "frontend_api_matches_production_domain": true,
       "development_key_reuse_forbidden": true,
-      "repository_production_candidate_found": false,
+      "sha256": "f280ff0e711bb02dd7f4e63e14731a85b5ca15bf5110e86a1b6eac1fd47193b3",
       "raw_value_recorded": false
     }
   },
@@ -45,12 +48,13 @@
     "can_admins_bypass": true,
     "release_hardening_required_before_production": true
   },
-  "pcg_state": "PARTIAL_2_OF_3_SOURCE_VERIFIED",
-  "next_condition": "OBTAIN_AND_VERIFY_CLERK_PRODUCTION_PUBLISHABLE_KEY",
+  "pcg_state": "CANDIDATES_3_OF_3_SOURCE_VERIFIED_ENVIRONMENT_INSTALL_PENDING",
+  "next_condition": "INSTALL_EXACT_THREE_VALUES_IN_PRODUCTION_BUILD_THEN_RERUN_PCG_WITHOUT_DEPLOY",
   "safety": {
     "no_raw_supabase_publishable_key_committed": true,
     "no_clerk_key_committed": true,
     "no_production_deploy": true,
-    "no_production_db_mutation": true
+    "no_production_db_mutation": true,
+    "default_country_code_intentionally_absent": true
   }
 }
