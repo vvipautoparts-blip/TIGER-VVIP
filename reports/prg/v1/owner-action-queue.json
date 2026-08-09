@@ -1,6 +1,6 @@
 {
   "schema_version": "PRG_V1_OWNER_ACTION_QUEUE",
-  "generated_at": "2026-08-09T17:35:00+03:00",
+  "generated_at": "2026-08-09T17:47:00+03:00",
   "repository": "vvipautoparts-blip/TIGER-VVIP",
   "policy": "Human-only actions are accumulated; autonomous technical work continues independently.",
   "actions": [
@@ -42,15 +42,33 @@
     },
     {
       "id": "OA-05",
+      "priority": "BLOCKING_FEDERATED_IDENTITY_GATE",
+      "system": "Supabase Auth",
+      "action": "Approve a dedicated legacy-credential retirement gate with the exact phrase APPROVE_LEGACY_AUTH_RETIREMENT_DESIGN. The reviewed sequence will disable Supabase email/password authentication, revoke legacy sessions/refresh tokens, preserve public.profiles, and retire the seven legacy Supabase Auth credentials without auto-linking profiles by email.",
+      "reason": "Production still contains 7 email/password Auth users with encrypted passwords and 4 non-revoked refresh tokens, while the binding architecture requires federated identity only. The current repository runtime no longer uses Supabase password auth, so this is a historical credential surface rather than a current code path.",
+      "requires_secret_sharing": false,
+      "status": "PENDING_DESIGN_APPROVAL"
+    },
+    {
+      "id": "OA-06",
+      "priority": "POST_BLOCKER_SECURITY_HARDENING",
+      "system": "Supabase legacy public schema",
+      "action": "After identity credential retirement, approve a separate legacy browser-surface minimization design if the old tables are no longer required by any external consumer. The design should revoke unnecessary anon/authenticated SQL privileges while preserving only explicitly public catalog reads.",
+      "reason": "Sensitive legacy tables currently contain zero rows and anonymous read proof exposes zero sensitive rows, but several old tables still grant broad SQL privileges and rely on RLS as the sole boundary. Current H2 runtime uses the new vvip_marketplace_* substrate instead.",
+      "requires_secret_sharing": false,
+      "status": "PENDING_LATER_SCOPE_REVIEW"
+    },
+    {
+      "id": "OA-07",
       "priority": "SOVEREIGN_PRODUCTION_GATE",
       "system": "ChatGPT / PRG",
-      "action": "Only after all blocking prerequisites and any approved hardening are reverified, send exactly APPROVE_PRODUCTION_RELEASE_EXACT.",
+      "action": "Only after all blocking prerequisites and approved hardening are reverified, send exactly APPROVE_PRODUCTION_RELEASE_EXACT.",
       "reason": "This is the separate sovereign authorization for exact Production Phase B migration, postflight proof, and exact release workflow trigger. It does not authorize country activation, persistent owner seeding or real user/business data mutation.",
       "requires_secret_sharing": false,
       "status": "NOT_YET_ELIGIBLE"
     },
     {
-      "id": "OA-06",
+      "id": "OA-08",
       "priority": "RUNTIME_HUMAN_ENFORCEMENT",
       "system": "GitHub Environment production-build",
       "action": "When an authorized production run is waiting, sign in as nzuodezuode-byte and approve production-build only after PRG reports the exact run/SHA as expected.",
@@ -59,7 +77,7 @@
       "status": "FUTURE_AFTER_AUTHORIZATION"
     },
     {
-      "id": "OA-07",
+      "id": "OA-09",
       "priority": "RUNTIME_HUMAN_ENFORCEMENT",
       "system": "GitHub Environment github-pages",
       "action": "Approve github-pages as nzuodezuode-byte only after the build manifest and source SHA are verified green for the same authorized run.",
