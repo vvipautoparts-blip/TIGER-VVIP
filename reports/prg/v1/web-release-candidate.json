@@ -1,0 +1,36 @@
+{
+  "schema_version": "PRG_V1_WEB_RELEASE_CANDIDATE",
+  "repository": "vvipautoparts-blip/TIGER-VVIP",
+  "release_source_h2": "35352136090bd39d9dd6bddc6682c9b9a2d3cafc",
+  "prerequisites": {
+    "pcg_closed": true,
+    "ehg_closed": true,
+    "identity_staging_runtime_verified": true,
+    "production_identity_semantically_canonical": true,
+    "production_phase_b_state": "PHASE_B_ABSENT_CLEAN",
+    "production_db_post_apply_verified": false,
+    "clerk_production_publishable_key_verified": true,
+    "clerk_frontend_api": "clerk.tigerautoparts.shop",
+    "clerk_dns_ready": false,
+    "github_pages_environment_hardened": true,
+    "github_pages_custom_domain_configured": false,
+    "intended_custom_domain": "tigerautoparts.shop"
+  },
+  "blocking_conditions": [
+    "PRODUCTION_DB_NOT_YET_AUTHORIZED_OR_APPLIED",
+    "CLERK_PRODUCTION_DNS_EXTERNAL_ACTION_REQUIRED",
+    "GITHUB_PAGES_CUSTOM_DOMAIN_NOT_CONFIGURED"
+  ],
+  "non_blocking_optional_items": [
+    "Google SSO custom credentials unless Google is selected as a launch sign-in provider",
+    "Passkeys/premium Clerk features",
+    "Default country configuration",
+    "Country activation",
+    "Owner seeding"
+  ],
+  "owner_web_authorized": false,
+  "authorization_phrase": "APPROVE_PRODUCTION_WEB_EXACT",
+  "authorization_phrase_valid_now": false,
+  "production_deployed": false,
+  "state": "WEB_RELEASE_CANDIDATE_BLOCKED_ON_DB_AND_EXTERNAL_DOMAIN_READINESS"
+}
