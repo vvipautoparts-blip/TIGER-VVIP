@@ -1,0 +1,56 @@
+{
+  "schema_version": "PCG_V1_CANDIDATE_CAPSULE",
+  "repository": "vvipautoparts-blip/TIGER-VVIP",
+  "h2_sha": "35352136090bd39d9dd6bddc6682c9b9a2d3cafc",
+  "target_environment": "production-build",
+  "authority_scope": "CONFIGURATION_VERIFICATION_ONLY",
+  "production_deploy_authority": false,
+  "production_database_mutation_authority": false,
+  "country_activation_authority": false,
+  "owner_seed_authority": false,
+  "candidates": {
+    "TIGER_SUPABASE_URL": {
+      "status": "SOURCE_VERIFIED",
+      "source": "Supabase project zelcngyyvbomuzokvuxo",
+      "project_ref": "zelcngyyvbomuzokvuxo",
+      "project_status": "ACTIVE_HEALTHY",
+      "region": "ap-northeast-2",
+      "value": "https://zelcngyyvbomuzokvuxo.supabase.co",
+      "sha256": "13d258bae7317b0e716f7c8b28ac8b5985f859d09bd4532418c444686a9ef572"
+    },
+    "TIGER_SUPABASE_PUBLISHABLE_KEY": {
+      "status": "SOURCE_VERIFIED",
+      "source": "Supabase get_publishable_keys",
+      "project_ref": "zelcngyyvbomuzokvuxo",
+      "key_id": "e5309e89-669f-4e3d-9f60-26a52d7ab881",
+      "key_type": "publishable",
+      "key_name": "default",
+      "disabled": false,
+      "required_prefix": "sb_publishable_",
+      "sha256": "1453209296ff0e224c071f6f3975370ef5d90d08e735f8be23b98cb4f6be69b3",
+      "raw_value_recorded": false
+    },
+    "TIGER_CLERK_PUBLISHABLE_KEY": {
+      "status": "EXTERNAL_INPUT_REQUIRED",
+      "required_prefix": "pk_live_",
+      "required_instance": "production",
+      "development_key_reuse_forbidden": true,
+      "repository_production_candidate_found": false,
+      "raw_value_recorded": false
+    }
+  },
+  "environment_security_observation": {
+    "environment_exists": true,
+    "protection_rules_count": 0,
+    "can_admins_bypass": true,
+    "release_hardening_required_before_production": true
+  },
+  "pcg_state": "PARTIAL_2_OF_3_SOURCE_VERIFIED",
+  "next_condition": "OBTAIN_AND_VERIFY_CLERK_PRODUCTION_PUBLISHABLE_KEY",
+  "safety": {
+    "no_raw_supabase_publishable_key_committed": true,
+    "no_clerk_key_committed": true,
+    "no_production_deploy": true,
+    "no_production_db_mutation": true
+  }
+}
