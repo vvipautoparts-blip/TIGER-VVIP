@@ -1,0 +1,23 @@
+{
+  "schema": "https://vvip.tiger/smg/owner-merge-authorization/v1",
+  "repository": "vvipautoparts-blip/TIGER-VVIP",
+  "pull_request": 181,
+  "approved_head": "1e7fb3c1e43415e5bfaee957b6ab553ae68bc139",
+  "expected_main_base": "4cc292e626fea39f3b0e56b98781d521efef789d",
+  "migration_sha256": "9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9",
+  "authorization_statement": "APPROVE_MERGE_EXACT",
+  "authorization_scope": "MERGE_ONLY",
+  "production_authority": "NONE",
+  "authorized_at_local": "2026-08-09T10:48:00+03:00",
+  "authorization_capsule_blob_sha": "f99e3c5c9ddac5613958853dc9bc21ab1dc41acf",
+  "authorization_baseline_commit": "563dbcf7bb0c262575fc72e14b1ce6e967d10139",
+  "post_authorization_revalidation": {
+    "pr_head_exact": true,
+    "main_base_exact": true,
+    "pr_open": true,
+    "auto_merge_absent": true,
+    "h1_checks_no_failure_or_pending": true
+  },
+  "consumed": false,
+  "state": "AUTHORIZED_FOR_ATOMIC_MERGE"
+}
