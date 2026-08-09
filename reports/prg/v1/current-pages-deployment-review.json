@@ -1,0 +1,30 @@
+{
+  "schema_version": "PRG_V1_CURRENT_PAGES_DEPLOYMENT_REVIEW",
+  "observed_at": "2026-08-09T17:50:00+03:00",
+  "pages_url": "https://vvipautoparts-blip.github.io/TIGER-VVIP/",
+  "current_pages_api_cname": null,
+  "latest_successful_deployment": {
+    "deployment_id": 5760416157,
+    "workflow_run_id": 30999967177,
+    "workflow_name": "Deploy static site to GitHub Pages",
+    "deployed_sha": "4cc292e626fea39f3b0e56b98781d521efef789d",
+    "deployed_at": "2026-08-05T11:04:37Z",
+    "state": "success"
+  },
+  "old_workflow": {
+    "upload_path": ".",
+    "entire_repository_uploaded_as_pages_artifact": true
+  },
+  "old_entry_surface": {
+    "clerk_environment": "development",
+    "contains_pk_test_marker": true,
+    "contains_clerk_accounts_dev_domain": true,
+    "production_release_builder_would_reject_these_markers": true
+  },
+  "current_main_h2": "35352136090bd39d9dd6bddc6682c9b9a2d3cafc",
+  "current_pages_is_h2": false,
+  "risk_classification": "PUBLIC_STALE_DEVELOPMENT_DEPLOYMENT_MUST_NOT_BE_CONFUSED_WITH_PRODUCTION",
+  "recommended_immediate_action": "Temporarily unpublish/disable GitHub Pages until the controlled Production release replaces it, or otherwise explicitly treat the github.io URL as non-production and inaccessible to users. No replacement deploy is authorized yet.",
+  "automatic_unpublish_performed": false,
+  "production_deployment_performed": false
+}
