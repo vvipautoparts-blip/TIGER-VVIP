@@ -1,0 +1,25 @@
+{
+  "schema_version": "EHG_V1_ENVIRONMENT_VERIFICATION",
+  "environment": "github-pages",
+  "environment_id": 16980824698,
+  "verified_at": "2026-08-09T17:13:00+03:00",
+  "can_admins_bypass": false,
+  "required_reviewer": {
+    "login": "nzuodezuode-byte",
+    "user_id": 310225379
+  },
+  "prevent_self_review": true,
+  "deployment_branch_policy": {
+    "protected_branches": false,
+    "custom_branch_policies": true
+  },
+  "allowed_branch_policies": [
+    {"name": "main", "type": "branch"}
+  ],
+  "allowed_tag_policies": [],
+  "state": "EHG_GITHUB_PAGES_VERIFIED",
+  "production_deploy_authorized": false,
+  "production_deployed": false,
+  "production_database_mutated": false,
+  "country_activated": false
+}
