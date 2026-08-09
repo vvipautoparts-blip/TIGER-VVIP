@@ -8,6 +8,7 @@ PRODUCTION_PROJECT_REF_AT_DESIGN = "zelcngyyvbomuzokvuxo"
 ACTION_PINS = {
     "checkout": "3d3c42e5aac5ba805825da76410c181273ba90b1",
     "setup_python": "ece7cb06caefa5fff74198d8649806c4678c61a1",
+    "setup_node": "249970729cb0ef3589644e2896645e5dc5ba9c38",
     "upload_artifact": "b7c566a772e6b6bfb58ed0dc250532a479d7789f",
     "attest": "508db95dd578ae2727ebd6217d5ba78e4fbda05d",
 }
