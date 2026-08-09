@@ -1,0 +1,179 @@
+name: SRPC Phase B Attestation
+
+on:
+  push:
+    branches:
+      - feat/srpc-v1-control-plane-20260809
+    paths:
+      - .github/workflows/srpc-phase-b-attest.yml
+      - tools/srpc/attestation.py
+      - tools/srpc/capsule.py
+      - tools/srpc/constants.py
+      - tools/srpc/decision.py
+      - tools/srpc/validate_evidence.py
+      - scripts/release/srpc/schema/**
+      - reports/srpc/phase-b/e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0/**
+      - tests/test_srpc_attestation.py
+      - tests/srpc-attestation-workflow-contracts.test.cjs
+      - .srpc/attest-refresh.txt
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+  artifact-metadata: write
+
+jobs:
+  attest:
+    name: Build, attest, and verify immutable Phase B capsule
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact control-plane commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          path: control
+          fetch-depth: 1
+
+      - name: Verify control-plane source identity
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          actual="$(git -C control rev-parse HEAD)"
+          test "$actual" = "$GITHUB_SHA"
+
+      - name: Checkout frozen Phase B H0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0
+          path: source
+          fetch-depth: 1
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12'
+
+      - name: Install evidence validator dependency
+        run: pip install jsonschema==4.23.0
+
+      - name: Verify exact H0 source and bytes
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          actual="$(git -C source rev-parse HEAD)"
+          python control/tools/srpc/source_lock.py \
+            --source-root "$GITHUB_WORKSPACE/source" \
+            --actual-commit "$actual" \
+            --output "$RUNNER_TEMP/source-lock.json"
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22'
+
+      - name: Re-run exact Phase B static contract
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          node --test source/tests/global-launch-phase-b-marketplace-convergence.test.cjs \
+            | tee "$RUNNER_TEMP/phase-b-static.log"
+          grep -F '# tests 10' "$RUNNER_TEMP/phase-b-static.log"
+          grep -F \
+            'GLOBAL_LAUNCH_PHASE_B_SHA256=9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9' \
+            "$RUNNER_TEMP/phase-b-static.log"
+          printf '%s\n' \
+            '{"sha256":"9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9","status":"PASS","tests":10}' \
+            > "$RUNNER_TEMP/static-proof.json"
+
+      - name: Prepare deterministic capsule and predicate
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python control/tools/srpc/attestation.py \
+            --control-root "$GITHUB_WORKSPACE/control" \
+            --source-root "$GITHUB_WORKSPACE/source" \
+            --control-sha "$GITHUB_SHA" \
+            --staging-evidence "$GITHUB_WORKSPACE/control/reports/srpc/phase-b/e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0/staging-evidence.json" \
+            --static-proof "$RUNNER_TEMP/static-proof.json" \
+            --output-root "$RUNNER_TEMP/srpc-attest"
+          test -f "$RUNNER_TEMP/srpc-attest/phase-b-sovereign-release-capsule.tar.gz"
+          test -f "$RUNNER_TEMP/srpc-attest/vvip-staging-predicate.json"
+
+      - name: Generate SLSA provenance attestation
+        id: provenance
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d
+        with:
+          subject-path: ${{ runner.temp }}/srpc-attest/phase-b-sovereign-release-capsule.tar.gz
+
+      - name: Generate VVIP Staging verification attestation
+        id: vvip
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d
+        with:
+          subject-path: ${{ runner.temp }}/srpc-attest/phase-b-sovereign-release-capsule.tar.gz
+          predicate-type: https://vvip.tiger/attestation/staging-promotion/v1
+          predicate-path: ${{ runner.temp }}/srpc-attest/vvip-staging-predicate.json
+
+      - name: Preserve local attestation bundles
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          cp "${{ steps.provenance.outputs.bundle-path }}" "$RUNNER_TEMP/srpc-attest/provenance.bundle.json"
+          cp "${{ steps.vvip.outputs.bundle-path }}" "$RUNNER_TEMP/srpc-attest/vvip-staging.bundle.json"
+
+      - name: Verify provenance bundle against exact signer source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          gh attestation verify \
+            "$RUNNER_TEMP/srpc-attest/phase-b-sovereign-release-capsule.tar.gz" \
+            --bundle "$RUNNER_TEMP/srpc-attest/provenance.bundle.json" \
+            --repo "$GITHUB_REPOSITORY" \
+            --predicate-type https://slsa.dev/provenance/v1 \
+            --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/srpc-phase-b-attest.yml" \
+            --source-digest "$GITHUB_SHA" \
+            --deny-self-hosted-runners
+
+      - name: Verify VVIP Staging bundle against exact signer source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          gh attestation verify \
+            "$RUNNER_TEMP/srpc-attest/phase-b-sovereign-release-capsule.tar.gz" \
+            --bundle "$RUNNER_TEMP/srpc-attest/vvip-staging.bundle.json" \
+            --repo "$GITHUB_REPOSITORY" \
+            --predicate-type https://vvip.tiger/attestation/staging-promotion/v1 \
+            --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/srpc-phase-b-attest.yml" \
+            --source-digest "$GITHUB_SHA" \
+            --deny-self-hosted-runners
+
+      - name: Record verified machine state
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          printf '%s\n' \
+            '{"attested":true,"eligible_for_security_review":true,"provenance_attestation_valid":true,"state":"ELIGIBLE_FOR_SECURITY_REVIEW","vvip_attestation_valid":true}' \
+            > "$RUNNER_TEMP/srpc-attest/attestation-verification.json"
+
+      - name: Upload attested Phase B capsule
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: srpc-phase-b-attested-capsule-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/srpc-attest/phase-b-sovereign-release-capsule.tar.gz
+            ${{ runner.temp }}/srpc-attest/phase-b-sovereign-release-capsule.sha256
+            ${{ runner.temp }}/srpc-attest/release-manifest.json
+            ${{ runner.temp }}/srpc-attest/vvip-staging-predicate.json
+            ${{ runner.temp }}/srpc-attest/preparation.json
+            ${{ runner.temp }}/srpc-attest/provenance.bundle.json
+            ${{ runner.temp }}/srpc-attest/vvip-staging.bundle.json
+            ${{ runner.temp }}/srpc-attest/attestation-verification.json
+            ${{ runner.temp }}/source-lock.json
+            ${{ runner.temp }}/phase-b-static.log
+          if-no-files-found: error
+          retention-days: 90
