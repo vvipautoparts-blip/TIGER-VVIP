@@ -1,0 +1,56 @@
+{
+  "schema_version": "PRG_V1_PRODUCTION_ADVISORS_REVIEW",
+  "observed_at": "2026-08-09T17:43:00+03:00",
+  "project_ref": "zelcngyyvbomuzokvuxo",
+  "security_advisor": {
+    "global_warnings_present": true,
+    "phase_b_findings_present_before_phase_b_apply": false,
+    "findings": {
+      "server_only_rls_no_policy": {
+        "tables": ["email_verifications", "otp_codes", "vvip_clerk_profiles"],
+        "browser_grants_verified_empty": true,
+        "force_rls_verified": true,
+        "classification": "INFORMATIONAL_SERVER_ONLY"
+      },
+      "mutable_search_path_functions": {
+        "functions": ["public.parts_sync_vehicle_reference_ids()", "public.set_updated_at()"],
+        "security_definer": false,
+        "anon_execute": false,
+        "authenticated_execute": false,
+        "public_execute": false,
+        "classification": "NOT_BROWSER_REACHABLE_BUT_HARDENING_DEBT"
+      },
+      "authenticated_security_definer_profile_resolver": {
+        "function": "public.vvip_resolve_own_profile(p_email text)",
+        "authenticated_execute": true,
+        "anon_execute": false,
+        "public_execute": false,
+        "search_path_fixed": true,
+        "subject_first_fail_closed_verified": true,
+        "classification": "INTENTIONAL_AUTHENTICATED_RPC"
+      },
+      "legacy_public_rls_policy_warnings": {
+        "sensitive_legacy_tables_total_rows": 0,
+        "anonymous_visible_sensitive_rows": 0,
+        "account_types_total_rows": 27,
+        "account_types_anonymous_visible_rows": 8,
+        "account_types_policy": "active=true AND is_registration_option=true",
+        "browser_sql_grants_wide_on_legacy_tables": true,
+        "current_h2_public_runtime_uses_phase_b_marketplace_tables_instead": true,
+        "classification": "NO_CURRENT_SENSITIVE_DATA_EXPOSURE_BUT_LEGACY_BROWSER_GRANT_DEBT"
+      },
+      "leaked_password_protection_disabled": {
+        "classification": "SUPERSEDED_BY_STRONGER_FEDERATED_ONLY_REQUIREMENT",
+        "note": "Password-strength controls are not the target remediation because VVIP policy forbids a parallel Supabase password authentication system entirely."
+      }
+    }
+  },
+  "performance_advisor": {
+    "warnings_present": true,
+    "categories": ["unindexed_foreign_keys", "auth_rls_initplan", "unused_index", "multiple_permissive_policies", "auth_db_connections_absolute"],
+    "classification": "PRE_EXISTING_LEGACY_PERFORMANCE_DEBT_NOT_PHASE_B_RELEASE_BLOCKER",
+    "phase_b_not_applied_yet": true
+  },
+  "production_mutations_performed": false,
+  "state": "ADVISORS_REVIEWED_WITH_SEPARATE_IDENTITY_CREDENTIAL_BLOCKER"
+}
