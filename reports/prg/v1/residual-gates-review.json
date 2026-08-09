@@ -1,0 +1,47 @@
+{
+  "schema_version": "PRG_V1_RESIDUAL_GATES_REVIEW",
+  "observed_at": "2026-08-09T18:00:00+03:00",
+  "repository": "vvipautoparts-blip/TIGER-VVIP",
+  "historical_source": "docs/security/V14_MARKETPLACE_MIGRATION_SECURITY_REVIEW_2026-08-08.md",
+  "gates": {
+    "staging_live_db_api_runtime": {
+      "state": "CLOSED_BY_SRPC",
+      "note": "Exact Phase B migration, runtime proof, rollback and zero-residue evidence completed on staging."
+    },
+    "production_drift_reconciliation": {
+      "state": "CLOSED_READ_ONLY_PRE_PROMOTION",
+      "note": "Production classified STATE_0_CLEAN_PRE_PROMOTION: Phase A present, Phase B absent, all 12 target tables absent."
+    },
+    "owner_gated_execution_order": {
+      "state": "CLOSED_BY_SRPC_SMG_PCG_EHG_PRG",
+      "note": "Exact-state gates and independent GitHub Environment approvals are active."
+    },
+    "historical_pr36_manual_upload": {
+      "state": "SUPERSEDED_BY_PRODUCTION_MEDIA_PATH",
+      "note": "The production public builder explicitly removes all pr36 media scripts/styles. Production instead ships vvip-production-marketplace.js + vvip-marketplace-repository.js, where images are validated/cropped/re-encoded in browser and uploaded directly to private Supabase bucket listing-media with metadata rows."
+    },
+    "production_media_real_browser_proof": {
+      "state": "OPEN",
+      "classification": "PRE_RELEASE_RUNTIME_QA_REQUIRED",
+      "note": "The real production media path exists in code and Staging bucket/RLS substrate exists, but a fresh real-browser end-to-end proof of file selection -> processing -> storage upload -> metadata -> submission -> rollback/cleanup has not been found in repository evidence."
+    },
+    "reviewer_admin_ui": {
+      "state": "OPEN_OPERATIONAL_GAP",
+      "classification": "PRE_RELEASE_REVIEW_OPERATIONS_REQUIRED",
+      "note": "The repository layer exposes reviewListing() calling authority-guarded vvip_marketplace_review_listing RPC, and DB runtime proof validated reviewer authorization. No separate launch reviewer/admin UI invoking reviewListing was found in current code search, while user-created listings are submitted as PENDING_REVIEW and require an authorized review transition to ACTIVE."
+    },
+    "backup_restore_proof": {
+      "state": "OPEN_EVIDENCE_GAP",
+      "classification": "PRE_PRODUCTION_RECOVERY_EVIDENCE_REQUIRED",
+      "note": "No repository evidence for backup/restore/PITR rehearsal was found. The connected Supabase tool surface does not expose backup configuration, so platform backup availability was not guessed. A restore drill/evidence package is still required before destructive Production operations or public launch."
+    },
+    "blackbox_red_team": {
+      "state": "OPEN_EVIDENCE_GAP",
+      "classification": "PRE_PUBLIC_RELEASE_SECURITY_ASSURANCE_REQUIRED",
+      "note": "No BLACKBOX or red-team evidence was found in current repository search. Existing static/runtime security gates do not substitute for an independent adversarial end-to-end pass."
+    }
+  },
+  "production_mutation_performed": false,
+  "production_deployment_performed": false,
+  "state": "RESIDUAL_GATES_CLASSIFIED"
+}
