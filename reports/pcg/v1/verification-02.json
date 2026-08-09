@@ -1,0 +1,39 @@
+{
+  "schema_version": "PCG_V1_VERIFICATION_RECORD",
+  "verification_number": 2,
+  "repository": "vvipautoparts-blip/TIGER-VVIP",
+  "h2_sha": "35352136090bd39d9dd6bddc6682c9b9a2d3cafc",
+  "pcg_control_commit": "7f0a99d52478c4694379f3d5d31d28b3f3dae347",
+  "candidate_set": {
+    "TIGER_CLERK_PUBLISHABLE_KEY": {
+      "status": "SOURCE_VERIFIED",
+      "frontend_api": "clerk.tigerautoparts.shop",
+      "sha256": "f280ff0e711bb02dd7f4e63e14731a85b5ca15bf5110e86a1b6eac1fd47193b3"
+    },
+    "TIGER_SUPABASE_URL": {
+      "status": "SOURCE_VERIFIED",
+      "project_ref": "zelcngyyvbomuzokvuxo",
+      "sha256": "13d258bae7317b0e716f7c8b28ac8b5985f859d09bd4532418c444686a9ef572"
+    },
+    "TIGER_SUPABASE_PUBLISHABLE_KEY": {
+      "status": "SOURCE_VERIFIED",
+      "project_ref": "zelcngyyvbomuzokvuxo",
+      "key_type": "publishable",
+      "sha256": "1453209296ff0e224c071f6f3975370ef5d90d08e735f8be23b98cb4f6be69b3"
+    }
+  },
+  "candidate_count": "3/3",
+  "production_build_environment_state_from_last_live_proof": {
+    "TIGER_CLERK_PUBLISHABLE_KEY": "MISSING",
+    "TIGER_SUPABASE_URL": "MISSING",
+    "TIGER_SUPABASE_PUBLISHABLE_KEY": "MISSING",
+    "TIGER_DEFAULT_COUNTRY_CODE": "ABSENT_AS_REQUIRED_FOR_THIS_GATE"
+  },
+  "environment_write_capability": "MANUAL_INSTALL_REQUIRED_GITHUB_INTEGRATION_CANNOT_CREATE_ENVIRONMENT_SECRETS",
+  "artifact_builder_executed_with_exact_three_candidates": false,
+  "state": "PCG_CANDIDATES_COMPLETE_ENVIRONMENT_INSTALL_PENDING",
+  "production_deploy_authorized": false,
+  "production_deployed": false,
+  "production_database_mutated": false,
+  "next_gate_condition": "INSTALL_EXACT_THREE_VALUES_THEN_RERUN_PCG_WITHOUT_DEPLOY"
+}
