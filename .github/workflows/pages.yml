@@ -1,52 +1,96 @@
 name: Deploy TIGER VVIP production artifact
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Exact 40-character main commit SHA approved for Production
+        required: true
+        type: string
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages-production
   cancel-in-progress: false
 
 jobs:
+  preflight:
+    name: Lock exact Production release SHA
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      EXPECTED_RELEASE_SHA: ${{ inputs.release_sha }}
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Verify exact main SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "$EXPECTED_RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "RELEASE_SHA_INVALID"
+            exit 1
+          fi
+          ACTUAL_MAIN_SHA="$(git rev-parse HEAD)"
+          if [[ "$ACTUAL_MAIN_SHA" != "$EXPECTED_RELEASE_SHA" ]]; then
+            echo "RELEASE_SHA_MISMATCH"
+            echo "expected=$EXPECTED_RELEASE_SHA"
+            echo "actual=$ACTUAL_MAIN_SHA"
+            exit 1
+          fi
+          echo "RELEASE_SHA_LOCKED=$ACTUAL_MAIN_SHA"
+
+      - name: Verify release workflow contract
+        run: node --test tests/release-workflow-hardening.test.cjs
+
   build:
     name: Build and verify production artifact
+    needs: preflight
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment:
       name: production-build
     env:
+      EXPECTED_RELEASE_SHA: ${{ inputs.release_sha }}
       TIGER_CLERK_PUBLISHABLE_KEY: ${{ secrets.TIGER_CLERK_PUBLISHABLE_KEY }}
       TIGER_SUPABASE_URL: ${{ secrets.TIGER_SUPABASE_URL }}
       TIGER_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.TIGER_SUPABASE_PUBLISHABLE_KEY }}
       TIGER_DEFAULT_COUNTRY_CODE: ${{ vars.TIGER_DEFAULT_COUNTRY_CODE }}
     steps:
       - name: Checkout exact release SHA
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
+          ref: ${{ inputs.release_sha }}
           fetch-depth: 0
 
+      - name: Verify protected checkout identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          ACTUAL_SHA="$(git rev-parse HEAD)"
+          if [[ "$ACTUAL_SHA" != "$EXPECTED_RELEASE_SHA" ]]; then
+            echo "RELEASE_SHA_MISMATCH"
+            exit 1
+          fi
+
       - name: Set up Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
         with:
           node-version: "22"
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: "3.12"
 
-      - name: Install Python verification dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt pytest
+      - name: Install pinned Python verification dependencies
+        run: python -m pip install -r requirements-dev.txt pytest==9.1.1
 
       - name: Run exact-head quality gate
         run: bash scripts/quality-gate.sh
@@ -55,6 +99,7 @@ jobs:
         run: |
           python -m unittest -v tests/test_vvip_public_release.py
           node --test \
+            tests/release-workflow-hardening.test.cjs \
             tests/auth-clerk-index.test.cjs \
             tests/v14-marketplace-migration.test.cjs \
             tests/vvip-runtime-loader.test.cjs \
@@ -67,24 +112,25 @@ jobs:
             --source . \
             --output dist/public \
             --mode production \
-            --source-sha "$GITHUB_SHA" \
+            --source-sha "$EXPECTED_RELEASE_SHA" \
             --include-cname
 
       - name: Verify release manifest is eligible
         run: |
           python - <<'PY'
           import json
+          import os
           from pathlib import Path
           manifest = json.loads(Path('dist/public/release-manifest.json').read_text())
           if not manifest.get('releaseEligible'):
               raise SystemExit('RELEASE_MANIFEST_NOT_ELIGIBLE')
-          if manifest.get('sourceSha') != '${{ github.sha }}':
+          if manifest.get('sourceSha') != os.environ['EXPECTED_RELEASE_SHA']:
               raise SystemExit('RELEASE_MANIFEST_SHA_MISMATCH')
           print('RELEASE_MANIFEST=PASS')
           PY
 
       - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b
         with:
           path: dist/public
 
@@ -93,10 +139,14 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy exact verified artifact
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e
