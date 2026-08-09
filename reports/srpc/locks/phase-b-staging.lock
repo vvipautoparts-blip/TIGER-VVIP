@@ -1,0 +1,9 @@
+{
+  "schema": "vvip.tiger/srpc-lock/v1",
+  "release_id": "global-launch-phase-b",
+  "source_h0": "e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0",
+  "control_plane_sha_at_acquire": "7c36f67378c53ecc643bff905d9091db3b1f8701",
+  "purpose": "staging-proof-and-single-migration-lease",
+  "acquired_at": "2026-08-09T09:00:30+03:00",
+  "auto_clear": false
+}
