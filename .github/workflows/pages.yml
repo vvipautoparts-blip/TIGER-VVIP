@@ -104,6 +104,11 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
+      - name: Set up Python for live verification
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
       - name: Verify deployed production surface
         env:
           VVIP_PAGE_URL: ${{ steps.deployment.outputs.page_url }}
@@ -157,4 +162,54 @@ jobs:
             echo "VVIP_POST_DEPLOY_TEST_CONFIG_FORBIDDEN" >&2
             exit 1
           fi
+          python - "$tmp/runtime-config.js" <<'PY'
+          import base64
+          import json
+          import re
+          import sys
+          import urllib.parse
+          import urllib.request
+
+          text = open(sys.argv[1], encoding='utf-8').read()
+          match = re.search(r'Object\.freeze\((\{.*\})\);', text)
+          if not match:
+              raise SystemExit('VVIP_RUNTIME_CONFIG_PARSE_FAILED')
+          config = json.loads(match.group(1))
+
+          key = str(config.get('clerkPublishableKey') or '')
+          payload = key.split('_', 2)[-1].replace('-', '+').replace('_', '/')
+          payload += '=' * ((4 - len(payload) % 4) % 4)
+          try:
+              clerk_host = base64.b64decode(payload, validate=True).decode('utf-8').rstrip('$').strip()
+          except Exception:
+              raise SystemExit('VVIP_CLERK_FRONTEND_API_DECODE_FAILED')
+          if not re.fullmatch(r'[A-Za-z0-9.-]+', clerk_host):
+              raise SystemExit('VVIP_CLERK_FRONTEND_API_INVALID')
+
+          def probe(url, headers=None):
+              request = urllib.request.Request(url, headers=headers or {'User-Agent': 'VVIP-TIGER-Production-Verify/1.0'})
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  if response.status < 200 or response.status >= 300:
+                      raise RuntimeError('unexpected status')
+                  response.read(1)
+
+          try:
+              probe(f'https://{clerk_host}/npm/@clerk/ui@1/dist/ui.browser.js')
+              probe(f'https://{clerk_host}/npm/@clerk/clerk-js@6/dist/clerk.browser.js')
+          except Exception:
+              raise SystemExit('VVIP_CLERK_LIVE_PROBE_FAILED')
+
+          supabase_url = str(config.get('supabaseUrl') or '').rstrip('/')
+          supabase_key = str(config.get('supabasePublishableKey') or '')
+          listing_url = supabase_url + '/rest/v1/vvip_marketplace_listings?select=listing_id&limit=1'
+          try:
+              probe(listing_url, {
+                  'apikey': supabase_key,
+                  'Accept': 'application/json',
+                  'User-Agent': 'VVIP-TIGER-Production-Verify/1.0',
+              })
+          except Exception:
+              raise SystemExit('VVIP_SUPABASE_LIVE_PROBE_FAILED')
+          print('VVIP_RUNTIME_DEPENDENCIES=PASS')
+          PY
           echo "VVIP_POST_DEPLOY_SMOKE=PASS"
