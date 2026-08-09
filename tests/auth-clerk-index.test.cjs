@@ -15,6 +15,12 @@ test("allows only bounded internal return paths", () => {
   assert.equal(auth.safeReturnPath({ search: "?return_to=../../admin" }), "");
 });
 
+test("production rejects return paths that are not shipped", () => {
+  const production = { environment: "production" };
+  assert.equal(auth.safeReturnPath({ search: "?return_to=private-profile-p03.html" }, production), "");
+  assert.equal(auth.safeReturnPath({ search: "?return_to=index.html" }, production), "index.html");
+});
+
 test("recovery logging never exposes client error details", () => {
   const originalWarn = console.warn;
   const calls = [];
