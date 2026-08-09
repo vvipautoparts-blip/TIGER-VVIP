@@ -1,0 +1,79 @@
+{
+  "schema_version": "RCG_H2_CLOSURE_V1",
+  "repository": "vvipautoparts-blip/TIGER-VVIP",
+  "h2_sha": "35352136090bd39d9dd6bddc6682c9b9a2d3cafc",
+  "merge_pr": 181,
+  "merge_parents": {
+    "base_main": "4cc292e626fea39f3b0e56b98781d521efef789d",
+    "approved_h1": "1e7fb3c1e43415e5bfaee957b6ab553ae68bc139"
+  },
+  "original_production_workflow": {
+    "run_id": 31307088159,
+    "workflow": "Deploy TIGER VVIP production artifact",
+    "conclusion": "failure",
+    "failed_step": "Build public allowlist artifact",
+    "quality_gate": "success",
+    "production_release_tests": "success",
+    "artifact_upload": "skipped",
+    "deploy_production": "skipped"
+  },
+  "diagnostic_workflow": {
+    "branch": "diag/rcg-h2-artifact-20260809",
+    "control_commit": "68868c849b763dea6f82877b56d00b6d15fa937e",
+    "run_id": 31307900640,
+    "synthetic_artifact": {
+      "id": 9036504896,
+      "sha256": "4bd532230922d25d4d1c26ec981ea221c6cfd0bccf38b276dfea30ae99c4eea5"
+    },
+    "production_build_diagnostic_artifact": {
+      "id": 9036504986,
+      "sha256": "d3c96b2468345b121151566cd35d64a377549eb911bdc616f933111332920f87"
+    }
+  },
+  "exact_h2_synthetic_valid_config": {
+    "builder_rc": 0,
+    "manifest_present": true,
+    "release_eligible": true,
+    "configuration_errors": [],
+    "forbidden_findings": []
+  },
+  "exact_h2_production_build_sanitized": {
+    "builder_rc": 1,
+    "manifest_present": true,
+    "release_eligible": false,
+    "configuration_shape": {
+      "clerk_present": false,
+      "clerk_live_prefix": false,
+      "clerk_payload_valid": false,
+      "clerk_is_dev_domain": false,
+      "supabase_url_present": false,
+      "supabase_url_shape_valid": false,
+      "supabase_public_key_present": false,
+      "supabase_public_key_forbidden_token": false,
+      "country_present": false,
+      "country_shape_valid_or_empty": true
+    },
+    "configuration_errors": [
+      "production Clerk publishable key must start with pk_live_",
+      "production Supabase URL must be an https origin",
+      "a public Supabase publishable/anon key is required"
+    ],
+    "forbidden_findings": []
+  },
+  "root_cause": "PRODUCTION_BUILD_ENVIRONMENT_CONFIGURATION_MISSING",
+  "code_fix_required": false,
+  "h2_source_defect_found": false,
+  "h2_public_artifact_with_valid_config": "PASS",
+  "merge_closure": "VERIFIED",
+  "production_release_state": "BLOCKED_CONFIGURATION",
+  "production_deployed": false,
+  "production_authorized": false,
+  "next_gate": "PRODUCTION_CONFIGURATION_GATE",
+  "safety": {
+    "production_db_mutated": false,
+    "country_activated": false,
+    "owner_seeded": false,
+    "production_pages_deployed_by_rcg": false,
+    "secret_values_recorded": false
+  }
+}
