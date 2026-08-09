@@ -1,0 +1,176 @@
+name: PCG v1 Production Configuration Verify
+
+on:
+  push:
+    branches:
+      - ops/pcg-v1-production-config-20260809
+    paths:
+      - .github/workflows/pcg-v1-production-config-verify.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pcg-v1-production-config-verify
+  cancel-in-progress: false
+
+env:
+  H2_SHA: 35352136090bd39d9dd6bddc6682c9b9a2d3cafc
+  EXPECTED_SUPABASE_URL_SHA256: 13d258bae7317b0e716f7c8b28ac8b5985f859d09bd4532418c444686a9ef572
+  EXPECTED_SUPABASE_PUBLISHABLE_KEY_SHA256: 1453209296ff0e224c071f6f3975370ef5d90d08e735f8be23b98cb4f6be69b3
+
+jobs:
+  verify:
+    name: Verify exact H2 production configuration without deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: production-build
+    env:
+      TIGER_CLERK_PUBLISHABLE_KEY: ${{ secrets.TIGER_CLERK_PUBLISHABLE_KEY }}
+      TIGER_SUPABASE_URL: ${{ secrets.TIGER_SUPABASE_URL }}
+      TIGER_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.TIGER_SUPABASE_PUBLISHABLE_KEY }}
+      TIGER_DEFAULT_COUNTRY_CODE: ${{ vars.TIGER_DEFAULT_COUNTRY_CODE }}
+    steps:
+      - name: Checkout exact H2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.H2_SHA }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: "3.12"
+
+      - name: Verify immutable source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$H2_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+
+      - name: Verify configuration identities and exact H2 artifact eligibility
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import base64
+          import hashlib
+          import json
+          import os
+          import pathlib
+          import re
+          import subprocess
+
+          h2 = os.environ['H2_SHA']
+          expected_url_hash = os.environ['EXPECTED_SUPABASE_URL_SHA256']
+          expected_key_hash = os.environ['EXPECTED_SUPABASE_PUBLISHABLE_KEY_SHA256']
+          clerk = os.environ.get('TIGER_CLERK_PUBLISHABLE_KEY', '').strip()
+          supabase_url = os.environ.get('TIGER_SUPABASE_URL', '').strip()
+          supabase_key = os.environ.get('TIGER_SUPABASE_PUBLISHABLE_KEY', '').strip()
+          country = os.environ.get('TIGER_DEFAULT_COUNTRY_CODE', '').strip().upper()
+
+          def sha(value):
+              return hashlib.sha256(value.encode('utf-8')).hexdigest() if value else None
+
+          frontend = None
+          clerk_payload_valid = False
+          if clerk.startswith('pk_live_'):
+              payload = clerk[len('pk_live_'):].replace('-', '+').replace('_', '/')
+              payload += '=' * ((4 - len(payload) % 4) % 4)
+              try:
+                  frontend = base64.b64decode(payload, validate=True).decode('utf-8').rstrip('$').strip().lower()
+                  clerk_payload_valid = bool(re.fullmatch(r'[A-Za-z0-9.-]+', frontend) and '..' not in frontend)
+              except Exception:
+                  frontend = None
+
+          clerk_is_dev = bool(frontend and (frontend == 'clerk.accounts.dev' or frontend.endswith('.clerk.accounts.dev')))
+          clerk_ok = bool(clerk and clerk.startswith('pk_live_') and clerk_payload_valid and not clerk_is_dev)
+          supabase_url_ok = bool(supabase_url and sha(supabase_url) == expected_url_hash)
+          supabase_key_ok = bool(
+              supabase_key
+              and supabase_key.startswith('sb_publishable_')
+              and sha(supabase_key) == expected_key_hash
+              and not any(token in supabase_key.lower() for token in ('secret', 'service_role'))
+          )
+          country_safe = not country
+
+          checks = {
+              'clerk_present': bool(clerk),
+              'clerk_live_prefix': clerk.startswith('pk_live_'),
+              'clerk_payload_valid': clerk_payload_valid,
+              'clerk_development_domain': clerk_is_dev,
+              'clerk_verified': clerk_ok,
+              'supabase_url_present': bool(supabase_url),
+              'supabase_url_exact_candidate_match': supabase_url_ok,
+              'supabase_publishable_key_present': bool(supabase_key),
+              'supabase_publishable_key_exact_candidate_match': supabase_key_ok,
+              'default_country_absent': country_safe,
+          }
+
+          all_three = clerk_ok and supabase_url_ok and supabase_key_ok
+          builder = {
+              'executed': False,
+              'rc': None,
+              'release_eligible': None,
+              'configuration_errors': [],
+              'forbidden_findings': [],
+          }
+
+          if all_three and country_safe:
+              output = pathlib.Path(os.environ['RUNNER_TEMP']) / 'pcg-public'
+              proc = subprocess.run([
+                  'python', 'tools/vvip_public_release.py',
+                  '--source', '.', '--output', str(output), '--mode', 'production',
+                  '--source-sha', h2, '--include-cname'
+              ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+              manifest_path = output / 'release-manifest.json'
+              manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
+              builder = {
+                  'executed': True,
+                  'rc': proc.returncode,
+                  'release_eligible': manifest.get('releaseEligible'),
+                  'configuration_errors': manifest.get('configurationErrors', []),
+                  'forbidden_findings': manifest.get('forbiddenFindings', []),
+              }
+
+          if not country_safe:
+              state = 'BLOCKED_UNAUTHORIZED_COUNTRY_CONFIGURATION'
+          elif all_three and builder['rc'] == 0 and builder['release_eligible'] is True and not builder['forbidden_findings']:
+              state = 'PCG_VALUES_VERIFIED_ARTIFACT_ELIGIBLE'
+          elif all_three:
+              state = 'PCG_VALUES_VERIFIED_ARTIFACT_BLOCKED'
+          else:
+              missing = []
+              if not clerk_ok: missing.append('TIGER_CLERK_PUBLISHABLE_KEY')
+              if not supabase_url_ok: missing.append('TIGER_SUPABASE_URL')
+              if not supabase_key_ok: missing.append('TIGER_SUPABASE_PUBLISHABLE_KEY')
+              state = 'PCG_ENVIRONMENT_VALUES_INCOMPLETE_OR_MISMATCHED'
+
+          result = {
+              'schema_version': 'PCG_V1_SANITIZED_PROOF',
+              'source_sha': h2,
+              'target_environment': 'production-build',
+              'checks': checks,
+              'builder': builder,
+              'state': state,
+              'production_deploy_authorized': False,
+              'production_deployed': False,
+              'raw_values_recorded': False,
+          }
+          if not all_three:
+              result['unverified_or_missing'] = missing
+
+          out = pathlib.Path(os.environ['RUNNER_TEMP']) / 'pcg-v1-proof.json'
+          out.write_text(json.dumps(result, indent=2, sort_keys=True) + '\n')
+          print(json.dumps(result, sort_keys=True))
+          PY
+
+      - name: Upload sanitized PCG proof
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: pcg-v1-sanitized-proof
+          path: ${{ runner.temp }}/pcg-v1-proof.json
+          if-no-files-found: error
+          retention-days: 14
