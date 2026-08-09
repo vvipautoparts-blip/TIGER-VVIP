@@ -34,6 +34,7 @@ jobs:
           set -euo pipefail
           EXPECTED_H2='35352136090bd39d9dd6bddc6682c9b9a2d3cafc'
           EXPECTED_PHASE_B='9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9'
+          EXPECTED_IDENTITY='ee361b3bbdbef9695ac23d6ad597c49c4732f19ee45d1154745e5e387e12d0d6'
           ACTUAL_MAIN="$(git rev-parse refs/remotes/origin/main)"
           test "$ACTUAL_MAIN" = "$EXPECTED_H2"
 
@@ -43,6 +44,7 @@ jobs:
 
           git show "$EXPECTED_H2:supabase/migrations/20260808_vvip_identity_fail_closed_profile_resolver.sql" > /tmp/identity-01.sql
           IDENTITY_SHA="$(sha256sum /tmp/identity-01.sql | awk '{print $1}')"
+          test "$IDENTITY_SHA" = "$EXPECTED_IDENTITY"
 
           printf '%s\n' "$ACTUAL_MAIN" > /tmp/main-sha.txt
           printf '%s\n' "$PHASE_B_SHA" > /tmp/phase-b-sha256.txt
@@ -72,12 +74,85 @@ jobs:
           assert ehg['production_deployed'] is False
           assert ehg['production_database_mutated'] is False
           assert ehg['country_activated'] is False
-          assert ehg['production_build']['can_admins_bypass'] is False
-          assert ehg['github_pages']['can_admins_bypass'] is False
-          assert ehg['production_build']['required_reviewer'] == 'nzuodezuode-byte'
-          assert ehg['github_pages']['required_reviewer'] == 'nzuodezuode-byte'
-          assert ehg['production_build']['allowed_branches'] == ['main']
-          assert ehg['github_pages']['allowed_branches'] == ['main']
+          for env_name in ('production_build', 'github_pages'):
+              env = ehg[env_name]
+              assert env['can_admins_bypass'] is False
+              assert env['required_reviewer'] == 'nzuodezuode-byte'
+              assert env['prevent_self_review'] is True
+              assert env['allowed_branches'] == ['main']
+              assert env['allowed_tags'] == []
+          PY
+
+      - name: Validate consolidated PRG evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('.')
+          def load(name):
+              return json.loads((root / 'reports/prg/v1' / name).read_text())
+
+          h2 = '35352136090bd39d9dd6bddc6682c9b9a2d3cafc'
+          phase_b = '9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9'
+          identity = 'ee361b3bbdbef9695ac23d6ad597c49c4732f19ee45d1154745e5e387e12d0d6'
+
+          baseline = load('baseline.json')
+          staging = load('identity-staging-proof.json')
+          production = load('production-read-only-preflight.json')
+          providers = load('provider-readiness.json')
+          db = load('production-db-authorization-candidate.json')
+
+          assert baseline['h2_sha'] == h2
+          assert baseline['phase_b']['sha256'] == phase_b
+          assert baseline['identity_01']['sha256'] == identity
+          assert baseline['pcg'] == 'CLOSED'
+          assert baseline['ehg'] == 'CLOSED'
+          assert baseline['production_db_authorized'] is False
+          assert baseline['production_web_authorized'] is False
+          assert baseline['production_deployed'] is False
+
+          assert staging['state'] == 'IDENTITY_STAGING_RUNTIME_VERIFIED'
+          assert staging['transaction_rolled_back'] is True
+          assert staging['synthetic_residue'] == {'synthetic_email_rows': 0, 'synthetic_subject_rows': 0}
+          assert all(test['passed'] is True for test in staging['runtime_tests'])
+          assert staging['production_mutated'] is False
+
+          assert production['state'] == 'PRODUCTION_READ_ONLY_PREFLIGHT_COMPLETE'
+          assert production['production_project']['ref'] == 'zelcngyyvbomuzokvuxo'
+          assert production['migration_ledger']['read_2_identical'] is True
+          assert production['phase_b_remote_state']['classification'] == 'PHASE_B_ABSENT_CLEAN'
+          assert production['phase_b_remote_state']['target_table_count'] == 0
+          assert production['phase_b_remote_state']['listing_media_bucket_exists'] is False
+          assert production['identity_remote_state']['classification'] == 'SEMANTICALLY_CANONICAL_FROM_PHASE_A_READ_ONLY_INSPECTION'
+          assert production['production_database_mutated'] is False
+
+          assert providers['github_pages']['api_cname'] is None
+          assert providers['github_pages']['classification'] == 'CUSTOM_DOMAIN_NOT_CONFIGURED_IN_GITHUB_PAGES_API'
+          assert providers['domain']['owner_or_dns_provider_action_required'] is True
+          assert providers['production_deployed'] is False
+
+          assert db['release_source_h2'] == h2
+          assert db['production_project']['ref'] == 'zelcngyyvbomuzokvuxo'
+          assert db['owner_db_authorized'] is False
+          assert db['authorization_phrase_valid_now'] is False
+          assert len(db['allowed_database_operations_if_future_authorized']) == 1
+          op = db['allowed_database_operations_if_future_authorized'][0]
+          assert op['operation'] == 'APPLY_EXACT_MIGRATION'
+          assert op['sha256'] == phase_b
+          assert db['production_database_mutated_by_prg'] is False
+
+          state = (root / 'MASTER_PROJECT_STATE.md').read_text()
+          for marker in (
+              'PRODUCTION_DB_AUTHORIZED=false',
+              'PRODUCTION_WEB_AUTHORIZED=false',
+              'PRODUCTION_DEPLOYED=false',
+              'COUNTRY_ACTIVATED=false',
+              'OWNER_SEEDED=false',
+          ):
+              assert marker in state
           PY
 
       - name: Verify country activation remains unconfigured
@@ -108,11 +183,16 @@ jobs:
               'identity_01_migration_sha256': Path('/tmp/identity-01-sha256.txt').read_text().strip(),
               'pcg_closed': True,
               'ehg_closed': True,
+              'identity_staging_runtime_verified': True,
+              'production_read_only_preflight_complete': True,
+              'production_phase_b_state': 'PHASE_B_ABSENT_CLEAN',
+              'production_identity_state': 'SEMANTICALLY_CANONICAL_FROM_PHASE_A_READ_ONLY_INSPECTION',
+              'provider_external_action_required': True,
               'country_activation_configured': False,
               'production_db_authorized': False,
               'production_web_authorized': False,
               'production_deployed': False,
-              'state': 'PRG_BASELINE_PROOF_COMPLETE'
+              'state': 'PRG_MACHINE_PREPARATION_VERIFIED'
           }
           Path('prg-v1-proof.json').write_text(json.dumps(proof, indent=2) + '\n')
           print(json.dumps(proof, sort_keys=True))
