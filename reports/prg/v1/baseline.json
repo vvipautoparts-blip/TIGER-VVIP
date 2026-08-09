@@ -1,0 +1,29 @@
+{
+  "schema_version": "PRG_V1_BASELINE",
+  "repository": "vvipautoparts-blip/TIGER-VVIP",
+  "h2_sha": "35352136090bd39d9dd6bddc6682c9b9a2d3cafc",
+  "phase_b": {
+    "migration_path": "supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql",
+    "sha256": "9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9"
+  },
+  "identity_01": {
+    "migration_path": "supabase/migrations/20260808_vvip_identity_fail_closed_profile_resolver.sql",
+    "sha256": "ee361b3bbdbef9695ac23d6ad597c49c4732f19ee45d1154745e5e387e12d0d6"
+  },
+  "read_only_proof": {
+    "workflow_run_id": 31320991777,
+    "control_sha": "93ba1ec53391290e7f90f73bcc54f2882b01a407",
+    "artifact_id": 9040157642,
+    "artifact_digest": "sha256:6810de3231076196722c3b6d7f71f8b1f9bfc844a944cf0b8a99d2d9e29f2f26",
+    "conclusion": "success",
+    "state": "PRG_BASELINE_PROOF_COMPLETE"
+  },
+  "pcg": "CLOSED",
+  "ehg": "CLOSED",
+  "production_db_authorized": false,
+  "production_web_authorized": false,
+  "production_deployed": false,
+  "production_database_mutated_by_prg": false,
+  "country_activated_by_prg": false,
+  "owner_seeded_by_prg": false
+}
