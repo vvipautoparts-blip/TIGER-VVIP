@@ -1,0 +1,32 @@
+{
+  "schema_version": "PCG_V1_VERIFICATION_RECORD",
+  "verification_number": 3,
+  "repository": "vvipautoparts-blip/TIGER-VVIP",
+  "h2_sha": "35352136090bd39d9dd6bddc6682c9b9a2d3cafc",
+  "pcg_control_commit": "0098261e71b2aa7737bd20839eee605ea3cb8e73",
+  "workflow_run_id": 31313294504,
+  "workflow_job_id": 93244395004,
+  "workflow_conclusion": "success",
+  "sanitized_artifact": {
+    "id": 9037994433,
+    "sha256": "6fe5741c00df60f668d7b82e9b3d242ecbf6e56e51ab31dce96cd3aa9c08e3ff"
+  },
+  "checks": {
+    "TIGER_CLERK_PUBLISHABLE_KEY": "MISSING_IN_PRODUCTION_BUILD_RUNTIME",
+    "TIGER_SUPABASE_URL": "MISSING_IN_PRODUCTION_BUILD_RUNTIME",
+    "TIGER_SUPABASE_PUBLISHABLE_KEY": "MISSING_IN_PRODUCTION_BUILD_RUNTIME",
+    "TIGER_DEFAULT_COUNTRY_CODE": "ABSENT_AS_REQUIRED_FOR_THIS_GATE"
+  },
+  "exact_candidate_matches": {
+    "clerk": false,
+    "supabase_url": false,
+    "supabase_publishable_key": false
+  },
+  "artifact_builder_executed": false,
+  "state": "PCG_ENVIRONMENT_VALUES_INCOMPLETE_OR_MISMATCHED",
+  "production_deploy_authorized": false,
+  "production_deployed": false,
+  "production_database_mutated": false,
+  "raw_values_recorded": false,
+  "next_gate_condition": "INSTALL_EXACT_THREE_VALUES_AS_ENVIRONMENT_SECRETS_IN_PRODUCTION_BUILD_THEN_TRIGGER_FRESH_PCG_PROOF"
+}
