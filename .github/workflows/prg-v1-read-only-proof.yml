@@ -104,6 +104,8 @@ jobs:
           production = load('production-read-only-preflight.json')
           providers = load('provider-readiness.json')
           db = load('production-db-authorization-candidate.json')
+          advisors = load('advisors-baseline.json')
+          web = load('web-release-candidate.json')
 
           assert baseline['h2_sha'] == h2
           assert baseline['phase_b']['sha256'] == phase_b
@@ -143,6 +145,20 @@ jobs:
           assert op['operation'] == 'APPLY_EXACT_MIGRATION'
           assert op['sha256'] == phase_b
           assert db['production_database_mutated_by_prg'] is False
+
+          assert advisors['captured_before_phase_b'] is True
+          assert advisors['phase_b_present_at_capture'] is False
+          assert advisors['security']['phase_b_attributable_material_findings'] == 0
+          assert advisors['release_policy']['do_not_claim_global_zero_warnings'] is True
+          assert advisors['production_database_mutated'] is False
+
+          assert web['release_source_h2'] == h2
+          assert web['owner_web_authorized'] is False
+          assert web['authorization_phrase_valid_now'] is False
+          assert web['production_deployed'] is False
+          assert web['prerequisites']['clerk_dns_ready'] is False
+          assert web['prerequisites']['github_pages_custom_domain_configured'] is False
+          assert web['state'] == 'WEB_RELEASE_CANDIDATE_BLOCKED_ON_DB_AND_EXTERNAL_DOMAIN_READINESS'
 
           state = (root / 'MASTER_PROJECT_STATE.md').read_text()
           for marker in (
@@ -187,6 +203,8 @@ jobs:
               'production_read_only_preflight_complete': True,
               'production_phase_b_state': 'PHASE_B_ABSENT_CLEAN',
               'production_identity_state': 'SEMANTICALLY_CANONICAL_FROM_PHASE_A_READ_ONLY_INSPECTION',
+              'advisor_baseline_recorded': True,
+              'web_candidate_blocked_on_external_readiness': True,
               'provider_external_action_required': True,
               'country_activation_configured': False,
               'production_db_authorized': False,
