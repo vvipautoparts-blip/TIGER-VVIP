@@ -1,0 +1,67 @@
+{
+  "schema_version": "PRG_V1_PREFLIGHT",
+  "repository": "vvipautoparts-blip/TIGER-VVIP",
+  "observed_at": "2026-08-09T17:30:00+03:00",
+  "release_subject": {
+    "h2_sha": "35352136090bd39d9dd6bddc6682c9b9a2d3cafc",
+    "main_matches_h2": true,
+    "phase_b_migration": "supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql",
+    "phase_b_sha256": "9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9",
+    "production_supabase_ref": "zelcngyyvbomuzokvuxo"
+  },
+  "gates": {
+    "pcg_v1": "CLOSED",
+    "pcg_state": "PCG_VALUES_VERIFIED_ARTIFACT_ELIGIBLE",
+    "ehg_v1": "CLOSED",
+    "production_authorized": false
+  },
+  "production_database_read_only": {
+    "postgres_version": "17.6",
+    "phase_a_ledger_count": 1,
+    "phase_b_ledger_count": 0,
+    "phase_b_target_tables_present_count": 0,
+    "phase_b_target_tables_expected": 12,
+    "phase_b_functions_present_count": 0,
+    "listing_media_bucket_count": 0,
+    "profiles_rls": true,
+    "profiles_force_rls": true,
+    "anon_profile_table_privileges": [],
+    "authenticated_profile_table_privileges": ["SELECT"],
+    "duplicate_clerk_subject_groups": 0,
+    "identity_resolver_present": true,
+    "identity_has_legacy_profile_recovered": false,
+    "identity_has_required_fail_closed_status": true,
+    "identity_has_subject_lookup": true,
+    "identity_has_email_ownership_update_pattern": false,
+    "classification": "STATE_0_CLEAN_PRE_PROMOTION"
+  },
+  "staging_reference_read_only": {
+    "project_ref": "mduummtnlupktjaujgyx",
+    "phase_b_ledger_count": 1,
+    "authority_principal_rows": 0,
+    "country_rows": 0,
+    "listing_rows": 0,
+    "media_rows": 0,
+    "favorite_rows": 0,
+    "listing_audit_rows": 0,
+    "listing_media_bucket_count": 1,
+    "classification": "PHASE_B_APPLIED_DARK_LAUNCH_ZERO_BUSINESS_STATE"
+  },
+  "github_pages": {
+    "build_type": "workflow",
+    "source_branch": "main",
+    "https_enforced": true,
+    "api_cname_before_release": null,
+    "repository_cname_file": "tigerautoparts.shop",
+    "current_pages_url": "https://vvipautoparts-blip.github.io/TIGER-VVIP/"
+  },
+  "external_identity": {
+    "clerk_production_publishable_key_source_verified": true,
+    "clerk_frontend_api": "clerk.tigerautoparts.shop",
+    "clerk_dns_connection_independently_verified": false,
+    "external_prerequisite_open": true
+  },
+  "production_mutations_performed": false,
+  "production_deploy_performed": false,
+  "state": "PRG_READ_ONLY_PREFLIGHT_COMPLETE_EXTERNAL_PREREQUISITE_OPEN"
+}
