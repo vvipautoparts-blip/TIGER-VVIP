@@ -7,7 +7,9 @@
   "use strict";
 
   const SAFE_RETURN_PATHS = new Set([
-    "index.html", "/index.html", "./index.html",
+    "index.html", "/index.html", "./index.html"
+  ]);
+  const PREVIEW_ONLY_RETURN_PATHS = new Set([
     "private-profile-p03.html", "/private-profile-p03.html", "./private-profile-p03.html"
   ]);
 
@@ -24,10 +26,14 @@
     return local && preview === "home";
   }
 
-  function safeReturnPath(locationLike) {
+  function safeReturnPath(locationLike, runtimeConfigLike) {
     const location = locationLike || root.location;
     const returnTo = new URLSearchParams(location.search).get("return_to");
-    return SAFE_RETURN_PATHS.has(returnTo) ? returnTo : "";
+    if (SAFE_RETURN_PATHS.has(returnTo)) return returnTo;
+    const runtimeConfig = runtimeConfigLike || root.__VVIP_RUNTIME_CONFIG__ || null;
+    const production = Boolean(runtimeConfig && runtimeConfig.environment === "production");
+    if (!production && PREVIEW_ONLY_RETURN_PATHS.has(returnTo)) return returnTo;
+    return "";
   }
 
   function showHome() {
