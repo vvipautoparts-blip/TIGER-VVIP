@@ -54,6 +54,7 @@ declare -A reviewed_migration_hashes=(
   # proof, privilege/policy verification, and complete cleanup of the synthetic proof row.
   # Approval is byte-exact; any SQL drift invalidates this reviewed baseline automatically.
   ["supabase/migrations/20260808223000_global_launch_phase_a_identity_convergence.sql"]="173766f1203890d3461db6b67cc95b1d9ca28d23c65026ff9393115ad4433c31"
+  ["supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql"]="9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9"
 )
 
 reviewed_baseline_path() {
