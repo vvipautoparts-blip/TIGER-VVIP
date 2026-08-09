@@ -4,6 +4,34 @@ on:
   pull_request:
     branches:
       - main
+      - integration/v14-global-launch-readiness-20260806
+      - feat/tsrf-global-launch-proof-20260808
+      - feat/tsrf-launch-evidence-plane-20260808
+      - feat/lc04-production-legacy-rpc-hardening-20260808
+      - feat/lc05-credential-surface-isolation-20260808
+      - feat/documentation-sovereign-knowledge-plane-20260808
+      - feat/lean-global-cost-governor-20260808
+      - feat/lean-global-static-cdn-20260808
+      - fix/tsrf-staging-workflow-context-20260808
+      - docs/federated-identity-sovereignty-20260808
+      - feat/identity-01-fail-closed-legacy-linking-20260808
+      - feat/lean-global-request-sovereignty-20260808
+      - feat/lean-global-cover-media-budget-20260808
+  push:
+    branches:
+      - integration/v14-global-launch-readiness-20260806
+      - feat/tsrf-launch-evidence-plane-20260808
+      - feat/lc04-production-legacy-rpc-hardening-20260808
+      - feat/lc05-credential-surface-isolation-20260808
+      - feat/lc06-rls-performance-hardening-20260808
+      - feat/lean-global-cost-governor-20260808
+      - feat/lean-global-static-cdn-20260808
+      - fix/tsrf-staging-workflow-context-20260808
+      - docs/federated-identity-sovereignty-20260808
+      - feat/identity-01-fail-closed-legacy-linking-20260808
+      - feat/lean-global-request-sovereignty-20260808
+      - feat/lean-global-cover-media-budget-20260808
+      - docs/vvip-tiger-continuity-checkpoint-20260808-2340
   workflow_dispatch:
 
 permissions:
@@ -20,12 +48,12 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "22"
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -35,9 +63,20 @@ jobs:
           pip install -r requirements-dev.txt pytest
 
       - name: Fetch main comparison reference
-
         run: git fetch --no-tags --prune origin main:refs/remotes/origin/main
 
-
       - name: Run VVIP quality gate
-        run: bash scripts/quality-gate.sh
+        shell: bash
+        run: |
+          set -o pipefail
+          bash scripts/quality-gate.sh 2>&1 | tee /tmp/vvip-quality-gate.log
+          exit "${PIPESTATUS[0]}"
+
+      - name: Upload quality gate diagnostics
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: vvip-quality-gate-${{ github.sha }}
+          path: /tmp/vvip-quality-gate.log
+          if-no-files-found: error
+          retention-days: 14

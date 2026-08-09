@@ -1,4 +1,4 @@
-name: Deploy static site to GitHub Pages
+name: Deploy TIGER VVIP production artifact
 
 on:
   push:
@@ -12,29 +12,91 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
-  cancel-in-progress: true
+  group: pages-production
+  cancel-in-progress: false
 
 jobs:
+  build:
+    name: Build and verify production artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: production-build
+    env:
+      TIGER_CLERK_PUBLISHABLE_KEY: ${{ secrets.TIGER_CLERK_PUBLISHABLE_KEY }}
+      TIGER_SUPABASE_URL: ${{ secrets.TIGER_SUPABASE_URL }}
+      TIGER_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.TIGER_SUPABASE_PUBLISHABLE_KEY }}
+      TIGER_DEFAULT_COUNTRY_CODE: ${{ vars.TIGER_DEFAULT_COUNTRY_CODE }}
+    steps:
+      - name: Checkout exact release SHA
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install Python verification dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt pytest
+
+      - name: Run exact-head quality gate
+        run: bash scripts/quality-gate.sh
+
+      - name: Run production release tests
+        run: |
+          python -m unittest -v tests/test_vvip_public_release.py
+          node --test \
+            tests/auth-clerk-index.test.cjs \
+            tests/v14-marketplace-migration.test.cjs \
+            tests/vvip-runtime-loader.test.cjs \
+            tests/vvip-marketplace-repository.test.cjs \
+            tests/vvip-production-marketplace.test.cjs
+
+      - name: Build public allowlist artifact
+        run: |
+          python tools/vvip_public_release.py \
+            --source . \
+            --output dist/public \
+            --mode production \
+            --source-sha "$GITHUB_SHA" \
+            --include-cname
+
+      - name: Verify release manifest is eligible
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path('dist/public/release-manifest.json').read_text())
+          if not manifest.get('releaseEligible'):
+              raise SystemExit('RELEASE_MANIFEST_NOT_ELIGIBLE')
+          if manifest.get('sourceSha') != '${{ github.sha }}':
+              raise SystemExit('RELEASE_MANIFEST_SHA_MISMATCH')
+          print('RELEASE_MANIFEST=PASS')
+          PY
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist/public
+
   deploy:
+    name: Deploy production
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
-
-      - name: Deploy to GitHub Pages
+      - name: Deploy exact verified artifact
         id: deployment
         uses: actions/deploy-pages@v4

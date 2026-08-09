@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "constitution_id": "V13.1",
+  "owner_final_revision": "2026-08-05",
+  "current_program": "V13_1_EXECUTABLE_AUTHORITY",
+  "current_slice": "AUTHORITY_PR_FINAL_VERIFICATION",
+  "status": "READY_FOR_REVIEW",
+  "production_state": "BLOCKED_PENDING_CONTRACTS_TESTS_EVIDENCE",
+  "runtime_changed": false,
+  "database_changed": false,
+  "country_states": {
+    "JO": "BLOCKED_PENDING_OFFICIAL_INPUT"
+  },
+  "verification": {
+    "quality_gate": "PENDING_FINAL_HEAD",
+    "v13_1_authority_integrity": "PENDING_FINAL_HEAD",
+    "node_cjs_tests": "PENDING_FINAL_HEAD",
+    "project_control_integrity": "PENDING_FINAL_HEAD",
+    "dependency_review": "PENDING_FINAL_HEAD",
+    "codeql": "PENDING_FINAL_HEAD",
+    "runtime_diff": "NONE",
+    "database_migration_diff": "NONE"
+  },
+  "decisions": {
+    "max_images_per_listing": 7,
+    "global_fixed_impressions": null,
+    "internal_chat": "FULL_GENERAL_AVAILABILITY_ALL_USERS",
+    "delivery": "FULL_GENERAL_AVAILABILITY_ALL_USERS",
+    "mediation": "FULL_GENERAL_AVAILABILITY_ALL_USERS",
+    "external_whatsapp": "DEVICE_APP_DEEP_LINK_ALL_USERS_NO_APPROVAL"
+  }
+}

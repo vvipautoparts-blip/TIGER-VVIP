@@ -1,79 +1,59 @@
-# TIGER VVIP - AutoParts JO
+# VVIP TIGER
 
-Static bilingual web app (Arabic/English) for authentication and social-style profile/feed experience.
+VVIP TIGER is a security-first, multi-page web platform under controlled global-launch finalization.
 
-## Current Architecture
+## Current architecture
 
-This repository is now a multi-page static app (not SPA):
+The repository currently uses:
 
-- `index.html`: authentication entry page (Google/Facebook) and navigation to app pages.
-- `public-profile.html`: public feed page (page 3).
-- `private-profile.html`: private profile page (page 4).
-- `auth.js`: Firebase authentication, local user snapshot, role bootstrap.
-- `social-ui.js`: feed/profile interactions, language switching, optional Supabase sync with local fallback.
-- `styles.css`: shared visual system.
-- `reset-password.html` + `reset-password.js`: email reset flow.
+- `index.html` — primary marketplace/auth entry surface;
+- `private-profile-p03.html` — private profile/account surface in the active launch stack;
+- Clerk — external identity/authentication runtime;
+- Supabase — platform data/storage layer under externally authenticated sessions;
+- VVIP-owned authorization/RLS/audit controls;
+- provider-neutral static delivery optimization through `sw-vvip-static.js`.
 
-## Key Behavior
+## Identity architecture
 
-- Bilingual UI with RTL/LTR switching.
-- Optional Supabase runtime integration for feed persistence:
-  - `TIGER_SUPABASE_URL`
-  - `TIGER_SUPABASE_ANON_KEY`
-- Automatic fallback to local mode when Supabase config is unavailable.
-- Role-aware create/publish behavior via local user role state.
+VVIP TIGER is **federated-identity only**.
 
-## Quick Start
+The binding decision is recorded in [Federated Identity Sovereignty ADR](docs/architecture/ADR-2026-08-08-federated-identity-sovereignty.md) and enforced by [federated-identity-policy.v1.json](project-control/security/federated-identity-policy.v1.json).
 
-1. Run local preview:
+Key rules:
+
+- no first-party VVIP passwords;
+- no local password hashes or password recovery;
+- authentication is delegated to approved external identity providers;
+- OIDC is used for authentication, with OAuth 2.0/PKCE protections where applicable;
+- canonical account identity is the verified external issuer + subject, not email;
+- no automatic account linking solely by email;
+- provider secrets/private signing keys never enter browser code;
+- VVIP TIGER retains ownership of roles, permissions, account status, RLS/data access, owner approvals, and audit evidence.
+
+Legacy Firebase/Supabase password runtimes have been removed from the current product tree. Historical compatibility routes such as `reset-password.html` now redirect users back to the external identity entry rather than performing local recovery.
+
+## Known identity launch gap
+
+The historical profile resolver still contains a legacy email-based ownership recovery path (`legacy_profile_recovered`). It is explicitly tracked in [Federated Identity Known Gap](docs/security/FEDERATED_IDENTITY_KNOWN_GAP_20260808.md) and must be replaced by a forward, fail-closed migration before Production identity launch.
+
+## Runtime boundary
+
+`scripts/runtime/vvip-runtime-loader.js` obtains the current external Clerk session token for Supabase and disables Supabase browser session persistence and automatic token refresh. Database authorization remains subject/RLS controlled.
+
+## Quality and security
+
+Repository changes are verified through the VVIP Quality Gate and Project Control Integrity. Security or launch-evidence failures are not bypassed or hidden.
+
+## Development preview
+
+For a local static preview:
 
 ```bash
 python -m http.server 800
 ```
 
-2. Open:
+Then open `http://localhost:800/index.html`.
 
-- `http://localhost:800/index.html`
+## Production boundary
 
-3. Run smoke checks:
-
-```bash
-./scripts/qa-smoke.sh
-```
-
-## Firebase Authentication
-
-`index.html` and `reset-password.html` embed `window.FIREBASE_CONFIG` and load Firebase compat SDKs.
-
-If you rotate projects/keys, update the `FIREBASE_CONFIG` object in both pages.
-
-## Supabase Feed Sync (Optional)
-
-`social-ui.js` reads runtime keys from browser localStorage:
-
-- `TIGER_SUPABASE_URL`
-- `TIGER_SUPABASE_ANON_KEY`
-
-When missing/invalid, feed actions still work in local mode.
-
-## Database Assets
-
-- `supabase/migrations/20260702_feed_posts_table.sql`: feed posts table + policies.
-- `supabase/functions/phone-verification/index.ts`: edge function for phone verification delivery.
-- `supabase-schema.sql`: broader schema history and compatibility SQL.
-
-## PWA
-
-- `manifest.webmanifest`
-- `sw.js`
-
-Service worker uses cache-first for static assets and has versioned cache key.
-
-## Project Status
-
-- ✅ UI and interaction flow fully implemented.
-- ✅ Core smoke checks pass.
-- ✅ Multi-step auth flow removed (replaced with simple email/password + OAuth).
-- ✅ Dead code cleaned (21 documentation files, 2 unused JS files, demo data removed).
-- ✅ Repository optimized for production.
-- Expanded future product scope tracked in [PRODUCT-REQUIREMENTS-ADDENDUM.md](PRODUCT-REQUIREMENTS-ADDENDUM.md).
+Repository readiness does not itself authorize Production deployment, Production database mutation, provider purchases, real charges, or protected identity-provider configuration changes. Those actions require their separate protected release/evidence process.
