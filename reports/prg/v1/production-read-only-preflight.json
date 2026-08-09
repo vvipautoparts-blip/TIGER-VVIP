@@ -1,0 +1,50 @@
+{
+  "schema_version": "PRG_V1_PRODUCTION_READ_ONLY_PREFLIGHT",
+  "production_project": {
+    "ref": "zelcngyyvbomuzokvuxo",
+    "name": "vvipautoparts-blip's Project",
+    "region": "ap-northeast-2",
+    "status": "ACTIVE_HEALTHY",
+    "postgres_version": "17.6.1.127"
+  },
+  "migration_ledger": {
+    "read_1": [
+      "20260626 parts_vehicle_registry_id_compat",
+      "20260627 vehicle_registry_compat",
+      "20260720152227 add_supabase_auth_profile_access",
+      "20260720152359 lock_auth_signup_trigger_function",
+      "20260720152719 protect_profile_privileged_fields",
+      "20260808212344 global_launch_preflight_schema_recovery_snapshot",
+      "20260808221204 global_launch_phase_a_identity_convergence"
+    ],
+    "read_2_identical": true,
+    "phase_b_entry_present": false,
+    "standalone_identity_01_entry_present": false
+  },
+  "identity_remote_state": {
+    "resolver_present": true,
+    "resolver_signature": "vvip_resolve_own_profile(text)",
+    "search_path_hardened": "pg_catalog,public",
+    "exact_subject_lookup_first": true,
+    "verified_jwt_email_legacy_detection": true,
+    "browser_p_email_used_for_existing_ownership_lookup": false,
+    "legacy_email_ownership_transfer_present": false,
+    "anon_execute": false,
+    "public_execute": false,
+    "authenticated_execute": true,
+    "classification": "SEMANTICALLY_CANONICAL_FROM_PHASE_A_READ_ONLY_INSPECTION",
+    "production_runtime_synthetic_test_performed": false,
+    "reason_runtime_test_not_performed": "Production data mutation authority is false; runtime synthetic mutation is reserved for a separately authorized gate."
+  },
+  "phase_b_remote_state": {
+    "target_table_count": 0,
+    "listing_media_bucket_exists": false,
+    "vvip_private_schema_exists": true,
+    "classification": "PHASE_B_ABSENT_CLEAN",
+    "note": "vvip_private schema pre-exists from prior phases; Phase B target public authority/marketplace tables and listing-media bucket are absent."
+  },
+  "production_database_mutated": false,
+  "country_activated": false,
+  "owner_seeded": false,
+  "state": "PRODUCTION_READ_ONLY_PREFLIGHT_COMPLETE"
+}
