@@ -1,0 +1,40 @@
+{
+  "schema_version": "PRG_V1_AUTHORIZATION_CAPSULE",
+  "repository": "vvipautoparts-blip/TIGER-VVIP",
+  "release_subject": {
+    "h2_sha": "35352136090bd39d9dd6bddc6682c9b9a2d3cafc",
+    "phase_b_migration": "supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql",
+    "phase_b_sha256": "9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9",
+    "production_supabase_ref": "zelcngyyvbomuzokvuxo"
+  },
+  "proofs": {
+    "pcg_values_verified_artifact_eligible": true,
+    "ehg_closed": true,
+    "production_state_0_clean_pre_promotion": true,
+    "staging_phase_b_dark_launch_zero_business_state": true,
+    "production_identity_fail_closed": true
+  },
+  "required_external_prerequisites": {
+    "clerk_production_dns_verified": false,
+    "github_pages_custom_domain_configured_and_dns_ready": false
+  },
+  "recommended_pre_release_hardening": {
+    "release_workflow_hardening_approved": false,
+    "reason": "Current workflow auto-triggers on every main push and uses mutable major action tags/workflow-scoped deploy permissions."
+  },
+  "future_owner_phrase": "APPROVE_PRODUCTION_RELEASE_EXACT",
+  "owner_authorized": false,
+  "authorized_scope": {
+    "exact_phase_b_production_migration": false,
+    "rollback_contained_production_runtime_proof": false,
+    "exact_release_workflow_trigger": false,
+    "country_activation": false,
+    "persistent_owner_seeding": false,
+    "real_application_data_mutation": false,
+    "environment_bypass": false,
+    "secret_change": false
+  },
+  "state": "AWAITING_EXTERNAL_PREREQUISITES_AND_RELEASE_WORKFLOW_DECISION",
+  "production_mutated": false,
+  "production_deployed": false
+}
