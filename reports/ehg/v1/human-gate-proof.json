@@ -1,0 +1,30 @@
+{
+  "schema_version": "EHG_V1_HUMAN_GATE_PROOF",
+  "repository": "vvipautoparts-blip/TIGER-VVIP",
+  "h2_sha": "35352136090bd39d9dd6bddc6682c9b9a2d3cafc",
+  "workflow": "Deploy TIGER VVIP production artifact",
+  "workflow_run_id": 31307088159,
+  "run_attempt": 2,
+  "rerun_source_job_id": 93229046456,
+  "waiting_job_id": 93256168074,
+  "waiting_job_name": "Build and verify production artifact",
+  "run_status": "waiting",
+  "job_status": "waiting",
+  "job_steps": [],
+  "runner_assigned": false,
+  "pending_environment": "production-build",
+  "pending_environment_id": 19549247542,
+  "required_reviewer": {
+    "login": "nzuodezuode-byte",
+    "user_id": 310225379
+  },
+  "current_user_can_approve": false,
+  "wait_timer_minutes": 0,
+  "human_gate_enforced_before_first_step": true,
+  "deploy_job_started": false,
+  "deploy_step_executed": false,
+  "production_deployed": false,
+  "production_database_mutated": false,
+  "country_activated": false,
+  "state": "EHG_HUMAN_GATE_PROOF_PASSED_AWAITING_SAFE_CANCELLATION"
+}
