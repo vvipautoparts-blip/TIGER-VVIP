@@ -55,6 +55,7 @@ jobs:
         run: |
           python -m unittest -v tests/test_vvip_public_release.py
           node --test \
+            tests/pages-production-artifact-isolation.test.cjs \
             tests/auth-clerk-index.test.cjs \
             tests/v14-marketplace-migration.test.cjs \
             tests/vvip-runtime-loader.test.cjs \
@@ -64,8 +65,8 @@ jobs:
       - name: Build public allowlist artifact
         run: |
           python tools/vvip_public_release.py \
-            --source . \
-            --output dist/public \
+            --source "$GITHUB_WORKSPACE" \
+            --output "$RUNNER_TEMP/vvip-public" \
             --mode production \
             --source-sha "$GITHUB_SHA" \
             --include-cname
@@ -74,8 +75,10 @@ jobs:
         run: |
           python - <<'PY'
           import json
+          import os
           from pathlib import Path
-          manifest = json.loads(Path('dist/public/release-manifest.json').read_text())
+          manifest_path = Path(os.environ['RUNNER_TEMP']) / 'vvip-public' / 'release-manifest.json'
+          manifest = json.loads(manifest_path.read_text())
           if not manifest.get('releaseEligible'):
               raise SystemExit('RELEASE_MANIFEST_NOT_ELIGIBLE')
           if manifest.get('sourceSha') != '${{ github.sha }}':
@@ -86,7 +89,7 @@ jobs:
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: dist/public
+          path: ${{ runner.temp }}/vvip-public
 
   deploy:
     name: Deploy production
