@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["schema", "release_id", "source", "target", "execution", "verification", "decision"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "vvip.tiger/release-capsule/v1"},
+    "release_id": {"const": "global-launch-phase-b"},
+    "source": {
+      "type": "object",
+      "required": ["repository", "commit", "migration_path", "migration_sha256", "control_plane_commit"],
+      "additionalProperties": false,
+      "properties": {
+        "repository": {"const": "vvipautoparts-blip/TIGER-VVIP"},
+        "commit": {"const": "e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0"},
+        "migration_path": {"const": "supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql"},
+        "migration_sha256": {"const": "9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9"},
+        "control_plane_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"}
+      }
+    },
+    "target": {
+      "type": "object",
+      "required": ["environment", "resolved_project_ref", "production_target"],
+      "additionalProperties": false,
+      "properties": {
+        "environment": {"const": "staging"},
+        "resolved_project_ref": {"type": "string", "pattern": "^[a-z]{20}$"},
+        "production_target": {"const": false}
+      }
+    },
+    "execution": {
+      "type": "object",
+      "required": ["scope", "pending_queue_runner_used", "manual_sql_mutation"],
+      "additionalProperties": false,
+      "properties": {
+        "scope": {"const": "single-migration"},
+        "pending_queue_runner_used": {"const": false},
+        "manual_sql_mutation": {"const": false}
+      }
+    },
+    "verification": {"type": "object"},
+    "decision": {
+      "type": "object",
+      "required": ["state", "production"],
+      "properties": {
+        "state": {
+          "enum": ["NOT_YET_ELIGIBLE", "EVIDENCE_COMPLETE", "ATTESTED", "ELIGIBLE_FOR_SECURITY_REVIEW"]
+        },
+        "production": {"const": "BLOCKED"},
+        "steel_shield_pin": {"type": "string"}
+      },
+      "additionalProperties": false
+    }
+  }
+}

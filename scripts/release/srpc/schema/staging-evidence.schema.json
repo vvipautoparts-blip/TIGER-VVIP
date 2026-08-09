@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["staging_identity", "ledger_before", "schema_before", "classification", "execution", "ledger_after", "schema_after", "runtime", "phase_a_regression", "synthetic_residue", "advisors"],
+  "additionalProperties": false,
+  "properties": {
+    "staging_identity": {
+      "type": "object",
+      "required": ["branch_name", "project_ref", "parent_project_ref", "production_project_ref", "healthy", "production_ref_equal"],
+      "additionalProperties": false,
+      "properties": {
+        "branch_name": {"const": "lc04-sovereign-staging-20260807"},
+        "project_ref": {"type": "string", "pattern": "^[a-z]{20}$"},
+        "parent_project_ref": {"type": "string", "pattern": "^[a-z]{20}$"},
+        "production_project_ref": {"type": "string", "pattern": "^[a-z]{20}$"},
+        "healthy": {"const": true},
+        "production_ref_equal": {"const": false}
+      }
+    },
+    "ledger_before": {
+      "type": "object",
+      "required": ["entries", "phase_b_present"],
+      "additionalProperties": false,
+      "properties": {
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["version", "name"],
+            "additionalProperties": false,
+            "properties": {
+              "version": {"type": "string", "minLength": 1},
+              "name": {"type": "string", "minLength": 1}
+            }
+          }
+        },
+        "phase_b_present": {"type": "boolean"}
+      }
+    },
+    "schema_before": {
+      "type": "object",
+      "required": ["canonical", "fingerprint"],
+      "additionalProperties": false,
+      "properties": {
+        "canonical": {"type": "boolean"},
+        "fingerprint": {"type": "object"}
+      }
+    },
+    "classification": {
+      "type": "object",
+      "required": ["state"],
+      "additionalProperties": false,
+      "properties": {"state": {"enum": ["STATE_A", "STATE_C"]}}
+    },
+    "execution": {
+      "type": "object",
+      "required": ["mode", "pending_queue_runner_used", "manual_ledger_write", "manual_sql_mutation"],
+      "additionalProperties": false,
+      "properties": {
+        "mode": {"enum": ["APPLIED", "VERIFICATION_ONLY"]},
+        "pending_queue_runner_used": {"const": false},
+        "manual_ledger_write": {"const": false},
+        "manual_sql_mutation": {"const": false}
+      }
+    },
+    "ledger_after": {
+      "type": "object",
+      "required": ["phase_b_present", "entry_count"],
+      "additionalProperties": false,
+      "properties": {
+        "phase_b_present": {"const": true},
+        "entry_count": {"type": "integer", "const": 1}
+      }
+    },
+    "schema_after": {
+      "type": "object",
+      "required": ["canonical", "fingerprint"],
+      "additionalProperties": false,
+      "properties": {
+        "canonical": {"const": true},
+        "fingerprint": {"type": "object"}
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "required": ["status"],
+      "additionalProperties": true,
+      "properties": {"status": {"const": "PASS"}}
+    },
+    "phase_a_regression": {
+      "type": "object",
+      "required": ["status"],
+      "additionalProperties": true,
+      "properties": {"status": {"const": "PASS"}}
+    },
+    "synthetic_residue": {
+      "type": "object",
+      "required": ["country_rows", "principal_rows", "listing_rows", "audit_rows"],
+      "additionalProperties": false,
+      "properties": {
+        "country_rows": {"const": 0},
+        "principal_rows": {"const": 0},
+        "listing_rows": {"const": 0},
+        "audit_rows": {"const": 0}
+      }
+    },
+    "advisors": {
+      "type": "object",
+      "required": ["material_security_findings"],
+      "additionalProperties": true,
+      "properties": {
+        "material_security_findings": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}
