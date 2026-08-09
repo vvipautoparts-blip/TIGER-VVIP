@@ -8,8 +8,8 @@
   "rerun_source_job_id": 93229046456,
   "waiting_job_id": 93256168074,
   "waiting_job_name": "Build and verify production artifact",
-  "run_status": "waiting",
-  "job_status": "waiting",
+  "pre_cancel_run_status": "waiting",
+  "pre_cancel_job_status": "waiting",
   "job_steps": [],
   "runner_assigned": false,
   "pending_environment": "production-build",
@@ -23,8 +23,15 @@
   "human_gate_enforced_before_first_step": true,
   "deploy_job_started": false,
   "deploy_step_executed": false,
+  "safe_cancellation": {
+    "verified": true,
+    "run_status": "completed",
+    "run_conclusion": "cancelled",
+    "verified_at": "2026-08-09T17:26:00+03:00",
+    "source": "github_actions_run_api"
+  },
   "production_deployed": false,
   "production_database_mutated": false,
   "country_activated": false,
-  "state": "EHG_HUMAN_GATE_PROOF_PASSED_AWAITING_SAFE_CANCELLATION"
+  "state": "EHG_HUMAN_GATE_PROOF_PASSED_AND_SAFELY_CANCELLED"
 }
