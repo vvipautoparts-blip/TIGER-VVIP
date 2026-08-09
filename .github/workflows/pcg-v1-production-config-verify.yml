@@ -16,6 +16,7 @@ concurrency:
 
 env:
   H2_SHA: 35352136090bd39d9dd6bddc6682c9b9a2d3cafc
+  EXPECTED_CLERK_PUBLISHABLE_KEY_SHA256: f280ff0e711bb02dd7f4e63e14731a85b5ca15bf5110e86a1b6eac1fd47193b3
   EXPECTED_SUPABASE_URL_SHA256: 13d258bae7317b0e716f7c8b28ac8b5985f859d09bd4532418c444686a9ef572
   EXPECTED_SUPABASE_PUBLISHABLE_KEY_SHA256: 1453209296ff0e224c071f6f3975370ef5d90d08e735f8be23b98cb4f6be69b3
 
@@ -64,6 +65,7 @@ jobs:
           import subprocess
 
           h2 = os.environ['H2_SHA']
+          expected_clerk_hash = os.environ['EXPECTED_CLERK_PUBLISHABLE_KEY_SHA256']
           expected_url_hash = os.environ['EXPECTED_SUPABASE_URL_SHA256']
           expected_key_hash = os.environ['EXPECTED_SUPABASE_PUBLISHABLE_KEY_SHA256']
           clerk = os.environ.get('TIGER_CLERK_PUBLISHABLE_KEY', '').strip()
@@ -86,7 +88,8 @@ jobs:
                   frontend = None
 
           clerk_is_dev = bool(frontend and (frontend == 'clerk.accounts.dev' or frontend.endswith('.clerk.accounts.dev')))
-          clerk_ok = bool(clerk and clerk.startswith('pk_live_') and clerk_payload_valid and not clerk_is_dev)
+          clerk_exact = bool(clerk and sha(clerk) == expected_clerk_hash)
+          clerk_ok = bool(clerk and clerk.startswith('pk_live_') and clerk_payload_valid and not clerk_is_dev and clerk_exact)
           supabase_url_ok = bool(supabase_url and sha(supabase_url) == expected_url_hash)
           supabase_key_ok = bool(
               supabase_key
@@ -101,6 +104,7 @@ jobs:
               'clerk_live_prefix': clerk.startswith('pk_live_'),
               'clerk_payload_valid': clerk_payload_valid,
               'clerk_development_domain': clerk_is_dev,
+              'clerk_exact_candidate_match': clerk_exact,
               'clerk_verified': clerk_ok,
               'supabase_url_present': bool(supabase_url),
               'supabase_url_exact_candidate_match': supabase_url_ok,
