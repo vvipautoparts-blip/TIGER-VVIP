@@ -6,95 +6,76 @@ Scope: **Global Launch Phase B controlled promotion and future release-proof bas
 
 ## 1. Purpose
 
-SRPC v1 establishes one fail-closed release-proof chain that cryptographically and procedurally binds:
+SRPC v1 establishes one fail-closed release-proof chain:
 
-`exact source commit -> exact migration bytes -> staging identity -> controlled single-migration execution -> runtime/security proof -> immutable evidence capsule -> cryptographic attestation -> independent security approval -> Steel Shield reviewed-hash pin -> fresh exact-head CI -> production eligibility`
-
-The design exists to prevent evidence substitution, mutable-branch ambiguity, queue replay, policy self-approval, environment confusion, and production promotion of bytes that were not the bytes proven on Staging.
+`exact source -> exact bytes -> immutable capsule -> verified Staging identity -> Phase-B-only execution -> runtime/security proof -> cryptographic attestation -> independent security approval -> Steel Shield pin-only commit -> fresh exact-head CI -> Production eligibility -> Production closure proof`
 
 Core constitutional rule:
 
 > **Proof cannot grant Authority, and Authority cannot change Proof.**
 
-No component that generates release evidence may approve its own evidence, mutate Steel Shield policy, merge its own security change, or deploy Production.
+A component that generates evidence cannot approve that evidence, modify the reviewed-hash policy, merge its own security change, or deploy Production.
 
-## 2. Phase B Frozen Release Identity
+## 2. Frozen Phase B Artifact Identity
 
-The current Phase B candidate is frozen as:
+The artifact identity frozen for this proof chain is:
 
 - Repository: `vvipautoparts-blip/TIGER-VVIP`
 - Pull request: `#181`
 - Source commit H0: `e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0`
 - Migration path: `supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql`
 - Expected migration SHA-256: `9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9`
-- Target proof environment: Supabase branch `lc04-sovereign-staging-20260807`
-- Current Staging project ref: `mduummtnlupktjaujgyx`
-- Production project ref: `zelcngyyvbomuzokvuxo`
+- Target Staging branch name: `lc04-sovereign-staging-20260807`
 
-These identifiers are release evidence, not convenience defaults. Any byte change to the migration creates a new candidate and invalidates the prior Phase B proof chain.
+Observed environment identifiers at design time:
+
+- Staging project ref observed on 2026-08-09: `mduummtnlupktjaujgyx`
+- Production project ref observed on 2026-08-09: `zelcngyyvbomuzokvuxo`
+
+The migration path, H0, and migration digest are frozen release identity. **Supabase project refs are not blindly frozen**: the Staging branch must be re-resolved at execution time by branch name, health, parent relationship, and explicit inequality with the current Production project ref. A recreated branch must therefore receive a fresh runtime identity proof.
+
+Any byte change to the migration creates a new release candidate and invalidates the previous Phase B proof chain.
 
 ## 3. Non-Negotiable Invariants
 
-1. No branch-relative `HEAD`, `latest`, or synthetic PR merge commit may substitute for H0 during the pre-pin proof.
-2. The migration digest must be computed from the exact artifact that will be executed.
-3. No automatic recalculation may bless a new digest after a mismatch.
-4. No `supabase db push`, generic pending-migration queue, migration loop, or replay-all mechanism is permitted for Phase B promotion.
-5. No manual insertion into migration-ledger tables is permitted.
-6. Staging identity must be proven before any DDL-capable step receives access to Staging credentials.
-7. Production credentials must not be available to Staging proof jobs.
-8. Phase B proof and Steel Shield pinning are separate authority domains.
-9. Auto-pinning is forbidden.
-10. A pinning change must not modify the Phase B migration bytes.
-11. Fresh full CI must run on the post-pin commit H1; H0 CI cannot authorize Production after the policy commit exists.
-12. Production remains blocked until all required owner/security gates are satisfied.
-13. Any missing evidence is a failure, not an unknown-pass state.
-14. No gate bypass is permitted.
+1. No mutable branch `HEAD`, `latest`, or synthetic PR merge commit may substitute for H0 during pre-pin proof.
+2. The migration digest is computed from the exact artifact that will execute.
+3. Hash mismatch never triggers automatic acceptance of a newly calculated hash.
+4. `supabase db push`, run-all-pending, migration loops, and queue replay are forbidden for Phase B promotion.
+5. Manual insertion into migration-ledger tables is forbidden.
+6. Staging identity is verified before any DDL-capable step receives Staging deployment authority.
+7. Production credentials are unavailable to Staging proof jobs.
+8. Proof and Steel Shield approval are separate authority domains.
+9. Auto-pinning is forbidden; auto-preparing a draft pin change is allowed.
+10. The pin commit must not change Phase B migration bytes.
+11. Fresh full CI runs on H1 after pinning; H0 success cannot authorize Production after H1 exists.
+12. Missing evidence is failure, not unknown-pass.
+13. No bypass, force-green, skip-CI security path, or unaccounted manual mutation is permitted.
+14. Production stays blocked until all Production gates are satisfied.
 
 ## 4. Three-Plane Architecture
 
 ### 4.1 Proof Plane
 
-Responsibilities:
+Responsible for source lock, byte lock, static tests, capsule construction, Staging identity, ledger/schema classification, Phase-B-only execution, structural verification, runtime behavior proof, Phase A regression proof, residue proof, machine decision, and attestations.
 
-- source lock;
-- exact-byte verification;
-- static contract tests;
-- Release Capsule assembly;
-- Staging identity verification;
-- ledger/schema classification;
-- controlled Phase-B-only migration execution;
-- runtime, RLS, ACL, Storage, regression, and residue verification;
-- machine-readable decision generation;
-- artifact/provenance/security attestations.
-
-The Proof Plane has no authority to modify the reviewed-hash policy.
+It cannot modify Steel Shield reviewed hashes.
 
 ### 4.2 Authority Plane
 
-Responsibilities:
+Responsible for independent review of the completed evidence and authorization of one pin-only change.
 
-- independent review of the completed Release Capsule;
-- verification of machine attestations;
-- authorization of one pin-only change;
-- rejection of incomplete, inconsistent, substituted, or stale evidence.
-
-The Authority Plane cannot alter the migration artifact proved by the Proof Plane.
+It cannot alter the proved migration artifact.
 
 ### 4.3 Execution Plane
 
-Responsibilities:
+Responsible for H1 fresh CI, Production identity, exact-artifact Production promotion when permitted, and Production closure evidence.
 
-- fresh post-pin exact-head CI;
-- Production identity re-verification;
-- promotion of the exact proven migration bytes only;
-- Production post-deployment verification;
-- final closure evidence.
+It cannot bypass Proof or Authority.
 
-The Execution Plane cannot bypass Proof or Authority.
+## 5. Release State Machine
 
-## 5. SRPC State Machine
-
-Release states are explicit and monotonic:
+States are monotonic within one immutable capsule identity:
 
 1. `SOURCE_LOCKED`
 2. `STATIC_PROOF_PASSED`
@@ -104,19 +85,20 @@ Release states are explicit and monotonic:
 6. `STAGING_MIGRATION_APPLIED_OR_ACCOUNTED`
 7. `STAGING_RUNTIME_VERIFIED`
 8. `EVIDENCE_COMPLETE`
-9. `ELIGIBLE_FOR_SECURITY_REVIEW`
-10. `SECURITY_APPROVED`
-11. `PIN_COMMIT_CREATED`
-12. `POST_PIN_BYTES_VERIFIED`
-13. `FRESH_CI_GREEN`
-14. `PRODUCTION_ELIGIBLE`
-15. `PRODUCTION_VERIFIED`
+9. `ATTESTED`
+10. `ELIGIBLE_FOR_SECURITY_REVIEW`
+11. `SECURITY_APPROVED`
+12. `PIN_COMMIT_CREATED`
+13. `POST_PIN_BYTES_VERIFIED`
+14. `FRESH_CI_GREEN`
+15. `PRODUCTION_ELIGIBLE`
+16. `PRODUCTION_VERIFIED`
 
-No later state may be asserted if any preceding state lacks machine-verifiable evidence.
+A failed later verification invalidates forward progression; it never retroactively turns incomplete evidence into success.
 
 ## 6. Gate 0 — Release Intent Lock
 
-The workflow materializes immutable inputs:
+Materialize immutable inputs:
 
 ```text
 PHASE=GLOBAL_LAUNCH_PHASE_B
@@ -129,37 +111,29 @@ AUTO_PIN=FORBIDDEN
 PRODUCTION_WRITE=FORBIDDEN
 ```
 
-Mismatch => `STOP`.
+Any mismatch => STOP.
 
 ## 7. Gate 1 — Exact Source Lock
 
-The workflow must explicitly check out H0, not a mutable branch and not `refs/pull/*/merge`.
-
-Required evidence:
-
-- expected H0;
-- actual checked-out commit;
-- repository identity;
-- migration Git blob identity;
-- git tree identity where available.
+Explicitly check out H0. Record expected/actual commit, repository identity, migration Git blob identity, and tree identity where available.
 
 `actual_commit != H0` => `SRPC-001 SOURCE_COMMIT_MISMATCH`.
 
 ## 8. Gate 2 — Exact Byte Lock and Static Proof
 
-The Phase B static test suite must run from H0 in an unprivileged job with no database deployment secrets.
+Run Phase B static contracts from H0 in an unprivileged job with no database deployment secrets.
 
-Required result:
+Required:
 
-- Phase B contract tests: all pass;
-- emitted SHA-256 equals the frozen expected digest;
-- the digest is computed from repository bytes, not copied or edited SQL.
+- all Phase B static tests pass;
+- emitted digest equals the frozen digest;
+- digest comes from repository bytes, not copied/edited SQL.
 
-`actual_sha256 != expected_sha256` => `SRPC-003 BYTE_HASH_MISMATCH`.
+Mismatch => `SRPC-003 BYTE_HASH_MISMATCH`.
 
 ## 9. Gate 3 — Immutable Sovereign Release Capsule
 
-The Proof Plane builds one content-addressed artifact:
+Build one content-addressed artifact:
 
 ```text
 phase-b-sovereign-release-capsule/
@@ -193,13 +167,11 @@ phase-b-sovereign-release-capsule/
     └── recovery-plan.md
 ```
 
-The capsule must contain no secrets, passwords, service-role values, access tokens, private connection strings, or user data dumps.
-
-The capsule is immutable evidence. Corrections require a new capsule identity, not in-place replacement.
+No secrets, tokens, service-role values, private connection strings, or user-data dumps may enter the capsule. Corrections create a new capsule identity; evidence is not silently replaced.
 
 ## 10. Release Manifest Contract
 
-`release-manifest.json` must include at least:
+Minimum shape:
 
 ```json
 {
@@ -213,6 +185,7 @@ The capsule is immutable evidence. Corrections require a new capsule identity, n
   },
   "target": {
     "environment": "staging",
+    "resolved_project_ref": null,
     "production_target": false
   },
   "execution": {
@@ -235,43 +208,41 @@ The capsule is immutable evidence. Corrections require a new capsule identity, n
 }
 ```
 
-No field may claim a pass before its evidence file exists and validates.
+A field may claim PASS only when its referenced evidence exists and validates.
 
 ## 11. Gate 4 — Protected Staging Identity
 
-Before DDL, the Staging proof must verify all of:
+Immediately before DDL-capable work, resolve the branch by name and prove:
 
 - branch name is `lc04-sovereign-staging-20260807`;
-- resolved project ref is the expected current Staging ref;
-- project ref differs from Production;
-- parent project relationship is expected;
 - branch is healthy;
-- no Production host/ref/credential is present in the deployment job;
+- resolved project ref is recorded in the capsule;
+- parent project relationship is expected;
+- resolved Staging project ref differs from the current Production project ref;
+- deployment job has no Production host/ref/credential;
 - workflow/environment identity is recorded.
 
-Any ambiguity => fail closed.
+Ambiguity => fail closed.
 
-A dedicated protected GitHub Environment named `staging-release` is recommended, with Staging-only secrets and deployment restrictions. A separate `production-release` environment must hold Production-only secrets.
+SRPC recommends dedicated GitHub Environments `staging-release` and `production-release`, with separate credentials and protection rules. Their creation is an implementation concern and must not mutate H0.
 
 ## 12. Concurrency and Race Protection
 
-Only one Phase B Staging promotion may execute at a time.
+Only one Phase B Staging promotion may execute at a time. Use a release-specific concurrency group. Parallel or stale attempts cannot race from the same ledger preflight.
 
-The deployment workflow must use a release-specific concurrency group. Parallel or stale release attempts must not race through a shared ledger preflight.
+Race or unexpected concurrent mutation => `SRPC-006 LEDGER_RACE_DETECTED`.
 
-Concurrent state mutation => `SRPC-006 LEDGER_RACE_DETECTED`.
+## 13. Gate 5 — Ledger and Schema State Classifier
 
-## 13. Gate 5 — Ledger and Schema Classification
-
-Migration ledger and schema state are independent signals.
+Ledger and schema are separate signals.
 
 ### State A — Ledger absent / canonical target schema
 
-Allowed controlled convergence state. This matches the expected current Staging pattern where prior rehearsals may already have created target objects but the Phase B convergence migration itself is not in the ledger.
+Allowed controlled convergence. Existing canonical objects may come from prior rehearsals; object existence alone does not prove Phase B ledger application.
 
 ### State B — Ledger absent / partial or drifted schema
 
-`STOP — SRPC-007 SCHEMA_DRIFT`.
+STOP => `SRPC-007 SCHEMA_DRIFT`.
 
 ### State C — Ledger present / same accounted release / canonical schema
 
@@ -279,58 +250,49 @@ Do not reapply. Enter verification-only mode.
 
 ### State D — Ledger present / evidence unknown
 
-`STOP — UNACCOUNTED_EXECUTION`.
+STOP => `UNACCOUNTED_EXECUTION`.
 
 ### State E — Ledger present / partial schema
 
-`CRITICAL STOP`.
-
-Object existence alone must never be used as proof that the migration was legitimately applied.
+CRITICAL STOP.
 
 ## 14. Gate 6 — Exact Single-Migration Execution
 
-Forbidden mechanisms:
+Forbidden:
 
 - `supabase db push`;
 - run-all-pending;
-- shell iteration over migrations;
-- migration-queue replay;
-- manual migration-ledger insertion;
-- SQL copied from an editor or chat response.
+- shell migration iteration;
+- queue replay;
+- manual ledger insertion;
+- SQL copied from an editor/chat response.
 
-The DDL input must be the `migration.sql` bytes already sealed in the Release Capsule and re-hashed immediately before application.
+Execution input is the already sealed `migration.sql`, re-hashed immediately before execution.
 
-For the current connected Supabase control plane, the intended primitive is one explicit migration application with migration name `global_launch_phase_b_marketplace_convergence` and the exact sealed SQL body.
+For the current connected Supabase control plane, use one explicit migration application named `global_launch_phase_b_marketplace_convergence` with the exact sealed SQL body. If State C is proven, execution is skipped and verification-only mode is used.
 
 ## 15. Gate 7 — Post-Deployment Double Fingerprint
 
-A successful DDL response is insufficient.
-
-Capture and validate:
+A successful DDL response is insufficient. Capture and verify:
 
 - ledger after;
 - schema after;
-- target tables;
-- functions;
-- triggers;
-- indexes;
-- constraints;
-- RLS enabled state;
-- FORCE RLS state;
+- target tables/functions/triggers/indexes/constraints;
+- RLS and FORCE RLS states;
 - policy names and commands;
-- grants/revokes;
+- grants and revokes;
 - private helper exposure;
-- `listing-media` bucket privacy, MIME allowlist, and size limit;
-- trusted review RPC exposure;
-- append-only audit behavior.
+- `listing-media` privacy, MIME allowlist, and size limit;
+- review RPC exposure;
+- append-only audit properties.
 
-Unexpected object, privilege, or policy drift => fail closed.
+Unexpected drift => fail closed.
 
 ## 16. Gate 8 — Transaction-Scoped Behavioral Proof
 
-The Staging runtime proof must create only synthetic proof data inside an explicit transaction and roll it back.
+Synthetic proof data exists only inside an explicit transaction and is rolled back.
 
-Required behaviors:
+Required behavior:
 
 1. non-Clerk subject cannot own a listing;
 2. inactive/unsealed country blocks listing creation;
@@ -341,19 +303,17 @@ Required behaviors:
 7. audit entry is appended;
 8. audit entry cannot be updated/deleted;
 9. transaction rolls back;
-10. synthetic residue count is zero.
+10. synthetic residue is zero.
 
-Synthetic data must never become release seed data.
+Synthetic proof data is never release seed data.
 
 ## 17. Gate 9 — Phase A Non-Regression
 
-Phase B cannot be declared safe by testing Phase B alone.
+Phase A security/identity behavior must remain valid after Phase B proof. Any regression => `SRPC-011 PHASE_A_REGRESSION`.
 
-The Phase A security/identity contract must pass after Phase B proof. Any regression in Phase A causes `SRPC-011 PHASE_A_REGRESSION`.
+## 18. Gate 10 — Evidence Completeness
 
-## 18. Gate 10 — Evidence Completeness Decision
-
-The decision may become `ELIGIBLE_FOR_SECURITY_REVIEW` only when all of the following are true:
+`EVIDENCE_COMPLETE` requires:
 
 ```text
 SOURCE_EXACT=true
@@ -370,83 +330,64 @@ RUNTIME_SECURITY_PASS=true
 PHASE_A_REGRESSION_PASS=true
 SYNTHETIC_RESIDUE_ZERO=true
 CAPSULE_COMPLETE=true
-ATTESTATIONS_VALID=true
 ```
 
-`ELIGIBLE_FOR_SECURITY_REVIEW` is not Steel Shield approval and is not Production approval.
+At this point the evidence is ready to be cryptographically attested, but **not yet eligible for security approval**.
 
-## 19. Gate 11 — Cryptographic Attestation Model
+## 19. Gate 11 — Cryptographic Attestation
 
-SRPC v1 uses two logically separate attestations.
+Create and verify two logically separate attestations.
 
 ### 19.1 Provenance Attestation
 
 Subject: immutable Release Capsule artifact.
 
-Purpose: prove repository/workflow/commit provenance and artifact digest.
+Purpose: prove repository/workflow/commit provenance and capsule digest.
 
 ### 19.2 VVIP Staging Verification Attestation
 
 Predicate namespace: `https://vvip.tiger/attestation/staging-promotion/v1`.
 
-Required claims include:
+Claims include H0, migration digest, resolved Staging identity, ledger classification, execution scope, queue-runner false, runtime/security result, Phase A regression result, zero residue, and decision state.
 
-- H0;
-- migration path and SHA-256;
-- Staging identity;
-- ledger classification;
-- execution scope;
-- queue runner not used;
-- runtime/security result;
-- Phase A regression result;
-- synthetic residue result;
-- decision state.
+VVIP security claims are not embedded as ad-hoc SLSA provenance fields. Provenance and security verification remain semantically separate. Where in-toto is emitted, use Statement v1 semantics.
 
-The VVIP security predicate must not be disguised as SLSA provenance. Provenance describes how an artifact was built; VVIP verification describes what release/security properties were proven.
+After both attestations verify against the expected identity and subjects, set:
 
-Where in-toto is emitted, SRPC uses Statement v1 semantics.
+```text
+ATTESTED=true
+ELIGIBLE_FOR_SECURITY_REVIEW=true
+```
 
-## 20. Gate 12 — Independent Human Security Approval
+Attestation failure => `SRPC-013 ATTESTATION_INVALID`.
 
-Machine proof does not approve itself.
+## 20. Gate 12 — Independent Security Approval
 
-The reviewer must verify at least:
+Machine proof cannot approve itself.
 
-- capsule digest;
-- H0 identity;
-- migration digest;
-- Staging identity;
-- ledger before/after;
-- schema before/after;
-- runtime/RLS/ACL/Storage evidence;
-- Phase A non-regression;
-- zero residue;
-- attestation validity;
-- no bypass or manual mutation.
+The reviewer verifies capsule digest, H0, migration digest, Staging identity, ledger/schema evidence, runtime/RLS/ACL/Storage evidence, Phase A non-regression, zero residue, attestation validity, and absence of bypass/manual mutation.
 
 Only after this review may one pin-only change be authorized.
 
 ## 21. Gate 13 — Steel Shield Pin-Only Commit
 
-Steel Shield currently stores reviewed migration hashes inside:
+The current Steel Shield reviewed-hash policy remains in:
 
 `scripts/security/p08-steel-shield/scan-dangerous-sql.sh`
 
-SRPC v1 does not refactor this mechanism during Phase B.
+SRPC v1 does not refactor it during Phase B.
 
-The approved change may add exactly one reviewed baseline entry for:
+The authorized change adds one reviewed baseline entry for:
 
 `supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql`
 
-with the proven digest.
+with the exact proven digest and review comment. This produces H1.
 
-This creates post-pin commit H1.
+Auto-pinning is forbidden. A workflow may prepare a draft change, but approval/merge authority stays independent.
 
-Auto-pinning is forbidden. A workflow may prepare a draft change, but approval/merge authority is separate.
+## 22. Gate 14 — Post-Pin Byte and Diff Invariance
 
-## 22. Post-Pin Byte Invariance
-
-Before Fresh Full CI, prove:
+Prove:
 
 ```text
 SHA256(migration @ H0)
@@ -456,15 +397,13 @@ SHA256(migration @ H1)
 9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9
 ```
 
-Any migration drift => `SRPC-015 POST_PIN_BYTE_DRIFT` and the prior Staging proof is invalid for Production.
+Any migration drift => `SRPC-015 POST_PIN_BYTE_DRIFT` and invalidates the Staging proof for Production.
 
-The H0->H1 diff must be constrained to the approved policy/evidence changes. Unexpected application or migration changes block the release.
+The H0->H1 diff is constrained to approved policy/evidence changes. Unexpected application or migration change blocks release.
 
-## 23. Gate 14 — Fresh Exact-Head CI on H1
+## 23. Gate 15 — Fresh Exact-Head CI on H1
 
-All required release/security workflows must run fresh on the same H1.
-
-Required plane includes at minimum, when applicable:
+Run fresh required checks on the same H1, including when applicable:
 
 - VVIP Quality Gate;
 - V14 Release Candidate;
@@ -475,46 +414,32 @@ Required plane includes at minimum, when applicable:
 - CodeQL;
 - LC03/LC04/LC05/LC06 rehearsals;
 - Phone OTP rehearsal;
-- all additional required target-branch security checks emitted by GitHub.
+- any additional required target-branch security checks.
 
-No stale successful check from H0 may substitute for H1 evidence.
+No stale H0 success substitutes for H1 evidence. Any required failure => `SRPC-016 FRESH_CI_NOT_GREEN`.
 
-Any required failure => `SRPC-016 FRESH_CI_NOT_GREEN`.
-
-## 24. Production Eligibility and Execution
+## 24. Gate 16 — Production Eligibility
 
 `PRODUCTION_ELIGIBLE` requires:
 
-- security-approved H1;
-- post-pin byte invariance;
+- approved H1;
+- H0/H1 migration-byte equality;
 - fresh H1 CI green;
-- valid Staging Release Capsule and attestations;
-- Production identity proof;
+- valid Staging capsule and attestations;
+- current Production identity proof;
 - no unexplained Production drift;
 - exact Phase B artifact identity;
-- explicit satisfaction of the existing Production owner gate.
+- satisfaction of the existing Production owner/security gate.
 
-Production input bytes must equal the proven Staging bytes. No rebuild, copy/paste transformation, regenerated SQL, or changed hash is permitted.
+Production receives the exact proven bytes. No rebuild, copy/paste transformation, regenerated SQL, or changed hash is permitted.
 
-## 25. Production Closure Capsule
+## 25. Gate 17 — Production Closure Proof
 
-After Production deployment, generate closure evidence containing:
-
-- Production identity;
-- H1;
-- exact migration digest;
-- ledger before/after;
-- schema verification;
-- RLS/ACL/Storage verification;
-- runtime smoke proof;
-- Phase A non-regression;
-- security advisors where available;
-- deployment run identity;
-- final decision.
+After permitted Production deployment, generate a closure capsule containing Production identity, H1, exact migration digest, ledger before/after, schema/RLS/ACL/Storage verification, runtime smoke, Phase A non-regression, security advisors where available, deployment-run identity, and final decision.
 
 Only then may project state declare:
 
-`GLOBAL_LAUNCH_PHASE_B = PRODUCTION_VERIFIED`.
+`GLOBAL_LAUNCH_PHASE_B=PRODUCTION_VERIFIED`.
 
 ## 26. Standard STOP Codes
 
@@ -538,96 +463,74 @@ SRPC-016 FRESH_CI_NOT_GREEN
 SRPC-017 PRODUCTION_IDENTITY_MISMATCH
 ```
 
-Every STOP report must contain:
-
-- stop code;
-- failed gate;
-- expected value/state;
-- actual value/state;
-- evidence reference;
-- safest permitted next action.
+Every STOP report contains: code, failed gate, expected state, actual state, evidence reference, and safest permitted next action.
 
 ## 27. VVIP Release Evidence Agent Boundary
 
 Permitted:
 
-- READ;
-- VERIFY;
-- COMPARE;
-- GENERATE REPORT;
-- ASSEMBLE CAPSULE;
-- VERIFY ATTESTATION;
-- PREPARE DRAFT PIN CHANGE.
+`READ, VERIFY, COMPARE, GENERATE_REPORT, ASSEMBLE_CAPSULE, VERIFY_ATTESTATION, PREPARE_DRAFT_PIN_CHANGE`
 
 Forbidden:
 
-- alter the Phase B migration after proof;
-- redefine the expected hash;
-- auto-pin reviewed hashes;
-- approve its own proof;
-- merge the security pin;
-- hold Production write authority during Staging proof;
-- deploy Production without the Production gate;
-- bypass a failed gate.
+`ALTER_PROVED_MIGRATION, REDEFINE_EXPECTED_HASH, AUTO_PIN, SELF_APPROVE, MERGE_SECURITY_PIN, HOLD_PRODUCTION_WRITE_DURING_STAGING_PROOF, BYPASS_GATE, UNAUTHORIZED_PRODUCTION_DEPLOY`
 
-AI confidence scores are not release authority. Evidence is binary pass/fail against explicit contracts.
+AI confidence is never release authority. Explicit evidence contracts decide pass/fail.
 
 ## 28. Deferred Extensions
 
-The following are intentionally outside SRPC v1 Phase B critical path:
-
 ### SRPC v2 — Hermetic Clean-Room Rehearsal
 
-An ephemeral Supabase branch may be used before real Staging for clean replay and isolation proof. It supplements Staging; it never replaces real Staging verification.
+An ephemeral Supabase branch may supplement real Staging with clean replay proof. It never replaces Staging.
 
 ### Steel Shield v2 — Signed Policy Manifest
 
-A future project may move reviewed hashes from the current Bash associative array into a dedicated signed policy manifest. This is not mixed into Phase B to avoid changing the policy substrate while proving the release.
+A future project may move reviewed hashes from Bash into a dedicated signed policy manifest. It is intentionally excluded from Phase B so the security-policy substrate is not redesigned while Phase B is being proved.
 
 ### SRPC v3 — Confidential / Zero-Knowledge Verification
 
-ZK proof mechanisms are deferred until a concrete privacy-preserving verification requirement exists. They are not required to prove the current exact-byte/Staging/RLS release contract.
+ZK mechanisms are deferred until a concrete privacy-preserving verification requirement exists.
 
-## 29. Implementation Boundaries
+## 29. Implementation Units
 
-SRPC v1 implementation must be decomposed into separately testable units:
+Implementation is decomposed into independently testable units:
 
 1. source/byte lock;
-2. capsule builder and schema validator;
+2. capsule builder + schema validator;
 3. Staging identity preflight;
 4. ledger/schema classifier;
 5. single-migration runner;
-6. post-deployment structural verifier;
+6. structural verifier;
 7. runtime behavior verifier;
 8. Phase A regression verifier;
 9. attestation generator/verifier;
 10. security-review package;
 11. pin-diff guard;
 12. fresh-CI release gate;
-13. Production preflight and closure proof.
+13. Production preflight + closure proof.
 
-No unit may acquire broader credentials than it needs.
+Each unit receives only the minimum credentials needed for its responsibility.
 
-## 30. Definition of Done for SRPC v1 Phase B
+## 30. Definition of Done
 
-SRPC v1 is operational for Phase B when all of the following are demonstrated without bypass:
+SRPC v1 Phase B is complete only when demonstrated without bypass:
 
-- H0 exact source proof;
-- exact digest proof;
+- exact H0 source proof;
+- exact migration digest;
 - immutable Release Capsule;
-- protected Staging identity;
+- runtime-resolved protected Staging identity;
 - ledger/schema classification;
 - exact single-migration application or legitimate verification-only classification;
-- post-deployment structural verification;
+- structural verification;
 - transaction-scoped runtime/security proof;
 - Phase A non-regression;
 - zero synthetic residue;
-- provenance + VVIP verification attestations;
+- provenance and VVIP verification attestations;
 - independent security approval;
 - pin-only H1;
 - H0/H1 migration-byte equality;
 - fresh H1 CI green;
-- Production remains blocked until the existing owner Production gate is satisfied;
+- Production remains blocked until its existing gate is satisfied;
 - after permitted Production promotion, Production Closure Capsule proves final canonical state.
 
-Until these conditions are satisfied, the release state remains fail-closed.
+Until all applicable conditions are satisfied, SRPC remains fail-closed.
