@@ -1,0 +1,127 @@
+name: PRG v1 Read-Only Proof
+
+on:
+  push:
+    branches:
+      - ops/prg-v1-production-release-gate-20260809
+
+permissions:
+  contents: read
+
+jobs:
+  proof:
+    name: Freeze exact Production release baseline
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout PRG control branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+
+      - name: Fetch evidence refs
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin \
+            main:refs/remotes/origin/main \
+            ops/pcg-v1-production-config-20260809:refs/remotes/origin/ops/pcg-v1-production-config-20260809 \
+            ops/ehg-v1-environment-hardening-20260809:refs/remotes/origin/ops/ehg-v1-environment-hardening-20260809
+
+      - name: Verify exact H2 and migration bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          EXPECTED_H2='35352136090bd39d9dd6bddc6682c9b9a2d3cafc'
+          EXPECTED_PHASE_B='9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9'
+          ACTUAL_MAIN="$(git rev-parse refs/remotes/origin/main)"
+          test "$ACTUAL_MAIN" = "$EXPECTED_H2"
+
+          git show "$EXPECTED_H2:supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql" > /tmp/phase-b.sql
+          PHASE_B_SHA="$(sha256sum /tmp/phase-b.sql | awk '{print $1}')"
+          test "$PHASE_B_SHA" = "$EXPECTED_PHASE_B"
+
+          git show "$EXPECTED_H2:supabase/migrations/20260808_vvip_identity_fail_closed_profile_resolver.sql" > /tmp/identity-01.sql
+          IDENTITY_SHA="$(sha256sum /tmp/identity-01.sql | awk '{print $1}')"
+
+          printf '%s\n' "$ACTUAL_MAIN" > /tmp/main-sha.txt
+          printf '%s\n' "$PHASE_B_SHA" > /tmp/phase-b-sha256.txt
+          printf '%s\n' "$IDENTITY_SHA" > /tmp/identity-01-sha256.txt
+
+      - name: Verify closed prerequisite gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          git show refs/remotes/origin/ops/pcg-v1-production-config-20260809:reports/pcg/v1/verification-04.json > /tmp/pcg.json
+          git show refs/remotes/origin/ops/ehg-v1-environment-hardening-20260809:reports/ehg/v1/closure.json > /tmp/ehg.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          h2 = '35352136090bd39d9dd6bddc6682c9b9a2d3cafc'
+          pcg = json.loads(Path('/tmp/pcg.json').read_text())
+          ehg = json.loads(Path('/tmp/ehg.json').read_text())
+
+          assert pcg['h2_sha'] == h2
+          assert pcg['state'] == 'PCG_VALUES_VERIFIED_ARTIFACT_ELIGIBLE'
+          assert pcg['pcg_closed'] is True
+          assert pcg['production_deployed'] is False
+
+          assert ehg['h2_sha'] == h2
+          assert ehg['environment_hardening_gate'] == 'CLOSED'
+          assert ehg['production_deployed'] is False
+          assert ehg['production_database_mutated'] is False
+          assert ehg['country_activated'] is False
+          assert ehg['production_build']['can_admins_bypass'] is False
+          assert ehg['github_pages']['can_admins_bypass'] is False
+          assert ehg['production_build']['required_reviewer'] == 'nzuodezuode-byte'
+          assert ehg['github_pages']['required_reviewer'] == 'nzuodezuode-byte'
+          assert ehg['production_build']['allowed_branches'] == ['main']
+          assert ehg['github_pages']['allowed_branches'] == ['main']
+          PY
+
+      - name: Verify country activation remains unconfigured
+        shell: bash
+        run: |
+          set -euo pipefail
+          PAGES="$(git show 35352136090bd39d9dd6bddc6682c9b9a2d3cafc:.github/workflows/pages.yml)"
+          grep -F 'TIGER_DEFAULT_COUNTRY_CODE: ${{ vars.TIGER_DEFAULT_COUNTRY_CODE }}' <<<"$PAGES" >/dev/null
+          if grep -R --line-number -E 'TIGER_DEFAULT_COUNTRY_CODE[[:space:]]*[:=][[:space:]]*[A-Za-z]{2}([^-A-Za-z]|$)' . \
+              --exclude-dir=.git --exclude='prg-v1-read-only-proof.yml'; then
+            echo 'PRG_COUNTRY_LITERAL_DETECTED'
+            exit 1
+          fi
+
+      - name: Build sanitized PRG proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          proof = {
+              'schema_version': 'PRG_V1_READ_ONLY_PROOF',
+              'repository': 'vvipautoparts-blip/TIGER-VVIP',
+              'h2_sha': Path('/tmp/main-sha.txt').read_text().strip(),
+              'phase_b_migration_sha256': Path('/tmp/phase-b-sha256.txt').read_text().strip(),
+              'identity_01_migration_sha256': Path('/tmp/identity-01-sha256.txt').read_text().strip(),
+              'pcg_closed': True,
+              'ehg_closed': True,
+              'country_activation_configured': False,
+              'production_db_authorized': False,
+              'production_web_authorized': False,
+              'production_deployed': False,
+              'state': 'PRG_BASELINE_PROOF_COMPLETE'
+          }
+          Path('prg-v1-proof.json').write_text(json.dumps(proof, indent=2) + '\n')
+          print(json.dumps(proof, sort_keys=True))
+          PY
+
+      - name: Upload sanitized proof
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: prg-v1-read-only-proof-${{ github.sha }}
+          path: prg-v1-proof.json
+          if-no-files-found: error
+          retention-days: 30
