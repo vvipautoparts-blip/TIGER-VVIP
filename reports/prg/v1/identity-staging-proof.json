@@ -1,0 +1,43 @@
+{
+  "schema_version": "PRG_V1_IDENTITY_STAGING_PROOF",
+  "staging": {
+    "branch_id": "98c087dc-8120-4d72-9e29-05d329e1bf1c",
+    "branch_name": "lc04-sovereign-staging-20260807",
+    "project_ref": "mduummtnlupktjaujgyx",
+    "parent_production_ref": "zelcngyyvbomuzokvuxo",
+    "preview_project_status": "ACTIVE_HEALTHY"
+  },
+  "ledger": {
+    "identity_01_entry_present": true,
+    "identity_01_entry_version": "20260808211445",
+    "identity_01_entry_name": "identity_01_fail_closed_profile_resolver_staging_proof",
+    "phase_b_entry_present": true,
+    "phase_b_entry_version": "20260809061858",
+    "phase_b_entry_name": "global_launch_phase_b_marketplace_convergence"
+  },
+  "resolver": {
+    "signature": "vvip_resolve_own_profile(text)",
+    "security_definer": true,
+    "search_path_hardened": "pg_catalog,public",
+    "anon_execute": false,
+    "public_execute": false,
+    "authenticated_execute": true,
+    "subject_first": true,
+    "verified_email_legacy_detection_only": true,
+    "browser_email_ownership_transfer": false
+  },
+  "runtime_tests": [
+    {"name":"unauthenticated_rejected","observed_status":"auth_required","passed":true},
+    {"name":"exact_subject_authoritative","observed_status":"profile_loaded","passed":true},
+    {"name":"verified_email_detects_but_never_claims_legacy","observed_status":"identity_migration_required","passed":true},
+    {"name":"browser_email_cannot_transfer_ownership","observed_status":"profile_created","passed":true},
+    {"name":"browser_only_email_never_claims_existing_row","observed_status":"profile_created","passed":true,"note":"A separate profile may be created with the same compatibility email when no verified email claim is present; the pre-existing row remains unclaimed. This is data-quality/identity-hygiene behavior, not ownership transfer."}
+  ],
+  "transaction_rolled_back": true,
+  "synthetic_residue": {
+    "synthetic_email_rows": 0,
+    "synthetic_subject_rows": 0
+  },
+  "state": "IDENTITY_STAGING_RUNTIME_VERIFIED",
+  "production_mutated": false
+}
