@@ -1,0 +1,37 @@
+{
+  "schema": "vvip.tiger/srpc-attestation-summary/v1",
+  "release_id": "global-launch-phase-b",
+  "source_commit_h0": "e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0",
+  "migration_path": "supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql",
+  "migration_sha256": "9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9",
+  "staging": {
+    "branch": "lc04-sovereign-staging-20260807",
+    "project_ref": "mduummtnlupktjaujgyx",
+    "parent_project_ref": "zelcngyyvbomuzokvuxo",
+    "runtime_status": "PASS",
+    "phase_a_regression_status": "PASS",
+    "synthetic_residue_zero": true,
+    "material_security_findings": 0
+  },
+  "attestation": {
+    "control_plane_commit": "fcfa502fff08739e9c4c27c282b04dce44053088",
+    "workflow": ".github/workflows/srpc-phase-b-attest.yml",
+    "run_id": 31299322769,
+    "job_id": 93209445686,
+    "artifact_id": 9033995496,
+    "artifact_zip_sha256": "161a22a637a3dfb112ed7426745e1a14b1569ae9724b3d92f5ca14fcbec0536f",
+    "capsule_sha256": "5d9f6eda18680995dae15801c4461170defb732b6e17dddd36dc46cb1d6ce077",
+    "provenance_attestation_valid": true,
+    "vvip_attestation_valid": true,
+    "in_toto_statement": "v1",
+    "provenance_predicate_type": "https://slsa.dev/provenance/v1",
+    "vvip_predicate_type": "https://vvip.tiger/attestation/staging-promotion/v1",
+    "transparency_log_entries_per_bundle": 1
+  },
+  "decision": {
+    "machine_state": "ELIGIBLE_FOR_SECURITY_REVIEW",
+    "security_approved": false,
+    "steel_shield_pin": "NOT_PERFORMED",
+    "production": "BLOCKED"
+  }
+}
