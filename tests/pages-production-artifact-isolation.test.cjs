@@ -19,3 +19,16 @@ test('production Pages artifact is built outside the checkout source tree', () =
   assert.doesNotMatch(yaml, /--output\s+["']?dist\/public["']?/);
   assert.match(yaml, /path:\s*["']?\$\{\{\s*runner\.temp\s*\}\}\/vvip-public["']?/);
 });
+
+test('production deploy performs live same-SHA public surface verification', () => {
+  const yaml = workflow();
+
+  assert.match(yaml, /name:\s*Verify deployed production surface/);
+  assert.match(yaml, /VVIP_PAGE_URL:\s*\$\{\{\s*steps\.deployment\.outputs\.page_url\s*\}\}/);
+  assert.match(yaml, /VVIP_SOURCE_SHA:\s*\$\{\{\s*github\.sha\s*\}\}/);
+  assert.match(yaml, /runtime-config\.js/);
+  assert.match(yaml, /sw-vvip-static\.js/);
+  assert.match(yaml, /scripts\/vvip-safe-ux-guard\.js/);
+  assert.match(yaml, /VVIP_POST_DEPLOY_SMOKE=PASS/);
+  assert.match(yaml, /grep\s+-Fq\s+["']?\$VVIP_SOURCE_SHA["']?/);
+});
