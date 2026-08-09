@@ -1,0 +1,19 @@
+{
+  "schema": "https://vvip.tiger/smg/merge-authorization/v1",
+  "repository": "vvipautoparts-blip/TIGER-VVIP",
+  "pull_request": 181,
+  "approved_head": "1e7fb3c1e43415e5bfaee957b6ab553ae68bc139",
+  "expected_main_base": "4cc292e626fea39f3b0e56b98781d521efef789d",
+  "migration": {
+    "path": "supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql",
+    "sha256": "9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9"
+  },
+  "h1_checks": "GREEN",
+  "srpc_staging": "VERIFIED",
+  "srpc_attestation": "VERIFIED",
+  "steel_shield_pin": "VERIFIED_GREEN",
+  "owner_merge_authorized": false,
+  "authority_scope": "MERGE_ONLY",
+  "production_authority": "NONE",
+  "state": "AWAITING_EXACT_OWNER_AUTHORIZATION"
+}

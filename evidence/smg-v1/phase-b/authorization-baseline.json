@@ -1,0 +1,46 @@
+{
+  "schema": "https://vvip.tiger/smg/authorization-baseline/v1",
+  "repository": "vvipautoparts-blip/TIGER-VVIP",
+  "pull_request": 181,
+  "approved_head": "1e7fb3c1e43415e5bfaee957b6ab553ae68bc139",
+  "head_branch": "feat/launch-home-runtime-convergence-20260808",
+  "base_ref": "main",
+  "expected_main_base": "4cc292e626fea39f3b0e56b98781d521efef789d",
+  "pr_state": "open",
+  "draft": true,
+  "mergeable": true,
+  "mergeable_state": "blocked",
+  "auto_merge": null,
+  "migration": {
+    "path": "supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql",
+    "sha256": "9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9"
+  },
+  "h1_checks": {
+    "source": "GitHub Check Runs API",
+    "total_count": 16,
+    "all_completed_success": true,
+    "legacy_combined_status_used": false,
+    "evidence_endpoint": "/repos/vvipautoparts-blip/TIGER-VVIP/commits/1e7fb3c1e43415e5bfaee957b6ab553ae68bc139/check-runs?per_page=100"
+  },
+  "smg_control_plane": {
+    "commit": "13f6e1d9d7ef874744c6f5f8ad1985339b893eb8",
+    "proof_run_id": 31301155927,
+    "proof_job_id": 93214047194,
+    "proof_conclusion": "success",
+    "artifact_id": 9034521836,
+    "artifact_name": "smg-v1-proof-13f6e1d9d7ef874744c6f5f8ad1985339b893eb8",
+    "artifact_sha256": "05835cc27011481b0a343e7992f80cb413eab351383d904b5d1cb37775d92f3b",
+    "artifact_control_sha": "13f6e1d9d7ef874744c6f5f8ad1985339b893eb8",
+    "artifact_migration_sha256": "9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9"
+  },
+  "srpc": {
+    "staging": "VERIFIED",
+    "attestation": "VERIFIED",
+    "steel_shield_pin": "VERIFIED_GREEN",
+    "release_capsule_sha256": "5d9f6eda18680995dae15801c4461170defb732b6e17dddd36dc46cb1d6ce077"
+  },
+  "owner_merge_authorized": false,
+  "authority_scope": "MERGE_ONLY",
+  "production_authority": "NONE",
+  "state": "AWAITING_EXACT_OWNER_AUTHORIZATION"
+}
