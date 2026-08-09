@@ -1,0 +1,74 @@
+{
+  "schema_version": "PRG_V1_OWNER_ACTION_QUEUE",
+  "generated_at": "2026-08-09T17:35:00+03:00",
+  "repository": "vvipautoparts-blip/TIGER-VVIP",
+  "policy": "Human-only actions are accumulated; autonomous technical work continues independently.",
+  "actions": [
+    {
+      "id": "OA-01",
+      "priority": "BLOCKING_BEFORE_PUBLIC_RELEASE",
+      "system": "Clerk + DNS provider",
+      "action": "Complete Clerk Production domain DNS connection for clerk.tigerautoparts.shop and verify Clerk marks the domain/DNS setup complete.",
+      "reason": "Production Clerk instance exists and key maps to clerk.tigerautoparts.shop, but DNS connection has not been independently verified.",
+      "requires_secret_sharing": false,
+      "status": "PENDING_OWNER_EXTERNAL_UI"
+    },
+    {
+      "id": "OA-02",
+      "priority": "BLOCKING_BEFORE_CUSTOM_DOMAIN_RELEASE",
+      "system": "GitHub Pages + DNS provider",
+      "action": "In Repository Settings > Pages set Custom domain to tigerautoparts.shop, preferably verify domain ownership first, then configure apex DNS records with the DNS provider. For an Actions-based Pages workflow the repository CNAME file is ignored and does not configure the custom domain.",
+      "reason": "GitHub Pages API currently reports cname=null and the Pages source is a custom GitHub Actions workflow.",
+      "requires_secret_sharing": false,
+      "status": "PENDING_OWNER_EXTERNAL_UI"
+    },
+    {
+      "id": "OA-03",
+      "priority": "SECURITY_HARDENING_RECOMMENDED_BEFORE_PRODUCTION",
+      "system": "GitHub Actions release workflow",
+      "action": "Approve the proposed release-workflow hardening design with the exact phrase APPROVE_RELEASE_WORKFLOW_HARDENING so a reviewed change can replace push-to-main deployment with explicit exact-SHA release triggering, pin GitHub Actions to immutable commits, move pages/id-token permissions to the deploy job only, and remove dependency drift in the release job.",
+      "reason": "Current pages.yml is fail-closed behind human environments but still auto-creates a production release attempt on every main push, uses mutable major action tags, grants deployment permissions at workflow scope, upgrades pip dynamically, and installs pytest unpinned.",
+      "requires_secret_sharing": false,
+      "status": "PENDING_DESIGN_APPROVAL"
+    },
+    {
+      "id": "OA-04",
+      "priority": "CONDITIONAL",
+      "system": "Clerk",
+      "action": "If Google sign-in is required at launch, configure and verify Clerk Production Google credentials before the release. If launch uses other provider-managed methods only, explicitly mark Google sign-in out of launch scope.",
+      "reason": "Clerk Production setup showed Google sign-in custom credentials not yet completed; requirement depends on the intended launch authentication methods.",
+      "requires_secret_sharing": false,
+      "status": "PENDING_OWNER_SCOPE_DECISION"
+    },
+    {
+      "id": "OA-05",
+      "priority": "SOVEREIGN_PRODUCTION_GATE",
+      "system": "ChatGPT / PRG",
+      "action": "Only after all blocking prerequisites and any approved hardening are reverified, send exactly APPROVE_PRODUCTION_RELEASE_EXACT.",
+      "reason": "This is the separate sovereign authorization for exact Production Phase B migration, postflight proof, and exact release workflow trigger. It does not authorize country activation, persistent owner seeding or real user/business data mutation.",
+      "requires_secret_sharing": false,
+      "status": "NOT_YET_ELIGIBLE"
+    },
+    {
+      "id": "OA-06",
+      "priority": "RUNTIME_HUMAN_ENFORCEMENT",
+      "system": "GitHub Environment production-build",
+      "action": "When an authorized production run is waiting, sign in as nzuodezuode-byte and approve production-build only after PRG reports the exact run/SHA as expected.",
+      "reason": "Prevent self-review is enabled and the triggering technical account cannot approve its own protected environment.",
+      "requires_secret_sharing": false,
+      "status": "FUTURE_AFTER_AUTHORIZATION"
+    },
+    {
+      "id": "OA-07",
+      "priority": "RUNTIME_HUMAN_ENFORCEMENT",
+      "system": "GitHub Environment github-pages",
+      "action": "Approve github-pages as nzuodezuode-byte only after the build manifest and source SHA are verified green for the same authorized run.",
+      "reason": "The deploy environment is an independent second human gate and administrator bypass is disabled.",
+      "requires_secret_sharing": false,
+      "status": "FUTURE_AFTER_BUILD_PROOF"
+    }
+  ],
+  "production_authorized": false,
+  "production_deployed": false,
+  "country_activation_authorized": false
+}
