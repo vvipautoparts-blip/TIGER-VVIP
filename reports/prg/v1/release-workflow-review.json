@@ -1,0 +1,40 @@
+{
+  "schema_version": "PRG_V1_RELEASE_WORKFLOW_REVIEW",
+  "repository": "vvipautoparts-blip/TIGER-VVIP",
+  "source_sha": "35352136090bd39d9dd6bddc6682c9b9a2d3cafc",
+  "workflow": ".github/workflows/pages.yml",
+  "builder": "tools/vvip_public_release.py",
+  "positive_controls": {
+    "production_build_environment": "production-build",
+    "deploy_environment": "github-pages",
+    "release_manifest_must_be_eligible": true,
+    "release_manifest_source_sha_must_match": true,
+    "builder_removes_development_clerk_script_surfaces": true,
+    "builder_rejects_pk_test_marker": true,
+    "builder_rejects_clerk_dev_domain": true,
+    "builder_rejects_test_demo_publish_markers": true,
+    "builder_uses_allowlisted_public_files": true,
+    "environment_human_gates_verified": true
+  },
+  "supply_chain_observations": {
+    "actions_checkout_reference": "actions/checkout@v6",
+    "actions_checkout_current_v6_commit": "d23441a48e516b6c34aea4fa41551a30e30af803",
+    "setup_node_reference": "actions/setup-node@v6",
+    "setup_node_current_v6_commit": "249970729cb0ef3589644e2896645e5dc5ba9c38",
+    "setup_python_reference": "actions/setup-python@v6",
+    "setup_python_current_v6_commit": "ece7cb06caefa5fff74198d8649806c4678c61a1",
+    "upload_pages_artifact_reference": "actions/upload-pages-artifact@v4",
+    "upload_pages_artifact_current_v4_commit": "7b1f4a764d45c48632c6b24a0339c27f5614fb0b",
+    "deploy_pages_reference": "actions/deploy-pages@v4",
+    "deploy_pages_current_v4_commit": "d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e",
+    "mutable_major_action_tags_present": true,
+    "pip_self_upgrade_present": true,
+    "pytest_install_unpinned_in_workflow": true,
+    "requirements_dev_jsonschema_pinned": "4.23.0"
+  },
+  "classification": "FUNCTIONALLY_FAIL_CLOSED_BUT_SUPPLY_CHAIN_HARDENING_RECOMMENDED_BEFORE_PRODUCTION",
+  "pre_release_hardening_recommended": true,
+  "hardening_code_change_performed": false,
+  "reason_no_change_performed": "A workflow hardening change would create a new release source after H2 and requires a separately reviewed design/change cycle; it is queued rather than silently changing the frozen release subject.",
+  "production_authorized": false
+}
