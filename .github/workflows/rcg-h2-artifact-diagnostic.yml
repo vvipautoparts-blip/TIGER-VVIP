@@ -1,0 +1,197 @@
+name: RCG H2 Artifact Diagnostic
+
+on:
+  push:
+    branches:
+      - diag/rcg-h2-artifact-20260809
+    paths:
+      - .github/workflows/rcg-h2-artifact-diagnostic.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rcg-h2-artifact-diagnostic
+  cancel-in-progress: false
+
+env:
+  H2_SHA: 35352136090bd39d9dd6bddc6682c9b9a2d3cafc
+
+jobs:
+  synthetic-valid-config:
+    name: Exact H2 with synthetic valid public config
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact H2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.H2_SHA }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: "3.12"
+
+      - name: Verify exact source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$H2_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+
+      - name: Reproduce production builder with synthetic valid public config
+        shell: bash
+        run: |
+          set -euo pipefail
+          export TIGER_CLERK_PUBLISHABLE_KEY="$(python - <<'PY'
+          import base64
+          print('pk_live_' + base64.b64encode(b'clerk.vvip.example$').decode('ascii'))
+          PY
+          )"
+          export TIGER_SUPABASE_URL="https://synthetic.supabase.co"
+          export TIGER_SUPABASE_PUBLISHABLE_KEY="sb_publishable_synthetic_only"
+          export TIGER_DEFAULT_COUNTRY_CODE="US"
+          set +e
+          python tools/vvip_public_release.py \
+            --source . \
+            --output "$RUNNER_TEMP/public-synthetic" \
+            --mode production \
+            --source-sha "$H2_SHA" \
+            --include-cname
+          rc=$?
+          set -e
+          python - "$RUNNER_TEMP/public-synthetic/release-manifest.json" "$rc" > "$RUNNER_TEMP/synthetic-result.json" <<'PY'
+          import json, pathlib, sys
+          manifest_path = pathlib.Path(sys.argv[1])
+          rc = int(sys.argv[2])
+          manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
+          result = {
+              'test': 'exact_h2_synthetic_valid_config',
+              'source_sha': '35352136090bd39d9dd6bddc6682c9b9a2d3cafc',
+              'builder_rc': rc,
+              'manifest_present': manifest_path.exists(),
+              'release_eligible': manifest.get('releaseEligible'),
+              'configuration_errors': manifest.get('configurationErrors', []),
+              'forbidden_findings': manifest.get('forbiddenFindings', []),
+          }
+          print(json.dumps(result, sort_keys=True))
+          PY
+          cat "$RUNNER_TEMP/synthetic-result.json"
+          test "$rc" -eq 0
+
+      - name: Upload sanitized synthetic diagnosis
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: rcg-h2-synthetic-diagnosis
+          path: ${{ runner.temp }}/synthetic-result.json
+          if-no-files-found: error
+          retention-days: 7
+
+  production-build-config:
+    name: Exact H2 with sanitized production-build diagnosis
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: production-build
+    env:
+      TIGER_CLERK_PUBLISHABLE_KEY: ${{ secrets.TIGER_CLERK_PUBLISHABLE_KEY }}
+      TIGER_SUPABASE_URL: ${{ secrets.TIGER_SUPABASE_URL }}
+      TIGER_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.TIGER_SUPABASE_PUBLISHABLE_KEY }}
+      TIGER_DEFAULT_COUNTRY_CODE: ${{ vars.TIGER_DEFAULT_COUNTRY_CODE }}
+    steps:
+      - name: Checkout exact H2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.H2_SHA }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: "3.12"
+
+      - name: Verify exact source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$H2_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+
+      - name: Classify production-build configuration without revealing values
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY' > "$RUNNER_TEMP/config-shape.json"
+          import base64, json, os, re
+          clerk = os.environ.get('TIGER_CLERK_PUBLISHABLE_KEY', '')
+          supabase_url = os.environ.get('TIGER_SUPABASE_URL', '')
+          public_key = os.environ.get('TIGER_SUPABASE_PUBLISHABLE_KEY', '')
+          country = os.environ.get('TIGER_DEFAULT_COUNTRY_CODE', '').upper()
+          frontend = None
+          if clerk.startswith('pk_live_'):
+              payload = clerk[len('pk_live_'):].replace('-', '+').replace('_', '/')
+              payload += '=' * ((4 - len(payload) % 4) % 4)
+              try:
+                  frontend = base64.b64decode(payload, validate=True).decode('utf-8').rstrip('$').strip().lower()
+              except Exception:
+                  frontend = None
+          result = {
+              'clerk_present': bool(clerk),
+              'clerk_live_prefix': clerk.startswith('pk_live_'),
+              'clerk_payload_valid': bool(frontend and re.fullmatch(r'[A-Za-z0-9.-]+', frontend) and '..' not in frontend),
+              'clerk_is_dev_domain': bool(frontend and (frontend == 'clerk.accounts.dev' or frontend.endswith('.clerk.accounts.dev'))),
+              'supabase_url_present': bool(supabase_url),
+              'supabase_url_shape_valid': bool(re.fullmatch(r'https://[A-Za-z0-9.-]+', supabase_url)),
+              'supabase_public_key_present': bool(public_key),
+              'supabase_public_key_forbidden_token': bool(public_key and any(t in public_key.lower() for t in ('secret', 'service_role'))),
+              'country_present': bool(country),
+              'country_shape_valid_or_empty': (not country) or bool(re.fullmatch(r'[A-Z]{2}', country)),
+          }
+          print(json.dumps(result, sort_keys=True))
+          PY
+          cat "$RUNNER_TEMP/config-shape.json"
+
+      - name: Reproduce production builder and emit sanitized reason only
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          python tools/vvip_public_release.py \
+            --source . \
+            --output "$RUNNER_TEMP/public-production-shape" \
+            --mode production \
+            --source-sha "$H2_SHA" \
+            --include-cname \
+            >/dev/null 2>/dev/null
+          rc=$?
+          set -e
+          python - "$RUNNER_TEMP/public-production-shape/release-manifest.json" "$RUNNER_TEMP/config-shape.json" "$rc" > "$RUNNER_TEMP/production-result.json" <<'PY'
+          import json, pathlib, sys
+          manifest_path = pathlib.Path(sys.argv[1])
+          shape_path = pathlib.Path(sys.argv[2])
+          rc = int(sys.argv[3])
+          manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
+          shape = json.loads(shape_path.read_text())
+          result = {
+              'test': 'exact_h2_production_build_sanitized',
+              'source_sha': '35352136090bd39d9dd6bddc6682c9b9a2d3cafc',
+              'builder_rc': rc,
+              'manifest_present': manifest_path.exists(),
+              'release_eligible': manifest.get('releaseEligible'),
+              'configuration_shape': shape,
+              'configuration_errors': manifest.get('configurationErrors', []),
+              'forbidden_findings': manifest.get('forbiddenFindings', []),
+          }
+          print(json.dumps(result, sort_keys=True))
+          PY
+          cat "$RUNNER_TEMP/production-result.json"
+
+      - name: Upload sanitized production-build diagnosis
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: rcg-h2-production-build-diagnosis
+          path: ${{ runner.temp }}/production-result.json
+          if-no-files-found: error
+          retention-days: 7
