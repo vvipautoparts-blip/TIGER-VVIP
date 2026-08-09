@@ -1,0 +1,18 @@
+{
+  "schema": "https://vvip.tiger/smg/merge-attempt-blocked/v1",
+  "repository": "vvipautoparts-blip/TIGER-VVIP",
+  "pull_request": 181,
+  "approved_head": "1e7fb3c1e43415e5bfaee957b6ab553ae68bc139",
+  "expected_main_base": "4cc292e626fea39f3b0e56b98781d521efef789d",
+  "merge_method": "merge",
+  "expected_head_sha_enforced": true,
+  "result": "BLOCKED_BY_REPOSITORY_RULE",
+  "github_status": 405,
+  "reason": "At least 1 approving review is required by reviewers with write access.",
+  "requested_reviewer": "nzuodezuode-byte",
+  "requested_reviewer_permission": "write",
+  "authorization_consumed": false,
+  "production_authority": "NONE",
+  "production_actions_performed": false,
+  "state": "AWAITING_REQUIRED_APPROVING_REVIEW"
+}
