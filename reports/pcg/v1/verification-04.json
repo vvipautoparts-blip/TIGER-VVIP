@@ -1,0 +1,43 @@
+{
+  "schema_version": "PCG_V1_VERIFICATION_RECORD",
+  "verification_number": 4,
+  "repository": "vvipautoparts-blip/TIGER-VVIP",
+  "h2_sha": "35352136090bd39d9dd6bddc6682c9b9a2d3cafc",
+  "pcg_control_commit": "b394d472830478561daad4a8d962073055f252d8",
+  "workflow_run_id": 31313918412,
+  "workflow_job_id": 93245960952,
+  "workflow_conclusion": "success",
+  "sanitized_artifact": {
+    "id": 9038166276,
+    "zip_sha256": "8b7dfff4be40ca02afaad5b0f6ed949ce2a3d54a2a67f76e89304ab1392f60d7",
+    "proof_json_sha256": "0896e4dc69d32b2219996118c112dc86c916a57c65d5e1324d91be7e9d56fe35"
+  },
+  "checks": {
+    "clerk_present": true,
+    "clerk_live_prefix": true,
+    "clerk_payload_valid": true,
+    "clerk_frontend_api_matches_production_domain": true,
+    "clerk_exact_candidate_match": true,
+    "clerk_verified": true,
+    "supabase_url_present": true,
+    "supabase_url_exact_candidate_match": true,
+    "supabase_publishable_key_present": true,
+    "supabase_publishable_key_exact_candidate_match": true,
+    "default_country_absent": true
+  },
+  "artifact_builder": {
+    "executed": true,
+    "rc": 0,
+    "release_eligible": true,
+    "configuration_errors": [],
+    "forbidden_findings": []
+  },
+  "state": "PCG_VALUES_VERIFIED_ARTIFACT_ELIGIBLE",
+  "pcg_closed": true,
+  "production_deploy_authorized": false,
+  "production_deployed": false,
+  "production_database_mutated": false,
+  "country_activated": false,
+  "raw_values_recorded": false,
+  "next_gate": "ENVIRONMENT_HARDENING_GATE"
+}
