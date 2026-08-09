@@ -3,7 +3,7 @@
 - **Date:** 2026-08-08
 - **Architecture decision:** `docs/architecture/ADR-2026-08-08-federated-identity-sovereignty.md`
 - **Policy:** `project-control/security/federated-identity-policy.v1.json`
-- **Status:** REMOVED FROM CURRENT PRODUCT TREE
+- **Current status:** EXECUTABLE PASSWORD RUNTIME REMOVED / DEPLOYED LEGACY CREDENTIAL RETIREMENT STILL REQUIRED
 
 ## Removed executable legacy authentication/recovery files
 
@@ -32,39 +32,50 @@ index.html?recovery=provider
 
 This preserves old bookmarks/routes while returning recovery responsibility to the external identity entry path.
 
-## Evidence of prior non-use
+## Repository regression prevention
 
-The historical audit `docs/VVIP_TIGER_LEGACY_AUTH_AUDIT.md` had already classified `auth.js`, `auth-supabase.js`, and `scripts/supabase-auth-bridge.js` as old/non-official. Repository searches before deletion found no current HTML `<script src>` references to those three authentication runtimes.
+`tests/federated-identity-sovereignty.test.cjs` keeps the retired executable runtime paths absent, scans owned authentication/runtime surfaces for first-party password sign-in/reset/sign-up constructs, and verifies the legacy reset URL is redirect-only.
 
-`reset-password.js` was still referenced only by the legacy reset page; that page was converted in the same slice to a provider-recovery compatibility redirect before the script was removed.
+Fresh repository search on 2026-08-09 also found zero current `signInWithPassword` and zero `supabase.auth` code references in the launch tree.
 
-## Files intentionally retained
+## Profile-linking gap — deployed remediation verified
 
-`auth-flow.html` is retained because it is a safe redirect to `index.html` and does not implement authentication or password handling.
-
-`reset-password.html` is retained only as the delegated-recovery compatibility redirect described above.
-
-Other historical documentation is retained only where it does not create broken executable references; obsolete authentication setup guides are explicitly marked historical/non-executable. Git history preserves deleted source for forensic or rollback inspection without leaving it executable in the current tree.
-
-## Regression prevention
-
-`tests/federated-identity-sovereignty.test.cjs`:
-
-- requires all four retired executable runtime paths to remain absent;
-- scans owned authentication/runtime surfaces for first-party password sign-in/reset/sign-up constructs;
-- verifies the legacy reset URL is redirect-only and contains no Firebase or reset form.
-
-A future password runtime may not be reintroduced silently. Any change to the federated-only architecture requires an explicit owner-approved superseding ADR.
-
-## Remaining independent identity gap
-
-Removal of legacy password runtimes does **not** resolve the separate historical profile-linking issue in `vvip_resolve_own_profile`: the `legacy_profile_recovered` email-matching ownership transfer path remains a known gap and must be replaced by a new forward migration before Production identity launch.
+The separate historical `legacy_profile_recovered` email ownership-transfer path is no longer present in the deployed Production resolver. Current Production verification confirms:
 
 ```text
-LEGACY_PASSWORD_RUNTIME=REMOVED
+LEGACY_PROFILE_RECOVERED_PRESENT=false
+IDENTITY_MIGRATION_REQUIRED_PRESENT=true
+EXACT_SUBJECT_LOOKUP_PRESENT=true
+EMAIL_OWNERSHIP_UPDATE_PATTERN_DETECTED=false
+```
+
+That profile-linking gap is therefore closed independently of password-runtime removal.
+
+## Remaining deployed credential surface — blocking
+
+Removing executable password code did not remove historical credentials already stored in Supabase Auth. Read-only Production inspection on 2026-08-09 found:
+
+```text
+SUPABASE_AUTH_USERS=7
+EMAIL_PROVIDER_USERS=7
+USERS_WITH_ENCRYPTED_PASSWORD=7
+CONFIRMED_EMAIL_USERS=6
+AUTH_SESSIONS=4
+REFRESH_TOKENS=6
+REFRESH_TOKENS_NOT_REVOKED=4
+LATEST_LEGACY_SIGN_IN=2026-07-05
+```
+
+This is a **deployed credential-retirement issue**, not a current repository runtime path. The binding policy explicitly requires federated identity only and forbids a parallel Supabase password authentication system.
+
+The retirement must be performed through a separate protected security gate that disables the legacy provider surface, revokes sessions/tokens, preserves `public.profiles`, and avoids any email-based auto-linking. Historical Auth users must not be silently deleted merely because the current UI no longer calls them.
+
+```text
+LEGACY_PASSWORD_RUNTIME=REMOVED_FROM_PRODUCT_TREE
 LOCAL_PASSWORD_RECOVERY=REMOVED
+PROFILE_EMAIL_AUTO_LINKING_GAP=CLOSED_IN_PRODUCTION
+LEGACY_SUPABASE_PASSWORD_CREDENTIAL_SURFACE=RETIREMENT_REQUIRED
 DELEGATED_RECOVERY=REQUIRED
 FEDERATED_IDENTITY_POLICY=BINDING
-EMAIL_AUTO_LINKING_GAP=OPEN
-PRODUCTION_DB_MUTATION=NOT_AUTHORIZED
+PRODUCTION_CREDENTIAL_RETIREMENT=NOT_AUTHORIZED
 ```
