@@ -4,9 +4,9 @@
 
 **Goal:** Implement and execute SRPC v1 for Global Launch Phase B so the exact migration at H0 is proven on Staging, cryptographically attested, independently approved, content-addressed in Steel Shield through a pin-only H1, and re-verified by fresh exact-head CI before Production can become eligible.
 
-**Architecture:** Keep the product candidate H0 immutable while building SRPC tooling on a separate control-plane branch. GitHub Actions proves source/capsule provenance and signs attestations; the connected Supabase control plane performs the single named migration because it provides the audited `apply_migration` primitive without running the pending queue or manually editing the migration ledger. Security approval and Steel Shield pinning remain separate from proof generation.
+**Architecture:** Keep the product candidate H0 immutable while building SRPC tooling on a separate control-plane branch. GitHub Actions proves source/capsule provenance and signs attestations; the connected Supabase control plane performs the single named migration because it exposes the audited `apply_migration` primitive without running a pending queue or requiring a manual migration-ledger write. Proof generation, security approval, Steel Shield pinning, fresh CI, and Production promotion remain separate authority domains.
 
-**Tech Stack:** Python 3.12, `jsonschema==4.23.0`, Node.js 22 `node:test`, Bash, PostgreSQL 17/Supabase, GitHub Actions, `actions/attest@v4`, GitHub CLI attestation verification, SHA-256.
+**Tech Stack:** Python 3.12, `jsonschema==4.23.0`, Node.js 22 `node:test`, Bash, PostgreSQL 17/Supabase, GitHub Actions, GitHub Artifact Attestations/Sigstore, GitHub CLI attestation verification, SHA-256.
 
 ## Global Constraints
 
@@ -15,33 +15,47 @@
 - Frozen Phase B source commit H0: `e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0`.
 - Migration: `supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql`.
 - Frozen migration SHA-256: `9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9`.
-- Staging branch name: `lc04-sovereign-staging-20260807`; resolve its current `project_ref` immediately before any DDL.
-- Current Production project ref is `zelcngyyvbomuzokvuxo`; re-resolve before Production work.
+- Staging branch name: `lc04-sovereign-staging-20260807`; resolve its live `project_ref` immediately before any DDL.
+- Current Production project ref observed at design time: `zelcngyyvbomuzokvuxo`; re-resolve before Production work.
 - H0 migration bytes must never change during Staging proof.
 - Do not use `supabase db push`, run-all-pending, migration loops, queue replay, or manual writes to `supabase_migrations.schema_migrations`.
 - Do not place Production credentials in any Staging proof job or evidence file.
 - Do not auto-pin Steel Shield.
-- Do not merge PR #181 or perform Production DDL during Tasks 1-11.
+- Do not merge PR #181 or perform Production DDL before the independent security gate and fresh H1 CI.
 - Missing evidence is a failure.
-- Any byte mismatch invalidates the release capsule and stops the chain.
-- The control-plane branch is not H1 and must not be merged into PR #181 as part of the pin-only change.
-- H1 is H0 plus the authorized Steel Shield reviewed-hash edit only.
+- Any byte mismatch invalidates the Release Capsule and stops the chain.
+- The SRPC control-plane branch is never H1 and is never merged into PR #181 as part of Phase B pinning.
+- H1 is H0 plus exactly one authorized Steel Shield reviewed-hash edit.
 - Production remains owner/security gated even after `PRODUCTION_ELIGIBLE`.
-- Evidence files must contain no passwords, access tokens, service-role values, private database URLs, or user-data dumps.
+- Evidence must contain no passwords, access tokens, service-role values, private DB URLs, or user-data dumps.
+- A stale concurrency lock is fail-closed; it is never auto-cleared without checking provider state.
+
+## Verified GitHub Action Pins
+
+Use exact commit SHAs in SRPC workflows:
+
+```text
+actions/checkout        3d3c42e5aac5ba805825da76410c181273ba90b1
+actions/setup-python    ece7cb06caefa5fff74198d8649806c4678c61a1
+actions/upload-artifact b7c566a772e6b6bfb58ed0dc250532a479d7789f
+actions/attest          508db95dd578ae2727ebd6217d5ba78e4fbda05d
+```
+
+No SRPC workflow may use mutable `@main`, `@master`, or major-version tags after implementation.
 
 ---
 
 ## File Map
 
-Control-plane files to create on `feat/srpc-v1-control-plane-20260809`:
+Create on `feat/srpc-v1-control-plane-20260809`:
 
-- `tools/srpc/constants.py` — frozen Phase B identities and STOP codes.
-- `tools/srpc/source_lock.py` — exact source/path/hash verifier.
-- `tools/srpc/capsule.py` — deterministic Release Capsule builder and secret scanner.
+- `tools/srpc/constants.py` — frozen identities, action pins, STOP codes.
+- `tools/srpc/source_lock.py` — exact source/path/hash verifier and CLI.
+- `tools/srpc/capsule.py` — deterministic capsule builder and secret scanner.
 - `tools/srpc/classifier.py` — ledger/schema State A-E classifier.
-- `tools/srpc/decision.py` — monotonic evidence-state evaluator.
-- `tools/srpc/pin_guard.py` — H0/H1 migration-byte and diff guard.
-- `tools/srpc/validate_evidence.py` — JSON schema validation entrypoint.
+- `tools/srpc/decision.py` — monotonic evidence-state engine.
+- `tools/srpc/pin_guard.py` — H0/H1 byte and diff invariance guard.
+- `tools/srpc/validate_evidence.py` — JSON schema validation.
 - `scripts/release/srpc/schema/release-manifest.schema.json`.
 - `scripts/release/srpc/schema/staging-evidence.schema.json`.
 - `scripts/release/srpc/sql/staging-schema-fingerprint.sql`.
@@ -57,15 +71,23 @@ Control-plane files to create on `feat/srpc-v1-control-plane-20260809`:
 - `tests/srpc-sql-contracts.test.cjs`.
 - `tests/srpc-workflow-contracts.test.cjs`.
 
-Runtime evidence lives only on the SRPC control branch under:
+Runtime evidence lives only on the SRPC control plane under:
 
 `reports/srpc/phase-b/e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0/`
 
-It contains sanitized machine evidence and the final capsule inputs. It is never merged into the pin-only H1.
+Concurrency locks live under:
+
+`reports/srpc/locks/phase-b-staging.lock`
+
+and, later:
+
+`reports/srpc/locks/phase-b-production.lock`
+
+Neither evidence nor locks are merged into pin-only H1.
 
 ---
 
-### Task 1: Create the isolated SRPC control plane and exact source lock
+### Task 1: Isolate SRPC control plane and implement exact source lock
 
 **Files:**
 - Create: `tools/srpc/constants.py`
@@ -73,63 +95,48 @@ It contains sanitized machine evidence and the final capsule inputs. It is never
 - Create: `tests/test_srpc_source_lock.py`
 
 **Interfaces:**
-- Consumes: an explicit source directory and actual checked-out commit SHA.
-- Produces: JSON containing `source_commit`, `migration_path`, `migration_sha256`, and `status`.
-- Later tasks consume this JSON as the only source identity input.
+- Consumes: explicit source directory, actual checked-out SHA, expected SHA/path/hash.
+- Produces: JSON source proof.
 
-- [ ] **Step 1: Create the implementation branch from the approved documentation branch**
+- [ ] **Step 1: Create isolated implementation branch**
 
-Run:
+Create `feat/srpc-v1-control-plane-20260809` from `docs/srpc-v1-design-20260809`. Do not branch from the live PR #181 head after H0 and do not update PR #181.
 
-```bash
-git switch docs/srpc-v1-design-20260809
-git switch -c feat/srpc-v1-control-plane-20260809
-```
-
-Expected: the new branch contains the approved SRPC spec/plan and has H0 in its ancestry, while PR #181 remains untouched.
-
-- [ ] **Step 2: Write the failing source-lock tests**
+- [ ] **Step 2: Write RED tests**
 
 Create `tests/test_srpc_source_lock.py`:
 
 ```python
 import hashlib
 from pathlib import Path
-
 import pytest
-
 from tools.srpc.source_lock import verify_source
 
 H0 = "e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0"
 PATH = "supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql"
-DIGEST = "9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9"
 
-def test_source_lock_accepts_exact_identity(tmp_path: Path):
-    migration = tmp_path / PATH
-    migration.parent.mkdir(parents=True)
-    migration.write_bytes(b"exact")
+def test_accepts_exact(tmp_path: Path):
+    p = tmp_path / PATH
+    p.parent.mkdir(parents=True)
+    p.write_bytes(b"exact")
     digest = hashlib.sha256(b"exact").hexdigest()
-    result = verify_source(tmp_path, H0, H0, PATH, digest)
-    assert result["status"] == "PASS"
-    assert result["migration_sha256"] == digest
+    assert verify_source(tmp_path, H0, H0, PATH, digest)["status"] == "PASS"
 
-def test_source_lock_rejects_commit_mismatch(tmp_path: Path):
-    migration = tmp_path / PATH
-    migration.parent.mkdir(parents=True)
-    migration.write_bytes(b"exact")
+def test_rejects_commit(tmp_path: Path):
+    p = tmp_path / PATH
+    p.parent.mkdir(parents=True)
+    p.write_bytes(b"exact")
     digest = hashlib.sha256(b"exact").hexdigest()
     with pytest.raises(ValueError, match="SRPC-001"):
         verify_source(tmp_path, "0" * 40, H0, PATH, digest)
 
-def test_source_lock_rejects_byte_mismatch(tmp_path: Path):
-    migration = tmp_path / PATH
-    migration.parent.mkdir(parents=True)
-    migration.write_bytes(b"changed")
+def test_rejects_bytes(tmp_path: Path):
+    p = tmp_path / PATH
+    p.parent.mkdir(parents=True)
+    p.write_bytes(b"changed")
     with pytest.raises(ValueError, match="SRPC-003"):
         verify_source(tmp_path, H0, H0, PATH, "f" * 64)
 ```
-
-- [ ] **Step 3: Run the tests and verify RED**
 
 Run:
 
@@ -137,74 +144,33 @@ Run:
 python -m pytest -q tests/test_srpc_source_lock.py
 ```
 
-Expected: FAIL because `tools.srpc.source_lock` does not exist.
+Expected: RED because module does not exist.
 
-- [ ] **Step 4: Implement frozen constants**
+- [ ] **Step 3: Implement constants**
 
-Create `tools/srpc/constants.py`:
+`tools/srpc/constants.py` must define the repository, H0, migration path/hash, Staging branch, the four pinned GitHub Action SHAs above, and STOP codes SRPC-001 through SRPC-017 exactly as approved in the spec.
 
-```python
-REPOSITORY = "vvipautoparts-blip/TIGER-VVIP"
-PHASE = "GLOBAL_LAUNCH_PHASE_B"
-H0 = "e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0"
-MIGRATION_PATH = "supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql"
-MIGRATION_SHA256 = "9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9"
-STAGING_BRANCH = "lc04-sovereign-staging-20260807"
-PRODUCTION_PROJECT_REF_AT_DESIGN = "zelcngyyvbomuzokvuxo"
-
-STOP = {
-    "SOURCE": "SRPC-001 SOURCE_COMMIT_MISMATCH",
-    "PATH": "SRPC-002 MIGRATION_PATH_MISMATCH",
-    "BYTES": "SRPC-003 BYTE_HASH_MISMATCH",
-    "STAGING": "SRPC-004 STAGING_IDENTITY_MISMATCH",
-    "PROD_CREDS": "SRPC-005 PRODUCTION_CREDENTIAL_EXPOSURE",
-    "RACE": "SRPC-006 LEDGER_RACE_DETECTED",
-    "DRIFT": "SRPC-007 SCHEMA_DRIFT",
-    "SCOPE": "SRPC-008 SINGLE_SCOPE_VIOLATION",
-    "RUNTIME": "SRPC-009 RUNTIME_FAILURE",
-    "SECURITY": "SRPC-010 SECURITY_POLICY_FAILURE",
-    "PHASE_A": "SRPC-011 PHASE_A_REGRESSION",
-    "RESIDUE": "SRPC-012 SYNTHETIC_RESIDUE",
-    "ATTEST": "SRPC-013 ATTESTATION_INVALID",
-    "PIN": "SRPC-014 UNAUTHORIZED_PIN",
-    "POST_PIN": "SRPC-015 POST_PIN_BYTE_DRIFT",
-    "CI": "SRPC-016 FRESH_CI_NOT_GREEN",
-    "PRODUCTION": "SRPC-017 PRODUCTION_IDENTITY_MISMATCH",
-}
-```
-
-- [ ] **Step 5: Implement `verify_source`**
-
-Create `tools/srpc/source_lock.py`:
+- [ ] **Step 4: Implement pure source verifier**
 
 ```python
 from __future__ import annotations
-
 import hashlib
 from pathlib import Path
 
-def verify_source(
-    source_root: Path,
-    actual_commit: str,
-    expected_commit: str,
-    migration_path: str,
-    expected_sha256: str,
-) -> dict:
+def verify_source(source_root: Path, actual_commit: str, expected_commit: str,
+                  migration_path: str, expected_sha256: str) -> dict:
     if actual_commit != expected_commit:
         raise ValueError(
             f"SRPC-001 SOURCE_COMMIT_MISMATCH expected={expected_commit} actual={actual_commit}"
         )
-
     target = source_root / migration_path
     if not target.is_file():
         raise ValueError(f"SRPC-002 MIGRATION_PATH_MISMATCH path={migration_path}")
-
     actual_sha256 = hashlib.sha256(target.read_bytes()).hexdigest()
     if actual_sha256 != expected_sha256:
         raise ValueError(
             f"SRPC-003 BYTE_HASH_MISMATCH expected={expected_sha256} actual={actual_sha256}"
         )
-
     return {
         "status": "PASS",
         "source_commit": actual_commit,
@@ -213,26 +179,29 @@ def verify_source(
     }
 ```
 
-- [ ] **Step 6: Verify GREEN**
+- [ ] **Step 5: Add exact CLI wrapper**
 
-Run:
+The CLI must require:
+
+```text
+--source-root
+--actual-commit
+--output
+```
+
+It imports frozen H0/path/hash from `constants.py`, calls `verify_source`, and writes sorted UTF-8 JSON with a trailing newline. No CLI option may override H0 or the expected migration hash.
+
+- [ ] **Step 6: Verify GREEN and commit**
 
 ```bash
 python -m pytest -q tests/test_srpc_source_lock.py
-```
-
-Expected: `3 passed`.
-
-- [ ] **Step 7: Commit**
-
-```bash
-git add tools/srpc/constants.py tools/srpc/source_lock.py tests/test_srpc_source_lock.py
+git add tools/srpc tests/test_srpc_source_lock.py
 git commit -m "feat(srpc): add exact source and byte lock"
 ```
 
 ---
 
-### Task 2: Build deterministic Release Capsule contracts
+### Task 2: Deterministic immutable Release Capsule
 
 **Files:**
 - Create: `scripts/release/srpc/schema/release-manifest.schema.json`
@@ -242,137 +211,96 @@ git commit -m "feat(srpc): add exact source and byte lock"
 - Create: `tests/test_srpc_capsule.py`
 
 **Interfaces:**
-- Consumes: source-lock JSON plus sanitized evidence JSON files.
-- Produces: deterministic capsule directory, `release-manifest.json`, `capsule.sha256`, and `.tar.gz`.
-- Refuses evidence containing credential-like fields or private connection strings.
+- Consumes: exact migration bytes plus sanitized evidence JSON.
+- Produces: deterministic capsule directory, deterministic `.tar.gz`, `capsule.sha256`, and manifest.
 
-- [ ] **Step 1: Write RED tests for deterministic bytes and secret rejection**
+- [ ] **Step 1: Write RED tests**
 
-Create `tests/test_srpc_capsule.py` with tests that:
-- build the same capsule twice and assert identical SHA-256;
-- reject keys named `password`, `access_token`, `service_role_key`, `database_url`;
-- reject strings beginning with `postgresql://`, `postgres://`, `sb_secret_`, or `eyJ` when stored under credential-bearing keys;
-- require `decision.production == "BLOCKED"` before the Production phase.
+Require:
+- two builds from identical inputs have identical SHA-256;
+- `migration.sql` is byte-identical to source;
+- JSON is canonicalized with sorted keys;
+- gzip header timestamp is fixed (`mtime=0`);
+- tar members use `mtime=0`, uid/gid `0`, uname/gname `root`;
+- keys `password`, `access_token`, `service_role_key`, `database_url`, `private_key` are rejected;
+- private DB URI values are rejected;
+- manifest cannot set Production true during Staging capsule build.
 
-Use:
+- [ ] **Step 2: Create `release-manifest.schema.json`**
 
-```python
-from pathlib import Path
-import json
-import pytest
-
-from tools.srpc.capsule import build_capsule
-
-def test_capsule_is_deterministic(tmp_path: Path):
-    inputs = tmp_path / "inputs"
-    inputs.mkdir()
-    (inputs / "source-lock.json").write_text(
-        json.dumps({"status": "PASS", "source_commit": "a" * 40}, sort_keys=True),
-        encoding="utf-8",
-    )
-    first = build_capsule(inputs, tmp_path / "one")
-    second = build_capsule(inputs, tmp_path / "two")
-    assert first["sha256"] == second["sha256"]
-
-def test_capsule_rejects_secret_keys(tmp_path: Path):
-    inputs = tmp_path / "inputs"
-    inputs.mkdir()
-    (inputs / "bad.json").write_text('{"service_role_key":"secret"}', encoding="utf-8")
-    with pytest.raises(ValueError, match="secret-bearing"):
-        build_capsule(inputs, tmp_path / "out")
-```
-
-- [ ] **Step 2: Run RED**
-
-```bash
-python -m pytest -q tests/test_srpc_capsule.py
-```
-
-Expected: import failure for `tools.srpc.capsule`.
-
-- [ ] **Step 3: Create the manifest schema**
-
-Require exact top-level keys:
+Required fixed values:
 
 ```json
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object",
-  "required": ["schema", "release_id", "source", "target", "execution", "verification", "decision"],
-  "additionalProperties": false,
-  "properties": {
-    "schema": {"const": "vvip.tiger/release-capsule/v1"},
-    "release_id": {"const": "global-launch-phase-b"},
-    "source": {
-      "type": "object",
-      "required": ["repository", "commit", "migration_path", "migration_sha256", "control_plane_commit"],
-      "additionalProperties": false,
-      "properties": {
-        "repository": {"const": "vvipautoparts-blip/TIGER-VVIP"},
-        "commit": {"const": "e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0"},
-        "migration_path": {"const": "supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql"},
-        "migration_sha256": {"const": "9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9"},
-        "control_plane_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"}
-      }
-    },
-    "target": {
-      "type": "object",
-      "required": ["environment", "resolved_project_ref", "production_target"],
-      "additionalProperties": false,
-      "properties": {
-        "environment": {"const": "staging"},
-        "resolved_project_ref": {"type": "string", "pattern": "^[a-z]{20}$"},
-        "production_target": {"const": false}
-      }
-    },
-    "execution": {
-      "type": "object",
-      "required": ["scope", "pending_queue_runner_used", "manual_sql_mutation"],
-      "additionalProperties": false,
-      "properties": {
-        "scope": {"const": "single-migration"},
-        "pending_queue_runner_used": {"const": false},
-        "manual_sql_mutation": {"const": false}
-      }
-    },
-    "verification": {"type": "object"},
-    "decision": {"type": "object"}
+  "schema": "vvip.tiger/release-capsule/v1",
+  "release_id": "global-launch-phase-b",
+  "source": {
+    "repository": "vvipautoparts-blip/TIGER-VVIP",
+    "commit": "e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0",
+    "migration_path": "supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql",
+    "migration_sha256": "9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9"
+  },
+  "target": {
+    "environment": "staging",
+    "production_target": false
+  },
+  "execution": {
+    "scope": "single-migration",
+    "pending_queue_runner_used": false,
+    "manual_sql_mutation": false
   }
 }
 ```
 
-- [ ] **Step 4: Implement deterministic capsule construction**
+Also require `source.control_plane_commit` as a 40-character lowercase SHA and `target.resolved_project_ref` as the live 20-character Supabase ref.
 
-`tools/srpc/capsule.py` must:
-- recursively sort input paths;
-- normalize generated JSON with `sort_keys=True`, `separators=(",", ":")`, UTF-8, newline termination;
-- copy `migration.sql` byte-for-byte;
-- set tar member timestamps to `0`, uid/gid to `0`, and names to `root`;
-- scan JSON key names and values before output;
-- calculate SHA-256 after tar creation.
+- [ ] **Step 3: Create `staging-evidence.schema.json`**
 
-- [ ] **Step 5: Implement schema validation**
+Require these top-level objects:
 
-`tools/srpc/validate_evidence.py` loads the two JSON schemas with `jsonschema.Draft202012Validator` and exits non-zero on the first validation error.
+```text
+staging_identity
+ledger_before
+schema_before
+classification
+execution
+ledger_after
+schema_after
+runtime
+phase_a_regression
+synthetic_residue
+advisors
+```
 
-- [ ] **Step 6: Run GREEN**
+Exact constraints:
+- `staging_identity.branch_name == "lc04-sovereign-staging-20260807"`;
+- `staging_identity.healthy == true`;
+- `staging_identity.production_ref_equal == false`;
+- `execution.pending_queue_runner_used == false`;
+- `execution.manual_ledger_write == false`;
+- `runtime.status == "PASS"`;
+- `phase_a_regression.status == "PASS"`;
+- all residue counts equal `0`.
+
+- [ ] **Step 4: Implement deterministic capsule**
+
+Use Python `tarfile` plus `gzip.GzipFile(mtime=0)` rather than `tarfile.open(..., "w:gz")`, because the latter may embed a wall-clock gzip timestamp. Sort every member path before adding it.
+
+- [ ] **Step 5: Implement secret scanner and schema validator**
+
+`validate_evidence.py` uses `jsonschema.Draft202012Validator` and exits non-zero on first error. Secret scanning occurs before any artifact upload or attestation.
+
+- [ ] **Step 6: Verify and commit**
 
 ```bash
 python -m pytest -q tests/test_srpc_capsule.py
-```
-
-Expected: all tests pass.
-
-- [ ] **Step 7: Commit**
-
-```bash
 git add scripts/release/srpc/schema tools/srpc/capsule.py tools/srpc/validate_evidence.py tests/test_srpc_capsule.py
 git commit -m "feat(srpc): add immutable release capsule contracts"
 ```
 
 ---
 
-### Task 3: Add Staging structural fingerprints and runtime proof SQL
+### Task 3: Staging structural, runtime, and Phase A proof SQL
 
 **Files:**
 - Create: `scripts/release/srpc/sql/staging-schema-fingerprint.sql`
@@ -381,29 +309,16 @@ git commit -m "feat(srpc): add immutable release capsule contracts"
 - Create: `tests/srpc-sql-contracts.test.cjs`
 
 **Interfaces:**
-- Consumes: Staging PostgreSQL state only.
-- Produces: sanitized structural JSON, behavioral proof JSON, and Phase A regression JSON.
-- All synthetic writes are transaction-scoped and rolled back.
+- Consumes: Staging database state.
+- Produces: structural JSON and transaction-scoped behavior evidence without retaining synthetic rows.
 
-- [ ] **Step 1: Write RED static contracts**
+- [ ] **Step 1: Write RED static SQL contracts**
 
-`tests/srpc-sql-contracts.test.cjs` must assert:
-- fingerprint SQL references all four marketplace tables, all eight authority/country/audit tables, RLS/FORCE RLS, policies, functions, triggers, and `listing-media`;
-- runtime proof starts with `begin;`, ends with `rollback;`, contains `set_config('request.jwt.claims'`, `set local role authenticated`, expected denial markers, authorized approval, audit mutation denial, and a post-rollback zero-residue SELECT;
-- Phase A regression SQL checks `profiles`, retired credential surfaces, and the `vvip_private` helper boundary;
-- no SQL file contains `truncate`, unbounded `delete from public.vvip_`, or `commit;`.
+Assert all three files exist; runtime proof contains `begin;`, `rollback;`, `set local role authenticated`, `set_config('request.jwt.claims'`, and all denial markers; no file contains `truncate`, unbounded `delete from public.vvip_`, or `commit;`.
 
-Run:
+- [ ] **Step 2: Implement structural fingerprint query**
 
-```bash
-node --test tests/srpc-sql-contracts.test.cjs
-```
-
-Expected: FAIL because the SQL files do not exist.
-
-- [ ] **Step 2: Create `staging-schema-fingerprint.sql`**
-
-The query must return one JSON row with these keys:
+Return one JSON object with:
 
 ```text
 tables
@@ -420,16 +335,16 @@ authority_seed_counts
 marketplace_row_counts
 ```
 
-It must inspect `pg_class`, `pg_namespace`, `pg_proc`, `pg_trigger`, `pg_indexes`, `pg_policies`, `information_schema.table_privileges`, `information_schema.routine_privileges`, `storage.buckets`, and row counts only. It must not select user row bodies.
+Inspect catalogs and counts only; never output user row bodies.
 
-- [ ] **Step 3: Create `staging-runtime-proof.sql`**
+Must cover the eight authorization/country/audit tables, four marketplace tables, trusted-review functions, write/audit triggers, required indexes, RLS/FORCE RLS, browser grants/revokes, and `listing-media` private/10MiB/JPEG+PNG+WebP contract.
 
-Use fixed synthetic identifiers that are checked for absence before use. The script begins a transaction, seeds only synthetic `XZ` country/reviewer rows, switches to `authenticated` with explicit JWT `sub` claims, proves non-Clerk denial, inactive-country denial, DRAFT-only owner behavior, self-promotion denial, unauthorized reviewer denial, authorized reviewer approval, audit append-only behavior, rolls back, and then returns zero residue counts.
+- [ ] **Step 3: Implement transaction-scoped runtime proof**
 
-The exact synthetic identifiers are:
+Use these fixed synthetic identifiers after first asserting they do not already exist:
 
 ```text
-country_code=XZ
+country=XZ
 reviewer=user_srpc_reviewer
 owner=user_srpc_owner
 intruder=user_srpc_intruder
@@ -437,71 +352,61 @@ assignment=00000000-0000-4000-8000-00000000b001
 listing=00000000-0000-4000-8000-00000000b101
 ```
 
-The script must include explicit failure markers:
+Sequence:
+1. `begin;` and `statement_timeout=20s`.
+2. Insert synthetic delegated reviewer role/permission/principal/assignment as trusted DB context.
+3. Insert `XZ` country as DRAFT/MISSING.
+4. Switch to `authenticated` with non-Clerk `sub`; listing insert must fail `MARKETPLACE_AUTH_REQUIRED`.
+5. Switch to `user_srpc_owner`; DRAFT insert while country inactive must fail `MARKETPLACE_COUNTRY_NOT_ACTIVE`.
+6. Reset trusted context, set XZ ACTIVE/VALID, switch back to owner.
+7. Owner creates DRAFT successfully.
+8. Owner self-promote ACTIVE must fail `MARKETPLACE_TRUSTED_REVIEW_REQUIRED`.
+9. Owner moves DRAFT to PENDING_REVIEW.
+10. `user_srpc_intruder` review RPC must fail `MARKETPLACE_REVIEW_AUTHORITY_REQUIRED`.
+11. `user_srpc_reviewer` APPROVE must return ACTIVE.
+12. Verify an ACTIVE audit row exists.
+13. Trusted attempt to mutate audit row must fail `MARKETPLACE_AUDIT_APPEND_ONLY`.
+14. `rollback;`.
+15. Return four residue counts for XZ/principal/listing/audit; every value must be zero.
 
-```text
-SRPC_SYNTHETIC_ID_COLLISION
-SRPC_EXPECTED_DENIAL_MISSING:NON_CLERK
-SRPC_EXPECTED_DENIAL_MISSING:INACTIVE_COUNTRY
-SRPC_EXPECTED_DENIAL_MISSING:SELF_PROMOTE
-SRPC_EXPECTED_DENIAL_MISSING:UNAUTHORIZED_REVIEWER
-SRPC_EXPECTED_DENIAL_MISSING:AUDIT_MUTATION
-SRPC_ACTIVE_AUDIT_MISSING
-```
+Each expected negative path must catch only the expected error text; an unrelated error fails the proof.
 
-After `rollback;`, it must return JSON containing `country_rows`, `principal_rows`, `listing_rows`, and `audit_rows`, all required to equal `0`.
+- [ ] **Step 4: Implement Phase A regression query**
 
-- [ ] **Step 4: Create `phase-a-regression.sql`**
+Return PASS only if:
+- `profiles` RLS and FORCE RLS remain enabled;
+- browser profile privileges remain the Phase A authenticated SELECT-only boundary;
+- retired credential surfaces remain server-only where present;
+- Phase A private helpers remain in `vvip_private` and absent from `public`;
+- duplicate bound Clerk-subject groups remain zero.
 
-It must return JSON proving:
-- `profiles` exists with RLS enabled and forced;
-- browser privileges remain authenticated SELECT-only as established by Phase A;
-- `otp_codes`, `email_verifications`, and retired `vvip_clerk_profiles` remain server-only where they exist;
-- the Phase A private authorization helper set remains in `vvip_private` and not in `public`;
-- no duplicate bound Clerk subject groups are introduced.
-
-- [ ] **Step 5: Run GREEN static contracts**
+- [ ] **Step 5: Verify and commit**
 
 ```bash
 node --test tests/srpc-sql-contracts.test.cjs
-```
-
-Expected: PASS.
-
-- [ ] **Step 6: Commit**
-
-```bash
 git add scripts/release/srpc/sql tests/srpc-sql-contracts.test.cjs
 git commit -m "test(srpc): add staging and regression proof contracts"
 ```
 
 ---
 
-### Task 4: Implement ledger/schema classification
+### Task 4: Ledger/schema State A-E classifier
 
 **Files:**
 - Create: `tools/srpc/classifier.py`
 - Create: `tests/test_srpc_classifier.py`
 
-**Interfaces:**
-- Consumes: `ledger-before.json`, `schema-before.json`, and whether the current release is already accounted.
-- Produces: exactly one of `STATE_A`, `STATE_B`, `STATE_C`, `STATE_D`, `STATE_E`.
-
-- [ ] **Step 1: Write five RED state tests**
-
-Test matrix:
+- [ ] **Step 1: RED test this exact matrix**
 
 ```text
-ledger absent + canonical=true                          -> STATE_A
-ledger absent + canonical=false                         -> STATE_B
-ledger present + canonical=true + accounted=true        -> STATE_C
-ledger present + canonical=true + accounted=false       -> STATE_D
-ledger present + canonical=false                        -> STATE_E
+ledger absent + canonical=true                    => STATE_A
+ledger absent + canonical=false                   => STATE_B
+ledger present + canonical=true + accounted=true  => STATE_C
+ledger present + canonical=true + accounted=false => STATE_D
+ledger present + canonical=false                  => STATE_E
 ```
 
-- [ ] **Step 2: Implement classifier**
-
-Use a pure function:
+- [ ] **Step 2: Implement pure classifier**
 
 ```python
 def classify(ledger_present: bool, canonical: bool, accounted: bool) -> str:
@@ -516,43 +421,29 @@ def classify(ledger_present: bool, canonical: bool, accounted: bool) -> str:
     return "STATE_D"
 ```
 
-- [ ] **Step 3: Verify**
+State B/D/E are STOP states. State C means verification-only, never reapply.
+
+- [ ] **Step 3: GREEN and commit**
 
 ```bash
 python -m pytest -q tests/test_srpc_classifier.py
-```
-
-Expected: all five pass.
-
-- [ ] **Step 4: Commit**
-
-```bash
 git add tools/srpc/classifier.py tests/test_srpc_classifier.py
 git commit -m "feat(srpc): classify staging ledger and schema state"
 ```
 
 ---
 
-### Task 5: Add monotonic decision engine
+### Task 5: Monotonic decision engine
 
 **Files:**
 - Create: `tools/srpc/decision.py`
 - Create: `tests/test_srpc_decision.py`
 
-**Interfaces:**
-- Consumes: boolean evidence flags.
-- Produces: `EVIDENCE_COMPLETE`, `ATTESTED`, `ELIGIBLE_FOR_SECURITY_REVIEW`, or a STOP report.
-- Never emits `SECURITY_APPROVED`, `FRESH_CI_GREEN`, or `PRODUCTION_ELIGIBLE` from machine evidence alone.
+- [ ] **Step 1: RED tests**
 
-- [ ] **Step 1: Write RED tests**
+Require every mandatory evidence flag before `EVIDENCE_COMPLETE`; require two verified attestations before `ELIGIBLE_FOR_SECURITY_REVIEW`; machine code must never emit `SECURITY_APPROVED`.
 
-Require:
-- any false mandatory evidence flag prevents `EVIDENCE_COMPLETE`;
-- `ATTESTED` requires both provenance and custom attestation verification;
-- `ELIGIBLE_FOR_SECURITY_REVIEW` requires `EVIDENCE_COMPLETE` and `ATTESTED`;
-- machine code cannot set `SECURITY_APPROVED`.
-
-- [ ] **Step 2: Implement required evidence set**
+- [ ] **Step 2: Implement required evidence tuple**
 
 ```python
 REQUIRED_EVIDENCE = (
@@ -573,7 +464,13 @@ REQUIRED_EVIDENCE = (
 )
 ```
 
-- [ ] **Step 3: Verify and commit**
+State order is strictly:
+
+```text
+EVIDENCE_COMPLETE -> ATTESTED -> ELIGIBLE_FOR_SECURITY_REVIEW
+```
+
+- [ ] **Step 3: GREEN and commit**
 
 ```bash
 python -m pytest -q tests/test_srpc_decision.py
@@ -583,67 +480,61 @@ git commit -m "feat(srpc): enforce monotonic release decisions"
 
 ---
 
-### Task 6: Add unprivileged H0 source-proof workflow
+### Task 6: Unprivileged exact-H0 source-proof workflow
 
 **Files:**
 - Create: `.github/workflows/srpc-phase-b-source-proof.yml`
 - Create: `tests/srpc-workflow-contracts.test.cjs`
 
-**Interfaces:**
-- Consumes: control-plane branch workflow code and immutable H0.
-- Produces: source-lock artifact only.
-- Has no Supabase or Production secrets.
+- [ ] **Step 1: RED workflow contracts**
 
-- [ ] **Step 1: Write RED workflow contract tests**
-
-Assert:
-- trigger is `workflow_dispatch` only;
-- `permissions.contents == read`;
+Require:
+- `workflow_dispatch` only;
+- required input `control_sha`;
+- `GITHUB_SHA == inputs.control_sha` before using control tooling;
+- permissions only `contents: read`;
 - no `secrets.` references;
-- checkout of H0 is explicit;
-- workflow fails if actual source commit/hash differs;
-- artifact name contains H0;
-- no `db push`, `psql`, `apply_migration`, or Production credential reference occurs.
+- explicit checkout of H0;
+- only full 40-char action pins from the verified list;
+- no `db push`, `psql`, migration queue command, Production credential text, or DDL.
 
-- [ ] **Step 2: Create workflow**
+- [ ] **Step 2: Create workflow with exact pins**
 
-Use this job structure:
+Core YAML:
 
 ```yaml
 name: SRPC Phase B Source Proof
-
 on:
   workflow_dispatch:
-
+    inputs:
+      control_sha:
+        description: Exact SRPC control-plane commit
+        required: true
+        type: string
 permissions:
   contents: read
-
 jobs:
   source-proof:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout control plane
-        uses: actions/checkout@v7
+      - name: Lock signer source
+        shell: bash
+        run: test "$GITHUB_SHA" = "${{ inputs.control_sha }}"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
+          ref: ${{ inputs.control_sha }}
           path: control
-
-      - name: Checkout frozen H0
-        uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0
           path: source
           fetch-depth: 1
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: "3.12"
-
-      - name: Install validator dependency
-        run: pip install jsonschema==4.23.0
-
-      - name: Verify exact H0 and bytes
+      - run: pip install jsonschema==4.23.0
+      - name: Verify frozen source
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -652,9 +543,7 @@ jobs:
             --source-root "$GITHUB_WORKSPACE/source" \
             --actual-commit "$actual" \
             --output "$RUNNER_TEMP/source-lock.json"
-
-      - name: Upload source proof
-        uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: srpc-phase-b-source-proof-e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0
           path: ${{ runner.temp }}/source-lock.json
@@ -662,138 +551,89 @@ jobs:
           retention-days: 30
 ```
 
-During implementation, extend `source_lock.py` with the shown CLI wrapper while retaining the tested pure function.
-
-- [ ] **Step 3: Verify workflow contracts**
+- [ ] **Step 3: GREEN and commit**
 
 ```bash
 node --test tests/srpc-workflow-contracts.test.cjs
-```
-
-Expected: PASS.
-
-- [ ] **Step 4: Commit**
-
-```bash
 git add .github/workflows/srpc-phase-b-source-proof.yml tests/srpc-workflow-contracts.test.cjs tools/srpc/source_lock.py
 git commit -m "ci(srpc): add immutable phase B source proof"
 ```
 
 ---
 
-### Task 7: Collect live Staging identity and preflight evidence
+### Task 7: Acquire atomic Staging lease and collect live preflight
 
-**Files:**
-- Create at execution: `reports/srpc/phase-b/e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0/staging-identity.json`
-- Create at execution: `reports/srpc/phase-b/e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0/ledger-before.json`
-- Create at execution: `reports/srpc/phase-b/e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0/schema-before.json`
-- Create at execution: `reports/srpc/phase-b/e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0/classification.json`
+**Files created at runtime:**
+- `reports/srpc/locks/phase-b-staging.lock`
+- `reports/srpc/phase-b/e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0/staging-identity.json`
+- `ledger-before.json`
+- `schema-before.json`
+- `classification.json`
 
-**Interfaces:**
-- Consumes: live Supabase provider state plus read-only fingerprint SQL.
-- Produces: State A-E preflight.
-- No DDL occurs in this task.
+- [ ] **Step 1: Acquire atomic GitHub lock**
 
-- [ ] **Step 1: Re-resolve provider identity**
+Create `reports/srpc/locks/phase-b-staging.lock` with GitHub `create_file` on the control branch. Content contains release ID, H0, current control-plane SHA, and creation timestamp.
 
-Use the connected Supabase control plane:
+If the file already exists, `create_file` must fail. Treat that as `SRPC-006 LEDGER_RACE_DETECTED`; read the existing lock and do not auto-delete it.
 
-1. `list_projects()`.
-2. Identify the current Production project by the project containing branch `main`.
-3. `list_branches(project_id=LIVE_PRODUCTION_PROJECT_REF)`.
-4. Find branch name exactly `lc04-sovereign-staging-20260807`.
-5. Require `preview_project_status == ACTIVE_HEALTHY`.
-6. Require `project_ref != LIVE_PRODUCTION_PROJECT_REF`.
-7. Require `parent_project_ref == LIVE_PRODUCTION_PROJECT_REF`.
+- [ ] **Step 2: Re-resolve provider identity read-only**
 
-Record only IDs, branch name, health status, parent relation, and UTC timestamp. Store no credentials.
+Use Supabase:
+1. `list_projects()`;
+2. identify live Production/main project;
+3. `list_branches(LIVE_PRODUCTION_PROJECT_REF)`;
+4. find exact branch `lc04-sovereign-staging-20260807`;
+5. require `preview_project_status == ACTIVE_HEALTHY`;
+6. require Staging `project_ref != LIVE_PRODUCTION_PROJECT_REF`;
+7. require `parent_project_ref == LIVE_PRODUCTION_PROJECT_REF`.
 
-- [ ] **Step 2: Capture ledger before**
+Record IDs/status only; no credentials.
 
-Call:
+- [ ] **Step 3: Capture official ledger**
 
-`Supabase.list_migrations(project_id=RESOLVED_STAGING_PROJECT_REF)`
+Call `Supabase.list_migrations(RESOLVED_STAGING_PROJECT_REF)` and record only version/name pairs. Determine whether `global_launch_phase_b_marketplace_convergence` exists.
 
-Store the returned version/name pairs. Determine whether a migration named `global_launch_phase_b_marketplace_convergence` exists.
+- [ ] **Step 4: Capture schema fingerprint**
 
-- [ ] **Step 3: Capture schema fingerprint**
+Execute `staging-schema-fingerprint.sql` via `Supabase.execute_sql`; record structural JSON only.
 
-Call `Supabase.execute_sql` on the exact contents of:
+- [ ] **Step 5: Detect concurrent drift immediately before classification**
 
-`scripts/release/srpc/sql/staging-schema-fingerprint.sql`
+Call `list_migrations` a second time. If the version/name set differs from Step 3, STOP `SRPC-006` before DDL.
 
-Store only the returned structural JSON.
+- [ ] **Step 6: Classify**
 
-- [ ] **Step 4: Validate canonical schema**
+Expected path if current Staging remains as previously observed: `STATE_A` (ledger absent, schema canonical).
 
-Run:
+State B/D/E => STOP. State C => verification-only and skip Task 8.
 
-```bash
-python tools/srpc/validate_evidence.py \
-  --kind staging \
-  reports/srpc/phase-b/e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0
-```
+- [ ] **Step 7: Commit sanitized preflight evidence**
 
-Then run classifier and write `classification.json`.
-
-Expected current path if Staging still matches prior observation:
-
-`STATE_A = ledger absent / canonical target schema`.
-
-If State B, D, or E occurs: STOP and do not apply Phase B.
-
-If State C occurs: skip Task 8 DDL and proceed in verification-only mode.
-
-- [ ] **Step 5: Commit sanitized preflight evidence to the control branch**
-
-```bash
-git add reports/srpc/phase-b/e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0
-git commit -m "evidence(srpc): capture phase B staging preflight"
-```
+Keep the lock file present through Tasks 8-9.
 
 ---
 
-### Task 8: Apply exactly one Phase B migration on Staging
+### Task 8: Apply exactly one Phase B migration to Staging
 
-**Files:**
-- No source mutation.
-- Create at execution: `reports/srpc/phase-b/e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0/execution.json`
-- Create at execution: `reports/srpc/phase-b/e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0/ledger-after.json`
+**Files created at runtime:**
+- `execution.json`
+- `ledger-after.json`
 
-**Interfaces:**
-- Consumes: State A preflight and exact H0 migration bytes.
-- Produces: one official Supabase migration ledger entry plus sanitized execution evidence.
-- State C skips DDL.
+- [ ] **Step 1: Fetch migration directly from GitHub H0**
 
-- [ ] **Step 1: Re-fetch H0 migration bytes from GitHub**
+Fetch the exact migration path at ref `e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0`. Do not use SQL from chat, clipboard, or a mutable branch.
 
-Fetch:
+- [ ] **Step 2: Re-hash immediately before write**
 
-`supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql`
+Require exactly:
 
-at exact ref:
+`9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9`.
 
-`e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0`.
+- [ ] **Step 3: Re-resolve Staging and re-read ledger**
 
-Do not use a copied chat version.
+If the project ref changed since Task 7, restart Task 7 against the new ref. If the ledger changed unexpectedly, STOP `SRPC-006`.
 
-- [ ] **Step 2: Recompute SHA-256 immediately before DDL**
-
-Require:
-
-```text
-9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9
-```
-
-Mismatch => `SRPC-003`; no DDL.
-
-- [ ] **Step 3: Re-resolve Staging identity immediately before write**
-
-Repeat the branch lookup from Task 7. If the project ref changed, update evidence only after re-running preflight against the newly resolved ref.
-
-- [ ] **Step 4: Apply one named migration**
-
-Call exactly one provider mutation with:
+- [ ] **Step 4: Use one provider mutation only**
 
 ```text
 operation=Supabase.apply_migration
@@ -802,139 +642,83 @@ name=global_launch_phase_b_marketplace_convergence
 query=MIGRATION_SQL_BYTES_FROM_H0
 ```
 
-No other migration application is allowed in this task.
+No other migration application is allowed.
 
-- [ ] **Step 5: Confirm official ledger after**
+- [ ] **Step 5: Verify official ledger after**
 
-Call:
+Call `Supabase.list_migrations` and require the named Phase B migration to be accounted once. Do not insert or repair ledger rows manually.
 
-`Supabase.list_migrations(project_id=RESOLVED_STAGING_PROJECT_REF)`
+- [ ] **Step 6: Record sanitized execution evidence**
 
-Require exactly one accounted entry for the named Phase B migration after application. Store sanitized version/name evidence.
+Include H0, migration hash, project ref, migration name, provider operation type, returned migration version if available, and explicit booleans:
 
-- [ ] **Step 6: Commit execution evidence**
-
-`execution.json` records:
-- source H0;
-- migration SHA-256;
-- resolved Staging ref;
-- migration name;
-- provider operation type `apply_migration`;
-- `pending_queue_runner_used=false`;
-- `manual_ledger_write=false`;
-- provider success/failure;
-- returned migration version if available.
-
-Do not store the database URL or access token.
-
-```bash
-git add reports/srpc/phase-b/e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0
-git commit -m "evidence(srpc): record phase B staging migration"
+```json
+{
+  "pending_queue_runner_used": false,
+  "manual_ledger_write": false,
+  "manual_sql_mutation": false
+}
 ```
 
 ---
 
-### Task 9: Prove Staging structure, behavior, Phase A regression, and zero residue
+### Task 9: Postflight structure, runtime, regression, advisors, zero residue
 
-**Files:**
-- Create at execution: `reports/srpc/phase-b/e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0/schema-after.json`
-- Create at execution: `reports/srpc/phase-b/e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0/runtime-proof.json`
-- Create at execution: `reports/srpc/phase-b/e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0/phase-a-regression.json`
-- Create at execution: `reports/srpc/phase-b/e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0/synthetic-residue.json`
+**Files created at runtime:**
+- `schema-after.json`
+- `runtime-proof.json`
+- `phase-a-regression.json`
+- `synthetic-residue.json`
+- `advisors.json`
 
-**Interfaces:**
-- Consumes: post-migration Staging.
-- Produces: complete security/runtime evidence.
+- [ ] **Step 1: Structural postflight**
 
-- [ ] **Step 1: Run postflight structural fingerprint**
+Re-run `staging-schema-fingerprint.sql`. Require canonical target tables/functions/triggers/indexes/RLS/FORCE RLS/policies/grants and private `listing-media` bucket contract.
 
-Execute the same `staging-schema-fingerprint.sql` against Staging.
+- [ ] **Step 2: Runtime proof**
 
-Require:
-- all target objects canonical;
-- authority/country/listing seed counts unchanged except migration ledger metadata;
-- browser-inaccessible authority/audit surfaces;
-- `listing-media` private, 10 MiB, JPEG/PNG/WebP;
-- expected policies, indexes, functions, triggers, RLS, FORCE RLS.
+Execute exact `staging-runtime-proof.sql`. Require all six authorization/state negative paths, one authorized approval path, audit append-only proof, rollback, and zero residue.
 
-- [ ] **Step 2: Run transaction-scoped runtime proof**
+- [ ] **Step 3: Phase A regression**
 
-Execute exact contents of `staging-runtime-proof.sql`.
+Execute `phase-a-regression.sql`; any failure is `SRPC-011`.
 
-Require:
-- all negative cases denied with the expected reason;
-- authorized review returns `ACTIVE`;
-- audit is appended and immutable;
-- final residue JSON contains four zeros.
+- [ ] **Step 4: Advisors**
 
-Any non-zero residue => `SRPC-012 SYNTHETIC_RESIDUE`.
+Run Supabase security and performance advisors. A new material security finding attributable to Phase B blocks the chain.
 
-- [ ] **Step 3: Run Phase A regression query**
+- [ ] **Step 5: Release Staging lock only after evidence is durable**
 
-Execute `phase-a-regression.sql`.
+Commit the sanitized evidence to the control branch first. Then delete `reports/srpc/locks/phase-b-staging.lock` using its current blob SHA.
 
-Any lost Phase A property => `SRPC-011 PHASE_A_REGRESSION`.
-
-- [ ] **Step 4: Run Supabase advisors**
-
-Call security and performance advisors after the DDL.
-
-Record only advisor identifiers, categories, and remediation metadata relevant to newly affected objects. A new security advisory caused by Phase B blocks the chain until resolved.
-
-- [ ] **Step 5: Commit sanitized postflight evidence**
-
-```bash
-git add reports/srpc/phase-b/e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0
-git commit -m "evidence(srpc): prove phase B staging runtime and security"
-```
+If execution was interrupted before this step, leave the lock in place and recover fail-closed by checking live ledger/schema before clearing it.
 
 ---
 
-### Task 10: Complete and cryptographically attest the Release Capsule
+### Task 10: Build and attest final Staging Release Capsule
 
 **Files:**
-- Modify/create runtime evidence under the control branch.
 - Create: `.github/workflows/srpc-phase-b-attest.yml`
 - Extend: `tests/srpc-workflow-contracts.test.cjs`
+- Create runtime: `vvip-staging-predicate.json`
 
-**Interfaces:**
-- Consumes: complete sanitized evidence and H0.
-- Produces: deterministic capsule artifact, SLSA provenance attestation, VVIP custom attestation, and local Sigstore bundles.
+- [ ] **Step 1: Final machine decision**
 
-- [ ] **Step 1: Build final decision input**
+Validate schemas, rebuild the deterministic capsule, and require `EVIDENCE_COMPLETE`. Machine code cannot set security approval.
 
-Run the decision engine with all mandatory flags true.
+- [ ] **Step 2: Create VVIP custom predicate**
 
-Expected machine state:
-
-```text
-EVIDENCE_COMPLETE
-```
-
-It must not emit security approval.
-
-- [ ] **Step 2: Generate VVIP predicate JSON**
-
-The predicate must use type:
+Predicate type:
 
 `https://vvip.tiger/attestation/staging-promotion/v1`
 
-and include:
-- H0;
-- migration path/hash;
-- control-plane commit;
-- resolved Staging branch/project ref;
-- ledger classification;
-- execution mode;
-- queue runner false;
-- structural/runtime/security results;
-- Phase A regression pass;
-- residue zero;
-- `decision="EVIDENCE_COMPLETE"`.
+Claims include H0, migration digest, exact control-plane SHA, resolved Staging identity, State A/C classification, single-migration execution, queue false, runtime/security PASS, Phase A PASS, residue zero, and decision `EVIDENCE_COMPLETE`.
 
-- [ ] **Step 3: Create attestation workflow**
+- [ ] **Step 3: Create attestation workflow with exact signer lock**
 
-Use permissions:
+`workflow_dispatch` requires `control_sha`. First step requires `GITHUB_SHA == inputs.control_sha`.
+
+Permissions:
 
 ```yaml
 permissions:
@@ -944,136 +728,103 @@ permissions:
   artifact-metadata: write
 ```
 
-The workflow must:
-1. checkout the exact control-plane commit selected by `workflow_dispatch`;
-2. checkout H0 separately;
-3. re-run source lock;
-4. validate all evidence schemas;
-5. build the deterministic capsule;
-6. generate provenance attestation with `actions/attest@v4` using `subject-path`;
-7. generate custom attestation with the same subject and:
-   - `predicate-type: https://vvip.tiger/attestation/staging-promotion/v1`
-   - `predicate-path: reports/srpc/phase-b/e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0/vvip-staging-predicate.json`;
-8. upload the capsule plus generated attestation bundles;
-9. never reference Supabase or Production secrets.
+Use exact action pins only:
 
-- [ ] **Step 4: Verify both attestations**
+```text
+checkout        3d3c42e5aac5ba805825da76410c181273ba90b1
+setup-python    ece7cb06caefa5fff74198d8649806c4678c61a1
+upload-artifact b7c566a772e6b6bfb58ed0dc250532a479d7789f
+attest          508db95dd578ae2727ebd6217d5ba78e4fbda05d
+```
 
-Use GitHub CLI against the downloaded capsule:
+Generate two attestations on the same capsule subject:
+1. default SLSA provenance;
+2. custom VVIP predicate with `predicate-path`.
+
+No Supabase or Production secret is referenced by this workflow.
+
+- [ ] **Step 4: Verify provenance attestation**
 
 ```bash
 gh attestation verify phase-b-sovereign-release-capsule.tar.gz \
   --repo vvipautoparts-blip/TIGER-VVIP \
   --predicate-type https://slsa.dev/provenance/v1 \
-  --signer-workflow vvipautoparts-blip/TIGER-VVIP/.github/workflows/srpc-phase-b-attest.yml
+  --signer-workflow vvipautoparts-blip/TIGER-VVIP/.github/workflows/srpc-phase-b-attest.yml \
+  --source-digest CONTROL_PLANE_COMMIT_SHA
+```
 
+- [ ] **Step 5: Verify custom attestation**
+
+```bash
 gh attestation verify phase-b-sovereign-release-capsule.tar.gz \
   --repo vvipautoparts-blip/TIGER-VVIP \
   --predicate-type https://vvip.tiger/attestation/staging-promotion/v1 \
-  --signer-workflow vvipautoparts-blip/TIGER-VVIP/.github/workflows/srpc-phase-b-attest.yml
+  --signer-workflow vvipautoparts-blip/TIGER-VVIP/.github/workflows/srpc-phase-b-attest.yml \
+  --source-digest CONTROL_PLANE_COMMIT_SHA
 ```
 
-Both must pass.
+`CONTROL_PLANE_COMMIT_SHA` is the exact 40-character commit used to dispatch the workflow and is recorded in the manifest before the workflow runs; it is not a mutable branch name.
 
-- [ ] **Step 5: Set machine state**
-
-After successful verification:
+Both verifications must pass before setting:
 
 ```text
 ATTESTED=true
 ELIGIBLE_FOR_SECURITY_REVIEW=true
 ```
 
-- [ ] **Step 6: Commit workflow and final sanitized evidence**
+---
 
-```bash
-git add .github/workflows/srpc-phase-b-attest.yml tests/srpc-workflow-contracts.test.cjs reports/srpc/phase-b
-git commit -m "ci(srpc): attest phase B staging release capsule"
+### Task 11: Independent security approval
+
+**Files created at runtime:**
+- `security-review-package.md`
+- `security-approval.json` only after a human decision.
+
+- [ ] **Step 1: Build review package**
+
+Include exact H0, migration digest, capsule digest, control-plane SHA, Staging identity, State A/C, ledger before/after, structural proof, runtime proof, Phase A regression, residue, advisors, both attestation verification results, and `AUTO_PIN=false`.
+
+- [ ] **Step 2: Human review gate**
+
+Present this one bounded decision: whether the already-proven exact migration hash may be added to Steel Shield. This is not a repeat of global-launch authorization.
+
+- [ ] **Step 3: Record approval without letting machine proof self-approve**
+
+On approval, `security-approval.json` records:
+
+```json
+{
+  "security_approved": true,
+  "authorized_action": "PIN_ONLY",
+  "authorized_migration_sha256": "9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9"
+}
 ```
+
+A rejected decision stops the chain.
 
 ---
 
-### Task 11: Independent security review gate
+### Task 12: Pin-only H1 and invariance proof
 
 **Files:**
-- Create at execution on control branch: `reports/srpc/phase-b/e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0/security-review-package.md`
-- No product code mutation.
+- Modify on current PR #181 branch only: `scripts/security/p08-steel-shield/scan-dangerous-sql.sh`
+- Create on control plane: `tools/srpc/pin_guard.py`
+- Create on control plane: `tests/test_srpc_pin_guard.py`
 
-**Interfaces:**
-- Consumes: verified capsule and both attestations.
-- Produces: human decision `APPROVE_PIN` or `REJECT_PIN`.
+- [ ] **Step 1: Re-resolve PR #181 head branch and assert head is still H0**
 
-- [ ] **Step 1: Generate a compact review package**
+If PR #181 moved after the Staging proof, STOP. Do not silently pin a different candidate.
 
-The report must state:
-- H0;
-- migration digest;
-- capsule digest;
-- control-plane commit;
-- Staging identity;
-- State A/C classification;
-- ledger before/after;
-- structural verification summary;
-- runtime 10-point behavior result;
-- Phase A regression result;
-- residue result;
-- security advisor result;
-- provenance verification result;
-- custom attestation verification result;
-- explicit statement `AUTO_PIN=false`.
-
-- [ ] **Step 2: Present the package to the owner/security reviewer**
-
-This is the deliberate human authority gate defined by SRPC. No routine launch reconfirmation is requested; the reviewer is deciding only whether the exact proved hash may enter Steel Shield.
-
-- [ ] **Step 3: Record the decision**
-
-If rejected: STOP.
-
-If approved: record:
-
-```text
-SECURITY_APPROVED=true
-AUTHORIZED_ACTION=PIN_ONLY
-AUTHORIZED_MIGRATION_SHA256=9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9
-```
-
-The evidence generator must not create this approval itself.
-
----
-
-### Task 12: Create pin-only H1 and prove H0/H1 invariance
-
-**Files:**
-- Modify on PR #181 branch only: `scripts/security/p08-steel-shield/scan-dangerous-sql.sh`
-- Create on control branch: `tools/srpc/pin_guard.py`
-- Create on control branch: `tests/test_srpc_pin_guard.py`
-
-**Interfaces:**
-- Consumes: approved hash, H0, and H1.
-- Produces: H1 with one Steel Shield reviewed baseline entry and proof that migration bytes are unchanged.
-
-- [ ] **Step 1: Write RED pin-guard tests**
+- [ ] **Step 2: RED pin-guard tests**
 
 Require:
-- migration digest at H0 equals frozen digest;
-- migration digest at H1 equals frozen digest;
-- changed product paths between H0/H1 are limited to `scripts/security/p08-steel-shield/scan-dangerous-sql.sh`;
-- scanner diff adds the exact Phase B path/hash once;
-- removal or modification of any older reviewed baseline causes failure.
+- H0 migration digest frozen;
+- candidate H1 migration digest frozen;
+- only scanner path changes between H0 and H1;
+- exact Phase B path/hash appears once;
+- all pre-existing reviewed baselines remain byte-for-byte present.
 
-- [ ] **Step 2: Implement pin guard**
-
-`tools/srpc/pin_guard.py` accepts:
-- base repository snapshot at H0;
-- candidate snapshot at H1;
-- scanner diff text.
-
-It returns PASS only when all invariants above hold.
-
-- [ ] **Step 3: Make one authorized scanner edit on PR #181 branch**
-
-Add immediately after the existing Phase A reviewed baseline:
+- [ ] **Step 3: Add one scanner entry**
 
 ```bash
   # Global Launch Phase B marketplace convergence: approved only after SRPC v1
@@ -1083,19 +834,17 @@ Add immediately after the existing Phase A reviewed baseline:
   ["supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql"]="9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9"
 ```
 
-Do not edit the Phase B migration.
+No other product file changes.
 
-- [ ] **Step 4: Commit exactly that file**
+- [ ] **Step 4: Commit exactly the scanner file**
 
 Commit message:
 
-```text
-security: pin reviewed global launch phase B migration
-```
+`security: pin reviewed global launch phase B migration`
 
-The resulting commit is H1.
+Resulting SHA is H1.
 
-- [ ] **Step 5: Run pin guard from the control plane**
+- [ ] **Step 5: Prove invariance from control plane**
 
 Require:
 
@@ -1103,30 +852,26 @@ Require:
 SHA256(M@H0) == SHA256(M@H1) == 9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9
 ```
 
-and no unexpected H0→H1 product diff.
+and H0→H1 product diff contains exactly the scanner file.
 
 - [ ] **Step 6: Keep PR #181 Draft/unmerged**
 
-H1 is now eligible for fresh CI, not merge.
+H1 is only eligible for fresh CI.
 
 ---
 
-### Task 13: Obtain fresh exact-head CI on H1
+### Task 13: Fresh exact-head H1 CI and Steel Shield GREEN
 
 **Files:**
-- No source changes unless a real root-cause failure requires a new candidate, in which case H1 is invalidated and SRPC returns to the appropriate earlier gate.
+- Runtime evidence: `fresh-ci-h1.json` on control plane.
 
-**Interfaces:**
-- Consumes: H1.
-- Produces: exact-head success evidence for all required release/security workflows.
+- [ ] **Step 1: Re-resolve PR #181 H1**
 
-- [ ] **Step 1: Resolve H1 from PR #181**
+Read PR metadata and require current head equals the pin commit H1.
 
-Do not assume the commit SHA returned by the pin write. Re-read PR metadata and assert its current head equals the intended H1.
+- [ ] **Step 2: Collect current required release/security plane**
 
-- [ ] **Step 2: Collect workflow runs associated with H1**
-
-Use GitHub workflow-run inspection and require the current release/security plane, including:
+At minimum:
 - VVIP Quality Gate;
 - V14 Release Candidate;
 - Project Control Integrity;
@@ -1134,83 +879,59 @@ Use GitHub workflow-run inspection and require the current release/security plan
 - TIGER CleanGuard;
 - Dependency Review;
 - CodeQL;
-- LC03 Supabase Security Rehearsal;
-- LC04 Production Legacy RPC Rehearsal;
-- LC05 Credential Surface Isolation Rehearsal;
-- LC06 RLS Performance Hardening Rehearsal;
+- LC03/LC04/LC05/LC06 rehearsals;
 - TSRF Sovereign Phone OTP Rehearsal;
-- any new required main-target security check observed on the PR.
+- any additional required main-target security workflow present at H1.
 
-- [ ] **Step 3: Verify execution SHA, not only run association**
+- [ ] **Step 3: Prove execution source SHA**
 
-For each required run:
-- inspect job steps/logs;
-- require that the source checkout/verified source identity is H1 when the workflow supports exact-head execution;
-- reject a synthetic merge-only proof as sole evidence for the release-critical byte identity;
-- for workflows whose normal PR trigger uses merge refs, use an exact-H1 dispatch/re-run path if their workflow supports it, or reproduce their release-critical test command from the trusted SRPC control plane against H1.
+Run association alone is insufficient. Inspect job steps/logs and require H1 as the source checkout/verified source where supported.
 
-- [ ] **Step 4: Require Steel Shield GREEN**
+If a normal PR trigger only proves a synthetic merge ref, obtain exact-H1 evidence through a workflow-dispatch path if that workflow supports it; otherwise execute the same release-critical command from the trusted SRPC control plane against an explicit H1 checkout and record that evidence separately. Never label merge-ref evidence as exact-head proof.
 
-The dangerous-SQL scan must now print:
+- [ ] **Step 4: Require Steel Shield marker and all-green conclusion**
 
-```text
-REVIEWED_BASELINE:supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql
-```
+Dangerous SQL scanner must emit:
 
-and the complete quality/security plane must be green.
+`REVIEWED_BASELINE:supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql`
 
-- [ ] **Step 5: Record fresh-CI evidence**
+All required gates must succeed. Any failure is fixed at root cause; changing migration bytes creates a new release candidate and invalidates the old Staging proof.
 
-Create on control branch:
+- [ ] **Step 5: Record machine state**
 
-`reports/srpc/phase-b/e4124031d68dba24faea7c0ed7e6c8ef1e09a4d0/fresh-ci-h1.json`
-
-with workflow name, run ID, job ID, verified source SHA, conclusion, and timestamp.
-
-Then set:
+Only when complete:
 
 ```text
 FRESH_CI_GREEN=true
 PRODUCTION_ELIGIBLE=true
 ```
 
-only if every required gate passes.
-
 ---
 
-### Task 14: Production preflight, exact-byte promotion, and closure proof
+### Task 14: Production lease, exact-byte promotion, and closure proof
 
-**Files:**
-- Create after permitted Production proof: `docs/global/GLOBAL_LAUNCH_PHASE_B_PRODUCTION_EVIDENCE_20260809.md`
-- Modify after permitted Production proof: `docs/MASTER_PROJECT_STATE.md`
-- Create on control branch: Production closure evidence files.
+**Files after permitted Production proof:**
+- Create: `docs/global/GLOBAL_LAUNCH_PHASE_B_PRODUCTION_EVIDENCE_20260809.md`
+- Modify: `docs/MASTER_PROJECT_STATE.md`
+- Runtime control-plane Production closure evidence.
 
-**Interfaces:**
-- Consumes: H1, valid Staging capsule/attestations, fresh H1 CI, and existing Production owner/security authorization.
-- Produces: `GLOBAL_LAUNCH_PHASE_B=PRODUCTION_VERIFIED`.
+- [ ] **Step 1: Acquire atomic Production lock**
 
-- [ ] **Step 1: Re-resolve Production identity**
+Create `reports/srpc/locks/phase-b-production.lock` atomically. Existing lock => STOP. Never auto-clear stale lock without checking live Production ledger/schema.
 
-Use live Supabase project discovery. Require:
-- Production is the main/default project;
-- Production ref differs from resolved Staging ref;
-- current Phase A canonical contract remains true.
+- [ ] **Step 2: Re-resolve Production identity**
 
-Mismatch => `SRPC-017`.
+Require live Production/main project differs from live Staging and current Phase A contract remains canonical.
 
-- [ ] **Step 2: Re-fingerprint Production before DDL**
+- [ ] **Step 3: Production preflight fingerprint**
 
-Require Phase B to be absent or in the exact expected pre-convergence state. Unexpected partial marketplace/authority drift blocks Production.
+Require Phase B absent or exactly at approved pre-convergence state. Partial/unaccounted drift => STOP.
 
-- [ ] **Step 3: Re-fetch migration from H1 and H0**
+- [ ] **Step 4: Re-fetch H0 and H1 migration bytes**
 
-Require both hashes equal the frozen digest.
+Require both hashes equal the frozen digest. No copied or rebuilt SQL.
 
-No copied SQL is allowed.
-
-- [ ] **Step 4: Apply one named Production migration only after the existing owner/security gate is satisfied**
-
-Use exactly:
+- [ ] **Step 5: Apply one Production migration only after existing owner/security gate is satisfied**
 
 ```text
 operation=Supabase.apply_migration
@@ -1219,43 +940,27 @@ name=global_launch_phase_b_marketplace_convergence
 query=MIGRATION_SQL_BYTES_VERIFIED_AT_H0_AND_H1
 ```
 
-Do not run a pending queue.
+No pending queue.
 
-- [ ] **Step 5: Run Production structural and bounded runtime verification**
+- [ ] **Step 6: Production postflight**
 
-Reuse structural contracts. Any synthetic behavioral proof on Production must be explicitly transaction-scoped, rolled back, and leave zero residue.
+Verify ledger, schema, functions, triggers, indexes, RLS, FORCE RLS, policies, grants/revokes, Storage bucket, Phase A non-regression, and bounded transaction-scoped runtime behavior with zero residue.
 
-- [ ] **Step 6: Run Production security/performance advisors**
+- [ ] **Step 7: Advisors and Production Closure Capsule**
 
-Record new findings and block closure on a new material security defect attributable to Phase B.
+Run Supabase security/performance advisors and assemble closure evidence with Production identity, H1, migration digest, ledger before/after, schema/security results, runtime smoke, Phase A regression, advisor results, and provider operation identity.
 
-- [ ] **Step 7: Generate Production Closure Capsule**
+- [ ] **Step 8: Update canonical project state only after proof**
 
-Include:
-- Production identity;
-- H1;
-- exact migration digest;
-- ledger before/after;
-- schema/RLS/ACL/Storage proof;
-- bounded runtime smoke;
-- Phase A non-regression;
-- advisor result;
-- deployment operation identity;
-- final decision.
+Set:
 
-- [ ] **Step 8: Update canonical project state only after verification**
+`GLOBAL_LAUNCH_PHASE_B=PRODUCTION_VERIFIED`
 
-Write:
+in the evidence document and update `docs/MASTER_PROJECT_STATE.md` with the next exact cursor.
 
-```text
-GLOBAL_LAUNCH_PHASE_B=PRODUCTION_VERIFIED
-```
+- [ ] **Step 9: Release Production lock only after closure evidence is durable**
 
-to the Production evidence document and update `docs/MASTER_PROJECT_STATE.md` with the exact next cursor.
-
-- [ ] **Step 9: Commit closure documentation separately**
-
-Do not rewrite migration history or alter the reviewed Phase B bytes.
+Delete the lock using its current blob SHA. If interrupted, leave it fail-closed.
 
 ---
 
@@ -1276,19 +981,33 @@ node --test \
   tests/srpc-workflow-contracts.test.cjs
 ```
 
-Then verify:
-- H0 source/hash proof;
-- Staging live identity;
-- official ledger before/after;
-- canonical structure;
-- runtime proof;
-- Phase A regression;
-- zero residue;
-- both attestations with `gh attestation verify`;
-- independent security approval;
-- H0/H1 pin-only invariance;
-- fresh H1 CI;
-- Production owner/security gate;
-- Production closure proof.
+Then verify all external evidence in order:
 
-No final status higher than the weakest proven gate is permitted.
+```text
+H0 exact source
+H0 exact migration SHA-256
+atomic Staging lease
+live Staging identity
+ledger/schema preflight classification
+single named Staging migration or legitimate State C verification-only path
+postflight structure
+transaction runtime/security proof
+Phase A non-regression
+zero synthetic residue
+security/performance advisor review
+deterministic capsule digest
+SLSA provenance verification with signer workflow + source digest
+VVIP custom attestation verification with signer workflow + source digest
+independent security approval
+pin-only H1
+H0/H1 migration byte equality
+fresh exact-head H1 release/security plane
+Steel Shield GREEN
+atomic Production lease
+Production identity/preflight
+exact same migration bytes
+Production postflight/closure capsule
+MASTER_PROJECT_STATE checkpoint
+```
+
+No final state may be higher than the weakest proven gate. `IMPLEMENTED != VERIFIED`, `ELIGIBLE != APPROVED`, and `GREEN CI != PRODUCTION VERIFIED`.
