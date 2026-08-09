@@ -1,0 +1,30 @@
+{
+  "schema_version": "PRG_V1_PROVIDER_READINESS",
+  "clerk": {
+    "production_instance_created": true,
+    "publishable_key_source_verified": true,
+    "frontend_api": "clerk.tigerautoparts.shop",
+    "development_domain_rejected": true,
+    "custom_domain_dns_readiness": "EXTERNAL_VERIFICATION_REQUIRED",
+    "google_sso_custom_credentials": "OPTIONAL_OR_FEATURE_DEPENDENT_NOT_USED_AS_PRG_CORE_INVARIANT",
+    "secret_key_recorded_in_git": false
+  },
+  "github_pages": {
+    "build_type": "workflow",
+    "source_branch": "main",
+    "public": true,
+    "https_enforced": true,
+    "api_html_url": "https://vvipautoparts-blip.github.io/TIGER-VVIP/",
+    "api_cname": null,
+    "repository_cname_file": "tigerautoparts.shop",
+    "classification": "CUSTOM_DOMAIN_NOT_CONFIGURED_IN_GITHUB_PAGES_API"
+  },
+  "domain": {
+    "intended_application_domain": "tigerautoparts.shop",
+    "intended_clerk_frontend_domain": "clerk.tigerautoparts.shop",
+    "dns_provider_connector_available": false,
+    "owner_or_dns_provider_action_required": true
+  },
+  "production_deployed": false,
+  "state": "PROVIDER_READINESS_PARTIAL_EXTERNAL_DOMAIN_ACTION_REQUIRED"
+}
