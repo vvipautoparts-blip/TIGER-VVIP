@@ -1,0 +1,37 @@
+{
+  "schema_version": "PRODUCTION_ADVISOR_POST_PHASE_B_RECONCILIATION_V1",
+  "project_ref": "zelcngyyvbomuzokvuxo",
+  "observation_mode": "READ_ONLY",
+  "global_zero_warnings_claimed": false,
+  "pre_existing_classes": [
+    "rls_enabled_no_policy",
+    "function_search_path_mutable",
+    "authenticated_security_definer_function_executable",
+    "auth_allow_anonymous_sign_ins",
+    "auth_leaked_password_protection"
+  ],
+  "phase_b_specific_observations": [
+    {
+      "class": "rls_enabled_no_policy",
+      "targets": "server-only authority/audit tables",
+      "classification": "EXPECTED_INFORMATIONAL",
+      "reason": "RLS and FORCE RLS are enabled; browser DML grants are absent by design."
+    },
+    {
+      "class": "authenticated_security_definer_function_executable",
+      "target": "public.vvip_marketplace_review_listing",
+      "classification": "EXPECTED_GOVERNED_RPC",
+      "reason": "Authenticated execution is intentional; authority checks are inside the governed review boundary and unauthorized/authorized behavior was runtime-proven on sovereign Staging."
+    },
+    {
+      "class": "auth_allow_anonymous_sign_ins",
+      "targets": "marketplace/storage read policies",
+      "classification": "EXPECTED_CONDITIONAL_PUBLIC_READ",
+      "reason": "Policy inspection shows anonymous access is SELECT-only for ACTIVE listings/media in an active country; owner mutation policies are authenticated-only."
+    }
+  ],
+  "material_phase_b_security_regression_detected": false,
+  "release_interpretation": "ZERO_NEW_MATERIAL_PHASE_B_ATTRIBUTABLE_SECURITY_REGRESSIONS",
+  "production_write_performed_by_reconciliation": false,
+  "state": "POST_PHASE_B_ADVISORS_REVIEWED"
+}
