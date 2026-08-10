@@ -1,199 +1,173 @@
 # VVIP TIGER — MASTER PROJECT STATE
 
-> Durable continuation ledger. Current repository bytes/refs, exact-head CI/test/security evidence, current provider state, and current PR metadata override stale prose or chat history.
+> GitHub is the code authority. This file is the project-state authority for continuation. Chat sessions are temporary execution sessions.
 
-## Snapshot
+## Continuation protocol
 
-- **State date:** 2026-08-09 (+03:00)
-- **Repository:** `vvipautoparts-blip/TIGER-VVIP`
-- **Default branch:** `main`
-- **Audited main SHA at RC creation:** `4cc292e626fea39f3b0e56b98781d521efef789d`
-- **Active execution cursor:** PR `#181` — `release: VVIP TIGER global launch candidate`
-- **Active branch:** `feat/launch-home-runtime-convergence-20260808`
-- **Last exact source SHA used for a Production mutation:** `22fbd9232d0f28bb604eb5ddb1b0f8e7d23f6d65`
-- **OWNER GLOBAL LAUNCH AUTHORIZATION:** `ACTIVE`
-- **Required execution loop:** `READ -> VERIFY -> PLAN -> EXECUTE -> VERIFY -> CHECKPOINT -> CONTINUE`
+```text
+READ → VERIFY → PLAN → EXECUTE
+```
 
-## Source-of-truth precedence
+Never reuse stale authorization. Never infer authority from a completed deployment. Fail closed on source, database, provider, or evidence drift.
 
-1. Current repository bytes and refs.
-2. Exact-head CI/test/security evidence.
-3. Current remote environment/provider state.
-4. Current PR/commit metadata.
-5. This Master Project State.
-6. Historical chat/prose.
+## Current source truth
 
-A stale chat statement, PR description, or older checkpoint must never override current GitHub/provider evidence.
+- Repository: `vvipautoparts-blip/TIGER-VVIP`
+- Default branch: `main`
+- Current `main` / deployed Web source: `3d8bbfc8611e53510b3bb776b8d9752df6595d8d`
+- Historical Phase B product merge H2: `35352136090bd39d9dd6bddc6682c9b9a2d3cafc`
+- H2 is an ancestor of current `main`.
+- H2 → current `main`: 6 commits, 0 behind; effective changed files are release-harness/test only:
+  - `.github/workflows/pages.yml`
+  - `tests/pages-production-artifact-isolation.test.cjs`
+  - `tests/test_vvip_public_release.py`
+- PR #183 isolated the missing-production-config test from ambient environment variables.
+- PR #184 moved the Production Pages build output outside the checkout source tree and added a regression test.
+- No Phase B migration bytes or product runtime files changed in this H2 → current-main drift.
 
-## Self-reference rule
+## Phase A
 
-This document intentionally does not embed the SHA of the commit that contains its latest edit because editing it changes that SHA. At session start, resolve the active branch/PR head from GitHub.
+Production Phase A remains verified after Phase B:
 
-## Binding owner execution directive
+```text
+PHASE_A_REGRESSION=PASS
+```
 
-Read `docs/global/OWNER_GLOBAL_LAUNCH_EXECUTION_DIRECTIVE_20260808.md` before broad continuation work.
+Fresh read-only post-Phase-B proof verified:
+- `profiles` exists with RLS + FORCE RLS;
+- authenticated profile table privilege remains SELECT-only;
+- browser privilege violation count = 0;
+- retired credential surfaces remain server-only;
+- public helper count = 0;
+- duplicate Clerk subject groups = 0.
 
-Routine owner reconfirmation is not required between phases. Owner authorization covers dependency-chain merges, remote migrations, Production DB/Edge/configuration changes, deployment/release, provider configuration, and necessary bounded launch actions when technical prerequisites are satisfied and the relevant tools/accounts exist.
-
-Authorization never permits bypassing a failing gate, inventing evidence, exposing secrets, weakening identity/security architecture, or making unbounded financial commitments.
-
-## Current release candidate — PR #181
-
-- **State:** Draft + OPEN + UNMERGED at the latest audit.
-- **Base:** `main`.
-- **Branch:** `feat/launch-home-runtime-convergence-20260808`.
-- The raw development homepage is not the Production artifact. `tools/vvip_public_release.py` builds the public artifact and injects Runtime Loader, runtime config, marketplace repository, rollback/auth/My Listings/Production marketplace in fail-closed order.
-- `scripts/vvip-production-marketplace.js` constructs the real marketplace repository and reads public listings through `listPublic()`.
-- Production artifact generation rejects Clerk test keys/development domains, sample-listing markers, secret Supabase browser configuration, and invalid release configuration.
-
-## Exact-head release evidence used for Production Phase A
-
-Exact SHA: `22fbd9232d0f28bb604eb5ddb1b0f8e7d23f6d65`.
-
-Before any Phase A Production DDL, all observed required workflows on that exact SHA completed `SUCCESS`:
-
-- Project Control Integrity — `31280961954`
-- Documentation Sovereign Knowledge Plane — `31280961947`
-- TIGER CleanGuard — `31280962025`
-- Dependency Review — `31280961968`
-- V14 Release Candidate — `31280961989`
-- VVIP Quality Gate — `31280961946`
-- CodeQL — `31280961971`
-- LC03 Supabase Security Rehearsal — `31280961974`
-- LC04 Production Legacy RPC Rehearsal — `31280961952`
-- LC05 Credential Surface Isolation Rehearsal — `31280962035`
-- LC06 RLS Performance Hardening Rehearsal — `31280961945`
-- TSRF Sovereign Phone OTP Rehearsal — `31280962011`
-
-The Phase A migration was content-addressed in Steel Shield with SHA-256:
-
-`173766f1203890d3461db6b67cc95b1d9ca28d23c65026ff9393115ad4433c31`
-
-Any byte drift invalidates that reviewed baseline.
-
-## Global Launch Phase A — Identity/Profile Production Convergence
-
-**Status: `VERIFIED IN PRODUCTION`.**
-
-Canonical evidence:
-
-`docs/global/GLOBAL_LAUNCH_PHASE_A_PRODUCTION_EVIDENCE_20260809.md`
+## Phase B — Production reality
 
 Migration:
+`supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql`
 
-`supabase/migrations/20260808223000_global_launch_phase_a_identity_convergence.sql`
+Frozen SHA-256:
+`9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9`
 
-Production migration ledger entry after application:
+Production Supabase:
+- ref: `zelcngyyvbomuzokvuxo`
+- region: `ap-northeast-2`
+- Phase B ledger entry: `20260809223120 global_launch_phase_b_marketplace_convergence`
+- classification: `PHASE_B_APPLIED_DARK_LAUNCH_CANONICAL`
 
-- version `20260808221204`
-- name `global_launch_phase_a_identity_convergence`
+Fresh read-only structural reconciliation verified:
+- all 12 Phase B authority/marketplace target tables exist;
+- RLS + FORCE RLS are enabled on all 12;
+- expected Phase B indexes, triggers, functions, policies and privilege boundaries are present;
+- `listing-media` bucket exists, is private, 10 MiB, JPEG/PNG/WebP only;
+- authority role/permission/principal/assignment/country/audit row counts are all zero;
+- marketplace listing/media/favorite/audit row counts are all zero.
 
-### Verified Production outcomes
+Therefore:
 
-- Production profile cardinality stayed `8`.
-- Legacy unbound profiles stayed `6`.
-- Distinct bound Clerk subjects stayed `2`.
-- Duplicate Clerk-subject groups stayed `0`.
-- No user row was deleted, auto-linked by email, or reassigned.
-- `vvip_private` now exists.
-- The six observed legacy authorization helpers moved from `public` to `vvip_private` while preserving their actual Production OIDs.
-- The migrated helper set no longer exists in `public`.
-- `profiles` has RLS enabled + forced.
-- browser access to `profiles` is authenticated `SELECT` only.
-- the remaining browser profile policy is subject-first using Clerk JWT `sub`.
-- `vvip_resolve_own_profile(text)` exposes the fail-closed `identity_migration_required` state.
-- `otp_codes`, `email_verifications`, and retired `vvip_clerk_profiles` are server-only: forced RLS, zero browser policies, no anon/authenticated table privileges.
-- a transaction-scoped Production behavioral proof returned `identity_migration_required`, created no identity link, rolled back, and left `0` synthetic rows.
+```text
+PRODUCTION_DB_PHASE_B_APPLIED=true
+PRODUCTION_DB_POST_APPLY_STRUCTURAL_PROOF=PASS
+COUNTRY_ACTIVATED=false
+OWNER_SEEDED=false
+MARKETPLACE_SEED_RESIDUE=0
+```
 
-Phase A does **not** imply marketplace Production readiness, Clerk Production promotion, Web deployment, mobile release, or global launch completion.
+## Identity
 
-## Identity architecture — binding
+Repository IDENTITY-01 migration:
+`supabase/migrations/20260808_vvip_identity_fail_closed_profile_resolver.sql`
 
-- Federated identity only.
-- No first-party VVIP password authority or local password reset.
-- Canonical identity is external issuer/subject; current Clerk JWT `sub` is the subject anchor.
-- Email/phone are attributes, not account identity.
-- Automatic account ownership transfer solely by email is forbidden.
-- Provider secrets/private signing keys are forbidden in browser code/repository.
-- VVIP TIGER retains authorization, roles/capabilities, account state, RLS/data policy, approvals, and audit evidence.
+Frozen H2 SHA-256:
+`ee361b3bbdbef9695ac23d6ad597c49c4732f19ee45d1154745e5e387e12d0d6`
 
-## Cost workstream — verified repository slices
+- Sovereign Staging runtime proof: PASS, transaction rolled back, synthetic residue zero.
+- Production does not need standalone IDENTITY-01 while the deployed Phase A resolver remains semantically canonical.
+- Production resolver is subject-first, does not transfer ownership by browser email, has hardened search path, and denies anon/public execute.
+- Compatibility `p_email` duplicate-email hygiene remains future hardening; it is not an ownership-transfer vulnerability.
 
-- `#169` COST-01 — lean global cost governor foundation.
-- `#170` COST-02 — bounded static CDN delivery lane.
-- `#177` COST-03 — public-read single-flight + 30-second public result reuse, with identity/private/write boundaries excluded.
-- `#178` COST-04 — cover-only display-critical media signing with cross-listing path deduplication; non-cover media metadata retained without signing URLs.
+## Production Web deployment — observed reality
 
-COST-04 verified exact source head remains `81402daf4e093a3b4c728d191bded0b3582b697a`. Structural reductions are proven; no invented monetary/percentage savings are claimed.
+GitHub Actions run:
+- workflow: `Deploy TIGER VVIP production artifact`
+- run: `31338179484`
+- source: `3d8bbfc8611e53510b3bb776b8d9752df6595d8d`
+- build job `93307359324`: SUCCESS
+- deploy job `93308077474`: SUCCESS
+- GitHub Pages deployment `5823332376`: SUCCESS
+- deployed Pages URL: `https://vvipautoparts-blip.github.io/TIGER-VVIP/`
+- artifact ID: `9045047873`
+- artifact digest: `sha256:f7c7f16fd1ec49b27738c01560ca7a972a376700ae5ef9ee77ae87f66187f7fd`
+- artifact release manifest: `releaseEligible=true`, `sourceSha=3d8bbfc8611e53510b3bb776b8d9752df6595d8d`
+- artifact Production runtime config targets Supabase Production and keeps `defaultCountryCode` empty.
 
-## Current Production database boundary
+Current GitHub Pages API still reports:
 
-After Phase A:
+```text
+cname=null
+html_url=https://vvipautoparts-blip.github.io/TIGER-VVIP/
+https_enforced=true
+```
 
-- identity/profile legacy surface is converged and verified.
-- **marketplace schema is still absent in Production.**
-- therefore public Web marketplace launch is functionally blocked until marketplace Production convergence is completed and verified.
+Thus Web is deployed on the default Pages URL, but `tigerautoparts.shop` is not yet configured as the Pages custom domain.
 
-Do not deploy a public marketplace artifact that assumes tables/RPCs not present in Production.
+## Provider state
 
-## Next automatic action — Global Launch Phase B
+### GitHub Pages
+- Production deployment exists and succeeded.
+- Custom domain remains not configured in Pages API.
 
-**Phase B: Marketplace Production Convergence.**
+### Clerk
+- Production publishable configuration was previously verified.
+- configured frontend API target: `clerk.tigerautoparts.shop`.
+- Current external DNS readiness must be verified through Clerk/DNS provider before relying on the custom domain.
+- Do not expose Clerk secret keys.
 
-Requirements:
+## Advisor reconciliation
 
-1. inspect current Production fingerprint and the already-proven Staging marketplace contract;
-2. identify the minimum final tables/indexes/functions/RLS/storage contracts required by the current runtime;
-3. do **not** blindly replay the historical migration chain;
-4. create a forward-only convergence artifact against the actual Production drift;
-5. TDD RED -> minimal GREEN;
-6. prove canonical/local replay plus isolated Staging behavior/idempotence;
-7. content-address any security-sensitive migration through Steel Shield rather than adding a broad exception;
-8. rerun the complete exact-head release/security plane;
-9. only when all required gates are GREEN on the same SHA, re-fingerprint Production and apply Phase B;
-10. verify table/RPC/RLS/storage behavior immediately after application and checkpoint the evidence.
+Fresh post-Phase-B security advisors include existing baseline warnings plus expected Phase-B advisory classes.
 
-After Phase B, continue automatically through remaining Production Edge/runtime configuration, Clerk Production promotion, actual Staging/Production artifact deployment evidence, browser E2E, and synchronized Android+iPhone readiness.
+Phase-B-specific observations include:
+- `rls_enabled_no_policy` INFO on server-only authority/audit tables — intentional because browser DML grants are absent;
+- authenticated SECURITY DEFINER warning for `vvip_marketplace_review_listing` — intentional trusted review RPC, constrained by authority checks and previously runtime-proven on Staging;
+- anonymous-policy warnings on marketplace/storage read surfaces — policy inspection confirms anon access is read-only and requires ACTIVE listing + active country; owner mutation policies are authenticated-only.
 
-## Known external/deferred launch evidence
+Never claim global zero advisor warnings. Release criterion is zero new **material** Phase-B-attributable security regressions.
 
-These are execution gaps, not requests for renewed owner approval:
+## Reconciliation governance
 
-- PR36 real-image browser E2E remains `DEFERRED` until genuine browser/file evidence is produced.
-- Clerk Production environment/publishable-key promotion remains unresolved; current known Clerk environment was Test.
-- Production marketplace database contract remains `BLOCKED` pending Phase B.
-- Production Web deployment evidence remains pending.
-- backup/restore/rollback drills remain required where a later irreversible mutation warrants them.
-- synchronized Android + iPhone releases remain incomplete.
-- any genuinely human-only UI acceptance remains external evidence; automate objective acceptance wherever possible.
+The earlier PRG branch `ops/prg-v1-production-release-gate-20260809` is historical evidence and is stale as current state because Production changed after its closure.
 
-## Safety/architecture invariants — always binding
+Current reconciliation branch:
+`ops/production-reconciliation-20260810`
 
-- `EXACT_HEAD_EVIDENCE=REQUIRED`
-- `QUALITY_SECURITY_GATES=MUST_PASS`
-- `DEPENDENCY_ORDER=MUST_BE_VALID`
-- `ROLLBACK_RECOVERY_EVIDENCE=REQUIRED_WHERE_IRREVERSIBLE`
-- `SECRETS_IN_BROWSER_OR_REPO=FORBIDDEN`
-- `EMAIL_AUTO_LINKING=FORBIDDEN`
-- `LOCAL_PASSWORD_AUTHORITY=FORBIDDEN`
-- `PRIVATE_BUCKET_PUBLICATION_AS_COST_SHORTCUT=FORBIDDEN`
-- `FABRICATED_EVIDENCE=FORBIDDEN`
-- `UNBOUNDED_SPEND=FORBIDDEN`
+This reconciliation records already-observed state. It does **not** retroactively invent authorization for past Production actions and does not grant authority for future Production writes.
 
-## Canonical continuity states
+## Current hard state flags
 
-- `APPROVED`
-- `IMPLEMENTED`
-- `VERIFIED`
-- `IN_PROGRESS`
-- `BLOCKED`
-- `DEFERRED`
-- `STALE`
+```text
+PRODUCTION_DB_PHASE_B_APPLIED=true
+PRODUCTION_DB_POST_APPLY_STRUCTURAL_PROOF=PASS
+PRODUCTION_WEB_DEPLOYED=true
+PRODUCTION_WEB_DEPLOYMENT_URL=https://vvipautoparts-blip.github.io/TIGER-VVIP/
+CUSTOM_DOMAIN_CONFIGURED=false
+COUNTRY_ACTIVATED=false
+OWNER_SEEDED=false
+DEFAULT_COUNTRY_CODE_CONFIGURED=false
+FUTURE_PRODUCTION_WRITE_AUTHORIZED=false
+```
 
-`IMPLEMENTED != VERIFIED`. `DEFERRED != COMPLETE`.
+## Remaining owner/external work
 
-## Session checkpoint
+1. Configure/verify GitHub Pages custom domain `tigerautoparts.shop`.
+2. Connect/verify Clerk Production DNS for `clerk.tigerautoparts.shop` through Clerk + the DNS provider.
+3. Keep country activation and Owner seeding as separate sovereign gates; they are not implied by the current dark launch.
+4. Any future Production mutation requires a fresh exact-scope authorization after no-drift verification.
 
-**Checkpoint status:** `PHASE_A_PRODUCTION_VERIFIED_PHASE_B_NEXT`
+## Resume procedure
 
-A fresh session must resolve PR #181 and its current exact head from GitHub, read the Phase A Production evidence file, re-read current Production/Staging state rather than trusting stale IDs/OIDs, and continue automatically into Phase B. It must not restart VVIP TIGER from zero or re-request routine owner authorization already granted.
+1. Read this file and reconciliation evidence.
+2. Re-read current `main`, Production migration ledger, Pages state, and provider state.
+3. Compare against the exact values above.
+4. If drift exists, reconcile first; do not reuse old capsules.
+5. Never retroactively label an already-completed action as owner-authorized unless contemporaneous evidence proves it.
