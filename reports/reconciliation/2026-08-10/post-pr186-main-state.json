@@ -1,0 +1,49 @@
+{
+  "schema_version": "POST_PR186_MAIN_STATE_V1",
+  "repository": "vvipautoparts-blip/TIGER-VVIP",
+  "observed_date": "2026-08-10",
+  "source": {
+    "current_main": "7ba4e31fe7079c5000778afb0c4110abe667a244",
+    "current_deployed_web_source": "3d8bbfc8611e53510b3bb776b8d9752df6595d8d",
+    "historical_phase_b_merge_h2": "35352136090bd39d9dd6bddc6682c9b9a2d3cafc",
+    "h2_to_current_main_ahead_by": 12,
+    "h2_to_current_main_behind_by": 0,
+    "deployed_web_to_current_main_ahead_by": 6,
+    "deployed_web_to_current_main_behind_by": 0,
+    "deployed_web_to_current_main_classification": "RECONCILIATION_GOVERNANCE_DOCUMENTATION_TEST_ONLY",
+    "product_runtime_changed": false,
+    "phase_b_migration_bytes_changed": false
+  },
+  "merge": {
+    "pull_request": 186,
+    "head_sha": "eda9564f5b3ef6b0a8a7e1c57623c551aaf090aa",
+    "base_sha": "3d8bbfc8611e53510b3bb776b8d9752df6595d8d",
+    "merge_commit_sha": "7ba4e31fe7079c5000778afb0c4110abe667a244",
+    "merged": true,
+    "merge_authorization_consumed": true
+  },
+  "post_merge_ci": {
+    "codeql_run": 31364784729,
+    "codeql_conclusion": "success"
+  },
+  "automatic_production_workflow": {
+    "run_id": 31364784650,
+    "source_sha": "7ba4e31fe7079c5000778afb0c4110abe667a244",
+    "status": "waiting",
+    "build_job_id": 93380744052,
+    "build_job_status": "waiting",
+    "steps_started": false,
+    "blocked_at_environment": "production-build",
+    "production_approval_granted": false,
+    "production_deployed_by_this_run": false,
+    "production_authorized_by_merge_phrase": false
+  },
+  "authority_boundaries": {
+    "future_production_write_authorized": false,
+    "country_activated": false,
+    "owner_seeded": false,
+    "default_country_code_configured": false,
+    "custom_domain_configured": false
+  },
+  "state": "POST_PR186_STATE_RECONCILED_WAITING_PRODUCTION_GATE"
+}

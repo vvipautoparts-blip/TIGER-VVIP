@@ -14,16 +14,17 @@ Never reuse stale authorization. Never infer authority from a completed deployme
 
 - Repository: `vvipautoparts-blip/TIGER-VVIP`
 - Default branch: `main`
-- Current `main` / deployed Web source: `3d8bbfc8611e53510b3bb776b8d9752df6595d8d`
+- Current `main`: `7ba4e31fe7079c5000778afb0c4110abe667a244`
+- Current deployed Web source: `3d8bbfc8611e53510b3bb776b8d9752df6595d8d`
 - Historical Phase B product merge H2: `35352136090bd39d9dd6bddc6682c9b9a2d3cafc`
 - H2 is an ancestor of current `main`.
-- H2 → current `main`: 6 commits, 0 behind; effective changed files are release-harness/test only:
-  - `.github/workflows/pages.yml`
-  - `tests/pages-production-artifact-isolation.test.cjs`
-  - `tests/test_vvip_public_release.py`
+- H2 → current `main`: 12 commits, 0 behind.
+- Previously deployed Web source `3d8bbfc8611e53510b3bb776b8d9752df6595d8d` → current `main`: 6 commits, 0 behind.
+- The `3d8bbfc…` → `7ba4e31…` delta is reconciliation/governance/documentation/test-only. It contains no Phase B migration-byte change and no product runtime change.
 - PR #183 isolated the missing-production-config test from ambient environment variables.
 - PR #184 moved the Production Pages build output outside the checkout source tree and added a regression test.
-- No Phase B migration bytes or product runtime files changed in this H2 → current-main drift.
+- PR #186 reconciled observed Production reality, unified the canonical state ledger at `docs/MASTER_PROJECT_STATE.md`, and merged as commit `7ba4e31fe7079c5000778afb0c4110abe667a244`.
+- Post-merge CodeQL run `31364784729` completed SUCCESS on `7ba4e31fe7079c5000778afb0c4110abe667a244`.
 
 ## Phase A
 
@@ -88,7 +89,7 @@ Frozen H2 SHA-256:
 
 ## Production Web deployment — observed reality
 
-GitHub Actions run:
+Last completed Production Pages deployment:
 - workflow: `Deploy TIGER VVIP production artifact`
 - run: `31338179484`
 - source: `3d8bbfc8611e53510b3bb776b8d9752df6595d8d`
@@ -101,6 +102,15 @@ GitHub Actions run:
 - artifact release manifest: `releaseEligible=true`, `sourceSha=3d8bbfc8611e53510b3bb776b8d9752df6595d8d`
 - artifact Production runtime config targets Supabase Production and keeps `defaultCountryCode` empty.
 
+Post-PR-186 automatic Production workflow:
+- run: `31364784650`
+- source: `7ba4e31fe7079c5000778afb0c4110abe667a244`
+- build job `93380744052`: `waiting`
+- job steps: not started
+- status: stopped at the protected `production-build` Human Gate
+- no Production approval was granted under the PR #186 merge authorization
+- no new Production deploy from this run has occurred
+
 Current GitHub Pages API still reports:
 
 ```text
@@ -109,12 +119,13 @@ html_url=https://vvipautoparts-blip.github.io/TIGER-VVIP/
 https_enforced=true
 ```
 
-Thus Web is deployed on the default Pages URL, but `tigerautoparts.shop` is not yet configured as the Pages custom domain.
+Thus Web remains deployed from `3d8bbfc…` on the default Pages URL. Current `main` is newer (`7ba4e31…`) but its automatic Production workflow is waiting at the human gate. `tigerautoparts.shop` is not yet configured as the Pages custom domain.
 
 ## Provider state
 
 ### GitHub Pages
-- Production deployment exists and succeeded.
+- Production deployment exists and succeeded from source `3d8bbfc8611e53510b3bb776b8d9752df6595d8d`.
+- The post-PR-186 run for `7ba4e31…` is waiting and is not authorized by the consumed merge authorization.
 - Custom domain remains not configured in Pages API.
 
 ### Clerk
@@ -138,18 +149,27 @@ Never claim global zero advisor warnings. Release criterion is zero new **materi
 
 The earlier PRG branch `ops/prg-v1-production-release-gate-20260809` is historical evidence and is stale as current state because Production changed after its closure.
 
-Current reconciliation branch:
-`ops/production-reconciliation-20260810`
+PR #186 (`ops/production-reconciliation-20260810`) is merged. Its purpose was reconciliation/evidence/governance only; it did not retroactively invent authorization for past Production actions and it does not grant authority for future Production writes.
 
-This reconciliation records already-observed state. It does **not** retroactively invent authorization for past Production actions and does not grant authority for future Production writes.
+PR #186 merge authorization is consumed. It must not be reused for the waiting Production run or any future merge.
+
+Current state-ledger maintenance branch:
+`ops/post-pr186-state-ledger-20260810`
+
+This branch may update documentation/evidence only. It has no Production deployment, database mutation, country activation, Owner seeding, or merge authority.
 
 ## Current hard state flags
 
 ```text
+CURRENT_MAIN_SHA=7ba4e31fe7079c5000778afb0c4110abe667a244
+CURRENT_DEPLOYED_WEB_SOURCE_SHA=3d8bbfc8611e53510b3bb776b8d9752df6595d8d
 PRODUCTION_DB_PHASE_B_APPLIED=true
 PRODUCTION_DB_POST_APPLY_STRUCTURAL_PROOF=PASS
 PRODUCTION_WEB_DEPLOYED=true
 PRODUCTION_WEB_DEPLOYMENT_URL=https://vvipautoparts-blip.github.io/TIGER-VVIP/
+POST_PR186_PRODUCTION_RUN=31364784650
+POST_PR186_PRODUCTION_RUN_STATUS=WAITING_HUMAN_GATE
+POST_PR186_PRODUCTION_DEPLOYED=false
 CUSTOM_DOMAIN_CONFIGURED=false
 COUNTRY_ACTIVATED=false
 OWNER_SEEDED=false
@@ -159,15 +179,16 @@ FUTURE_PRODUCTION_WRITE_AUTHORIZED=false
 
 ## Remaining owner/external work
 
-1. Configure/verify GitHub Pages custom domain `tigerautoparts.shop`.
-2. Connect/verify Clerk Production DNS for `clerk.tigerautoparts.shop` through Clerk + the DNS provider.
-3. Keep country activation and Owner seeding as separate sovereign gates; they are not implied by the current dark launch.
-4. Any future Production mutation requires a fresh exact-scope authorization after no-drift verification.
+1. Decide the separate Production Deployment Gate for `7ba4e31fe7079c5000778afb0c4110abe667a244`; do not treat any prior merge phrase as deployment authority.
+2. Configure/verify GitHub Pages custom domain `tigerautoparts.shop`.
+3. Connect/verify Clerk Production DNS for `clerk.tigerautoparts.shop` through Clerk + the DNS provider.
+4. Keep country activation and Owner seeding as separate sovereign gates; they are not implied by the current dark launch.
+5. Any future Production mutation requires a fresh exact-scope authorization after no-drift verification.
 
 ## Resume procedure
 
 1. Read this file and reconciliation evidence.
-2. Re-read current `main`, Production migration ledger, Pages state, and provider state.
+2. Re-read current `main`, Production migration ledger, Pages state, waiting Production workflow, and provider state.
 3. Compare against the exact values above.
 4. If drift exists, reconcile first; do not reuse old capsules.
 5. Never retroactively label an already-completed action as owner-authorized unless contemporaneous evidence proves it.
