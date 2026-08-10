@@ -1,0 +1,161 @@
+name: Production Reconciliation Read-Only Proof
+
+on:
+  push:
+    branches:
+      - ops/production-reconciliation-20260810
+
+permissions:
+  contents: read
+
+jobs:
+  proof:
+    name: Verify reconciled Production reality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout reconciliation branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+
+      - name: Fetch exact main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin main:refs/remotes/origin/main
+
+      - name: Verify current main and bounded drift
+        shell: bash
+        run: |
+          set -euo pipefail
+          H2='35352136090bd39d9dd6bddc6682c9b9a2d3cafc'
+          EXPECTED_MAIN='3d8bbfc8611e53510b3bb776b8d9752df6595d8d'
+          ACTUAL_MAIN="$(git rev-parse refs/remotes/origin/main)"
+          test "$ACTUAL_MAIN" = "$EXPECTED_MAIN"
+          test "$(git merge-base "$H2" "$ACTUAL_MAIN")" = "$H2"
+
+          mapfile -t FILES < <(git diff --name-only "$H2..$ACTUAL_MAIN" | sort)
+          EXPECTED=(
+            '.github/workflows/pages.yml'
+            'tests/pages-production-artifact-isolation.test.cjs'
+            'tests/test_vvip_public_release.py'
+          )
+          mapfile -t EXPECTED_SORTED < <(printf '%s\n' "${EXPECTED[@]}" | sort)
+          test "$(printf '%s\n' "${FILES[@]}")" = "$(printf '%s\n' "${EXPECTED_SORTED[@]}")"
+
+          printf '%s\n' "$ACTUAL_MAIN" > /tmp/main-sha.txt
+
+      - name: Verify immutable migration bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          MAIN='3d8bbfc8611e53510b3bb776b8d9752df6595d8d'
+          PHASE_B_EXPECTED='9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9'
+          IDENTITY_EXPECTED='ee361b3bbdbef9695ac23d6ad597c49c4732f19ee45d1154745e5e387e12d0d6'
+
+          git show "$MAIN:supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql" > /tmp/phase-b.sql
+          git show "$MAIN:supabase/migrations/20260808_vvip_identity_fail_closed_profile_resolver.sql" > /tmp/identity.sql
+          test "$(sha256sum /tmp/phase-b.sql | awk '{print $1}')" = "$PHASE_B_EXPECTED"
+          test "$(sha256sum /tmp/identity.sql | awk '{print $1}')" = "$IDENTITY_EXPECTED"
+
+      - name: Validate reconciliation evidence and authority boundaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('reports/reconciliation/2026-08-10')
+          current = json.loads((root / 'current-state.json').read_text())
+          db = json.loads((root / 'production-db-post-apply.json').read_text())
+          web = json.loads((root / 'web-deployment.json').read_text())
+          advisors = json.loads((root / 'advisor-post-phase-b.json').read_text())
+
+          main = '3d8bbfc8611e53510b3bb776b8d9752df6595d8d'
+          phase_b = '9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9'
+
+          assert current['source']['current_main'] == main
+          assert current['source']['drift_classification'] == 'RELEASE_HARNESS_AND_TEST_ONLY'
+          assert current['production_database']['phase_b_present'] is True
+          assert current['production_database']['phase_b_structural_proof'] == 'PASS'
+          assert current['production_database']['phase_a_regression'] == 'PASS'
+          assert current['production_database']['country_activated'] is False
+          assert current['production_database']['owner_seeded'] is False
+          assert current['production_web']['deployed'] is True
+          assert current['production_web']['source_sha'] == main
+          assert current['production_web']['custom_domain_configured'] is False
+          assert current['authority']['future_production_write_authorized'] is False
+          assert current['authority']['retroactive_authorization_asserted'] is False
+
+          assert db['migration']['frozen_sha256'] == phase_b
+          assert db['migration']['ledger_version'] == '20260809223120'
+          assert db['structural_proof']['result'] == 'PASS'
+          assert all(value == 0 for value in db['authority_seed_counts'].values())
+          assert all(value == 0 for value in db['marketplace_row_counts'].values())
+          assert db['phase_a_regression']['status'] == 'PASS'
+          assert db['safety']['country_activated'] is False
+          assert db['safety']['owner_seeded'] is False
+          assert db['safety']['production_write_performed_by_reconciliation'] is False
+
+          assert web['workflow']['head_sha'] == main
+          assert web['workflow']['conclusion'] == 'success'
+          assert web['jobs']['build']['conclusion'] == 'success'
+          assert web['jobs']['deploy']['conclusion'] == 'success'
+          assert web['deployment']['state'] == 'success'
+          assert web['artifact']['release_eligible'] is True
+          assert web['artifact']['default_country_code_configured'] is False
+          assert web['pages_api']['cname'] is None
+          assert web['pages_api']['custom_domain_configured'] is False
+
+          assert advisors['global_zero_warnings_claimed'] is False
+          assert advisors['material_phase_b_security_regression_detected'] is False
+          assert advisors['production_write_performed_by_reconciliation'] is False
+
+          state = Path('MASTER_PROJECT_STATE.md').read_text()
+          required = (
+              'PRODUCTION_DB_PHASE_B_APPLIED=true',
+              'PRODUCTION_DB_POST_APPLY_STRUCTURAL_PROOF=PASS',
+              'PRODUCTION_WEB_DEPLOYED=true',
+              'CUSTOM_DOMAIN_CONFIGURED=false',
+              'COUNTRY_ACTIVATED=false',
+              'OWNER_SEEDED=false',
+              'FUTURE_PRODUCTION_WRITE_AUTHORIZED=false',
+          )
+          for marker in required:
+              assert marker in state, marker
+          PY
+
+      - name: Build sanitized reconciliation proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          proof = {
+              'schema_version': 'PRODUCTION_RECONCILIATION_PROOF_V1',
+              'repository': 'vvipautoparts-blip/TIGER-VVIP',
+              'main_sha': Path('/tmp/main-sha.txt').read_text().strip(),
+              'source_drift': 'RELEASE_HARNESS_AND_TEST_ONLY',
+              'phase_b_production': 'APPLIED_DARK_LAUNCH_CANONICAL',
+              'phase_a_regression': 'PASS',
+              'production_web_deployed': True,
+              'custom_domain_configured': False,
+              'country_activated': False,
+              'owner_seeded': False,
+              'future_production_write_authorized': False,
+              'state': 'PRODUCTION_RECONCILIATION_MACHINE_PROOF_COMPLETE'
+          }
+          Path('production-reconciliation-proof.json').write_text(json.dumps(proof, indent=2) + '\n')
+          print(json.dumps(proof, sort_keys=True))
+          PY
+
+      - name: Upload sanitized proof
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: production-reconciliation-proof-${{ github.sha }}
+          path: production-reconciliation-proof.json
+          if-no-files-found: error
+          retention-days: 30

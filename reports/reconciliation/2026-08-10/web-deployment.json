@@ -1,0 +1,38 @@
+{
+  "schema_version": "PRODUCTION_WEB_DEPLOYMENT_RECONCILIATION_V1",
+  "observation_mode": "READ_ONLY",
+  "workflow": {
+    "name": "Deploy TIGER VVIP production artifact",
+    "run_id": 31338179484,
+    "head_sha": "3d8bbfc8611e53510b3bb776b8d9752df6595d8d",
+    "conclusion": "success"
+  },
+  "jobs": {
+    "build": {"id": 93307359324, "name": "Build and verify production artifact", "conclusion": "success"},
+    "deploy": {"id": 93308077474, "name": "Deploy production", "conclusion": "success", "deploy_step_executed": true}
+  },
+  "deployment": {
+    "id": 5823332376,
+    "environment": "github-pages",
+    "state": "success",
+    "environment_url": "https://vvipautoparts-blip.github.io/TIGER-VVIP/"
+  },
+  "artifact": {
+    "id": 9045047873,
+    "name": "github-pages",
+    "digest": "sha256:f7c7f16fd1ec49b27738c01560ca7a972a376700ae5ef9ee77ae87f66187f7fd",
+    "release_manifest_source_sha": "3d8bbfc8611e53510b3bb776b8d9752df6595d8d",
+    "release_eligible": true,
+    "runtime_environment": "production",
+    "supabase_project_ref": "zelcngyyvbomuzokvuxo",
+    "default_country_code_configured": false
+  },
+  "pages_api": {
+    "html_url": "https://vvipautoparts-blip.github.io/TIGER-VVIP/",
+    "cname": null,
+    "public": true,
+    "https_enforced": true,
+    "custom_domain_configured": false
+  },
+  "classification": "PRODUCTION_WEB_DEPLOYED_DEFAULT_PAGES_URL_CUSTOM_DOMAIN_PENDING"
+}

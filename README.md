@@ -30,11 +30,21 @@ Key rules:
 - provider secrets/private signing keys never enter browser code;
 - VVIP TIGER retains ownership of roles, permissions, account status, RLS/data access, owner approvals, and audit evidence.
 
-Legacy Firebase/Supabase password runtimes have been removed from the current product tree. Historical compatibility routes such as `reset-password.html` now redirect users back to the external identity entry rather than performing local recovery.
+Legacy Firebase/Supabase password runtimes have been removed from the current product tree. Historical compatibility routes such as `reset-password.html` redirect users back to the external identity entry rather than performing local recovery.
 
-## Known identity launch gap
+## Identity remediation state
 
-The historical profile resolver still contains a legacy email-based ownership recovery path (`legacy_profile_recovered`). It is explicitly tracked in [Federated Identity Known Gap](docs/security/FEDERATED_IDENTITY_KNOWN_GAP_20260808.md) and must be replaced by a forward, fail-closed migration before Production identity launch.
+The historical email-linking compatibility gap is **semantically remediated in the deployed Production resolver**. Production uses subject-first profile ownership and does not transfer ownership of an existing profile from browser-supplied email. Sovereign Staging runtime proof also passed with rollback and zero synthetic residue.
+
+The standalone repository IDENTITY-01 migration is retained as forward provenance but is not reapplied to Production while the deployed Phase A resolver remains semantically canonical. See [Federated Identity Known Gap](docs/security/FEDERATED_IDENTITY_KNOWN_GAP_20260808.md).
+
+## Production state
+
+The current Production Web source is `3d8bbfc8611e53510b3bb776b8d9752df6595d8d`. GitHub Pages deployment succeeded on the repository's default Pages URL. The custom domain `tigerautoparts.shop` is not yet configured in the GitHub Pages API.
+
+Phase B marketplace/authority schema is present in Supabase Production as a **dark launch**. Fresh read-only reconciliation verified RLS/FORCE RLS, expected schema/policies/storage boundaries, zero authority/country seed rows, zero marketplace rows, and a PASS Phase A regression proof.
+
+See `MASTER_PROJECT_STATE.md` and `reports/reconciliation/2026-08-10/` for the authoritative current-state evidence once the reconciliation PR is merged.
 
 ## Runtime boundary
 
@@ -56,4 +66,4 @@ Then open `http://localhost:800/index.html`.
 
 ## Production boundary
 
-Repository readiness does not itself authorize Production deployment, Production database mutation, provider purchases, real charges, or protected identity-provider configuration changes. Those actions require their separate protected release/evidence process.
+Observed Production state does not grant authority for future Production mutations. Country activation, Owner seeding, data mutation, provider configuration changes, and future deployments remain independently governed and must fail closed on drift.
