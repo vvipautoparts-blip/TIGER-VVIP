@@ -72,8 +72,11 @@
     const redirectUrl = new URL(redirectPath, root.location.href).href;
     clerk.mountSignIn(host, {
       routing: "hash",
+      withSignUp: true,
       fallbackRedirectUrl: redirectUrl,
-      forceRedirectUrl: redirectUrl
+      forceRedirectUrl: redirectUrl,
+      signUpFallbackRedirectUrl: redirectUrl,
+      signUpForceRedirectUrl: redirectUrl
     });
     if (typeof clerk.addListener === "function") {
       clerk.addListener(function () {
