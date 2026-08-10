@@ -1,15 +1,15 @@
 {
-  "name": "TIGER VVIP AutoParts",
-  "short_name": "TIGER VVIP",
+  "name": "VVIP TIGER",
+  "short_name": "VVIP TIGER",
   "lang": "ar",
   "dir": "rtl",
-  "start_url": "./index.html#auth-section",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f0f2f5",
   "theme_color": "#1877F2",
-  "description": "منصة TIGER VVIP لإدارة الطلبات والعمولات والرواتب.",
+  "description": "منصة VVIP TIGER العالمية للإعلانات المبوبة في المركبات والمواد والعقارات.",
   "icons": [
     {
       "src": "icons/icon-192.png",

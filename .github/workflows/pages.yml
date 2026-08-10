@@ -103,3 +103,113 @@ jobs:
       - name: Deploy exact verified artifact
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Set up Python for live verification
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Verify deployed production surface
+        env:
+          VVIP_PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          VVIP_SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          base="${VVIP_PAGE_URL%/}/"
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          paths=(
+            index.html
+            privacy-policy.html
+            terms-of-service.html
+            data-deletion.html
+            manifest.webmanifest
+            runtime-config.js
+            sw-vvip-static.js
+            scripts/vvip-safe-ux-guard.js
+            scripts/runtime/vvip-runtime-loader.js
+            scripts/runtime/vvip-marketplace-repository.js
+            scripts/runtime/vvip-marketplace-rollback.js
+            scripts/runtime/vvip-my-listings.js
+            scripts/vvip-pr30-resilience.js
+            scripts/vvip-production-marketplace.js
+            styles/vvip-production-marketplace.css
+            icons/icon-192.png
+            icons/icon-512.png
+          )
+          for path in "${paths[@]}"; do
+            target="$tmp/$(printf '%s' "$path" | tr '/' '_')"
+            ok=0
+            for attempt in 1 2 3 4 5 6 7 8 9 10; do
+              if curl --fail --location --silent --show-error \
+                --connect-timeout 10 --max-time 30 \
+                "${base}${path}" -o "$target"; then
+                ok=1
+                break
+              fi
+              sleep 3
+            done
+            if [ "$ok" -ne 1 ] || [ ! -s "$target" ]; then
+              echo "VVIP_POST_DEPLOY_MISSING=$path" >&2
+              exit 1
+            fi
+          done
+          if ! grep -Fq "$VVIP_SOURCE_SHA" "$tmp/runtime-config.js"; then
+            echo "VVIP_POST_DEPLOY_SHA_MISMATCH" >&2
+            exit 1
+          fi
+          if grep -Fq 'pk_test_' "$tmp/runtime-config.js"; then
+            echo "VVIP_POST_DEPLOY_TEST_CONFIG_FORBIDDEN" >&2
+            exit 1
+          fi
+          python - "$tmp/runtime-config.js" <<'PY'
+          import base64
+          import json
+          import re
+          import sys
+          import urllib.parse
+          import urllib.request
+
+          text = open(sys.argv[1], encoding='utf-8').read()
+          match = re.search(r'Object\.freeze\((\{.*\})\);', text)
+          if not match:
+              raise SystemExit('VVIP_RUNTIME_CONFIG_PARSE_FAILED')
+          config = json.loads(match.group(1))
+
+          key = str(config.get('clerkPublishableKey') or '')
+          payload = key.split('_', 2)[-1].replace('-', '+').replace('_', '/')
+          payload += '=' * ((4 - len(payload) % 4) % 4)
+          try:
+              clerk_host = base64.b64decode(payload, validate=True).decode('utf-8').rstrip('$').strip()
+          except Exception:
+              raise SystemExit('VVIP_CLERK_FRONTEND_API_DECODE_FAILED')
+          if not re.fullmatch(r'[A-Za-z0-9.-]+', clerk_host):
+              raise SystemExit('VVIP_CLERK_FRONTEND_API_INVALID')
+
+          def probe(url, headers=None):
+              request = urllib.request.Request(url, headers=headers or {'User-Agent': 'VVIP-TIGER-Production-Verify/1.0'})
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  if response.status < 200 or response.status >= 300:
+                      raise RuntimeError('unexpected status')
+                  response.read(1)
+
+          try:
+              probe(f'https://{clerk_host}/npm/@clerk/ui@1/dist/ui.browser.js')
+              probe(f'https://{clerk_host}/npm/@clerk/clerk-js@6/dist/clerk.browser.js')
+          except Exception:
+              raise SystemExit('VVIP_CLERK_LIVE_PROBE_FAILED')
+
+          supabase_url = str(config.get('supabaseUrl') or '').rstrip('/')
+          supabase_key = str(config.get('supabasePublishableKey') or '')
+          listing_url = supabase_url + '/rest/v1/vvip_marketplace_listings?select=listing_id&limit=1'
+          try:
+              probe(listing_url, {
+                  'apikey': supabase_key,
+                  'Accept': 'application/json',
+                  'User-Agent': 'VVIP-TIGER-Production-Verify/1.0',
+              })
+          except Exception:
+              raise SystemExit('VVIP_SUPABASE_LIVE_PROBE_FAILED')
+          print('VVIP_RUNTIME_DEPENDENCIES=PASS')
+          PY
+          echo "VVIP_POST_DEPLOY_SMOKE=PASS"

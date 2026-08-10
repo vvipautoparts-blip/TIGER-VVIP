@@ -19,3 +19,20 @@ test('production Pages artifact is built outside the checkout source tree', () =
   assert.doesNotMatch(yaml, /--output\s+["']?dist\/public["']?/);
   assert.match(yaml, /path:\s*["']?\$\{\{\s*runner\.temp\s*\}\}\/vvip-public["']?/);
 });
+
+test('production deploy performs live same-SHA public surface verification', () => {
+  const yaml = workflow();
+
+  assert.match(yaml, /name:\s*Verify deployed production surface/);
+  assert.match(yaml, /VVIP_PAGE_URL:\s*\$\{\{\s*steps\.deployment\.outputs\.page_url\s*\}\}/);
+  assert.match(yaml, /VVIP_SOURCE_SHA:\s*\$\{\{\s*github\.sha\s*\}\}/);
+  assert.match(yaml, /runtime-config\.js/);
+  assert.match(yaml, /sw-vvip-static\.js/);
+  assert.match(yaml, /scripts\/vvip-safe-ux-guard\.js/);
+  assert.match(yaml, /grep\s+-Fq\s+["']?\$VVIP_SOURCE_SHA["']?/);
+  assert.match(yaml, /npm\/@clerk\/ui@1\/dist\/ui\.browser\.js/);
+  assert.match(yaml, /npm\/@clerk\/clerk-js@6\/dist\/clerk\.browser\.js/);
+  assert.match(yaml, /rest\/v1\/vvip_marketplace_listings\?select=listing_id&limit=1/);
+  assert.match(yaml, /VVIP_RUNTIME_DEPENDENCIES=PASS/);
+  assert.match(yaml, /VVIP_POST_DEPLOY_SMOKE=PASS/);
+});

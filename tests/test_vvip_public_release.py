@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import os
+import re
 import tempfile
 import unittest
 from unittest import mock
@@ -20,18 +22,22 @@ class PublicReleaseTests(unittest.TestCase):
         listing = "const listings = [1];" if fixture_data else "window.VVIP_PR29={};"
         (root / "index.html").write_text(
             f'<html><head><script data-clerk-publishable-key="{key}" src="https://x.clerk.accounts.dev/a.js"></script>'
-            '<script src="scripts/vvip-pr29-home-marketplace.js"></script></head><body></body></html>',
+            '<script src="scripts/vvip-pr29-home-marketplace.js"></script></head>'
+            '<body><a href="private-profile-p03.html" data-safe-nav data-nav-target="private-profile-p03.html">حسابي</a></body></html>',
             encoding="utf-8",
         )
         (root / "scripts").mkdir()
         (root / "scripts" / "vvip-production-marketplace.js").write_text(listing, encoding="utf-8")
         (root / "scripts" / "vvip-pr30-resilience.js").write_text("", encoding="utf-8")
+        (root / "scripts" / "vvip-safe-ux-guard.js").write_text("", encoding="utf-8")
         (root / "scripts" / "vvip-p03-route-map.js").write_text("", encoding="utf-8")
         (root / "scripts" / "vvip-p03-profile.js").write_text("", encoding="utf-8")
         (root / "scripts" / "vvip-p03-sign-out.js").write_text("", encoding="utf-8")
         (root / "scripts" / "runtime").mkdir()
         (root / "scripts" / "runtime" / "vvip-runtime-loader.js").write_text("", encoding="utf-8")
         (root / "scripts" / "runtime" / "vvip-marketplace-repository.js").write_text("", encoding="utf-8")
+        (root / "scripts" / "runtime" / "vvip-marketplace-rollback.js").write_text("", encoding="utf-8")
+        (root / "scripts" / "runtime" / "vvip-my-listings.js").write_text("", encoding="utf-8")
         (root / "styles").mkdir()
         (root / "styles" / "vvip-production-marketplace.css").write_text("", encoding="utf-8")
         for name in module.PUBLIC_ROOT_FILES:
@@ -39,6 +45,9 @@ class PublicReleaseTests(unittest.TestCase):
             if not path.exists():
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text("", encoding="utf-8")
+        (root / "manifest.webmanifest").write_text(
+            json.dumps({"start_url": "./index.html"}), encoding="utf-8"
+        )
         (root / "tests").mkdir()
         (root / "tests" / "secret.sql").write_text("select 1", encoding="utf-8")
         (root / "docs").mkdir()
@@ -53,6 +62,31 @@ class PublicReleaseTests(unittest.TestCase):
             "TIGER_DEFAULT_COUNTRY_CODE": "JO",
         }
 
+    @staticmethod
+    def assert_local_html_refs_exist(testcase: unittest.TestCase, output: Path) -> None:
+        ref_pattern = re.compile(r'(?:src|href)=["\']([^"\']+)["\']', re.IGNORECASE)
+        broken: list[str] = []
+        for html in output.rglob("*.html"):
+            text = html.read_text(encoding="utf-8", errors="replace")
+            for raw in ref_pattern.findall(text):
+                value = raw.strip()
+                if not value or value.startswith(("#", "//", "data:", "mailto:", "tel:", "javascript:")):
+                    continue
+                if re.match(r"^[a-z][a-z0-9+.-]*:", value, re.IGNORECASE):
+                    continue
+                relative = value.split("#", 1)[0].split("?", 1)[0]
+                if not relative:
+                    continue
+                target = (html.parent / relative).resolve()
+                try:
+                    target.relative_to(output.resolve())
+                except ValueError:
+                    broken.append(f"{html.relative_to(output)} -> {value} [escape]")
+                    continue
+                if not target.is_file():
+                    broken.append(f"{html.relative_to(output)} -> {value}")
+        testcase.assertEqual(broken, [], "broken public artifact references: " + "; ".join(broken))
+
     def test_candidate_excludes_internal_paths_and_transforms_index(self):
         with tempfile.TemporaryDirectory() as temp:
             source = Path(temp) / "src"
@@ -65,8 +99,13 @@ class PublicReleaseTests(unittest.TestCase):
             index = (output / "index.html").read_text(encoding="utf-8")
             self.assertNotIn("pk_test_demo", index)
             self.assertNotIn("vvip-pr29-home-marketplace.js", index)
+            self.assertNotIn("private-profile-p03.html", index)
+            self.assertIn('href="#marketplace"', index)
+            self.assertIn("data-account-route", index)
             self.assertIn("runtime-config.js", index)
             self.assertIn("vvip-production-marketplace.js", index)
+            self.assertTrue((output / "sw-vvip-static.js").is_file())
+            self.assertTrue((output / "scripts" / "vvip-safe-ux-guard.js").is_file())
             self.assertEqual(manifest["sourceSha"], "abc")
 
     def test_production_requires_real_public_configuration(self):
@@ -100,7 +139,24 @@ class PublicReleaseTests(unittest.TestCase):
                 manifest = module.build(source, output, mode="production", source_sha="abc")
             self.assertTrue(manifest["releaseEligible"])
             self.assertIn("runtime-config.js", manifest["files"])
+            self.assertIn("sw-vvip-static.js", manifest["files"])
+            self.assertIn("scripts/vvip-safe-ux-guard.js", manifest["files"])
             self.assertFalse((output / "CNAME").exists())
+            self.assert_local_html_refs_exist(self, output)
+
+    def test_repository_production_artifact_is_reference_closed(self):
+        source = MODULE_PATH.parents[1]
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp) / "out"
+            with mock.patch.dict(os.environ, self.production_env(), clear=False):
+                manifest = module.build(source, output, mode="production", source_sha="closure-test")
+            self.assertTrue(manifest["releaseEligible"])
+            self.assert_local_html_refs_exist(self, output)
+            self.assertTrue((output / "sw-vvip-static.js").is_file())
+            webmanifest = json.loads((output / "manifest.webmanifest").read_text(encoding="utf-8"))
+            start_url = str(webmanifest.get("start_url") or "").split("#", 1)[0].split("?", 1)[0]
+            start_path = start_url.removeprefix("./") or "index.html"
+            self.assertTrue((output / start_path).is_file())
 
     def test_production_allows_defensive_clerk_dev_domain_guard(self):
         with tempfile.TemporaryDirectory() as temp:

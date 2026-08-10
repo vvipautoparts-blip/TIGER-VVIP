@@ -25,6 +25,7 @@ PUBLIC_ROOT_FILES = (
     "data-deletion.html",
     "manifest.webmanifest",
     "auth-clerk-index.js",
+    "sw-vvip-static.js",
     "vvip-identity.css",
     "enhanced-components.css",
     "styles.css",
@@ -39,6 +40,7 @@ PUBLIC_PREFIXES = (
 PUBLIC_SCRIPT_FILES = (
     "scripts/vvip-pr30-resilience.js",
     "scripts/vvip-production-marketplace.js",
+    "scripts/vvip-safe-ux-guard.js",
 )
 
 DENIED_SEGMENTS = {
@@ -84,6 +86,11 @@ INDEX_REMOVE_STYLES = (
     "styles/vvip-pr36-media.css",
 )
 
+ACCOUNT_ROUTE_PATTERN = re.compile(
+    r'href=(["\'])private-profile-p03\.html\1(?P<attrs>[^>]*)',
+    flags=re.IGNORECASE,
+)
+
 
 def _safe_relative(path: str) -> str:
     normalized = PurePosixPath(path.replace("\\", "/"))
@@ -114,6 +121,18 @@ def _copy(source: Path, output: Path, relative: str) -> None:
     shutil.copy2(src, destination)
 
 
+def _close_account_routes(text: str) -> str:
+    def replace(match: re.Match[str]) -> str:
+        attrs = match.group("attrs")
+        attrs = re.sub(r"\s+data-safe-nav(?:=(?:[\"'][^\"']*[\"']|[^\s>]+))?", "", attrs, flags=re.IGNORECASE)
+        attrs = re.sub(r"\s+data-nav-target=(?:[\"']private-profile-p03\.html[\"']|private-profile-p03\.html)", "", attrs, flags=re.IGNORECASE)
+        if not re.search(r"\bdata-account-route\b", attrs, flags=re.IGNORECASE):
+            attrs += " data-account-route"
+        return f'href="#marketplace"{attrs}'
+
+    return ACCOUNT_ROUTE_PATTERN.sub(replace, text)
+
+
 def _transform_index(text: str) -> str:
     text = re.sub(
         r"\s*<script[^>]+(?:data-clerk-publishable-key|clerk\.accounts\.dev)[^>]*></script>",
@@ -135,6 +154,8 @@ def _transform_index(text: str) -> str:
             text,
             flags=re.IGNORECASE,
         )
+
+    text = _close_account_routes(text)
 
     injection = """
   <link rel="stylesheet" href="styles/vvip-production-marketplace.css">

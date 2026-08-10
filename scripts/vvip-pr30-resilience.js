@@ -133,7 +133,36 @@
     return true;
   }
 
+  function resetMarketplaceView(event) {
+    const reset = event.target.closest("[data-reset-listings]");
+    if (!reset) return false;
+
+    event.preventDefault();
+    const search = document.querySelector("[data-listing-search]");
+    if (search) {
+      search.value = "";
+      search.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+
+    const allSectors = document.querySelector('[data-sector-filter="all"]');
+    if (allSectors) allSectors.click();
+    else if (window.VVIP_PR29 && typeof window.VVIP_PR29.refresh === "function") {
+      window.VVIP_PR29.refresh();
+    }
+    return true;
+  }
+
+  function isProductionRuntimeSurface(target) {
+    if (!window.__VVIP_RUNTIME_CONFIG__ || !target || !target.closest) return false;
+    return Boolean(target.closest(
+      "[data-vvip-unified-home], [data-vvip-listing-detail-sheet], " +
+      "[data-my-listings-modal], [data-production-listing-modal]"
+    ));
+  }
+
   function guardAction(event) {
+    if (resetMarketplaceView(event)) return;
+
     const safeLink = event.target.closest("[data-safe-nav]");
     if (safeLink) {
       event.preventDefault();
@@ -143,6 +172,8 @@
       );
       return;
     }
+
+    if (isProductionRuntimeSurface(event.target)) return;
 
     const button = event.target.closest("button");
     if (!button || button.closest("#clerk-main-auth")) return;
