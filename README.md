@@ -44,7 +44,7 @@ The current Production Web source is `3d8bbfc8611e53510b3bb776b8d9752df6595d8d`.
 
 Phase B marketplace/authority schema is present in Supabase Production as a **dark launch**. Fresh read-only reconciliation verified RLS/FORCE RLS, expected schema/policies/storage boundaries, zero authority/country seed rows, zero marketplace rows, and a PASS Phase A regression proof.
 
-See `MASTER_PROJECT_STATE.md` and `reports/reconciliation/2026-08-10/` for the authoritative current-state evidence once the reconciliation PR is merged.
+See `docs/MASTER_PROJECT_STATE.md` and `reports/reconciliation/2026-08-10/` for the authoritative current-state evidence once the reconciliation PR is merged.
 
 ## Runtime boundary
 

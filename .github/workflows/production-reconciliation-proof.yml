@@ -19,6 +19,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
       - name: Fetch exact main
         shell: bash
         run: |
@@ -113,7 +118,7 @@ jobs:
           assert advisors['material_phase_b_security_regression_detected'] is False
           assert advisors['production_write_performed_by_reconciliation'] is False
 
-          state = Path('MASTER_PROJECT_STATE.md').read_text()
+          state = Path('docs/MASTER_PROJECT_STATE.md').read_text()
           required = (
               'PRODUCTION_DB_PHASE_B_APPLIED=true',
               'PRODUCTION_DB_POST_APPLY_STRUCTURAL_PROOF=PASS',
