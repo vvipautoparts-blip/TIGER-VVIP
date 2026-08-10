@@ -102,7 +102,7 @@ jobs:
     steps:
       - name: Deploy exact verified artifact
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
       - name: Set up Python for live verification
         uses: actions/setup-python@v6
