@@ -7,7 +7,7 @@
 
 ## Historical gap
 
-Historical migration `supabase/migrations/20260710_vvip_tiger_atomic_profile_resolver_rpc.sql` contained a legacy recovery path that could bind an unbound profile by email. The historical migration remains in Git history for provenance and is not rewritten.
+Historical migration `supabase/migrations/20260710_vvip_tiger_atomic_profile_resolver_rpc.sql` contained a legacy recovery path that could bind an unbound profile by email. That historical path returned the marker `legacy_profile_recovered`. The historical migration remains in Git history for provenance and is not rewritten.
 
 ## Repository remediation
 
