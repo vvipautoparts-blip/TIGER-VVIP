@@ -1,0 +1,47 @@
+{
+  "schema_version": "PRODUCTION_RECONCILIATION_CLOSURE_V1",
+  "repository": "vvipautoparts-blip/TIGER-VVIP",
+  "reconciled_main_sha": "3d8bbfc8611e53510b3bb776b8d9752df6595d8d",
+  "historical_h2_sha": "35352136090bd39d9dd6bddc6682c9b9a2d3cafc",
+  "source_drift_classification": "RELEASE_HARNESS_AND_TEST_ONLY",
+  "production_db": {
+    "phase_b_applied": true,
+    "ledger_version": "20260809223120",
+    "post_apply_structural_proof": "PASS",
+    "phase_a_regression": "PASS",
+    "country_activated": false,
+    "owner_seeded": false,
+    "authority_seed_residue": 0,
+    "marketplace_seed_residue": 0
+  },
+  "production_web": {
+    "deployed": true,
+    "workflow_run_id": 31338179484,
+    "deployment_id": 5823332376,
+    "environment_url": "https://vvipautoparts-blip.github.io/TIGER-VVIP/",
+    "custom_domain_configured": false
+  },
+  "machine_proof": {
+    "reconciliation_commit": "5878be4b49a6f2dc770c94760c6ca4dd2bc9b916",
+    "workflow_run_id": 31358776276,
+    "workflow_job_id": 93363337167,
+    "conclusion": "success",
+    "artifact_id": 9051562287,
+    "artifact_digest": "sha256:cd1bdae5ae1f3934af17cede381f6b4baf470c9e988d39bb34c4a7317b745d92"
+  },
+  "governance": {
+    "retroactive_authorization_asserted": false,
+    "future_production_write_authorized": false,
+    "production_write_performed_by_reconciliation": false
+  },
+  "remaining_external_gates": [
+    "GITHUB_PAGES_CUSTOM_DOMAIN",
+    "CLERK_PRODUCTION_DNS_VERIFICATION"
+  ],
+  "separate_future_sovereign_gates": [
+    "COUNTRY_ACTIVATION",
+    "OWNER_SEEDING",
+    "ANY_FUTURE_PRODUCTION_MUTATION"
+  ],
+  "state": "PRODUCTION_RECONCILIATION_CLOSED_READ_ONLY"
+}
