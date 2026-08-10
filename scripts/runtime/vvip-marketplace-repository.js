@@ -7,6 +7,15 @@
   "use strict";
 
   const PUBLIC_READ_TTL_MS = 30_000;
+  const APPROVED_SECTORS = Object.freeze([
+    "automotive",
+    "real-estate",
+    "construction",
+    "professional-services",
+    "equipment",
+    "trade-supply",
+    "engineering-consulting"
+  ]);
 
   function marketplaceError(code, cause) {
     const error = new Error(code);
@@ -35,7 +44,7 @@
   function normalizeDraft(input, config) {
     const source = input && typeof input === "object" ? input : {};
     const sector = text(source.sector, 32);
-    if (!["automotive", "materials", "real-estate"].includes(sector)) {
+    if (!APPROVED_SECTORS.includes(sector)) {
       throw marketplaceError("LISTING_SECTOR_INVALID");
     }
     const title = text(source.title, 80);
@@ -161,6 +170,22 @@
   function assertClientResult(result, code) {
     if (result && result.error) throw marketplaceError(code, result.error);
     return result ? result.data : null;
+  }
+
+  function normalizePublicationIntent(listingId, options) {
+    const id = text(listingId, 64);
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) {
+      throw marketplaceError("LISTING_ID_INVALID");
+    }
+    const source = options && typeof options === "object" ? options : {};
+    const planId = text(source.planId || source.plan_id, 80);
+    if (!planId) throw marketplaceError("VISIBILITY_PLAN_REQUIRED");
+    const entitlementReceipt = text(source.entitlementReceipt || source.entitlement_receipt, 512);
+    return Object.freeze({
+      listingId: id,
+      planId: planId,
+      entitlementReceipt: entitlementReceipt
+    });
   }
 
   function createMarketplaceRepository(options) {
@@ -362,6 +387,32 @@
       }
     }
 
+    async function createDraftWithMedia(input, images) {
+      const draft = await createDraft(input);
+      try {
+        await uploadMedia(draft.listing_id, images);
+        return draft;
+      } catch (error) {
+        try {
+          await client.from("vvip_marketplace_listings").delete().eq("listing_id", draft.listing_id);
+        } catch (_) { /* RLS-safe cleanup attempt */ }
+        throw error;
+      }
+    }
+
+    async function prepareForPublication(listingId, options) {
+      actorId(clerk);
+      const intent = normalizePublicationIntent(listingId, options);
+      if (!intent.entitlementReceipt) {
+        throw marketplaceError("ENTITLEMENT_REQUIRED");
+      }
+
+      // Publication is intentionally fail-closed until a trusted server/edge
+      // transport verifies the payment/visibility entitlement and performs the
+      // state transition. A browser-supplied receipt is never sufficient.
+      throw marketplaceError("PUBLICATION_TRANSPORT_UNAVAILABLE");
+    }
+
     async function submitForReview(listingId) {
       actorId(clerk);
       const result = await client
@@ -422,6 +473,8 @@
       listMine,
       createDraft,
       uploadMedia,
+      createDraftWithMedia,
+      prepareForPublication,
       submitForReview,
       createAndSubmit,
       toggleFavorite,
@@ -431,6 +484,7 @@
 
   return Object.freeze({
     PUBLIC_READ_TTL_MS,
+    APPROVED_SECTORS,
     createMarketplaceRepository,
     normalizeDraft,
     normalizePriceMinor,
