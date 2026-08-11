@@ -83,6 +83,7 @@ function validAssignmentCommand(overrides = {}) {
     scope: { level: "country", countryCode: "JO" },
     startsAt: "2026-08-05T12:00:00.000Z",
     expiresAt: "2026-09-05T12:00:00.000Z",
+    identityBinding: { type: "ACCOUNT_ID", value: "acct_staff_0001" },
     ...overrides
   };
 }
@@ -135,7 +136,13 @@ async function createHandler(overrides = {}) {
       return { committed: false, value: null };
     }),
     clock: overrides.clock || (() => NOW),
-    digestSha256: overrides.digestSha256 || sha256Digest
+    digestSha256: overrides.digestSha256 || sha256Digest,
+    resolveRoleIdentityBinding: overrides.resolveRoleIdentityBinding || (async ({ subjectId }) => ({
+      verified: true,
+      subjectId,
+      accountId: "acct_staff_0001",
+      clerkUserId: "user_staff_0001"
+    }))
   });
   return { handler, calls };
 }
@@ -257,7 +264,6 @@ test("expired stale and permission-deficient envelopes fail before transaction",
       code: "PERMISSION_DENIED"
     }
   ];
-
   for (const fixture of cases) {
     const { handler, calls } = await createHandler({ trustedState: fixture.trustedState });
     const result = await handler.execute(validRequest({ envelope: fixture.envelope }));
