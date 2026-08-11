@@ -1,7 +1,7 @@
 # VVIP TIGER Guest-First Access Design
 
-**Date:** 2026-08-11  
-**Status:** Owner-approved for implementation  
+**Date:** 2026-08-11
+**Status:** Owner-approved for implementation
 **Scope:** P0 authentication resilience and guest browsing only. Marketplace creation/checkout convergence remains isolated in PR #189.
 
 ## Problem statement
