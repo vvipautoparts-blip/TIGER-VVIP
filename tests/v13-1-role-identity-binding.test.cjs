@@ -7,7 +7,8 @@ const path = require("node:path");
 const { pathToFileURL } = require("node:url");
 
 const boundaryPath = path.resolve(__dirname, "../scripts/authorization/v13-authorization-command-boundary.js");
-const consolePath = path.resolve(__dirname, "../operations-console/operations-console.js");
+const identityUiPath = path.resolve(__dirname, "../operations-console/role-identity-binding.js");
+const consoleIndexPath = path.resolve(__dirname, "../operations-console/index.html");
 
 async function loadBoundary() {
   return import(`${pathToFileURL(boundaryPath).href}?role-identity=${Date.now()}-${Math.random()}`);
@@ -115,12 +116,15 @@ test("role assignment accepts Clerk user id but rejects malformed or unsupported
   }
 });
 
-test("operations console role assignment asks for either internal account id or Clerk user id", () => {
-  const source = fs.readFileSync(consolePath, "utf8");
-  assert.match(source, /name=["']identityType["']/);
-  assert.match(source, /value=["']ACCOUNT_ID["']/);
-  assert.match(source, /value=["']CLERK_USER_ID["']/);
-  assert.match(source, /name=["']identityValue["']/);
-  assert.match(source, /رقم\/معرّف الحساب|رقم الحساب/);
-  assert.match(source, /Clerk/);
+test("operations console loads isolated role identity binding UI", () => {
+  const source = fs.readFileSync(identityUiPath, "utf8");
+  const index = fs.readFileSync(consoleIndexPath, "utf8");
+  assert.match(index, /role-identity-binding\.js/);
+  assert.match(source, /name\s*=\s*['"]identityType['"]/);
+  assert.match(source, /value:\s*['"]ACCOUNT_ID['"]/);
+  assert.match(source, /value:\s*['"]CLERK_USER_ID['"]/);
+  assert.match(source, /name\s*=\s*['"]identityValue['"]/);
+  assert.match(source, /رقم الحساب أو رقم Clerk|رقم \/ معرّف الحساب الداخلي/);
+  assert.match(source, /Production.*يتحقق الخادم/);
+  assert.match(source, /CLERK_USER_ID.*user_/s);
 });
