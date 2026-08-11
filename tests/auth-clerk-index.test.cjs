@@ -4,6 +4,96 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const auth = require("../auth-clerk-index.js");
 
+function createSessionStorage() {
+  const values = new Map();
+  return {
+    getItem(key) { return values.has(key) ? values.get(key) : null; },
+    setItem(key, value) { values.set(key, String(value)); },
+    removeItem(key) { values.delete(key); }
+  };
+}
+
+function installBrowserFixture(clerkOverrides) {
+  const original = {
+    location: global.location,
+    document: global.document,
+    runtimeReady: global.VVIPRuntimeReady,
+    pr29: global.VVIP_PR29,
+    sessionStorage: global.sessionStorage,
+    dispatchEvent: global.dispatchEvent,
+    customEvent: global.CustomEvent
+  };
+
+  const mounted = [];
+  let listener = null;
+  let homeCalls = 0;
+  let gateCalls = 0;
+  const gate = {
+    hidden: true,
+    attrs: {},
+    setAttribute(name, value) { this.attrs[name] = String(value); },
+    querySelector() { return null; }
+  };
+  const authError = { textContent: "", hidden: true };
+  const host = { innerHTML: "" };
+  const storage = createSessionStorage();
+  const dispatched = [];
+
+  global.location = {
+    hostname: "example.com",
+    search: "",
+    href: "https://example.com/index.html",
+    replace() {}
+  };
+  global.document = {
+    getElementById(id) {
+      return id === "clerk-sign-in" ? host : null;
+    },
+    querySelector(selector) {
+      if (selector === "[data-vvip-auth-gate]") return gate;
+      if (selector === "[data-auth-error]") return authError;
+      return null;
+    }
+  };
+  global.sessionStorage = storage;
+  global.VVIP_PR29 = {
+    showHome() { homeCalls += 1; },
+    showGate() { gateCalls += 1; }
+  };
+  global.CustomEvent = class CustomEvent {
+    constructor(type, options) { this.type = type; this.detail = options && options.detail; }
+  };
+  global.dispatchEvent = (event) => { dispatched.push(event); return true; };
+
+  const clerk = Object.assign({
+    isSignedIn: false,
+    mountSignIn(node, props) { mounted.push({ node, props }); },
+    addListener(callback) { listener = callback; }
+  }, clerkOverrides || {});
+  global.VVIPRuntimeReady = Promise.resolve({ clerk });
+
+  return {
+    clerk,
+    mounted,
+    gate,
+    authError,
+    storage,
+    dispatched,
+    getListener: () => listener,
+    getHomeCalls: () => homeCalls,
+    getGateCalls: () => gateCalls,
+    restore() {
+      global.location = original.location;
+      global.document = original.document;
+      global.VVIPRuntimeReady = original.runtimeReady;
+      global.VVIP_PR29 = original.pr29;
+      global.sessionStorage = original.sessionStorage;
+      global.dispatchEvent = original.dispatchEvent;
+      global.CustomEvent = original.customEvent;
+    }
+  };
+}
+
 test("allows preview only on localhost", () => {
   assert.equal(auth.localPreviewAllowed({ hostname: "localhost", search: "?preview=home" }), true);
   assert.equal(auth.localPreviewAllowed({ hostname: "example.com", search: "?preview=home" }), false);
@@ -21,59 +111,117 @@ test("production rejects return paths that are not shipped", () => {
   assert.equal(auth.safeReturnPath({ search: "?return_to=index.html" }, production), "index.html");
 });
 
-test("first-time user gate explicitly enables sign-up with bounded redirects", async () => {
-  const originalLocation = global.location;
-  const originalDocument = global.document;
-  const originalRuntimeReady = global.VVIPRuntimeReady;
-  const originalPR29 = global.VVIP_PR29;
-  const mounted = [];
-
-  global.location = {
-    hostname: "example.com",
-    search: "",
-    href: "https://example.com/TIGER-VVIP/index.html",
-    replace() {}
-  };
-  global.document = {
-    getElementById(id) {
-      return id === "clerk-sign-in" ? {} : null;
-    }
-  };
-  global.VVIP_PR29 = { showGate() {}, showHome() {} };
-  const clerk = {
-    isSignedIn: false,
-    mountSignIn(host, props) { mounted.push(props); },
-    addListener() {}
-  };
-  global.VVIPRuntimeReady = Promise.resolve({ clerk });
-
-  try {
-    await auth.start();
-  } finally {
-    global.location = originalLocation;
-    global.document = originalDocument;
-    global.VVIPRuntimeReady = originalRuntimeReady;
-    global.VVIP_PR29 = originalPR29;
-  }
-
-  assert.equal(mounted.length, 1);
-  assert.equal(mounted[0].withSignUp, true);
-  assert.equal(mounted[0].fallbackRedirectUrl, "https://example.com/TIGER-VVIP/index.html");
-  assert.equal(mounted[0].forceRedirectUrl, "https://example.com/TIGER-VVIP/index.html");
-  assert.equal(mounted[0].signUpFallbackRedirectUrl, "https://example.com/TIGER-VVIP/index.html");
-  assert.equal(mounted[0].signUpForceRedirectUrl, "https://example.com/TIGER-VVIP/index.html");
+test("normalizes only allowlisted non-sensitive intent descriptors", () => {
+  const listingId = "11111111-1111-4111-8111-111111111111";
+  assert.deepEqual(auth.normalizeIntentDescriptor({ name: "CREATE_LISTING" }), { name: "CREATE_LISTING" });
+  assert.deepEqual(auth.normalizeIntentDescriptor({ name: "OPEN_ACCOUNT" }), { name: "OPEN_ACCOUNT" });
+  assert.deepEqual(
+    auth.normalizeIntentDescriptor({ name: "TOGGLE_FAVORITE", listingId }),
+    { name: "TOGGLE_FAVORITE", listingId }
+  );
+  assert.throws(() => auth.normalizeIntentDescriptor({ name: "https://evil.example" }), { code: "AUTH_INTENT_INVALID" });
+  assert.throws(() => auth.normalizeIntentDescriptor({ name: "TOGGLE_FAVORITE", listingId: "../../admin" }), { code: "AUTH_INTENT_INVALID" });
+  assert.throws(() => auth.normalizeIntentDescriptor({ name: "CREATE_LISTING", token: "secret" }), { code: "AUTH_INTENT_INVALID" });
 });
 
-test("recovery logging never exposes client error details", () => {
+test("unsigned start keeps public home visible and does not mount Clerk", async () => {
+  const fixture = installBrowserFixture();
+  try {
+    await auth.start();
+    assert.equal(fixture.getHomeCalls(), 1);
+    assert.equal(fixture.getGateCalls(), 0);
+    assert.equal(fixture.mounted.length, 0);
+    assert.equal(fixture.gate.hidden, true);
+  } finally {
+    fixture.restore();
+  }
+});
+
+test("protected action mounts Clerk once and persists only the safe intent descriptor", async () => {
+  const fixture = installBrowserFixture();
+  try {
+    await auth.start();
+    let resumed = 0;
+    assert.equal(await auth.requireAuth({ name: "OPEN_ACCOUNT" }, () => { resumed += 1; }), false);
+    assert.equal(await auth.requireAuth({ name: "OPEN_ACCOUNT" }, () => { resumed += 1; }), false);
+
+    assert.equal(resumed, 0);
+    assert.equal(fixture.mounted.length, 1);
+    assert.equal(fixture.mounted[0].props.routing, "hash");
+    assert.equal(fixture.mounted[0].props.oauthFlow, "auto");
+    assert.equal(fixture.gate.hidden, false);
+    assert.deepEqual(JSON.parse(fixture.storage.getItem("vvip.auth.intent.v1")), { name: "OPEN_ACCOUNT" });
+  } finally {
+    fixture.restore();
+  }
+});
+
+test("continue without sign-in closes access sheet and clears pending intent", async () => {
+  const fixture = installBrowserFixture();
+  try {
+    await auth.start();
+    await auth.requireAuth({ name: "CREATE_LISTING" }, () => {});
+    auth.continueWithoutSignIn();
+
+    assert.equal(fixture.gate.hidden, true);
+    assert.equal(fixture.storage.getItem("vvip.auth.intent.v1"), null);
+  } finally {
+    fixture.restore();
+  }
+});
+
+test("signed-in listener consumes and resumes an in-memory protected intent at most once", async () => {
+  const fixture = installBrowserFixture();
+  try {
+    await auth.start();
+    let resumed = 0;
+    await auth.requireAuth({ name: "CREATE_LISTING" }, () => { resumed += 1; });
+    const listener = fixture.getListener();
+    assert.equal(typeof listener, "function");
+
+    fixture.clerk.isSignedIn = true;
+    listener();
+    listener();
+    await new Promise((resolve) => setImmediate(resolve));
+
+    assert.equal(resumed, 1);
+    assert.equal(fixture.storage.getItem("vvip.auth.intent.v1"), null);
+    assert.equal(fixture.gate.hidden, true);
+  } finally {
+    fixture.restore();
+  }
+});
+
+test("signed-in start dispatches one safe resume event for a redirect-surviving descriptor", async () => {
+  const fixture = installBrowserFixture({ isSignedIn: true });
+  try {
+    fixture.storage.setItem("vvip.auth.intent.v1", JSON.stringify({ name: "OPEN_ACCOUNT" }));
+    await auth.start();
+    await new Promise((resolve) => setImmediate(resolve));
+
+    assert.equal(fixture.storage.getItem("vvip.auth.intent.v1"), null);
+    assert.equal(fixture.dispatched.length, 1);
+    assert.equal(fixture.dispatched[0].type, "vvip:auth-resume");
+    assert.deepEqual(fixture.dispatched[0].detail, { name: "OPEN_ACCOUNT" });
+  } finally {
+    fixture.restore();
+  }
+});
+
+test("recovery keeps public home visible and never exposes client error details", () => {
+  const fixture = installBrowserFixture();
   const originalWarn = console.warn;
   const calls = [];
   console.warn = (...args) => calls.push(args);
   try {
-    auth.recover({ code: "SENSITIVE_CLIENT_DETAIL" });
+    auth.recover({ code: "SENSITIVE_CLIENT_DETAIL", token: "do-not-log" });
   } finally {
     console.warn = originalWarn;
+    fixture.restore();
   }
 
   assert.deepEqual(calls, [["VVIP_CLERK_GATE_RECOVERY"]]);
   assert.equal(JSON.stringify(calls).includes("SENSITIVE_CLIENT_DETAIL"), false);
+  assert.equal(JSON.stringify(calls).includes("do-not-log"), false);
+  assert.equal(fixture.getHomeCalls(), 1);
 });
