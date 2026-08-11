@@ -4,7 +4,7 @@
 
 ## Purpose
 
-This specification freezes the owner-approved commission redistribution and institutional role cleanup across every current and future sector. The rule is central and global; it must not be copied manually per sector.
+This specification freezes the owner-approved commission redistribution, institutional role cleanup, and trusted worker-identity binding across every current and future sector. The rules are central and global; they must not be copied manually per sector.
 
 ## Roles removed from the commission path
 
@@ -57,6 +57,33 @@ The engine must not use binary floating-point money arithmetic as the source of 
 This policy applies identically to every current sector and every future sector. A sector must inherit the central policy rather than define a private copy of commission percentages.
 
 No sector may retain the cancelled roles as hidden commission recipients.
+
+## Trusted identity binding for every worker role
+
+Every person who receives a new operational/staff role in VVIP TIGER must have a trusted identity reference attached to the assignment. This applies to every surviving role and every sector.
+
+The role-assignment surface must ask for exactly one of:
+
+- `ACCOUNT_ID`: the existing canonical VVIP internal `accountId`;
+- `CLERK_USER_ID`: the existing Clerk user subject that bridges through `profiles.clerk_user_id`.
+
+The assignment command contract is:
+
+`identityBinding: { type: "ACCOUNT_ID" | "CLERK_USER_ID", value: string }`
+
+Rules:
+
+- the field is mandatory for every new operational role assignment;
+- the UI must expose a compact type selector and required identifier field;
+- Clerk identity must not be replaced by a second authentication authority;
+- a value typed in the browser is only a reference, never proof of ownership;
+- trusted server resolution must verify the reference before Production activation;
+- the resolved identity/account must match the assignment subject and must not redirect authority to another account;
+- missing, malformed, unknown, ambiguous or mismatched binding fails closed;
+- the normalized binding must remain part of semantic idempotency/persistence evidence so it cannot disappear between UI, authorization and audit layers;
+- historical assignments that predate this rule remain historical facts and are not silently rewritten with fabricated identifiers.
+
+If the repository's canonical account identifier has a different presentation label, the implementation still uses the existing `accountId` authority rather than inventing a parallel account-number database.
 
 ## Institutional role cleanup
 
@@ -128,7 +155,7 @@ There must be one canonical commission-policy source of truth consumed by all se
 
 ## UI / reporting contract
 
-Current-operation screens must not offer or display retired roles as selectable/current recipients. Historical reports may show them only when clearly identified as historical/legacy data.
+Current-operation screens must not offer or display retired roles as selectable/current recipients. Every current role-assignment form must collect the trusted identity reference described above. Historical reports may show retired roles only when clearly identified as historical/legacy data.
 
 Displayed percentages are presentation values; financial calculations use exact policy values and minor units.
 
@@ -145,6 +172,10 @@ Implementation requires tests covering at minimum:
 - exact-sum invariant for many payout sizes including values that produce remainders;
 - deterministic remainder allocation;
 - retired role cannot be newly assigned through active role APIs/UI;
+- every new role assignment requires `ACCOUNT_ID` or `CLERK_USER_ID`;
+- malformed and unsupported identity references are rejected;
+- trusted identity/account mismatch fails before Production activation;
+- semantic persistence retains the normalized binding;
 - legacy historical rows remain readable and unchanged;
 - RLS/authorization tests remain fail closed;
 - same-head quality/security checks pass.
@@ -152,6 +183,8 @@ Implementation requires tests covering at minimum:
 ## Zero-loss acceptance rule
 
 No implementation is accepted if any active code path, database policy, role assignment path, payout path, report, dashboard or sector-local configuration can still create a new `SECONDARY_MARKETER`, `SUPERVISOR` or `AREA_MANAGER` financial/operational role contrary to this decision.
+
+No new operational role assignment is accepted without a verified trusted identity/account binding.
 
 No implementation is accepted if any financial allocation fails exact reconciliation.
 
