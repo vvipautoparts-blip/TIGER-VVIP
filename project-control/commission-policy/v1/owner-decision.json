@@ -1,0 +1,68 @@
+{
+  "decision_id": "COMMISSION-ROLE-POLICY-2026-08-11",
+  "effective_at": "2026-08-11",
+  "authority": "OWNER_APPROVED_PLATFORM_POLICY",
+  "scope": {
+    "all_current_sectors": true,
+    "all_future_sectors": true,
+    "sector_local_override_allowed": false
+  },
+  "retired_roles": [
+    "SECONDARY_MARKETER",
+    "SUPERVISOR",
+    "AREA_MANAGER"
+  ],
+  "primary_marketer": {
+    "key": "PRIMARY_MARKETER",
+    "basis_points": 430
+  },
+  "removed_share": {
+    "basis_points": 1093,
+    "percent_display": "10.93"
+  },
+  "redistribution": {
+    "method": "EQUAL_CONCEPTUAL_SHARE_WITH_DETERMINISTIC_MINOR_UNIT_REMAINDER",
+    "destinations": [
+      {
+        "key": "SECTOR_MANAGER",
+        "old_basis_points": 430,
+        "nominal_percent": "7.943333333333...",
+        "display_percent": "7.94"
+      },
+      {
+        "key": "COUNTRY_EXECUTIVE_COMMISSIONER",
+        "old_basis_points": 547,
+        "nominal_percent": "9.113333333333...",
+        "display_percent": "9.11"
+      },
+      {
+        "key": "MARKETING",
+        "old_basis_points": 737,
+        "nominal_percent": "11.013333333333...",
+        "display_percent": "11.01"
+      }
+    ],
+    "silent_rounding_loss_allowed": false
+  },
+  "role_assignment_identity_binding": {
+    "required_for_every_new_operational_role": true,
+    "accepted_reference_types": [
+      "ACCOUNT_ID",
+      "CLERK_USER_ID"
+    ],
+    "canonical_internal_account_field": "accountId",
+    "canonical_profile_identity_bridge_field": "clerk_user_id",
+    "browser_reference_is_proof_of_ownership": false,
+    "trusted_server_verification_required_before_activation": true,
+    "subject_identity_match_required": true,
+    "missing_or_ambiguous_binding": "DENY",
+    "historical_records_rewritten": false
+  },
+  "safety": {
+    "production_database_apply_authorized": false,
+    "real_money_execution_authorized": false,
+    "secrets_change_authorized": false,
+    "dns_change_authorized": false,
+    "clerk_provider_change_authorized": false
+  }
+}
