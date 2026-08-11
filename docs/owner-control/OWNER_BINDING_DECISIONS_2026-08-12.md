@@ -1,8 +1,8 @@
 # VVIP TIGER — OWNER BINDING DECISIONS
 
-**Effective date:** 2026-08-12  
-**Authority:** Platform Owner  
-**Status:** BINDING / OWNER-CANONICAL  
+**Effective date:** 2026-08-12
+**Authority:** Platform Owner
+**Status:** BINDING / OWNER-CANONICAL
 **Purpose:** Preserve the owner's latest approved product, security, financial, identity, UX, TIGER PULSE, and governance decisions as repository truth. If an older design, chat note, mockup, source document, or historical requirement conflicts with this file, this file controls unless a later owner decision explicitly supersedes it.
 
 ## 1. Product constitution
@@ -211,3 +211,38 @@ Required continuation pattern:
 `READ -> VERIFY -> PLAN -> EXECUTE -> VERIFY -> CHECKPOINT`
 
 At each material owner decision or completed execution slice, update the owner reference/state ledger so future sessions continue without rebuilding or losing approved requirements.
+
+## 18. Simplicity, eradication, interaction integrity, and scale evidence
+
+The owner requires the platform to reach a state where an ordinary user can enter, browse, publish, communicate, buy, or finance where those capabilities actually exist without needing an explanatory manual. Familiar interaction logic may be used, but the finished experience must be recognizably VVIP TIGER rather than a copy of another product.
+
+Binding experience DNA:
+
+- sky/celestial blue and royal blue as the primary visual family;
+- restrained glass, depth, precise motion, consistent cards, and small coherent icons;
+- low clutter and progressive disclosure;
+- a manager/owner should understand money, sectors, workers, financing, risk, and performance from one primary control view, using drill-down only when detail is needed.
+
+Binding eradication rule:
+
+- no file, route, dependency, feature flag, screen, button, legacy alias, generated artifact, duplicate implementation, or dead code is deleted merely because it looks old;
+- every permanent deletion requires evidence that the candidate is not part of an active product path, has no required references/imports/configuration dependencies, has a safe replacement where needed, and remains green under the relevant verification suite;
+- once deletion is proven safe, remove it from the active repository rather than retaining trash copies, disabled duplicates, or a permanent in-product recycle bin;
+- immutable provenance required for audit/history may remain only in an explicitly historical/non-operative location and must not be reachable as active functionality.
+
+Binding interaction-integrity rule:
+
+- every user-visible control must either perform its intended action, provide an intentional disabled/unavailable state with a real reason, or be removed;
+- every shipped page and route must have a defined navigation/authorization/error behavior;
+- test coverage must include route availability, direct navigation, back/forward behavior where relevant, mobile/desktop interaction, authenticated/guest boundaries, failure recovery, and the critical button/action paths;
+- decorative dead buttons, placeholder routes presented as live, and silent no-op actions are release blockers.
+
+Binding scale-evidence rule:
+
+- the engineering target may model a population of up to **12,000,000 users**, but registered-user population, daily active users, concurrent users, requests per second, websocket/chat concurrency, and background jobs are separate capacity dimensions and must never be conflated;
+- no claim that VVIP TIGER "supports 12 million users" is permitted until the relevant workload profile has been demonstrated by documented, reproducible measurements on representative infrastructure;
+- load and stress work must be staged and distributed, with realistic mixed scenarios including registration/authentication, browsing/search/feed, listing or post publication, media paths, views, contact/chat, paid/financial actions where implemented, retries, failures, reconciliation, and recovery;
+- acceptance evidence must record at least throughput, error rate, p50/p95/p99 latency, saturation signals, database/queue limits, chat delivery lag where applicable, authentication/provider limits, financial-integrity results, and the exact tested topology/configuration;
+- tests must distinguish normal load, peak load, stress-to-failure, soak/endurance, recovery, and failover behavior.
+
+The release objective is not visual spectacle or inflated benchmark language. It is a calm premium surface, a hard-to-break private core, a management view that explains the platform quickly, and measured evidence that critical flows continue to work under the loads actually claimed.
