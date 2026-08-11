@@ -1,8 +1,11 @@
 const frozen = (values) => Object.freeze([...values]);
 
 export const ROLE_IDS = frozen(['owner', 'platform_admin', 'sector_manager', 'regional_manager',
-  'area_manager', 'group_manager', 'campaign_manager', 'sales', 'marketing', 'tiger_care',
+  'group_manager', 'campaign_manager', 'sales', 'marketing', 'tiger_care',
   'moderator', 'service_provider', 'regular_user']);
+
+export const RETIRED_ROLE_IDS = frozen(['area_manager']);
+export const HISTORICAL_ROLE_IDS = frozen([...ROLE_IDS, ...RETIRED_ROLE_IDS]);
 
 export const PERMISSION_IDS = frozen(['owner.console.read', 'authorization.assignment.read',
   'authorization.assignment.manage', 'authorization.owner.manage',
@@ -33,7 +36,6 @@ export const ROLE_TEMPLATES = Object.freeze({
     'audit.event.read.scoped'),
   sector_manager: permissions('care.ticket.read.scoped', 'care.ticket.assign', 'care.ticket.transition', 'care.ticket.escalate'),
   regional_manager: permissions('care.ticket.read.scoped', 'care.ticket.assign', 'care.ticket.transition', 'care.ticket.escalate'),
-  area_manager: permissions('care.ticket.read.scoped', 'care.ticket.assign', 'care.ticket.transition'),
   group_manager: permissions('care.ticket.read.scoped', 'care.ticket.transition'),
   campaign_manager: permissions('care.ticket.read.scoped'), sales: permissions(), marketing: permissions(),
   tiger_care: permissions('care.ticket.read.scoped', 'care.ticket.acknowledge', 'care.ticket.transition',
