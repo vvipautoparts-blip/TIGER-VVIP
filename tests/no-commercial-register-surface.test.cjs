@@ -6,6 +6,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const ROOT = path.resolve(__dirname, "..");
+const POLICY_PATH = path.join(ROOT, "project-control/product/no-commercial-register.v1.json");
 
 const CODE_ROOTS = [
   "operations-console",
@@ -82,6 +83,28 @@ function matchesIn(file) {
   }
   return hits;
 }
+
+test("binding owner policy permanently disables commercial-register product data", () => {
+  assert.equal(fs.existsSync(POLICY_PATH), true, "binding no-commercial-register policy must exist");
+  const policy = JSON.parse(fs.readFileSync(POLICY_PATH, "utf8"));
+
+  assert.equal(policy.policyId, "VVIP_NO_COMMERCIAL_REGISTER_V1");
+  assert.equal(policy.status, "BINDING");
+  assert.equal(policy.ownerDecision, true);
+  assert.equal(policy.productFieldAllowed, false);
+  assert.equal(policy.placeholderAllowed, false);
+  assert.equal(policy.reservedSchemaSlotAllowed, false);
+  assert.equal(policy.collectionAllowed, false);
+  assert.equal(policy.validationAllowed, false);
+  assert.equal(policy.analyticsAllowed, false);
+  assert.equal(policy.reportFilterAllowed, false);
+  assert.equal(policy.prePublicationGateAllowed, false);
+  assert.equal(policy.historicalProvenanceOnly, true);
+  assert.equal(policy.futureReintroductionRequiresExplicitNewOwnerDecision, true);
+  assert.ok(Array.isArray(policy.forbiddenSemanticAliases));
+  assert.ok(policy.forbiddenSemanticAliases.includes("سجل تجاري"));
+  assert.ok(policy.forbiddenSemanticAliases.includes("commercial registration"));
+});
 
 test("commercial-register data has no active product, schema, API, admin, or canonical requirement surface", () => {
   const files = activeFiles();
