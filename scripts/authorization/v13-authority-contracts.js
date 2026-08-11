@@ -13,7 +13,6 @@ export const ROLE_IDS = frozen([
   "country_admin",
   "sector_manager",
   "regional_manager",
-  "area_manager",
   "group_manager",
   "campaign_manager",
   "sales",
@@ -22,6 +21,15 @@ export const ROLE_IDS = frozen([
   "moderator",
   "service_provider",
   "regular_user"
+]);
+
+export const RETIRED_ROLE_IDS = frozen([
+  "area_manager"
+]);
+
+export const HISTORICAL_ROLE_IDS = frozen([
+  ...ROLE_IDS,
+  ...RETIRED_ROLE_IDS
 ]);
 
 export const PERMISSION_IDS = frozen([
@@ -53,7 +61,6 @@ export const ROLE_RANK = Object.freeze({
   tiger_care: 2,
   campaign_manager: 3,
   group_manager: 4,
-  area_manager: 5,
   regional_manager: 6,
   sector_manager: 7,
   country_admin: 8,
