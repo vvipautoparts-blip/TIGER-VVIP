@@ -156,12 +156,12 @@ test("protected action mounts Clerk once and persists only the safe intent descr
   }
 });
 
-test("continue as guest closes access sheet and clears pending intent", async () => {
+test("continue without sign-in closes access sheet and clears pending intent", async () => {
   const fixture = installBrowserFixture();
   try {
     await auth.start();
     await auth.requireAuth({ name: "CREATE_LISTING" }, () => {});
-    auth.continueAsGuest();
+    auth.continueWithoutSignIn();
 
     assert.equal(fixture.gate.hidden, true);
     assert.equal(fixture.storage.getItem("vvip.auth.intent.v1"), null);
