@@ -241,3 +241,37 @@ test("verified Clerk-account-subject mapping is frozen and forwarded before acti
   assert.equal(Object.isFrozen(resolverCalls[0]), true);
   assert.deepEqual(transaction.calls, ["tx:start", "find", "persist", "audit", "store", "tx:end"]);
 });
+
+test("server accepts identity references at the 200-character boundary contract", async () => {
+  const accountId = "a".repeat(200);
+  const clerkUserId = `user_${"c".repeat(195)}`;
+  const cases = [
+    {
+      binding: { type: "ACCOUNT_ID", value: accountId },
+      resolution: {
+        verified: true,
+        subjectId: "staff-1",
+        accountId,
+        clerkUserId: "user_staff_0001"
+      }
+    },
+    {
+      binding: { type: "CLERK_USER_ID", value: clerkUserId },
+      resolution: {
+        verified: true,
+        subjectId: "staff-1",
+        accountId: "acct_staff_0001",
+        clerkUserId
+      }
+    }
+  ];
+
+  for (const entry of cases) {
+    const { handler, transaction } = await createHandler({
+      resolveRoleIdentityBinding: async () => entry.resolution
+    });
+    const result = await handler.execute(request(entry.binding));
+    assert.equal(result.ok, true);
+    assert.equal(transaction.calls.includes("persist"), true);
+  }
+});
