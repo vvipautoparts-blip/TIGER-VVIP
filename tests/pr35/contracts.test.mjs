@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  ROLE_IDS, PERMISSION_IDS, ROLE_TEMPLATES, SCOPE_LEVELS,
+  ROLE_IDS, RETIRED_ROLE_IDS, HISTORICAL_ROLE_IDS,
+  PERMISSION_IDS, ROLE_TEMPLATES, SCOPE_LEVELS,
   ASSIGNMENT_STATES, ERROR_CODES, LIMITS, validatePageRequest,
   validateCorrelationKey, validateIdempotencyKey
 } from '../../scripts/pr35/pr35-contracts.js';
@@ -10,13 +11,19 @@ test('canonical catalogs are exact, unique, and deeply frozen', () => {
   assert.deepEqual(SCOPE_LEVELS, ['platform', 'sector', 'region', 'area', 'team']);
   assert.deepEqual(ASSIGNMENT_STATES, ['pending', 'active', 'suspended', 'revoked', 'expired']);
   assert.deepEqual(ROLE_IDS, ['owner', 'platform_admin', 'sector_manager', 'regional_manager',
-    'area_manager', 'group_manager', 'campaign_manager', 'sales', 'marketing',
+    'group_manager', 'campaign_manager', 'sales', 'marketing',
     'tiger_care', 'moderator', 'service_provider', 'regular_user']);
+  assert.deepEqual(RETIRED_ROLE_IDS, ['area_manager']);
+  assert.equal(HISTORICAL_ROLE_IDS.includes('area_manager'), true);
+  assert.equal(ROLE_IDS.includes('area_manager'), false);
+  assert.equal(Object.hasOwn(ROLE_TEMPLATES, 'area_manager'), false);
   assert.equal(new Set(PERMISSION_IDS).size, PERMISSION_IDS.length);
   assert.ok(PERMISSION_IDS.includes('authorization.owner.manage'));
   assert.ok(PERMISSION_IDS.includes('audit.event.append'));
   assert.ok(Object.isFrozen(ROLE_TEMPLATES));
   assert.ok(Object.values(ROLE_TEMPLATES).every(Object.isFrozen));
+  assert.ok(Object.isFrozen(RETIRED_ROLE_IDS));
+  assert.ok(Object.isFrozen(HISTORICAL_ROLE_IDS));
   assert.throws(() => ROLE_TEMPLATES.owner.permissionIds.push('bad'), TypeError);
 });
 
