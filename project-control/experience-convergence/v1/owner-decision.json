@@ -2,10 +2,44 @@
   "decision_id": "UX-CONVERGENCE-2026-08-11",
   "effective_at": "2026-08-11",
   "authority": "OWNER_APPROVED_PRODUCT_CHANGE",
+  "social_post": {
+    "publish_mode": "DIRECT",
+    "commercial_registration_required": false,
+    "business_verification_required": false,
+    "blanket_manual_review_required": false,
+    "admin_preview_required": false,
+    "payment_required_to_publish": false,
+    "marketplace_fields_required": false,
+    "automated_safety_controls_required": true
+  },
+  "social_post_financing": {
+    "optional": true,
+    "trigger": "AFTER_SUCCESSFUL_PUBLICATION",
+    "blocks_publication": false,
+    "pricing_source": "COUNTRY_POLICY",
+    "server_payment_verification_required": true
+  },
+  "purchase_identity": {
+    "clerk_identity_required": true,
+    "internal_account_required": true,
+    "canonical_internal_account_field": "accountId",
+    "profile_identity_bridge_field": "clerk_user_id",
+    "client_supplied_account_override_allowed": false,
+    "server_authorization_required": true,
+    "audit_required": true,
+    "applies_to": [
+      "PURCHASE",
+      "PAYMENT",
+      "POST_BOOST",
+      "LISTING_VISIBILITY",
+      "SUBSCRIPTION"
+    ]
+  },
   "listing_creation": {
     "content_first": true,
     "pricing_step": "AFTER_CONTENT_COMPLETE",
-    "payment_required_to_start_draft": false
+    "payment_required_to_start_draft": false,
+    "commercial_registration_required_by_default": false
   },
   "listing_publication": {
     "blanket_manual_review_required": false,
