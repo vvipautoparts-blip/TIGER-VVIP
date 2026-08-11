@@ -45,8 +45,8 @@ function envelope() {
     policyVersion: "V13.1",
     assignmentRevision: 3,
     sessionIssuedAt: "2026-08-11T20:20:00.000Z",
-    issuedAt: "2026-08-11T20:25:00.000Z",
-    expiresAt: "2026-08-11T20:35:00.000Z",
+    issuedAt: "2026-08-11T20:27:00.000Z",
+    expiresAt: "2026-08-11T20:32:00.000Z",
     correlationId: "corr_role_identity_server_envelope_0001"
   };
 }
