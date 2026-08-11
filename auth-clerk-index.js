@@ -278,7 +278,7 @@
     return false;
   }
 
-  function continueAsGuest() {
+  function continueWithoutSignIn() {
     pendingIntent = null;
     pendingResume = null;
     clearStoredIntent();
@@ -296,7 +296,7 @@
   return Object.freeze({
     start,
     requireAuth,
-    continueAsGuest,
+    continueWithoutSignIn,
     normalizeIntentDescriptor,
     consumeStoredIntent,
     recover,
