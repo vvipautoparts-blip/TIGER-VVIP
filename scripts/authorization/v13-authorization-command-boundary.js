@@ -15,6 +15,9 @@ const MAX_TRUSTED_STRING = 4_096;
 const MAX_RESULT_BYTES = 128 * 1024;
 const POLLUTION_KEYS = new Set(["__proto__", "prototype", "constructor"]);
 const ENVELOPE_REF_PATTERN = /^authz_env_ref_[A-Za-z0-9_-]{8,96}$/;
+const IDENTITY_BINDING_TYPES = new Set(["ACCOUNT_ID", "CLERK_USER_ID"]);
+const ACCOUNT_ID_PATTERN = /^[A-Za-z0-9_-]{3,200}$/;
+const CLERK_USER_ID_PATTERN = /^user_[A-Za-z0-9_-]{3,195}$/;
 
 const REQUEST_KEYS = Object.freeze([
   "operation",
@@ -35,7 +38,8 @@ const OPERATION_CONTRACTS = Object.freeze({
       "requestedPermissionIds",
       "scope",
       "startsAt",
-      "expiresAt"
+      "expiresAt",
+      "identityBinding"
     ])
   }),
   suspendAssignment: Object.freeze({
@@ -164,6 +168,24 @@ function requiredText(value, max = LIMITS.IDENTIFIER) {
   return value.trim();
 }
 
+function sanitizeIdentityBinding(value) {
+  if (!hasExactKeys(value, ["type", "value"])) {
+    throw new TypeError("IDENTITY_BINDING_SHAPE_INVALID");
+  }
+  const type = requiredText(value.type, 32);
+  const reference = requiredText(value.value, LIMITS.IDENTIFIER);
+  if (!IDENTITY_BINDING_TYPES.has(type)) {
+    throw new TypeError("IDENTITY_BINDING_TYPE_INVALID");
+  }
+  if (type === "ACCOUNT_ID" && !ACCOUNT_ID_PATTERN.test(reference)) {
+    throw new TypeError("ACCOUNT_ID_INVALID");
+  }
+  if (type === "CLERK_USER_ID" && !CLERK_USER_ID_PATTERN.test(reference)) {
+    throw new TypeError("CLERK_USER_ID_INVALID");
+  }
+  return Object.freeze({ type, value: reference });
+}
+
 function sanitizeCreateAssignment(command, contract) {
   if (!exactAllowedFields(command, contract.allowedFields)) {
     throw new TypeError("UNKNOWN_COMMAND_FIELD");
@@ -179,7 +201,8 @@ function sanitizeCreateAssignment(command, contract) {
     requestedPermissionIds: Object.freeze(command.requestedPermissionIds.map((value) => requiredText(value))),
     scope: cloneCommand(command.scope),
     startsAt: requiredText(command.startsAt, 64),
-    expiresAt: requiredText(command.expiresAt, 64)
+    expiresAt: requiredText(command.expiresAt, 64),
+    identityBinding: sanitizeIdentityBinding(command.identityBinding)
   });
 }
 
