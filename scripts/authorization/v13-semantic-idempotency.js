@@ -32,6 +32,28 @@ function normalizeCountryCode(value) {
   return normalized;
 }
 
+function normalizeIdentityBinding(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new TypeError("SEMANTIC_COMMAND_INVALID");
+  }
+  const keys = Object.keys(value).sort();
+  if (keys.length !== 2 || keys[0] !== "type" || keys[1] !== "value") {
+    throw new TypeError("SEMANTIC_COMMAND_INVALID");
+  }
+  const type = normalizedText(value.type);
+  const reference = normalizedText(value.value);
+  if (type !== "ACCOUNT_ID" && type !== "CLERK_USER_ID") {
+    throw new TypeError("SEMANTIC_COMMAND_INVALID");
+  }
+  if (!/^[A-Za-z0-9_-]{3,200}$/.test(reference)) {
+    throw new TypeError("SEMANTIC_COMMAND_INVALID");
+  }
+  if (type === "CLERK_USER_ID" && !reference.startsWith("user_")) {
+    throw new TypeError("SEMANTIC_COMMAND_INVALID");
+  }
+  return Object.freeze({ type, value: reference });
+}
+
 function normalizeAssignmentCreateCommand(command) {
   return deepFreeze({
     subjectId: normalizedText(command.subjectId),
@@ -39,7 +61,8 @@ function normalizeAssignmentCreateCommand(command) {
     requestedPermissionIds: normalizedStringSet(command.requestedPermissionIds),
     scope: normalizeCountryScope(command.scope),
     startsAt: normalizedText(command.startsAt),
-    expiresAt: normalizedText(command.expiresAt)
+    expiresAt: normalizedText(command.expiresAt),
+    identityBinding: normalizeIdentityBinding(command.identityBinding)
   });
 }
 
