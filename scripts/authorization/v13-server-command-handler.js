@@ -24,8 +24,8 @@ const MAX_CANONICAL_DEPTH = 12;
 const MAX_CANONICAL_ENTRIES = 256;
 const SHA256_HEX_PATTERN = /^[a-f0-9]{64}$/;
 const ROLE_IDENTITY_BINDING_TYPES = new Set(["ACCOUNT_ID", "CLERK_USER_ID"]);
-const ACCOUNT_ID_PATTERN = /^[A-Za-z0-9_-]{3,128}$/;
-const CLERK_USER_ID_PATTERN = /^user_[A-Za-z0-9_-]{3,123}$/;
+const ACCOUNT_ID_PATTERN = /^[A-Za-z0-9_-]{3,200}$/;
+const CLERK_USER_ID_PATTERN = /^user_[A-Za-z0-9_-]{3,195}$/;
 
 const TRANSACTION_DENIAL_CODES = new Set([
   "IDEMPOTENCY_CONFLICT",
