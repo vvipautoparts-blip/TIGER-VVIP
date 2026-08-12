@@ -53,7 +53,16 @@ test('IDENTITY-02 returns a bounded own-profile response instead of the full adm
   assert.doesNotMatch(text, /'superior_id',\s*v_profile\.superior_id/i);
   assert.doesNotMatch(text, /'subscription',\s*v_profile\.subscription/i);
   assert.doesNotMatch(text, /'business_status',\s*v_profile\.business_status/i);
+});
 
-  assert.match(text, /revoke all on function public\.vvip_resolve_own_profile\(text\) from public, anon, authenticated/i);
-  assert.match(text, /grant execute on function public\.vvip_resolve_own_profile\(text\) to authenticated/i);
+test('IDENTITY-02 tightens definer search path and preserves prior authenticated execution without a new broad grant', () => {
+  const text = migrationText();
+
+  assert.match(text, /to_regprocedure\('public\.vvip_resolve_own_profile\(text\)'\) is null/i);
+  assert.match(text, /language plpgsql security definer set search_path = pg_catalog/i);
+  assert.doesNotMatch(text, /set search_path\s*=\s*pg_catalog\s*,\s*public/i);
+
+  assert.match(text, /revoke all on function public\.vvip_resolve_own_profile\(text\) from public, anon/i);
+  assert.doesNotMatch(text, /revoke all on function public\.vvip_resolve_own_profile\(text\)[^;]*authenticated/i);
+  assert.doesNotMatch(text, /grant\s+execute on function public\.vvip_resolve_own_profile\(text\) to authenticated/i);
 });
