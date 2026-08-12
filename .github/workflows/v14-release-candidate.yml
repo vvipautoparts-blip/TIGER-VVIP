@@ -19,7 +19,7 @@ jobs:
     env:
       SOURCE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
         with:
           fetch-depth: 0
           ref: ${{ env.SOURCE_SHA }}
@@ -31,10 +31,10 @@ jobs:
           echo "EXPECTED_SOURCE_SHA=$SOURCE_SHA"
           echo "ACTUAL_SOURCE_SHA=$actual_sha"
           test "$actual_sha" = "$SOURCE_SHA"
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@cdca7365b2dadb8aad0eb64d4b95b9525c6e3024
         with:
           node-version: "22"
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@a309eac5ee4c76a3c6efafbd01d31b23e7119ec2
         with:
           python-version: "3.12"
       - name: Install Python dependencies
@@ -60,7 +60,7 @@ jobs:
             --mode candidate \
             --source-sha "$SOURCE_SHA"
       - name: Upload candidate evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: v14-release-candidate-${{ env.SOURCE_SHA }}
           path: ${{ runner.temp }}/vvip-candidate
