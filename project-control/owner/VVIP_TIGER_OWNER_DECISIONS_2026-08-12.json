@@ -1,0 +1,110 @@
+{
+  "decision_id": "VVIP-TIGER-OWNER-MASTER-2026-08-12",
+  "authority": "OWNER_APPROVED",
+  "effective_at": "2026-08-12",
+  "product_principle": {
+    "simple_outside_powerful_inside": true,
+    "tiger_flow": true,
+    "avoid_user_facing_architecture_sprawl": true
+  },
+  "visual_identity": {
+    "celestial_royal_blue": true,
+    "glassmorphism": true,
+    "rtl_ltr": true,
+    "facebook_reference": "UX_FLOW_HIERARCHY_ONLY",
+    "facebook_brand_assets_allowed": false
+  },
+  "auth": {
+    "guest_first_public_marketplace": true,
+    "identity_authority": "CLERK",
+    "data_authorization_layer": "SUPABASE_RLS",
+    "protected_actions_use_step_up": true,
+    "preserve_pr190_behavior": true
+  },
+  "ordinary_social_post": {
+    "commercial_registration_required": false,
+    "default_human_prepublication_review": false,
+    "default_manual_preview_queue": false,
+    "payment_before_publish_required": false,
+    "background_security_controls_allowed": true,
+    "funding_offer_after_publish": true
+  },
+  "identity_binding": {
+    "protected_purchase_requires_canonical_identity": true,
+    "worker_role_binding_required": true,
+    "accepted_reference_types": ["ACCOUNT_ID", "CLERK_USER_ID"],
+    "browser_reference_is_proof": false,
+    "server_subject_account_match_required": true
+  },
+  "commission": {
+    "all_current_sectors": true,
+    "all_future_sectors": true,
+    "retired_roles": ["SECONDARY_MARKETER", "SUPERVISOR", "AREA_MANAGER"],
+    "removed_basis_points": 1093,
+    "primary_marketer_basis_points": 430,
+    "redistribution": {
+      "SECTOR_MANAGER": {"basis_points_numerator": 2383, "basis_points_denominator": 3, "display_percent": "7.94"},
+      "COUNTRY_EXECUTIVE_COMMISSIONER": {"basis_points_numerator": 2734, "basis_points_denominator": 3, "display_percent": "9.11"},
+      "MARKETING": {"basis_points_numerator": 3304, "basis_points_denominator": 3, "display_percent": "11.01"}
+    },
+    "binary_float_money_source_of_truth_allowed": false,
+    "silent_rounding_loss_allowed": false
+  },
+  "security": {
+    "architecture": "TIGER_SEAL",
+    "rejected_architecture_names": ["TIGER_CITADEL_2026"],
+    "one_sensitive_action_one_bounded_seal": true,
+    "no_ambient_admin_authority": true,
+    "purpose_bound_access": true,
+    "split_knowledge": true,
+    "no_single_compromise_owns_platform": true,
+    "mirage": {
+      "server_side_truth_separation": true,
+      "minimum_client_projection": true,
+      "raw_private_values_hidden_only_by_css_allowed": false,
+      "ephemeral_reveal": true,
+      "fake_financial_truth_allowed": false,
+      "native_secure_critical_views": true,
+      "capture_detection_response_where_supported": true,
+      "forensic_watermark_for_sensitive_reveal": true
+    },
+    "ai_safe_projection": {
+      "private_canonical_truth_to_external_ai_by_default": false,
+      "clerk_ids_to_ai": false,
+      "secrets_tokens_to_ai": false,
+      "infrastructure_internals_to_ai": false,
+      "ai_root_admin_credentials": false,
+      "ai_real_money_execution_without_protected_authority": false
+    },
+    "anti_extraction": {
+      "query_budgets": true,
+      "bounded_exports": true,
+      "anti_enumeration": true,
+      "anomaly_step_up_quarantine": true,
+      "ghost_canary_identifiers": true
+    },
+    "absolute_unhackable_claim_allowed": false,
+    "absolute_screenshot_prevention_claim_allowed": false
+  },
+  "financial_validation": {
+    "minimum_simulated_movements": 5000000,
+    "double_charge_allowed": false,
+    "duplicate_commission_allowed": false,
+    "exact_reconciliation_required": true,
+    "deterministic_idempotent_replay_required": true
+  },
+  "release": {
+    "github_main_is_code_source_of_truth": true,
+    "same_sha_verification_required": true,
+    "production_database_apply_authorized_by_this_decision": false,
+    "real_money_activation_authorized_by_this_decision": false,
+    "dns_secret_clerk_production_bypass_allowed": false
+  },
+  "superseded": {
+    "ordinary_post_commercial_registration_gate": true,
+    "ordinary_post_default_human_review": true,
+    "ordinary_post_default_brand_proof_gate": true,
+    "commercial_register_hidden_ranking_requirement": true,
+    "tiger_citadel_selected_architecture": true
+  }
+}
