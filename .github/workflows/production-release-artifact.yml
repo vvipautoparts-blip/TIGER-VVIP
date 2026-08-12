@@ -1,0 +1,363 @@
+name: Build sealed TIGER VVIP Production release artifact
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Exact current main SHA to build and seal for later Production promotion
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-release-artifact-${{ inputs.release_sha }}
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    name: Verify exact current-main build authority
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      RELEASE_SHA: ${{ inputs.release_sha }}
+    steps:
+      - name: Checkout current main for authority verification
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f544a08e6b0 # v6
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Fail closed unless dispatch and release SHA are exact current main
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo 'BUILDER_DISPATCH_REF_NOT_MAIN' >&2
+            exit 1
+          fi
+          if [[ ! "$RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo 'INVALID_RELEASE_SHA' >&2
+            exit 1
+          fi
+          git fetch --no-tags --depth=1 origin main
+          current_main="$(git rev-parse origin/main)"
+          if [ "$RELEASE_SHA" != "$current_main" ]; then
+            echo 'RELEASE_SHA_MISMATCH' >&2
+            exit 1
+          fi
+          echo 'EXACT_CURRENT_MAIN=PASS'
+
+  build_seal_attest:
+    name: Build once, seal, attest, and preserve
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    environment:
+      name: production-build
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    env:
+      RELEASE_SHA: ${{ inputs.release_sha }}
+      TIGER_CLERK_PUBLISHABLE_KEY: ${{ secrets.TIGER_CLERK_PUBLISHABLE_KEY }}
+      TIGER_SUPABASE_URL: ${{ secrets.TIGER_SUPABASE_URL }}
+      TIGER_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.TIGER_SUPABASE_PUBLISHABLE_KEY }}
+      TIGER_DEFAULT_COUNTRY_CODE: ${{ vars.TIGER_DEFAULT_COUNTRY_CODE }}
+    steps:
+      - name: Checkout exact approved release SHA
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f544a08e6b0 # v6
+        with:
+          ref: ${{ inputs.release_sha }}
+          fetch-depth: 0
+
+      - name: Verify exact source SHA and tree
+        id: source
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          actual_tree="$(git rev-parse HEAD^{tree})"
+          if [ "$actual_sha" != "$RELEASE_SHA" ]; then
+            echo 'CHECKED_OUT_SHA_MISMATCH' >&2
+            exit 1
+          fi
+          if [[ ! "$actual_tree" =~ ^[0-9a-f]{40}$ ]]; then
+            echo 'SOURCE_TREE_INVALID' >&2
+            exit 1
+          fi
+          echo "source_tree=$actual_tree" >> "$GITHUB_OUTPUT"
+          echo "SOURCE_SHA=$actual_sha"
+          echo "SOURCE_TREE=$actual_tree"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@1e60f620b9541d04c50fe4240f6b88442fc18c18 # v6
+        with:
+          node-version: '22'
+
+      - name: Set up Python
+        uses: actions/setup-python@a079284f6907d469567d7000a6d0159d034d90b0 # v6
+        with:
+          python-version: '3.12'
+
+      - name: Install pinned verification dependencies
+        shell: bash
+        run: pip install -r requirements-dev.txt 'pytest==9.1.1'
+
+      - name: Run exact-source VVIP quality gate
+        shell: bash
+        run: bash scripts/quality-gate.sh
+
+      - name: Run Production release regression tests
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python -m unittest -v tests/test_vvip_public_release.py
+          node --test \
+            tests/release-workflow-hardening.test.cjs \
+            tests/pages-production-artifact-isolation.test.cjs \
+            tests/svef-release-bundle-modern.test.cjs \
+            tests/svef-release-bundle-postmerge-hardening.test.cjs
+
+      - name: Build Production public bytes exactly once
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          rm -rf "$RUNNER_TEMP/vvip-production-public"
+          python tools/vvip_public_release.py \
+            --source "$GITHUB_WORKSPACE" \
+            --output "$RUNNER_TEMP/vvip-production-public" \
+            --mode production \
+            --source-sha "$RELEASE_SHA" \
+            --include-cname
+          test -f "$RUNNER_TEMP/vvip-production-public/release-manifest.json"
+
+      - name: Generate deterministic source, materials, SBOM, and Production bundle evidence
+        shell: bash
+        env:
+          SOURCE_TREE: ${{ steps.source.outputs.source_tree }}
+        run: |
+          set -Eeuo pipefail
+          evidence="$RUNNER_TEMP/vvip-production-evidence"
+          rm -rf "$evidence"
+          mkdir -p "$evidence"
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const { canonicalJson, sha256Hex } = require('./scripts/tsrf/evidence/contracts.cjs');
+          const {
+            createProductionReleaseBundleManifest,
+            serializeReleaseBundleManifest,
+          } = require('./scripts/tsrf/svef/release-bundle.cjs');
+
+          const root = process.cwd();
+          const publicDir = path.join(process.env.RUNNER_TEMP, 'vvip-production-public');
+          const evidenceDir = path.join(process.env.RUNNER_TEMP, 'vvip-production-evidence');
+          const sourceSha = process.env.RELEASE_SHA;
+          const sourceTree = process.env.SOURCE_TREE;
+          const read = (relative) => fs.readFileSync(path.join(root, relative));
+          const materialPaths = [
+            '.github/workflows/production-release-artifact.yml',
+            'requirements-dev.txt',
+            'scripts/quality-gate.sh',
+            'scripts/tsrf/evidence/contracts.cjs',
+            'scripts/tsrf/svef/release-bundle.cjs',
+            'tools/vvip_public_release.py',
+          ];
+          const materialRecords = materialPaths.sort().map((relative) => ({
+            path: relative,
+            sha256: sha256Hex(read(relative)),
+          }));
+
+          fs.writeFileSync(
+            path.join(evidenceDir, 'source.json'),
+            `${canonicalJson({
+              schema: 'VVIP_PRODUCTION_SOURCE_V1',
+              source_sha: sourceSha,
+              source_tree: sourceTree,
+            })}\n`,
+            { mode: 0o600 },
+          );
+
+          fs.writeFileSync(
+            path.join(evidenceDir, 'materials.json'),
+            `${canonicalJson({
+              schema: 'VVIP_PRODUCTION_MATERIALS_V1',
+              source_sha: sourceSha,
+              source_tree: sourceTree,
+              materials: materialRecords,
+            })}\n`,
+            { mode: 0o600 },
+          );
+
+          const releaseManifest = JSON.parse(
+            fs.readFileSync(path.join(publicDir, 'release-manifest.json'), 'utf8'),
+          );
+          if (
+            releaseManifest.mode !== 'production' ||
+            releaseManifest.sourceSha !== sourceSha ||
+            releaseManifest.releaseEligible !== true ||
+            !Array.isArray(releaseManifest.configurationErrors) || releaseManifest.configurationErrors.length !== 0 ||
+            !Array.isArray(releaseManifest.forbiddenFindings) || releaseManifest.forbiddenFindings.length !== 0
+          ) {
+            throw new Error('PRODUCTION_RELEASE_MANIFEST_NOT_ELIGIBLE');
+          }
+
+          const components = Object.entries(releaseManifest.files)
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([name, digest]) => ({
+              type: 'file',
+              name,
+              hashes: [{ alg: 'SHA-256', content: digest }],
+            }));
+          const sbom = {
+            bomFormat: 'CycloneDX',
+            specVersion: '1.6',
+            version: 1,
+            metadata: {
+              component: {
+                type: 'application',
+                name: 'VVIP-TIGER',
+                version: sourceSha,
+              },
+              properties: [
+                { name: 'vvip:source_sha', value: sourceSha },
+                { name: 'vvip:source_tree', value: sourceTree },
+                { name: 'vvip:generator', value: 'VVIP_PRODUCTION_FILE_INVENTORY_V1' },
+              ],
+            },
+            components,
+          };
+          const sbomBytes = Buffer.from(`${canonicalJson(sbom)}\n`);
+          fs.writeFileSync(path.join(evidenceDir, 'sbom.cdx.json'), sbomBytes, { mode: 0o600 });
+
+          const git = {
+            headSha: () => sourceSha,
+            treeSha: () => sourceTree,
+          };
+          const bundle = createProductionReleaseBundleManifest({
+            repositoryRoot: root,
+            candidateDir: publicDir,
+            sbomBytes,
+            materialRecords,
+            createdBy: 'github-actions:production-release-artifact',
+            git,
+            fsApi: fs,
+          });
+          fs.writeFileSync(
+            path.join(evidenceDir, 'release-bundle-manifest.json'),
+            serializeReleaseBundleManifest(bundle),
+            { mode: 0o600 },
+          );
+          NODE
+
+      - name: Re-check current main immediately before sealing
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch --no-tags --depth=1 origin main
+          seal_main="$(git rev-parse origin/main)"
+          if [ "$seal_main" != "$RELEASE_SHA" ]; then
+            echo 'SEAL_MAIN_SHA_MISMATCH' >&2
+            exit 1
+          fi
+          echo 'SEAL_MAIN_SHA=PASS'
+
+      - name: Seal deterministic Production release bundle
+        id: seal
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          root="$RUNNER_TEMP/vvip-production-seal-root"
+          out="$RUNNER_TEMP/vvip-production-release"
+          rm -rf "$root" "$out"
+          mkdir -p "$root/public" "$root/evidence" "$out"
+          cp -a "$RUNNER_TEMP/vvip-production-public/." "$root/public/"
+          cp "$RUNNER_TEMP/vvip-production-evidence/source.json" "$root/evidence/source.json"
+          cp "$RUNNER_TEMP/vvip-production-evidence/materials.json" "$root/evidence/materials.json"
+          cp "$RUNNER_TEMP/vvip-production-evidence/sbom.cdx.json" "$root/evidence/sbom.cdx.json"
+          cp "$RUNNER_TEMP/vvip-production-evidence/release-bundle-manifest.json" "$root/evidence/release-bundle-manifest.json"
+
+          archive="$out/vvip-production-release-${RELEASE_SHA}.tar.gz"
+          checksum="$out/vvip-production-release-${RELEASE_SHA}.sha256"
+          tar --sort=name \
+            --mtime='UTC 1970-01-01' \
+            --owner=0 \
+            --group=0 \
+            --numeric-owner \
+            --format=posix \
+            --pax-option=delete=atime,delete=ctime \
+            -C "$root" -cf - . | gzip -n > "$archive"
+          digest="$(sha256sum "$archive" | awk '{print $1}')"
+          printf '%s  %s\n' "$digest" "$(basename "$archive")" > "$checksum"
+          echo "archive=$archive" >> "$GITHUB_OUTPUT"
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+          echo "INNER_RELEASE_BUNDLE_SHA256=$digest"
+
+      - name: Attest exact Production release bundle provenance
+        id: provenance
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: ${{ steps.seal.outputs.archive }}
+
+      - name: Attest CycloneDX SBOM to the same Production release bundle
+        id: sbom_attestation
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: ${{ steps.seal.outputs.archive }}
+          sbom-path: ${{ runner.temp }}/vvip-production-evidence/sbom.cdx.json
+
+      - name: Verify signed provenance identity before preserving artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -Eeuo pipefail
+          gh attestation verify \
+            "${{ steps.seal.outputs.archive }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/production-release-artifact.yml" \
+            --source-digest "$RELEASE_SHA" \
+            --deny-self-hosted-runners >/dev/null
+          echo 'PRODUCTION_PROVENANCE=PASS'
+
+      - name: Re-check current main immediately before artifact upload
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch --no-tags --depth=1 origin main
+          upload_main="$(git rev-parse origin/main)"
+          if [ "$upload_main" != "$RELEASE_SHA" ]; then
+            echo 'UPLOAD_MAIN_SHA_MISMATCH' >&2
+            exit 1
+          fi
+          echo 'UPLOAD_MAIN_SHA=PASS'
+
+      - name: Upload exact sealed Production release package
+        id: upload
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: vvip-production-release-${{ env.RELEASE_SHA }}
+          path: |
+            ${{ runner.temp }}/vvip-production-release/vvip-production-release-${{ env.RELEASE_SHA }}.tar.gz
+            ${{ runner.temp }}/vvip-production-release/vvip-production-release-${{ env.RELEASE_SHA }}.sha256
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
+
+      - name: Record immutable GitHub artifact identity
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test -n "${{ steps.upload.outputs.artifact-id }}"
+          test -n "${{ steps.upload.outputs.artifact-digest }}"
+          {
+            echo '### Sealed Production release artifact'
+            echo "- Source SHA: \`$RELEASE_SHA\`"
+            echo "- Source tree: \`${{ steps.source.outputs.source_tree }}\`"
+            echo "- Inner bundle SHA-256: \`${{ steps.seal.outputs.digest }}\`"
+            echo "- GitHub artifact ID: \`${{ steps.upload.outputs.artifact-id }}\`"
+            echo "- GitHub artifact digest: \`${{ steps.upload.outputs.artifact-digest }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
