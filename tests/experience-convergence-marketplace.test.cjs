@@ -63,6 +63,14 @@ test('preview validation handles invalid media through the user-facing recovery 
   assert.match(js, /try\s*\{[\s\S]*validateFiles\(form\.elements\.images\.files\)[\s\S]*\}\s*catch\s*\(error\)\s*\{\s*report\(error\);\s*return false;\s*\}/);
 });
 
+test('visibility plan config text is rendered through textContent instead of innerHTML interpolation', () => {
+  assert.doesNotMatch(js, /button\.innerHTML\s*=/);
+  assert.match(js, /const planLabel\s*=\s*doc\.createElement\(["']span["']\)/);
+  assert.match(js, /planLabel\.textContent\s*=\s*cleanText\(plan\.label,\s*80\)/);
+  assert.match(js, /const planDescription\s*=\s*doc\.createElement\(["']small["']\)/);
+  assert.match(js, /planDescription\.textContent\s*=\s*cleanText\(plan\.description\s*\|\|/);
+});
+
 test('2026 interaction shell includes accessibility, motion preference and mobile responsiveness', () => {
   assert.match(css, /:focus-visible/);
   assert.match(css, /prefers-reduced-motion/);
