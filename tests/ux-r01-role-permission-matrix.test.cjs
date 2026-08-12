@@ -1,14 +1,14 @@
 const assert = require('node:assert/strict');
 const { execFileSync } = require('node:child_process');
-const out = execFileSync('node', ['--input-type=module', '-e', `import { ROLES, allowedScopes, canAccess, canAssignRoles, permissionStatus } from './operations-console/role-permissions.js'; console.log(JSON.stringify({ count: ROLES.length, regular: canAccess('regular_user','overview'), tigerSettings: canAccess('tiger_care_agent','settings'), moderatorAssign: canAssignRoles('moderator'), assigner: canAssignRoles('authorized_role_assigner'), platformOwner: permissionStatus('platform_admin','settings'), sectorScopes: allowedScopes('sector_manager'), areaScopes: allowedScopes('area_manager'), salesScopes: allowedScopes('sales_agent') }));`], { encoding: 'utf8' });
+const out = execFileSync('node', ['--input-type=module', '-e', `import { ROLES, allowedScopes, canAccess, canAssignRoles, permissionStatus } from './operations-console/role-permissions.js'; console.log(JSON.stringify({ count: ROLES.length, regular: canAccess('regular_user','overview'), tigerSettings: canAccess('tiger_care_agent','settings'), moderatorAssign: canAssignRoles('moderator'), assigner: canAssignRoles('authorized_role_assigner'), platformOwner: permissionStatus('platform_admin','settings'), sectorScopes: allowedScopes('sector_manager'), retiredAreaScopes: allowedScopes('area_manager'), salesScopes: allowedScopes('sales_agent') }));`], { encoding: 'utf8' });
 const result = JSON.parse(out);
-assert.equal(result.count, 15);
+assert.equal(result.count, 14);
 assert.equal(result.regular, false);
 assert.equal(result.tigerSettings, false);
 assert.equal(result.moderatorAssign, false);
 assert.equal(result.assigner, true);
 assert.equal(result.platformOwner, 'غير مسموح');
 assert.deepEqual(result.sectorScopes, ['sector']);
-assert.deepEqual(result.areaScopes, ['area']);
+assert.deepEqual(result.retiredAreaScopes, []);
 assert.deepEqual(result.salesScopes, ['own_records']);
 console.log('ux-r01-role-permission-matrix: PASS');

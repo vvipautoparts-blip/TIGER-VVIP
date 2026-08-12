@@ -54,7 +54,8 @@ function createAssignmentRequest(overrides = {}) {
       ],
       scope: { level: "country", countryCode: "JO" },
       startsAt: "2026-08-06T06:00:00.000Z",
-      expiresAt: "2026-09-06T06:00:00.000Z"
+      expiresAt: "2026-09-06T06:00:00.000Z",
+      identityBinding: { type: "ACCOUNT_ID", value: "acct_staff_0001" }
     },
     envelopeRef: "authz_env_ref_boundary_0001",
     correlationKey: "corr_boundary_create_0001",
@@ -234,7 +235,8 @@ test("create commands use exact allowlists and reject unknown fields", async () 
     ],
     scope: { level: "country", countryCode: "JO" },
     startsAt: "2026-08-06T06:00:00.000Z",
-    expiresAt: "2026-09-06T06:00:00.000Z"
+    expiresAt: "2026-09-06T06:00:00.000Z",
+    identityBinding: { type: "ACCOUNT_ID", value: "acct_staff_0001" }
   });
   assert.equal(Object.isFrozen(handlerInput.command), true);
 

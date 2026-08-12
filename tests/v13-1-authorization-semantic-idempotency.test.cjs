@@ -105,7 +105,8 @@ function createRequest(overrides = {}) {
       ],
       scope: { level: "country", countryCode: " jo " },
       startsAt: "2026-08-05T12:00:00.000Z",
-      expiresAt: "2026-09-05T12:00:00.000Z"
+      expiresAt: "2026-09-05T12:00:00.000Z",
+      identityBinding: { type: "ACCOUNT_ID", value: "acct_staff_0002" }
     },
     envelope: envelope(),
     authenticatedActorId: "owner-1",
@@ -182,7 +183,13 @@ async function createHandler(runTransaction, digestSha256 = sha256) {
     loadTrustedState: async () => trustedState(),
     runTransaction,
     clock: () => NOW,
-    digestSha256
+    digestSha256,
+    resolveRoleIdentityBinding: async ({ subjectId }) => ({
+      verified: true,
+      subjectId,
+      accountId: "acct_staff_0002",
+      clerkUserId: "user_staff_0002"
+    })
   });
 }
 
@@ -274,7 +281,8 @@ test("create permission order and equivalent scope formatting share one semantic
       ],
       scope: { level: "country", countryCode: "JO" },
       startsAt: "2026-08-05T12:00:00.000Z",
-      expiresAt: "2026-09-05T12:00:00.000Z"
+      expiresAt: "2026-09-05T12:00:00.000Z",
+      identityBinding: { type: "ACCOUNT_ID", value: "acct_staff_0002" }
     },
     resource: {
       scope: { level: "country", countryCode: "JO" },
@@ -293,7 +301,8 @@ test("create permission order and equivalent scope formatting share one semantic
     ],
     scope: { level: "country", countryCode: "JO" },
     startsAt: "2026-08-05T12:00:00.000Z",
-    expiresAt: "2026-09-05T12:00:00.000Z"
+    expiresAt: "2026-09-05T12:00:00.000Z",
+    identityBinding: { type: "ACCOUNT_ID", value: "acct_staff_0002" }
   });
   assert.equal(transaction.calls.filter((entry) => entry.startsWith("persist:")).length, 1);
   assert.equal(transaction.calls.filter((entry) => entry.startsWith("audit:")).length, 1);

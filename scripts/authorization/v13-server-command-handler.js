@@ -23,6 +23,9 @@ const POLLUTION_KEYS = new Set(["__proto__", "prototype", "constructor"]);
 const MAX_CANONICAL_DEPTH = 12;
 const MAX_CANONICAL_ENTRIES = 256;
 const SHA256_HEX_PATTERN = /^[a-f0-9]{64}$/;
+const ROLE_IDENTITY_BINDING_TYPES = new Set(["ACCOUNT_ID", "CLERK_USER_ID"]);
+const ACCOUNT_ID_PATTERN = /^[A-Za-z0-9_-]{3,200}$/;
+const CLERK_USER_ID_PATTERN = /^user_[A-Za-z0-9_-]{3,195}$/;
 
 const TRANSACTION_DENIAL_CODES = new Set([
   "IDEMPOTENCY_CONFLICT",
@@ -122,6 +125,14 @@ function isPlainObject(value) {
   return prototype === Object.prototype || prototype === null;
 }
 
+function hasExactKeys(value, expected) {
+  if (!isPlainObject(value)) return false;
+  const actual = Object.keys(value).sort();
+  const wanted = [...expected].sort();
+  return actual.length === wanted.length
+    && actual.every((key, index) => key === wanted[index]);
+}
+
 function containsPollutionKey(value, seen = new Set()) {
   if (!value || typeof value !== "object") return false;
   if (seen.has(value)) return true;
@@ -194,6 +205,58 @@ function actorFromValidatedEnvelope(envelope, trustedState) {
     permissionIds: Object.freeze([...envelope.permissionIds]),
     effectiveAssignmentIds: Object.freeze([...envelope.effectiveAssignmentIds]),
     scope: envelope.scope
+  });
+}
+
+function roleIdentityResolverInput(command) {
+  if (!boundedActorId(command?.subjectId)
+    || !hasExactKeys(command?.identityBinding, ["type", "value"])) {
+    throw new TypeError("ROLE_IDENTITY_BINDING_INVALID");
+  }
+  const type = command.identityBinding.type;
+  const value = typeof command.identityBinding.value === "string"
+    ? command.identityBinding.value.trim()
+    : "";
+  if (!ROLE_IDENTITY_BINDING_TYPES.has(type)) {
+    throw new TypeError("ROLE_IDENTITY_BINDING_INVALID");
+  }
+  if (type === "ACCOUNT_ID" && !ACCOUNT_ID_PATTERN.test(value)) {
+    throw new TypeError("ROLE_IDENTITY_BINDING_INVALID");
+  }
+  if (type === "CLERK_USER_ID" && !CLERK_USER_ID_PATTERN.test(value)) {
+    throw new TypeError("ROLE_IDENTITY_BINDING_INVALID");
+  }
+  return deepFreeze({
+    type,
+    value,
+    subjectId: command.subjectId.trim()
+  });
+}
+
+function normalizeTrustedRoleIdentity(value, resolverInput) {
+  if (!hasExactKeys(value, ["verified", "subjectId", "accountId", "clerkUserId"])
+    || value.verified !== true
+    || !boundedActorId(value.subjectId)
+    || value.subjectId.trim() !== resolverInput.subjectId
+    || typeof value.accountId !== "string"
+    || !ACCOUNT_ID_PATTERN.test(value.accountId.trim())
+    || typeof value.clerkUserId !== "string"
+    || !CLERK_USER_ID_PATTERN.test(value.clerkUserId.trim())) {
+    throw new TypeError("ROLE_IDENTITY_BINDING_DENIED");
+  }
+
+  const accountId = value.accountId.trim();
+  const clerkUserId = value.clerkUserId.trim();
+  if ((resolverInput.type === "ACCOUNT_ID" && resolverInput.value !== accountId)
+    || (resolverInput.type === "CLERK_USER_ID" && resolverInput.value !== clerkUserId)) {
+    throw new TypeError("ROLE_IDENTITY_BINDING_DENIED");
+  }
+
+  return deepFreeze({
+    verified: true,
+    subjectId: resolverInput.subjectId,
+    accountId,
+    clerkUserId
   });
 }
 
@@ -380,7 +443,8 @@ export function createAuthorizationServerCommandHandler({
   loadTrustedState,
   runTransaction,
   clock,
-  digestSha256
+  digestSha256,
+  resolveRoleIdentityBinding
 } = {}) {
   const configured = typeof loadTrustedState === "function"
     && typeof runTransaction === "function"
@@ -444,6 +508,22 @@ export function createAuthorizationServerCommandHandler({
     const allowed = policy.family === "partner" ? policyDecision.ok : policyDecision.allowed;
     if (!allowed) return fail(policyDecision.code);
 
+    let trustedIdentity = null;
+    if (policy.family === "assignment" && policy.action === "create") {
+      if (typeof resolveRoleIdentityBinding !== "function") {
+        return fail("CONFIGURATION_REQUIRED");
+      }
+      try {
+        const resolverInput = roleIdentityResolverInput(request.command);
+        trustedIdentity = normalizeTrustedRoleIdentity(
+          await resolveRoleIdentityBinding(resolverInput),
+          resolverInput
+        );
+      } catch {
+        return fail("ROLE_IDENTITY_BINDING_DENIED");
+      }
+    }
+
     let requestHash;
     try {
       requestHash = await hashCanonicalValue(
@@ -488,6 +568,7 @@ export function createAuthorizationServerCommandHandler({
           now
         };
         if (trustedTarget) persistenceInput.trustedTarget = trustedTarget;
+        if (trustedIdentity) persistenceInput.trustedIdentity = trustedIdentity;
 
         const persisted = await tx.persistAuthorizationCommand(deepFreeze(persistenceInput));
         const data = stableDataFromPersistence(persisted, policy);

@@ -150,17 +150,6 @@ CREATE POLICY "Users can view own commissions" ON public.commissions
   FOR SELECT USING (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Supervisor views team commissions" ON public.commissions;
-CREATE POLICY "Supervisor views team commissions" ON public.commissions
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1
-      FROM public.profiles p
-      JOIN public.profiles team_member ON team_member.superior_id = p.id
-      WHERE p.id = auth.uid()
-        AND p.role = 'supervisor'
-        AND team_member.id = commissions.user_id
-    )
-  );
 
 DROP POLICY IF EXISTS "Manager views team commissions" ON public.commissions;
 CREATE POLICY "Manager views team commissions" ON public.commissions
@@ -214,7 +203,7 @@ CREATE POLICY "Team and super admin can view orders" ON public.orders
       FROM public.profiles p
       JOIN public.profiles team_member ON team_member.superior_id = p.id
       WHERE p.id = auth.uid()
-        AND p.role IN ('manager', 'supervisor')
+        AND p.role = 'manager'
         AND team_member.id = orders.user_id
     )
   );
@@ -339,8 +328,8 @@ END $$;
 INSERT INTO public.account_types (label, category, active)
 VALUES
   ('المدير العام', 'الإدارة', true),
-  ('مدير منطقة', 'الإدارة', true),
-  ('مشرف', 'الإدارة', true),
+  ('مدير منطقة', 'الإدارة', false),
+  ('مشرف', 'الإدارة', false),
   ('مندوب', 'الإدارة', true),
   ('شركة قطع غيار', 'قطع الغيار', true),
   ('مؤسسة قطع غيار', 'قطع الغيار', true),
@@ -360,6 +349,11 @@ VALUES
   ('محل خدمات أخرى للمركبات', 'خدمات أخرى', true),
   ('مشتري', 'مشتري', true)
 ON CONFLICT (label, category) DO NOTHING;
+
+UPDATE public.account_types
+SET active = false
+WHERE category = 'الإدارة'
+  AND label IN ('مدير منطقة', 'مشرف');
 
 -- Vehicle catalog for advanced search dimensions
 CREATE TABLE IF NOT EXISTS public.vehicle_catalog (
