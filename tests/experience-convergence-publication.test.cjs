@@ -101,7 +101,7 @@ test("draft creation is content-first and does not require a payment entitlement
   assert.equal(client.writes.some((write) => write.payload && write.payload.status === "PENDING_REVIEW"), false);
 });
 
-test("publication preparation fails closed without a verified entitlement receipt and never blanket-submits for review", async () => {
+test("publication preparation stays fail-closed on unavailable trusted transport instead of asking for a nonexistent browser receipt", async () => {
   const client = createClientSpy();
   const repository = repo.createMarketplaceRepository({
     client,
@@ -115,10 +115,43 @@ test("publication preparation fails closed without a verified entitlement receip
       planId: "visibility-standard",
       entitlementReceipt: null
     }),
-    { code: "ENTITLEMENT_REQUIRED" }
+    { code: "PUBLICATION_TRANSPORT_UNAVAILABLE" }
   );
 
   assert.equal(client.writes.some((write) => write.payload && write.payload.status === "PENDING_REVIEW"), false);
+});
+
+test("publication preparation uses PR190 step-up auth and resumes the same intent", async () => {
+  const client = createClientSpy();
+  const clerk = { user: null };
+  let descriptor = null;
+  const auth = {
+    async requireAuth(intent, resume) {
+      descriptor = intent;
+      clerk.user = { id: "user_owner" };
+      await resume();
+      return false;
+    }
+  };
+  const repository = repo.createMarketplaceRepository({
+    client,
+    clerk,
+    auth,
+    config: { defaultCountryCode: "JO" }
+  });
+
+  await assert.rejects(
+    () => repository.prepareForPublication("11111111-1111-4111-8111-111111111111", {
+      planId: "visibility-standard",
+      entitlementReceipt: null
+    }),
+    { code: "PUBLICATION_TRANSPORT_UNAVAILABLE" }
+  );
+  assert.deepEqual(descriptor, {
+    name: "PREPARE_PUBLICATION",
+    listingId: "11111111-1111-4111-8111-111111111111"
+  });
+  assert.equal(client.writes.some((write) => write.op === "update"), false);
 });
 
 test("even a supplied receipt cannot publish through an unavailable server transport", async () => {
