@@ -116,6 +116,17 @@ test("role assignment accepts Clerk user id but rejects malformed or unsupported
   }
 });
 
+test("role assignment accepts ACCOUNT_ID at the 200-character contract boundary", async () => {
+  const { createAuthorizationCommandBoundary } = await loadBoundary();
+  const fixture = dependencies();
+  const boundary = createAuthorizationCommandBoundary(fixture.options);
+  const reference = "a".repeat(200);
+  const result = await boundary.execute(request({ type: "ACCOUNT_ID", value: reference }, "0200"), {});
+  assert.equal(result.ok, true);
+  assert.equal(fixture.calls.length, 1);
+  assert.equal(fixture.calls[0].command.identityBinding.value, reference);
+});
+
 test("operations console loads isolated role identity binding UI", () => {
   const source = fs.readFileSync(identityUiPath, "utf8");
   const index = fs.readFileSync(consoleIndexPath, "utf8");
