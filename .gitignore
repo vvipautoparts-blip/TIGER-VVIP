@@ -27,6 +27,11 @@ supabase/.temp/
 /tmp/
 /.firebase/hosting.*.cache
 
+# Local secrets and runtime environment
+.env
+.env.*
+!.env.example
+
 # Logs and editor/OS temporary files
 *.log
 npm-debug.log*
