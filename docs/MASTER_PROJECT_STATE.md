@@ -6,7 +6,9 @@
 
 **Checkpoint:** 2026-08-12
 **Repository:** `vvipautoparts-blip/TIGER-VVIP`
-**Current verified main:** `756dc5f7f2769e6405c98f156ba9a2484df25352`
+**Checkpoint product/runtime base before PR #192 documentation merge:** `756dc5f7f2769e6405c98f156ba9a2484df25352`
+
+> PR #192 carries this ledger. Merging PR #192 necessarily creates a newer `main` SHA. Therefore the SHA above is the exact product/runtime base incorporated into this checkpoint, **not** a claim that it remains the post-#192 `main`. Every continuation must resolve current `main` from GitHub before using this ledger.
 
 ## 1. Continuation protocol
 
@@ -24,13 +26,15 @@ Source precedence:
 
 Do not reuse stale authorization, fabricate human approval, bypass protected reviews, infer Production mutation/deployment, or treat a design document as runtime evidence.
 
-## 2. Current repository cursor
+## 2. Repository checkpoint cursor
 
-Current `main` is:
+At the moment this checkpoint was prepared, the exact `main` product/runtime base was:
 
 `756dc5f7f2769e6405c98f156ba9a2484df25352`
 
-The following material slices are merged into this current main:
+PR #192 is a documentation/governance carrier layered on top of that base. After PR #192 merges, the actual `main` must be read from GitHub and will be newer than `756dc5f7...`.
+
+The following material slices are already merged into the checkpoint base:
 
 - PR #190 — guest-first public marketplace with step-up authentication for protected actions.
 - PR #193 — complete removal/prohibition of commercial-register/business-registration product/data surface, with regression guard coverage.
@@ -81,11 +85,11 @@ All six required protected workflows passed on this exact head:
 - Dependency Review run #560 — PASS;
 - Project Control Integrity run #713 — PASS.
 
-All five Copilot review threads on the UX/publication flow were resolved after code/test fixes. Human protected approval remained present. PR #189 then merged successfully as current-main commit:
+All five Copilot review threads on the UX/publication flow were resolved after code/test fixes. Human protected approval remained present. PR #189 then merged successfully as checkpoint-base commit:
 
 `756dc5f7f2769e6405c98f156ba9a2484df25352`
 
-## 4. Shipped repository authentication invariant
+## 4. Authentication invariant
 
 The repository must preserve PR #190 behavior:
 
@@ -98,9 +102,9 @@ The repository must preserve PR #190 behavior:
 
 Current #189 Marketplace behavior was explicitly reconciled against this invariant. Public reads remain guest-safe, while create listing, favorite/account actions, and publication preparation use protected/step-up paths where applicable.
 
-## 5. Product / UX state now in main
+## 5. Product / UX state in the checkpoint base
 
-Repository implementation now includes the approved experience-convergence direction:
+Repository implementation includes the approved experience-convergence direction:
 
 - premium VVIP TIGER celestial/royal-blue identity;
 - low-clutter card-based Marketplace surface;
@@ -120,24 +124,13 @@ A selected visibility plan is not evidence of payment entitlement. Browser-suppl
 
 Binding decision: VVIP TIGER must not request, collect, reserve, infer, require, display, validate, store, transmit, analyze, report, or create a future placeholder specifically for commercial register/business registration as a platform field.
 
-This prohibition covers active:
-
-- registration/onboarding;
-- profile/account flows;
-- listing/post creation;
-- TIGER PULSE;
-- payment/boosting;
-- admin/operations controls;
-- schema/API/validation;
-- analytics/report/filter fields;
-- hidden/reserved product fields;
-- tests/fixtures that present it as an active requirement.
+This prohibition covers active registration/onboarding, profile/account flows, listing/post creation, TIGER PULSE, payment/boosting, admin/operations controls, schema/API/validation, analytics/report/filter fields, hidden/reserved product fields, and tests/fixtures that present it as an active requirement.
 
 Historical provenance may remain only when explicitly non-operative/superseded.
 
-The active prohibition/regression guard is now part of merged `main` through PR #193.
+The active prohibition/regression guard is merged through PR #193.
 
-## 7. Finance / commission / worker identity state now in main
+## 7. Finance / commission / worker identity state
 
 One central policy applies to all current and future sectors unless a later owner decision explicitly changes it.
 
@@ -158,14 +151,11 @@ Commission policy:
 - deterministic minor-unit allocation/reconciliation is required;
 - no unexplained residual or silent redirection is permitted.
 
-Every new operational/staff role assignment requires exactly one trusted identity reference:
-
-- `ACCOUNT_ID`; or
-- `CLERK_USER_ID`.
+Every new operational/staff role assignment requires exactly one trusted identity reference: `ACCOUNT_ID` or `CLERK_USER_ID`.
 
 The browser may submit a reference but cannot prove the mapping. Trusted server resolution must verify the identity/account relationship for the intended subject before persistence/activation. Missing, malformed, unresolved, ambiguous, or mismatched identity fails closed.
 
-Repository implementation of this policy is merged. This does **not** authorize a Production DB migration, real payout, or real-money movement.
+Repository implementation of this policy is merged through PR #191. This does **not** authorize a Production DB migration, real payout, or real-money movement.
 
 ## 8. TIGER PULSE state
 
@@ -180,7 +170,7 @@ Binding boundaries:
 - browser-side `is_billable=true` or equivalent is never financial authority;
 - Pulse/financial kill switches must not take down ordinary public browsing/search.
 
-The detailed engineering reference remains:
+Detailed engineering reference:
 
 `docs/owner-control/TIGER_PULSE_ENGINEERING_EXECUTION_REFERENCE.md`
 
@@ -192,39 +182,27 @@ Core owner direction remains:
 
 > **Simple Surface — Private Core — Minimum Truth**
 
-Required properties include:
+Required properties include minimum screen, minimum data, minimum authority, minimum truth exposure, server-side projection/masking rather than CSS-only hiding, RLS plus server authorization where applicable, bounded capabilities/scopes for sensitive actions, no secrets/service-role credentials in public browser bundles, and purpose-bounded AI projections/capabilities.
 
-- minimum screen;
-- minimum data;
-- minimum authority;
-- minimum truth exposure;
-- server-side projection/masking rather than CSS-only hiding of sensitive truth;
-- RLS plus server authorization where applicable;
-- bounded capabilities/scopes for sensitive actions;
-- no secrets/service-role credentials in public browser bundles;
-- AI receives purpose-bounded projections/capabilities rather than unrestricted database/admin truth;
-- native sensitive views use supported capture/capture-state protections without false universal screenshot/camera immunity claims;
-- no ordinary single compromise should yield unrestricted ownership of platform, all private data, all financial authority, and owner-level control.
+Native sensitive views use supported capture/capture-state protections without false universal screenshot/camera immunity claims. No repository status may be described as mathematically 100%/1000% unhackable.
 
-No repository status may be described as mathematically 100%/1000% unhackable.
+Security objective: no ordinary single compromise should yield unrestricted ownership of platform, all private data, all financial authority, and owner-level control.
 
 ## 10. Scale and financial acceptance targets
 
-The 12,000,000-user figure is an engineering scale target/model, not a verified capacity claim.
-
-Registered population, DAU, concurrency, requests/second, chat/websocket concurrency, jobs, database throughput, and provider limits are separate dimensions and must be measured separately.
+The 12,000,000-user figure is an engineering scale target/model, not a verified capacity claim. Registered population, DAU, concurrency, requests/second, chat/websocket concurrency, jobs, database throughput, and provider limits are separate dimensions and must be measured separately.
 
 No release may claim support for 12 million users without reproducible representative infrastructure evidence including throughput, error rate, p50/p95/p99 latency, saturation/limits, recovery behavior, and workload mix.
 
 Before real-money activation, financial acceptance must include at least 5,000,000 varied simulated movements covering concurrency, retries, duplicates, timeout, insufficient balance, reservation/capture/release/refund, disputes, policy/role change, exposure de-duplication, dependency failure, and reconciliation.
 
-The acceptance invariant is not test-count alone: no unexplained money creation/loss, no duplicate replay charge/commission, balanced journals where applicable, authorized recipients only, and deterministic reconciliation.
+Acceptance requires no unexplained money creation/loss, no duplicate replay charge/commission, balanced journals where applicable, authorized recipients only, and deterministic reconciliation.
 
 ## 11. Production / deployment truth boundary
 
 Repository implementation status and Production runtime status are separate truths.
 
-This checkpoint does **not** claim or authorize a new Production deployment of PR #193, #191, or #189.
+This checkpoint does **not** claim or authorize a new Production deployment of PR #193, #191, #189, or #192.
 
 Historical verified Production runtime evidence remains preserved in the state archive and merged PR #188. Any newer Production deployment/runtime claim must be established from fresh exact-SHA deployment, live runtime, Clerk/Supabase dependency, smoke, and protected-environment evidence.
 
@@ -241,7 +219,7 @@ The following remain separate protected operations unless fresh repository/envir
 
 Do not infer authorization for any of these from ordinary feature implementation/merge approval.
 
-## 12. Owner/state documentation PR — #192
+## 12. Owner/state documentation — PR #192
 
 PR #192 is the repository-backed owner-reference/current-state carrier.
 
@@ -267,13 +245,11 @@ PR #187 is already proven superseded and closed. Older AI, TigerPay, identity, c
 
 ## 14. Immediate continuation after this checkpoint
 
-1. Finalize PR #192 against current `main` and require same-head protected checks.
-2. Obtain protected human review if repository rules require it; do not fabricate or bypass approval.
-3. Merge #192 only after exact-head checks and review are satisfied.
-4. Re-read `main` after merge and record the exact final repository cursor.
-5. Continue legacy/open-PR reconciliation one evidence-backed chain at a time.
-6. Keep Production/country/real-money/provider mutations separately gated and explicitly evidenced.
-7. Return to deferred real-browser/manual evidence such as the PR36 real-image upload path only as a distinct manual-evidence task; do not mislabel its historical automated PASS as manual completion.
+1. Resolve live `main` from GitHub after PR #192 merge; never assume the checkpoint-base SHA is still current.
+2. Continue legacy/open-PR reconciliation one evidence-backed chain at a time.
+3. Keep Production/country/real-money/provider mutations separately gated and explicitly evidenced.
+4. Return to deferred real-browser/manual evidence such as the PR36 real-image upload path only as a distinct manual-evidence task; do not mislabel its historical automated PASS as manual completion.
+5. Checkpoint this ledger again only after a material repository/Production state transition.
 
 ## 15. Human-gate handling
 
