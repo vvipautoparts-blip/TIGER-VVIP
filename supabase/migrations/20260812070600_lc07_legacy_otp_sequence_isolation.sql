@@ -11,7 +11,9 @@ begin;
 
 do $legacy_otp_sequence_isolation$
 begin
-  if to_regclass('public.otp_codes_id_seq') is not null then
+  if to_regclass('public.otp_codes_id_seq') is null then
+    null;
+  else
     execute 'revoke all privileges on sequence public.otp_codes_id_seq from public, anon, authenticated';
   end if;
 end
