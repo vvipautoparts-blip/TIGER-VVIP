@@ -38,6 +38,11 @@ test('modern cards provide primary contact and lightweight secondary actions', (
   assert.match(js, /data-vvip-fab/);
 });
 
+test('public marketplace refresh remains guest-first while protected actions step up', () => {
+  assert.match(js, /if\s*\(\s*!state\.repository\s*\|\|\s*!state\.runtime\s*\)\s*return/);
+  assert.doesNotMatch(js, /!root\.Clerk\s*\|\|\s*!root\.Clerk\.isSignedIn/);
+});
+
 test('protected repository actions preserve PR190 guest-first step-up authentication', () => {
   assert.match(repositoryJs, /VVIP_AUTH/);
   assert.match(repositoryJs, /\.requireAuth\s*\(/);
