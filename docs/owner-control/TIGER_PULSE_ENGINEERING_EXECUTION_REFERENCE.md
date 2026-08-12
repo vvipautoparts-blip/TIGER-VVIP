@@ -1,8 +1,8 @@
 # VVIP TIGER — TIGER PULSE ENGINEERING & EXECUTION REFERENCE
 
-**Status:** OWNER-APPROVED ENGINEERING REFERENCE  
-**Effective checkpoint:** 2026-08-12  
-**Scope:** Global / all current and future sectors  
+**Status:** OWNER-APPROVED ENGINEERING REFERENCE
+**Effective checkpoint:** 2026-08-12
+**Scope:** Global / all current and future sectors
 **Relationship:** This document is governed by `OWNER_BINDING_DECISIONS_2026-08-12.md` and must be implemented through isolated, test-driven PRs. It is not itself evidence that Production money movement or country activation is live.
 
 ---
