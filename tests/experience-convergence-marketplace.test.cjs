@@ -37,6 +37,15 @@ test('modern cards provide primary contact and lightweight secondary actions', (
   assert.match(js, /data-vvip-fab/);
 });
 
+test('protected marketplace actions preserve PR190 guest-first step-up authentication', () => {
+  assert.match(js, /VVIP_AUTH/);
+  assert.match(js, /\.requireAuth\s*\(/);
+  assert.match(js, /name:\s*["']CREATE_LISTING["']/);
+  assert.match(js, /name:\s*["']TOGGLE_FAVORITE["']/);
+  assert.match(js, /name:\s*["']OPEN_ACCOUNT["']/);
+  assert.match(js, /listingId\s*:/);
+});
+
 test('2026 interaction shell includes accessibility, motion preference and mobile responsiveness', () => {
   assert.match(css, /:focus-visible/);
   assert.match(css, /prefers-reduced-motion/);
