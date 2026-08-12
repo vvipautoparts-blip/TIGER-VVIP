@@ -8,6 +8,7 @@ const test = require('node:test');
 
 const { sha256Hex } = require('../scripts/tsrf/evidence/contracts.cjs');
 const {
+  createProductionReleaseBundleManifest,
   createReleaseBundleManifest,
   serializeReleaseBundleManifest,
 } = require('../scripts/tsrf/svef/release-bundle.cjs');
@@ -77,16 +78,26 @@ function writeManifest(f, overrides = {}) {
   );
 }
 
-function build(f) {
-  return createReleaseBundleManifest({
+function bundleOptions(f, createdBy) {
+  return {
     repositoryRoot: f.repositoryRoot,
     candidateDir: f.candidateDir,
     sbomBytes: f.sbomBytes,
     materialRecords: f.materialRecords,
-    createdBy: 'github-actions:exact-sha-release',
+    createdBy,
     git: f.git,
     fsApi: fs,
-  });
+  };
+}
+
+function build(f) {
+  return createReleaseBundleManifest(bundleOptions(f, 'github-actions:exact-sha-release'));
+}
+
+function buildProduction(f) {
+  return createProductionReleaseBundleManifest(
+    bundleOptions(f, 'github-actions:production-release-artifact'),
+  );
 }
 
 test('serialized release bundle round-trips through JSON parse without depending on insertion order', (t) => {
@@ -120,5 +131,57 @@ test('candidate eligibility is independently fail-closed for mode and evidence a
   assert.throws(
     () => build(f),
     (error) => error.code === 'SVEF_CANDIDATE_INELIGIBLE',
+  );
+});
+
+test('candidate and Production release-bundle APIs reject cross-domain manifests', (t) => {
+  const candidate = fixture();
+  const production = fixture();
+  cleanup(t, candidate);
+  cleanup(t, production);
+
+  writeManifest(candidate, { mode: 'production' });
+  assert.throws(
+    () => build(candidate),
+    (error) => error.code === 'SVEF_CANDIDATE_MANIFEST_INVALID',
+  );
+
+  writeManifest(production, { mode: 'candidate' });
+  assert.throws(
+    () => buildProduction(production),
+    (error) => error.code === 'SVEF_PRODUCTION_MANIFEST_INVALID',
+  );
+});
+
+test('Production release-bundle eligibility is independently fail-closed', (t) => {
+  const ineligible = fixture();
+  const configurationError = fixture();
+  const forbiddenFinding = fixture();
+  cleanup(t, ineligible);
+  cleanup(t, configurationError);
+  cleanup(t, forbiddenFinding);
+
+  writeManifest(ineligible, { mode: 'production', releaseEligible: false });
+  assert.throws(
+    () => buildProduction(ineligible),
+    (error) => error.code === 'SVEF_PRODUCTION_INELIGIBLE',
+  );
+
+  writeManifest(configurationError, {
+    mode: 'production',
+    configurationErrors: ['missing production runtime configuration'],
+  });
+  assert.throws(
+    () => buildProduction(configurationError),
+    (error) => error.code === 'SVEF_PRODUCTION_INELIGIBLE',
+  );
+
+  writeManifest(forbiddenFinding, {
+    mode: 'production',
+    forbiddenFindings: ['forbidden production marker'],
+  });
+  assert.throws(
+    () => buildProduction(forbiddenFinding),
+    (error) => error.code === 'SVEF_PRODUCTION_INELIGIBLE',
   );
 });
