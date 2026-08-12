@@ -1,0 +1,52 @@
+{
+  "policyId": "VVIP_NO_COMMERCIAL_REGISTER_V1",
+  "version": 1,
+  "effectiveDate": "2026-08-12",
+  "status": "BINDING",
+  "ownerDecision": true,
+  "scope": "GLOBAL_ALL_CURRENT_AND_FUTURE_SECTORS",
+  "productFieldAllowed": false,
+  "placeholderAllowed": false,
+  "reservedSchemaSlotAllowed": false,
+  "collectionAllowed": false,
+  "validationAllowed": false,
+  "analyticsAllowed": false,
+  "reportFilterAllowed": false,
+  "prePublicationGateAllowed": false,
+  "historicalProvenanceOnly": true,
+  "futureReintroductionRequiresExplicitNewOwnerDecision": true,
+  "forbiddenSemanticAliases": [
+    "سجل تجاري",
+    "السجل التجاري",
+    "commercial registration",
+    "commercial register",
+    "business registration",
+    "company registration number",
+    "trade license identifier"
+  ],
+  "enforcement": {
+    "ui": "FORBIDDEN",
+    "onboarding": "FORBIDDEN",
+    "profiles": "FORBIDDEN",
+    "listingCreation": "FORBIDDEN",
+    "tigerPulse": "FORBIDDEN",
+    "paymentsAndBoosting": "FORBIDDEN",
+    "operationsConsole": "FORBIDDEN",
+    "databaseProductSchema": "FORBIDDEN",
+    "apiContracts": "FORBIDDEN",
+    "validationRules": "FORBIDDEN",
+    "analytics": "FORBIDDEN",
+    "reportsAndFilters": "FORBIDDEN",
+    "futureReservedProductSchema": "FORBIDDEN"
+  },
+  "historicalException": {
+    "allowed": true,
+    "purpose": "IMMUTABLE_PROVENANCE_ONLY",
+    "operative": false,
+    "mayReactivateBehavior": false
+  },
+  "notes": [
+    "This policy governs VVIP TIGER product data surfaces and does not prohibit VVIP TIGER legal entities from maintaining legally required corporate records outside the user-product data model.",
+    "Cross-border compliance controls must not silently reintroduce a commercial-register field under an alias. Any materially equivalent product field requires a new explicit owner decision."
+  ]
+}
