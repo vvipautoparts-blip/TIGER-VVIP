@@ -4,6 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const js = fs.readFileSync(path.join(__dirname, '..', 'scripts', 'vvip-production-marketplace.js'), 'utf8');
+const repositoryJs = fs.readFileSync(path.join(__dirname, '..', 'scripts', 'runtime', 'vvip-marketplace-repository.js'), 'utf8');
 const css = fs.readFileSync(path.join(__dirname, '..', 'styles', 'vvip-production-marketplace.css'), 'utf8');
 
 const sevenSectors = [
@@ -31,19 +32,19 @@ test('create flow is content-first and reveals visibility/payment only after com
 });
 
 test('modern cards provide primary contact and lightweight secondary actions', () => {
-  assert.match(js, /data-vvip-card-contact/);
-  assert.match(js, /data-vvip-card-save/);
-  assert.match(js, /data-vvip-card-share/);
+  assert.match(js, /dataset\.vvipCardContact\s*=/);
+  assert.match(js, /dataset\.vvipCardSave\s*=/);
+  assert.match(js, /dataset\.vvipCardShare\s*=/);
   assert.match(js, /data-vvip-fab/);
 });
 
-test('protected marketplace actions preserve PR190 guest-first step-up authentication', () => {
-  assert.match(js, /VVIP_AUTH/);
-  assert.match(js, /\.requireAuth\s*\(/);
-  assert.match(js, /name:\s*["']CREATE_LISTING["']/);
-  assert.match(js, /name:\s*["']TOGGLE_FAVORITE["']/);
-  assert.match(js, /name:\s*["']OPEN_ACCOUNT["']/);
-  assert.match(js, /listingId\s*:/);
+test('protected repository actions preserve PR190 guest-first step-up authentication', () => {
+  assert.match(repositoryJs, /VVIP_AUTH/);
+  assert.match(repositoryJs, /\.requireAuth\s*\(/);
+  assert.match(repositoryJs, /name:\s*["']CREATE_LISTING["']/);
+  assert.match(repositoryJs, /name:\s*["']TOGGLE_FAVORITE["']/);
+  assert.match(repositoryJs, /name:\s*["']OPEN_ACCOUNT["']/);
+  assert.match(repositoryJs, /listingId\s*:/);
 });
 
 test('2026 interaction shell includes accessibility, motion preference and mobile responsiveness', () => {
