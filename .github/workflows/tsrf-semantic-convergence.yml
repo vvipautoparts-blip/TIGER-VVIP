@@ -15,10 +15,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout exact head
-        uses: actions/checkout@v7
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Set up Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
         with:
           node-version: "22"
 
@@ -34,10 +34,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout exact head
-        uses: actions/checkout@v7
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Set up Deno
-        uses: denoland/setup-deno@v2
+        uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed
         with:
           deno-version: v2.x
 
@@ -50,10 +50,10 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout exact head
-        uses: actions/checkout@v7
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Set up Supabase CLI
-        uses: supabase/setup-cli@v1
+        uses: supabase/setup-cli@ab058987d8d6c725971f6cf9d0b5c98467e30bd1
         with:
           version: 2.109.0
 
@@ -109,17 +109,17 @@ jobs:
     timeout-minutes: 35
     steps:
       - name: Checkout exact head
-        uses: actions/checkout@v7
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
         with:
           fetch-depth: 0
 
       - name: Set up Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
         with:
           node-version: "22"
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: "3.12"
 
@@ -140,7 +140,7 @@ jobs:
 
       - name: Upload diagnostics
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: tsrf-quality-gate-${{ github.sha }}
           path: /tmp/tsrf-quality-gate.log

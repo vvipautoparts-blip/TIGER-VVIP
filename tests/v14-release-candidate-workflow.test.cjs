@@ -11,7 +11,7 @@ const workflow = fs.readFileSync(
 );
 
 test("V14 release candidate builds outside the checked-out source tree", () => {
-  assert.match(workflow, /uses:\s*actions\/checkout@v7/);
+  assert.match(workflow, /uses:\s*actions\/checkout@b4ffde65f46336ab88eb53be808477a3936bae11/);
   assert.match(workflow, /--source\s+\.\s*\\/);
   assert.match(workflow, /--output\s+"\$RUNNER_TEMP\/vvip-candidate"\s*\\/);
   assert.doesNotMatch(workflow, /--output\s+dist\/candidate/);

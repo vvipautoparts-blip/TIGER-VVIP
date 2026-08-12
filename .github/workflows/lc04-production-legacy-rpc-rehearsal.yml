@@ -43,16 +43,16 @@ jobs:
     timeout-minutes: 35
     steps:
       - name: Checkout exact source SHA
-        uses: actions/checkout@v7
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
         with:
           ref: ${{ env.SOURCE_SHA }}
           fetch-depth: 0
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
         with:
           node-version: "22"
 
-      - uses: supabase/setup-cli@v1
+      - uses: supabase/setup-cli@ab058987d8d6c725971f6cf9d0b5c98467e30bd1
         with:
           version: 2.109.0
 
@@ -86,7 +86,7 @@ jobs:
           echo "LC04_MIGRATION_SHA256=$hash"
 
       - name: Upload LC04 migration digest
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: lc04-migration-sha256-${{ env.SOURCE_SHA }}
           path: ${{ runner.temp }}/lc04-digest/migration.sha256

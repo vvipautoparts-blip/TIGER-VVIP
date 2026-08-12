@@ -37,7 +37,7 @@ test('LC03 packages local evidence through the bounded local bridge and uploads 
   assert.match(workflow, /scripts\/tsrf\/evidence\/local-bridge\.cjs/);
   assert.match(workflow, /candidateDir:\s*path\.join\(process\.env\.RUNNER_TEMP, 'vvip-candidate'\)/);
   assert.match(workflow, /outputDir:\s*path\.join\(process\.env\.RUNNER_TEMP, 'tsrf-local-evidence'\)/);
-  assert.match(workflow, /actions\/upload-artifact@v6/);
+  assert.match(workflow, /actions\/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f/);
   assert.match(workflow, /name:\s*tsrf-db-rebuild-proof-\$\{\{\s*env\.SOURCE_SHA\s*\}\}/);
   assert.match(workflow, /if-no-files-found:\s*error/);
 });
