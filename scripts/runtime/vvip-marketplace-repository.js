@@ -7,6 +7,7 @@
   "use strict";
 
   const PUBLIC_READ_TTL_MS = 30_000;
+  const PUBLIC_FEED_SELECT = "listing_id,active_market_country,sector,title,summary,price_minor,currency_code,location_label,contact_phone,whatsapp_enabled,media:vvip_marketplace_listing_media(storage_path,position,is_cover,alt_text)";
   const APPROVED_SECTORS = Object.freeze([
     "automotive",
     "real-estate",
@@ -294,7 +295,7 @@
     async function fetchPublic(input) {
       let query = client
         .from("vvip_marketplace_listings")
-        .select("listing_id,active_market_country,sector,title,summary,specifications,price_minor,currency_code,location_label,contact_phone,whatsapp_enabled,published_at,media:vvip_marketplace_listing_media(media_id,storage_path,mime_type,width,height,position,is_cover,alt_text)")
+        .select(PUBLIC_FEED_SELECT)
         .eq("status", "ACTIVE")
         .order("published_at", { ascending: false, nullsFirst: false })
         .limit(input.limit);
@@ -511,6 +512,7 @@
 
   return Object.freeze({
     PUBLIC_READ_TTL_MS,
+    PUBLIC_FEED_SELECT,
     APPROVED_SECTORS,
     createMarketplaceRepository,
     normalizeDraft,
