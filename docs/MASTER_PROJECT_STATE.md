@@ -1,197 +1,284 @@
 # VVIP TIGER — MASTER PROJECT STATE
 
-> GitHub is the code authority. This file is the project-state authority for continuation. Chat sessions are temporary execution sessions.
+> **GitHub/current refs are implementation truth. This file is the current execution-state authority.**
+> Binding owner decisions: `docs/owner-control/OWNER_BINDING_DECISIONS_2026-08-12.md`
+> Prior state preserved: `docs/state-archive/MASTER_PROJECT_STATE_PRE_20260812.md`
 
-## Continuation protocol
+**Checkpoint:** 2026-08-12
+**Repository:** `vvipautoparts-blip/TIGER-VVIP`
+**Current verified main:** `756dc5f7f2769e6405c98f156ba9a2484df25352`
 
-```text
-READ → VERIFY → PLAN → EXECUTE
-```
+## 1. Continuation protocol
 
-Never reuse stale authorization. Never infer authority from a completed deployment. Fail closed on source, database, provider, or evidence drift.
+Required operating sequence:
 
-## Current source truth
+`READ -> VERIFY -> PLAN -> EXECUTE -> VERIFY -> CHECKPOINT`
 
-- Repository: `vvipautoparts-blip/TIGER-VVIP`
-- Default branch: `main`
-- Current `main` / verified deployed Web source: `ce0a9654dc8bcd3e06dd2e1425093649a5ca8ae2`
-- Historical Phase B product merge H2: `35352136090bd39d9dd6bddc6682c9b9a2d3cafc`
-- H2 is an ancestor of current `main`.
-- PR #183 isolated the missing-production-config test from ambient environment variables.
-- PR #184 moved the Production Pages build output outside the checkout source tree and added a regression test.
-- PR #185 closed post-deployment public-artifact/runtime gaps and added live same-SHA dependency verification after Pages deployment.
+Source precedence:
 
-## Phase A
+1. repository bytes/current refs;
+2. exact-head CI/security evidence;
+3. current PR/commit metadata;
+4. this state ledger;
+5. historical chat/prose.
 
-Production Phase A remains verified after Phase B:
+Do not reuse stale authorization, fabricate human approval, bypass protected reviews, infer Production mutation/deployment, or treat a design document as runtime evidence.
 
-```text
-PHASE_A_REGRESSION=PASS
-```
+## 2. Current repository cursor
 
-Fresh read-only post-Phase-B proof verified:
-- `profiles` exists with RLS + FORCE RLS;
-- authenticated profile table privilege remains SELECT-only;
-- browser privilege violation count = 0;
-- retired credential surfaces remain server-only;
-- public helper count = 0;
-- duplicate Clerk subject groups = 0.
+Current `main` is:
 
-## Phase B — Production reality
+`756dc5f7f2769e6405c98f156ba9a2484df25352`
 
-Migration:
-`supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql`
+The following material slices are merged into this current main:
 
-Frozen SHA-256:
-`9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9`
+- PR #190 — guest-first public marketplace with step-up authentication for protected actions.
+- PR #193 — complete removal/prohibition of commercial-register/business-registration product/data surface, with regression guard coverage.
+- PR #191 — central all-sector commission policy, retired-role cleanup, and trusted role identity binding.
+- PR #189 — VVIP TIGER experience convergence, content-first creation, seven-sector surface, modern card/FAB UX, guest-safe runtime behavior, step-up protected actions, and fail-closed publication/payment preparation.
 
-Production Supabase:
-- ref: `zelcngyyvbomuzokvuxo`
-- region: `ap-northeast-2`
-- Phase B ledger entry: `20260809223120 global_launch_phase_b_marketplace_convergence`
-- classification: `PHASE_B_APPLIED_DARK_LAUNCH_CANONICAL`
+PR #187 was closed as superseded documentation after newer verified state evidence and the owner-state ledger replaced its old post-PR186 checkpoint purpose.
 
-Fresh read-only structural reconciliation verified:
-- all 12 Phase B authority/marketplace target tables exist;
-- RLS + FORCE RLS are enabled on all 12;
-- expected Phase B indexes, triggers, functions, policies and privilege boundaries are present;
-- `listing-media` bucket exists, is private, 10 MiB, JPEG/PNG/WebP only;
-- authority role/permission/principal/assignment/country/audit row counts are all zero;
-- marketplace listing/media/favorite/audit row counts are all zero.
+## 3. Exact pre-merge verification evidence
 
-Therefore:
+### PR #193
 
-```text
-PRODUCTION_DB_PHASE_B_APPLIED=true
-PRODUCTION_DB_POST_APPLY_STRUCTURAL_PROOF=PASS
-COUNTRY_ACTIVATED=false
-OWNER_SEEDED=false
-MARKETPLACE_SEED_RESIDUE=0
-```
+Repository contract removal for commercial register/business registration was strengthened and verified before merge. The final reviewed head passed the required protected quality/security workflows before PR #193 merged into `main`.
 
-## Identity
+### PR #191
 
-Repository IDENTITY-01 migration:
-`supabase/migrations/20260808_vvip_identity_fail_closed_profile_resolver.sql`
+Final reviewed head before merge:
 
-Frozen H2 SHA-256:
-`ee361b3bbdbef9695ac23d6ad597c49c4732f19ee45d1154745e5e387e12d0d6`
+`ce12f529b0b02e4f86bc3aee2635775cc81c7d52`
 
-- Sovereign Staging runtime proof: PASS, transaction rolled back, synthetic residue zero.
-- Production does not need standalone IDENTITY-01 while the deployed Phase A resolver remains semantically canonical.
-- Production resolver is subject-first, does not transfer ownership by browser email, has hardened search path, and denies anon/public execute.
-- Compatibility `p_email` duplicate-email hygiene remains future hardening; it is not an ownership-transfer vulnerability.
+Protected checks on that reconciled head were GREEN:
 
-## Production Web deployment — verified reality
+- VVIP Quality Gate;
+- V14 Release Candidate;
+- CodeQL;
+- TIGER CleanGuard;
+- Dependency Review;
+- Project Control Integrity.
 
-GitHub Actions:
-- workflow: `Deploy TIGER VVIP production artifact`
-- run: `31387230464` / run #247
-- verified attempt: `2`
-- source: `ce0a9654dc8bcd3e06dd2e1425093649a5ca8ae2`
-- build job `93514395561`: SUCCESS
-- deploy job `93514395308`: SUCCESS
-- GitHub Pages deployment `5835409741`: SUCCESS
-- deployed Pages URL: `https://vvipautoparts-blip.github.io/TIGER-VVIP/`
-- artifact ID: `9064183402`
-- artifact digest: `sha256:c943ae4b3f3739912d68ad9b7adde8ab745975fd9780933bdeb8d8d3989c9cc0`
+Human protected review was obtained from a reviewer with write access. PR #191 then merged through the protected repository gate as merge commit:
 
-The deploy job performed a live post-deployment same-SHA verification and passed all required public-surface/runtime checks. Evidence includes:
+`f3c94c1cdf9482c09731d122def8748c94164128`
 
-```text
-VVIP_RUNTIME_DEPENDENCIES=PASS
-VVIP_POST_DEPLOY_SMOKE=PASS
-```
+### PR #189
 
-The live verification fetched the production public files, checked that `runtime-config.js` contained the exact deployed SHA, rejected test Clerk configuration, probed the live Clerk production CDN endpoints, and probed Supabase REST for `vvip_marketplace_listings` with the public browser key.
+Final reconciled head before merge:
 
-Therefore:
+`c9ff14bfaceac3ee5a22a4a93f53b2481b54e42d`
 
-```text
-PRODUCTION_WEB_DEPLOYED=true
-PRODUCTION_WEB_RUNTIME_VERIFIED=true
-PRODUCTION_WEB_SOURCE_SHA=ce0a9654dc8bcd3e06dd2e1425093649a5ca8ae2
-```
+This head was built as a real two-parent merge over the post-#191 `main`, without force-push history rewriting. Direct comparison against then-current `main` proved exactly nine intended UX/Marketplace files differed.
 
-## Custom-domain boundary
+All six required protected workflows passed on this exact head:
 
-Current GitHub Pages API still reports:
+- VVIP Quality Gate run #754 — PASS;
+- V14 Release Candidate run #212 — PASS;
+- CodeQL run #641 — PASS;
+- TIGER CleanGuard run #276 — PASS;
+- Dependency Review run #560 — PASS;
+- Project Control Integrity run #713 — PASS.
 
-```text
-cname=null
-html_url=https://vvipautoparts-blip.github.io/TIGER-VVIP/
-https_enforced=true
-```
+All five Copilot review threads on the UX/publication flow were resolved after code/test fixes. Human protected approval remained present. PR #189 then merged successfully as current-main commit:
 
-The apex DNS already contains the four GitHub Pages A records and `www` points to `vvipautoparts-blip.github.io`. Clerk Production DNS records were added at the DNS provider and Clerk configuration reached verified state; the live Clerk CDN probe also passed inside run #247.
+`756dc5f7f2769e6405c98f156ba9a2484df25352`
 
-However, `tigerautoparts.shop` is not yet registered as the GitHub Pages custom domain in the Pages API. Do not equate the verified default Pages runtime with completed custom-domain launch until the Pages custom-domain setting and apex HTTPS are verified.
+## 4. Shipped repository authentication invariant
 
-## Provider state
+The repository must preserve PR #190 behavior:
 
-### GitHub Pages
-- Production deployment succeeded and live same-SHA verification passed.
-- Default Pages URL is the currently verified production URL.
-- Custom domain remains not configured in GitHub Pages API (`cname=null`).
+- public Marketplace browsing is guest-first;
+- authentication failure must not hide public Marketplace content;
+- Clerk remains the external identity authority;
+- Supabase remains the application data/RLS layer;
+- protected operations use step-up authentication and bounded intent resume;
+- browser identifiers are not trusted as authority by themselves.
 
-### Clerk
-- Production publishable configuration is active.
-- configured frontend API target: `clerk.tigerautoparts.shop`.
-- Clerk Production DNS configuration was corrected at the DNS provider.
-- Live Clerk CDN dependency probe passed during run #247 attempt 2.
-- Do not expose Clerk secret keys.
+Current #189 Marketplace behavior was explicitly reconciled against this invariant. Public reads remain guest-safe, while create listing, favorite/account actions, and publication preparation use protected/step-up paths where applicable.
 
-### Supabase
-- Production project remains `zelcngyyvbomuzokvuxo`.
-- Marketplace Phase B schema is present and dark-launched.
-- Live browser-key REST dependency probe passed during run #247 attempt 2.
+## 5. Product / UX state now in main
 
-## Advisor reconciliation
+Repository implementation now includes the approved experience-convergence direction:
 
-Fresh post-Phase-B security advisors include existing baseline warnings plus expected Phase-B advisory classes.
+- premium VVIP TIGER celestial/royal-blue identity;
+- low-clutter card-based Marketplace surface;
+- seven approved sectors;
+- content-first listing creation;
+- preview before visibility/payment selection;
+- visibility/pricing selection only after listing content is complete;
+- modern card contact/save/share actions;
+- floating create action;
+- mobile-responsive behavior and reduced-motion support;
+- ordinary publication does not use a blanket human-review paperwork gate;
+- unavailable payment/publication transport fails closed instead of claiming false success.
 
-Phase-B-specific observations include:
-- `rls_enabled_no_policy` INFO on server-only authority/audit tables — intentional because browser DML grants are absent;
-- authenticated SECURITY DEFINER warning for `vvip_marketplace_review_listing` — intentional trusted review RPC, constrained by authority checks and previously runtime-proven on Staging;
-- anonymous-policy warnings on marketplace/storage read surfaces — policy inspection confirms anon access is read-only and requires ACTIVE listing + active country; owner mutation policies are authenticated-only.
+A selected visibility plan is not evidence of payment entitlement. Browser-supplied receipts are not sufficient to publish. Real paid-publication transport remains a separate trusted server/Production implementation and activation gate.
 
-Never claim global zero advisor warnings. Release criterion is zero new **material** Phase-B-attributable security regressions.
+## 6. Commercial register — abolished from active product/data surface
 
-## Reconciliation governance
+Binding decision: VVIP TIGER must not request, collect, reserve, infer, require, display, validate, store, transmit, analyze, report, or create a future placeholder specifically for commercial register/business registration as a platform field.
 
-The earlier PRG branch `ops/prg-v1-production-release-gate-20260809` is historical evidence and is stale as current state because Production changed after its closure.
+This prohibition covers active:
 
-This state file records already-observed state. It does **not** retroactively invent authorization for past Production actions and does not grant authority for future Production writes.
+- registration/onboarding;
+- profile/account flows;
+- listing/post creation;
+- TIGER PULSE;
+- payment/boosting;
+- admin/operations controls;
+- schema/API/validation;
+- analytics/report/filter fields;
+- hidden/reserved product fields;
+- tests/fixtures that present it as an active requirement.
 
-## Current hard state flags
+Historical provenance may remain only when explicitly non-operative/superseded.
 
-```text
-PRODUCTION_DB_PHASE_B_APPLIED=true
-PRODUCTION_DB_POST_APPLY_STRUCTURAL_PROOF=PASS
-PRODUCTION_WEB_DEPLOYED=true
-PRODUCTION_WEB_RUNTIME_VERIFIED=true
-PRODUCTION_WEB_DEPLOYMENT_URL=https://vvipautoparts-blip.github.io/TIGER-VVIP/
-PRODUCTION_WEB_SOURCE_SHA=ce0a9654dc8bcd3e06dd2e1425093649a5ca8ae2
-CLERK_LIVE_DEPENDENCY_PROBE=PASS
-SUPABASE_LIVE_DEPENDENCY_PROBE=PASS
-POST_DEPLOY_SMOKE=PASS
-CUSTOM_DOMAIN_CONFIGURED=false
-COUNTRY_ACTIVATED=false
-OWNER_SEEDED=false
-DEFAULT_COUNTRY_CODE_CONFIGURED=false
-FUTURE_PRODUCTION_WRITE_AUTHORIZED=false
-```
+The active prohibition/regression guard is now part of merged `main` through PR #193.
 
-## Remaining owner/external work
+## 7. Finance / commission / worker identity state now in main
 
-1. Configure `tigerautoparts.shop` as the GitHub Pages custom domain and verify apex HTTPS/certificate readiness.
-2. Keep country activation and Owner seeding as separate sovereign gates; they are not implied by the current dark launch.
-3. Any future Production mutation requires fresh exact-scope authorization after no-drift verification.
+One central policy applies to all current and future sectors unless a later owner decision explicitly changes it.
 
-## Resume procedure
+Retired from new active operational/financial assignment paths:
 
-1. Read this file first.
-2. Re-read current `main`, Production migration ledger, Pages state, and provider state.
-3. Compare against the exact values above.
-4. If drift exists, reconcile first; do not reuse old capsules.
-5. Never retroactively label an already-completed action as owner-authorized unless contemporaneous evidence proves it.
+- `SECONDARY_MARKETER`;
+- `SUPERVISOR`;
+- `AREA_MANAGER`.
+
+Geographic `area` remains a valid location/scope concept. Historical retired-role facts remain readable and are not rewritten as if they never existed.
+
+Commission policy:
+
+- `PRIMARY_MARKETER` remains 4.30%;
+- removed total share is 10.93%;
+- removed share is redistributed completely/equally in exact arithmetic to `SECTOR_MANAGER`, `COUNTRY_EXECUTIVE_COMMISSIONER`, and `MARKETING`;
+- display percentages are not the source of truth;
+- deterministic minor-unit allocation/reconciliation is required;
+- no unexplained residual or silent redirection is permitted.
+
+Every new operational/staff role assignment requires exactly one trusted identity reference:
+
+- `ACCOUNT_ID`; or
+- `CLERK_USER_ID`.
+
+The browser may submit a reference but cannot prove the mapping. Trusted server resolution must verify the identity/account relationship for the intended subject before persistence/activation. Missing, malformed, unresolved, ambiguous, or mismatched identity fails closed.
+
+Repository implementation of this policy is merged. This does **not** authorize a Production DB migration, real payout, or real-money movement.
+
+## 8. TIGER PULSE state
+
+TIGER PULSE remains an owner-approved engineering direction and optional contextual intelligence/visibility layer.
+
+Binding boundaries:
+
+- ordinary Marketplace/search must remain available without Pulse;
+- Pulse is not a mandatory publication gate;
+- paid influence cannot buy truth or bypass relevance/eligibility/risk/legal gates;
+- billable exposure requires trusted server evidence, de-duplication, policy versioning, identity/account linkage, audit, and financial reconciliation;
+- browser-side `is_billable=true` or equivalent is never financial authority;
+- Pulse/financial kill switches must not take down ordinary public browsing/search.
+
+The detailed engineering reference remains:
+
+`docs/owner-control/TIGER_PULSE_ENGINEERING_EXECUTION_REFERENCE.md`
+
+That document is an approved engineering reference, not proof that real-money Pulse execution is live.
+
+## 9. Security / privacy constitution
+
+Core owner direction remains:
+
+> **Simple Surface — Private Core — Minimum Truth**
+
+Required properties include:
+
+- minimum screen;
+- minimum data;
+- minimum authority;
+- minimum truth exposure;
+- server-side projection/masking rather than CSS-only hiding of sensitive truth;
+- RLS plus server authorization where applicable;
+- bounded capabilities/scopes for sensitive actions;
+- no secrets/service-role credentials in public browser bundles;
+- AI receives purpose-bounded projections/capabilities rather than unrestricted database/admin truth;
+- native sensitive views use supported capture/capture-state protections without false universal screenshot/camera immunity claims;
+- no ordinary single compromise should yield unrestricted ownership of platform, all private data, all financial authority, and owner-level control.
+
+No repository status may be described as mathematically 100%/1000% unhackable.
+
+## 10. Scale and financial acceptance targets
+
+The 12,000,000-user figure is an engineering scale target/model, not a verified capacity claim.
+
+Registered population, DAU, concurrency, requests/second, chat/websocket concurrency, jobs, database throughput, and provider limits are separate dimensions and must be measured separately.
+
+No release may claim support for 12 million users without reproducible representative infrastructure evidence including throughput, error rate, p50/p95/p99 latency, saturation/limits, recovery behavior, and workload mix.
+
+Before real-money activation, financial acceptance must include at least 5,000,000 varied simulated movements covering concurrency, retries, duplicates, timeout, insufficient balance, reservation/capture/release/refund, disputes, policy/role change, exposure de-duplication, dependency failure, and reconciliation.
+
+The acceptance invariant is not test-count alone: no unexplained money creation/loss, no duplicate replay charge/commission, balanced journals where applicable, authorized recipients only, and deterministic reconciliation.
+
+## 11. Production / deployment truth boundary
+
+Repository implementation status and Production runtime status are separate truths.
+
+This checkpoint does **not** claim or authorize a new Production deployment of PR #193, #191, or #189.
+
+Historical verified Production runtime evidence remains preserved in the state archive and merged PR #188. Any newer Production deployment/runtime claim must be established from fresh exact-SHA deployment, live runtime, Clerk/Supabase dependency, smoke, and protected-environment evidence.
+
+The following remain separate protected operations unless fresh repository/environment authority proves otherwise:
+
+- Production DB mutation/migration apply;
+- real-money activation or payout;
+- country activation;
+- owner seeding;
+- provider-secret changes;
+- Clerk Production configuration changes;
+- DNS/custom-domain mutation;
+- protected Production deployment.
+
+Do not infer authorization for any of these from ordinary feature implementation/merge approval.
+
+## 12. Owner/state documentation PR — #192
+
+PR #192 is the repository-backed owner-reference/current-state carrier.
+
+Canonical files:
+
+- `docs/owner-control/OWNER_BINDING_DECISIONS_2026-08-12.md` — binding owner decision source;
+- `docs/owner-control/VVIP_TIGER_OWNER_MASTER_DECISIONS_2026-08-12.md` — detailed permanent owner reference;
+- `project-control/owner/VVIP_TIGER_OWNER_DECISIONS_2026-08-12.json` — machine-readable owner-decision contract;
+- `docs/MASTER_PROJECT_STATE.md` — current execution-state authority;
+- `docs/state-archive/MASTER_PROJECT_STATE_PRE_20260812.md` — preserved prior state.
+
+There must be only one active `MASTER_PROJECT_STATE.md` source. The prior duplicate root-level state file was removed from PR #192 before finalization.
+
+Owner Control UI must eventually consume protected server-side projections of owner/state records. Raw restricted governance material must not become an unauthenticated public artifact merely because it exists in the repository.
+
+## 13. Legacy/open PR backlog handling
+
+Do not mass-close old PRs by age or naming alone.
+
+Each older PR must be classified by current-main comparison and unique-content evidence before closure. Close only when it is proven merged, duplicated, superseded, or intentionally abandoned with no unique required implementation/evidence lost.
+
+PR #187 is already proven superseded and closed. Older AI, TigerPay, identity, cost, security, staging-evidence, and related stacked PRs require individual evidence-based reconciliation; their open state does not automatically mean they should be merged or deleted.
+
+## 14. Immediate continuation after this checkpoint
+
+1. Finalize PR #192 against current `main` and require same-head protected checks.
+2. Obtain protected human review if repository rules require it; do not fabricate or bypass approval.
+3. Merge #192 only after exact-head checks and review are satisfied.
+4. Re-read `main` after merge and record the exact final repository cursor.
+5. Continue legacy/open-PR reconciliation one evidence-backed chain at a time.
+6. Keep Production/country/real-money/provider mutations separately gated and explicitly evidenced.
+7. Return to deferred real-browser/manual evidence such as the PR36 real-image upload path only as a distinct manual-evidence task; do not mislabel its historical automated PASS as manual completion.
+
+## 15. Human-gate handling
+
+When a protected human-only step is reached:
+
+`HUMAN_GATE_PENDING`
+
+Record the gate precisely and continue independent safe repository work where possible. Never bypass or fabricate a protected reviewer, owner approval, Production environment approval, or external provider action.
