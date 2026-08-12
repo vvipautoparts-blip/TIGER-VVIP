@@ -15,10 +15,21 @@ function migrationText() {
 
 function migrationVersion(relativePath) {
   const filename = path.basename(relativePath);
-  const match = filename.match(/^(\d+)_/);
-  assert.ok(match, `migration filename must begin with a numeric version: ${filename}`);
+  const match = filename.match(/^(\d{14})_/);
+  assert.ok(match, `migration filename must begin with a 14-digit version: ${filename}`);
   return match[1];
 }
+
+test('LC07 migration version parser enforces canonical fixed-width timestamps', () => {
+  assert.equal(
+    migrationVersion('supabase/migrations/20260812070600_example.sql'),
+    '20260812070600',
+  );
+  assert.throws(
+    () => migrationVersion('supabase/migrations/999_example.sql'),
+    /14-digit version/,
+  );
+});
 
 test('LC07 is a forward no-synthesis migration after LC05 credential isolation', () => {
   assert.equal(
