@@ -65,6 +65,27 @@ def zip_bytes(entries: list[tuple[zipfile.ZipInfo | str, bytes]]) -> bytes:
     return output.getvalue()
 
 
+def patch_central_directory_file_size(payload: bytes, filename: str, declared_size: int) -> bytes:
+    """Change only the central-directory uncompressed size without allocating that payload."""
+    data = bytearray(payload)
+    signature = b"PK\x01\x02"
+    encoded_name = filename.encode("utf-8")
+    offset = 0
+    while True:
+        index = data.find(signature, offset)
+        if index < 0:
+            raise AssertionError(f"central directory entry not found: {filename}")
+        name_len = int.from_bytes(data[index + 28 : index + 30], "little")
+        extra_len = int.from_bytes(data[index + 30 : index + 32], "little")
+        comment_len = int.from_bytes(data[index + 32 : index + 34], "little")
+        name_start = index + 46
+        name_end = name_start + name_len
+        if bytes(data[name_start:name_end]) == encoded_name:
+            data[index + 24 : index + 28] = declared_size.to_bytes(4, "little")
+            return bytes(data)
+        offset = name_end + extra_len + comment_len
+
+
 def valid_inner_tar() -> bytes:
     public_file = b"<!doctype html><title>VVIP TIGER</title>\n"
     release_manifest = {
@@ -201,6 +222,32 @@ class VerifyProductionArtifactTests(unittest.TestCase):
                             extract_root=root / f"out-{label}",
                         )
                     self.assertEqual(ctx.exception.code, code)
+
+    def test_outer_rejects_zero_length_and_oversized_declared_members_before_extraction(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            empty_checksum = f"{sha256(b'')}  {ARCHIVE_NAME}\n".encode()
+            zero_length = zip_bytes([(ARCHIVE_NAME, b""), (CHECKSUM_NAME, empty_checksum)])
+            oversized = patch_central_directory_file_size(
+                valid_outer_zip(),
+                ARCHIVE_NAME,
+                512 * 1024 * 1024 + 1,
+            )
+
+            for label, payload in (("zero", zero_length), ("oversized", oversized)):
+                with self.subTest(label=label):
+                    artifact_zip = root / f"{label}.zip"
+                    artifact_zip.write_bytes(payload)
+                    extract_root = root / f"out-{label}"
+                    with self.assertRaises(verifier.VerificationError) as ctx:
+                        verifier.verify_outer_artifact(
+                            artifact_zip=artifact_zip,
+                            github_artifact_digest=f"sha256:{sha256(payload)}",
+                            release_sha=SOURCE_SHA,
+                            extract_root=extract_root,
+                        )
+                    self.assertEqual(ctx.exception.code, "VVIP_OUTER_ENTRY_SIZE_INVALID")
+                    self.assertFalse(extract_root.exists(), "size rejection must happen before extraction")
 
     def test_inner_rejects_traversal_links_and_unexpected_top_level_entries_before_extraction(self):
         with tempfile.TemporaryDirectory() as tmp:
