@@ -11,13 +11,24 @@ function workflow() {
   return fs.readFileSync(workflowPath, 'utf8');
 }
 
-test('production Pages artifact is built outside the checkout source tree', () => {
+test('production Pages upload consumes only verified previously-built bytes outside checkout', () => {
   const yaml = workflow();
 
-  assert.match(yaml, /--source\s+["']?\$GITHUB_WORKSPACE["']?/);
-  assert.match(yaml, /--output\s+["']?\$RUNNER_TEMP\/vvip-public["']?/);
-  assert.doesNotMatch(yaml, /--output\s+["']?dist\/public["']?/);
-  assert.match(yaml, /path:\s*["']?\$\{\{\s*runner\.temp\s*\}\}\/vvip-public["']?/);
+  assert.match(yaml, /\$RUNNER_TEMP\/vvip-promotion\/artifact\.zip/);
+  assert.match(yaml, /--extract-root\s+"\$RUNNER_TEMP\/vvip-promotion-outer"/);
+  assert.match(yaml, /--output-public\s+"\$RUNNER_TEMP\/vvip-verified-public"/);
+  assert.match(yaml, /path:\s*\$\{\{\s*runner\.temp\s*\}\}\/vvip-verified-public/);
+  assert.doesNotMatch(yaml, /tools\/vvip_public_release\.py/);
+  assert.doesNotMatch(yaml, /(?:unzip|tar)[^\n]*\$GITHUB_WORKSPACE/);
+
+  const outerIndex = yaml.indexOf('verify-production-artifact.py outer');
+  const provenanceIndex = yaml.indexOf('gh attestation verify');
+  const innerIndex = yaml.indexOf('verify-production-artifact.py inner');
+  const pagesIndex = yaml.indexOf('actions/upload-pages-artifact@');
+  assert.ok(outerIndex >= 0, 'outer digest/checksum verification must exist');
+  assert.ok(provenanceIndex > outerIndex, 'attestation must be verified only after outer envelope validation');
+  assert.ok(innerIndex > provenanceIndex, 'inner archive must not be trusted/extracted before attestation verification');
+  assert.ok(pagesIndex > innerIndex, 'Pages packaging must consume only fully verified public bytes');
 });
 
 test('production deploy performs live owner-approved same-SHA public surface verification', () => {
