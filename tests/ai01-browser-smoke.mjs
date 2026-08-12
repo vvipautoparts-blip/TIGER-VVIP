@@ -28,7 +28,7 @@ try {
   const inspect=async(name,width,height,mobile)=>{
     await send('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile,screenWidth:width,screenHeight:height});
     const loaded=event('Page.loadEventFired'); await send('Page.navigate',{url:URL}); await loaded; await ready(); await sleep(400);
-    const data=await evalJs(`(()=>{const h=document.documentElement,g=document.querySelector('[data-owner-auth-gate]'),o=document.querySelector('[data-owner-console]'),p=document.querySelector('[data-ai-command-center]'),a=[...document.querySelectorAll('[data-ai-agent]')],i=p?.querySelector('input[type="text"]'),s=document.querySelector('[data-owner-status]')?.textContent||'';return{lang:h.lang,dir:h.dir,gateHidden:!!g?.hidden,ownerVisible:!!o&&!o.hidden,panel:!!p,count:a.length,ids:a.map(x=>x.dataset.aiAgent),heads:a.map(x=>x.querySelector('h3')?.textContent.trim()||''),promptDisabled:!!i?.disabled,overflow:h.scrollWidth>h.clientWidth+1,scrollWidth:h.scrollWidth,clientWidth:h.clientWidth,fallback:s.includes('تعذر تجهيز الوحدة بأمان')}})()`);
+    const data=await evalJs(`(()=>{const h=document.documentElement,g=document.querySelector('[data-owner-auth-gate]'),o=document.querySelector('[data-owner-console]'),p=document.querySelector('[data-ai-command-center]'),a=[...document.querySelectorAll('[data-ai-agent]')],i=p?.querySelector('input[type="text"]'),s=document.querySelector('[data-owner-status]')?.textContent||'';return{lang:h.lang,dir:h.dir,gateHidden:!!g?.hidden,gateRendered:!!g&&getComputedStyle(g).display!=='none'&&g.getClientRects().length>0,ownerVisible:!!o&&!o.hidden,panel:!!p,count:a.length,ids:a.map(x=>x.dataset.aiAgent),heads:a.map(x=>x.querySelector('h3')?.textContent.trim()||''),promptDisabled:!!i?.disabled,overflow:h.scrollWidth>h.clientWidth+1,scrollWidth:h.scrollWidth,clientWidth:h.clientWidth,fallback:s.includes('تعذر تجهيز الوحدة بأمان')}})()`);
     const shot=await send('Page.captureScreenshot',{format:'png'}); writeFileSync(`${OUT}/${name}.png`,Buffer.from(shot.data,'base64')); return data;
   };
   const desktop=await inspect('desktop-1440x1000',1440,1000,false), mobile=await inspect('mobile-390x844',390,844,true);
@@ -37,7 +37,7 @@ try {
   const aiNeedles=['api.openai.com','openai.azure.com','anthropic.com','generativelanguage.googleapis.com','aiplatform.googleapis.com','bedrock-runtime','api.cohere.ai','api.mistral.ai','api.groq.com','api.perplexity.ai','api.together.xyz','api.fireworks.ai','api.replicate.com','api-inference.huggingface.co','/v1/chat/completions','/v1/responses'];
   const aiRequests=[...new Set(requests.filter(u=>aiNeedles.some(n=>u.toLowerCase().includes(n))))];
   const checks={
-    owner_access_flow:[desktop,mobile].every(x=>x.gateHidden&&x.ownerVisible&&!x.fallback),
+    owner_access_flow:[desktop,mobile].every(x=>x.gateHidden&&!x.gateRendered&&x.ownerVisible&&!x.fallback),
     four_ai_modules:[desktop,mobile].every(x=>x.count===4&&JSON.stringify(x.ids)===JSON.stringify(ids)&&JSON.stringify(x.heads)===JSON.stringify(heads)),
     arabic_rtl:[desktop,mobile].every(x=>x.lang==='ar'&&x.dir==='rtl'),
     no_javascript_console_errors:exceptions.filter(Boolean).length===0&&consoleErrors.length===0,
