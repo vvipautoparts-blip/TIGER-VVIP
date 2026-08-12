@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
 
-const WORKFLOW_PATH = path.join(process.cwd(), '.github', 'workflows', 'pages.yml');
+const WORKFLOW_PATH = path.join(__dirname, '..', '.github', 'workflows', 'pages.yml');
 const workflow = fs.readFileSync(WORKFLOW_PATH, 'utf8');
 
 function externalActions(text) {
