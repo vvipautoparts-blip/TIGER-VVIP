@@ -13,6 +13,7 @@ const MAX_TRUSTED_ENTRIES = 256;
 const MAX_TRUSTED_ARRAY = 256;
 const MAX_TRUSTED_STRING = 4_096;
 const MAX_RESULT_BYTES = 128 * 1024;
+const MAX_IDENTITY_REFERENCE = 200;
 const POLLUTION_KEYS = new Set(["__proto__", "prototype", "constructor"]);
 const ENVELOPE_REF_PATTERN = /^authz_env_ref_[A-Za-z0-9_-]{8,96}$/;
 const IDENTITY_BINDING_TYPES = new Set(["ACCOUNT_ID", "CLERK_USER_ID"]);
@@ -173,7 +174,7 @@ function sanitizeIdentityBinding(value) {
     throw new TypeError("IDENTITY_BINDING_SHAPE_INVALID");
   }
   const type = requiredText(value.type, 32);
-  const reference = requiredText(value.value, LIMITS.IDENTIFIER);
+  const reference = requiredText(value.value, MAX_IDENTITY_REFERENCE);
   if (!IDENTITY_BINDING_TYPES.has(type)) {
     throw new TypeError("IDENTITY_BINDING_TYPE_INVALID");
   }
