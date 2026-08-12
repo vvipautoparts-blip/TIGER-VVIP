@@ -213,6 +213,30 @@ function parseCandidateManifest(fsApi, candidateRoot) {
   return { manifest, manifestBytes };
 }
 
+function parseProductionManifest(fsApi, productionRoot) {
+  const manifestBytes = readRegularFile(fsApi, productionRoot, MANIFEST_NAME, {
+    symlinkCode: 'SVEF_PRODUCTION_SYMLINK',
+    missingCode: 'SVEF_PRODUCTION_MANIFEST_MISSING',
+    invalidCode: 'SVEF_PRODUCTION_MANIFEST_INVALID',
+  });
+  let manifest;
+  try {
+    manifest = JSON.parse(manifestBytes.toString('utf8'));
+  } catch {
+    fail('SVEF_PRODUCTION_MANIFEST_INVALID', 'Production release manifest is not valid JSON.');
+  }
+  if (!isPlainObject(manifest) || manifest.schemaVersion !== 1) {
+    fail('SVEF_PRODUCTION_MANIFEST_INVALID', 'Production release manifest schemaVersion must be 1.');
+  }
+  if (manifest.mode !== 'production') {
+    fail('SVEF_PRODUCTION_MANIFEST_INVALID', 'Production release manifest mode must be production.');
+  }
+  if (!isPlainObject(manifest.files) || Object.keys(manifest.files).length === 0) {
+    fail('SVEF_PRODUCTION_MANIFEST_INVALID', 'Production release manifest must declare a non-empty file map.');
+  }
+  return { manifest, manifestBytes };
+}
+
 function verifyCandidateFiles(fsApi, candidateRoot, manifestFiles) {
   const declared = [];
   const seen = new Set();
@@ -301,7 +325,7 @@ function assertCreatedBy(value) {
   return value;
 }
 
-function createReleaseBundleManifest(options) {
+function trustedBundleInputs(options) {
   assertExactInputShape(options);
   const {
     candidateDir,
@@ -320,15 +344,42 @@ function createReleaseBundleManifest(options) {
     fail('SVEF_GIT_INVALID', 'git must provide headSha() and treeSha().');
   }
 
-  const trustedRepositoryRoot = assertDirectory(fsApi, repositoryRoot, 'SVEF_REPOSITORY_ROOT_INVALID', 'repositoryRoot');
-  const trustedCandidateRoot = assertDirectory(fsApi, candidateDir, 'SVEF_CANDIDATE_ROOT_INVALID', 'candidateDir');
-  const sourceSha = assertSha40(git.headSha(), 'SVEF_SOURCE_SHA_INVALID', 'Source SHA');
-  const sourceTree = assertSha40(git.treeSha(), 'SVEF_SOURCE_TREE_INVALID', 'Source tree');
-  const trustedCreatedBy = assertCreatedBy(createdBy);
-  const trustedSbomBytes = normalizeSbomBytes(sbomBytes);
+  return Object.freeze({
+    fsApi,
+    materialRecords,
+    trustedRepositoryRoot: assertDirectory(fsApi, repositoryRoot, 'SVEF_REPOSITORY_ROOT_INVALID', 'repositoryRoot'),
+    trustedCandidateRoot: assertDirectory(fsApi, candidateDir, 'SVEF_CANDIDATE_ROOT_INVALID', 'candidateDir'),
+    sourceSha: assertSha40(git.headSha(), 'SVEF_SOURCE_SHA_INVALID', 'Source SHA'),
+    sourceTree: assertSha40(git.treeSha(), 'SVEF_SOURCE_TREE_INVALID', 'Source tree'),
+    trustedCreatedBy: assertCreatedBy(createdBy),
+    trustedSbomBytes: normalizeSbomBytes(sbomBytes),
+  });
+}
 
-  const { manifest, manifestBytes } = parseCandidateManifest(fsApi, trustedCandidateRoot);
-  if (manifest.sourceSha !== sourceSha) {
+function createBundleFromVerifiedManifest(trusted, manifest, manifestBytes) {
+  const candidateRecords = verifyCandidateFiles(trusted.fsApi, trusted.trustedCandidateRoot, manifest.files);
+  const verifiedMaterials = verifyMaterials(
+    trusted.fsApi,
+    trusted.trustedRepositoryRoot,
+    trusted.materialRecords,
+  );
+
+  return Object.freeze({
+    bundle_version: BUNDLE_VERSION,
+    source_sha: trusted.sourceSha,
+    source_tree: trusted.sourceTree,
+    candidate_manifest_sha256: sha256Hex(manifestBytes),
+    candidate_content_sha256: sha256Hex(canonicalJson(candidateRecords)),
+    sbom_sha256: sha256Hex(trusted.trustedSbomBytes),
+    materials_sha256: sha256Hex(canonicalJson(verifiedMaterials)),
+    created_by: trusted.trustedCreatedBy,
+  });
+}
+
+function createReleaseBundleManifest(options) {
+  const trusted = trustedBundleInputs(options);
+  const { manifest, manifestBytes } = parseCandidateManifest(trusted.fsApi, trusted.trustedCandidateRoot);
+  if (manifest.sourceSha !== trusted.sourceSha) {
     fail('SVEF_CANDIDATE_SOURCE_MISMATCH', 'Candidate release manifest source SHA does not match exact Git source.');
   }
   if (
@@ -338,21 +389,23 @@ function createReleaseBundleManifest(options) {
   ) {
     fail('SVEF_CANDIDATE_INELIGIBLE', 'Candidate release manifest is not independently release eligible.');
   }
+  return createBundleFromVerifiedManifest(trusted, manifest, manifestBytes);
+}
 
-  const candidateRecords = verifyCandidateFiles(fsApi, trustedCandidateRoot, manifest.files);
-  const verifiedMaterials = verifyMaterials(fsApi, trustedRepositoryRoot, materialRecords);
-
-  const bundle = {
-    bundle_version: BUNDLE_VERSION,
-    source_sha: sourceSha,
-    source_tree: sourceTree,
-    candidate_manifest_sha256: sha256Hex(manifestBytes),
-    candidate_content_sha256: sha256Hex(canonicalJson(candidateRecords)),
-    sbom_sha256: sha256Hex(trustedSbomBytes),
-    materials_sha256: sha256Hex(canonicalJson(verifiedMaterials)),
-    created_by: trustedCreatedBy,
-  };
-  return Object.freeze(bundle);
+function createProductionReleaseBundleManifest(options) {
+  const trusted = trustedBundleInputs(options);
+  const { manifest, manifestBytes } = parseProductionManifest(trusted.fsApi, trusted.trustedCandidateRoot);
+  if (manifest.sourceSha !== trusted.sourceSha) {
+    fail('SVEF_PRODUCTION_SOURCE_MISMATCH', 'Production release manifest source SHA does not match exact Git source.');
+  }
+  if (
+    manifest.releaseEligible !== true ||
+    !Array.isArray(manifest.configurationErrors) || manifest.configurationErrors.length !== 0 ||
+    !Array.isArray(manifest.forbiddenFindings) || manifest.forbiddenFindings.length !== 0
+  ) {
+    fail('SVEF_PRODUCTION_INELIGIBLE', 'Production release manifest is not independently release eligible.');
+  }
+  return createBundleFromVerifiedManifest(trusted, manifest, manifestBytes);
 }
 
 function serializeReleaseBundleManifest(manifest) {
@@ -369,6 +422,7 @@ function serializeReleaseBundleManifest(manifest) {
 module.exports = {
   BUNDLE_VERSION,
   SvefReleaseBundleError,
+  createProductionReleaseBundleManifest,
   createReleaseBundleManifest,
   serializeReleaseBundleManifest,
 };
