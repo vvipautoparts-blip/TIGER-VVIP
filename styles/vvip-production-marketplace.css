@@ -132,7 +132,7 @@ body.is-home .market-bottom-nav [data-open-create-listing]{color:var(--vvip-blue
   .vvip-card-primary{grid-column:1/-1}
   .vvip-create-heading{padding-inline-end:38px}
 }
-@media(min-width:761px){body.is-home .market-bottom-nav{display:none}.vvip-fab{bottom:24px}}
+@media(min-width:641px){body.is-home .market-bottom-nav{display:none}.vvip-fab{bottom:24px}}
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
