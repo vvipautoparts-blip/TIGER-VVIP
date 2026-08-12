@@ -1,7 +1,7 @@
 # Exact-Artifact Production Promotion — 2026 Design
 
 Date: 2026-08-12
-Status: OWNER-APPROVED DESIGN, WRITTEN SPEC UNDER REVIEW, IMPLEMENTATION NOT YET AUTHORIZED
+Status: OWNER-APPROVED DESIGN, IMPLEMENTED IN DRAFT PR #206, NOT MERGED, NO PRODUCTION PROMOTION AUTHORIZED
 Target: VVIP TIGER Production release supply chain
 Base main SHA: `19859d101aae88f240d191be9c2304421fc167a9`
 
@@ -224,6 +224,8 @@ Before deployment, extraction SHALL be fail-closed:
 - extract only into a fresh `$RUNNER_TEMP` directory;
 - re-enumerate the extracted tree and compare it to the manifest;
 - never extract into `$GITHUB_WORKSPACE`.
+
+The implementation uses a two-phase verifier: the GitHub artifact ZIP is authenticated and safely opened first, then the inner tarball is cryptographically attested before its contents are extracted or trusted. This preserves the intended trust ordering while preventing archive traversal and pre-attestation parsing of release payload bytes.
 
 ## 7. Determinism and reproducibility
 
