@@ -7,6 +7,15 @@
   "use strict";
 
   const PUBLIC_READ_TTL_MS = 30_000;
+  const APPROVED_SECTORS = Object.freeze([
+    "automotive",
+    "real-estate",
+    "construction",
+    "professional-services",
+    "equipment",
+    "trade-supply",
+    "engineering-consulting"
+  ]);
 
   function marketplaceError(code, cause) {
     const error = new Error(code);
@@ -35,7 +44,7 @@
   function normalizeDraft(input, config) {
     const source = input && typeof input === "object" ? input : {};
     const sector = text(source.sector, 32);
-    if (!["automotive", "materials", "real-estate"].includes(sector)) {
+    if (!APPROVED_SECTORS.includes(sector)) {
       throw marketplaceError("LISTING_SECTOR_INVALID");
     }
     const title = text(source.title, 80);
@@ -163,6 +172,22 @@
     return result ? result.data : null;
   }
 
+  function normalizePublicationIntent(listingId, options) {
+    const id = text(listingId, 64);
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) {
+      throw marketplaceError("LISTING_ID_INVALID");
+    }
+    const source = options && typeof options === "object" ? options : {};
+    const planId = text(source.planId || source.plan_id, 80);
+    if (!planId) throw marketplaceError("VISIBILITY_PLAN_REQUIRED");
+    const entitlementReceipt = text(source.entitlementReceipt || source.entitlement_receipt, 512);
+    return Object.freeze({
+      listingId: id,
+      planId: planId,
+      entitlementReceipt: entitlementReceipt
+    });
+  }
+
   function createMarketplaceRepository(options) {
     const client = options && options.client;
     const clerk = options && options.clerk;
@@ -174,6 +199,30 @@
     };
     if (!client || typeof client.from !== "function" || !client.storage) {
       throw marketplaceError("SUPABASE_CLIENT_REQUIRED");
+    }
+
+    function protectedOperation(descriptor, operation) {
+      try {
+        actorId(clerk);
+        return Promise.resolve().then(operation);
+      } catch (error) {
+        if (!error || error.code !== "AUTH_REQUIRED") return Promise.reject(error);
+      }
+
+      const auth = (options && options.auth) || root.VVIP_AUTH;
+      if (!auth || typeof auth.requireAuth !== "function") {
+        return Promise.reject(marketplaceError("AUTH_REQUIRED"));
+      }
+
+      return new Promise(function (resolve, reject) {
+        let resumed = false;
+        function resume() {
+          if (resumed) return undefined;
+          resumed = true;
+          return Promise.resolve().then(operation).then(resolve, reject);
+        }
+        Promise.resolve(auth.requireAuth(descriptor, resume)).catch(reject);
+      });
     }
 
     const publicReadCache = new Map();
@@ -297,15 +346,17 @@
       }
     }
 
-    async function listMine() {
-      const owner = actorId(clerk);
-      const result = await client
-        .from("vvip_marketplace_listings")
-        .select("listing_id,active_market_country,sector,title,summary,price_minor,currency_code,location_label,status,rejection_reason,created_at,updated_at")
-        .eq("owner_subject", owner)
-        .order("updated_at", { ascending: false })
-        .limit(100);
-      return assertClientResult(result, "MY_LISTINGS_READ_FAILED") || [];
+    function listMine() {
+      return protectedOperation({ name: "OPEN_ACCOUNT" }, async function () {
+        const owner = actorId(clerk);
+        const result = await client
+          .from("vvip_marketplace_listings")
+          .select("listing_id,active_market_country,sector,title,summary,price_minor,currency_code,location_label,status,rejection_reason,created_at,updated_at")
+          .eq("owner_subject", owner)
+          .order("updated_at", { ascending: false })
+          .limit(100);
+        return assertClientResult(result, "MY_LISTINGS_READ_FAILED") || [];
+      });
     }
 
     async function createDraft(input) {
@@ -362,6 +413,31 @@
       }
     }
 
+    function createDraftWithMedia(input, images) {
+      return protectedOperation({ name: "CREATE_LISTING" }, async function () {
+        const draft = await createDraft(input);
+        try {
+          await uploadMedia(draft.listing_id, images);
+          return draft;
+        } catch (error) {
+          try {
+            await client.from("vvip_marketplace_listings").delete().eq("listing_id", draft.listing_id);
+          } catch (_) { /* RLS-safe cleanup attempt */ }
+          throw error;
+        }
+      });
+    }
+
+    function prepareForPublication(listingId, options) {
+      const intent = normalizePublicationIntent(listingId, options);
+      return protectedOperation({ name: "PREPARE_PUBLICATION", listingId: intent.listingId }, async function () {
+        // Publication remains intentionally fail-closed until a trusted server/edge
+        // transport verifies payment/visibility entitlement and performs the state
+        // transition. The browser cannot mint or substitute that trusted receipt.
+        throw marketplaceError("PUBLICATION_TRANSPORT_UNAVAILABLE");
+      });
+    }
+
     async function submitForReview(listingId) {
       actorId(clerk);
       const result = await client
@@ -386,23 +462,25 @@
       }
     }
 
-    async function toggleFavorite(listingId, favorite) {
-      const owner = actorId(clerk);
-      if (favorite) {
-        const result = await client.from("vvip_marketplace_favorites").upsert({
-          owner_subject: owner,
-          listing_id: listingId
-        });
-        assertClientResult(result, "FAVORITE_WRITE_FAILED");
-        return true;
-      }
-      const result = await client
-        .from("vvip_marketplace_favorites")
-        .delete()
-        .eq("owner_subject", owner)
-        .eq("listing_id", listingId);
-      assertClientResult(result, "FAVORITE_DELETE_FAILED");
-      return false;
+    function toggleFavorite(listingId, favorite) {
+      return protectedOperation({ name: "TOGGLE_FAVORITE", listingId: listingId }, async function () {
+        const owner = actorId(clerk);
+        if (favorite) {
+          const result = await client.from("vvip_marketplace_favorites").upsert({
+            owner_subject: owner,
+            listing_id: listingId
+          });
+          assertClientResult(result, "FAVORITE_WRITE_FAILED");
+          return true;
+        }
+        const result = await client
+          .from("vvip_marketplace_favorites")
+          .delete()
+          .eq("owner_subject", owner)
+          .eq("listing_id", listingId);
+        assertClientResult(result, "FAVORITE_DELETE_FAILED");
+        return false;
+      });
     }
 
     async function reviewListing(listingId, decision, reason) {
@@ -422,6 +500,8 @@
       listMine,
       createDraft,
       uploadMedia,
+      createDraftWithMedia,
+      prepareForPublication,
       submitForReview,
       createAndSubmit,
       toggleFavorite,
@@ -431,6 +511,7 @@
 
   return Object.freeze({
     PUBLIC_READ_TTL_MS,
+    APPROVED_SECTORS,
     createMarketplaceRepository,
     normalizeDraft,
     normalizePriceMinor,
