@@ -60,6 +60,7 @@ jobs:
       contents: read
       id-token: write
       attestations: write
+      artifact-metadata: write
     env:
       RELEASE_SHA: ${{ inputs.release_sha }}
       TIGER_CLERK_PUBLISHABLE_KEY: ${{ secrets.TIGER_CLERK_PUBLISHABLE_KEY }}
