@@ -44,7 +44,18 @@ test('protected repository actions preserve PR190 guest-first step-up authentica
   assert.match(repositoryJs, /name:\s*["']CREATE_LISTING["']/);
   assert.match(repositoryJs, /name:\s*["']TOGGLE_FAVORITE["']/);
   assert.match(repositoryJs, /name:\s*["']OPEN_ACCOUNT["']/);
+  assert.match(repositoryJs, /name:\s*["']PREPARE_PUBLICATION["']/);
   assert.match(repositoryJs, /listingId\s*:/);
+});
+
+test('create modal remains safe before runtime readiness and toggles its body lock symmetrically', () => {
+  assert.match(js, /formMarkup\(\(state\.runtime\s*&&\s*state\.runtime\.config\)\s*\|\|\s*\{\}\)/);
+  assert.match(js, /doc\.body\.classList\.add\(["']vvip-create-open["']\)/);
+  assert.match(js, /doc\.body\.classList\.remove\(["']vvip-create-open["']\)/);
+});
+
+test('preview validation handles invalid media through the user-facing recovery path', () => {
+  assert.match(js, /try\s*\{[\s\S]*validateFiles\(form\.elements\.images\.files\)[\s\S]*\}\s*catch\s*\(error\)\s*\{\s*report\(error\);\s*return false;\s*\}/);
 });
 
 test('2026 interaction shell includes accessibility, motion preference and mobile responsiveness', () => {
