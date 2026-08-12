@@ -1,65 +1,25 @@
-# إعداد Google One Tap Sign-up
+# Google Authentication Setup — Historical Notice
 
-## الخطوات السريعة
+> **Status: HISTORICAL / DO NOT EXECUTE**
+>
+> This file previously documented a direct Firebase/Supabase-era Google authentication experiment. VVIP TIGER now follows the binding federated identity architecture in [Federated Identity Sovereignty ADR](docs/architecture/ADR-2026-08-08-federated-identity-sovereignty.md).
 
-### 1. الحصول على Google Client ID
+## Current rule
 
-1. اذهب إلى [Google Cloud Console](https://console.cloud.google.com/)
-2. أنشئ مشروع جديد أو استخدم موجود
-3. فعّل **Google+ API**
-4. اذهب إلى **Credentials** → Create OAuth 2.0 Client ID (Web Application)
-5. أضف Redirect URIs:
-   - `http://127.0.0.1:800/`
-   - `https://vvipautoparts-blip.github.io/TIGER-VVIP/`
+Google authentication, when enabled, must be configured through the approved external identity provider/runtime. VVIP TIGER must not implement a parallel Google/Firebase/Supabase credential path in browser code.
 
-### 2. استخدام Client ID
+Current requirements include:
 
-استبدل `YOUR_GOOGLE_CLIENT_ID` في [auth.js](auth.js):
+- OIDC for authentication;
+- OAuth 2.0 authorization flow with PKCE where applicable;
+- exact allowlisted callback/redirect origins;
+- provider-managed credential and recovery lifecycle;
+- stable external subject as the identity anchor;
+- no automatic account linking solely by email;
+- no provider client secret or private signing key in browser code.
 
-```javascript
-google.accounts.id.initialize({
-  client_id: 'your-actual-client-id-here.apps.googleusercontent.com',
-  // ...
-});
-```
+## Historical runtime status
 
-### 3. تفعيل في Supabase (اختياري)
+The former executable authentication runtime referenced by this guide has been retired from the current product tree. See [Legacy Password Runtime Removal](docs/security/LEGACY_PASSWORD_RUNTIME_REMOVAL_20260808.md).
 
-إذا أردت المصادقة عبر Supabase:
-
-1. اذهب إلى Supabase Dashboard
-2. Authentication → Providers → Google
-3. فعّل وضع الـ Implicit Flow
-4. أضف نفس Redirect URLs
-
-### 4. الميزات
-
-- ✅ **One Tap Popup**: بوب أب احترافي يظهر للمستخدم
-- ✅ **Account Chooser**: اختيار من الحسابات المحفوظة
-- ✅ **Auto-fill**: ملء بيانات المستخدم تلقائياً
-- ✅ **Security**: JWT Token verification
-- ✅ **Saved Emails**: حفظ البريد في localStorage
-
----
-
-## الحل الكامل
-
-الآن صفحة إنشاء الحساب تحتوي على:
-
-```
-┌─────────────────────────────────┐
-│   إنشاء حساب جديد               │
-├─────────────────────────────────┤
-│  [Google Sign In Button]        │ ← Google One Tap
-│         أو                      │
-│  اختر نوع الحساب: [▼]          │ ← النموذج العادي
-│  البريد: [📧 ▼]                 │ ← مع البريدات المحفوظة
-│  [التحقق من البريد]             │
-└─────────────────────────────────┘
-```
-
-### الفوائد:
-- تجربة Facebook محترفة
-- بدون مشاكل برمجية
-- آمن وموثوق
-- أداء عالي
+Provider dashboard configuration is launch evidence and is not modified by this document.

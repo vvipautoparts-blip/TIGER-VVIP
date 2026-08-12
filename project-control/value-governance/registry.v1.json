@@ -1,0 +1,79 @@
+{
+  "registryVersion": "CVGE_ASSET_REGISTRY_V1",
+  "policyVersion": "CVGE_REPOSITORY_V1",
+  "completeness": "INITIAL_CRITICAL_ASSETS_ONLY",
+  "assets": [
+    {
+      "assetId": "asset:control:quality-gate",
+      "type": "control",
+      "path": "scripts/quality-gate.sh",
+      "purpose": "Run isolated platform quality, security, integrity, and regression controls",
+      "accountableRole": "OWNER_ROOT",
+      "actionClass": "C",
+      "lifecycleState": "PROTECTED",
+      "protectedObligations": ["security", "audit", "recovery"],
+      "expectedEvidence": ["file_exists", "sha256"],
+      "canonicalReplacement": null
+    },
+    {
+      "assetId": "asset:control:project-validator",
+      "type": "control",
+      "path": "project-control/scripts/validate_project_control.mjs",
+      "purpose": "Validate the canonical project control plane and its governed datasets",
+      "accountableRole": "OWNER_ROOT",
+      "actionClass": "C",
+      "lifecycleState": "PROTECTED",
+      "protectedObligations": ["audit", "recovery"],
+      "expectedEvidence": ["file_exists", "sha256"],
+      "canonicalReplacement": null
+    },
+    {
+      "assetId": "asset:security:secret-scanner",
+      "type": "security_control",
+      "path": "scripts/security/p08-steel-shield/scan-secret-leaks.sh",
+      "purpose": "Detect secret leakage without exposing complete secret material",
+      "accountableRole": "OWNER_ROOT",
+      "actionClass": "C",
+      "lifecycleState": "PROTECTED",
+      "protectedObligations": ["security", "privacy", "audit"],
+      "expectedEvidence": ["file_exists", "sha256"],
+      "canonicalReplacement": null
+    },
+    {
+      "assetId": "asset:security:dangerous-sql-scanner",
+      "type": "security_control",
+      "path": "scripts/security/p08-steel-shield/scan-dangerous-sql.sh",
+      "purpose": "Detect unreviewed dangerous SQL and enforce content-addressed exceptions",
+      "accountableRole": "OWNER_ROOT",
+      "actionClass": "C",
+      "lifecycleState": "PROTECTED",
+      "protectedObligations": ["security", "audit", "financial", "legal"],
+      "expectedEvidence": ["file_exists", "sha256"],
+      "canonicalReplacement": null
+    },
+    {
+      "assetId": "asset:governance:value-policy-v1",
+      "type": "governance_policy",
+      "path": "project-control/value-governance/policy.v1.json",
+      "purpose": "Define immutable analysis-only boundaries for repository value governance",
+      "accountableRole": "OWNER_ROOT",
+      "actionClass": "C",
+      "lifecycleState": "PROTECTED",
+      "protectedObligations": ["security", "audit", "recovery"],
+      "expectedEvidence": ["file_exists", "sha256"],
+      "canonicalReplacement": null
+    },
+    {
+      "assetId": "asset:governance:value-registry-v1",
+      "type": "governance_registry",
+      "path": "project-control/value-governance/registry.v1.json",
+      "purpose": "Declare the initial critical governed repository assets without claiming production completeness",
+      "accountableRole": "OWNER_ROOT",
+      "actionClass": "C",
+      "lifecycleState": "PROTECTED",
+      "protectedObligations": ["security", "audit", "recovery"],
+      "expectedEvidence": ["file_exists", "sha256"],
+      "canonicalReplacement": null
+    }
+  ]
+}

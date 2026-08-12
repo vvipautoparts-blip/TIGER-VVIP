@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "constitution_id": "V13.1",
+  "owner_final_revision": "2026-08-05",
+  "conflicts": [
+    {
+      "legacy_rule_id": "GLOBAL_IMAGE_LIMIT_10",
+      "classification": "SUPERSEDED_BY_V13_1_OWNER_FINAL",
+      "enforcement": "BLOCK_LEGACY_RULE",
+      "effective_rule": "MAX_IMAGES_PER_LISTING_7",
+      "owner_decision": "LISTING_MEDIA_FINAL_2026_08_05",
+      "migration_state": "CONTRACT_ENFORCED"
+    },
+    {
+      "legacy_rule_id": "GLOBAL_FIXED_IMPRESSIONS_250",
+      "classification": "SUPERSEDED_BY_V13_1_OWNER_FINAL",
+      "enforcement": "BLOCK_LEGACY_RULE",
+      "effective_rule": "COUNTRY_SEAL_ONLY",
+      "owner_decision": "EXPOSURE_COUNTRY_SEAL_FINAL_2026_08_05",
+      "migration_state": "CONTRACT_ENFORCED"
+    },
+    {
+      "legacy_rule_id": "GLOBAL_FIXED_IMPRESSIONS_400",
+      "classification": "SUPERSEDED_BY_V13_1_OWNER_FINAL",
+      "enforcement": "BLOCK_LEGACY_RULE",
+      "effective_rule": "COUNTRY_SEAL_ONLY",
+      "owner_decision": "EXPOSURE_COUNTRY_SEAL_FINAL_2026_08_05",
+      "migration_state": "CONTRACT_ENFORCED"
+    },
+    {
+      "legacy_rule_id": "CHAT_FORBIDDEN",
+      "classification": "SUPERSEDED_BY_V13_1_OWNER_FINAL",
+      "enforcement": "BLOCK_LEGACY_RULE",
+      "effective_rule": "FULL_GENERAL_AVAILABILITY_ALL_USERS",
+      "owner_decision": "CHAT_FULL_GENERAL_ACCESS_2026_08_05",
+      "migration_state": "CONTRACT_ENFORCED"
+    },
+    {
+      "legacy_rule_id": "DELIVERY_FORBIDDEN",
+      "classification": "SUPERSEDED_BY_V13_1_OWNER_FINAL",
+      "enforcement": "BLOCK_LEGACY_RULE",
+      "effective_rule": "FULL_GENERAL_AVAILABILITY_ALL_USERS",
+      "owner_decision": "DELIVERY_FULL_GENERAL_ACCESS_2026_08_05",
+      "migration_state": "CONTRACT_ENFORCED"
+    },
+    {
+      "legacy_rule_id": "MEDIATION_FORBIDDEN",
+      "classification": "SUPERSEDED_BY_V13_1_OWNER_FINAL",
+      "enforcement": "BLOCK_LEGACY_RULE",
+      "effective_rule": "FULL_GENERAL_AVAILABILITY_ALL_USERS",
+      "owner_decision": "MEDIATION_FULL_GENERAL_ACCESS_2026_08_05",
+      "migration_state": "CONTRACT_ENFORCED"
+    }
+  ]
+}

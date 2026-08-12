@@ -1,0 +1,48 @@
+name: TIGER CleanGuard
+
+on:
+  pull_request:
+    branches:
+      - main
+      - integration/v14-global-launch-readiness-20260806
+      - feat/tsrf-global-launch-proof-20260808
+      - feat/tsrf-launch-evidence-plane-20260808
+      - feat/lc04-production-legacy-rpc-hardening-20260808
+      - feat/lc05-credential-surface-isolation-20260808
+  push:
+    branches:
+      - integration/v14-global-launch-readiness-20260806
+      - feat/tsrf-launch-evidence-plane-20260808
+      - feat/lc04-production-legacy-rpc-hardening-20260808
+      - feat/lc05-credential-surface-isolation-20260808
+      - feat/lc06-rls-performance-hardening-20260808
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cleanguard-analysis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: "22"
+
+      - name: Run CleanGuard contract tests
+        run: |
+          node --test \
+            tests/value-governance-cli.test.cjs \
+            tests/value-governance-contracts.test.cjs \
+            tests/value-governance-evaluator.test.cjs \
+            tests/value-governance-inventory.test.cjs \
+            tests/value-governance-planner.test.cjs \
+            tests/value-governance-registry.test.cjs
+
+      - name: Run fail-closed repository analysis
+        run: node project-control/value-governance/cli.mjs --check

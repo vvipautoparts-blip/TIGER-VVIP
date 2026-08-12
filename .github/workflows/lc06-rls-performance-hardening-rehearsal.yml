@@ -1,0 +1,121 @@
+name: LC06 RLS Performance Hardening Rehearsal
+
+on:
+  push:
+    branches:
+      - feat/lc06-rls-performance-hardening-20260808
+    paths:
+      - "supabase/migrations/20260808180000_lc06_rls_performance_hardening.sql"
+      - "tests/lc06-rls-performance-hardening.test.cjs"
+      - "tests/lc06-reviewed-migration-hash-contract.test.cjs"
+      - "tests/sql/lc06-rls-performance-behavior.sql"
+      - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
+      - ".github/workflows/lc06-rls-performance-hardening-rehearsal.yml"
+  pull_request:
+    paths:
+      - "supabase/migrations/20260808180000_lc06_rls_performance_hardening.sql"
+      - "tests/lc06-rls-performance-hardening.test.cjs"
+      - "tests/lc06-reviewed-migration-hash-contract.test.cjs"
+      - "tests/sql/lc06-rls-performance-behavior.sql"
+      - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
+      - ".github/workflows/lc06-rls-performance-hardening-rehearsal.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+concurrency:
+  group: lc06-rls-performance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  local-security-rehearsal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: "22"
+
+      - uses: supabase/setup-cli@ab058987d8d6c725971f6cf9d0b5c98467e30bd1
+        with:
+          version: 2.109.0
+
+      - name: Verify exact source and local-only environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          if env | grep -E '^(SUPABASE_ACCESS_TOKEN|SUPABASE_DB_PASSWORD|SUPABASE_PROJECT_REF)=' >/dev/null; then
+            echo 'LC06_LOCAL_ONLY=BLOCKED_REMOTE_CREDENTIAL_ENV' >&2
+            exit 1
+          fi
+          echo 'LC06_LOCAL_ONLY=PASS'
+
+      - name: Run LC06 static contract
+        run: |
+          tests=(tests/lc06-rls-performance-hardening.test.cjs)
+          if test -f tests/lc06-reviewed-migration-hash-contract.test.cjs; then
+            tests+=(tests/lc06-reviewed-migration-hash-contract.test.cjs)
+          fi
+          node --test "${tests[@]}"
+
+      - name: Emit exact LC06 migration SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/lc06-digest"
+          hash="$(sha256sum supabase/migrations/20260808180000_lc06_rls_performance_hardening.sql | awk '{print $1}')"
+          test "${#hash}" -eq 64
+          printf '%s\n' "$hash" > "$RUNNER_TEMP/lc06-digest/migration.sha256"
+          echo "LC06_MIGRATION_SHA256=$hash"
+
+      - name: Upload LC06 migration digest
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: lc06-migration-sha256-${{ env.SOURCE_SHA }}
+          path: ${{ runner.temp }}/lc06-digest/migration.sha256
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Start isolated local Supabase stack
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase start
+
+      - name: Rebuild isolated local database
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase db reset --local
+
+      - name: Verify LC06 database behavior
+        shell: bash
+        run: |
+          set -euo pipefail
+          PGPASSWORD=postgres psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -v ON_ERROR_STOP=1 \
+            -f tests/sql/lc06-rls-performance-behavior.sql
+
+      - name: Verify source remains unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          echo 'LC06_LOCAL_REHEARSAL=PASS'
+
+      - name: Stop isolated local stack
+        if: always()
+        shell: bash
+        run: supabase stop --no-backup || true

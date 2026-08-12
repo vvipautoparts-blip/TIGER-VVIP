@@ -2,7 +2,7 @@ import { PERMISSION_IDS, ROLE_IDS } from './pr35-contracts.js';
 import { normalizeScope, scopeContains } from './pr35-scope.js';
 
 const rank = Object.freeze({ regular_user: 0, service_provider: 1, sales: 1, marketing: 1,
-  moderator: 2, tiger_care: 2, campaign_manager: 3, group_manager: 4, area_manager: 5,
+  moderator: 2, tiger_care: 2, campaign_manager: 3, group_manager: 4,
   regional_manager: 6, sector_manager: 7, platform_admin: 8, owner: 9 });
 const decision = (allowed, code, ids = []) => Object.freeze({ allowed, code, effectiveAssignmentIds: Object.freeze([...ids]) });
 

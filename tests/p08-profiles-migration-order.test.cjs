@@ -24,5 +24,7 @@ test('profile migrations have unique ordered ledger versions', () => {
     '20260708_vvip_tiger_clerk_profiles_table.sql',
     '20260709_vvip_tiger_profiles_clerk_jwt_rls_bridge.sql',
     '20260710_vvip_tiger_atomic_profile_resolver_rpc.sql',
+    '20260808_vvip_identity_fail_closed_profile_resolver.sql',
+    '20260812063600_identity02_profile_resolver_minimum_truth.sql',
   ]);
 });

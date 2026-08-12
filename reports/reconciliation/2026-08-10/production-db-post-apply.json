@@ -1,0 +1,65 @@
+{
+  "schema_version": "PRODUCTION_DB_POST_APPLY_RECONCILIATION_V1",
+  "project_ref": "zelcngyyvbomuzokvuxo",
+  "observation_mode": "READ_ONLY",
+  "migration": {
+    "name": "global_launch_phase_b_marketplace_convergence",
+    "ledger_version": "20260809223120",
+    "repository_path": "supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql",
+    "frozen_sha256": "9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9"
+  },
+  "structural_proof": {
+    "target_table_count": 12,
+    "all_target_tables_exist": true,
+    "all_target_tables_rls_enabled": true,
+    "all_target_tables_force_rls": true,
+    "expected_indexes_present": true,
+    "expected_triggers_present": true,
+    "expected_functions_present": true,
+    "expected_policy_boundaries_present": true,
+    "expected_privilege_boundaries_present": true,
+    "result": "PASS"
+  },
+  "storage": {
+    "bucket_id": "listing-media",
+    "exists": true,
+    "public": false,
+    "file_size_limit_bytes": 10485760,
+    "allowed_mime_types": ["image/jpeg", "image/png", "image/webp"]
+  },
+  "authority_seed_counts": {
+    "roles": 0,
+    "permissions": 0,
+    "principals": 0,
+    "assignments": 0,
+    "assignment_revisions": 0,
+    "country_seals": 0,
+    "envelope_audit": 0,
+    "authorization_audit_events": 0
+  },
+  "marketplace_row_counts": {
+    "listings": 0,
+    "media": 0,
+    "favorites": 0,
+    "listing_audit": 0
+  },
+  "phase_a_regression": {
+    "status": "PASS",
+    "profiles_exists": true,
+    "profiles_rls": true,
+    "profiles_force_rls": true,
+    "authenticated_select_count": 1,
+    "browser_privilege_violation_count": 0,
+    "retired_credentials_server_only": true,
+    "public_helper_count": 0,
+    "private_helper_count": 8,
+    "duplicate_clerk_subject_groups": 0
+  },
+  "safety": {
+    "country_activated": false,
+    "owner_seeded": false,
+    "synthetic_production_mutation_performed_by_reconciliation": false,
+    "production_write_performed_by_reconciliation": false
+  },
+  "classification": "PHASE_B_APPLIED_DARK_LAUNCH_CANONICAL"
+}

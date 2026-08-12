@@ -1,40 +1,388 @@
-name: Deploy static site to GitHub Pages
+name: Promote exact TIGER VVIP Production artifact
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Exact current main SHA approved for Production
+        required: true
+        type: string
+      artifact_id:
+        description: Exact GitHub Actions artifact ID produced by the sealed Production builder
+        required: true
+        type: string
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
+  actions: read
+  attestations: read
 
 concurrency:
-  group: pages
-  cancel-in-progress: true
+  group: pages-production
+  cancel-in-progress: false
 
 jobs:
+  verify_and_prepare:
+    name: Authenticate and prepare exact previously-built artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      EXPECTED_RELEASE_SHA: ${{ inputs.release_sha }}
+      ARTIFACT_ID: ${{ inputs.artifact_id }}
+      EXPECTED_REPOSITORY_ID: ${{ github.repository_id }}
+      GITHUB_API_VERSION: '2026-03-10'
+      ARTIFACT_API: https://api.github.com/repos/${{ github.repository }}/actions/artifacts/${{ inputs.artifact_id }}
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout current main verification code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f544a08e6b0 # v6
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Set up Python verifier
+        uses: actions/setup-python@a079284f6907d469567d7000a6d0159d034d90b0 # v6
+        with:
+          python-version: '3.12'
+
+      - name: Fail closed unless promotion authority targets exact current main and numeric artifact
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo 'PROMOTION_DISPATCH_REF_NOT_MAIN' >&2
+            exit 1
+          fi
+          if [[ ! "$EXPECTED_RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo 'INVALID_RELEASE_SHA' >&2
+            exit 1
+          fi
+          if [[ ! "$ARTIFACT_ID" =~ ^[1-9][0-9]*$ ]]; then
+            echo 'INVALID_ARTIFACT_ID' >&2
+            exit 1
+          fi
+          git fetch --no-tags --depth=1 origin main
+          current_main="$(git rev-parse origin/main)"
+          checked_out="$(git rev-parse HEAD)"
+          if [ "$EXPECTED_RELEASE_SHA" != "$current_main" ]; then
+            echo 'RELEASE_SHA_MISMATCH' >&2
+            exit 1
+          fi
+          if [ "$checked_out" != "$current_main" ]; then
+            echo 'VERIFIER_CHECKOUT_SHA_MISMATCH' >&2
+            exit 1
+          fi
+          echo 'EXACT_RELEASE_SHA=PASS'
+
+      - name: Query and authenticate exact GitHub artifact metadata
+        id: artifact
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          work="$RUNNER_TEMP/vvip-promotion"
+          rm -rf "$work"
+          mkdir -p "$work"
+          metadata="$work/artifact-metadata.json"
+          curl --fail --location --silent --show-error \
+            --connect-timeout 10 --max-time 60 \
+            -H 'Accept: application/vnd.github+json' \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "X-GitHub-Api-Version: $GITHUB_API_VERSION" \
+            "$ARTIFACT_API" -o "$metadata"
+
+          actual_id="$(jq -er '.id | tostring' "$metadata")"
+          name="$(jq -er '.name' "$metadata")"
+          expired="$(jq -er '.expired | tostring' "$metadata")"
+          digest="$(jq -er '.digest' "$metadata")"
+          run_id="$(jq -er '.workflow_run.id | tostring' "$metadata")"
+          run_sha="$(jq -er '.workflow_run.head_sha' "$metadata")"
+          run_branch="$(jq -er '.workflow_run.head_branch' "$metadata")"
+          repository_id="$(jq -er '.workflow_run.repository_id | tostring' "$metadata")"
+          head_repository_id="$(jq -er '.workflow_run.head_repository_id | tostring' "$metadata")"
+          expected_name="vvip-production-release-${EXPECTED_RELEASE_SHA}"
+
+          if [ "$actual_id" != "$ARTIFACT_ID" ]; then
+            echo 'ARTIFACT_ID_MISMATCH' >&2
+            exit 1
+          fi
+          if [ "$expired" != 'false' ]; then
+            echo 'ARTIFACT_EXPIRED' >&2
+            exit 1
+          fi
+          if [ "$name" != "$expected_name" ]; then
+            echo 'ARTIFACT_NAME_MISMATCH' >&2
+            exit 1
+          fi
+          if [[ ! "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo 'ARTIFACT_DIGEST_INVALID' >&2
+            exit 1
+          fi
+          if [ "$run_sha" != "$EXPECTED_RELEASE_SHA" ] || [ "$run_branch" != 'main' ]; then
+            echo 'ARTIFACT_WORKFLOW_SHA_MISMATCH' >&2
+            exit 1
+          fi
+          if [ "$repository_id" != "$EXPECTED_REPOSITORY_ID" ] || [ "$head_repository_id" != "$EXPECTED_REPOSITORY_ID" ]; then
+            echo 'ARTIFACT_REPOSITORY_MISMATCH' >&2
+            exit 1
+          fi
+          if [[ ! "$run_id" =~ ^[1-9][0-9]*$ ]]; then
+            echo 'ARTIFACT_WORKFLOW_RUN_INVALID' >&2
+            exit 1
+          fi
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          echo 'GITHUB_ARTIFACT_METADATA=PASS'
+
+      - name: Authenticate producing workflow run identity
+        shell: bash
+        env:
+          RUN_ID: ${{ steps.artifact.outputs.run_id }}
+        run: |
+          set -Eeuo pipefail
+          metadata="$RUNNER_TEMP/vvip-promotion/builder-run.json"
+          run_api="$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID"
+          curl --fail --location --silent --show-error \
+            --connect-timeout 10 --max-time 60 \
+            -H 'Accept: application/vnd.github+json' \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "X-GitHub-Api-Version: $GITHUB_API_VERSION" \
+            "$run_api" -o "$metadata"
+
+          actual_run_id="$(jq -er '.id | tostring' "$metadata")"
+          event="$(jq -er '.event' "$metadata")"
+          status="$(jq -er '.status' "$metadata")"
+          conclusion="$(jq -er '.conclusion' "$metadata")"
+          head_sha="$(jq -er '.head_sha' "$metadata")"
+          head_branch="$(jq -er '.head_branch' "$metadata")"
+          workflow_path="$(jq -er '.path' "$metadata")"
+          repository_id="$(jq -er '.repository.id | tostring' "$metadata")"
+          head_repository_id="$(jq -er '.head_repository.id | tostring' "$metadata")"
+
+          if [ "$actual_run_id" != "$RUN_ID" ]; then
+            echo 'BUILDER_RUN_ID_MISMATCH' >&2
+            exit 1
+          fi
+          if [ "$event" != 'workflow_dispatch' ] || [ "$status" != 'completed' ] || [ "$conclusion" != 'success' ]; then
+            echo 'BUILDER_RUN_NOT_SUCCESSFUL_MANUAL_RUN' >&2
+            exit 1
+          fi
+          if [ "$head_sha" != "$EXPECTED_RELEASE_SHA" ] || [ "$head_branch" != 'main' ]; then
+            echo 'BUILDER_RUN_SOURCE_MISMATCH' >&2
+            exit 1
+          fi
+          if [ "$workflow_path" != '.github/workflows/production-release-artifact.yml' ]; then
+            echo 'BUILDER_WORKFLOW_IDENTITY_MISMATCH' >&2
+            exit 1
+          fi
+          if [ "$repository_id" != "$EXPECTED_REPOSITORY_ID" ] || [ "$head_repository_id" != "$EXPECTED_REPOSITORY_ID" ]; then
+            echo 'BUILDER_RUN_REPOSITORY_MISMATCH' >&2
+            exit 1
+          fi
+          echo 'BUILDER_WORKFLOW_RUN=PASS'
+
+      - name: Download exact GitHub artifact envelope by numeric identity
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          curl --fail --location --silent --show-error \
+            --connect-timeout 10 --max-time 120 \
+            -H 'Accept: application/vnd.github+json' \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "X-GitHub-Api-Version: $GITHUB_API_VERSION" \
+            "$ARTIFACT_API/zip" \
+            -o "$RUNNER_TEMP/vvip-promotion/artifact.zip"
+          test -s "$RUNNER_TEMP/vvip-promotion/artifact.zip"
+
+      - name: Verify outer GitHub artifact digest and sealed inner checksum
+        shell: bash
+        env:
+          GITHUB_ARTIFACT_DIGEST: ${{ steps.artifact.outputs.digest }}
+        run: |
+          set -Eeuo pipefail
+          rm -rf "$RUNNER_TEMP/vvip-promotion-outer"
+          python scripts/release/verify-production-artifact.py outer \
+            --artifact-zip "$RUNNER_TEMP/vvip-promotion/artifact.zip" \
+            --github-artifact-digest "$GITHUB_ARTIFACT_DIGEST" \
+            --release-sha "$EXPECTED_RELEASE_SHA" \
+            --extract-root "$RUNNER_TEMP/vvip-promotion-outer"
+
+      - name: Verify exact inner release provenance and signer identity
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          inner="$RUNNER_TEMP/vvip-promotion-outer/vvip-production-release-${EXPECTED_RELEASE_SHA}.tar.gz"
+          gh attestation verify "$inner" \
+            --repo "$GITHUB_REPOSITORY" \
+            --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/production-release-artifact.yml" \
+            --source-digest "$EXPECTED_RELEASE_SHA" \
+            --source-ref refs/heads/main \
+            --deny-self-hosted-runners >/dev/null
+          echo 'PRODUCTION_PROVENANCE=PASS'
+
+      - name: Verify CycloneDX SBOM attestation for the exact same inner bundle
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          inner="$RUNNER_TEMP/vvip-promotion-outer/vvip-production-release-${EXPECTED_RELEASE_SHA}.tar.gz"
+          gh attestation verify "$inner" \
+            --repo "$GITHUB_REPOSITORY" \
+            --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/production-release-artifact.yml" \
+            --source-digest "$EXPECTED_RELEASE_SHA" \
+            --source-ref refs/heads/main \
+            --predicate-type https://cyclonedx.org/bom \
+            --deny-self-hosted-runners >/dev/null
+          echo 'PRODUCTION_SBOM_ATTESTATION=PASS'
+
+      - name: Verify attested inner evidence and emit already-built public bytes
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          rm -rf "$RUNNER_TEMP/vvip-verified-public"
+          python scripts/release/verify-production-artifact.py inner \
+            --inner-tar "$RUNNER_TEMP/vvip-promotion-outer/vvip-production-release-${EXPECTED_RELEASE_SHA}.tar.gz" \
+            --release-sha "$EXPECTED_RELEASE_SHA" \
+            --output-public "$RUNNER_TEMP/vvip-verified-public"
+          test -f "$RUNNER_TEMP/vvip-verified-public/release-manifest.json"
+
+      - name: Re-check current main immediately before Pages packaging
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch --no-tags --depth=1 origin main
+          promotion_main="$(git rev-parse origin/main)"
+          if [ "$promotion_main" != "$EXPECTED_RELEASE_SHA" ]; then
+            echo 'PROMOTION_MAIN_SHA_MISMATCH' >&2
+            exit 1
+          fi
+          echo 'PROMOTION_MAIN_SHA=PASS'
+
+      - name: Upload already-built verified public bytes for GitHub Pages
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v4
+        with:
+          path: ${{ runner.temp }}/vvip-verified-public
+
   deploy:
+    name: Deploy exact previously-built Production artifact
+    needs: verify_and_prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
-
-      - name: Deploy to GitHub Pages
+      - name: Deploy exact verified artifact
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@ec56924218b2176fe6802ce5b3391b0d6127de51 # v4
+
+      - name: Set up Python for live verification
+        uses: actions/setup-python@a079284f6907d469567d7000a6d0159d034d90b0 # v6
+        with:
+          python-version: '3.12'
+
+      - name: Verify deployed production surface
+        env:
+          VVIP_PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          VVIP_SOURCE_SHA: ${{ inputs.release_sha }}
+        run: |
+          set -Eeuo pipefail
+          base="${VVIP_PAGE_URL%/}/"
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          paths=(
+            index.html
+            privacy-policy.html
+            terms-of-service.html
+            data-deletion.html
+            manifest.webmanifest
+            runtime-config.js
+            sw-vvip-static.js
+            scripts/vvip-safe-ux-guard.js
+            scripts/runtime/vvip-runtime-loader.js
+            scripts/runtime/vvip-marketplace-repository.js
+            scripts/runtime/vvip-marketplace-rollback.js
+            scripts/runtime/vvip-my-listings.js
+            scripts/vvip-pr30-resilience.js
+            scripts/vvip-production-marketplace.js
+            styles/vvip-production-marketplace.css
+            icons/icon-192.png
+            icons/icon-512.png
+          )
+          for path in "${paths[@]}"; do
+            target="$tmp/$(printf '%s' "$path" | tr '/' '_')"
+            ok=0
+            for attempt in 1 2 3 4 5 6 7 8 9 10; do
+              if curl --fail --location --silent --show-error \
+                --connect-timeout 10 --max-time 30 \
+                "${base}${path}" -o "$target"; then
+                ok=1
+                break
+              fi
+              sleep 3
+            done
+            if [ "$ok" -ne 1 ] || [ ! -s "$target" ]; then
+              echo "VVIP_POST_DEPLOY_MISSING=$path" >&2
+              exit 1
+            fi
+          done
+          if ! grep -Fq "$VVIP_SOURCE_SHA" "$tmp/runtime-config.js"; then
+            echo 'VVIP_POST_DEPLOY_SHA_MISMATCH' >&2
+            exit 1
+          fi
+          if grep -Fq 'pk_test_' "$tmp/runtime-config.js"; then
+            echo 'VVIP_POST_DEPLOY_TEST_CONFIG_FORBIDDEN' >&2
+            exit 1
+          fi
+          python - "$tmp/runtime-config.js" <<'PY'
+          import base64
+          import json
+          import re
+          import sys
+          import urllib.request
+
+          text = open(sys.argv[1], encoding='utf-8').read()
+          match = re.search(r'Object\.freeze\((\{.*\})\);', text)
+          if not match:
+              raise SystemExit('VVIP_RUNTIME_CONFIG_PARSE_FAILED')
+          config = json.loads(match.group(1))
+
+          key = str(config.get('clerkPublishableKey') or '')
+          payload = key.split('_', 2)[-1].replace('-', '+').replace('_', '/')
+          payload += '=' * ((4 - len(payload) % 4) % 4)
+          try:
+              clerk_host = base64.b64decode(payload, validate=True).decode('utf-8').rstrip('$').strip()
+          except Exception:
+              raise SystemExit('VVIP_CLERK_FRONTEND_API_DECODE_FAILED')
+          if not re.fullmatch(r'[A-Za-z0-9.-]+', clerk_host):
+              raise SystemExit('VVIP_CLERK_FRONTEND_API_INVALID')
+
+          def probe(url, headers=None):
+              request = urllib.request.Request(url, headers=headers or {'User-Agent': 'VVIP-TIGER-Production-Verify/1.0'})
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  if response.status < 200 or response.status >= 300:
+                      raise RuntimeError('unexpected status')
+                  response.read(1)
+
+          try:
+              probe(f'https://{clerk_host}/npm/@clerk/ui@1/dist/ui.browser.js')
+              probe(f'https://{clerk_host}/npm/@clerk/clerk-js@6/dist/clerk.browser.js')
+          except Exception:
+              raise SystemExit('VVIP_CLERK_LIVE_PROBE_FAILED')
+
+          supabase_url = str(config.get('supabaseUrl') or '').rstrip('/')
+          supabase_key = str(config.get('supabasePublishableKey') or '')
+          listing_url = supabase_url + '/rest/v1/vvip_marketplace_listings?select=listing_id&limit=1'
+          try:
+              probe(listing_url, {
+                  'apikey': supabase_key,
+                  'Accept': 'application/json',
+                  'User-Agent': 'VVIP-TIGER-Production-Verify/1.0',
+              })
+          except Exception:
+              raise SystemExit('VVIP_SUPABASE_LIVE_PROBE_FAILED')
+          print('VVIP_RUNTIME_DEPENDENCIES=PASS')
+          PY
+          echo 'VVIP_POST_DEPLOY_SMOKE=PASS'

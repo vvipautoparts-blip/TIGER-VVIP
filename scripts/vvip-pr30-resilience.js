@@ -62,6 +62,7 @@
     "حدث تعذر مؤقت. يمكنك المتابعة من السوق أو الرجوع للرئيسية.";
   const OFFLINE_MESSAGE =
     "الاتصال ضعيف أو غير متاح. يمكنك متابعة التصفح المحلي مؤقتًا.";
+  const STATIC_DELIVERY_RUNTIME_SRC = "scripts/runtime/vvip-static-delivery.js";
 
   let feedbackTimer = 0;
 
@@ -132,7 +133,36 @@
     return true;
   }
 
+  function resetMarketplaceView(event) {
+    const reset = event.target.closest("[data-reset-listings]");
+    if (!reset) return false;
+
+    event.preventDefault();
+    const search = document.querySelector("[data-listing-search]");
+    if (search) {
+      search.value = "";
+      search.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+
+    const allSectors = document.querySelector('[data-sector-filter="all"]');
+    if (allSectors) allSectors.click();
+    else if (window.VVIP_PR29 && typeof window.VVIP_PR29.refresh === "function") {
+      window.VVIP_PR29.refresh();
+    }
+    return true;
+  }
+
+  function isProductionRuntimeSurface(target) {
+    if (!window.__VVIP_RUNTIME_CONFIG__ || !target || !target.closest) return false;
+    return Boolean(target.closest(
+      "[data-vvip-unified-home], [data-vvip-listing-detail-sheet], " +
+      "[data-my-listings-modal], [data-production-listing-modal]"
+    ));
+  }
+
   function guardAction(event) {
+    if (resetMarketplaceView(event)) return;
+
     const safeLink = event.target.closest("[data-safe-nav]");
     if (safeLink) {
       event.preventDefault();
@@ -142,6 +172,8 @@
       );
       return;
     }
+
+    if (isProductionRuntimeSurface(event.target)) return;
 
     const button = event.target.closest("button");
     if (!button || button.closest("#clerk-main-auth")) return;
@@ -159,6 +191,17 @@
     notice.hidden = navigator.onLine;
   }
 
+  function loadStaticDeliveryRuntime() {
+    if (!document || !document.head) return;
+    if (document.querySelector("script[data-vvip-static-delivery-runtime]")) return;
+
+    const script = document.createElement("script");
+    script.src = STATIC_DELIVERY_RUNTIME_SRC;
+    script.async = true;
+    script.setAttribute("data-vvip-static-delivery-runtime", "");
+    document.head.appendChild(script);
+  }
+
   document.addEventListener("click", guardAction, true);
   window.addEventListener("offline", updateNetworkNotice);
   window.addEventListener("online", updateNetworkNotice);
@@ -172,6 +215,7 @@
     showFeedback(RECOVERY_MESSAGE);
   });
 
+  loadStaticDeliveryRuntime();
   updateNetworkNotice();
 
   window.VVIP_PR30 = Object.freeze({

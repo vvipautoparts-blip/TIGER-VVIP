@@ -1,0 +1,56 @@
+{
+  "schema_version": "PRODUCTION_RECONCILIATION_CURRENT_STATE_V1",
+  "repository": "vvipautoparts-blip/TIGER-VVIP",
+  "observed_date": "2026-08-10",
+  "source": {
+    "historical_phase_b_merge_h2": "35352136090bd39d9dd6bddc6682c9b9a2d3cafc",
+    "current_main": "3d8bbfc8611e53510b3bb776b8d9752df6595d8d",
+    "h2_is_ancestor": true,
+    "ahead_by": 6,
+    "behind_by": 0,
+    "effective_changed_files": [
+      ".github/workflows/pages.yml",
+      "tests/pages-production-artifact-isolation.test.cjs",
+      "tests/test_vvip_public_release.py"
+    ],
+    "drift_classification": "RELEASE_HARNESS_AND_TEST_ONLY"
+  },
+  "production_database": {
+    "project_ref": "zelcngyyvbomuzokvuxo",
+    "phase_a_present": true,
+    "phase_b_present": true,
+    "phase_b_ledger_version": "20260809223120",
+    "phase_b_ledger_name": "global_launch_phase_b_marketplace_convergence",
+    "phase_b_structural_proof": "PASS",
+    "phase_a_regression": "PASS",
+    "country_activated": false,
+    "owner_seeded": false,
+    "authority_seed_residue": 0,
+    "marketplace_seed_residue": 0
+  },
+  "production_web": {
+    "deployed": true,
+    "workflow_run_id": 31338179484,
+    "build_job_id": 93307359324,
+    "deploy_job_id": 93308077474,
+    "deployment_id": 5823332376,
+    "source_sha": "3d8bbfc8611e53510b3bb776b8d9752df6595d8d",
+    "environment_url": "https://vvipautoparts-blip.github.io/TIGER-VVIP/",
+    "artifact_id": 9045047873,
+    "artifact_digest": "sha256:f7c7f16fd1ec49b27738c01560ca7a972a376700ae5ef9ee77ae87f66187f7fd",
+    "release_eligible": true,
+    "custom_domain_configured": false,
+    "pages_api_cname": null,
+    "https_enforced": true
+  },
+  "identity": {
+    "staging_runtime_proof": "PASS",
+    "production_phase_a_resolver_semantically_canonical": true,
+    "standalone_identity_01_required": false
+  },
+  "authority": {
+    "future_production_write_authorized": false,
+    "retroactive_authorization_asserted": false
+  },
+  "state": "PRODUCTION_REALITY_RECONCILED_READ_ONLY"
+}
