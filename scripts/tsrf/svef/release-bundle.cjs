@@ -204,6 +204,9 @@ function parseCandidateManifest(fsApi, candidateRoot) {
   if (!isPlainObject(manifest) || manifest.schemaVersion !== 1) {
     fail('SVEF_CANDIDATE_MANIFEST_INVALID', 'Candidate release manifest schemaVersion must be 1.');
   }
+  if (manifest.mode !== 'candidate') {
+    fail('SVEF_CANDIDATE_MANIFEST_INVALID', 'Candidate release manifest mode must be candidate.');
+  }
   if (!isPlainObject(manifest.files) || Object.keys(manifest.files).length === 0) {
     fail('SVEF_CANDIDATE_MANIFEST_INVALID', 'Candidate release manifest must declare a non-empty file map.');
   }
@@ -328,8 +331,12 @@ function createReleaseBundleManifest(options) {
   if (manifest.sourceSha !== sourceSha) {
     fail('SVEF_CANDIDATE_SOURCE_MISMATCH', 'Candidate release manifest source SHA does not match exact Git source.');
   }
-  if (manifest.releaseEligible !== true) {
-    fail('SVEF_CANDIDATE_INELIGIBLE', 'Candidate release manifest is not release eligible.');
+  if (
+    manifest.releaseEligible !== true ||
+    !Array.isArray(manifest.configurationErrors) || manifest.configurationErrors.length !== 0 ||
+    !Array.isArray(manifest.forbiddenFindings) || manifest.forbiddenFindings.length !== 0
+  ) {
+    fail('SVEF_CANDIDATE_INELIGIBLE', 'Candidate release manifest is not independently release eligible.');
   }
 
   const candidateRecords = verifyCandidateFiles(fsApi, trustedCandidateRoot, manifest.files);
@@ -349,8 +356,12 @@ function createReleaseBundleManifest(options) {
 }
 
 function serializeReleaseBundleManifest(manifest) {
-  if (!isPlainObject(manifest) || Object.keys(manifest).join(',') !== OUTPUT_KEYS.join(',')) {
-    fail('SVEF_BUNDLE_MANIFEST_INVALID', 'Release-bundle manifest has an unexpected field set or order.');
+  if (
+    !isPlainObject(manifest) ||
+    Object.keys(manifest).length !== OUTPUT_KEYS.length ||
+    !OUTPUT_KEYS.every((key) => Object.hasOwn(manifest, key))
+  ) {
+    fail('SVEF_BUNDLE_MANIFEST_INVALID', 'Release-bundle manifest has an unexpected field set.');
   }
   return `${canonicalJson(manifest)}\n`;
 }
