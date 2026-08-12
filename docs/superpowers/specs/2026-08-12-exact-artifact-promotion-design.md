@@ -1,7 +1,7 @@
 # Exact-Artifact Production Promotion — 2026 Design
 
 Date: 2026-08-12
-Status: OWNER-APPROVED DESIGN, IMPLEMENTATION NOT YET AUTHORIZED
+Status: OWNER-APPROVED DESIGN, WRITTEN SPEC UNDER REVIEW, IMPLEMENTATION NOT YET AUTHORIZED
 Target: VVIP TIGER Production release supply chain
 Base main SHA: `19859d101aae88f240d191be9c2304421fc167a9`
 
@@ -9,8 +9,8 @@ Base main SHA: `19859d101aae88f240d191be9c2304421fc167a9`
 
 Replace the remaining rebuild-at-promotion gap with a two-stage, fail-closed release architecture:
 
-1. build and verify a Production candidate exactly once;
-2. preserve that exact candidate as an immutable GitHub Actions artifact with cryptographic identity and provenance;
+1. build and verify a Production-ready release artifact exactly once;
+2. preserve that exact artifact as an immutable GitHub Actions artifact with cryptographic identity and provenance;
 3. later promote that same previously-built artifact to GitHub Pages without rebuilding it.
 
 The Production promotion path must never regenerate application bytes. The artifact approved for release is the artifact deployed.
@@ -21,9 +21,10 @@ The implementation SHALL preserve all of the following invariants:
 
 - Production promotion is manual only (`workflow_dispatch`).
 - A release SHA is a full lowercase 40-character Git commit SHA.
-- The release SHA must equal the current `origin/main` SHA at candidate creation and again at promotion time.
-- Candidate build and Production promotion are distinct workflows or strictly distinct trust stages with separate authority.
-- Candidate bytes are built exactly once.
+- The release SHA must equal the current `origin/main` SHA at artifact creation and again at promotion time.
+- Production artifact build and Production promotion are distinct workflows with separate authority.
+- Production artifact bytes are built exactly once.
+- The build-stage public artifact is generated with `tools/vvip_public_release.py --mode production` so Production runtime configuration and Production-only validation are applied before bytes are sealed.
 - Production promotion does not invoke `tools/vvip_public_release.py`, a compiler, bundler, package build, or any equivalent byte-producing step.
 - Production promotion only downloads, authenticates, re-verifies, extracts, and deploys the exact previously-built artifact.
 - Artifact identity is bound to Git source SHA, Git source tree, release manifest, SBOM, materials, and artifact SHA-256.
@@ -33,12 +34,13 @@ The implementation SHALL preserve all of the following invariants:
 - Only the final deployment job may receive `pages: write` and `id-token: write`.
 - No workflow in this scope may mutate Supabase Production data/schema, provider configuration, DNS, secrets, payment state, country activation, or owner seeding.
 - No old #164 workflow is copied wholesale.
+- Existing #205 candidate-domain guarantees SHALL NOT be weakened to make Production artifact promotion work.
 
 ## 3. Architecture
 
-### 3.1 Stage A — Production Candidate Builder
+### 3.1 Stage A — Production Release Artifact Builder
 
-Introduce a non-deploying candidate workflow dedicated to producing a release artifact.
+Introduce a non-deploying workflow dedicated to producing the exact Production-ready release artifact.
 
 Trigger:
 
@@ -59,26 +61,40 @@ Preflight:
 
 Build authority:
 
-- The candidate-build job may use the `production-build` environment solely to obtain public runtime configuration required to produce Production-ready public bytes.
+- The build job may use the `production-build` environment solely to obtain public runtime configuration required to produce Production-ready public bytes.
 - It receives no Pages deployment permission and no Production DB/provider mutation permission.
 
-Candidate build:
+Production artifact build:
 
 - run the full quality/security gate;
-- build the public Production artifact once into `$RUNNER_TEMP` outside the checkout tree;
-- use the existing allow-list builder rather than copying the repository root;
-- require the generated `release-manifest.json` to be Production mode, source-SHA bound, release eligible, with empty `configurationErrors` and `forbiddenFindings`;
+- build the public artifact exactly once into `$RUNNER_TEMP` outside the checkout tree;
+- invoke the existing allow-list builder with `--mode production`, `--source-sha "$release_sha"`, and the approved CNAME behavior;
+- require `release-manifest.json` to have `mode === "production"`, exact source SHA, `releaseEligible === true`, empty `configurationErrors`, and empty `forbiddenFindings`;
 - recursively verify that every declared file exists and its SHA-256 matches the manifest;
 - reject symlinks, path traversal, special files, undeclared files, and duplicate normalized paths.
 
+### 3.1.1 Candidate/Production release-domain separation
+
+The current #205 SVEF API intentionally treats `createReleaseBundleManifest()` as a candidate-domain contract and requires `mode === "candidate"`. That invariant remains intact.
+
+The implementation SHALL add an explicit Production-domain entry point rather than relaxing the candidate contract. Preferred minimal design:
+
+- keep exported `createReleaseBundleManifest(options)` candidate-only and behaviorally unchanged;
+- refactor shared verification internally into a private mode-parameterized helper;
+- add exported `createProductionReleaseBundleManifest(options)` that requires `mode === "production"` and the same fail-closed evidence arrays;
+- both public functions derive mode from trusted code, never from a caller-supplied free-form mode field;
+- regression tests prove the candidate API still rejects Production manifests and the Production API rejects Candidate manifests.
+
+This domain separation prevents a security fix for Production promotion from broadening the trust boundary established in #205.
+
 Evidence package:
 
-- canonical release manifest;
-- canonical SVEF release-bundle manifest;
+- canonical Production release manifest;
+- canonical SVEF Production release-bundle manifest created through `createProductionReleaseBundleManifest()`;
 - CycloneDX SBOM;
 - deterministic materials inventory;
 - source SHA and source tree;
-- deterministic archive of the exact candidate bytes plus evidence;
+- deterministic archive of the exact Production artifact bytes plus evidence;
 - SHA-256 digest of that archive.
 
 Provenance:
@@ -94,7 +110,7 @@ Artifact upload:
 - use an explicit retention period;
 - preserve the resulting artifact identity and digest as evidence.
 
-The candidate workflow MUST NOT contain `deploy-pages`, `upload-pages-artifact`, Supabase deployment commands, DNS changes, or provider writes.
+The builder workflow MUST NOT contain `deploy-pages`, `upload-pages-artifact`, Supabase deployment commands, DNS changes, or provider writes.
 
 ### 3.2 Stage B — Exact Artifact Production Promotion
 
@@ -111,30 +127,30 @@ Required inputs:
 
 Optional future input only if GitHub API constraints require it:
 
-- `candidate_run_id`: the exact candidate workflow run that produced the artifact.
+- `builder_run_id`: the exact builder workflow run that produced the artifact.
 
-If `artifact_id` alone can resolve and prove the producing run, `candidate_run_id` SHALL NOT be added because it increases operator surface without adding authority.
+If `artifact_id` alone can resolve and prove the producing run, `builder_run_id` SHALL NOT be added because it increases operator surface without adding authority.
 
 Promotion preflight SHALL verify, fail closed:
 
 1. `release_sha` syntax;
 2. `release_sha == origin/main` at promotion time;
 3. artifact ID exists and is not expired;
-4. artifact originates from the approved candidate workflow, not another workflow;
+4. artifact originates from the approved Production Release Artifact Builder workflow, not another workflow;
 5. producing workflow run completed successfully;
 6. producing workflow run `head_sha == release_sha`;
 7. artifact name matches the release-SHA naming contract;
 8. GitHub-reported artifact digest is present and valid when exposed by the API;
 9. downloaded archive SHA-256 equals the trusted artifact digest/evidence digest;
 10. provenance attestation validates for this repository and subject digest;
-11. release-bundle manifest source SHA equals `release_sha`;
-12. release-bundle manifest source tree matches the source tree recorded by the candidate evidence;
-13. SBOM and materials digests equal the release-bundle manifest values;
-14. candidate manifest is Production mode, release eligible, and contains zero configuration or forbidden findings;
-15. every candidate file re-hashes to its declared digest;
+11. Production release-bundle manifest source SHA equals `release_sha`;
+12. Production release-bundle manifest source tree matches the source tree recorded by the builder evidence;
+13. SBOM and materials digests equal the Production release-bundle manifest values;
+14. embedded public `release-manifest.json` has `mode === "production"`, `releaseEligible === true`, and zero configuration or forbidden findings;
+15. every public artifact file re-hashes to its declared digest;
 16. no undeclared file, symlink, traversal, duplicate normalized path, special file, or archive escape is present.
 
-Only after all checks succeed may the workflow prepare the already-built candidate directory for GitHub Pages upload.
+Only after all checks succeed may the workflow prepare the already-built public directory for GitHub Pages upload.
 
 ### 3.3 No-Rebuild rule
 
@@ -146,21 +162,21 @@ At minimum, tests SHALL reject the presence of:
 - npm/pnpm/yarn build commands;
 - compiler/bundler invocation known to this repository;
 - commands that regenerate `runtime-config.js`, `release-manifest.json`, or application files;
-- a second candidate build command.
+- a second public artifact build command.
 
-The workflow may install verification tooling only if that tooling does not mutate candidate bytes. Prefer standard runner tools and repository verification code already covered by tests.
+The workflow may install verification tooling only if that tooling does not mutate public artifact bytes. Prefer standard runner tools and repository verification code already covered by tests.
 
 ## 4. Trust and permission model
 
-### Candidate workflow
+### Production Release Artifact Builder
 
 Top-level permissions:
 
 - `contents: read`.
 
-Only attestation-producing job/step receives the minimum additional permissions required by GitHub for artifact attestations. OIDC and attestation write permissions must not leak to unrelated jobs.
+Only the attestation-producing job receives the minimum additional permissions required by GitHub for artifact attestations. OIDC and attestation write permissions must not leak to unrelated jobs.
 
-No `pages: write` permission anywhere in the candidate workflow.
+No `pages: write` permission anywhere in the builder workflow.
 
 ### Promotion workflow
 
@@ -189,11 +205,11 @@ Build environment:
 
 The trusted release identity is a tuple, not a filename:
 
-`repository + candidate_workflow + artifact_id + artifact_digest + source_sha + source_tree + release_bundle_digest`
+`repository + builder_workflow + artifact_id + artifact_digest + source_sha + source_tree + production_release_bundle_digest`
 
 The artifact name is descriptive metadata only and MUST NOT be treated as sufficient authority.
 
-No user-supplied digest, workflow name, source tree, or eligibility flag is trusted as authoritative. Those values are derived from GitHub metadata and verified artifact contents.
+No user-supplied digest, workflow name, source tree, release mode, or eligibility flag is trusted as authoritative. Those values are derived from GitHub metadata, trusted workflow code, and verified artifact contents.
 
 ## 6. Archive extraction safety
 
@@ -211,16 +227,16 @@ Before deployment, extraction SHALL be fail-closed:
 
 ## 7. Determinism and reproducibility
 
-The candidate package SHALL be deterministic for identical trusted inputs where platform tooling permits deterministic output:
+The Production release package SHALL be deterministic for identical trusted inputs where platform tooling permits deterministic output:
 
 - sorted archive paths;
 - fixed timestamps;
 - fixed numeric owner/group;
 - gzip without timestamp metadata;
-- canonical JSON for materials, SBOM-relevant inventory, and release-bundle manifest;
+- canonical JSON for materials, SBOM-relevant inventory, and Production release-bundle manifest;
 - deterministic path normalization.
 
-The design does not require independently rebuilding during promotion to prove reproducibility, because rebuilding would violate the core promote-without-rebuild invariant. Reproducibility is a candidate-stage assurance property; promotion is an identity-preservation property.
+The design does not require independently rebuilding during promotion to prove reproducibility, because rebuilding would violate the core promote-without-rebuild invariant. Reproducibility is a build-stage assurance property; promotion is an identity-preservation property.
 
 ## 8. Failure semantics
 
@@ -228,8 +244,8 @@ All security-relevant ambiguity results in STOP.
 
 Examples:
 
-- current main moved after candidate build -> stop; build a new candidate from the new main;
-- artifact expired -> stop; build a new candidate;
+- current main moved after artifact build -> stop; build a new Production release artifact from the new main;
+- artifact expired -> stop; build a new artifact;
 - artifact metadata unavailable -> stop;
 - digest unavailable where required by the implemented contract -> stop;
 - artifact produced by wrong workflow -> stop;
@@ -237,7 +253,8 @@ Examples:
 - source SHA mismatch -> stop;
 - source tree mismatch -> stop;
 - attestation invalid or missing -> stop;
-- candidate release manifest ineligible -> stop;
+- embedded manifest is not Production mode -> stop;
+- release manifest ineligible -> stop;
 - SBOM/material mismatch -> stop;
 - file hash mismatch -> stop;
 - archive contains unsafe entry -> stop;
@@ -251,24 +268,26 @@ Implementation follows strict RED -> GREEN -> verification.
 
 ### RED tests first
 
-Create focused tests that initially fail on current `main` because `pages.yml` still rebuilds during Production promotion.
+Create focused tests that initially fail on current `main` because `pages.yml` still rebuilds during Production promotion and no isolated Production artifact builder exists.
 
 The tests SHALL prove at least:
 
-1. candidate workflow exists and is manual-only;
-2. candidate workflow validates exact current-main SHA;
-3. candidate is built exactly once outside the checkout tree;
-4. candidate workflow emits cryptographically bound release evidence;
-5. candidate workflow has no Production deployment authority;
-6. promotion requires both exact SHA and artifact identity;
-7. promotion verifies producing workflow/run/SHA and artifact digest;
-8. promotion verifies provenance and release-bundle evidence;
-9. promotion performs safe extraction and re-hashing;
-10. promotion contains no application rebuild command;
-11. only deploy job owns Pages/OIDC write permissions;
-12. all external actions remain immutable-SHA pinned.
+1. Production Release Artifact Builder workflow exists and is manual-only;
+2. builder validates exact current-main SHA;
+3. Production artifact is built exactly once with `--mode production` outside the checkout tree;
+4. existing candidate-domain `createReleaseBundleManifest()` remains candidate-only;
+5. new Production-domain bundle entry point requires Production mode and fail-closed evidence arrays;
+6. builder emits cryptographically bound release evidence;
+7. builder has no Production deployment authority;
+8. promotion requires both exact SHA and artifact identity;
+9. promotion verifies producing workflow/run/SHA and artifact digest;
+10. promotion verifies provenance and Production release-bundle evidence;
+11. promotion performs safe extraction and re-hashing;
+12. promotion contains no application rebuild command;
+13. only deploy job owns Pages/OIDC write permissions;
+14. all external actions remain immutable-SHA pinned.
 
-The RED run must be observed before workflow implementation changes.
+The RED run must be observed before workflow or production-bundle implementation changes.
 
 ### GREEN
 
@@ -282,6 +301,7 @@ Run all applicable repository gates on the exact final head:
 - Dependency Review;
 - TIGER CleanGuard;
 - focused exact-artifact promotion tests;
+- candidate/Production release-domain separation tests;
 - existing release-workflow hardening and artifact-isolation tests.
 
 No completion claim is valid without fresh exact-head evidence.
@@ -294,9 +314,9 @@ Human approval remains mandatory before merge.
 
 Merging the PR does NOT authorize a Production deployment.
 
-No candidate build or Production promotion run is to be executed against Production as part of PR testing. Workflow syntax and security contracts are validated without deploying.
+No Production Release Artifact Builder run using live Production environment values and no Production promotion run is to be executed as part of PR testing. Workflow syntax and security contracts are validated without deploying.
 
-A future real Production promotion remains a separate explicit owner action using an approved exact SHA and exact artifact identity.
+A future real Production artifact build and Production promotion remain separate explicit owner actions using an approved exact SHA and exact artifact identity.
 
 ## 11. #164 reconciliation rule
 
@@ -307,8 +327,8 @@ After verification, #164 may be closed WITHOUT MERGE only if a final semantic au
 - proof/evidence controls already current;
 - exact-SHA manual promotion from #201/#202;
 - immutable external actions from #203;
-- verified release bundle from #204/#205;
-- exact previously-built artifact promotion from this design's implementation PR.
+- verified candidate release bundle from #204/#205;
+- exact Production previously-built artifact promotion from this design's implementation PR.
 
 The #164 branch and history are preserved. Its stale automatic push-triggered workflow and unrelated divergent files are intentionally not retained.
 
@@ -317,6 +337,7 @@ The #164 branch and history are preserved. Its stale automatic push-triggered wo
 This design does not:
 
 - activate Production;
+- execute a real Production artifact build;
 - deploy a real release;
 - change Supabase schema/data/RLS;
 - change Clerk or Supabase provider configuration;
@@ -331,9 +352,11 @@ This design does not:
 
 The implementation is accepted only when all are true:
 
-- candidate build is manual, exact-SHA, current-main bound, build-once, deterministic, and non-deploying;
+- Production release artifact build is manual, exact-SHA, current-main bound, Production-mode, build-once, deterministic, and non-deploying;
+- existing candidate release-bundle semantics remain fail-closed and unchanged for candidate callers;
+- Production release-bundle semantics are explicitly domain-separated and fail closed;
 - artifact has verified cryptographic identity and provenance;
-- promotion consumes the exact existing artifact and never rebuilds application bytes;
+- promotion consumes the exact existing Production artifact and never rebuilds application bytes;
 - artifact/run/source/provenance/evidence relationships are independently verified fail-closed;
 - least privilege is mechanically tested;
 - no Production mutation occurs during PR validation;
