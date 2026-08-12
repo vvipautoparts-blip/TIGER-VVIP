@@ -1,10 +1,10 @@
 # VVIP TIGER — MASTER PROJECT STATE
 
-> **GitHub/current refs are implementation truth. This file is the current execution-state authority.**  
-> Binding owner decisions: `docs/owner-control/OWNER_BINDING_DECISIONS_2026-08-12.md`  
+> **GitHub/current refs are implementation truth. This file is the current execution-state authority.**
+> Binding owner decisions: `docs/owner-control/OWNER_BINDING_DECISIONS_2026-08-12.md`
 > Prior state preserved: `docs/state-archive/MASTER_PROJECT_STATE_PRE_20260812.md`
 
-**Checkpoint:** 2026-08-12  
+**Checkpoint:** 2026-08-12
 **Repository:** `vvipautoparts-blip/TIGER-VVIP`
 
 ## Continuation protocol
