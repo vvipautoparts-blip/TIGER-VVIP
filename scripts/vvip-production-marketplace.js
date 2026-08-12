@@ -217,7 +217,6 @@
       showGate: function () { setView(false); },
       refresh: function () { return refresh(); }
     });
-
     function report(error) {
       console.warn("VVIP_MARKETPLACE_RECOVERY", error && error.code);
       showToast(messageFor(error), true);
@@ -543,7 +542,13 @@
         button.className = "vvip-plan-card";
         button.dataset.planId = String(plan.id);
         const amount = formatMoney(Number(plan.priceMinor), String(plan.currency), doc.documentElement.lang || "ar");
-        button.innerHTML = "<span>" + cleanText(plan.label, 80) + "</span><strong>" + amount + "</strong><small>" + cleanText(plan.description || "خدمة ظهور معتمدة لهذا السوق", 160) + "</small>";
+        const planLabel = doc.createElement("span");
+        planLabel.textContent = cleanText(plan.label, 80);
+        const planAmount = doc.createElement("strong");
+        planAmount.textContent = amount;
+        const planDescription = doc.createElement("small");
+        planDescription.textContent = cleanText(plan.description || "خدمة ظهور معتمدة لهذا السوق", 160);
+        button.append(planLabel, planAmount, planDescription);
         button.addEventListener("click", function () {
           state.selectedPlan = plan;
           host.querySelectorAll(".vvip-plan-card").forEach(function (item) { item.classList.toggle("is-selected", item === button); });
