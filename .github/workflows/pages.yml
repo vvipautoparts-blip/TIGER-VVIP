@@ -1,52 +1,94 @@
 name: Deploy TIGER VVIP production artifact
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Exact current main SHA approved for Production
+        required: true
+        type: string
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages-production
   cancel-in-progress: false
 
 jobs:
+  preflight:
+    name: Verify owner-approved release SHA
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      EXPECTED_RELEASE_SHA: ${{ inputs.release_sha }}
+    steps:
+      - name: Checkout current main for release verification
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f544a08e6b0 # v6
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Fail closed unless release SHA is exact current main
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "$EXPECTED_RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "INVALID_RELEASE_SHA" >&2
+            exit 1
+          fi
+          git fetch --no-tags --depth=1 origin main
+          current_main="$(git rev-parse origin/main)"
+          if [ "$EXPECTED_RELEASE_SHA" != "$current_main" ]; then
+            echo "RELEASE_SHA_MISMATCH" >&2
+            exit 1
+          fi
+          echo "EXACT_RELEASE_SHA=PASS"
+
   build:
     name: Build and verify production artifact
+    needs: preflight
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment:
       name: production-build
     env:
+      EXPECTED_RELEASE_SHA: ${{ inputs.release_sha }}
       TIGER_CLERK_PUBLISHABLE_KEY: ${{ secrets.TIGER_CLERK_PUBLISHABLE_KEY }}
       TIGER_SUPABASE_URL: ${{ secrets.TIGER_SUPABASE_URL }}
       TIGER_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.TIGER_SUPABASE_PUBLISHABLE_KEY }}
       TIGER_DEFAULT_COUNTRY_CODE: ${{ vars.TIGER_DEFAULT_COUNTRY_CODE }}
     steps:
-      - name: Checkout exact release SHA
-        uses: actions/checkout@v6
+      - name: Checkout exact owner-approved release SHA
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f544a08e6b0 # v6
         with:
+          ref: ${{ inputs.release_sha }}
           fetch-depth: 0
 
+      - name: Verify checked-out release SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          checked_out_sha="$(git rev-parse HEAD)"
+          if [ "$checked_out_sha" != "$EXPECTED_RELEASE_SHA" ]; then
+            echo "CHECKED_OUT_SHA_MISMATCH" >&2
+            exit 1
+          fi
+          echo "CHECKED_OUT_SHA=PASS"
+
       - name: Set up Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@1e60f620b9541d04c50fe4240f6b88442fc18c18 # v6
         with:
           node-version: "22"
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@a079284f6907d469567d7000a6d0159d034d90b0 # v6
         with:
           python-version: "3.12"
 
       - name: Install Python verification dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt pytest
+          pip install -r requirements-dev.txt 'pytest==9.1.1'
 
       - name: Run exact-head quality gate
         run: bash scripts/quality-gate.sh
@@ -68,7 +110,7 @@ jobs:
             --source "$GITHUB_WORKSPACE" \
             --output "$RUNNER_TEMP/vvip-public" \
             --mode production \
-            --source-sha "$GITHUB_SHA" \
+            --source-sha "$EXPECTED_RELEASE_SHA" \
             --include-cname
 
       - name: Verify release manifest is eligible
@@ -81,13 +123,13 @@ jobs:
           manifest = json.loads(manifest_path.read_text())
           if not manifest.get('releaseEligible'):
               raise SystemExit('RELEASE_MANIFEST_NOT_ELIGIBLE')
-          if manifest.get('sourceSha') != '${{ github.sha }}':
+          if manifest.get('sourceSha') != os.environ['EXPECTED_RELEASE_SHA']:
               raise SystemExit('RELEASE_MANIFEST_SHA_MISMATCH')
           print('RELEASE_MANIFEST=PASS')
           PY
 
       - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v4
         with:
           path: ${{ runner.temp }}/vvip-public
 
@@ -96,23 +138,27 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy exact verified artifact
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@ec56924218b2176fe6802ce5b3391b0d6127de51 # v4
 
       - name: Set up Python for live verification
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@a079284f6907d469567d7000a6d0159d034d90b0 # v6
         with:
           python-version: "3.12"
 
       - name: Verify deployed production surface
         env:
           VVIP_PAGE_URL: ${{ steps.deployment.outputs.page_url }}
-          VVIP_SOURCE_SHA: ${{ github.sha }}
+          VVIP_SOURCE_SHA: ${{ inputs.release_sha }}
         run: |
           set -euo pipefail
           base="${VVIP_PAGE_URL%/}/"
