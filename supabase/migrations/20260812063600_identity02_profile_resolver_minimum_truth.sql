@@ -6,18 +6,27 @@
 -- - keep ownership subject-first and never claim legacy rows through p_email;
 -- - preserve p_email only as a compatibility fallback for genuinely new profiles;
 -- - return the minimum account/display truth required by browser consumers;
--- - preserve authenticated-only execution and existing safe conflict behavior.
+-- - preserve the existing authenticated execution privilege while denying public/anon.
 --
 -- This migration does not reassign identities, edit historical migrations, or
 -- authorize any remote/Production database apply.
 
 begin;
 
+-- IDENTITY-02 is intentionally a hardening replacement, not a bootstrap. Requiring
+-- the already-reviewed resolver guarantees CREATE OR REPLACE preserves its existing
+-- authenticated EXECUTE privilege instead of creating a fresh default-privilege RPC.
+do $identity02_precondition$
+begin
+  if to_regprocedure('public.vvip_resolve_own_profile(text)') is null then
+    raise exception 'IDENTITY02_REQUIRES_EXISTING_RESOLVER';
+  end if;
+end
+$identity02_precondition$;
+
 create or replace function public.vvip_resolve_own_profile(p_email text default null)
 returns jsonb
-language plpgsql
-security definer
-set search_path = pg_catalog, public
+language plpgsql security definer set search_path = pg_catalog
 as $resolver$
 declare
   v_jwt jsonb := coalesce(nullif(current_setting('request.jwt.claims', true), '')::jsonb, '{}'::jsonb);
@@ -176,7 +185,8 @@ begin
 end;
 $resolver$;
 
-revoke all on function public.vvip_resolve_own_profile(text) from public, anon, authenticated;
-grant execute on function public.vvip_resolve_own_profile(text) to authenticated;
+-- CREATE OR REPLACE preserves the existing authenticated EXECUTE privilege from
+-- the prior convergence migration. Keep unauthenticated/browser-default roles denied.
+revoke all on function public.vvip_resolve_own_profile(text) from public, anon;
 
 commit;
