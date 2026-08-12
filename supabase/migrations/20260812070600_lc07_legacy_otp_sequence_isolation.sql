@@ -5,7 +5,8 @@
 -- synthesizing legacy objects in clean environments.
 --
 -- No table, sequence, policy, user data, or modern phone OTP object is created
--- or mutated by this migration.
+-- by this migration. If the legacy sequence exists, the only mutation is an
+-- ACL-only privilege revocation from public, anon, and authenticated.
 
 begin;
 
