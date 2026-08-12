@@ -29,8 +29,12 @@ def sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def canonical(value) -> bytes:
-    return (json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n").encode()
+def canonical_json(value) -> bytes:
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+
+
+def canonical_file(value) -> bytes:
+    return canonical_json(value) + b"\n"
 
 
 def tar_bytes(entries: dict[str, bytes], *, link: tuple[str, str] | None = None) -> bytes:
@@ -83,7 +87,7 @@ def valid_inner_tar() -> bytes:
         "source_tree": SOURCE_TREE,
         "materials": material_records,
     }
-    materials_bytes = canonical(materials)
+    materials_bytes = canonical_file(materials)
 
     sbom = {
         "bomFormat": "CycloneDX",
@@ -105,8 +109,8 @@ def valid_inner_tar() -> bytes:
             }
         ],
     }
-    sbom_bytes = canonical(sbom)
-    source_bytes = canonical(
+    sbom_bytes = canonical_file(sbom)
+    source_bytes = canonical_file(
         {"schema": "VVIP_PRODUCTION_SOURCE_V1", "source_sha": SOURCE_SHA, "source_tree": SOURCE_TREE}
     )
 
@@ -115,12 +119,12 @@ def valid_inner_tar() -> bytes:
         "source_sha": SOURCE_SHA,
         "source_tree": SOURCE_TREE,
         "candidate_manifest_sha256": sha256(release_manifest_bytes),
-        "candidate_content_sha256": sha256(canonical(candidate_records)),
+        "candidate_content_sha256": sha256(canonical_json(candidate_records)),
         "sbom_sha256": sha256(sbom_bytes),
-        "materials_sha256": sha256(canonical(material_records)),
+        "materials_sha256": sha256(canonical_json(material_records)),
         "created_by": "github-actions:production-release-artifact",
     }
-    bundle_bytes = canonical(bundle)
+    bundle_bytes = canonical_file(bundle)
 
     return tar_bytes(
         {
@@ -265,7 +269,7 @@ class VerifyProductionArtifactTests(unittest.TestCase):
 
             wrong_source = dict(entries)
             source = json.loads(entries["evidence/source.json"])
-            wrong_source["evidence/source.json"] = canonical({**source, "source_sha": "c" * 40})
+            wrong_source["evidence/source.json"] = canonical_file({**source, "source_sha": "c" * 40})
             mutations.append(("source", wrong_source, "VVIP_SOURCE_MISMATCH"))
 
             bad_hash = dict(entries)
