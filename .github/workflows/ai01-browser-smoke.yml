@@ -1,0 +1,36 @@
+name: AI-01 Browser Smoke Verification
+
+on:
+  pull_request:
+    branches: [feat/ai-01-foundation]
+
+permissions:
+  contents: read
+
+jobs:
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: "22"
+      - name: Start local preview
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/ai01-http.log 2>&1 &
+          echo $! >/tmp/ai01-http.pid
+          for i in {1..20}; do curl -fsS 'http://127.0.0.1:4173/owner-control.html?preview=owner' >/dev/null && exit 0; sleep .25; done
+          exit 1
+      - name: Run browser smoke
+        env:
+          AI01_SMOKE_URL: http://127.0.0.1:4173/owner-control.html?preview=owner
+        run: node tests/ai01-browser-smoke.mjs
+      - if: always()
+        run: kill "$(cat /tmp/ai01-http.pid)" 2>/dev/null || true
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ai01-browser-smoke-evidence
+          path: artifacts/ai01-browser-smoke
+          retention-days: 14
