@@ -33,6 +33,8 @@ SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 GITHUB_DIGEST_RE = re.compile(r"^sha256:([0-9a-f]{64})$")
 CHECKSUM_RE_TEMPLATE = r"^([0-9a-f]{{64}})  {filename}\n$"
 MAX_OUTER_BYTES = 512 * 1024 * 1024
+MAX_OUTER_ARCHIVE_MEMBER_BYTES = MAX_OUTER_BYTES
+MAX_OUTER_CHECKSUM_BYTES = 4 * 1024
 MAX_INNER_MEMBER_BYTES = 256 * 1024 * 1024
 MAX_INNER_TOTAL_BYTES = 512 * 1024 * 1024
 MAX_INNER_ENTRIES = 10_000
@@ -187,6 +189,34 @@ def _assert_zip_regular(info: zipfile.ZipInfo) -> None:
             fail("VVIP_OUTER_ENTRY_TYPE_INVALID", "outer artifact contains a non-regular entry")
 
 
+def _outer_member_limit(normalized: str, archive_name: str, checksum_name: str) -> int:
+    if normalized == archive_name:
+        return MAX_OUTER_ARCHIVE_MEMBER_BYTES
+    if normalized == checksum_name:
+        return MAX_OUTER_CHECKSUM_BYTES
+    fail("VVIP_OUTER_ENTRY_SET_INVALID", "outer artifact contains an unexpected file")
+
+
+def _copy_zip_member_bounded(
+    archive: zipfile.ZipFile,
+    info: zipfile.ZipInfo,
+    destination: Path,
+    limit: int,
+) -> None:
+    copied = 0
+    with archive.open(info, "r") as source, destination.open("xb") as target:
+        while True:
+            chunk = source.read(min(1024 * 1024, limit - copied + 1))
+            if not chunk:
+                break
+            copied += len(chunk)
+            if copied > limit:
+                fail("VVIP_OUTER_ENTRY_SIZE_INVALID", "outer artifact member exceeded its bounded size while extracting")
+            target.write(chunk)
+    if copied != info.file_size:
+        fail("VVIP_OUTER_ENTRY_SIZE_INVALID", "outer artifact member size does not match ZIP metadata")
+
+
 def verify_outer_artifact(
     *,
     artifact_zip: Path,
@@ -233,13 +263,18 @@ def verify_outer_artifact(
         if set(names) != expected_names:
             fail("VVIP_OUTER_ENTRY_SET_INVALID", "outer artifact file set is not exact")
 
+        limits: dict[str, int] = {}
+        for info, normalized in zip(infos, names):
+            limit = _outer_member_limit(normalized, archive_name, checksum_name)
+            if info.file_size <= 0 or info.file_size > limit:
+                fail("VVIP_OUTER_ENTRY_SIZE_INVALID", "outer artifact member expanded size is outside the allowed range")
+            limits[normalized] = limit
+
         root = _fresh_directory(Path(extract_root), "VVIP_OUTER_OUTPUT_INVALID")
         try:
-            for info in infos:
-                normalized = _safe_relative(info.filename, "VVIP_OUTER_PATH_INVALID")
+            for info, normalized in zip(infos, names):
                 destination = root / normalized
-                with archive.open(info, "r") as source, destination.open("xb") as target:
-                    shutil.copyfileobj(source, target, length=1024 * 1024)
+                _copy_zip_member_bounded(archive, info, destination, limits[normalized])
         except Exception:
             shutil.rmtree(root, ignore_errors=True)
             raise
