@@ -16,7 +16,7 @@ test('staging evidence workflow is manual, read-only, and checks out exact reque
   assert.match(workflow, /workflow_dispatch:/);
   assert.match(workflow, /source_sha:/);
   assert.match(workflow, /permissions:\s*\n\s*contents:\s*read/);
-  assert.match(workflow, /uses:\s*actions\/checkout@v7/);
+  assert.match(workflow, /uses:\s*actions\/checkout@b4ffde65f46336ab88eb53be808477a3936bae11/);
   assert.match(workflow, /ref:\s*\$\{\{\s*inputs\.source_sha\s*\}\}/);
   assert.match(workflow, /fetch-depth:\s*0/);
   assert.match(workflow, /git rev-parse HEAD/);
@@ -55,7 +55,7 @@ test('workflow writes evidence only under runner temp and binds artifact name to
   const workflow = workflowText();
   assert.match(workflow, /RUNNER_TEMP/);
   assert.match(workflow, /tsrf-.*\$\{\{\s*inputs\.source_sha\s*\}\}/i);
-  assert.match(workflow, /actions\/upload-artifact@v6/);
+  assert.match(workflow, /actions\/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f/);
   assert.match(workflow, /if-no-files-found:\s*error/);
 });
 
