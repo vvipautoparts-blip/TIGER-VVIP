@@ -351,7 +351,7 @@
     }
 
     async function refresh() {
-      if (!state.repository || !root.Clerk || !root.Clerk.isSignedIn) return;
+      if (!state.repository || !state.runtime) return;
       if (feed) feed.setAttribute("aria-busy", "true");
       state.listings = await state.repository.listPublic({
         sector: state.sector,
@@ -487,7 +487,11 @@
     function renderPreview(form) {
       if (!form.reportValidity()) return false;
       let input;
-      try { input = listingInput(form); } catch (error) { report(error); return false; }
+      let files;
+      try {
+        input = listingInput(form);
+        files = validateFiles(form.elements.images.files);
+      } catch (error) { report(error); return false; }
       const node = form.querySelector("[data-vvip-preview-card]");
       if (!node) return false;
       node.replaceChildren();
@@ -504,7 +508,7 @@
       const summary = doc.createElement("p");
       summary.textContent = cleanText(input.summary, 2000) || "بدون وصف إضافي";
       const media = doc.createElement("small");
-      media.textContent = validateFiles(form.elements.images.files).length + " صور مرفقة";
+      media.textContent = files.length + " صور مرفقة";
       node.append(eyebrow, title, price, location, summary, media);
       return true;
     }
@@ -573,15 +577,14 @@
       if (!state.repository || typeof state.repository.prepareForPublication !== "function") throw uiError("PUBLICATION_TRANSPORT_UNAVAILABLE");
       progress.textContent = "جاري التحقق من الاستحقاق والدفع…";
       return state.repository.prepareForPublication(state.draftListingId, {
-        planId: state.selectedPlan.id,
-        entitlementReceipt: null
+        planId: state.selectedPlan.id
       });
     }
 
     function ensureModal() {
       if (modal) return modal;
       const host = doc.createElement("div");
-      host.innerHTML = formMarkup(state.runtime.config);
+      host.innerHTML = formMarkup((state.runtime && state.runtime.config) || {});
       modal = host.firstElementChild;
       doc.body.appendChild(modal);
       return modal;
@@ -601,6 +604,7 @@
       const node = ensureModal();
       node.hidden = false;
       node.setAttribute("aria-hidden", "false");
+      doc.body.classList.add("vvip-create-open");
       setCreateStep("content");
       const focus = node.querySelector("input,select,textarea");
       if (focus) focus.focus();
@@ -648,6 +652,7 @@
         dialog.append(close, title, list);
         node.hidden = false;
         node.setAttribute("aria-hidden", "false");
+        doc.body.classList.add("vvip-create-open");
       } catch (error) { report(error); }
     }
 
