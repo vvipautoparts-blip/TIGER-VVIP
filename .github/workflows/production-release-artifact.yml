@@ -99,7 +99,7 @@ jobs:
           node-version: '22'
 
       - name: Set up Python
-        uses: actions/setup-python@a079284f6907d469567d7000a6d0159d034d90b0 # v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
 
