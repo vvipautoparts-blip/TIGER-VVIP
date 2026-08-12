@@ -201,6 +201,30 @@
       throw marketplaceError("SUPABASE_CLIENT_REQUIRED");
     }
 
+    function protectedOperation(descriptor, operation) {
+      try {
+        actorId(clerk);
+        return Promise.resolve().then(operation);
+      } catch (error) {
+        if (!error || error.code !== "AUTH_REQUIRED") return Promise.reject(error);
+      }
+
+      const auth = (options && options.auth) || root.VVIP_AUTH;
+      if (!auth || typeof auth.requireAuth !== "function") {
+        return Promise.reject(marketplaceError("AUTH_REQUIRED"));
+      }
+
+      return new Promise(function (resolve, reject) {
+        let resumed = false;
+        function resume() {
+          if (resumed) return undefined;
+          resumed = true;
+          return Promise.resolve().then(operation).then(resolve, reject);
+        }
+        Promise.resolve(auth.requireAuth(descriptor, resume)).catch(reject);
+      });
+    }
+
     const publicReadCache = new Map();
     const publicReadInflight = new Map();
     let publicReadGeneration = 0;
@@ -322,15 +346,17 @@
       }
     }
 
-    async function listMine() {
-      const owner = actorId(clerk);
-      const result = await client
-        .from("vvip_marketplace_listings")
-        .select("listing_id,active_market_country,sector,title,summary,price_minor,currency_code,location_label,status,rejection_reason,created_at,updated_at")
-        .eq("owner_subject", owner)
-        .order("updated_at", { ascending: false })
-        .limit(100);
-      return assertClientResult(result, "MY_LISTINGS_READ_FAILED") || [];
+    function listMine() {
+      return protectedOperation({ name: "OPEN_ACCOUNT" }, async function () {
+        const owner = actorId(clerk);
+        const result = await client
+          .from("vvip_marketplace_listings")
+          .select("listing_id,active_market_country,sector,title,summary,price_minor,currency_code,location_label,status,rejection_reason,created_at,updated_at")
+          .eq("owner_subject", owner)
+          .order("updated_at", { ascending: false })
+          .limit(100);
+        return assertClientResult(result, "MY_LISTINGS_READ_FAILED") || [];
+      });
     }
 
     async function createDraft(input) {
@@ -387,17 +413,19 @@
       }
     }
 
-    async function createDraftWithMedia(input, images) {
-      const draft = await createDraft(input);
-      try {
-        await uploadMedia(draft.listing_id, images);
-        return draft;
-      } catch (error) {
+    function createDraftWithMedia(input, images) {
+      return protectedOperation({ name: "CREATE_LISTING" }, async function () {
+        const draft = await createDraft(input);
         try {
-          await client.from("vvip_marketplace_listings").delete().eq("listing_id", draft.listing_id);
-        } catch (_) { /* RLS-safe cleanup attempt */ }
-        throw error;
-      }
+          await uploadMedia(draft.listing_id, images);
+          return draft;
+        } catch (error) {
+          try {
+            await client.from("vvip_marketplace_listings").delete().eq("listing_id", draft.listing_id);
+          } catch (_) { /* RLS-safe cleanup attempt */ }
+          throw error;
+        }
+      });
     }
 
     async function prepareForPublication(listingId, options) {
@@ -437,23 +465,25 @@
       }
     }
 
-    async function toggleFavorite(listingId, favorite) {
-      const owner = actorId(clerk);
-      if (favorite) {
-        const result = await client.from("vvip_marketplace_favorites").upsert({
-          owner_subject: owner,
-          listing_id: listingId
-        });
-        assertClientResult(result, "FAVORITE_WRITE_FAILED");
-        return true;
-      }
-      const result = await client
-        .from("vvip_marketplace_favorites")
-        .delete()
-        .eq("owner_subject", owner)
-        .eq("listing_id", listingId);
-      assertClientResult(result, "FAVORITE_DELETE_FAILED");
-      return false;
+    function toggleFavorite(listingId, favorite) {
+      return protectedOperation({ name: "TOGGLE_FAVORITE", listingId: listingId }, async function () {
+        const owner = actorId(clerk);
+        if (favorite) {
+          const result = await client.from("vvip_marketplace_favorites").upsert({
+            owner_subject: owner,
+            listing_id: listingId
+          });
+          assertClientResult(result, "FAVORITE_WRITE_FAILED");
+          return true;
+        }
+        const result = await client
+          .from("vvip_marketplace_favorites")
+          .delete()
+          .eq("owner_subject", owner)
+          .eq("listing_id", listingId);
+        assertClientResult(result, "FAVORITE_DELETE_FAILED");
+        return false;
+      });
     }
 
     async function reviewListing(listingId, decision, reason) {
