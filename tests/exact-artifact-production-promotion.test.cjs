@@ -49,6 +49,18 @@ test('Production Release Artifact Builder is manual-only, exact-main bound, and 
   assertImmutableActions(builder, 'builder');
 });
 
+test('builder grants only the current minimum write authority needed for GitHub attestations', () => {
+  const builder = readRequired(BUILDER_PATH, 'Production Release Artifact Builder workflow');
+  const attestJob = builder.slice(builder.indexOf('\n  build_seal_attest:'));
+
+  assert.match(attestJob, /permissions:\s*\n\s{6}contents:\s*read/);
+  assert.match(attestJob, /id-token:\s*write/);
+  assert.match(attestJob, /attestations:\s*write/);
+  assert.match(attestJob, /artifact-metadata:\s*write/);
+  assert.doesNotMatch(attestJob, /pages:\s*write/);
+  assert.doesNotMatch(attestJob, /actions:\s*write/);
+});
+
 test('builder seals deterministic inner bundle, SBOM, materials, digest, and attestation', () => {
   const builder = readRequired(BUILDER_PATH, 'Production Release Artifact Builder workflow');
 
@@ -116,6 +128,7 @@ test('only final deploy job owns Pages and OIDC write authority', () => {
   const header = pages.slice(0, jobsIndex);
 
   assert.match(header, /permissions:\s*\n\s{2}contents:\s*read[\s\S]*actions:\s*read/);
+  assert.doesNotMatch(header, /artifact-metadata:\s*write/);
   assert.doesNotMatch(header, /pages:\s*write/);
   assert.doesNotMatch(header, /id-token:\s*write/);
 
@@ -124,6 +137,7 @@ test('only final deploy job owns Pages and OIDC write authority', () => {
   const preDeploy = pages.slice(jobsIndex, deployIndex);
   const deploy = pages.slice(deployIndex);
 
+  assert.doesNotMatch(preDeploy, /artifact-metadata:\s*write/);
   assert.doesNotMatch(preDeploy, /pages:\s*write/);
   assert.doesNotMatch(preDeploy, /id-token:\s*write/);
   assert.match(deploy, /pages:\s*write/);
