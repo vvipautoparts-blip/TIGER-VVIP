@@ -24,10 +24,10 @@ test('LC07 is a forward no-synthesis migration after LC05 credential isolation',
   );
 });
 
-test('LC07 conditionally revokes every browser privilege on the legacy OTP sequence', () => {
+test('LC07 safely handles absence and revokes every browser privilege when the legacy OTP sequence exists', () => {
   const sql = migrationText();
 
-  assert.match(sql, /to_regclass\s*\(\s*'public\.otp_codes_id_seq'\s*\)\s+is\s+not\s+null/i);
+  assert.match(sql, /to_regclass\s*\(\s*'public\.otp_codes_id_seq'\s*\)\s+is\s+null\s+then/i);
   assert.match(
     sql,
     /revoke\s+all\s+privileges\s+on\s+sequence\s+public\.otp_codes_id_seq\s+from\s+public\s*,\s*anon\s*,\s*authenticated/i,
@@ -42,4 +42,5 @@ test('LC07 does not synthesize or broaden any OTP surface', () => {
   assert.doesNotMatch(sql, /insert\s+into|update\s+public\.|delete\s+from/i);
   assert.doesNotMatch(sql, /phone_otp_challenges/i);
   assert.doesNotMatch(sql, /alter\s+table/i);
+  assert.doesNotMatch(sql, /\bnot\s+null\b/i);
 });
