@@ -7,9 +7,17 @@ const test = require('node:test');
 
 const MIGRATION_REL = 'supabase/migrations/20260812070600_lc07_legacy_otp_sequence_isolation.sql';
 const MIGRATION_PATH = path.join(__dirname, '..', MIGRATION_REL);
+const LC05_VERSION = '20260808135000';
 
 function migrationText() {
   return fs.existsSync(MIGRATION_PATH) ? fs.readFileSync(MIGRATION_PATH, 'utf8') : '';
+}
+
+function migrationVersion(relativePath) {
+  const filename = path.basename(relativePath);
+  const match = filename.match(/^(\d+)_/);
+  assert.ok(match, `migration filename must begin with a numeric version: ${filename}`);
+  return match[1];
 }
 
 test('LC07 is a forward no-synthesis migration after LC05 credential isolation', () => {
@@ -19,7 +27,7 @@ test('LC07 is a forward no-synthesis migration after LC05 credential isolation',
     `missing forward migration: ${MIGRATION_REL}`,
   );
   assert.ok(
-    '20260812070600' > '20260808135000',
+    migrationVersion(MIGRATION_REL) > LC05_VERSION,
     'LC07 must sort after LC05 credential isolation',
   );
 });
