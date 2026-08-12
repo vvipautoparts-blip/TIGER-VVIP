@@ -27,10 +27,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout exact head
-        uses: actions/checkout@v7
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Set up Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@cdca7365b2dadb8aad0eb64d4b95b9525c6e3024
         with:
           node-version: "22"
 
