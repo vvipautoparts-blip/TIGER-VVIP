@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Set up Node.js
-        uses: actions/setup-node@cdca7365b2dadb8aad0eb64d4b95b9525c6e3024
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
         with:
           node-version: "22"
 
@@ -114,12 +114,12 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Node.js
-        uses: actions/setup-node@cdca7365b2dadb8aad0eb64d4b95b9525c6e3024
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
         with:
           node-version: "22"
 
       - name: Set up Python
-        uses: actions/setup-python@a309eac5ee4c76a3c6efafbd01d31b23e7119ec2
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: "3.12"
 
