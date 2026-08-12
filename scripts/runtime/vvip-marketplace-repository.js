@@ -428,17 +428,14 @@
       });
     }
 
-    async function prepareForPublication(listingId, options) {
-      actorId(clerk);
+    function prepareForPublication(listingId, options) {
       const intent = normalizePublicationIntent(listingId, options);
-      if (!intent.entitlementReceipt) {
-        throw marketplaceError("ENTITLEMENT_REQUIRED");
-      }
-
-      // Publication is intentionally fail-closed until a trusted server/edge
-      // transport verifies the payment/visibility entitlement and performs the
-      // state transition. A browser-supplied receipt is never sufficient.
-      throw marketplaceError("PUBLICATION_TRANSPORT_UNAVAILABLE");
+      return protectedOperation({ name: "PREPARE_PUBLICATION", listingId: intent.listingId }, async function () {
+        // Publication remains intentionally fail-closed until a trusted server/edge
+        // transport verifies payment/visibility entitlement and performs the state
+        // transition. The browser cannot mint or substitute that trusted receipt.
+        throw marketplaceError("PUBLICATION_TRANSPORT_UNAVAILABLE");
+      });
     }
 
     async function submitForReview(listingId) {
