@@ -39,7 +39,7 @@ test('Production Release Artifact Builder is manual-only, exact-main bound, and 
   assert.match(builder, /--mode\s+production/);
   assert.match(builder, /--output\s+["']?\$RUNNER_TEMP\/vvip-production-public["']?/);
   assert.equal(
-    (builder.match(/tools\/vvip_public_release\.py/g) || []).length,
+    (builder.match(/^\s*python\s+tools\/vvip_public_release\.py\b/gm) || []).length,
     1,
     'Production public bytes must be built exactly once',
   );
