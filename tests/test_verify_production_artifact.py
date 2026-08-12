@@ -162,7 +162,7 @@ class VerifyProductionArtifactTests(unittest.TestCase):
 
             self.assertEqual(inner_path, extracted / ARCHIVE_NAME)
             self.assertTrue(inner_path.is_file())
-            self.assertEqual(sorted(p.name for p in extracted.iterdir()), [ARCHIVE_NAME, CHECKSUM_NAME])
+            self.assertEqual(sorted(p.name for p in extracted.iterdir()), sorted([ARCHIVE_NAME, CHECKSUM_NAME]))
             self.assertFalse((extracted / "public").exists(), "outer phase must not extract trusted inner bytes")
 
     def test_outer_rejects_bad_github_digest_extra_entry_symlink_and_bad_inner_checksum(self):
