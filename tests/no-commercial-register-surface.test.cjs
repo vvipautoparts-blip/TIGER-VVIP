@@ -28,8 +28,8 @@ const CANONICAL_DOCS = [
   "project-control/data/master_task_registry.csv"
 ];
 
-const TOP_LEVEL_EXTENSIONS = new Set([".html", ".js", ".mjs", ".cjs", ".json", ".sql"]);
-const SCANNED_EXTENSIONS = new Set([".html", ".js", ".mjs", ".cjs", ".json", ".sql", ".md", ".csv"]);
+const TOP_LEVEL_EXTENSIONS = new Set([".html", ".js", ".mjs", ".cjs", ".ts", ".tsx", ".json", ".sql"]);
+const SCANNED_EXTENSIONS = new Set([".html", ".js", ".mjs", ".cjs", ".ts", ".tsx", ".json", ".sql", ".md", ".csv"]);
 
 const FORBIDDEN = [
   /سجل\s+تجاري/giu,
@@ -113,10 +113,17 @@ test("commercial-register data has no active product, schema, API, admin, or can
 });
 
 test("historical source material is not treated as an active product contract", () => {
-  const historicalRoots = [
+  const historicalPaths = [
     "project-control/sources",
     "project-control/data/strategic_archive.json",
     "docs/state-archive"
   ];
-  assert.ok(historicalRoots.every((value) => typeof value === "string" && value.length > 0));
+  const activeRelativePaths = activeFiles().map((file) => path.relative(ROOT, file).split(path.sep).join("/"));
+
+  for (const historicalPath of historicalPaths) {
+    const included = activeRelativePaths.some(
+      (activePath) => activePath === historicalPath || activePath.startsWith(`${historicalPath}/`)
+    );
+    assert.equal(included, false, `${historicalPath} must remain excluded from the active product-contract scan`);
+  }
 });
