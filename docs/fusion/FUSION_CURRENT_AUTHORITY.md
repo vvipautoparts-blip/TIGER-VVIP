@@ -18,6 +18,18 @@ The current owner vision for Simple Surface + Private Core, field perception, AI
 
 This owner vision is normative for product intent but remains governed by the FUSION FINAL Constitution and Launch Passport truth gates. Marketing/security/performance statements cannot outrank measured exact-release evidence.
 
+## Binding owner marketplace boundary
+
+The current binding rule for the marketplace relationship is:
+
+`docs/fusion/OWNER_RULE_ADVERTISING_CONNECTION_ONLY_2026.md`
+
+VVIP TIGER is an advertising, discovery, and direct-contact platform. It reduces the distance between seller and buyer and between service provider and beneficiary. The platform is not a party to the parties' subsequent transaction or service relationship after contact.
+
+No checkout, escrow, delivery/shipping operation, transaction settlement/commission, warranty/compensation execution, or platform-run buyer/seller or provider/beneficiary dispute-resolution workflow may be introduced as an assumed product feature. A future change that makes VVIP TIGER a transaction intermediary requires a new explicit OWNER decision and separate legal/product approval.
+
+This boundary does not remove responsibilities for operating VVIP TIGER itself, including platform security, account/advertising controls, moderation/abuse controls, technical operations, billing for VVIP TIGER advertising services, and legally required compliance.
+
 ## Legacy status
 
 The following product decisions are `SUPERSEDED / HISTORICAL ONLY` and must not be treated as active runtime or implementation authority:
