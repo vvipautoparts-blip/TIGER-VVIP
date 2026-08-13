@@ -6,6 +6,31 @@
   "ownerRequirementsTraceability": "docs/fusion/OWNER_REQUIREMENTS_TRACEABILITY_2026.md",
   "ownerVisionReference": "docs/fusion/OWNER_VISION_VVIP_TIGER_2026.md",
   "ownerMarketplaceBoundaryReference": "docs/fusion/OWNER_RULE_ADVERTISING_CONNECTION_ONLY_2026.md",
+  "ownerMarketplaceBoundary": {
+    "mode": "ADVERTISING_DISCOVERY_DIRECT_CONTACT_ONLY",
+    "platformIsMarketplaceTransactionParty": false,
+    "role": ["advertising", "discovery", "direct_contact", "distance_reduction"],
+    "connects": ["seller_to_buyer", "service_provider_to_beneficiary"],
+    "forbiddenMarketplaceIntermediation": [
+      "checkout",
+      "escrow",
+      "platform_delivery_shipping",
+      "marketplace_transaction_payment",
+      "marketplace_transaction_settlement",
+      "marketplace_transaction_commission_payout",
+      "marketplace_warranty_compensation_execution",
+      "platform_run_marketplace_dispute_resolution"
+    ],
+    "platformOwnedFinancialScope": [
+      "advertising_pricing",
+      "advertising_billing",
+      "platform_applicable_taxes_fees",
+      "platform_accounting",
+      "advertising_profitability_protection",
+      "platform_receipt_reconciliation"
+    ],
+    "changeRequires": ["EXPLICIT_OWNER_DECISION", "SEPARATE_LEGAL_PRODUCT_APPROVAL"]
+  },
   "aiPrivateCoreReference": "docs/fusion/OWNER_REFERENCE_AI_REVERSE_ENGINEERING_SHIELD_2026.md",
   "tigerPulseOwnerReference": "docs/fusion/OWNER_REFERENCE_F07_TIGER_PULSE.md",
   "tigerPulseEngineeringSpec": "docs/superpowers/specs/2026-08-13-f07-tiger-pulse-hero-dynamic-ad-ribbon-design.md",
@@ -15,7 +40,7 @@
       "SOA",
       "RLS",
       "release security",
-      "financial ledger",
+      "financial ledger for platform-owned advertising billing/accounting",
       "country gates",
       "audit",
       "recovery",
@@ -32,7 +57,7 @@
       "4M Digital Twin",
       "native mobile certification",
       "Sovereign Capability Graph",
-      "Global Currency Fabric",
+      "Global Currency Fabric for platform advertising and listing/display semantics",
       "Runtime Vacuum"
     ]
   },
@@ -43,13 +68,15 @@
     {"id":"LEGACY_120_DAY_LIFETIME","status":"SUPERSEDED"},
     {"id":"LEGACY_TIGER_CARE","status":"SUPERSEDED"},
     {"id":"LEGACY_BLUE_LOGIN","status":"SUPERSEDED"},
-    {"id":"LEGACY_SEPARATE_ADMIN_SURFACE","status":"SUPERSEDED"}
+    {"id":"LEGACY_SEPARATE_ADMIN_SURFACE","status":"SUPERSEDED"},
+    {"id":"LEGACY_MARKETPLACE_TRANSACTION_COMMISSION_PAYOUT","status":"SUPERSEDED"},
+    {"id":"LEGACY_TIGERPAY_MARKETPLACE_TRANSACTION_SETTLEMENT","status":"SUPERSEDED"}
   ],
   "retainedFoundations": [
     "SOA",
     "RLS_DEFAULT_DENY",
     "RELEASE_SUPPLY_CHAIN_SECURITY",
-    "DOUBLE_ENTRY_LEDGER",
+    "DOUBLE_ENTRY_LEDGER_FOR_PLATFORM_OWNED_BILLING",
     "COUNTRY_ACTIVATION_GATES",
     "APPEND_ONLY_AUDIT",
     "RECOVERY_FAILOVER_DISCIPLINE",
