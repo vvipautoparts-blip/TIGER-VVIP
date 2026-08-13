@@ -41,6 +41,19 @@ function collectStaticReferences(text, sourcePath) {
   return [...refs].sort();
 }
 
+function stableValue(value) {
+  if (Array.isArray(value)) return value.map(stableValue);
+  if (!value || typeof value !== 'object') return value;
+  return Object.keys(value).sort().reduce((output, key) => {
+    output[key] = stableValue(value[key]);
+    return output;
+  }, {});
+}
+
+function canonicalizeInventory(value) {
+  return JSON.stringify(stableValue(value), null, 2) + '\n';
+}
+
 function inventoryRepository(options = {}) {
   const files = options.files && typeof options.files === 'object' ? options.files : {};
   const registry = options.registry && typeof options.registry === 'object' ? options.registry : {};
@@ -76,12 +89,18 @@ function inventoryRepository(options = {}) {
 
   const entries = filePaths.map((file) => {
     const rule = explicit[file] && typeof explicit[file] === 'object' ? explicit[file] : null;
-    const classification = rule && CLASSES.includes(rule.classification)
+    let classification = rule && CLASSES.includes(rule.classification)
       ? rule.classification
       : (active.has(file) ? 'ACTIVE' : 'UNREFERENCED');
-    const reasonCodes = rule && Array.isArray(rule.reasonCodes)
+    let reasonCodes = rule && Array.isArray(rule.reasonCodes)
       ? [...new Set(rule.reasonCodes.map(String))].sort()
       : [active.has(file) ? 'ACTIVE_REFERENCE_GRAPH' : 'NO_ACTIVE_REFERENCE'];
+
+    if (active.has(file) && classification === 'REVIEW') {
+      classification = 'ACTIVE';
+      reasonCodes = [...new Set([...reasonCodes, 'ACTIVE_INBOUND_REFERENCE'])].sort();
+    }
+
     const entry = {
       path: file,
       classification,
@@ -106,5 +125,6 @@ function inventoryRepository(options = {}) {
 module.exports = Object.freeze({
   CLASSES,
   collectStaticReferences,
-  inventoryRepository
+  inventoryRepository,
+  canonicalizeInventory
 });
