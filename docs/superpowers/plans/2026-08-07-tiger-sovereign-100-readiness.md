@@ -16,15 +16,16 @@ The security architecture may be sophisticated internally, but the product surfa
 
 - `main` remains protected; work is isolated in feature branches and reviewed PRs.
 - AI execution is disabled by default unless an environment-specific release gate explicitly enables it.
-- Browser/client values never create trusted owner identity or L4 authority.
+- Browser/client values never create trusted owner identity, trusted runtime state, or L4 authority.
+- Management agents are owner-only; ordinary users and staff are contained to `user_assistant`.
 - `delete_data`, `transfer_funds`, and `change_owner_permissions` are permanent AI executor denials.
 - Merge, production deploy, and price mutation are L4 owner-gated.
 - L4 `ALLOW` requires trusted verification and one-time consumption in the same authorization boundary.
-- AI-02 in-memory consumption is not sufficient for production; AI-03 must provide persistent transactional consumption.
+- AI-02 in-process consumption is not sufficient for production; AI-03 must provide persistent transactional consumption.
 - Production Supabase mutation uses the existing protected promotion path only.
 - Secrets never enter browser JavaScript, prompts, user-visible responses, or unrestricted logs.
 - Untrusted user/retrieved/tool content never overrides policy/system authority.
-- External tools are registry-owned, schema validated, scoped, bounded, audited, and idempotent where mutating.
+- External tools are registry-owned, exact-action-bound, schema validated, scoped, bounded, audited, and idempotent where mutating.
 - No claim of 100% readiness without manual browser acceptance, security review, staging, recovery, monitoring, legal/privacy, and explicit owner gates.
 
 ---
@@ -32,42 +33,79 @@ The security architecture may be sophisticated internally, but the product surfa
 ## Task 1 — AI-02 Sovereign Security Kernel
 
 **Modern PR:** #218
+
 **Files:**
 - `scripts/ai/sovereign-security-kernel.js`
 - `tests/ai02-sovereign-security-kernel.test.cjs`
+- `tests/ai02-tool-action-binding.test.cjs`
+- `tests/ai02-invalid-payload-fail-closed.test.cjs`
 - `docs/ai/TIGER_SOVEREIGN_CONSTITUTION.md`
 - this plan
 
-### Contract
+### Final contract
 
-- trusted in-process server actor branding; caller-shaped identity fails closed;
+- `createSovereignSecurityKernel()` creates isolated `authority` and `runtime` capabilities;
+- no global export can directly mint trusted actors, mint approvals, consume approvals, or invoke the internal authorization evaluator;
+- trusted actors and trusted runtime state are branded per kernel instance;
+- cross-kernel or JSON-copied actor/runtime/approval objects fail closed;
+- management agents require trusted owner role;
+- `STAFF` and `USER` are contained to `user_assistant`;
 - canonical SHA-256 payload binding;
-- trusted L4 approval envelopes;
+- malformed L4 payloads return `DENY / INVALID_PAYLOAD` rather than crashing authorization;
+- L4 approval issuance requires a trusted owner from the same kernel;
 - exact owner/agent/action/payload/time binding;
-- synchronous verify + one-time consume before L4 `ALLOW`;
-- replay denial;
+- verification and private one-time consumption occur before L4 `ALLOW`;
+- caller cannot supply or reset replay-consumption state;
+- tool authorization binds exact agent + action + policy level;
+- replay, forged/copy approval, scope mismatch, owner mismatch, payload drift, and expiry fail closed;
 - permanent denial for destructive/money/owner-authority actions;
-- agent action scope;
-- registry-only tools;
-- budget/rate gates;
-- kill switches;
+- trusted feature/kill-switch/budget/rate state;
 - strict Black Box metadata projection;
 - no network/provider/database executor.
 
-### TDD status
+### TDD evidence
 
-- [x] RED contract committed before production implementation.
-- [x] RED VVIP Quality Gate #862 failed as expected with kernel absent.
-- [x] Minimal modern kernel implemented.
-- [x] GREEN VVIP Quality Gate #863 passed on code head.
-- [ ] Final documentation-inclusive exact-head CI must pass.
-- [ ] Independent PR review / repository protection must pass.
-- [ ] Explicit owner merge authorization on the exact final head.
+#### Cycle 1 — kernel existence and baseline zero trust
+- [x] RED commit `ddbbcb27a08ac2049ee0ffc25a1e6576f0a790fd`.
+- [x] VVIP Quality Gate #862: expected FAIL with kernel absent.
+- [x] Initial implementation commit `a95ddd1ace0eae66832125071dc301177ee09b18`.
+- [x] VVIP Quality Gate #863: PASS.
+
+#### Cycle 2 — Tool → Action / Level binding
+- [x] RED commit `01486e763161cc5671f2ae887ebc044c1ed7589f`.
+- [x] VVIP Quality Gate #866: expected FAIL.
+- [x] Exact tool/action/level binding implemented.
+- [x] Exact-head candidate `14f079618747169b1756cd5282c3392299224b42` passed Quality #869, V14 #327, CleanGuard #391, Dependency Review #675, Project Control #800, and CodeQL #774 before later hardening changed the head.
+
+#### Cycle 3 — capability-scoped trust isolation
+- [x] RED test head `5125f7cf202001192dc998b488b76f464e5851d6`.
+- [x] VVIP Quality Gate #871: expected FAIL because capability factory did not yet exist.
+- [x] Capability-scoped kernel implementation `2defe198a7c3797cf64c32eaac3b14769f6b791b`.
+- [x] VVIP Quality Gate #872 core quality step: PASS.
+
+#### Cycle 4 — malformed authorization payload fail-closed
+- [x] RED commit `8bc49f6a6aa520de317fcd1cfdd3ce0b75de3589`.
+- [x] VVIP Quality Gate #873: expected FAIL on cyclic/undefined L4 payload exceptions.
+- [x] Fail-closed implementation `beaba668c3aecf6710346cd97082a6bf67afc68c`.
+- [x] VVIP Quality Gate #874 core quality step: PASS.
+
+### Final AI-02 closure gates
+
+Because documentation changed after the code GREEN head, all required workflows must run again on the final documentation-inclusive SHA.
+
+- [ ] VVIP Quality Gate exact-final-head PASS.
+- [ ] V14 Release Candidate exact-final-head PASS.
+- [ ] TIGER CleanGuard exact-final-head PASS.
+- [ ] Dependency Review exact-final-head PASS.
+- [ ] Project Control Integrity exact-final-head PASS.
+- [ ] CodeQL exact-final-head PASS.
+- [ ] Independent human PR review approved with no unresolved security thread.
+- [ ] Explicit owner merge authorization bound to the exact final SHA.
 
 ### AI-02 non-claims
 
 - no persistent cross-process approval state;
-- no Supabase trust tables/RLS;
+- no Supabase trust tables/RLS applied;
 - no provider/model gateway;
 - no live tool executor;
 - no production deployment;
@@ -79,7 +117,7 @@ The security architecture may be sophisticated internally, but the product surfa
 
 ## Task 2 — AI-03 Persistent Trust Fabric
 
-**Modernization strategy:** do not merge stale stacked PR history. Extract and revalidate only AI-03-specific value onto the then-current `main`.
+**Modernization strategy:** build a fresh modern slice stacked only on the final AI-02 branch while AI-02 awaits human review. Do not merge AI-03 ahead of AI-02. After AI-02 merges, retarget/rebase the modern AI-03 PR onto the new `main` and re-run exact-head evidence.
 
 Required capabilities:
 
@@ -91,15 +129,18 @@ Required capabilities:
 - agent runtime state and kill switches;
 - least-privilege RLS;
 - browser denial for privileged writes;
-- exact migration content review and rollback plan.
+- exact migration content review and rollback plan;
+- exact content-addressed migration SHA assertion, not merely a 64-character hash-format check.
 
 Gates:
 
 - [ ] RED migration/RLS contract tests first.
+- [ ] RED exact-review-hash contract first.
 - [ ] Dangerous-SQL/security review.
 - [ ] Full repository CI.
 - [ ] Isolated local/non-production migration rehearsal.
 - [ ] Real RLS/privilege probes.
+- [ ] Concurrent approval-consumption race test against PostgreSQL/Supabase.
 - [ ] Separate owner approval before any remote database promotion.
 
 ---
