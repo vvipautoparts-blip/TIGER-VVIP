@@ -1,0 +1,1 @@
+SOA safety boundary: browser UI is never an authorization source; privileged state is server/database controlled; no secrets or real owner PII in Git; no remote DB apply; no production activation.
