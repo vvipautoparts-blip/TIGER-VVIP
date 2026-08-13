@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "VVIP_TIGER_FUSION_F13_DIGITAL_TWIN_EVIDENCE_V1",
+  "title": "VVIP TIGER FUSION F13 Digital Twin Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "result",
+    "environment",
+    "commitSha",
+    "artifactDigest",
+    "runStartedAt",
+    "runFinishedAt",
+    "targetUniqueActors",
+    "targetSimultaneousActiveUsers",
+    "measuredUniqueActors",
+    "measuredPeakSimultaneousUsers",
+    "failureCount",
+    "replaySeeds",
+    "globalLaunchEligible"
+  ],
+  "properties": {
+    "result": { "type": "string", "enum": ["PLANNED", "RUNNING", "PASS", "FAIL"] },
+    "environment": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "commitSha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "artifactDigest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "runStartedAt": { "type": ["string", "null"], "format": "date-time" },
+    "runFinishedAt": { "type": ["string", "null"], "format": "date-time" },
+    "targetUniqueActors": { "type": "integer", "const": 4000000 },
+    "targetSimultaneousActiveUsers": { "type": "integer", "const": 4000000 },
+    "measuredUniqueActors": { "type": ["integer", "null"], "minimum": 0 },
+    "measuredPeakSimultaneousUsers": { "type": ["integer", "null"], "minimum": 0 },
+    "failureCount": { "type": "integer", "minimum": 0 },
+    "replaySeeds": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1, "maxLength": 160 },
+      "uniqueItems": true
+    },
+    "globalLaunchEligible": { "type": "boolean", "const": false }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "result": { "const": "PASS" } }, "required": ["result"] },
+      "then": {
+        "properties": {
+          "measuredUniqueActors": { "type": "integer", "minimum": 4000000 },
+          "measuredPeakSimultaneousUsers": { "type": "integer", "minimum": 4000000 },
+          "failureCount": { "const": 0 },
+          "runStartedAt": { "type": "string", "format": "date-time" },
+          "runFinishedAt": { "type": "string", "format": "date-time" },
+          "globalLaunchEligible": { "const": false }
+        }
+      }
+    }
+  ]
+}
