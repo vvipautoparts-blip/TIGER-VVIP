@@ -1,7 +1,7 @@
 # TIGER SOVEREIGN 100% Readiness Implementation Plan
 
-Status: **active modernization plan**  
-Modern baseline: `main` after AI-01 merge `07e410d312c819c44ec24f2cceb390ccc688cda3`  
+Status: **active modernization plan**
+Modern baseline: `main` after AI-01 merge `07e410d312c819c44ec24f2cceb390ccc688cda3`
 Rule: **NO EVIDENCE -> NO VERIFIED CLAIM -> NO RELEASE AUTHORITY**
 
 ## Goal
@@ -31,7 +31,7 @@ The security architecture may be sophisticated internally, but the product surfa
 
 ## Task 1 — AI-02 Sovereign Security Kernel
 
-**Modern PR:** #218  
+**Modern PR:** #218
 **Files:**
 - `scripts/ai/sovereign-security-kernel.js`
 - `tests/ai02-sovereign-security-kernel.test.cjs`
