@@ -1,0 +1,110 @@
+/* FUSION 2026 presentation layer. Legacy PR29 CSS remains a migration bridge until F15. */
+
+.brand-icon,
+.brand-mark,
+.button--gold,
+.button--primary,
+.filter.is-active {
+  background: var(--brand-primary);
+}
+
+.button--primary:hover {
+  background: var(--brand-primary-hover);
+}
+
+.eyebrow,
+.search-box > span[aria-hidden] {
+  color: var(--brand-primary);
+}
+
+.search-box:focus-within,
+.filter.is-active {
+  border-color: var(--brand-primary);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+[tabindex]:focus-visible {
+  outline-color: var(--brand-focus-ring);
+}
+
+.marketplace {
+  width: min(720px, 100%);
+}
+
+.listing-grid {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+
+.listing-card {
+  border-radius: 12px;
+}
+
+.card-actions {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.card-actions .button {
+  min-height: 42px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+}
+
+[data-vvip-optional-fields] {
+  margin: 12px 0 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  background: var(--surface-primary);
+}
+
+[data-vvip-optional-fields] > summary {
+  min-height: 44px;
+  padding: 11px 13px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+
+[data-vvip-optional-fields] > .vvip-fusion-optional-body {
+  display: grid;
+  gap: 10px;
+  padding: 0 13px 13px;
+}
+
+[data-vvip-capability-trigger][hidden] {
+  display: none !important;
+}
+
+@media (max-width: 420px) {
+  .marketplace {
+    padding-inline: 8px;
+  }
+
+  .listing-grid {
+    gap: 8px;
+  }
+
+  .listing-card {
+    border-radius: 10px;
+  }
+
+  .card-actions .button {
+    padding-inline: 5px;
+    font-size: 0.74rem;
+  }
+}
+
+@media (min-width: 680px) {
+  .listing-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 1020px) {
+  .listing-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
