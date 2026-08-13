@@ -1,0 +1,1 @@
+TDD order: failing contract test first, minimal implementation second, focused verification third, regression verification fourth.
