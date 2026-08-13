@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "product": "VVIP TIGER FUSION 2026",
+  "identity": "GLOBAL_FIRST",
+  "currentOwnerReference": "docs/superpowers/specs/2026-08-13-vvip-tiger-fusion-2026-owner-constitution-FINAL.md",
+  "masterRoadmap": "docs/superpowers/plans/2026-08-13-vvip-tiger-fusion-2026-master-roadmap.md",
+  "legacyDecisions": [
+    {"id":"LEGACY_IDENTITY_SCOPE","state":"SUPERSEDED","replacement":"GLOBAL_FIRST","reason":"FUSION_2026_SUPERSESSION"},
+    {"id":"LEGACY_SECTOR_COUNT","state":"SUPERSEDED","replacement":"DYNAMIC_SECTOR_REGISTRY","reason":"FUSION_2026_SUPERSESSION"},
+    {"id":"LEGACY_POST_QUOTA","state":"SUPERSEDED","replacement":"ADAPTIVE_SERVER_POSTING_CONTROLS","reason":"FUSION_2026_SUPERSESSION"},
+    {"id":"LEGACY_LISTING_TTL","state":"SUPERSEDED","replacement":"POLICY_DRIVEN_LISTING_LIFECYCLE","reason":"FUSION_2026_SUPERSESSION"},
+    {"id":"LEGACY_SUPPORT_SURFACE","state":"SUPERSEDED","replacement":"NO_LEGACY_SUPPORT_SURFACE","reason":"FUSION_2026_SUPERSESSION"},
+    {"id":"LEGACY_PRIVILEGE_MODEL","state":"SUPERSEDED","replacement":"SOA_SOVEREIGN_AUTHORITY","reason":"FUSION_2026_SUPERSESSION"},
+    {"id":"LEGACY_ROLE_UI","state":"SUPERSEDED","replacement":"SINGLE_PRODUCT_SURFACE","reason":"FUSION_2026_SUPERSESSION"},
+    {"id":"LEGACY_LOGIN_THEME","state":"SUPERSEDED","replacement":"APPROVED_LOGIN_VISUAL_FREEZE","reason":"FUSION_2026_SUPERSESSION"}
+  ]
+}
