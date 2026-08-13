@@ -41,6 +41,18 @@ function collectStaticReferences(text, sourcePath) {
   return [...refs].sort();
 }
 
+function isProtectedPath(file, registry = {}) {
+  if (typeof file !== 'string' || !file) return false;
+  const normalized = path.normalize(file).replace(/^\.\//, '');
+  const prefixes = Array.isArray(registry.protectedPrefixes) ? registry.protectedPrefixes : [];
+  return prefixes.some((value) => {
+    const prefix = path.normalize(String(value)).replace(/^\.\//, '');
+    if (!prefix) return false;
+    const base = prefix.endsWith('/') ? prefix.slice(0, -1) : prefix;
+    return normalized === base || normalized.startsWith(prefix.endsWith('/') ? prefix : prefix + '/');
+  });
+}
+
 function stableValue(value) {
   if (Array.isArray(value)) return value.map(stableValue);
   if (!value || typeof value !== 'object') return value;
@@ -58,13 +70,13 @@ function inventoryRepository(options = {}) {
   const files = options.files && typeof options.files === 'object' ? options.files : {};
   const registry = options.registry && typeof options.registry === 'object' ? options.registry : {};
   const sourceSha = typeof options.sourceSha === 'string' ? options.sourceSha : '';
-  const filePaths = Object.keys(files).sort();
+  const filePaths = Object.keys(files).filter((file) => !isProtectedPath(file, registry)).sort();
   const inbound = new Map(filePaths.map((file) => [file, new Set()]));
   const active = new Set();
   const queue = [];
 
   for (const entrypoint of Array.isArray(registry.entrypoints) ? registry.entrypoints : []) {
-    if (!Object.prototype.hasOwnProperty.call(files, entrypoint)) continue;
+    if (!Object.prototype.hasOwnProperty.call(files, entrypoint) || isProtectedPath(entrypoint, registry)) continue;
     if (!active.has(entrypoint)) {
       active.add(entrypoint);
       queue.push(entrypoint);
@@ -74,7 +86,7 @@ function inventoryRepository(options = {}) {
   while (queue.length) {
     const sourcePath = queue.shift();
     for (const target of collectStaticReferences(files[sourcePath], sourcePath)) {
-      if (!Object.prototype.hasOwnProperty.call(files, target)) continue;
+      if (!inbound.has(target)) continue;
       inbound.get(target).add(sourcePath);
       if (!active.has(target)) {
         active.add(target);
@@ -126,5 +138,6 @@ module.exports = Object.freeze({
   CLASSES,
   collectStaticReferences,
   inventoryRepository,
+  isProtectedPath,
   canonicalizeInventory
 });
