@@ -68,24 +68,28 @@ const AGENT_ACTIONS = Object.freeze({
 const TOOL_REGISTRY = Object.freeze({
   'engineering.run_tests': Object.freeze({
     id: 'engineering.run_tests',
+    action: ACTIONS.RUN_TESTS,
     level: 'L3',
     mutating: false,
     allowedAgents: Object.freeze(['technical_manager']),
   }),
   'engineering.create_pr': Object.freeze({
     id: 'engineering.create_pr',
+    action: ACTIONS.CREATE_PR,
     level: 'L3',
     mutating: true,
     allowedAgents: Object.freeze(['technical_manager']),
   }),
   'platform.read_analytics': Object.freeze({
     id: 'platform.read_analytics',
+    action: ACTIONS.READ_ANALYTICS,
     level: 'L1',
     mutating: false,
     allowedAgents: Object.freeze(['general_manager', 'technical_manager', 'financial_analytics_manager']),
   }),
   'user.assist_writing': Object.freeze({
     id: 'user.assist_writing',
+    action: ACTIONS.ASSIST_USER_WRITING,
     level: 'L1',
     mutating: false,
     allowedAgents: Object.freeze(['user_assistant']),
@@ -267,11 +271,13 @@ function applyRateGate({ used, requested, limit } = {}) {
   return Object.freeze({ ok: true, reasonCode: 'RATE_AVAILABLE', remaining: limit - used - requested });
 }
 
-function evaluateTool(tool, agentId) {
+function evaluateTool(tool, agentId, action, policyLevel) {
   if (!tool) return null;
   const definition = TOOL_REGISTRY[tool.id];
   if (!definition) return deny('UNKNOWN_TOOL', { toolId: tool.id || 'unknown' });
   if (!definition.allowedAgents.includes(agentId)) return deny('TOOL_SCOPE_DENIED', { toolId: definition.id });
+  if (definition.action !== action) return deny('TOOL_ACTION_MISMATCH', { toolId: definition.id, action });
+  if (definition.level !== policyLevel) return deny('TOOL_LEVEL_MISMATCH', { toolId: definition.id, action, level: policyLevel });
   return null;
 }
 
@@ -300,7 +306,7 @@ function evaluateSovereignRequest({
   if (!allowedActions) return deny('UNKNOWN_AGENT', { action, agentId, level: rule.level });
   if (!allowedActions.includes(action)) return deny('AGENT_SCOPE_DENIED', { action, agentId, level: rule.level });
 
-  const toolDecision = evaluateTool(tool, agentId);
+  const toolDecision = evaluateTool(tool, agentId, action, rule.level);
   if (toolDecision) return toolDecision;
 
   if (budget) {
