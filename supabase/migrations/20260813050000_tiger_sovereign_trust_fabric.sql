@@ -86,7 +86,6 @@ create table public.ai_prompt_versions (
   version text not null check (char_length(version) between 1 and 128),
   prompt_sha256 text not null check (prompt_sha256 ~ '^[0-9a-f]{64}$'),
   prompt_body text not null check (octet_length(prompt_body) between 1 and 262144),
-  active boolean not null default false,
   created_by_subject text not null check (char_length(created_by_subject) between 1 and 255),
   created_at timestamptz not null default clock_timestamp(),
   unique (agent_id, version),
@@ -210,17 +209,34 @@ as $$
 declare
   v_now timestamptz := clock_timestamp();
 begin
+  if tg_op = 'INSERT' then
+    if new.status <> 'pending' then
+      raise exception 'AI_APPROVAL_INSERT_MUST_BE_PENDING';
+    end if;
+    if new.approved_at is not null
+       or new.rejected_at is not null
+       or new.consumed_at is not null
+       or new.expired_at is not null
+       or new.revoked_at is not null then
+      raise exception 'AI_APPROVAL_INSERT_LIFECYCLE_DIRTY';
+    end if;
+    new.created_at := clock_timestamp();
+    return new;
+  end if;
+
   if tg_op = 'DELETE' then
     raise exception 'AI_APPROVAL_DELETE_FORBIDDEN';
   end if;
 
-  if new.owner_subject is distinct from old.owner_subject
+  if new.id is distinct from old.id
+     or new.owner_subject is distinct from old.owner_subject
      or new.requesting_agent is distinct from old.requesting_agent
      or new.action is distinct from old.action
      or new.payload_digest is distinct from old.payload_digest
      or new.scope_digest is distinct from old.scope_digest
      or new.scope is distinct from old.scope
      or new.decision_passport_id is distinct from old.decision_passport_id
+     or new.reason is distinct from old.reason
      or new.created_at is distinct from old.created_at
      or new.expires_at is distinct from old.expires_at then
     raise exception 'AI_APPROVAL_BINDING_IMMUTABLE';
@@ -269,7 +285,7 @@ $$;
 revoke all on function public.guard_ai_approval_mutation() from public, anon, authenticated;
 
 create trigger ai_approval_requests_guard
-before update or delete on public.ai_approval_requests
+before insert or update or delete on public.ai_approval_requests
 for each row execute function public.guard_ai_approval_mutation();
 
 create or replace function public.consume_ai_owner_approval(
@@ -314,10 +330,7 @@ begin
   end if;
 
   if v_row.expires_at <= v_now then
-    update public.ai_approval_requests
-       set status = 'expired'
-     where id = p_approval_id
-       and status = 'approved';
+    update public.ai_approval_requests set status = 'expired' where id = p_approval_id and status = 'approved';
     return query select false, 'APPROVAL_EXPIRED'::text, p_approval_id;
     return;
   end if;
@@ -331,8 +344,7 @@ begin
     return;
   end if;
 
-  update public.ai_approval_requests
-     set status = 'consumed'
+  update public.ai_approval_requests set status = 'consumed'
    where id = p_approval_id
      and owner_subject = p_owner_subject
      and requesting_agent = p_agent
