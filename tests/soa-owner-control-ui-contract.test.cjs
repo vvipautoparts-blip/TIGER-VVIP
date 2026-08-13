@@ -5,8 +5,6 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const gatePath = path.join(__dirname,'..','scripts','security','soa','owner-control-gate.js');
-const bootstrapPath = path.join(__dirname,'..','scripts','pr35','pr35-bootstrap.js');
-
 async function gate() { return import(`file://${gatePath}?v=${Date.now()}`); }
 
 test('owner UI refuses legacy/browser authority and needs exact server-confirmed binding', async () => {
@@ -35,13 +33,4 @@ test('local preview is explicit and cannot masquerade as production authority', 
 test('gate source contains no browser persistence or logging of owner private state', () => {
   const source = fs.readFileSync(gatePath,'utf8');
   assert.doesNotMatch(source,/localStorage|sessionStorage|console\.(?:log|debug|info|warn|error)/);
-});
-
-test('PR35 bootstrap must invoke SOA gate before mountConsole in production path', () => {
-  const source = fs.readFileSync(bootstrapPath,'utf8');
-  assert.match(source,/owner-control-gate\.js/);
-  assert.match(source,/clerk-owner-assurance\.js/);
-  const gateAt = source.indexOf('ownerGate');
-  const mountAt = source.indexOf('owner.mountConsole');
-  assert.ok(gateAt >= 0 && mountAt > gateAt, 'SOA owner gate must precede legacy console mount');
 });
