@@ -92,7 +92,15 @@ revoke all on table public.soa_owner_private_vault from public, anon, authentica
 revoke all on table public.soa_owner_audit_events from public, anon, authenticated;
 revoke all on table public.soa_owner_authorization_leases from public, anon, authenticated;
 revoke all on table public.soa_owner_security_state from public, anon, authenticated;
-grant select on table public.soa_owner_public_profiles to anon, authenticated;
+grant select (
+  public_display_name,
+  public_title,
+  public_country_code,
+  public_bio,
+  public_avatar_url,
+  verified_owner_badge,
+  approved_public_contact_url
+) on table public.soa_owner_public_profiles to anon, authenticated;
 create policy soa_owner_public_profile_published_read on public.soa_owner_public_profiles for select to anon, authenticated using (publication_status = 'PUBLISHED');
 
 create or replace function public.soa_reject_owner_audit_mutation()
@@ -105,7 +113,7 @@ revoke all on function public.soa_reject_owner_audit_mutation() from public, ano
 create trigger soa_owner_audit_append_only_guard before update or delete on public.soa_owner_audit_events for each row execute function public.soa_reject_owner_audit_mutation();
 
 comment on table public.soa_owner_authority_bindings is 'Server-owned SOA authority. Legacy browser roles are not authority.';
-comment on table public.soa_owner_public_profiles is 'Explicit public owner projection only.';
+comment on table public.soa_owner_public_profiles is 'Explicit public owner projection only; browser grants are column-allowlisted.';
 comment on table public.soa_owner_private_vault is 'Encrypted owner envelope; keys remain outside table/browser.';
 comment on table public.soa_owner_audit_events is 'Append-only security metadata; no credential/vault plaintext.';
 comment on table public.soa_owner_authorization_leases is 'Exact-bound short-lived L4 lease.';
