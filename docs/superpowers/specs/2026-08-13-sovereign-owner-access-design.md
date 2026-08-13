@@ -67,22 +67,28 @@ Private owner data must never be committed to Git, embedded in HTML/JavaScript, 
 
 ### 3.1 Primary owner sign-in: Passkey-first
 
-The preferred owner sign-in method is a Clerk-managed passkey using platform/WebAuthn capabilities. A passkey is preferred because it is phishing-resistant and device-bound.
+The preferred owner sign-in method is a Clerk-managed passkey using WebAuthn/platform capabilities.
+
+A passkey is a phishing-resistant public-key credential protected by an authenticator. Depending on the authenticator/provider, it may be device-bound or securely synchronized across the owner's trusted ecosystem; the security design must not assume that every passkey is physically bound to one device.
 
 Password-only authentication is not sufficient for `OWNER` authority.
 
-### 3.2 Secondary strong factor
+A successful passkey sign-in proves authentication only; it does not create OWNER authority. The independent owner-authority binding must also be ACTIVE.
 
-The owner account must have at least one independent recovery/second-factor method enrolled before OWNER authority becomes ACTIVE:
+### 3.2 Mandatory independent recovery factors
 
-- authenticator app (TOTP), and
-- backup codes stored offline.
+Before OWNER authority becomes ACTIVE, the authoritative owner account must enroll **both**:
 
-SMS may exist as an availability fallback for lower-risk account recovery, but it is not the sole protection for sovereign actions.
+- authenticator app (TOTP); and
+- offline backup codes.
+
+A second independent passkey is strongly recommended for resilience.
+
+SMS may exist as an availability fallback for lower-risk account recovery, but it is not sufficient by itself for sovereign actions.
 
 ### 3.3 Email code
 
-Email OTP may be used as a recovery or verification component, but never as the only factor for privileged OWNER control.
+Email OTP may be used as a recovery or verification component, but never as the only factor for privileged OWNER control and never as the sole mechanism that can replace the authoritative owner identity.
 
 ### 3.4 Owner sign-in states
 
@@ -216,7 +222,7 @@ Requires active owner authority and an authenticated session.
 
 ### L2 — routine owner configuration
 
-Requires active owner authority and recent strong authentication.
+Requires active owner authority and recent strong authentication according to the current owner-auth policy version.
 
 ### L3 — sensitive identity/security configuration
 
@@ -259,7 +265,9 @@ Requires all of:
 
 For L4, create a short-lived server-issued authorization lease rather than trusting a persistent browser role.
 
-Lease fields should bind at minimum:
+Initial policy: **maximum lease lifetime 120 seconds**, single-use. A later reduction is allowed through a versioned security policy; increasing the lifetime requires an explicit owner-approved security decision.
+
+Lease fields bind at minimum:
 
 - owner authority id;
 - Clerk session/user identity;
@@ -308,14 +316,28 @@ Risk scoring must not make irreversible decisions against the owner without expl
 
 Owner recovery must not depend on a single email account.
 
-### Standard recovery order
+### 11.1 Standard recovery order
 
 1. secondary enrolled passkey;
 2. TOTP;
 3. offline backup code;
 4. controlled account recovery procedure.
 
-### High-risk recovery
+### 11.2 Total credential loss
+
+`TOTAL_CREDENTIAL_LOSS` recovery enters `OWNER_AUTH_RECOVERY_PENDING` and imposes a **24-hour security hold** before L4 authority can be restored.
+
+During the hold:
+
+- existing stale/revoked sessions cannot regain L4 authority;
+- owner-authority replacement is not executed immediately;
+- notifications are sent to every still-configured trusted owner channel;
+- recovery evidence and all attempted actions are audited;
+- privileged production/security changes remain blocked.
+
+The 24-hour hold can be changed only by a new versioned owner security decision; it is not a hidden runtime setting.
+
+### 11.3 High-risk break-glass recovery
 
 Changing the authoritative owner identity, replacing all authenticators, or recovering after total credential loss is a protected break-glass process.
 
@@ -328,7 +350,7 @@ The break-glass process must include:
 - re-enrollment of passkeys/MFA;
 - audit event chain;
 - notification to all previously trusted owner channels;
-- cooling-off period for the highest-risk authority changes where operationally practical.
+- the mandatory recovery hold defined above for total credential loss.
 
 No support agent, moderator, partner, developer, AI agent, or administrator may silently promote themselves to OWNER.
 
@@ -509,9 +531,10 @@ Implementation is not complete until at least these tests exist:
 ### Recovery
 
 - recovery start restricts sensitive owner actions;
+- total-credential-loss recovery enforces the 24-hour hold;
 - successful recovery revokes old sessions;
 - failed recovery does not disclose factor inventory;
-- break-glass cannot grant authority to a different identity without protected evidence and approval path.
+- break-glass cannot grant authority to a different identity without protected evidence and the required hold/approval path.
 
 ### Database
 
@@ -568,8 +591,10 @@ The owner-access feature is design-complete when:
 - public/private owner information is physically and logically separated;
 - OWNER authority cannot be created by frontend or legacy role manipulation;
 - privileged owner access is passkey/MFA capable;
+- TOTP and offline backup codes are both enrolled before OWNER authority activation;
 - sensitive operations require fresh reverification;
-- L4 operations use exact short-lived single-use authorization leases;
+- L4 operations use exact single-use authorization leases with a maximum initial lifetime of 120 seconds;
+- total credential loss triggers the explicit 24-hour security hold;
 - recovery does not rely on a single email account;
 - browser roles cannot directly read private-vault data;
 - every protected owner operation is auditable;
@@ -584,10 +609,18 @@ The owner-access feature is design-complete when:
 
 **Primary sign-in:** Passkey-first.
 
-**Fallback:** TOTP + offline backup codes; email/SMS may assist recovery but do not independently grant sovereign authority.
+**Mandatory recovery factors before OWNER activation:** TOTP + offline backup codes.
+
+**Additional resilience:** second independent passkey recommended.
+
+**Email/SMS role:** may assist recovery but do not independently grant sovereign authority.
 
 **Data model:** Public Owner Profile + Private Owner Vault + Owner Authority Binding + Append-only Owner Audit.
 
 **Sensitive action model:** Server-verified Step-Up/Reverification + short-lived exact authorization lease.
+
+**L4 lease initial policy:** <= 120 seconds, exact binding, single-use, atomic consumption.
+
+**Total credential loss policy:** 24-hour security hold before L4 restoration.
 
 **Security posture:** Default deny, fail closed, least privilege, explicit evidence, immutable history, recoverable operation.
