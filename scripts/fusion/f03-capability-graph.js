@@ -3,6 +3,7 @@ import {
   LIMITS,
   PERMISSION_IDS
 } from "../authorization/v13-authority-contracts.js";
+import { normalizeCountryScope } from "../authorization/v13-country-scope.js";
 
 const ENTRY_MAP = Object.freeze({
   "authorization.assignment.read": Object.freeze({ id: "my-capabilities", label: "My capabilities" }),
@@ -49,7 +50,6 @@ function malformed(snapshot) {
     || typeof snapshot.scope !== "object"
     || Array.isArray(snapshot.scope)
     || typeof snapshot.policyVersion !== "string"
-    || snapshot.policyVersion.length < 1
     || !Number.isSafeInteger(snapshot.assignmentRevision)
     || snapshot.assignmentRevision < 0;
 }
@@ -60,6 +60,17 @@ export function buildCapabilityView(snapshot, nowMs = Date.now()) {
   }
 
   if (malformed(snapshot)) {
+    return denial("MALFORMED_CAPABILITY_SNAPSHOT");
+  }
+
+  if (snapshot.policyVersion !== "V13.1") {
+    return denial("STALE_AUTHORIZATION_ENVELOPE");
+  }
+
+  let normalizedScope;
+  try {
+    normalizedScope = normalizeCountryScope(snapshot.scope);
+  } catch {
     return denial("MALFORMED_CAPABILITY_SNAPSHOT");
   }
 
@@ -98,7 +109,7 @@ export function buildCapabilityView(snapshot, nowMs = Date.now()) {
   const actor = Object.freeze({
     id: snapshot.actorId,
     authorityClass: snapshot.authorityClass,
-    scope: Object.freeze({ ...snapshot.scope }),
+    scope: normalizedScope,
     policyVersion: snapshot.policyVersion,
     assignmentRevision: snapshot.assignmentRevision
   });
