@@ -9,6 +9,32 @@
   "tigerPulseOwnerReference": "docs/fusion/OWNER_REFERENCE_F07_TIGER_PULSE.md",
   "tigerPulseEngineeringSpec": "docs/superpowers/specs/2026-08-13-f07-tiger-pulse-hero-dynamic-ad-ribbon-design.md",
   "historicalEvidencePolicy": "PRESERVE_OUTSIDE_CURRENT_AUTHORITY",
+  "fusionCore": {
+    "keep": [
+      "SOA",
+      "RLS",
+      "release security",
+      "financial ledger",
+      "country gates",
+      "audit",
+      "recovery",
+      "PR36 resource safety",
+      "Strangler architecture"
+    ],
+    "add": [
+      "Single Surface",
+      "Facebook muscle memory",
+      "OpenSooq-grade search",
+      "HEIC pipeline",
+      "Adaptive Performance",
+      "25K Showcase",
+      "4M Digital Twin",
+      "native mobile certification",
+      "Sovereign Capability Graph",
+      "Global Currency Fabric",
+      "Runtime Vacuum"
+    ]
+  },
   "supersededDecisions": [
     {"id":"LEGACY_JORDAN_FIRST","status":"SUPERSEDED"},
     {"id":"LEGACY_FIXED_THREE_SECTORS","status":"SUPERSEDED"},
