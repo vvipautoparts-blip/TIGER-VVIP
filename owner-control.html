@@ -4,37 +4,55 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#071b19">
-  <title>مركز تحكم المالك — VVIP TIGER</title>
+  <meta name="tiger-soa-owner-access-endpoint" content="/functions/v1/tiger-sovereign-owner-access">
+  <title>مركز المالك السيادي — VVIP TIGER</title>
   <link rel="stylesheet" href="styles/vvip-pr35-owner-care.css">
   <link rel="stylesheet" href="styles/vvip-pr40-owner-orchestrator.css">
   <script defer crossorigin="anonymous" data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk" src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"></script>
-  <script type="module" src="scripts/pr35/pr35-bootstrap.js"></script>
-  <script defer src="scripts/p06/p06-owner-control-readonly.js"></script>
-  <script defer src="scripts/ai/vvip-ai-command-center.js"></script>
-  <script defer src="scripts/ai/vvip-ai-owner-console.js"></script>
+  <script type="module" src="scripts/security/soa/owner-entry.js"></script>
 </head>
 <body class="pr35-owner" data-owner-root>
-  <div class="pr35-gate" data-owner-auth-gate role="status">جاري التحقق من الصلاحية والنطاق…</div>
+  <div class="pr35-gate" data-owner-auth-gate role="status" aria-live="polite">جاري التحقق السيادي من هوية المالك…</div>
   <main class="pr35-console" data-owner-console hidden>
     <header class="pr35-hero">
-      <div><span class="pr35-kicker">OWNER CONTROL CENTER</span><h1>مركز تحكم المالك</h1><p>إدارة موثقة للصلاحيات والتكليفات وعمليات Tiger Care.</p></div>
+      <div>
+        <span class="pr35-kicker">SOVEREIGN OWNER CENTER</span>
+        <h1>مركز المالك</h1>
+        <p>واجهة بسيطة، والحماية المعقدة تعمل في الخلفية.</p>
+      </div>
       <a href="private-profile-p03.html?preview=account" aria-label="العودة إلى مركز الحساب">مركز الحساب</a>
     </header>
-    <p class="pr35-disclosure" data-owner-local-disclosure hidden>عرض محلي آمن: البيانات مؤقتة في الذاكرة ولا يتم حفظها في قاعدة بيانات بعيدة.</p>
+    <p class="pr35-disclosure" data-owner-local-disclosure hidden>عرض محلي فقط — لا يمنح أي صلاحية سيادية أو إنتاجية.</p>
     <p class="pr35-status" data-owner-status role="status" aria-live="polite"></p>
-    <section class="pr35-metrics" aria-label="ملخص العمليات"><article><strong>0</strong><span>تكليف نشط محليًا</span></article><article><strong>1</strong><span>تحذير SLA</span></article><article><strong>0</strong><span>طلبات صلاحية</span></article></section>
-    <section class="pr35-panel" data-owner-assignments aria-labelledby="assignments-title">
-      <div class="pr35-heading"><div><span class="pr35-kicker">التكليفات</span><h2 id="assignments-title">نظرة عامة على الصلاحيات</h2></div><button type="button" class="pr35-primary" data-new-assignment>تكليف جديد</button></div>
-      <label class="pr35-search">بحث في التكليفات<input type="search" data-owner-search maxlength="120" autocomplete="off" placeholder="الاسم أو المنصب أو الحالة"></label>
-      <div class="pr35-filters" role="group" aria-label="مرشحات التكليف"><button type="button" data-owner-filter="all" aria-pressed="true">الكل</button><button type="button" data-owner-filter="active" aria-pressed="false">نشط</button><button type="button" data-owner-filter="suspended" aria-pressed="false">معلق</button></div>
-      <div data-owner-assignments-list aria-live="polite" aria-busy="false"><div class="pr35-skeleton" aria-hidden="true"></div></div>
-      <nav class="pr35-pagination" aria-label="صفحات التكليفات"><button type="button" disabled>السابق</button><span>صفحة 1</span><button type="button" disabled>التالي</button></nav>
+    <section class="pr35-metrics" aria-label="حالة المالك">
+      <article><strong data-soa-owner-authority>—</strong><span>سلطة المالك</span></article>
+      <article><strong data-soa-owner-protection>—</strong><span>الحماية</span></article>
+      <article><strong data-soa-owner-recovery>—</strong><span>الاسترداد</span></article>
     </section>
     <section class="pr35-grid">
-      <article class="pr35-panel" data-owner-permission-requests><span class="pr35-kicker">المراجعة</span><h2>طلبات الصلاحية</h2><div data-owner-permission-list aria-live="polite"><div class="pr35-skeleton"></div></div></article>
-      <article class="pr35-panel" data-owner-care-queue><span class="pr35-kicker">TIGER CARE</span><h2>طابور الطلبات والتنبيهات</h2><div data-owner-care-list aria-live="polite"><div class="pr35-skeleton"></div></div></article>
-      <article class="pr35-panel"><span class="pr35-kicker">التصعيد</span><h2>التصعيدات</h2><p class="pr35-empty">لا توجد تصعيدات مفتوحة حاليًا.</p></article>
-      <article class="pr35-panel" data-owner-audit><span class="pr35-kicker">AUDIT</span><h2>أحدث نشاط تدقيق</h2><div data-owner-audit-list aria-live="polite"><div class="pr35-skeleton"></div></div></article>
+      <article class="pr35-panel">
+        <span class="pr35-kicker">OWNER IDENTITY</span>
+        <h2>الهوية العامة</h2>
+        <p><strong data-soa-owner-name>—</strong> <span data-soa-owner-verified-badge hidden>✓ موثّق</span></p>
+        <p data-soa-owner-title>—</p>
+        <p data-soa-owner-country>—</p>
+      </article>
+      <article class="pr35-panel">
+        <span class="pr35-kicker">ACCESS</span>
+        <h2>الدخول والحماية</h2>
+        <p>Passkey أولًا، مع TOTP وBackup Codes، والتحقق الإضافي للعمليات الحساسة.</p>
+        <p class="pr35-empty">لا تُعرض مفاتيح أو رموز أو معلومات خاصة داخل هذه الصفحة.</p>
+      </article>
+      <article class="pr35-panel">
+        <span class="pr35-kicker">PRIVATE VAULT</span>
+        <h2>الخزنة الخاصة</h2>
+        <p class="pr35-empty">البيانات الخاصة لا تُحمّل في مسار الدخول. الوصول لها سيكون بطلب منفصل محمي وبـStep-Up.</p>
+      </article>
+      <article class="pr35-panel">
+        <span class="pr35-kicker">SOVEREIGN ACTIONS</span>
+        <h2>الإجراءات السيادية</h2>
+        <p class="pr35-empty">أي إجراء L4 يحتاج تفويضًا قصير العمر، مرتبطًا بالعملية، واستخدامًا واحدًا فقط.</p>
+      </article>
     </section>
   </main>
 </body>
