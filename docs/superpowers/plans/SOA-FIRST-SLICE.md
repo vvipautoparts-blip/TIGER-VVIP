@@ -1,0 +1,1 @@
+First slice scope only: database authority/data separation plus server-side access policy. UI, recovery integration, provider wiring, remote database apply, and production activation remain out of scope until the first slice is green.
