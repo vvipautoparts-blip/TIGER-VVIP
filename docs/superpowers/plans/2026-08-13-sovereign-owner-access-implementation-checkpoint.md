@@ -1,0 +1,1 @@
+SOA implementation checkpoint: spec and plan are frozen for the first TDD slice. Implementation remains isolated from main and from AI-03. No remote database or production action is authorized.
