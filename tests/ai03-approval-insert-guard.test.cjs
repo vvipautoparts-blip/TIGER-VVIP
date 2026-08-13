@@ -25,7 +25,7 @@ test('new approval requests can only enter pending with database-owned lifecycle
   assert.match(source, /new\.status\s*<>\s*'pending'/i);
   assert.match(source, /AI_APPROVAL_INSERT_MUST_BE_PENDING/i);
   for (const field of ['approved_at', 'rejected_at', 'consumed_at', 'revoked_at']) {
-    assert.match(source, new RegExp(`new\\.${field}\\s+is\\s+not\\s+null`, 'i'));
+    assert.match(source, new RegExp(`new\\.${field}\\s+is\\s+distinct\\s+from\\s+null`, 'i'));
   }
   assert.doesNotMatch(source, /new\.expired_at/i);
   assert.match(source, /AI_APPROVAL_INSERT_LIFECYCLE_DIRTY/i);

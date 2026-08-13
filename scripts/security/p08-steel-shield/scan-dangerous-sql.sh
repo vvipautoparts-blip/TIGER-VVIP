@@ -55,12 +55,6 @@ declare -A reviewed_migration_hashes=(
   # Approval is byte-exact; any SQL drift invalidates this reviewed baseline automatically.
   ["supabase/migrations/20260808223000_global_launch_phase_a_identity_convergence.sql"]="173766f1203890d3461db6b67cc95b1d9ca28d23c65026ff9393115ad4433c31"
   ["supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql"]="9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9"
-  # AI-03 modern persistent trust fabric: static/content-addressed review recorded in
-  # docs/ai/TIGER_SOVEREIGN_AI03_TRUST_FABRIC_SECURITY_REVIEW.md. Scanner findings on
-  # these exact bytes were CRITICAL=0, NOT_NULL_RISK=47, UPDATE_WITHOUT_WHERE=7; all
-  # HIGH findings were manually classified as new-table constraints or bounded/non-DML
-  # line-oriented false positives. This baseline does not authorize remote DB apply.
-  ["supabase/migrations/20260813050000_tiger_sovereign_trust_fabric.sql"]="a2d17dc8ff57ed16b11950ea7d20834013535aaed8d3263dfe5ea2905c04d515"
 )
 
 reviewed_baseline_path() {

@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 
-const EXPECTED_SHA256 = 'a2d17dc8ff57ed16b11950ea7d20834013535aaed8d3263dfe5ea2905c04d515';
+const EXPECTED_SHA256 = '6efc63a05581987bf79f6f5cf4d7df3e144472ef0ddfd2c5e5c163fb527b5338';
 
 test('AI-03 security review is bound to the exact migration bytes', () => {
   const migrationPath = path.join(

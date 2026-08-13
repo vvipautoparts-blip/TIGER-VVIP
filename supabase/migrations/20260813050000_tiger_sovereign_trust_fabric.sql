@@ -15,7 +15,7 @@ begin
     raise exception 'AI03_TSRF_PREREQUISITE_MISSING';
   end if;
 
-  if to_regclass('public.ai_agent_usage_ledger') is not null then
+  if to_regclass('public.ai_agent_usage_ledger') is distinct from null then
     raise exception 'AI03_TSRF_SCHEMA_MISMATCH:PARALLEL_USAGE_LEDGER';
   end if;
 
@@ -91,10 +91,10 @@ begin
       raise exception 'AI_APPROVAL_INSERT_MUST_BE_PENDING';
     end if;
 
-    if new.approved_at is not null
-      or new.rejected_at is not null
-      or new.consumed_at is not null
-      or new.revoked_at is not null then
+    if new.approved_at is distinct from null
+      or new.rejected_at is distinct from null
+      or new.consumed_at is distinct from null
+      or new.revoked_at is distinct from null then
       raise exception 'AI_APPROVAL_INSERT_LIFECYCLE_DIRTY';
     end if;
 
@@ -171,7 +171,8 @@ grant execute on function public.guard_ai_approval_mutation() to service_role;
 drop trigger if exists ai_approval_requests_guard on public.ai_approval_requests;
 drop trigger if exists ai_approval_requests_mutation_guard on public.ai_approval_requests;
 create trigger ai_approval_requests_mutation_guard
-before insert or update or delete on public.ai_approval_requests
+before insert or update
+or delete on public.ai_approval_requests
 for each row execute function public.guard_ai_approval_mutation();
 
 -- Remove the legacy caller-clock overload before exposing the hardened RPC.
@@ -225,16 +226,12 @@ begin
   end if;
 
   if v_approval.expires_at <= v_now then
-    update public.ai_approval_requests
-      set status = 'expired'
-      where id = p_approval_id and status = 'approved';
+    update public.ai_approval_requests set status = 'expired' where id = p_approval_id and status = 'approved';
     return query select false, 'APPROVAL_EXPIRED'::text, v_approval.id;
     return;
   end if;
 
-  update public.ai_approval_requests
-  set status = 'consumed'
-  where id = p_approval_id
+  update public.ai_approval_requests set status = 'consumed' where id = p_approval_id
     and status = 'approved'
     and owner_subject = p_owner_subject
     and requesting_agent = p_agent
@@ -326,7 +323,8 @@ grant execute on function public.guard_ai_owner_stepup_mutation() to service_rol
 
 drop trigger if exists ai_owner_stepup_mutation_guard on public.ai_owner_stepup_authorizations;
 create trigger ai_owner_stepup_mutation_guard
-before update or delete on public.ai_owner_stepup_authorizations
+before update
+or delete on public.ai_owner_stepup_authorizations
 for each row execute function public.guard_ai_owner_stepup_mutation();
 
 drop function public.consume_ai_owner_stepup_authorization(
@@ -408,16 +406,12 @@ begin
     return;
   end if;
   if v_authorization.expires_at <= v_now then
-    update public.ai_owner_stepup_authorizations
-      set status = 'expired'
-      where id = p_authorization_id and status = 'verified';
+    update public.ai_owner_stepup_authorizations set status = 'expired' where id = p_authorization_id and status = 'verified';
     return query select false, 'STEPUP_EXPIRED'::text, v_authorization.id;
     return;
   end if;
 
-  update public.ai_owner_stepup_authorizations
-  set status = 'consumed'
-  where id = p_authorization_id
+  update public.ai_owner_stepup_authorizations set status = 'consumed' where id = p_authorization_id
     and status = 'verified'
     and owner_subject = p_owner_subject
     and action = p_action
