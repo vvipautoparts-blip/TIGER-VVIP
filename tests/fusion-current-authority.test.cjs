@@ -27,6 +27,14 @@ const REQUIRED_SUPERSEDED_IDS = [
 
 const EXPECTED_PHASES = Array.from({ length: 17 }, (_, index) => `F${String(index).padStart(2, '0')}`);
 const FINAL_REFERENCE = 'docs/superpowers/specs/2026-08-13-vvip-tiger-fusion-2026-owner-constitution-FINAL.md';
+const REQUIRED_REFERENCES = {
+  ownerOperationalIndex: 'docs/fusion/FUSION_CURRENT_AUTHORITY.md',
+  ownerRequirementsTraceability: 'docs/fusion/OWNER_REQUIREMENTS_TRACEABILITY_2026.md',
+  ownerVisionReference: 'docs/fusion/OWNER_VISION_VVIP_TIGER_2026.md',
+  aiPrivateCoreReference: 'docs/fusion/OWNER_REFERENCE_AI_REVERSE_ENGINEERING_SHIELD_2026.md',
+  tigerPulseOwnerReference: 'docs/fusion/OWNER_REFERENCE_F07_TIGER_PULSE.md',
+  tigerPulseEngineeringSpec: 'docs/superpowers/specs/2026-08-13-f07-tiger-pulse-hero-dynamic-ad-ribbon-design.md'
+};
 
 test('F00 authority manifest is the exact FUSION current authority', () => {
   assert.equal(fs.existsSync(manifestPath), true, 'current-authority.json must exist');
@@ -36,12 +44,16 @@ test('F00 authority manifest is the exact FUSION current authority', () => {
   assert.equal(manifest.schemaVersion, 'VVIP_TIGER_FUSION_AUTHORITY_V1');
   assert.equal(manifest.productIdentity, 'GLOBAL_FIRST');
   assert.equal(manifest.currentReference, FINAL_REFERENCE);
-  assert.equal(manifest.ownerRequirementsTraceability, 'docs/fusion/OWNER_REQUIREMENTS_TRACEABILITY_2026.md');
+  for (const [field, expected] of Object.entries(REQUIRED_REFERENCES)) {
+    assert.equal(manifest[field], expected, `${field} must bind the approved owner reference`);
+  }
   assert.equal(manifest.historicalEvidencePolicy, 'PRESERVE_OUTSIDE_CURRENT_AUTHORITY');
   assert.deepEqual(manifest.implementationPhases, EXPECTED_PHASES);
   assert.equal(manifest.digitalTwin.uniqueActors, 4_000_000);
   assert.equal(manifest.digitalTwin.simultaneousActiveUsers, 4_000_000);
   assert.equal(manifest.globalLaunchEligibilityRequiresBoth4M, true);
+  assert.equal(manifest.launchTruth, 'EVIDENCE_FIRST');
+  assert.equal(manifest.globalLaunchStatementAllowedOnlyWhen, 'F16_LAUNCH_PASSPORT_PASS');
 
   const decisions = new Map(manifest.supersededDecisions.map((entry) => [entry.id, entry.status]));
   for (const id of REQUIRED_SUPERSEDED_IDS) {
