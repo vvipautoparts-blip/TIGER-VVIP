@@ -17,6 +17,15 @@ const EXPECTED_PHASES = Object.freeze(
 const FINAL_REFERENCE =
   'docs/superpowers/specs/2026-08-13-vvip-tiger-fusion-2026-owner-constitution-FINAL.md';
 
+const REQUIRED_REFERENCE_FIELDS = Object.freeze({
+  ownerOperationalIndex: 'docs/fusion/FUSION_CURRENT_AUTHORITY.md',
+  ownerRequirementsTraceability: 'docs/fusion/OWNER_REQUIREMENTS_TRACEABILITY_2026.md',
+  ownerVisionReference: 'docs/fusion/OWNER_VISION_VVIP_TIGER_2026.md',
+  aiPrivateCoreReference: 'docs/fusion/OWNER_REFERENCE_AI_REVERSE_ENGINEERING_SHIELD_2026.md',
+  tigerPulseOwnerReference: 'docs/fusion/OWNER_REFERENCE_F07_TIGER_PULSE.md',
+  tigerPulseEngineeringSpec: 'docs/superpowers/specs/2026-08-13-f07-tiger-pulse-hero-dynamic-ad-ribbon-design.md'
+});
+
 function verifyCurrentAuthority(manifest) {
   const errors = [];
 
@@ -33,6 +42,13 @@ function verifyCurrentAuthority(manifest) {
   if (manifest.currentReference !== FINAL_REFERENCE) {
     errors.push('currentReference must point to the FUSION FINAL owner constitution');
   }
+
+  for (const [field, expected] of Object.entries(REQUIRED_REFERENCE_FIELDS)) {
+    if (manifest[field] !== expected) {
+      errors.push(`${field} must equal ${expected}`);
+    }
+  }
+
   if (manifest.historicalEvidencePolicy !== 'PRESERVE_OUTSIDE_CURRENT_AUTHORITY') {
     errors.push('historical evidence policy must preserve evidence outside current authority');
   }
@@ -66,6 +82,12 @@ function verifyCurrentAuthority(manifest) {
   if (manifest.globalLaunchEligibilityRequiresBoth4M !== true) {
     errors.push('globalLaunchEligibilityRequiresBoth4M must be true');
   }
+  if (manifest.launchTruth !== 'EVIDENCE_FIRST') {
+    errors.push('launchTruth must be EVIDENCE_FIRST');
+  }
+  if (manifest.globalLaunchStatementAllowedOnlyWhen !== 'F16_LAUNCH_PASSPORT_PASS') {
+    errors.push('global launch statement must remain gated by F16 Launch Passport');
+  }
 
   return { ok: errors.length === 0, errors };
 }
@@ -73,6 +95,7 @@ function verifyCurrentAuthority(manifest) {
 module.exports = Object.freeze({
   verifyCurrentAuthority,
   REQUIRED_SUPERSEDED_IDS,
+  REQUIRED_REFERENCE_FIELDS,
   EXPECTED_PHASES,
   FINAL_REFERENCE
 });
