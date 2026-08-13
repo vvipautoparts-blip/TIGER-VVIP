@@ -10,6 +10,14 @@ Product identity: `GLOBAL_FIRST`
 
 Execution order: `F00 -> F16`
 
+## Owner vision reference
+
+The current owner vision for Simple Surface + Private Core, field perception, AI-assisted attack resistance, evidence-first public claims, and the final VVIP TIGER 2026 excellence matrix is:
+
+`docs/fusion/OWNER_VISION_VVIP_TIGER_2026.md`
+
+This owner vision is normative for product intent but remains governed by the FUSION FINAL Constitution and Launch Passport truth gates. Marketing/security/performance statements cannot outrank measured exact-release evidence.
+
 ## Legacy status
 
 The following product decisions are `SUPERSEDED / HISTORICAL ONLY` and must not be treated as active runtime or implementation authority:
