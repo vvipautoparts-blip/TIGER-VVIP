@@ -6,21 +6,25 @@ const assert = require('node:assert/strict');
 const {
   ACTIONS,
   DECISIONS,
-  createTrustedActorContext,
-  evaluateSovereignRequest,
+  createSovereignSecurityKernel,
 } = require('../scripts/ai/sovereign-security-kernel.js');
 
-const actor = () => createTrustedActorContext({ id: 'owner_001', role: 'OWNER' });
-const context = () => ({
-  featureEnabled: true,
-  actor: actor(),
-  agentId: 'technical_manager',
-  killSwitches: { global: false, agent: false, tool: false },
-});
+function context() {
+  const kernel = createSovereignSecurityKernel();
+  const actor = kernel.authority.issueActor({ id: 'owner_001', role: 'OWNER' });
+  const runtimeState = kernel.authority.issueRuntimeState({
+    featureEnabled: true,
+    killSwitches: { global: false, agent: false, tool: false },
+  });
+  return { kernel, actor, runtimeState };
+}
 
 test('low-level analytics action cannot carry a mutating create-pr tool', () => {
-  const result = evaluateSovereignRequest({
-    ...context(),
+  const { kernel, actor, runtimeState } = context();
+  const result = kernel.runtime.evaluateSovereignRequest({
+    actor,
+    runtimeState,
+    agentId: 'technical_manager',
     action: ACTIONS.READ_ANALYTICS,
     payload: { dashboard: 'owner' },
     tool: { id: 'engineering.create_pr' },
@@ -31,8 +35,11 @@ test('low-level analytics action cannot carry a mutating create-pr tool', () => 
 });
 
 test('tool level must match the policy level of its bound action', () => {
-  const result = evaluateSovereignRequest({
-    ...context(),
+  const { kernel, actor, runtimeState } = context();
+  const result = kernel.runtime.evaluateSovereignRequest({
+    actor,
+    runtimeState,
+    agentId: 'technical_manager',
     action: ACTIONS.RUN_TESTS,
     payload: { suite: 'quality' },
     tool: { id: 'engineering.run_tests' },
