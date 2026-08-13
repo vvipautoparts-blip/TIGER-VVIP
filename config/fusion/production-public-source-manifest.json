@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "generatedFor": "FUSION_F01_PRODUCTION_PUBLIC_INPUT_INVENTORY",
+  "sourceCommit": "f72a64ae8ef1f4525f5d76f060cc4b75afc93a73",
+  "sourceTree": "63ab051f926113396a20479f93fd3e74aaa7fe7b",
+  "mutationAuthorized": false,
+  "builder": {
+    "path": "tools/vvip_public_release.py",
+    "blobSha": "a74a158eeea89ad70a8fbcd023a67ccf1663a72d",
+    "policy": "FIXED_ALLOWLIST_PLUS_PREFIXES"
+  },
+  "generatedOutputs": ["runtime-config.js", "release-manifest.json"],
+  "entries": [
+    {"path":"index.html","blobSha":"0f8d2dda1733961b7f653e07ac6fd406f9eb578b","size":7419,"builderSource":"ROOT_FILE","classification":"ACTIVE","reasonCodes":["TRANSFORMED_PUBLIC_ENTRYPOINT"]},
+    {"path":"privacy-policy.html","blobSha":"4d8d11e264314934f3285d6d8acc65201e7af75f","size":4188,"builderSource":"ROOT_FILE","classification":"ACTIVE","reasonCodes":["PUBLIC_LEGAL_ROUTE"]},
+    {"path":"terms-of-service.html","blobSha":"39cc0e00053d714ecc23bb0978268bf9816eb8c0","size":4289,"builderSource":"ROOT_FILE","classification":"ACTIVE","reasonCodes":["PUBLIC_LEGAL_ROUTE"]},
+    {"path":"data-deletion.html","blobSha":"06fabed93845a3abf9c3e53543e0c7ef1e68bd76","size":3586,"builderSource":"ROOT_FILE","classification":"ACTIVE","reasonCodes":["PUBLIC_LEGAL_ROUTE"]},
+    {"path":"manifest.webmanifest","blobSha":"ef444b7b75eb2969bfdeee9248c0965be128e35c","size":932,"builderSource":"ROOT_FILE","classification":"ACTIVE","reasonCodes":["PWA_MANIFEST"]},
+    {"path":"auth-clerk-index.js","blobSha":"e98feaeebbc7891a400b1724d6bb64f3eb2fe075","size":9385,"builderSource":"ROOT_FILE","classification":"ACTIVE","reasonCodes":["PRODUCTION_INDEX_INJECTED"]},
+    {"path":"sw-vvip-static.js","blobSha":"3595bd745427d17c4c91fdec2abb09d89326204e","size":6513,"builderSource":"ROOT_FILE","classification":"ACTIVE","reasonCodes":["REGISTERED_SERVICE_WORKER"]},
+    {"path":"vvip-identity.css","blobSha":"6e60aacb70009b0e371d6aed2236956f88fb3fb5","size":10715,"builderSource":"ROOT_FILE","classification":"REVIEW","reasonCodes":["BUILDER_COPIES_WITHOUT_CURRENT_PUBLIC_REFERENCE"]},
+    {"path":"enhanced-components.css","blobSha":"83c0baf70c3aba4a9cebef00943db1f976381c0b","size":32215,"builderSource":"ROOT_FILE","classification":"REVIEW","reasonCodes":["BUILDER_COPIES_WITHOUT_CURRENT_PUBLIC_REFERENCE"]},
+    {"path":"styles.css","blobSha":"3c254a08f51d4388912c19155e53e442e2b288e9","size":83394,"builderSource":"ROOT_FILE","classification":"REVIEW","reasonCodes":["BUILDER_COPIES_WITHOUT_CURRENT_PUBLIC_REFERENCE"]},
+    {"path":"CNAME","blobSha":"5a337761f1269b368a645f8741b4cbabc7ebd4e1","size":20,"builderSource":"CNAME","classification":"ACTIVE","reasonCodes":["PUBLIC_DOMAIN_BINDING"]},
+
+    {"path":"styles/vvip-p03-profile.css","blobSha":"b0fde0aef6a39a4abd8832980bb9572be4f7a019","size":12821,"builderSource":"PREFIX_STYLES","classification":"REVIEW","reasonCodes":["WHOLE_PREFIX_COPY_NO_CURRENT_PUBLIC_REFERENCE"]},
+    {"path":"styles/vvip-p03-shell.css","blobSha":"bd2d6870c39f671253a8ff1d4d94ebf1d0542edd","size":14918,"builderSource":"PREFIX_STYLES","classification":"REVIEW","reasonCodes":["WHOLE_PREFIX_COPY_NO_CURRENT_PUBLIC_REFERENCE"]},
+    {"path":"styles/vvip-p03-tokens.css","blobSha":"63bf562836d19d72d861daba062e81d789582699","size":818,"builderSource":"PREFIX_STYLES","classification":"REVIEW","reasonCodes":["WHOLE_PREFIX_COPY_NO_CURRENT_PUBLIC_REFERENCE"]},
+    {"path":"styles/vvip-pr29-home-marketplace.css","blobSha":"4d9091208f3b73c3d11f17c431234d5a011b54c2","size":13166,"builderSource":"PREFIX_STYLES","classification":"ACTIVE","reasonCodes":["PRODUCTION_INDEX_RETAINS_REFERENCE"]},
+    {"path":"styles/vvip-pr31-create-listing-shell.css","blobSha":"fabeeab5a2e12585060970cfc543f96e1e14d28d","size":10163,"builderSource":"PREFIX_STYLES","classification":"REVIEW","reasonCodes":["PRODUCTION_INDEX_REMOVES_REFERENCE"]},
+    {"path":"styles/vvip-pr32-draft-preview.css","blobSha":"98ea6902de5086f5f22cf32f9dca231662bbdbba","size":6134,"builderSource":"PREFIX_STYLES","classification":"REVIEW","reasonCodes":["PRODUCTION_INDEX_REMOVES_REFERENCE"]},
+    {"path":"styles/vvip-pr33-publish-readiness.css","blobSha":"caab8c96d0e2e14819dec684e90b9e3b4836baca","size":7426,"builderSource":"PREFIX_STYLES","classification":"REVIEW","reasonCodes":["PRODUCTION_INDEX_REMOVES_REFERENCE"]},
+    {"path":"styles/vvip-pr35-owner-care.css","blobSha":"b82d7695770ac7e3a6c31c54e6890236a3c8eb75","size":5225,"builderSource":"PREFIX_STYLES","classification":"REVIEW","reasonCodes":["WHOLE_PREFIX_COPY_NO_CURRENT_PUBLIC_REFERENCE"]},
+    {"path":"styles/vvip-pr36-media.css","blobSha":"621f97a3974da03741d550b302a03f6a03d62f04","size":1011,"builderSource":"PREFIX_STYLES","classification":"REVIEW","reasonCodes":["PRODUCTION_INDEX_REMOVES_REFERENCE"]},
+    {"path":"styles/vvip-pr38-onboarding.css","blobSha":"036b609df71a18b2a23d2c296cba499a4700278e","size":4370,"builderSource":"PREFIX_STYLES","classification":"REVIEW","reasonCodes":["WHOLE_PREFIX_COPY_NO_CURRENT_PUBLIC_REFERENCE"]},
+    {"path":"styles/vvip-pr39-profile.css","blobSha":"6438b2c586008d5565bf2e894f3bc9d390742295","size":4276,"builderSource":"PREFIX_STYLES","classification":"REVIEW","reasonCodes":["WHOLE_PREFIX_COPY_NO_CURRENT_PUBLIC_REFERENCE"]},
+    {"path":"styles/vvip-pr40-owner-orchestrator.css","blobSha":"5e5ffad6f666f821c81f087867e00fda672030b4","size":1383,"builderSource":"PREFIX_STYLES","classification":"REVIEW","reasonCodes":["WHOLE_PREFIX_COPY_NO_CURRENT_PUBLIC_REFERENCE"]},
+    {"path":"styles/vvip-production-marketplace.css","blobSha":"e22f29d40008d49e533e790bfbaeb49fd24d8a08","size":9950,"builderSource":"PREFIX_STYLES","classification":"ACTIVE","reasonCodes":["PRODUCTION_INDEX_INJECTED"]},
+    {"path":"styles/vvip-visual-trust-layer.css","blobSha":"43184334fc54262f3dfef6306926939cd5459489","size":13707,"builderSource":"PREFIX_STYLES","classification":"ACTIVE","reasonCodes":["PUBLIC_LEGAL_ROUTES_REFERENCE"]},
+
+    {"path":"icons/icon-192.png","blobSha":"60cf368b967651d78adbafbe8059310c8be18f52","size":767,"builderSource":"PREFIX_ICONS","classification":"ACTIVE","reasonCodes":["PWA_MANIFEST_REFERENCE"]},
+    {"path":"icons/icon-192.svg","blobSha":"6f21e0a37a126c3bc335c0c1030efa0b1991ae08","size":323,"builderSource":"PREFIX_ICONS","classification":"ACTIVE","reasonCodes":["PWA_MANIFEST_REFERENCE"]},
+    {"path":"icons/icon-512.png","blobSha":"d652e3a11d9b478199cbc1231c1fa5fd39be3972","size":3405,"builderSource":"PREFIX_ICONS","classification":"ACTIVE","reasonCodes":["PWA_MANIFEST_REFERENCE"]},
+    {"path":"icons/icon-512.svg","blobSha":"777e22f1cd8358be4ee699303a0bb1a7b5b1aa3a","size":338,"builderSource":"PREFIX_ICONS","classification":"ACTIVE","reasonCodes":["PWA_MANIFEST_REFERENCE"]},
+    {"path":"icons/tiger-logo.png","blobSha":"ebd5e96b4844dfb191eafcb47bc5c24576410157","size":5824647,"builderSource":"PREFIX_ICONS","classification":"REVIEW","reasonCodes":["LARGE_PUBLIC_ARTIFACT_ASSET","NO_PWA_MANIFEST_REFERENCE","WHOLE_PREFIX_COPY"]},
+
+    {"path":"scripts/runtime/vvip-marketplace-repository.js","blobSha":"f1f85e0a4bc90c95b49c99baed9a79226f99355f","size":18511,"builderSource":"PREFIX_RUNTIME","classification":"ACTIVE","reasonCodes":["PRODUCTION_INDEX_INJECTED"]},
+    {"path":"scripts/runtime/vvip-marketplace-rollback.js","blobSha":"ff7e3052b2660b6706693ee837d9d345c288a8d0","size":2737,"builderSource":"PREFIX_RUNTIME","classification":"ACTIVE","reasonCodes":["PRODUCTION_INDEX_INJECTED"]},
+    {"path":"scripts/runtime/vvip-my-listings.js","blobSha":"8c0521a028e516b3571fbf26bd3b63d98563fd0f","size":4828,"builderSource":"PREFIX_RUNTIME","classification":"ACTIVE","reasonCodes":["PRODUCTION_INDEX_INJECTED"]},
+    {"path":"scripts/runtime/vvip-runtime-loader.js","blobSha":"b8cbe88afffad1bcfd51eecd694c7350f6ee31b1","size":5752,"builderSource":"PREFIX_RUNTIME","classification":"ACTIVE","reasonCodes":["PRODUCTION_INDEX_INJECTED"]},
+    {"path":"scripts/runtime/vvip-static-delivery.js","blobSha":"3492025080513a2d0d612393aa06058c3b089b07","size":1371,"builderSource":"PREFIX_RUNTIME","classification":"ACTIVE","reasonCodes":["DYNAMICALLY_LOADED_BY_RESILIENCE"]},
+
+    {"path":"scripts/vvip-pr30-resilience.js","blobSha":"00f1940810adf6b9796d784a911d8688b20f0501","size":7421,"builderSource":"SCRIPT_FILE","classification":"ACTIVE","reasonCodes":["PRODUCTION_INDEX_INJECTED"]},
+    {"path":"scripts/vvip-production-marketplace.js","blobSha":"7d4a1329d47c4dc58caccffa7840c8b82d0f7e21","size":37189,"builderSource":"SCRIPT_FILE","classification":"ACTIVE","reasonCodes":["PRODUCTION_INDEX_INJECTED"]},
+    {"path":"scripts/vvip-safe-ux-guard.js","blobSha":"21f1ca43ff31c5f3b83f7559d25f5bba40f0519d","size":3591,"builderSource":"SCRIPT_FILE","classification":"ACTIVE","reasonCodes":["PUBLIC_LEGAL_ROUTES_REFERENCE"]}
+  ],
+  "findings": [
+    {"code":"PUBLIC_PREFIX_WHOLE_DIRECTORY_COPY","severity":"REVIEW","nextPhase":"F15","detail":"Builder copies full styles, icons, and scripts/runtime prefixes; F01 classifies evidence but authorizes no removal."},
+    {"code":"LARGE_UNREFERENCED_PUBLIC_ASSET_REVIEW","severity":"REVIEW","nextPhase":"F15","path":"icons/tiger-logo.png","detail":"Large logo is copied by prefix but is not referenced by the PWA manifest."},
+    {"code":"UNREFERENCED_ROOT_CSS_REVIEW","severity":"REVIEW","nextPhase":"F02","detail":"Three root CSS files are copied by builder but are not referenced by current transformed index or legal pages."},
+    {"code":"F02_MANIFEST_SECTOR_COPY_UPDATE_REQUIRED","severity":"REQUIRED","nextPhase":"F02","path":"manifest.webmanifest","detail":"Current manifest description still names the legacy fixed sector examples and must be made dynamic/global in F02."}
+  ]
+}
