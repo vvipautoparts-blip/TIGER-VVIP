@@ -170,6 +170,14 @@ function createPayloadDigest(payload) {
   return crypto.createHash('sha256').update(canonicalJson(payload), 'utf8').digest('hex');
 }
 
+function tryCreatePayloadDigest(payload) {
+  try {
+    return Object.freeze({ ok: true, digest: createPayloadDigest(payload) });
+  } catch {
+    return Object.freeze({ ok: false, reasonCode: 'INVALID_PAYLOAD' });
+  }
+}
+
 function parseInstant(value) {
   const timestamp = Date.parse(String(value || ''));
   return Number.isFinite(timestamp) ? timestamp : null;
@@ -343,7 +351,10 @@ function createSovereignSecurityKernel() {
     if (approval.agentId !== agentId || approval.action !== action) {
       return Object.freeze({ ok: false, reasonCode: 'APPROVAL_SCOPE_MISMATCH' });
     }
-    if (approval.payloadDigest !== createPayloadDigest(payload)) {
+
+    const payloadDigest = tryCreatePayloadDigest(payload);
+    if (!payloadDigest.ok) return Object.freeze({ ok: false, reasonCode: payloadDigest.reasonCode });
+    if (approval.payloadDigest !== payloadDigest.digest) {
       return Object.freeze({ ok: false, reasonCode: 'PAYLOAD_DIGEST_MISMATCH' });
     }
     if (consumedApprovalIds.has(approval.id)) {
@@ -428,13 +439,17 @@ function createSovereignSecurityKernel() {
 
     if (rule.decision === DECISIONS.OWNER_APPROVAL_REQUIRED) {
       if (!approval) {
+        const payloadDigest = tryCreatePayloadDigest(payload);
+        if (!payloadDigest.ok) {
+          return deny(payloadDigest.reasonCode, { action, agentId, level: rule.level });
+        }
         return Object.freeze({
           action,
           agentId,
           decision: DECISIONS.OWNER_APPROVAL_REQUIRED,
           reasonCode: 'OWNER_APPROVAL_REQUIRED',
           level: rule.level,
-          payloadDigest: createPayloadDigest(payload),
+          payloadDigest: payloadDigest.digest,
         });
       }
 
