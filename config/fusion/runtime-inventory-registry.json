@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "entrypoints": ["index.html", "private-profile-p03.html", "sw.js", "manifest.webmanifest"],
+  "protectedPrefixes": ["docs/", "supabase/migrations/", "tests/"],
+  "explicit": {
+    "index.html": {"classification":"ACTIVE","reasonCodes":["PRIMARY_ENTRYPOINT"]},
+    "private-profile-p03.html": {"classification":"ACTIVE","reasonCodes":["CANONICAL_PROFILE"]},
+    "private-profile.html": {"classification":"BRIDGE","reasonCodes":["PROFILE_REDIRECT"],"replacement":"private-profile-p03.html"},
+    "clerk-private-profile.html": {"classification":"BRIDGE","reasonCodes":["PROFILE_REDIRECT"],"replacement":"private-profile-p03.html"},
+    "sw.js": {"classification":"ACTIVE","reasonCodes":["PWA_RUNTIME"]},
+    "manifest.webmanifest": {"classification":"ACTIVE","reasonCodes":["PWA_MANIFEST"]}
+  }
+}
