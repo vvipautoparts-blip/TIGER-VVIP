@@ -25,6 +25,32 @@ const REQUIRED_SUPERSEDED_IDS = [
   'LEGACY_SEPARATE_ADMIN_SURFACE'
 ];
 
+const EXPECTED_FUSION_KEEP = [
+  'SOA',
+  'RLS',
+  'release security',
+  'financial ledger',
+  'country gates',
+  'audit',
+  'recovery',
+  'PR36 resource safety',
+  'Strangler architecture'
+];
+
+const EXPECTED_FUSION_ADD = [
+  'Single Surface',
+  'Facebook muscle memory',
+  'OpenSooq-grade search',
+  'HEIC pipeline',
+  'Adaptive Performance',
+  '25K Showcase',
+  '4M Digital Twin',
+  'native mobile certification',
+  'Sovereign Capability Graph',
+  'Global Currency Fabric',
+  'Runtime Vacuum'
+];
+
 const EXPECTED_PHASES = Array.from({ length: 17 }, (_, index) => `F${String(index).padStart(2, '0')}`);
 const FINAL_REFERENCE = 'docs/superpowers/specs/2026-08-13-vvip-tiger-fusion-2026-owner-constitution-FINAL.md';
 const REQUIRED_REFERENCES = {
@@ -47,6 +73,8 @@ test('F00 authority manifest is the exact FUSION current authority', () => {
   for (const [field, expected] of Object.entries(REQUIRED_REFERENCES)) {
     assert.equal(manifest[field], expected, `${field} must bind the approved owner reference`);
   }
+  assert.deepEqual(manifest.fusionCore.keep, EXPECTED_FUSION_KEEP, 'FUSION retained foundations must not drift');
+  assert.deepEqual(manifest.fusionCore.add, EXPECTED_FUSION_ADD, 'FUSION added systems must not drift');
   assert.equal(manifest.historicalEvidencePolicy, 'PRESERVE_OUTSIDE_CURRENT_AUTHORITY');
   assert.deepEqual(manifest.implementationPhases, EXPECTED_PHASES);
   assert.equal(manifest.digitalTwin.uniqueActors, 4_000_000);
