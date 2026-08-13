@@ -1,0 +1,1 @@
+The implementation branch is intended to fork from the frozen SOA spec/plan branch and remain independent of AI-03.
