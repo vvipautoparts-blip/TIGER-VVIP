@@ -4,6 +4,10 @@
   "currentReference": "docs/superpowers/specs/2026-08-13-vvip-tiger-fusion-2026-owner-constitution-FINAL.md",
   "ownerOperationalIndex": "docs/fusion/FUSION_CURRENT_AUTHORITY.md",
   "ownerRequirementsTraceability": "docs/fusion/OWNER_REQUIREMENTS_TRACEABILITY_2026.md",
+  "ownerVisionReference": "docs/fusion/OWNER_VISION_VVIP_TIGER_2026.md",
+  "aiPrivateCoreReference": "docs/fusion/OWNER_REFERENCE_AI_REVERSE_ENGINEERING_SHIELD_2026.md",
+  "tigerPulseOwnerReference": "docs/fusion/OWNER_REFERENCE_F07_TIGER_PULSE.md",
+  "tigerPulseEngineeringSpec": "docs/superpowers/specs/2026-08-13-f07-tiger-pulse-hero-dynamic-ad-ribbon-design.md",
   "historicalEvidencePolicy": "PRESERVE_OUTSIDE_CURRENT_AUTHORITY",
   "supersededDecisions": [
     {"id":"LEGACY_JORDAN_FIRST","status":"SUPERSEDED"},
