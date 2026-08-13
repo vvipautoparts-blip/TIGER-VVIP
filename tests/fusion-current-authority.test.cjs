@@ -7,6 +7,11 @@ const root = path.resolve(__dirname, '..');
 const manifestPath = path.join(root, 'config/fusion/current-authority.json');
 const validatorPath = path.join(root, 'scripts/fusion/verify-current-authority.cjs');
 const ownerIndexPath = path.join(root, 'docs/fusion/FUSION_CURRENT_AUTHORITY.md');
+const requirementsPath = path.join(root, 'docs/fusion/OWNER_REQUIREMENTS_TRACEABILITY_2026.md');
+const ownerVisionPath = path.join(root, 'docs/fusion/OWNER_VISION_VVIP_TIGER_2026.md');
+const aiShieldPath = path.join(root, 'docs/fusion/OWNER_REFERENCE_AI_REVERSE_ENGINEERING_SHIELD_2026.md');
+const tigerPulseOwnerPath = path.join(root, 'docs/fusion/OWNER_REFERENCE_F07_TIGER_PULSE.md');
+const tigerPulseSpecPath = path.join(root, 'docs/superpowers/specs/2026-08-13-f07-tiger-pulse-hero-dynamic-ad-ribbon-design.md');
 const legacyBlueprintPath = path.join(root, 'docs/VVIP_TIGER_OFFICIAL_PRODUCT_BLUEPRINT.md');
 const architecturePath = path.join(root, 'docs/global/GLOBAL_ARCHITECTURE_DECISION_AR.md');
 
@@ -31,6 +36,7 @@ test('F00 authority manifest is the exact FUSION current authority', () => {
   assert.equal(manifest.schemaVersion, 'VVIP_TIGER_FUSION_AUTHORITY_V1');
   assert.equal(manifest.productIdentity, 'GLOBAL_FIRST');
   assert.equal(manifest.currentReference, FINAL_REFERENCE);
+  assert.equal(manifest.ownerRequirementsTraceability, 'docs/fusion/OWNER_REQUIREMENTS_TRACEABILITY_2026.md');
   assert.equal(manifest.historicalEvidencePolicy, 'PRESERVE_OUTSIDE_CURRENT_AUTHORITY');
   assert.deepEqual(manifest.implementationPhases, EXPECTED_PHASES);
   assert.equal(manifest.digitalTwin.uniqueActors, 4_000_000);
@@ -58,6 +64,29 @@ test('F00 current owner index declares only FUSION authority', () => {
   assert.match(text, /F00\s*->\s*F16/);
   assert.match(text, /4,000,000 unique/);
   assert.match(text, /4,000,000 simultaneous/);
+});
+
+test('owner anti-omission references are present and non-empty', () => {
+  for (const [label, filePath] of [
+    ['owner requirements traceability', requirementsPath],
+    ['owner vision', ownerVisionPath],
+    ['AI-resistant private core reference', aiShieldPath],
+    ['TIGER Pulse owner reference', tigerPulseOwnerPath],
+    ['TIGER Pulse engineering specification', tigerPulseSpecPath]
+  ]) {
+    assert.equal(fs.existsSync(filePath), true, `${label} must exist`);
+    const text = fs.readFileSync(filePath, 'utf8').trim();
+    assert.ok(text.length > 200, `${label} must be substantive`);
+  }
+
+  const requirements = fs.readFileSync(requirementsPath, 'utf8');
+  assert.match(requirements, /anti-omission/i);
+  assert.match(requirements, /F00/);
+  assert.match(requirements, /F16/);
+  assert.match(requirements, /TIGER Pulse/i);
+  assert.match(requirements, /HEIC/i);
+  assert.match(requirements, /4,000,000/);
+  assert.match(requirements, /Runtime Vacuum/i);
 });
 
 test('legacy official blueprint cannot remain current authority', () => {
