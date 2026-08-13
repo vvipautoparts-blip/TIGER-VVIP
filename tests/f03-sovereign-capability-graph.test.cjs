@@ -36,6 +36,13 @@ test("F03 rejects expired and overlong snapshots", async () => {
   assert.equal(buildCapabilityView({ ...base, issuedAt: "2026-08-13T23:00:00.000Z" }, now).code, "CAPABILITY_SNAPSHOT_TTL_EXCEEDED");
 });
 
+test("F03 rejects stale policy versions and malformed scopes", async () => {
+  const { buildCapabilityView } = await loadModule();
+  assert.equal(buildCapabilityView({ ...base, policyVersion: "V12.0" }, now).code, "STALE_AUTHORIZATION_ENVELOPE");
+  assert.equal(buildCapabilityView({ ...base, scope: { level: "platform", countryCode: "JO" } }, now).code, "MALFORMED_CAPABILITY_SNAPSHOT");
+  assert.equal(buildCapabilityView({ ...base, scope: { level: "country", countryCode: "Jordan" } }, now).code, "MALFORMED_CAPABILITY_SNAPSHOT");
+});
+
 test("F03 rejects unknown and marketplace-intermediary capabilities", async () => {
   const { buildCapabilityView } = await loadModule();
   assert.equal(buildCapabilityView({ ...base, permissionIds: ["unknown.permission"] }, now).code, "UNKNOWN_PERMISSION");
