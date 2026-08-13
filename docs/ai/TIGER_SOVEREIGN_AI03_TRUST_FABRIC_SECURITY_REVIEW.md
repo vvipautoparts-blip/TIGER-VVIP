@@ -1,9 +1,9 @@
 # TIGER SOVEREIGN AI-03 — Persistent Trust Fabric Security Review
 
-Status: **REPOSITORY_SQL_REVIEW_PASS / LOCAL_REHEARSAL_PENDING / REMOTE_APPLY_NOT_AUTHORIZED**  
-Date: **2026-08-13**  
-Migration: `supabase/migrations/20260813050000_tiger_sovereign_trust_fabric.sql`  
-Exact SHA-256: `6efc63a05581987bf79f6f5cf4d7df3e144472ef0ddfd2c5e5c163fb527b5338`  
+Status: **REPOSITORY_SQL_REVIEW_PASS / LOCAL_REHEARSAL_PENDING / REMOTE_APPLY_NOT_AUTHORIZED**
+Date: **2026-08-13**
+Migration: `supabase/migrations/20260813050000_tiger_sovereign_trust_fabric.sql`
+Exact SHA-256: `6efc63a05581987bf79f6f5cf4d7df3e144472ef0ddfd2c5e5c163fb527b5338`
 Git blob SHA-1: `3df1a210ad0729a7612f9f714793eb8f3093ddd2`
 
 ## Review boundary
