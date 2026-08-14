@@ -42,25 +42,32 @@ const modulePromise = loadVerifiedDecoder();
 
 async function inspect(bytes, mimeType) {
   const Module = await modulePromise;
-  if (typeof Module.HeifDecoder !== 'function' || typeof Module.fourcc !== 'function') fail('capability_unavailable');
+  if (
+    typeof Module.HeifDecoder !== 'function' ||
+    typeof Module.heif_js_context_get_list_of_top_level_image_IDs !== 'function' ||
+    typeof Module.heif_item_get_item_type !== 'function'
+  ) fail('capability_unavailable');
+
   const decoder = new Module.HeifDecoder();
   const images = decoder.decode(new Uint8Array(bytes));
   if (!Array.isArray(images) || images.length < 1 || !decoder.decoder) fail('heif_container_invalid');
 
   const sequence = Module.heif_context_has_sequence(decoder.decoder);
-  const image = images.find(candidate => candidate && candidate.is_primary && candidate.is_primary()) || images[0];
+  const primaryIndex = images.findIndex(candidate => candidate && candidate.is_primary && candidate.is_primary());
+  const selectedIndex = primaryIndex >= 0 ? primaryIndex : 0;
+  const image = images[selectedIndex];
   if (!image || !image.handle) fail('heif_decode_failed');
 
-  const itemId = Module.heif_image_handle_get_item_id(image.handle);
-  const itemType = Module.heif_item_get_item_type(decoder.decoder, itemId);
-  const hvc1 = Module.fourcc('hvc1');
+  const topLevelIds = Module.heif_js_context_get_list_of_top_level_image_IDs(decoder.decoder);
+  if (!topLevelIds || topLevelIds.length !== images.length) fail('heif_container_invalid');
+  const itemType = Module.heif_item_get_item_type(decoder.decoder, topLevelIds[selectedIndex]);
   const width = image.get_width();
   const height = image.get_height();
 
   return {
     width,
     height,
-    codec: itemType === hvc1 ? 'hevc' : 'unsupported',
+    codec: itemType === 'hvc1' ? 'hevc' : 'unsupported',
     isStill: sequence === 0,
     sourceKind: mimeType === 'image/heic' ? 'heic' : 'heif',
     _decoder: decoder,
