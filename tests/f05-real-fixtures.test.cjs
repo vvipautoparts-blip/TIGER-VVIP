@@ -153,6 +153,23 @@ test('pinned F05 WASM fails closed on a real truncated HEIC payload before any u
   }
 });
 
+test('metadata-bearing real HEIC is reduced to pixels before the JPEG/WebP encoder contract', () => {
+  const fixture = Buffer.from(fs.readFileSync(FIXTURE_B64, 'utf8').replace(/\s+/g, ''), 'base64');
+  assert.equal(gitBlobSha1(fixture), EXPECTED_GIT_BLOB_SHA1, 'privacy proof must use the exact upstream HEIC bytes');
+  const sourceContainerText = fixture.toString('latin1');
+  assert.match(sourceContainerText, /<x:xmpmeta\b/i, 'source fixture must actually contain XMP metadata');
+  assert.match(sourceContainerText, /http:\/\/ns\.adobe\.com\/xap\//i, 'source fixture must carry an XMP namespace, not a synthetic marker');
+
+  const workerSource = fs.readFileSync(WORKER_JS, 'utf8');
+  assert.match(workerSource, /image\.display\(target/, 'decoder must materialize source into an RGBA target');
+  assert.match(workerSource, /new Uint8ClampedArray\(inspected\.width \* inspected\.height \* 4\)/, 'pixel surface must be a fresh RGBA allocation');
+  assert.match(workerSource, /createImageData\(surface\.width, surface\.height\)/, 'encoder input must be a fresh browser pixel image');
+  assert.match(workerSource, /sourceImage\.data\.set\(surface\.data\)/, 'only reconstructed RGBA pixels may enter the encode canvas');
+  assert.match(workerSource, /convertToBlob\(\{ type: 'image\/webp'/, 'canonical output must be reconstructed as WebP first');
+  assert.match(workerSource, /convertToBlob\(\{ type: 'image\/jpeg'/, 'JPEG is the bounded reconstruction fallback');
+  assert.doesNotMatch(workerSource, /\b(?:EXIF|GPS|XMP)\b/i, 'worker must not propagate source metadata fields');
+});
+
 test('F05 preflight rejects the exact upstream real AVIF hostile fixture before HEIF decode', async () => {
   assert.equal(fs.existsSync(AVIF_FIXTURE_B64), true, 'real AVIF hostile fixture must be vendored');
   const fixture = Buffer.from(fs.readFileSync(AVIF_FIXTURE_B64, 'utf8').replace(/\s+/g, ''), 'base64');
