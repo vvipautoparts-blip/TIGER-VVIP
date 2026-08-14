@@ -32,8 +32,8 @@ mkdir -p build
 cp "libde265-${LIBDE265_VERSION}.tar.gz" build/
 
 BUILD_SCRIPT="${WORK}/libheif-${LIBHEIF_VERSION}/build-emscripten.sh"
-# Patch the pinned upstream script by exact-match replacement. This fails closed
-# if upstream text changes, instead of applying a broad or ambiguous sed edit.
+# Patch the pinned upstream script by exact token replacement. Refuse the build
+# if the pinned upstream text changes, rather than applying a broad edit.
 python3 - "${BUILD_SCRIPT}" "${MAX_MEMORY}" "${INITIAL_MEMORY}" <<'PY'
 from pathlib import Path
 import sys
@@ -43,19 +43,20 @@ maximum = sys.argv[2]
 initial = sys.argv[3]
 text = path.read_text(encoding="utf-8")
 
-link_old = 'emcc -Wl,--whole-archive "$LIBHEIFA" -Wl,--no-whole-archive \\\n'
-link_new = 'em++ -Wl,--whole-archive "$LIBHEIFA" -Wl,--no-whole-archive \\\n'
+link_old = 'emcc -Wl,--whole-archive "$LIBHEIFA" -Wl,--no-whole-archive'
+link_new = 'em++ -Wl,--whole-archive "$LIBHEIFA" -Wl,--no-whole-archive'
 if text.count(link_old) != 1:
-    raise SystemExit("F05 build patch refused: expected exactly one upstream emcc final-link line")
+    raise SystemExit("F05 build patch refused: expected exactly one upstream emcc final-link token")
 text = text.replace(link_old, link_new, 1)
 
-memory_old = '    -sALLOW_MEMORY_GROWTH \\\n'
+memory_old = '    -sALLOW_MEMORY_GROWTH'
 memory_new = (
-    f'    -sALLOW_MEMORY_GROWTH -sMAXIMUM_MEMORY={maximum} '
-    f'-sINITIAL_MEMORY={initial} \\\n'
+    '    -sALLOW_MEMORY_GROWTH '
+    f'-sMAXIMUM_MEMORY={maximum} '
+    f'-sINITIAL_MEMORY={initial}'
 )
 if text.count(memory_old) != 1:
-    raise SystemExit("F05 build patch refused: expected exactly one upstream memory-growth line")
+    raise SystemExit("F05 build patch refused: expected exactly one upstream memory-growth token")
 text = text.replace(memory_old, memory_new, 1)
 
 path.write_text(text, encoding="utf-8")
