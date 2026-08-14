@@ -12,6 +12,22 @@ function jpegWith(marker, payload = []) {
   return Uint8Array.from([0xff, 0xd8, 0xff, marker, (length >> 8) & 0xff, length & 0xff, ...body, 0xff, 0xd9]);
 }
 
+function jpegScanWithTrailingMarker(marker, payload = []) {
+  const body = Uint8Array.from(payload);
+  const length = body.length + 2;
+  return Uint8Array.from([
+    0xff, 0xd8,
+    0xff, 0xda, 0x00, 0x02,
+    0x11, 0x22, 0xff, 0x00, 0x33,
+    0xff, marker, (length >> 8) & 0xff, length & 0xff, ...body,
+    0xff, 0xd9
+  ]);
+}
+
+function jpegScanOnly() {
+  return Uint8Array.from([0xff,0xd8,0xff,0xda,0x00,0x02,0x11,0xff,0x00,0x22,0xff,0xd0,0x33,0xff,0xd9]);
+}
+
 function webp(chunks) {
   const encoded = [];
   for (const { type, data = [] } of chunks) {
@@ -53,6 +69,11 @@ test('sanitized JPEG denies EXIF/XMP/IPTC/comment and unknown APP metadata', () 
   assert.equal(inspectCanonicalDerivative(jpegWith(0xe3, [1, 2]), 'image/jpeg').code, 'metadata_not_stripped');
 });
 
+test('sanitized JPEG scans through entropy data and rejects metadata injected after SOS', () => {
+  assert.equal(inspectCanonicalDerivative(jpegScanWithTrailingMarker(0xe1, Buffer.from('Exif\0\0')), 'image/jpeg').code, 'metadata_not_stripped');
+  assert.deepEqual(inspectCanonicalDerivative(jpegScanOnly(), 'image/jpeg'), { ok: true });
+});
+
 test('sanitized JPEG permits only bounded technical APP0/APP2/APP14 segments', () => {
   for (const marker of [0xe0, 0xe2, 0xee]) {
     assert.deepEqual(inspectCanonicalDerivative(jpegWith(marker, [1, 2]), 'image/jpeg'), { ok: true });
@@ -80,6 +101,7 @@ test('sanitized WebP fails closed on unknown chunks but permits image/alpha/colo
 
 test('privacy inspector rejects malformed/truncated derivatives instead of scanning past bounds', () => {
   assert.equal(inspectCanonicalDerivative(Uint8Array.from([0xff, 0xd8, 0xff, 0xe1, 0xff, 0xff]), 'image/jpeg').code, 'media_derivative_invalid');
+  assert.equal(inspectCanonicalDerivative(Uint8Array.from([0xff,0xd8,0xff,0xda,0x00,0x02,0x11,0xff]), 'image/jpeg').code, 'media_derivative_invalid');
   const malformedWebp = webp([{ type: 'VP8 ', data: [1, 2] }]);
   malformedWebp[4] = 0xff;
   assert.equal(inspectCanonicalDerivative(malformedWebp, 'image/webp').code, 'media_derivative_invalid');
