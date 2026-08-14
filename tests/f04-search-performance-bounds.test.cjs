@@ -41,7 +41,7 @@ function syntheticListings(count) {
 
 function percentile(values, ratio) {
   const sorted = values.slice().sort((a, b) => a - b);
-  return sorted[Math.min(sorted.length - 1, Math.floor((sorted.length - 1) * ratio))];
+  return sorted[Math.min(sorted.length - 1, Math.max(0, Math.ceil(sorted.length * ratio) - 1))];
 }
 
 test("F04 bounds result count across 100 1000 and 25000 deterministic candidates", async () => {
@@ -49,7 +49,7 @@ test("F04 bounds result count across 100 1000 and 25000 deterministic candidates
   for (const size of [100, 1000, 25000]) {
     const listings = syntheticListings(size);
     const durations = [];
-    for (let run = 0; run < 3; run += 1) {
+    for (let run = 0; run < 5; run += 1) {
       const started = performance.now();
       const out = searchListings({ query: "premium", listings, dictionaries, activeMarketCountry: "JO" });
       durations.push(performance.now() - started);
