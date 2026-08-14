@@ -25,8 +25,8 @@ This tracker never upgrades design, local evidence, historical work, or partial 
 | F00 Constitution Reconciliation | PASS | FUSION current authority + Owner rule | Keep authority chain consistent |
 | F01 Runtime Vacuum Inventory | PASS / retained baseline | existing F01 branch/history | Final cleanup still belongs to F15 |
 | F02 Single Surface Design System | EXACT_HEAD_PASS (isolated) | PR #232 head `48466f5838d51b6a90223144899f5b7389ec6441`; Quality Gate/V14 RC/CodeQL/Dependency Review/CleanGuard/PCI evidence recorded | protected final entrypoint integration remains separately gated |
-| F03 SOA + Sovereign Capability Graph | IN_PROGRESS / BLOCKED | snapshot contract; fail-closed marketplace-intermediary denial; menu controller committed; local focused 7/7 PASS; PCI #879 passed on earlier Task-2 test head | Single Surface page wiring, fresh focused tests on repository head, full exact-head CI |
-| F04 TIGER Search Fabric | NOT_EVIDENCED | F02 simple search and existing listing/category foundations only | bilingual normalization, structured intent, lexical + assistive semantic retrieval, policy filtering, zero-result rescue, golden-query tests |
+| F03 SOA + Sovereign Capability Graph | EXACT_HEAD_PASS (isolated) | PR #234 final head `c9e214bd3da85c985dfa2c33bc531035471e6d4c`; 8/8 focused contracts; Quality Gate #939, V14 RC #397, CodeQL #845, Dependency Review #745, CleanGuard #461, PCI #891/#892 PASS | protected auth/Production integration remains separately gated |
+| F04 TIGER Search Fabric | EXACT_HEAD_PASS (isolated) | PR #236 + verification PR #237; deterministic bilingual search; policy-safe eligibility/ranking; bounded semantic assist; 36 golden queries; Single Surface integration; 25K local diagnostic bounds; exact-head closure evidence recorded on PR | protected Production entrypoint remains separately gated; local 25K diagnostics are not F08/F13 capacity certification |
 | F05 Hybrid HEIC/HEIF Media Fabric | FOUNDATION_EXISTS | PR36 secure seven-photo/resource-safety design and prior automated tests | HEIC/HEIF secure intake, quarantine/derivatives, metadata/color handling, resumable path, exact-head tests incl. real file/manual closure |
 | F06 Global Money Fabric | FOUNDATION_EXISTS | V13 DIDE, ledger/idempotency/cost controls | currencies/FX/price types/platform ad-billing sellability and profitability gates; no marketplace transaction intermediation; Shadow Ledger = 0 |
 | F07 TIGER Pulse | DESIGN_ONLY | Owner reference + detailed F07 design | implementation, fair delivery, brochure safety, V13 impression truth, profitability/security/accessibility/performance evidence |
@@ -86,8 +86,8 @@ Until every item above passes, `GLOBAL_LAUNCH_ELIGIBLE` remains `FALSE` and the 
 
 ## Immediate critical path
 
-1. Close F03 Single Surface wiring and exact-head verification.
-2. Execute F04 through F11 in constitution order, reusing verified foundations rather than historical labels.
+1. Execute F05 Hybrid HEIC/HEIF Media Fabric, reusing PR36 resource-safety foundations without treating deferred manual image evidence as complete.
+2. Execute F06 through F11 in constitution order, reusing verified foundations rather than historical labels.
 3. Execute security/capacity/recovery certification F12–F14.
 4. Execute F15 final runtime vacuum.
 5. Assemble F16 Launch Passport for the exact immutable release artifact.
