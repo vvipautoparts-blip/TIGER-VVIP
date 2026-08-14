@@ -1,0 +1,143 @@
+'use strict';
+
+const MAX_HEIF_HEADER_BYTES = 262144;
+
+const STILL_HEIC_BRANDS = new Set(['heic', 'heix']);
+const SEQUENCE_BRANDS = new Set(['hevc', 'hevx', 'msf1', 'avis']);
+const AVIF_BRANDS = new Set(['avif']);
+
+function failure(code) {
+  return Object.freeze({ ok: false, code });
+}
+
+function readU32(bytes, offset) {
+  if (offset < 0 || offset + 4 > bytes.length) return null;
+  return (
+    bytes[offset] * 0x1000000 +
+    bytes[offset + 1] * 0x10000 +
+    bytes[offset + 2] * 0x100 +
+    bytes[offset + 3]
+  );
+}
+
+function readSafeU64(bytes, offset) {
+  if (offset < 0 || offset + 8 > bytes.length) return null;
+  let value = 0n;
+  for (let index = 0; index < 8; index += 1) {
+    value = (value << 8n) | BigInt(bytes[offset + index]);
+  }
+  if (value > BigInt(Number.MAX_SAFE_INTEGER)) return null;
+  return Number(value);
+}
+
+function readFourCC(bytes, offset) {
+  if (offset < 0 || offset + 4 > bytes.length) return null;
+  let value = '';
+  for (let index = 0; index < 4; index += 1) {
+    const byte = bytes[offset + index];
+    if (byte < 0x20 || byte > 0x7e) return null;
+    value += String.fromCharCode(byte);
+  }
+  return value;
+}
+
+function classifyFtyp(majorBrand, compatibleBrands) {
+  const brands = [];
+  const seen = new Set();
+  for (const brand of [majorBrand, ...compatibleBrands]) {
+    if (!seen.has(brand)) {
+      seen.add(brand);
+      brands.push(brand);
+    }
+  }
+
+  if (AVIF_BRANDS.has(majorBrand) || brands.some((brand) => AVIF_BRANDS.has(brand))) {
+    return failure('heif_codec_unsupported');
+  }
+
+  if (SEQUENCE_BRANDS.has(majorBrand) || brands.some((brand) => SEQUENCE_BRANDS.has(brand))) {
+    return failure('heif_sequence_denied');
+  }
+
+  let family = null;
+  if (STILL_HEIC_BRANDS.has(majorBrand)) {
+    family = 'heic';
+  } else if (majorBrand === 'mif1' && compatibleBrands.some((brand) => STILL_HEIC_BRANDS.has(brand))) {
+    family = 'heif';
+  }
+
+  if (!family) return failure('heif_container_invalid');
+
+  const frozenBrands = Object.freeze(brands.slice());
+  return Object.freeze({
+    ok: true,
+    family,
+    majorBrand,
+    brands: frozenBrands
+  });
+}
+
+function parseFtyp(bytes, boxOffset, headerSize, boxSize) {
+  const contentOffset = boxOffset + headerSize;
+  const minimumSize = headerSize + 8;
+  if (boxSize < minimumSize) return failure('heif_container_invalid');
+
+  const compatibleBytes = boxSize - minimumSize;
+  if (compatibleBytes % 4 !== 0) return failure('heif_container_invalid');
+
+  const majorBrand = readFourCC(bytes, contentOffset);
+  if (!majorBrand) return failure('heif_container_invalid');
+
+  const compatibleBrands = [];
+  const compatibleOffset = contentOffset + 8;
+  const boxEnd = boxOffset + boxSize;
+  for (let offset = compatibleOffset; offset < boxEnd; offset += 4) {
+    const brand = readFourCC(bytes, offset);
+    if (!brand) return failure('heif_container_invalid');
+    compatibleBrands.push(brand);
+  }
+
+  return classifyFtyp(majorBrand, compatibleBrands);
+}
+
+function probeHeifHeader(input) {
+  const source = input instanceof Uint8Array ? input : null;
+  if (!source || source.length < 8) return failure('heif_container_invalid');
+
+  const bytes = source.subarray(0, Math.min(source.length, MAX_HEIF_HEADER_BYTES));
+  let offset = 0;
+
+  while (offset + 8 <= bytes.length) {
+    const size32 = readU32(bytes, offset);
+    const type = readFourCC(bytes, offset + 4);
+    if (size32 === null || !type) return failure('heif_container_invalid');
+
+    let headerSize = 8;
+    let boxSize = size32;
+
+    if (size32 === 0) return failure('heif_container_invalid');
+    if (size32 === 1) {
+      headerSize = 16;
+      boxSize = readSafeU64(bytes, offset + 8);
+      if (boxSize === null) return failure('heif_container_invalid');
+    }
+
+    if (!Number.isSafeInteger(boxSize) || boxSize < headerSize) {
+      return failure('heif_container_invalid');
+    }
+
+    const boxEnd = offset + boxSize;
+    if (!Number.isSafeInteger(boxEnd) || boxEnd <= offset || boxEnd > bytes.length) {
+      return failure('heif_container_invalid');
+    }
+
+    if (type === 'ftyp') return parseFtyp(bytes, offset, headerSize, boxSize);
+    offset = boxEnd;
+  }
+
+  return failure('heif_container_invalid');
+}
+
+exports.MAX_HEIF_HEADER_BYTES = MAX_HEIF_HEADER_BYTES;
+exports.probeHeifHeader = probeHeifHeader;
+Object.freeze(module.exports);
