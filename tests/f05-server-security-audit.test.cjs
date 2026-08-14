@@ -10,7 +10,7 @@ function passport(){return{schemaVersion:'F05_MEDIA_PASSPORT_V1',mediaPolicyVers
 function ports(audit,overrides={}){return{
   authorizeAdMedia:async()=>true,
   sha256:async()=>SHA,
-  inspectCandidate:async()=>({mime:'image/jpeg',width:1600,height:1200,hasForbiddenMetadata:false,isPolyglot:false}),
+  inspectCandidate:async()=>({mime:'image/jpeg',width:1600,height:1200,hasForbiddenMetadata:false,isPolyglot:false,colorSpace:'srgb'}),
   rewriteCanonical:async()=>({bytes:jpeg}),
   auditSecurityEvent:audit,
   ...overrides
