@@ -16,6 +16,7 @@ command -v emcc >/dev/null
 command -v em++ >/dev/null
 command -v emcmake >/dev/null
 command -v emmake >/dev/null
+command -v python3 >/dev/null
 
 rm -rf "${WORK}" "${DIST}"
 mkdir -p "${WORK}" "${DIST}"
@@ -31,12 +32,38 @@ mkdir -p build
 cp "libde265-${LIBDE265_VERSION}.tar.gz" build/
 
 BUILD_SCRIPT="${WORK}/libheif-${LIBHEIF_VERSION}/build-emscripten.sh"
-# Emscripten 6 requires em++ for the final C++/embind link.
-sed -i 's/^emcc -Wl/em++ -Wl/' "${BUILD_SCRIPT}"
-# Keep growth bounded: 64 MiB initial, 384 MiB absolute maximum.
-sed -i "s/-sALLOW_MEMORY_GROWTH \\/-sALLOW_MEMORY_GROWTH -sMAXIMUM_MEMORY=${MAX_MEMORY} -sINITIAL_MEMORY=${INITIAL_MEMORY} \\/" "${BUILD_SCRIPT}"
+# Patch the pinned upstream script by exact-match replacement. This fails closed
+# if upstream text changes, instead of applying a broad or ambiguous sed edit.
+python3 - "${BUILD_SCRIPT}" "${MAX_MEMORY}" "${INITIAL_MEMORY}" <<'PY'
+from pathlib import Path
+import sys
+
+path = Path(sys.argv[1])
+maximum = sys.argv[2]
+initial = sys.argv[3]
+text = path.read_text(encoding="utf-8")
+
+link_old = 'emcc -Wl,--whole-archive "$LIBHEIFA" -Wl,--no-whole-archive \\\n'
+link_new = 'em++ -Wl,--whole-archive "$LIBHEIFA" -Wl,--no-whole-archive \\\n'
+if text.count(link_old) != 1:
+    raise SystemExit("F05 build patch refused: expected exactly one upstream emcc final-link line")
+text = text.replace(link_old, link_new, 1)
+
+memory_old = '    -sALLOW_MEMORY_GROWTH \\\n'
+memory_new = (
+    f'    -sALLOW_MEMORY_GROWTH -sMAXIMUM_MEMORY={maximum} '
+    f'-sINITIAL_MEMORY={initial} \\\n'
+)
+if text.count(memory_old) != 1:
+    raise SystemExit("F05 build patch refused: expected exactly one upstream memory-growth line")
+text = text.replace(memory_old, memory_new, 1)
+
+path.write_text(text, encoding="utf-8")
+PY
+
 grep -Fq 'em++ -Wl' "${BUILD_SCRIPT}"
-grep -Fq "-sMAXIMUM_MEMORY=${MAX_MEMORY}" "${BUILD_SCRIPT}"
+grep -Fq -- "-sMAXIMUM_MEMORY=${MAX_MEMORY}" "${BUILD_SCRIPT}"
+grep -Fq -- "-sINITIAL_MEMORY=${INITIAL_MEMORY}" "${BUILD_SCRIPT}"
 
 cd build
 CORES="${CORES:-2}" \
