@@ -7,7 +7,7 @@ function fail(code){const e=new Error(code);e.code=code;throw e;}
 function bytesOf(v){return v instanceof Uint8Array?v:null;}
 function sizeBucket(bytes){const MiB=1024*1024;if(!Number.isSafeInteger(bytes)||bytes<0)return'unknown';if(bytes<MiB)return'lt1mib';if(bytes<4*MiB)return'1_4mib';return'4_15mib';}
 function detectMime(bytes){if(bytes&&bytes.length>=3&&bytes[0]===0xff&&bytes[1]===0xd8&&bytes[2]===0xff)return'image/jpeg';if(bytes&&bytes.length>=12&&bytes[0]===0x52&&bytes[1]===0x49&&bytes[2]===0x46&&bytes[3]===0x46&&bytes[8]===0x57&&bytes[9]===0x45&&bytes[10]===0x42&&bytes[11]===0x50)return'image/webp';return null;}
-function validInspection(x,mime){return x&&x.mime===mime&&Number.isSafeInteger(x.width)&&Number.isSafeInteger(x.height)&&x.width>0&&x.height>0&&x.width<=1600&&x.height<=1200&&x.width*3===x.height*4&&x.hasForbiddenMetadata===false&&x.isPolyglot===false;}
+function validInspection(x,mime){return x&&x.mime===mime&&Number.isSafeInteger(x.width)&&Number.isSafeInteger(x.height)&&x.width>0&&x.height>0&&x.width<=1600&&x.height<=1200&&x.width*3===x.height*4&&x.hasForbiddenMetadata===false&&x.isPolyglot===false&&x.colorSpace==='srgb';}
 function validPassport(p,mime,size){return p&&p.schemaVersion==='F05_MEDIA_PASSPORT_V1'&&p.mediaPolicyVersion==='F05_BPLUS_V1'&&p.outputMime===mime&&p.sizeBytes===size&&Number.isSafeInteger(p.width)&&Number.isSafeInteger(p.height)&&p.width>0&&p.height>0&&SHA.test(String(p.sha256||''));}
 function auditEvent(fields){return Object.freeze({schemaVersion:'F05_MEDIA_SECURITY_AUDIT_V1',...fields});}
 async function emitAudit(ports,fields){try{await ports.auditSecurityEvent(auditEvent(fields));}catch(_){/* audit transport must never weaken a reject decision */}}
