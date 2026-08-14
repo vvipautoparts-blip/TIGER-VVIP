@@ -1,0 +1,57 @@
+name: F05 HEIF WASM Build
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "scripts/media/build-f05-heif-wasm.sh"
+      - ".github/workflows/f05-heif-wasm-build.yml"
+      - "third_party/f05-heif/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-f05-heif-wasm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: Install native build prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y autoconf automake libtool pkg-config
+
+      - name: Install pinned official emsdk
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --filter=blob:none https://github.com/emscripten-core/emsdk.git "$RUNNER_TEMP/emsdk"
+          git -C "$RUNNER_TEMP/emsdk" checkout --detach 9981799f744be74ac67b1c1813ff172f63be0630
+          cd "$RUNNER_TEMP/emsdk"
+          ./emsdk install 6.0.6
+          ./emsdk activate 6.0.6
+          source ./emsdk_env.sh
+          emcc --version | head -n 2
+
+      - name: Build pinned decoder artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/emsdk/emsdk_env.sh"
+          bash scripts/media/build-f05-heif-wasm.sh 2>&1 | tee /tmp/f05-heif-wasm-build.log
+
+      - name: Upload build evidence
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: f05-heif-wasm-${{ github.sha }}
+          path: |
+            .tmp/f05-heif-dist/
+            /tmp/f05-heif-wasm-build.log
+          if-no-files-found: warn
+          retention-days: 14
