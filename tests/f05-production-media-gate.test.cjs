@@ -10,7 +10,7 @@ function deps(){
     authorizeAdMedia:async(actor,scope)=>{calls.push(['authorize',actor,scope]);return true;},
     sha256:async bytes=>{calls.push(['sha',bytes.length]);return 'a'.repeat(64);},
     imageStack:{
-      inspect:async(bytes,policy)=>{calls.push(['inspect',policy]);return {mime:'image/jpeg',width:1600,height:1200,hasForbiddenMetadata:false,isPolyglot:false};},
+      inspect:async(bytes,policy)=>{calls.push(['inspect',policy]);return {mime:'image/jpeg',width:1600,height:1200,hasForbiddenMetadata:false,isPolyglot:false,colorSpace:'srgb'};},
       rewrite:async(bytes,policy)=>{calls.push(['rewrite',policy]);return {bytes:new Uint8Array(bytes)};}
     },
     auditSink:{write:async event=>{calls.push(['audit',event]);}}
