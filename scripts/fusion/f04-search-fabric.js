@@ -122,4 +122,106 @@ export function extractSearchIntent(normalizedQuery, dictionaries = {}) {
   return deepFreeze({ textTokens, filters, recognized });
 }
 
+const FIELD_WEIGHTS = Object.freeze([
+  Object.freeze(["title", 60]),
+  Object.freeze(["brand", 55]),
+  Object.freeze(["model", 50]),
+  Object.freeze(["category", 45]),
+  Object.freeze(["location", 40]),
+  Object.freeze(["sectorLabel", 30]),
+  Object.freeze(["sector", 25]),
+  Object.freeze(["searchAliases", 22]),
+  Object.freeze(["specs", 15]),
+  Object.freeze(["summary", 10])
+]);
+const MAX_SEMANTIC_CONTRIBUTION = 20;
+const MAX_RESULTS = 100;
+
+function comparable(value) {
+  if (Array.isArray(value)) return normalizeSearchQuery(value.join(" ")).normalized;
+  if (value && typeof value === "object") return normalizeSearchQuery(Object.values(value).join(" ")).normalized;
+  return normalizeSearchQuery(value == null ? "" : String(value)).normalized;
+}
+
+function matchesCanonical(candidate, expected) {
+  return comparable(candidate) === comparable(expected);
+}
+
+function passesStructuredFilters(listing, filters) {
+  if (filters.make !== undefined && !matchesCanonical(listing.brand, filters.make)) return false;
+  if (filters.category !== undefined && !matchesCanonical(listing.category, filters.category)) return false;
+  if (filters.location !== undefined && !matchesCanonical(listing.location, filters.location)) return false;
+  if (filters.year !== undefined && Number(listing.year) !== Number(filters.year)) return false;
+  return true;
+}
+
+function lexicalScore(listing, tokens) {
+  let score = 0;
+  for (const token of tokens) {
+    let best = 0;
+    for (const [field, weight] of FIELD_WEIGHTS) {
+      const haystack = comparable(listing[field]);
+      if (!haystack) continue;
+      const fields = haystack.split(" ");
+      if (fields.includes(token)) best = Math.max(best, weight);
+      else if (haystack.includes(token)) best = Math.max(best, Math.max(1, weight - 8));
+    }
+    score += best;
+  }
+  return score;
+}
+
+function boundedSemanticScore(scores, id) {
+  const raw = scores && typeof scores === "object" ? Number(scores[id]) : 0;
+  if (!Number.isFinite(raw) || raw <= 0) return 0;
+  return Math.min(1, raw) * MAX_SEMANTIC_CONTRIBUTION;
+}
+
+function clonePlain(value) {
+  if (Array.isArray(value)) return value.map(clonePlain);
+  if (value && typeof value === "object") {
+    const result = {};
+    for (const [key, child] of Object.entries(value)) result[key] = clonePlain(child);
+    return result;
+  }
+  return value;
+}
+
+function emptyRescue() {
+  return deepFreeze({ spelling: [], locations: [], relaxedFilters: [], adjacentCategories: [], aliases: [] });
+}
+
+function eligibleListing(listing, activeMarketCountry) {
+  if (!listing || typeof listing !== "object") return false;
+  if (listing.searchEligible !== true || listing.policyEligible !== true) return false;
+  if (typeof activeMarketCountry === "string" && activeMarketCountry.trim()) {
+    if (String(listing.countryCode || "").toUpperCase() !== activeMarketCountry.trim().toUpperCase()) return false;
+  }
+  return typeof listing.id === "string" && listing.id.length > 0;
+}
+
+export function searchListings({ query = "", listings = [], dictionaries = {}, activeMarketCountry = "", semanticScores = {} } = {}) {
+  const normalizedQuery = normalizeSearchQuery(query);
+  const intent = extractSearchIntent(normalizedQuery, dictionaries);
+  const source = Array.isArray(listings) ? listings : [];
+  const eligible = source.filter((listing) => eligibleListing(listing, activeMarketCountry) && passesStructuredFilters(listing, intent.filters));
+
+  let selected;
+  if (!normalizedQuery.tokens.length) {
+    selected = eligible.slice(0, MAX_RESULTS).map((listing) => deepFreeze(clonePlain(listing)));
+  } else {
+    const ranked = [];
+    for (const listing of eligible) {
+      const lexical = lexicalScore(listing, intent.textTokens);
+      const semantic = boundedSemanticScore(semanticScores, listing.id);
+      if (intent.textTokens.length > 0 && lexical <= 0 && semantic <= 0) continue;
+      ranked.push({ listing, score: lexical + semantic });
+    }
+    ranked.sort((a, b) => b.score - a.score || String(a.listing.id).localeCompare(String(b.listing.id)));
+    selected = ranked.slice(0, MAX_RESULTS).map(({ listing }) => deepFreeze(clonePlain(listing)));
+  }
+
+  return deepFreeze({ query: normalizedQuery, intent, results: selected, rescue: emptyRescue() });
+}
+
 export { deepFreeze };
