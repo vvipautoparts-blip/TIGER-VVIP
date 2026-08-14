@@ -12,14 +12,17 @@ F05 is an advertisement-media feature only. Original HEIC/HEIF bytes stay on the
 
 | Evidence | Status | Observation |
 |---|---|---|
-| Pinned libheif/libde265 WASM artifact integrity | PASS | Promoted checksum-bound decoder; F05 HEIF WASM Build passed on prior exact heads and is rerun on every successor head. |
+| Pinned libheif/libde265 WASM artifact integrity | PASS | Promoted checksum-bound decoder; runtime now uses Fetch integrity metadata and independently recomputes SHA-256 before instantiation. |
 | Real upstream HEVC/HEIC decode | PASS | Exact libheif v1.23.1 fixture `rainbow-451x461.heic` decodes through the pinned WASM to a 451x461 RGBA surface; primary top-level item is `hvc1`; sequence flag is false. |
 | Real AVIF hostile fixture | PASS | Exact upstream `simple_osm_tile_alpha.avif` (`mif3` + `avif`) is rejected by preflight as `heif_codec_unsupported` before HEIF decode. |
-| Real truncated HEIC hostile payload | PASS | Test derives a 4096-byte prefix from the exact upstream HEIC while preserving `ftypheic`; pinned WASM must not produce a usable RGBA surface. Added at source SHA `c71b6f25d63254d0aa4dcc6dde8cc0e01180e53d`; Quality #1011 and V14 #469 passed on that source SHA. |
+| Real truncated HEIC hostile payload | PASS | Test derives a 4096-byte prefix from the exact upstream HEIC while preserving `ftypheic`; pinned WASM must not produce a usable RGBA surface. |
 | Sequence-brand policy | PASS (contract) | `hevc` / `avis` sequence brands are denied with `heif_sequence_denied`; real-device sequence fixture remains separate evidence. |
 | Pixel/memory admission | PASS (contract) | 40 MP policy and 384 MiB WASM hard ceiling are enforced before expensive pixel decode; real bomb-style fixture remains separate evidence. |
-| Worker timeout | PASS | Unresponsive HEIF Worker is terminated fail-closed and surfaced as `heif_decode_timeout`; no server conversion fallback exists. |
-| Server derivative metadata/polyglot gate | PASS (contract) | Candidate and rewritten derivative are independently inspected; forbidden metadata or polyglot content is denied. Browser output metadata proof remains `NOT RUN`. |
+| Worker timeout / crash recovery | PASS (contract) | Unresponsive workers time out, runtime traps are classified separately, the worker is terminated, and the next operation creates a fresh worker; no server conversion fallback exists. |
+| Client derivative privacy proof | PASS (contract) | Reconstructed JPEG/WebP bytes are parsed before leaving the worker; EXIF/XMP/IPTC/comments, WebP metadata/animation chunks, malformed structures and unknown chunks fail closed. |
+| Server derivative metadata/polyglot gate | PASS (contract) | Candidate and rewritten derivative are independently inspected; bad magic, forbidden metadata or polyglot content is denied; bounded security-audit events contain no original media or identifiers. |
+| sRGB runtime boundary | PASS (contract) | libheif WASM decodes to RGB/RGBA; the worker requests `colorSpace: 'srgb'` and rejects an explicit browser context mismatch as `heif_color_unsupported`. |
+| Privacy-budget telemetry schema | PASS (contract) | Only coarse source/route/outcome/latency/size/pixel buckets and policy versions are permitted; filenames, paths, EXIF/GPS, raw bytes, user/listing/device IDs, public hashes and free-form errors are rejected. |
 
 ## Real browser / device matrix
 
@@ -32,15 +35,19 @@ The following rows require observed execution. Do not convert them to PASS from 
 | Native route, only when `ImageDecoder.isTypeSupported()` is genuinely true | NOT RUN | NOT RUN | NOT RUN | Native route observed before any native decode; native failure must not retry through WASM. |
 | Crop / zoom / pan and exact 4:3 result | NOT RUN | NOT RUN | NOT RUN | Final derivative <=1600x1200 and no upscale. |
 | Orientation correctness | NOT RUN | NOT RUN | NOT RUN | Visual orientation matches source intent. |
-| Color / sRGB correctness | NOT RUN | NOT RUN | NOT RUN | No obvious color shift; output reports canonical sRGB path. |
+| Display-P3 / wide-gamut / ICC color fidelity | NOT RUN | NOT RUN | NOT RUN | Use a non-personal real or generated wide-gamut HEIC plus a trusted reference/golden render. Compare representative pixels and, where practical, a bounded ΔE/color-difference threshold after canonical sRGB conversion; no washed-out or double-converted result. |
 | EXIF / GPS / XMP non-propagation | NOT RUN | NOT RUN | NOT RUN | Source contains metadata; reconstructed JPEG/WebP contains no forbidden source metadata. |
 | Cancel / reset / pagehide | NOT RUN | NOT RUN | NOT RUN | Worker terminates, stale result suppressed, UI remains usable. |
 | Offline with decoder pack available | NOT RUN | NOT RUN | NOT RUN | Local processing succeeds without original-media network traffic. |
 | Offline without decoder pack | NOT RUN | NOT RUN | NOT RUN | Deterministic fail-closed UX; no server HEIC fallback. |
-| Memory rejection | NOT RUN | NOT RUN | NOT RUN | Deterministic bounded denial, no crash/tab death. |
+| Memory rejection / OOM recovery | NOT RUN | NOT RUN | NOT RUN | Deterministic bounded denial or fresh-worker recovery; no tab freeze/death and no retry through a second decoder. |
 | Zero original HEIC network upload | NOT RUN | NOT RUN | NOT RUN | Network trace contains no original HEIC/HEIF request body. |
 | Zero persistent original HEIC storage | NOT RUN | NOT RUN | NOT RUN | No original bytes in Cache Storage, IndexedDB, Local Storage or service-worker caches. |
 | Existing JPEG/PNG/WebP regression | NOT RUN | NOT RUN | NOT RUN | Existing PR36 path remains unchanged. |
+
+## Color-integrity closure rule
+
+Static `colorSpace: 'srgb'` labels are not sufficient evidence for wide-gamut fidelity. F05 color closure remains **OPEN / NOT RUN** until at least one Display-P3 or other wide-gamut/ICC-bearing HEIC is compared against a trusted reference/golden rendering on the final decoder artifact. If that evidence fails, the color-conversion implementation must be corrected before Production; do not mask the failure by merely stripping ICC/NCLX data.
 
 ## Evidence capture fields
 
@@ -57,6 +64,7 @@ For every real-device run record:
 - network observation: original-media upload = yes/no;
 - persistent-storage observation: original-media persistence = yes/no;
 - EXIF/GPS/XMP propagation = yes/no;
+- color-reference result when the color scenario is being tested;
 - cancellation/offline/memory scenario result when applicable;
 - PASS / FAIL / NOT RUN with a short factual note.
 
@@ -64,4 +72,4 @@ Do not record user names, GPS coordinates, EXIF values, personal filenames, imag
 
 ## Final gate
 
-F05 remains Draft until all required browser/device rows are observed, exact-head automated gates are green on one final source SHA/artifact set, and the required LGPL + HEVC/H.265 launch-scope legal/product review is recorded.
+F05 remains Draft until all required browser/device rows are observed, exact-head automated gates are green on one final source SHA/artifact set, the production server inspection/rewrite ports are actually wired and verified, and the required LGPL + HEVC/H.265 launch-scope legal/product review is recorded.
