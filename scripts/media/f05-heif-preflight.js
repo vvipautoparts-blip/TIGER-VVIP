@@ -7,7 +7,7 @@
   const MAX_HEIF_HEADER_BYTES=262144;
   const STILL_HEIC_BRANDS=new Set(['heic','heix']);
   const SEQUENCE_BRANDS=new Set(['hevc','hevx','msf1','avis']);
-  const AVIF_BRANDS=new Set(['avif']);
+  const AVIF_BRANDS=new Set(['avif','mif3']);
   function failure(code){return Object.freeze({ok:false,code});}
   function readU32(bytes,offset){if(offset<0||offset+4>bytes.length)return null;return bytes[offset]*0x1000000+bytes[offset+1]*0x10000+bytes[offset+2]*0x100+bytes[offset+3];}
   function readSafeU64(bytes,offset){if(offset<0||offset+8>bytes.length)return null;let value=0n;for(let index=0;index<8;index+=1)value=(value<<8n)|BigInt(bytes[offset+index]);if(value>BigInt(Number.MAX_SAFE_INTEGER))return null;return Number(value);}
