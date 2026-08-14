@@ -1,6 +1,6 @@
 # F05 B+ — TIGER Sovereign Media Fabric Status
 
-**Status:** ENGINEERING FOUNDATION PASS / DECODER ARTIFACT + REAL DEVICE + LEGAL GATES OPEN
+**Status:** REAL PINNED DECODER ARTIFACT PROMOTED / RUNTIME + DEVICE + LEGAL GATES OPEN
 
 **Branch:** `feat/f05-hybrid-heic-local-media-isolated-20260814`
 
@@ -26,46 +26,45 @@ F05 remains advertisement-media infrastructure only. It does not add checkout, e
 - static-delivery admission for versioned F05 `.wasm` only under `/workers/media/` without broadening user-media caching;
 - OWNER B+ design, hardening addendum, written-spec approval and implementation plan.
 
-## CI evidence before this status-only commit
+## Promoted real decoder artifact
 
-Source SHA `8d762d419934e22d6ee3d12e65b5d7abb6fdcce4`:
+A real pinned Emscripten build has now been produced and promoted. No placeholder binary is used.
 
-- VVIP Quality Gate #962 — SUCCESS;
-- V14 Release Candidate #420 — SUCCESS;
-- TIGER CleanGuard #484 — SUCCESS;
-- Dependency Review #768 — SUCCESS;
-- Project Control Integrity #915/#916 — SUCCESS;
-- CodeQL #868 was still running at the last captured read and must not be reported PASS until confirmed.
+Build source head: `3dd90cc10e27cc6ee6d9b361ead553783b3db33a`.
 
-A final F05 verdict must use the final post-status source SHA, not the evidence above.
+Pinned toolchain/source contract:
 
-## Open engineering gate — real decoder artifact
+- Emscripten `6.0.6` (`ce75e06884093bcefb86a6b8fd56a5d62a4cc245`);
+- libheif `1.23.1`, source SHA-256 `0de0327f60fcd47de90d5654c6fe152232738d60d84fe084ec3e0f35e03b166a`;
+- libde265 `1.1.1`, source SHA-256 `fd48a927e94ed74fc7ce8829d222b9d8599fcbfe8b6448ba66705babc56ab219`;
+- HEVC decoder-only policy; AOM/WebCodecs/uncompressed/OpenJPEG disabled;
+- initial memory 64 MiB; hard maximum 384 MiB;
+- generated JS SHA-256 `c7df4459e108265b88706cf9345e1f6a936b545a2573462effc8caaf36cad92a`;
+- generated WASM SHA-256 `37371c91a21267de724838fe62476c6e57b422b3a9ebf954bbcca0b99aa99d78`.
 
-The current execution sandbox has `cmake 3.31.6` and `node v22.16.0`, but **does not contain Emscripten `emcc`**. Therefore the required pinned decoder artifact has not been built in this run:
+Promoted paths:
 
-- `workers/media/f05-heif-decoder.js` — not generated;
-- `workers/media/f05-heif-decoder.wasm` — not generated;
-- final artifact checksum — not invented;
-- final SBOM/provenance for produced binary — not invented.
+- `workers/media/f05-heif-decoder.v1.js`;
+- `workers/media/f05-heif-decoder.v1.wasm`;
+- `workers/media/f05-heif-decoder.v1.manifest.json`;
+- `workers/media/f05-heif-decoder.v1.checksums.sha256`.
 
-No placeholder WASM binary may be committed merely to make F05 appear complete.
+## Exact-head CI trigger integrity
 
-Required build authority remains:
+The artifact-promotion commit `39b99b0cdc5adda3a64cfcf6d3d860254f71e7f4` was authored by `github-actions[bot]`. GitHub created the associated PR workflow suites with conclusion `action_required` and **zero jobs**, so those suites are not valid PASS/FAIL execution evidence and must not be counted as verification.
 
-- libheif v1.23.1 / commit `2c4bbb54c2738d4a5efbbe3e5fa1d5d76bb88eb0` / source archive SHA-256 `0de0327f60fcd47de90d5654c6fe152232738d60d84fe084ec3e0f35e03b166a`;
-- libde265 v1.1.1 / commit `4dd701fffac01632ffd5cabc5ef10deb56accba1` / source archive SHA-256 `fd48a927e94ed74fc7ce8829d222b9d8599fcbfe8b6448ba66705babc56ab219`.
+This status update intentionally creates a normal owner-authored successor SHA so the full PR gates can execute on a non-bot head. Final F05 evidence must be collected only from the exact successor SHA and must include real jobs.
 
-## Open evidence gates
+## Remaining F05 evidence gates
 
 F05 is not `EXACT_HEAD_PASS` until all are complete:
 
-1. real pinned Emscripten/WASM decoder build with 384 MiB hard maximum and decoder-only HEVC configuration;
-2. generated JS/WASM integrity manifest, checksums, SBOM, reproducible build record and provenance;
-3. integration of the real decoder through the F05 adapter into PR36 without advertising HEIC support before runtime availability;
-4. fresh real browser/device HEIC tests, including forced WASM fallback, offline-with-pack, offline-without-pack, cancellation, memory rejection and zero original-media network/persistence;
-5. fresh EXIF/GPS/color/orientation evidence on real fixtures;
-6. required LGPL and HEVC/H.265 launch-scope legal/product review;
-7. final exact-head VVIP Quality Gate, V14, CodeQL, Dependency Review, TIGER CleanGuard and Project Control Integrity all PASS on one final source SHA/artifact set.
+1. full exact-head VVIP Quality Gate, V14, CodeQL, Dependency Review, TIGER CleanGuard and Project Control Integrity with real jobs and PASS on one final source SHA/artifact set;
+2. integration of the promoted decoder through the F05 adapter into the PR36 worker/runtime without advertising HEIC support before runtime availability;
+3. fresh real browser/device HEIC tests, including forced WASM fallback, offline-with-pack, offline-without-pack, cancellation, memory rejection and zero original-media network/persistence;
+4. fresh EXIF/GPS/color/orientation evidence on real fixtures;
+5. malformed/truncated/bomb-style HEIF rejection and bounded resource tests around the real adapter;
+6. required LGPL and HEVC/H.265 launch-scope legal/product review.
 
 ## PRs
 
@@ -78,4 +77,4 @@ F05 is not `EXACT_HEAD_PASS` until all are complete:
 
 `GLOBAL_LAUNCH_ELIGIBLE = FALSE`
 
-This status is intentionally fail-closed. Green CI on foundation contracts does not substitute for a real decoder artifact, real browser/device evidence or legal review.
+This status is fail-closed. A promoted decoder artifact is necessary but does not substitute for exact-head CI, runtime integration, real device/browser evidence, adversarial media tests, or legal review.
