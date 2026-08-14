@@ -11,8 +11,13 @@ LIBDE265_SHA256="fd48a927e94ed74fc7ce8829d222b9d8599fcbfe8b6448ba66705babc56ab21
 MAX_MEMORY="402653184"
 INITIAL_MEMORY="67108864"
 CORES="${CORES:-2}"
+SOURCE_HEAD_SHA="${F05_SOURCE_HEAD_SHA:-}"
 
 : "${EMSDK:?EMSDK must point to the activated pinned emsdk checkout}"
+if [[ ! "${SOURCE_HEAD_SHA}" =~ ^[0-9a-f]{40}$ ]]; then
+  echo "F05 build requires a validated 40-character source head SHA" >&2
+  exit 1
+fi
 command -v emcc >/dev/null
 command -v em++ >/dev/null
 command -v emcmake >/dev/null
@@ -121,7 +126,10 @@ fi
 
 cp libheif.js "${DIST}/f05-heif-decoder.v1.js"
 cp libheif.wasm "${DIST}/f05-heif-decoder.v1.wasm"
-sha256sum "${DIST}/f05-heif-decoder.v1.js" "${DIST}/f05-heif-decoder.v1.wasm" > "${DIST}/CHECKSUMS.sha256"
+(
+  cd "${DIST}"
+  sha256sum f05-heif-decoder.v1.js f05-heif-decoder.v1.wasm > CHECKSUMS.sha256
+)
 
 JS_SHA="$(sha256sum "${DIST}/f05-heif-decoder.v1.js" | awk '{print $1}')"
 WASM_SHA="$(sha256sum "${DIST}/f05-heif-decoder.v1.wasm" | awk '{print $1}')"
@@ -129,6 +137,7 @@ EMCC_VERSION="$(emcc --version | head -n 1 | sed 's/"/\\"/g')"
 cat > "${DIST}/BUILD_MANIFEST.json" <<EOF
 {
   "schemaVersion": "F05_HEIF_BUILD_V1",
+  "sourceHeadSha": "${SOURCE_HEAD_SHA}",
   "libheif": {"version": "${LIBHEIF_VERSION}", "sourceSha256": "${LIBHEIF_SHA256}"},
   "libde265": {"version": "${LIBDE265_VERSION}", "sourceSha256": "${LIBDE265_SHA256}", "buildSystem": "emcmake-cmake-static"},
   "emscripten": {"requestedVersion": "6.0.6", "versionLine": "${EMCC_VERSION}"},
