@@ -9,6 +9,7 @@ import '../../scripts/media/f05-worker-resilience.js';
 
 const WASM_NAME = 'f05-heif-decoder.v1.wasm';
 const WASM_SHA256 = '37371c91a21267de724838fe62476c6e57b422b3a9ebf954bbcca0b99aa99d78';
+const WASM_SRI = 'sha256-NzcckaISZ95ySDj+Ykdsble0IrOp6/lUu8yguZqpnXg=';
 const MAX_WASM_MEMORY_BYTES = 384 * 1024 * 1024;
 const geometry = globalThis.VVIP_PR36_GEOMETRY;
 const heifPolicy = globalThis.VVIP_F05_HEIF_POLICY;
@@ -29,7 +30,7 @@ function hex(buffer) {
 async function loadVerifiedDecoder() {
   if (!globalThis.crypto || !crypto.subtle || typeof fetch !== 'function') fail('capability_unavailable');
   const wasmUrl = new URL(`./${WASM_NAME}`, import.meta.url);
-  const response = await fetch(wasmUrl, { credentials: 'same-origin', cache: 'no-store' });
+  const response = await fetch(wasmUrl, { credentials: 'same-origin', cache: 'no-store', integrity: WASM_SRI });
   if (!response.ok) fail('capability_unavailable');
   const wasmBinary = await response.arrayBuffer();
   const digest = hex(await crypto.subtle.digest('SHA-256', wasmBinary));
