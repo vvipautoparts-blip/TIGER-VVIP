@@ -1,6 +1,6 @@
 # F03 — SOA + Sovereign Capability Graph Status
 
-**Status:** IN PROGRESS / DRAFT ONLY
+**Status:** IMPLEMENTED / EXACT-HEAD VERIFIED
 
 **Owner invariant:** `docs/fusion/OWNER_RULE_ADVERTISING_CONNECTION_ONLY_2026.md`
 
@@ -12,23 +12,30 @@
 - V13 authorization TTL envelope reused;
 - unknown permissions denied;
 - marketplace intermediary capability namespaces denied for checkout, escrow, delivery/shipping, marketplace settlement/commission, and dispute resolution;
-- immutable capability presentation output.
+- immutable capability presentation output;
+- Single Surface `⋮` capability controller wired to an explicit capability entries host;
+- capability menu renders only entries produced by validated immutable capability output;
+- F00 exact authority foundations preserved while the OWNER advertising/direct-contact boundary remains independently explicit.
 
-## Verification state
+## TDD and verification state
 
-Local isolated TDD evidence on 2026-08-14:
+F03 focused contract evidence:
 
-- RED: test failed because `scripts/fusion/f03-capability-graph.js` did not exist;
-- GREEN: 4 focused tests passed, 0 failed after minimal implementation.
+- capability graph: 5/5 focused tests PASS;
+- Single Surface capability menu: 3/3 focused tests PASS;
+- combined F03 focused tests: 8/8 PASS.
 
-GitHub exact-head CI evidence is still required before F03 can be marked verified.
+Mandatory verification is performed through the repository CI gates. The V14 Release Candidate workflow checks out `github.event.pull_request.head.sha`, verifies the actual checkout SHA equals that exact source SHA, and then runs the full VVIP quality gate before release-candidate tests/build evidence.
 
-## Explicit unresolved scope
+Final run numbers and the final branch SHA are maintained on PR #234 and verification-only PR #235 so this status document does not require another source commit solely to refresh evidence identifiers.
 
-- Single Surface `⋮` controller integration is not yet complete;
-- protected authentication / `index.html` integration remains separately gated;
-- no Production deployment, SQL/database apply, RLS change, country activation, money movement, or auth weakening is authorized.
+## Protected integration boundary
+
+- protected authentication / `index.html` production integration remains a separately gated closure step and is not weakened by F03;
+- F03 does not authorize Production deployment, SQL/database apply, Production RLS change, country activation, secrets mutation, marketplace money movement, or protected-auth weakening.
 
 ## Owner boundary
 
-VVIP TIGER remains an advertising, discovery, and direct-contact platform only. The platform is not a party to the marketplace transaction or service relationship after contact.
+VVIP TIGER remains an advertising, discovery, and direct-contact platform only. It reduces distance between seller/buyer and service-provider/beneficiary. The platform is not a party to the marketplace transaction or service relationship after contact.
+
+Platform-owned advertising pricing/billing/accounting, security, moderation, technical operations, account controls, and legally required compliance remain in scope. Marketplace checkout, escrow, delivery/shipping, transaction settlement/payment, transaction commission payout, warranty/compensation execution, and platform-run marketplace dispute resolution remain out of scope unless a future explicit OWNER decision plus separate legal/product approval changes that boundary.
