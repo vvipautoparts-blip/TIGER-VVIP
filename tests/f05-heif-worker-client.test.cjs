@@ -63,10 +63,10 @@ test('F05 HEIF worker client transfers only the source buffer and resolves canon
   assert.equal(worker.terminated, true);
 });
 
-test('F05 HEIF worker client is fail-closed on worker execution error', async () => {
+test('F05 HEIF worker client terminates a crashed worker and reports bounded crash code', async () => {
   const worker = makeWorker(({ emit }) => queueMicrotask(() => emit('error', new Error('worker crashed'))));
   const client = createHeifWorkerClient({ workerFactory: () => worker, buildWorkerTransfer, createMediaError: mediaError });
-  await assert.rejects(() => client.process(makeJob()), error => error && error.code === 'capability_unavailable');
+  await assert.rejects(() => client.process(makeJob()), error => error && error.code === 'heif_worker_crash');
   assert.equal(worker.terminated, true);
 });
 
