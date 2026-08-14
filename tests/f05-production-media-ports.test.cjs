@@ -10,7 +10,7 @@ function deps(overrides={}) {
     authorizeAdMedia: async()=>true,
     sha256: async()=> 'a'.repeat(64),
     imageStack: {
-      inspect: async(bytes, policy)=>{ calls.push(['inspect', policy]); return {mime:'image/jpeg',width:1600,height:1200,hasForbiddenMetadata:false,isPolyglot:false}; },
+      inspect: async(bytes, policy)=>{ calls.push(['inspect', policy]); return {mime:'image/jpeg',width:1600,height:1200,hasForbiddenMetadata:false,isPolyglot:false,colorSpace:'srgb'}; },
       rewrite: async(bytes, policy)=>{ calls.push(['rewrite', policy]); return {bytes:new Uint8Array(bytes)}; }
     },
     auditSink: { write: async event=>{ calls.push(['audit', event]); } },
@@ -33,6 +33,7 @@ test('production ports force metadata rejection, polyglot rejection and sRGB rew
   const bytes=Uint8Array.from([0xff,0xd8,0xff,0xd9]);
   const inspected=await ports.inspectCandidate(bytes,'image/jpeg');
   assert.equal(inspected.mime,'image/jpeg');
+  assert.equal(inspected.colorSpace,'srgb');
   const rewritten=await ports.rewriteCanonical(bytes,{mime:'image/jpeg',width:1600,height:1200});
   assert.ok(rewritten.bytes instanceof Uint8Array);
   const inspectPolicy=d.calls.find(x=>x[0]==='inspect')[1];
