@@ -6,20 +6,29 @@ on:
       - main
     paths:
       - "scripts/media/build-f05-heif-wasm.sh"
+      - "scripts/media/promote-f05-heif-artifact.sh"
       - ".github/workflows/f05-heif-wasm-build.yml"
       - "third_party/f05-heif/**"
-  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
   build-f05-heif-wasm:
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor == github.repository_owner &&
+      startsWith(github.event.pull_request.head.ref, 'feat/f05-hybrid-heic-local-media-isolated-')
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - name: Checkout
+      - name: Checkout exact F05 source head
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
 
       - name: Install native build prerequisites
         run: |
@@ -40,16 +49,25 @@ jobs:
 
       - name: Build pinned decoder artifact
         shell: bash
+        env:
+          F05_SOURCE_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
           source "$RUNNER_TEMP/emsdk/emsdk_env.sh"
           bash scripts/media/build-f05-heif-wasm.sh 2>&1 | tee /tmp/f05-heif-wasm-build.log
 
+      - name: Promote verified artifact to isolated F05 branch
+        shell: bash
+        env:
+          F05_EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+          F05_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: bash scripts/media/promote-f05-heif-artifact.sh
+
       - name: Upload build evidence
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
-          name: f05-heif-wasm-${{ github.sha }}
+          name: f05-heif-wasm-${{ github.event.pull_request.head.sha }}
           path: |
             .tmp/f05-heif-dist/
             /tmp/f05-heif-wasm-build.log
