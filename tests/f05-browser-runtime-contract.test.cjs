@@ -51,7 +51,7 @@ test('F05 CommonJS exports remain available after browser compatibility refactor
   assert.equal(typeof require('../scripts/media/f05-pr36-media-bridge.js').createF05MediaPolicyBridge, 'function');
 });
 
-test('F05 original-media runtime has no upload or persistent-storage primitive; worker fetch is WASM-only', () => {
+test('F05 original-media runtime has no upload or persistent-storage primitive; worker fetch is WASM-only and integrity-bound', () => {
   const originalMediaSurface = [
     'scripts/media/f05-heif-preflight.js',
     'scripts/media/f05-heif-adapter.js',
@@ -71,6 +71,7 @@ test('F05 original-media runtime has no upload or persistent-storage primitive; 
   assert.doesNotMatch(workerSource, forbiddenPersistenceOrUpload, 'HEIF worker must not persist or upload original bytes');
   assert.equal((workerSource.match(/\bfetch\s*\(/g) || []).length, 1, 'HEIF worker must have exactly one network fetch surface');
   assert.match(workerSource, /const wasmUrl\s*=\s*new URL\(`\.\/\$\{WASM_NAME\}`\s*,\s*import\.meta\.url\)/, 'worker fetch target must be its same-origin pinned WASM asset');
-  assert.match(workerSource, /fetch\(wasmUrl\s*,\s*\{\s*credentials:\s*'same-origin'\s*,\s*cache:\s*'no-store'\s*\}\)/, 'the only worker fetch must consume wasmUrl');
+  assert.match(workerSource, /fetch\(wasmUrl\s*,\s*\{\s*credentials:\s*'same-origin'\s*,\s*cache:\s*'no-store'\s*,\s*integrity:\s*WASM_SRI\s*\}\)/, 'the only worker fetch must consume same-origin wasmUrl with pinned integrity metadata');
+  assert.match(workerSource, /crypto\.subtle\.digest\('SHA-256',\s*wasmBinary\)/, 'worker must independently recompute WASM SHA-256 after Fetch integrity verification');
   assert.doesNotMatch(workerSource, /fetch\([^)]*(?:bytes|job|message|file|blob)/i, 'worker must never fetch using media bytes/job/blob as a request surface');
 });
