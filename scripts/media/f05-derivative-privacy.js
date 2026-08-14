@@ -22,23 +22,51 @@
   function inspectJpeg(bytes){
     if(bytes.length<4||bytes[0]!==0xff||bytes[1]!==0xd8)return verdict(false,'media_derivative_invalid');
     let offset=2;
+    let inScan=false;
+
     while(offset<bytes.length){
-      if(bytes[offset]!==0xff)return verdict(false,'media_derivative_invalid');
-      while(offset<bytes.length&&bytes[offset]===0xff)offset++;
-      if(offset>=bytes.length)return verdict(false,'media_derivative_invalid');
-      const marker=bytes[offset++];
-      if(marker===0xd9)return verdict(true);
-      if(marker===0xda)return verdict(true);
+      let marker;
+
+      if(inScan){
+        let found=false;
+        while(offset<bytes.length){
+          if(bytes[offset]!==0xff){offset++;continue;}
+          offset++;
+          while(offset<bytes.length&&bytes[offset]===0xff)offset++;
+          if(offset>=bytes.length)return verdict(false,'media_derivative_invalid');
+          marker=bytes[offset++];
+          if(marker===0x00)continue;
+          if(marker>=0xd0&&marker<=0xd7)continue;
+          found=true;
+          inScan=false;
+          break;
+        }
+        if(!found)return verdict(false,'media_derivative_invalid');
+      }else{
+        if(bytes[offset]!==0xff)return verdict(false,'media_derivative_invalid');
+        while(offset<bytes.length&&bytes[offset]===0xff)offset++;
+        if(offset>=bytes.length)return verdict(false,'media_derivative_invalid');
+        marker=bytes[offset++];
+        if(marker===0x00)return verdict(false,'media_derivative_invalid');
+      }
+
+      if(marker===0xd9)return offset===bytes.length?verdict(true):verdict(false,'media_derivative_invalid');
+      if(marker===0xd8)return verdict(false,'media_derivative_invalid');
       if(marker===0x01||(marker>=0xd0&&marker<=0xd7))continue;
       if(offset+2>bytes.length)return verdict(false,'media_derivative_invalid');
+
       const length=(bytes[offset]<<8)|bytes[offset+1];
       if(length<2)return verdict(false,'media_derivative_invalid');
       const end=offset+length;
-      if(end>bytes.length)return verdict(false,'media_derivative_invalid');
+      if(!Number.isSafeInteger(end)||end>bytes.length)return verdict(false,'media_derivative_invalid');
+
       if(marker===0xfe)return verdict(false,'metadata_not_stripped');
       if(marker>=0xe0&&marker<=0xef&&!JPEG_ALLOWED_APP_MARKERS.has(marker))return verdict(false,'metadata_not_stripped');
+
       offset=end;
+      if(marker===0xda)inScan=true;
     }
+
     return verdict(false,'media_derivative_invalid');
   }
 
