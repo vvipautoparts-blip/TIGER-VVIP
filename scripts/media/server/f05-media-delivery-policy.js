@@ -1,0 +1,6 @@
+'use strict';
+const MIMES=new Set(['image/jpeg','image/webp']);const PUBLIC_ID=/^media_public_[A-Za-z0-9._:-]{1,100}$/;const SHA=/^[0-9a-f]{64}$/;
+function invalid(){const e=new Error('media_delivery_invalid');e.code='media_delivery_invalid';throw e;}
+function origin(value){try{const u=new URL(value);if(u.username||u.password||u.pathname!=='/'||u.search||u.hash)return null;return u;}catch(_){return null;}}
+function buildCanonicalDeliveryPolicy(object,deployment){if(!object||!deployment||!MIMES.has(object.mimeType)||!PUBLIC_ID.test(String(object.publicId||''))||object.publicId===object.sha256||!SHA.test(String(object.sha256||''))||object.immutable!==true)invalid();const media=origin(deployment.mediaOrigin),app=origin(deployment.appOrigin);if(!media||!app)invalid();if(deployment.environment==='production'&&(media.protocol!=='https:'||app.protocol!=='https:'||media.origin===app.origin))invalid();const headers=Object.freeze({'Content-Type':object.mimeType,'X-Content-Type-Options':'nosniff','Cache-Control':'public, max-age=31536000, immutable'});return Object.freeze({origin:media.origin,path:`/media/${object.publicId}`,credentialsRequired:false,headers});}
+exports.buildCanonicalDeliveryPolicy=buildCanonicalDeliveryPolicy;Object.freeze(module.exports);
