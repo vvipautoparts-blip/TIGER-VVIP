@@ -50,9 +50,17 @@ test('promotion manifest classifies owner, optional and platform-provided config
     'SUPABASE_SERVICE_ROLE_KEY',
     'SUPABASE_URL',
   ].sort());
-  const serialized = JSON.stringify(data).toLowerCase();
-  assert.equal(serialized.includes('secret_value'), false);
-  assert.equal(serialized.includes('access_token_value'), false);
+  for (const name of [
+    ...data.required_owner_configuration,
+    ...data.optional_configuration,
+    ...data.platform_provided_configuration,
+  ]) {
+    assert.match(name, /^[A-Z][A-Z0-9_]+$/);
+  }
+  assert.equal(Object.prototype.hasOwnProperty.call(data, 'configuration_values'), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(data, 'secret_values'), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(data, 'access_token_values'), false);
+  assert.equal(data.evidence_rules.record_secret_values, false);
 });
 
 test('OTP database stores only hashed phone and code digest and is service-role only', () => {
