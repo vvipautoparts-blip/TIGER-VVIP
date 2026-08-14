@@ -22,27 +22,27 @@ test('anonymous browser role is read-only at the table ACL layer', () => {
   const sql = source();
   assert.match(
     sql,
-    /revoke\s+insert\s*,\s*update\s*,\s*delete\s*,\s*truncate\s*,\s*references\s*,\s*trigger\s+on\s+all\s+tables\s+in\s+schema\s+public\s+from\s+anon/i,
+    /revoke\s+insert\s*,\s*update\s*,\s*delete\s*,\s*truncate\s*,\s*references\s*,\s*trigger\s*,\s*maintain\s+on\s+all\s+tables\s+in\s+schema\s+public\s+from\s+anon/i,
   );
 });
 
-test('authenticated browser role cannot truncate, create references, or manage triggers', () => {
+test('authenticated browser role cannot hold database maintenance or schema-adjacent table privileges', () => {
   const sql = source();
   assert.match(
     sql,
-    /revoke\s+truncate\s*,\s*references\s*,\s*trigger\s+on\s+all\s+tables\s+in\s+schema\s+public\s+from\s+authenticated/i,
+    /revoke\s+truncate\s*,\s*references\s*,\s*trigger\s*,\s*maintain\s+on\s+all\s+tables\s+in\s+schema\s+public\s+from\s+authenticated/i,
   );
 });
 
-test('future app-owned table defaults preserve browser least privilege', () => {
+test('future app-owned table defaults preserve browser least privilege including PostgreSQL 17 MAINTAIN', () => {
   const sql = source();
   assert.match(
     sql,
-    /alter default privileges for role postgres in schema public[\s\S]*revoke insert, update, delete, truncate, references, trigger on tables from anon/i,
+    /alter default privileges for role postgres in schema public[\s\S]*revoke insert, update, delete, truncate, references, trigger, maintain on tables from anon/i,
   );
   assert.match(
     sql,
-    /alter default privileges for role postgres in schema public[\s\S]*revoke truncate, references, trigger on tables from authenticated/i,
+    /alter default privileges for role postgres in schema public[\s\S]*revoke truncate, references, trigger, maintain on tables from authenticated/i,
   );
 });
 
