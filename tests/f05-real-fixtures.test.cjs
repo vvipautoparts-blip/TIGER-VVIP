@@ -89,6 +89,70 @@ test('pinned F05 WASM really decodes the upstream HEVC HEIC fixture to RGBA', as
   }
 });
 
+test('pinned F05 WASM fails closed on a real truncated HEIC payload before any usable RGBA surface', async t => {
+  assert.equal(fs.existsSync(FIXTURE_B64), true, 'real HEIC fixture must exist');
+  assert.equal(fs.existsSync(DECODER_JS), true, 'pinned decoder glue must exist');
+  assert.equal(fs.existsSync(DECODER_WASM), true, 'pinned decoder wasm must exist');
+
+  const fixture = Buffer.from(fs.readFileSync(FIXTURE_B64, 'utf8').replace(/\s+/g, ''), 'base64');
+  assert.equal(fixture.length, EXPECTED_SIZE);
+  assert.equal(gitBlobSha1(fixture), EXPECTED_GIT_BLOB_SHA1, 'truncation source must be the exact upstream HEIC bytes');
+  const truncated = fixture.subarray(0, 4096);
+  assert.equal(truncated.subarray(4, 12).toString('ascii'), 'ftypheic', 'hostile sample must preserve a valid HEIC ftyp');
+  assert.ok(truncated.length < fixture.length, 'hostile sample must remove real payload bytes');
+
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vvip-f05-truncated-heic-'));
+  t.after(() => fs.rmSync(tempDir, { recursive: true, force: true }));
+  const decoderMjs = path.join(tempDir, 'f05-heif-decoder.v1.mjs');
+  fs.copyFileSync(DECODER_JS, decoderMjs);
+
+  const { default: createLibheif } = await import(`${pathToFileURL(decoderMjs).href}?truncated=${Date.now()}`);
+  const Module = await createLibheif({ wasmBinary: fs.readFileSync(DECODER_WASM) });
+  assert.equal(typeof Module.HeifDecoder, 'function', 'WASM harness must initialize before hostile decode');
+
+  const decoder = new Module.HeifDecoder();
+  let images = [];
+  let producedUsableRgba = false;
+  try {
+    try {
+      images = decoder.decode(new Uint8Array(truncated));
+    } catch (_) {
+      return;
+    }
+
+    if (Array.isArray(images) && images.length > 0) {
+      const primaryIndex = images.findIndex(candidate => candidate && candidate.is_primary && candidate.is_primary());
+      const image = images[primaryIndex >= 0 ? primaryIndex : 0];
+      if (image && image.handle) {
+        const width = image.get_width();
+        const height = image.get_height();
+        if (Number.isSafeInteger(width) && Number.isSafeInteger(height) && width > 0 && height > 0 && width * height <= 40000000) {
+          try {
+            const rendered = await display(image, width, height);
+            producedUsableRgba = Boolean(
+              rendered &&
+              rendered.data instanceof Uint8ClampedArray &&
+              rendered.data.length === width * height * 4
+            );
+          } catch (_) {
+            producedUsableRgba = false;
+          }
+        }
+      }
+    }
+
+    assert.equal(producedUsableRgba, false, 'truncated real HEIC must never yield a usable RGBA surface');
+  } finally {
+    for (const image of images) {
+      try { if (image && typeof image.free === 'function') image.free(); } catch (_) { /* best effort */ }
+    }
+    if (decoder.decoder) {
+      Module.heif_context_free(decoder.decoder);
+      decoder.decoder = null;
+    }
+  }
+});
+
 test('F05 preflight rejects the exact upstream real AVIF hostile fixture before HEIF decode', async () => {
   assert.equal(fs.existsSync(AVIF_FIXTURE_B64), true, 'real AVIF hostile fixture must be vendored');
   const fixture = Buffer.from(fs.readFileSync(AVIF_FIXTURE_B64, 'utf8').replace(/\s+/g, ''), 'base64');
