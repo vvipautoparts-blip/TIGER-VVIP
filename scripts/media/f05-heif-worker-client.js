@@ -6,6 +6,7 @@
   'use strict';
 
   const MAX_BYTES=15*1024*1024;
+  const DEFAULT_TIMEOUT_MS=20000;
   const SOURCE_KIND=Object.freeze({'image/heic':'heic','image/heif':'heif'});
   const DENIAL_CODES=new Set([
     'cancelled',
@@ -15,6 +16,7 @@
     'heif_codec_unsupported',
     'heif_sequence_denied',
     'heif_memory_limit',
+    'heif_decode_timeout',
     'heif_decode_failed',
     'signature_mismatch',
     'orientation_uncertain',
@@ -31,6 +33,7 @@
     const deps=options||{};
     if(typeof deps.workerFactory!=='function'||typeof deps.buildWorkerTransfer!=='function')throw new TypeError('f05_heif_worker_client_dependencies_required');
     const createMediaError=typeof deps.createMediaError==='function'?deps.createMediaError:fallbackError;
+    const timeoutMs=Number.isSafeInteger(deps.timeoutMs)&&deps.timeoutMs>0?Math.min(deps.timeoutMs,DEFAULT_TIMEOUT_MS):DEFAULT_TIMEOUT_MS;
 
     return Object.freeze({
       process(job){
@@ -41,8 +44,10 @@
         return new Promise(function(resolve,reject){
           let worker=null;
           let settled=false;
+          let timeoutId=null;
 
           function cleanup(){
+            if(timeoutId!==null){clearTimeout(timeoutId);timeoutId=null;}
             if(job&&job.signal&&typeof job.signal.removeEventListener==='function')job.signal.removeEventListener('abort',onAbort);
             if(!worker)return;
             try{worker.removeEventListener('message',onMessage);}catch(_){/* cleanup */}
@@ -53,6 +58,7 @@
           function deny(code){finish(reject,createMediaError(DENIAL_CODES.has(code)?code:'capability_unavailable'));}
           function onAbort(){deny('cancelled');}
           function onError(){deny('capability_unavailable');}
+          function onTimeout(){deny('heif_decode_timeout');}
           function onMessage(event){
             const message=event&&event.data;
             if(!message||message.jobId!==job.jobId){deny('capability_unavailable');return;}
@@ -70,6 +76,7 @@
             worker.addEventListener('message',onMessage);
             worker.addEventListener('error',onError);
             if(job&&job.signal&&typeof job.signal.addEventListener==='function')job.signal.addEventListener('abort',onAbort,{once:true});
+            timeoutId=setTimeout(onTimeout,timeoutMs);
             worker.postMessage(transfer.message,transfer.transfer);
           }catch(_){deny('capability_unavailable');}
         });
