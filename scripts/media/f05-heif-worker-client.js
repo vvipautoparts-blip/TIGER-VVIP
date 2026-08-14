@@ -19,6 +19,7 @@
     'heif_decode_timeout',
     'heif_decode_failed',
     'heif_worker_crash',
+    'heif_color_unsupported',
     'signature_mismatch',
     'orientation_uncertain',
     'metadata_not_stripped',
