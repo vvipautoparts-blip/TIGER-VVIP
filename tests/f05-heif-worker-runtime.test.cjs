@@ -15,7 +15,8 @@ test('F05 HEIF worker is a module wrapper around the pinned local decoder and sh
     "../../scripts/media/f05-heif-policy.js",
     "../../scripts/media/f05-heif-worker-core.js",
     'HeifDecoder',
-    "fourcc('hvc1')",
+    'heif_js_context_get_list_of_top_level_image_IDs',
+    "itemType === 'hvc1'",
     'heif_context_has_sequence',
     'image.display',
     'OffscreenCanvas',
@@ -23,6 +24,7 @@ test('F05 HEIF worker is a module wrapper around the pinned local decoder and sh
     "image/webp",
     "image/jpeg"
   ]) assert.ok(source.includes(required), required);
+  assert.equal(source.includes('heif_image_handle_get_item_id'), false, 'raw image-handle item-id lookup must not bypass Emscripten top-level IDs');
   assert.equal(source.includes('fetch("http'), false, 'decoder assets must remain same-origin/local');
   assert.equal(source.includes('localStorage'), false);
   assert.equal(source.includes('indexedDB'), false);
