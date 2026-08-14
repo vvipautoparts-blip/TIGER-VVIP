@@ -20,6 +20,7 @@
     'heif_decode_failed',
     'signature_mismatch',
     'orientation_uncertain',
+    'metadata_not_stripped',
     'encode_failed'
   ]);
 
