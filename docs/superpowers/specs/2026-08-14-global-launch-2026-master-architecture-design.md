@@ -1,8 +1,8 @@
 # TIGER VVIP — Global Launch 2026 Master Architecture
 
-**Date:** 2026-08-14  
-**Status:** OWNER-APPROVED DIRECTION / IMPLEMENTATION GATED BY EVIDENCE  
-**Master launch gate:** GitHub issue #243  
+**Date:** 2026-08-14
+**Status:** OWNER-APPROVED DIRECTION / IMPLEMENTATION GATED BY EVIDENCE
+**Master launch gate:** GitHub issue #243
 
 ## 1. Purpose
 
