@@ -22,6 +22,7 @@ test('production media request envelope rejects compressed HTTP bodies and overs
   assert.equal(PRODUCTION_MEDIA_LIMITS.maxCandidateBytes,15*1024*1024);
   assert.equal(validateMediaRequestEnvelope({method:'POST',contentLength:1024,contentEncoding:'identity'}).ok,true);
   assert.throws(()=>validateMediaRequestEnvelope({method:'POST',contentLength:1024,contentEncoding:'gzip'}),/media_request_invalid/);
+  assert.throws(()=>validateMediaRequestEnvelope({method:'POST',contentLength:1024,contentEncoding:'br'}),/media_request_invalid/);
   assert.throws(()=>validateMediaRequestEnvelope({method:'POST',contentLength:PRODUCTION_MEDIA_LIMITS.maxRequestBytes+1,contentEncoding:'identity'}),/media_request_invalid/);
   assert.throws(()=>validateMediaRequestEnvelope({method:'GET',contentLength:1024}),/media_request_invalid/);
 });
