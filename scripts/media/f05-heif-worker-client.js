@@ -18,6 +18,7 @@
     'heif_memory_limit',
     'heif_decode_timeout',
     'heif_decode_failed',
+    'heif_worker_crash',
     'signature_mismatch',
     'orientation_uncertain',
     'metadata_not_stripped',
@@ -58,7 +59,7 @@
           function finish(handler,value){if(settled)return;settled=true;cleanup();handler(value);}
           function deny(code){finish(reject,createMediaError(DENIAL_CODES.has(code)?code:'capability_unavailable'));}
           function onAbort(){deny('cancelled');}
-          function onError(){deny('capability_unavailable');}
+          function onError(){deny('heif_worker_crash');}
           function onTimeout(){deny('heif_decode_timeout');}
           function onMessage(event){
             const message=event&&event.data;
