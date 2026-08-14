@@ -1,6 +1,6 @@
 # F05 B+ — TIGER Sovereign Media Fabric Status
 
-**Status:** ZERO-TRUST MEDIA SHIELD IMPLEMENTED / FINAL DEVICE + SERVER-PORT + LEGAL EVIDENCE OPEN
+**Status:** ZERO-TRUST MEDIA SHIELD + PRODUCTION BOUNDARY CONTRACT IMPLEMENTED / FINAL DEPLOYED-ADAPTER + DEVICE + LEGAL EVIDENCE OPEN
 
 **Branch:** `feat/f05-hybrid-heic-local-media-isolated-20260814`
 
@@ -10,7 +10,7 @@
 
 F05 remains advertisement-media infrastructure only. It does not add checkout, escrow, delivery, settlement, marketplace commission/payout, warranty execution, dispute resolution, or any platform role in the underlying buyer/seller or provider/beneficiary transaction.
 
-The original HEIC/HEIF remains client-local for conversion. No failure path, OOM, timeout, offline state, decoder crash or decoder revocation may redirect the original to a server HEIC converter.
+The original HEIC/HEIF remains client-local for conversion. No failure path, OOM, timeout, offline state, decoder crash, circuit recommendation or decoder revocation may redirect the original to a server HEIC converter.
 
 ## Implemented foundation
 
@@ -46,6 +46,21 @@ Implemented controls include:
 - Fetch integrity metadata for the pinned WASM **plus** independent SHA-256 recomputation before instantiation;
 - privacy-budget telemetry schema using only coarse operational buckets and policy versions;
 - no telemetry filename/path, EXIF/GPS, raw bytes, user/listing/device IDs, public image hash or free-form stack traces.
+
+## Production boundary hardening added
+
+The Production-side core contract now includes:
+
+- `f05-production-media-ports.js`: fail-closed binding for authorization, SHA-256, trusted JPEG/WebP inspection, canonical rewrite and security-audit sink;
+- **Ingress Decompression Shield:** Production media request envelope accepts only identity-encoded request bodies and rejects gzip/br/compressed media envelopes before image processing;
+- 15 MiB candidate ceiling retained with a bounded 16 MiB request envelope ceiling for endpoint framing;
+- image-stack inspection policy forces JPEG/WebP only, metadata rejection, polyglot rejection, no animation and <=1600x1200;
+- rewrite policy forces metadata stripping, `sRGB`, no animation and bounded geometry;
+- `f05-production-media-gate.js`: one orchestrated boundary from request admission -> Production ports -> authoritative derivative verification/rewrite;
+- no Production port exposes HEIC decode/conversion capability;
+- `f05-format-circuit-breaker.js`: privacy-safe route-scoped health evaluation for WASM/native aggregate outcomes;
+- any circuit result is explicitly `recommendation_only`; telemetry cannot directly grant or revoke decoder authority;
+- integrity mismatch recommends immediate route suspension even below the normal sample threshold; sustained OOM/crash/timeout rates recommend suspension only for the affected route.
 
 ## Promoted real decoder artifact
 
@@ -83,8 +98,8 @@ F05 is not `EXACT_HEAD_PASS` until all are complete:
 2. fresh real browser/device HEIC tests, including forced WASM fallback, genuine native route when available, offline-with-pack, offline-without-pack, cancellation, memory rejection/OOM recovery and zero original-media network/persistence;
 3. real Display-P3/wide-gamut/ICC golden-reference color comparison on the final decoder artifact;
 4. real EXIF/GPS/orientation privacy evidence on non-personal fixtures;
-5. actual Production server image-stack wiring for `inspectCandidate` and `rewriteCanonical`, request-level byte limits and security-audit sink, followed by bypass tests against that deployed adapter;
-6. Production telemetry sink/alerting and format-circuit-breaker policy without sensitive identifiers;
+5. deployment-specific Production image stack implementing the now-defined `imageStack.inspect` / `imageStack.rewrite` contract, plus real endpoint request-limit enforcement and deployed audit sink, followed by bypass tests against that deployed adapter;
+6. Production telemetry sink/alerting wired to the now-defined route-scoped circuit recommendation, with any actual suspension executed only through the trusted decoder/application policy control plane;
 7. required LGPL and HEVC/H.265 launch-scope legal/product review.
 
 ## PRs
@@ -98,4 +113,4 @@ F05 is not `EXACT_HEAD_PASS` until all are complete:
 
 `GLOBAL_LAUNCH_ELIGIBLE = FALSE`
 
-This verdict is deliberately fail-closed. The engineering hardening is materially stronger, but Production closure still requires real-device, real server-port, color-reference, operational and legal evidence.
+This verdict is deliberately fail-closed. The in-repository Production boundary is now materially stronger and explicitly orchestrated, but Production closure still requires the concrete deployed image stack/audit/telemetry adapters, real-device and color-reference evidence, and legal review.
