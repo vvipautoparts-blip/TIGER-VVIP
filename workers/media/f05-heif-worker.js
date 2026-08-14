@@ -2,6 +2,7 @@ import libheif from './f05-heif-decoder.v1.js';
 import '../../scripts/media/pr36-geometry.js';
 import '../../scripts/media/f05-heif-policy.js';
 import '../../scripts/media/f05-heif-worker-core.js';
+import '../../scripts/media/f05-derivative-privacy.js';
 
 'use strict';
 
@@ -11,6 +12,7 @@ const MAX_WASM_MEMORY_BYTES = 384 * 1024 * 1024;
 const geometry = globalThis.VVIP_PR36_GEOMETRY;
 const heifPolicy = globalThis.VVIP_F05_HEIF_POLICY;
 const workerCoreApi = globalThis.VVIP_F05_HEIF_WORKER_CORE;
+const derivativePrivacy = globalThis.VVIP_F05_DERIVATIVE_PRIVACY;
 
 function fail(code) {
   const error = new Error(code);
@@ -111,6 +113,8 @@ async function encode({ surface, crop, output, quality }) {
     blob = await outputCanvas.convertToBlob({ type: 'image/jpeg', quality: quality.jpeg });
   }
   if (!blob || !['image/webp', 'image/jpeg'].includes(blob.type)) fail('encode_failed');
+  if (!derivativePrivacy || typeof derivativePrivacy.assertSanitizedBlob !== 'function') fail('capability_unavailable');
+  await derivativePrivacy.assertSanitizedBlob(blob);
   return { blob, width: output.width, height: output.height };
 }
 
