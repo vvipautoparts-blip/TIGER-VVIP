@@ -115,10 +115,10 @@ HEIC/HEIF bytes are transferred to a dedicated worker. The main-thread ArrayBuff
 
 The worker chooses one of two local decode engines:
 
-1. **Native path:** only when a standards/browser API explicitly reports HEIC/HEIF support before untrusted decode begins.
-2. **WASM fallback:** used when native capability is unavailable, not after a structural/security rejection.
+1. **Native path:** `ImageDecoder.isTypeSupported()` must exist and explicitly resolve true for `image/heic` or `image/heif` before bytes are handed to `ImageDecoder`.
+2. **WASM fallback:** used when that native capability probe is unavailable/false, not after a structural/security rejection or after a native decode has begun and rejected the input.
 
-A native decoder rejection after decode begins is fail-closed; the same hostile bytes are not automatically offered to a second decoder.
+The same hostile input is therefore never automatically passed through two decoders after a decode failure.
 
 ### Boundary D — still-image, codec and resource validation
 
@@ -169,7 +169,7 @@ The original HEIC/HEIF File, byte arrays, decoder handles and worker memory are 
 
 ### Native decoder
 
-The worker feature-detects supported browser image-decoder APIs. Capability detection must occur before handing bytes to a native decoder. A mere global constructor existing is insufficient; the MIME must be explicitly reported supported.
+Only the `ImageDecoder.isTypeSupported()` capability contract authorizes the native route. The mere existence of `ImageDecoder`, `createImageBitmap`, a filename extension, or an `<img>` decode success elsewhere is not sufficient authority.
 
 Native decode output still passes every F05 codec, dimension, still-image, color, orientation and derivative validation. Browser-native support never bypasses policy.
 
@@ -192,16 +192,18 @@ Build requirements:
 - experimental libheif APIs disabled;
 - security limits enabled; no code path may disable them;
 - no dynamic plugin discovery;
-- no filesystem, socket, media-network or persistence API exposed to decoder code;
+- no filesystem, socket or user-media persistence/network interface is exposed to decoder code; loading the exact same-origin checksum-bound JS/WASM decoder asset is the only decoder-related network fetch allowed;
 - single-threaded WASM baseline for broad browser compatibility; no SharedArrayBuffer requirement;
 - Emscripten/WASM memory starts small and may grow, but **maximum linear memory is hard-capped at 384 MiB**; allocation/growth failure maps to `heif_memory_limit`;
 - **only one HEIC/HEIF decoder worker may be active at a time**;
 - worker lifecycle is operation-scoped/ephemeral so terminating the worker releases the WASM heap;
 - runtime binary, JS glue, source manifest and build recipe are checksum-bound.
 
-## 8. Third-party and supply-chain compliance
+## 8. Third-party, codec-rights and supply-chain compliance
 
-`libheif` and `libde265` are LGPL-licensed libraries. F05 therefore requires a release-blocking third-party compliance package before any Production distribution:
+`libheif` and `libde265` are LGPL-licensed libraries. HEVC/H.265 also has jurisdiction/product-specific intellectual-property considerations. F05 therefore requires a release-blocking third-party/legal compliance package before Production distribution; engineering completion alone cannot make that legal determination.
+
+Required evidence:
 
 - exact upstream source archives and SHA-256 values recorded;
 - unmodified license texts/notices provided;
@@ -209,13 +211,11 @@ Build requirements:
 - runtime WASM kept as a replaceable same-origin asset with a stable adapter boundary;
 - corresponding source/build material sufficient for rebuilding/replacing the linked decoder retained as a distributable compliance artifact;
 - no `latest` URL or mutable dependency resolution in runtime;
-- legal/product review records whether the final delivery mechanism satisfies LGPL obligations.
+- legal/product review records whether the final delivery mechanism satisfies applicable LGPL and HEVC distribution obligations in each launch scope.
 
 If this compliance gate is not satisfied, the WASM fallback cannot be Production-enabled even if engineering tests pass.
 
-## 9. Runtime file boundaries
-
-Preferred runtime layout:
+## 9. Required runtime file boundaries
 
 - `scripts/media/f05-heif-preflight.js` — pure bounded ISO-BMFF signature/brand probe;
 - `scripts/media/f05-heif-policy.js` — still-image/type/resource policy shared by tests/adapters;
@@ -226,7 +226,7 @@ Preferred runtime layout:
 - PR36 policy/worker/controller files — minimal integration only;
 - `sw-vvip-static.js` — only the narrowly tested static-cache change needed to admit versioned `.wasm` worker assets.
 
-Do not add a new script tag to protected `index.html` merely to initialize F05. Integration should occur through the already-loaded PR36 media controller/worker path so authentication markup is not weakened.
+Do not add a new script tag to protected `index.html` merely to initialize F05. Integration occurs through the already-loaded PR36 media controller/worker path so authentication markup is not weakened.
 
 ## 10. Offline and decoder-pack behavior
 
@@ -240,7 +240,8 @@ Behavior is deterministic:
 - if native support is unavailable and the decoder pack is already cached, HEIC/HEIF works offline;
 - if native support is unavailable, the decoder pack has never been installed, and the device is offline, F05 fails closed with `heif_decoder_unavailable_offline` — it does not upload the image or switch to a server converter;
 - the first successful online WASM use installs the exact versioned decoder assets into the static cache; subsequent offline use may consume those assets;
-- a cache entry is accepted only for the exact version/checksum-bound runtime artifact.
+- before WASM instantiation, the worker hashes the fetched/cached binary with `crypto.subtle.digest("SHA-256", ...)` and compares it with the immutable F05 manifest; mismatch maps to `heif_decoder_integrity_failed`;
+- only code/runtime assets may be cached by this path; user-selected media bytes are never a cache key/value.
 
 No user-selected image bytes may enter Cache Storage, IndexedDB, localStorage or any persistent browser store.
 
@@ -273,7 +274,7 @@ Required test families:
 1. ISO-BMFF/HEIC/HEIF signature and brand parser, including malformed length/overflow/truncation cases;
 2. routing and unchanged JPEG/PNG/WebP PR36 regression;
 3. HEVC-primary still-image enforcement and sequence/video/non-HEVC denial;
-4. native-capability selection and no unsafe second-decoder fallback;
+4. `ImageDecoder.isTypeSupported()` native-capability selection and no unsafe second-decoder fallback;
 5. WASM adapter contract, integrity failure, 384 MiB memory ceiling, single-HEIF concurrency, worker crash and stale reply;
 6. orientation and color canonicalization;
 7. metadata stripping / GPS non-propagation;
@@ -321,7 +322,7 @@ F05 may be marked `EXACT_HEAD_PASS` only when all of the following are true on o
 - derivative metadata/privacy checks pass;
 - real HEIC browser evidence passes;
 - offline-with-pack/native behavior and offline-without-pack fail-closed behavior pass;
-- WASM source/binary integrity and third-party compliance artifacts are complete;
+- WASM source/binary integrity and third-party/legal compliance artifacts are complete;
 - all required exact-head CI/security gates pass;
 - no Production deploy, country activation, SQL/RLS mutation, protected-auth weakening or global-launch claim is made by the F05 PR.
 
