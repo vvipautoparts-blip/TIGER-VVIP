@@ -8,13 +8,13 @@ begin;
 
 -- Unauthenticated visitors are read-only at the database ACL layer.
 -- RLS still decides which SELECT rows are visible.
-revoke insert, update, delete, truncate, references, trigger
+revoke insert, update, delete, truncate, references, trigger, maintain
 on all tables in schema public
 from anon;
 
 -- Signed-in browser users may retain application DML where explicitly granted,
 -- but never database maintenance / schema-adjacent table capabilities.
-revoke truncate, references, trigger
+revoke truncate, references, trigger, maintain
 on all tables in schema public
 from authenticated;
 
@@ -25,10 +25,10 @@ from anon;
 
 -- Secure future application tables created by the application schema owner.
 alter default privileges for role postgres in schema public
-revoke insert, update, delete, truncate, references, trigger on tables from anon;
+revoke insert, update, delete, truncate, references, trigger, maintain on tables from anon;
 
 alter default privileges for role postgres in schema public
-revoke truncate, references, trigger on tables from authenticated;
+revoke truncate, references, trigger, maintain on tables from authenticated;
 
 -- Secure future application sequences for anonymous visitors.
 alter default privileges for role postgres in schema public
