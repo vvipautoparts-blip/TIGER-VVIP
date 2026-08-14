@@ -11,6 +11,7 @@ const { pathToFileURL } = require('node:url');
 const FIXTURE_B64 = 'tests/fixtures/media/f05/rainbow-451x461.heic.base64';
 const DECODER_JS = 'workers/media/f05-heif-decoder.v1.js';
 const DECODER_WASM = 'workers/media/f05-heif-decoder.v1.wasm';
+const WORKER_JS = 'workers/media/f05-heif-worker.js';
 const EXPECTED_SIZE = 7080;
 const EXPECTED_GIT_BLOB_SHA1 = '6691f50f39bd69871a2abe284de2ef9f5243bc66';
 
@@ -48,22 +49,25 @@ test('pinned F05 WASM really decodes the upstream HEVC HEIC fixture to RGBA', as
   const wasmBinary = fs.readFileSync(DECODER_WASM);
   const Module = await createLibheif({ wasmBinary });
   assert.equal(typeof Module.HeifDecoder, 'function');
-  assert.equal(typeof Module.fourcc, 'function');
+  assert.equal(typeof Module.heif_js_context_get_list_of_top_level_image_IDs, 'function');
 
   const decoder = new Module.HeifDecoder();
   let images = [];
   try {
     images = decoder.decode(new Uint8Array(fixture));
     assert.ok(Array.isArray(images) && images.length > 0, 'real HEIC must expose at least one top-level image');
-    const image = images.find(candidate => candidate && candidate.is_primary && candidate.is_primary()) || images[0];
+    const primaryIndex = images.findIndex(candidate => candidate && candidate.is_primary && candidate.is_primary());
+    const selectedIndex = primaryIndex >= 0 ? primaryIndex : 0;
+    const image = images[selectedIndex];
     assert.ok(image && image.handle, 'real HEIC primary image handle must exist');
     assert.equal(image.get_width(), 451, 'display width must honor HEIF clap transform');
     assert.equal(image.get_height(), 461, 'display height must honor HEIF clap transform');
     assert.equal(Module.heif_context_has_sequence(decoder.decoder), 0, 'fixture must be a still image, not a sequence');
 
-    const itemId = Module.heif_image_handle_get_item_id(image.handle);
-    const itemType = Module.heif_item_get_item_type(decoder.decoder, itemId);
-    assert.equal(itemType, Module.fourcc('hvc1'), 'primary item must be HEVC/hvc1');
+    const topLevelIds = Module.heif_js_context_get_list_of_top_level_image_IDs(decoder.decoder);
+    assert.equal(topLevelIds.length, images.length, 'decoder image order must correlate with top-level IDs');
+    const itemType = Module.heif_item_get_item_type(decoder.decoder, topLevelIds[selectedIndex]);
+    assert.equal(itemType, 'hvc1', 'primary top-level item must be HEVC/hvc1');
 
     const rendered = await display(image, 451, 461);
     assert.equal(rendered.width, 451);
@@ -80,4 +84,11 @@ test('pinned F05 WASM really decodes the upstream HEVC HEIC fixture to RGBA', as
       decoder.decoder = null;
     }
   }
+});
+
+test('F05 worker classifies codec from correlated top-level item IDs, never a raw image-handle item-id call', () => {
+  const source = fs.readFileSync(WORKER_JS, 'utf8');
+  assert.match(source, /heif_js_context_get_list_of_top_level_image_IDs/);
+  assert.doesNotMatch(source, /heif_image_handle_get_item_id/);
+  assert.match(source, /itemType\s*===\s*['"]hvc1['"]/);
 });
