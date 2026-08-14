@@ -1,8 +1,7 @@
 (function(root,factory){
   'use strict';
   const api=factory();
-  if(typeof module==='object'&&module.exports)module.exports=api;
-  else root.VVIP_F05_PR36_MEDIA_BRIDGE=api;
+  if(typeof module==='object'&&module.exports){exports.createF05MediaPolicyBridge=api.createF05MediaPolicyBridge;Object.freeze(module.exports);}else root.VVIP_F05_PR36_MEDIA_BRIDGE=api;
 })(typeof globalThis!=='undefined'?globalThis:this,function(){
   'use strict';
   const HEIF_SOURCE_MIME=Object.freeze({'image/heic':'heic','image/heif':'heif'});

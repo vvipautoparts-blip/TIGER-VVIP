@@ -1,8 +1,7 @@
 (function(root,factory){
   'use strict';
   const api=factory();
-  if(typeof module==='object'&&module.exports)module.exports=api;
-  else root.VVIP_F05_DECODER_POLICY=api;
+  if(typeof module==='object'&&module.exports){exports.DECODER_POLICY_VERSION=api.DECODER_POLICY_VERSION;exports.APP_POLICY_VERSION=api.APP_POLICY_VERSION;exports.validateDecoderPolicy=api.validateDecoderPolicy;Object.freeze(module.exports);}else root.VVIP_F05_DECODER_POLICY=api;
 })(typeof globalThis!=='undefined'?globalThis:this,function(){
   'use strict';
   const DECODER_POLICY_VERSION='F05_DECODER_POLICY_V1';

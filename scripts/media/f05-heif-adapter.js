@@ -1,8 +1,7 @@
 (function(root,factory){
   'use strict';
   const api=factory();
-  if(typeof module==='object'&&module.exports)module.exports=api;
-  else root.VVIP_F05_HEIF_ADAPTER=api;
+  if(typeof module==='object'&&module.exports){exports.createHeifAdapter=api.createHeifAdapter;exports.buildWorkerTransfer=api.buildWorkerTransfer;Object.freeze(module.exports);}else root.VVIP_F05_HEIF_ADAPTER=api;
 })(typeof globalThis!=='undefined'?globalThis:this,function(){
   'use strict';
   const MIMES=new Set(['image/heic','image/heif']);

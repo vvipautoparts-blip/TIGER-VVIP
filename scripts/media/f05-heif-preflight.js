@@ -1,8 +1,7 @@
 (function(root,factory){
   'use strict';
   const api=factory();
-  if(typeof module==='object'&&module.exports)module.exports=api;
-  else root.VVIP_F05_HEIF_PREFLIGHT=api;
+  if(typeof module==='object'&&module.exports){exports.MAX_HEIF_HEADER_BYTES=api.MAX_HEIF_HEADER_BYTES;exports.probeHeifHeader=api.probeHeifHeader;Object.freeze(module.exports);}else root.VVIP_F05_HEIF_PREFLIGHT=api;
 })(typeof globalThis!=='undefined'?globalThis:this,function(){
   'use strict';
   const MAX_HEIF_HEADER_BYTES=262144;

@@ -1,8 +1,7 @@
 (function(root,factory){
   'use strict';
   const api=factory();
-  if(typeof module==='object'&&module.exports)module.exports=api;
-  else root.VVIP_F05_HEIF_POLICY=api;
+  if(typeof module==='object'&&module.exports){exports.F05_LIMITS=api.F05_LIMITS;exports.admitHeifDecode=api.admitHeifDecode;Object.freeze(module.exports);}else root.VVIP_F05_HEIF_POLICY=api;
 })(typeof globalThis!=='undefined'?globalThis:this,function(){
   'use strict';
   const MiB=1024*1024;
