@@ -27,6 +27,13 @@ function hex(buffer) {
   return Array.from(new Uint8Array(buffer), byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
+function assertSrgbContext(context) {
+  if (!context) fail('capability_unavailable');
+  if (typeof context.getContextAttributes !== 'function') return;
+  const attributes = context.getContextAttributes();
+  if (attributes && attributes.colorSpace && attributes.colorSpace !== 'srgb') fail('heif_color_unsupported');
+}
+
 async function loadVerifiedDecoder() {
   if (!globalThis.crypto || !crypto.subtle || typeof fetch !== 'function') fail('capability_unavailable');
   const wasmUrl = new URL(`./${WASM_NAME}`, import.meta.url);
@@ -101,14 +108,14 @@ async function encode({ surface, crop, output, quality }) {
   if (typeof OffscreenCanvas !== 'function') fail('capability_unavailable');
   const sourceCanvas = new OffscreenCanvas(surface.width, surface.height);
   const sourceContext = sourceCanvas.getContext('2d', { alpha: true, colorSpace: 'srgb' });
-  if (!sourceContext) fail('capability_unavailable');
+  assertSrgbContext(sourceContext);
   const sourceImage = sourceContext.createImageData(surface.width, surface.height);
   sourceImage.data.set(surface.data);
   sourceContext.putImageData(sourceImage, 0, 0);
 
   const outputCanvas = new OffscreenCanvas(output.width, output.height);
   const outputContext = outputCanvas.getContext('2d', { alpha: false, colorSpace: 'srgb' });
-  if (!outputContext) fail('capability_unavailable');
+  assertSrgbContext(outputContext);
   outputContext.drawImage(sourceCanvas, crop.x, crop.y, crop.width, crop.height, 0, 0, output.width, output.height);
 
   let blob = await outputCanvas.convertToBlob({ type: 'image/webp', quality: quality.webp });
