@@ -85,3 +85,23 @@ test('F05 HEIF worker client rejects malformed output instead of falling back', 
   const client = createHeifWorkerClient({ workerFactory: () => worker, buildWorkerTransfer, createMediaError: mediaError });
   await assert.rejects(() => client.process(makeJob()), error => error && error.code === 'encode_failed');
 });
+
+test('F05 HEIF worker client terminates a hung decoder and fails closed as heif_decode_timeout', async () => {
+  const worker = makeWorker(() => {});
+  const client = createHeifWorkerClient({
+    workerFactory: () => worker,
+    buildWorkerTransfer,
+    createMediaError: mediaError,
+    timeoutMs: 10
+  });
+
+  const guard = new Promise((_, reject) => {
+    setTimeout(() => reject(mediaError('test_timeout_not_enforced')), 75);
+  });
+
+  await assert.rejects(
+    () => Promise.race([client.process(makeJob()), guard]),
+    error => error && error.code === 'heif_decode_timeout'
+  );
+  assert.equal(worker.terminated, true);
+});
