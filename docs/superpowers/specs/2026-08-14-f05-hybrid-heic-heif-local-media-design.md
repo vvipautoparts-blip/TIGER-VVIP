@@ -24,7 +24,7 @@ F05 must:
 
 1. preserve the existing PR36 seven-photo safety model;
 2. add secure still-image HEIC/HEIF intake without making the server a media conversion dependency;
-3. retain local/offline-capable processing after required runtime assets are installed;
+3. retain local/offline-capable processing after the required versioned decoder assets have been installed locally;
 4. ensure untrusted HEIC/HEIF originals never become public/persistent listing media;
 5. convert decoded content to a metadata-free, display-oriented, sRGB WebP/JPEG derivative before it is accepted by PR36 metadata/session contracts;
 6. fail closed on unsupported codecs, image sequences, malformed containers, unsafe dimensions, memory pressure, orientation ambiguity, color ambiguity, worker failure, stale responses, or integrity failures;
@@ -38,7 +38,7 @@ F05 does **not** add:
 - upload/persistence of original HEIC/HEIF bytes;
 - HEIC/HEIF encoding;
 - video, Live Photo video, timed HEIF image sequences, animated media, or `image/heic-sequence` / `image/heif-sequence` support;
-- AVIF expansion beyond existing product authority;
+- AVIF, VVC, AVC, JPEG-in-HEIF, uncompressed-HEIF or other HEIF codec expansion; F05 accepts only an HEVC-coded primary still image;
 - marketplace checkout, escrow, delivery, transaction payment/settlement, marketplace commission/payout, warranty execution, or dispute resolution;
 - protected authentication weakening;
 - a global-launch or 4M capacity claim.
@@ -63,6 +63,8 @@ The following PR36 limits remain authoritative and are not relaxed:
 
 JPEG/PNG/WebP continue through the existing PR36 route unchanged except for shared regression-safe routing infrastructure.
 
+PR36 retains its overall scheduler ceiling of **2** jobs. F05 adds a stricter HEIC/HEIF decode lane with **maximum concurrency 1** so two high-memory HEIF decodes can never run simultaneously.
+
 ## 5. Threat model
 
 F05 treats every selected HEIC/HEIF byte as hostile. Required defenses cover:
@@ -71,6 +73,7 @@ F05 treats every selected HEIC/HEIF byte as hostile. Required defenses cover:
 - malformed ISO-BMFF boxes, oversized box lengths and truncated boxes;
 - incompatible or misleading `ftyp` brands;
 - container/polyglot tricks;
+- non-HEVC primary-image codecs hidden in a generic HEIF container;
 - timed sequences / animation / video tracks disguised as still images;
 - decompression bombs and oversized decoded planes;
 - decoder integer overflow, OOB, assertion/DoS and allocation failure;
@@ -117,13 +120,14 @@ The worker chooses one of two local decode engines:
 
 A native decoder rejection after decode begins is fail-closed; the same hostile bytes are not automatically offered to a second decoder.
 
-### Boundary D — still-image and resource validation
+### Boundary D — still-image, codec and resource validation
 
 Before a WASM pixel allocation, the decoder adapter must inspect primary-image metadata and enforce:
 
 - still image only;
 - no timed sequence / animation / video track;
 - valid primary image;
+- primary compression codec is **HEVC/H.265**;
 - dimensions >= 320 × 240;
 - decoded pixels <= 40,000,000;
 - integer-safe width/height calculations;
@@ -167,7 +171,7 @@ The original HEIC/HEIF File, byte arrays, decoder handles and worker memory are 
 
 The worker feature-detects supported browser image-decoder APIs. Capability detection must occur before handing bytes to a native decoder. A mere global constructor existing is insufficient; the MIME must be explicitly reported supported.
 
-Native decode output still passes every F05 dimension, still-image, color, orientation and derivative validation. Browser-native support never bypasses policy.
+Native decode output still passes every F05 codec, dimension, still-image, color, orientation and derivative validation. Browser-native support never bypasses policy.
 
 ### WASM decoder
 
@@ -190,7 +194,8 @@ Build requirements:
 - no dynamic plugin discovery;
 - no filesystem, socket, media-network or persistence API exposed to decoder code;
 - single-threaded WASM baseline for broad browser compatibility; no SharedArrayBuffer requirement;
-- explicit bounded maximum WASM memory; implementation plan must set and test the exact value before the binary is accepted;
+- Emscripten/WASM memory starts small and may grow, but **maximum linear memory is hard-capped at 384 MiB**; allocation/growth failure maps to `heif_memory_limit`;
+- **only one HEIC/HEIF decoder worker may be active at a time**;
 - worker lifecycle is operation-scoped/ephemeral so terminating the worker releases the WASM heap;
 - runtime binary, JS glue, source manifest and build recipe are checksum-bound.
 
@@ -223,19 +228,23 @@ Preferred runtime layout:
 
 Do not add a new script tag to protected `index.html` merely to initialize F05. Integration should occur through the already-loaded PR36 media controller/worker path so authentication markup is not weakened.
 
-## 10. Offline behavior
+## 10. Offline and decoder-pack behavior
 
-The F05 worker/glue/WASM assets are same-origin static assets.
+The F05 worker/glue/WASM assets are same-origin static assets under the existing `/workers/` static-delivery boundary.
 
-The existing static delivery worker may be changed only to:
+The static delivery worker is changed only to admit `.wasm` under that existing prefix and to cache the exact checksum-bound decoder assets when they are requested. F05 does **not** force every platform user to download the multi-megabyte WASM decoder at application install time.
 
-- allow `.wasm` under the already-approved `/workers/` prefix;
-- bind a new cache version to the F05 artifact set;
-- precache the exact versioned worker/glue/WASM assets during app-shell installation if the implementation tests prove this is required for cold-offline HEIC support.
+Behavior is deterministic:
+
+- if native HEIC/HEIF support is available, no WASM pack is required;
+- if native support is unavailable and the decoder pack is already cached, HEIC/HEIF works offline;
+- if native support is unavailable, the decoder pack has never been installed, and the device is offline, F05 fails closed with `heif_decoder_unavailable_offline` — it does not upload the image or switch to a server converter;
+- the first successful online WASM use installs the exact versioned decoder assets into the static cache; subsequent offline use may consume those assets;
+- a cache entry is accepted only for the exact version/checksum-bound runtime artifact.
 
 No user-selected image bytes may enter Cache Storage, IndexedDB, localStorage or any persistent browser store.
 
-Offline success means: after the application shell is installed, a user can select and convert a valid HEIC/HEIF still image with network unavailable, while DevTools shows zero requests carrying selected media bytes.
+Offline success evidence therefore means: on a device with either native support or the exact fallback decoder pack already installed, a valid HEIC/HEIF still image converts with network unavailable while DevTools shows zero requests carrying selected media bytes.
 
 ## 11. Error semantics
 
@@ -250,6 +259,7 @@ F05 introduces stable, non-sensitive error families, mapped to Arabic UI copy wi
 - `heif_color_unsupported`
 - `heif_decode_failed`
 - `heif_decoder_integrity_failed`
+- `heif_decoder_unavailable_offline`
 - existing PR36 cancellation/timeout/stale/encode errors.
 
 Decoder library stack traces, filenames, raw metadata and byte offsets must not be exposed to the listing UI or persisted.
@@ -262,14 +272,14 @@ Required test families:
 
 1. ISO-BMFF/HEIC/HEIF signature and brand parser, including malformed length/overflow/truncation cases;
 2. routing and unchanged JPEG/PNG/WebP PR36 regression;
-3. still-image-only enforcement and sequence/video denial;
+3. HEVC-primary still-image enforcement and sequence/video/non-HEVC denial;
 4. native-capability selection and no unsafe second-decoder fallback;
-5. WASM adapter contract, integrity failure, memory failure, worker crash and stale reply;
+5. WASM adapter contract, integrity failure, 384 MiB memory ceiling, single-HEIF concurrency, worker crash and stale reply;
 6. orientation and color canonicalization;
 7. metadata stripping / GPS non-propagation;
 8. exact PR36 7/15MiB/60MiB/40MP/4:3/no-upscale/1600×1200 invariants;
 9. cancellation, timeout, worker termination and source-byte release;
-10. offline static-asset cache behavior without user-media persistence;
+10. static `.wasm` cache behavior without user-media persistence, including offline-with-pack and offline-without-pack cases;
 11. controller accept/input behavior and Arabic accessible error copy;
 12. real HEIC fixtures, including orientation/color/metadata cases plus hostile/truncated/sequence fixtures;
 13. repository-wide F00–F04 and PR36 regressions;
@@ -288,7 +298,8 @@ F05 closure requires observed browser evidence for both canonical PR36 pages or 
 - Arabic RTL keyboard/focus behavior;
 - cancellation/reset/pagehide cleanup;
 - worker termination and no stale result;
-- offline conversion after app-shell asset installation;
+- offline conversion with native capability or preinstalled fallback pack;
+- explicit fail-closed behavior when offline and fallback pack is absent;
 - zero network requests containing selected image bytes;
 - zero persistent original/media bytes;
 - no EXIF/GPS propagation into emitted derivative/listing metadata;
@@ -304,11 +315,12 @@ F05 may be marked `EXACT_HEAD_PASS` only when all of the following are true on o
 - local native/WASM hybrid HEIC/HEIF still-image pipeline implemented;
 - old F05A server-quarantine architecture is not active;
 - original HEIC/HEIF is never uploaded/persisted/published by the conversion path;
+- primary image is HEVC and sequence/video/non-HEVC HEIF is denied;
 - PR36 safety limits and JPEG/PNG/WebP regressions pass;
-- sequence/video denied;
+- HEIC/HEIF decoder concurrency is 1 and WASM memory cannot exceed 384 MiB;
 - derivative metadata/privacy checks pass;
 - real HEIC browser evidence passes;
-- offline behavior passes;
+- offline-with-pack/native behavior and offline-without-pack fail-closed behavior pass;
 - WASM source/binary integrity and third-party compliance artifacts are complete;
 - all required exact-head CI/security gates pass;
 - no Production deploy, country activation, SQL/RLS mutation, protected-auth weakening or global-launch claim is made by the F05 PR.
