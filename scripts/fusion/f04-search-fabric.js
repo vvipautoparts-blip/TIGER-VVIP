@@ -311,7 +311,9 @@ function eligibleListing(listing, activeMarketCountry) {
   return typeof listing.id === "string" && listing.id.length > 0;
 }
 
-export function searchListings({ query = "", listings = [], dictionaries = {}, activeMarketCountry = "", semanticScores = {} } = {}) {
+export function searchListings(options = {}) {
+  const safeOptions = options && typeof options === "object" && !Array.isArray(options) ? options : {};
+  const { query = "", listings = [], dictionaries = {}, activeMarketCountry = "", semanticScores = {} } = safeOptions;
   const normalizedQuery = normalizeSearchQuery(query);
   const intent = extractSearchIntent(normalizedQuery, dictionaries);
   const source = Array.isArray(listings) ? listings : [];
