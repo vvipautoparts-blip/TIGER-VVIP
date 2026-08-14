@@ -21,16 +21,24 @@ function source() {
 test('anonymous Supabase Auth identities cannot become marketplace owner actors', () => {
   const sql = source();
 
-  assert.match(sql, /auth\.jwt\(\)\s*->>\s*'is_anonymous'/i);
+  assert.match(sql, /current_setting\('request\.jwt\.claims',\s*true\)/i);
+  assert.match(sql, /is_anonymous/i);
   assert.match(sql, /coalesce\([\s\S]*is_anonymous[\s\S]*false\)\s+is\s+false/i);
   assert.match(sql, /sub[\s\S]*like\s+'user\\_%'/i);
   assert.match(sql, /else\s+null/i);
 });
 
+test('actor helper avoids direct auth-schema dependency in new migration', () => {
+  const sql = source();
+
+  assert.doesNotMatch(sql, /\bauth\s*\./i);
+  assert.match(sql, /request\.jwt\.claims/i);
+});
+
 test('permanent platform identity compatibility remains explicit and narrowly shaped', () => {
   const sql = source();
 
-  assert.match(sql, /nullif\(auth\.jwt\(\)\s*->>\s*'sub',\s*''\)/i);
+  assert.match(sql, /claims[\s\S]*->>\s*'sub'/i);
   assert.match(sql, /like\s+'user\\_%'\s+escape\s+'\\'/i);
   assert.doesNotMatch(sql, /coalesce\([\s\S]*sub[\s\S]*random|gen_random_uuid\(\)/i);
 });
@@ -58,6 +66,13 @@ test('legacy trigger helpers pin search_path and remain non-browser RPCs', () =>
       new RegExp(`revoke all on function public\\.${fn}\\(\\) from public, anon, authenticated`, 'i'),
     );
   }
+});
+
+test('function-existence guards avoid dangerous-sql NOT NULL false positives', () => {
+  const sql = source();
+
+  assert.doesNotMatch(sql, /to_regprocedure\([^\n]+\)\s+is\s+not\s+null/i);
+  assert.match(sql, /to_regprocedure\([^\n]+\)\s+is\s+distinct\s+from\s+null/i);
 });
 
 test('migration is forward-only hardening and seeds no business or authority rows', () => {
