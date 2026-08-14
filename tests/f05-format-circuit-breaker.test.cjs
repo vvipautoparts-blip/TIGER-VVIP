@@ -18,16 +18,16 @@ test('circuit breaker keeps healthy WASM active and returns a bounded recommenda
 test('single decoder integrity mismatch opens WASM circuit immediately',()=>{
   const result=evaluateHeifCircuit(window({sampleCount:1,successCount:0,timeoutCount:0,oomCount:0,crashCount:0,integrityRejectCount:1}));
   assert.equal(result.state,'OPEN');
-  assert.equal(result.action,'DISABLE_WASM_FALLBACK');
+  assert.equal(result.action,'RECOMMEND_SUSPEND_WASM_FALLBACK');
   assert.equal(result.reason,'integrity');
 });
 
 test('sustained OOM crash or timeout rates open only the affected route',()=>{
   const wasm=evaluateHeifCircuit(window({successCount:80,timeoutCount:8,oomCount:6,crashCount:6}));
   assert.equal(wasm.state,'OPEN');
-  assert.equal(wasm.action,'DISABLE_WASM_FALLBACK');
+  assert.equal(wasm.action,'RECOMMEND_SUSPEND_WASM_FALLBACK');
   const native=evaluateHeifCircuit(window({decodeRoute:'native',successCount:80,timeoutCount:8,oomCount:6,crashCount:6}));
-  assert.equal(native.action,'DISABLE_HEIF_NATIVE_ROUTE');
+  assert.equal(native.action,'RECOMMEND_SUSPEND_HEIF_NATIVE_ROUTE');
 });
 
 test('small samples do not trip rate-based breaker but integrity remains immediate',()=>{
