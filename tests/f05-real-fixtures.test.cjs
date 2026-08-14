@@ -9,11 +9,14 @@ const crypto = require('node:crypto');
 const { pathToFileURL } = require('node:url');
 
 const FIXTURE_B64 = 'tests/fixtures/media/f05/rainbow-451x461.heic.base64';
+const AVIF_FIXTURE_B64 = 'tests/fixtures/media/f05/simple_osm_tile_alpha.avif.base64';
+const PREFLIGHT_JS = 'scripts/media/f05-heif-preflight.js';
 const DECODER_JS = 'workers/media/f05-heif-decoder.v1.js';
 const DECODER_WASM = 'workers/media/f05-heif-decoder.v1.wasm';
 const WORKER_JS = 'workers/media/f05-heif-worker.js';
 const EXPECTED_SIZE = 7080;
 const EXPECTED_GIT_BLOB_SHA1 = '6691f50f39bd69871a2abe284de2ef9f5243bc66';
+const EXPECTED_AVIF_GIT_BLOB_SHA1 = 'e3135d33ac351fbcd0f4a1316ad5db80d2a26929';
 
 function gitBlobSha1(bytes) {
   const header = Buffer.from(`blob ${bytes.length}\0`, 'utf8');
@@ -84,6 +87,18 @@ test('pinned F05 WASM really decodes the upstream HEVC HEIC fixture to RGBA', as
       decoder.decoder = null;
     }
   }
+});
+
+test('F05 preflight rejects the exact upstream real AVIF hostile fixture before HEIF decode', async () => {
+  assert.equal(fs.existsSync(AVIF_FIXTURE_B64), true, 'real AVIF hostile fixture must be vendored');
+  const fixture = Buffer.from(fs.readFileSync(AVIF_FIXTURE_B64, 'utf8').replace(/\s+/g, ''), 'base64');
+  assert.equal(gitBlobSha1(fixture), EXPECTED_AVIF_GIT_BLOB_SHA1, 'AVIF fixture bytes must match libheif v1.23.1 upstream blob exactly');
+  assert.equal(fixture.subarray(4, 8).toString('ascii'), 'ftyp');
+  assert.equal(fixture.subarray(8, 12).toString('ascii'), 'mif3');
+  assert.equal(fixture.subarray(12, 16).toString('ascii'), 'avif');
+
+  const { probeHeifHeader } = await import(`${pathToFileURL(path.resolve(PREFLIGHT_JS)).href}?real-avif=${Date.now()}`);
+  assert.deepEqual(probeHeifHeader(new Uint8Array(fixture)), { ok: false, code: 'heif_codec_unsupported' });
 });
 
 test('F05 worker classifies codec from correlated top-level item IDs, never a raw image-handle item-id call', () => {
