@@ -1,6 +1,6 @@
 # F04 — TIGER Search Fabric Status
 
-**Status:** IMPLEMENTED / EXACT-HEAD VERIFICATION PENDING
+**Status:** IMPLEMENTED / EXACT_HEAD_PASS
 
 **Branch:** `feat/f04-tiger-search-fabric-isolated-20260814`
 
@@ -8,9 +8,24 @@
 
 **Implementation checkpoint before closure documentation:** `f36d0b7b67921bab614de52f135be2d714bf25a2`
 
+**First full closure-cycle head:** `0373607c9c376a51290160ffaea5c3b67eec8350`
+
 **Binding Owner invariant:** `docs/fusion/OWNER_RULE_ADVERTISING_CONNECTION_ONLY_2026.md`
 
-The final F04 exact-head SHA and workflow run IDs are recorded on the F04 product PR and its temporary verification-only PR. They are intentionally not hard-coded here after the final documentation commit, because changing this file merely to refresh the SHA would create another unverified source SHA.
+The final documentation-bearing F04 SHA and its final workflow run IDs are maintained on product PR #236 and verification-only PR #237. They are intentionally not hard-coded after this status transition, because changing this file merely to refresh its own final SHA would recursively create another unverified SHA.
+
+## Exact-head closure evidence
+
+The first full closure cycle on `0373607c9c376a51290160ffaea5c3b67eec8350` passed:
+
+- VVIP Quality Gate #940;
+- V14 Release Candidate #398, including explicit exact-source checkout/SHA verification and the full quality gate;
+- CodeQL #846;
+- Dependency Review #746;
+- TIGER CleanGuard #462;
+- Project Control Integrity #893.
+
+This status commit is followed by one final full CI/security rerun on the documentation-bearing branch head. The final SHA/run IDs are recorded on PR #236/#237; F04 is considered closed only if that final rerun is also green.
 
 ## Implemented contracts
 
@@ -81,6 +96,6 @@ F04 does **not** authorize:
 - marketplace transaction money movement;
 - claims that 25K local search diagnostics prove F08/F13 global capacity.
 
-## Closure requirement
+## Closure rule
 
-F04 becomes exact-head verified only when the final documentation-bearing F04 head passes the repository Quality Gate, V14 Release Candidate exact-source verification, CodeQL, Dependency Review, TIGER CleanGuard, and Project Control Integrity through the authorized CI path. Until then this file remains `EXACT-HEAD VERIFICATION PENDING`.
+The authoritative final F04 closure proof is the complete green workflow set recorded on PR #236/#237 for the final documentation-bearing head. If any final gate is not green, this `EXACT_HEAD_PASS` status is invalid until that defect is corrected and the final head is reverified.
