@@ -48,6 +48,8 @@ export function normalizeSearchQuery(input) {
   return deepFreeze({ raw, normalized, tokens, scriptHints });
 }
 
+export { deepFreeze };
+
 const INTENT_FIELDS = Object.freeze([
   Object.freeze({ source: "locations", field: "location" }),
   Object.freeze({ source: "makes", field: "make" }),
@@ -61,7 +63,7 @@ function buildIntentAliases(dictionaries) {
   for (const { source, field } of INTENT_FIELDS) {
     const entries = Array.isArray(dictionaries?.[source]) ? dictionaries[source] : [];
     for (const entry of entries) {
-      if (!entry || typeof entry.value !== "string" || !Array.isArray(entry.aliases)) continue;
+      if (!entry || entry.available === false || typeof entry.value !== "string" || !Array.isArray(entry.aliases)) continue;
       for (const alias of entry.aliases) {
         const normalized = normalizeSearchQuery(alias).tokens;
         if (!normalized.length || normalized.length > 6) continue;
@@ -69,6 +71,18 @@ function buildIntentAliases(dictionaries) {
       }
     }
   }
+
+  const genericAliases = Array.isArray(dictionaries?.aliases) ? dictionaries.aliases : [];
+  const allowedFields = new Set(["make", "model", "location", "category"]);
+  for (const entry of genericAliases) {
+    if (!entry || entry.available === false || !allowedFields.has(entry.field) || typeof entry.value !== "string" || !Array.isArray(entry.aliases)) continue;
+    for (const alias of entry.aliases) {
+      const normalized = normalizeSearchQuery(alias).tokens;
+      if (!normalized.length || normalized.length > 6) continue;
+      aliases.push({ field: entry.field, value: entry.value, tokens: normalized });
+    }
+  }
+
   return aliases.sort((a, b) => b.tokens.length - a.tokens.length || a.field.localeCompare(b.field) || a.value.localeCompare(b.value));
 }
 
@@ -149,6 +163,7 @@ function matchesCanonical(candidate, expected) {
 
 function passesStructuredFilters(listing, filters) {
   if (filters.make !== undefined && !matchesCanonical(listing.brand, filters.make)) return false;
+  if (filters.model !== undefined && !matchesCanonical(listing.model, filters.model)) return false;
   if (filters.category !== undefined && !matchesCanonical(listing.category, filters.category)) return false;
   if (filters.location !== undefined && !matchesCanonical(listing.location, filters.location)) return false;
   if (filters.year !== undefined && Number(listing.year) !== Number(filters.year)) return false;
@@ -187,8 +202,104 @@ function clonePlain(value) {
   return value;
 }
 
-function emptyRescue() {
-  return deepFreeze({ spelling: [], locations: [], relaxedFilters: [], adjacentCategories: [], aliases: [] });
+const MAX_RESCUE_PER_FAMILY = 5;
+const MAX_RESCUE_VOCABULARY = 256;
+
+function entryAvailable(entry, activeMarketCountry) {
+  if (!entry || entry.available === false) return false;
+  if (!activeMarketCountry || !Array.isArray(entry.countries) || entry.countries.length === 0) return true;
+  return entry.countries.some((code) => String(code).toUpperCase() === String(activeMarketCountry).toUpperCase());
+}
+
+function editDistanceAtMostOne(left, right) {
+  if (left === right) return 0;
+  if (Math.abs(left.length - right.length) > 1) return 2;
+  let i = 0;
+  let j = 0;
+  let edits = 0;
+  while (i < left.length && j < right.length) {
+    if (left[i] === right[j]) {
+      i += 1;
+      j += 1;
+      continue;
+    }
+    edits += 1;
+    if (edits > 1) return 2;
+    if (left.length > right.length) i += 1;
+    else if (right.length > left.length) j += 1;
+    else {
+      i += 1;
+      j += 1;
+    }
+  }
+  if (i < left.length || j < right.length) edits += 1;
+  return edits <= 1 ? edits : 2;
+}
+
+function trustedVocabulary(dictionaries, activeMarketCountry) {
+  const words = new Set();
+  const groups = [dictionaries?.locations, dictionaries?.makes, dictionaries?.categories, dictionaries?.aliases];
+  for (const group of groups) {
+    if (!Array.isArray(group)) continue;
+    for (const entry of group) {
+      if (!entryAvailable(entry, activeMarketCountry)) continue;
+      for (const alias of Array.isArray(entry.aliases) ? entry.aliases : []) {
+        const tokens = normalizeSearchQuery(alias).tokens;
+        if (tokens.length === 1 && tokens[0].length >= 3 && tokens[0].length <= 32) words.add(tokens[0]);
+        if (words.size >= MAX_RESCUE_VOCABULARY) break;
+      }
+      if (words.size >= MAX_RESCUE_VOCABULARY) break;
+    }
+    if (words.size >= MAX_RESCUE_VOCABULARY) break;
+  }
+  return [...words].sort();
+}
+
+function buildRescue({ normalizedQuery, intent, dictionaries, activeMarketCountry }) {
+  const spellingCandidates = [];
+  const vocab = trustedVocabulary(dictionaries, activeMarketCountry);
+  for (const token of intent.textTokens) {
+    if (token.length < 3 || token.length > 32) continue;
+    for (const word of vocab) {
+      const distance = editDistanceAtMostOne(token, word);
+      if (distance === 1) spellingCandidates.push({ word, distance });
+    }
+  }
+  const spelling = [...new Set(spellingCandidates.sort((a, b) => a.distance - b.distance || a.word.localeCompare(b.word)).map((item) => item.word))]
+    .slice(0, MAX_RESCUE_PER_FAMILY);
+
+  const locations = (Array.isArray(dictionaries?.locations) ? dictionaries.locations : [])
+    .filter((entry) => entryAvailable(entry, activeMarketCountry) && typeof entry.value === "string")
+    .map((entry) => entry.value)
+    .sort((a, b) => a.localeCompare(b))
+    .slice(0, MAX_RESCUE_PER_FAMILY);
+
+  const adjacentCategories = (Array.isArray(dictionaries?.categories) ? dictionaries.categories : [])
+    .filter((entry) => entryAvailable(entry, activeMarketCountry) && typeof entry.value === "string" && entry.value !== intent.filters.category)
+    .map((entry) => entry.value)
+    .sort((a, b) => a.localeCompare(b))
+    .slice(0, MAX_RESCUE_PER_FAMILY);
+
+  const relaxedFilters = [...new Set(intent.recognized.map((field) => `remove:${field}`))]
+    .slice(0, MAX_RESCUE_PER_FAMILY);
+
+  const aliases = [];
+  for (const entry of Array.isArray(dictionaries?.aliases) ? dictionaries.aliases : []) {
+    if (!entryAvailable(entry, activeMarketCountry) || typeof entry.value !== "string") continue;
+    const aliasMatches = (Array.isArray(entry.aliases) ? entry.aliases : []).some((alias) => {
+      const phrase = normalizeSearchQuery(alias).normalized;
+      return phrase && normalizedQuery.normalized.includes(phrase);
+    });
+    if (aliasMatches) aliases.push(entry.value);
+  }
+
+  return deepFreeze({
+    spelling,
+    locations,
+    relaxedFilters,
+    adjacentCategories,
+    aliases: [...new Set(aliases)].sort((a, b) => a.localeCompare(b)).slice(0, MAX_RESCUE_PER_FAMILY)
+  });
 }
 
 function eligibleListing(listing, activeMarketCountry) {
@@ -221,7 +332,6 @@ export function searchListings({ query = "", listings = [], dictionaries = {}, a
     selected = ranked.slice(0, MAX_RESULTS).map(({ listing }) => deepFreeze(clonePlain(listing)));
   }
 
-  return deepFreeze({ query: normalizedQuery, intent, results: selected, rescue: emptyRescue() });
+  const rescue = selected.length === 0 ? buildRescue({ normalizedQuery, intent, dictionaries, activeMarketCountry }) : deepFreeze({ spelling: [], locations: [], relaxedFilters: [], adjacentCategories: [], aliases: [] });
+  return deepFreeze({ query: normalizedQuery, intent, results: selected, rescue });
 }
-
-export { deepFreeze };
