@@ -36,18 +36,23 @@ test('OTP production promotion is an explicit four-artifact atomic bundle', () =
   }
 });
 
-test('promotion manifest requires configuration by name without recording secret values', () => {
+test('promotion manifest classifies owner, optional and platform-provided configuration without secret values', () => {
   const data = manifest();
-  assert.deepEqual(data.required_configuration.sort(), [
+  assert.deepEqual(data.required_owner_configuration.sort(), [
     'OTP_ALLOWED_ORIGINS',
     'OTP_HMAC_SECRET',
     'WHATSAPP_ACCESS_TOKEN',
     'WHATSAPP_PHONE_NUMBER_ID',
-    'WHATSAPP_TEMPLATE_LANG',
     'WHATSAPP_TEMPLATE_NAME',
   ].sort());
-  assert.equal(JSON.stringify(data).includes('secret_value'), false);
-  assert.equal(JSON.stringify(data).includes('access_token_value'), false);
+  assert.deepEqual(data.optional_configuration, ['WHATSAPP_TEMPLATE_LANG']);
+  assert.deepEqual(data.platform_provided_configuration.sort(), [
+    'SUPABASE_SERVICE_ROLE_KEY',
+    'SUPABASE_URL',
+  ].sort());
+  const serialized = JSON.stringify(data).toLowerCase();
+  assert.equal(serialized.includes('secret_value'), false);
+  assert.equal(serialized.includes('access_token_value'), false);
 });
 
 test('OTP database stores only hashed phone and code digest and is service-role only', () => {
