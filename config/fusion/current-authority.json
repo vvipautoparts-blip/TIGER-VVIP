@@ -40,7 +40,7 @@
       "SOA",
       "RLS",
       "release security",
-      "financial ledger for platform-owned advertising billing/accounting",
+      "financial ledger",
       "country gates",
       "audit",
       "recovery",
@@ -57,7 +57,7 @@
       "4M Digital Twin",
       "native mobile certification",
       "Sovereign Capability Graph",
-      "Global Currency Fabric for platform advertising and listing/display semantics",
+      "Global Currency Fabric",
       "Runtime Vacuum"
     ]
   },
@@ -76,7 +76,7 @@
     "SOA",
     "RLS_DEFAULT_DENY",
     "RELEASE_SUPPLY_CHAIN_SECURITY",
-    "DOUBLE_ENTRY_LEDGER_FOR_PLATFORM_OWNED_BILLING",
+    "DOUBLE_ENTRY_LEDGER",
     "COUNTRY_ACTIVATION_GATES",
     "APPEND_ONLY_AUDIT",
     "RECOVERY_FAILOVER_DISCIPLINE",
