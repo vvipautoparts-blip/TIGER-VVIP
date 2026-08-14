@@ -34,39 +34,38 @@ test('authenticated browser role cannot truncate, create references, or manage t
   );
 });
 
-test('future table defaults preserve the browser least-privilege boundary for both schema owners', () => {
+test('future app-owned table defaults preserve browser least privilege', () => {
   const sql = source();
-  for (const owner of ['postgres', 'supabase_admin']) {
-    assert.match(
-      sql,
-      new RegExp(`alter default privileges for role ${owner} in schema public[\\s\\S]*revoke insert, update, delete, truncate, references, trigger on tables from anon`, 'i'),
-    );
-    assert.match(
-      sql,
-      new RegExp(`alter default privileges for role ${owner} in schema public[\\s\\S]*revoke truncate, references, trigger on tables from authenticated`, 'i'),
-    );
-  }
+  assert.match(
+    sql,
+    /alter default privileges for role postgres in schema public[\s\S]*revoke insert, update, delete, truncate, references, trigger on tables from anon/i,
+  );
+  assert.match(
+    sql,
+    /alter default privileges for role postgres in schema public[\s\S]*revoke truncate, references, trigger on tables from authenticated/i,
+  );
 });
 
-test('anonymous role cannot use public-schema sequences for writes', () => {
+test('migration does not attempt cross-owner default ACL changes', () => {
+  const sql = source();
+  assert.doesNotMatch(sql, /alter default privileges for role supabase_admin/i);
+});
+
+test('anonymous role cannot use app-owned public-schema sequences for writes', () => {
   const sql = source();
   assert.match(sql, /revoke\s+all\s+privileges\s+on\s+all\s+sequences\s+in\s+schema\s+public\s+from\s+anon/i);
-  for (const owner of ['postgres', 'supabase_admin']) {
-    assert.match(
-      sql,
-      new RegExp(`alter default privileges for role ${owner} in schema public[\\s\\S]*revoke all privileges on sequences from anon`, 'i'),
-    );
-  }
+  assert.match(
+    sql,
+    /alter default privileges for role postgres in schema public[\s\S]*revoke all privileges on sequences from anon/i,
+  );
 });
 
-test('future browser function execution must be granted explicitly', () => {
+test('future app-owned browser function execution must be granted explicitly', () => {
   const sql = source();
-  for (const owner of ['postgres', 'supabase_admin']) {
-    assert.match(
-      sql,
-      new RegExp(`alter default privileges for role ${owner} in schema public[\\s\\S]*revoke execute on functions from anon, authenticated`, 'i'),
-    );
-  }
+  assert.match(
+    sql,
+    /alter default privileges for role postgres in schema public[\s\S]*revoke execute on functions from anon, authenticated/i,
+  );
 });
 
 test('migration changes privileges only and contains no business-data mutation', () => {
