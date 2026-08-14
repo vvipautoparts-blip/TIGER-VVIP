@@ -10,12 +10,14 @@ LIBDE265_VERSION="1.1.1"
 LIBDE265_SHA256="fd48a927e94ed74fc7ce8829d222b9d8599fcbfe8b6448ba66705babc56ab219"
 MAX_MEMORY="402653184"
 INITIAL_MEMORY="67108864"
+CORES="${CORES:-2}"
 
 : "${EMSDK:?EMSDK must point to the activated pinned emsdk checkout}"
 command -v emcc >/dev/null
 command -v em++ >/dev/null
 command -v emcmake >/dev/null
 command -v emmake >/dev/null
+command -v cmake >/dev/null
 command -v python3 >/dev/null
 
 rm -rf "${WORK}" "${DIST}"
@@ -30,6 +32,36 @@ echo "${LIBDE265_SHA256}  libde265-${LIBDE265_VERSION}.tar.gz" | sha256sum -c -
 tar xzf "libheif-${LIBHEIF_VERSION}.tar.gz"
 mkdir -p build
 cp "libde265-${LIBDE265_VERSION}.tar.gz" build/
+
+# libde265 1.1.1 is CMake-first and its release archive no longer contains
+# autogen.sh. Build the pinned static decoder directly with Emscripten, then
+# expose only the static library/header layout expected by libheif 1.23.1's
+# upstream Emscripten helper. Do not downgrade to an older decoder release.
+(
+  cd build
+  tar xzf "libde265-${LIBDE265_VERSION}.tar.gz"
+  emcmake cmake \
+    -S "libde265-${LIBDE265_VERSION}" \
+    -B libde265-cmake-build \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_SHARED_LIBS=OFF \
+    -DENABLE_SDL=OFF \
+    -DENABLE_SIMD=OFF \
+    -DENABLE_DECODER=OFF \
+    -DENABLE_ENCODER=OFF \
+    -DENABLE_SHERLOCK265=OFF \
+    -DENABLE_INTERNAL_DEVELOPMENT_TOOLS=OFF \
+    -DWITH_FUZZERS=OFF
+  cmake --build libde265-cmake-build --target de265 --parallel "${CORES}"
+
+  test -s libde265-cmake-build/libde265/libde265.a
+  test -s libde265-cmake-build/libde265/de265-version.h
+  mkdir -p "libde265-${LIBDE265_VERSION}/libde265/.libs"
+  cp libde265-cmake-build/libde265/libde265.a \
+    "libde265-${LIBDE265_VERSION}/libde265/.libs/libde265.a"
+  cp libde265-cmake-build/libde265/de265-version.h \
+    "libde265-${LIBDE265_VERSION}/libde265/de265-version.h"
+)
 
 BUILD_SCRIPT="${WORK}/libheif-${LIBHEIF_VERSION}/build-emscripten.sh"
 # Patch the pinned upstream script by exact token replacement. Refuse the build
@@ -67,7 +99,7 @@ grep -Fq -- "-sMAXIMUM_MEMORY=${MAX_MEMORY}" "${BUILD_SCRIPT}"
 grep -Fq -- "-sINITIAL_MEMORY=${INITIAL_MEMORY}" "${BUILD_SCRIPT}"
 
 cd build
-CORES="${CORES:-2}" \
+CORES="${CORES}" \
 ENABLE_LIBDE265=1 \
 LIBDE265_VERSION="${LIBDE265_VERSION}" \
 ENABLE_AOM=0 \
@@ -98,7 +130,7 @@ cat > "${DIST}/BUILD_MANIFEST.json" <<EOF
 {
   "schemaVersion": "F05_HEIF_BUILD_V1",
   "libheif": {"version": "${LIBHEIF_VERSION}", "sourceSha256": "${LIBHEIF_SHA256}"},
-  "libde265": {"version": "${LIBDE265_VERSION}", "sourceSha256": "${LIBDE265_SHA256}"},
+  "libde265": {"version": "${LIBDE265_VERSION}", "sourceSha256": "${LIBDE265_SHA256}", "buildSystem": "emcmake-cmake-static"},
   "emscripten": {"requestedVersion": "6.0.6", "versionLine": "${EMCC_VERSION}"},
   "policy": {"hevcDecoderOnly": true, "aom": false, "webcodecs": false, "uncompressed": false, "openjpeg": false, "unsafeEval": false, "initialMemoryBytes": ${INITIAL_MEMORY}, "maximumMemoryBytes": ${MAX_MEMORY}},
   "artifacts": {"js": {"name": "f05-heif-decoder.v1.js", "sha256": "${JS_SHA}"}, "wasm": {"name": "f05-heif-decoder.v1.wasm", "sha256": "${WASM_SHA}"}}
