@@ -7,7 +7,7 @@
 
   const PRESERVED=new Set([
     'cancelled','capability_unavailable','decoder_integrity_mismatch','heif_container_invalid','heif_codec_unsupported',
-    'heif_sequence_denied','heif_memory_limit','heif_decode_timeout','heif_decode_failed','heif_worker_crash',
+    'heif_sequence_denied','heif_memory_limit','heif_decode_timeout','heif_decode_failed','heif_worker_crash','heif_color_unsupported',
     'signature_mismatch','orientation_uncertain','metadata_not_stripped','encode_failed'
   ]);
   const MEMORY_PATTERNS=[
