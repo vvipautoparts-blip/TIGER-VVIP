@@ -1,0 +1,197 @@
+name: Supabase Security Gate
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'supabase/**'
+      - 'tests/**'
+      - 'scripts/security/**'
+      - '.github/workflows/supabase-security-gate.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'supabase/**'
+      - 'tests/**'
+      - 'scripts/security/**'
+      - '.github/workflows/supabase-security-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-security-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  SOURCE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+jobs:
+  static-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 0
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22'
+      - name: Verify exact source and run current Supabase contracts
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          mapfile -d '' tests < <(
+            find tests -maxdepth 1 -type f \
+              \( -name '*supabase*.test.cjs' -o -name '*otp*.test.cjs' -o -name 'global-launch-db-*.test.cjs' \) \
+              -print0 | sort -z
+          )
+          if test -f tests/tsrf-semantic-convergence.test.cjs; then
+            tests+=(tests/tsrf-semantic-convergence.test.cjs)
+          fi
+          test "${#tests[@]}" -gt 0
+          node --test "${tests[@]}"
+          test -z "$(git status --porcelain=v1 -uall)"
+
+  edge-typecheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 0
+      - name: Set up Deno
+        uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed
+        with:
+          deno-version: v2.x
+      - name: Typecheck every current Edge entrypoint
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          mapfile -d '' edge_files < <(find supabase/functions -type f -name 'index.ts' -print0 | sort -z)
+          test "${#edge_files[@]}" -gt 0
+          deno check "${edge_files[@]}"
+          test -z "$(git status --porcelain=v1 -uall)"
+
+  local-database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 0
+
+      - name: Install pinned Supabase CLI
+        uses: supabase/setup-cli@ab058987d8d6c725971f6cf9d0b5c98467e30bd1
+        with:
+          version: 2.109.0
+
+      - name: Assert exact source and local-only authority
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          if env | grep -E '^(SUPABASE_ACCESS_TOKEN|SUPABASE_DB_PASSWORD|SUPABASE_PROJECT_REF)=' >/dev/null; then
+            echo 'SUPABASE_SECURITY_GATE=BLOCKED_REMOTE_CREDENTIAL_ENV' >&2
+            exit 1
+          fi
+          echo 'SUPABASE_LOCAL_ONLY_CONTRACT=PASS'
+
+      - name: Start isolated local Supabase stack
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          supabase --version
+          supabase start
+
+      - name: Rebuild canonical database from repository migrations
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          supabase db reset --local
+          echo 'SUPABASE_CANONICAL_RESET=PASS'
+
+      - name: Verify canonical database behavior
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          psql_file() {
+            PGPASSWORD=postgres psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -v ON_ERROR_STOP=1 -f "$1"
+          }
+          psql_file tests/sql/lc04-production-legacy-rpc-behavior.sql
+          psql_file tests/sql/lc05-credential-canonical-behavior.sql
+          psql_file tests/sql/lc06-rls-performance-behavior.sql
+          psql_file tests/sql/tsrf-phone-otp-behavior.sql
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 -p 54322 -U postgres -d postgres -v ON_ERROR_STOP=1 -Atc \
+            "select count(*) from public.ai_agent_runtime_state where enabled=false and shadow_mode=true and kill_switch=true and max_level='L1' and daily_budget_microusd=0 and requests_per_minute=0 and max_concurrency=1;" \
+            | grep -qx '4'
+          echo 'SUPABASE_CANONICAL_BEHAVIOR=PASS'
+
+      - name: Rehearse LC03 legacy drift convergence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 -p 54322 -U postgres -d postgres -v ON_ERROR_STOP=1 \
+            -f tests/sql/lc03-legacy-drift-reconciliation.sql
+          echo 'SUPABASE_LC03_DRIFT=PASS'
+
+      - name: Rebuild before LC04 drift rehearsal
+        run: supabase db reset --local
+
+      - name: Rehearse LC04 legacy RPC drift convergence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          psql_file() {
+            PGPASSWORD=postgres psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -v ON_ERROR_STOP=1 -f "$1"
+          }
+          psql_file tests/sql/lc04-production-legacy-rpc-behavior.sql
+          psql_file tests/sql/lc04-production-legacy-drift-fixture.sql
+          psql_file supabase/migrations/20260808134000_lc04_production_legacy_rpc_hardening.sql
+          psql_file tests/sql/lc04-production-legacy-drift-convergence.sql
+          echo 'SUPABASE_LC04_DRIFT=PASS'
+
+      - name: Rebuild before LC05 drift rehearsal
+        run: supabase db reset --local
+
+      - name: Rehearse LC05 credential-surface drift convergence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          psql_file() {
+            PGPASSWORD=postgres psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -v ON_ERROR_STOP=1 -f "$1"
+          }
+          psql_file tests/sql/lc05-credential-canonical-behavior.sql
+          psql_file tests/sql/lc05-credential-production-drift-fixture.sql
+          psql_file supabase/migrations/20260808135000_lc05_credential_surface_isolation.sql
+          psql_file tests/sql/lc05-credential-drift-convergence.sql
+          echo 'SUPABASE_LC05_DRIFT=PASS'
+
+      - name: Verify source remained immutable
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          echo 'SUPABASE_SECURITY_GATE=PASS'
+
+      - name: Stop isolated local stack
+        if: always()
+        shell: bash
+        run: supabase stop --no-backup || true
