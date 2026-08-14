@@ -3,6 +3,7 @@ import '../../scripts/media/pr36-geometry.js';
 import '../../scripts/media/f05-heif-policy.js';
 import '../../scripts/media/f05-heif-worker-core.js';
 import '../../scripts/media/f05-derivative-privacy.js';
+import '../../scripts/media/f05-worker-resilience.js';
 
 'use strict';
 
@@ -13,6 +14,7 @@ const geometry = globalThis.VVIP_PR36_GEOMETRY;
 const heifPolicy = globalThis.VVIP_F05_HEIF_POLICY;
 const workerCoreApi = globalThis.VVIP_F05_HEIF_WORKER_CORE;
 const derivativePrivacy = globalThis.VVIP_F05_DERIVATIVE_PRIVACY;
+const workerResilience = globalThis.VVIP_F05_WORKER_RESILIENCE;
 
 function fail(code) {
   const error = new Error(code);
@@ -133,7 +135,7 @@ function release(inspected) {
   }
 }
 
-if (!geometry || !heifPolicy || !workerCoreApi || typeof workerCoreApi.createHeifWorkerCore !== 'function') fail('capability_unavailable');
+if (!geometry || !heifPolicy || !workerCoreApi || typeof workerCoreApi.createHeifWorkerCore !== 'function' || !workerResilience || typeof workerResilience.classifyWorkerFailure !== 'function') fail('capability_unavailable');
 const core = workerCoreApi.createHeifWorkerCore({ geometry, heifPolicy, inspect, decode, encode, release });
 let busy = false;
 
@@ -153,7 +155,7 @@ self.addEventListener('message', async event => {
     const result = await core.process(message.job, { activeHeifWorkers: 0, memoryBudgetBytes: requestedBudget });
     self.postMessage({ type: 'result', jobId, result });
   } catch (error) {
-    const code = error && typeof error.code === 'string' ? error.code : 'heif_decode_failed';
+    const code = workerResilience.classifyWorkerFailure(error);
     self.postMessage({ type: 'error', jobId, code });
   } finally {
     busy = false;
