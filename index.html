@@ -10,11 +10,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/vvip-pr29-home-marketplace.css">
-  <link rel="stylesheet" href="styles/vvip-pr31-create-listing-shell.css">
   <link rel="stylesheet" href="styles/vvip-pr32-draft-preview.css">
   <link rel="stylesheet" href="styles/vvip-pr33-publish-readiness.css">
   <link rel="stylesheet" href="styles/vvip-pr36-media.css">
   <link rel="stylesheet" href="styles/fusion/f02-single-surface.css">
+  <link rel="stylesheet" href="styles/fusion/progressive-composer.css">
 
   <script defer crossorigin="anonymous" src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/ui@1/dist/ui.browser.js"></script>
   <script defer crossorigin="anonymous" data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk" src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"></script>
@@ -36,13 +36,13 @@
   <script defer src="scripts/media/pr36-controller.js"></script>
 
   <script defer src="scripts/vvip-pr32-draft-preview.js"></script>
-  <script defer src="scripts/vvip-pr31-create-listing-shell.js"></script>
   <script defer src="scripts/vvip-pr33-publish-readiness.js"></script>
   <script defer src="scripts/runtime/vvip-my-listings.js"></script>
 
   <script defer src="scripts/fusion/runtime-adapters.js"></script>
   <script defer src="scripts/fusion/f02-feed.js"></script>
   <script type="module" src="scripts/fusion/f03-capability-menu.js"></script>
+  <script defer src="scripts/fusion/progressive-composer.js"></script>
   <script defer src="scripts/fusion/single-surface-controller.js"></script>
 </head>
 <body data-vvip-pr29-app>
@@ -73,7 +73,7 @@
       <nav class="header-actions" aria-label="إجراءات الحساب">
         <button class="fusion-icon-button" type="button" data-fusion-capability-menu aria-label="صلاحياتي وخيارات الحساب">⋮</button>
         <a class="button button--quiet" href="private-profile-p03.html" data-account-route data-safe-nav data-nav-target="private-profile-p03.html">حسابي</a>
-        <button class="button button--primary" type="button" data-open-create-listing>إنشاء إعلان</button>
+        <button class="button button--primary" type="button" data-fusion-composer-trigger>إنشاء إعلان</button>
       </nav>
     </header>
 
@@ -87,7 +87,7 @@
 
     <section class="fusion-composer" data-fusion-composer aria-label="إنشاء منشور أو إعلان">
       <span class="fusion-composer__avatar" aria-hidden="true">V</span>
-      <button class="fusion-composer__trigger" type="button" data-fusion-composer-trigger data-open-create-listing>ماذا تريد أن تعرض؟</button>
+      <button class="fusion-composer__trigger" type="button" data-fusion-composer-trigger>ماذا تريد أن تعرض؟</button>
     </section>
 
     <section class="vvip-draft-preview vvip-draft-preview--home" data-vvip-local-draft-preview data-draft-context="home" hidden>
@@ -116,7 +116,7 @@
   <nav class="market-bottom-nav" aria-label="التنقل الرئيسي">
     <a href="index.html" data-safe-nav data-nav-target="index.html" aria-current="page">الرئيسية</a>
     <a href="#marketplace" data-safe-nav data-nav-target="#marketplace">السوق</a>
-    <button type="button" data-open-create-listing>إعلان</button>
+    <button type="button" data-fusion-composer-trigger>إعلان</button>
     <a href="private-profile-p03.html" data-safe-nav data-nav-target="private-profile-p03.html">حسابي</a>
   </nav>
 
