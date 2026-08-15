@@ -1,8 +1,8 @@
 # VVIP TIGER — OWNER BINDING DECISIONS — 2026-08-15
 
-**Authority:** Platform Owner  
-**Status:** BINDING / OWNER-CANONICAL / LATEST  
-**Effective date:** 2026-08-15  
+**Authority:** Platform Owner
+**Status:** BINDING / OWNER-CANONICAL / LATEST
+**Effective date:** 2026-08-15
 **Relationship:** This decision layer supersedes every conflicting earlier owner requirement, design note, test expectation, schema review, mockup, chat summary, or implementation assumption. Earlier decisions remain valid only where they do not conflict with this file.
 
 ## 1. Latest-decision-wins constitution
