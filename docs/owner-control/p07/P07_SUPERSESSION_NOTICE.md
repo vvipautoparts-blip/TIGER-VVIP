@@ -1,7 +1,7 @@
 # P07 Supersession Notice
 
-**Status:** SUPERSEDED / HISTORICAL ONLY  
-**Effective supersession:** 2026-08-15  
+**Status:** SUPERSEDED / HISTORICAL ONLY
+**Effective supersession:** 2026-08-15
 **Current authority:** `docs/owner-control/OWNER_BINDING_DECISIONS_2026-08-15.md`
 
 P07 is preserved as architecture/audit evidence. It is **not** a current product-policy source when it conflicts with a later owner decision.
