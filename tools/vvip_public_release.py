@@ -41,6 +41,12 @@ PUBLIC_SCRIPT_FILES = (
     "scripts/vvip-pr30-resilience.js",
     "scripts/vvip-production-marketplace.js",
     "scripts/vvip-safe-ux-guard.js",
+    "scripts/fusion/runtime-adapters.js",
+    "scripts/fusion/f02-feed.js",
+    "scripts/fusion/f03-capability-menu.js",
+    "scripts/fusion/progressive-composer.js",
+    "scripts/fusion/account-surface.js",
+    "scripts/fusion/single-surface-controller.js",
 )
 
 DENIED_SEGMENTS = {
@@ -59,6 +65,7 @@ FORBIDDEN_PRODUCTION_MARKERS = {
     "LOCAL_ONLY_MEDIA": "لن يتم رفع الصور",
     "PUBLISH_NOT_IMPLEMENTED": "النشر الحقيقي قيد التجهيز",
     "FUTURE_PUBLISH_ONLY": "النشر الحقيقي سيتم تفعيله لاحقًا",
+    "LOCAL_DRAFT_ONLY_PUBLISHER": "LOCAL_DRAFT_ONLY",
 }
 
 INDEX_REMOVE_SCRIPTS = (
