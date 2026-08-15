@@ -1,0 +1,2 @@
+modules = ["nodejs-20"]
+run = "node tools/f05-preview-server.cjs"

@@ -76,6 +76,10 @@ INDEX_REMOVE_SCRIPTS = (
     "scripts/media/pr36-worker-adapter.js",
     "scripts/media/pr36-scheduler.js",
     "scripts/media/pr36-session.js",
+    "scripts/media/f05-heif-preflight.js",
+    "scripts/media/f05-pr36-media-bridge.js",
+    "scripts/media/f05-heif-adapter.js",
+    "scripts/media/f05-heif-worker-client.js",
     "scripts/media/pr36-controller.js",
 )
 

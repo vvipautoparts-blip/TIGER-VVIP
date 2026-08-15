@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "F05_HEIF_BUILD_V1",
+  "sourceHeadSha": "3dd90cc10e27cc6ee6d9b361ead553783b3db33a",
+  "libheif": {"version": "1.23.1", "sourceSha256": "0de0327f60fcd47de90d5654c6fe152232738d60d84fe084ec3e0f35e03b166a"},
+  "libde265": {"version": "1.1.1", "sourceSha256": "fd48a927e94ed74fc7ce8829d222b9d8599fcbfe8b6448ba66705babc56ab219", "buildSystem": "emcmake-cmake-static"},
+  "emscripten": {"requestedVersion": "6.0.6", "versionLine": "emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 6.0.6 (ce75e06884093bcefb86a6b8fd56a5d62a4cc245)"},
+  "policy": {"hevcDecoderOnly": true, "aom": false, "webcodecs": false, "uncompressed": false, "openjpeg": false, "unsafeEval": false, "initialMemoryBytes": 67108864, "maximumMemoryBytes": 402653184},
+  "artifacts": {"js": {"name": "f05-heif-decoder.v1.js", "sha256": "c7df4459e108265b88706cf9345e1f6a936b545a2573462effc8caaf36cad92a"}, "wasm": {"name": "f05-heif-decoder.v1.wasm", "sha256": "37371c91a21267de724838fe62476c6e57b422b3a9ebf954bbcca0b99aa99d78"}}
+}
