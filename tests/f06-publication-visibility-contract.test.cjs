@@ -75,8 +75,9 @@ test('browser repository uses the trusted publication RPC and never promotes lis
   const source = read(REPOSITORY);
   const prepare = source.match(/async function prepareForPublication\([\s\S]*?\n  }\n/);
   assert.ok(prepare, 'prepareForPublication must exist');
-  assert.match(prepare[0], /rpc\/vvip_marketplace_submit_listing/i);
-  assert.match(prepare[0], /request\(/i);
+  assert.match(prepare[0], /client\.rpc\(\s*["']vvip_marketplace_submit_listing["']/i);
+  assert.match(prepare[0], /p_listing_id/i);
+  assert.match(prepare[0], /p_entitlement_id/i);
   assert.doesNotMatch(prepare[0], /status\s*:\s*["'](?:ACTIVE|PUBLISHED|PENDING_REVIEW)["']/i);
   assert.doesNotMatch(prepare[0], /PUBLICATION_TRANSPORT_UNAVAILABLE/i);
 });
