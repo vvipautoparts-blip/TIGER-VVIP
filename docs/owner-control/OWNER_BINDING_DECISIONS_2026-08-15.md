@@ -103,3 +103,19 @@ Required path remains:
 `OWNER DECISION -> RED CONTRACT -> IMPLEMENT -> GREEN EXACT-HEAD CI -> REVIEW -> PROTECTED MERGE -> STAGING/DEVICE EVIDENCE WHERE REQUIRED -> PRODUCTION VERIFICATION`
 
 Protected `main`, Production, security and legal/manual gates must never be bypassed to make progress appear faster.
+
+## 10. Global-launch completion rule — BINDING
+
+There is only one completion condition for the current program:
+
+> **The work is not complete until the exact-head Launch Passport emits `GLOBAL_LAUNCH_ELIGIBLE = TRUE` against the latest binding owner decisions.**
+
+Therefore:
+
+- a passing individual test, workflow, PR, staging preview, feature milestone, security scan, device test or partial launch gate is progress only, never completion;
+- `GLOBAL_LAUNCH_ELIGIBLE = TRUE` must be derived from current exact-head evidence, not manually asserted, inferred from an older SHA, or copied from historical evidence;
+- all required security, privacy, media, marketplace, commercial, payment/ledger, TIGER PULSE, localization/accessibility, mobile/device, resilience/DR, legal/manual and protected-governance gates remain fail-closed until satisfied;
+- any required external/manual evidence that cannot be automated must be explicitly bound to the Launch Passport and may not be silently skipped;
+- no legacy rule, placeholder, mock integration, fake link, local-only publisher or test-only path may be counted as launch-ready functionality;
+- if any binding owner decision changes, the Launch Passport must be recomputed against that newer decision before launch eligibility can remain true;
+- `main` and Production remain protected: no shortcut, force merge or security-gate bypass is permitted merely to reach the completion flag sooner.
