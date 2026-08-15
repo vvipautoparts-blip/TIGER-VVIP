@@ -64,11 +64,12 @@ test("binding ADR and identity deployment boundary are recorded", () => {
   assert.match(removal, /LOCAL_PASSWORD_RECOVERY=REMOVED/);
 });
 
-test("retired first-party password and recovery runtimes remain absent", () => {
+test("retired first-party password, recovery, and Supabase-session runtimes remain absent", () => {
   for (const relative of [
     "auth.js",
     "auth-supabase.js",
     "scripts/supabase-auth-bridge.js",
+    "scripts/require-auth.js",
     "reset-password.js"
   ]) {
     assert.equal(fs.existsSync(path.join(ROOT, relative)), false, `${relative} must remain retired`);
