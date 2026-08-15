@@ -1,9 +1,11 @@
 'use strict';
 const { createProductionMediaPorts, validateMediaRequestEnvelope } = require('./f05-production-media-ports.js');
 const { verifyAndRewriteCandidate } = require('./f05-derivative-gate.js');
+const { assertProductionMediaRuntimeReady } = require('./f05-production-readiness.js');
 
 function fail(){const e=new Error('media_request_invalid');e.code='media_request_invalid';throw e;}
 function createProductionMediaGate(deps){
+  assertProductionMediaRuntimeReady(deps);
   const ports=createProductionMediaPorts(deps);
   return Object.freeze({
     async handle(input){
