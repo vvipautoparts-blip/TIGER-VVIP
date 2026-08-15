@@ -108,6 +108,35 @@ class PublicReleaseTests(unittest.TestCase):
             self.assertTrue((output / "scripts" / "vvip-safe-ux-guard.js").is_file())
             self.assertEqual(manifest["sourceSha"], "abc")
 
+    def test_candidate_copies_only_approved_fusion_scripts_and_blocks_local_only_publish(self):
+        with tempfile.TemporaryDirectory() as temp:
+            source = Path(temp) / "src"
+            output = Path(temp) / "out"
+            source.mkdir()
+            self.fixture(source)
+            fusion = source / "scripts" / "fusion"
+            fusion.mkdir()
+            approved = [path for path in module.PUBLIC_SCRIPT_FILES if path.startswith("scripts/fusion/")]
+            for relative in approved:
+                path = source / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("window.VVIPFusion = {};\n", encoding="utf-8")
+            (source / "scripts" / "fusion" / "progressive-composer.js").write_text(
+                'window.VVIPFusionPublishMode = "LOCAL_DRAFT_ONLY";\n', encoding="utf-8"
+            )
+            (source / "scripts" / "fusion" / "private-debug.js").write_text("private", encoding="utf-8")
+
+            manifest = module.build(source, output, mode="candidate", source_sha="fusion-candidate")
+
+            for relative in approved:
+                self.assertTrue((output / relative).is_file(), relative)
+            self.assertFalse((output / "scripts" / "fusion" / "private-debug.js").exists())
+            self.assertFalse(manifest["releaseEligible"])
+            self.assertIn(
+                {"code": "LOCAL_DRAFT_ONLY_PUBLISHER", "path": "scripts/fusion/progressive-composer.js"},
+                manifest["forbiddenFindings"],
+            )
+
     def test_production_requires_real_public_configuration(self):
         with tempfile.TemporaryDirectory() as temp:
             source = Path(temp) / "src"
@@ -129,6 +158,21 @@ class PublicReleaseTests(unittest.TestCase):
                 with self.assertRaises(RuntimeError):
                     module.build(source, output, mode="production", source_sha="abc")
 
+    def test_production_rejects_local_draft_only_publisher(self):
+        with tempfile.TemporaryDirectory() as temp:
+            source = Path(temp) / "src"
+            output = Path(temp) / "out"
+            source.mkdir()
+            self.fixture(source)
+            fusion = source / "scripts" / "fusion"
+            fusion.mkdir()
+            (fusion / "progressive-composer.js").write_text(
+                'window.VVIPFusionPublishMode = "LOCAL_DRAFT_ONLY";\n', encoding="utf-8"
+            )
+            with mock.patch.dict(os.environ, self.production_env(), clear=False):
+                with self.assertRaisesRegex(RuntimeError, "LOCAL_DRAFT_ONLY_PUBLISHER"):
+                    module.build(source, output, mode="production", source_sha="abc")
+
     def test_production_build_succeeds_with_clean_sources(self):
         with tempfile.TemporaryDirectory() as temp:
             source = Path(temp) / "src"
@@ -144,13 +188,16 @@ class PublicReleaseTests(unittest.TestCase):
             self.assertFalse((output / "CNAME").exists())
             self.assert_local_html_refs_exist(self, output)
 
-    def test_repository_production_artifact_is_reference_closed(self):
+    def test_repository_candidate_artifact_is_reference_closed_and_fail_closed_for_local_publish(self):
         source = MODULE_PATH.parents[1]
         with tempfile.TemporaryDirectory() as temp:
             output = Path(temp) / "out"
-            with mock.patch.dict(os.environ, self.production_env(), clear=False):
-                manifest = module.build(source, output, mode="production", source_sha="closure-test")
-            self.assertTrue(manifest["releaseEligible"])
+            manifest = module.build(source, output, mode="candidate", source_sha="closure-test")
+            self.assertFalse(manifest["releaseEligible"])
+            self.assertIn(
+                {"code": "LOCAL_DRAFT_ONLY_PUBLISHER", "path": "scripts/fusion/progressive-composer.js"},
+                manifest["forbiddenFindings"],
+            )
             self.assert_local_html_refs_exist(self, output)
             self.assertTrue((output / "sw-vvip-static.js").is_file())
             webmanifest = json.loads((output / "manifest.webmanifest").read_text(encoding="utf-8"))
