@@ -60,6 +60,27 @@
     return Array.isArray(source) ? source.slice(0, 100).map(normalizeListing).filter(Boolean) : [];
   }
 
+  function normalizeSector(entry) {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry) || entry.enabled !== true) return null;
+    const key = typeof entry.key === "string" ? entry.key.trim() : "";
+    const label = typeof entry.label === "string" ? entry.label.trim() : "";
+    if (!key || !label) return null;
+    return Object.freeze({ key, label, enabled: true });
+  }
+
+  function readSectorRegistry() {
+    const source = root.VVIP_FUSION_SECTOR_REGISTRY;
+    if (Array.isArray(source)) return source.map(normalizeSector).filter(Boolean).slice(0, 100);
+    if (!previewAllowed()) return [];
+    const preview = new Map();
+    state.listings.forEach(function (item) {
+      if (!preview.has(item.sector)) preview.set(item.sector, item.sectorLabel);
+    });
+    return Array.from(preview.entries()).map(function ([key, label]) {
+      return Object.freeze({ key, label, enabled: true });
+    });
+  }
+
   async function loadSearchFabric() {
     try {
       const loaded = await import("./f04-search-fabric.js");
@@ -112,11 +133,11 @@
   function renderFilters() {
     const host = root.document.querySelector("[data-vvip-sector-filters]");
     if (!host) return;
-    const sectors = new Map();
-    state.listings.forEach(function (item) { sectors.set(item.sector, item.sectorLabel); });
+    const available = new Set(state.listings.map(function (item) { return item.sector; }));
+    const registry = readSectorRegistry().filter(function (entry) { return entry.enabled === true && available.has(entry.key); });
     const controls = ['<button class="filter is-active" type="button" data-sector-filter="all" aria-pressed="true">الكل</button>'];
-    sectors.forEach(function (label, key) {
-      controls.push(`<button class="filter" type="button" data-sector-filter="${safeText(key)}" aria-pressed="false">${safeText(label)}</button>`);
+    registry.forEach(function (entry) {
+      controls.push(`<button class="filter" type="button" data-sector-filter="${safeText(entry.key)}" aria-pressed="false">${safeText(entry.label)}</button>`);
     });
     host.innerHTML = controls.join("");
   }
@@ -291,6 +312,6 @@
     bindEvents();
   }
 
-  root.VVIP_FUSION_F02_FEED = Object.freeze({ start, previewAllowed, safeText, normalizeListing, readListings });
+  root.VVIP_FUSION_F02_FEED = Object.freeze({ start, previewAllowed, safeText, normalizeListing, readListings, readSectorRegistry });
   root.addEventListener("DOMContentLoaded", start, { once: true });
 })(typeof window !== "undefined" ? window : globalThis);
