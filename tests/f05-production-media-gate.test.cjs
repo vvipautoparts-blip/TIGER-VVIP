@@ -7,13 +7,23 @@ function deps(){
   const calls=[];
   return {
     calls,
+    productionRuntime:{
+      schemaVersion:'F05_PRODUCTION_RUNTIME_V1',environment:'production',provider:'aws',
+      requestLimit:{enforced:true,maxBytes:16*1024*1024,contentEncoding:'identity-only'},
+      imageStack:{backend:'sharp-libvips',version:'1',jpeg:true,webp:true,metadataStrip:true,srgb:true,animationDisabled:true,heicDecode:false},
+      audit:{durable:true,privacySafe:true},telemetry:{privacyBudgeted:true,routeScoped:true},alerting:{routeScoped:true},
+      circuitControl:{authority:'trusted_policy_plane',recommendationOnlyInput:true}
+    },
     authorizeAdMedia:async(actor,scope)=>{calls.push(['authorize',actor,scope]);return true;},
     sha256:async bytes=>{calls.push(['sha',bytes.length]);return 'a'.repeat(64);},
     imageStack:{
       inspect:async(bytes,policy)=>{calls.push(['inspect',policy]);return {mime:'image/jpeg',width:1600,height:1200,hasForbiddenMetadata:false,isPolyglot:false,colorSpace:'srgb'};},
       rewrite:async(bytes,policy)=>{calls.push(['rewrite',policy]);return {bytes:new Uint8Array(bytes)};}
     },
-    auditSink:{write:async event=>{calls.push(['audit',event]);}}
+    auditSink:{write:async event=>{calls.push(['audit',event]);}},
+    telemetrySink:{write:async event=>{calls.push(['telemetry',event]);}},
+    alertSink:{notify:async event=>{calls.push(['alert',event]);}},
+    policyControl:{applyCircuitRecommendation:async event=>{calls.push(['policy',event]);}}
   };
 }
 
@@ -54,6 +64,12 @@ test('production gate fails before derivative processing on compressed or dishon
   const bytes=new Uint8Array(100);
   await assert.rejects(()=>gate.handle({request:{method:'POST',contentLength:100,contentEncoding:'gzip'},actor:{},adScope:{},candidateBytes:bytes,mediaPassport:{}}),/media_request_invalid/);
   await assert.rejects(()=>gate.handle({request:{method:'POST',contentLength:50,contentEncoding:'identity'},actor:{},adScope:{},candidateBytes:bytes,mediaPassport:{}}),/media_request_invalid/);
+});
+
+test('production gate refuses creation without complete runtime readiness evidence',()=>{
+  const d=deps();
+  delete d.productionRuntime;
+  assert.throws(()=>createProductionMediaGate(d),/media_production_runtime_unready/);
 });
 
 test('production gate object is frozen and has no original HEIC conversion capability',()=>{
