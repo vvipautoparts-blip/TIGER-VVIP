@@ -20,7 +20,8 @@ test('strict container accepts exact JPEG and WebP only', () => {
   assert.equal(policy.assertStrictContainer(jpeg([1, 2, 3]), 'image/jpeg'), 'jpeg');
   assert.equal(policy.assertStrictContainer(webp(), 'image/webp'), 'webp');
   assert.throws(() => policy.assertStrictContainer(Buffer.from('not-image'), 'image/jpeg'), { code: 'JPEG_SOI_MISSING' });
-  assert.throws(() => policy.assertStrictContainer(jpeg([1, 2, 3, 0xff, 0xd9, 0x41]), 'image/jpeg'), { code: 'JPEG_EOI_MISSING_OR_TRAILING_BYTES' });
+  const tailedJpeg = Buffer.concat([jpeg([1, 2, 3]), Buffer.from([0x41])]);
+  assert.throws(() => policy.assertStrictContainer(tailedJpeg, 'image/jpeg'), { code: 'JPEG_EOI_MISSING_OR_TRAILING_BYTES' });
 });
 
 test('strict WebP parser rejects RIFF length mismatch and wrong declared MIME', () => {
