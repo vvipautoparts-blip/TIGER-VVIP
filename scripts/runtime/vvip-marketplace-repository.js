@@ -157,7 +157,6 @@
 
   function extensionForMime(mime) {
     if (mime === "image/jpeg") return "jpg";
-    if (mime === "image/png") return "png";
     if (mime === "image/webp") return "webp";
     throw marketplaceError("MEDIA_MIME_INVALID");
   }
@@ -444,30 +443,6 @@
       });
     }
 
-    async function submitForReview(listingId) {
-      actorId(clerk);
-      const result = await client
-        .from("vvip_marketplace_listings")
-        .update({ status: "PENDING_REVIEW" })
-        .eq("listing_id", listingId)
-        .select("*")
-        .single();
-      return assertClientResult(result, "LISTING_SUBMIT_FAILED");
-    }
-
-    async function createAndSubmit(input, images) {
-      const draft = await createDraft(input);
-      try {
-        await uploadMedia(draft.listing_id, images);
-        return await submitForReview(draft.listing_id);
-      } catch (error) {
-        try {
-          await client.from("vvip_marketplace_listings").delete().eq("listing_id", draft.listing_id);
-        } catch (_) { /* RLS-safe cleanup attempt */ }
-        throw error;
-      }
-    }
-
     function toggleFavorite(listingId, favorite) {
       return protectedOperation({ name: "TOGGLE_FAVORITE", listingId: listingId }, async function () {
         const owner = actorId(clerk);
@@ -508,8 +483,6 @@
       uploadMedia,
       createDraftWithMedia,
       prepareForPublication,
-      submitForReview,
-      createAndSubmit,
       toggleFavorite,
       reviewListing
     });
