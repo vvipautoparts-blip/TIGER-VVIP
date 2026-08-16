@@ -12,9 +12,29 @@ const migrationPath = path.join(
   "migrations",
   "20260808003000_lc03_supabase_security_hardening.sql"
 );
+const retirementMigrationPath = path.join(
+  __dirname,
+  "..",
+  "supabase",
+  "migrations",
+  "20260816104500_retire_legacy_profile_rpc.sql"
+);
+const legacyRehearsalPath = path.join(
+  __dirname,
+  "sql",
+  "lc03-legacy-drift-reconciliation.sql"
+);
 
 function loadMigration() {
   return fs.readFileSync(migrationPath, "utf8");
+}
+
+function loadRetirementMigration() {
+  return fs.readFileSync(retirementMigrationPath, "utf8");
+}
+
+function loadLegacyRehearsal() {
+  return fs.readFileSync(legacyRehearsalPath, "utf8");
 }
 
 test("LC-03 hardening migration exists and creates a non-public helper schema", () => {
@@ -44,12 +64,38 @@ test("private country helper remains policy-callable while review helper is not 
   assert.match(sql, /revoke all on function vvip_private\.vvip_marketplace_actor_can_review\(text\)\s+from public, anon, authenticated/i);
 });
 
-test("intentional public RPCs preserve explicit least-privilege grants", () => {
-  const sql = loadMigration();
-  assert.match(sql, /revoke all on function public\.vvip_resolve_own_profile\(text\)\s+from public, anon, authenticated/i);
-  assert.match(sql, /grant execute on function public\.vvip_resolve_own_profile\(text\)\s+to authenticated/i);
-  assert.match(sql, /revoke all on function public\.vvip_marketplace_review_listing\(uuid, text, text\)\s+from public, anon, authenticated/i);
-  assert.match(sql, /grant execute on function public\.vvip_marketplace_review_listing\(uuid, text, text\)\s+to authenticated/i);
+test("current public review RPC stays least-privileged while the historical profile resolver is retired", () => {
+  const lc03 = loadMigration();
+  const retirement = loadRetirementMigration();
+
+  // LC-03 is immutable historical hardening evidence: at that point the resolver still existed.
+  assert.match(lc03, /revoke all on function public\.vvip_resolve_own_profile\(text\)\s+from public, anon, authenticated/i);
+  assert.match(lc03, /grant execute on function public\.vvip_resolve_own_profile\(text\)\s+to authenticated/i);
+
+  // Current sovereign authority is the later retirement migration: no browser/server RPC survives.
+  assert.match(retirement, /revoke all on function public\.vvip_resolve_own_profile\(text\)\s+from public, anon, authenticated/i);
+  assert.match(retirement, /drop function if exists public\.vvip_resolve_own_profile\(text\)/i);
+  assert.doesNotMatch(retirement, /grant execute on function public\.vvip_resolve_own_profile/i);
+
+  assert.match(lc03, /revoke all on function public\.vvip_marketplace_review_listing\(uuid, text, text\)\s+from public, anon, authenticated/i);
+  assert.match(lc03, /grant execute on function public\.vvip_marketplace_review_listing\(uuid, text, text\)\s+to authenticated/i);
+});
+
+test("LC-03 local drift rehearsal converges through the current resolver retirement without mutating migration history", () => {
+  const sql = loadLegacyRehearsal();
+  const createResolver = sql.search(/create or replace function public\.vvip_resolve_own_profile\s*\([^)]*text[^)]*\)/i);
+  const applyLc03 = sql.indexOf("\\i supabase/migrations/20260808003000_lc03_supabase_security_hardening.sql");
+  const applyRetirement = sql.indexOf("\\i supabase/migrations/20260816104500_retire_legacy_profile_rpc.sql");
+
+  assert.notEqual(createResolver, -1, "rehearsal must locally recreate the retired resolver as legacy drift");
+  assert.notEqual(applyLc03, -1, "rehearsal must reapply immutable LC-03 hardening");
+  assert.notEqual(applyRetirement, -1, "rehearsal must reapply the current retirement migration");
+  assert.ok(createResolver < applyLc03, "legacy resolver fixture must exist before LC-03 is replayed");
+  assert.ok(applyLc03 < applyRetirement, "current retirement must run after historical LC-03 hardening");
+  assert.match(
+    sql,
+    /to_regprocedure\('public\.vvip_resolve_own_profile\(text\)'\)\s+is\s+not\s+null[\s\S]*raise exception 'LC03_RETIRED_PROFILE_RPC_STILL_PRESENT'/i
+  );
 });
 
 test("legacy profile enumeration and trigger helpers fail closed when present", () => {
