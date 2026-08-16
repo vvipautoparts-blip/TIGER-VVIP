@@ -32,10 +32,10 @@ test("rejects invalid sectors, countries, currencies, and minor-unit prices", ()
   assert.throws(() => repo.normalizePriceMinor(1.2), { code: "LISTING_PRICE_INVALID" });
 });
 
-test("allows only JPEG PNG and WebP upload extensions", () => {
+test("allows only trusted JPEG and WebP upload extensions", () => {
   assert.equal(repo.extensionForMime("image/jpeg"), "jpg");
-  assert.equal(repo.extensionForMime("image/png"), "png");
   assert.equal(repo.extensionForMime("image/webp"), "webp");
+  assert.throws(() => repo.extensionForMime("image/png"), { code: "MEDIA_MIME_INVALID" });
   assert.throws(() => repo.extensionForMime("video/mp4"), { code: "MEDIA_MIME_INVALID" });
 });
 
@@ -43,4 +43,16 @@ test("requires authenticated Clerk identity before repository mutation", async (
   const client = { from() { throw new Error("must not query"); }, storage: {} };
   const repository = repo.createMarketplaceRepository({ client, clerk: { user: null }, config: { defaultCountryCode: "JO" } });
   await assert.rejects(() => repository.createDraft({}), { code: "AUTH_REQUIRED" });
+});
+
+test("repository exposes no browser-side review bypass", () => {
+  const client = { from() { return {}; }, storage: {} };
+  const repository = repo.createMarketplaceRepository({
+    client,
+    clerk: { user: { id: "user_owner" } },
+    config: { defaultCountryCode: "JO" }
+  });
+  assert.equal(repository.submitForReview, undefined);
+  assert.equal(repository.createAndSubmit, undefined);
+  assert.equal(typeof repository.prepareForPublication, "function");
 });
