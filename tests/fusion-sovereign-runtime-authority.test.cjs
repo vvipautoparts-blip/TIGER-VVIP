@@ -1,5 +1,6 @@
 "use strict";
 
+// RED phase: this contract intentionally fails until runtime authority convergence is implemented.
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
