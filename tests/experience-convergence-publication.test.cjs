@@ -107,7 +107,7 @@ test("draft creation is content-first and does not require a payment entitlement
   assert.equal(client.writes.some((write) => write.payload && write.payload.status === "PENDING_REVIEW"), false);
 });
 
-test("publication preparation requires an opaque entitlement receipt before trusted transport", () => {
+test("publication request requires an opaque entitlement receipt before trusted transport", () => {
   const client = createClientSpy();
   const repository = repo.createMarketplaceRepository({
     client,
@@ -115,9 +115,10 @@ test("publication preparation requires an opaque entitlement receipt before trus
     config: { defaultCountryCode: "JO" }
   });
 
-  assert.equal(typeof repository.prepareForPublication, "function");
+  assert.equal(typeof repository.requestPublication, "function");
+  assert.equal(repository.prepareForPublication, undefined);
   assert.throws(
-    () => repository.prepareForPublication("11111111-1111-4111-8111-111111111111", {
+    () => repository.requestPublication("11111111-1111-4111-8111-111111111111", {
       planId: "visibility-standard",
       entitlementReceipt: null
     }),
@@ -128,7 +129,7 @@ test("publication preparation requires an opaque entitlement receipt before trus
   assert.equal(client.writes.some((write) => write.payload && write.payload.status === "PENDING_REVIEW"), false);
 });
 
-test("publication preparation uses PR190 step-up auth and resumes the same trusted intent", async () => {
+test("publication request uses PR190 step-up auth and resumes the same trusted intent", async () => {
   const client = createClientSpy();
   const clerk = { user: null };
   let descriptor = null;
@@ -148,14 +149,14 @@ test("publication preparation uses PR190 step-up auth and resumes the same trust
   });
 
   await assert.rejects(
-    () => repository.prepareForPublication("11111111-1111-4111-8111-111111111111", {
+    () => repository.requestPublication("11111111-1111-4111-8111-111111111111", {
       planId: "visibility-standard",
       entitlementReceipt: "server-verified-receipt-placeholder"
     }),
-    { code: "PUBLICATION_PREPARE_FAILED" }
+    { code: "PUBLICATION_REQUEST_FAILED" }
   );
   assert.deepEqual(descriptor, {
-    name: "PREPARE_PUBLICATION",
+    name: "REQUEST_PUBLICATION",
     listingId: "11111111-1111-4111-8111-111111111111"
   });
   assert.deepEqual(client.rpcCalls, [{
@@ -178,11 +179,11 @@ test("trusted publication transport failure never falls back to browser status m
   });
 
   await assert.rejects(
-    () => repository.prepareForPublication("11111111-1111-4111-8111-111111111111", {
+    () => repository.requestPublication("11111111-1111-4111-8111-111111111111", {
       planId: "visibility-standard",
       entitlementReceipt: "server-verified-receipt-placeholder"
     }),
-    { code: "PUBLICATION_PREPARE_FAILED" }
+    { code: "PUBLICATION_REQUEST_FAILED" }
   );
   assert.equal(client.rpcCalls.length, 1);
   assert.equal(client.writes.some((write) => write.op === "update"), false);
