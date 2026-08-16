@@ -37,7 +37,8 @@ class ProductionPromotionSurfaceTests(unittest.TestCase):
         self.assertIn("scripts/release/verify-production-artifact.py inner", text)
         self.assertIn("Upload already-built verified public bytes for GitHub Pages", text)
         self.assertNotIn("required_paths=(", text)
-        self.assertNotIn("forbidden_paths=(", text)
+        self.assertIn("forbidden_paths=(", text, "live post-deploy verifier must still reject retired runtime paths")
+        self.assertIn("VVIP_POST_DEPLOY_FORBIDDEN_PRESENT", text)
 
 
 if __name__ == "__main__":
