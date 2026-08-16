@@ -7,7 +7,7 @@ const path = require('node:path');
 const marketplace = require('../scripts/runtime/vvip-marketplace-repository.js');
 
 const ROOT = path.resolve(__dirname, '..');
-const MIGRATION = path.join(ROOT, 'supabase/migrations/20260816090000_fusion_publication_entitlement.sql');
+const MIGRATION = path.join(ROOT, 'supabase/migrations/20260816090000_sovereign_publication_authority.sql');
 
 function rpcClient(handler) {
   return {
@@ -21,7 +21,7 @@ function authenticatedClerk() {
   return { user: { id: 'user_2abc123' } };
 }
 
-test('requestPublication delegates only to the trusted publication RPC', async () => {
+test('requestPublication delegates only to the sovereign publication RPC', async () => {
   const calls = [];
   const client = rpcClient(async (name, args) => {
     calls.push({ name, args });
@@ -48,7 +48,7 @@ test('requestPublication delegates only to the trusted publication RPC', async (
   );
 
   assert.deepEqual(calls, [{
-    name: 'vvip_marketplace_prepare_publication',
+    name: 'vvip_marketplace_request_publication',
     args: {
       target_listing: '123e4567-e89b-12d3-a456-426614174000',
       target_plan_id: 'pulse-standard',
@@ -79,20 +79,23 @@ test('publication transport propagates trusted server failure and never mints en
   assert.doesNotMatch(source, /insert\([^\n]*(entitlement|visibility_plan|activation)/i);
   assert.doesNotMatch(source, /status\s*:\s*["']ACTIVE["']/);
   assert.doesNotMatch(source, /function\s+(?:prepareForPublication|submitForReview|createAndSubmit)\b/);
+  assert.doesNotMatch(source, /vvip_marketplace_prepare_publication/);
 });
 
-test('trusted publication schema is the exclusive browser-to-review gate', () => {
-  assert.equal(fs.existsSync(MIGRATION), true, 'trusted publication migration must exist');
+test('sovereign publication schema is the exclusive browser-to-review gate', () => {
+  assert.equal(fs.existsSync(MIGRATION), true, 'sovereign publication migration must exist');
   const sql = fs.readFileSync(MIGRATION, 'utf8');
 
   for (const token of [
     'create table public.vvip_visibility_plans',
     'create table public.vvip_listing_activation_entitlements',
-    'create function public.vvip_marketplace_prepare_publication',
+    'create function public.vvip_marketplace_request_publication',
     'MARKETPLACE_PUBLICATION_RPC_REQUIRED',
     'MARKETPLACE_MEDIA_COUNT_INVALID',
-    'MARKETPLACE_MEDIA_NOT_SANITIZED',
-    "mime_type not in ('image/jpeg', 'image/webp')",
+    'MARKETPLACE_MEDIA_NOT_CANONICAL',
+    "finalization_state <> 'CANONICAL'",
+    'canonical_storage_path is null',
+    "canonical_mime_type not in ('image/jpeg', 'image/webp')",
     'PENDING_REVIEW',
     'ISSUED',
     'CONSUMED',
@@ -109,5 +112,7 @@ test('trusted publication schema is the exclusive browser-to-review gate', () =>
   assert.match(sql, /revoke\s+all[^;]+vvip_listing_activation_entitlements[^;]+from\s+(?:public|anon|authenticated)/is);
   assert.doesNotMatch(sql, /grant\s+insert[^;]+vvip_listing_activation_entitlements[^;]+to\s+authenticated/is);
   assert.doesNotMatch(sql, /update\s+public\.vvip_marketplace_listings[\s\S]{0,400}status\s*=\s*'ACTIVE'/i);
+  assert.doesNotMatch(sql, /vvip_marketplace_prepare_publication/i);
   assert.match(sql, /current_user\s+in\s*\('anon',\s*'authenticated'\)[\s\S]{0,1200}NEW\.status\s*=\s*'PENDING_REVIEW'[\s\S]{0,300}MARKETPLACE_PUBLICATION_RPC_REQUIRED/i);
+  assert.match(sql, /current_entitlement\.entitlement_state\s*=\s*'CONSUMED'[\s\S]{0,900}current_listing\.status\s*=\s*'PENDING_REVIEW'/i);
 });
