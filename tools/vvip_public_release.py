@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Build a minimal, auditable public artifact for TIGER VVIP.
 
-The builder never copies the repository root wholesale. It follows a fixed public
-entry set plus explicitly approved asset prefixes, writes runtime configuration,
+The builder never copies the repository root wholesale. It follows fixed public
+entry sets plus narrowly approved asset prefixes, writes runtime configuration,
 and fails closed in production when test/demo markers are present.
 """
 from __future__ import annotations
@@ -39,14 +39,40 @@ PUBLIC_PREFIXES = (
 
 PUBLIC_SCRIPT_FILES = (
     "scripts/vvip-pr30-resilience.js",
-    "scripts/vvip-production-marketplace.js",
-    "scripts/vvip-safe-ux-guard.js",
     "scripts/fusion/runtime-adapters.js",
+    "scripts/fusion/marketplace-context.js",
     "scripts/fusion/f02-feed.js",
     "scripts/fusion/f03-capability-menu.js",
+    "scripts/fusion/f04-search-fabric.js",
     "scripts/fusion/progressive-composer.js",
     "scripts/fusion/account-surface.js",
     "scripts/fusion/single-surface-controller.js",
+)
+
+PUBLIC_MEDIA_FILES = (
+    "scripts/media/pr36-signature.js",
+    "scripts/media/pr36-policy.js",
+    "scripts/media/pr36-geometry.js",
+    "scripts/media/pr36-canvas-adapter.js",
+    "scripts/media/pr36-worker-adapter.js",
+    "scripts/media/pr36-scheduler.js",
+    "scripts/media/pr36-session.js",
+    "scripts/media/pr36-media-worker.js",
+    "scripts/media/f05-heif-preflight.js",
+    "scripts/media/f05-pr36-media-bridge.js",
+    "scripts/media/f05-heif-adapter.js",
+    "scripts/media/f05-heif-worker-client.js",
+    "scripts/media/f05-heif-policy.js",
+    "scripts/media/f05-heif-worker-core.js",
+    "scripts/media/f05-derivative-privacy.js",
+    "scripts/media/f05-worker-resilience.js",
+    "scripts/media/pr36-controller.js",
+)
+
+PUBLIC_WORKER_FILES = (
+    "workers/media/f05-heif-decoder.v1.js",
+    "workers/media/f05-heif-decoder.v1.wasm",
+    "workers/media/f05-heif-worker.js",
 )
 
 DENIED_SEGMENTS = {
@@ -76,25 +102,14 @@ INDEX_REMOVE_SCRIPTS = (
     "scripts/vvip-pr31-create-listing-shell.js",
     "scripts/vvip-pr33-publish-readiness.js",
     "scripts/runtime/vvip-my-listings.js",
-    "scripts/media/pr36-signature.js",
-    "scripts/media/pr36-policy.js",
-    "scripts/media/pr36-geometry.js",
-    "scripts/media/pr36-canvas-adapter.js",
-    "scripts/media/pr36-worker-adapter.js",
-    "scripts/media/pr36-scheduler.js",
-    "scripts/media/pr36-session.js",
-    "scripts/media/f05-heif-preflight.js",
-    "scripts/media/f05-pr36-media-bridge.js",
-    "scripts/media/f05-heif-adapter.js",
-    "scripts/media/f05-heif-worker-client.js",
-    "scripts/media/pr36-controller.js",
+    "scripts/vvip-production-marketplace.js",
 )
 
 INDEX_REMOVE_STYLES = (
     "styles/vvip-pr31-create-listing-shell.css",
     "styles/vvip-pr32-draft-preview.css",
     "styles/vvip-pr33-publish-readiness.css",
-    "styles/vvip-pr36-media.css",
+    "styles/vvip-production-marketplace.css",
 )
 
 ACCOUNT_ROUTE_PATTERN = re.compile(
@@ -114,12 +129,16 @@ def _safe_relative(path: str) -> str:
     return normalized.as_posix()
 
 
+def _approved_exact_files() -> tuple[str, ...]:
+    return PUBLIC_ROOT_FILES + PUBLIC_SCRIPT_FILES + PUBLIC_MEDIA_FILES + PUBLIC_WORKER_FILES
+
+
 def _is_public(path: str) -> bool:
     try:
         safe = _safe_relative(path)
     except ValueError:
         return False
-    return safe in PUBLIC_ROOT_FILES or safe in PUBLIC_SCRIPT_FILES or safe.startswith(PUBLIC_PREFIXES)
+    return safe in _approved_exact_files() or safe.startswith(PUBLIC_PREFIXES)
 
 
 def _copy(source: Path, output: Path, relative: str) -> None:
@@ -169,15 +188,12 @@ def _transform_index(text: str) -> str:
     text = _close_account_routes(text)
 
     injection = """
-  <link rel="stylesheet" href="styles/vvip-production-marketplace.css">
   <script defer src="runtime-config.js"></script>
   <script defer src="scripts/runtime/vvip-runtime-loader.js"></script>
   <script defer src="scripts/runtime/vvip-marketplace-repository.js"></script>
   <script defer src="scripts/runtime/vvip-marketplace-rollback.js"></script>
   <script defer src="auth-clerk-index.js"></script>
   <script defer src="scripts/vvip-pr30-resilience.js"></script>
-  <script defer src="scripts/runtime/vvip-my-listings.js"></script>
-  <script defer src="scripts/vvip-production-marketplace.js"></script>
 """.rstrip()
     text = text.replace("</head>", f"{injection}\n</head>")
     return text
@@ -274,7 +290,7 @@ def build(source: Path, output: Path, *, mode: str, source_sha: str, include_cna
         shutil.rmtree(output)
     output.mkdir(parents=True)
 
-    for relative in PUBLIC_ROOT_FILES + PUBLIC_SCRIPT_FILES:
+    for relative in _approved_exact_files():
         _copy(source, output, relative)
     for prefix in PUBLIC_PREFIXES:
         root = source / prefix.rstrip("/")
