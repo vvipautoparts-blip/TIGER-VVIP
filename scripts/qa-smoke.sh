@@ -41,14 +41,18 @@ required_files = [
     "scripts/media/pr36-controller.js",
     "scripts/media/f05-heif-worker-client.js",
     "scripts/fusion/runtime-adapters.js",
+    "scripts/fusion/marketplace-context.js",
     "scripts/fusion/f02-feed.js",
+    "scripts/fusion/f04-search-fabric.js",
     "scripts/fusion/progressive-composer.js",
     "scripts/fusion/account-surface.js",
     "scripts/fusion/single-surface-controller.js",
+    "scripts/runtime/vvip-marketplace-repository.js",
     "styles/fusion/f02-single-surface.css",
     "styles/fusion/progressive-composer.css",
     "sw-vvip-static.js",
     "scripts/runtime/vvip-static-delivery.js",
+    "supabase/migrations/20260816090000_fusion_publication_entitlement.sql",
     "docs/owner-control/OWNER_BINDING_DECISIONS_2026-08-15.md",
 ]
 for relative in required_files:
@@ -113,8 +117,11 @@ composer_contracts = [
     "VVIP_PR36_MEDIA",
     "VVIP_AUTH",
     "requireAuth",
-    "LOCAL_DRAFT_ONLY",
-    "Math.min(media.images.length, 7)",
+    "VVIPFusionMarketplaceContext",
+    "createDraftWithMedia",
+    "prepareForPublication",
+    "VVIPActivationProvider",
+    "entitlementReceipt",
     "data-fusion-progressive-form",
     "data-fusion-save-draft",
     "data-fusion-publish-request",
@@ -124,8 +131,19 @@ for contract in composer_contracts:
     if contract not in composer:
         raise SystemExit(f"[smoke][fail] progressive composer contract missing: {contract}")
 
+for retired in ["LOCAL_DRAFT_ONLY", "localStorage.setItem", "localStorage.getItem", "vvip.fusion.composer.draft"]:
+    if retired in composer:
+        raise SystemExit(f"[smoke][fail] retired local publication truth restored: {retired}")
+
 if "readAsDataURL" in composer or "data:image" in composer:
     raise SystemExit("[smoke][fail] progressive composer attempts to persist raw image data")
+
+repository = Path("scripts/runtime/vvip-marketplace-repository.js").read_text(encoding="utf-8")
+for contract in ["vvip_marketplace_prepare_publication", "PUBLICATION_PREPARE_FAILED", "ENTITLEMENT_RECEIPT_REQUIRED"]:
+    if contract not in repository:
+        raise SystemExit(f"[smoke][fail] trusted publication repository contract missing: {contract}")
+if "PUBLICATION_TRANSPORT_UNAVAILABLE" in repository:
+    raise SystemExit("[smoke][fail] retired publication transport stub restored")
 
 controller = Path("scripts/fusion/single-surface-controller.js").read_text(encoding="utf-8")
 adapters = Path("scripts/fusion/runtime-adapters.js").read_text(encoding="utf-8")
@@ -148,10 +166,12 @@ active_runtime = [
     Path("auth-clerk-index.js"),
     Path("scripts/vvip-pr30-resilience.js"),
     Path("scripts/fusion/runtime-adapters.js"),
+    Path("scripts/fusion/marketplace-context.js"),
     Path("scripts/fusion/f02-feed.js"),
     Path("scripts/fusion/progressive-composer.js"),
     Path("scripts/fusion/account-surface.js"),
     Path("scripts/fusion/single-surface-controller.js"),
+    Path("scripts/runtime/vvip-marketplace-repository.js"),
 ]
 native_dialog = re.compile(r"(?<![A-Za-z0-9_])(?:window\.)?(?:alert|confirm|prompt)\s*\(")
 for file in active_runtime:
@@ -164,7 +184,7 @@ if 'CACHE_NAME = "vvip-static-v2"' not in worker:
     raise SystemExit("[smoke][fail] current bounded static cache version is not v2")
 
 owner = Path("docs/owner-control/OWNER_BINDING_DECISIONS_2026-08-15.md").read_text(encoding="utf-8")
-for contract in ["FUSION 2026", "maximum 7 images", "CANCELLED", "OpenSooq-style search", "Latest-decision-wins"]:
+for contract in ["FUSION 2026", "maximum 7 images", "CANCELLED", "OpenSooq-style search", "Latest-decision-wins", "GLOBAL_LAUNCH_ELIGIBLE = TRUE"]:
     if contract.lower() not in owner.lower():
         raise SystemExit(f"[smoke][fail] latest owner authority contract missing: {contract}")
 
@@ -175,10 +195,12 @@ echo "[smoke] validating shell scripts and JavaScript parse cleanly"
 bash -n scripts/qa-smoke.sh
 node --check auth-clerk-index.js
 node --check scripts/fusion/runtime-adapters.js
+node --check scripts/fusion/marketplace-context.js
 node --check scripts/fusion/f02-feed.js
 node --check scripts/fusion/progressive-composer.js
 node --check scripts/fusion/account-surface.js
 node --check scripts/fusion/single-surface-controller.js
+node --check scripts/runtime/vvip-marketplace-repository.js
 node --check sw-vvip-static.js
 
 echo "VVIP_FUSION_SMOKE=PASS"
