@@ -13,7 +13,7 @@ const sql = fs.readFileSync(
 test('media finalization request qualifies media_id in UPDATE predicates', () => {
   assert.match(
     sql,
-    /update\s+public\.vvip_marketplace_listing_media\s+as\s+media[\s\S]{0,500}where\s+media\.media_id\s*=\s*target_media/i
+    /update\s+public\.vvip_marketplace_listing_media[\s\S]{0,500}where\s+(?:public\.vvip_marketplace_listing_media|media)\.media_id\s*=\s*target_media/i
   );
   assert.doesNotMatch(sql, /where\s+media_id\s*=\s*target_media/i);
 });
