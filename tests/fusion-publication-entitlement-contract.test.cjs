@@ -7,7 +7,7 @@ const path = require('node:path');
 const marketplace = require('../scripts/runtime/vvip-marketplace-repository.js');
 
 const ROOT = path.resolve(__dirname, '..');
-const MIGRATION = path.join(ROOT, 'supabase/migrations/20260816090000_sovereign_publication_authority.sql');
+const MIGRATION = path.join(ROOT, 'supabase/migrations/20260816093000_sovereign_publication_authority.sql');
 
 function rpcClient(handler) {
   return {
@@ -30,7 +30,7 @@ test('requestPublication delegates only to the sovereign publication RPC', async
         listing_id: '123e4567-e89b-12d3-a456-426614174000',
         status: 'PENDING_REVIEW',
         plan_id: 'pulse-standard',
-        entitlement_state: 'CONSUMED'
+        entitlement_state: 'RESERVED'
       },
       error: null
     };
@@ -56,7 +56,7 @@ test('requestPublication delegates only to the sovereign publication RPC', async
     }
   }]);
   assert.equal(result.status, 'PENDING_REVIEW');
-  assert.equal(result.entitlement_state, 'CONSUMED');
+  assert.equal(result.entitlement_state, 'RESERVED');
 });
 
 test('publication transport propagates trusted server failure and never mints entitlement locally', async () => {
@@ -98,13 +98,16 @@ test('sovereign publication schema is the exclusive browser-to-review gate', () 
     "canonical_mime_type not in ('image/jpeg', 'image/webp')",
     'PENDING_REVIEW',
     'ISSUED',
+    'RESERVED',
     'CONSUMED',
     'pulse_impressions',
+    'activation_duration_minutes',
     'activation_starts_at',
     'activation_expires_at',
     'force row level security',
     'revoke all privileges',
-    'entitlement_receipt_hash'
+    'entitlement_receipt_hash',
+    'vvip_private.vvip_marketplace_country_is_active'
   ]) {
     assert.ok(sql.toLowerCase().includes(token.toLowerCase()), `migration contract missing: ${token}`);
   }
@@ -113,6 +116,9 @@ test('sovereign publication schema is the exclusive browser-to-review gate', () 
   assert.doesNotMatch(sql, /grant\s+insert[^;]+vvip_listing_activation_entitlements[^;]+to\s+authenticated/is);
   assert.doesNotMatch(sql, /update\s+public\.vvip_marketplace_listings[\s\S]{0,400}status\s*=\s*'ACTIVE'/i);
   assert.doesNotMatch(sql, /vvip_marketplace_prepare_publication/i);
+  assert.match(sql, /entitlement_state\s*=\s*'RESERVED'/i);
+  assert.match(sql, /decision\s*=\s*'APPROVE'[\s\S]{0,3000}entitlement_state\s*=\s*'CONSUMED'/i);
+  assert.match(sql, /decision\s*=\s*'REJECT'[\s\S]{0,3000}entitlement_state\s*=\s*'ISSUED'/i);
   assert.match(sql, /current_user\s+in\s*\('anon',\s*'authenticated'\)[\s\S]{0,1200}NEW\.status\s*=\s*'PENDING_REVIEW'[\s\S]{0,300}MARKETPLACE_PUBLICATION_RPC_REQUIRED/i);
-  assert.match(sql, /current_entitlement\.entitlement_state\s*=\s*'CONSUMED'[\s\S]{0,900}current_listing\.status\s*=\s*'PENDING_REVIEW'/i);
+  assert.match(sql, /current_entitlement\.entitlement_state\s*=\s*'RESERVED'[\s\S]{0,1000}current_listing\.status\s*=\s*'PENDING_REVIEW'/i);
 });
