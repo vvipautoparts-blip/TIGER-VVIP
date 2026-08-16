@@ -92,8 +92,12 @@ async function rpc(baseUrl, serviceKey, name, body) {
   return Array.isArray(data) ? data[0] : data;
 }
 
+function requestMethod(event) {
+  return String(event && event.requestContext && event.requestContext.http && event.requestContext.http.method || event && event.httpMethod || '').toUpperCase();
+}
+
 function parseRequest(event) {
-  if (!event || String(event.requestContext && event.requestContext.http && event.requestContext.http.method || event.httpMethod || '').toUpperCase() !== 'POST') {
+  if (!event || requestMethod(event) !== 'POST') {
     throw Object.assign(new Error('METHOD_NOT_ALLOWED'), { code: 'METHOD_NOT_ALLOWED', statusCode: 405 });
   }
   let body;
@@ -114,16 +118,36 @@ function allowedOrigin(event) {
   return origin;
 }
 
+function corsHeaders(origin) {
+  return {
+    'access-control-allow-origin': origin || 'null',
+    'access-control-allow-methods': 'POST,OPTIONS',
+    'access-control-allow-headers': 'content-type',
+    'access-control-max-age': '600',
+    'vary': 'Origin'
+  };
+}
+
 function response(statusCode, body, origin) {
   return {
     statusCode,
     headers: {
       'content-type': 'application/json; charset=utf-8',
       'cache-control': 'no-store',
-      'access-control-allow-origin': origin || 'null',
-      'vary': 'Origin'
+      ...corsHeaders(origin)
     },
     body: JSON.stringify(body)
+  };
+}
+
+function preflight(origin) {
+  return {
+    statusCode: 204,
+    headers: {
+      'cache-control': 'no-store',
+      ...corsHeaders(origin)
+    },
+    body: ''
   };
 }
 
@@ -147,6 +171,9 @@ async function canonicalize(source, mime, timeoutSeconds) {
 async function handler(event) {
   const origin = allowedOrigin(event);
   if (!origin) return response(403, { ok: false, code: 'ORIGIN_NOT_ALLOWED' }, null);
+
+  const method = requestMethod(event);
+  if (method === 'OPTIONS') return preflight(origin);
 
   let job = null;
   let request = null;
@@ -218,3 +245,4 @@ async function handler(event) {
 exports.handler = handler;
 exports.canonicalize = canonicalize;
 exports.storageClient = storageClient;
+exports.requestMethod = requestMethod;
