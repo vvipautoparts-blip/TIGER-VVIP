@@ -63,8 +63,11 @@ reviewed_baseline_path() {
   local expected_hash="${reviewed_migration_hashes[$relative_file]:-}"
   local actual_hash
 
-  [[ -n "$expected_hash" ]] || return 1
   actual_hash="$(sha256sum "$file" | awk '{print $1}')"
+  if [[ -z "$expected_hash" ]]; then
+    echo "UNREVIEWED_MIGRATION_SHA256:$relative_file:$actual_hash"
+    return 1
+  fi
   [[ "$actual_hash" == "$expected_hash" ]]
 }
 
