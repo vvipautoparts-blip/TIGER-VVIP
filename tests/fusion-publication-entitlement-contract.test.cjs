@@ -21,7 +21,7 @@ function authenticatedClerk() {
   return { user: { id: 'user_2abc123' } };
 }
 
-test('prepareForPublication delegates only to the trusted publication RPC', async () => {
+test('requestPublication delegates only to the trusted publication RPC', async () => {
   const calls = [];
   const client = rpcClient(async (name, args) => {
     calls.push({ name, args });
@@ -41,7 +41,8 @@ test('prepareForPublication delegates only to the trusted publication RPC', asyn
     config: { defaultCountryCode: 'JO' }
   });
 
-  const result = await repository.prepareForPublication(
+  assert.equal(repository.prepareForPublication, undefined);
+  const result = await repository.requestPublication(
     '123e4567-e89b-12d3-a456-426614174000',
     { planId: 'pulse-standard', entitlementReceipt: 'receipt_01HZX8Q7WJ9VJ0R0W0T6SR8XYA' }
   );
@@ -67,16 +68,17 @@ test('publication transport propagates trusted server failure and never mints en
   });
 
   await assert.rejects(
-    () => repository.prepareForPublication(
+    () => repository.requestPublication(
       '123e4567-e89b-12d3-a456-426614174000',
       { planId: 'pulse-standard', entitlementReceipt: 'receipt_missing' }
     ),
-    { code: 'PUBLICATION_PREPARE_FAILED' }
+    { code: 'PUBLICATION_REQUEST_FAILED' }
   );
 
   const source = fs.readFileSync(path.join(ROOT, 'scripts/runtime/vvip-marketplace-repository.js'), 'utf8');
   assert.doesNotMatch(source, /insert\([^\n]*(entitlement|visibility_plan|activation)/i);
   assert.doesNotMatch(source, /status\s*:\s*["']ACTIVE["']/);
+  assert.doesNotMatch(source, /function\s+(?:prepareForPublication|submitForReview|createAndSubmit)\b/);
 });
 
 test('trusted publication schema is the exclusive browser-to-review gate', () => {
