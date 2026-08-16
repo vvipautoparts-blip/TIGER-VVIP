@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
-const MIGRATION = path.join(ROOT, 'supabase/migrations/20260816103000_fusion_server_media_finalization.sql');
+const MIGRATION = path.join(ROOT, 'supabase/migrations/20260816090000_sovereign_media_finalization.sql');
 const HANDLER = path.join(ROOT, 'services/media-finalizer/src/handler.js');
 const POLICY = path.join(ROOT, 'services/media-finalizer/src/policy.js');
 const DOCKERFILE = path.join(ROOT, 'services/media-finalizer/Dockerfile');
@@ -35,7 +35,8 @@ test('database requires one-time trusted canonical-media finalization before pub
     "finalization_state <> 'CANONICAL'",
     'MEDIA_SERVER_FINALIZATION_REQUIRED',
     "'listing-media-canonical'",
-    'force row level security'
+    'force row level security',
+    'vvip_private.vvip_marketplace_country_is_active'
   ]) {
     assert.ok(sql.includes(token), `missing trusted-media contract: ${token}`);
   }
@@ -44,6 +45,7 @@ test('database requires one-time trusted canonical-media finalization before pub
   assert.doesNotMatch(sql, /grant\s+(?:insert|update|delete)[^;]+vvip_media_finalization_jobs[^;]+to\s+authenticated/is);
   assert.doesNotMatch(sql, /grant\s+execute[^;]+vvip_marketplace_(?:claim|complete)_media_finalization[^;]+to\s+authenticated/is);
   assert.match(sql, /MARKETPLACE_MEDIA_CANONICAL_FIELDS_TRUSTED_ONLY/);
+  assert.match(sql, /drop policy if exists vvip_listing_media_storage_owner_update/i);
 });
 
 test('finalizer policy accepts only strict JPEG/WebP containers and rejects HEIC/HEIF and polyglot tails', () => {
