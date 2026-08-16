@@ -19,7 +19,6 @@ spec.loader.exec_module(module)
 class PublicReleaseTests(unittest.TestCase):
     def fixture(self, root: Path, *, test_key: bool = False, fixture_data: bool = False) -> None:
         key = "pk_test_demo" if test_key else ""
-        listing = "const listings = [1];" if fixture_data else "window.VVIP_PR29={};"
         (root / "index.html").write_text(
             f'<html><head><script data-clerk-publishable-key="{key}" src="https://x.clerk.accounts.dev/a.js"></script>'
             '<script src="scripts/vvip-pr29-home-marketplace.js"></script></head>'
@@ -27,9 +26,8 @@ class PublicReleaseTests(unittest.TestCase):
             encoding="utf-8",
         )
         (root / "scripts").mkdir()
-        (root / "scripts" / "vvip-production-marketplace.js").write_text(listing, encoding="utf-8")
-        (root / "scripts" / "vvip-pr30-resilience.js").write_text("", encoding="utf-8")
-        (root / "scripts" / "vvip-safe-ux-guard.js").write_text("", encoding="utf-8")
+        (root / "scripts" / "vvip-production-marketplace.js").write_text("legacy", encoding="utf-8")
+        (root / "scripts" / "vvip-safe-ux-guard.js").write_text("legacy", encoding="utf-8")
         (root / "scripts" / "vvip-p03-route-map.js").write_text("", encoding="utf-8")
         (root / "scripts" / "vvip-p03-profile.js").write_text("", encoding="utf-8")
         (root / "scripts" / "vvip-p03-sign-out.js").write_text("", encoding="utf-8")
@@ -40,11 +38,22 @@ class PublicReleaseTests(unittest.TestCase):
         (root / "scripts" / "runtime" / "vvip-my-listings.js").write_text("", encoding="utf-8")
         (root / "styles").mkdir()
         (root / "styles" / "vvip-production-marketplace.css").write_text("", encoding="utf-8")
+
         for name in module.PUBLIC_ROOT_FILES:
             path = root / name
             if not path.exists():
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text("", encoding="utf-8")
+        for name in module.PUBLIC_SCRIPT_FILES:
+            path = root / name
+            if not path.exists():
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("window.VVIPFusion = {};\n", encoding="utf-8")
+        if fixture_data:
+            (root / "scripts" / "fusion" / "f02-feed.js").write_text(
+                "const listings = [1];\n", encoding="utf-8"
+            )
+
         (root / "manifest.webmanifest").write_text(
             json.dumps({"start_url": "./index.html"}), encoding="utf-8"
         )
@@ -100,12 +109,14 @@ class PublicReleaseTests(unittest.TestCase):
             self.assertNotIn("pk_test_demo", index)
             self.assertNotIn("vvip-pr29-home-marketplace.js", index)
             self.assertNotIn("private-profile-p03.html", index)
+            self.assertNotIn("vvip-production-marketplace.js", index)
             self.assertIn('href="#marketplace"', index)
             self.assertIn("data-account-route", index)
             self.assertIn("runtime-config.js", index)
-            self.assertIn("vvip-production-marketplace.js", index)
+            self.assertIn("vvip-marketplace-repository.js", index)
+            self.assertTrue((output / "scripts" / "fusion" / "progressive-composer.js").is_file())
             self.assertTrue((output / "sw-vvip-static.js").is_file())
-            self.assertTrue((output / "scripts" / "vvip-safe-ux-guard.js").is_file())
+            self.assertFalse((output / "scripts" / "vvip-safe-ux-guard.js").exists())
             self.assertEqual(manifest["sourceSha"], "abc")
 
     def test_candidate_copies_only_approved_fusion_scripts_and_blocks_local_only_publish(self):
@@ -115,7 +126,7 @@ class PublicReleaseTests(unittest.TestCase):
             source.mkdir()
             self.fixture(source)
             fusion = source / "scripts" / "fusion"
-            fusion.mkdir()
+            fusion.mkdir(exist_ok=True)
             approved = [path for path in module.PUBLIC_SCRIPT_FILES if path.startswith("scripts/fusion/")]
             for relative in approved:
                 path = source / relative
@@ -155,7 +166,7 @@ class PublicReleaseTests(unittest.TestCase):
             source.mkdir()
             self.fixture(source, fixture_data=True)
             with mock.patch.dict(os.environ, self.production_env(), clear=False):
-                with self.assertRaises(RuntimeError):
+                with self.assertRaisesRegex(RuntimeError, "STATIC_LISTING_FIXTURES"):
                     module.build(source, output, mode="production", source_sha="abc")
 
     def test_production_rejects_local_draft_only_publisher(self):
@@ -165,7 +176,7 @@ class PublicReleaseTests(unittest.TestCase):
             source.mkdir()
             self.fixture(source)
             fusion = source / "scripts" / "fusion"
-            fusion.mkdir()
+            fusion.mkdir(exist_ok=True)
             (fusion / "progressive-composer.js").write_text(
                 'window.VVIPFusionPublishMode = "LOCAL_DRAFT_ONLY";\n', encoding="utf-8"
             )
@@ -184,17 +195,18 @@ class PublicReleaseTests(unittest.TestCase):
             self.assertTrue(manifest["releaseEligible"])
             self.assertIn("runtime-config.js", manifest["files"])
             self.assertIn("sw-vvip-static.js", manifest["files"])
-            self.assertIn("scripts/vvip-safe-ux-guard.js", manifest["files"])
+            self.assertIn("scripts/fusion/progressive-composer.js", manifest["files"])
+            self.assertNotIn("scripts/vvip-safe-ux-guard.js", manifest["files"])
             self.assertFalse((output / "CNAME").exists())
             self.assert_local_html_refs_exist(self, output)
 
-    def test_repository_candidate_artifact_is_reference_closed_and_fail_closed_for_local_publish(self):
+    def test_repository_candidate_artifact_is_reference_closed_and_has_no_local_only_publisher(self):
         source = MODULE_PATH.parents[1]
         with tempfile.TemporaryDirectory() as temp:
             output = Path(temp) / "out"
             manifest = module.build(source, output, mode="candidate", source_sha="closure-test")
-            self.assertFalse(manifest["releaseEligible"])
-            self.assertIn(
+            self.assertTrue(manifest["releaseEligible"])
+            self.assertNotIn(
                 {"code": "LOCAL_DRAFT_ONLY_PUBLISHER", "path": "scripts/fusion/progressive-composer.js"},
                 manifest["forbiddenFindings"],
             )
