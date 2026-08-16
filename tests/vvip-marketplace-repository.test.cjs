@@ -201,8 +201,8 @@ test("createDraftWithMedia finalizes each inserted derivative through the truste
   assert.equal(calls.deletedListings.length, 0);
 });
 
-test("public reads sign canonical media only from the canonical private bucket", async () => {
-  const calls = { select: "", buckets: [], paths: [] };
+test("public reads use the safe feed projection and sign canonical media only", async () => {
+  const calls = { table: "", select: "", buckets: [], paths: [] };
   const rows = [{
     listing_id: LISTING_ID,
     title: "Listing",
@@ -214,7 +214,7 @@ test("public reads sign canonical media only from the canonical private bucket",
   const query = thenableQuery({ data: rows });
   const client = {
     from(table) {
-      assert.equal(table, "vvip_marketplace_listings");
+      calls.table = table;
       return {
         select(value) { calls.select = value; return query; }
       };
@@ -235,8 +235,8 @@ test("public reads sign canonical media only from the canonical private bucket",
   const repository = repo.createMarketplaceRepository({ client, clerk: { user: null }, config: {} });
   const result = await repository.listPublic({ limit: 30 });
 
-  assert.match(calls.select, /canonical_storage_path/);
-  assert.match(calls.select, /finalization_state/);
+  assert.equal(calls.table, "vvip_marketplace_public_feed");
+  assert.match(calls.select, /canonical_storage_path|media/);
   assert.deepEqual(calls.buckets, ["listing-media-canonical"]);
   assert.deepEqual(calls.paths, [["canonical/cover.webp"]]);
   assert.match(result[0].media[0].url, /^https:\/\/signed\.example\//);
