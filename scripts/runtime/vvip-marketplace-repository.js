@@ -444,7 +444,7 @@
     function requestPublication(listingId, publicationOptions) {
       const intent = normalizePublicationIntent(listingId, publicationOptions);
       return protectedOperation({ name: "REQUEST_PUBLICATION", listingId: intent.listingId }, async function () {
-        const result = await client.rpc("vvip_marketplace_prepare_publication", {
+        const result = await client.rpc("vvip_marketplace_request_publication", {
           target_listing: intent.listingId,
           target_plan_id: intent.planId,
           entitlement_receipt: intent.entitlementReceipt
