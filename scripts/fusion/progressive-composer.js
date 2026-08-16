@@ -103,7 +103,7 @@
       LISTING_COUNTRY_INVALID: 'السوق النشط غير محدد بشكل صحيح.',
       ACTIVATION_PROVIDER_UNAVAILABLE: 'تم حفظ المسودة على الخادم، لكن التفعيل المدفوع غير متاح لهذا السوق بعد.',
       ACTIVATION_RESULT_INVALID: 'لم يصل تأكيد تفعيل موثوق. لم يتم نشر الإعلان.',
-      PUBLICATION_PREPARE_FAILED: 'رفض الخادم التفعيل أو الاستحقاق. بقي الإعلان كمسودة آمنة.',
+      PUBLICATION_REQUEST_FAILED: 'رفض الخادم التفعيل أو الاستحقاق. بقي الإعلان كمسودة آمنة.',
       ENTITLEMENT_RECEIPT_REQUIRED: 'لم يصل إيصال استحقاق موثوق. لم يتم نشر الإعلان.'
     };
     return messages[code] || 'تعذر إكمال العملية بأمان. لم يتم إعلان نجاح غير مؤكد.';
@@ -262,11 +262,11 @@
     setStatus('جاري فتح التفعيل الآمن…', false);
     const entitlement = await requestActivation(draft, context);
     setStatus('جاري تأكيد الاستحقاق مع الخادم…', false);
-    const result = await context.repository.prepareForPublication(draft.listing_id, {
+    const result = await context.repository.requestPublication(draft.listing_id, {
       planId: entitlement.planId,
       entitlementReceipt: entitlement.entitlementReceipt
     });
-    if (!result || result.status !== 'PENDING_REVIEW') throw composerError('PUBLICATION_PREPARE_FAILED');
+    if (!result || result.status !== 'PENDING_REVIEW') throw composerError('PUBLICATION_REQUEST_FAILED');
     setStatus('تم استلام طلب التفعيل وأُرسل الإعلان للمراجعة. لم يتم اعتباره منشورًا بعد.', false);
     root.dispatchEvent(new root.CustomEvent('vvip:fusion-publication-prepared', { detail: { listingId: draft.listing_id, status: result.status } }));
     return result;
