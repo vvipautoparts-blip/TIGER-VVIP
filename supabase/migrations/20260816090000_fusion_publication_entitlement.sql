@@ -1,17 +1,155 @@
 -- VVIP TIGER FUSION — server-authoritative publication entitlement gate.
 -- Forward-only. No country, price plan, payment receipt, entitlement, listing, or authority row is seeded.
--- Browser clients can consume an already-issued entitlement through one bounded RPC;
--- they cannot mint entitlements, change price/Pulse budgets, or force listings ACTIVE.
+-- Browser clients can create/edit DRAFT content and consume an already-issued entitlement through one bounded RPC;
+-- they cannot mint entitlements, bypass media/sector policy, move a listing directly to PENDING_REVIEW/ACTIVE,
+-- change price/Pulse budgets, or force trusted publication state.
 
 begin;
 
 create extension if not exists pgcrypto with schema extensions;
 
+-- ---------------------------------------------------------------------------
+-- One dynamic marketplace sector authority. This supersedes the historical
+-- fixed three-sector CHECK without inventing new sectors in the migration.
+-- Existing values are preserved before the FK is enforced.
+-- ---------------------------------------------------------------------------
+
+create table if not exists public.vvip_marketplace_sectors (
+    sector_key text primary key,
+    label_ar text not null,
+    label_en text not null,
+    is_enabled boolean not null default true,
+    display_order integer not null default 0,
+    created_at timestamptz not null default statement_timestamp(),
+    updated_at timestamptz not null default statement_timestamp(),
+    check (sector_key ~ '^[a-z0-9][a-z0-9._-]{0,127}$'),
+    check (length(label_ar) between 1 and 120),
+    check (length(label_en) between 1 and 120)
+);
+
+insert into public.vvip_marketplace_sectors (
+    sector_key,
+    label_ar,
+    label_en,
+    is_enabled,
+    display_order
+)
+select distinct
+    listing.sector,
+    initcap(replace(listing.sector, '-', ' ')),
+    initcap(replace(listing.sector, '-', ' ')),
+    true,
+    0
+from public.vvip_marketplace_listings listing
+where nullif(btrim(listing.sector), '') is not null
+on conflict (sector_key) do nothing;
+
+alter table public.vvip_marketplace_listings
+    drop constraint if exists vvip_marketplace_listings_sector_check;
+
+alter table public.vvip_marketplace_listings
+    drop constraint if exists vvip_marketplace_listings_sector_fkey;
+
+alter table public.vvip_marketplace_listings
+    add constraint vvip_marketplace_listings_sector_fkey
+    foreign key (sector)
+    references public.vvip_marketplace_sectors(sector_key);
+
+-- ---------------------------------------------------------------------------
+-- F05 trusted-derivative boundary. New marketplace media metadata accepts
+-- only JPEG/WebP derivatives. NOT VALID intentionally keeps historical rows
+-- readable until any legacy PNG objects are remediated; all new/updated rows
+-- are still checked by PostgreSQL. Publication independently rejects legacy
+-- or unsanitized media below.
+-- ---------------------------------------------------------------------------
+
+alter table public.vvip_marketplace_listing_media
+    drop constraint if exists vvip_marketplace_listing_media_mime_type_check;
+
+alter table public.vvip_marketplace_listing_media
+    add constraint vvip_marketplace_listing_media_mime_type_check
+    check (mime_type in ('image/jpeg', 'image/webp')) not valid;
+
+update storage.buckets
+set allowed_mime_types = array['image/jpeg', 'image/webp']
+where id = 'listing-media';
+
+-- ---------------------------------------------------------------------------
+-- Browser state-transition guard. PENDING_REVIEW is now a trusted state and
+-- may only be reached by a SECURITY DEFINER authority such as the bounded RPC
+-- in this migration. ACTIVE remains trusted-review only.
+-- ---------------------------------------------------------------------------
+
+create or replace function public.vvip_marketplace_guard_listing_write()
+returns trigger
+language plpgsql
+set search_path = pg_catalog, public
+as $function$
+declare
+    actor text := public.vvip_marketplace_actor_id();
+begin
+    if actor is null and current_user in ('anon', 'authenticated') then
+        raise exception 'MARKETPLACE_AUTH_REQUIRED';
+    end if;
+
+    if TG_OP = 'INSERT' then
+        if current_user in ('anon', 'authenticated') then
+            if NEW.owner_subject <> actor or NEW.status <> 'DRAFT' then
+                raise exception 'MARKETPLACE_CLIENT_INSERT_DENIED';
+            end if;
+        end if;
+    elsif TG_OP = 'UPDATE' then
+        if NEW.owner_subject <> OLD.owner_subject
+           or NEW.active_market_country <> OLD.active_market_country then
+            raise exception 'MARKETPLACE_IMMUTABLE_SCOPE';
+        end if;
+
+        if current_user in ('anon', 'authenticated') then
+            if OLD.owner_subject <> actor then
+                raise exception 'MARKETPLACE_OWNER_REQUIRED';
+            end if;
+            if NEW.status = 'PENDING_REVIEW' and NEW.status is distinct from OLD.status then
+                raise exception 'MARKETPLACE_PUBLICATION_RPC_REQUIRED';
+            end if;
+            if NEW.status in ('ACTIVE', 'EXPIRED', 'REJECTED', 'BLOCKED') then
+                raise exception 'MARKETPLACE_TRUSTED_REVIEW_REQUIRED';
+            end if;
+            if not (
+                (OLD.status = 'DRAFT' and NEW.status in ('DRAFT', 'ARCHIVED'))
+                or (OLD.status = 'REJECTED' and NEW.status in ('DRAFT', 'ARCHIVED'))
+                or (OLD.status = 'ACTIVE' and NEW.status in ('ACTIVE', 'PAUSED', 'ARCHIVED'))
+                or (OLD.status = 'PAUSED' and NEW.status in ('PAUSED', 'ARCHIVED'))
+                or (OLD.status = 'ARCHIVED' and NEW.status = 'ARCHIVED')
+            ) then
+                raise exception 'MARKETPLACE_STATE_TRANSITION_DENIED';
+            end if;
+        end if;
+    end if;
+
+    if not public.vvip_marketplace_country_is_active(NEW.active_market_country) then
+        raise exception 'MARKETPLACE_COUNTRY_NOT_ACTIVE';
+    end if;
+
+    if not exists (
+        select 1
+        from public.vvip_marketplace_sectors sector
+        where sector.sector_key = NEW.sector
+          and sector.is_enabled
+    ) then
+        raise exception 'MARKETPLACE_SECTOR_NOT_ACTIVE';
+    end if;
+
+    NEW.updated_at := statement_timestamp();
+    return NEW;
+end;
+$function$;
+
 create table public.vvip_visibility_plans (
     plan_id text primary key,
     country_code text not null
         references public.vvip_country_authority_seals(country_code),
-    sector text,
+    sector text
+        references public.vvip_marketplace_sectors(sector_key),
     display_name text not null,
     price_minor bigint not null check (price_minor > 0 and price_minor <= 99999999999999),
     currency_code text not null check (currency_code ~ '^[A-Z]{3}$'),
@@ -124,6 +262,8 @@ declare
     current_plan public.vvip_visibility_plans%rowtype;
     current_entitlement public.vvip_listing_activation_entitlements%rowtype;
     receipt_hash text;
+    media_count integer;
+    bad_media_count integer;
 begin
     if actor is null then
         raise exception 'MARKETPLACE_AUTH_REQUIRED';
@@ -151,6 +291,38 @@ begin
     end if;
     if not public.vvip_marketplace_country_is_active(current_listing.active_market_country) then
         raise exception 'MARKETPLACE_COUNTRY_NOT_ACTIVE';
+    end if;
+    if not exists (
+        select 1
+        from public.vvip_marketplace_sectors sector
+        where sector.sector_key = current_listing.sector
+          and sector.is_enabled
+    ) then
+        raise exception 'MARKETPLACE_SECTOR_NOT_ACTIVE';
+    end if;
+
+    select count(*) into media_count
+    from public.vvip_marketplace_listing_media media
+    where media.listing_id = target_listing;
+
+    if media_count < 1 or media_count > 7 then
+        raise exception 'MARKETPLACE_MEDIA_COUNT_INVALID';
+    end if;
+
+    select count(*) into bad_media_count
+    from public.vvip_marketplace_listing_media media
+    where media.listing_id = target_listing
+      and (
+          media.owner_subject <> actor
+          or media.mime_type not in ('image/jpeg', 'image/webp')
+          or media.position not between 0 and 6
+          or media.byte_size not between 1 and 10485760
+          or media.width not between 320 and 4096
+          or media.height not between 240 and 4096
+      );
+
+    if bad_media_count <> 0 then
+        raise exception 'MARKETPLACE_MEDIA_NOT_SANITIZED';
     end if;
 
     select * into current_plan
@@ -258,12 +430,24 @@ create trigger vvip_publication_intent_audit_append_only
 before update or delete on public.vvip_publication_intent_audit
 for each row execute function public.vvip_reject_publication_audit_mutation();
 
+alter table public.vvip_marketplace_sectors enable row level security;
+alter table public.vvip_marketplace_sectors force row level security;
 alter table public.vvip_visibility_plans enable row level security;
 alter table public.vvip_visibility_plans force row level security;
 alter table public.vvip_listing_activation_entitlements enable row level security;
 alter table public.vvip_listing_activation_entitlements force row level security;
 alter table public.vvip_publication_intent_audit enable row level security;
 alter table public.vvip_publication_intent_audit force row level security;
+
+create policy vvip_marketplace_sectors_public_read
+on public.vvip_marketplace_sectors
+for select
+to anon, authenticated
+using (is_enabled);
+
+revoke all privileges on table public.vvip_marketplace_sectors from public;
+grant select on table public.vvip_marketplace_sectors to anon, authenticated;
+grant all privileges on table public.vvip_marketplace_sectors to service_role;
 
 -- Browser callers never receive direct write access to plans, entitlements or publication audit.
 revoke all privileges on table
