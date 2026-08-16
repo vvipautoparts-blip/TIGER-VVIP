@@ -182,6 +182,7 @@
     const planId = text(source.planId || source.plan_id, 80);
     if (!planId) throw marketplaceError("VISIBILITY_PLAN_REQUIRED");
     const entitlementReceipt = text(source.entitlementReceipt || source.entitlement_receipt, 512);
+    if (!entitlementReceipt) throw marketplaceError("ENTITLEMENT_RECEIPT_REQUIRED");
     return Object.freeze({
       listingId: id,
       planId: planId,
@@ -432,10 +433,14 @@
     function prepareForPublication(listingId, options) {
       const intent = normalizePublicationIntent(listingId, options);
       return protectedOperation({ name: "PREPARE_PUBLICATION", listingId: intent.listingId }, async function () {
-        // Publication remains intentionally fail-closed until a trusted server/edge
-        // transport verifies payment/visibility entitlement and performs the state
-        // transition. The browser cannot mint or substitute that trusted receipt.
-        throw marketplaceError("PUBLICATION_TRANSPORT_UNAVAILABLE");
+        const result = await client.rpc("vvip_marketplace_prepare_publication", {
+          target_listing: intent.listingId,
+          target_plan_id: intent.planId,
+          entitlement_receipt: intent.entitlementReceipt
+        });
+        const data = assertClientResult(result, "PUBLICATION_PREPARE_FAILED");
+        invalidatePublicReads();
+        return Array.isArray(data) ? data[0] : data;
       });
     }
 
