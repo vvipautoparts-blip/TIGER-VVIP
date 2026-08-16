@@ -107,7 +107,8 @@ test('sovereign publication schema is the exclusive browser-to-review gate', () 
     'force row level security',
     'revoke all privileges',
     'entitlement_receipt_hash',
-    'vvip_private.vvip_marketplace_country_is_active'
+    'vvip_private.vvip_marketplace_country_is_active',
+    'on delete restrict'
   ]) {
     assert.ok(sql.toLowerCase().includes(token.toLowerCase()), `migration contract missing: ${token}`);
   }
@@ -116,6 +117,7 @@ test('sovereign publication schema is the exclusive browser-to-review gate', () 
   assert.doesNotMatch(sql, /grant\s+insert[^;]+vvip_listing_activation_entitlements[^;]+to\s+authenticated/is);
   assert.doesNotMatch(sql, /update\s+public\.vvip_marketplace_listings[\s\S]{0,400}status\s*=\s*'ACTIVE'/i);
   assert.doesNotMatch(sql, /vvip_marketplace_prepare_publication/i);
+  assert.doesNotMatch(sql, /references\s+public\.vvip_marketplace_listings\(listing_id\)\s+on\s+delete\s+cascade/i);
   assert.match(sql, /entitlement_state\s*=\s*'RESERVED'/i);
   assert.match(sql, /decision\s*=\s*'APPROVE'[\s\S]{0,3000}entitlement_state\s*=\s*'CONSUMED'/i);
   assert.match(sql, /decision\s*=\s*'REJECT'[\s\S]{0,3000}entitlement_state\s*=\s*'ISSUED'/i);
