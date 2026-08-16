@@ -79,7 +79,7 @@ test('publication transport propagates trusted server failure and never mints en
   assert.doesNotMatch(source, /status\s*:\s*["']ACTIVE["']/);
 });
 
-test('trusted publication schema exists and remains browser-fail-closed', () => {
+test('trusted publication schema is the exclusive browser-to-review gate', () => {
   assert.equal(fs.existsSync(MIGRATION), true, 'trusted publication migration must exist');
   const sql = fs.readFileSync(MIGRATION, 'utf8');
 
@@ -87,6 +87,10 @@ test('trusted publication schema exists and remains browser-fail-closed', () => 
     'create table public.vvip_visibility_plans',
     'create table public.vvip_listing_activation_entitlements',
     'create function public.vvip_marketplace_prepare_publication',
+    'MARKETPLACE_PUBLICATION_RPC_REQUIRED',
+    'MARKETPLACE_MEDIA_COUNT_INVALID',
+    'MARKETPLACE_MEDIA_NOT_SANITIZED',
+    "mime_type not in ('image/jpeg', 'image/webp')",
     'PENDING_REVIEW',
     'ISSUED',
     'CONSUMED',
@@ -103,4 +107,5 @@ test('trusted publication schema exists and remains browser-fail-closed', () => 
   assert.match(sql, /revoke\s+all[^;]+vvip_listing_activation_entitlements[^;]+from\s+(?:public|anon|authenticated)/is);
   assert.doesNotMatch(sql, /grant\s+insert[^;]+vvip_listing_activation_entitlements[^;]+to\s+authenticated/is);
   assert.doesNotMatch(sql, /update\s+public\.vvip_marketplace_listings[\s\S]{0,400}status\s*=\s*'ACTIVE'/i);
+  assert.match(sql, /current_user\s+in\s*\('anon',\s*'authenticated'\)[\s\S]{0,1200}NEW\.status\s*=\s*'PENDING_REVIEW'[\s\S]{0,300}MARKETPLACE_PUBLICATION_RPC_REQUIRED/i);
 });
