@@ -64,7 +64,7 @@ test('finalizer policy accepts only strict JPEG/WebP containers and rejects HEIC
   assert.doesNotMatch(source, /image\/(?:hei[cf]|avif)/i);
 });
 
-test('AWS finalizer downloads source directly, re-encodes with sharp and records only canonical evidence', () => {
+test('AWS finalizer downloads source directly, normalizes sRGB, re-encodes with sharp and records only canonical evidence', () => {
   assert.equal(fs.existsSync(HANDLER), true, 'Lambda handler must exist');
   const source = read(HANDLER);
   for (const token of [
@@ -75,6 +75,7 @@ test('AWS finalizer downloads source directly, re-encodes with sharp and records
     "from('listing-media-canonical')",
     '.timeout({ seconds:',
     '.rotate()',
+    ".toColourspace('srgb')",
     'canonicalSha256',
     'sourceSha256',
     'timingSafeEqual',
