@@ -7,7 +7,7 @@
   "use strict";
 
   const PUBLIC_READ_TTL_MS = 30_000;
-  const PUBLIC_FEED_SELECT = "listing_id,active_market_country,sector,title,summary,price_minor,currency_code,location_label,contact_phone,whatsapp_enabled,media:vvip_marketplace_listing_media(storage_path,position,is_cover,alt_text)";
+  const PUBLIC_FEED_SELECT = "listing_id,active_market_country,sector,title,summary,price_minor,currency_code,location_label,contact_phone,whatsapp_enabled,media:vvip_marketplace_listing_media(canonical_storage_path,finalization_state,position,is_cover,alt_text)";
   const APPROVED_SECTORS = Object.freeze([
     "automotive",
     "real-estate",
@@ -45,9 +45,8 @@
   function normalizeDraft(input, config) {
     const source = input && typeof input === "object" ? input : {};
     const sector = text(source.sector, 32);
-    if (!APPROVED_SECTORS.includes(sector)) {
-      throw marketplaceError("LISTING_SECTOR_INVALID");
-    }
+    if (!APPROVED_SECTORS.includes(sector)) throw marketplaceError("LISTING_SECTOR_INVALID");
+
     const title = text(source.title, 80);
     const location = text(source.location || source.location_label, 120);
     const country = text(source.activeMarketCountry || source.active_market_country || config.defaultCountryCode, 16).toUpperCase();
@@ -56,6 +55,7 @@
     if (!location) throw marketplaceError("LISTING_LOCATION_INVALID");
     if (!/^[A-Z]{2}$/.test(country)) throw marketplaceError("LISTING_COUNTRY_INVALID");
     if (!/^[A-Z]{3}$/.test(currency)) throw marketplaceError("LISTING_CURRENCY_INVALID");
+
     const specifications = source.specifications && typeof source.specifications === "object" && !Array.isArray(source.specifications)
       ? source.specifications
       : source.sectorDetails && typeof source.sectorDetails === "object"
@@ -67,6 +67,7 @@
       const safeValue = text(specifications[key], 240);
       if (safeKey && safeValue) normalizedSpecs[safeKey] = safeValue;
     });
+
     const phone = text(source.contactPhone || source.contact_phone, 32) || null;
     return Object.freeze({
       active_market_country: country,
@@ -87,25 +88,16 @@
     const source = input && typeof input === "object" ? input : {};
     const countryCode = text(source.countryCode, 2).toUpperCase();
     const sectorValue = text(source.sector, 32);
-    const sector = sectorValue.toLowerCase() === "all" ? "" : sectorValue;
-    const search = text(source.search, 80).replace(/[%,]/g, "");
-    const limit = Math.max(1, Math.min(60, Number(source.limit) || 30));
-
     return Object.freeze({
       countryCode: countryCode,
-      sector: sector,
-      search: search,
-      limit: limit
+      sector: sectorValue.toLowerCase() === "all" ? "" : sectorValue,
+      search: text(source.search, 80).replace(/[%,]/g, ""),
+      limit: Math.max(1, Math.min(60, Number(source.limit) || 30))
     });
   }
 
   function publicRequestKey(input) {
-    return JSON.stringify([
-      input.countryCode,
-      input.sector,
-      input.search,
-      input.limit
-    ]);
+    return JSON.stringify([input.countryCode, input.sector, input.search, input.limit]);
   }
 
   function clonePublicValue(value) {
@@ -125,7 +117,8 @@
     let selected = null;
 
     list.forEach(function (media, index) {
-      const storagePath = String(media && media.storage_path || "").trim();
+      const canonical = media && media.finalization_state === "CANONICAL";
+      const storagePath = canonical ? String(media.canonical_storage_path || "").trim() : "";
       if (!storagePath) return;
 
       const candidate = {
@@ -138,18 +131,9 @@
       if (
         !selected ||
         candidate.coverPriority < selected.coverPriority ||
-        (
-          candidate.coverPriority === selected.coverPriority &&
-          candidate.position < selected.position
-        ) ||
-        (
-          candidate.coverPriority === selected.coverPriority &&
-          candidate.position === selected.position &&
-          candidate.index < selected.index
-        )
-      ) {
-        selected = candidate;
-      }
+        (candidate.coverPriority === selected.coverPriority && candidate.position < selected.position) ||
+        (candidate.coverPriority === selected.coverPriority && candidate.position === selected.position && candidate.index < selected.index)
+      ) selected = candidate;
     });
 
     return selected;
@@ -182,11 +166,55 @@
     if (!planId) throw marketplaceError("VISIBILITY_PLAN_REQUIRED");
     const entitlementReceipt = text(source.entitlementReceipt || source.entitlement_receipt, 512);
     if (!entitlementReceipt) throw marketplaceError("ENTITLEMENT_RECEIPT_REQUIRED");
-    return Object.freeze({
-      listingId: id,
-      planId: planId,
-      entitlementReceipt: entitlementReceipt
+    return Object.freeze({ listingId: id, planId: planId, entitlementReceipt: entitlementReceipt });
+  }
+
+  function finalizerUrl(options) {
+    const config = (options && options.config) || {};
+    const runtime = root.__VVIP_RUNTIME_CONFIG__ || {};
+    const raw = String(config.mediaFinalizerUrl || runtime.mediaFinalizerUrl || "").trim();
+    if (!raw) throw marketplaceError("MEDIA_FINALIZER_URL_REQUIRED");
+
+    let parsed;
+    try { parsed = new URL(raw); } catch (_) { throw marketplaceError("MEDIA_FINALIZER_URL_INVALID"); }
+    if (parsed.protocol !== "https:" || parsed.username || parsed.password || parsed.hash) {
+      throw marketplaceError("MEDIA_FINALIZER_URL_INVALID");
+    }
+    return parsed.toString();
+  }
+
+  function requestFetch(options) {
+    const fn = (options && options.fetch) || root.fetch;
+    if (typeof fn !== "function") throw marketplaceError("MEDIA_FINALIZER_TRANSPORT_REQUIRED");
+    return fn.bind ? fn.bind(root) : fn;
+  }
+
+  async function finalizeMediaRow(options, mediaId) {
+    const client = options && options.client;
+    if (!client || typeof client.rpc !== "function") throw marketplaceError("SUPABASE_CLIENT_REQUIRED");
+
+    const grantResult = await client.rpc("vvip_marketplace_request_media_finalization", { target_media: mediaId });
+    const grantData = assertClientResult(grantResult, "MEDIA_FINALIZATION_GRANT_FAILED");
+    const grant = Array.isArray(grantData) ? grantData[0] : grantData;
+    if (!grant || grant.media_id !== mediaId || !/^[0-9a-f]{64}$/.test(String(grant.finalization_token || ""))) {
+      throw marketplaceError("MEDIA_FINALIZATION_GRANT_INVALID");
+    }
+
+    const response = await requestFetch(options)(finalizerUrl(options), {
+      method: "POST",
+      headers: { "content-type": "application/json", "accept": "application/json" },
+      credentials: "omit",
+      cache: "no-store",
+      referrerPolicy: "no-referrer",
+      body: JSON.stringify({ mediaId: mediaId, finalizationToken: grant.finalization_token })
     });
+
+    let payload = null;
+    try { payload = await response.json(); } catch (_) { payload = null; }
+    if (!response.ok || !payload || payload.ok !== true || payload.mediaId !== mediaId || payload.state !== "CANONICAL") {
+      throw marketplaceError("MEDIA_SERVER_FINALIZATION_FAILED");
+    }
+    return payload;
   }
 
   function createMarketplaceRepository(options) {
@@ -239,20 +267,13 @@
     function freshPublicSnapshot(key) {
       const entry = publicReadCache.get(key);
       if (!entry) return null;
-
       const current = Number(now());
       const cachedAt = Number(entry.cachedAt);
       const age = current - cachedAt;
-      if (
-        !Number.isFinite(current) ||
-        !Number.isFinite(cachedAt) ||
-        age < 0 ||
-        age >= PUBLIC_READ_TTL_MS
-      ) {
+      if (!Number.isFinite(current) || !Number.isFinite(cachedAt) || age < 0 || age >= PUBLIC_READ_TTL_MS) {
         publicReadCache.delete(key);
         return null;
       }
-
       return clonePublicValue(entry.value);
     }
 
@@ -272,20 +293,16 @@
 
       let urlMap = new Map();
       if (paths.length) {
-        const signed = await client.storage.from("listing-media").createSignedUrls(paths, 900);
+        const signed = await client.storage.from("listing-media-canonical").createSignedUrls(paths, 900);
         const signedRows = assertClientResult(signed, "MEDIA_SIGNING_FAILED") || [];
-        urlMap = new Map(signedRows.map(function (entry) {
-          return [entry.path, entry.signedUrl];
-        }));
+        urlMap = new Map(signedRows.map(function (entry) { return [entry.path, entry.signedUrl]; }));
       }
 
       return sourceRows.map(function (listing, listingIndex) {
         const selected = selections[listingIndex];
         return Object.assign({}, listing, {
           media: (listing.media || []).map(function (media, mediaIndex) {
-            const selectedUrl = selected && mediaIndex === selected.index
-              ? urlMap.get(selected.path) || ""
-              : "";
+            const selectedUrl = selected && mediaIndex === selected.index ? urlMap.get(selected.path) || "" : "";
             return Object.assign({}, media, { url: selectedUrl });
           })
         });
@@ -313,37 +330,24 @@
       if (cached) return cached;
 
       const existing = publicReadInflight.get(key);
-      if (existing) {
-        return clonePublicValue(await existing);
-      }
+      if (existing) return clonePublicValue(await existing);
 
       const generation = publicReadGeneration;
       const pending = (async function () {
         const result = await fetchPublic(input);
         const snapshot = clonePublicValue(result);
         const cachedAt = Number(now());
-
-        if (
-          generation === publicReadGeneration &&
-          Number.isFinite(cachedAt)
-        ) {
-          publicReadCache.set(key, {
-            cachedAt: cachedAt,
-            value: snapshot
-          });
+        if (generation === publicReadGeneration && Number.isFinite(cachedAt)) {
+          publicReadCache.set(key, { cachedAt: cachedAt, value: snapshot });
         }
-
         return snapshot;
       })();
 
       publicReadInflight.set(key, pending);
-
       try {
         return clonePublicValue(await pending);
       } finally {
-        if (publicReadInflight.get(key) === pending) {
-          publicReadInflight.delete(key);
-        }
+        if (publicReadInflight.get(key) === pending) publicReadInflight.delete(key);
       }
     }
 
@@ -372,6 +376,7 @@
       const list = Array.from(images || []);
       if (list.length > 7) throw marketplaceError("MEDIA_LIMIT_EXCEEDED");
       const uploaded = [];
+
       try {
         const rows = [];
         for (let index = 0; index < list.length; index += 1) {
@@ -379,6 +384,7 @@
           const blob = image && image.blob;
           const mime = String((image && (image.mimeType || image.type)) || (blob && blob.type) || "");
           if (!blob || typeof blob.size !== "number") throw marketplaceError("MEDIA_BLOB_REQUIRED");
+
           const extension = extensionForMime(mime);
           const path = owner + "/" + listingId + "/" + ids() + "." + extension;
           const upload = await client.storage.from("listing-media").upload(path, blob, {
@@ -401,14 +407,13 @@
             alt_text: text(image.altText || "صورة الإعلان", 160)
           });
         }
-        if (rows.length) {
-          const inserted = await client.from("vvip_marketplace_listing_media").insert(rows).select("*");
-          return assertClientResult(inserted, "MEDIA_METADATA_INSERT_FAILED") || [];
-        }
-        return [];
+
+        if (!rows.length) return [];
+        const inserted = await client.from("vvip_marketplace_listing_media").insert(rows).select("*");
+        return assertClientResult(inserted, "MEDIA_METADATA_INSERT_FAILED") || [];
       } catch (error) {
         if (uploaded.length) {
-          try { await client.storage.from("listing-media").remove(uploaded); } catch (_) { /* best-effort rollback */ }
+          try { await client.storage.from("listing-media").remove(uploaded); } catch (_) { /* best-effort raw cleanup */ }
         }
         throw error;
       }
@@ -417,27 +422,34 @@
     function createDraftWithMedia(input, images) {
       return protectedOperation({ name: "CREATE_LISTING" }, async function () {
         const draft = await createDraft(input);
+        let mediaRows = [];
         try {
-          await uploadMedia(draft.listing_id, images);
+          mediaRows = await uploadMedia(draft.listing_id, images);
+          for (const media of mediaRows) {
+            if (!media || !media.media_id) throw marketplaceError("MEDIA_FINALIZATION_ROWS_INVALID");
+            await finalizeMediaRow(options || {}, media.media_id);
+          }
           return draft;
         } catch (error) {
-          try {
-            await client.from("vvip_marketplace_listings").delete().eq("listing_id", draft.listing_id);
-          } catch (_) { /* RLS-safe cleanup attempt */ }
+          const rawPaths = mediaRows.map(function (media) { return media && media.storage_path; }).filter(Boolean);
+          if (rawPaths.length) {
+            try { await client.storage.from("listing-media").remove(rawPaths); } catch (_) { /* inaccessible canonical objects remain private */ }
+          }
+          try { await client.from("vvip_marketplace_listings").delete().eq("listing_id", draft.listing_id); } catch (_) { /* fail closed */ }
           throw error;
         }
       });
     }
 
-    function prepareForPublication(listingId, options) {
-      const intent = normalizePublicationIntent(listingId, options);
-      return protectedOperation({ name: "PREPARE_PUBLICATION", listingId: intent.listingId }, async function () {
+    function requestPublication(listingId, publicationOptions) {
+      const intent = normalizePublicationIntent(listingId, publicationOptions);
+      return protectedOperation({ name: "REQUEST_PUBLICATION", listingId: intent.listingId }, async function () {
         const result = await client.rpc("vvip_marketplace_prepare_publication", {
           target_listing: intent.listingId,
           target_plan_id: intent.planId,
           entitlement_receipt: intent.entitlementReceipt
         });
-        const data = assertClientResult(result, "PUBLICATION_PREPARE_FAILED");
+        const data = assertClientResult(result, "PUBLICATION_REQUEST_FAILED");
         invalidatePublicReads();
         return Array.isArray(data) ? data[0] : data;
       });
@@ -447,10 +459,7 @@
       return protectedOperation({ name: "TOGGLE_FAVORITE", listingId: listingId }, async function () {
         const owner = actorId(clerk);
         if (favorite) {
-          const result = await client.from("vvip_marketplace_favorites").upsert({
-            owner_subject: owner,
-            listing_id: listingId
-          });
+          const result = await client.from("vvip_marketplace_favorites").upsert({ owner_subject: owner, listing_id: listingId });
           assertClientResult(result, "FAVORITE_WRITE_FAILED");
           return true;
         }
@@ -482,7 +491,7 @@
       createDraft,
       uploadMedia,
       createDraftWithMedia,
-      prepareForPublication,
+      requestPublication,
       toggleFavorite,
       reviewListing
     });
