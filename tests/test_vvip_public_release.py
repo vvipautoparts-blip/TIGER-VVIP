@@ -69,6 +69,7 @@ class PublicReleaseTests(unittest.TestCase):
             "TIGER_SUPABASE_URL": "https://example.supabase.co",
             "TIGER_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_example",
             "TIGER_DEFAULT_COUNTRY_CODE": "JO",
+            "TIGER_MEDIA_FINALIZER_URL": "https://media.example.com/finalize",
         }
 
     @staticmethod
