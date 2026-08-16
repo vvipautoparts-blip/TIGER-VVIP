@@ -47,7 +47,7 @@ test('requestPublication delegates only to the trusted publication RPC', async (
   );
 
   assert.deepEqual(calls, [{
-    name: 'vvip_marketplace_prepare_publication',
+    name: 'vvip_marketplace_request_publication',
     args: {
       target_listing: '123e4567-e89b-12d3-a456-426614174000',
       target_plan_id: 'pulse-standard',
