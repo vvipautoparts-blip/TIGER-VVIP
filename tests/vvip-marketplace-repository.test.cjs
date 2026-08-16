@@ -45,7 +45,7 @@ test("requires authenticated Clerk identity before repository mutation", async (
   await assert.rejects(() => repository.createDraft({}), { code: "AUTH_REQUIRED" });
 });
 
-test("repository exposes no browser-side review bypass", () => {
+test("repository exposes one browser publication command and no review bypass", () => {
   const client = { from() { return {}; }, storage: {} };
   const repository = repo.createMarketplaceRepository({
     client,
@@ -54,5 +54,6 @@ test("repository exposes no browser-side review bypass", () => {
   });
   assert.equal(repository.submitForReview, undefined);
   assert.equal(repository.createAndSubmit, undefined);
-  assert.equal(typeof repository.prepareForPublication, "function");
+  assert.equal(repository.prepareForPublication, undefined);
+  assert.equal(typeof repository.requestPublication, "function");
 });
