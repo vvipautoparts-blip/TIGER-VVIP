@@ -38,6 +38,12 @@ test('composer delegates still-image processing to PR36/F05 and never adds serve
   assert.doesNotMatch(source, /fetch\([^)]*heic/i);
 });
 
+test('composer routes publication through the one sovereign repository command', () => {
+  const source = fs.readFileSync(composerPath, 'utf8');
+  assert.match(source, /\.requestPublication\(/);
+  assert.doesNotMatch(source, /\.prepareForPublication\(/);
+});
+
 test('composer never claims publication success from local draft state', () => {
   const source = fs.readFileSync(composerPath, 'utf8');
   assert.doesNotMatch(source, /LOCAL_DRAFT_ONLY/);
