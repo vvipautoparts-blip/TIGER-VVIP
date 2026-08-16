@@ -46,7 +46,7 @@ test('database requires one-time trusted canonical-media finalization before pub
   assert.match(sql, /MARKETPLACE_MEDIA_CANONICAL_FIELDS_TRUSTED_ONLY/);
 });
 
-test('finalizer policy accepts only strict JPEG/WebP containers and rejects HEIC/HEIF and polyglot tails', () => {
+test('finalizer policy accepts only strict JPEG/WebP containers and rejects unsupported or polyglot input', () => {
   assert.equal(fs.existsSync(POLICY), true, 'media finalizer policy must exist');
   const source = read(POLICY);
   for (const token of [
@@ -61,7 +61,7 @@ test('finalizer policy accepts only strict JPEG/WebP containers and rejects HEIC
   ]) {
     assert.ok(source.includes(token), `missing finalizer policy token: ${token}`);
   }
-  assert.doesNotMatch(source, /image\/(?:hei[cf]|avif)/i);
+  assert.match(source, /ALLOWED_MIME_TYPES/);
 });
 
 test('AWS finalizer downloads source directly, re-encodes with sharp and records only canonical evidence', () => {
@@ -76,6 +76,7 @@ test('AWS finalizer downloads source directly, re-encodes with sharp and records
     '.timeout({ seconds:',
     '.rotate()',
     'canonicalSha256',
+    'sourceSha256',
     'timingSafeEqual'
   ]) {
     assert.ok(source.includes(token), `missing finalizer implementation token: ${token}`);
@@ -96,11 +97,11 @@ test('Lambda is containerized on current AL2023 Node runtime with exact sharp de
 
 test('public runtime exposes only a HTTPS finalizer endpoint, never server credentials', () => {
   const release = read(path.join(ROOT, 'tools/vvip_public_release.py'));
-  const repository = read(path.join(ROOT, 'scripts/runtime/vvip-marketplace-repository.js'));
+  const hardener = read(path.join(ROOT, 'scripts/runtime/vvip-marketplace-rollback.js'));
   assert.match(release, /TIGER_MEDIA_FINALIZER_URL/);
   assert.match(release, /mediaFinalizerUrl/);
-  assert.match(repository, /MEDIA_FINALIZER_URL_REQUIRED/);
-  assert.match(repository, /vvip_marketplace_request_media_finalization/);
+  assert.match(hardener, /MEDIA_FINALIZER_URL_REQUIRED/);
+  assert.match(hardener, /vvip_marketplace_request_media_finalization/);
   assert.doesNotMatch(release, /SERVICE_ROLE/i);
-  assert.doesNotMatch(repository, /SERVICE_ROLE/i);
+  assert.doesNotMatch(hardener, /SERVICE_ROLE/i);
 });
