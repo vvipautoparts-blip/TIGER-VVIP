@@ -2,36 +2,9 @@ name: VVIP Quality Gate
 
 on:
   pull_request:
-    branches:
-      - main
-      - integration/v14-global-launch-readiness-20260806
-      - feat/tsrf-global-launch-proof-20260808
-      - feat/tsrf-launch-evidence-plane-20260808
-      - feat/lc04-production-legacy-rpc-hardening-20260808
-      - feat/lc05-credential-surface-isolation-20260808
-      - feat/documentation-sovereign-knowledge-plane-20260808
-      - feat/lean-global-cost-governor-20260808
-      - feat/lean-global-static-cdn-20260808
-      - fix/tsrf-staging-workflow-context-20260808
-      - docs/federated-identity-sovereignty-20260808
-      - feat/identity-01-fail-closed-legacy-linking-20260808
-      - feat/lean-global-request-sovereignty-20260808
-      - feat/lean-global-cover-media-budget-20260808
   push:
     branches:
-      - integration/v14-global-launch-readiness-20260806
-      - feat/tsrf-launch-evidence-plane-20260808
-      - feat/lc04-production-legacy-rpc-hardening-20260808
-      - feat/lc05-credential-surface-isolation-20260808
-      - feat/lc06-rls-performance-hardening-20260808
-      - feat/lean-global-cost-governor-20260808
-      - feat/lean-global-static-cdn-20260808
-      - fix/tsrf-staging-workflow-context-20260808
-      - docs/federated-identity-sovereignty-20260808
-      - feat/identity-01-fail-closed-legacy-linking-20260808
-      - feat/lean-global-request-sovereignty-20260808
-      - feat/lean-global-cover-media-budget-20260808
-      - docs/vvip-tiger-continuity-checkpoint-20260808-2340
+      - main
   workflow_dispatch:
 
 permissions:
@@ -48,7 +21,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Node.js
-        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dcba9c38
         with:
           node-version: "22"
 
