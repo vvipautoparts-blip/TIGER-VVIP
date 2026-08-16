@@ -116,7 +116,7 @@ class PublicReleaseTests(unittest.TestCase):
             self.assertIn("vvip-marketplace-repository.js", index)
             self.assertTrue((output / "scripts" / "fusion" / "progressive-composer.js").is_file())
             self.assertTrue((output / "sw-vvip-static.js").is_file())
-            self.assertFalse((output / "scripts" / "vvip-safe-ux-guard.js").exists())
+            self.assertTrue((output / "scripts" / "vvip-safe-ux-guard.js").is_file())
             self.assertEqual(manifest["sourceSha"], "abc")
 
     def test_candidate_copies_only_approved_fusion_scripts_and_blocks_local_only_publish(self):
@@ -196,7 +196,7 @@ class PublicReleaseTests(unittest.TestCase):
             self.assertIn("runtime-config.js", manifest["files"])
             self.assertIn("sw-vvip-static.js", manifest["files"])
             self.assertIn("scripts/fusion/progressive-composer.js", manifest["files"])
-            self.assertNotIn("scripts/vvip-safe-ux-guard.js", manifest["files"])
+            self.assertIn("scripts/vvip-safe-ux-guard.js", manifest["files"])
             self.assertFalse((output / "CNAME").exists())
             self.assert_local_html_refs_exist(self, output)
 
