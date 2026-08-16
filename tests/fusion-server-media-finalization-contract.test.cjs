@@ -98,14 +98,15 @@ test('Lambda is containerized on current AL2023 Node runtime with exact sharp de
   assert.equal(pkg.private, true);
 });
 
-test('public runtime exposes only a HTTPS finalizer endpoint, never server credentials', () => {
+test('public runtime exposes only a HTTPS finalizer endpoint through the canonical repository, never server credentials', () => {
   const release = read(path.join(ROOT, 'tools/vvip_public_release.py'));
-  const hardener = read(path.join(ROOT, 'scripts/runtime/vvip-marketplace-rollback.js'));
+  const repository = read(path.join(ROOT, 'scripts/runtime/vvip-marketplace-repository.js'));
   const forbiddenSecretNames = /SUPABASE_SERVICE_ROLE_KEY|TIGER_SUPABASE_SERVICE_ROLE|SUPABASE_SECRET_KEY/i;
   assert.match(release, /TIGER_MEDIA_FINALIZER_URL/);
   assert.match(release, /mediaFinalizerUrl/);
-  assert.match(hardener, /MEDIA_FINALIZER_URL_REQUIRED/);
-  assert.match(hardener, /vvip_marketplace_request_media_finalization/);
+  assert.match(repository, /MEDIA_FINALIZER_URL_REQUIRED/);
+  assert.match(repository, /vvip_marketplace_request_media_finalization/);
+  assert.match(repository, /listing-media-canonical/);
   assert.doesNotMatch(release, forbiddenSecretNames);
-  assert.doesNotMatch(hardener, forbiddenSecretNames);
+  assert.doesNotMatch(repository, forbiddenSecretNames);
 });
