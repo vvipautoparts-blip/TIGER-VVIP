@@ -303,11 +303,16 @@ jobs:
             scripts/vvip-safe-ux-guard.js
             scripts/runtime/vvip-runtime-loader.js
             scripts/runtime/vvip-marketplace-repository.js
-            scripts/runtime/vvip-marketplace-rollback.js
-            scripts/runtime/vvip-my-listings.js
+            scripts/runtime/vvip-static-delivery.js
             scripts/vvip-pr30-resilience.js
-            scripts/vvip-production-marketplace.js
-            styles/vvip-production-marketplace.css
+            scripts/fusion/marketplace-context.js
+            scripts/fusion/progressive-composer.js
+            scripts/media/f05-heif-worker-client.js
+            workers/media/f05-heif-decoder.v1.wasm
+            styles/vvip-pr29-home-marketplace.css
+            styles/vvip-pr36-media.css
+            styles/fusion/f02-single-surface.css
+            styles/fusion/progressive-composer.css
             icons/icon-192.png
             icons/icon-512.png
           )
@@ -328,6 +333,25 @@ jobs:
               exit 1
             fi
           done
+
+          forbidden_paths=(
+            scripts/runtime/vvip-marketplace-rollback.js
+            scripts/runtime/vvip-my-listings.js
+            scripts/vvip-production-marketplace.js
+            scripts/vvip-pr31-create-listing-shell.js
+            styles/vvip-production-marketplace.css
+            styles/vvip-pr31-create-listing-shell.css
+          )
+          for path in "${forbidden_paths[@]}"; do
+            status="$(curl --location --silent --output /dev/null --write-out '%{http_code}' \
+              --connect-timeout 10 --max-time 30 "${base}${path}" || true)"
+            if [[ "$status" =~ ^2[0-9][0-9]$ ]]; then
+              echo "VVIP_POST_DEPLOY_FORBIDDEN_PRESENT=$path" >&2
+              exit 1
+            fi
+          done
+          echo 'VVIP_POST_DEPLOY_RETIRED_RUNTIME_ABSENT=PASS'
+
           if ! grep -Fq "$VVIP_SOURCE_SHA" "$tmp/runtime-config.js"; then
             echo 'VVIP_POST_DEPLOY_SHA_MISMATCH' >&2
             exit 1
