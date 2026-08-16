@@ -57,6 +57,7 @@
             <label class="fusion-field fusion-field--wide"><span>العنوان</span><input name="title" maxlength="80" autocomplete="off" required placeholder="ما الذي تعرضه؟"></label>
             <label class="fusion-field"><span>القطاع</span><select name="sector" required>${sectorOptions()}</select></label>
             <label class="fusion-field"><span>الفئة</span><input name="category" maxlength="100" autocomplete="off" required placeholder="الفئة أو التصنيف"></label>
+            <label class="fusion-field"><span>نوع السعر</span><select name="priceType" required><option value="fixed">سعر ثابت</option><option value="negotiable">قابل للتفاوض</option></select></label>
             <label class="fusion-field"><span>السعر</span><input name="price" inputmode="decimal" maxlength="24" autocomplete="off" required placeholder="0.00"></label>
             <label class="fusion-field"><span>العملة</span><input name="currency" maxlength="3" autocomplete="off" required placeholder="JOD"></label>
             <label class="fusion-field fusion-field--wide"><span>الموقع</span><input name="location" maxlength="120" autocomplete="address-level2" required placeholder="المدينة أو المنطقة"></label>
@@ -97,6 +98,7 @@
       FUSION_RUNTIME_UNAVAILABLE: 'الاتصال الآمن بالمنصة غير متاح الآن.',
       FUSION_MARKETPLACE_REPOSITORY_UNAVAILABLE: 'خدمة الإعلانات غير متاحة الآن.',
       LISTING_PRICE_INVALID: 'أدخل سعرًا صحيحًا.',
+      LISTING_PRICE_TYPE_INVALID: 'اختر نوع سعر صحيحًا.',
       LISTING_CURRENCY_INVALID: 'أدخل رمز عملة ISO من ثلاثة أحرف.',
       LISTING_COUNTRY_INVALID: 'السوق النشط غير محدد بشكل صحيح.',
       ACTIVATION_PROVIDER_UNAVAILABLE: 'تم حفظ المسودة على الخادم، لكن التفعيل المدفوع غير متاح لهذا السوق بعد.',
@@ -167,10 +169,12 @@
     const title = text(data.get('title'), 80);
     const sector = text(data.get('sector'), 80);
     const category = text(data.get('category'), 100);
+    const priceType = text(data.get('priceType'), 24).toLowerCase();
     const location = text(data.get('location'), 120);
     const currencyCode = text(data.get('currency'), 3).toUpperCase();
     const country = text(root.VVIP_ACTIVE_MARKET_COUNTRY || (runtime && runtime.config && runtime.config.defaultCountryCode), 2).toUpperCase();
     if (!title || !sector || !category || !location) throw composerError('LISTING_FIELDS_REQUIRED');
+    if (!['fixed', 'negotiable'].includes(priceType)) throw composerError('LISTING_PRICE_TYPE_INVALID');
     if (!/^[A-Z]{2}$/.test(country)) throw composerError('LISTING_COUNTRY_INVALID');
     return Object.freeze({
       title: title,
@@ -179,7 +183,7 @@
       activeMarketCountry: country,
       priceMinor: moneyToMinor(data.get('price'), currencyCode),
       currencyCode: currencyCode,
-      specifications: Object.freeze({ category: category })
+      specifications: Object.freeze({ category: category, priceType: priceType })
     });
   }
 
