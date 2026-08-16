@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
-const MIGRATION = path.join(ROOT, 'supabase/migrations/20260816090000_sovereign_media_finalization.sql');
+const MIGRATION = path.join(ROOT, 'supabase/migrations/20260816090001_sovereign_media_finalization.sql');
 const HANDLER = path.join(ROOT, 'services/media-finalizer/src/handler.js');
 const POLICY = path.join(ROOT, 'services/media-finalizer/src/policy.js');
 const DOCKERFILE = path.join(ROOT, 'services/media-finalizer/Dockerfile');

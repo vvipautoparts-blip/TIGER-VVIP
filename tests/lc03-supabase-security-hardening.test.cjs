@@ -24,6 +24,7 @@ const legacyRehearsalPath = path.join(
   "sql",
   "lc03-legacy-drift-reconciliation.sql"
 );
+const migrationsDir = path.join(__dirname, "..", "supabase", "migrations");
 
 function loadMigration() {
   return fs.readFileSync(migrationPath, "utf8");
@@ -36,6 +37,28 @@ function loadRetirementMigration() {
 function loadLegacyRehearsal() {
   return fs.readFileSync(legacyRehearsalPath, "utf8");
 }
+
+test("all Supabase migration versions are globally unique before local stack startup", () => {
+  const ownersByVersion = new Map();
+  for (const filename of fs.readdirSync(migrationsDir).filter((name) => name.endsWith(".sql")).sort()) {
+    const match = filename.match(/^(\d+)_/);
+    assert.ok(match, `migration filename must start with a numeric version: ${filename}`);
+    const version = match[1];
+    const owners = ownersByVersion.get(version) || [];
+    owners.push(filename);
+    ownersByVersion.set(version, owners);
+  }
+
+  const duplicates = [...ownersByVersion.entries()]
+    .filter(([, owners]) => owners.length > 1)
+    .map(([version, owners]) => `${version}: ${owners.join(", ")}`);
+
+  assert.deepEqual(
+    duplicates,
+    [],
+    `Supabase migration versions must be unique; duplicate versions would corrupt schema_migrations: ${duplicates.join(" | ")}`
+  );
+});
 
 test("LC-03 hardening migration exists and creates a non-public helper schema", () => {
   const sql = loadMigration();

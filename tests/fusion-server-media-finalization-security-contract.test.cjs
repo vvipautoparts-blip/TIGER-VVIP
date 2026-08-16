@@ -10,7 +10,7 @@ const migrationPath = path.join(
   "..",
   "supabase",
   "migrations",
-  "20260816090000_sovereign_media_finalization.sql"
+  "20260816090001_sovereign_media_finalization.sql"
 );
 
 function loadMigration() {
