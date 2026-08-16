@@ -223,6 +223,7 @@ def _runtime_config(environment: str, source_sha: str) -> tuple[str, list[str]]:
         "supabaseUrl": os.environ.get("TIGER_SUPABASE_URL", ""),
         "supabasePublishableKey": os.environ.get("TIGER_SUPABASE_PUBLISHABLE_KEY", ""),
         "defaultCountryCode": os.environ.get("TIGER_DEFAULT_COUNTRY_CODE", "").upper(),
+        "mediaFinalizerUrl": os.environ.get("TIGER_MEDIA_FINALIZER_URL", "").strip(),
     }
     errors: list[str] = []
     if environment == "production":
@@ -243,6 +244,9 @@ def _runtime_config(environment: str, source_sha: str) -> tuple[str, list[str]]:
         country = config["defaultCountryCode"]
         if country and not re.fullmatch(r"[A-Z]{2}", country):
             errors.append("default country code must be ISO alpha-2")
+        finalizer_url = config["mediaFinalizerUrl"]
+        if not re.fullmatch(r"https://[A-Za-z0-9.-]+(?::[0-9]{1,5})?(?:/[A-Za-z0-9._~!$&'()*+,;=:@%/-]*)?", finalizer_url):
+            errors.append("production media finalizer URL must be an https URL without query or fragment")
     serialized = json.dumps(config, ensure_ascii=False, separators=(",", ":"))
     return f"window.__VVIP_RUNTIME_CONFIG__ = Object.freeze({serialized});\n", errors
 
