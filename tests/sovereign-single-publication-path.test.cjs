@@ -26,7 +26,7 @@ test('browser exposes exactly one sovereign publication command', () => {
 test('production artifact is exact-allowlist only and has no rollback runtime', () => {
   assert.doesNotMatch(releaseBuilder, /vvip-marketplace-rollback\.js/);
   assert.doesNotMatch(releaseBuilder, /\bPUBLIC_PREFIXES\b/);
-  assert.doesNotMatch(releaseBuilder, /\.rglob\(/);
+  assert.doesNotMatch(releaseBuilder, /for\s+prefix\s+in\s+/);
   assert.equal(fs.existsSync('scripts/runtime/vvip-marketplace-rollback.js'), false);
 });
 
