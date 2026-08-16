@@ -13,6 +13,7 @@ function readOptional(path) {
 const repository = read('scripts/runtime/vvip-marketplace-repository.js');
 const composer = read('scripts/fusion/progressive-composer.js');
 const releaseBuilder = read('tools/vvip_public_release.py');
+const pagesWorkflow = read('.github/workflows/pages.yml');
 const convergence = readOptional('supabase/migrations/20260816170000_sovereign_publication_authority_convergence.sql');
 
 test('browser exposes exactly one sovereign publication command', () => {
@@ -22,10 +23,19 @@ test('browser exposes exactly one sovereign publication command', () => {
   assert.doesNotMatch(composer, /\.prepareForPublication\(/);
 });
 
-test('production artifact has no rollback wrapper or broad runtime prefix', () => {
+test('production artifact is exact-allowlist only and has no rollback runtime', () => {
   assert.doesNotMatch(releaseBuilder, /vvip-marketplace-rollback\.js/);
-  assert.doesNotMatch(releaseBuilder, /["']scripts\/runtime\/["']/);
+  assert.doesNotMatch(releaseBuilder, /\bPUBLIC_PREFIXES\b/);
+  assert.doesNotMatch(releaseBuilder, /\.rglob\(/);
   assert.equal(fs.existsSync('scripts/runtime/vvip-marketplace-rollback.js'), false);
+});
+
+test('production promotion requires sovereign runtime and proves retired runtime is absent', () => {
+  assert.match(pagesWorkflow, /scripts\/runtime\/vvip-runtime-loader\.js/);
+  assert.match(pagesWorkflow, /scripts\/runtime\/vvip-marketplace-repository\.js/);
+  assert.match(pagesWorkflow, /VVIP_POST_DEPLOY_FORBIDDEN_PRESENT/);
+  assert.match(pagesWorkflow, /scripts\/runtime\/vvip-marketplace-rollback\.js/);
+  assert.match(pagesWorkflow, /scripts\/runtime\/vvip-my-listings\.js/);
 });
 
 test('forward convergence grants one authenticated publication authority and safely retires superseded ones', () => {
