@@ -30,7 +30,24 @@ test('public projections run with invoker security and base-table least privileg
   assert.match(sql, /revoke\s+select\s+on\s+public\.vvip_marketplace_listing_media\s+from\s+anon,\s*authenticated/i);
   const mediaGrant = sql.match(/grant\s+select\s*\(([^)]+)\)\s+on\s+public\.vvip_marketplace_listing_media\s+to\s+anon,\s*authenticated/i);
   assert.ok(mediaGrant, 'safe column-level media SELECT grant is required');
-  assert.doesNotMatch(mediaGrant[1], /owner_subject|storage_path(?!.*canonical_storage_path)|source_sha256|canonical_sha256|canonical_verifier|finalization_error_code/i);
+
+  const grantedColumns = mediaGrant[1]
+    .split(',')
+    .map((column) => column.trim().toLowerCase())
+    .filter(Boolean);
+  for (const forbidden of [
+    'owner_subject',
+    'storage_path',
+    'source_sha256',
+    'canonical_sha256',
+    'canonical_verifier',
+    'finalization_error_code'
+  ]) {
+    assert.equal(grantedColumns.includes(forbidden), false, `public media grant must exclude ${forbidden}`);
+  }
+  for (const required of ['canonical_storage_path', 'finalization_state']) {
+    assert.equal(grantedColumns.includes(required), true, `public media grant must retain ${required}`);
+  }
 });
 
 test('browser registers media with client UUID and never asks PostgREST to return raw media rows', () => {
