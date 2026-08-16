@@ -30,7 +30,7 @@ test('requestPublication delegates only to the trusted publication RPC', async (
         listing_id: '123e4567-e89b-12d3-a456-426614174000',
         status: 'PENDING_REVIEW',
         plan_id: 'pulse-standard',
-        entitlement_state: 'CONSUMED'
+        entitlement_state: 'RESERVED'
       },
       error: null
     };
@@ -55,7 +55,7 @@ test('requestPublication delegates only to the trusted publication RPC', async (
     }
   }]);
   assert.equal(result.status, 'PENDING_REVIEW');
-  assert.equal(result.entitlement_state, 'CONSUMED');
+  assert.equal(result.entitlement_state, 'RESERVED');
 });
 
 test('publication transport propagates trusted server failure and never mints entitlement locally', async () => {
@@ -79,7 +79,7 @@ test('publication transport propagates trusted server failure and never mints en
   assert.doesNotMatch(source, /status\s*:\s*["']ACTIVE["']/);
 });
 
-test('trusted publication schema remains the exclusive browser-to-review gate during forward convergence', () => {
+test('trusted publication schema remains the historical base while forward convergence owns the final lifecycle', () => {
   assert.equal(fs.existsSync(MIGRATION), true, 'trusted publication migration must exist');
   const sql = fs.readFileSync(MIGRATION, 'utf8');
 
