@@ -23,7 +23,6 @@ class ReleaseLoadOrderTests(unittest.TestCase):
             "runtime-config.js",
             "scripts/runtime/vvip-runtime-loader.js",
             "scripts/runtime/vvip-marketplace-repository.js",
-            "scripts/runtime/vvip-marketplace-rollback.js",
             "auth-clerk-index.js",
             "scripts/vvip-pr30-resilience.js",
         ]
@@ -31,6 +30,7 @@ class ReleaseLoadOrderTests(unittest.TestCase):
         self.assertEqual(positions, sorted(positions))
         for script in scripts:
             self.assertEqual(output.count(script), 1, script)
+        self.assertNotIn("scripts/runtime/vvip-marketplace-rollback.js", output)
         self.assertNotIn("scripts/vvip-production-marketplace.js", output)
         self.assertNotIn("scripts/runtime/vvip-my-listings.js", output)
 
