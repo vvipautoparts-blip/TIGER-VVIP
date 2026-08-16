@@ -28,9 +28,11 @@ test('production artifact has no rollback wrapper or broad runtime prefix', () =
   assert.equal(fs.existsSync('scripts/runtime/vvip-marketplace-rollback.js'), false);
 });
 
-test('forward convergence grants one authenticated publication authority and revokes superseded ones', () => {
+test('forward convergence grants one authenticated publication authority and safely retires superseded ones', () => {
   const canonicalGrant = convergence.match(/grant\s+execute\s+on\s+function\s+public\.vvip_marketplace_request_publication\s*\([^;]+?\)\s+to\s+authenticated\s*;/gi) || [];
   assert.equal(canonicalGrant.length, 1);
-  assert.match(convergence, /revoke\s+all\s+on\s+function\s+public\.vvip_marketplace_prepare_publication\s*\(/i);
-  assert.match(convergence, /revoke\s+all\s+on\s+function\s+public\.vvip_marketplace_submit_listing\s*\(/i);
+  assert.match(convergence, /revoke\s+all\s+on\s+function\s+public\.vvip_marketplace_prepare_publication\s*\(uuid,\s*text,\s*text\)/i);
+  assert.match(convergence, /drop\s+function\s+public\.vvip_marketplace_prepare_publication\s*\(uuid,\s*text,\s*text\)/i);
+  assert.match(convergence, /to_regprocedure\s*\(\s*['"]public\.vvip_marketplace_submit_listing\(uuid,uuid\)['"]\s*\)/i);
+  assert.match(convergence, /revoke all on function public\.vvip_marketplace_submit_listing\(uuid, uuid\) from public, anon, authenticated/i);
 });
