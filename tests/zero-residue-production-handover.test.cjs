@@ -86,6 +86,18 @@ test('documentation workflow is not pinned to an obsolete feature branch', () =>
   assert.doesNotMatch(text, /feat\/documentation-sovereign-knowledge-plane-20260808/);
 });
 
+test('database authority exists only under canonical migrations, never root SQL', () => {
+  const rootSql = fs.readdirSync(ROOT).filter((name) => name.toLowerCase().endsWith('.sql')).sort();
+  assert.deepEqual(rootSql, [], `root SQL creates parallel database authority: ${rootSql.join(', ')}`);
+  assert.ok(fs.existsSync(path.join(ROOT, 'supabase', 'migrations')));
+});
+
+test('retired parallel deploy and unreviewed push bindings cannot return', () => {
+  for (const relative of ['firebase.json', '.firebaserc', '.replit', '.git-auto-push.sh']) {
+    assert.equal(fs.existsSync(path.join(ROOT, relative)), false, `${relative} is forbidden parallel authority`);
+  }
+});
+
 test('Production handover is exact-SHA, sealed, attested and provider-neutral', () => {
   const h = loadManifest().production_handover;
   assert.equal(h.source_identity, 'EXACT_SHA_AND_TREE');
