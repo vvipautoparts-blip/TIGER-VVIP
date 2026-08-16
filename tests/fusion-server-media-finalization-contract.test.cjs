@@ -46,7 +46,7 @@ test('database requires one-time trusted canonical-media finalization before pub
   assert.match(sql, /MARKETPLACE_MEDIA_CANONICAL_FIELDS_TRUSTED_ONLY/);
 });
 
-test('finalizer policy accepts only strict JPEG/WebP containers and rejects unsupported or polyglot input', () => {
+test('finalizer policy accepts only strict JPEG/WebP containers and rejects HEIC/HEIF and polyglot tails', () => {
   assert.equal(fs.existsSync(POLICY), true, 'media finalizer policy must exist');
   const source = read(POLICY);
   for (const token of [
@@ -61,7 +61,7 @@ test('finalizer policy accepts only strict JPEG/WebP containers and rejects unsu
   ]) {
     assert.ok(source.includes(token), `missing finalizer policy token: ${token}`);
   }
-  assert.match(source, /ALLOWED_MIME_TYPES/);
+  assert.doesNotMatch(source, /image\/(?:hei[cf]|avif)/i);
 });
 
 test('AWS finalizer downloads source directly, re-encodes with sharp and records only canonical evidence', () => {
@@ -77,7 +77,10 @@ test('AWS finalizer downloads source directly, re-encodes with sharp and records
     '.rotate()',
     'canonicalSha256',
     'sourceSha256',
-    'timingSafeEqual'
+    'timingSafeEqual',
+    "method === 'OPTIONS'",
+    'access-control-allow-methods',
+    'access-control-allow-headers'
   ]) {
     assert.ok(source.includes(token), `missing finalizer implementation token: ${token}`);
   }
