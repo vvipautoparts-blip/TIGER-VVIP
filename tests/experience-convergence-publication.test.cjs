@@ -107,7 +107,7 @@ test("draft creation is content-first and does not require a payment entitlement
   assert.equal(client.writes.some((write) => write.payload && write.payload.status === "PENDING_REVIEW"), false);
 });
 
-test("publication preparation requires an opaque entitlement receipt before trusted transport", async () => {
+test("publication preparation requires an opaque entitlement receipt before trusted transport", () => {
   const client = createClientSpy();
   const repository = repo.createMarketplaceRepository({
     client,
@@ -116,7 +116,7 @@ test("publication preparation requires an opaque entitlement receipt before trus
   });
 
   assert.equal(typeof repository.prepareForPublication, "function");
-  await assert.rejects(
+  assert.throws(
     () => repository.prepareForPublication("11111111-1111-4111-8111-111111111111", {
       planId: "visibility-standard",
       entitlementReceipt: null
