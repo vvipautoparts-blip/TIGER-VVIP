@@ -34,10 +34,11 @@ PUBLIC_ROOT_FILES = (
 PUBLIC_PREFIXES = (
     "styles/",
     "icons/",
-    "scripts/runtime/",
 )
 
 PUBLIC_SCRIPT_FILES = (
+    "scripts/runtime/vvip-runtime-loader.js",
+    "scripts/runtime/vvip-marketplace-repository.js",
     "scripts/vvip-pr30-resilience.js",
     "scripts/vvip-safe-ux-guard.js",
     "scripts/fusion/runtime-adapters.js",
@@ -102,6 +103,9 @@ INDEX_REMOVE_SCRIPTS = (
     "scripts/vvip-pr32-draft-preview.js",
     "scripts/vvip-pr31-create-listing-shell.js",
     "scripts/vvip-pr33-publish-readiness.js",
+    "scripts/runtime/vvip-runtime-loader.js",
+    "scripts/runtime/vvip-marketplace-repository.js",
+    "scripts/runtime/vvip-marketplace-rollback.js",
     "scripts/runtime/vvip-my-listings.js",
     "scripts/vvip-production-marketplace.js",
 )
@@ -192,7 +196,6 @@ def _transform_index(text: str) -> str:
   <script defer src="runtime-config.js"></script>
   <script defer src="scripts/runtime/vvip-runtime-loader.js"></script>
   <script defer src="scripts/runtime/vvip-marketplace-repository.js"></script>
-  <script defer src="scripts/runtime/vvip-marketplace-rollback.js"></script>
   <script defer src="auth-clerk-index.js"></script>
   <script defer src="scripts/vvip-pr30-resilience.js"></script>
 """.rstrip()
