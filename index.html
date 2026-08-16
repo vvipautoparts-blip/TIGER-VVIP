@@ -10,8 +10,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/vvip-pr29-home-marketplace.css">
-  <link rel="stylesheet" href="styles/vvip-pr32-draft-preview.css">
-  <link rel="stylesheet" href="styles/vvip-pr33-publish-readiness.css">
   <link rel="stylesheet" href="styles/vvip-pr36-media.css">
   <link rel="stylesheet" href="styles/fusion/f02-single-surface.css">
   <link rel="stylesheet" href="styles/fusion/progressive-composer.css">
@@ -20,7 +18,6 @@
   <script defer crossorigin="anonymous" data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk" src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"></script>
   <script defer src="scripts/vvip-pr30-resilience.js"></script>
   <script defer src="auth-clerk-index.js"></script>
-  <script defer src="scripts/vvip-pr29-home-marketplace.js"></script>
 
   <script defer src="scripts/media/pr36-signature.js"></script>
   <script defer src="scripts/media/pr36-policy.js"></script>
@@ -35,18 +32,15 @@
   <script defer src="scripts/media/f05-heif-worker-client.js"></script>
   <script defer src="scripts/media/pr36-controller.js"></script>
 
-  <script defer src="scripts/vvip-pr32-draft-preview.js"></script>
-  <script defer src="scripts/vvip-pr33-publish-readiness.js"></script>
-  <script defer src="scripts/runtime/vvip-my-listings.js"></script>
-
   <script defer src="scripts/fusion/runtime-adapters.js"></script>
+  <script defer src="scripts/fusion/marketplace-context.js"></script>
   <script defer src="scripts/fusion/f02-feed.js"></script>
   <script type="module" src="scripts/fusion/f03-capability-menu.js"></script>
   <script defer src="scripts/fusion/progressive-composer.js"></script>
   <script defer src="scripts/fusion/account-surface.js"></script>
   <script defer src="scripts/fusion/single-surface-controller.js"></script>
 </head>
-<body data-vvip-pr29-app>
+<body data-vvip-fusion-app>
   <div class="network-notice" data-network-notice role="status" aria-live="polite" hidden></div>
 
   <section class="auth-gate" data-vvip-auth-gate aria-hidden="true" hidden>
@@ -56,7 +50,7 @@
       <p>بوابتك الآمنة إلى المنصة الموحدة.</p>
     </div>
     <div class="auth-gate__card">
-      <span class="eyebrow">CLERK SECURE ACCESS</span>
+      <span class="eyebrow">SECURE ACCESS</span>
       <h2>سجّل الدخول للمتابعة</h2>
       <p>تسجيل الدخول مطلوب فقط عند تنفيذ إجراء محمي.</p>
       <p data-auth-error role="alert" hidden></p>
@@ -86,15 +80,9 @@
       </label>
     </section>
 
-    <section class="fusion-composer" data-fusion-composer aria-label="إنشاء منشور أو إعلان">
+    <section class="fusion-composer" data-fusion-composer aria-label="إنشاء إعلان">
       <span class="fusion-composer__avatar" aria-hidden="true">V</span>
       <button class="fusion-composer__trigger" type="button" data-fusion-composer-trigger>ماذا تريد أن تعرض؟</button>
-    </section>
-
-    <section class="vvip-draft-preview vvip-draft-preview--home" data-vvip-local-draft-preview data-draft-context="home" hidden>
-      <div class="vvip-draft-preview__heading"><div><span class="eyebrow">محفوظة على هذا الجهاز</span><h2>مسودتك الحالية</h2></div></div>
-      <div data-vvip-local-draft-card></div>
-      <div data-vvip-draft-empty-state hidden><p>يمكنك إنشاء إعلان وحفظه كمسودة محلية قبل النشر لاحقًا.</p></div>
     </section>
 
     <section class="marketplace" id="marketplace" aria-labelledby="marketplace-title">
@@ -146,13 +134,12 @@
         <button class="fusion-icon-button" type="button" data-fusion-account-close aria-label="إغلاق">×</button>
       </header>
       <section data-fusion-profile-host aria-labelledby="fusion-profile-title">
-        <h3 id="fusion-profile-title">الملف الشخصي</h3>
-        <p>تجربة الملف الجديدة ستبقى داخل هذا السطح. إلى أن يكتمل نقل جميع وظائف الملف، يتوفر الجسر القديم للمراجعة فقط.</p>
-        <a class="button" href="private-profile-p03.html" data-fusion-profile-migration-bridge>فتح ملف Migration Bridge</a>
+        <h3 id="fusion-profile-title">الحساب</h3>
+        <div data-fusion-account-identity role="status">يتم تحميل بيانات الجلسة الآمنة عند فتح الحساب.</div>
       </section>
       <section data-fusion-settings-host aria-labelledby="fusion-settings-title">
         <h3 id="fusion-settings-title">الإعدادات</h3>
-        <p>اللغة، إمكانية الوصول، وإعدادات الحساب ستظهر هنا عبر نفس نموذج البيانات والصلاحيات.</p>
+        <div data-fusion-account-actions></div>
       </section>
     </section>
   </div>
