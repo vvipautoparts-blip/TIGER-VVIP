@@ -7,12 +7,6 @@ begin;
 
 create extension if not exists pgcrypto with schema extensions;
 
--- ---------------------------------------------------------------------------
--- Owner-approved marketplace sectors. Historical values are preserved only so
--- existing rows remain referentially valid, but anything outside the approved
--- seven starts disabled and cannot be newly published.
--- ---------------------------------------------------------------------------
-
 create table if not exists public.vvip_marketplace_sectors (
     sector_key text primary key,
     label_ar text not null,
@@ -80,11 +74,6 @@ alter table public.vvip_marketplace_listings
     foreign key (sector)
     references public.vvip_marketplace_sectors(sector_key);
 
--- ---------------------------------------------------------------------------
--- Browser listing guard. PENDING_REVIEW is trusted-only; ACTIVE and moderation
--- states remain reviewer-only. Country and sector are always fail-closed.
--- ---------------------------------------------------------------------------
-
 create or replace function public.vvip_marketplace_guard_listing_write()
 returns trigger
 language plpgsql
@@ -149,25 +138,16 @@ begin
 end;
 $function$;
 
--- ---------------------------------------------------------------------------
--- Visibility plan authority. No plans are seeded here: price/tax/eCPM policy
--- is activated only by trusted commercial configuration after country seals.
--- ---------------------------------------------------------------------------
-
 create table public.vvip_visibility_plans (
     plan_id text primary key,
-    country_code text not null
-        references public.vvip_country_authority_seals(country_code),
-    sector text
-        references public.vvip_marketplace_sectors(sector_key),
+    country_code text not null references public.vvip_country_authority_seals(country_code),
+    sector text references public.vvip_marketplace_sectors(sector_key),
     display_name text not null,
     price_minor bigint not null check (price_minor > 0 and price_minor <= 99999999999999),
     currency_code text not null check (currency_code ~ '^[A-Z]{3}$'),
     pulse_impressions integer not null check (pulse_impressions > 0 and pulse_impressions <= 1000000000),
-    activation_duration_minutes integer not null
-        check (activation_duration_minutes between 1 and 525600),
-    plan_state text not null default 'DISABLED'
-        check (plan_state in ('DISABLED', 'ACTIVE', 'RETIRED')),
+    activation_duration_minutes integer not null check (activation_duration_minutes between 1 and 525600),
+    plan_state text not null default 'DISABLED' check (plan_state in ('DISABLED', 'ACTIVE', 'RETIRED')),
     valid_from timestamptz not null default statement_timestamp(),
     valid_until timestamptz,
     policy_version text not null,
@@ -183,27 +163,16 @@ create table public.vvip_visibility_plans (
 create index vvip_visibility_plans_active_market_idx
     on public.vvip_visibility_plans (country_code, sector, plan_state, valid_from, valid_until);
 
--- ---------------------------------------------------------------------------
--- Entitlement lifecycle:
--- ISSUED -> RESERVED when the owner requests publication.
--- RESERVED -> CONSUMED only when an authorized reviewer APPROVES.
--- RESERVED -> ISSUED on REJECT so paid visibility is not burned before service.
--- RESERVED -> REVOKED on BLOCK; financial reconciliation can resolve the credit
--- without recognizing delivery revenue.
--- ---------------------------------------------------------------------------
-
 create table public.vvip_listing_activation_entitlements (
     entitlement_id uuid primary key default gen_random_uuid(),
     owner_subject text not null,
     listing_id uuid not null
-        references public.vvip_marketplace_listings(listing_id) on delete cascade,
-    plan_id text not null
-        references public.vvip_visibility_plans(plan_id),
+        references public.vvip_marketplace_listings(listing_id) on delete restrict,
+    plan_id text not null references public.vvip_visibility_plans(plan_id),
     entitlement_receipt_hash text not null unique,
     provider_reference_hash text,
     pulse_impressions integer not null check (pulse_impressions > 0 and pulse_impressions <= 1000000000),
-    activation_duration_minutes integer not null
-        check (activation_duration_minutes between 1 and 525600),
+    activation_duration_minutes integer not null check (activation_duration_minutes between 1 and 525600),
     entitlement_state text not null default 'ISSUED'
         check (entitlement_state in ('ISSUED', 'RESERVED', 'CONSUMED', 'REVOKED', 'EXPIRED')),
     issued_at timestamptz not null default statement_timestamp(),
@@ -222,29 +191,18 @@ create table public.vvip_listing_activation_entitlements (
     check (consumed_by_subject is null or length(consumed_by_subject) between 1 and 128),
     check (
         (entitlement_state = 'ISSUED'
-            and reserved_at is null
-            and consumed_at is null
-            and consumed_by_subject is null
-            and activation_starts_at is null
-            and activation_expires_at is null)
+            and reserved_at is null and consumed_at is null and consumed_by_subject is null
+            and activation_starts_at is null and activation_expires_at is null)
         or (entitlement_state = 'RESERVED'
-            and reserved_at is not null
-            and consumed_at is null
-            and consumed_by_subject is null
-            and activation_starts_at is null
-            and activation_expires_at is null)
+            and reserved_at is not null and consumed_at is null and consumed_by_subject is null
+            and activation_starts_at is null and activation_expires_at is null)
         or (entitlement_state = 'CONSUMED'
-            and reserved_at is not null
-            and consumed_at is not null
-            and consumed_by_subject is not null
-            and activation_starts_at is not null
-            and activation_expires_at is not null
+            and reserved_at is not null and consumed_at is not null and consumed_by_subject is not null
+            and activation_starts_at is not null and activation_expires_at is not null
             and activation_starts_at < activation_expires_at)
         or (entitlement_state in ('REVOKED', 'EXPIRED')
-            and consumed_at is null
-            and consumed_by_subject is null
-            and activation_starts_at is null
-            and activation_expires_at is null)
+            and consumed_at is null and consumed_by_subject is null
+            and activation_starts_at is null and activation_expires_at is null)
     )
 );
 
@@ -256,23 +214,13 @@ create unique index vvip_listing_activation_one_reserved_per_listing
     on public.vvip_listing_activation_entitlements (listing_id)
     where entitlement_state = 'RESERVED';
 
--- ---------------------------------------------------------------------------
--- Immutable publication/entitlement decision audit.
--- ---------------------------------------------------------------------------
-
 create table public.vvip_publication_intent_audit (
     audit_id uuid primary key default gen_random_uuid(),
     listing_id uuid not null,
     entitlement_id uuid not null,
     actor_subject text not null,
     plan_id text not null,
-    event_type text not null
-        check (event_type in (
-            'PUBLICATION_RESERVED',
-            'PUBLICATION_APPROVED',
-            'PUBLICATION_REJECTED',
-            'PUBLICATION_BLOCKED'
-        )),
+    event_type text not null check (event_type in ('PUBLICATION_RESERVED','PUBLICATION_APPROVED','PUBLICATION_REJECTED','PUBLICATION_BLOCKED')),
     pulse_impressions integer not null check (pulse_impressions > 0),
     activation_starts_at timestamptz,
     activation_expires_at timestamptz,
@@ -281,12 +229,10 @@ create table public.vvip_publication_intent_audit (
     check (length(plan_id) between 1 and 80),
     check (
         (event_type = 'PUBLICATION_APPROVED'
-            and activation_starts_at is not null
-            and activation_expires_at is not null
+            and activation_starts_at is not null and activation_expires_at is not null
             and activation_starts_at < activation_expires_at)
         or (event_type <> 'PUBLICATION_APPROVED'
-            and activation_starts_at is null
-            and activation_expires_at is null)
+            and activation_starts_at is null and activation_expires_at is null)
     )
 );
 
@@ -304,12 +250,6 @@ begin
     return encode(extensions.digest(convert_to(receipt, 'UTF8'), 'sha256'), 'hex');
 end;
 $function$;
-
--- ---------------------------------------------------------------------------
--- Sole browser-to-review authority. Explicitly checks canonical media inside
--- the same database transaction, in addition to the defense-in-depth trigger.
--- A retry of the same already-reserved receipt/listing is idempotent.
--- ---------------------------------------------------------------------------
 
 create function public.vvip_marketplace_request_publication(
     target_listing uuid,
@@ -338,9 +278,7 @@ declare
     media_count integer;
     invalid_media_count integer;
 begin
-    if actor is null then
-        raise exception 'MARKETPLACE_AUTH_REQUIRED';
-    end if;
+    if actor is null then raise exception 'MARKETPLACE_AUTH_REQUIRED'; end if;
     if target_plan_id is null or length(btrim(target_plan_id)) < 1 or length(target_plan_id) > 80 then
         raise exception 'VISIBILITY_PLAN_INVALID';
     end if;
@@ -352,12 +290,8 @@ begin
     where listing.listing_id = target_listing
     for update;
 
-    if not found then
-        raise exception 'MARKETPLACE_LISTING_NOT_FOUND';
-    end if;
-    if current_listing.owner_subject <> actor then
-        raise exception 'MARKETPLACE_OWNER_REQUIRED';
-    end if;
+    if not found then raise exception 'MARKETPLACE_LISTING_NOT_FOUND'; end if;
+    if current_listing.owner_subject <> actor then raise exception 'MARKETPLACE_OWNER_REQUIRED'; end if;
 
     select * into current_entitlement
     from public.vvip_listing_activation_entitlements entitlement
@@ -367,23 +301,14 @@ begin
       and entitlement.entitlement_receipt_hash = receipt_hash
     for update;
 
-    if not found then
-        raise exception 'ENTITLEMENT_REQUIRED';
-    end if;
+    if not found then raise exception 'ENTITLEMENT_REQUIRED'; end if;
 
-    -- Idempotent transport retry: a lost HTTP response must not double-reserve
-    -- or consume the entitlement and must return the original trusted state.
     if current_entitlement.entitlement_state = 'RESERVED'
        and current_listing.status = 'PENDING_REVIEW' then
         return query
-        select
-            target_listing,
-            'PENDING_REVIEW'::text,
-            current_entitlement.plan_id,
-            'RESERVED'::text,
-            current_entitlement.pulse_impressions,
-            null::timestamptz,
-            null::timestamptz;
+        select target_listing, 'PENDING_REVIEW'::text, current_entitlement.plan_id,
+               'RESERVED'::text, current_entitlement.pulse_impressions,
+               null::timestamptz, null::timestamptz;
         return;
     end if;
 
@@ -394,10 +319,8 @@ begin
         raise exception 'MARKETPLACE_COUNTRY_NOT_ACTIVE';
     end if;
     if not exists (
-        select 1
-        from public.vvip_marketplace_sectors sector
-        where sector.sector_key = current_listing.sector
-          and sector.is_enabled
+        select 1 from public.vvip_marketplace_sectors sector
+        where sector.sector_key = current_listing.sector and sector.is_enabled
     ) then
         raise exception 'MARKETPLACE_SECTOR_NOT_ACTIVE';
     end if;
@@ -405,10 +328,7 @@ begin
     select count(*) into media_count
     from public.vvip_marketplace_listing_media media
     where media.listing_id = target_listing;
-
-    if media_count < 1 or media_count > 7 then
-        raise exception 'MARKETPLACE_MEDIA_COUNT_INVALID';
-    end if;
+    if media_count < 1 or media_count > 7 then raise exception 'MARKETPLACE_MEDIA_COUNT_INVALID'; end if;
 
     select count(*) into invalid_media_count
     from public.vvip_marketplace_listing_media media
@@ -427,10 +347,7 @@ begin
           or media.canonical_verified_at is null
           or nullif(btrim(media.canonical_verifier), '') is null
       );
-
-    if invalid_media_count <> 0 then
-        raise exception 'MARKETPLACE_MEDIA_NOT_CANONICAL';
-    end if;
+    if invalid_media_count <> 0 then raise exception 'MARKETPLACE_MEDIA_NOT_CANONICAL'; end if;
 
     select * into current_plan
     from public.vvip_visibility_plans plan
@@ -441,17 +358,10 @@ begin
       and statement_timestamp() >= plan.valid_from
       and (plan.valid_until is null or statement_timestamp() < plan.valid_until)
     for share;
+    if not found then raise exception 'VISIBILITY_PLAN_NOT_ACTIVE'; end if;
 
-    if not found then
-        raise exception 'VISIBILITY_PLAN_NOT_ACTIVE';
-    end if;
-
-    if current_entitlement.entitlement_state <> 'ISSUED' then
-        raise exception 'ENTITLEMENT_NOT_ISSUED';
-    end if;
-    if statement_timestamp() >= current_entitlement.redeem_expires_at then
-        raise exception 'ENTITLEMENT_EXPIRED';
-    end if;
+    if current_entitlement.entitlement_state <> 'ISSUED' then raise exception 'ENTITLEMENT_NOT_ISSUED'; end if;
+    if statement_timestamp() >= current_entitlement.redeem_expires_at then raise exception 'ENTITLEMENT_EXPIRED'; end if;
     if current_entitlement.pulse_impressions <> current_plan.pulse_impressions
        or current_entitlement.activation_duration_minutes <> current_plan.activation_duration_minutes then
         raise exception 'ENTITLEMENT_PLAN_SNAPSHOT_MISMATCH';
@@ -463,10 +373,7 @@ begin
         updated_at = statement_timestamp()
     where entitlement_id = current_entitlement.entitlement_id
       and entitlement_state = 'ISSUED';
-
-    if not found then
-        raise exception 'ENTITLEMENT_REPLAY_BLOCKED';
-    end if;
+    if not found then raise exception 'ENTITLEMENT_REPLAY_BLOCKED'; end if;
 
     update public.vvip_marketplace_listings
     set status = 'PENDING_REVIEW',
@@ -475,38 +382,18 @@ begin
     where vvip_marketplace_listings.listing_id = target_listing;
 
     insert into public.vvip_publication_intent_audit (
-        listing_id,
-        entitlement_id,
-        actor_subject,
-        plan_id,
-        event_type,
-        pulse_impressions
+        listing_id, entitlement_id, actor_subject, plan_id, event_type, pulse_impressions
     ) values (
-        target_listing,
-        current_entitlement.entitlement_id,
-        actor,
-        current_plan.plan_id,
-        'PUBLICATION_RESERVED',
-        current_entitlement.pulse_impressions
+        target_listing, current_entitlement.entitlement_id, actor,
+        current_plan.plan_id, 'PUBLICATION_RESERVED', current_entitlement.pulse_impressions
     );
 
     return query
-    select
-        target_listing,
-        'PENDING_REVIEW'::text,
-        current_plan.plan_id,
-        'RESERVED'::text,
-        current_entitlement.pulse_impressions,
-        null::timestamptz,
-        null::timestamptz;
+    select target_listing, 'PENDING_REVIEW'::text, current_plan.plan_id,
+           'RESERVED'::text, current_entitlement.pulse_impressions,
+           null::timestamptz, null::timestamptz;
 end;
 $function$;
-
--- ---------------------------------------------------------------------------
--- Trusted moderation authority. APPROVE is the exact moment paid visibility
--- starts. REJECT releases the reservation; BLOCK revokes it without recording
--- delivery. Organic listing lifetime is intentionally independent of Pulse.
--- ---------------------------------------------------------------------------
 
 create or replace function public.vvip_marketplace_review_listing(
     target_listing uuid,
@@ -531,18 +418,12 @@ begin
     where listing.listing_id = target_listing
     for update;
 
-    if not found then
-        raise exception 'MARKETPLACE_LISTING_NOT_FOUND';
-    end if;
+    if not found then raise exception 'MARKETPLACE_LISTING_NOT_FOUND'; end if;
     if not vvip_private.vvip_marketplace_actor_can_review(current_listing.active_market_country) then
         raise exception 'MARKETPLACE_REVIEW_AUTHORITY_REQUIRED';
     end if;
-    if current_listing.status <> 'PENDING_REVIEW' then
-        raise exception 'MARKETPLACE_REVIEW_STATE_INVALID';
-    end if;
-    if decision not in ('APPROVE', 'REJECT', 'BLOCK') then
-        raise exception 'MARKETPLACE_REVIEW_DECISION_INVALID';
-    end if;
+    if current_listing.status <> 'PENDING_REVIEW' then raise exception 'MARKETPLACE_REVIEW_STATE_INVALID'; end if;
+    if decision not in ('APPROVE', 'REJECT', 'BLOCK') then raise exception 'MARKETPLACE_REVIEW_DECISION_INVALID'; end if;
     if decision in ('REJECT', 'BLOCK') and nullif(btrim(decision_reason), '') is null then
         raise exception 'MARKETPLACE_REVIEW_REASON_REQUIRED';
     end if;
@@ -553,27 +434,21 @@ begin
       and entitlement.owner_subject = current_listing.owner_subject
       and entitlement.entitlement_state = 'RESERVED'
     for update;
-
-    if not found then
-        raise exception 'MARKETPLACE_RESERVED_ENTITLEMENT_REQUIRED';
-    end if;
+    if not found then raise exception 'MARKETPLACE_RESERVED_ENTITLEMENT_REQUIRED'; end if;
 
     if decision = 'APPROVE' then
         if not vvip_private.vvip_marketplace_country_is_active(current_listing.active_market_country) then
             raise exception 'MARKETPLACE_COUNTRY_NOT_ACTIVE';
         end if;
         if not exists (
-            select 1
-            from public.vvip_marketplace_sectors sector
-            where sector.sector_key = current_listing.sector
-              and sector.is_enabled
+            select 1 from public.vvip_marketplace_sectors sector
+            where sector.sector_key = current_listing.sector and sector.is_enabled
         ) then
             raise exception 'MARKETPLACE_SECTOR_NOT_ACTIVE';
         end if;
 
         activation_start := statement_timestamp();
-        activation_end := activation_start
-            + make_interval(mins => current_entitlement.activation_duration_minutes);
+        activation_end := activation_start + make_interval(mins => current_entitlement.activation_duration_minutes);
 
         update public.vvip_listing_activation_entitlements
         set entitlement_state = 'CONSUMED',
@@ -584,23 +459,15 @@ begin
             updated_at = statement_timestamp()
         where entitlement_id = current_entitlement.entitlement_id
           and entitlement_state = 'RESERVED';
-
-        if not found then
-            raise exception 'ENTITLEMENT_REPLAY_BLOCKED';
-        end if;
+        if not found then raise exception 'ENTITLEMENT_REPLAY_BLOCKED'; end if;
     elsif decision = 'REJECT' then
         update public.vvip_listing_activation_entitlements
-        set entitlement_state = 'ISSUED',
-            reserved_at = null,
-            updated_at = statement_timestamp()
-        where entitlement_id = current_entitlement.entitlement_id
-          and entitlement_state = 'RESERVED';
+        set entitlement_state = 'ISSUED', reserved_at = null, updated_at = statement_timestamp()
+        where entitlement_id = current_entitlement.entitlement_id and entitlement_state = 'RESERVED';
     else
         update public.vvip_listing_activation_entitlements
-        set entitlement_state = 'REVOKED',
-            updated_at = statement_timestamp()
-        where entitlement_id = current_entitlement.entitlement_id
-          and entitlement_state = 'RESERVED';
+        set entitlement_state = 'REVOKED', updated_at = statement_timestamp()
+        where entitlement_id = current_entitlement.entitlement_id and entitlement_state = 'RESERVED';
     end if;
 
     update public.vvip_marketplace_listings
@@ -609,27 +476,15 @@ begin
             when 'REJECT' then 'REJECTED'
             else 'BLOCKED'
         end,
-        rejection_reason = case
-            when decision = 'APPROVE' then null
-            else left(decision_reason, 500)
-        end,
-        published_at = case
-            when decision = 'APPROVE' then statement_timestamp()
-            else published_at
-        end,
+        rejection_reason = case when decision = 'APPROVE' then null else left(decision_reason, 500) end,
+        published_at = case when decision = 'APPROVE' then statement_timestamp() else published_at end,
         updated_at = statement_timestamp()
     where listing_id = target_listing
     returning * into result;
 
     insert into public.vvip_publication_intent_audit (
-        listing_id,
-        entitlement_id,
-        actor_subject,
-        plan_id,
-        event_type,
-        pulse_impressions,
-        activation_starts_at,
-        activation_expires_at
+        listing_id, entitlement_id, actor_subject, plan_id, event_type,
+        pulse_impressions, activation_starts_at, activation_expires_at
     ) values (
         target_listing,
         current_entitlement.entitlement_id,
@@ -663,11 +518,6 @@ create trigger vvip_publication_intent_audit_append_only
 before update or delete on public.vvip_publication_intent_audit
 for each row execute function public.vvip_reject_publication_audit_mutation();
 
--- ---------------------------------------------------------------------------
--- RLS / ACL. Browser can read enabled sector/catalog projections but cannot
--- mint, mutate or inspect internal entitlement/audit records.
--- ---------------------------------------------------------------------------
-
 alter table public.vvip_marketplace_sectors enable row level security;
 alter table public.vvip_marketplace_sectors force row level security;
 alter table public.vvip_visibility_plans enable row level security;
@@ -679,8 +529,7 @@ alter table public.vvip_publication_intent_audit force row level security;
 
 create policy vvip_marketplace_sectors_public_read
 on public.vvip_marketplace_sectors
-for select
-to anon, authenticated
+for select to anon, authenticated
 using (is_enabled);
 
 revoke all privileges on table public.vvip_marketplace_sectors from public, anon, authenticated;
@@ -703,15 +552,8 @@ create view public.vvip_visibility_plan_catalog
 with (security_barrier = true)
 as
 select
-    plan_id,
-    country_code,
-    sector,
-    display_name,
-    price_minor,
-    currency_code,
-    pulse_impressions,
-    activation_duration_minutes,
-    policy_version
+    plan_id, country_code, sector, display_name, price_minor, currency_code,
+    pulse_impressions, activation_duration_minutes, policy_version
 from public.vvip_visibility_plans
 where plan_state = 'ACTIVE'
   and statement_timestamp() >= valid_from
@@ -721,13 +563,10 @@ grant select on public.vvip_visibility_plan_catalog to anon, authenticated;
 
 revoke all on function public.vvip_hash_entitlement_receipt(text) from public, anon, authenticated;
 grant execute on function public.vvip_hash_entitlement_receipt(text) to service_role;
-
 revoke all on function public.vvip_marketplace_request_publication(uuid, text, text) from public, anon;
 grant execute on function public.vvip_marketplace_request_publication(uuid, text, text) to authenticated;
-
 revoke all on function public.vvip_marketplace_review_listing(uuid, text, text) from public, anon, authenticated;
 grant execute on function public.vvip_marketplace_review_listing(uuid, text, text) to authenticated, service_role;
-
 revoke all on function public.vvip_reject_publication_audit_mutation() from public, anon, authenticated;
 grant execute on function public.vvip_reject_publication_audit_mutation() to service_role;
 
