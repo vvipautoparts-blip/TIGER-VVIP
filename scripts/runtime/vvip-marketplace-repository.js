@@ -7,7 +7,7 @@
   "use strict";
 
   const PUBLIC_READ_TTL_MS = 30_000;
-  const PUBLIC_FEED_SELECT = "listing_id,active_market_country,sector,title,summary,price_minor,currency_code,location_label,contact_phone,whatsapp_enabled,media:vvip_marketplace_listing_media(canonical_storage_path,finalization_state,position,is_cover,alt_text)";
+  const PUBLIC_FEED_SELECT = "listing_id,active_market_country,sector,title,summary,price_minor,currency_code,location_label,contact_phone,whatsapp_enabled,published_at,media";
   const APPROVED_SECTORS = Object.freeze([
     "automotive",
     "real-estate",
@@ -338,9 +338,8 @@
 
     async function fetchPublic(input) {
       let query = client
-        .from("vvip_marketplace_listings")
+        .from("vvip_marketplace_public_feed")
         .select(PUBLIC_FEED_SELECT)
-        .eq("status", "ACTIVE")
         .order("published_at", { ascending: false, nullsFirst: false })
         .limit(input.limit);
       if (input.countryCode) query = query.eq("active_market_country", input.countryCode);
