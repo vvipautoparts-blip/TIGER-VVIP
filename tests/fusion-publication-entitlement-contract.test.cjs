@@ -143,7 +143,8 @@ test('effective publication schema converges to one browser-to-review gate', () 
 
   assert.match(sql, /revoke\s+all[^;]+vvip_listing_activation_entitlements[^;]+from\s+(?:public|anon|authenticated)/is);
   assert.doesNotMatch(sql, /grant\s+insert[^;]+vvip_listing_activation_entitlements[^;]+to\s+authenticated/is);
-  assert.doesNotMatch(sql, /references\s+public\.vvip_marketplace_listings\(listing_id\)\s+on\s+delete\s+cascade/i);
+  assert.doesNotMatch(finalSql, /references\s+public\.vvip_marketplace_listings\(listing_id\)\s+on\s+delete\s+cascade/i);
+  assert.match(finalSql, /references\s+public\.vvip_marketplace_listings\(listing_id\)[\s\S]{0,120}on\s+delete\s+restrict/i);
   assert.match(finalSql, /entitlement_state\s*=\s*'RESERVED'/i);
   assert.match(finalSql, /current_entitlement\.entitlement_state\s*=\s*'RESERVED'[\s\S]{0,1000}current_listing\.status\s*=\s*'PENDING_REVIEW'/i);
 
