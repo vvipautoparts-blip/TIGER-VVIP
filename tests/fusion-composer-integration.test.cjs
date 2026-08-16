@@ -16,7 +16,7 @@ test('authoritative surface loads the progressive composer instead of the legacy
   assert.doesNotMatch(index, /data-fusion-composer-trigger[^>]*disabled/);
 });
 
-test('composer requires auth and exposes only the progressive first-view field contract', () => {
+test('composer requires auth and exposes the progressive first-view field contract', () => {
   const source = fs.readFileSync(composerPath, 'utf8');
   assert.match(source, /VVIP_AUTH/);
   assert.match(source, /requireAuth/);
@@ -40,6 +40,7 @@ test('composer delegates still-image processing to PR36/F05 and never adds serve
 
 test('composer never claims publication success from local draft state', () => {
   const source = fs.readFileSync(composerPath, 'utf8');
-  assert.match(source, /LOCAL_DRAFT_ONLY/);
+  assert.doesNotMatch(source, /LOCAL_DRAFT_ONLY/);
   assert.doesNotMatch(source, /publicationSuccess\s*=\s*true/);
+  assert.match(source, /result\.status\s*!==\s*['"]PENDING_REVIEW['"]/);
 });
