@@ -36,7 +36,8 @@ test("public feed signs only canonical media from the canonical private bucket",
 
 test("repository exposes one browser publication command and no legacy alias", () => {
   assert.match(source, /function\s+requestPublication\s*\(/);
-  assert.match(source, /client\.rpc\(["']vvip_marketplace_prepare_publication["']/);
+  assert.match(source, /client\.rpc\(["']vvip_marketplace_request_publication["']/);
+  assert.doesNotMatch(source, /client\.rpc\(["']vvip_marketplace_prepare_publication["']/);
   assert.doesNotMatch(source, /\bprepareForPublication\b/);
   assert.doesNotMatch(source, /\bsubmitForReview\b|\bcreateAndSubmit\b/);
 });
