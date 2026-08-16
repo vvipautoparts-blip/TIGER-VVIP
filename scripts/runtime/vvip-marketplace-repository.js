@@ -7,7 +7,7 @@
   "use strict";
 
   const PUBLIC_READ_TTL_MS = 30_000;
-  const PUBLIC_FEED_SELECT = "listing_id,active_market_country,sector,title,summary,price_minor,currency_code,location_label,contact_phone,whatsapp_enabled,media:vvip_marketplace_listing_media(storage_path,position,is_cover,alt_text)";
+  const PUBLIC_FEED_SELECT = "listing_id,active_market_country,sector,title,summary,price_minor,currency_code,location_label,contact_phone,whatsapp_enabled,media:vvip_marketplace_listing_media(canonical_storage_path,finalization_state,position,is_cover,alt_text)";
   const APPROVED_SECTORS = Object.freeze([
     "automotive",
     "real-estate",
@@ -125,13 +125,14 @@
     let selected = null;
 
     list.forEach(function (media, index) {
-      const storagePath = String(media && media.storage_path || "").trim();
+      if (!media || media.finalization_state !== "CANONICAL") return;
+      const storagePath = String(media.canonical_storage_path || "").trim();
       if (!storagePath) return;
 
       const candidate = {
         index: index,
         path: storagePath,
-        coverPriority: media && media.is_cover === true ? 0 : 1,
+        coverPriority: media.is_cover === true ? 0 : 1,
         position: mediaPosition(media)
       };
 
@@ -200,6 +201,49 @@
     };
     if (!client || typeof client.from !== "function" || !client.storage) {
       throw marketplaceError("SUPABASE_CLIENT_REQUIRED");
+    }
+
+    function mediaFinalizerUrl() {
+      const raw = String(config.mediaFinalizerUrl || (root.__VVIP_RUNTIME_CONFIG__ && root.__VVIP_RUNTIME_CONFIG__.mediaFinalizerUrl) || "").trim();
+      if (!raw) throw marketplaceError("MEDIA_FINALIZER_URL_REQUIRED");
+      let parsed;
+      try { parsed = new URL(raw); } catch (_) { throw marketplaceError("MEDIA_FINALIZER_URL_INVALID"); }
+      if (parsed.protocol !== "https:" || parsed.username || parsed.password || parsed.search || parsed.hash) {
+        throw marketplaceError("MEDIA_FINALIZER_URL_INVALID");
+      }
+      return parsed.toString();
+    }
+
+    function requestFetch() {
+      const fn = (options && options.fetch) || root.fetch;
+      if (typeof fn !== "function") throw marketplaceError("MEDIA_FINALIZER_TRANSPORT_REQUIRED");
+      return fn.bind ? fn.bind(root) : fn;
+    }
+
+    async function finalizeMediaRow(mediaId) {
+      const endpoint = mediaFinalizerUrl();
+      if (typeof client.rpc !== "function") throw marketplaceError("SUPABASE_RPC_REQUIRED");
+      const grantResult = await client.rpc("vvip_marketplace_request_media_finalization", { target_media: mediaId });
+      const grantData = assertClientResult(grantResult, "MEDIA_FINALIZATION_GRANT_FAILED");
+      const grant = Array.isArray(grantData) ? grantData[0] : grantData;
+      if (!grant || grant.media_id !== mediaId || !/^[0-9a-f]{64}$/.test(String(grant.finalization_token || ""))) {
+        throw marketplaceError("MEDIA_FINALIZATION_GRANT_INVALID");
+      }
+
+      const response = await requestFetch()(endpoint, {
+        method: "POST",
+        headers: { "content-type": "application/json", "accept": "application/json" },
+        credentials: "omit",
+        cache: "no-store",
+        referrerPolicy: "no-referrer",
+        body: JSON.stringify({ mediaId: mediaId, finalizationToken: grant.finalization_token })
+      });
+      let payload = null;
+      try { payload = response && await response.json(); } catch (_) { payload = null; }
+      if (!response || !response.ok || !payload || payload.ok !== true || payload.mediaId !== mediaId || payload.state !== "CANONICAL") {
+        throw marketplaceError("MEDIA_SERVER_FINALIZATION_FAILED");
+      }
+      return payload;
     }
 
     function protectedOperation(descriptor, operation) {
@@ -272,7 +316,7 @@
 
       let urlMap = new Map();
       if (paths.length) {
-        const signed = await client.storage.from("listing-media").createSignedUrls(paths, 900);
+        const signed = await client.storage.from("listing-media-canonical").createSignedUrls(paths, 900);
         const signedRows = assertClientResult(signed, "MEDIA_SIGNING_FAILED") || [];
         urlMap = new Map(signedRows.map(function (entry) {
           return [entry.path, entry.signedUrl];
@@ -408,7 +452,7 @@
         return [];
       } catch (error) {
         if (uploaded.length) {
-          try { await client.storage.from("listing-media").remove(uploaded); } catch (_) { /* best-effort rollback */ }
+          try { await client.storage.from("listing-media").remove(uploaded); } catch (_) { /* bounded cleanup; publication remains failed */ }
         }
         throw error;
       }
@@ -417,27 +461,38 @@
     function createDraftWithMedia(input, images) {
       return protectedOperation({ name: "CREATE_LISTING" }, async function () {
         const draft = await createDraft(input);
+        let mediaRows = [];
         try {
-          await uploadMedia(draft.listing_id, images);
+          mediaRows = await uploadMedia(draft.listing_id, images);
+          for (const media of mediaRows) {
+            const mediaId = text(media && media.media_id, 64);
+            if (!mediaId) throw marketplaceError("MEDIA_FINALIZATION_ROW_INVALID");
+            await finalizeMediaRow(mediaId);
+          }
           return draft;
         } catch (error) {
+          const rawPaths = mediaRows.map(function (media) { return media && media.storage_path; }).filter(Boolean);
+          if (rawPaths.length) {
+            try { await client.storage.from("listing-media").remove(rawPaths); } catch (_) { /* private orphan is not publication success */ }
+          }
           try {
             await client.from("vvip_marketplace_listings").delete().eq("listing_id", draft.listing_id);
-          } catch (_) { /* RLS-safe cleanup attempt */ }
+          } catch (_) { /* fail closed; reconciliation owns inaccessible orphan cleanup */ }
           throw error;
         }
       });
     }
 
-    function prepareForPublication(listingId, options) {
+    function requestPublication(listingId, options) {
       const intent = normalizePublicationIntent(listingId, options);
-      return protectedOperation({ name: "PREPARE_PUBLICATION", listingId: intent.listingId }, async function () {
+      return protectedOperation({ name: "REQUEST_PUBLICATION", listingId: intent.listingId }, async function () {
+        if (typeof client.rpc !== "function") throw marketplaceError("SUPABASE_RPC_REQUIRED");
         const result = await client.rpc("vvip_marketplace_prepare_publication", {
           target_listing: intent.listingId,
           target_plan_id: intent.planId,
           entitlement_receipt: intent.entitlementReceipt
         });
-        const data = assertClientResult(result, "PUBLICATION_PREPARE_FAILED");
+        const data = assertClientResult(result, "PUBLICATION_REQUEST_FAILED");
         invalidatePublicReads();
         return Array.isArray(data) ? data[0] : data;
       });
@@ -482,7 +537,7 @@
       createDraft,
       uploadMedia,
       createDraftWithMedia,
-      prepareForPublication,
+      requestPublication,
       toggleFavorite,
       reviewListing
     });
