@@ -53,6 +53,7 @@ required_files = [
     "sw-vvip-static.js",
     "scripts/runtime/vvip-static-delivery.js",
     "supabase/migrations/20260816090000_fusion_publication_entitlement.sql",
+    "supabase/migrations/20260816170000_sovereign_publication_authority_convergence.sql",
     "docs/owner-control/OWNER_BINDING_DECISIONS_2026-08-15.md",
 ]
 for relative in required_files:
@@ -119,7 +120,7 @@ composer_contracts = [
     "requireAuth",
     "VVIPFusionMarketplaceContext",
     "createDraftWithMedia",
-    "prepareForPublication",
+    "requestPublication",
     "VVIPActivationProvider",
     "entitlementReceipt",
     "data-fusion-progressive-form",
@@ -131,17 +132,26 @@ for contract in composer_contracts:
     if contract not in composer:
         raise SystemExit(f"[smoke][fail] progressive composer contract missing: {contract}")
 
-for retired in ["LOCAL_DRAFT_ONLY", "localStorage.setItem", "localStorage.getItem", "vvip.fusion.composer.draft"]:
+for retired in [
+    "LOCAL_DRAFT_ONLY",
+    "localStorage.setItem",
+    "localStorage.getItem",
+    "vvip.fusion.composer.draft",
+    "prepareForPublication",
+]:
     if retired in composer:
-        raise SystemExit(f"[smoke][fail] retired local publication truth restored: {retired}")
+        raise SystemExit(f"[smoke][fail] retired local or publication authority restored: {retired}")
 
 if "readAsDataURL" in composer or "data:image" in composer:
     raise SystemExit("[smoke][fail] progressive composer attempts to persist raw image data")
 
 repository = Path("scripts/runtime/vvip-marketplace-repository.js").read_text(encoding="utf-8")
-for contract in ["vvip_marketplace_prepare_publication", "PUBLICATION_PREPARE_FAILED", "ENTITLEMENT_RECEIPT_REQUIRED"]:
+for contract in ["vvip_marketplace_request_publication", "PUBLICATION_REQUEST_FAILED", "ENTITLEMENT_RECEIPT_REQUIRED"]:
     if contract not in repository:
         raise SystemExit(f"[smoke][fail] trusted publication repository contract missing: {contract}")
+for retired in ["vvip_marketplace_prepare_publication", "PUBLICATION_PREPARE_FAILED", "prepareForPublication"]:
+    if retired in repository:
+        raise SystemExit(f"[smoke][fail] superseded publication authority restored: {retired}")
 if "PUBLICATION_TRANSPORT_UNAVAILABLE" in repository:
     raise SystemExit("[smoke][fail] retired publication transport stub restored")
 
