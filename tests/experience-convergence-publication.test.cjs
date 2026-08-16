@@ -160,7 +160,7 @@ test("publication request uses PR190 step-up auth and resumes the same trusted i
     listingId: "11111111-1111-4111-8111-111111111111"
   });
   assert.deepEqual(client.rpcCalls, [{
-    name: "vvip_marketplace_prepare_publication",
+    name: "vvip_marketplace_request_publication",
     payload: {
       target_listing: "11111111-1111-4111-8111-111111111111",
       target_plan_id: "visibility-standard",
