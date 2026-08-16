@@ -9,6 +9,7 @@ const root = path.resolve(__dirname, '..');
 const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const capability = fs.readFileSync(path.join(root, 'scripts/fusion/f03-capability-menu.js'), 'utf8');
 const accountPath = path.join(root, 'scripts/fusion/account-surface.js');
+const legacyProfile = fs.readFileSync(path.join(root, 'private-profile-p03.html'), 'utf8');
 
 test('account and settings live inside the authoritative Single Surface', () => {
   assert.match(index, /data-fusion-account-trigger/);
@@ -26,9 +27,11 @@ test('account surface protects account entry through the existing auth authority
   assert.doesNotMatch(source, /localStorage[^\n]*(admin|owner|super_admin)/i);
 });
 
-test('legacy profile is marked only as an explicit migration bridge', () => {
-  assert.match(index, /data-fusion-profile-migration-bridge/);
-  assert.match(index, /private-profile-p03\.html/);
+test('legacy private profile is not an authoritative route from the Single Surface', () => {
+  assert.doesNotMatch(index, /href=["']private-profile-p03\.html["']/i);
+  assert.doesNotMatch(index, /data-fusion-profile-migration-bridge/);
+  assert.match(legacyProfile, /data-vvip-account-center/);
+  assert.match(index, /data-vvip-fusion-authoritative/);
 });
 
 test('capability menu fails closed and never infers privilege from browser roles', () => {
