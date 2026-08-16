@@ -8,7 +8,7 @@ const repositoryPath = "scripts/runtime/vvip-marketplace-repository.js";
 const source = fs.readFileSync(repositoryPath, "utf8");
 
 test("canonical repository owns trusted media-finalization transport", () => {
-  assert.match(source, /function\s+finalizerUrl\s*\(/);
+  assert.match(source, /function\s+mediaFinalizerUrl\s*\(/);
   assert.match(source, /parsed\.protocol\s*!==\s*["']https:["']/);
   assert.match(source, /function\s+requestFetch\s*\(/);
   assert.match(source, /async\s+function\s+finalizeMediaRow\s*\(/);
@@ -29,7 +29,7 @@ test("canonical repository finalizes the inserted media rows without a redundant
 test("public feed signs only canonical media from the canonical private bucket", () => {
   assert.match(source, /canonical_storage_path/);
   assert.match(source, /finalization_state/);
-  assert.match(source, /finalization_state\s*===\s*["']CANONICAL["']/);
+  assert.match(source, /finalization_state\s*!==\s*["']CANONICAL["']\)\s*return/);
   assert.match(source, /storage\.from\(["']listing-media-canonical["']\)\.createSignedUrls\(/);
   assert.doesNotMatch(source, /storage\.from\(["']listing-media["']\)\.createSignedUrls\(/);
 });
