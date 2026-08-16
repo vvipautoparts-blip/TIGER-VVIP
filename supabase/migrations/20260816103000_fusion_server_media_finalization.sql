@@ -594,7 +594,7 @@ using (
               media.owner_subject = public.vvip_marketplace_actor_id()
               or (
                   listing.status = 'ACTIVE'
-                  and public.vvip_marketplace_country_is_active(listing.active_market_country)
+                  and vvip_private.vvip_marketplace_country_is_active(listing.active_market_country)
               )
           )
     )
