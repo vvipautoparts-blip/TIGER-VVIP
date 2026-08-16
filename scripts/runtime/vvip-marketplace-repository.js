@@ -139,15 +139,8 @@
       if (
         !selected ||
         candidate.coverPriority < selected.coverPriority ||
-        (
-          candidate.coverPriority === selected.coverPriority &&
-          candidate.position < selected.position
-        ) ||
-        (
-          candidate.coverPriority === selected.coverPriority &&
-          candidate.position === selected.position &&
-          candidate.index < selected.index
-        )
+        (candidate.coverPriority === selected.coverPriority && candidate.position < selected.position) ||
+        (candidate.coverPriority === selected.coverPriority && candidate.position === selected.position && candidate.index < selected.index)
       ) {
         selected = candidate;
       }
@@ -183,11 +176,7 @@
     if (!planId) throw marketplaceError("VISIBILITY_PLAN_REQUIRED");
     const entitlementReceipt = text(source.entitlementReceipt || source.entitlement_receipt, 512);
     if (!entitlementReceipt) throw marketplaceError("ENTITLEMENT_RECEIPT_REQUIRED");
-    return Object.freeze({
-      listingId: id,
-      planId: planId,
-      entitlementReceipt: entitlementReceipt
-    });
+    return Object.freeze({ listingId: id, planId, entitlementReceipt });
   }
 
   function createMarketplaceRepository(options) {
@@ -199,18 +188,14 @@
       if (root.crypto && typeof root.crypto.randomUUID === "function") return root.crypto.randomUUID();
       throw marketplaceError("UUID_GENERATOR_UNAVAILABLE");
     };
-    if (!client || typeof client.from !== "function" || !client.storage) {
-      throw marketplaceError("SUPABASE_CLIENT_REQUIRED");
-    }
+    if (!client || typeof client.from !== "function" || !client.storage) throw marketplaceError("SUPABASE_CLIENT_REQUIRED");
 
     function mediaFinalizerUrl() {
       const raw = String(config.mediaFinalizerUrl || (root.__VVIP_RUNTIME_CONFIG__ && root.__VVIP_RUNTIME_CONFIG__.mediaFinalizerUrl) || "").trim();
       if (!raw) throw marketplaceError("MEDIA_FINALIZER_URL_REQUIRED");
       let parsed;
       try { parsed = new URL(raw); } catch (_) { throw marketplaceError("MEDIA_FINALIZER_URL_INVALID"); }
-      if (parsed.protocol !== "https:" || parsed.username || parsed.password || parsed.search || parsed.hash) {
-        throw marketplaceError("MEDIA_FINALIZER_URL_INVALID");
-      }
+      if (parsed.protocol !== "https:" || parsed.username || parsed.password || parsed.search || parsed.hash) throw marketplaceError("MEDIA_FINALIZER_URL_INVALID");
       return parsed.toString();
     }
 
@@ -226,9 +211,7 @@
       const grantResult = await client.rpc("vvip_marketplace_request_media_finalization", { target_media: mediaId });
       const grantData = assertClientResult(grantResult, "MEDIA_FINALIZATION_GRANT_FAILED");
       const grant = Array.isArray(grantData) ? grantData[0] : grantData;
-      if (!grant || grant.media_id !== mediaId || !/^[0-9a-f]{64}$/.test(String(grant.finalization_token || ""))) {
-        throw marketplaceError("MEDIA_FINALIZATION_GRANT_INVALID");
-      }
+      if (!grant || grant.media_id !== mediaId || !/^[0-9a-f]{64}$/.test(String(grant.finalization_token || ""))) throw marketplaceError("MEDIA_FINALIZATION_GRANT_INVALID");
 
       const response = await requestFetch()(endpoint, {
         method: "POST",
@@ -240,9 +223,7 @@
       });
       let payload = null;
       try { payload = response && await response.json(); } catch (_) { payload = null; }
-      if (!response || !response.ok || !payload || payload.ok !== true || payload.mediaId !== mediaId || payload.state !== "CANONICAL") {
-        throw marketplaceError("MEDIA_SERVER_FINALIZATION_FAILED");
-      }
+      if (!response || !response.ok || !payload || payload.ok !== true || payload.mediaId !== mediaId || payload.state !== "CANONICAL") throw marketplaceError("MEDIA_SERVER_FINALIZATION_FAILED");
       return payload;
     }
 
@@ -253,12 +234,8 @@
       } catch (error) {
         if (!error || error.code !== "AUTH_REQUIRED") return Promise.reject(error);
       }
-
       const auth = (options && options.auth) || root.VVIP_AUTH;
-      if (!auth || typeof auth.requireAuth !== "function") {
-        return Promise.reject(marketplaceError("AUTH_REQUIRED"));
-      }
-
+      if (!auth || typeof auth.requireAuth !== "function") return Promise.reject(marketplaceError("AUTH_REQUIRED"));
       return new Promise(function (resolve, reject) {
         let resumed = false;
         function resume() {
@@ -283,53 +260,37 @@
     function freshPublicSnapshot(key) {
       const entry = publicReadCache.get(key);
       if (!entry) return null;
-
       const current = Number(now());
       const cachedAt = Number(entry.cachedAt);
       const age = current - cachedAt;
-      if (
-        !Number.isFinite(current) ||
-        !Number.isFinite(cachedAt) ||
-        age < 0 ||
-        age >= PUBLIC_READ_TTL_MS
-      ) {
+      if (!Number.isFinite(current) || !Number.isFinite(cachedAt) || age < 0 || age >= PUBLIC_READ_TTL_MS) {
         publicReadCache.delete(key);
         return null;
       }
-
       return clonePublicValue(entry.value);
     }
 
     async function signedMedia(rows) {
       const sourceRows = rows || [];
-      const selections = sourceRows.map(function (listing) {
-        return selectDisplayMedia(listing && listing.media);
-      });
+      const selections = sourceRows.map(function (listing) { return selectDisplayMedia(listing && listing.media); });
       const paths = [];
       const seenPaths = new Set();
-
       selections.forEach(function (selected) {
         if (!selected || seenPaths.has(selected.path)) return;
         seenPaths.add(selected.path);
         paths.push(selected.path);
       });
-
       let urlMap = new Map();
       if (paths.length) {
         const signed = await client.storage.from("listing-media-canonical").createSignedUrls(paths, 900);
         const signedRows = assertClientResult(signed, "MEDIA_SIGNING_FAILED") || [];
-        urlMap = new Map(signedRows.map(function (entry) {
-          return [entry.path, entry.signedUrl];
-        }));
+        urlMap = new Map(signedRows.map(function (entry) { return [entry.path, entry.signedUrl]; }));
       }
-
       return sourceRows.map(function (listing, listingIndex) {
         const selected = selections[listingIndex];
         return Object.assign({}, listing, {
           media: (listing.media || []).map(function (media, mediaIndex) {
-            const selectedUrl = selected && mediaIndex === selected.index
-              ? urlMap.get(selected.path) || ""
-              : "";
+            const selectedUrl = selected && mediaIndex === selected.index ? urlMap.get(selected.path) || "" : "";
             return Object.assign({}, media, { url: selectedUrl });
           })
         });
@@ -354,40 +315,19 @@
       const key = publicRequestKey(input);
       const cached = freshPublicSnapshot(key);
       if (cached) return cached;
-
       const existing = publicReadInflight.get(key);
-      if (existing) {
-        return clonePublicValue(await existing);
-      }
-
+      if (existing) return clonePublicValue(await existing);
       const generation = publicReadGeneration;
       const pending = (async function () {
         const result = await fetchPublic(input);
         const snapshot = clonePublicValue(result);
         const cachedAt = Number(now());
-
-        if (
-          generation === publicReadGeneration &&
-          Number.isFinite(cachedAt)
-        ) {
-          publicReadCache.set(key, {
-            cachedAt: cachedAt,
-            value: snapshot
-          });
-        }
-
+        if (generation === publicReadGeneration && Number.isFinite(cachedAt)) publicReadCache.set(key, { cachedAt, value: snapshot });
         return snapshot;
       })();
-
       publicReadInflight.set(key, pending);
-
-      try {
-        return clonePublicValue(await pending);
-      } finally {
-        if (publicReadInflight.get(key) === pending) {
-          publicReadInflight.delete(key);
-        }
-      }
+      try { return clonePublicValue(await pending); }
+      finally { if (publicReadInflight.get(key) === pending) publicReadInflight.delete(key); }
     }
 
     function listMine() {
@@ -423,7 +363,8 @@
           const mime = String((image && (image.mimeType || image.type)) || (blob && blob.type) || "");
           if (!blob || typeof blob.size !== "number") throw marketplaceError("MEDIA_BLOB_REQUIRED");
           const extension = extensionForMime(mime);
-          const path = owner + "/" + listingId + "/" + ids() + "." + extension;
+          const mediaId = ids();
+          const path = owner + "/" + listingId + "/" + mediaId + "." + extension;
           const upload = await client.storage.from("listing-media").upload(path, blob, {
             contentType: mime,
             upsert: false,
@@ -432,6 +373,7 @@
           assertClientResult(upload, "MEDIA_UPLOAD_FAILED");
           uploaded.push(path);
           rows.push({
+            media_id: mediaId,
             listing_id: listingId,
             owner_subject: owner,
             storage_path: path,
@@ -445,8 +387,9 @@
           });
         }
         if (rows.length) {
-          const inserted = await client.from("vvip_marketplace_listing_media").insert(rows).select("*");
-          return assertClientResult(inserted, "MEDIA_METADATA_INSERT_FAILED") || [];
+          const inserted = await client.from("vvip_marketplace_listing_media").insert(rows);
+          assertClientResult(inserted, "MEDIA_METADATA_INSERT_FAILED");
+          return rows;
         }
         return [];
       } catch (error) {
@@ -474,9 +417,8 @@
           if (rawPaths.length) {
             try { await client.storage.from("listing-media").remove(rawPaths); } catch (_) { /* private orphan is not publication success */ }
           }
-          try {
-            await client.from("vvip_marketplace_listings").delete().eq("listing_id", draft.listing_id);
-          } catch (_) { /* fail closed; reconciliation owns inaccessible orphan cleanup */ }
+          try { await client.from("vvip_marketplace_listings").delete().eq("listing_id", draft.listing_id); }
+          catch (_) { /* fail closed; reconciliation owns inaccessible orphan cleanup */ }
           throw error;
         }
       });
@@ -501,18 +443,11 @@
       return protectedOperation({ name: "TOGGLE_FAVORITE", listingId: listingId }, async function () {
         const owner = actorId(clerk);
         if (favorite) {
-          const result = await client.from("vvip_marketplace_favorites").upsert({
-            owner_subject: owner,
-            listing_id: listingId
-          });
+          const result = await client.from("vvip_marketplace_favorites").upsert({ owner_subject: owner, listing_id: listingId });
           assertClientResult(result, "FAVORITE_WRITE_FAILED");
           return true;
         }
-        const result = await client
-          .from("vvip_marketplace_favorites")
-          .delete()
-          .eq("owner_subject", owner)
-          .eq("listing_id", listingId);
+        const result = await client.from("vvip_marketplace_favorites").delete().eq("owner_subject", owner).eq("listing_id", listingId);
         assertClientResult(result, "FAVORITE_DELETE_FAILED");
         return false;
       });
