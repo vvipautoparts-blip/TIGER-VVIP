@@ -39,6 +39,7 @@ PUBLIC_PREFIXES = (
 
 PUBLIC_SCRIPT_FILES = (
     "scripts/vvip-pr30-resilience.js",
+    "scripts/vvip-safe-ux-guard.js",
     "scripts/fusion/runtime-adapters.js",
     "scripts/fusion/marketplace-context.js",
     "scripts/fusion/f02-feed.js",
