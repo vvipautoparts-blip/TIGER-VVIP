@@ -7,6 +7,7 @@ const repo = require("../scripts/runtime/vvip-marketplace-repository.js");
 const LISTING_ID = "11111111-1111-4111-8111-111111111111";
 const MEDIA_ID = "22222222-2222-4222-8222-222222222222";
 const TOKEN = "a".repeat(64);
+const RAW_PATH = "user_owner/" + LISTING_ID + "/" + MEDIA_ID + ".jpg";
 
 function thenableQuery(result) {
   const query = {
@@ -21,14 +22,8 @@ function thenableQuery(result) {
   return query;
 }
 
-function mutationClient(options = {}) {
-  const calls = { buckets: [], uploads: [], removes: [], rpc: [], deletedListings: [] };
-  const mediaRows = options.mediaRows || [{
-    media_id: MEDIA_ID,
-    storage_path: "user_owner/" + LISTING_ID + "/image.jpg",
-    position: 0,
-    is_cover: true
-  }];
+function mutationClient() {
+  const calls = { buckets: [], uploads: [], removes: [], rpc: [], deletedListings: [], mediaInserts: [] };
 
   const client = {
     from(table) {
@@ -57,10 +52,9 @@ function mutationClient(options = {}) {
       }
       if (table === "vvip_marketplace_listing_media") {
         return {
-          insert() {
-            return {
-              select() { return Promise.resolve({ data: mediaRows }); }
-            };
+          insert(payload) {
+            calls.mediaInserts.push(payload);
+            return Promise.resolve({ data: null, error: null });
           }
         };
       }
@@ -153,7 +147,7 @@ test("createDraftWithMedia fails closed before finalization when HTTPS endpoint 
     client,
     clerk: { user: { id: "user_owner" } },
     config: { defaultCountryCode: "JO" },
-    randomUUID: () => "33333333-3333-4333-8333-333333333333"
+    randomUUID: () => MEDIA_ID
   });
 
   await assert.rejects(() => repository.createDraftWithMedia({
@@ -162,21 +156,24 @@ test("createDraftWithMedia fails closed before finalization when HTTPS endpoint 
     location: "Amman",
     priceMinor: 1000,
     currencyCode: "JOD"
-  }, [{ blob: { size: 4, type: "image/jpeg" }, mimeType: "image/jpeg", width: 10, height: 10 }]), { code: "MEDIA_FINALIZER_URL_REQUIRED" });
+  }, [{ blob: { size: 4, type: "image/jpeg" }, mimeType: "image/jpeg", width: 800, height: 600 }]), { code: "MEDIA_FINALIZER_URL_REQUIRED" });
 
   assert.equal(calls.rpc.length, 0, "do not mint a finalization grant when transport policy is invalid");
   assert.equal(calls.deletedListings.length, 1, "failed finalization must remove the draft truth");
-  assert.deepEqual(calls.removes, [["user_owner/" + LISTING_ID + "/image.jpg"]]);
+  assert.deepEqual(calls.removes, [[RAW_PATH]]);
+  assert.equal(calls.mediaInserts.length, 1);
+  assert.equal(calls.mediaInserts[0][0].media_id, MEDIA_ID);
+  assert.equal(calls.mediaInserts[0][0].storage_path, RAW_PATH);
 });
 
-test("createDraftWithMedia finalizes each inserted derivative through the trusted server gate", async () => {
+test("createDraftWithMedia finalizes each locally-identified derivative through the trusted server gate", async () => {
   const { client, calls } = mutationClient();
   const fetchCalls = [];
   const repository = repo.createMarketplaceRepository({
     client,
     clerk: { user: { id: "user_owner" } },
     config: { defaultCountryCode: "JO", mediaFinalizerUrl: "https://media.example.test/finalize" },
-    randomUUID: () => "33333333-3333-4333-8333-333333333333",
+    randomUUID: () => MEDIA_ID,
     fetch: async (url, options) => {
       fetchCalls.push([url, options]);
       return { ok: true, json: async () => ({ ok: true, mediaId: MEDIA_ID, state: "CANONICAL" }) };
@@ -189,10 +186,13 @@ test("createDraftWithMedia finalizes each inserted derivative through the truste
     location: "Amman",
     priceMinor: 1000,
     currencyCode: "JOD"
-  }, [{ blob: { size: 4, type: "image/jpeg" }, mimeType: "image/jpeg", width: 10, height: 10 }]);
+  }, [{ blob: { size: 4, type: "image/jpeg" }, mimeType: "image/jpeg", width: 800, height: 600 }]);
 
   assert.equal(draft.listing_id, LISTING_ID);
   assert.deepEqual(calls.rpc, [["vvip_marketplace_request_media_finalization", { target_media: MEDIA_ID }]]);
+  assert.equal(calls.mediaInserts.length, 1);
+  assert.equal(calls.mediaInserts[0][0].media_id, MEDIA_ID);
+  assert.equal(calls.mediaInserts[0][0].storage_path, RAW_PATH);
   assert.equal(fetchCalls.length, 1);
   assert.equal(fetchCalls[0][0], "https://media.example.test/finalize");
   assert.equal(fetchCalls[0][1].credentials, "omit");
@@ -236,7 +236,7 @@ test("public reads use the safe feed projection and sign canonical media only", 
   const result = await repository.listPublic({ limit: 30 });
 
   assert.equal(calls.table, "vvip_marketplace_public_feed");
-  assert.match(calls.select, /canonical_storage_path|media/);
+  assert.match(calls.select, /media/);
   assert.deepEqual(calls.buckets, ["listing-media-canonical"]);
   assert.deepEqual(calls.paths, [["canonical/cover.webp"]]);
   assert.match(result[0].media[0].url, /^https:\/\/signed\.example\//);
