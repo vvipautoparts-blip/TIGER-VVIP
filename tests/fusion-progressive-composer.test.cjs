@@ -16,7 +16,8 @@ test('FUSION composer uses trusted server draft/publication path and no local pu
   assert.doesNotMatch(source, /vvip\.fusion\.composer\.draft/i);
   assert.match(source, /VVIPFusionMarketplaceContext/);
   assert.match(source, /createDraftWithMedia/);
-  assert.match(source, /prepareForPublication/);
+  assert.match(source, /requestPublication/);
+  assert.doesNotMatch(source, /prepareForPublication/);
   assert.match(source, /entitlementReceipt/);
   assert.match(source, /planId/);
   assert.match(source, /mediaSession\.previewSnapshot/);

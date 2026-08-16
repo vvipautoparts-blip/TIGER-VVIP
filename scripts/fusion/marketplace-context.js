@@ -26,7 +26,8 @@
         client: runtime.supabase,
         clerk: runtime.clerk,
         config: runtime.config,
-        auth: root.VVIP_AUTH
+        auth: root.VVIP_AUTH,
+        fetch: root.fetch
       });
       return Object.freeze({ runtime: runtime, repository: repository });
     }).catch(function (error) {

@@ -1,7 +1,7 @@
 # TIGER VVIP — Sovereign Single-Path Global Launch Design
 
-**Date:** 2026-08-16  
-**Status:** OWNER-APPROVED DIRECTION / EXECUTION AUTHORITY  
+**Date:** 2026-08-16
+**Status:** OWNER-APPROVED DIRECTION / EXECUTION AUTHORITY
 **Owner objective:** Less code, fewer authorities, fewer paths; materially higher security, reliability, operational clarity, financial integrity, and global launch readiness.
 
 ## 1. Non-negotiable outcome
@@ -32,21 +32,21 @@ The visible product must feel like one premium TIGER VVIP system rather than a c
 
 Retain `vvip-marketplace-rollback.js` as a wrapper around the repository and continue adding finalization/cleanup/public-read overrides there.
 
-**Advantages:** lowest immediate code movement; preserves recent work with little churn.  
+**Advantages:** lowest immediate code movement; preserves recent work with little churn.
 **Rejected because:** it creates a second runtime authority layer, duplicates repository behavior, makes release load order security-sensitive, and turns a historical rollback concept into permanent production architecture. It violates the owner's "less code / fewer paths" rule.
 
 ### Approach B — Single-path sovereign orchestrator (**selected**)
 
 Fold all browser-visible marketplace behavior into one canonical repository API, while moving trusted mutation authority into one server-side publication transaction and one trusted media-finalization service. Database transactions own DB rollback; asynchronous cleanup is an internal compensation/outbox concern, never a public wrapper API.
 
-**Advantages:** smallest long-term authority surface; easiest to audit; aligns with existing Supabase RLS/RPC, F05 media security, release attestation, and current FUSION UI; removes bypasses instead of hiding them.  
+**Advantages:** smallest long-term authority surface; easiest to audit; aligns with existing Supabase RLS/RPC, F05 media security, release attestation, and current FUSION UI; removes bypasses instead of hiding them.
 **Trade-off:** requires deliberate convergence of overlapping F06/FUSION migration contracts and exact tests proving old paths are gone.
 
 ### Approach C — Server-mediated BFF for every listing operation
 
 Move draft creation, media upload, publication, feed reads, and account reads behind a new backend-for-frontend service.
 
-**Advantages:** maximum centralized control.  
+**Advantages:** maximum centralized control.
 **Rejected for current phase:** materially increases service count, latency, operational cost, deployment surface, and failure modes without proportional benefit because Supabase RLS plus narrow trusted services already provide the required authority boundary.
 
 ## 4. Selected architecture

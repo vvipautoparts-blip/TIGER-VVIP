@@ -16,7 +16,6 @@ class ReleaseLoadOrderTests(unittest.TestCase):
         source = (
             '<html><head>'
             '<script defer src="scripts/runtime/vvip-my-listings.js"></script>'
-            '<script defer src="scripts/runtime/vvip-marketplace-rollback.js"></script>'
             '</head><body></body></html>'
         )
         output = module._transform_index(source)
@@ -31,7 +30,7 @@ class ReleaseLoadOrderTests(unittest.TestCase):
         self.assertEqual(positions, sorted(positions))
         for script in scripts:
             self.assertEqual(output.count(script), 1, script)
-        self.assertNotIn("scripts/vvip-marketplace-rollback.js", output)
+        self.assertNotIn("scripts/runtime/vvip-marketplace-rollback.js", output)
         self.assertNotIn("scripts/vvip-production-marketplace.js", output)
         self.assertNotIn("scripts/runtime/vvip-my-listings.js", output)
 

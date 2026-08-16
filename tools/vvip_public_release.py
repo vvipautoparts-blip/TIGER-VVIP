@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Build a minimal, auditable public artifact for TIGER VVIP.
+"""Build the exact, auditable public artifact for TIGER VVIP.
 
-The builder never copies the repository root wholesale. It follows fixed public
-entry sets plus narrowly approved asset prefixes, writes runtime configuration,
-and fails closed in production when test/demo markers are present.
+The builder copies only explicitly approved files. No directory or prefix is
+implicitly public. Runtime configuration is generated at build time and
+production fails closed when configuration or artifact markers are unsafe.
 """
 from __future__ import annotations
 
@@ -31,14 +31,28 @@ PUBLIC_ROOT_FILES = (
     "styles.css",
 )
 
-PUBLIC_PREFIXES = (
-    "styles/",
-    "icons/",
+PUBLIC_STYLE_FILES = (
+    "styles/vvip-pr29-home-marketplace.css",
+    "styles/vvip-pr36-media.css",
+    "styles/vvip-visual-trust-layer.css",
+    "styles/fusion/f02-single-surface.css",
+    "styles/fusion/progressive-composer.css",
+)
+
+PUBLIC_ICON_FILES = (
+    "icons/icon-192.png",
+    "icons/icon-512.png",
+    "icons/icon-192.svg",
+    "icons/icon-512.svg",
+)
+
+PUBLIC_RUNTIME_FILES = (
+    "scripts/runtime/vvip-runtime-loader.js",
+    "scripts/runtime/vvip-marketplace-repository.js",
+    "scripts/runtime/vvip-static-delivery.js",
 )
 
 PUBLIC_SCRIPT_FILES = (
-    "scripts/runtime/vvip-runtime-loader.js",
-    "scripts/runtime/vvip-marketplace-repository.js",
     "scripts/vvip-pr30-resilience.js",
     "scripts/vvip-safe-ux-guard.js",
     "scripts/fusion/runtime-adapters.js",
@@ -103,9 +117,6 @@ INDEX_REMOVE_SCRIPTS = (
     "scripts/vvip-pr32-draft-preview.js",
     "scripts/vvip-pr31-create-listing-shell.js",
     "scripts/vvip-pr33-publish-readiness.js",
-    "scripts/runtime/vvip-runtime-loader.js",
-    "scripts/runtime/vvip-marketplace-repository.js",
-    "scripts/runtime/vvip-marketplace-rollback.js",
     "scripts/runtime/vvip-my-listings.js",
     "scripts/vvip-production-marketplace.js",
 )
@@ -135,15 +146,15 @@ def _safe_relative(path: str) -> str:
 
 
 def _approved_exact_files() -> tuple[str, ...]:
-    return PUBLIC_ROOT_FILES + PUBLIC_SCRIPT_FILES + PUBLIC_MEDIA_FILES + PUBLIC_WORKER_FILES
-
-
-def _is_public(path: str) -> bool:
-    try:
-        safe = _safe_relative(path)
-    except ValueError:
-        return False
-    return safe in _approved_exact_files() or safe.startswith(PUBLIC_PREFIXES)
+    return (
+        PUBLIC_ROOT_FILES
+        + PUBLIC_STYLE_FILES
+        + PUBLIC_ICON_FILES
+        + PUBLIC_RUNTIME_FILES
+        + PUBLIC_SCRIPT_FILES
+        + PUBLIC_MEDIA_FILES
+        + PUBLIC_WORKER_FILES
+    )
 
 
 def _copy(source: Path, output: Path, relative: str) -> None:
@@ -300,15 +311,6 @@ def build(source: Path, output: Path, *, mode: str, source_sha: str, include_cna
 
     for relative in _approved_exact_files():
         _copy(source, output, relative)
-    for prefix in PUBLIC_PREFIXES:
-        root = source / prefix.rstrip("/")
-        if not root.exists():
-            continue
-        for path in root.rglob("*"):
-            if path.is_file():
-                relative = path.relative_to(source).as_posix()
-                if _is_public(relative):
-                    _copy(source, output, relative)
     if include_cname:
         _copy(source, output, "CNAME")
 

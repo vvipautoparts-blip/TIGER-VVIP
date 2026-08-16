@@ -17,7 +17,7 @@ const EXPECTED_PUBLIC_FEED_SELECT = [
   "location_label",
   "contact_phone",
   "whatsapp_enabled",
-  "media:vvip_marketplace_listing_media(storage_path,position,is_cover,alt_text)"
+  "media:vvip_marketplace_listing_media(canonical_storage_path,finalization_state,position,is_cover,alt_text)"
 ].join(",");
 
 function createFakeClient() {
@@ -60,7 +60,7 @@ function createFakeClient() {
   };
 }
 
-test("COST-05 exports the exact approved public feed projection budget", () => {
+test("COST-05 exports the exact approved canonical public feed projection budget", () => {
   assert.equal(marketplace.PUBLIC_FEED_SELECT, EXPECTED_PUBLIC_FEED_SELECT);
 });
 
@@ -98,7 +98,10 @@ test("public projection excludes unused and private payload fields", () => {
     "created_at",
     "updated_at",
     "clerk_user_id",
-    "email"
+    "email",
+    "canonical_sha256",
+    "source_sha256",
+    "canonical_verifier"
   ];
 
   for (const field of forbidden) {
@@ -125,7 +128,8 @@ test("public projection retains every field consumed by current production marke
     "whatsapp_enabled"
   ];
   const requiredMediaFields = [
-    "storage_path",
+    "canonical_storage_path",
+    "finalization_state",
     "position",
     "is_cover",
     "alt_text"
