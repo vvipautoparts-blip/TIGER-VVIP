@@ -367,12 +367,12 @@ begin
         raise exception 'ENTITLEMENT_PLAN_SNAPSHOT_MISMATCH';
     end if;
 
-    update public.vvip_listing_activation_entitlements
+    update public.vvip_listing_activation_entitlements as entitlement
     set entitlement_state = 'RESERVED',
         reserved_at = statement_timestamp(),
         updated_at = statement_timestamp()
-    where entitlement_id = current_entitlement.entitlement_id
-      and entitlement_state = 'ISSUED';
+    where entitlement.entitlement_id = current_entitlement.entitlement_id
+      and entitlement.entitlement_state = 'ISSUED';
     if not found then raise exception 'ENTITLEMENT_REPLAY_BLOCKED'; end if;
 
     update public.vvip_marketplace_listings
