@@ -34,6 +34,7 @@ PUBLIC_ROOT_FILES = (
 PUBLIC_STYLE_FILES = (
     "styles/vvip-pr29-home-marketplace.css",
     "styles/vvip-pr36-media.css",
+    "styles/vvip-visual-trust-layer.css",
     "styles/fusion/f02-single-surface.css",
     "styles/fusion/progressive-composer.css",
 )
