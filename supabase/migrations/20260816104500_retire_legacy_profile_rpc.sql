@@ -1,11 +1,16 @@
 -- VVIP TIGER — retire the historical profile resolver RPC.
 -- The legacy profiles table remains a Clerk read-only migration bridge only.
+-- Convergence is idempotent when the retired RPC is already absent.
 
 begin;
 
-revoke all on function public.vvip_resolve_own_profile(text)
-from public, anon, authenticated;
-
-drop function if exists public.vvip_resolve_own_profile(text);
+do $retire$
+begin
+  if to_regprocedure('public.vvip_resolve_own_profile(text)') is not null then
+    execute 'revoke all on function public.vvip_resolve_own_profile(text) from public, anon, authenticated';
+    execute 'drop function if exists public.vvip_resolve_own_profile(text)';
+  end if;
+end
+$retire$;
 
 commit;
