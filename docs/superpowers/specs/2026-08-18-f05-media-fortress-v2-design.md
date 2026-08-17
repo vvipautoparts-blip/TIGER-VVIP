@@ -32,11 +32,12 @@ Media Fortress V2 plugs into that boundary. It does not introduce a parallel med
 
 1. JPEG and WebP remain the only accepted server-side candidate formats.
 2. `Canonical JPEG V1` and `Canonical WebP V1` both remain valid outputs.
-3. The input is never repaired in place. Malformed, ambiguous, polyglot, animated, oversized, or structurally inconsistent candidates fail closed.
-4. Structural preflight is not treated as trust. It is only a bounded hypothesis before isolated decode.
-5. Successful decode is not treated as sufficient trust. Only a canonical rewrite followed by blind re-inspection can produce a trusted output.
-6. SHA-256 remains on the security-critical path. Perceptual hashing is explicitly outside acceptance and belongs to later asynchronous abuse intelligence.
-7. No server-side HEIC/HEIF decoder, converter, fallback, or storage path may be introduced.
+3. V1 rewriting is family-preserving: structurally verified JPEG bytes produce `Canonical JPEG V1`; structurally verified WebP bytes produce `Canonical WebP V1`. Filename extension and HTTP MIME never select the profile.
+4. The input is never repaired in place. Malformed, ambiguous, polyglot, animated, oversized, or structurally inconsistent candidates fail closed.
+5. Structural preflight is not treated as trust. It is only a bounded hypothesis before isolated decode.
+6. Successful decode is not treated as sufficient trust. Only a canonical rewrite followed by blind re-inspection can produce a trusted output.
+7. SHA-256 remains on the security-critical path. Perceptual hashing is explicitly outside acceptance and belongs to later asynchronous abuse intelligence.
+8. No server-side HEIC/HEIF decoder, converter, fallback, or storage path may be introduced.
 
 ## Architecture
 
@@ -120,7 +121,7 @@ Required properties:
 - trailing bytes after the accepted EOI boundary are rejected;
 - malformed marker ordering or truncation fails closed.
 
-Presence of EXIF, XMP, ICC, COM, or application-specific metadata does not make the candidate trusted. Those segments may be observed for policy diagnostics, but all such metadata is destroyed by canonical rasterization.
+Presence of EXIF, XMP, ICC, COM, or application-specific metadata does not make the candidate trusted. Those segments may be observed only as bounded structural facts; they are not recursively parsed by the preflight layer. All source metadata is destroyed by canonical rasterization.
 
 ### WebP
 
@@ -152,23 +153,27 @@ All multiplication and buffer-size calculations use checked arithmetic.
 
 The engine must reject a candidate before full raster allocation when declared or decoded geometry violates the policy.
 
-In addition to pixel ceilings, the codec execution wrapper has independent resource budgets:
+Initial deployed worker safety targets are explicit and conservative:
 
-- wall-clock timeout;
-- bounded worker memory;
-- bounded concurrency per worker process;
-- no unbounded retry loop.
+- hard worker memory ceiling: `256 MiB`;
+- one in-flight decode/rewrite operation per isolated worker;
+- wall-clock processing timeout: `2500 ms` per candidate;
+- zero automatic retry after timeout, crash, or fatal codec error;
+- the failed worker is discarded before another candidate is accepted.
+
+These are deployment ceilings, not attacker-controlled parameters. Staging load/soak evidence may justify a reviewed configuration change before production promotion, but the candidate itself can never raise them.
 
 A timeout, crash, resource-limit breach, or malformed native-codec response is converted into one stable fail-closed engine-unavailable error at the F05 boundary.
 
 ## Decoder isolation
 
-The recommended implementation is a mature native image backend such as pinned Sharp/libvips behind a narrow worker boundary, not a hand-written JPEG/WebP decoder in application JavaScript.
+The recommended implementation is a mature native image backend such as a pinned Sharp/libvips adapter behind a narrow worker boundary, not a hand-written JPEG/WebP decoder in application JavaScript.
 
 The native codec boundary must be isolated from the request handler so codec failure does not corrupt application state.
 
 Required runtime properties for the worker execution tier:
 
+- bytes are passed as memory buffers, never request-supplied file paths;
 - no request-driven filesystem path access;
 - no request-driven network access;
 - no shell or child-process invocation from image data;
@@ -218,7 +223,7 @@ The normalized raster is converted into the platform canonical color space: sRGB
 
 Rules:
 
-- source color information may be consumed only as necessary to correctly transform pixels;
+- source color information may be consumed only inside the isolated codec worker as necessary to correctly transform pixels;
 - malformed or unsupported color-profile state fails closed if correct normalization cannot be proven;
 - source ICC/profile bytes are not copied into output as attacker-controlled metadata;
 - the post-encode re-inspection must prove the final output satisfies the canonical sRGB policy expected by F05.
@@ -231,33 +236,55 @@ The engine validates the actual decoded pixel dimensions, not only header claims
 
 No automatic crop, pad, stretch, or repair is performed by this server engine to force 4:3. A candidate that does not meet the accepted geometry contract fails closed.
 
-## Canonical output profiles
+## Canonical profile selection
 
-### Canonical JPEG V1
+Profile selection is derived from the structurally verified byte family, never from extension or HTTP MIME:
 
-A versioned encoding profile fixes all security- and compatibility-relevant encoder options, including:
+- verified JPEG -> `Canonical JPEG V1`;
+- verified WebP -> `Canonical WebP V1`.
 
-- JPEG output only;
-- explicit quality value defined by implementation policy;
-- explicit chroma-subsampling policy;
-- progressive mode explicitly fixed;
-- metadata disabled;
-- canonical sRGB raster input;
-- no source comments or software markers;
-- pinned codec backend/version recorded outside the image bytes.
+The caller policy may deny one of the two allowed families, but it may not reinterpret JPEG bytes as WebP or vice versa and may not introduce any third format.
 
-### Canonical WebP V1
+## Canonical JPEG V1
 
-A versioned encoding profile fixes:
+V1 is fixed as:
 
-- WebP still-image output only;
-- explicit quality/lossless mode policy;
-- animation disabled;
-- metadata disabled;
-- canonical sRGB raster input;
-- pinned codec backend/version recorded outside the image bytes.
+- format: JPEG;
+- quality: `88`;
+- chroma subsampling: `4:2:0`;
+- progressive: `false`;
+- optimized entropy coding: `true` when supported by the pinned backend without changing the profile contract;
+- metadata: disabled;
+- canonical raster input: sRGB;
+- source comments/software markers/timestamps: never copied;
+- alpha: not applicable;
+- backend and exact backend version: recorded in external attestation, not image metadata.
 
-The engine does not promise byte-for-byte identity across different codec versions, CPU architectures, or future profiles. Reproducibility is defined within one pinned canonical profile and backend version.
+A backend that cannot implement these V1 semantics must fail startup/configuration validation rather than silently weakening the profile.
+
+## Canonical WebP V1
+
+V1 is fixed as:
+
+- format: WebP still image;
+- lossless: `false`;
+- near-lossless: `false`;
+- quality: `86`;
+- alpha quality: `100` when alpha exists;
+- smart subsampling: `true` when supported by the pinned backend;
+- encoding effort: `4` when supported by the pinned backend;
+- animation: disabled;
+- metadata: disabled;
+- canonical raster input: sRGB;
+- backend and exact backend version: recorded in external attestation, not image metadata.
+
+A backend that cannot implement the mandatory V1 semantics must fail startup/configuration validation. Optional backend optimizations may be disabled if their cross-version semantics are not stable enough for V1.
+
+## Reproducibility rule
+
+The engine does not promise byte-for-byte identity across different codec versions, CPU architectures, or future profiles.
+
+Reproducibility is defined within one pinned canonical profile, backend version, and supported runtime architecture.
 
 Future codec changes require a new explicit profile version rather than silently changing V1 behavior.
 
@@ -265,7 +292,7 @@ Future codec changes require a new explicit profile version rather than silently
 
 Canonical output is treated as untrusted again.
 
-The second pass must not reuse trusted flags from the first decode. It receives only the encoded output bytes and the expected canonical profile.
+The second pass must not reuse trusted flags from the first decode. It receives only the encoded output bytes and the expected canonical profile. It runs from fresh validation state; a fresh worker instance may be used where the implementation plan determines the isolation cost is justified.
 
 It repeats the relevant structural and decode validations and proves:
 
@@ -286,7 +313,9 @@ Failure of second-pass validation discards the output and fails closed.
 The security-critical path produces two cryptographic digests:
 
 1. `objectSha256`: SHA-256 of final canonical encoded bytes.
-2. `pixelSha256`: SHA-256 of the normalized canonical raster representation before encoding.
+2. `pixelSha256`: SHA-256 of a versioned normalized raster byte representation before encoding.
+
+The normalized raster hash input is itself canonicalized: schema/version tag + width + height + channel layout + row-major pixel bytes. This prevents ambiguity between different raster layouts that happen to share raw byte sequences.
 
 These digests serve different purposes:
 
@@ -369,6 +398,7 @@ The later deployed architecture is expected to separate the control plane from h
 - No source-controlled ICC payload copied into output.
 - Canonical sRGB only.
 - Existing 1600x1200 and 4:3 policy remains authoritative.
+- JPEG remains JPEG and WebP remains WebP under V1.
 - Blind re-inspection is mandatory after encoding.
 - SHA-256 attestation is mandatory before trusted output is returned.
 - No pHash/dHash requirement in the security acceptance path.
@@ -383,8 +413,8 @@ Use TDD with injected or isolated codec dependencies.
 Required RED/GREEN contract coverage includes:
 
 1. implementation module intentionally absent before RED proof;
-2. valid canonical JPEG candidate succeeds;
-3. valid canonical WebP still image succeeds;
+2. valid canonical JPEG candidate succeeds as `Canonical JPEG V1`;
+3. valid canonical WebP still image succeeds as `Canonical WebP V1`;
 4. forged MIME with wrong bytes is rejected;
 5. malformed JPEG marker length is rejected;
 6. JPEG trailing bytes/polyglot is rejected;
@@ -401,13 +431,14 @@ Required RED/GREEN contract coverage includes:
 17. rewrite failure returns no trusted output;
 18. blind second-pass failure discards output;
 19. object SHA-256 matches final bytes;
-20. pixel SHA-256 matches the normalized raster representation;
-21. output canonical profile remains JPEG V1 when JPEG is selected;
-22. output canonical profile remains WebP V1 when WebP is selected;
-23. no executable server HEIC/HEIF decoder/converter is introduced;
-24. source scan proves no env credential reads, shell spawning, request-driven filesystem/network path, or metadata logging primitives are introduced by the engine adapter;
-25. existing F05 authorization, Clerk, ownership, and AWS binding tests remain green;
-26. VVIP Quality Gate, TIGER CleanGuard, Zero-Residue Full History, and Project Control Integrity all pass on one exact final SHA.
+20. pixel SHA-256 matches the versioned normalized raster representation;
+21. JPEG bytes cannot be switched to WebP by forged MIME or extension;
+22. WebP bytes cannot be switched to JPEG by forged MIME or extension;
+23. backend startup/configuration rejects inability to honor mandatory V1 profile semantics;
+24. no executable server HEIC/HEIF decoder/converter is introduced;
+25. source scan proves no env credential reads, shell spawning, request-driven filesystem/network path, or metadata logging primitives are introduced by the engine adapter;
+26. existing F05 authorization, Clerk, ownership, and AWS binding tests remain green;
+27. VVIP Quality Gate, TIGER CleanGuard, Zero-Residue Full History, and Project Control Integrity all pass on one exact final SHA.
 
 ## Non-goals
 
