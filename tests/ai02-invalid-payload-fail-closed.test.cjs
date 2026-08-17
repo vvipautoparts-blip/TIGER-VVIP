@@ -26,7 +26,7 @@ test('malformed L4 payload without approval returns DENY instead of throwing', (
     result = kernel.runtime.evaluateSovereignRequest({
       actor,
       runtimeState,
-      agentId: 'technical_manager',
+      agentId: 'security_sentinel',
       action: ACTIONS.DEPLOY_PRODUCTION,
       payload: cyclic,
     });
@@ -42,7 +42,7 @@ test('malformed payload cannot crash approval verification or bypass binding', (
   const approval = kernel.authority.issueApproval({
     approvalId: 'apr_invalid_payload_001',
     actor,
-    agentId: 'technical_manager',
+    agentId: 'security_sentinel',
     action: ACTIONS.MERGE_PR,
     payload: validPayload,
     createdAt: '2026-08-13T03:00:00.000Z',
@@ -54,7 +54,7 @@ test('malformed payload cannot crash approval verification or bypass binding', (
     result = kernel.runtime.evaluateSovereignRequest({
       actor,
       runtimeState,
-      agentId: 'technical_manager',
+      agentId: 'security_sentinel',
       action: ACTIONS.MERGE_PR,
       payload: { prNumber: 218, bad: undefined },
       approval,
