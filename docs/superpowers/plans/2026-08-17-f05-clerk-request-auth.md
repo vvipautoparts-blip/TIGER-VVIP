@@ -31,14 +31,13 @@
 - [x] Malformed Clerk protocol/dependency states throw stable `media_authentication_unavailable`.
 - [x] Focused source assertions forbid env/credential access, manual JWT helpers, alternate token types, and auth-data logging primitives.
 
-## Task 3 — Verification evidence
+## Task 3 — Verification method
 
-- [x] Implementation GREEN SHA: `c14b4f687ebd85bd85126eb4f9c003f14f8d4327` passed Quality Gate #1314, CleanGuard #840, Zero-Residue #66, and Project Control #1516.
-- [x] Evidence-only documentation commit produced final review SHA `c6b0cdc50f5d7fe70b4f41e8070c6ab677a4916b`.
-- [x] Final review SHA gates: VVIP Quality Gate #1315 PASS; TIGER CleanGuard #841 PASS; Zero-Residue Full History #67 PASS; Project Control Integrity #1517 PASS.
-- [x] Final PR diff scope is limited to the design, this plan, the focused Clerk test, and the focused Clerk adapter.
+- [x] Implementation SHA `c14b4f687ebd85bd85126eb4f9c003f14f8d4327` passed VVIP Quality Gate #1314, TIGER CleanGuard #840, Zero-Residue Full History #66, and Project Control Integrity #1516.
+- [x] A later documentation-only head `c6b0cdc50f5d7fe70b4f41e8070c6ab677a4916b` independently re-passed VVIP Quality Gate #1315, TIGER CleanGuard #841, Zero-Residue Full History #67, and Project Control Integrity #1517.
+- [x] PR diff scope is limited to the design, this plan, the focused Clerk test, and the focused Clerk adapter.
 - [x] No deploy workflow, secret, Production mutation, DNS, AWS permission, Supabase change, Clerk Dashboard change, or `main` retargeting was introduced.
 
-## Review gate
+## Final review rule
 
-The final review head is `c6b0cdc50f5d7fe70b4f41e8070c6ab677a4916b`. Request independent review from `nzuodezuode-byte`. Do not merge until that independent approval is present and the reviewed head remains unchanged.
+This document intentionally does not hard-code the eventual final review SHA because committing such a value would itself create another SHA. After this document is committed, make no further source or documentation changes. Verify VVIP Quality Gate, TIGER CleanGuard, Zero-Residue Full History, and Project Control Integrity on that exact final PR head, then record the exact head SHA and gate run numbers in PR #268 metadata/body only. PR metadata updates do not change the reviewed commit. Request independent review from `nzuodezuode-byte` only after those four gates are green. Do not merge until the independent approval is present and the reviewed head remains unchanged.
