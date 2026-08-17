@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f0f2f5">
+  <title>VVIP TIGER FUSION — F02 Single Surface</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/vvip-pr29-home-marketplace.css">
+  <link rel="stylesheet" href="styles/fusion/f02-single-surface.css">
+  <script defer src="scripts/fusion/f02-feed.js"></script>
+  <script type="module" src="scripts/fusion/f03-capability-menu.js"></script>
+</head>
+<body>
+  <main class="app-shell" data-vvip-unified-home>
+    <header class="app-header">
+      <a class="brand" href="fusion-home-f02.html?preview=home" aria-label="VVIP TIGER"><span class="brand-icon" aria-hidden="true">V</span><span><b>VVIP TIGER</b><small>FUSION 2026</small></span><span class="vvip-badge">VVIP</span></a>
+      <nav class="header-actions" aria-label="إجراءات الحساب">
+        <button class="fusion-icon-button" type="button" data-fusion-capability-menu aria-label="صلاحياتي وخيارات الحساب">⋮</button>
+        <button class="button button--primary" type="button" disabled aria-disabled="true">إنشاء إعلان</button>
+      </nav>
+    </header>
+
+    <section class="fusion-discovery" aria-label="البحث والاستكشاف">
+      <label class="search-box" aria-label="البحث في VVIP TIGER">
+        <span aria-hidden="true">⌕</span>
+        <span class="visually-hidden">البحث في VVIP TIGER</span>
+        <input type="search" data-listing-search placeholder="ابحث عن منتج، خدمة، شركة، عقار أو سيارة..." autocomplete="off" aria-controls="marketplace-listings">
+      </label>
+    </section>
+
+    <section class="fusion-composer" data-fusion-composer aria-label="إنشاء منشور أو إعلان">
+      <span class="fusion-composer__avatar" aria-hidden="true">V</span>
+      <button class="fusion-composer__trigger" type="button" disabled aria-disabled="true">ماذا تريد أن تعرض؟</button>
+    </section>
+
+    <section class="marketplace" id="marketplace" aria-labelledby="marketplace-title">
+      <div class="section-heading"><div><span class="eyebrow">VVIP TIGER FUSION</span><h1 id="marketplace-title">المنشورات والإعلانات</h1></div><p data-results-count></p></div>
+      <div class="sector-filters" data-vvip-sector-filters role="group" aria-label="تصفية حسب القطاع"></div>
+      <div class="search-rescue" data-search-rescue role="status" aria-live="polite" hidden></div>
+      <div class="listing-grid" id="marketplace-listings" data-vvip-marketplace-feed aria-live="polite" aria-busy="true">
+        <article class="listing-skeleton" aria-hidden="true"></article>
+        <article class="listing-skeleton" aria-hidden="true"></article>
+      </div>
+      <div class="empty-state" data-empty-state role="status" hidden><p>لا توجد نتائج متاحة وفق السوق والسياسة الحالية. جرّب اقتراحات البحث الموثوقة عند ظهورها.</p></div>
+    </section>
+  </main>
+
+  <div class="sheet-layer" data-vvip-listing-detail-sheet aria-hidden="true" hidden>
+    <button class="sheet-backdrop" type="button" data-sheet-close aria-label="إغلاق التفاصيل"></button>
+    <section class="detail-sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" tabindex="-1"><button class="sheet-close" type="button" data-sheet-close aria-label="إغلاق">×</button><div data-sheet-content></div></section>
+  </div>
+
+  <div class="fusion-capability-layer" data-fusion-capability-sheet aria-hidden="true" hidden>
+    <button class="fusion-capability-backdrop" type="button" data-fusion-capability-close aria-label="إغلاق قائمة الصلاحيات"></button>
+    <section class="fusion-capability-panel" role="dialog" aria-modal="true" aria-labelledby="fusion-capability-title">
+      <h2 id="fusion-capability-title">صلاحياتي</h2>
+      <p>تظهر هنا الصلاحيات التي أكدها الخادم لهذه الجلسة فقط.</p>
+      <div data-fusion-capability-entries></div>
+    </section>
+  </div>
+
+  <div class="toast" data-app-toast role="status" aria-live="polite" hidden></div>
+</body>
+</html>

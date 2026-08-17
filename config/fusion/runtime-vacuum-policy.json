@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "VVIP_TIGER_RUNTIME_VACUUM_V1",
+  "allowedClassifications": ["ACTIVE","MIGRATION_BRIDGE","TEST_ONLY","HISTORICAL_DOC","ORPHANED","DELETE_CANDIDATE"],
+  "protectedActive": ["index.html","sw.js","manifest.json","manifest.webmanifest"],
+  "protectedPathPatterns": ["pr36","soa","supabase/functions/"],
+  "migrationBridgeExact": ["owner-control.html","private-profile-p03.html"],
+  "deleteCandidatePatterns": [".bak",".backup","-old.","_old.","copy of ","-copy."],
+  "ignoredDirectories": [".git","node_modules","dist","build","coverage",".next",".cache"]
+}

@@ -5,13 +5,16 @@
   else root.VVIP_PR36_MEDIA = api;
 })(typeof globalThis !== "undefined" ? globalThis : this, function () {
   "use strict";
-  const ACCEPT = "image/jpeg,image/png,image/webp";
+  const ACCEPT = "image/jpeg,image/png,image/webp,image/heic,image/heif";
   const KEYBOARD_HELP = "Alt+Arrow";
   const ERROR_COPY = Object.freeze({
     too_many_photos: "يمكن اختيار سبع صور كحد أقصى.", source_too_large: "إحدى الصور أكبر من الحد المسموح.",
     selection_total_too_large: "الحجم الإجمالي للصور أكبر من الحد المسموح.", mime_not_allowed: "صيغة الصورة غير مدعومة.",
     signature_mismatch: "تعذر التحقق من صيغة الصورة بأمان.", unknown_format: "تعذر قراءة الصورة بأمان.",
-    decode_failed: "تعذر فتح الصورة ومعالجتها بأمان.",
+    decode_failed: "تعذر فتح الصورة ومعالجتها بأمان.", heif_decode_failed: "تعذر فك صورة HEIC/HEIF بأمان على هذا الجهاز.",
+    heif_container_invalid: "ملف HEIC/HEIF غير صالح للمعالجة الآمنة.", heif_codec_unsupported: "ترميز HEIC/HEIF هذا غير مدعوم بأمان.",
+    heif_sequence_denied: "صور HEIC/HEIF المتحركة أو المتسلسلة غير مسموحة.", heif_memory_limit: "الصورة تتجاوز حد الذاكرة الآمن للمعالجة المحلية.",
+    decoder_integrity_mismatch: "تعذر التحقق من سلامة محرك HEIC المحلي.",
     dimensions_too_small: "أبعاد الصورة أصغر من الحد المطلوب.", decoded_pixels_exceeded: "أبعاد الصورة كبيرة جدًا للمعالجة الآمنة.",
     orientation_uncertain: "تعذر تحديد اتجاه الصورة بأمان.", encode_failed: "تعذر إنشاء نسخة آمنة من الصورة.",
     processing_timeout: "استغرقت معالجة الصورة وقتًا أطول من المسموح.", session_timeout: "انتهت مهلة جلسة معالجة الصور.",
@@ -25,7 +28,28 @@
     const workerApi = win.VVIP_PR36_WORKER;
     const sessionApi = win.VVIP_PR36_SESSION;
     const schedulerApi = win.VVIP_PR36_SCHEDULER;
+    const heifPreflight = win.VVIP_F05_HEIF_PREFLIGHT;
+    const bridgeApi = win.VVIP_F05_PR36_MEDIA_BRIDGE;
+    const heifAdapterApi = win.VVIP_F05_HEIF_ADAPTER;
+    const heifWorkerClientApi = win.VVIP_F05_HEIF_WORKER_CLIENT;
     if (!policy || !canvasApi || !sessionApi || !schedulerApi || typeof win.createImageBitmap !== "function" || !win.URL || typeof win.URL.createObjectURL !== "function" || typeof win.URL.revokeObjectURL !== "function" || typeof AbortController !== "function" || !win.crypto || typeof win.crypto.randomUUID !== "function") return null;
+
+    const f05Ready = Boolean(
+      heifPreflight && bridgeApi && typeof bridgeApi.createF05MediaPolicyBridge === "function" &&
+      heifAdapterApi && typeof heifAdapterApi.buildWorkerTransfer === "function" &&
+      heifWorkerClientApi && typeof heifWorkerClientApi.createHeifWorkerClient === "function"
+    );
+    const mediaPolicy = f05Ready
+      ? bridgeApi.createF05MediaPolicyBridge({ pr36Policy: policy, heifPreflight: heifPreflight })
+      : policy;
+    const heifClient = f05Ready && typeof win.Worker === "function"
+      ? heifWorkerClientApi.createHeifWorkerClient({
+        workerFactory: function () { return new win.Worker("workers/media/f05-heif-worker.js", { type: "module" }); },
+        buildWorkerTransfer: heifAdapterApi.buildWorkerTransfer,
+        createMediaError: policy.createMediaError
+      })
+      : null;
+
     let webpSupport;
     const adapter = canvasApi.createCanvasAdapter({
       decode: function (file, signal) { if (signal && signal.aborted) return Promise.reject(policy.createMediaError("cancelled")); return win.createImageBitmap(file, { imageOrientation: "from-image" }); },
@@ -58,11 +82,29 @@
     return sessionApi.createMediaSession({
       ids: function () { return win.crypto.randomUUID(); }, scheduler,
       urls: { create: function (blob) { return win.URL.createObjectURL(blob); }, revoke: function (url) { win.URL.revokeObjectURL(url); } },
-      validator: policy,
+      validator: mediaPolicy,
       processor: async function (source, edit) {
         const file = source && (source.file || source);
         const signal = edit && edit.signal;
         if (signal && signal.aborted) throw policy.createMediaError("cancelled");
+
+        if (source && source.requiresHeifDecode === true) {
+          if (!heifClient || !file || typeof file.arrayBuffer !== "function") throw policy.createMediaError("capability_unavailable");
+          let heifBytes;
+          try { heifBytes = await file.arrayBuffer(); }
+          catch (error) { throw policy.createMediaError("heif_decode_failed"); }
+          if (!(heifBytes instanceof ArrayBuffer) || heifBytes.byteLength < 1 || heifBytes.byteLength > policy.CONSTANTS.maxFileBytes || heifBytes.byteLength !== file.size) throw policy.createMediaError("heif_container_invalid");
+          if (signal && signal.aborted) throw policy.createMediaError("cancelled");
+          return heifClient.process({
+            jobId: win.crypto.randomUUID(),
+            bytes: heifBytes,
+            mimeType: source.mimeType || file.type,
+            transform: edit && edit.transform,
+            policy: policy.CONSTANTS,
+            signal: signal
+          });
+        }
+
         let bytes = null;
         if (processor !== mainThread) {
           try { bytes = await file.arrayBuffer(); }
