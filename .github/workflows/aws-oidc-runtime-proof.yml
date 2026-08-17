@@ -1,0 +1,46 @@
+name: AWS OIDC Runtime Proof
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aws-oidc-runtime-proof
+  cancel-in-progress: false
+
+jobs:
+  prove_identity:
+    name: Prove GitHub OIDC to AWS STS identity
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: production-build
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Assume zero-standing-credential AWS role
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
+        with:
+          role-to-assume: arn:aws:iam::211579682376:role/TIGER-VVIP-GitHub-ProductionDeploy
+          aws-region: us-east-1
+          audience: sts.amazonaws.com
+          allowed-account-ids: '211579682376'
+          role-duration-seconds: 900
+          role-session-name: TIGER-VVIP-${{ github.run_id }}
+          unset-current-credentials: true
+          mask-aws-account-id: true
+          action-timeout-s: 90
+
+      - name: Fail closed unless AWS caller identity is exact
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          read -r account arn < <(aws sts get-caller-identity --query '[Account,Arn]' --output text --no-cli-pager)
+          test "$account" = "211579682376"
+          case "$arn" in
+            arn:aws:sts::211579682376:assumed-role/TIGER-VVIP-GitHub-ProductionDeploy/*) ;;
+            *) echo "UNEXPECTED_AWS_CALLER_ARN" >&2; exit 1 ;;
+          esac
+          echo "AWS_OIDC_RUNTIME_PROOF=PASS"
