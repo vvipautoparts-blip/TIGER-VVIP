@@ -24,7 +24,7 @@ test('low-level analytics action cannot carry a mutating create-pr tool', () => 
   const result = kernel.runtime.evaluateSovereignRequest({
     actor,
     runtimeState,
-    agentId: 'technical_manager',
+    agentId: 'security_sentinel',
     action: ACTIONS.READ_ANALYTICS,
     payload: { dashboard: 'owner' },
     tool: { id: 'engineering.create_pr' },
@@ -39,7 +39,7 @@ test('tool level must match the policy level of its bound action', () => {
   const result = kernel.runtime.evaluateSovereignRequest({
     actor,
     runtimeState,
-    agentId: 'technical_manager',
+    agentId: 'security_sentinel',
     action: ACTIONS.RUN_TESTS,
     payload: { suite: 'quality' },
     tool: { id: 'engineering.run_tests' },
