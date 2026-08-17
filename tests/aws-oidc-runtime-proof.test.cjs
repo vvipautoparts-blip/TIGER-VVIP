@@ -42,3 +42,9 @@ test('AWS OIDC runtime proof contains only identity proof and forbids standing c
   assert.doesNotMatch(source, /aws\s+(amplify|s3|s3api|lambda|apigateway|apigatewayv2|cloudfront|route53|iam|cloudformation|cdk|sam)\b/i);
   assert.doesNotMatch(source, /\b(deploy|publish|sync|put-object|create-|update-|delete-)\b/i);
 });
+
+test('AWS OIDC runtime proof has no jq dependency and uses AWS CLI-native identity extraction', () => {
+  const source = workflow();
+  assert.doesNotMatch(source, /\bjq\b/);
+  assert.match(source, /aws sts get-caller-identity[^\n]*--query\s+['"]?\[Account,Arn\]['"]?[^\n]*--output\s+text/);
+});
