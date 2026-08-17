@@ -6,30 +6,30 @@
 begin;
 
 -- Public enumeration RPC residue has no place in the sovereign profile boundary.
-drop function if exists public.lookup_profile_by_email(text);
-drop function if exists public.lookup_profile_by_phone(text);
+drop function if exists public.lookup_profile_by_email(text) restrict;
+drop function if exists public.lookup_profile_by_phone(text) restrict;
 
 -- Remove public copies first in case an environment never completed the historical
 -- LC04 SET SCHEMA move. Leaf functions are retired before their prerequisites.
-drop function if exists public.can_self_update_profile(uuid, text, boolean, uuid, text, text);
-drop function if exists public.can_publish_owner(uuid);
-drop function if exists public.is_team_member(uuid);
-drop function if exists public.is_field_representative();
-drop function if exists public.is_reviewer();
-drop function if exists public.is_super_admin();
-drop function if exists public.current_user_role();
-drop function if exists public.user_role_for(uuid);
+drop function if exists public.can_self_update_profile(uuid, text, boolean, uuid, text, text) restrict;
+drop function if exists public.can_publish_owner(uuid) restrict;
+drop function if exists public.is_team_member(uuid) restrict;
+drop function if exists public.is_field_representative() restrict;
+drop function if exists public.is_reviewer() restrict;
+drop function if exists public.is_super_admin() restrict;
+drop function if exists public.current_user_role() restrict;
+drop function if exists public.user_role_for(uuid) restrict;
 
 -- Remove post-LC04 private residue. These helpers were transitional policy machinery
 -- backed by public.profiles and must not survive the final Clerk-only authority model.
-drop function if exists vvip_private.can_self_update_profile(uuid, text, boolean, uuid, text, text);
-drop function if exists vvip_private.can_publish_owner(uuid);
-drop function if exists vvip_private.is_team_member(uuid);
-drop function if exists vvip_private.is_field_representative();
-drop function if exists vvip_private.is_reviewer();
-drop function if exists vvip_private.is_super_admin();
-drop function if exists vvip_private.current_user_role();
-drop function if exists vvip_private.user_role_for(uuid);
+drop function if exists vvip_private.can_self_update_profile(uuid, text, boolean, uuid, text, text) restrict;
+drop function if exists vvip_private.can_publish_owner(uuid) restrict;
+drop function if exists vvip_private.is_team_member(uuid) restrict;
+drop function if exists vvip_private.is_field_representative() restrict;
+drop function if exists vvip_private.is_reviewer() restrict;
+drop function if exists vvip_private.is_super_admin() restrict;
+drop function if exists vvip_private.current_user_role() restrict;
+drop function if exists vvip_private.user_role_for(uuid) restrict;
 
 -- Prove the terminal identity boundary in the same transaction.
 do $assert_lc04_final_retirement$
