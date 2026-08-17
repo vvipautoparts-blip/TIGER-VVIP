@@ -1,111 +1,17 @@
 'use strict';
 
 const crypto = require('node:crypto');
-
-const DECISIONS = Object.freeze({
-  ALLOW: 'ALLOW',
-  OWNER_APPROVAL_REQUIRED: 'OWNER_APPROVAL_REQUIRED',
-  DENY: 'DENY',
-});
-
-const ACTIONS = Object.freeze({
-  READ_ANALYTICS: 'read_analytics',
-  GENERATE_REPORT: 'generate_report',
-  RUN_TESTS: 'run_tests',
-  PROPOSE_CODE_PATCH: 'propose_code_patch',
-  CREATE_PR: 'create_pr',
-  MERGE_PR: 'merge_pr',
-  DEPLOY_PRODUCTION: 'deploy_production',
-  CHANGE_PRICES: 'change_prices',
-  DELETE_DATA: 'delete_data',
-  TRANSFER_FUNDS: 'transfer_funds',
-  CHANGE_OWNER_PERMISSIONS: 'change_owner_permissions',
-  ASSIST_USER_WRITING: 'assist_user_writing',
-  SUGGEST_LISTING_METADATA: 'suggest_listing_metadata',
-});
-
-const POLICY = Object.freeze({
-  [ACTIONS.READ_ANALYTICS]: Object.freeze({ decision: DECISIONS.ALLOW, level: 'L1' }),
-  [ACTIONS.GENERATE_REPORT]: Object.freeze({ decision: DECISIONS.ALLOW, level: 'L1' }),
-  [ACTIONS.RUN_TESTS]: Object.freeze({ decision: DECISIONS.ALLOW, level: 'L3' }),
-  [ACTIONS.PROPOSE_CODE_PATCH]: Object.freeze({ decision: DECISIONS.ALLOW, level: 'L2' }),
-  [ACTIONS.CREATE_PR]: Object.freeze({ decision: DECISIONS.ALLOW, level: 'L3' }),
-  [ACTIONS.MERGE_PR]: Object.freeze({ decision: DECISIONS.OWNER_APPROVAL_REQUIRED, level: 'L4' }),
-  [ACTIONS.DEPLOY_PRODUCTION]: Object.freeze({ decision: DECISIONS.OWNER_APPROVAL_REQUIRED, level: 'L4' }),
-  [ACTIONS.CHANGE_PRICES]: Object.freeze({ decision: DECISIONS.OWNER_APPROVAL_REQUIRED, level: 'L4' }),
-  [ACTIONS.DELETE_DATA]: Object.freeze({ decision: DECISIONS.DENY, level: 'L4' }),
-  [ACTIONS.TRANSFER_FUNDS]: Object.freeze({ decision: DECISIONS.DENY, level: 'L4' }),
-  [ACTIONS.CHANGE_OWNER_PERMISSIONS]: Object.freeze({ decision: DECISIONS.DENY, level: 'L4' }),
-  [ACTIONS.ASSIST_USER_WRITING]: Object.freeze({ decision: DECISIONS.ALLOW, level: 'L1' }),
-  [ACTIONS.SUGGEST_LISTING_METADATA]: Object.freeze({ decision: DECISIONS.ALLOW, level: 'L2' }),
-});
-
-const AGENT_ACTIONS = Object.freeze({
-  general_manager: Object.freeze([
-    ACTIONS.READ_ANALYTICS,
-    ACTIONS.GENERATE_REPORT,
-  ]),
-  technical_manager: Object.freeze([
-    ACTIONS.READ_ANALYTICS,
-    ACTIONS.GENERATE_REPORT,
-    ACTIONS.RUN_TESTS,
-    ACTIONS.PROPOSE_CODE_PATCH,
-    ACTIONS.CREATE_PR,
-    ACTIONS.MERGE_PR,
-    ACTIONS.DEPLOY_PRODUCTION,
-  ]),
-  financial_analytics_manager: Object.freeze([
-    ACTIONS.READ_ANALYTICS,
-    ACTIONS.GENERATE_REPORT,
-    ACTIONS.CHANGE_PRICES,
-  ]),
-  user_assistant: Object.freeze([
-    ACTIONS.ASSIST_USER_WRITING,
-    ACTIONS.SUGGEST_LISTING_METADATA,
-  ]),
-});
-
-const ACTOR_AGENT_SCOPES = Object.freeze({
-  OWNER: Object.freeze([
-    'general_manager',
-    'technical_manager',
-    'financial_analytics_manager',
-    'user_assistant',
-  ]),
-  STAFF: Object.freeze(['user_assistant']),
-  USER: Object.freeze(['user_assistant']),
-});
-
-const TOOL_REGISTRY = Object.freeze({
-  'engineering.run_tests': Object.freeze({
-    id: 'engineering.run_tests',
-    action: ACTIONS.RUN_TESTS,
-    level: 'L3',
-    mutating: false,
-    allowedAgents: Object.freeze(['technical_manager']),
-  }),
-  'engineering.create_pr': Object.freeze({
-    id: 'engineering.create_pr',
-    action: ACTIONS.CREATE_PR,
-    level: 'L3',
-    mutating: true,
-    allowedAgents: Object.freeze(['technical_manager']),
-  }),
-  'platform.read_analytics': Object.freeze({
-    id: 'platform.read_analytics',
-    action: ACTIONS.READ_ANALYTICS,
-    level: 'L1',
-    mutating: false,
-    allowedAgents: Object.freeze(['general_manager', 'technical_manager', 'financial_analytics_manager']),
-  }),
-  'user.assist_writing': Object.freeze({
-    id: 'user.assist_writing',
-    action: ACTIONS.ASSIST_USER_WRITING,
-    level: 'L1',
-    mutating: false,
-    allowedAgents: Object.freeze(['user_assistant']),
-  }),
-});
+const {
+  ACTIONS,
+  DECISIONS,
+  POLICY,
+  AGENT_ACTIONS,
+  ACTOR_AGENT_SCOPES,
+  TOOL_REGISTRY,
+  PROFILES,
+  INTELLIGENCE_LADDER,
+  INFERENCE_POLICY,
+} = require('./sovereign-intelligence-registry.js');
 
 const BLACK_BOX_METADATA_KEYS = Object.freeze([
   'target',
@@ -127,6 +33,41 @@ function deny(reasonCode, extra = {}) {
 
 function allow(reasonCode, extra = {}) {
   return Object.freeze({ decision: DECISIONS.ALLOW, reasonCode, ...extra });
+}
+
+function authorizeInferenceProvider({ kind } = {}) {
+  if (kind === 'remote_paid') {
+    return deny('PAID_REMOTE_INFERENCE_FORBIDDEN', { kind });
+  }
+
+  if (INTELLIGENCE_LADDER.includes(kind)) {
+    return allow('INFERENCE_PROVIDER_ALLOWED', { kind });
+  }
+
+  return deny('UNKNOWN_INFERENCE_PROVIDER', { kind: String(kind || 'unknown') });
+}
+
+function selectIntelligenceRoute({
+  deterministicAvailable = false,
+  metricAvailable = false,
+  localModelAvailable = false,
+  browserAiAvailable = false,
+  allowLocalModel = false,
+  allowBrowserAi = false,
+} = {}) {
+  if (deterministicAvailable === true) {
+    return Object.freeze({ route: 'deterministic_rule', reasonCode: 'DETERMINISTIC_RULE_AVAILABLE' });
+  }
+  if (metricAvailable === true) {
+    return Object.freeze({ route: 'metric', reasonCode: 'METRIC_AVAILABLE' });
+  }
+  if (allowLocalModel === true && localModelAvailable === true) {
+    return Object.freeze({ route: 'small_local_model', reasonCode: 'LOCAL_MODEL_AVAILABLE' });
+  }
+  if (allowBrowserAi === true && browserAiAvailable === true) {
+    return Object.freeze({ route: 'browser_built_in_ai', reasonCode: 'BROWSER_AI_AVAILABLE' });
+  }
+  return Object.freeze({ route: 'no_ai', reasonCode: 'NO_AI_GRACEFUL_FALLBACK' });
 }
 
 function assertCanonicalValue(value, seen) {
@@ -529,6 +470,11 @@ module.exports = Object.freeze({
   AGENT_ACTIONS,
   ACTOR_AGENT_SCOPES,
   TOOL_REGISTRY,
+  PROFILES,
+  INTELLIGENCE_LADDER,
+  INFERENCE_POLICY,
+  authorizeInferenceProvider,
+  selectIntelligenceRoute,
   createSovereignSecurityKernel,
   canonicalJson,
   createPayloadDigest,

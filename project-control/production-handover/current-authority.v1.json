@@ -21,6 +21,42 @@
     "quality_gate": "scripts/quality-gate.sh",
     "repository_cleanroom": "tools/vvip_cleanroom.py"
   },
+  "sovereign_intelligence": {
+    "mode": "CURRENT_ONLY",
+    "registry": "scripts/ai/sovereign-intelligence-registry.js",
+    "policy_gate": "scripts/ai/sovereign-security-kernel.js",
+    "browser_consumers": [
+      "scripts/ai/vvip-ai-command-center.js",
+      "scripts/ai/vvip-ai-owner-console.js",
+      "owner-control.html"
+    ],
+    "profile_model": "ONE_ENGINE_MULTIPLE_CAPABILITY_PROFILES",
+    "profiles": [
+      "security_sentinel",
+      "trust_abuse_sentinel",
+      "market_intelligence",
+      "operations_sentinel",
+      "owner_intelligence",
+      "user_assistant"
+    ],
+    "intelligence_ladder": [
+      "deterministic_rule",
+      "metric",
+      "small_local_model",
+      "browser_built_in_ai",
+      "no_ai"
+    ],
+    "paid_remote_inference_default": "FORBIDDEN",
+    "paid_remote_inference_budget": 0,
+    "direct_database_access": "FORBIDDEN",
+    "service_role_access": "FORBIDDEN",
+    "aws_credential_access": "FORBIDDEN",
+    "iam_mutation": "FORBIDDEN",
+    "secret_reveal": "FORBIDDEN",
+    "destructive_production_writes": "FORBIDDEN",
+    "private_messages_general_memory": "FORBIDDEN",
+    "kill_switches": ["global", "agent", "tool"]
+  },
   "passes": [
     {"id":"P01","name":"Exact source identity and repository topology","fail_closed":true,"evidence":["exact commit SHA","exact tree SHA","PR/base/head identity"]},
     {"id":"P02","name":"Runtime stack and authority inventory","fail_closed":true,"evidence":["frontend entrypoints","Supabase authority","media-finalizer authority","CI authority"]},

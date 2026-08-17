@@ -1,7 +1,10 @@
 (function attachVvipAiCommandCenter(root, factory) {
   'use strict';
 
-  const api = factory();
+  const registry = typeof module !== 'undefined' && module.exports
+    ? require('./sovereign-intelligence-registry.js')
+    : root && root.VVIPSovereignIntelligenceRegistry;
+  const api = factory(registry);
 
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = api;
@@ -10,94 +13,11 @@
   if (root) {
     root.VVIPAICommandCenter = api;
   }
-})(typeof globalThis !== 'undefined' ? globalThis : this, function createVvipAiCommandCenter() {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function createVvipAiCommandCenter(registry) {
   'use strict';
-
-  const DECISIONS = Object.freeze({
-    ALLOW: 'ALLOW',
-    OWNER_APPROVAL_REQUIRED: 'OWNER_APPROVAL_REQUIRED',
-    DENY: 'DENY',
-  });
-
-  const ACTIONS = Object.freeze({
-    READ_ANALYTICS: 'read_analytics',
-    GENERATE_REPORT: 'generate_report',
-    RUN_TESTS: 'run_tests',
-    PROPOSE_CODE_PATCH: 'propose_code_patch',
-    CREATE_PR: 'create_pr',
-    MERGE_PR: 'merge_pr',
-    DEPLOY_PRODUCTION: 'deploy_production',
-    CHANGE_PRICES: 'change_prices',
-    DELETE_DATA: 'delete_data',
-    TRANSFER_FUNDS: 'transfer_funds',
-    CHANGE_OWNER_PERMISSIONS: 'change_owner_permissions',
-    ASSIST_USER_WRITING: 'assist_user_writing',
-    SUGGEST_LISTING_METADATA: 'suggest_listing_metadata',
-  });
 
   const FEATURE_FLAGS = Object.freeze({
     AI_COMMAND_CENTER_ENABLED: false,
-  });
-
-  const POLICY = Object.freeze({
-    [ACTIONS.READ_ANALYTICS]: Object.freeze({ decision: DECISIONS.ALLOW, level: 'L1' }),
-    [ACTIONS.GENERATE_REPORT]: Object.freeze({ decision: DECISIONS.ALLOW, level: 'L1' }),
-    [ACTIONS.RUN_TESTS]: Object.freeze({ decision: DECISIONS.ALLOW, level: 'L3' }),
-    [ACTIONS.PROPOSE_CODE_PATCH]: Object.freeze({ decision: DECISIONS.ALLOW, level: 'L2' }),
-    [ACTIONS.CREATE_PR]: Object.freeze({ decision: DECISIONS.ALLOW, level: 'L3' }),
-    [ACTIONS.MERGE_PR]: Object.freeze({ decision: DECISIONS.OWNER_APPROVAL_REQUIRED, level: 'L4' }),
-    [ACTIONS.DEPLOY_PRODUCTION]: Object.freeze({ decision: DECISIONS.OWNER_APPROVAL_REQUIRED, level: 'L4' }),
-    [ACTIONS.CHANGE_PRICES]: Object.freeze({ decision: DECISIONS.OWNER_APPROVAL_REQUIRED, level: 'L4' }),
-    [ACTIONS.DELETE_DATA]: Object.freeze({ decision: DECISIONS.DENY, level: 'L4' }),
-    [ACTIONS.TRANSFER_FUNDS]: Object.freeze({ decision: DECISIONS.DENY, level: 'L4' }),
-    [ACTIONS.CHANGE_OWNER_PERMISSIONS]: Object.freeze({ decision: DECISIONS.DENY, level: 'L4' }),
-    [ACTIONS.ASSIST_USER_WRITING]: Object.freeze({ decision: DECISIONS.ALLOW, level: 'L1' }),
-    [ACTIONS.SUGGEST_LISTING_METADATA]: Object.freeze({ decision: DECISIONS.ALLOW, level: 'L2' }),
-  });
-
-  const AGENTS = Object.freeze({
-    general_manager: Object.freeze({
-      id: 'general_manager',
-      label: 'AI General Manager',
-      mission: 'Coordinate platform intelligence and owner-facing summaries without bypassing specialist or owner controls.',
-      allowedActions: Object.freeze([
-        ACTIONS.READ_ANALYTICS,
-        ACTIONS.GENERATE_REPORT,
-      ]),
-    }),
-    technical_manager: Object.freeze({
-      id: 'technical_manager',
-      label: 'AI Technical Manager',
-      mission: 'Analyze engineering health, run verification, prepare safe patches and owner-gated release requests.',
-      allowedActions: Object.freeze([
-        ACTIONS.READ_ANALYTICS,
-        ACTIONS.GENERATE_REPORT,
-        ACTIONS.RUN_TESTS,
-        ACTIONS.PROPOSE_CODE_PATCH,
-        ACTIONS.CREATE_PR,
-        ACTIONS.MERGE_PR,
-        ACTIONS.DEPLOY_PRODUCTION,
-      ]),
-    }),
-    financial_analytics_manager: Object.freeze({
-      id: 'financial_analytics_manager',
-      label: 'AI Financial & Analytics Manager',
-      mission: 'Analyze revenue, cost and growth signals and prepare owner-gated pricing proposals without moving funds.',
-      allowedActions: Object.freeze([
-        ACTIONS.READ_ANALYTICS,
-        ACTIONS.GENERATE_REPORT,
-        ACTIONS.CHANGE_PRICES,
-      ]),
-    }),
-    user_assistant: Object.freeze({
-      id: 'user_assistant',
-      label: 'AI User Assistant',
-      mission: 'Help users write, organize and classify content without access to management controls.',
-      allowedActions: Object.freeze([
-        ACTIONS.ASSIST_USER_WRITING,
-        ACTIONS.SUGGEST_LISTING_METADATA,
-      ]),
-    }),
   });
 
   const AUDIT_METADATA_KEYS = Object.freeze([
@@ -107,6 +27,39 @@
     'ticketId',
     'prNumber',
   ]);
+
+  if (!registry) {
+    const DECISIONS = Object.freeze({ DENY: 'DENY' });
+    const failClosed = (action) => Object.freeze({
+      action,
+      decision: DECISIONS.DENY,
+      level: 'L4',
+      reasonCode: 'SOVEREIGN_REGISTRY_UNAVAILABLE',
+    });
+
+    return Object.freeze({
+      ACTIONS: Object.freeze({}),
+      AGENTS: Object.freeze({}),
+      DECISIONS,
+      FEATURE_FLAGS,
+      POLICY: Object.freeze({}),
+      INFERENCE_POLICY: Object.freeze({ paidRemoteInferenceBudget: 0, paidRemoteFallback: false }),
+      REGISTRY_AVAILABLE: false,
+      evaluatePolicy: failClosed,
+      authorizeAction: ({ action } = {}) => failClosed(action),
+      createApprovalRequest: () => { throw new Error('Sovereign registry unavailable.'); },
+      createAuditRecord: () => { throw new Error('Sovereign registry unavailable.'); },
+      sanitizeAuditMetadata: () => Object.freeze({}),
+    });
+  }
+
+  const {
+    ACTIONS,
+    DECISIONS,
+    POLICY,
+    PROFILES: AGENTS,
+    INFERENCE_POLICY,
+  } = registry;
 
   function evaluatePolicy(action) {
     const rule = POLICY[action];
@@ -275,6 +228,8 @@
     DECISIONS,
     FEATURE_FLAGS,
     POLICY,
+    INFERENCE_POLICY,
+    REGISTRY_AVAILABLE: true,
     evaluatePolicy,
     authorizeAction,
     createApprovalRequest,

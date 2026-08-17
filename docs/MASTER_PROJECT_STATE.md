@@ -226,13 +226,64 @@ AWS لا يستقبل نسخًا يدوية من ملفات المستودع. ا
 ## 16. Git وPR Governance
 
 - `main` لا يستقبل تغييرات مباشرة تتجاوز الحوكمة.
-- PR #261 يمثل طبقة sovereign runtime authority convergence الحالية في الـstack.
-- PR #262 يمثل طبقة Zero-Residue Production Handover التابعة لها.
-- #262 لا يندمج مباشرة إلى `main`؛ يحافظ على ترتيب الـstack.
+- PR #263 هو child PR الحالي لمسار Sovereign Intelligence، ووجهته الوحيدة `feat/fusion-single-surface-integration-20260815`.
+- PR #259 هو طبقة الـSingle Surface parent الحالية ووجهته `feat/f05-hybrid-heic-local-media-isolated-20260814`.
+- لا يقفز #263 أو #259 مباشرة إلى `main`؛ الدمج يحافظ على ترتيب الـstack وعلى exact-head verification.
+- PRs المندمجة سابقًا تبقى Evidence تاريخي ولا تستمر كمرجع Current بعد انتقال السلطة إلى parentها.
 - branch/tag deletion لا يحدث لمجرد العمر أو الاسم؛ يحتاج merged/stale proof وعدم وجود PR/runtime/release dependency.
 - لا يسمح auto-push أو background Git mutation غير خاضع للمراجعة.
 
-## 17. حالة الإطلاق الحالية
+## 17. Sovereign Intelligence — CURRENT_ONLY
+
+TIGER Sovereign Intelligence يعمل بمنطق **One Engine / One Registry / One Policy Gate**. أسماء المديرين والـSentinels هي Profiles/Capability Sets داخل نفس السلطة، وليست برامج AI مستقلة أو مسارات قرار متوازية.
+
+### السلطة البرمجية
+
+- **السجل التصريحي الوحيد:** `scripts/ai/sovereign-intelligence-registry.js`.
+- **بوابة القرار التنفيذية الوحيدة:** `scripts/ai/sovereign-security-kernel.js`.
+- `scripts/ai/vvip-ai-command-center.js` واجهة Browser/Policy Preview غير مخولة بإنشاء سياسة مستقلة.
+- `scripts/ai/vvip-ai-owner-console.js` واجهة مالك فقط.
+- `owner-control.html` يحمل السجل السيادي قبل أي Consumer تابع له.
+
+### Profiles الحالية
+
+- `security_sentinel`
+- `trust_abuse_sentinel`
+- `market_intelligence`
+- `operations_sentinel`
+- `owner_intelligence`
+- `user_assistant`
+
+لا يسمح ببقاء profile/manager definition قديم كسلطة موازية بعد استبداله.
+
+### Intelligence Ladder
+
+الترتيب الملزم:
+
+`DETERMINISTIC RULE -> BOUNDED METRIC/API -> SMALL LOCAL MODEL -> BROWSER BUILT-IN AI -> NO-AI GRACEFUL FALLBACK`
+
+إذا أمكن حل الطلب بقاعدة deterministic أو metric/API معتمد فلا يتم اختيار Model. عدم توفر Local/Browser AI لا يفتح paid cloud fallback؛ ينتقل النظام إلى No-AI بصورة صريحة وآمنة.
+
+### Zero-Paid-Inference Default
+
+- recurring paid AI inference budget = `0` افتراضيًا.
+- لا يوجد OpenAI/Anthropic/Gemini/Firebase-AI أو مزود paid remote كـsilent fallback في المسار الأساسي.
+- أي تغيير مستقبلي لهذا العقد يحتاج قرار Owner جديد وتحديثًا صريحًا لهذه الوثيقة والعقد الآلي والاختبارات؛ لا يكفي وجود API key أو SDK.
+- Models/WASM تحمل Lazy عند الحاجة، مع WebWorker، وWebGPU عند التوفر، وWASM fallback، ثم No-AI.
+
+### حدود الأمان
+
+- AI/Profile لا يقرأ Database مباشرة؛ الوصول للبيانات يتم فقط عبر API/Tool boundary محدود ومصرح به.
+- لا Service Role ولا AWS credentials ولا IAM mutation ولا secrets reveal داخل intelligence runtime.
+- لا حذف Users/Production data، لا fund transfer، ولا تغيير Owner permissions بواسطة AI.
+- L4 owner-gated actions لا تتجاوز PERMANENT DENY وتبقى payload-bound/time-bound/replay-resistant حسب الـKernel.
+- Global/Agent/Tool kill switches مستقلة وتعمل fail-closed.
+- Private messages ليست training material ولا general intelligence memory. أي معالجة لازمة لميزة يطلبها المستخدم تبقى scoped/transient ولا تتحول إلى ذاكرة عامة.
+- Audit metadata allow-listed ولا يسجل raw secrets أو raw private-message bodies.
+
+العقد الآلي المطابق لهذا القسم موجود داخل `sovereign_intelligence` في `project-control/production-handover/current-authority.v1.json`، وتغطيه اختبارات `tests/sovereign-intelligence-current-only.test.cjs` إضافة إلى AI02 regression contracts.
+
+## 18. حالة الإطلاق الحالية
 
 **الحالة:** `PRE-PRODUCTION / ZERO-RESIDUE HANDOVER IN PROGRESS`.
 
@@ -240,7 +291,7 @@ AWS لا يستقبل نسخًا يدوية من ملفات المستودع. ا
 
 هذه العبارة Fail-Closed: لا يحولها أي وصف بشري إلى `YES`. التحويل يعتمد على الأدلة التنفيذية فقط.
 
-## 18. تعليمات المالك للمواصلة
+## 19. تعليمات المالك للمواصلة
 
 أي مهندس أو Agent أو مزود يستلم المشروع يعمل بهذا الترتيب فقط:
 
