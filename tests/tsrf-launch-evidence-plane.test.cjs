@@ -173,14 +173,15 @@ test('deepFreeze recursively freezes evidence objects and arrays', () => {
 // Task 2 — trusted Release DNA derivation
 
 const SECURITY_PATHS = [
-  '.github/workflows/vvip-quality-gate.yml',
+  '.github/workflows/quality-gate.yml',
+  '.github/workflows/release-candidate.yml',
   '.github/workflows/codeql.yml',
   '.github/workflows/dependency-review.yml',
   '.github/workflows/tiger-cleanguard.yml',
   '.github/workflows/project-control-integrity.yml',
-  '.github/workflows/tsrf-semantic-convergence.yml',
-  '.github/workflows/lc03-supabase-security-rehearsal.yml',
-  '.github/workflows/tsrf-phone-otp-rehearsal.yml',
+  '.github/workflows/supabase-security-gate.yml',
+  '.github/workflows/production-release-artifact.yml',
+  '.github/workflows/pages.yml',
   'scripts/quality-gate.sh',
   'scripts/security/p08-steel-shield/scan-secret-leaks.sh',
   'scripts/security/p08-steel-shield/scan-dangerous-sql.sh',
