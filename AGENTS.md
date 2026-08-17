@@ -52,12 +52,12 @@
 - [styles/vvip-pr29-home-marketplace.css](./styles/vvip-pr29-home-marketplace.css): canonical home visual system and responsive styling.
 - [auth-clerk-index.js](./auth-clerk-index.js): Clerk authentication gate for the unified home.
 - [scripts/runtime/vvip-runtime-loader.js](./scripts/runtime/vvip-runtime-loader.js): external Clerk session + Supabase data-layer runtime bridge.
-- [scripts/vvip-pr29-home-marketplace.js](./scripts/vvip-pr29-home-marketplace.js): unified marketplace feed and interaction runtime.
+- [scripts/runtime/vvip-marketplace-repository.js](./scripts/runtime/vvip-marketplace-repository.js): canonical marketplace data repository.
 - [private-profile-p03.html](./private-profile-p03.html): canonical private account center; compatibility routes redirect here.
 - [scripts/vvip-p03-profile.js](./scripts/vvip-p03-profile.js): private account-center interactions.
 - [scripts/vvip-p03-profile-identity.js](./scripts/vvip-p03-profile-identity.js): authenticated profile resolver bridge.
 - [reset-password.html](./reset-password.html): legacy URL compatibility redirect to external-provider recovery only.
-- [sw.js](./sw.js) and [manifest.webmanifest](./manifest.webmanifest): legacy PWA behavior; COST-02 static delivery is separately implemented by `sw-vvip-static.js`.
+- [sw-vvip-static.js](./sw-vvip-static.js) and [manifest.webmanifest](./manifest.webmanifest): canonical static-delivery PWA surface. `sw.js` is retired and must not return.
 
 ## Project Conventions
 

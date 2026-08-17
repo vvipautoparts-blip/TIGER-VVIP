@@ -71,11 +71,8 @@ test('F05 preview server is static-only, isolated, and serves WASM with browser-
   assert.ok([400, 404].includes(traversal.statusCode));
 });
 
-test('F05 preview has an agent-free Replit Run configuration', () => {
-  const configPath = path.join(__dirname, '..', '.replit');
-  assert.equal(fs.existsSync(configPath), true, '.replit must exist so Preview does not depend on Agent credits');
-  const config = fs.readFileSync(configPath, 'utf8');
-  assert.match(config, /^modules\s*=\s*\["nodejs-20"\]/m);
-  assert.match(config, /^run\s*=\s*"node tools\/f05-preview-server\.cjs"/m);
-  assert.doesNotMatch(config, /upload|convert|heic|heif|tigerautoparts\.shop/i);
+test('F05 preview tool remains runnable without restoring Replit repository authority', () => {
+  const root = path.join(__dirname, '..');
+  assert.equal(fs.existsSync(path.join(root, '.replit')), false, '.replit must remain retired from repository authority');
+  assert.equal(fs.existsSync(path.join(root, 'tools/f05-preview-server.cjs')), true, 'local static preview server remains available');
 });

@@ -2,20 +2,9 @@ name: TIGER CleanGuard
 
 on:
   pull_request:
-    branches:
-      - main
-      - integration/v14-global-launch-readiness-20260806
-      - feat/tsrf-global-launch-proof-20260808
-      - feat/tsrf-launch-evidence-plane-20260808
-      - feat/lc04-production-legacy-rpc-hardening-20260808
-      - feat/lc05-credential-surface-isolation-20260808
   push:
     branches:
-      - integration/v14-global-launch-readiness-20260806
-      - feat/tsrf-launch-evidence-plane-20260808
-      - feat/lc04-production-legacy-rpc-hardening-20260808
-      - feat/lc05-credential-surface-isolation-20260808
-      - feat/lc06-rls-performance-hardening-20260808
+      - main
   workflow_dispatch:
 
 permissions:

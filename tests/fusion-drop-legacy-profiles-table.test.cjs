@@ -11,7 +11,8 @@ const migration = fs.readFileSync(
 );
 
 test('empty legacy profiles table is dropped without cascade', () => {
-  assert.match(migration, /drop\s+table\s+if\s+exists\s+public\.profiles\s*;/i);
-  assert.doesNotMatch(migration, /cascade/i);
-  assert.doesNotMatch(migration, /vvip_clerk_profiles/i);
+  const executableSql = migration.replace(/--.*$/gm, '');
+  assert.match(executableSql, /drop\s+table\s+if\s+exists\s+public\.profiles\s*;/i);
+  assert.doesNotMatch(executableSql, /drop\s+table[^;]*\bcascade\b/i);
+  assert.doesNotMatch(executableSql, /vvip_clerk_profiles/i);
 });

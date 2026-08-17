@@ -30,7 +30,7 @@ test('public marketplace feed exposes canonical projection without raw-media met
   }
 
   assert.match(sql, /revoke\s+select\s+on\s+public\.vvip_marketplace_listing_media\s+from\s+anon/is);
-  assert.doesNotMatch(sql, /jsonb_build_object\([^)]*storage_path(?![^)]*canonical_storage_path)/is);
+  assert.doesNotMatch(sql, /['"]storage_path['"]/i, 'public JSON must never expose the raw storage_path key');
   assert.doesNotMatch(sql, /jsonb_build_object\([^)]*owner_subject/is);
 });
 
