@@ -2,81 +2,96 @@
 
 ## Purpose
 
-Prove that GitHub Actions can obtain short-lived AWS credentials through the already-created GitHub OIDC provider and the IAM role `TIGER-VVIP-GitHub-ProductionDeploy`, without long-lived access keys and without granting deployment permissions yet.
+Prove that GitHub Actions can obtain short-lived AWS credentials through the already-created GitHub OIDC provider and IAM role `TIGER-VVIP-GitHub-ProductionDeploy`, without long-lived access keys and without granting deployment permissions.
 
 ## Scope
 
-This change adds one isolated, manually dispatched GitHub Actions workflow whose only AWS-side action after role assumption is `aws sts get-caller-identity`.
+This change adds one isolated, manually dispatched GitHub Actions workflow whose only AWS-side operation after role assumption is `aws sts get-caller-identity`.
 
-It does **not** deploy to Amplify, S3, Lambda, API Gateway, CloudFront, Supabase, DNS, or any Production runtime. It does not add `AWS_ACCESS_KEY_ID` or `AWS_SECRET_ACCESS_KEY`, and it does not widen the existing AWS trust policy.
+It does **not** deploy to Amplify, S3, Lambda, API Gateway, CloudFront, Supabase, DNS, or any Production runtime. It does not add `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, repository secrets, or widen the AWS trust policy.
 
 ## Security invariants
 
 - Repository: `vvipautoparts-blip/TIGER-VVIP` only.
 - GitHub Environment: `production-build` only.
 - AWS role: `arn:aws:iam::211579682376:role/TIGER-VVIP-GitHub-ProductionDeploy` only.
-- Workflow permissions: `contents: read` and `id-token: write` only.
 - Trigger: `workflow_dispatch` only.
+- Top-level GitHub permission: `contents: read`.
+- Job-level GitHub permissions: `contents: read` plus `id-token: write` only.
+- Static contract enumerates every `*: write` permission and requires the exact list `['id-token']`.
+- Static contract parses shell `run: |` bodies and requires the exact AWS CLI operation list `['sts get-caller-identity']`.
+- Identity extraction uses AWS CLI `--query '[Account,Arn]' --output text`; there is no `jq` dependency.
 - AWS permissions attached to the role remain zero for this proof.
 - No long-lived AWS credentials are stored in GitHub.
 - No trust-policy wildcard expansion is permitted.
 - No direct mutation of `main` is permitted by this branch.
-- Third-party GitHub Actions used by the workflow must be pinned to immutable commit SHAs.
+- Third-party GitHub Actions must be pinned to immutable commit SHAs.
 
 ## Execution model
 
-The workflow is added on a feature branch and reviewed through a pull request. Because the current AWS trust policy also requires `token.actions.githubusercontent.com:ref = refs/heads/main`, a run from the feature branch is expected to be denied by AWS and is not the authoritative proof.
+The workflow is delivered on a feature branch through a protected pull request. The AWS trust policy requires both `token.actions.githubusercontent.com:ref = refs/heads/main` and `environment = production-build`, so a feature-branch runtime attempt is not authoritative and is expected to be denied.
 
-The authoritative smoke test can run only after the reviewed workflow reaches `main` through normal protected-branch governance. At that point the job uses `environment: production-build`, requests an OIDC ID token, assumes the production deployment role, and runs `aws sts get-caller-identity`.
+The authoritative proof can run only after normal protected governance places the reviewed workflow on `main`. The job then uses `environment: production-build`, requests an OIDC token, assumes the exact role, and performs only `aws sts get-caller-identity`.
 
-Success requires the returned ARN to be an assumed-role session for `TIGER-VVIP-GitHub-ProductionDeploy` in AWS account `211579682376`.
+Success requires:
+
+- AWS account `211579682376`;
+- assumed-role ARN prefix `arn:aws:sts::211579682376:assumed-role/TIGER-VVIP-GitHub-ProductionDeploy/`;
+- final marker `AWS_OIDC_RUNTIME_PROOF=PASS`.
 
 ## Workflow behavior
 
-Create `.github/workflows/aws-oidc-runtime-proof.yml` with:
+`.github/workflows/aws-oidc-runtime-proof.yml` contains:
 
 1. `workflow_dispatch` as the sole trigger.
 2. Top-level `permissions: contents: read`.
 3. One job on `ubuntu-latest` using `environment: production-build`.
-4. Job-level permissions adding `id-token: write` and retaining `contents: read`.
-5. `aws-actions/configure-aws-credentials` pinned to an immutable commit SHA, configured with:
-   - `role-to-assume: arn:aws:iam::211579682376:role/TIGER-VVIP-GitHub-ProductionDeploy`
-   - `aws-region: us-east-1`
-   - a bounded role-session-name derived from the GitHub run id.
-6. A fail-closed shell step that runs `aws sts get-caller-identity`, verifies `Account == 211579682376`, and verifies the returned ARN contains `assumed-role/TIGER-VVIP-GitHub-ProductionDeploy/`.
-7. No checkout step unless repository content is actually required; the proof does not require source checkout.
-8. No secrets, artifacts, deployment commands, resource-listing commands, or mutating AWS API calls.
+4. Job permissions `contents: read` and `id-token: write` only.
+5. `aws-actions/configure-aws-credentials` pinned to immutable v6.2.3 commit `e6de054238d6b7531b4efff3b6587d9aade6a06c`.
+6. Exact role/account/region constraints and a 900-second session.
+7. One fail-closed shell step using:
+
+```bash
+read -r account arn < <(aws sts get-caller-identity --query '[Account,Arn]' --output text --no-cli-pager)
+```
+
+8. Explicit account and assumed-role ARN assertions.
+9. No checkout, secrets, artifacts, resource-listing commands, deployment commands, or mutating AWS API calls.
 
 ## Failure handling
 
-- OIDC token failure: job fails before any AWS identity proof.
+- Missing protected Environment approval: GitHub blocks before OIDC/AWS execution.
+- OIDC token failure: job fails before identity proof.
 - Trust-policy mismatch: role assumption fails closed.
-- Wrong AWS account: explicit assertion fails.
+- Wrong account: explicit assertion fails.
 - Wrong role/session ARN: explicit assertion fails.
-- Missing Production Environment approval: GitHub blocks the job before OIDC/AWS execution according to the existing environment protection rules.
+- Any future GitHub write permission other than `id-token`: static contract fails.
+- Any future AWS CLI command other than `sts get-caller-identity`: static contract fails.
+- Reintroduction of `jq`: static contract fails.
 
-No retry path may weaken the trust policy, switch to access keys, or attach broader AWS permissions.
+No retry path may weaken the trust policy, switch to access keys, attach AWS permissions, or bypass branch/environment governance.
 
 ## Verification
 
-Pre-merge verification:
+Pre-merge:
 
-- Static contract test verifies trigger, environment, permissions, role ARN, region, and absence of long-lived credential names and mutating AWS commands.
-- Repository quality/security gates remain green on the exact branch head.
-- The workflow must remain manual-only and non-deploying.
+- Static contract verifies trigger, environment, exact GitHub write-permission allowlist, role ARN, region, pinned action, no standing credentials, no `jq`, and exact AWS CLI command allowlist.
+- Repository quality/security gates must be green on one exact final branch head.
+- Review threads must be resolved only after the corresponding contract is implemented and verified.
+- `PRODUCTION-MAIN-GOVERNANCE` independent approval remains mandatory; no bypass is allowed.
 
-Post-merge runtime proof on `main`:
+Post-merge on protected `main`:
 
 - Manually dispatch `AWS OIDC Runtime Proof`.
-- Approve the protected `production-build` environment through the existing governance flow.
-- Require `configure-aws-credentials` to succeed via OIDC.
-- Require `aws sts get-caller-identity` assertions to pass.
-- Preserve the successful workflow run URL and exact main SHA as release evidence.
+- Satisfy the existing `production-build` Environment reviewer gate without bypass.
+- Require OIDC role assumption to succeed.
+- Require the exact account/role assertions and `AWS_OIDC_RUNTIME_PROOF=PASS`.
+- Preserve the workflow run and exact `main` SHA as evidence.
 
 ## Non-goals
 
-This proof does not authorize Production deployment and does not establish that F05 is Global Launch Ready. PR #264 still records unresolved Production blockers including concrete listing persistence, Clerk request authentication, trusted JPEG/WebP image processing, durable AWS sinks, deployed runtime verification, and live bypass/adversarial evidence.
+This proof does not authorize Production deployment and does not establish that F05 or TIGER-VVIP is Global Launch Ready. It creates only a zero-standing-credential identity channel.
 
 ## Next gate after proof
 
-Only after the OIDC runtime proof passes on protected `main` should the project design and attach a resource-scoped AWS deployment policy for the exact Production resources that are actually provisioned. That policy must follow least privilege and remain separate from this identity-only proof.
+Only after the protected runtime proof passes should a separate design define resource-scoped AWS deployment permissions for resources that actually exist. That later policy must be least-privilege, evidence-bound, and must not retroactively broaden this identity-only proof.
