@@ -5,6 +5,9 @@
 -- public.profiles. PostgreSQL intentionally does not track table dependencies inside
 -- string-literal SQL function bodies, so these functions can survive as dangling objects.
 -- This fixture is local-only and never runs against a linked/remote database.
+begin;
+set local check_function_bodies = false;
+
 do $assert_terminal_precondition$
 begin
   if to_regclass('public.profiles') is not null then
@@ -145,5 +148,7 @@ as $function$ select null::uuid $function$;
 
 grant execute on function public.lookup_profile_by_email(text) to public, anon, authenticated;
 grant execute on function public.lookup_profile_by_phone(text) to public, anon, authenticated;
+
+commit;
 
 select 'LC04_TERMINAL_LEGACY_RESIDUE_FIXTURE=READY' as result;

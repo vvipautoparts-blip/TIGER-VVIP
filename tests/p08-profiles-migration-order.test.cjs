@@ -29,5 +29,6 @@ test('profile migrations have unique ordered ledger versions', () => {
     '20260816103000_sovereign_profile_authority_convergence.sql',
     '20260816104500_retire_legacy_profile_rpc.sql',
     '20260816105000_drop_legacy_profiles_table.sql',
+    '20260817060000_retire_lc04_legacy_profile_helper_graph.sql',
   ]);
 });
