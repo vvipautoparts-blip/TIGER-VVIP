@@ -6,6 +6,8 @@ const path = require('node:path');
 const test = require('node:test');
 
 const WORKFLOW = path.join(__dirname, '..', '.github', 'workflows', 'lc04-production-legacy-rpc-rehearsal.yml');
+const HISTORICAL = '20260808134000_lc04_production_legacy_rpc_hardening.sql';
+const FINAL = '20260817060000_retire_lc04_legacy_profile_helper_graph.sql';
 
 function text() {
   return fs.readFileSync(WORKFLOW, 'utf8');
@@ -31,25 +33,43 @@ test('LC04 workflow fails closed if remote Supabase credentials are present', ()
   assert.match(workflow, /LC04_LOCAL_ONLY=BLOCKED_REMOTE_CREDENTIAL_ENV/);
 });
 
-test('LC04 workflow verifies canonical no-synthesis before Production-drift convergence', () => {
+test('LC04 workflow proves canonical state before terminal Production-residue convergence', () => {
   const workflow = text();
   const staticIndex = workflow.indexOf('Run LC04 migration contract');
   const resetIndex = workflow.indexOf('Rebuild isolated local database');
   const canonicalIndex = workflow.indexOf('Verify canonical build does not synthesize legacy helpers');
-  const driftIndex = workflow.indexOf('Rehearse observed Production legacy helper drift');
+  const seedIndex = workflow.indexOf('Seed simulated terminal Production legacy residue');
+  const cleanupIndex = workflow.indexOf('Apply final LC04 residue retirement twice');
+  const convergenceIndex = workflow.indexOf('Verify terminal LC04 residue convergence');
   assert.ok(
-    staticIndex >= 0 && resetIndex > staticIndex && canonicalIndex > resetIndex && driftIndex > canonicalIndex,
+    staticIndex >= 0
+      && resetIndex > staticIndex
+      && canonicalIndex > resetIndex
+      && seedIndex > canonicalIndex
+      && cleanupIndex > seedIndex
+      && convergenceIndex > cleanupIndex,
   );
   assert.match(workflow, /tests\/sql\/lc04-production-legacy-rpc-behavior\.sql/);
   assert.match(workflow, /tests\/sql\/lc04-production-legacy-drift-fixture\.sql/);
-  assert.match(workflow, /20260808134000_lc04_production_legacy_rpc_hardening\.sql/);
+  assert.match(workflow, new RegExp(FINAL.replaceAll('.', '\\.')));
   assert.match(workflow, /tests\/sql\/lc04-production-legacy-drift-convergence\.sql/);
 });
 
-test('LC04 workflow emits exact migration digest evidence before database rehearsal', () => {
+test('LC04 workflow never replays the historical migration onto the terminal schema', () => {
   const workflow = text();
-  assert.match(workflow, /Emit exact LC04 migration SHA-256/);
-  assert.match(workflow, /sha256sum supabase\/migrations\/20260808134000_lc04_production_legacy_rpc_hardening\.sql/);
+  const historicalPsqlReplay = new RegExp(`-f\\s+supabase/migrations/${HISTORICAL.replaceAll('.', '\\.')}`);
+  assert.doesNotMatch(workflow, historicalPsqlReplay);
+  assert.match(workflow, /for pass in 1 2/);
+  assert.match(workflow, /LC04_FINAL_RETIREMENT_PASS=\$pass/);
+});
+
+test('LC04 workflow emits content-addressed evidence for historical and final migrations', () => {
+  const workflow = text();
+  assert.match(workflow, /Emit exact LC04 migration SHA-256 evidence/);
+  assert.match(workflow, new RegExp(`sha256sum supabase/migrations/${HISTORICAL.replaceAll('.', '\\.')}`));
+  assert.match(workflow, new RegExp(`sha256sum supabase/migrations/${FINAL.replaceAll('.', '\\.')}`));
+  assert.match(workflow, /historical-migration\.sha256/);
+  assert.match(workflow, /final-retirement\.sha256/);
   assert.match(workflow, /actions\/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f/);
   assert.match(workflow, /lc04-migration-sha256-/);
   assert.match(workflow, /if-no-files-found:\s*error/);
