@@ -21,7 +21,9 @@ test('AWS OIDC runtime proof is manual, environment-bound, and minimally privile
   assert.match(source, /permissions:\s*\n\s*contents:\s*read/);
   assert.match(source, /environment:\s*production-build/);
   assert.match(source, /id-token:\s*write/);
-  assert.doesNotMatch(source, /\b(contents|actions|deployments|packages|security-events):\s*write\b/);
+  const writePermissions = [...source.matchAll(/^\s*([A-Za-z0-9_-]+):\s*write\s*$/gm)]
+    .map(([, permission]) => permission);
+  assert.deepEqual(writePermissions, ['id-token']);
 });
 
 test('AWS OIDC runtime proof assumes only the approved role through a pinned action', () => {
