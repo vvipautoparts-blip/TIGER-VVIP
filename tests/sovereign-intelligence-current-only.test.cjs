@@ -13,7 +13,6 @@ const ownerControlPath = path.join(ROOT, 'owner-control.html');
 const authorityPath = path.join(ROOT, 'project-control', 'production-handover', 'current-authority.v1.json');
 
 function loadRegistry() {
-  delete require.cache[require.resolve(registryPath)];
   return require(registryPath);
 }
 
