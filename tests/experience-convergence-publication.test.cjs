@@ -28,8 +28,10 @@ function validDraft(sector = "automotive") {
 
 function createClientSpy() {
   const writes = [];
+  const rpcCalls = [];
   return {
     writes,
+    rpcCalls,
     storage: {
       from() {
         return {
@@ -37,6 +39,10 @@ function createClientSpy() {
           async remove() { return { data: [], error: null }; }
         };
       }
+    },
+    async rpc(name, payload) {
+      rpcCalls.push({ name, payload });
+      return { data: null, error: { message: "trusted transport unavailable" } };
     },
     from(table) {
       return {
@@ -101,7 +107,7 @@ test("draft creation is content-first and does not require a payment entitlement
   assert.equal(client.writes.some((write) => write.payload && write.payload.status === "PENDING_REVIEW"), false);
 });
 
-test("publication preparation stays fail-closed on unavailable trusted transport instead of asking for a nonexistent browser receipt", async () => {
+test("publication request requires an opaque entitlement receipt before trusted transport", () => {
   const client = createClientSpy();
   const repository = repo.createMarketplaceRepository({
     client,
@@ -109,19 +115,21 @@ test("publication preparation stays fail-closed on unavailable trusted transport
     config: { defaultCountryCode: "JO" }
   });
 
-  assert.equal(typeof repository.prepareForPublication, "function");
-  await assert.rejects(
-    () => repository.prepareForPublication("11111111-1111-4111-8111-111111111111", {
+  assert.equal(typeof repository.requestPublication, "function");
+  assert.equal(repository.prepareForPublication, undefined);
+  assert.throws(
+    () => repository.requestPublication("11111111-1111-4111-8111-111111111111", {
       planId: "visibility-standard",
       entitlementReceipt: null
     }),
-    { code: "PUBLICATION_TRANSPORT_UNAVAILABLE" }
+    { code: "ENTITLEMENT_RECEIPT_REQUIRED" }
   );
 
+  assert.equal(client.rpcCalls.length, 0);
   assert.equal(client.writes.some((write) => write.payload && write.payload.status === "PENDING_REVIEW"), false);
 });
 
-test("publication preparation uses PR190 step-up auth and resumes the same intent", async () => {
+test("publication request uses PR190 step-up auth and resumes the same trusted intent", async () => {
   const client = createClientSpy();
   const clerk = { user: null };
   let descriptor = null;
@@ -141,20 +149,28 @@ test("publication preparation uses PR190 step-up auth and resumes the same inten
   });
 
   await assert.rejects(
-    () => repository.prepareForPublication("11111111-1111-4111-8111-111111111111", {
+    () => repository.requestPublication("11111111-1111-4111-8111-111111111111", {
       planId: "visibility-standard",
-      entitlementReceipt: null
+      entitlementReceipt: "server-verified-receipt-placeholder"
     }),
-    { code: "PUBLICATION_TRANSPORT_UNAVAILABLE" }
+    { code: "PUBLICATION_REQUEST_FAILED" }
   );
   assert.deepEqual(descriptor, {
-    name: "PREPARE_PUBLICATION",
+    name: "REQUEST_PUBLICATION",
     listingId: "11111111-1111-4111-8111-111111111111"
   });
+  assert.deepEqual(client.rpcCalls, [{
+    name: "vvip_marketplace_request_publication",
+    payload: {
+      target_listing: "11111111-1111-4111-8111-111111111111",
+      target_plan_id: "visibility-standard",
+      entitlement_receipt: "server-verified-receipt-placeholder"
+    }
+  }]);
   assert.equal(client.writes.some((write) => write.op === "update"), false);
 });
 
-test("even a supplied receipt cannot publish through an unavailable server transport", async () => {
+test("trusted publication transport failure never falls back to browser status mutation", async () => {
   const client = createClientSpy();
   const repository = repo.createMarketplaceRepository({
     client,
@@ -163,11 +179,12 @@ test("even a supplied receipt cannot publish through an unavailable server trans
   });
 
   await assert.rejects(
-    () => repository.prepareForPublication("11111111-1111-4111-8111-111111111111", {
+    () => repository.requestPublication("11111111-1111-4111-8111-111111111111", {
       planId: "visibility-standard",
       entitlementReceipt: "server-verified-receipt-placeholder"
     }),
-    { code: "PUBLICATION_TRANSPORT_UNAVAILABLE" }
+    { code: "PUBLICATION_REQUEST_FAILED" }
   );
+  assert.equal(client.rpcCalls.length, 1);
   assert.equal(client.writes.some((write) => write.op === "update"), false);
 });

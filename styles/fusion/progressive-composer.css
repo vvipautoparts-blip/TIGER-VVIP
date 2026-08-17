@@ -1,0 +1,111 @@
+.fusion-composer-open { overflow: hidden; }
+
+.fusion-composer-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 180;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+
+.fusion-composer-layer[hidden] { display: none; }
+
+.fusion-composer-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(5, 5, 5, 0.48);
+  backdrop-filter: blur(3px);
+}
+
+.fusion-composer-panel {
+  position: relative;
+  width: min(680px, calc(100vw - 24px));
+  max-height: min(88vh, 860px);
+  overflow: auto;
+  padding: 18px;
+  border: 1px solid var(--border-subtle, #dadde1);
+  border-radius: 16px;
+  background: var(--surface-primary, #fff);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.26);
+}
+
+.fusion-composer-panel__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  gap: 12px;
+  align-items: start;
+  margin-bottom: 14px;
+}
+
+.fusion-composer-panel__header h2 { margin: 2px 0 4px; font-size: 1.25rem; }
+.fusion-composer-panel__header p { margin: 0; color: var(--text-secondary, #65676b); line-height: 1.65; }
+
+.fusion-progressive-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.fusion-field { display: grid; gap: 6px; font-weight: 700; }
+.fusion-field--wide { grid-column: 1 / -1; }
+.fusion-field span { font-size: 0.78rem; color: var(--text-secondary, #65676b); }
+.fusion-field :is(input, select) {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-subtle, #dadde1);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--text-primary, #050505);
+  font: inherit;
+}
+.fusion-field :is(input, select):focus-visible {
+  outline: 3px solid var(--focus-ring, rgba(24,119,242,.34));
+  outline-offset: 1px;
+}
+
+.fusion-composer-media {
+  margin-bottom: 14px;
+  padding: 12px;
+  border: 1px dashed var(--border-subtle, #dadde1);
+  border-radius: 12px;
+  background: var(--surface-soft, #f5f6f7);
+}
+
+.fusion-composer-status { min-height: 24px; margin: 12px 0 0; font-size: .82rem; }
+.fusion-composer-status[role="alert"] { font-weight: 700; }
+
+.fusion-composer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle, #dadde1);
+}
+.fusion-composer-actions button { min-height: 44px; padding: 9px 14px; border-radius: 10px; }
+.fusion-composer-disclaimer { margin: 10px 0 0; color: var(--text-secondary, #65676b); font-size: .72rem; line-height: 1.7; }
+
+@media (max-width: 640px) {
+  .fusion-composer-layer { padding: 0; align-items: end; }
+  .fusion-composer-panel {
+    width: 100%;
+    max-height: 92vh;
+    border-radius: 18px 18px 0 0;
+    padding-bottom: max(18px, env(safe-area-inset-bottom));
+  }
+  .fusion-progressive-grid { grid-template-columns: 1fr; }
+  .fusion-field--wide { grid-column: auto; }
+  .fusion-composer-actions { flex-direction: column-reverse; }
+  .fusion-composer-actions button { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fusion-composer-layer *, .fusion-composer-layer *::before, .fusion-composer-layer *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+  }
+}

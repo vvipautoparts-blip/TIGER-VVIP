@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "F05_HEIF_SOURCE_MANIFEST_V1",
+  "libheif": {
+    "version": "1.23.1",
+    "tagCommit": "2c4bbb54c2738d4a5efbbe3e5fa1d5d76bb88eb0",
+    "sourceArchive": "libheif-1.23.1.tar.gz",
+    "sourceSha256": "0de0327f60fcd47de90d5654c6fe152232738d60d84fe084ec3e0f35e03b166a"
+  },
+  "libde265": {
+    "version": "1.1.1",
+    "tagCommit": "4dd701fffac01632ffd5cabc5ef10deb56accba1",
+    "sourceArchive": "libde265-1.1.1.tar.gz",
+    "sourceSha256": "fd48a927e94ed74fc7ce8829d222b9d8599fcbfe8b6448ba66705babc56ab219"
+  },
+  "emscripten": {
+    "version": "6.0.6",
+    "emsdkCommit": "9981799f744be74ac67b1c1813ff172f63be0630"
+  },
+  "policy": {
+    "decoder": "HEVC-only",
+    "aom": false,
+    "webcodecsInWasm": false,
+    "uncompressedHeif": false,
+    "openjpeg": false,
+    "dynamicPluginLoading": false,
+    "multithreading": false,
+    "unsafeEval": false,
+    "initialMemoryBytes": 67108864,
+    "maximumMemoryBytes": 402653184
+  }
+}

@@ -26,5 +26,9 @@ test('profile migrations have unique ordered ledger versions', () => {
     '20260710_vvip_tiger_atomic_profile_resolver_rpc.sql',
     '20260808_vvip_identity_fail_closed_profile_resolver.sql',
     '20260812063600_identity02_profile_resolver_minimum_truth.sql',
+    '20260816103000_sovereign_profile_authority_convergence.sql',
+    '20260816104500_retire_legacy_profile_rpc.sql',
+    '20260816105000_drop_legacy_profiles_table.sql',
+    '20260817060000_retire_lc04_legacy_profile_helper_graph.sql',
   ]);
 });

@@ -4,21 +4,21 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#f0f2f5">
-  <title>VVIP TIGER — المنصة الموحدة</title>
+  <title>VVIP TIGER FUSION 2026</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/vvip-pr29-home-marketplace.css">
-  <link rel="stylesheet" href="styles/vvip-pr31-create-listing-shell.css">
-  <link rel="stylesheet" href="styles/vvip-pr32-draft-preview.css">
-  <link rel="stylesheet" href="styles/vvip-pr33-publish-readiness.css">
   <link rel="stylesheet" href="styles/vvip-pr36-media.css">
+  <link rel="stylesheet" href="styles/fusion/f02-single-surface.css">
+  <link rel="stylesheet" href="styles/fusion/progressive-composer.css">
+
   <script defer crossorigin="anonymous" src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/ui@1/dist/ui.browser.js"></script>
   <script defer crossorigin="anonymous" data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk" src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"></script>
   <script defer src="scripts/vvip-pr30-resilience.js"></script>
   <script defer src="auth-clerk-index.js"></script>
-  <script defer src="scripts/vvip-pr29-home-marketplace.js"></script>
+
   <script defer src="scripts/media/pr36-signature.js"></script>
   <script defer src="scripts/media/pr36-policy.js"></script>
   <script defer src="scripts/media/pr36-geometry.js"></script>
@@ -26,73 +26,124 @@
   <script defer src="scripts/media/pr36-worker-adapter.js"></script>
   <script defer src="scripts/media/pr36-scheduler.js"></script>
   <script defer src="scripts/media/pr36-session.js"></script>
+  <script defer src="scripts/media/f05-heif-preflight.js"></script>
+  <script defer src="scripts/media/f05-pr36-media-bridge.js"></script>
+  <script defer src="scripts/media/f05-heif-adapter.js"></script>
+  <script defer src="scripts/media/f05-heif-worker-client.js"></script>
   <script defer src="scripts/media/pr36-controller.js"></script>
-  <script defer src="scripts/vvip-pr32-draft-preview.js"></script>
-  <script defer src="scripts/vvip-pr31-create-listing-shell.js"></script>
-  <script defer src="scripts/vvip-pr33-publish-readiness.js"></script>
-  <script defer src="scripts/runtime/vvip-my-listings.js"></script>
+
+  <script defer src="scripts/fusion/runtime-adapters.js"></script>
+  <script defer src="scripts/fusion/marketplace-context.js"></script>
+  <script defer src="scripts/fusion/f02-feed.js"></script>
+  <script type="module" src="scripts/fusion/f03-capability-menu.js"></script>
+  <script defer src="scripts/fusion/progressive-composer.js"></script>
+  <script defer src="scripts/fusion/account-surface.js"></script>
+  <script defer src="scripts/fusion/single-surface-controller.js"></script>
 </head>
-<body data-vvip-pr29-app>
-  <div class="network-notice" data-network-notice role="status" hidden></div>
-  <section class="auth-gate" data-vvip-auth-gate hidden>
-    <div class="auth-gate__brand"><span class="brand-mark">VVIP</span><h1>VVIP TIGER</h1><p>بوابتك الآمنة إلى المنصة الموحدة.</p></div>
-    <div class="auth-gate__card"><span class="eyebrow">CLERK SECURE ACCESS</span><h2>سجّل الدخول للمتابعة</h2><p>استخدم حسابك للوصول إلى الإعلانات والتواصل داخل المنصة.</p><div id="clerk-main-auth"><div id="clerk-sign-in"></div></div></div>
+<body data-vvip-fusion-app>
+  <div class="network-notice" data-network-notice role="status" aria-live="polite" hidden></div>
+
+  <section class="auth-gate" data-vvip-auth-gate aria-hidden="true" hidden>
+    <div class="auth-gate__brand">
+      <span class="brand-mark">VVIP</span>
+      <h1>VVIP TIGER</h1>
+      <p>بوابتك الآمنة إلى المنصة الموحدة.</p>
+    </div>
+    <div class="auth-gate__card">
+      <span class="eyebrow">SECURE ACCESS</span>
+      <h2>سجّل الدخول للمتابعة</h2>
+      <p>تسجيل الدخول مطلوب فقط عند تنفيذ إجراء محمي.</p>
+      <p data-auth-error role="alert" hidden></p>
+      <div id="clerk-main-auth"><div id="clerk-sign-in"></div></div>
+    </div>
   </section>
 
-  <main class="app-shell" data-vvip-unified-home hidden>
+  <main class="app-shell" data-vvip-unified-home data-vvip-fusion-authoritative data-fusion-state="idle" aria-hidden="true" hidden>
     <header class="app-header">
-      <a class="brand" href="index.html" data-safe-nav data-nav-target="index.html" aria-label="VVIP TIGER"><span class="brand-icon" aria-hidden="true">V</span><span><b>VVIP TIGER</b><small>السوق</small></span><span class="vvip-badge">VVIP</span></a>
+      <a class="brand" href="index.html" data-safe-nav data-nav-target="index.html" aria-label="VVIP TIGER">
+        <span class="brand-icon" aria-hidden="true">V</span>
+        <span><b>VVIP TIGER</b><small>FUSION 2026</small></span>
+        <span class="vvip-badge">VVIP</span>
+      </a>
       <nav class="header-actions" aria-label="إجراءات الحساب">
-        <a class="button button--quiet" href="private-profile-p03.html" data-account-route data-safe-nav data-nav-target="private-profile-p03.html">حسابي</a>
-        <button class="button button--primary" type="button" data-open-create-listing>إنشاء إعلان</button>
+        <button class="fusion-icon-button" type="button" data-fusion-capability-menu aria-label="صلاحياتي وخيارات الحساب">⋮</button>
+        <button class="button button--quiet" type="button" data-fusion-account-trigger>حسابي</button>
+        <button class="button button--primary" type="button" data-fusion-composer-trigger>إنشاء إعلان</button>
       </nav>
     </header>
 
-    <section class="hero" id="search">
-      <span class="eyebrow">VVIP TIGER MARKETPLACE</span>
-      <h1>كل ما تحتاجه، في مكان واحد.</h1>
-      <p>ابحث، قارن، وتواصل حول الإعلانات داخل منصة واحدة.</p>
-      <label class="search-box" aria-label="البحث في إعلانات السوق">
+    <section class="fusion-discovery" id="search" aria-label="البحث والاستكشاف">
+      <label class="search-box" aria-label="البحث في VVIP TIGER">
         <span aria-hidden="true">⌕</span>
-        <span class="visually-hidden">البحث في إعلانات السوق</span>
-        <input type="search" data-listing-search placeholder="ابحث عن سيارة، مواد، عقار..." autocomplete="off" aria-controls="marketplace-listings">
+        <span class="visually-hidden">البحث في VVIP TIGER</span>
+        <input type="search" data-listing-search placeholder="ابحث عن منتج، خدمة، شركة، عقار أو سيارة..." autocomplete="off" aria-controls="marketplace-listings">
       </label>
     </section>
 
-    <section class="vvip-draft-preview vvip-draft-preview--home" data-vvip-local-draft-preview data-draft-context="home" hidden>
-      <div class="vvip-draft-preview__heading"><div><span class="eyebrow">محفوظة على هذا الجهاز</span><h2>مسودتك الحالية</h2></div></div>
-      <div data-vvip-local-draft-card></div>
-      <div data-vvip-draft-empty-state hidden><p>يمكنك إنشاء إعلان وحفظه كمسودة محلية قبل النشر لاحقًا.</p></div>
+    <section class="fusion-composer" data-fusion-composer aria-label="إنشاء إعلان">
+      <span class="fusion-composer__avatar" aria-hidden="true">V</span>
+      <button class="fusion-composer__trigger" type="button" data-fusion-composer-trigger>ماذا تريد أن تعرض؟</button>
     </section>
 
     <section class="marketplace" id="marketplace" aria-labelledby="marketplace-title">
-      <div class="section-heading"><div><span class="eyebrow">إعلانات حديثة</span><h2 id="marketplace-title">السوق</h2></div><p data-results-count></p></div>
-      <div class="sector-filters" data-vvip-sector-filters role="group" aria-label="تصفية حسب القطاع">
-        <button class="filter is-active" type="button" data-sector-filter="all" aria-pressed="true">الكل</button>
-        <button class="filter" type="button" data-sector-filter="automotive" aria-pressed="false">قطع وخدمات السيارات</button>
-        <button class="filter" type="button" data-sector-filter="materials" aria-pressed="false">مواد ولوازم</button>
-        <button class="filter" type="button" data-sector-filter="real-estate" aria-pressed="false">عقارات</button>
+      <div class="section-heading">
+        <div><span class="eyebrow">VVIP TIGER FUSION</span><h1 id="marketplace-title">المنشورات والإعلانات</h1></div>
+        <p data-results-count></p>
       </div>
+      <div class="sector-filters" data-vvip-sector-filters role="group" aria-label="تصفية حسب القطاع"></div>
+      <div class="search-rescue" data-search-rescue role="status" aria-live="polite" hidden></div>
       <div class="listing-grid" id="marketplace-listings" data-vvip-marketplace-feed aria-live="polite" aria-busy="true">
         <article class="listing-skeleton" aria-hidden="true"></article>
         <article class="listing-skeleton" aria-hidden="true"></article>
-        <article class="listing-skeleton" aria-hidden="true"></article>
       </div>
-      <div class="empty-state" data-empty-state role="status" hidden><p>لا توجد نتائج مطابقة الآن. جرّب تعديل البحث أو الفلتر.</p><button class="button button--primary" type="button" data-reset-listings>عرض كل الإعلانات</button></div>
+      <div class="empty-state" data-empty-state role="status" hidden>
+        <p>لا توجد نتائج متاحة وفق السوق والسياسة الحالية.</p>
+      </div>
     </section>
   </main>
 
   <nav class="market-bottom-nav" aria-label="التنقل الرئيسي">
     <a href="index.html" data-safe-nav data-nav-target="index.html" aria-current="page">الرئيسية</a>
     <a href="#marketplace" data-safe-nav data-nav-target="#marketplace">السوق</a>
-    <button type="button" data-open-create-listing>إعلان</button>
-    <a href="private-profile-p03.html" data-safe-nav data-nav-target="private-profile-p03.html">حسابي</a>
+    <button type="button" data-fusion-composer-trigger>إعلان</button>
+    <button type="button" data-fusion-account-trigger>حسابي</button>
   </nav>
 
   <div class="sheet-layer" data-vvip-listing-detail-sheet aria-hidden="true" hidden>
     <button class="sheet-backdrop" type="button" data-sheet-close aria-label="إغلاق التفاصيل"></button>
-    <section class="detail-sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" tabindex="-1"><button class="sheet-close" type="button" data-sheet-close aria-label="إغلاق">×</button><div data-sheet-content></div></section>
+    <section class="detail-sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" tabindex="-1">
+      <button class="sheet-close" type="button" data-sheet-close aria-label="إغلاق">×</button>
+      <div data-sheet-content></div>
+    </section>
   </div>
+
+  <div class="fusion-capability-layer" data-fusion-capability-sheet aria-hidden="true" hidden>
+    <button class="fusion-capability-backdrop" type="button" data-fusion-capability-close aria-label="إغلاق قائمة الصلاحيات"></button>
+    <section class="fusion-capability-panel" role="dialog" aria-modal="true" aria-labelledby="fusion-capability-title" tabindex="-1">
+      <h2 id="fusion-capability-title">صلاحياتي</h2>
+      <p>تظهر هنا الصلاحيات التي أكدها الخادم لهذه الجلسة فقط.</p>
+      <div data-fusion-capability-entries></div>
+    </section>
+  </div>
+
+  <div class="fusion-capability-layer" data-fusion-account-sheet aria-hidden="true" hidden>
+    <button class="fusion-capability-backdrop" type="button" data-fusion-account-close aria-label="إغلاق الحساب"></button>
+    <section class="fusion-capability-panel fusion-account-panel" role="dialog" aria-modal="true" aria-labelledby="fusion-account-title" tabindex="-1">
+      <header class="fusion-account-heading">
+        <div><span class="eyebrow">VVIP TIGER</span><h2 id="fusion-account-title">الحساب والإعدادات</h2></div>
+        <button class="fusion-icon-button" type="button" data-fusion-account-close aria-label="إغلاق">×</button>
+      </header>
+      <section data-fusion-profile-host aria-labelledby="fusion-profile-title">
+        <h3 id="fusion-profile-title">الحساب</h3>
+        <div data-fusion-account-identity role="status">يتم تحميل بيانات الجلسة الآمنة عند فتح الحساب.</div>
+      </section>
+      <section data-fusion-settings-host aria-labelledby="fusion-settings-title">
+        <h3 id="fusion-settings-title">الإعدادات</h3>
+        <div data-fusion-account-actions></div>
+      </section>
+    </section>
+  </div>
+
   <div class="toast" data-app-toast role="status" aria-live="polite" hidden></div>
 </body>
 </html>

@@ -1,0 +1,75 @@
+{
+  "schema_version": "VVIP-ZRPH-1",
+  "platform": "VVIP TIGER",
+  "mode": "CURRENT_ONLY",
+  "human_authority": "docs/MASTER_PROJECT_STATE.md",
+  "machine_contract": "project-control/production-handover/current-authority.v1.json",
+  "historical_evidence_authoritative": false,
+  "baseline_sha": "1c39076c15e351de601f822275e556caeef43a34",
+  "stack": {
+    "frontend": ["HTML", "CSS", "JavaScript", "TypeScript"],
+    "database": "Supabase/PostgreSQL",
+    "database_migration_authority": "supabase/migrations",
+    "edge_functions": "supabase/functions",
+    "media_finalizer": {
+      "runtime": "AWS Lambda container / Node.js 24",
+      "path": "services/media-finalizer",
+      "dependency_authority": "services/media-finalizer/package.json"
+    },
+    "cicd": "GitHub Actions",
+    "production_artifact_builder": "tools/vvip_public_release.py",
+    "quality_gate": "scripts/quality-gate.sh",
+    "repository_cleanroom": "tools/vvip_cleanroom.py"
+  },
+  "passes": [
+    {"id":"P01","name":"Exact source identity and repository topology","fail_closed":true,"evidence":["exact commit SHA","exact tree SHA","PR/base/head identity"]},
+    {"id":"P02","name":"Runtime stack and authority inventory","fail_closed":true,"evidence":["frontend entrypoints","Supabase authority","media-finalizer authority","CI authority"]},
+    {"id":"P03","name":"Dead code dependency and duplicate surface analysis","fail_closed":true,"evidence":["cleanroom inventory","static dependency analysis","reference graph"]},
+    {"id":"P04","name":"Routes APIs middleware workers and runtime authority convergence","fail_closed":true,"evidence":["runtime entrypoint graph","production artifact exact allowlist","legacy authority denylist"]},
+    {"id":"P05","name":"Environment and configuration convergence","fail_closed":true,"evidence":[".env.example contract","tracked environment-file scan","configuration reference scan"]},
+    {"id":"P06","name":"Current-tree credential and secret scan","fail_closed":true,"evidence":["cleanroom secret scan","CI secret scan","no secret values in evidence"]},
+    {"id":"P07","name":"Full Git-history secret and oversized-object scan","fail_closed":true,"evidence":["full-history scanner output","finding classification","rotation proof before any history rewrite"]},
+    {"id":"P08","name":"Database schema migration and RLS convergence","fail_closed":true,"evidence":["unique migration versions","clean rebuild","security rehearsals","canonical schema authority"]},
+    {"id":"P09","name":"Database data retention deletion and seed sanitation","fail_closed":true,"evidence":["table-specific retention allowlist","backup proof","test-data classifier","dry-run deletion plan"]},
+    {"id":"P10","name":"Storage orphan metadata and upload sanitation","fail_closed":true,"evidence":["object-to-row reconciliation","orphan report","media privacy policy"]},
+    {"id":"P11","name":"Container build cache and local staging residue control","fail_closed":true,"evidence":["container inventory","scoped prune plan","shared-production protection"]},
+    {"id":"P12","name":"Scheduled jobs workers queues and background authority inventory","fail_closed":true,"evidence":["worker inventory","schedule inventory","owner mapping","disabled legacy proof"]},
+    {"id":"P13","name":"Third-party webhook sandbox key and endpoint reconciliation","fail_closed":true,"evidence":["live provider inventory","environment classification","revocation plan"]},
+    {"id":"P14","name":"DNS TLS domain and subdomain takeover prevention","fail_closed":true,"evidence":["live DNS inventory","target ownership proof","dangling-record scan","TLS ownership proof"]},
+    {"id":"P15","name":"Identity SSH service-account and privileged access rotation","fail_closed":true,"evidence":["active principal inventory","least-privilege review","revocation evidence"]},
+    {"id":"P16","name":"Telemetry logging error tracking and analytics baseline convergence","fail_closed":true,"evidence":["production log policy","debug-output scan","test-event isolation","retention policy"]},
+    {"id":"P17","name":"CI workflow artifact cache and release evidence convergence","fail_closed":true,"evidence":["workflow authority inventory","artifact retention policy","sealed release evidence"]},
+    {"id":"P18","name":"Branch tag pull-request and repository governance convergence","fail_closed":true,"evidence":["open-stack classification","merged/stale branch proof","tag classification","protected-branch preservation"]},
+    {"id":"P19","name":"Single current owner authority convergence","fail_closed":true,"evidence":["one human authority path","machine contract sync","historical evidence non-authoritative"]},
+    {"id":"P20","name":"AWS exact-SHA sealed production handover and runtime proof","fail_closed":true,"evidence":["sealed exact-SHA artifact","CycloneDX SBOM","provenance attestation","fresh AWS runtime smoke evidence"]}
+  ],
+  "destructive_operations": {
+    "production_database_delete": {"default_enabled":false,"requires_explicit_evidence":true,"requires_backup_proof":true,"requires_retention_allowlist":true},
+    "git_history_rewrite": {"default_enabled":false,"requires_explicit_evidence":true,"rotate_or_revoke_first":true},
+    "dns_delete": {"default_enabled":false,"requires_explicit_evidence":true},
+    "credential_revoke": {"default_enabled":false,"requires_explicit_evidence":true},
+    "docker_volume_prune": {"default_enabled":false,"requires_explicit_evidence":true,"shared_or_production_blanket_prune_forbidden":true},
+    "branch_delete": {"default_enabled":false,"requires_explicit_evidence":true},
+    "tag_delete": {"default_enabled":false,"requires_explicit_evidence":true}
+  },
+  "production_handover": {
+    "source_identity": "EXACT_SHA_AND_TREE",
+    "build_once": true,
+    "sealed_artifact": true,
+    "sbom": "CycloneDX",
+    "provenance_attestation": true,
+    "production_provider": "AWS",
+    "deploy_requires_fresh_runtime_evidence": true,
+    "release_builder": ".github/workflows/production-release-artifact.yml"
+  },
+  "external_reconciliation": {
+    "aws": "LIVE_PROVIDER_EVIDENCE_REQUIRED",
+    "dns": "LIVE_PROVIDER_EVIDENCE_REQUIRED",
+    "identity": "LIVE_PROVIDER_EVIDENCE_REQUIRED",
+    "email": "LIVE_PROVIDER_EVIDENCE_REQUIRED",
+    "messaging": "LIVE_PROVIDER_EVIDENCE_REQUIRED",
+    "analytics": "LIVE_PROVIDER_EVIDENCE_REQUIRED",
+    "error_tracking": "LIVE_PROVIDER_EVIDENCE_REQUIRED",
+    "webhooks": "LIVE_PROVIDER_EVIDENCE_REQUIRED"
+  }
+}

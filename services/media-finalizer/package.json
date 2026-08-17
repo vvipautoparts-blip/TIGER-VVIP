@@ -1,0 +1,13 @@
+{
+  "name": "@vvip-tiger/media-finalizer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Trusted server-side canonical JPEG/WebP finalizer for VVIP TIGER marketplace media.",
+  "main": "src/handler.js",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "dependencies": {
+    "sharp": "0.35.0"
+  }
+}

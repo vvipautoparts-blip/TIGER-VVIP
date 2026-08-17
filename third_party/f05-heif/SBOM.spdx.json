@@ -1,0 +1,62 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "TIGER-VVIP-F05-HEIF-Decoder-v1",
+  "documentNamespace": "https://github.com/vvipautoparts-blip/TIGER-VVIP/spdx/f05-heif-decoder-v1",
+  "creationInfo": {
+    "created": "2026-08-14T18:47:30Z",
+    "creators": ["Organization: TIGER-VVIP", "Tool: F05 supply-chain manifest"]
+  },
+  "packages": [
+    {
+      "name": "F05 HEIF Decoder Bundle",
+      "SPDXID": "SPDXRef-Package-F05Decoder",
+      "versionInfo": "v1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "checksums": [{"algorithm":"SHA256","checksumValue":"37371c91a21267de724838fe62476c6e57b422b3a9ebf954bbcca0b99aa99d78"}]
+    },
+    {
+      "name": "libheif",
+      "SPDXID": "SPDXRef-Package-libheif",
+      "versionInfo": "1.23.1",
+      "downloadLocation": "https://github.com/strukturag/libheif/releases/download/v1.23.1/libheif-1.23.1.tar.gz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "LGPL-3.0-or-later",
+      "copyrightText": "NOASSERTION",
+      "checksums": [{"algorithm":"SHA256","checksumValue":"0de0327f60fcd47de90d5654c6fe152232738d60d84fe084ec3e0f35e03b166a"}]
+    },
+    {
+      "name": "libde265",
+      "SPDXID": "SPDXRef-Package-libde265",
+      "versionInfo": "1.1.1",
+      "downloadLocation": "https://github.com/strukturag/libde265/releases/download/v1.1.1/libde265-1.1.1.tar.gz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "LGPL-3.0-or-later",
+      "copyrightText": "NOASSERTION",
+      "checksums": [{"algorithm":"SHA256","checksumValue":"fd48a927e94ed74fc7ce8829d222b9d8599fcbfe8b6448ba66705babc56ab219"}]
+    },
+    {
+      "name": "Emscripten",
+      "SPDXID": "SPDXRef-Package-Emscripten",
+      "versionInfo": "6.0.6",
+      "downloadLocation": "https://github.com/emscripten-core/emsdk",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT OR NCSA",
+      "copyrightText": "NOASSERTION"
+    }
+  ],
+  "relationships": [
+    {"spdxElementId":"SPDXRef-DOCUMENT","relationshipType":"DESCRIBES","relatedSpdxElement":"SPDXRef-Package-F05Decoder"},
+    {"spdxElementId":"SPDXRef-Package-F05Decoder","relationshipType":"DEPENDS_ON","relatedSpdxElement":"SPDXRef-Package-libheif"},
+    {"spdxElementId":"SPDXRef-Package-F05Decoder","relationshipType":"DEPENDS_ON","relatedSpdxElement":"SPDXRef-Package-libde265"},
+    {"spdxElementId":"SPDXRef-Package-Emscripten","relationshipType":"BUILD_TOOL_OF","relatedSpdxElement":"SPDXRef-Package-F05Decoder"}
+  ]
+}
