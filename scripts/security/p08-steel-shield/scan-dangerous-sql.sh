@@ -70,6 +70,11 @@ declare -A reviewed_migration_hashes=(
   ["supabase/migrations/20260816103000_sovereign_profile_authority_convergence.sql"]="9a949eeefca5148458111f5eaac83da063f2ffbadadfb96c3a97dadfcb05aae1"
   ["supabase/migrations/20260816170000_sovereign_publication_authority_convergence.sql"]="fd13db48afeada8e96b2d5f2583b8fdbf5f7ad2b3837f7054db32489404d0fc5"
   ["supabase/migrations/20260816171000_sovereign_publication_rpc_hardening.sql"]="ffba5542434669184eba6585b3e4e7393ddf3e3b722bbb7fb0ebe33debd1ba6f"
+
+  # LC-04 final forward-only retirement: reviewed against PostgreSQL dependency semantics.
+  # Exact-signature DROP FUNCTION ... RESTRICT removes known dangling public/private
+  # profile helpers without CASCADE and fails closed on any unexpected live dependency.
+  ["supabase/migrations/20260817060000_retire_lc04_legacy_profile_helper_graph.sql"]="692c3c54f636583b623935b18df1263b31d10ca32d900144fb5a84209b2896c2"
 )
 
 reviewed_baseline_path() {
