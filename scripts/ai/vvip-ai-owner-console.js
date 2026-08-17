@@ -9,7 +9,7 @@
   }
 
   function agentLabel(agent) {
-    return agent && agent.label ? agent.label : 'Unknown AI Agent';
+    return agent && agent.label ? agent.label : 'Unknown Sovereign Profile';
   }
 
   function mount() {
@@ -24,22 +24,23 @@
     const heading = createElement('div', 'pr35-heading');
     const headingCopy = createElement('div');
     headingCopy.append(
-      createElement('span', 'pr35-kicker', 'TIGER AI — AI-01'),
-      createElement('h2', '', 'مركز القيادة بالذكاء الاصطناعي'),
+      createElement('span', 'pr35-kicker', 'TIGER SOVEREIGN INTELLIGENCE'),
+      createElement('h2', '', 'مركز الذكاء السيادي'),
     );
     headingCopy.querySelector('h2').id = 'ai-command-center-title';
 
-    const status = createElement(
-      'span',
-      'pr35-empty',
-      api.FEATURE_FLAGS.AI_COMMAND_CENTER_ENABLED ? 'مفعّل' : 'الأساس مثبت — التفعيل التنفيذي مقفل افتراضيًا',
-    );
+    const statusText = !api.REGISTRY_AVAILABLE
+      ? 'مقفل — سجل السياسات السيادي غير متاح'
+      : api.FEATURE_FLAGS.AI_COMMAND_CENTER_ENABLED
+        ? 'مفعّل عبر بوابة السياسات السيادية'
+        : 'السلطة مثبتة — التنفيذ مقفل افتراضيًا';
+    const status = createElement('span', 'pr35-empty', statusText);
     heading.append(headingCopy, status);
 
     const intro = createElement(
       'p',
       'pr35-disclosure',
-      'أربع وحدات إدارية مع بوابة صلاحيات مغلقة افتراضيًا. لا حذف بيانات، لا تحويل أموال، ولا تغيير صلاحيات المالك بواسطة AI.',
+      'محرك سيادي واحد بملفات تعريف متخصصة وسجل صلاحيات واحد. لا وصول مباشر لقاعدة البيانات، لا أسرار أو AWS/IAM، لا حذف إنتاجي، ولا استدلال سحابي مدفوع كمسار افتراضي.',
     );
 
     const grid = createElement('div', 'pr35-grid');
@@ -56,15 +57,15 @@
 
     const policy = createElement('div', 'pr35-status');
     policy.setAttribute('role', 'status');
-    policy.textContent = 'L1 قراءة وتحليل · L2 اقتراح · L3 تنفيذ آمن قابل للعكس · L4 موافقة المالك إلزامية';
+    policy.textContent = 'Rule → Metric/API → Local Model → Browser AI → No-AI · الاستدلال المدفوع = 0 افتراضيًا';
 
     const promptLabel = createElement('label', 'pr35-search');
-    promptLabel.append(document.createTextNode('اسأل مدير VVIP TIGER'));
+    promptLabel.append(document.createTextNode('اسأل TIGER Sovereign Director'));
     const prompt = document.createElement('input');
     prompt.type = 'text';
     prompt.disabled = true;
-    prompt.placeholder = 'سيُفعّل بعد ربط Backend AI الآمن وموافقة المالك على مزود النموذج.';
-    prompt.setAttribute('aria-label', 'مساعد المدير العام غير مفعّل بعد');
+    prompt.placeholder = 'يبقى الإدخال مقفلًا حتى تتوفر قدرة محلية/متصفح مصرح بها؛ لا fallback سحابي مدفوع.';
+    prompt.setAttribute('aria-label', 'TIGER Sovereign Director غير مفعّل للتنفيذ بعد');
     promptLabel.append(prompt);
 
     panel.append(heading, intro, policy, grid, promptLabel);
