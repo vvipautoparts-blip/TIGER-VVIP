@@ -37,9 +37,7 @@ jobs:
         shell: bash
         run: |
           set -Eeuo pipefail
-          identity="$(aws sts get-caller-identity --output json --no-cli-pager)"
-          account="$(jq -r '.Account' <<<"$identity")"
-          arn="$(jq -r '.Arn' <<<"$identity")"
+          read -r account arn < <(aws sts get-caller-identity --query '[Account,Arn]' --output text --no-cli-pager)
           test "$account" = "211579682376"
           case "$arn" in
             arn:aws:sts::211579682376:assumed-role/TIGER-VVIP-GitHub-ProductionDeploy/*) ;;
