@@ -14,6 +14,32 @@ function workflow() {
   return fs.readFileSync(workflowPath, 'utf8');
 }
 
+function shellRunBodies(source) {
+  const lines = source.split('\n');
+  const bodies = [];
+
+  for (let i = 0; i < lines.length; i += 1) {
+    const match = lines[i].match(/^(\s*)run:\s*\|\s*$/);
+    if (!match) continue;
+
+    const runIndent = match[1].length;
+    const body = [];
+    for (let j = i + 1; j < lines.length; j += 1) {
+      const line = lines[j];
+      if (line.trim() === '') {
+        body.push(line);
+        continue;
+      }
+      const indent = line.match(/^\s*/)[0].length;
+      if (indent <= runIndent) break;
+      body.push(line);
+    }
+    bodies.push(body.join('\n'));
+  }
+
+  return bodies.join('\n');
+}
+
 test('AWS OIDC runtime proof is manual, environment-bound, and minimally privileged', () => {
   const source = workflow();
   assert.match(source, /on:\s*\n\s*workflow_dispatch:\s*\{\}/);
@@ -41,8 +67,14 @@ test('AWS OIDC runtime proof contains only identity proof and forbids standing c
   assert.match(source, /aws sts get-caller-identity/);
   assert.match(source, /assumed-role\/TIGER-VVIP-GitHub-ProductionDeploy\//);
   assert.doesNotMatch(source, /AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|secrets\./);
-  assert.doesNotMatch(source, /aws\s+(amplify|s3|s3api|lambda|apigateway|apigatewayv2|cloudfront|route53|iam|cloudformation|cdk|sam)\b/i);
   assert.doesNotMatch(source, /\b(deploy|publish|sync|put-object|create-|update-|delete-)\b/i);
+});
+
+test('AWS OIDC runtime proof shell permits only STS GetCallerIdentity', () => {
+  const shell = shellRunBodies(workflow());
+  const awsCommands = [...shell.matchAll(/\baws\s+([a-z0-9-]+)\s+([a-z0-9-]+)/gi)]
+    .map(([, service, operation]) => `${service.toLowerCase()} ${operation.toLowerCase()}`);
+  assert.deepEqual(awsCommands, ['sts get-caller-identity']);
 });
 
 test('AWS OIDC runtime proof has no jq dependency and uses AWS CLI-native identity extraction', () => {
