@@ -21,7 +21,7 @@ function createContext({
   rate,
   actorId = 'owner_001',
   actorRole = 'OWNER',
-  agentId = 'technical_manager',
+  agentId = 'security_sentinel',
 } = {}) {
   const kernel = createSovereignSecurityKernel();
   const actor = kernel.authority.issueActor({ id: actorId, role: actorRole });
@@ -65,7 +65,7 @@ test('caller-shaped identity and runtime state are never trusted', () => {
   const badActor = kernel.runtime.evaluateSovereignRequest({
     actor: forgedActor,
     runtimeState: kernel.authority.issueRuntimeState({ featureEnabled: true }),
-    agentId: 'technical_manager',
+    agentId: 'security_sentinel',
     action: ACTIONS.RUN_TESTS,
     payload: {},
   });
@@ -74,7 +74,7 @@ test('caller-shaped identity and runtime state are never trusted', () => {
   const badState = kernel.runtime.evaluateSovereignRequest({
     actor: kernel.authority.issueActor({ id: 'owner_001', role: 'OWNER' }),
     runtimeState: forgedState,
-    agentId: 'technical_manager',
+    agentId: 'security_sentinel',
     action: ACTIONS.RUN_TESTS,
     payload: {},
   });
@@ -107,7 +107,7 @@ test('trust is isolated per kernel instance and JSON copies lose trust', () => {
   assert.equal(a.kernel.runtime.evaluateSovereignRequest({ ...a.base, runtimeState: copiedState, action: ACTIONS.RUN_TESTS, payload: {} }).reasonCode, 'UNTRUSTED_RUNTIME_STATE');
 });
 
-test('only owner may invoke management agents; user assistant remains scoped to trusted users', () => {
+test('only owner may invoke management profiles; user assistant remains scoped to trusted users', () => {
   const ownerCtx = createContext();
   assert.equal(ownerCtx.kernel.runtime.evaluateSovereignRequest({ ...ownerCtx.base, action: ACTIONS.RUN_TESTS, payload: {} }).decision, DECISIONS.ALLOW);
 
@@ -163,7 +163,7 @@ test('approval issuance requires a trusted owner from the same kernel', () => {
   const b = createContext();
   const input = {
     approvalId: 'apr_owner_001',
-    agentId: 'technical_manager',
+    agentId: 'security_sentinel',
     action: ACTIONS.MERGE_PR,
     payload: { prNumber: 218 },
     createdAt: '2026-08-13T03:00:00.000Z',
@@ -183,7 +183,7 @@ test('L4 approval is payload-bound and automatically consumed by the kernel befo
   const approval = kernel.authority.issueApproval({
     approvalId: 'apr_atomic_001',
     actor,
-    agentId: 'technical_manager',
+    agentId: 'security_sentinel',
     action: ACTIONS.DEPLOY_PRODUCTION,
     payload,
     createdAt: '2026-08-13T03:00:00.000Z',
@@ -216,13 +216,13 @@ test('copied, cross-kernel or forged approval cannot unlock L4', () => {
   const b = createContext();
   const payload = { prNumber: 218, headSha: 'abc123' };
   const issued = a.kernel.authority.issueApproval({
-    approvalId: 'apr_copy_001', actor: a.actor, agentId: 'technical_manager', action: ACTIONS.MERGE_PR,
+    approvalId: 'apr_copy_001', actor: a.actor, agentId: 'security_sentinel', action: ACTIONS.MERGE_PR,
     payload, createdAt: '2026-08-13T03:00:00.000Z', expiresAt: '2026-08-13T03:10:00.000Z',
   });
   const copied = JSON.parse(JSON.stringify(issued));
 
-  assert.equal(a.kernel.runtime.verifyApprovalEnvelope({ approval: copied, actor: a.actor, agentId: 'technical_manager', action: ACTIONS.MERGE_PR, payload, now: '2026-08-13T03:05:00.000Z' }).reasonCode, 'UNTRUSTED_APPROVAL');
-  assert.equal(b.kernel.runtime.verifyApprovalEnvelope({ approval: issued, actor: b.actor, agentId: 'technical_manager', action: ACTIONS.MERGE_PR, payload, now: '2026-08-13T03:05:00.000Z' }).reasonCode, 'UNTRUSTED_APPROVAL');
+  assert.equal(a.kernel.runtime.verifyApprovalEnvelope({ approval: copied, actor: a.actor, agentId: 'security_sentinel', action: ACTIONS.MERGE_PR, payload, now: '2026-08-13T03:05:00.000Z' }).reasonCode, 'UNTRUSTED_APPROVAL');
+  assert.equal(b.kernel.runtime.verifyApprovalEnvelope({ approval: issued, actor: b.actor, agentId: 'security_sentinel', action: ACTIONS.MERGE_PR, payload, now: '2026-08-13T03:05:00.000Z' }).reasonCode, 'UNTRUSTED_APPROVAL');
 
   const result = a.kernel.runtime.evaluateSovereignRequest({
     ...a.base,
@@ -235,19 +235,19 @@ test('copied, cross-kernel or forged approval cannot unlock L4', () => {
 });
 
 test('approval rejects changed payload, wrong owner, scope mismatch and expiry', () => {
-  const { kernel, actor } = createContext({ agentId: 'financial_analytics_manager' });
+  const { kernel, actor } = createContext({ agentId: 'market_intelligence' });
   const payload = { price: 10, currency: 'JOD' };
   const approval = kernel.authority.issueApproval({
-    approvalId: 'apr_scope_001', actor, agentId: 'financial_analytics_manager', action: ACTIONS.CHANGE_PRICES,
+    approvalId: 'apr_scope_001', actor, agentId: 'market_intelligence', action: ACTIONS.CHANGE_PRICES,
     payload, createdAt: '2026-08-13T03:00:00.000Z', expiresAt: '2026-08-13T03:10:00.000Z',
   });
 
-  assert.equal(kernel.runtime.verifyApprovalEnvelope({ approval, actor, agentId: 'financial_analytics_manager', action: ACTIONS.CHANGE_PRICES, payload: { price: 11, currency: 'JOD' }, now: '2026-08-13T03:05:00.000Z' }).reasonCode, 'PAYLOAD_DIGEST_MISMATCH');
-  assert.equal(kernel.runtime.verifyApprovalEnvelope({ approval, actor, agentId: 'technical_manager', action: ACTIONS.CHANGE_PRICES, payload, now: '2026-08-13T03:05:00.000Z' }).reasonCode, 'APPROVAL_SCOPE_MISMATCH');
+  assert.equal(kernel.runtime.verifyApprovalEnvelope({ approval, actor, agentId: 'market_intelligence', action: ACTIONS.CHANGE_PRICES, payload: { price: 11, currency: 'JOD' }, now: '2026-08-13T03:05:00.000Z' }).reasonCode, 'PAYLOAD_DIGEST_MISMATCH');
+  assert.equal(kernel.runtime.verifyApprovalEnvelope({ approval, actor, agentId: 'security_sentinel', action: ACTIONS.CHANGE_PRICES, payload, now: '2026-08-13T03:05:00.000Z' }).reasonCode, 'APPROVAL_SCOPE_MISMATCH');
 
   const otherOwner = kernel.authority.issueActor({ id: 'owner_999', role: 'OWNER' });
-  assert.equal(kernel.runtime.verifyApprovalEnvelope({ approval, actor: otherOwner, agentId: 'financial_analytics_manager', action: ACTIONS.CHANGE_PRICES, payload, now: '2026-08-13T03:05:00.000Z' }).reasonCode, 'OWNER_ID_MISMATCH');
-  assert.equal(kernel.runtime.verifyApprovalEnvelope({ approval, actor, agentId: 'financial_analytics_manager', action: ACTIONS.CHANGE_PRICES, payload, now: '2026-08-13T03:11:00.000Z' }).reasonCode, 'APPROVAL_EXPIRED');
+  assert.equal(kernel.runtime.verifyApprovalEnvelope({ approval, actor: otherOwner, agentId: 'market_intelligence', action: ACTIONS.CHANGE_PRICES, payload, now: '2026-08-13T03:05:00.000Z' }).reasonCode, 'OWNER_ID_MISMATCH');
+  assert.equal(kernel.runtime.verifyApprovalEnvelope({ approval, actor, agentId: 'market_intelligence', action: ACTIONS.CHANGE_PRICES, payload, now: '2026-08-13T03:11:00.000Z' }).reasonCode, 'APPROVAL_EXPIRED');
 });
 
 test('trusted budget and rate state plus tool gates fail closed', () => {
@@ -265,7 +265,7 @@ test('trusted budget and rate state plus tool gates fail closed', () => {
 
 test('black-box events keep only allowlisted metadata and are immutable', () => {
   const event = createBlackBoxEvent({
-    correlationId: 'corr_001', actorId: 'owner_001', agentId: 'technical_manager', action: ACTIONS.RUN_TESTS,
+    correlationId: 'corr_001', actorId: 'owner_001', agentId: 'security_sentinel', action: ACTIONS.RUN_TESTS,
     decision: DECISIONS.ALLOW, reasonCode: 'POLICY_ALLOW',
     metadata: { target: 'quality-gate', country: 'JO', token: 'secret', rawPrompt: 'private', arbitrary: 'drop-me' },
     now: () => '2026-08-13T03:05:00.000Z', idFactory: () => 'evt_001',
