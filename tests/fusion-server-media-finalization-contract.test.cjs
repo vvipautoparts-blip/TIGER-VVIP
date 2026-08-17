@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
-const MIGRATION = path.join(ROOT, 'supabase/migrations/20260816103000_fusion_server_media_finalization.sql');
+const MIGRATION = path.join(ROOT, 'supabase/migrations/20260816090001_sovereign_media_finalization.sql');
 const HANDLER = path.join(ROOT, 'services/media-finalizer/src/handler.js');
 const POLICY = path.join(ROOT, 'services/media-finalizer/src/policy.js');
 const DOCKERFILE = path.join(ROOT, 'services/media-finalizer/Dockerfile');
@@ -35,7 +35,8 @@ test('database requires one-time trusted canonical-media finalization before pub
     "finalization_state <> 'CANONICAL'",
     'MEDIA_SERVER_FINALIZATION_REQUIRED',
     "'listing-media-canonical'",
-    'force row level security'
+    'force row level security',
+    'vvip_private.vvip_marketplace_country_is_active'
   ]) {
     assert.ok(sql.includes(token), `missing trusted-media contract: ${token}`);
   }
@@ -44,6 +45,7 @@ test('database requires one-time trusted canonical-media finalization before pub
   assert.doesNotMatch(sql, /grant\s+(?:insert|update|delete)[^;]+vvip_media_finalization_jobs[^;]+to\s+authenticated/is);
   assert.doesNotMatch(sql, /grant\s+execute[^;]+vvip_marketplace_(?:claim|complete)_media_finalization[^;]+to\s+authenticated/is);
   assert.match(sql, /MARKETPLACE_MEDIA_CANONICAL_FIELDS_TRUSTED_ONLY/);
+  assert.match(sql, /drop policy if exists vvip_listing_media_storage_owner_update/i);
 });
 
 test('finalizer policy accepts only strict JPEG/WebP containers and rejects HEIC/HEIF and polyglot tails', () => {
@@ -64,7 +66,7 @@ test('finalizer policy accepts only strict JPEG/WebP containers and rejects HEIC
   assert.doesNotMatch(source, /image\/(?:hei[cf]|avif)/i);
 });
 
-test('AWS finalizer downloads source directly, re-encodes with sharp and records only canonical evidence', () => {
+test('AWS finalizer downloads source directly, normalizes sRGB, re-encodes with sharp and records only canonical evidence', () => {
   assert.equal(fs.existsSync(HANDLER), true, 'Lambda handler must exist');
   const source = read(HANDLER);
   for (const token of [
@@ -75,6 +77,7 @@ test('AWS finalizer downloads source directly, re-encodes with sharp and records
     "from('listing-media-canonical')",
     '.timeout({ seconds:',
     '.rotate()',
+    ".toColourspace('srgb')",
     'canonicalSha256',
     'sourceSha256',
     'timingSafeEqual',
@@ -98,7 +101,7 @@ test('Lambda is containerized on current AL2023 Node runtime with exact sharp de
   assert.equal(pkg.private, true);
 });
 
-test('public runtime exposes only a HTTPS finalizer endpoint, never server credentials', () => {
+test('public runtime exposes only a HTTPS finalizer endpoint through the canonical repository, never server credentials', () => {
   const release = read(path.join(ROOT, 'tools/vvip_public_release.py'));
   const repository = read(path.join(ROOT, 'scripts/runtime/vvip-marketplace-repository.js'));
   const forbiddenSecretNames = /SUPABASE_SERVICE_ROLE_KEY|TIGER_SUPABASE_SERVICE_ROLE|SUPABASE_SECRET_KEY/i;
@@ -106,6 +109,7 @@ test('public runtime exposes only a HTTPS finalizer endpoint, never server crede
   assert.match(release, /mediaFinalizerUrl/);
   assert.match(repository, /MEDIA_FINALIZER_URL_REQUIRED/);
   assert.match(repository, /vvip_marketplace_request_media_finalization/);
+  assert.match(repository, /listing-media-canonical/);
   assert.doesNotMatch(release, forbiddenSecretNames);
   assert.doesNotMatch(repository, forbiddenSecretNames);
 });

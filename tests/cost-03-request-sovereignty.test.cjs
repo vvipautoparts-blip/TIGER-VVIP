@@ -69,7 +69,7 @@ function createFakeClient() {
 
     async function execute() {
       state.dbExecutions += 1;
-      const isPublic = meta.selection.includes("media:vvip_marketplace_listing_media");
+      const isPublic = table === "vvip_marketplace_public_feed";
 
       if (!isPublic) {
         state.mineExecutions += 1;
@@ -263,7 +263,7 @@ test("public cache key follows normalized query semantics", async () => {
   });
 
   assert.equal(fake.state.publicExecutions, 1, "equivalent filters must share one canonical key");
-  assert.deepEqual(fake.state.publicRequests[0].filters, [["status", "ACTIVE"], ["active_market_country", "US"]]);
+  assert.deepEqual(fake.state.publicRequests[0].filters, [["active_market_country", "US"]]);
   assert.deepEqual(fake.state.publicRequests[0].search, [["title", "%foobar%"]]);
   assert.equal(fake.state.publicRequests[0].limit, 30);
 });

@@ -156,7 +156,9 @@ async function canonicalize(source, mime, timeoutSeconds) {
   const metadata = await sharp(source, { limitInputPixels: policy.MAX_PIXELS, animated: false }).metadata();
   policy.assertDecodedMetadata(metadata, mime);
 
-  let pipeline = sharp(source, { limitInputPixels: policy.MAX_PIXELS, animated: false }).rotate();
+  let pipeline = sharp(source, { limitInputPixels: policy.MAX_PIXELS, animated: false })
+    .rotate()
+    .toColourspace('srgb');
   if (mime === 'image/jpeg') {
     pipeline = pipeline.jpeg({ quality: 86, chromaSubsampling: '4:4:4', progressive: true });
   } else {

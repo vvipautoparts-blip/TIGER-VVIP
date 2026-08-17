@@ -55,6 +55,26 @@ declare -A reviewed_migration_hashes=(
   # Approval is byte-exact; any SQL drift invalidates this reviewed baseline automatically.
   ["supabase/migrations/20260808223000_global_launch_phase_a_identity_convergence.sql"]="173766f1203890d3461db6b67cc95b1d9ca28d23c65026ff9393115ad4433c31"
   ["supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql"]="9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9"
+
+  # Zero-Residue sovereign marketplace convergence. These exact bytes were reviewed
+  # against the current publication/media/RLS contracts: no client entitlement minting,
+  # canonical-media-only publication, bounded SECURITY DEFINER search paths, least-
+  # privilege public projections, service-role-only trusted media completion, and the
+  # forward publication lifecycle that replaces the historical cascade with RESTRICT.
+  # Any byte drift re-enters the dangerous-SQL scan automatically.
+  ["supabase/migrations/20260816090000_fusion_publication_entitlement.sql"]="89cab60c657da82b850444ac0d6f4760dd9c9c4900eab5ff2f40aaf40563be42"
+  ["supabase/migrations/20260816090001_sovereign_media_finalization.sql"]="14768409e9ff91f7d638b0952ff3ea0bdda86e77764e34ae3a80a4a384d4a40b"
+  ["supabase/migrations/20260816091500_sovereign_public_read_surface.sql"]="a9c02148ca7fb168758d224a3e2d696d932b6ce522d757d87a013d83acc67579"
+  ["supabase/migrations/20260816100000_sovereign_public_api_hardening.sql"]="8573d258a28fe806f70baac39faea70ce9a375d4fd7d58bc8bcabbd510a18da8"
+  ["supabase/migrations/20260816101500_sovereign_marketplace_performance_hardening.sql"]="cb3c1b25177fd706b8b0a91010a02982b1888005dabacc97cee8f2b38c718648"
+  ["supabase/migrations/20260816103000_sovereign_profile_authority_convergence.sql"]="9a949eeefca5148458111f5eaac83da063f2ffbadadfb96c3a97dadfcb05aae1"
+  ["supabase/migrations/20260816170000_sovereign_publication_authority_convergence.sql"]="fd13db48afeada8e96b2d5f2583b8fdbf5f7ad2b3837f7054db32489404d0fc5"
+  ["supabase/migrations/20260816171000_sovereign_publication_rpc_hardening.sql"]="ffba5542434669184eba6585b3e4e7393ddf3e3b722bbb7fb0ebe33debd1ba6f"
+
+  # LC-04 final forward-only retirement: reviewed against PostgreSQL dependency semantics.
+  # Exact-signature DROP FUNCTION ... RESTRICT removes known dangling public/private
+  # profile helpers without CASCADE and fails closed on any unexpected live dependency.
+  ["supabase/migrations/20260817060000_retire_lc04_legacy_profile_helper_graph.sql"]="692c3c54f636583b623935b18df1263b31d10ca32d900144fb5a84209b2896c2"
 )
 
 reviewed_baseline_path() {
@@ -63,8 +83,11 @@ reviewed_baseline_path() {
   local expected_hash="${reviewed_migration_hashes[$relative_file]:-}"
   local actual_hash
 
-  [[ -n "$expected_hash" ]] || return 1
   actual_hash="$(sha256sum "$file" | awk '{print $1}')"
+  if [[ -z "$expected_hash" ]]; then
+    echo "UNREVIEWED_MIGRATION_SHA256:$relative_file:$actual_hash"
+    return 1
+  fi
   [[ "$actual_hash" == "$expected_hash" ]]
 }
 

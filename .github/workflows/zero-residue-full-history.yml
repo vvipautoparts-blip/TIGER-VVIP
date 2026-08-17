@@ -1,0 +1,89 @@
+name: Zero-Residue Full History
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  full-history:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout complete Git history
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          fetch-depth: 0
+
+      - name: Verify exact source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+          git rev-parse HEAD
+          git rev-parse HEAD^{tree}
+
+      - name: Install pinned Gitleaks 8.30.1
+        shell: bash
+        env:
+          GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location \
+            --output /tmp/gitleaks.tar.gz \
+            https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+          printf '%s  %s\n' "$GITLEAKS_SHA256" /tmp/gitleaks.tar.gz | sha256sum --check --strict -
+          mkdir -p /tmp/gitleaks-bin
+          tar -xzf /tmp/gitleaks.tar.gz -C /tmp/gitleaks-bin gitleaks
+          /tmp/gitleaks-bin/gitleaks version | grep -F '8.30.1'
+
+      - name: Scan complete Git history fail closed
+        shell: bash
+        run: |
+          set -euo pipefail
+          report=/tmp/gitleaks-full-history.json
+          set +e
+          /tmp/gitleaks-bin/gitleaks git \
+            --redact=100 \
+            --report-format=json \
+            --report-path="$report" \
+            --timeout=600 \
+            .
+          status=$?
+          set -e
+          test -f "$report" || printf '[]\n' > "$report"
+          if [ "$status" -ne 0 ]; then
+            echo 'Full Git-history secret scan failed closed. Review the redacted evidence artifact; rotate/revoke before any history rewrite.' >&2
+            exit "$status"
+          fi
+
+      - name: Reject oversized historical blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          report=/tmp/oversized-git-objects.txt
+          git rev-list --objects --all \
+            | git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' \
+            | awk '$1 == "blob" && $3 > 52428800 { print }' \
+            | sort -k3,3nr > "$report"
+          if [ -s "$report" ]; then
+            echo 'Historical Git blobs larger than 50 MiB require explicit evidence and remediation.' >&2
+            cat "$report" >&2
+            exit 1
+          fi
+
+      - name: Upload redacted full-history evidence
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: zero-residue-history-${{ github.sha }}
+          path: |
+            /tmp/gitleaks-full-history.json
+            /tmp/oversized-git-objects.txt
+          if-no-files-found: error
+          retention-days: 30

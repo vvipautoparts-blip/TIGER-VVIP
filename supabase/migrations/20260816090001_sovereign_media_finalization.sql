@@ -1,9 +1,20 @@
--- VVIP TIGER FUSION — trusted server-side canonical media finalization.
--- The browser may upload only temporary JPEG/WebP derivatives. A separate trusted
--- service must decode and re-encode each object, then attest canonical bytes here.
--- HEIC/HEIF originals remain client-local and are never accepted by this server gate.
+-- VVIP TIGER — sovereign trusted-media finalization plane.
+-- Unapplied convergence migration: canonical media authority is established before publication authority.
+-- Browser clients may upload only temporary JPEG/WebP derivatives. HEIC/HEIF originals remain client-local.
+-- Only the trusted media finalizer may attest canonical bytes.
 
 begin;
+
+-- ---------------------------------------------------------------------------
+-- Canonical evidence lives on the marketplace media row but is trusted-only.
+-- ---------------------------------------------------------------------------
+
+alter table public.vvip_marketplace_listing_media
+    drop constraint if exists vvip_marketplace_listing_media_mime_type_check;
+
+alter table public.vvip_marketplace_listing_media
+    add constraint vvip_marketplace_listing_media_mime_type_check
+    check (mime_type in ('image/jpeg', 'image/webp')) not valid;
 
 alter table public.vvip_marketplace_listing_media
     add column if not exists finalization_state text not null default 'PENDING_FINALIZATION'
@@ -18,6 +29,9 @@ alter table public.vvip_marketplace_listing_media
     add column if not exists canonical_verified_at timestamptz,
     add column if not exists canonical_verifier text,
     add column if not exists finalization_error_code text;
+
+alter table public.vvip_marketplace_listing_media
+    drop constraint if exists vvip_marketplace_media_canonical_shape_check;
 
 alter table public.vvip_marketplace_listing_media
     add constraint vvip_marketplace_media_canonical_shape_check
@@ -39,6 +53,7 @@ alter table public.vvip_marketplace_listing_media
             finalization_state <> 'CANONICAL'
             and canonical_storage_path is null
             and canonical_sha256 is null
+            and source_sha256 is null
             and canonical_mime_type is null
             and canonical_byte_size is null
             and canonical_width is null
@@ -51,6 +66,10 @@ alter table public.vvip_marketplace_listing_media
 create unique index if not exists vvip_marketplace_media_canonical_path_unique
     on public.vvip_marketplace_listing_media (canonical_storage_path)
     where canonical_storage_path is not null;
+
+-- ---------------------------------------------------------------------------
+-- One-time finalization job capability. Tokens are stored hashed only.
+-- ---------------------------------------------------------------------------
 
 create table public.vvip_media_finalization_jobs (
     job_id uuid primary key default gen_random_uuid(),
@@ -83,6 +102,11 @@ create unique index vvip_media_finalization_one_live_job
 
 create index vvip_media_finalization_expiry_idx
     on public.vvip_media_finalization_jobs (job_state, expires_at);
+
+-- ---------------------------------------------------------------------------
+-- Browser can edit presentation fields such as order/alt text, but never raw
+-- object identity nor canonical evidence.
+-- ---------------------------------------------------------------------------
 
 create or replace function public.vvip_marketplace_guard_media_write()
 returns trigger
@@ -137,6 +161,8 @@ create trigger vvip_marketplace_guard_media_write
 before insert or update on public.vvip_marketplace_listing_media
 for each row execute function public.vvip_marketplace_guard_media_write();
 
+-- Defense in depth: even another trusted listing function cannot transition a
+-- listing to review/active unless every media row is canonical.
 create or replace function public.vvip_marketplace_require_canonical_media()
 returns trigger
 language plpgsql
@@ -169,7 +195,7 @@ begin
               or media.canonical_width not between 320 and 4096
               or media.canonical_height not between 240 and 4096
               or media.canonical_verified_at is null
-              or media.canonical_verifier is null
+              or nullif(btrim(media.canonical_verifier), '') is null
           );
 
         if invalid_count <> 0 then
@@ -184,6 +210,10 @@ drop trigger if exists vvip_marketplace_require_canonical_media on public.vvip_m
 create trigger vvip_marketplace_require_canonical_media
 before update on public.vvip_marketplace_listings
 for each row execute function public.vvip_marketplace_require_canonical_media();
+
+-- ---------------------------------------------------------------------------
+-- Browser obtains a short-lived one-time capability for one owned media row.
+-- ---------------------------------------------------------------------------
 
 create function public.vvip_marketplace_request_media_finalization(target_media uuid)
 returns table (
@@ -233,7 +263,9 @@ begin
     end if;
 
     update public.vvip_media_finalization_jobs job
-    set job_state = 'EXPIRED', updated_at = statement_timestamp()
+    set job_state = 'EXPIRED',
+        lease_expires_at = null,
+        updated_at = statement_timestamp()
     where job.media_id = target_media
       and job.job_state in ('REQUESTED', 'PROCESSING')
       and (
@@ -268,6 +300,8 @@ begin
 end;
 $function$;
 
+-- Only service_role can claim a capability. The claim leases the job to avoid
+-- duplicate workers while still allowing bounded crash recovery.
 create function public.vvip_marketplace_claim_media_finalization(
     target_media uuid,
     finalization_token text
@@ -310,7 +344,7 @@ begin
     end if;
     if current_job.expires_at <= statement_timestamp() then
         update public.vvip_media_finalization_jobs
-        set job_state = 'EXPIRED', updated_at = statement_timestamp()
+        set job_state = 'EXPIRED', lease_expires_at = null, updated_at = statement_timestamp()
         where public.vvip_media_finalization_jobs.job_id = current_job.job_id;
         raise exception 'MEDIA_FINALIZATION_TOKEN_EXPIRED';
     end if;
@@ -400,7 +434,8 @@ begin
     end if;
     if canonical_size not between 1 and 10485760
        or canonical_image_width not between 320 and 4096
-       or canonical_image_height not between 240 and 4096 then
+       or canonical_image_height not between 240 and 4096
+       or canonical_image_width::bigint * canonical_image_height::bigint > 16777216 then
         raise exception 'MEDIA_FINALIZATION_GEOMETRY_INVALID';
     end if;
     if verifier_id is null or length(verifier_id) not between 1 and 80 then
@@ -513,6 +548,10 @@ begin
 end;
 $function$;
 
+-- ---------------------------------------------------------------------------
+-- RLS / ACL: jobs and canonical fields are never browser-writable.
+-- ---------------------------------------------------------------------------
+
 alter table public.vvip_media_finalization_jobs enable row level security;
 alter table public.vvip_media_finalization_jobs force row level security;
 
@@ -533,9 +572,14 @@ grant execute on function public.vvip_marketplace_fail_media_finalization(uuid, 
 
 revoke all on function public.vvip_marketplace_guard_media_write() from public, anon, authenticated;
 revoke all on function public.vvip_marketplace_require_canonical_media() from public, anon, authenticated;
-
 grant execute on function public.vvip_marketplace_guard_media_write() to service_role;
 grant execute on function public.vvip_marketplace_require_canonical_media() to service_role;
+
+-- ---------------------------------------------------------------------------
+-- Storage plane. Raw bytes are private, immutable after insert and readable
+-- only by their owner/service role. Canonical bytes are private objects exposed
+-- only through policy/signed URLs for owner or ACTIVE listings.
+-- ---------------------------------------------------------------------------
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values (
@@ -546,15 +590,25 @@ values (
     array['image/jpeg', 'image/webp']
 )
 on conflict (id) do update
-set public = false,
+set name = excluded.name,
+    public = false,
     file_size_limit = excluded.file_size_limit,
     allowed_mime_types = excluded.allowed_mime_types;
 
 update storage.buckets
-set allowed_mime_types = array['image/jpeg', 'image/webp']
+set public = false,
+    file_size_limit = 10485760,
+    allowed_mime_types = array['image/jpeg', 'image/webp']
 where id = 'listing-media';
 
+-- Raw object bytes become immutable after first insert. The owner may delete a
+-- draft object; only the trusted finalizer/service role can otherwise mutate.
 drop policy if exists vvip_listing_media_storage_owner_insert on storage.objects;
+drop policy if exists vvip_listing_media_storage_owner_update on storage.objects;
+drop policy if exists vvip_listing_media_storage_owner_delete on storage.objects;
+drop policy if exists vvip_listing_media_storage_read on storage.objects;
+drop policy if exists vvip_listing_media_raw_owner_read on storage.objects;
+
 create policy vvip_listing_media_storage_owner_insert
 on storage.objects
 for insert
@@ -565,8 +619,15 @@ with check (
     and lower(storage.extension(name)) in ('jpg', 'jpeg', 'webp')
 );
 
-drop policy if exists vvip_listing_media_storage_read on storage.objects;
-drop policy if exists vvip_listing_media_raw_owner_read on storage.objects;
+create policy vvip_listing_media_storage_owner_delete
+on storage.objects
+for delete
+to authenticated
+using (
+    bucket_id = 'listing-media'
+    and owner_id = public.vvip_marketplace_actor_id()
+);
+
 create policy vvip_listing_media_raw_owner_read
 on storage.objects
 for select

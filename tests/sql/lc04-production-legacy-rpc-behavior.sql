@@ -60,82 +60,64 @@ begin
 end
 $assert_legacy_rpc_locked$;
 
--- Profile resolver is the only browser write boundary for profile creation/recovery.
--- LC04 originally named the signed-JWT email variable v_jwt_email. IDENTITY-01 later
--- strengthened the same boundary and renamed that claim to v_verified_email while
--- removing email-based ownership transfer. Accept either signed-JWT binding shape;
--- never accept the browser-supplied client hint as ownership authority.
-do $assert_profile_boundary$
-declare
-  fn oid := to_regprocedure('public.vvip_resolve_own_profile(text)');
-  definition text;
+-- The historical browser profile resolver was an intermediate recovery boundary.
+-- Sovereign profile convergence later retired that RPC and then removed public.profiles
+-- without CASCADE. A canonical rebuild must preserve the final fail-closed state rather
+-- than recreating the transitional resolver merely to satisfy an older rehearsal.
+do $assert_final_profile_boundary$
 begin
-  if fn is null then
-    raise exception 'LC04_PROFILE_RESOLVER_MISSING';
-  end if;
-  if has_function_privilege('public', fn, 'EXECUTE') or has_function_privilege('anon', fn, 'EXECUTE') then
-    raise exception 'LC04_PROFILE_RESOLVER_ANON_EXECUTE';
-  end if;
-  if not has_function_privilege('authenticated', fn, 'EXECUTE') then
-    raise exception 'LC04_PROFILE_RESOLVER_AUTH_EXECUTE_MISSING';
+  if to_regprocedure('public.vvip_resolve_own_profile(text)') is not null then
+    raise exception 'LC04_RETIRED_PROFILE_RESOLVER_RETURNED';
   end if;
 
-  select pg_get_functiondef(fn) into definition;
-  if definition ilike '%.clerk.accounts.dev%' then
-    raise exception 'LC04_PROFILE_RESOLVER_DEV_ISSUER_HARDCODE';
+  if to_regclass('public.profiles') is not null then
+    raise exception 'LC04_RETIRED_PUBLIC_PROFILES_RETURNED';
   end if;
-  if definition not ilike '%where lower(email) = v_jwt_email%'
-     and definition not ilike '%where lower(email) = v_verified_email%' then
-    raise exception 'LC04_PROFILE_RESOLVER_JWT_EMAIL_BINDING_MISSING';
-  end if;
-  if definition ilike '%where lower(email) = v_client_email_hint%' then
-    raise exception 'LC04_PROFILE_RESOLVER_CLIENT_EMAIL_AUTHORITY';
+
+  if to_regclass('public.vvip_clerk_profiles') is null then
+    raise exception 'LC04_CANONICAL_CLERK_PROFILE_AUTHORITY_MISSING';
   end if;
 end
-$assert_profile_boundary$;
+$assert_final_profile_boundary$;
 
-do $assert_profile_privileges$
-begin
-  if has_table_privilege('authenticated', 'public.profiles', 'INSERT') then
-    raise exception 'LC04_PROFILE_DIRECT_INSERT_GRANTED';
-  end if;
-  if has_table_privilege('authenticated', 'public.profiles', 'UPDATE') then
-    raise exception 'LC04_PROFILE_DIRECT_UPDATE_GRANTED';
-  end if;
-  if has_table_privilege('authenticated', 'public.profiles', 'DELETE') then
-    raise exception 'LC04_PROFILE_DIRECT_DELETE_GRANTED';
-  end if;
-  if not has_table_privilege('authenticated', 'public.profiles', 'SELECT') then
-    raise exception 'LC04_PROFILE_SELF_READ_MISSING';
-  end if;
-end
-$assert_profile_privileges$;
-
-do $assert_clerk_profile_policies$
+-- Canonical Clerk profile storage is server-managed. Browser roles must have neither
+-- table privileges nor RLS policies that could turn it into a second identity authority.
+do $assert_canonical_profile_server_only$
 declare
-  read_count integer;
-  write_count integer;
+  browser_grant_count integer;
+  policy_count integer;
+  force_rls boolean;
 begin
-  select count(*) into read_count
+  select count(*) into browser_grant_count
+  from information_schema.table_privileges
+  where table_schema = 'public'
+    and table_name = 'vvip_clerk_profiles'
+    and grantee in ('PUBLIC', 'anon', 'authenticated');
+
+  if browser_grant_count <> 0 then
+    raise exception 'LC04_CANONICAL_PROFILE_BROWSER_GRANTS_REMAIN:%', browser_grant_count;
+  end if;
+
+  select count(*) into policy_count
   from pg_policies
   where schemaname = 'public'
-    and tablename = 'profiles'
-    and policyname = 'Clerk users can read own profile'
-    and roles = array['authenticated']::name[];
+    and tablename = 'vvip_clerk_profiles';
 
-  select count(*) into write_count
-  from pg_policies
-  where schemaname = 'public'
-    and tablename = 'profiles'
-    and policyname in ('Clerk users can insert own profile', 'Clerk users can update own profile');
-
-  if read_count <> 1 then
-    raise exception 'LC04_CLERK_SELF_READ_POLICY_INVALID';
+  if policy_count <> 0 then
+    raise exception 'LC04_CANONICAL_PROFILE_BROWSER_POLICIES_REMAIN:%', policy_count;
   end if;
-  if write_count <> 0 then
-    raise exception 'LC04_CLERK_DIRECT_WRITE_POLICY_SURVIVED';
+
+  select c.relforcerowsecurity into force_rls
+  from pg_class c
+  join pg_namespace n on n.oid = c.relnamespace
+  where n.nspname = 'public'
+    and c.relname = 'vvip_clerk_profiles'
+    and c.relkind in ('r', 'p');
+
+  if force_rls is distinct from true then
+    raise exception 'LC04_CANONICAL_PROFILE_FORCE_RLS_REQUIRED';
   end if;
 end
-$assert_clerk_profile_policies$;
+$assert_canonical_profile_server_only$;
 
 select 'LC04_CANONICAL_SECURITY_BEHAVIOR=PASS' as result;

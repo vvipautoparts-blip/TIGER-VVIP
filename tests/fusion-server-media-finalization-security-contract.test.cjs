@@ -10,7 +10,7 @@ const migrationPath = path.join(
   "..",
   "supabase",
   "migrations",
-  "20260816103000_fusion_server_media_finalization.sql"
+  "20260816090001_sovereign_media_finalization.sql"
 );
 
 function loadMigration() {
@@ -19,13 +19,6 @@ function loadMigration() {
 
 test("canonical media RLS uses the private country-activation authority", () => {
   const sql = loadMigration();
-
-  assert.match(
-    sql,
-    /vvip_private\.vvip_marketplace_country_is_active\(listing\.active_market_country\)/i
-  );
-  assert.doesNotMatch(
-    sql,
-    /public\.vvip_marketplace_country_is_active\(/i
-  );
+  assert.match(sql, /vvip_private\.vvip_marketplace_country_is_active\(listing\.active_market_country\)/i);
+  assert.doesNotMatch(sql, /public\.vvip_marketplace_country_is_active\(/i);
 });

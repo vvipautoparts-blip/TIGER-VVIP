@@ -1,0 +1,85 @@
+# VVIP TIGER reviewed full-history Gitleaks exceptions.
+# Exact commit-scoped fingerprints only. No path-wide, rule-wide, or wildcard suppression is permitted.
+# These entries were classified during Zero-Residue Production Handover; new findings remain fail-closed.
+
+# TEST_FIXTURE (14): Synthetic test-only credential fixtures; exact historical fingerprints only.
+2fe1b6a2f0a0b624eb6cc5a683a4055b07bd3388:tests/ai01-control-plane.test.cjs:generic-api-key:92
+6303f799b01e6b80c337b090b9baee9599bb8035:tests/test_vvip_public_release.py:generic-api-key:79
+6303f799b01e6b80c337b090b9baee9599bb8035:tests/test_vvip_public_release.py:generic-api-key:94
+6e8a20c8bd7b62d83fb671b6d4f56a0564ebe06a:tests/tsrf-evidence-hardening.test.cjs:jwt:193
+8181ee0180e44e8e95eda7b6fbb787990b12dea7:tests/v13-1-authorization-command-boundary.test.cjs:generic-api-key:79
+8181ee0180e44e8e95eda7b6fbb787990b12dea7:tests/v13-1-authorization-command-boundary.test.cjs:generic-api-key:80
+8181ee0180e44e8e95eda7b6fbb787990b12dea7:tests/v13-1-authorization-command-boundary.test.cjs:generic-api-key:97
+8181ee0180e44e8e95eda7b6fbb787990b12dea7:tests/v13-1-authorization-command-boundary.test.cjs:generic-api-key:98
+a02c034420b68710543195504faa20f09d96d5e5:tests/p08-steel-shield-secret-scan.test.cjs:github-pat:10
+b34b86d2d097b76e960e8dc039e53899e45c6d79:tests/vvip-commission-policy.test.cjs:generic-api-key:132
+b585c591984e8034780ec2a5b55b8458002bd69b:tests/pr35/drafts-network.test.mjs:generic-api-key:55
+b585c591984e8034780ec2a5b55b8458002bd69b:tests/pr35/drafts-network.test.mjs:generic-api-key:78
+c1b390a024d5e906c0acd1ff6f3166a4de788bbe:tests/test_vvip_public_release.py:generic-api-key:126
+f3c94c1cdf9482c09731d122def8748c94164128:tests/vvip-commission-policy.test.cjs:generic-api-key:132
+
+# NON_SECRET_HASH (4): SHA-256/digest literals detected by entropy heuristics; not credentials.
+0098261e71b2aa7737bd20839eee605ea3cb8e73:.github/workflows/pcg-v1-production-config-verify.yml:generic-api-key:19
+911f36f73ef24d8ca4b63462c80c3e734f98863b:.github/workflows/pcg-v1-production-config-verify.yml:generic-api-key:20
+b394d472830478561daad4a8d962073055f252d8:.github/workflows/pcg-v1-production-config-verify-04.yml:generic-api-key:19
+b394d472830478561daad4a8d962073055f252d8:.github/workflows/pcg-v1-production-config-verify-04.yml:generic-api-key:21
+
+# PUBLIC_CLIENT_IDENTIFIER (55): Browser-designated publishable/anon/Firebase client identifiers; no privileged service credentials.
+0ce87b551cadc668ec9c9a6424e15a387deee798:approved/visual-identity-pass-7-1/clerk-private-profile-before-visual-identity-20260708.html:generic-api-key:117
+0ce87b551cadc668ec9c9a6424e15a387deee798:approved/visual-identity-pass-7-1/clerk-private-profile-before-visual-identity-20260708.html:generic-api-key:628
+0ce87b551cadc668ec9c9a6424e15a387deee798:approved/visual-identity-pass-7-1/index-before-visual-identity-20260708.html:generic-api-key:24
+0d18dffeb52f3f66bf866bb83c7263f9f6314c8a:clerk-private-profile.html:generic-api-key:173
+1c12687d2a42cc6808a0118b2817c333294e4046:approved/clerk-private-profile-before-vip-membership-center-20260707.html:generic-api-key:117
+1c12687d2a42cc6808a0118b2817c333294e4046:approved/clerk-private-profile-before-vip-membership-center-20260707.html:generic-api-key:424
+34f56cf3acd6003f854605cf24a170a811bd506d:backups/clerk-private-profile.before-jwt-rls-bridge.html:generic-api-key:117
+34f56cf3acd6003f854605cf24a170a811bd506d:backups/clerk-private-profile.before-jwt-rls-bridge.html:generic-api-key:629
+43d0c1e64ce8f6c7238e75ea8bcaedf346bf2a8e:index.html:generic-api-key:13
+43d0c1e64ce8f6c7238e75ea8bcaedf346bf2a8e:private-profile-p03.html:generic-api-key:13
+4624d49086554dd2515b455a288fb0c96011613c:clerk-private-profile.html:generic-api-key:106
+4624d49086554dd2515b455a288fb0c96011613c:clerk-test.html:generic-api-key:145
+4a3ec8df889d7aec63a42d171f2c7ff62fd61e94:backups/clerk-private-profile.before-atomic-profile-resolver.html:generic-api-key:117
+4a3ec8df889d7aec63a42d171f2c7ff62fd61e94:backups/clerk-private-profile.before-atomic-profile-resolver.html:generic-api-key:629
+5e213b4f2260e41b1c7a7be386853599dd740363:auth-flow.html:gcp-api-key:15
+5e213b4f2260e41b1c7a7be386853599dd740363:index.html:gcp-api-key:16
+5e213b4f2260e41b1c7a7be386853599dd740363:reset-password.html:gcp-api-key:14
+691e9cb6871bbe5bdac0434f808ea6b465cf99e6:backups/clerk-private-profile.before-profile-resilience-shell.html:generic-api-key:117
+691e9cb6871bbe5bdac0434f808ea6b465cf99e6:backups/clerk-private-profile.before-profile-resilience-shell.html:generic-api-key:629
+72f5e8a53e240ff3367c02af35d87abac52256ea:docs/VVIP_TIGER_AUTH_SCAN.txt:generic-api-key:110
+72f5e8a53e240ff3367c02af35d87abac52256ea:docs/VVIP_TIGER_AUTH_SCAN.txt:generic-api-key:149
+72f5e8a53e240ff3367c02af35d87abac52256ea:docs/VVIP_TIGER_AUTH_SCAN.txt:generic-api-key:177
+7bd342a1941d0d6c57717e0694b4743da6794f11:approved/clerk-private-profile-before-tiger-care-card-20260707.html:generic-api-key:117
+7bd342a1941d0d6c57717e0694b4743da6794f11:approved/clerk-private-profile-before-tiger-care-card-20260707.html:generic-api-key:498
+8742eff7fc8bf10e4477bfb69af31f4e49d70b83:approved/index-before-supabase-auth-20260704-191914.html:gcp-api-key:18
+8742eff7fc8bf10e4477bfb69af31f4e49d70b83:approved/index-before-supabase-auth-20260704-192024.html:gcp-api-key:18
+8742eff7fc8bf10e4477bfb69af31f4e49d70b83:approved/index-supabase-auth-approved.html:gcp-api-key:18
+8742eff7fc8bf10e4477bfb69af31f4e49d70b83:approved/index-supabase-auth-final.html:gcp-api-key:18
+8742eff7fc8bf10e4477bfb69af31f4e49d70b83:approved/supabase-config-approved.js:generic-api-key:6
+8742eff7fc8bf10e4477bfb69af31f4e49d70b83:approved/supabase-config-final.js:generic-api-key:6
+8742eff7fc8bf10e4477bfb69af31f4e49d70b83:scripts/supabase-config.js:generic-api-key:6
+8fa0dc9a0317d35a04ea0d2ab227c764cb3de8c7:backups/clerk-private-profile.before-pr15-launch-hardening.html:generic-api-key:117
+8fa0dc9a0317d35a04ea0d2ab227c764cb3de8c7:backups/clerk-private-profile.before-pr15-launch-hardening.html:generic-api-key:630
+9c6483feb31fa234266258be786e00b0e833e487:backups/visual-trust-layer/clerk-private-profile.html.before-visual-trust-layer:generic-api-key:117
+9c6483feb31fa234266258be786e00b0e833e487:backups/visual-trust-layer/clerk-private-profile.html.before-visual-trust-layer:generic-api-key:629
+9c6483feb31fa234266258be786e00b0e833e487:backups/visual-trust-layer/index.html.before-visual-trust-layer:generic-api-key:24
+b4b5f6184c382346483b3ea6573fd94e068be3e3:approved/clerk-private-profile-before-supabase-bridge-20260707.html:generic-api-key:106
+b4b5f6184c382346483b3ea6573fd94e068be3e3:clerk-private-profile.html:generic-api-key:132
+b585c591984e8034780ec2a5b55b8458002bd69b:docs/launch/pr35/CODEX_REVIEW_ROUND1.md:generic-api-key:240
+b585c591984e8034780ec2a5b55b8458002bd69b:docs/launch/pr35/CODEX_REVIEW_ROUND2.md:generic-api-key:275
+b585c591984e8034780ec2a5b55b8458002bd69b:docs/launch/pr35/CODEX_REVIEW_ROUND3.md:generic-api-key:291
+b585c591984e8034780ec2a5b55b8458002bd69b:docs/launch/pr35/CODEX_REVIEW_ROUND4.md:generic-api-key:371
+b585c591984e8034780ec2a5b55b8458002bd69b:owner-control.html:generic-api-key:9
+bca9537d4146e6f03b8d9eda17b2bd0e3fafcf83:approved/clerk-private-profile-before-official-ui-20260707.html:generic-api-key:117
+bca9537d4146e6f03b8d9eda17b2bd0e3fafcf83:approved/clerk-private-profile-before-official-ui-20260707.html:generic-api-key:132
+c8270c705d68ea226f0b8d228c6dfe2381169390:backups/clerk-private-profile.before-self-healing-profile-gateway.html:generic-api-key:117
+c8270c705d68ea226f0b8d228c6dfe2381169390:backups/clerk-private-profile.before-self-healing-profile-gateway.html:generic-api-key:629
+d51adc3f1a3cf7ddc1d111c580c294baee469e65:approved/legacy-auth-audit-7-1/clerk-private-profile-before-linkrel-fix-20260708.html:generic-api-key:117
+d51adc3f1a3cf7ddc1d111c580c294baee469e65:approved/legacy-auth-audit-7-1/clerk-private-profile-before-linkrel-fix-20260708.html:generic-api-key:629
+d91d4968cbb7e1231c71d7493f1339d74351d3ed:onboarding-p04.html:generic-api-key:13
+defc7147806a62761f18b1be12e0b2c8b94fc919:supabase-local.js:jwt:12
+f6f98573a2f0085b126bf14d13d4e7af1317a03a:index.html:generic-api-key:24
+f864000d85173a11188b0d46a60f34a91ebaa069:private-profile-p03.html:generic-api-key:24
+fcc70cd741e6e42d9dc4346836fe8317799767da:approved/index-before-vvip-gate-login-20260707.html:generic-api-key:24
+fd615b71a27591eba2d77d650de3f532ee7806ae:.env.local:jwt:2
+
+# DOCUMENTATION_FALSE_POSITIVE (1): Documentation prose matched generic-key heuristic; no credential material.
+c0e5428c4d6d47dcbc448dcf9940ef1a067ea6a6:docs/ai/VVIP_TIGER_SOVEREIGN_PROOF_SYSTEM.md:generic-api-key:154
