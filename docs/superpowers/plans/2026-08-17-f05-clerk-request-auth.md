@@ -33,22 +33,12 @@
 
 ## Task 3 — Verification evidence
 
-Implementation GREEN SHA before this evidence-only commit: `c14b4f687ebd85bd85126eb4f9c003f14f8d4327`.
+- [x] Implementation GREEN SHA: `c14b4f687ebd85bd85126eb4f9c003f14f8d4327` passed Quality Gate #1314, CleanGuard #840, Zero-Residue #66, and Project Control #1516.
+- [x] Evidence-only documentation commit produced final review SHA `c6b0cdc50f5d7fe70b4f41e8070c6ab677a4916b`.
+- [x] Final review SHA gates: VVIP Quality Gate #1315 PASS; TIGER CleanGuard #841 PASS; Zero-Residue Full History #67 PASS; Project Control Integrity #1517 PASS.
+- [x] Final PR diff scope is limited to the design, this plan, the focused Clerk test, and the focused Clerk adapter.
+- [x] No deploy workflow, secret, Production mutation, DNS, AWS permission, Supabase change, Clerk Dashboard change, or `main` retargeting was introduced.
 
-Fresh protected checks on that implementation SHA:
+## Review gate
 
-- [x] VVIP Quality Gate #1314 — PASS
-- [x] TIGER CleanGuard #840 — PASS
-- [x] Zero-Residue Full History #66 — PASS
-- [x] Project Control Integrity #1516 — PASS
-
-PR diff scope at the verified implementation SHA consisted only of:
-
-- `docs/superpowers/specs/2026-08-17-f05-clerk-request-auth-design.md`
-- `docs/superpowers/plans/2026-08-17-f05-clerk-request-auth.md`
-- `tests/f05-clerk-request-auth.test.cjs`
-- `scripts/media/server/aws/f05-clerk-request-auth.js`
-
-## Final-review rule
-
-This evidence update is documentation-only and therefore creates a new PR head SHA. The four protected checks must pass again on that exact final head before the PR is made Ready for independent review. Do not merge until independent approval is present and the approved head SHA remains unchanged.
+The final review head is `c6b0cdc50f5d7fe70b4f41e8070c6ab677a4916b`. Request independent review from `nzuodezuode-byte`. Do not merge until that independent approval is present and the reviewed head remains unchanged.
