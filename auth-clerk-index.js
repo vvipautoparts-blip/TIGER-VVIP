@@ -52,6 +52,10 @@
   }
 
   function showHome() {
+    if (root.VVIPFusionSurface && typeof root.VVIPFusionSurface.showHome === "function") {
+      root.VVIPFusionSurface.showHome();
+      return;
+    }
     if (root.VVIP_PR29 && typeof root.VVIP_PR29.showHome === "function") root.VVIP_PR29.showHome();
   }
 

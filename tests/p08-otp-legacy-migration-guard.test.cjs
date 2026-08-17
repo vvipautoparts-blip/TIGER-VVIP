@@ -11,7 +11,7 @@ const migrationPath = path.resolve(
 const migration = fs.readFileSync(migrationPath, 'utf8');
 const executableSql = migration.replace(/--.*$/gm, '');
 
-test('no earlier migration creates the historical public.otp_codes table', () => {
+test('no earlier canonical migration creates the historical public.otp_codes table', () => {
   const migrationDirectory = path.dirname(migrationPath);
   const targetName = path.basename(migrationPath);
   const earlierMigrations = fs
@@ -30,14 +30,10 @@ test('no earlier migration creates the historical public.otp_codes table', () =>
     );
   }
 
-  const historicalSnapshot = fs.readFileSync(
-    path.resolve(__dirname, '../supabase-schema.sql'),
-    'utf8',
-  );
-  assert.match(
-    historicalSnapshot,
-    /create\s+table\s+if\s+not\s+exists\s+public\.otp_codes\b/i,
-    'expected only the historical schema snapshot to retain the table definition',
+  assert.equal(
+    fs.existsSync(path.resolve(__dirname, '../supabase-schema.sql')),
+    false,
+    'retired root SQL snapshot must not return as parallel database authority',
   );
 });
 
