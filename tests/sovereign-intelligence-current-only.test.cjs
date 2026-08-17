@@ -161,23 +161,44 @@ test('owner control loads canonical registry before browser AI consumers', () =>
   assert.ok(consoleIndex > commandIndex, 'owner console must load after command center');
 });
 
-test('machine authority names existing verification paths and canonical AI runtime paths', () => {
+test('machine authority extends VVIP-ZRPH-1 with the canonical sovereign intelligence contract', () => {
   const authority = JSON.parse(fs.readFileSync(authorityPath, 'utf8'));
-  const verification = authority.runtime_authorities.verification;
-  const intelligence = authority.runtime_authorities.intelligence;
+  const intelligence = authority.sovereign_intelligence;
 
-  assert.equal(verification.includes('scripts/test-all.sh'), false, 'authority must not point to nonexistent scripts/test-all.sh');
-  assert.deepEqual(intelligence, [
-    'scripts/ai/sovereign-intelligence-registry.js',
-    'scripts/ai/sovereign-security-kernel.js',
+  assert.equal(authority.schema_version, 'VVIP-ZRPH-1');
+  assert.equal(authority.mode, 'CURRENT_ONLY');
+  assert.equal(authority.stack.quality_gate, 'scripts/quality-gate.sh');
+  assert.ok(intelligence, 'sovereign_intelligence authority block must exist');
+
+  assert.equal(intelligence.mode, 'CURRENT_ONLY');
+  assert.equal(intelligence.registry, 'scripts/ai/sovereign-intelligence-registry.js');
+  assert.equal(intelligence.policy_gate, 'scripts/ai/sovereign-security-kernel.js');
+  assert.deepEqual(intelligence.browser_consumers, [
     'scripts/ai/vvip-ai-command-center.js',
     'scripts/ai/vvip-ai-owner-console.js',
     'owner-control.html',
   ]);
+  assert.equal(intelligence.profile_model, 'ONE_ENGINE_MULTIPLE_CAPABILITY_PROFILES');
+  assert.deepEqual(intelligence.intelligence_ladder, [
+    'deterministic_rule',
+    'metric',
+    'small_local_model',
+    'browser_built_in_ai',
+    'no_ai',
+  ]);
 
-  assert.equal(authority.hard_rules.paid_remote_ai_inference_default, 'forbidden');
-  assert.equal(authority.hard_rules.ai_direct_database_access, 'forbidden');
-  assert.equal(authority.hard_rules.ai_cloud_credentials, 'forbidden');
-  assert.equal(authority.hard_rules.ai_destructive_production_authority, 'forbidden');
-  assert.equal(authority.hard_rules.ai_policy_registry_authority, 'single_current_only');
+  assert.equal(intelligence.paid_remote_inference_default, 'FORBIDDEN');
+  assert.equal(intelligence.paid_remote_inference_budget, 0);
+  assert.equal(intelligence.direct_database_access, 'FORBIDDEN');
+  assert.equal(intelligence.service_role_access, 'FORBIDDEN');
+  assert.equal(intelligence.aws_credential_access, 'FORBIDDEN');
+  assert.equal(intelligence.iam_mutation, 'FORBIDDEN');
+  assert.equal(intelligence.secret_reveal, 'FORBIDDEN');
+  assert.equal(intelligence.destructive_production_writes, 'FORBIDDEN');
+  assert.equal(intelligence.private_messages_general_memory, 'FORBIDDEN');
+  assert.deepEqual(intelligence.kill_switches, ['global', 'agent', 'tool']);
+
+  for (const relativePath of [intelligence.registry, intelligence.policy_gate, ...intelligence.browser_consumers]) {
+    assert.equal(fs.existsSync(path.join(ROOT, relativePath)), true, `machine authority path must exist: ${relativePath}`);
+  }
 });
