@@ -42,132 +42,72 @@ Run: `node --test tests/f05-canonical-listing-ownership-store.test.cjs`
 
 Expected: FAIL because `scripts/media/server/aws/f05-marketplace-listing-ownership-store.js` does not exist. The repository VVIP Quality Gate is expected to fail on the same missing module while CleanGuard, Zero-Residue, and Project Control remain green.
 
-- [ ] **Step 3: Write the minimal fail-closed implementation**
+- [x] **Step 3: Write the minimal fail-closed implementation**
 
-Create `scripts/media/server/aws/f05-marketplace-listing-ownership-store.js` with this contract:
+Implemented `scripts/media/server/aws/f05-marketplace-listing-ownership-store.js` with strict UUID and Clerk subject validation, exact canonical table/projection/dual-filter query, null not-found semantics, stable fail-closed errors, and no mutation surface.
 
-```js
-'use strict';
+- [x] **Step 4: Run the focused contract and verify GREEN**
 
-const LISTING_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const OWNER_SUBJECT = /^[A-Za-z0-9_-]{1,128}$/;
+The repository VVIP Quality Gate passed on implementation head `7a763caa064e1d6884c3e2ace66416f8c0ea2a97`, covering the focused contract.
 
-function fail(code) {
-  const error = new Error(code);
-  error.code = code;
-  throw error;
-}
-
-function createMarketplaceListingOwnershipStore(options) {
-  const client = options && options.client;
-  if (!client || typeof client.from !== 'function') fail('listing_ownership_store_unavailable');
-
-  async function getById(listingId, context) {
-    const ownerClerkUserId = context && context.ownerClerkUserId;
-    if (!LISTING_ID.test(String(listingId || '')) || !OWNER_SUBJECT.test(String(ownerClerkUserId || ''))) {
-      fail('listing_ownership_scope_invalid');
-    }
-
-    let result;
-    try {
-      result = await client
-        .from('vvip_marketplace_listings')
-        .select('listing_id,owner_subject')
-        .eq('listing_id', listingId)
-        .eq('owner_subject', ownerClerkUserId)
-        .maybeSingle();
-    } catch (cause) {
-      const error = new Error('listing_ownership_store_unavailable');
-      error.code = 'listing_ownership_store_unavailable';
-      error.cause = cause;
-      throw error;
-    }
-
-    if (!result || result.error) fail('listing_ownership_store_unavailable');
-    if (result.data == null) return null;
-    if (!result.data || result.data.listing_id !== listingId || result.data.owner_subject !== ownerClerkUserId) {
-      fail('listing_ownership_store_unavailable');
-    }
-
-    return Object.freeze({ listingId, ownerClerkUserId });
-  }
-
-  return Object.freeze({ getById });
-}
-
-exports.createMarketplaceListingOwnershipStore = createMarketplaceListingOwnershipStore;
-Object.freeze(module.exports);
-```
-
-- [ ] **Step 4: Run the focused contract and verify GREEN**
-
-Run: `node --test tests/f05-canonical-listing-ownership-store.test.cjs`
-
-Expected: all focused tests PASS, including exact table/projection/filter call order, invalid-scope no-query behavior, null not-found behavior, fail-closed query/malformed-row behavior, and source-level no-legacy/no-credential/no-mutation assertions.
-
-- [ ] **Step 5: Commit the implementation**
-
-Commit only the new module on `feat/f05-canonical-listing-ownership-store-20260817` with message:
+- [x] **Step 5: Commit the implementation**
 
 ```text
-feat(f05): add canonical listing ownership store
+7a763caa064e1d6884c3e2ace66416f8c0ea2a97 feat(f05): add canonical listing ownership store
 ```
 
 ### Task 2: Verify repository-wide gates on the exact implementation head
 
 **Files:**
-- No implementation changes unless a gate reveals a contract defect.
+- No implementation changes were required after the GREEN implementation commit.
 
 **Interfaces:**
-- Consumes: the exact head SHA created by Task 1.
+- Consumes: exact head `7a763caa064e1d6884c3e2ace66416f8c0ea2a97`.
 - Produces: evidence that VVIP Quality Gate, TIGER CleanGuard, Zero-Residue Full History, and Project Control Integrity all pass on that same head.
 
-- [ ] **Step 1: Wait for/check the PR-triggered workflow runs**
+- [x] **Step 1: Check the PR-triggered workflow runs**
 
-Expected workflows on the exact Task 1 head:
+- [x] **Step 2: Inspect any failed job before changing code**
+
+No workflow failed on the implementation head.
+
+- [x] **Step 3: Verify the focused contract**
+
+Covered by successful VVIP Quality Gate on the exact implementation head.
+
+- [x] **Step 4: Require all four repository gates GREEN on one exact SHA**
 
 ```text
-VVIP Quality Gate
-TIGER CleanGuard
-Zero-Residue Full History
-Project Control Integrity
+VVIP Quality Gate — success
+TIGER CleanGuard — success
+Zero-Residue Full History — success
+Project Control Integrity — success
 ```
-
-- [ ] **Step 2: Inspect any failed job before changing code**
-
-If a workflow fails, fetch the failing job steps/logs and verify the failure is attributable to this scoped change before editing. Do not weaken a security assertion or repository gate to obtain green status.
-
-- [ ] **Step 3: Re-run the focused test after any required correction**
-
-Run: `node --test tests/f05-canonical-listing-ownership-store.test.cjs`
-
-Expected: PASS.
-
-- [ ] **Step 4: Require all four repository gates GREEN on one exact SHA**
-
-Do not mark the PR ready for review until all four required workflows pass on the same current head SHA.
 
 ### Task 3: Final diff and scope audit
 
 **Files:**
-- Review all files changed by PR #267.
+- `docs/superpowers/plans/2026-08-17-f05-canonical-listing-ownership-store.md`
+- `docs/superpowers/specs/2026-08-17-f05-canonical-listing-ownership-store-design.md`
+- `scripts/media/server/aws/f05-marketplace-listing-ownership-store.js`
+- `tests/f05-canonical-listing-ownership-store.test.cjs`
 
 **Interfaces:**
 - Consumes: final PR #267 diff and workflow evidence.
 - Produces: a scoped, review-ready child PR that remains based on `feat/f05-aws-production-media-runtime-20260817` rather than `main`.
 
-- [ ] **Step 1: Review changed-file list and diff**
+- [x] **Step 1: Review changed-file list and diff**
 
-Expected change set is limited to the design, implementation plan, focused contract test, and one implementation module.
+The change set is limited to the design, implementation plan, focused contract test, and one implementation module.
 
-- [ ] **Step 2: Confirm forbidden scope is absent**
+- [x] **Step 2: Confirm forbidden scope is absent from executable change**
 
-Verify no SQL/migration, secret, environment credential read, `vvip_listings`, `SupabaseListingRepository`, AWS deploy mutation, DNS change, Amplify action, or Supabase Production access appears in the final diff.
+The implementation contains no SQL/migration, secret, environment credential read, legacy listing authority, AWS deploy mutation, DNS change, Amplify action, or Supabase Production access.
 
-- [ ] **Step 3: Confirm PR base and state**
+- [x] **Step 3: Confirm PR base and state**
 
-PR #267 must continue targeting `feat/f05-aws-production-media-runtime-20260817` and remain Draft until verification is complete.
+PR #267 targets `feat/f05-aws-production-media-runtime-20260817`, not `main`, and remained Draft through verification.
 
-- [ ] **Step 4: Mark ready only after exact-head verification**
+- [x] **Step 4: Mark ready only after exact-head verification**
 
-After all gates and final scope audit pass, transition PR #267 from Draft to Ready for review. Do not merge it directly to `main`.
+Exact-head verification is complete; the PR can now transition to Ready for review without merging to `main`.
