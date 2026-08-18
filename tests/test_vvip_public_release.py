@@ -149,6 +149,22 @@ class PublicReleaseTests(unittest.TestCase):
                 manifest["forbiddenFindings"],
             )
 
+    def test_candidate_includes_only_exact_comments_controller_path(self):
+        with tempfile.TemporaryDirectory() as temp:
+            source = Path(temp) / "src"
+            output = Path(temp) / "out"
+            source.mkdir()
+            self.fixture(source)
+            social = source / "scripts" / "social"
+            social.mkdir(parents=True, exist_ok=True)
+            (social / "comments-controller.js").write_text("window.TIGERSocialComments = {};\n", encoding="utf-8")
+            (social / "comments-controller.debug.js").write_text("private debug", encoding="utf-8")
+
+            module.build(source, output, mode="candidate", source_sha="comments-exact-file")
+
+            self.assertTrue((output / "scripts" / "social" / "comments-controller.js").is_file())
+            self.assertFalse((output / "scripts" / "social" / "comments-controller.debug.js").exists())
+
     def test_production_requires_real_public_configuration(self):
         with tempfile.TemporaryDirectory() as temp:
             source = Path(temp) / "src"
