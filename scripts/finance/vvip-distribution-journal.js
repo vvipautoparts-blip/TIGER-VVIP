@@ -1,13 +1,19 @@
 import {
+  COMMISSION_POLICY_EFFECTIVE_AT,
   COMMISSION_POLICY_VERSION,
   allocateNetRecognizedRevenueMinorUnits
 } from "./vvip-commission-policy.js";
 import {
-  ATTRIBUTION_POLICY_VERSION
+  ATTRIBUTION_POLICY_VERSION,
+  isResolverIssuedAttributionDecision
 } from "./vvip-attribution-policy.js";
 
 const IDENTIFIER_PATTERN = /^[A-Za-z0-9][A-Za-z0-9:._/-]{7,159}$/;
 const CURRENCY_PATTERN = /^[A-Za-z]{3}$/;
+const OFFSET_TIMESTAMP_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:\d{2})$/;
+const COMMISSION_POLICY_EFFECTIVE_TIMESTAMP = Date.parse(
+  COMMISSION_POLICY_EFFECTIVE_AT
+);
 
 const FIXED_DESTINATIONS = Object.freeze({
   OWNER_MANAGEMENT: Object.freeze({
@@ -83,14 +89,18 @@ function normalizeCurrency(currency) {
 }
 
 function normalizeOccurredAt(occurredAt, lockedAt) {
-  if (typeof occurredAt !== "string") {
+  if (typeof occurredAt !== "string"
+    || !OFFSET_TIMESTAMP_PATTERN.test(occurredAt)
+    || typeof lockedAt !== "string"
+    || !OFFSET_TIMESTAMP_PATTERN.test(lockedAt)) {
     throw new TypeError("VVIP_INVALID_JOURNAL");
   }
   const timestamp = Date.parse(occurredAt);
   const lockedTimestamp = Date.parse(lockedAt);
   if (!Number.isFinite(timestamp)
     || !Number.isFinite(lockedTimestamp)
-    || timestamp < lockedTimestamp) {
+    || timestamp < lockedTimestamp
+    || timestamp < COMMISSION_POLICY_EFFECTIVE_TIMESTAMP) {
     throw new TypeError("VVIP_INVALID_JOURNAL");
   }
   return new Date(timestamp).toISOString();
@@ -107,27 +117,29 @@ function assertAttribution(attribution, transactionKey) {
 
   if (attribution.status === "ATTRIBUTED") {
     if (attribution.saleChannel !== "REFERRED_SALE"
-      || typeof attribution.winningEvidenceId !== "string"
-      || typeof attribution.marketerId !== "string"
-      || typeof attribution.managerAssignmentId !== "string"
-      || typeof attribution.sectorId !== "string") {
+      || typeof attribution.evidenceType !== "string") {
       throw new TypeError("VVIP_INVALID_JOURNAL");
     }
-    return;
-  }
-
-  if (attribution.status === "DIRECT_PLATFORM") {
+    assertIdentifier(attribution.winningEvidenceId);
+    assertIdentifier(attribution.marketerId);
+    assertIdentifier(attribution.managerAssignmentId);
+    assertIdentifier(attribution.sectorId);
+  } else if (attribution.status === "DIRECT_PLATFORM") {
     if (attribution.saleChannel !== "DIRECT_PLATFORM"
       || attribution.winningEvidenceId !== null
+      || attribution.evidenceType !== null
       || attribution.marketerId !== null
       || attribution.managerAssignmentId !== null
       || attribution.sectorId !== null) {
       throw new TypeError("VVIP_INVALID_JOURNAL");
     }
-    return;
+  } else {
+    throw new TypeError("VVIP_INVALID_JOURNAL");
   }
 
-  throw new TypeError("VVIP_INVALID_JOURNAL");
+  if (!isResolverIssuedAttributionDecision(attribution)) {
+    throw new TypeError("VVIP_INVALID_JOURNAL");
+  }
 }
 
 function destinationFor(recipient, attribution) {
