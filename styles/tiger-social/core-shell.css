@@ -1,0 +1,144 @@
+[data-tiger-social-app] {
+  color: var(--t1-text-primary);
+  background: var(--t1-surface-canvas);
+}
+
+.social-primary-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--t1-space-2);
+  flex: 1;
+  min-width: 0;
+}
+
+.social-nav-item {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--t1-space-2);
+  padding: 0 var(--t1-space-3);
+  border: 1px solid transparent;
+  border-radius: var(--t1-radius-control);
+  background: transparent;
+  color: var(--t1-text-secondary);
+  font: var(--t1-type-label-m);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--t1-motion-standard), color var(--t1-motion-standard), border-color var(--t1-motion-standard);
+}
+
+.social-nav-item:hover,
+.social-nav-item:focus-visible {
+  background: var(--t1-surface-raised);
+  color: var(--t1-text-primary);
+}
+
+.social-nav-item:focus-visible {
+  outline: none;
+  box-shadow: var(--t1-focus-ring);
+}
+
+.social-nav-item[aria-current="page"] {
+  color: var(--t1-action-primary);
+  border-color: var(--t1-border-strong);
+  background: var(--t1-surface-raised);
+}
+
+.tiger-social-home {
+  width: min(720px, calc(100% - (2 * var(--t1-space-4))));
+  margin: var(--t1-space-6) auto;
+  display: grid;
+  gap: var(--t1-space-4);
+}
+
+.social-post-composer,
+.social-feed-placeholder,
+.social-module-placeholder {
+  border: 1px solid var(--t1-border-subtle);
+  border-radius: var(--t1-radius-card);
+  background: var(--t1-surface-raised);
+  box-shadow: var(--t1-shadow-card);
+}
+
+.social-post-composer {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--t1-space-3);
+  padding: var(--t1-space-4);
+  align-items: center;
+}
+
+.social-post-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--t1-surface-overlay);
+  color: var(--t1-accent-vvip);
+  font-weight: 800;
+}
+
+.social-post-trigger {
+  min-height: 42px;
+  border: 1px solid var(--t1-border-subtle);
+  border-radius: var(--t1-radius-pill);
+  background: var(--t1-surface-overlay);
+  color: var(--t1-text-secondary);
+  text-align: start;
+  padding: 0 var(--t1-space-4);
+  cursor: pointer;
+}
+
+.social-post-trigger:hover,
+.social-post-trigger:focus-visible {
+  color: var(--t1-text-primary);
+  border-color: var(--t1-border-strong);
+}
+
+.social-post-trigger:focus-visible {
+  outline: none;
+  box-shadow: var(--t1-focus-ring);
+}
+
+.social-feed-placeholder,
+.social-module-placeholder {
+  padding: var(--t1-space-6);
+}
+
+.social-feed-placeholder h2,
+.social-module-placeholder h2 {
+  margin: 0 0 var(--t1-space-2);
+  font: var(--t1-type-title-m);
+}
+
+.social-feed-placeholder p,
+.social-module-placeholder p {
+  margin: 0;
+  color: var(--t1-text-secondary);
+  font: var(--t1-type-body-m);
+}
+
+.social-module-placeholder[hidden],
+.tiger-social-home[hidden] {
+  display: none !important;
+}
+
+.marketplace-module-heading {
+  width: min(1180px, calc(100% - (2 * var(--t1-space-4))));
+  margin: var(--t1-space-6) auto var(--t1-space-3);
+}
+
+@media (max-width: 900px) {
+  .social-primary-nav {
+    display: none;
+  }
+
+  .tiger-social-home {
+    width: calc(100% - (2 * var(--t1-space-3)));
+    margin-top: var(--t1-space-3);
+  }
+}
