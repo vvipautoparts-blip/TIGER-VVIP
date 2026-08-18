@@ -37,6 +37,9 @@ PUBLIC_STYLE_FILES = (
     "styles/vvip-visual-trust-layer.css",
     "styles/fusion/f02-single-surface.css",
     "styles/fusion/progressive-composer.css",
+    "styles/tiger-one/tokens.css",
+    "styles/tiger-one/type.css",
+    "styles/tiger-social/core-shell.css",
 )
 
 PUBLIC_ICON_FILES = (
@@ -63,6 +66,7 @@ PUBLIC_SCRIPT_FILES = (
     "scripts/fusion/progressive-composer.js",
     "scripts/fusion/account-surface.js",
     "scripts/fusion/single-surface-controller.js",
+    "scripts/social/core-shell.js",
 )
 
 PUBLIC_MEDIA_FILES = (
