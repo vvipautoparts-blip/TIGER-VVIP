@@ -2,6 +2,8 @@ export const ATTRIBUTION_POLICY_VERSION = "VVIP_ATTRIBUTION_2026_08_19_V2_1";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const IDENTIFIER_PATTERN = /^[A-Za-z0-9][A-Za-z0-9:._/-]{7,159}$/;
+const OFFSET_TIMESTAMP_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:\d{2})$/;
+const ISSUED_ATTRIBUTION_DECISIONS = new WeakSet();
 
 export const ATTRIBUTION_EVIDENCE_POLICY = Object.freeze({
   CHECKOUT_CODE: Object.freeze({
@@ -50,7 +52,7 @@ function assertIdentifier(value) {
 }
 
 function normalizeTime(value) {
-  if (typeof value !== "string") {
+  if (typeof value !== "string" || !OFFSET_TIMESTAMP_PATTERN.test(value)) {
     throw new TypeError("VVIP_INVALID_ATTRIBUTION_TIME");
   }
   const timestamp = Date.parse(value);
@@ -61,6 +63,18 @@ function normalizeTime(value) {
     iso: new Date(timestamp).toISOString(),
     timestamp
   };
+}
+
+function issueDecision(fields) {
+  const decision = Object.freeze(fields);
+  ISSUED_ATTRIBUTION_DECISIONS.add(decision);
+  return decision;
+}
+
+export function isResolverIssuedAttributionDecision(value) {
+  return Boolean(value)
+    && typeof value === "object"
+    && ISSUED_ATTRIBUTION_DECISIONS.has(value);
 }
 
 function normalizeEvidence(rawEvidence, lockedTimestamp) {
@@ -117,7 +131,7 @@ function createEmptyDecision({
   status,
   saleChannel
 }) {
-  return Object.freeze({
+  return issueDecision({
     policyVersion: ATTRIBUTION_POLICY_VERSION,
     transactionId,
     status,
@@ -146,6 +160,13 @@ export function resolveAttribution({
   const normalizedEvidence = evidence.map((item) => (
     normalizeEvidence(item, normalizedLockedAt.timestamp)
   ));
+  const evidenceIds = new Set();
+  for (const item of normalizedEvidence) {
+    if (evidenceIds.has(item.evidenceId)) {
+      throw new TypeError("VVIP_INVALID_ATTRIBUTION_EVIDENCE");
+    }
+    evidenceIds.add(item.evidenceId);
+  }
 
   if (fraudReviewRequired) {
     return createEmptyDecision({
@@ -178,7 +199,7 @@ export function resolveAttribution({
   }
 
   const winner = candidates[0];
-  return Object.freeze({
+  return issueDecision({
     policyVersion: ATTRIBUTION_POLICY_VERSION,
     transactionId: normalizedTransactionId,
     status: "ATTRIBUTED",
