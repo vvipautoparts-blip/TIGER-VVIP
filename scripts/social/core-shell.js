@@ -44,13 +44,6 @@
       setHidden(`[data-social-module-placeholder="${destination}"]`, false);
     }
 
-    if (destination === 'profile') {
-      const accountTrigger = document.querySelector('[data-fusion-account-trigger]');
-      if (accountTrigger && !accountTrigger.matches('[data-social-nav="profile"]')) {
-        accountTrigger.click();
-      }
-    }
-
     return true;
   }
 
@@ -59,7 +52,34 @@
     return SOCIAL_DESTINATIONS.has(value) ? value : null;
   }
 
+  function setPostSheetOpen(open) {
+    const sheet = document.querySelector('[data-social-post-sheet]');
+    if (!sheet) return;
+
+    sheet.hidden = !open;
+    sheet.setAttribute('aria-hidden', open ? 'false' : 'true');
+
+    if (open) {
+      const dialog = sheet.querySelector('[role="dialog"]');
+      const draft = sheet.querySelector('[data-social-post-draft]');
+      (draft || dialog)?.focus();
+    }
+  }
+
   document.addEventListener('click', (event) => {
+    const postTrigger = event.target.closest('[data-social-post-trigger]');
+    if (postTrigger) {
+      event.preventDefault();
+      setPostSheetOpen(true);
+      return;
+    }
+
+    if (event.target.closest('[data-social-post-close]')) {
+      event.preventDefault();
+      setPostSheetOpen(false);
+      return;
+    }
+
     const control = event.target.closest('[data-social-nav]');
     if (!control) return;
 
@@ -80,6 +100,10 @@
         window.history.replaceState(null, '', nextHash);
       }
     }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') setPostSheetOpen(false);
   });
 
   window.addEventListener('hashchange', () => {
