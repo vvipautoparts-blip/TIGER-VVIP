@@ -80,6 +80,12 @@ declare -A reviewed_migration_hashes=(
   # post audience, relationship-transition, and legacy-feed isolation contracts.
   # The approval is content-addressed; any byte drift re-enters review automatically.
   ["supabase/migrations/20260818125000_social_core_foundation.sql"]="fa6169a934e6a128849ae9557a30245dcd4e310975cfcb3246d0a8e9f0d057a8"
+
+  # Social Reactions: reviewed with CRITICAL=0 after mutation predicates were made
+  # scanner-visible. The remaining findings are expected new-table NOT NULL integrity,
+  # four RLS policies, and three exact authenticated EXECUTE grants; no browser table
+  # CRUD, anon grant, or unbounded mutation is approved. Any byte drift re-enters review.
+  ["supabase/migrations/20260818133000_social_reactions.sql"]="174b688fee994e329824230f48e031bb59de9f0c4049f322791f363dc88354ea"
 )
 
 reviewed_baseline_path() {
