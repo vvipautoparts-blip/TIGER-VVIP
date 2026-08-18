@@ -68,6 +68,7 @@ PUBLIC_SCRIPT_FILES = (
     "scripts/fusion/single-surface-controller.js",
     "scripts/social/runtime-adapters.js",
     "scripts/social/feed-read-model.js",
+    "scripts/social/reactions-controller.js",
     "scripts/social/feed-controller.js",
     "scripts/social/post-composer.js",
     "scripts/social/friends-controller.js",
