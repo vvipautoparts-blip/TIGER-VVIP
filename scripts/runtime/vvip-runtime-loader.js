@@ -13,6 +13,19 @@
   "use strict";
 
   const REQUIRED = ["environment", "clerkPublishableKey", "supabaseUrl", "supabasePublishableKey"];
+  const FORBIDDEN_AD_PLAN_FIELDS = Object.freeze([
+    "durationDays",
+    "expiresAfterDays",
+    "tier",
+    "slotCount",
+    "visualPriority",
+    "featuredPriority",
+    "featured",
+    "badge",
+    "badgeType",
+    "rankBoost",
+    "searchPriority"
+  ]);
 
   function runtimeError(code) {
     const error = new Error(code);
@@ -38,6 +51,67 @@
     return decoded;
   }
 
+  function normalizeVisibilityPlans(input, defaultCountryCode) {
+    if (input === undefined || input === null) return Object.freeze([]);
+    if (!Array.isArray(input)) throw runtimeError("AD_PLANS_INVALID");
+    const market = String(defaultCountryCode || "").trim().toUpperCase();
+
+    const plans = input.map(function (candidate) {
+      const plan = candidate && typeof candidate === "object" && !Array.isArray(candidate) ? candidate : null;
+      if (!plan) throw runtimeError("AD_PLAN_INVALID");
+
+      for (const field of FORBIDDEN_AD_PLAN_FIELDS) {
+        if (Object.prototype.hasOwnProperty.call(plan, field)) {
+          throw runtimeError("LEGACY_AD_PLAN_FORBIDDEN");
+        }
+      }
+
+      const id = String(plan.id || "").trim();
+      const productType = String(plan.productType || "").trim();
+      const label = String(plan.label || "").trim();
+      const description = String(plan.description || "").trim();
+      const currency = String(plan.currency || "").trim().toUpperCase();
+      const marketCountry = String(plan.marketCountry || "").trim().toUpperCase();
+      const pricingVersion = String(plan.pricingVersion || "").trim();
+      const lifecyclePolicyId = String(plan.lifecyclePolicyId || "").trim();
+      const priceMinor = Number(plan.priceMinor);
+      const committedImpressions = Number(plan.committedImpressions);
+
+      if (!/^[A-Za-z0-9][A-Za-z0-9._:-]{1,79}$/.test(id)) throw runtimeError("AD_PLAN_ID_INVALID");
+      if (productType !== "distribution-credit") throw runtimeError("LEGACY_AD_PLAN_FORBIDDEN");
+      if (!label || label.length > 80) throw runtimeError("AD_PLAN_LABEL_INVALID");
+      if (description.length > 160) throw runtimeError("AD_PLAN_DESCRIPTION_INVALID");
+      if (!Number.isSafeInteger(priceMinor) || priceMinor <= 0) throw runtimeError("AD_PLAN_PRICE_INVALID");
+      if (!/^[A-Z]{3}$/.test(currency)) throw runtimeError("AD_PLAN_CURRENCY_INVALID");
+      if (!/^[A-Z]{2}$/.test(marketCountry)) throw runtimeError("AD_PLAN_MARKET_INVALID");
+      if (market && marketCountry !== market) throw runtimeError("AD_PLAN_MARKET_MISMATCH");
+      if (!Number.isSafeInteger(committedImpressions) || committedImpressions <= 0) {
+        throw runtimeError("AD_PLAN_COMMITTED_IMPRESSIONS_INVALID");
+      }
+      if (!/^[A-Za-z0-9][A-Za-z0-9._:-]{2,63}$/.test(pricingVersion)) {
+        throw runtimeError("AD_PLAN_PRICING_VERSION_INVALID");
+      }
+      if (!/^[A-Za-z0-9][A-Za-z0-9._:-]{2,79}$/.test(lifecyclePolicyId)) {
+        throw runtimeError("AD_PLAN_LIFECYCLE_POLICY_INVALID");
+      }
+
+      return Object.freeze({
+        id: id,
+        productType: "distribution-credit",
+        label: label,
+        description: description,
+        priceMinor: priceMinor,
+        currency: currency,
+        marketCountry: marketCountry,
+        committedImpressions: committedImpressions,
+        pricingVersion: pricingVersion,
+        lifecyclePolicyId: lifecyclePolicyId
+      });
+    });
+
+    return Object.freeze(plans);
+  }
+
   function validateConfig(input) {
     const config = input && typeof input === "object" ? input : {};
     for (const field of REQUIRED) {
@@ -59,7 +133,11 @@
     }
     const country = String(config.defaultCountryCode || "");
     if (country && !/^[A-Z]{2}$/.test(country)) throw runtimeError("DEFAULT_COUNTRY_INVALID");
-    return Object.freeze(Object.assign({}, config, { clerkFrontendApi: frontendApi }));
+    const visibilityPlans = normalizeVisibilityPlans(config.visibilityPlans, country);
+    return Object.freeze(Object.assign({}, config, {
+      clerkFrontendApi: frontendApi,
+      visibilityPlans: visibilityPlans
+    }));
   }
 
   function loadScript(src, attributes) {
@@ -127,5 +205,12 @@
     return runtime;
   }
 
-  return Object.freeze({ boot, validateConfig, clerkFrontendApi, decodeBase64Url, runtimeError });
+  return Object.freeze({
+    boot,
+    validateConfig,
+    normalizeVisibilityPlans,
+    clerkFrontendApi,
+    decodeBase64Url,
+    runtimeError
+  });
 });
