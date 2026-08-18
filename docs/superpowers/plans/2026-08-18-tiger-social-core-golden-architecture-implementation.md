@@ -1,5 +1,7 @@
 # TIGER Social Core + Golden Architecture — Implementation Plan
 
+> **Execution status:** `HISTORICAL EXECUTION RECORD / S0 INPUT ONLY`. Completed Social Core work remains implementation evidence. The current cursor and all future SYNAPSE/VERITY work are governed by `docs/superpowers/plans/2026-08-18-tiger-synapse-v2-verity-fabric-program-execution.md`; this file may not act as a competing current plan.
+
 **Date:** 2026-08-18
 **Branch:** `feat/tiger-one-living-surface-impl-20260818`
 **Base authority branch:** `feat/tiger-one-living-surface-spec-20260818`

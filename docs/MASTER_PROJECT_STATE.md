@@ -16,6 +16,10 @@
 - **مرجع SYNAPSE الحالي:** `docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md`.
 - **حالة SYNAPSE:** `APPROVED / NOT IMPLEMENTED`؛ اعتماد الاتجاه لا يعني أن المزايا موجودة في الـruntime أو أن Preview جاهز.
 - **حالة VERITY FABRIC:** `APPROVED / NOT IMPLEMENTED`؛ تبقى عقود TSRF وF05 والحزم الحالية أساسًا موجودًا، لكنها لا تثبت أن نسيج VERITY الكامل أو Gate Compiler قد نُفذا.
+- **قرار المالك المثبت:** اعتمد المالك النسخة المكتوبة لخيار C بتاريخ 2026-08-18؛ أصبحت SYNAPSE v2 + VERITY FABRIC سلطة `CURRENT_ONLY` في نطاقها، مع بقاء التنفيذ `NOT IMPLEMENTED` حتى ظهور أدلة الكود والاختبارات.
+- **خطة البرنامج الحالية:** `docs/superpowers/plans/2026-08-18-tiger-synapse-v2-verity-fabric-program-execution.md`.
+- **مؤشر التنفيذ الحالي:** `docs/superpowers/plans/2026-08-18-s0-social-comments-quality-gate.md` — مصالحة رأس فرع PR #271 ثم إكمال التعليقات/الردود وإعادة Quality Gate إلى GREEN.
+- **ترتيب حماية المالك:** بعد نجاح S0 مباشرة يبدأ V0 لتحويل مرجع المالك وقاعدة إلغاء القديم إلى Authority Graph قابل للتحقق آليًا، قبل توسيع محرك النوايا.
 - **قاعدة المالك النهائية:** أحدث قرار `CURRENT_ONLY` يلغي سلطة كل قديم متعارض ويخرجه من المنصة الحالية والحزمة العامة ومسارات التنفيذ؛ الأثر الضروري يبقى `HISTORICAL_ONLY` خارج المنصة بلا أي سلطة.
 - **سلطة المعاينة:** لا يُعتمد أي فيديو أو رابط نشر تاريخي أو رابط Pages سابق بوصفه معاينة لهذا العمل.
 - **شرط الرابط الصحيح:** Preview مستقل مبني من exact head الخاص بـPR #271، يعمل على الهاتف، ولا يغيّر `main` أو Production.

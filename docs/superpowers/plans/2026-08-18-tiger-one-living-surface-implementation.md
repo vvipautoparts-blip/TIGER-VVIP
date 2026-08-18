@@ -1,5 +1,7 @@
 # TIGER ONE 2026 Living Surface Implementation Plan
 
+> **Execution status:** `HISTORICAL EXECUTION RECORD / NOT THE CURRENT CURSOR`. The implemented TIGER ONE foundation remains valid where compatible, but current execution is governed by `docs/superpowers/plans/2026-08-18-tiger-synapse-v2-verity-fabric-program-execution.md`. Conflicting unfinished expectations in this file are `RETIRED_FROM_CURRENT_PLATFORM / HISTORICAL_ONLY` and cannot override the current program.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Replace the current FUSION presentation authority with the OWNER-approved TIGER ONE 2026 Living Surface while preserving Clerk, F05/Media Fortress, Search Fabric, SCG/SOA, RLS, ownership, ledger, and the advertising/direct-contact platform boundary.
