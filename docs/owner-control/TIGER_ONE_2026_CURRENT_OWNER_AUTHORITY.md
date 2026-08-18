@@ -4,7 +4,9 @@
 
 **Effective date:** 2026-08-18
 
-**Applies to:** VVIP TIGER product design, interaction architecture, information architecture, visual system, user journeys, campaign surfaces, publishing/recharge experience, profile/contact experience, temporal intent, matching, evidence, disclosure, communication, responsive behavior, accessibility presentation, and any implementation derived from those domains.
+**Owner entrypoint:** `docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md`
+
+**Applies to:** VVIP TIGER product design, interaction architecture, information architecture, visual system, user journeys, campaign surfaces, publishing/recharge experience, profile/contact experience, temporal intent, matching, evidence, disclosure, communication, authority graphs, release artifacts, rollback, responsive behavior, accessibility presentation, and any implementation derived from those domains.
 
 ## 1. Binding owner rule
 
@@ -16,11 +18,15 @@ The conflicting earlier rule is immediately classified:
 
 `SUPERSEDED / HISTORICAL ONLY`
 
+Its operational platform status is:
+
+`RETIRED_FROM_CURRENT_PLATFORM`
+
 It must no longer be treated as CURRENT authority.
 
-### 1.1 TIGER SYNAPSE extension authority
+### 1.1 TIGER SYNAPSE v2 and VERITY FABRIC extension authority
 
-The OWNER has approved **TIGER SYNAPSE** as the current product-innovation direction that extends TIGER ONE into a Temporal Intent Operating System.
+The OWNER has approved **TIGER SYNAPSE v2** as the current product-innovation direction that extends TIGER ONE into a Temporal Intent Operating System, and **TIGER VERITY FABRIC** as its trust, authority, evidence, release, and rollback framework.
 
 The binding product architecture for that extension is:
 
@@ -32,13 +38,20 @@ Its status is:
 
 TIGER SYNAPSE extends TIGER ONE; it does not replace the protected security, privacy, financial-integrity, legal, platform-role, release, or exact-source verification boundaries in this authority. The current Social Core runtime remains the implementation truth until each SYNAPSE slice is implemented and verified against its exact source state.
 
-When a SYNAPSE slice is migrated, any earlier intent, matching, evidence, disclosure, or interaction authority that conflicts with the approved SYNAPSE specification becomes `SUPERSEDED / HISTORICAL ONLY` for that migrated domain. An unimplemented design, mockup, historical video, or retired Preview link must never be represented as current runtime readiness.
+When a SYNAPSE or VERITY slice is migrated, any earlier intent, matching, evidence, disclosure, interaction, release, or governance authority that conflicts with the approved specification becomes `SUPERSEDED / RETIRED_FROM_CURRENT_PLATFORM / HISTORICAL_ONLY` for that migrated domain. An unimplemented design, mockup, historical video, or retired Preview link must never be represented as current runtime readiness.
+
+### 1.2 Owner finality directive
+
+The latest explicit OWNER decision recorded as `CURRENT_ONLY` is final for its domain. Conflicting older authority must be removed or disconnected from the current platform, runtime, public artifact, active routes, active tests, active configuration, current plans, and generated current documentation. No compatibility path, feature flag, rollback, comment, or archived document may reactivate it.
+
+Necessary historical bytes may remain only as non-runtime audit, security, provenance, or decision evidence outside the public platform. Physical history rewriting is a separately governed destructive operation and is not required to retire product authority.
 
 ## 2. What supersession means operationally
 
 A superseded rule must be excluded from all of the following when the affected area is migrated:
 
 - Production/current runtime behavior;
+- current public artifacts and navigation;
 - current owner operational reference/index;
 - current implementation plans;
 - active UI/design tokens;
@@ -48,7 +61,7 @@ A superseded rule must be excluded from all of the following when the affected a
 - current generated copy/configuration;
 - active product documentation.
 
-Historical files may remain only for audit, rollback reasoning, provenance, security investigation, or decision history. Historical retention does **not** grant runtime or design authority.
+Historical files may remain only for audit, rollback reasoning, provenance, security investigation, or decision history. They remain outside the public platform and active authority indexes. Historical retention does **not** grant runtime or design authority.
 
 ## 3. Conflict resolution
 
@@ -119,4 +132,4 @@ Migration adapters may exist temporarily only when explicitly bounded, observabl
 
 The binding owner instruction is:
 
-> **If TIGER ONE 2026 conflicts or collides with prior product/UI/UX/IA/design authority, adopt TIGER ONE 2026, fully retire the conflicting prior authority from CURRENT use, and retain old material only as historical evidence. Do not let old authority re-enter the product through code, tests, documentation, configuration, or launch criteria.**
+> **If the latest OWNER-approved `CURRENT_ONLY` decision conflicts with prior product, UI, UX, IA, design, intent, evidence, release, or governance authority, adopt the latest decision, permanently retire the conflicting prior authority from the current platform, and retain only necessary non-runtime historical evidence. Do not let old authority re-enter through code, tests, documentation, configuration, compatibility, rollback, public artifacts, or launch criteria.**

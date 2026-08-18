@@ -3,6 +3,7 @@
 > **هذه الوثيقة هي المرجع البشري الوحيد للحالة الحالية للمشروع.**
 > الحقيقة التنفيذية النهائية هي ملفات GitHub الحالية + الـexact SHA/tree + أدلة CI المطابقة لنفس الـSHA.
 > أي وثيقة أخرى أو تقرير أو Ledger أو محادثة أو Archive هو **Evidence فقط** ولا يملك سلطة تغيير هذه الوثيقة أو الـruntime.
+> مدخل المالك الدائم للعودة إلى هذه الحقيقة هو `docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md`، وهو فهرس توجيهي لا سلطة موازية.
 
 ## 0. مؤشر التنفيذ الحالي على فرع Social Core
 
@@ -10,9 +11,12 @@
 - **الحالة:** `IN_PROGRESS` حتى ينجح Quality Gate على الرأس النهائي نفسه.
 - **رأس PR الذي تمت مراجعته:** `1189cad647fc489074f80552c35207935472bbdf`؛ بقي Quality Gate في حالة RED بسبب عقود التعليقات الثلاثة المقصودة أثناء TDD، ولا توجد دلالة جاهزية ناتجة عن هذه المواصفة.
 - **الواجهة الحالية:** TIGER Social Home مع Header مضغوط، تبويبات اجتماعية، Composer، عرض Stories، ومنشورات وتفاعلات اجتماعية مألوفة مع هوية TIGER مستقلة.
-- **الرؤية الابتكارية المعتمدة:** **TIGER SYNAPSE** — Temporal Intent Operating System يوحّد النية اللحظية، المطابقة القابلة للتفسير، إثبات الحاضر، الكشف المتبادل، والتواصل المباشر داخل Living Surface واحدة.
+- **الرؤية الابتكارية المعتمدة:** **TIGER SYNAPSE v2** — Temporal Intent Operating System يوحّد النية اللحظية، المطابقة القابلة للتفسير، إثبات الحاضر، الكشف المتبادل، والتواصل المباشر داخل Living Surface واحدة.
+- **نسيج السلطة والإثبات المعتمد:** **TIGER VERITY FABRIC** — Authority Graph + Hermetic Build Core + Release DNA/Proof Root + Typed P01–P20 Evidence + Fresh Runtime Witnesses.
 - **مرجع SYNAPSE الحالي:** `docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md`.
 - **حالة SYNAPSE:** `APPROVED / NOT IMPLEMENTED`؛ اعتماد الاتجاه لا يعني أن المزايا موجودة في الـruntime أو أن Preview جاهز.
+- **حالة VERITY FABRIC:** `APPROVED / NOT IMPLEMENTED`؛ تبقى عقود TSRF وF05 والحزم الحالية أساسًا موجودًا، لكنها لا تثبت أن نسيج VERITY الكامل أو Gate Compiler قد نُفذا.
+- **قاعدة المالك النهائية:** أحدث قرار `CURRENT_ONLY` يلغي سلطة كل قديم متعارض ويخرجه من المنصة الحالية والحزمة العامة ومسارات التنفيذ؛ الأثر الضروري يبقى `HISTORICAL_ONLY` خارج المنصة بلا أي سلطة.
 - **سلطة المعاينة:** لا يُعتمد أي فيديو أو رابط نشر تاريخي أو رابط Pages سابق بوصفه معاينة لهذا العمل.
 - **شرط الرابط الصحيح:** Preview مستقل مبني من exact head الخاص بـPR #271، يعمل على الهاتف، ولا يغيّر `main` أو Production.
 - **الحقيقة السلبية:** عدم وجود رابط Preview صحيح أفضل من نشر رابط قديم أو غير مطابق؛ لا يجوز اختلاق الجاهزية أو إعادة استخدام رابط متقاعد.
@@ -21,6 +25,7 @@
 
 - **المنصة:** VVIP TIGER.
 - **المستودع:** `vvipautoparts-blip/TIGER-VVIP`.
+- **مدخل المالك الدائم:** `docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md`.
 - **مرجع المالك البشري:** `docs/MASTER_PROJECT_STATE.md` فقط.
 - **العقد الآلي المطابق:** `project-control/production-handover/current-authority.v1.json`.
 - **وضع المرجعية:** `CURRENT_ONLY`.

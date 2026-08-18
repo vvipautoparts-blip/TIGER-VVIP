@@ -1,14 +1,18 @@
-# TIGER SYNAPSE 2026 — Temporal Intent Operating System
+# TIGER SYNAPSE v2 + TIGER VERITY FABRIC 2026
 
-**Status:** OWNER-APPROVED PRODUCT DIRECTION — WRITTEN SPEC FOR OWNER REVIEW
+**Status:** OWNER-APPROVED OPTION C — V2 WRITTEN SPEC FOR OWNER REVIEW
 
 **Date:** 2026-08-18
+
+**Design version:** `2.0-owner-review`
 
 **Product scope:** TIGER ONE 2026 evolution after the Social Core baseline
 
 **Baseline dependency:** PR #271 must return to GREEN; this specification does not add SYNAPSE implementation scope to PR #271
 
 **Implementation state:** `APPROVED / NOT IMPLEMENTED`
+
+**Owner entrypoint:** `docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md` — navigation only, not a second authority
 
 **Parent authorities:**
 
@@ -18,11 +22,23 @@
 
 ## 0. Authority and truth boundary
 
-TIGER SYNAPSE is the owner-approved product innovation that extends TIGER ONE from a familiar Social Home plus Marketplace into a **Temporal Intent Operating System**.
+TIGER SYNAPSE is the owner-approved product innovation that extends TIGER ONE from a familiar Social Home plus Marketplace into a **Temporal Intent Operating System**. TIGER VERITY FABRIC is the approved trust, evidence, release, and authority framework that proves which exact implementation may represent that product.
 
 It does not replace or weaken the existing federated-identity, authorization, RLS, media-security, release, legal, accessibility, or platform-role boundaries. Where this specification introduces a new product capability, it is the current product authority for that capability. Where it is silent, the stricter compatible existing authority remains binding.
 
 Approval of this design is not implementation evidence. Until exact-head code and tests exist, every SYNAPSE capability is `APPROVED / NOT IMPLEMENTED`. The current PR remains `IN_PROGRESS` and may not be described as ready while its Quality Gate is RED.
+
+### 0.1 Owner finality and anti-resurrection rule
+
+The latest explicit OWNER decision recorded as `CURRENT_ONLY` is final for its decision domain. Any older document, code path, test expectation, configuration, route, generated copy, component contract, or workflow that conflicts with it becomes:
+
+`RETIRED_FROM_CURRENT_PLATFORM / HISTORICAL_ONLY`
+
+The conflicting authority must be removed or disconnected from current runtime, navigation, public artifacts, active tests, active configuration, implementation plans, and current documentation. Compatibility, rollback, feature flags, comments, or archived files may not resurrect it.
+
+Necessary Git or archive evidence may remain for audit, security, provenance, and decision history only. It must stay outside the public platform and carries no product or runtime authority. Physical Git-history deletion is a separately governed destructive operation, not the ordinary meaning of product supersession.
+
+Non-conflicting stricter security, privacy, identity, RLS, financial-integrity, legal, release, and evidence protections remain binding unless the OWNER explicitly replaces them through an equally safe current authority.
 
 The names `TIGER SYNAPSE`, `TIGER NOW Graph`, `Match Constellation`, `Proof-of-Now`, `Mutual Reveal Handshake`, and `Connection Cell` are product identifiers defined by this specification. This document does not claim trademark registration, patent protection, or legal exclusivity; those require separate professional searches and filings.
 
@@ -71,13 +87,20 @@ TIGER revenue remains advertising and platform-owned publishing services. Sponso
 
 ## 4. Chosen architecture
 
-The approved architecture is **hybrid edge–cloud**, with progressive capability on the device, regional retrieval where available, and server-authoritative policy and persistence.
+The approved option C architecture contains two coupled systems with different responsibilities:
+
+1. **TIGER SYNAPSE v2 — Product Intelligence Plane:** a hybrid edge–cloud Temporal Intent Operating System, with progressive device capability, regional retrieval where available, and server-authoritative policy and persistence.
+2. **TIGER VERITY FABRIC — Trust and Release Plane:** an authority graph, hermetic build core, exact multi-artifact identity, typed evidence capsules, P01–P20 policy evaluation, and fresh live-runtime witnesses.
+
+Neither plane may grant authority to the other through an unverified claim. SYNAPSE cannot mark itself trusted because a model said so; VERITY cannot describe a product capability as implemented because a specification exists.
 
 ### Rejected as sole authority
 
 - **Cloud-only superbrain:** rejected as the sole model because it increases latency, privacy exposure, provider dependency, and inference cost.
 - **Device-only decentralized mesh:** rejected as the sole model because device capability, browser support, global reach, moderation, and availability are inconsistent.
 - **Unbounded microservices rewrite:** rejected because it would duplicate current authorities and delay product proof.
+- **One system described as fully hermetic:** rejected because live AWS, DNS, TLS, identity, email, webhook, and analytics evidence depends on external state and time. Only the build core can be hermetic.
+- **A second evidence framework beside TSRF:** rejected because the existing Release DNA and Proof Capsule contracts must be extended, not bypassed or duplicated.
 
 ### Hybrid rule
 
@@ -86,6 +109,14 @@ The approved architecture is **hybrid edge–cloud**, with progressive capabilit
 - regional/edge infrastructure may accelerate eligible retrieval and delivery but does not become a second authority;
 - every advanced path has a deterministic non-AI fallback;
 - the current static HTML/CSS/JavaScript delivery boundary remains until a separately approved architecture changes it.
+
+### Trust-plane rule
+
+- the hermetic core proves source, build inputs, artifact bytes, policies, and deterministic checks;
+- the live witness edge proves time-bounded provider state from read-only observations;
+- a Release Proof Root binds both classes without pretending that live observations are hermetic;
+- no source document embeds a self-referential commit SHA as proof of the commit that contains it;
+- CI-generated attestations bind exact commit SHA, exact tree SHA, authority-document digests, artifact digests, policy digests, and trusted producer identity.
 
 ## 5. System components
 
@@ -173,6 +204,8 @@ Proof-of-Now does not state `Owner verified`, `Condition guaranteed`, or `Fraud 
 Freshness means the randomized challenge was completed within the stated window and passed the stated integrity checks. It does not independently prove the truth of client-provided time, location, identity, ownership, item condition, or surrounding context.
 
 Precise location is not published. The system stores or exposes only the minimum location precision required by the approved use case and policy.
+
+Replay resistance does not depend on a client clock or a fixed `±5 seconds` tolerance. The trusted backend issues an unpredictable, single-use challenge bound to the actor, object, purpose, policy version, and expiry. Acceptance uses server-observed time, requires the returned challenge and capture digest to match, and atomically consumes the challenge so a second submission fails even inside the validity window. Client timestamps and coordinates remain untrusted claims.
 
 ### 5.6 Mutual Reveal Handshake
 
@@ -369,6 +402,16 @@ The confirmed, minimum-necessary Intent Envelope is published to the eligible ma
 
 Automatic cloud inference may create a **draft suggestion only**. It may never silently create `LIVE_NETWORK` state.
 
+### Signal authority classes
+
+Signals are separated by authority, not merely by weight:
+
+1. **Declared Intent:** explicit user input that may become authoritative only after preview and confirmation.
+2. **Ephemeral Context:** dwell, active tab, local sequence, and similar interaction hints; local-only by default, short-lived, non-authoritative, and never sufficient to create or expose an intent.
+3. **Network Intent:** the minimum confirmed envelope admitted by server policy under `LIVE_NETWORK`.
+
+Location interaction, passive viewing, dwell time, scrolling, inferred demographic traits, or hidden model output never activate `LIVE_NETWORK`, reveal a field, or create a durable advertising profile by themselves.
+
 ## 8. End-to-end data flows
 
 ### 8.1 Home to Constellation
@@ -412,6 +455,47 @@ Automatic cloud inference may create a **draft suggestion only**. It may never s
 5. Accepted commands reconcile into server-confirmed state; rejected commands show a safe correction path.
 
 ## 9. Matching and explainability policy
+
+### 9.1 Temporal intent model
+
+The baseline intent-strength model uses signal-specific time and half-life rather than one shared timestamp and decay constant:
+
+$$
+I_{u,c}(t)=\operatorname{clip}\left(
+\sum_i a_i q_i w_{k_i} g(S_i)
+e^{-\ln(2)(t-t_i)/h_{k_i}}
+-\sum_j p_j,
+0,
+1
+\right)
+$$
+
+Where:
+
+- $a_i \in \{0,1\}$ is policy and consent admissibility;
+- $q_i \in [0,1]$ is bounded signal quality/confidence;
+- $w_{k_i}$ is the versioned weight for signal class $k_i$;
+- $t_i$ is that signal's server-confirmed or safely local event time;
+- $h_{k_i}$ is the class-specific half-life;
+- $g(S_i)$ is a bounded normalization function;
+- $p_j$ represents explicit rejection, hide, duplication, staleness, or other safe negative evidence;
+- `clip` prevents an unbounded or misleading score.
+
+Private/local-only signals are evaluated on-device and are not logged merely to reproduce a score. The formula is a deterministic baseline and evaluation contract, not permission to collect a signal. Every included class requires a documented purpose, retention rule, abuse review, and user control.
+
+Eligibility is a hard policy boundary before ranking:
+
+$$
+R(c)=E(c)\times\operatorname{Calibrate}\left(
+\alpha I+\beta F+\gamma N+\delta D-\zeta K
+\right)
+$$
+
+Where $E(c)$ is exactly `0` or `1` after authorization, visibility, sector, market, moderation, expiry, and safety policy; $F$ is structured fit; $N$ is freshness/availability; $D$ is diversity value; and $K$ is a bounded risk penalty. Payment never changes $E(c)$ from `0` to `1` and sponsored selection remains separately labeled and audited.
+
+Weights, half-lives, calibration, and thresholds are versioned configuration validated by offline evaluation and controlled experiments. They are not hard-coded marketing claims and cannot be changed by an advertiser or generative model.
+
+### 9.2 Candidate generation and explanations
 
 Candidate generation may combine:
 
@@ -567,9 +651,167 @@ The first implementation must extend current authority rather than create a para
 - no framework, bundler, or package-wide application rewrite is introduced without separate approval;
 - future AWS components require their planned ADRs and cannot form a second live authority beside the current runtime.
 
-## 18. Implementation decomposition
+### 17.1 F05 media-preservation contract
 
-TIGER SYNAPSE is too large for one safe implementation PR. It is one north-star design implemented through ordered, independently verifiable slices.
+Option C preserves the verified local-first F05/Media Fortress contract unless a benchmarked, separately approved media decision replaces it:
+
+- HEIC/HEIF source ceiling: `15 MiB`;
+- decoded-content ceiling: `40,000,000 pixels`;
+- conservative admission estimate: `12 bytes/pixel + 32 MiB` overhead;
+- maximum WASM memory budget: `384 MiB`;
+- HEIF decode concurrency: `1`;
+- current hard per-photo worker timeout: `20 seconds`;
+- canonical client derivative: JPEG/WebP, maximum `1600×1200`, metadata/privacy checked;
+- trusted server finalizer input: JPEG/WebP only, maximum `10 MiB`, strict container and decoded-dimension checks, complete sRGB re-encode, and server-recorded digest;
+- original HEIC/HEIF bytes never become public or server-side conversion input through the normal F05 path.
+
+An `8 second` goal may be measured as a performance objective on named devices, but it does not replace the current safe timeout without representative low-memory/mobile evidence. A larger compressed-file limit never substitutes for decoded-pixel, codec, sequence, memory, concurrency, and output-surface admission.
+
+## 18. TIGER VERITY FABRIC
+
+### 18.1 Owner Authority Graph
+
+The owner returns through one stable entrypoint:
+
+`docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md`
+
+That entrypoint routes to the current human authority, current domain specifications, machine contract, and exact-source evidence. It is not a second copy of mutable project status.
+
+Every current authority document must expose a machine-readable record, directly or through the authority registry, containing:
+
+- stable `authority_id`;
+- decision domain;
+- semantic authority version;
+- `CURRENT_ONLY`, `HISTORICAL_ONLY`, or bounded migration status;
+- owner decision reference;
+- explicit `supersedes` relationships;
+- protected boundaries it does not replace;
+- repository-relative canonical path.
+
+The record does not embed a self-referential SHA for the commit that contains it. CI derives the document digest and binds it to trusted Git commit/tree identity in an external attestation.
+
+The Authority Graph must be acyclic and permit exactly one current decision per domain. A conflict, duplicate current authority, broken supersession reference, or attempted resurrection fails closed.
+
+### 18.2 Hermetic Build Core and sealed artifacts
+
+The release is a set of separately sealed subjects, never one ambiguous folder:
+
+1. **Web Artifact:** exact-file allowlist generated by `tools/vvip_public_release.py`; no prefix or extension wildcard automatically publishes a new file.
+2. **Media Finalizer OCI Image:** immutable digest of the Node.js 24/Sharp container plus its dependency and base-image evidence.
+3. **Migration Bundle:** ordered immutable migration digests and schema-compatibility metadata; SQL is never included in the public web artifact.
+
+Each subject receives its own SHA-256 digest, CycloneDX SBOM, build provenance, vulnerability policy result, and signature/attestation. The umbrella release references the three subject digests; it does not copy the Lambda service or migration sources into the public site.
+
+Hermetic checks cover trusted source bytes, pinned tools/images, deterministic inputs, exact allowlists, generated manifests, tests, and artifact hashing. Network-dependent external-state checks are excluded from the hermetic claim.
+
+### 18.3 Release DNA and Release Proof Root
+
+The existing TSRF Release DNA and Proof Capsule implementation remains the foundation. VERITY extends it rather than creating `project-control/evidence-templates/` as a parallel, weaker authority.
+
+The final Release Proof Root binds:
+
+```text
+Release Proof Root
+├── exact commit SHA and exact tree SHA
+├── authority graph digest
+├── Web Artifact digest + SBOM + provenance
+├── Media Finalizer image digest + SBOM + provenance
+├── Migration Bundle digest + compatibility contract
+├── P01–P19 typed evidence results
+└── P20 fresh live-runtime witness
+```
+
+The root is derived from canonical serialized records and authenticated producer context. A caller cannot supply approval, production readiness, trusted runner identity, or secret-bearing metadata inside a proof payload.
+
+### 18.4 P01–P20 Gate Compiler
+
+The current P01–P20 list becomes executable policy through two strict schemas.
+
+Each **Gate Definition** includes:
+
+- gate ID and control version;
+- subject types and environments;
+- prerequisite gates;
+- required evidence classes;
+- trusted producer and verifier policy;
+- freshness/expiry policy;
+- deterministic pass expression;
+- failure severity and block behavior;
+- rollback and recovery reference.
+
+Each **Evidence Envelope** includes:
+
+- evidence and gate IDs;
+- schema/control version;
+- exact source and subject digests;
+- environment class;
+- trusted producer identity;
+- observation start/completion/generation times;
+- expiry where evidence is time-bound;
+- bounded validation facts;
+- evidence artifact name/digest;
+- `PASS` or `BLOCKED` result.
+
+Evidence never grants itself authority. Human notes may explain a block but cannot convert a failed machine fact into PASS. A formal exception, when legally unavoidable, is a separate owner-signed time-bounded risk acceptance that never falsifies the underlying gate result.
+
+### 18.5 Runtime Witness Edge
+
+AWS, DNS, TLS, identity, email, webhooks, analytics, and error tracking are observed through least-privilege read-only provider access. Each witness:
+
+- names the exact artifact/release digest it observed;
+- records provider/account/environment identifiers without secrets;
+- uses server/provider time;
+- has an explicit freshness window;
+- distinguishes unavailable evidence from a negative result;
+- cannot be reused for another release digest;
+- is regenerated after deployment, rollback, DNS change, certificate change, or expiry.
+
+P20 passes only when the live AWS runtime serves the sealed release subject and fresh health/smoke evidence matches the expected digest. A historical successful deployment is not current proof.
+
+### 18.6 Authority linter and anti-zombie policy
+
+The replacement for a broad string-based `zombie_doc_scanner.py` is a scoped **Authority Linter**:
+
+- parse registered current/historical authority metadata;
+- enforce one current authority per domain;
+- verify supersession links and prevent cycles;
+- reject historical documents from active indexes, public artifacts, generated current references, and runtime imports;
+- scan protected runtime/public-authority paths for retired domains, forbidden Preview URLs, fake-live markers, test credentials, and legacy entrypoints;
+- require any allowed migration adapter to declare owner, removal condition, observable usage, and expiry;
+- emit an exact machine report bound to the source tree.
+
+The linter does not fail every `TODO` or every historical mention across the repository. Protected-path TODO/FIXME debt requires a registered owner, issue/reference, reason, and expiry; unregistered debt fails. Historical evidence remains searchable for audit but cannot become active authority.
+
+Internal links and canonical paths are checked hermetically. External-link availability is a separate time-bound observation so a transient website outage cannot rewrite source truth.
+
+### 18.7 Forward-Compatible Rollback Contract
+
+Rollback promotes a previously built, signed, immutable artifact; it does not rebuild old source during an incident.
+
+Every release declares:
+
+- minimum and maximum compatible schema versions;
+- expand/migrate/contract phase and irreversible-operation status;
+- feature/format versions understood by the old and new runtimes;
+- required kill switches and traffic-shift controls;
+- data backfill state;
+- rollback health checks and maximum decision window;
+- current vulnerability-policy result for the rollback artifact and its dependencies.
+
+An SBOM differential is evidence, not the sole decision. Rollback is blocked if the target artifact fails signature/provenance verification, current security policy, configuration compatibility, or schema compatibility. Destructive down migrations are not an ordinary application rollback mechanism.
+
+### 18.8 VERITY failure behavior
+
+- missing material evidence becomes `INSUFFICIENT_EVIDENCE` or `BLOCKED`, never assumed PASS;
+- stale live evidence cannot satisfy a current gate;
+- conflicting digests block promotion;
+- unavailable third-party evidence remains an explicit external blocker;
+- a failed product gate cannot be hidden by a successful security gate, and vice versa;
+- no UI, README, PR description, or owner summary may claim readiness beyond the strongest exact evidence.
+
+## 19. Implementation decomposition
+
+TIGER SYNAPSE and TIGER VERITY FABRIC are too large for one safe implementation PR. They are one north-star architecture delivered through two ordered lanes of independently verifiable slices. `S0` is the first hard prerequisite; no new lane may hide the existing Social Core RED state.
 
 ### S0 — Restore Social Core GREEN
 
@@ -607,11 +849,31 @@ Relevance floor, sponsorship labels, impression accounting integration, frequenc
 
 Performance evidence, multilingual/RTL, abuse evaluations, privacy review, accessibility review, operational recovery, exact-head Preview, and production-bound ADRs.
 
+### V0 — Owner Authority Graph foundation
+
+Owner entrypoint, authority metadata/registry, one-current-per-domain validator, supersession graph, anti-resurrection rules, and current/historical index separation.
+
+### V1 — Typed P01–P20 evidence contracts
+
+Extend TSRF Release DNA and Proof Capsules with Gate Definition and Evidence Envelope schemas, gate dependencies, freshness, trusted producer policy, canonical results, and negative tests.
+
+### V2 — Sealed multi-artifact release
+
+Separate Web Artifact, Media Finalizer OCI Image, and Migration Bundle identities; generate per-subject digests, CycloneDX SBOMs, provenance/attestations, vulnerability results, and the Release Proof Root.
+
+### V3 — Runtime Witness and rollback
+
+Read-only AWS/DNS/TLS/identity witness adapters, time-bounded P20 proof, immutable rollback target verification, schema compatibility, kill switches, and post-rollback health evidence.
+
+### V4 — VERITY convergence
+
+Authority-linter rollout, migration-adapter retirement, external-evidence expiry rehearsal, recovery exercise, exact-head owner summary, and proof that no conflicting historical authority enters the platform or public artifact.
+
 Each slice requires its own focused spec or bounded design, test-first plan, exact-head verification, and rollback boundary. No slice may claim completion from visual mockups alone.
 
-## 19. Verification contract
+## 20. Verification contract
 
-Verification must cover two independent axes:
+Verification must cover three independent axes:
 
 ### Product specification
 
@@ -635,11 +897,24 @@ Verification must cover two independent axes:
 - weak network, offline, stale, and error recovery;
 - release allowlist and exact-SHA artifact evidence.
 
+### Authority and release proof
+
+- one owner entrypoint and one current authority per domain;
+- conflicting legacy paths absent from runtime, active tests/configuration, current indexes, and public artifacts;
+- authority graph uniqueness, acyclicity, and supersession integrity;
+- no self-referential source SHA field masquerading as attestation;
+- separate Web, OCI, and Migration subjects with exact digests;
+- typed P01–P20 evidence with trusted producer context and negative cases;
+- stale, missing, forged, wrong-environment, wrong-subject, and wrong-release evidence fails closed;
+- fresh live witnesses bind the deployed artifact digest;
+- rollback signature, vulnerability, configuration, and schema compatibility;
+- owner summary never exceeds exact machine evidence.
+
 Passing unit tests alone is insufficient for realtime, media, accessibility, performance, or mobile Preview claims.
 
-## 20. Acceptance criteria for the north-star architecture
+## 21. Acceptance criteria for the north-star architecture
 
-TIGER SYNAPSE is architecturally converged only when one exact source state proves all of the following:
+TIGER SYNAPSE v2 and TIGER VERITY FABRIC are architecturally converged only when one exact source state and its fresh bound runtime evidence prove all of the following:
 
 1. one current Intent authority serves Home, Constellation, Marketplace, social-content actions, Profile, and eligible messaging;
 2. no silent `LIVE_NETWORK` activation exists;
@@ -660,13 +935,27 @@ TIGER SYNAPSE is architecturally converged only when one exact source state prov
 17. performance claims are backed by reproducible percentile evidence on named devices and networks;
 18. the exact public artifact contains only allowlisted modules and no secrets, retired links, fake-live data, or implementation-only documents;
 19. Quality Gate and slice-specific security/rehearsal checks are GREEN on the same final head;
-20. the isolated mobile-accessible Preview comes from that exact head without changing `main` or Production.
+20. the isolated mobile-accessible Preview comes from that exact head without changing `main` or Production;
+21. `docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md` remains the stable owner entrypoint and routes to, rather than duplicates, current mutable truth;
+22. the Authority Graph contains exactly one current authority per domain, has no cycle, and classifies every conflicting predecessor as `RETIRED_FROM_CURRENT_PLATFORM / HISTORICAL_ONLY`;
+23. no conflicting legacy path remains active in runtime, navigation, public artifacts, active tests, active configuration, current plans, or generated current documentation;
+24. no authority document relies on a self-referential embedded commit SHA; trusted CI binds its digest to exact commit/tree identity;
+25. Web Artifact, Media Finalizer OCI Image, and Migration Bundle are independent sealed subjects with exact digests, SBOMs, and provenance;
+26. the Release Proof Root binds authority, source, subject, gate-policy, and evidence digests without accepting caller-supplied authority;
+27. every P01–P20 result is evaluated from typed evidence with explicit producer, environment, freshness, prerequisites, and fail-closed behavior;
+28. AWS/DNS/TLS/identity and other live witnesses expire and cannot be reused for another release or after material provider change;
+29. rollback promotes a previously built verified artifact only when current signature, vulnerability, configuration, and schema compatibility checks pass;
+30. F05 media limits remain at the verified contract until a separately approved benchmark proves a safe replacement.
 
-## 21. Current decisions fixed by owner direction
+## 22. Current decisions fixed by owner direction
 
-- Product name: **TIGER SYNAPSE**.
+- Product name: **TIGER SYNAPSE v2**.
 - Category: **Temporal Intent Operating System**.
+- Trust and release plane: **TIGER VERITY FABRIC**.
 - Architecture: hybrid device + trusted backend + replaceable regional/edge acceleration.
+- Owner entrypoint: `docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md`.
+- Finality: the latest owner-approved `CURRENT_ONLY` decision wins; conflicting older authority is permanently retired from the current platform and cannot be resurrected.
+- Historical retention: audit/security/provenance only, outside the public platform, with no current authority.
 - Product surface: Social Home first, with Constellation and Marketplace integration.
 - Intent activation: `PRIVATE_LOCAL`, `ASSISTED`, and explicit `LIVE_NETWORK` all supported.
 - Match presentation: bounded, explainable constellation.
@@ -675,14 +964,26 @@ TIGER SYNAPSE is architecturally converged only when one exact source state prov
 - AI role: assistant and ranking enhancer, never user or policy authority.
 - Revenue: advertising and platform publishing services, not transaction commission.
 - Execution: small ordered slices; no big-bang rewrite.
+- Build truth: hermetic build core plus separate time-bounded live-runtime witnesses.
+- Evidence: extend existing TSRF Release DNA and Proof Capsules; do not create a second evidence authority.
+- Release subjects: separate sealed Web, Media Finalizer OCI, and Migration artifacts joined by one Release Proof Root.
+- Media: preserve current F05 limits until fresh device benchmarks and owner approval prove a safe change.
+- Rollback: previously built signed immutable artifacts with forward-compatible schema contracts; no incident-time rebuild or ordinary destructive down migration.
 - Preview: exact-head, isolated, mobile-accessible, GREEN-only; no retired link reuse.
 
-## 22. Standards and technology references
+## 23. Standards and technology references
 
 - W3C Verifiable Credentials Data Model v2.0: `https://www.w3.org/TR/vc-data-model-2.0/`
 - W3C Securing Verifiable Credentials using JOSE and COSE: `https://www.w3.org/TR/vc-jose-cose/`
 - W3C Web Authentication Level 3: `https://www.w3.org/TR/webauthn-3/`
 - W3C Service Workers: `https://www.w3.org/TR/service-workers/`
 - Chrome built-in AI / Prompt API capability notes: `https://developer.chrome.com/docs/ai/prompt-api`
+- SLSA Provenance: `https://slsa.dev/provenance`
+- in-toto Attestation Framework: `https://github.com/in-toto/attestation/blob/main/spec/README.md`
+- GitHub Artifact Attestations: `https://docs.github.com/en/actions/concepts/security/artifact-attestations`
+- Sigstore Cosign verification and attestations: `https://docs.sigstore.dev/cosign/verifying/attestation/`
+- CycloneDX specification overview: `https://cyclonedx.org/specification/overview/`
+- AWS Lambda Node.js 24 runtime: `https://aws.amazon.com/blogs/compute/node-js-24-runtime-now-available-in-aws-lambda/`
+- Sharp output and metadata behavior: `https://sharp.pixelplumbing.com/api-output/`
 
 These standards inform implementation seams. Their existence does not prove browser support, issuer availability, legal sufficiency, device compatibility, or completed TIGER implementation. Every slice must feature-detect, fail safely, and verify its actual target environment.
