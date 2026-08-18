@@ -8,7 +8,7 @@
 ## 0. مؤشر التنفيذ الحالي على فرع Social Core
 
 - **العمل الحالي:** PR #271 على الفرع `feat/tiger-one-living-surface-impl-20260818`، فوق فرع المواصفة وليس فوق `main` مباشرة.
-- **حالة S0:** `IN_PROGRESS / AWAITING_CURRENT_HEAD_GITHUB_CI_ATTESTATIONS`؛ قرار `VERIFIED` ورأس PR #271 الحالي وشجرته يُستمدّون حصراً من GitHub exact-head CI attestations خارج هذه الوثيقة. عند غياب أو انتظار أو فشل checks الخاصة بالرأس الحالي تكون الحالة `IN_PROGRESS` أو `BLOCKED`، ولا تُستنتج `VERIFIED` من هذه الوثيقة أو من SHA تاريخي.
+- **حالة S0 (دالة fail-closed):** تكون `VERIFIED` **إذا وفقط إذا** نجح كل من `VVIP Quality Gate` و`TIGER Social DB Rehearsal` على رأس PR الحالي نفسه وشجرته نفسها؛ وفي غير ذلك تكون `IN_PROGRESS` أو `BLOCKED`. رأس PR الحالي وشجرته وقرار الحالة يُستمدّون حصراً من GitHub exact-head CI attestations خارج هذه الوثيقة، ولا يُستنتج `VERIFIED` من هذه الوثيقة أو من SHA تاريخي.
 - **نقطة دليل تنفيذ Social Core من Task 7:** `9f2dce40b352f67d80c81b60515442c860c58048`؛ **شجرتها:** `85ca87aa64714b3cac3a73ac0beefeb7e9df26fd`. هذه نقطة evidence تاريخية وليست رأس PR الحالي ولا قرار التحقق النهائي للوثائق.
 - **دليل الاختبارات المركزة للتعليقات/الردود:** `109/109 PASS`، بلا fail أو skipped أو todo.
 - **TIGER Social DB Rehearsal التاريخي:** `PASS` على نقطة Task 7 نفسها (التشغيل البعيد #103).
