@@ -17,7 +17,13 @@
     "private-profile-p03.html", "/private-profile-p03.html", "./private-profile-p03.html"
   ]);
   const INTENT_STORAGE_KEY = "vvip.auth.intent.v1";
-  const SIMPLE_INTENTS = new Set(["CREATE_LISTING", "OPEN_ACCOUNT", "CREATE_SOCIAL_POST"]);
+  const SIMPLE_INTENTS = new Set([
+    "CREATE_LISTING",
+    "OPEN_ACCOUNT",
+    "CREATE_SOCIAL_POST",
+    "OPEN_SOCIAL_FRIENDS",
+    "SOCIAL_FRIEND_ACTION"
+  ]);
   const LISTING_INTENTS = new Set(["TOGGLE_FAVORITE", "CONTACT_SELLER_INTERNAL"]);
   const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
