@@ -183,8 +183,7 @@ begin
         p_reaction_type
     )
     on conflict (post_id, actor_subject)
-    do update set reaction_type = excluded.reaction_type, updated_at = statement_timestamp()
-    where public.vvip_social_reactions.actor_subject = excluded.actor_subject;
+    do update set reaction_type = excluded.reaction_type, updated_at = statement_timestamp() where public.vvip_social_reactions.actor_subject = excluded.actor_subject;
 
     return public.vvip_social_reaction_summary(p_post_id);
 end;
