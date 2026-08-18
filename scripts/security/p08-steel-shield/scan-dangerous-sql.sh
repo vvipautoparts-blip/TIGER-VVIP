@@ -55,6 +55,13 @@ declare -A reviewed_migration_hashes=(
   # Approval is byte-exact; any SQL drift invalidates this reviewed baseline automatically.
   ["supabase/migrations/20260808223000_global_launch_phase_a_identity_convergence.sql"]="173766f1203890d3461db6b67cc95b1d9ca28d23c65026ff9393115ad4433c31"
   ["supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql"]="9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9"
+  # SOA-01 sovereign owner foundation: reviewed byte-exact after TDD contracts and
+  # finding-by-finding static review. It creates new empty tables only, seeds no owner
+  # identity/PII, keeps sensitive tables default-deny with RLS + FORCE RLS, and limits
+  # the intentional anonymous public-profile read to seven explicit public columns.
+  # The scanner's UPDATE_WITHOUT_WHERE hit is trigger DDL, not a data UPDATE statement.
+  # No remote database apply or Production activation is approved by this review.
+  ["supabase/migrations/20260813170000_soa_owner_security_foundation.sql"]="df2a94ca4c967a90253bd87775c5c69dcdc48f7505e95714ee58b918a6d47c18"
 )
 
 reviewed_baseline_path() {
