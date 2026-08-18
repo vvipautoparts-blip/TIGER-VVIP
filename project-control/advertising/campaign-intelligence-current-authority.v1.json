@@ -9,7 +9,8 @@
     "rule": "LATEST_OWNER_AUTHORITY_SUPERSEDES_CONFLICTING_CURRENT_LEGACY",
     "parallel_commercial_authority_allowed": false,
     "historical_evidence_execution_authority": false,
-    "conflicting_legacy_runtime_allowed": false
+    "conflicting_legacy_runtime_allowed": false,
+    "supersedes_overlapping_prs_when_merged": [275, 276]
   },
   "product": {
     "sellable_type": "distribution-credit",
@@ -98,6 +99,7 @@
     "client_telemetry_financial_authority": false
   },
   "payment_activation": {
+    "scope": "ADVERTISING_AND_VERIFIED_EXPOSURE_ONLY",
     "browser_success_is_authority": false,
     "required_states": {
       "payment": "CONFIRMED",
@@ -107,8 +109,21 @@
     "provider_authenticity_required": true,
     "idempotency_required": true,
     "replay_protection_required": true,
+    "append_only_double_entry_ledger_required": true,
     "append_only_evidence_required": true,
-    "reconciliation_required": true
+    "refund_support_required": true,
+    "chargeback_support_required": true,
+    "reconciliation_required": true,
+    "target_method_families": [
+      "VISA",
+      "MASTERCARD",
+      "APPLE_PAY",
+      "GOOGLE_PAY",
+      "BANK_TRANSFER",
+      "LOCAL_DIGITAL_WALLET",
+      "LOCAL_INSTANT_PAYMENT_OR_TRANSFER",
+      "LOCAL_CARD_NETWORK"
+    ]
   },
   "revenue_recognition": {
     "flow": [
@@ -126,7 +141,25 @@
     "hardcoded_global_payment_method_allowed": false,
     "hardcoded_global_price_allowed": false,
     "hardcoded_global_impression_quantity_allowed": false,
-    "only_active_verified_payment_methods_visible": true
+    "only_active_verified_payment_methods_visible": true,
+    "jordan": {
+      "country_code": "JO",
+      "currency": "JOD",
+      "status": "BLOCKED_PENDING_GATES",
+      "methods": [],
+      "show_unapproved_methods_as_active": false,
+      "required_gates": [
+        "JO-PAY-001",
+        "JO-PAY-002",
+        "APPROVED_PROVIDER_CONTRACT",
+        "OFFICIAL_SETTLEMENT_ACCOUNT",
+        "FINANCIAL_CONTROL_APPROVAL",
+        "LIVE_WEBHOOK_TESTS",
+        "REFUND_TESTS",
+        "CHARGEBACK_TESTS"
+      ],
+      "real_money_activation": false
+    }
   },
   "campaign_passport": {
     "required_internal_bindings": [
@@ -156,6 +189,7 @@
     "BROWSER_MINTED_PAYMENT_RECEIPT",
     "DEFAULT_AUTO_RECHARGE",
     "GENERAL_PURPOSE_USER_MONEY_WALLET",
+    "CASH_AD_CAMPAIGN_PAYMENT",
     "MARKETPLACE_BUYER_SELLER_CHECKOUT_OR_ESCROW",
     "HUMAN_PROOF_OR_GUARANTEED_HUMAN_VIEW"
   ],
