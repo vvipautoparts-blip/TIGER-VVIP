@@ -75,6 +75,11 @@ declare -A reviewed_migration_hashes=(
   # Exact-signature DROP FUNCTION ... RESTRICT removes known dangling public/private
   # profile helpers without CASCADE and fails closed on any unexpected live dependency.
   ["supabase/migrations/20260817060000_retire_lc04_legacy_profile_helper_graph.sql"]="692c3c54f636583b623935b18df1263b31d10ca32d900144fb5a84209b2896c2"
+
+  # Social Core foundation: reviewed against the 2026-08-18 Clerk actor, FORCE-RLS,
+  # post audience, relationship-transition, and legacy-feed isolation contracts.
+  # The approval is content-addressed; any byte drift re-enters review automatically.
+  ["supabase/migrations/20260818125000_social_core_foundation.sql"]="fa6169a934e6a128849ae9557a30245dcd4e310975cfcb3246d0a8e9f0d057a8"
 )
 
 reviewed_baseline_path() {
