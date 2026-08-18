@@ -15,7 +15,7 @@ const journalUrl = pathToFileURL(
 async function loadModules() {
   const tag = `${Date.now()}-${Math.random()}`;
   return Promise.all([
-    import(`${attributionUrl}?test=${tag}`),
+    import(attributionUrl),
     import(`${journalUrl}?test=${tag}`)
   ]);
 }
@@ -229,6 +229,97 @@ test("journal validates identifiers, money, currency, and exact transaction bind
     assert.throws(
       () => createDistributionJournal(journalInput(attribution, { currency })),
       /VVIP_INVALID_CURRENCY/
+    );
+  }
+});
+
+test("journal rejects a V2 event before the policy effective instant", async () => {
+  const [{ resolveAttribution }, { createDistributionJournal }] = await loadModules();
+  const attribution = resolveAttribution({
+    transactionId: "txn_journal_historical_001",
+    lockedAt: "2026-08-18T23:58:00.000Z"
+  });
+
+  assert.throws(
+    () => createDistributionJournal(journalInput(attribution, {
+      occurredAt: "2026-08-18T23:59:59.999Z"
+    })),
+    /VVIP_INVALID_JOURNAL/
+  );
+});
+
+test("journal accepts an event at the exact V2 effective instant", async () => {
+  const [{ resolveAttribution }, { createDistributionJournal }] = await loadModules();
+  const attribution = resolveAttribution({
+    transactionId: "txn_journal_effective_boundary_001",
+    lockedAt: "2026-08-19T00:00:00.000Z"
+  });
+  const journal = createDistributionJournal(journalInput(attribution, {
+    occurredAt: "2026-08-19T00:00:00.000Z"
+  }));
+
+  assert.equal(journal.status, "POSTED");
+  assert.equal(journal.occurredAt, "2026-08-19T00:00:00.000Z");
+});
+
+test("journal rejects timezone-less event timestamps", async () => {
+  const [{ resolveAttribution }, { createDistributionJournal }] = await loadModules();
+  const attribution = directAttribution(resolveAttribution);
+
+  assert.throws(
+    () => createDistributionJournal(journalInput(attribution, {
+      occurredAt: "2026-08-20T12:05:00.000"
+    })),
+    /VVIP_INVALID_JOURNAL/
+  );
+});
+
+test("journal rejects well-formed frozen attribution not issued by the resolver", async () => {
+  const [, { createDistributionJournal }] = await loadModules();
+  const spoofed = Object.freeze({
+    policyVersion: "VVIP_ATTRIBUTION_2026_08_19_V2_1",
+    transactionId: "txn_journal_spoofed_001",
+    status: "ATTRIBUTED",
+    saleChannel: "REFERRED_SALE",
+    lockedAt: "2026-08-19T12:00:00.000Z",
+    winningEvidenceId: "evidence_spoofed_001",
+    evidenceType: "CHECKOUT_CODE",
+    marketerId: "mkt_spoofed_001",
+    managerAssignmentId: "asn_spoofed_001",
+    sectorId: "JO:AUTOMOTIVE"
+  });
+
+  assert.throws(
+    () => createDistributionJournal(journalInput(spoofed)),
+    /VVIP_INVALID_JOURNAL/
+  );
+});
+
+test("journal rejects malformed beneficiary identifiers in frozen attribution", async () => {
+  const [, { createDistributionJournal }] = await loadModules();
+  const base = {
+    policyVersion: "VVIP_ATTRIBUTION_2026_08_19_V2_1",
+    transactionId: "txn_journal_bad_beneficiary_001",
+    status: "ATTRIBUTED",
+    saleChannel: "REFERRED_SALE",
+    lockedAt: "2026-08-19T12:00:00.000Z",
+    winningEvidenceId: "evidence_valid_001",
+    evidenceType: "CHECKOUT_CODE",
+    marketerId: "mkt_valid_001",
+    managerAssignmentId: "asn_valid_001",
+    sectorId: "JO:AUTOMOTIVE"
+  };
+
+  for (const [field, value] of [
+    ["winningEvidenceId", "bad id"],
+    ["marketerId", "bad id"],
+    ["managerAssignmentId", "bad id"],
+    ["sectorId", "bad id"]
+  ]) {
+    const malformed = Object.freeze({ ...base, [field]: value });
+    assert.throws(
+      () => createDistributionJournal(journalInput(malformed)),
+      /VVIP_INVALID_JOURNAL/
     );
   }
 });
