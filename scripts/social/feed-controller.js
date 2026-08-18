@@ -35,6 +35,15 @@
     return "أنا فقط";
   }
 
+  function iconButton(documentObject, label, className, text) {
+    const button = documentObject.createElement("button");
+    button.type = "button";
+    button.className = className;
+    button.setAttribute("aria-label", label);
+    button.textContent = text;
+    return button;
+  }
+
   function postNode(documentObject, item) {
     const article = documentObject.createElement("article");
     article.className = "social-feed-post";
@@ -44,22 +53,48 @@
     const header = documentObject.createElement("header");
     header.className = "social-feed-post__header";
 
+    const avatar = documentObject.createElement("span");
+    avatar.className = "social-feed-post__avatar";
+    avatar.setAttribute("aria-hidden", "true");
+    avatar.textContent = "V";
+
+    const identity = documentObject.createElement("div");
+    identity.className = "social-feed-post__identity";
+
     const author = documentObject.createElement("strong");
     author.className = "social-feed-post__author";
     author.textContent = "عضو VVIP TIGER";
 
-    const meta = documentObject.createElement("span");
-    meta.className = "social-feed-post__meta";
-    meta.textContent = audienceLabel(item.audience);
+    const details = documentObject.createElement("div");
+    details.className = "social-feed-post__details";
 
     const time = documentObject.createElement("time");
     time.className = "social-feed-post__time";
     time.setAttribute("datetime", item.createdAt);
     time.textContent = item.createdAt;
 
+    const separator = documentObject.createElement("span");
+    separator.className = "social-feed-post__separator";
+    separator.setAttribute("aria-hidden", "true");
+    separator.textContent = "·";
+
+    const meta = documentObject.createElement("span");
+    meta.className = "social-feed-post__meta";
+    meta.textContent = audienceLabel(item.audience);
+
+    details.append(time, separator, meta);
+    identity.append(author, details);
+
+    const menu = iconButton(documentObject, "خيارات المنشور", "social-feed-post__menu", "•••");
+    header.append(avatar, identity, menu);
+
     const body = documentObject.createElement("p");
     body.className = "social-feed-post__body";
     body.textContent = item.body;
+
+    const actions = documentObject.createElement("div");
+    actions.className = "social-feed-post__actions";
+    actions.setAttribute("data-social-post-actions", "");
 
     const reactions = documentObject.createElement("section");
     reactions.className = "social-reactions";
@@ -67,8 +102,20 @@
     reactions.setAttribute("data-social-post-id", item.id);
     reactions.setAttribute("aria-label", "تفاعلات المنشور");
 
-    header.append(author, meta, time);
-    article.append(header, body, reactions);
+    const secondaryActions = documentObject.createElement("div");
+    secondaryActions.className = "social-feed-post__secondary-actions";
+
+    const comment = iconButton(documentObject, "تعليق", "social-post-action social-post-action--comment", "تعليق");
+    comment.setAttribute("data-social-comment-trigger", "");
+    comment.disabled = true;
+
+    const share = iconButton(documentObject, "مشاركة", "social-post-action social-post-action--share", "مشاركة");
+    share.setAttribute("data-social-share-trigger", "");
+    share.disabled = true;
+
+    secondaryActions.append(comment, share);
+    actions.append(reactions, secondaryActions);
+    article.append(header, body, actions);
     return article;
   }
 
