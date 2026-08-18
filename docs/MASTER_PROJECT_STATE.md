@@ -8,14 +8,16 @@
 ## 0. مؤشر التنفيذ الحالي على فرع Social Core
 
 - **العمل الحالي:** PR #271 على الفرع `feat/tiger-one-living-surface-impl-20260818`، فوق فرع المواصفة وليس فوق `main` مباشرة.
-- **الحالة:** `IN_PROGRESS` حتى ينجح Quality Gate على الرأس النهائي نفسه.
-- **رأس PR الذي تمت مراجعته:** `1189cad647fc489074f80552c35207935472bbdf`؛ بقي Quality Gate في حالة RED بسبب عقود التعليقات الثلاثة المقصودة أثناء TDD، ولا توجد دلالة جاهزية ناتجة عن هذه المواصفة.
+- **حالة S0:** `IN_PROGRESS / BLOCKED_REMOTE_CI_UNOBSERVED` حتى تنجح تشغيلات GitHub على الرأس نفسه.
+- **نقطة تنفيذ S0 المنشورة:** رأس PR #271 هو `de581b35a38d9468d09e4ae1d0a54eecb2559303` وشجرته المطابقة هي `19f04caf70363afab337f43762941fe85abeb9d4`.
+- **الدليل المحلي على نقطة التنفيذ:** اختبارات التعليقات/الردود المركزة `26/26 PASS` بلا skip/todo، وفحص SQL `CRITICAL=0 / HIGH=0`، واختبارات الإصدار/التنظيف `28/28 PASS`، واختبارات السلطة/الأدلة `21/21 PASS`، و`VVIP_QUALITY_GATE=PASS` على الرأس نفسه.
+- **حالة CI البعيدة:** لم يسجل GitHub Actions تشغيل `pull_request` بعد نقل المرجع عبر Git Data API؛ لا تُعامل الحالة بوصفها GREEN حتى ينجح كل من `VVIP Quality Gate` و`TIGER Social DB Rehearsal` على SHA واحد مطابق.
 - **الواجهة الحالية:** TIGER Social Home مع Header مضغوط، تبويبات اجتماعية، Composer، عرض Stories، ومنشورات وتفاعلات اجتماعية مألوفة مع هوية TIGER مستقلة.
 - **الرؤية الابتكارية المعتمدة:** **TIGER SYNAPSE v2** — Temporal Intent Operating System يوحّد النية اللحظية، المطابقة القابلة للتفسير، إثبات الحاضر، الكشف المتبادل، والتواصل المباشر داخل Living Surface واحدة.
 - **نسيج السلطة والإثبات المعتمد:** **TIGER VERITY FABRIC** — Authority Graph + Hermetic Build Core + Release DNA/Proof Root + Typed P01–P20 Evidence + Fresh Runtime Witnesses.
 - **مرجع SYNAPSE الحالي:** `docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md`.
-- **حالة SYNAPSE:** `APPROVED / NOT IMPLEMENTED`؛ اعتماد الاتجاه لا يعني أن المزايا موجودة في الـruntime أو أن Preview جاهز.
-- **حالة VERITY FABRIC:** `APPROVED / NOT IMPLEMENTED`؛ تبقى عقود TSRF وF05 والحزم الحالية أساسًا موجودًا، لكنها لا تثبت أن نسيج VERITY الكامل أو Gate Compiler قد نُفذا.
+- **حالة SYNAPSE:** `APPROVED / PLANNED / NOT IMPLEMENTED beyond S0`؛ اعتماد الاتجاه لا يعني أن المزايا موجودة في الـruntime أو أن Preview جاهز.
+- **حالة VERITY FABRIC:** `APPROVED / PLANNED / NOT IMPLEMENTED beyond existing foundations`؛ تبقى عقود TSRF وF05 والحزم الحالية أساسًا موجودًا، لكنها لا تثبت أن نسيج VERITY الكامل أو Gate Compiler قد نُفذا.
 - **قرار المالك المثبت:** اعتمد المالك النسخة المكتوبة لخيار C بتاريخ 2026-08-18؛ أصبحت SYNAPSE v2 + VERITY FABRIC سلطة `CURRENT_ONLY` في نطاقها، مع بقاء التنفيذ `NOT IMPLEMENTED` حتى ظهور أدلة الكود والاختبارات.
 - **خطة البرنامج الحالية:** `docs/superpowers/plans/2026-08-18-tiger-synapse-v2-verity-fabric-program-execution.md`.
 - **مؤشر التنفيذ الحالي:** `docs/superpowers/plans/2026-08-18-s0-social-comments-quality-gate.md` — مصالحة رأس فرع PR #271 ثم إكمال التعليقات/الردود وإعادة Quality Gate إلى GREEN.
