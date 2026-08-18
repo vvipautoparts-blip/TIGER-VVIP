@@ -6,7 +6,11 @@
 
 **Owner entrypoint:** `docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md`
 
-**Applies to:** VVIP TIGER product design, interaction architecture, information architecture, visual system, user journeys, campaign surfaces, publishing/recharge experience, profile/contact experience, temporal intent, matching, evidence, disclosure, communication, authority graphs, release artifacts, rollback, responsive behavior, accessibility presentation, and any implementation derived from those domains.
+**Current product identity authority:** `docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md`
+
+**Current monetization authority:** `docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md`
+
+**Applies to:** VVIP TIGER product identity, social graph, feed, publishing, reactions, comments, sharing, messaging, notifications, product design, interaction architecture, information architecture, visual system, user journeys, campaign surfaces, Pulse visibility/payment experience, profile/contact experience, temporal intent, matching, evidence, disclosure, communication, authority graphs, release artifacts, rollback, responsive behavior, accessibility presentation, and any implementation derived from those domains.
 
 ## 1. Binding owner rule
 
@@ -75,7 +79,9 @@ Examples:
 - separate admin/owner skin vs one Living Surface with capability-gated controls → separate final-state skin is superseded;
 - generic Cairo-only typography authority vs TIGER Optical Type System → Cairo-only product identity is superseded;
 - oversized generic button system vs semantic action hierarchy → old button grammar is superseded;
-- banner-like campaign placement vs TIGER Pulse experience → old conflicting campaign presentation is superseded.
+- banner-like campaign placement vs TIGER Pulse experience → old conflicting campaign presentation is superseded;
+- paid publishing subscription/cards vs free compliant publishing + Pulse Ring verified visibility → publishing-subscription authority is superseded;
+- any 45/120 JOD Pulse tier vs the 3/10/20 JOD Pulse Ring cap → high-price Pulse authority is superseded.
 
 If an older document contains both compatible and conflicting clauses, only the conflicting clauses are superseded unless the newer authority explicitly retires the entire document.
 
@@ -90,6 +96,10 @@ For the domains covered by this decision, precedence is:
 5. current code/tests that conform to the above;
 6. historical/superseded material — evidence only, no authority.
 
+For monetization, paid visibility, publishing-access monetization, Pulse pricing/delivery/payment, and impression accounting, `TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` is the current domain authority.
+
+For primary product identity, Home, Social Core navigation, social publishing, social graph, reactions, comments, sharing, messaging, notifications, privacy/safety, and Marketplace placement inside the product, `TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md` is the current domain authority.
+
 A lower layer may never resurrect a superseded rule.
 
 ## 5. Safety-preserving replacement rule
@@ -98,13 +108,13 @@ TIGER ONE 2026 does not silently weaken security, privacy, financial integrity, 
 
 If a new OWNER decision explicitly replaces one of those domain rules, the replacement must be written explicitly in the corresponding current authority and receive the required domain review. Until then, the stricter compatible protection remains in force.
 
-This prevents an aesthetic or UX migration from accidentally removing a security or legal invariant.
+This prevents an aesthetic, UX, or monetization migration from accidentally removing a security or legal invariant.
 
 ## 6. Platform-role invariant remains current
 
-VVIP TIGER remains an advertising, discovery, commercial-presentation, and direct-contact platform. It is not a party to the buyer/seller or provider/beneficiary transaction after contact and does not silently introduce marketplace checkout, escrow, delivery, settlement, warranty execution, compensation, or platform-run transaction dispute resolution.
+VVIP TIGER is a social-network-first platform. Its Marketplace and Pulse modules provide advertising, discovery, commercial presentation, paid verified visibility, distance reduction, and direct contact. The buyer and seller or service provider and beneficiary then communicate and transact directly on their own responsibility. The platform is not their broker, agent, representative, intermediary, guarantor, funds custodian, or transaction counterparty, and it does not silently introduce marketplace checkout, escrow, delivery, payment, settlement, transaction commission/payout, warranty execution, compensation, or platform-run transaction dispute resolution.
 
-Platform-owned billing for advertising/publishing services, moderation, security, technical operations, and legally required compliance remain in scope.
+Platform-owned billing is limited by the latest current monetization authority. Under TIGER Pulse Ring, ordinary publishing is not a paid subscription product; platform billing is for approved Pulse visibility/advertising services and any later separately approved platform-owned service that does not conflict with the current 20 JOD charge cap.
 
 ## 7. Migration rule
 
@@ -124,7 +134,7 @@ For each migrated area the implementation must:
 
 There must be one current authority per decision domain.
 
-The project must not keep two contradictory “active” specs, two active design systems, two active composer models, or two active campaign UX models and choose between them at runtime.
+The project must not keep two contradictory “active” specs, two active design systems, two active composer models, two active campaign UX models, or two active monetization models and choose between them at runtime.
 
 Migration adapters may exist temporarily only when explicitly bounded, observable, and scheduled for retirement. They are not equal product authorities.
 
@@ -132,4 +142,4 @@ Migration adapters may exist temporarily only when explicitly bounded, observabl
 
 The binding owner instruction is:
 
-> **If the latest OWNER-approved `CURRENT_ONLY` decision conflicts with prior product, UI, UX, IA, design, intent, evidence, release, or governance authority, adopt the latest decision, permanently retire the conflicting prior authority from the current platform, and retain only necessary non-runtime historical evidence. Do not let old authority re-enter through code, tests, documentation, configuration, compatibility, rollback, public artifacts, or launch criteria.**
+> **If the latest OWNER-approved `CURRENT_ONLY` decision conflicts with prior product, UI, UX, IA, design, intent, evidence, release, or governance authority, adopt the latest decision, permanently retire the conflicting prior authority from the current platform, and retain only necessary non-runtime historical evidence. Do not let old authority re-enter through code, tests, documentation, configuration, compatibility, rollback, public artifacts, or launch criteria. VVIP TIGER is social-network-first; Marketplace remains a module. For monetization and paid visibility, TIGER Pulse Ring is the current authority: free compliant publishing, only 3/10/20 JOD Pulse purchases, no fourth tier, no time-expiring Pulse fuel, and no publishing-subscription model.**

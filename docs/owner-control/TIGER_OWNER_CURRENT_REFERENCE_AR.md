@@ -30,9 +30,11 @@
 
 1. `docs/MASTER_PROJECT_STATE.md` — حالة المشروع البشرية الحالية ومؤشر التنفيذ.
 2. `docs/owner-control/TIGER_ONE_2026_CURRENT_OWNER_AUTHORITY.md` — قاعدة سلطة المالك والإلغاء.
-3. `docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md` — معمارية TIGER SYNAPSE v2 + TIGER VERITY FABRIC.
-4. `project-control/production-handover/current-authority.v1.json` — عقد التسليم الآلي وبوابات P01–P20.
-5. Git exact commit SHA + exact tree SHA + أدلة CI المطابقة لهما — حقيقة التنفيذ النهائية.
+3. `docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md` — هوية المنتج الاجتماعية الحالية ووضع Marketplace كوحدة داخلها.
+4. `docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة الإعلان المدفوع وخدمة الظهور التي تملكها المنصة.
+5. `docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md` — معمارية TIGER SYNAPSE v2 + TIGER VERITY FABRIC.
+6. `project-control/production-handover/current-authority.v1.json` — عقد التسليم الآلي وبوابات P01–P20.
+7. Git exact commit SHA + exact tree SHA + أدلة CI المطابقة لهما — حقيقة التنفيذ النهائية.
 
 إذا اختلف هذا المدخل المختصر مع حالة تنفيذ أحدث موثقة في المرجع الأول أو مع bytes المستودع وأدلة exact-head، تُصحح هذه الصفحة ولا تتحول إلى سلطة موازية.
 
@@ -40,11 +42,13 @@
 
 - **المنصة:** VVIP TIGER.
 - **سطح المنتج:** TIGER ONE Living Surface.
+- **هوية المنتج الأساسية:** شبكة اجتماعية أولًا، وMarketplace وPulse وحدتان داخل المنتج وليستا هوية المنتج كلها.
 - **نظام الابتكار:** TIGER SYNAPSE v2 — Temporal Intent Operating System.
 - **نسيج الثقة والإصدار:** TIGER VERITY FABRIC.
-- **مصدر الدخل:** الإعلانات وخدمات النشر التي تملكها المنصة.
-- **دور المنصة:** اكتشاف، عرض، مطابقة قابلة للتفسير، وإتاحة تواصل مباشر.
-- **ما ليست عليه المنصة:** ليست طرفًا في الصفقة ولا تنفذ دفع المستخدمين أو التوصيل أو نقل الملكية أو الضمان أو الفصل في النزاعات.
+- **مصدر الدخل المعتمد حاليًا:** خدمات الإعلان والظهور المدفوع التي تملكها المنصة، ومنها Pulse وفق 3/10/20 JOD؛ النشر العادي المتوافق مجاني.
+- **دور المنصة:** الإعلان والاكتشاف والعرض والمطابقة القابلة للتفسير وتقريب المسافة، ثم إتاحة التواصل المباشر بين البائع والمشتري أو مقدم الخدمة والمستفيد.
+- **مسؤولية الصفقة:** يتواصل الطرفان ويتفقان ويتعاملان مباشرة وعلى مسؤوليتهما؛ TIGER لا يمثل أيًا منهما.
+- **ما ليست عليه المنصة:** ليست وسيطًا أو سمسارًا أو وكيلًا أو كفيلًا أو ضامنًا، وليست طرفًا في الصفقة، ولا تحفظ أموالها أو تحصل عمولة منها أو تنفذ دفعها أو تسويتها أو توصيلها أو نقل ملكيتها أو ضمانها أو تعويضها أو الفصل في نزاعاتها.
 
 ## 4. قاعدة الجاهزية والمعاينة
 
