@@ -67,6 +67,8 @@ PUBLIC_SCRIPT_FILES = (
     "scripts/fusion/account-surface.js",
     "scripts/fusion/single-surface-controller.js",
     "scripts/social/runtime-adapters.js",
+    "scripts/social/feed-read-model.js",
+    "scripts/social/feed-controller.js",
     "scripts/social/core-shell.js",
 )
 
