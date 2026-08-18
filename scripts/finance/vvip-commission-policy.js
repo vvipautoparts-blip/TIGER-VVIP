@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 
 export const COMMISSION_POLICY_VERSION = "VVIP_DYNAMIC_YIELD_2026_08_19_V2";
+export const COMMISSION_POLICY_EFFECTIVE_AT = "2026-08-19T00:00:00.000Z";
 
 const TOTAL_BASIS_POINTS = 10000;
 const TRANSACTION_KEY_PATTERN = /^[A-Za-z0-9][A-Za-z0-9:._/-]{7,159}$/;
@@ -20,7 +21,7 @@ function createPolicy(saleChannel, shares) {
   return deepFreeze({
     policyId: "VVIP_CENTRAL_DYNAMIC_YIELD_COMMISSION",
     version: COMMISSION_POLICY_VERSION,
-    effectiveDate: "2026-08-19",
+    effectiveDate: COMMISSION_POLICY_EFFECTIVE_AT.slice(0, 10),
     saleChannel,
     calculationBase: "NET_RECOGNIZED_REVENUE",
     sectorOverridesAllowed: false,
