@@ -183,9 +183,8 @@ begin
         p_reaction_type
     )
     on conflict (post_id, actor_subject)
-    do update set
-        reaction_type = excluded.reaction_type,
-        updated_at = statement_timestamp();
+    do update set reaction_type = excluded.reaction_type, updated_at = statement_timestamp()
+    where public.vvip_social_reactions.actor_subject = excluded.actor_subject;
 
     return public.vvip_social_reaction_summary(p_post_id);
 end;
@@ -207,8 +206,7 @@ begin
         raise exception 'SOCIAL_POST_NOT_VISIBLE';
     end if;
 
-    delete from public.vvip_social_reactions reaction
-    where reaction.post_id = p_post_id
+    delete from public.vvip_social_reactions reaction where reaction.post_id = p_post_id
       and reaction.actor_subject = v_actor;
 
     return public.vvip_social_reaction_summary(p_post_id);
