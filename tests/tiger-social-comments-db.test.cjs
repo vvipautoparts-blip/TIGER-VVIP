@@ -51,7 +51,7 @@ test("Social Comments derives actor and visibility on the server and denies nest
   assert.match(sql, /v_actor text := public\.vvip_marketplace_actor_id\(\)/i);
   assert.match(sql, /public\.vvip_social_can_view_post\(p_post_id, v_actor\)/i);
   assert.match(sql, /author_subject[\s\S]*v_actor/i);
-  assert.match(sql, /parent\.parent_comment_id is not null/i);
+  assert.match(sql, /parent\.parent_comment_id is null/i);
   assert.match(sql, /parent\.post_id\s*(?:<>|!=)\s*p_post_id/i);
   assert.match(sql, /target\.author_subject\s*(?:<>|!=)\s*v_actor/i);
   assert.match(sql, /SOCIAL_COMMENT_REPLY_DEPTH_DENIED/);
