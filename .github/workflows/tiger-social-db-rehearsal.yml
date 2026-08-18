@@ -4,19 +4,29 @@ on:
   push:
     paths:
       - "supabase/migrations/20260818125000_social_core_foundation.sql"
+      - "supabase/migrations/20260818133000_social_reactions.sql"
+      - "docs/security/TIGER_SOCIAL_REACTIONS_MIGRATION_SECURITY_REVIEW.md"
       - "tests/tiger-social-db-foundation.test.cjs"
       - "tests/tiger-social-db-reviewed-migration-hash.test.cjs"
+      - "tests/tiger-social-reactions-db.test.cjs"
+      - "tests/tiger-social-reactions-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-db-rehearsal-workflow.test.cjs"
       - "tests/sql/tiger-social-core-foundation.sql"
+      - "tests/sql/tiger-social-reactions.sql"
       - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
       - ".github/workflows/tiger-social-db-rehearsal.yml"
   pull_request:
     paths:
       - "supabase/migrations/20260818125000_social_core_foundation.sql"
+      - "supabase/migrations/20260818133000_social_reactions.sql"
+      - "docs/security/TIGER_SOCIAL_REACTIONS_MIGRATION_SECURITY_REVIEW.md"
       - "tests/tiger-social-db-foundation.test.cjs"
       - "tests/tiger-social-db-reviewed-migration-hash.test.cjs"
+      - "tests/tiger-social-reactions-db.test.cjs"
+      - "tests/tiger-social-reactions-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-db-rehearsal-workflow.test.cjs"
       - "tests/sql/tiger-social-core-foundation.sql"
+      - "tests/sql/tiger-social-reactions.sql"
       - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
       - ".github/workflows/tiger-social-db-rehearsal.yml"
   workflow_dispatch:
@@ -63,6 +73,8 @@ jobs:
           set -euo pipefail
           node --test tests/tiger-social-db-foundation.test.cjs
           node --test tests/tiger-social-db-reviewed-migration-hash.test.cjs
+          node --test tests/tiger-social-reactions-db.test.cjs
+          node --test tests/tiger-social-reactions-reviewed-migration-hash.test.cjs
           node --test tests/tiger-social-db-rehearsal-workflow.test.cjs
 
       - name: Assert local-only safety contract
@@ -101,6 +113,18 @@ jobs:
             -d postgres \
             -v ON_ERROR_STOP=1 \
             -f tests/sql/tiger-social-core-foundation.sql
+
+      - name: Prove Social Reactions RPC and visibility behavior
+        shell: bash
+        run: |
+          set -euo pipefail
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 \
+            -p 54322 \
+            -U postgres \
+            -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/tiger-social-reactions.sql
 
       - name: Verify source remained immutable
         shell: bash
