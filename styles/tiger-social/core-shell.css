@@ -173,6 +173,39 @@
   overflow-wrap: anywhere;
 }
 
+[data-social-post-sheet] label {
+  display: block;
+  margin-block-start: var(--t1-space-3);
+  margin-block-end: var(--t1-space-2);
+  color: var(--t1-text-secondary);
+  font: var(--t1-type-label-m);
+}
+
+[data-social-post-draft],
+[data-social-post-audience] {
+  width: 100%;
+  border: 1px solid var(--t1-border-subtle);
+  border-radius: var(--t1-radius-control);
+  background: var(--t1-surface-overlay);
+  color: var(--t1-text-primary);
+  font: var(--t1-type-body-m);
+  padding: var(--t1-space-3);
+}
+
+[data-social-post-draft]:focus-visible,
+[data-social-post-audience]:focus-visible {
+  outline: none;
+  box-shadow: var(--t1-focus-ring);
+  border-color: var(--t1-border-strong);
+}
+
+[data-social-post-status] {
+  min-height: 1.5em;
+  margin-block: var(--t1-space-3);
+  color: var(--t1-text-secondary);
+  font: var(--t1-type-label-m);
+}
+
 .social-module-placeholder[hidden],
 .tiger-social-home[hidden] {
   display: none !important;
