@@ -1,127 +1,189 @@
 import { createHash } from "node:crypto";
 
-export const COMMISSION_POLICY_VERSION = "VVIP_COMMISSION_2026_08_12_V1";
+export const COMMISSION_POLICY_VERSION = "VVIP_DYNAMIC_YIELD_2026_08_19_V2";
 
-const freezeRecord = (record) => Object.freeze({ ...record });
-const freezeList = (values) => Object.freeze([...values]);
+const TOTAL_BASIS_POINTS = 10000;
+const TRANSACTION_KEY_PATTERN = /^[A-Za-z0-9][A-Za-z0-9:._/-]{7,159}$/;
 
-const RETIRED = [
+function deepFreeze(value) {
+  if (!value || typeof value !== "object" || Object.isFrozen(value)) return value;
+  for (const nested of Object.values(value)) deepFreeze(nested);
+  return Object.freeze(value);
+}
+
+function createPolicy(saleChannel, shares) {
+  const totalBasisPoints = Object.values(shares)
+    .reduce((sum, basisPoints) => sum + basisPoints, 0);
+  if (totalBasisPoints !== TOTAL_BASIS_POINTS) {
+    throw new Error("VVIP_DISTRIBUTION_RECONCILIATION_FAILED");
+  }
+  return deepFreeze({
+    policyId: "VVIP_CENTRAL_DYNAMIC_YIELD_COMMISSION",
+    version: COMMISSION_POLICY_VERSION,
+    effectiveDate: "2026-08-19",
+    saleChannel,
+    calculationBase: "NET_RECOGNIZED_REVENUE",
+    sectorOverridesAllowed: false,
+    totalBasisPoints,
+    shares
+  });
+}
+
+export const SALE_CHANNELS = Object.freeze([
+  "REFERRED_SALE",
+  "DIRECT_PLATFORM"
+]);
+
+export const RETIRED_COMMISSION_RECIPIENTS = Object.freeze([
   "SECONDARY_MARKETER",
   "SUPERVISOR",
   "AREA_MANAGER"
-];
-
-const REDISTRIBUTION_RECIPIENTS = [
-  "SECTOR_MANAGER",
-  "COUNTRY_EXECUTIVE_COMMISSIONER",
-  "MARKETING"
-];
-
-export const RETIRED_COMMISSION_RECIPIENTS = freezeList(RETIRED);
-
-export const ACTIVE_COMMISSION_RECIPIENTS = freezeList([
-  "PRIMARY_MARKETER",
-  ...REDISTRIBUTION_RECIPIENTS
 ]);
 
-const primaryMarketer = freezeRecord({
-  basisPointsNumerator: 430,
-  basisPointsDenominator: 1
+const referredShares = {
+  OWNER_MANAGEMENT: 500,
+  OPERATING_PARTNER_1: 500,
+  OPERATING_PARTNER_2: 500,
+  OPERATING_PARTNER_3: 500,
+  GENERAL_MANAGER: 500,
+  SECTOR_MANAGER: 500,
+  PRIMARY_MARKETER: 500,
+  TECH_CONTENT: 150,
+  CUSTOMER_SERVICE_BASE: 150,
+  PLATFORM_RETAINED: 6200
+};
+
+const directShares = {
+  OWNER_MANAGEMENT: 500,
+  OPERATING_PARTNER_1: 500,
+  OPERATING_PARTNER_2: 500,
+  OPERATING_PARTNER_3: 500,
+  GENERAL_MANAGER: 500,
+  TECH_CONTENT: 150,
+  CUSTOMER_SERVICE_BASE: 150,
+  CUSTOMER_SERVICE_PERFORMANCE: 500,
+  GROWTH_ACQUISITION_RESERVE: 300,
+  RISK_CHARGEBACK_RESERVE: 200,
+  PLATFORM_RETAINED: 6200
+};
+
+export const CENTRAL_COMMISSION_POLICIES = deepFreeze({
+  REFERRED_SALE: createPolicy("REFERRED_SALE", referredShares),
+  DIRECT_PLATFORM: createPolicy("DIRECT_PLATFORM", directShares)
 });
 
-const redistribution = Object.freeze({
-  SECTOR_MANAGER: freezeRecord({ numerator: 2383, denominator: 3 }),
-  COUNTRY_EXECUTIVE_COMMISSIONER: freezeRecord({ numerator: 2734, denominator: 3 }),
-  MARKETING: freezeRecord({ numerator: 3304, denominator: 3 })
-});
+export const ACTIVE_COMMISSION_RECIPIENTS = Object.freeze([
+  ...new Set(Object.values(CENTRAL_COMMISSION_POLICIES)
+    .flatMap((policy) => Object.keys(policy.shares)))
+]);
 
-export const CENTRAL_COMMISSION_POLICY = Object.freeze({
-  policyId: "VVIP_CENTRAL_ALL_SECTOR_COMMISSION",
-  version: COMMISSION_POLICY_VERSION,
-  scope: "GLOBAL_ALL_CURRENT_AND_FUTURE_SECTORS",
-  sectorOverridesAllowed: false,
-  effectiveDate: "2026-08-12",
-  primaryMarketer,
-  redistribution,
-  removedShare: freezeRecord({ numerator: 1093, denominator: 100 }),
-  removedShareBasisPoints: freezeRecord({ numerator: 1093, denominator: 1 }),
-  settlement: freezeRecord({
-    arithmetic: "INTEGER_MINOR_UNITS",
-    remainder: "DETERMINISTIC_TRANSACTION_BOUND_ROTATION",
-    residualAllowed: false,
-    missingRecipientBehavior: "RECIPIENT_ASSIGNMENT_REQUIRED"
-  })
-});
-
-const SECTOR_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9:._/-]{1,159}$/;
-const TRANSACTION_KEY_PATTERN = /^[A-Za-z0-9][A-Za-z0-9:._/-]{7,159}$/;
-
-function assertSectorId(sectorId) {
-  if (typeof sectorId !== "string" || !SECTOR_ID_PATTERN.test(sectorId)) {
-    throw new Error("INVALID_SECTOR_ID");
-  }
-}
-
-function assertRemovedShareMinorUnits(value) {
-  if (!Number.isSafeInteger(value) || value < 0) {
-    throw new Error("INVALID_REMOVED_SHARE_MINOR_UNITS");
+function assertMoney(amountMinor) {
+  if (!Number.isSafeInteger(amountMinor) || amountMinor < 0) {
+    throw new TypeError("VVIP_INVALID_MONEY");
   }
 }
 
 function assertTransactionKey(transactionKey) {
-  if (typeof transactionKey !== "string" || !TRANSACTION_KEY_PATTERN.test(transactionKey)) {
-    throw new Error("INVALID_TRANSACTION_KEY");
+  if (typeof transactionKey !== "string"
+    || !TRANSACTION_KEY_PATTERN.test(transactionKey)) {
+    throw new TypeError("VVIP_INVALID_TRANSACTION_KEY");
   }
 }
 
-function deterministicRotation(transactionKey) {
+function assertSaleChannel(saleChannel) {
+  if (typeof saleChannel !== "string"
+    || !Object.hasOwn(CENTRAL_COMMISSION_POLICIES, saleChannel)) {
+    throw new TypeError("VVIP_INVALID_SALE_CHANNEL");
+  }
+}
+
+function transactionRotation(saleChannel, transactionKey, recipientCount) {
   const digest = createHash("sha256")
     .update(COMMISSION_POLICY_VERSION)
     .update("\u0000")
+    .update(saleChannel)
+    .update("\u0000")
     .update(transactionKey)
     .digest();
-
-  return digest.readUInt32BE(0) % REDISTRIBUTION_RECIPIENTS.length;
+  return digest.readUInt32BE(0) % recipientCount;
 }
 
-export function getCommissionPolicyForSector(sectorId) {
-  assertSectorId(sectorId);
-  return CENTRAL_COMMISSION_POLICY;
+export function getCommissionPolicyForSaleChannel(saleChannel) {
+  assertSaleChannel(saleChannel);
+  return CENTRAL_COMMISSION_POLICIES[saleChannel];
 }
 
-export function allocateRemovedShareMinorUnits({
-  removedShareMinorUnits,
+export function allocateNetRecognizedRevenueMinorUnits({
+  amountMinor,
+  saleChannel,
   transactionKey
 } = {}) {
-  assertRemovedShareMinorUnits(removedShareMinorUnits);
+  assertMoney(amountMinor);
+  assertSaleChannel(saleChannel);
   assertTransactionKey(transactionKey);
 
-  const recipientCount = REDISTRIBUTION_RECIPIENTS.length;
-  const base = Math.floor(removedShareMinorUnits / recipientCount);
-  const remainder = removedShareMinorUnits % recipientCount;
-  const rotation = deterministicRotation(transactionKey);
-
-  const mutableAmounts = Object.fromEntries(
-    REDISTRIBUTION_RECIPIENTS.map((recipient) => [recipient, base])
+  const policy = CENTRAL_COMMISSION_POLICIES[saleChannel];
+  const shareEntries = Object.entries(policy.shares);
+  const rotation = transactionRotation(
+    saleChannel,
+    transactionKey,
+    shareEntries.length
   );
 
-  for (let offset = 0; offset < remainder; offset += 1) {
-    const recipient = REDISTRIBUTION_RECIPIENTS[(rotation + offset) % recipientCount];
-    mutableAmounts[recipient] += 1;
+  const calculated = shareEntries.map(([recipient, basisPoints], index) => {
+    const exactNumerator = BigInt(amountMinor) * BigInt(basisPoints);
+    const floorAmount = exactNumerator / BigInt(TOTAL_BASIS_POINTS);
+    return {
+      recipient,
+      basisPoints,
+      index,
+      floorAmount,
+      fractionalRemainder: exactNumerator % BigInt(TOTAL_BASIS_POINTS)
+    };
+  });
+
+  const floorTotal = calculated.reduce(
+    (sum, item) => sum + item.floorAmount,
+    0n
+  );
+  const remainderUnits = Number(BigInt(amountMinor) - floorTotal);
+
+  const ranked = [...calculated].sort((left, right) => {
+    if (left.fractionalRemainder !== right.fractionalRemainder) {
+      return left.fractionalRemainder > right.fractionalRemainder ? -1 : 1;
+    }
+    const leftRank = (left.index - rotation + calculated.length) % calculated.length;
+    const rightRank = (right.index - rotation + calculated.length) % calculated.length;
+    return leftRank - rightRank;
+  });
+
+  const roundedRecipients = new Set(
+    ranked.slice(0, remainderUnits).map((item) => item.recipient)
+  );
+  const allocations = {};
+
+  for (const item of calculated) {
+    const roundingAdjustmentMinor = roundedRecipients.has(item.recipient) ? 1 : 0;
+    allocations[item.recipient] = {
+      basisPoints: item.basisPoints,
+      amountMinor: Number(item.floorAmount) + roundingAdjustmentMinor,
+      roundingAdjustmentMinor
+    };
   }
 
-  const amounts = Object.freeze({ ...mutableAmounts });
-  const reconciled = Object.values(amounts).reduce((sum, value) => sum + value, 0);
-
-  if (reconciled !== removedShareMinorUnits) {
-    throw new Error("COMMISSION_RECONCILIATION_FAILED");
+  const reconciled = Object.values(allocations)
+    .reduce((sum, allocation) => sum + allocation.amountMinor, 0);
+  const residualMinor = amountMinor - reconciled;
+  if (residualMinor !== 0) {
+    throw new Error("VVIP_DISTRIBUTION_RECONCILIATION_FAILED");
   }
 
-  return Object.freeze({
+  return deepFreeze({
     policyVersion: COMMISSION_POLICY_VERSION,
+    saleChannel,
     transactionKey,
-    removedShareMinorUnits,
-    amounts,
-    residualMinorUnits: 0
+    amountMinor,
+    allocations,
+    residualMinor
   });
 }
