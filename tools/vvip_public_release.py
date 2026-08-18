@@ -69,6 +69,7 @@ PUBLIC_SCRIPT_FILES = (
     "scripts/social/runtime-adapters.js",
     "scripts/social/feed-read-model.js",
     "scripts/social/feed-controller.js",
+    "scripts/social/post-composer.js",
     "scripts/social/core-shell.js",
 )
 
