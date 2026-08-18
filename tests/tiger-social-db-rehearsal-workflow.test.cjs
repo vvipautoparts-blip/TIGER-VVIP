@@ -7,6 +7,7 @@ const fs = require("node:fs");
 const workflow = fs.readFileSync(".github/workflows/tiger-social-db-rehearsal.yml", "utf8");
 const foundationBehavior = fs.readFileSync("tests/sql/tiger-social-core-foundation.sql", "utf8");
 const reactionBehavior = fs.readFileSync("tests/sql/tiger-social-reactions.sql", "utf8");
+const commentBehavior = fs.readFileSync("tests/sql/tiger-social-comments.sql", "utf8");
 
 test("Social DB rehearsal is exact-head and local-only", () => {
   assert.match(workflow, /github\.event\.pull_request\.head\.sha \|\| github\.sha/);
@@ -16,10 +17,12 @@ test("Social DB rehearsal is exact-head and local-only", () => {
   assert.doesNotMatch(workflow, /supabase db push|--linked|SUPABASE_ACCESS_TOKEN:\s*\$\{\{/);
 });
 
-test("Social DB rehearsal applies foundation and reaction behavioral proofs and always stops local stack", () => {
+test("Social DB rehearsal applies foundation reaction and comment proofs and always stops local stack", () => {
   assert.match(workflow, /tests\/sql\/tiger-social-core-foundation\.sql/);
   assert.match(workflow, /tests\/sql\/tiger-social-reactions\.sql/);
+  assert.match(workflow, /tests\/sql\/tiger-social-comments\.sql/);
   assert.match(workflow, /tiger-social-reactions-reviewed-migration-hash\.test\.cjs/);
+  assert.match(workflow, /tiger-social-comments-reviewed-migration-hash\.test\.cjs/);
   assert.match(workflow, /psql/);
   assert.match(workflow, /if:\s*always\(\)/);
   assert.match(workflow, /supabase stop --no-backup/);
@@ -46,4 +49,18 @@ test("reaction behavior proof covers least privilege, upsert, visibility, and fr
   assert.match(reactionBehavior, /FRIEND_REACTION_ELIGIBILITY_REVOKED=PASS/);
   assert.match(reactionBehavior, /TIGER_SOCIAL_REACTIONS_DB_BEHAVIOR=PASS/);
   assert.match(reactionBehavior, /rollback;/i);
+});
+
+test("comment behavior proof covers RPC-only access visibility reply depth and owner mutations", () => {
+  assert.match(commentBehavior, /COMMENTS_NO_DIRECT_BROWSER_CRUD=PASS/);
+  assert.match(commentBehavior, /COMMENTS_RPC_BOUNDARY=PASS/);
+  assert.match(commentBehavior, /COMMENT_LIST_VISIBILITY=PASS/);
+  assert.match(commentBehavior, /COMMENT_CREATE_OWNER_BOUND=PASS/);
+  assert.match(commentBehavior, /COMMENT_REPLY_ONE_LEVEL=PASS/);
+  assert.match(commentBehavior, /COMMENT_REPLY_SAME_POST=PASS/);
+  assert.match(commentBehavior, /COMMENT_UPDATE_OWNER_ONLY=PASS/);
+  assert.match(commentBehavior, /COMMENT_REMOVE_OWNER_ONLY=PASS/);
+  assert.match(commentBehavior, /COMMENT_HIDDEN_POST_DENIED=PASS/);
+  assert.match(commentBehavior, /TIGER_SOCIAL_COMMENTS_DB_BEHAVIOR=PASS/);
+  assert.match(commentBehavior, /rollback;/i);
 });
