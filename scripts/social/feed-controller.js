@@ -107,7 +107,6 @@
 
     const comment = iconButton(documentObject, "تعليق", "social-post-action social-post-action--comment", "تعليق");
     comment.setAttribute("data-social-comment-trigger", "");
-    comment.disabled = true;
 
     const share = iconButton(documentObject, "مشاركة", "social-post-action social-post-action--share", "مشاركة");
     share.setAttribute("data-social-share-trigger", "");
@@ -115,7 +114,14 @@
 
     secondaryActions.append(comment, share);
     actions.append(reactions, secondaryActions);
-    article.append(header, body, actions);
+
+    const comments = documentObject.createElement("section");
+    comments.className = "social-comments";
+    comments.setAttribute("data-social-comments-host", "");
+    comments.setAttribute("data-social-post-id", item.id);
+    comments.setAttribute("aria-label", "تعليقات المنشور وردوده");
+
+    article.append(header, body, actions, comments);
     return article;
   }
 
@@ -221,6 +227,10 @@
     const reactionsApi = runtimeRoot && runtimeRoot.TIGERSocialReactions;
     if (result.ok && reactionsApi && typeof reactionsApi.mountCurrentSocialReactions === "function") {
       reactionsApi.mountCurrentSocialReactions(runtimeRoot);
+    }
+    const commentsApi = runtimeRoot && runtimeRoot.TIGERSocialComments;
+    if (result.ok && commentsApi && typeof commentsApi.mountCurrentSocialComments === "function") {
+      commentsApi.mountCurrentSocialComments(runtimeRoot);
     }
     return result;
   }

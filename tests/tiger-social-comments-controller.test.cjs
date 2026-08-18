@@ -194,3 +194,33 @@ test("reply update and remove methods call only the bounded adapter and refresh 
     ["remove", COMMENT_ID],
   ]);
 });
+
+test("destroy clears owned DOM and prevents later adapter work", async () => {
+  const { createSocialCommentsController } = controllerApi();
+  const host = fakeElement("section");
+  let listCalls = 0;
+  const comments = {
+    list: async () => {
+      listCalls += 1;
+      return list([row()]);
+    },
+    create: async () => ({ ok: true, value: { ok: true } }),
+    update: async () => ({ ok: true, value: { ok: true } }),
+    remove: async () => ({ ok: true, value: { ok: true } }),
+  };
+  const controller = createSocialCommentsController({ host, postId: POST_ID, comments, document: fakeDocument() });
+
+  await controller.load();
+  assert.deepEqual(controller.destroy(), { destroyed: true });
+  assert.equal(host.children.length, 0);
+  assert.deepEqual(await controller.load(), { ok: false, code: "SOCIAL_COMMENTS_DESTROYED" });
+  assert.equal(listCalls, 1);
+});
+
+test("comments controller source has no raw HTML or inline-handler construction", () => {
+  const source = fs.readFileSync(controllerPath, "utf8");
+  assert.doesNotMatch(source, /\.innerHTML\s*=/);
+  assert.doesNotMatch(source, /insertAdjacentHTML/);
+  assert.doesNotMatch(source, /setAttribute\(\s*["']on[a-z]+["']/i);
+  assert.match(source, /textContent/);
+});
