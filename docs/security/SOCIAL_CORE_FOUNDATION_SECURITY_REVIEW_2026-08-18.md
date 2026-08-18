@@ -1,7 +1,7 @@
 # Social Core Foundation Security Review — 2026-08-18
 
-**Migration:** `supabase/migrations/20260818125000_social_core_foundation.sql`  
-**Reviewed SHA-256:** `fa6169a934e6a128849ae9557a30245dcd4e310975cfcb3246d0a8e9f0d057a8`  
+**Migration:** `supabase/migrations/20260818125000_social_core_foundation.sql`
+**Reviewed SHA-256:** `fa6169a934e6a128849ae9557a30245dcd4e310975cfcb3246d0a8e9f0d057a8`
 **Scope:** repository review only; this document does not authorize applying the migration to Staging or Production.
 
 ## Result
