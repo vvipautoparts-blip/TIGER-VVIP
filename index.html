@@ -43,6 +43,8 @@
   <script defer src="scripts/fusion/account-surface.js"></script>
   <script defer src="scripts/fusion/single-surface-controller.js"></script>
   <script defer src="scripts/social/runtime-adapters.js"></script>
+  <script defer src="scripts/social/feed-read-model.js"></script>
+  <script defer src="scripts/social/feed-controller.js"></script>
   <script defer src="scripts/social/core-shell.js"></script>
 </head>
 <body data-vvip-fusion-app>
@@ -94,10 +96,13 @@
         <button class="social-post-trigger" type="button" data-social-post-trigger aria-haspopup="dialog">بماذا تفكر؟</button>
       </div>
 
-      <section class="social-feed-placeholder" aria-live="polite">
+      <section class="social-feed-placeholder social-feed-intro">
         <span class="eyebrow">VVIP TIGER SOCIAL</span>
         <h2>آخر الأخبار</h2>
-        <p>هذا هو سطح Home الاجتماعي الجديد. سيتم ربط المنشورات والأصدقاء والتفاعلات تدريجيًا عبر العقود الموثوقة الحالية دون كسر السوق أو الهوية.</p>
+      </section>
+
+      <section class="social-feed-items" data-social-feed-items aria-live="polite" aria-busy="true">
+        <p class="social-feed-state" data-social-feed-state="loading" role="status">جارٍ تحميل آخر الأخبار…</p>
       </section>
     </section>
 
