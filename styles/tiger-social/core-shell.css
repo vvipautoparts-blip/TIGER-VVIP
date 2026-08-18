@@ -58,7 +58,10 @@
 .social-feed-placeholder,
 .social-feed-post,
 .social-feed-state,
-.social-module-placeholder {
+.social-module-placeholder,
+.social-friend-card,
+.social-friends-state,
+.social-friends-auth {
   border: 1px solid var(--t1-border-subtle);
   border-radius: var(--t1-radius-card);
   background: var(--t1-surface-raised);
@@ -128,12 +131,15 @@
   padding-block: var(--t1-space-4);
 }
 
-.social-feed-items {
+.social-feed-items,
+.social-friends-items {
   display: grid;
   gap: var(--t1-space-4);
 }
 
-.social-feed-state {
+.social-feed-state,
+.social-friends-state,
+.social-friends-auth {
   margin: 0;
   padding: var(--t1-space-5);
   color: var(--t1-text-secondary);
@@ -171,6 +177,101 @@
   font: var(--t1-type-body-m);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+
+.social-friends-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--t1-space-4);
+  padding: var(--t1-space-2) var(--t1-space-1);
+}
+
+.social-friends-heading h2 {
+  margin: 0;
+  font: var(--t1-type-title-m);
+}
+
+.social-friends-heading p {
+  margin: 0;
+  color: var(--t1-text-secondary);
+  font: var(--t1-type-label-m);
+}
+
+.social-friend-card {
+  padding: var(--t1-space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--t1-space-4);
+}
+
+.social-friend-card__identity {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--t1-space-3);
+}
+
+.social-friend-card__avatar {
+  inline-size: 44px;
+  block-size: 44px;
+  flex: 0 0 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--t1-surface-overlay);
+  color: var(--t1-accent-vvip);
+  font-weight: 800;
+}
+
+.social-friend-card__identity strong,
+.social-friend-card__state {
+  display: block;
+}
+
+.social-friend-card__identity strong {
+  color: var(--t1-text-primary);
+  font: var(--t1-type-label-m);
+}
+
+.social-friend-card__state {
+  margin-block-start: var(--t1-space-1);
+  color: var(--t1-text-secondary);
+  font: var(--t1-type-label-s);
+}
+
+.social-friend-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: var(--t1-space-2);
+}
+
+.social-friend-action {
+  min-block-size: 44px;
+  border: 1px solid var(--t1-border-subtle);
+  border-radius: var(--t1-radius-control);
+  background: var(--t1-surface-overlay);
+  color: var(--t1-text-primary);
+  padding-inline: var(--t1-space-3);
+  font: var(--t1-type-label-m);
+  cursor: pointer;
+}
+
+.social-friend-action:hover,
+.social-friend-action:focus-visible {
+  border-color: var(--t1-border-strong);
+  background: var(--t1-surface-raised);
+}
+
+.social-friend-action:focus-visible {
+  outline: none;
+  box-shadow: var(--t1-focus-ring);
+}
+
+.social-friends-auth .social-friend-action {
+  margin-block-start: var(--t1-space-3);
 }
 
 [data-social-post-sheet] label {
@@ -224,5 +325,19 @@
   .tiger-social-home {
     width: calc(100% - (2 * var(--t1-space-3)));
     margin-top: var(--t1-space-3);
+  }
+
+  .social-friends-heading,
+  .social-friend-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .social-friend-card__actions {
+    justify-content: stretch;
+  }
+
+  .social-friend-action {
+    flex: 1;
   }
 }
