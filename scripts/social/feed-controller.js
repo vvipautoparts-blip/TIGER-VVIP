@@ -9,6 +9,9 @@
 
   if (root && typeof root === "object") {
     root.TIGERSocialFeedController = api;
+    if (root.document && typeof root.addEventListener === "function") {
+      api.installCurrentSocialFeed(root);
+    }
   }
 })(typeof globalThis !== "undefined" ? globalThis : this, function () {
   "use strict";
@@ -122,7 +125,92 @@
     });
   }
 
+  function renderBootstrapFailure(rootObject) {
+    const documentObject = rootObject && rootObject.document;
+    const host = documentObject && documentObject.querySelector
+      ? documentObject.querySelector("[data-social-feed-items]")
+      : null;
+    if (!host || typeof host.replaceChildren !== "function") {
+      return frozen({ ok: false, code: "SOCIAL_FEED_HOST_UNAVAILABLE" });
+    }
+    host.setAttribute("aria-busy", "false");
+    host.replaceChildren(statusNode(
+      documentObject,
+      "error",
+      "تعذر تحميل آخر الأخبار الآن. حاول مرة أخرى لاحقًا."
+    ));
+    return frozen({ ok: false, code: "SOCIAL_FEED_BOOT_FAILED" });
+  }
+
+  async function mountCurrentSocialFeed(rootObject) {
+    const runtimeRoot = rootObject || (typeof globalThis !== "undefined" ? globalThis : null);
+    const documentObject = runtimeRoot && runtimeRoot.document;
+    const host = documentObject && typeof documentObject.querySelector === "function"
+      ? documentObject.querySelector("[data-social-feed-items]")
+      : null;
+
+    if (!host) return frozen({ ok: false, code: "SOCIAL_FEED_HOST_UNAVAILABLE" });
+
+    const runtimeApi = runtimeRoot && runtimeRoot.TIGERSocialRuntime;
+    const feedApi = runtimeRoot && runtimeRoot.TIGERSocialFeed;
+    if (!runtimeApi || typeof runtimeApi.createCurrentSocialRuntime !== "function") {
+      return renderBootstrapFailure(runtimeRoot);
+    }
+    if (!feedApi || typeof feedApi.createSocialFeedReadModel !== "function") {
+      return renderBootstrapFailure(runtimeRoot);
+    }
+
+    const runtime = runtimeApi.createCurrentSocialRuntime(runtimeRoot);
+    const readModel = feedApi.createSocialFeedReadModel({ runtime });
+    const controller = createSocialFeedController({ host, readModel, document: documentObject });
+    return controller.load();
+  }
+
+  function installCurrentSocialFeed(rootObject) {
+    const runtimeRoot = rootObject || (typeof globalThis !== "undefined" ? globalThis : null);
+    const documentObject = runtimeRoot && runtimeRoot.document;
+    if (!documentObject || typeof runtimeRoot.addEventListener !== "function") {
+      return frozen({ installed: false });
+    }
+
+    let started = false;
+    const start = function () {
+      if (started) return;
+      started = true;
+
+      const ready = runtimeRoot.VVIPRuntimeReady;
+      if (ready && typeof ready.then === "function") {
+        ready
+          .then(function () { return mountCurrentSocialFeed(runtimeRoot); })
+          .catch(function () { return renderBootstrapFailure(runtimeRoot); });
+        return;
+      }
+
+      if (runtimeRoot.VVIP_SUPABASE) {
+        void mountCurrentSocialFeed(runtimeRoot);
+        return;
+      }
+
+      runtimeRoot.addEventListener("vvip:runtime-ready", function () {
+        void mountCurrentSocialFeed(runtimeRoot);
+      }, { once: true });
+      runtimeRoot.addEventListener("vvip:runtime-error", function () {
+        renderBootstrapFailure(runtimeRoot);
+      }, { once: true });
+    };
+
+    if (documentObject.readyState === "loading") {
+      runtimeRoot.addEventListener("DOMContentLoaded", start, { once: true });
+    } else {
+      start();
+    }
+
+    return frozen({ installed: true, start });
+  }
+
   return frozen({
     createSocialFeedController,
+    mountCurrentSocialFeed,
+    installCurrentSocialFeed,
   });
 });
