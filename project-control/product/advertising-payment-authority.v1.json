@@ -1,0 +1,80 @@
+{
+  "policyId": "VVIP_ADVERTISING_PAYMENT_AUTHORITY_V1",
+  "version": 1,
+  "effectiveDate": "2026-08-18",
+  "status": "BINDING_OWNER_CANONICAL",
+  "ownerDecision": true,
+  "scope": "GLOBAL_ADVERTISING_AND_VERIFIED_EXPOSURE",
+  "platformRole": {
+    "acceptsPaymentFor": ["AD_CREDIT", "AD_CAMPAIGN", "VERIFIED_EXPOSURE"],
+    "acceptsPaymentForGoodsOrServices": false,
+    "buyerSellerPaymentIntermediation": false,
+    "cashCampaignPayments": false
+  },
+  "globalCore": {
+    "providerAgnostic": true,
+    "hardcodedGlobalProvider": false,
+    "hardcodedGlobalPaymentMethod": false,
+    "activationModel": "COUNTRY_PAYMENT_PROFILE",
+    "defaultState": "FAIL_CLOSED"
+  },
+  "targetMethodFamilies": [
+    "VISA",
+    "MASTERCARD",
+    "APPLE_PAY",
+    "GOOGLE_PAY",
+    "BANK_TRANSFER",
+    "LOCAL_DIGITAL_WALLET",
+    "LOCAL_INSTANT_PAYMENT_OR_TRANSFER",
+    "LOCAL_CARD_NETWORK"
+  ],
+  "countryRules": {
+    "showOnlyActiveVerifiedMethods": true,
+    "countrySpecificProviderContractRequired": true,
+    "countrySpecificSettlementConfigurationRequired": true,
+    "countrySpecificRefundAndChargebackRulesRequired": true,
+    "countrySpecificCurrencyAndPricingVersionRequired": true
+  },
+  "jordan": {
+    "countryCode": "JO",
+    "state": "BLOCKED",
+    "activationRequires": [
+      "JO-PAY-001",
+      "JO-PAY-002",
+      "APPROVED_PROVIDER_CONTRACT",
+      "OFFICIAL_SETTLEMENT_ACCOUNT",
+      "FINANCIAL_CONTROL_APPROVAL",
+      "LIVE_WEBHOOK_TESTS",
+      "REFUND_TESTS",
+      "CHARGEBACK_TESTS"
+    ],
+    "showMethodsAsActiveBeforeGatesPass": false
+  },
+  "transactionContract": {
+    "requiredFields": [
+      "PAYMENT_ID",
+      "COUNTRY",
+      "CURRENCY",
+      "PRICING_VERSION",
+      "IDEMPOTENCY_KEY"
+    ],
+    "doubleEntryLedgerRequired": true,
+    "appendOnlyFinancialHistoryRequired": true,
+    "refundSupportRequired": true,
+    "chargebackSupportRequired": true,
+    "idempotentReplayRequired": true,
+    "reconciliationRequired": true
+  },
+  "releaseBoundary": {
+    "thisPolicyAuthorizesRepositoryImplementation": true,
+    "thisPolicyAuthorizesRealMoneyActivation": false,
+    "thisPolicyAuthorizesProviderSecrets": false,
+    "productionActivationRequiresProtectedFinancialReleaseGate": true
+  },
+  "supersession": {
+    "conflictingLegacyPaymentModels": "SUPERSEDED",
+    "hardcodedGlobalProviderOrMethod": "SUPERSEDED",
+    "cashAdCampaignPayment": "SUPERSEDED",
+    "goodsOrServicesCheckoutThroughPlatform": "SUPERSEDED"
+  }
+}

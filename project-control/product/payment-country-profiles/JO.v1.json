@@ -1,0 +1,24 @@
+{
+  "countryCode": "JO",
+  "policy": "VVIP_ADVERTISING_PAYMENT_AUTHORITY_V1",
+  "version": 1,
+  "status": "BLOCKED_PENDING_GATES",
+  "currency": "JOD",
+  "allowedUse": "ADVERTISING_AND_VERIFIED_EXPOSURE_ONLY",
+  "methods": [],
+  "visibilityRule": "NO_METHOD_VISIBLE_AS_ACTIVE_UNTIL_VERIFIED",
+  "requiredGates": [
+    "JO-PAY-001",
+    "JO-PAY-002",
+    "APPROVED_PROVIDER_CONTRACT",
+    "OFFICIAL_SETTLEMENT_ACCOUNT",
+    "FINANCIAL_CONTROL_APPROVAL",
+    "LIVE_WEBHOOK_TESTS",
+    "REFUND_TESTS",
+    "CHARGEBACK_TESTS"
+  ],
+  "cashAllowed": false,
+  "goodsOrServicesCheckoutAllowed": false,
+  "buyerSellerIntermediationAllowed": false,
+  "realMoneyActivation": false
+}
