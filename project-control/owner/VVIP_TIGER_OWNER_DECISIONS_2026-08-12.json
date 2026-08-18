@@ -2,6 +2,7 @@
   "decision_id": "VVIP-TIGER-OWNER-MASTER-2026-08-12",
   "authority": "OWNER_APPROVED",
   "effective_at": "2026-08-12",
+  "last_owner_decision_at": "2026-08-18",
   "product_principle": {
     "simple_outside_powerful_inside": true,
     "tiger_flow": true,
@@ -35,6 +36,53 @@
     "accepted_reference_types": ["ACCOUNT_ID", "CLERK_USER_ID"],
     "browser_reference_is_proof": false,
     "server_subject_account_match_required": true
+  },
+  "advertising_payment_authority": {
+    "decision_id": "VVIP-TIGER-OWNER-ADS-PAYMENT-2026-08-18",
+    "authority": "OWNER_APPROVED_BINDING",
+    "effective_at": "2026-08-18",
+    "scope": "ADVERTISING_AND_VERIFIED_EXPOSURE_ONLY",
+    "goods_or_services_checkout_allowed": false,
+    "buyer_seller_payment_intermediation_allowed": false,
+    "cash_for_ad_campaigns_allowed": false,
+    "global_core_provider_mode": "PROVIDER_AGNOSTIC",
+    "country_activation_mode": "COUNTRY_PAYMENT_PROFILE_FAIL_CLOSED",
+    "target_method_families": [
+      "VISA",
+      "MASTERCARD",
+      "APPLE_PAY",
+      "GOOGLE_PAY",
+      "BANK_TRANSFER",
+      "LOCAL_DIGITAL_WALLET",
+      "LOCAL_INSTANT_PAYMENT_OR_TRANSFER",
+      "LOCAL_CARD_NETWORK"
+    ],
+    "local_network_example_non_global": "MADA",
+    "display_rule": "SHOW_ONLY_COUNTRY_METHODS_WITH_ACTIVE_VERIFIED_STATUS",
+    "provider_secret_or_real_money_activation_authorized_by_this_decision": false,
+    "jordan": {
+      "country_code": "JO",
+      "status": "BLOCKED_PENDING_JO_PAY_001_AND_JO_PAY_002",
+      "show_unapproved_methods_as_active": false,
+      "required_gates": ["JO-PAY-001", "JO-PAY-002"],
+      "provider_contract_required": true,
+      "official_settlement_account_required": true,
+      "financial_control_approval_required": true,
+      "live_webhook_refund_chargeback_tests_required": true
+    },
+    "required_payment_binding_fields": [
+      "PAYMENT_ID",
+      "COUNTRY",
+      "CURRENCY",
+      "PRICING_VERSION",
+      "IDEMPOTENCY_KEY"
+    ],
+    "refund_required": true,
+    "chargeback_required": true,
+    "append_only_double_entry_ledger_required": true,
+    "idempotency_required": true,
+    "pricing_and_payment_policy_versioning_required": true,
+    "supersedes_conflicting_legacy_payment_models": true
   },
   "commission": {
     "all_current_sectors": true,
@@ -105,6 +153,10 @@
     "ordinary_post_default_human_review": true,
     "ordinary_post_default_brand_proof_gate": true,
     "commercial_register_hidden_ranking_requirement": true,
-    "tiger_citadel_selected_architecture": true
+    "tiger_citadel_selected_architecture": true,
+    "conflicting_legacy_posting_card_payment_model": true,
+    "global_hardcoded_payment_provider_or_method": true,
+    "cash_ad_campaign_payment": true,
+    "goods_or_services_checkout_through_platform": true
   }
 }
