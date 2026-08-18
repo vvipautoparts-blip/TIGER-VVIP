@@ -56,6 +56,8 @@
 
 .social-post-composer,
 .social-feed-placeholder,
+.social-feed-post,
+.social-feed-state,
 .social-module-placeholder {
   border: 1px solid var(--t1-border-subtle);
   border-radius: var(--t1-radius-card);
@@ -120,6 +122,55 @@
   margin: 0;
   color: var(--t1-text-secondary);
   font: var(--t1-type-body-m);
+}
+
+.social-feed-intro {
+  padding-block: var(--t1-space-4);
+}
+
+.social-feed-items {
+  display: grid;
+  gap: var(--t1-space-4);
+}
+
+.social-feed-state {
+  margin: 0;
+  padding: var(--t1-space-5);
+  color: var(--t1-text-secondary);
+  font: var(--t1-type-body-m);
+  text-align: center;
+}
+
+.social-feed-post {
+  padding: var(--t1-space-4);
+  display: grid;
+  gap: var(--t1-space-4);
+}
+
+.social-feed-post__header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--t1-space-2) var(--t1-space-3);
+  align-items: baseline;
+}
+
+.social-feed-post__author {
+  color: var(--t1-text-primary);
+  font: var(--t1-type-label-m);
+}
+
+.social-feed-post__meta,
+.social-feed-post__time {
+  color: var(--t1-text-secondary);
+  font: var(--t1-type-label-s);
+}
+
+.social-feed-post__body {
+  margin: 0;
+  color: var(--t1-text-primary);
+  font: var(--t1-type-body-m);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .social-module-placeholder[hidden],
