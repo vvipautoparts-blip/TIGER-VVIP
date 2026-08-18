@@ -64,6 +64,17 @@
     return typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
   }
 
+  function normalizeCommentBody(value) {
+    if (typeof value !== "string") {
+      return { ok: false, code: "SOCIAL_INVALID_COMMENT_BODY" };
+    }
+    const body = value.trim();
+    if (!body || body.length > 2000) {
+      return { ok: false, code: "SOCIAL_INVALID_COMMENT_BODY" };
+    }
+    return { ok: true, value: body };
+  }
+
   function normalizePost(input) {
     if (!input || typeof input !== "object" || Array.isArray(input)) {
       return { ok: false, code: "SOCIAL_INVALID_POST" };
@@ -258,7 +269,73 @@
       },
     });
 
-    return Object.freeze({ posts, relationships, reactions });
+    const comments = Object.freeze({
+      list: async function (postId) {
+        if (!validPostUuid(postId)) {
+          return frozenFailure("SOCIAL_INVALID_POST_ID");
+        }
+        if (!hasRpcClient(client)) return unavailable();
+        return execute(
+          () => client.rpc("vvip_social_comment_list", { p_post_id: postId }),
+          true
+        );
+      },
+
+      create: async function (postId, input) {
+        if (!validPostUuid(postId)) {
+          return frozenFailure("SOCIAL_INVALID_POST_ID");
+        }
+        const body = normalizeCommentBody(input && input.body);
+        if (!body.ok) return frozenFailure(body.code);
+
+        const parentCommentId = input && Object.hasOwn(input, "parentCommentId")
+          ? input.parentCommentId
+          : null;
+        if (parentCommentId !== null && parentCommentId !== undefined && !validPostUuid(parentCommentId)) {
+          return frozenFailure("SOCIAL_INVALID_COMMENT_ID");
+        }
+        if (!hasRpcClient(client)) return unavailable();
+
+        return execute(
+          () => client.rpc("vvip_social_comment_create", {
+            p_post_id: postId,
+            p_body: body.value,
+            p_parent_comment_id: parentCommentId || null,
+          }),
+          true
+        );
+      },
+
+      update: async function (commentId, bodyInput) {
+        if (!validPostUuid(commentId)) {
+          return frozenFailure("SOCIAL_INVALID_COMMENT_ID");
+        }
+        const body = normalizeCommentBody(bodyInput);
+        if (!body.ok) return frozenFailure(body.code);
+        if (!hasRpcClient(client)) return unavailable();
+
+        return execute(
+          () => client.rpc("vvip_social_comment_update", {
+            p_comment_id: commentId,
+            p_body: body.value,
+          }),
+          true
+        );
+      },
+
+      remove: async function (commentId) {
+        if (!validPostUuid(commentId)) {
+          return frozenFailure("SOCIAL_INVALID_COMMENT_ID");
+        }
+        if (!hasRpcClient(client)) return unavailable();
+        return execute(
+          () => client.rpc("vvip_social_comment_remove", { p_comment_id: commentId }),
+          true
+        );
+      },
+    });
+
+    return Object.freeze({ posts, relationships, reactions, comments });
   }
 
   function createCurrentSocialRuntime(rootObject) {
