@@ -4,7 +4,7 @@
 
 **Effective date:** 2026-08-18
 
-**Applies to:** VVIP TIGER product design, interaction architecture, information architecture, visual system, user journeys, campaign surfaces, publishing/recharge experience, profile/contact experience, responsive behavior, accessibility presentation, and any implementation derived from those domains.
+**Applies to:** VVIP TIGER product design, interaction architecture, information architecture, visual system, user journeys, campaign surfaces, publishing/recharge experience, profile/contact experience, temporal intent, matching, evidence, disclosure, communication, responsive behavior, accessibility presentation, and any implementation derived from those domains.
 
 ## 1. Binding owner rule
 
@@ -17,6 +17,22 @@ The conflicting earlier rule is immediately classified:
 `SUPERSEDED / HISTORICAL ONLY`
 
 It must no longer be treated as CURRENT authority.
+
+### 1.1 TIGER SYNAPSE extension authority
+
+The OWNER has approved **TIGER SYNAPSE** as the current product-innovation direction that extends TIGER ONE into a Temporal Intent Operating System.
+
+The binding product architecture for that extension is:
+
+`docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md`
+
+Its status is:
+
+`APPROVED / NOT IMPLEMENTED`
+
+TIGER SYNAPSE extends TIGER ONE; it does not replace the protected security, privacy, financial-integrity, legal, platform-role, release, or exact-source verification boundaries in this authority. The current Social Core runtime remains the implementation truth until each SYNAPSE slice is implemented and verified against its exact source state.
+
+When a SYNAPSE slice is migrated, any earlier intent, matching, evidence, disclosure, or interaction authority that conflicts with the approved SYNAPSE specification becomes `SUPERSEDED / HISTORICAL ONLY` for that migrated domain. An unimplemented design, mockup, historical video, or retired Preview link must never be represented as current runtime readiness.
 
 ## 2. What supersession means operationally
 
