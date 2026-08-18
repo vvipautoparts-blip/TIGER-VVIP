@@ -61,8 +61,14 @@
     body.className = "social-feed-post__body";
     body.textContent = item.body;
 
+    const reactions = documentObject.createElement("section");
+    reactions.className = "social-reactions";
+    reactions.setAttribute("data-social-reactions-host", "");
+    reactions.setAttribute("data-social-post-id", item.id);
+    reactions.setAttribute("aria-label", "تفاعلات المنشور");
+
     header.append(author, meta, time);
-    article.append(header, body);
+    article.append(header, body, reactions);
     return article;
   }
 
@@ -163,7 +169,13 @@
     const runtime = runtimeApi.createCurrentSocialRuntime(runtimeRoot);
     const readModel = feedApi.createSocialFeedReadModel({ runtime });
     const controller = createSocialFeedController({ host, readModel, document: documentObject });
-    return controller.load();
+    const result = await controller.load();
+
+    const reactionsApi = runtimeRoot && runtimeRoot.TIGERSocialReactions;
+    if (result.ok && reactionsApi && typeof reactionsApi.mountCurrentSocialReactions === "function") {
+      reactionsApi.mountCurrentSocialReactions(runtimeRoot);
+    }
+    return result;
   }
 
   function installCurrentSocialFeed(rootObject) {
