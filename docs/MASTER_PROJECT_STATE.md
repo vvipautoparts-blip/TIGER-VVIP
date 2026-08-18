@@ -4,9 +4,13 @@
 > Binding owner decisions: `docs/owner-control/OWNER_BINDING_DECISIONS_2026-08-12.md`
 > Prior state preserved: `docs/state-archive/MASTER_PROJECT_STATE_PRE_20260812.md`
 
-**Checkpoint:** 2026-08-12
+**Checkpoint:** 2026-08-19 — Dynamic Yield V2 feature-branch checkpoint
 **Repository:** `vvipautoparts-blip/TIGER-VVIP`
+**Current implementation branch:** `feat/dynamic-yield-ledger-v2-20260819`
+**Current branch base:** `923eb43dcaec6876ec7bacfae3932313145ac3fa`
 **Checkpoint product/runtime base before PR #192 documentation merge:** `756dc5f7f2769e6405c98f156ba9a2484df25352`
+
+> The 2026-08-19 checkpoint records repository implementation on the named feature branch only. It does not claim merge, Production deployment, database apply, provider activation, payout readiness, or real-money execution.
 
 > PR #192 carries this ledger. Merging PR #192 necessarily creates a newer `main` SHA. Therefore the SHA above is the exact product/runtime base incorporated into this checkpoint, **not** a claim that it remains the post-#192 `main`. Every continuation must resolve current `main` from GitHub before using this ledger.
 
@@ -142,20 +146,44 @@ Retired from new active operational/financial assignment paths:
 
 Geographic `area` remains a valid location/scope concept. Historical retired-role facts remain readable and are not rewritten as if they never existed.
 
-Commission policy:
+Historical V1 commission policy:
 
-- `PRIMARY_MARKETER` remains 4.30%;
-- removed total share is 10.93%;
-- removed share is redistributed completely/equally in exact arithmetic to `SECTOR_MANAGER`, `COUNTRY_EXECUTIVE_COMMISSIONER`, and `MARKETING`;
-- display percentages are not the source of truth;
-- deterministic minor-unit allocation/reconciliation is required;
-- no unexplained residual or silent redirection is permitted.
+- decision `COMMISSION-ROLE-POLICY-2026-08-11` remains immutable historical evidence;
+- historical V1 transactions are not recalculated or rewritten;
+- the historical 4.30% primary-marketer and 10.93% redistribution rules are not the active source for new V2 sales.
+
+Owner-approved V2 policy for new sales effective 2026-08-19:
+
+- all percentages apply to trusted `NET_RECOGNIZED_REVENUE` in integer minor units;
+- one legal owner receives a 5% management commission allocation, which is not an equity dividend;
+- three operating partners receive 5% commission each and are not equity owners;
+- referred sales allocate 5% to the general manager, 5% to the bound sector manager, 5% to the winning primary marketer, 1.5% to technical/content, 1.5% to base customer service, and 62% to platform retained revenue;
+- direct platform sales allocate no marketer or sector-manager commission;
+- the direct 10% unassigned sales share is allocated as 5% customer-service performance, 3% growth/acquisition reserve, and 2% risk/chargeback reserve;
+- both channel policies total exactly 10,000 basis points;
+- allocation uses exact integer arithmetic and deterministic transaction-bound largest remainder with zero residual.
+
+Owner-approved V2.1 attribution:
+
+- priority is checkout code, verified lead (60 days), verified order start (30 days), then consented first-party cookie (7 days);
+- device and payment signals are fraud inputs only and cannot award commission;
+- no eligible evidence resolves to `DIRECT_PLATFORM`;
+- a fraud flag resolves to `ATTRIBUTION_REVIEW` and never silently becomes direct;
+- the winning marketer and effective-dated manager assignment are locked in one immutable attribution decision.
+
+Repository implementation commits on the current feature branch:
+
+- `c4b05b5` — V2 central commission policy and exact allocation;
+- `293da3d` — V2.1 attribution resolution;
+- `b5565e3` — V2.2 balanced distribution journal.
+
+The V2.2 journal is repository domain logic only. It creates deterministic balanced debit/credit projections and canonical beneficiary accounts; persisted idempotency, SQL/RLS, provider calls, settlement, payout, notification, and Production execution remain separately gated.
 
 Every new operational/staff role assignment requires exactly one trusted identity reference: `ACCOUNT_ID` or `CLERK_USER_ID`.
 
 The browser may submit a reference but cannot prove the mapping. Trusted server resolution must verify the identity/account relationship for the intended subject before persistence/activation. Missing, malformed, unresolved, ambiguous, or mismatched identity fails closed.
 
-Repository implementation of this policy is merged through PR #191. This does **not** authorize a Production DB migration, real payout, or real-money movement.
+Repository implementation of the retired-role and trusted-identity policy is merged through PR #191. Dynamic Yield V2 is implemented only on the named 2026-08-19 feature branch at this checkpoint. Neither state authorizes a Production DB migration, real payout, or real-money movement.
 
 ## 8. TIGER PULSE state
 
