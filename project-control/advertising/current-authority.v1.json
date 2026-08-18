@@ -1,0 +1,110 @@
+{
+  "schema_version": "1.0.0",
+  "authority_id": "VVIP-TIGER-GLOBAL-AD-SOVEREIGNTY-2026-08-18",
+  "status": "CURRENT",
+  "effective_date": "2026-08-18",
+  "owner_reference": "docs/owner-control/VVIP_TIGER_GLOBAL_ADVERTISING_OWNER_AUTHORITY_2026-08-18.md",
+  "repository_base_sha": "923eb43dcaec6876ec7bacfae3932313145ac3fa",
+  "governance_mode": "CURRENT_ONLY",
+  "supersession": {
+    "rule": "NEW_OWNER_AUTHORITY_SUPERSEDES_CONFLICTING_LEGACY",
+    "legacy_runtime_allowed": false,
+    "legacy_current_docs_allowed": false,
+    "historical_archive_has_execution_authority": false
+  },
+  "global_model": {
+    "core": "ONE_GLOBAL_CORE",
+    "country_model": "SOVEREIGN_COUNTRY_CONTRACTS",
+    "sellable_product_type": "distribution-credit",
+    "revenue_model": "advertising_distribution",
+    "platform_is_transaction_party": false
+  },
+  "required_plan_fields": [
+    "id",
+    "productType",
+    "label",
+    "priceMinor",
+    "currency",
+    "marketCountry",
+    "committedImpressions",
+    "pricingVersion",
+    "lifecyclePolicyId"
+  ],
+  "forbidden_plan_fields": [
+    "durationDays",
+    "expiresAfterDays",
+    "tier",
+    "slotCount",
+    "visualPriority",
+    "featuredPriority",
+    "featured",
+    "badge",
+    "badgeType",
+    "rankBoost",
+    "searchPriority"
+  ],
+  "pricing": {
+    "global_fixed_price": false,
+    "global_fixed_impressions_per_currency_unit": false,
+    "country_pricing_certificate_required": true,
+    "dide_required": true,
+    "sell_when_cost_evidence_missing": false,
+    "sell_when_safe_capacity_missing": false,
+    "protection_model": "STRUCTURAL_NON_NEGATIVE_MARGIN_PROTECTION"
+  },
+  "delivery": {
+    "event": "QVI",
+    "current_policy_baseline": {
+      "minimum_visible_fraction": 0.5,
+      "minimum_continuous_visible_ms": 2000,
+      "dedup_window_ms": 60000
+    },
+    "invalid_traffic_consumes_paid_credit": false,
+    "measurement_failure_counts_as_success": false,
+    "human_eye_contact_claimed": false
+  },
+  "visual_equality": {
+    "pay_to_look_bigger": false,
+    "payment_changes_visual_size": false,
+    "payment_changes_trust_badge": false,
+    "payment_changes_hidden_search_rank": false,
+    "payment_changes_distribution_quantity": true,
+    "media_limits_source": "country media_profile"
+  },
+  "lifecycle": {
+    "global_fixed_duration": false,
+    "country_policy_required": true,
+    "silent_unused_credit_deletion": false,
+    "pause_stops_new_consumption": true
+  },
+  "financial_settlement": {
+    "flow": [
+      "PAYMENT",
+      "UNEARNED_OR_PAID_BALANCE",
+      "CAPACITY_RESERVATION",
+      "VERIFIED_DELIVERY",
+      "RECOGNIZED_REVENUE"
+    ],
+    "append_only_audit": true,
+    "idempotency_required": true,
+    "correction_method": "REVERSAL_ENTRY",
+    "prior_purchase_pricing_version_immutable": true
+  },
+  "launch_scope": {
+    "video": false,
+    "shipping": false,
+    "delivery": false,
+    "deal_guarantee": false,
+    "sale_value_commission": false
+  },
+  "forbidden_legacy_models": [
+    "BASIC_ADVANCED_GOLD_ROYAL_10_35_80_120",
+    "GLOBAL_FIXED_30_DAY_PACKAGES",
+    "GLOBAL_FIXED_400_OR_500_IMPRESSIONS_PER_CURRENCY_UNIT",
+    "PAY_TO_LOOK_BIGGER",
+    "ABSOLUTE_ZERO_LOSS_GUARANTEE",
+    "BIOMETRIC_INTERACTION_WORDING",
+    "CERTAIN_HUMAN_VIEW_PROOF_CLAIM",
+    "QVI_1S_DEDUP_180S_WHEN_CONFLICTING_WITH_CURRENT_POLICY"
+  ]
+}
