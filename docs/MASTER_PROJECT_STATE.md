@@ -8,11 +8,11 @@
 ## 0. مؤشر التنفيذ الحالي على فرع Social Core
 
 - **العمل الحالي:** PR #271 على الفرع `feat/tiger-one-living-surface-impl-20260818`، فوق فرع المواصفة وليس فوق `main` مباشرة.
-- **حالة S0:** `VERIFIED`.
-- **رأس PR #271 الدقيق:** `9f2dce40b352f67d80c81b60515442c860c58048`؛ **الشجرة الدقيقة:** `85ca87aa64714b3cac3a73ac0beefeb7e9df26fd`.
+- **حالة S0:** `IN_PROGRESS / AWAITING_CURRENT_HEAD_GITHUB_CI_ATTESTATIONS`؛ قرار `VERIFIED` ورأس PR #271 الحالي وشجرته يُستمدّون حصراً من GitHub exact-head CI attestations خارج هذه الوثيقة. عند غياب أو انتظار أو فشل checks الخاصة بالرأس الحالي تكون الحالة `IN_PROGRESS` أو `BLOCKED`، ولا تُستنتج `VERIFIED` من هذه الوثيقة أو من SHA تاريخي.
+- **نقطة دليل تنفيذ Social Core من Task 7:** `9f2dce40b352f67d80c81b60515442c860c58048`؛ **شجرتها:** `85ca87aa64714b3cac3a73ac0beefeb7e9df26fd`. هذه نقطة evidence تاريخية وليست رأس PR الحالي ولا قرار التحقق النهائي للوثائق.
 - **دليل الاختبارات المركزة للتعليقات/الردود:** `109/109 PASS`، بلا fail أو skipped أو todo.
-- **TIGER Social DB Rehearsal:** `PASS` على SHA نفسه (التشغيل البعيد #103).
-- **VVIP Quality Gate:** `PASS` على SHA نفسه (التشغيل البعيد #1474)؛ والتحقق المحلي المعزول الكامل `VVIP_QUALITY_GATE=PASS`.
+- **TIGER Social DB Rehearsal التاريخي:** `PASS` على نقطة Task 7 نفسها (التشغيل البعيد #103).
+- **VVIP Quality Gate التاريخي:** `PASS` على نقطة Task 7 نفسها (التشغيل البعيد #1474)؛ والتحقق المحلي المعزول الكامل `VVIP_QUALITY_GATE=PASS`. لا يغني أيٌّ من ذلك عن attestations الرأس الحالي.
 - **هوية المنتج الحالية:** `SOCIAL_NETWORK_FIRST` مع انتشار سوقي `GLOBAL_FIRST`؛ Marketplace وPulse وحدتان داخل المنتج.
 - **سلطة المنتج الحالية:** `docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md`.
 - **سلطة الإعلان المدفوع الحالية:** `docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md`؛ النشر العادي المتوافق مجاني.
