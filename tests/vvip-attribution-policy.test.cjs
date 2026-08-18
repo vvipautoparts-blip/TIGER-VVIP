@@ -251,3 +251,47 @@ test("resolver rejects unknown evidence and invalid or future time", async () =>
     /VVIP_INVALID_ATTRIBUTION_TIME/
   );
 });
+
+test("resolver rejects timezone-less lock and evidence timestamps", async () => {
+  const { resolveAttribution } = await loadPolicy();
+
+  assert.throws(
+    () => resolveAttribution({
+      transactionId: "txn_attr_local_lock_001",
+      lockedAt: "2026-08-19T12:00:00.000",
+      evidence: []
+    }),
+    /VVIP_INVALID_ATTRIBUTION_TIME/
+  );
+
+  assert.throws(
+    () => resolveAttribution({
+      transactionId: "txn_attr_local_evidence_001",
+      lockedAt: LOCKED_AT,
+      evidence: [evidence({ capturedAt: "2026-08-19T11:59:00.000" })]
+    }),
+    /VVIP_INVALID_ATTRIBUTION_TIME/
+  );
+});
+
+test("resolver rejects duplicate evidence identifiers before winner selection", async () => {
+  const { resolveAttribution } = await loadPolicy();
+
+  assert.throws(
+    () => resolveAttribution({
+      transactionId: "txn_attr_duplicate_evidence_001",
+      lockedAt: LOCKED_AT,
+      evidence: [
+        evidence({
+          evidenceId: "ev_duplicate_001",
+          marketerId: "mkt_first_001"
+        }),
+        evidence({
+          evidenceId: "ev_duplicate_001",
+          marketerId: "mkt_second_001"
+        })
+      ]
+    }),
+    /VVIP_INVALID_ATTRIBUTION_EVIDENCE/
+  );
+});
