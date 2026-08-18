@@ -1,7 +1,7 @@
 # TIGER PULSE RING 2026 — CURRENT OWNER AUTHORITY
 
-**Status:** CURRENT_ONLY — BINDING OWNER AUTHORITY  
-**Effective date:** 2026-08-18  
+**Status:** CURRENT_ONLY — BINDING OWNER AUTHORITY
+**Effective date:** 2026-08-18
 **Domain:** TIGER monetization, paid visibility, publishing access, Pulse pricing, Pulse delivery, Pulse payment UX, impression accounting, and conflicting commercial product authority.
 
 ## 1. Binding product rule
