@@ -8,10 +8,11 @@
 ## 0. مؤشر التنفيذ الحالي على فرع Social Core
 
 - **العمل الحالي:** PR #271 على الفرع `feat/tiger-one-living-surface-impl-20260818`، فوق فرع المواصفة وليس فوق `main` مباشرة.
-- **حالة S0:** `IN_PROGRESS / BASE-SYNC-AND-OWNER-RECONCILIATION`؛ لا تصبح `VERIFIED` حتى تُنشر المصالحة وتنجح تشغيلات GitHub على الرأس المنشور نفسه.
-- **آخر نقطة منشورة قبل هذه المصالحة:** رأس PR #271 هو `df6c898058281e15ead00caec45916a602e34dde` وشجرته `9673d3820355928ac556a81e753ae06e143cbf03`، وقاعدة المواصفة هي `54d7fe33310fc83380ed2fce941b581e91856263`. لا يُنسخ SHA جديد إلى هذه الوثيقة بوصفه ذاتيًا؛ يُقرأ الرأس الحالي من GitHub ويُطابق بأدلة CI.
-- **الدليل المحلي الجاري للمصالحة:** اختبارات Social Core + السلطة المركزة `109/109 PASS` بلا skip/todo، واختبار سلطة FUSION وحدود عدم الوساطة `9/9 PASS`، وQuality Gate الكامل على شجرة المصالحة المحلية `VVIP_QUALITY_GATE=PASS`. تبقى نتيجة الرأس البعيد واجبة التجديد بعد نشر المصالحة، ولا تحل الأدلة المحلية محل CI المطابق للـSHA المنشور.
-- **حالة CI البعيدة:** الرأس المنشور قبل المصالحة لم يسجل تشغيل `pull_request`. لا تُعامل الحالة بوصفها GREEN حتى ينجح كل من `VVIP Quality Gate` و`TIGER Social DB Rehearsal` على SHA واحد مطابق بعد حل التعارض.
+- **حالة S0:** `VERIFIED`.
+- **رأس PR #271 الدقيق:** `9f2dce40b352f67d80c81b60515442c860c58048`؛ **الشجرة الدقيقة:** `85ca87aa64714b3cac3a73ac0beefeb7e9df26fd`.
+- **دليل الاختبارات المركزة للتعليقات/الردود:** `109/109 PASS`، بلا fail أو skipped أو todo.
+- **TIGER Social DB Rehearsal:** `PASS` على SHA نفسه (التشغيل البعيد #103).
+- **VVIP Quality Gate:** `PASS` على SHA نفسه (التشغيل البعيد #1474)؛ والتحقق المحلي المعزول الكامل `VVIP_QUALITY_GATE=PASS`.
 - **هوية المنتج الحالية:** `SOCIAL_NETWORK_FIRST` مع انتشار سوقي `GLOBAL_FIRST`؛ Marketplace وPulse وحدتان داخل المنتج.
 - **سلطة المنتج الحالية:** `docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md`.
 - **سلطة الإعلان المدفوع الحالية:** `docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md`؛ النشر العادي المتوافق مجاني.
@@ -24,8 +25,7 @@
 - **حالة VERITY FABRIC:** `APPROVED / PLANNED / NOT IMPLEMENTED beyond existing foundations`؛ تبقى عقود TSRF وF05 والحزم الحالية أساسًا موجودًا، لكنها لا تثبت أن نسيج VERITY الكامل أو Gate Compiler قد نُفذا.
 - **قرار المالك المثبت:** اعتمد المالك النسخة المكتوبة لخيار C بتاريخ 2026-08-18؛ أصبحت SYNAPSE v2 + VERITY FABRIC سلطة `CURRENT_ONLY` في نطاقها، مع بقاء التنفيذ `NOT IMPLEMENTED` حتى ظهور أدلة الكود والاختبارات.
 - **خطة البرنامج الحالية:** `docs/superpowers/plans/2026-08-18-tiger-synapse-v2-verity-fabric-program-execution.md`.
-- **مؤشر التنفيذ الحالي:** `docs/superpowers/plans/2026-08-18-s0-social-comments-quality-gate.md` — مصالحة رأس فرع PR #271 ثم إكمال التعليقات/الردود وإعادة Quality Gate إلى GREEN.
-- **ترتيب حماية المالك:** بعد نجاح S0 مباشرة يبدأ V0 لتحويل مرجع المالك وقاعدة إلغاء القديم إلى Authority Graph قابل للتحقق آليًا، قبل توسيع محرك النوايا.
+- **مؤشر التنفيذ الحالي / الشريحة التالية:** `V0 Owner Authority Graph` — تحويل مرجع المالك وقاعدة إلغاء القديم إلى Authority Graph قابل للتحقق آليًا، قبل توسيع محرك النوايا.
 - **قاعدة المالك النهائية:** أحدث قرار `CURRENT_ONLY` يلغي سلطة كل قديم متعارض ويخرجه من المنصة الحالية والحزمة العامة ومسارات التنفيذ؛ الأثر الضروري يبقى `HISTORICAL_ONLY` خارج المنصة بلا أي سلطة.
 - **سلطة المعاينة:** لا يُعتمد أي فيديو أو رابط نشر تاريخي أو رابط Pages سابق بوصفه معاينة لهذا العمل.
 - **شرط الرابط الصحيح:** Preview مستقل مبني من exact head الخاص بـPR #271، يعمل على الهاتف، ولا يغيّر `main` أو Production.
