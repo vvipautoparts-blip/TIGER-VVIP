@@ -16,6 +16,15 @@
   const SOCIAL_POSTS_TABLE = "vvip_social_posts";
   const SOCIAL_RELATIONSHIPS_TABLE = "vvip_social_relationships";
   const SOCIAL_AUDIENCES = Object.freeze(["public", "friends", "only_me"]);
+  const SOCIAL_REACTION_TYPES = Object.freeze([
+    "like",
+    "love",
+    "support",
+    "haha",
+    "wow",
+    "sad",
+    "angry",
+  ]);
   const POST_SELECT = "post_id,author_subject,body,audience,created_at,updated_at";
   const RELATIONSHIP_SELECT = "relationship_id,requester_subject,addressee_subject,relationship_state,created_at,updated_at";
 
@@ -31,8 +40,16 @@
     return Boolean(client && typeof client.from === "function");
   }
 
+  function hasRpcClient(client) {
+    return Boolean(client && typeof client.rpc === "function");
+  }
+
   function validAudience(value) {
     return typeof value === "string" && SOCIAL_AUDIENCES.includes(value);
+  }
+
+  function validReactionType(value) {
+    return typeof value === "string" && SOCIAL_REACTION_TYPES.includes(value);
   }
 
   function validUserSubject(value) {
@@ -41,6 +58,10 @@
 
   function validResourceId(value) {
     return typeof value === "string" && /^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/.test(value);
+  }
+
+  function validPostUuid(value) {
+    return typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
   }
 
   function normalizePost(input) {
@@ -196,7 +217,48 @@
       },
     });
 
-    return Object.freeze({ posts, relationships });
+    const reactions = Object.freeze({
+      summary: async function (postId) {
+        if (!validPostUuid(postId)) {
+          return frozenFailure("SOCIAL_INVALID_POST_ID");
+        }
+        if (!hasRpcClient(client)) return unavailable();
+        return execute(
+          () => client.rpc("vvip_social_reaction_summary", { p_post_id: postId }),
+          true
+        );
+      },
+
+      set: async function (postId, reactionType) {
+        if (!validPostUuid(postId)) {
+          return frozenFailure("SOCIAL_INVALID_POST_ID");
+        }
+        if (!validReactionType(reactionType)) {
+          return frozenFailure("SOCIAL_INVALID_REACTION_TYPE");
+        }
+        if (!hasRpcClient(client)) return unavailable();
+        return execute(
+          () => client.rpc("vvip_social_set_reaction", {
+            p_post_id: postId,
+            p_reaction_type: reactionType,
+          }),
+          true
+        );
+      },
+
+      remove: async function (postId) {
+        if (!validPostUuid(postId)) {
+          return frozenFailure("SOCIAL_INVALID_POST_ID");
+        }
+        if (!hasRpcClient(client)) return unavailable();
+        return execute(
+          () => client.rpc("vvip_social_remove_reaction", { p_post_id: postId }),
+          true
+        );
+      },
+    });
+
+    return Object.freeze({ posts, relationships, reactions });
   }
 
   function createCurrentSocialRuntime(rootObject) {
@@ -210,6 +272,7 @@
     SOCIAL_POSTS_TABLE,
     SOCIAL_RELATIONSHIPS_TABLE,
     SOCIAL_AUDIENCES,
+    SOCIAL_REACTION_TYPES,
     createSocialRuntimeAdapters,
     createCurrentSocialRuntime,
   });
