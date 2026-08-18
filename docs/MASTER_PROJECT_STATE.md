@@ -171,11 +171,13 @@ Owner-approved V2.1 attribution:
 - a fraud flag resolves to `ATTRIBUTION_REVIEW` and never silently becomes direct;
 - the winning marketer and effective-dated manager assignment are locked in one immutable attribution decision.
 
-Repository implementation commits on the current feature branch:
+Repository implementation anchors in public PR #279:
 
-- `c4b05b5` — V2 central commission policy and exact allocation;
-- `293da3d` — V2.1 attribution resolution;
-- `b5565e3` — V2.2 balanced distribution journal.
+- `ae18ab3e4429f06638467febfaaa17436e5759b5` — V2 central commission policy, exact allocation, and effective-instant binding;
+- `7cff3bac71e2625e36c9deffce4120d34382dc00` — V2.1 attribution resolution with offset-qualified time, duplicate-evidence rejection, and resolver-issued provenance;
+- `8e7c0e1fce737546faf5f68494d6a209bfe27c95` — V2.2 balanced distribution journal with effective-date, identifier, and attribution-provenance enforcement.
+
+These commits are reachable on `feat/dynamic-yield-ledger-v2-20260819`. The exact current PR head must still be resolved from GitHub before continuation because review fixes may append newer commits.
 
 The V2.2 journal is repository domain logic only. It creates deterministic balanced debit/credit projections and canonical beneficiary accounts; persisted idempotency, SQL/RLS, provider calls, settlement, payout, notification, and Production execution remain separately gated.
 
