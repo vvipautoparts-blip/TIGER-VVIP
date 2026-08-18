@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "VVIP_TIGER_FUSION_AUTHORITY_V1",
+  "productIdentity": "GLOBAL_FIRST",
+  "currentReference": "docs/superpowers/specs/2026-08-13-vvip-tiger-fusion-2026-owner-constitution-FINAL.md",
+  "ownerOperationalIndex": "docs/fusion/FUSION_CURRENT_AUTHORITY.md",
+  "ownerRequirementsTraceability": "docs/fusion/OWNER_REQUIREMENTS_TRACEABILITY_2026.md",
+  "ownerVisionReference": "docs/fusion/OWNER_VISION_VVIP_TIGER_2026.md",
+  "aiPrivateCoreReference": "docs/fusion/OWNER_REFERENCE_AI_REVERSE_ENGINEERING_SHIELD_2026.md",
+  "tigerPulseOwnerReference": "docs/fusion/OWNER_REFERENCE_F07_TIGER_PULSE.md",
+  "tigerPulseEngineeringSpec": "docs/superpowers/specs/2026-08-13-f07-tiger-pulse-hero-dynamic-ad-ribbon-design.md",
+  "historicalEvidencePolicy": "PRESERVE_OUTSIDE_CURRENT_AUTHORITY",
+  "fusionCore": {
+    "keep": [
+      "SOA",
+      "RLS",
+      "release security",
+      "financial ledger",
+      "country gates",
+      "audit",
+      "recovery",
+      "PR36 resource safety",
+      "Strangler architecture"
+    ],
+    "add": [
+      "Single Surface",
+      "Facebook muscle memory",
+      "OpenSooq-grade search",
+      "HEIC pipeline",
+      "Adaptive Performance",
+      "25K Showcase",
+      "4M Digital Twin",
+      "native mobile certification",
+      "Sovereign Capability Graph",
+      "Global Currency Fabric",
+      "Runtime Vacuum"
+    ]
+  },
+  "supersededDecisions": [
+    {"id":"LEGACY_JORDAN_FIRST","status":"SUPERSEDED"},
+    {"id":"LEGACY_FIXED_THREE_SECTORS","status":"SUPERSEDED"},
+    {"id":"LEGACY_FOUR_POSTS_WEEK","status":"SUPERSEDED"},
+    {"id":"LEGACY_120_DAY_LIFETIME","status":"SUPERSEDED"},
+    {"id":"LEGACY_TIGER_CARE","status":"SUPERSEDED"},
+    {"id":"LEGACY_BLUE_LOGIN","status":"SUPERSEDED"},
+    {"id":"LEGACY_SEPARATE_ADMIN_SURFACE","status":"SUPERSEDED"}
+  ],
+  "retainedFoundations": [
+    "SOA",
+    "RLS_DEFAULT_DENY",
+    "RELEASE_SUPPLY_CHAIN_SECURITY",
+    "DOUBLE_ENTRY_LEDGER",
+    "COUNTRY_ACTIVATION_GATES",
+    "APPEND_ONLY_AUDIT",
+    "RECOVERY_FAILOVER_DISCIPLINE",
+    "PR36_RESOURCE_SAFETY",
+    "STRANGLER_MIGRATION"
+  ],
+  "implementationPhases": ["F00","F01","F02","F03","F04","F05","F06","F07","F08","F09","F10","F11","F12","F13","F14","F15","F16"],
+  "digitalTwin": {
+    "uniqueActors": 4000000,
+    "simultaneousActiveUsers": 4000000
+  },
+  "globalLaunchEligibilityRequiresBoth4M": true,
+  "launchTruth": "EVIDENCE_FIRST",
+  "globalLaunchStatement": "نحن جاهزون للانطلاق العالمي.",
+  "globalLaunchStatementAllowedOnlyWhen": "F16_LAUNCH_PASSPORT_PASS"
+}
