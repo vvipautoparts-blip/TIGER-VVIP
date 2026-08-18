@@ -46,6 +46,7 @@
   <script defer src="scripts/social/feed-read-model.js"></script>
   <script defer src="scripts/social/feed-controller.js"></script>
   <script defer src="scripts/social/post-composer.js"></script>
+  <script defer src="scripts/social/friends-controller.js"></script>
   <script defer src="scripts/social/core-shell.js"></script>
 </head>
 <body data-vvip-fusion-app>
@@ -107,9 +108,17 @@
       </section>
     </section>
 
-    <section class="tiger-social-home social-module-placeholder" data-social-module-placeholder="friends" aria-label="الأصدقاء" aria-hidden="true" hidden>
-      <h2>الأصدقاء</h2>
-      <p>طلبات الصداقة والعلاقات ستظهر هنا بعد ربط Social Graph الموثوق.</p>
+    <section class="tiger-social-home social-module-placeholder" data-social-module-placeholder="friends" data-social-friends aria-label="الأصدقاء" aria-hidden="true" hidden>
+      <header class="social-friends-heading">
+        <div>
+          <span class="eyebrow">VVIP TIGER SOCIAL</span>
+          <h2>الأصدقاء</h2>
+        </div>
+        <p>طلبات الصداقة والأصدقاء الحاليون في مكان واحد.</p>
+      </header>
+      <section class="social-friends-items" data-social-friends-items aria-live="polite" aria-busy="true">
+        <p class="social-friends-state" data-social-friends-state="loading" role="status">جارٍ تحميل الأصدقاء…</p>
+      </section>
     </section>
 
     <section class="tiger-social-home social-module-placeholder" data-social-module-placeholder="messages" aria-label="الرسائل" aria-hidden="true" hidden>
