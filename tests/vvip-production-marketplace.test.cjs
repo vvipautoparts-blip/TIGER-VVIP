@@ -27,3 +27,44 @@ test("accepts no more than seven image files and rejects video", () => {
 test("cleans user-facing text without retaining markup", () => {
   assert.equal(app.cleanText("  <script>x</script> عنوان  ", 20), "x عنوان");
 });
+
+test("accepts only sovereign distribution-credit plans and rejects legacy tier or fixed-duration plans", () => {
+  const plans = app.normalizeVisibilityPlans([
+    {
+      id: "legacy-gold",
+      label: "GOLD",
+      priceMinor: 80000,
+      currency: "JOD",
+      durationDays: 30,
+      tier: "GOLD"
+    },
+    {
+      id: "jo-2026-v3-10",
+      productType: "distribution-credit",
+      label: "رصيد توزيع 4,700 ظهور موثق",
+      priceMinor: 10000,
+      currency: "JOD",
+      marketCountry: "JO",
+      committedImpressions: 4700,
+      pricingVersion: "JO-2026-V3",
+      lifecyclePolicyId: "JO-ADS-LIFECYCLE-V1"
+    },
+    {
+      id: "pay-to-look-bigger",
+      productType: "distribution-credit",
+      label: "VIP أكبر",
+      priceMinor: 20000,
+      currency: "JOD",
+      marketCountry: "JO",
+      committedImpressions: 9000,
+      pricingVersion: "JO-2026-V3",
+      lifecyclePolicyId: "JO-ADS-LIFECYCLE-V1",
+      visualPriority: true
+    }
+  ]);
+
+  assert.equal(plans.length, 1);
+  assert.equal(plans[0].id, "jo-2026-v3-10");
+  assert.equal(plans[0].committedImpressions, 4700);
+  assert.equal(plans[0].pricingVersion, "JO-2026-V3");
+});
