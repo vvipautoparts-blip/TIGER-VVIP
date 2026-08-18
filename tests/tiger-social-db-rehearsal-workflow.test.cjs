@@ -34,7 +34,7 @@ test("foundation behavior proof covers friend visibility and isolation from a th
   assert.match(foundationBehavior, /BOB_CAN_READ_FRIEND_POST/);
   assert.match(foundationBehavior, /CHARLIE_CANNOT_READ_FRIEND_POST/);
   assert.match(foundationBehavior, /ONLY_ME_IS_OWNER_ONLY/);
-  assert.match(foundationBehavior, /ROLLBACK/);
+  assert.match(foundationBehavior, /rollback;/i);
 });
 
 test("reaction behavior proof covers least privilege, upsert, visibility, and friendship revocation", () => {
@@ -45,5 +45,5 @@ test("reaction behavior proof covers least privilege, upsert, visibility, and fr
   assert.match(reactionBehavior, /REACTION_VISIBILITY_BOUNDARY=PASS/);
   assert.match(reactionBehavior, /FRIEND_REACTION_ELIGIBILITY_REVOKED=PASS/);
   assert.match(reactionBehavior, /TIGER_SOCIAL_REACTIONS_DB_BEHAVIOR=PASS/);
-  assert.match(reactionBehavior, /ROLLBACK/);
+  assert.match(reactionBehavior, /rollback;/i);
 });
