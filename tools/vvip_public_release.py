@@ -118,6 +118,7 @@ FORBIDDEN_PRODUCTION_MARKERS = {
     "PUBLISH_NOT_IMPLEMENTED": "النشر الحقيقي قيد التجهيز",
     "FUTURE_PUBLISH_ONLY": "النشر الحقيقي سيتم تفعيله لاحقًا",
     "LOCAL_DRAFT_ONLY_PUBLISHER": "LOCAL_DRAFT_ONLY",
+    "RETIRED_GITHUB_PAGES_URL": "vvipautoparts-blip." "github.io/TIGER-VVIP",
 }
 
 INDEX_REMOVE_SCRIPTS = (

@@ -4,6 +4,15 @@
 > الحقيقة التنفيذية النهائية هي ملفات GitHub الحالية + الـexact SHA/tree + أدلة CI المطابقة لنفس الـSHA.
 > أي وثيقة أخرى أو تقرير أو Ledger أو محادثة أو Archive هو **Evidence فقط** ولا يملك سلطة تغيير هذه الوثيقة أو الـruntime.
 
+## 0. مؤشر التنفيذ الحالي على فرع Social Core
+
+- **العمل الحالي:** PR #271 على الفرع `feat/tiger-one-living-surface-impl-20260818`، فوق فرع المواصفة وليس فوق `main` مباشرة.
+- **الحالة:** `IN_PROGRESS` حتى ينجح Quality Gate على الرأس النهائي نفسه.
+- **الواجهة الحالية:** TIGER Social Home مع Header مضغوط، تبويبات اجتماعية، Composer، عرض Stories، ومنشورات وتفاعلات اجتماعية مألوفة مع هوية TIGER مستقلة.
+- **سلطة المعاينة:** لا يُعتمد أي فيديو أو رابط نشر تاريخي أو رابط Pages سابق بوصفه معاينة لهذا العمل.
+- **شرط الرابط الصحيح:** Preview مستقل مبني من exact head الخاص بـPR #271، يعمل على الهاتف، ولا يغيّر `main` أو Production.
+- **الحقيقة السلبية:** عدم وجود رابط Preview صحيح أفضل من نشر رابط قديم أو غير مطابق؛ لا يجوز اختلاق الجاهزية أو إعادة استخدام رابط متقاعد.
+
 ## 1. هوية المشروع والسلطة
 
 - **المنصة:** VVIP TIGER.
@@ -229,6 +238,7 @@ AWS لا يستقبل نسخًا يدوية من ملفات المستودع. ا
 - PR #261 يمثل طبقة sovereign runtime authority convergence الحالية في الـstack.
 - PR #262 يمثل طبقة Zero-Residue Production Handover التابعة لها.
 - #262 لا يندمج مباشرة إلى `main`؛ يحافظ على ترتيب الـstack.
+- PR #271 يمثل طبقة Social Core الحالية في stack مستقل؛ لا يُقاس بفيديو أو رابط نشر سابق ولا يُقدّم كجاهز قبل GREEN exact-head evidence.
 - branch/tag deletion لا يحدث لمجرد العمر أو الاسم؛ يحتاج merged/stale proof وعدم وجود PR/runtime/release dependency.
 - لا يسمح auto-push أو background Git mutation غير خاضع للمراجعة.
 

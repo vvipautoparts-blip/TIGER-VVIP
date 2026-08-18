@@ -1,37 +1,9 @@
-# نشر المنصة HTTPS وتثبيتها على أندرويد
+# Android HTTPS deployment note — RETIRED
 
-## الحالة
-تم تجهيز المشروع كتطبيق ويب قابل للتثبيت (PWA)، وتم ضبط النشر عبر GitHub Pages من الفرع main في ملف:
-- .github/workflows/pages.yml
+This document is intentionally non-operational.
 
-## الخطوة 1: ربط المشروع بمستودع GitHub (مرة واحدة)
-إذا لم يكن لديك مستودع لهذا المشروع بعد:
+The former instructions for deploying directly from `main` and sharing the repository Pages address are obsolete and must not be followed. PR #271 requires an isolated exact-head Preview that does not modify `main`, Production, or the protected production-promotion workflow.
 
-1. أنشئ مستودع جديد على GitHub (فارغ)
-2. اربطه بالمشروع المحلي:
+No replacement public Preview address is recorded here. The current address may be shared only after its exact branch SHA and GREEN checks are verified.
 
-git remote add origin https://github.com/<USERNAME>/<REPO>.git
-
-## الخطوة 2: رفع المشروع
-
-git add .
-git commit -m "Prepare Android-installable PWA + Pages deploy"
-git push -u origin main
-
-## الخطوة 3: تفعيل GitHub Pages
-- ادخل إلى إعدادات المستودع على GitHub
-- Pages
-- Source: GitHub Actions
-
-بعد دقائق سيظهر رابط HTTPS بالشكل:
-https://<USERNAME>.github.io/<REPO>/
-
-## الخطوة 4: تثبيت التطبيق على أندرويد
-1. افتح الرابط HTTPS من Chrome على الهاتف
-2. من القائمة اختر Install app أو Add to Home screen
-3. سيتم تثبيت التطبيق وفتحه بشكل مستقل
-
-## ملاحظات مهمة
-- أي تغيير جديد: فقط push على main وسيتم تحديث التطبيق تلقائياً
-- إذا لم يظهر زر التثبيت فوراً: حدّث الصفحة مرة أو مرتين ثم أعد فتحها
-- لأفضل عمل، ضع مفاتيح Supabase الحقيقية قبل الاستخدام الإنتاجي
+The original instructions remain recoverable from Git history for audit only.

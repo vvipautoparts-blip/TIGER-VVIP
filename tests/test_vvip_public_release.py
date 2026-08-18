@@ -185,6 +185,21 @@ class PublicReleaseTests(unittest.TestCase):
                 with self.assertRaisesRegex(RuntimeError, "LOCAL_DRAFT_ONLY_PUBLISHER"):
                     module.build(source, output, mode="production", source_sha="abc")
 
+    def test_production_rejects_retired_github_pages_url(self):
+        with tempfile.TemporaryDirectory() as temp:
+            source = Path(temp) / "src"
+            output = Path(temp) / "out"
+            source.mkdir()
+            self.fixture(source)
+            retired_url = "https://vvipautoparts-blip." "github.io/TIGER-VVIP/"
+            (source / "index.html").write_text(
+                f'<html><body><a href="{retired_url}">old preview</a></body></html>',
+                encoding="utf-8",
+            )
+            with mock.patch.dict(os.environ, self.production_env(), clear=False):
+                with self.assertRaisesRegex(RuntimeError, "RETIRED_GITHUB_PAGES_URL"):
+                    module.build(source, output, mode="production", source_sha="abc")
+
     def test_production_build_succeeds_with_clean_sources(self):
         with tempfile.TemporaryDirectory() as temp:
             source = Path(temp) / "src"
