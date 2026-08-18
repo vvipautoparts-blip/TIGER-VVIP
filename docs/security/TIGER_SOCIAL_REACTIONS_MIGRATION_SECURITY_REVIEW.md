@@ -1,8 +1,8 @@
 # TIGER Social Reactions — Content-Addressed Migration Security Review
 
-**Status:** REVIEWED REPOSITORY ARTIFACT — NOT PRODUCTION APPLIED  
-**Migration:** `supabase/migrations/20260818133000_social_reactions.sql`  
-**Reviewed SHA-256:** `174b688fee994e329824230f48e031bb59de9f0c4049f322791f363dc88354ea`  
+**Status:** REVIEWED REPOSITORY ARTIFACT — NOT PRODUCTION APPLIED
+**Migration:** `supabase/migrations/20260818133000_social_reactions.sql`
+**Reviewed SHA-256:** `174b688fee994e329824230f48e031bb59de9f0c4049f322791f363dc88354ea`
 **Review date:** 2026-08-18
 
 ## Decision
