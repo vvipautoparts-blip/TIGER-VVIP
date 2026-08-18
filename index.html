@@ -45,6 +45,7 @@
   <script defer src="scripts/social/runtime-adapters.js"></script>
   <script defer src="scripts/social/feed-read-model.js"></script>
   <script defer src="scripts/social/feed-controller.js"></script>
+  <script defer src="scripts/social/post-composer.js"></script>
   <script defer src="scripts/social/core-shell.js"></script>
 </head>
 <body data-vvip-fusion-app>
@@ -209,8 +210,14 @@
         <button class="fusion-icon-button" type="button" data-social-post-close aria-label="إغلاق">×</button>
       </header>
       <label for="social-post-draft">محتوى المنشور</label>
-      <textarea id="social-post-draft" data-social-post-draft rows="6" placeholder="اكتب ما تريد مشاركته..."></textarea>
-      <p class="t1-type-label-m">النشر الموثوق سيتم ربطه في Slice النشر؛ هذه الواجهة لا تدّعي نجاح نشر على الخادم.</p>
+      <textarea id="social-post-draft" data-social-post-draft rows="6" maxlength="5000" placeholder="اكتب ما تريد مشاركته..."></textarea>
+      <label for="social-post-audience">الجمهور</label>
+      <select id="social-post-audience" data-social-post-audience>
+        <option value="public">عام</option>
+        <option value="friends" selected>الأصدقاء</option>
+        <option value="only_me">أنا فقط</option>
+      </select>
+      <p data-social-post-status role="status" aria-live="polite"></p>
       <button class="button button--primary" type="button" data-social-post-submit disabled>نشر</button>
     </section>
   </div>
