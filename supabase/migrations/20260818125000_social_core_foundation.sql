@@ -76,9 +76,7 @@ begin
 
     if TG_OP = 'UPDATE' then
         if NEW.requester_subject <> OLD.requester_subject
-           or NEW.addressee_subject <> OLD.addressee_subject
-           or NEW.subject_low <> OLD.subject_low
-           or NEW.subject_high <> OLD.subject_high then
+           or NEW.addressee_subject <> OLD.addressee_subject then
             raise exception 'SOCIAL_RELATIONSHIP_SCOPE_IMMUTABLE';
         end if;
 
