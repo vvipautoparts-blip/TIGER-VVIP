@@ -1,0 +1,204 @@
+{
+  "schema_version": "1.0.0",
+  "authority_id": "VVIP-TIGER-CAMPAIGN-INTELLIGENCE-2026-08-18",
+  "status": "CURRENT_ONLY",
+  "effective_date": "2026-08-18",
+  "owner_reference": "docs/owner-control/TIGER_CAMPAIGN_INTELLIGENCE_2026_CURRENT_OWNER_AUTHORITY.md",
+  "governance_mode": "CURRENT_ONLY",
+  "supersession": {
+    "rule": "LATEST_OWNER_AUTHORITY_SUPERSEDES_CONFLICTING_CURRENT_LEGACY",
+    "parallel_commercial_authority_allowed": false,
+    "historical_evidence_execution_authority": false,
+    "conflicting_legacy_runtime_allowed": false,
+    "supersedes_overlapping_prs_when_merged": [275, 276]
+  },
+  "product": {
+    "sellable_type": "distribution-credit",
+    "measurement_family": "qualified-verified-impression",
+    "ordinary_publication_requires_paid_subscription": false,
+    "platform_is_goods_or_services_transaction_party": false,
+    "general_purpose_user_money_wallet": false
+  },
+  "surface": {
+    "principle": "SIMPLE_SURFACE_PRIVATE_CORE_MINIMUM_TRUTH",
+    "ordinary_flow": [
+      "GOAL",
+      "BUDGET_TRUSTED_QUOTE",
+      "REVIEW_PAYMENT",
+      "VERIFIED_ACTIVATION"
+    ],
+    "ordinary_primary_action": "PROMOTE_LISTING",
+    "show_internal_pricing_math": false,
+    "show_internal_margin": false,
+    "show_internal_ecpm": false,
+    "show_internal_operational_cost": false,
+    "show_internal_fraud_thresholds": false
+  },
+  "goals": [
+    "SELL_FASTER",
+    "MORE_REACH",
+    "LOCAL_REACH",
+    "LAUNCH",
+    "MORE_ENGAGEMENT"
+  ],
+  "strategies": [
+    "ECONOMY",
+    "BALANCED",
+    "BOOST"
+  ],
+  "capabilities": {
+    "smart_budget": true,
+    "autopilot": true,
+    "fair_spend": true,
+    "margin_guard": true,
+    "campaign_passport": true,
+    "country_brain": true,
+    "verified_delivery": true,
+    "smart_pause": true,
+    "audience_fatigue_protection": true,
+    "campaign_memory": true,
+    "one_tap_reboost": true,
+    "zero_surprise_billing": true,
+    "owner_sovereign_dashboard": true,
+    "simple_mode": true,
+    "pro_mode": true
+  },
+  "trusted_quote": {
+    "authority": "SERVER_ONLY",
+    "required_public_fields": [
+      "quoteId",
+      "productType",
+      "marketCountry",
+      "currency",
+      "priceMinor",
+      "committedImpressions",
+      "pricingVersion",
+      "lifecyclePolicyId",
+      "deliveryPolicyId"
+    ],
+    "optional_public_fields": [
+      "expiresAt"
+    ],
+    "forbidden_public_fields": [
+      "dideFormula",
+      "eCPM",
+      "margin",
+      "opCostPerImpression",
+      "fraudThresholds",
+      "capacityReserveMath"
+    ]
+  },
+  "delivery": {
+    "baseline_minimum_visible_fraction": 0.5,
+    "baseline_minimum_continuous_visible_ms": 2000,
+    "foreground_required": true,
+    "policy_eligibility_required": true,
+    "bot_and_invalid_traffic_excluded": true,
+    "duplicate_suppression_required": true,
+    "server_reservation_and_reconciliation_required": true,
+    "client_telemetry_financial_authority": false
+  },
+  "payment_activation": {
+    "scope": "ADVERTISING_AND_VERIFIED_EXPOSURE_ONLY",
+    "browser_success_is_authority": false,
+    "required_states": {
+      "payment": "CONFIRMED",
+      "ledger": "POSTED",
+      "campaign": "ACTIVE"
+    },
+    "provider_authenticity_required": true,
+    "idempotency_required": true,
+    "replay_protection_required": true,
+    "append_only_double_entry_ledger_required": true,
+    "append_only_evidence_required": true,
+    "refund_support_required": true,
+    "chargeback_support_required": true,
+    "reconciliation_required": true,
+    "target_method_families": [
+      "VISA",
+      "MASTERCARD",
+      "APPLE_PAY",
+      "GOOGLE_PAY",
+      "BANK_TRANSFER",
+      "LOCAL_DIGITAL_WALLET",
+      "LOCAL_INSTANT_PAYMENT_OR_TRANSFER",
+      "LOCAL_CARD_NETWORK"
+    ]
+  },
+  "revenue_recognition": {
+    "flow": [
+      "USER_PAYMENT",
+      "PAID_UNEARNED_CAMPAIGN_BALANCE",
+      "ELIGIBLE_VERIFIED_DELIVERY_CONSUMPTION",
+      "RECOGNIZED_REVENUE"
+    ],
+    "payment_receipt_equals_earned_revenue": false
+  },
+  "country_brain": {
+    "country_contract_required": true,
+    "default_state": "FAIL_CLOSED",
+    "hardcoded_global_provider_allowed": false,
+    "hardcoded_global_payment_method_allowed": false,
+    "hardcoded_global_price_allowed": false,
+    "hardcoded_global_impression_quantity_allowed": false,
+    "only_active_verified_payment_methods_visible": true,
+    "jordan": {
+      "country_code": "JO",
+      "currency": "JOD",
+      "status": "BLOCKED_PENDING_GATES",
+      "methods": [],
+      "show_unapproved_methods_as_active": false,
+      "required_gates": [
+        "JO-PAY-001",
+        "JO-PAY-002",
+        "APPROVED_PROVIDER_CONTRACT",
+        "OFFICIAL_SETTLEMENT_ACCOUNT",
+        "FINANCIAL_CONTROL_APPROVAL",
+        "LIVE_WEBHOOK_TESTS",
+        "REFUND_TESTS",
+        "CHARGEBACK_TESTS"
+      ],
+      "real_money_activation": false
+    }
+  },
+  "campaign_passport": {
+    "required_internal_bindings": [
+      "campaignId",
+      "listingId",
+      "actorOrAccountRef",
+      "marketCountry",
+      "quoteId",
+      "pricingVersion",
+      "lifecyclePolicyId",
+      "deliveryPolicyId",
+      "committedDistribution",
+      "paymentId",
+      "ledgerReference",
+      "activationState"
+    ]
+  },
+  "forbidden_current_authority": [
+    "FIXED_GLOBAL_TIER_CATALOG",
+    "FIXED_GLOBAL_DURATION_PRODUCT",
+    "BASIC_GOLD_ROYAL_PRICE_AUTHORITY",
+    "SPARK_PULSE_SURGE_PRICE_AUTHORITY",
+    "FIXED_GLOBAL_IMPRESSIONS_PER_CURRENCY_UNIT",
+    "PAID_VISUAL_PRIORITY",
+    "HIDDEN_PAID_SEARCH_RANK_DOMINANCE",
+    "PAID_TRUST_BADGE",
+    "BROWSER_MINTED_PAYMENT_RECEIPT",
+    "DEFAULT_AUTO_RECHARGE",
+    "GENERAL_PURPOSE_USER_MONEY_WALLET",
+    "CASH_AD_CAMPAIGN_PAYMENT",
+    "MARKETPLACE_BUYER_SELLER_CHECKOUT_OR_ESCROW",
+    "HUMAN_PROOF_OR_GUARANTEED_HUMAN_VIEW"
+  ],
+  "release_boundary": {
+    "repository_implementation_authorized": true,
+    "real_money_production_activation_authorized": false,
+    "provider_secret_mutation_authorized": false,
+    "country_activation_authorized": false,
+    "production_database_mutation_authorized": false,
+    "gate_bypass_authorized": false
+  }
+}
