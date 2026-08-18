@@ -1,0 +1,131 @@
+{
+  "decision_id": "DYNAMIC-YIELD-COMMISSION-ATTRIBUTION-2026-08-19-V2",
+  "effective_at": "2026-08-19",
+  "authority": "OWNER_APPROVED_PLATFORM_POLICY",
+  "scope": {
+    "all_current_sectors": true,
+    "all_future_sectors": true,
+    "sector_local_override_allowed": false,
+    "new_sales_only": true
+  },
+  "supersedes_for_new_sales": {
+    "decision_id": "COMMISSION-ROLE-POLICY-2026-08-11",
+    "historical_transactions_rewritten": false,
+    "historical_policy_evidence_retained": true
+  },
+  "ownership_and_operating_partners": {
+    "legal_owner_count": 1,
+    "owner_management_is_equity_distribution": false,
+    "owner_management_basis_points": 500,
+    "operating_partners_are_equity_owners": false,
+    "operating_partner_commission_basis_points": [
+      500,
+      500,
+      500
+    ]
+  },
+  "calculation": {
+    "base": "NET_RECOGNIZED_REVENUE",
+    "money_representation": "INTEGER_MINOR_UNITS",
+    "exact_intermediate_arithmetic": "BIGINT",
+    "total_basis_points": 10000,
+    "remainder_method": "DETERMINISTIC_TRANSACTION_BOUND_LARGEST_REMAINDER",
+    "silent_rounding_loss_allowed": false,
+    "residual_minor_units_allowed": false
+  },
+  "sale_policies": {
+    "REFERRED_SALE": {
+      "OWNER_MANAGEMENT": 500,
+      "OPERATING_PARTNER_1": 500,
+      "OPERATING_PARTNER_2": 500,
+      "OPERATING_PARTNER_3": 500,
+      "GENERAL_MANAGER": 500,
+      "SECTOR_MANAGER": 500,
+      "PRIMARY_MARKETER": 500,
+      "TECH_CONTENT": 150,
+      "CUSTOMER_SERVICE_BASE": 150,
+      "PLATFORM_RETAINED": 6200
+    },
+    "DIRECT_PLATFORM": {
+      "OWNER_MANAGEMENT": 500,
+      "OPERATING_PARTNER_1": 500,
+      "OPERATING_PARTNER_2": 500,
+      "OPERATING_PARTNER_3": 500,
+      "GENERAL_MANAGER": 500,
+      "TECH_CONTENT": 150,
+      "CUSTOMER_SERVICE_BASE": 150,
+      "CUSTOMER_SERVICE_PERFORMANCE": 500,
+      "GROWTH_ACQUISITION_RESERVE": 300,
+      "RISK_CHARGEBACK_RESERVE": 200,
+      "PLATFORM_RETAINED": 6200
+    }
+  },
+  "attribution_policy": {
+    "policy_version": "VVIP_ATTRIBUTION_2026_08_19_V2_1",
+    "one_winning_marketer_per_transaction": true,
+    "lock_point": "PAYMENT_START",
+    "priority": [
+      {
+        "rank": 1,
+        "type": "CHECKOUT_CODE",
+        "window": "CURRENT_ORDER",
+        "commission_eligible": true
+      },
+      {
+        "rank": 2,
+        "type": "VERIFIED_LEAD",
+        "window_days": 60,
+        "commission_eligible": true
+      },
+      {
+        "rank": 3,
+        "type": "VERIFIED_ORDER_START",
+        "window_days": 30,
+        "commission_eligible": true
+      },
+      {
+        "rank": 4,
+        "type": "CONSENTED_FIRST_PARTY_COOKIE",
+        "window_days": 7,
+        "commission_eligible": true
+      },
+      {
+        "rank": 5,
+        "type": "DEVICE_RISK_SIGNAL",
+        "commission_eligible": false
+      },
+      {
+        "rank": 5,
+        "type": "PAYMENT_RISK_SIGNAL",
+        "commission_eligible": false
+      }
+    ],
+    "no_eligible_evidence_result": "DIRECT_PLATFORM",
+    "fraud_flag_result": "ATTRIBUTION_REVIEW",
+    "fraud_review_becomes_direct_automatically": false,
+    "device_or_payment_signal_can_award_commission": false,
+    "manager_assignment_snapshot_required": true
+  },
+  "distribution_journal": {
+    "version": "VVIP_DYNAMIC_YIELD_2026_08_19_V2",
+    "source_account": "NET_RECOGNIZED_REVENUE_CLEARING",
+    "source_direction": "DEBIT",
+    "destination_direction": "CREDIT",
+    "balanced_debits_and_credits_required": true,
+    "posted_entries_edited_in_place": false,
+    "semantic_idempotency_required": true,
+    "browser_supplied_beneficiary_accounts_allowed": false
+  },
+  "retired_roles_remain_prohibited": [
+    "SECONDARY_MARKETER",
+    "SUPERVISOR",
+    "AREA_MANAGER"
+  ],
+  "safety": {
+    "real_money_execution_authorized_by_this_file": false,
+    "production_database_apply_authorized_by_this_file": false,
+    "provider_network_call_authorized_by_this_file": false,
+    "production_deployment_authorized_by_this_file": false,
+    "secret_change_authorized_by_this_file": false
+  }
+}
