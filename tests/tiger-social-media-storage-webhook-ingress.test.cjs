@@ -27,12 +27,18 @@ test('storage event is mapped to media by the DB-owned quarantine path, never a 
   assert.doesNotMatch(sql, /grant\s+execute[^;]*vvip_social_media_webhook_accept_storage[^;]*to\s+authenticated/i);
 });
 
+test('edge ingress uses a dedicated webhook secret rather than exposing the service-role key as bearer auth', () => {
+  const source = read(FUNCTION);
+  assert.match(source, /TIGER_STORAGE_WEBHOOK_SECRET/);
+  assert.match(source, /x-tiger-storage-webhook-secret/i);
+  assert.match(source, /constantTimeEqual/);
+  assert.match(source, /SUPABASE_SERVICE_ROLE_KEY/);
+  assert.doesNotMatch(source, /constantTimeEqual\s*\(\s*authorization\s*,\s*`Bearer\s+\$\{serviceRoleKey\}`\s*\)/i);
+});
+
 test('edge ingress accepts only authenticated INSERT events for the private quarantine bucket', () => {
   const source = read(FUNCTION);
   assert.match(source, /request\.method\s*!==\s*["']POST["']/);
-  assert.match(source, /Authorization/i);
-  assert.match(source, /SUPABASE_SERVICE_ROLE_KEY/);
-  assert.match(source, /constantTimeEqual/);
   assert.match(source, /payload\.type\s*!==\s*["']INSERT["']/);
   assert.match(source, /payload\.schema\s*!==\s*["']storage["']/);
   assert.match(source, /payload\.table\s*!==\s*["']objects["']/);
