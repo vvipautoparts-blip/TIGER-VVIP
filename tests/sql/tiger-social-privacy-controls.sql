@@ -12,11 +12,10 @@ values
   ('privacy-friends-proof', 'friends'),
   ('privacy-only-me-proof', 'only_me');
 
-select post_id as privacy_public_post_id
+select set_config('tiger.privacy_public_post_id', post_id::text, true)
 from public.vvip_social_posts
 where author_subject = 'user_alice'
-  and body = 'privacy-public-proof'
-\gset
+  and body = 'privacy-public-proof';
 
 insert into public.vvip_social_relationships (addressee_subject)
 values ('user_bob');
@@ -113,9 +112,10 @@ $block_relationship$;
 do $block_reaction$
 declare
     v_denied boolean := false;
+    v_post_id uuid := current_setting('tiger.privacy_public_post_id')::uuid;
 begin
     begin
-        perform public.vvip_social_set_reaction(:'privacy_public_post_id'::uuid, 'like');
+        perform public.vvip_social_set_reaction(v_post_id, 'like');
     exception
         when raise_exception then
             if sqlerrm = 'SOCIAL_POST_NOT_VISIBLE' then
@@ -133,16 +133,17 @@ $block_reaction$;
 do $block_comment$
 declare
     v_denied boolean := false;
+    v_post_id uuid := current_setting('tiger.privacy_public_post_id')::uuid;
 begin
     begin
-        perform public.vvip_social_create_comment(
-            :'privacy_public_post_id'::uuid,
+        perform public.vvip_social_comment_create(
+            v_post_id,
             'blocked-comment-proof',
             null
         );
     exception
         when raise_exception then
-            if sqlerrm = 'SOCIAL_POST_NOT_VISIBLE' then
+            if sqlerrm = 'SOCIAL_COMMENT_POST_NOT_VISIBLE' then
                 v_denied := true;
             else
                 raise;
