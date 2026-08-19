@@ -19,10 +19,17 @@ function source() {
 
 test('upload ticket request schema accepts only post_id and idempotency_key', () => {
   const text = source();
-  assert.match(text, /type\s+UploadTicketRequest\s*=\s*\{[\s\S]*post_id\??\s*:\s*string[\s\S]*idempotency_key\??\s*:\s*string[\s\S]*\}/i);
+  const requestTypeStart = text.search(/type\s+UploadTicketRequest\s*=\s*\{/i);
+  assert.notEqual(requestTypeStart, -1, 'UploadTicketRequest type must exist');
+  const requestTypeEnd = text.indexOf('};', requestTypeStart);
+  assert.notEqual(requestTypeEnd, -1, 'UploadTicketRequest type must have a bounded body');
+  const requestType = text.slice(requestTypeStart, requestTypeEnd + 2);
+
+  assert.match(requestType, /post_id\??\s*:\s*string/i);
+  assert.match(requestType, /idempotency_key\??\s*:\s*string/i);
   assert.doesNotMatch(
-    text,
-    /type\s+UploadTicketRequest\s*=\s*\{[\s\S]*\b(?:mime_type|content_type|byte_size|width|height|sha256|filename)\b/i
+    requestType,
+    /\b(?:mime_type|content_type|byte_size|width|height|sha256|filename)\b/i
   );
 });
 
