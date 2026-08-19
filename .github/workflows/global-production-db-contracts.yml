@@ -10,6 +10,7 @@ on:
       - 'scripts/social/production-backend-schema.test.js'
       - 'scripts/social/federated-social-storage-policy.test.js'
       - 'scripts/advertising/financial-authority-schema.test.js'
+      - 'scripts/legal/country-activation-schema.test.js'
       - '.github/workflows/global-production-db-contracts.yml'
   workflow_dispatch:
 
@@ -35,3 +36,5 @@ jobs:
         run: node scripts/social/federated-social-storage-policy.test.js
       - name: Advertising financial authority contract
         run: node scripts/advertising/financial-authority-schema.test.js
+      - name: Country legal activation contract
+        run: node scripts/legal/country-activation-schema.test.js
