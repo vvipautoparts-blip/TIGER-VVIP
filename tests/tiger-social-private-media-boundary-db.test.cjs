@@ -42,8 +42,8 @@ test('Browser upload reservation is actor-derived, post-owner-bound, idempotent,
   const text = sql();
   assert.match(text, /create\s+function\s+public\.vvip_social_media_reserve_upload/i);
   assert.match(text, /vvip_marketplace_actor_id\s*\(\s*\)/i);
-  assert.match(text, /vvip_social_posts/i);
-  assert.match(text, /author_subject\s*=\s*v_actor/i);
+  assert.match(text, /select\s+post\.author_subject\s+into\s+v_owner[\s\S]*from\s+public\.vvip_social_posts\s+post/i);
+  assert.match(text, /if\s+v_owner\s*<>\s*v_actor\s+then[\s\S]*SOCIAL_MEDIA_POST_OWNER_REQUIRED/i);
   assert.match(text, /idempotency_key/i);
   assert.match(text, /unique\s*\(owner_subject\s*,\s*post_id\s*,\s*idempotency_key\)/i);
   assert.match(text, /source\//i);
