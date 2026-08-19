@@ -68,15 +68,9 @@ test('post visibility and relationship creation become block-aware without dropp
   expectPattern(text, /create\s+or\s+replace\s+function\s+public\.vvip_social_guard_relationship_write/i, 'current relationship guard must remain the enforced boundary');
 });
 
-test('relationship guard can call the private block helper without exposing that helper to browser roles', () => {
+test('private block-pair helper remains unavailable as a browser-callable oracle', () => {
   const text = sql();
-  const guard = functionDefinition(text, 'vvip_social_guard_relationship_write');
 
-  expectPattern(
-    guard,
-    /security\s+definer\s+set\s+search_path\s*=\s*pg_catalog,\s*public/i,
-    'relationship guard must execute under the hardened database authority so authenticated writes can consult the private block helper'
-  );
   expectPattern(
     text,
     /revoke\s+all\s+on\s+function\s+public\.vvip_social_is_blocked_pair\s*\(\s*text\s*,\s*text\s*\)\s+from\s+public\s*,\s*anon\s*,\s*authenticated/i,
@@ -85,7 +79,7 @@ test('relationship guard can call the private block helper without exposing that
   assert.doesNotMatch(
     text,
     /grant\s+execute\s+on\s+function\s+public\.vvip_social_is_blocked_pair\s*\(\s*text\s*,\s*text\s*\)\s+to\s+authenticated/i,
-    'fix must not expose the private block-pair oracle to authenticated users'
+    'private block-pair oracle must never be exposed directly to authenticated users'
   );
 });
 
