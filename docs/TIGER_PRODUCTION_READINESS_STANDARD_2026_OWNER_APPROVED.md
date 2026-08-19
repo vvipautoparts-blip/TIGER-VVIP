@@ -131,4 +131,8 @@ Production eligibility requires all applicable gates to be `Verified` on the sam
 - No live Preview URL claim without provider-backed HTTPS evidence tied to the exact source SHA.
 - No legacy fallback that conflicts with the active owner-approved architecture.
 
+## Owner authority and conflict rule
+
+This file is the owner-approved release reference for VVIP TIGER 2026. If another launch-readiness document, checklist, old package description, or implementation note conflicts with this file inside the covered scope, this file wins unless the owner explicitly approves a newer superseding edition. Historical material may remain for audit, but it must not act as an active fallback.
+
 This document supersedes conflicting launch-readiness wording for the covered scope and is the owner-approved release reference for VVIP TIGER 2026.
