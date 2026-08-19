@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "TIGER_RELEASE_PASSPORT_V1",
+  "rings": [
+    "R0_CODE",
+    "R1_DATA",
+    "R2_TWIN",
+    "R3_DEVICE",
+    "R4_OWNER_PREVIEW",
+    "R5_CANDIDATE",
+    "R6_PRODUCTION"
+  ],
+  "ringStatuses": ["PASS", "FAIL", "NOT_RUN"],
+  "decisions": ["SAFE", "DEGRADED", "BLOCKED"],
+  "passRequiresEvidence": true,
+  "productionRequiresTreeSha": true
+}
