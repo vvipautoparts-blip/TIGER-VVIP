@@ -125,6 +125,12 @@ declare -A reviewed_migration_hashes=(
   ["supabase/migrations/20260820002900_social_media_unified_quarantine_cleanup.sql"]="904aa34c69ba10b2cf04f25485936ef9c61bf72468cbb062973be469d0475ed8"
   ["supabase/migrations/20260820003100_social_media_reservation_content_identity_hardening.sql"]="23b0674202780fdaaab93387db5b343384e700719dc7f58188acdd8115e57d87"
   ["supabase/migrations/20260820003300_social_media_storage_event_ingress.sql"]="b565b1e5fcc210e492c54bdfb036accf8ebf81a53609e2d4abf86afcf7fbc9dd"
+
+  # Gate 2 durable worker dispatcher: reviewed only after a clean local Supabase replay
+  # and transactional rehearsal proved the pg_cron job, private EXECUTE surface, Vault-
+  # backed activation, fail-closed missing-secret behavior, and bounded HTTPS worker URL.
+  # Exact-byte approval: any SQL drift re-enters the dangerous-SQL scanner automatically.
+  ["supabase/migrations/20260820003500_social_media_worker_dispatch.sql"]="eff9c85c8674c8191e6951841fb4d329fedb7ebce8f958b5effff6734d25c4f5"
 )
 
 reviewed_baseline_path() {
