@@ -6,18 +6,20 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
-const MIGRATION = path.join(
-  ROOT,
-  'supabase/migrations/20260820002000_social_media_canonical_authority.sql'
-);
+const MIGRATIONS = [
+  path.join(ROOT, 'supabase/migrations/20260820002000_social_media_canonical_authority.sql'),
+  path.join(ROOT, 'supabase/migrations/20260820002500_social_media_atomic_finalize_cleanup.sql'),
+];
 
 function sql() {
-  assert.equal(
-    fs.existsSync(MIGRATION),
-    true,
-    'Gate 2 canonical-authority migration must exist before this contract can turn GREEN'
-  );
-  return fs.readFileSync(MIGRATION, 'utf8');
+  for (const migration of MIGRATIONS) {
+    assert.equal(
+      fs.existsSync(migration),
+      true,
+      `Gate 2 migration missing: ${path.basename(migration)}`
+    );
+  }
+  return MIGRATIONS.map((migration) => fs.readFileSync(migration, 'utf8')).join('\n');
 }
 
 test('reservation accepts only post id plus idempotency key and creates a 300-second quarantine lease', () => {
@@ -80,8 +82,20 @@ test('canonical evidence is immutable service authority with exact TIGER JPEG co
   assert.match(text, /canonical_(?:image_)?height\s*(?:=|<>)\s*1200|canonical_height\s*=\s*1200/i);
   assert.match(text, /create\s+table\s+public\.vvip_social_media_passports/i);
   assert.match(text, /verifier_version/i);
-  assert.match(text, /grant\s+execute[^;]*vvip_social_media_finalize[^;]*to\s+service_role/i);
-  assert.doesNotMatch(text, /grant\s+execute[^;]*vvip_social_media_finalize[^;]*to\s+authenticated/i);
+  assert.match(text, /grant\s+execute[^;]*vvip_social_media_finalize_event[^;]*to\s+service_role/i);
+  assert.doesNotMatch(text, /grant\s+execute[^;]*vvip_social_media_finalize(?:_event)?[^;]*to\s+authenticated/i);
+});
+
+test('success atomically binds canonical READY, immutable passport, and webhook completion', () => {
+  const text = sql();
+  assert.match(text, /create\s+(?:or\s+replace\s+)?function\s+public\.vvip_social_media_finalize_event\s*\(/i);
+  assert.match(text, /target_event\s+uuid/i);
+  assert.match(text, /v_event\.media_id\s*<>\s*target_media/i);
+  assert.match(text, /event_state\s*=\s*'completed'/i);
+  assert.match(text, /completed_at\s*=\s*statement_timestamp\s*\(\s*\)/i);
+  assert.match(text, /insert\s+into\s+public\.vvip_social_media_passports/i);
+  assert.match(text, /media_state\s*=\s*'ready'/i);
+  assert.match(text, /revoke\s+all[^;]*vvip_social_media_finalize\([^;]*from\s+public\s*,\s*anon\s*,\s*authenticated\s*,\s*service_role/i);
 });
 
 test('webhook claim is idempotent, SKIP LOCKED, jittered exponential backoff, and bounded DLQ', () => {
@@ -100,12 +114,15 @@ test('webhook claim is idempotent, SKIP LOCKED, jittered exponential backoff, an
   assert.match(text, /SOCIAL_MEDIA_WEBHOOK_IDEMPOTENCY_CONFLICT/i);
 });
 
-test('late uploads fail closed and expired quarantine can be purged', () => {
+test('late uploads fail closed and expired quarantine cleanup is bounded and concurrent-safe', () => {
   const text = sql();
   assert.match(text, /SOCIAL_MEDIA_UPLOAD_LEASE_EXPIRED/i);
-  assert.match(text, /create\s+(?:or\s+replace\s+)?function\s+public\.vvip_social_media_expire_quarantine/i);
+  assert.match(text, /create\s+(?:or\s+replace\s+)?function\s+public\.vvip_social_media_expire_quarantine\s*\(\s*max_rows\s+integer/i);
+  assert.match(text, /max_rows\s+not\s+between\s+1\s+and\s+500/i);
   assert.match(text, /upload_lease_expires_at\s*<=\s*statement_timestamp\s*\(\s*\)/i);
-  assert.match(text, /expired|purge/i);
+  assert.match(text, /for\s+update\s+skip\s+locked/i);
+  assert.match(text, /limit\s+max_rows/i);
+  assert.match(text, /drop\s+function\s+if\s+exists\s+public\.vvip_social_media_expire_quarantine\s*\(\s*\)/i);
 });
 
 test('private read grants are short-lived, one-time, and re-check social visibility', () => {
