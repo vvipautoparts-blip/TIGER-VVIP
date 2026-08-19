@@ -1,0 +1,128 @@
+name: TIGER Social Media DB Rehearsal
+
+on:
+  push:
+    paths:
+      - "supabase/migrations/20260819140000_social_media_boundary.sql"
+      - "docs/security/TIGER_SOCIAL_MEDIA_BOUNDARY_SECURITY_REVIEW.md"
+      - "tests/tiger-social-media-boundary-db.test.cjs"
+      - "tests/tiger-social-media-boundary-reviewed-migration-hash.test.cjs"
+      - "tests/tiger-social-media-db-rehearsal-workflow.test.cjs"
+      - "tests/sql/tiger-social-media-boundary.sql"
+      - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
+      - ".github/workflows/tiger-social-media-db-rehearsal.yml"
+  pull_request:
+    paths:
+      - "supabase/migrations/20260819140000_social_media_boundary.sql"
+      - "docs/security/TIGER_SOCIAL_MEDIA_BOUNDARY_SECURITY_REVIEW.md"
+      - "tests/tiger-social-media-boundary-db.test.cjs"
+      - "tests/tiger-social-media-boundary-reviewed-migration-hash.test.cjs"
+      - "tests/tiger-social-media-db-rehearsal-workflow.test.cjs"
+      - "tests/sql/tiger-social-media-boundary.sql"
+      - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
+      - ".github/workflows/tiger-social-media-db-rehearsal.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+concurrency:
+  group: tiger-social-media-db-rehearsal-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  local-db-rehearsal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: "22"
+
+      - uses: supabase/setup-cli@ab058987d8d6c725971f6cf9d0b5c98467e30bd1
+        with:
+          version: 2.109.0
+
+      - name: Verify exact source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+
+      - name: Run Social Media static contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tests/tiger-social-media-boundary-db.test.cjs
+          node --test tests/tiger-social-media-boundary-reviewed-migration-hash.test.cjs
+          node --test tests/tiger-social-media-db-rehearsal-workflow.test.cjs
+
+      - name: Assert local-only safety contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f supabase/config.toml
+          if env | grep -E '^(SUPABASE_ACCESS_TOKEN|SUPABASE_DB_PASSWORD|SUPABASE_PROJECT_REF)=' >/dev/null; then
+            echo 'TIGER_SOCIAL_MEDIA_DB_REHEARSAL=BLOCKED_REMOTE_CREDENTIAL_ENV'
+            exit 1
+          fi
+          echo 'TIGER_SOCIAL_MEDIA_DB_REHEARSAL=LOCAL_ONLY_PASS'
+
+      - name: Start isolated local Supabase stack
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase --version
+          supabase start
+
+      - name: Rebuild database from repository migrations
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase db reset --local
+          echo 'TIGER_SOCIAL_MEDIA_DB_RESET=PASS'
+
+      - name: Prove Social Media privacy and webhook behavior
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/tiger-social-media-db-rehearsal
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 \
+            -p 54322 \
+            -U postgres \
+            -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/tiger-social-media-boundary.sql \
+            2>&1 | tee /tmp/tiger-social-media-db-rehearsal/social-media.log
+
+      - name: Upload Social Media rehearsal evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: tiger-social-media-db-rehearsal-${{ env.SOURCE_SHA }}
+          path: /tmp/tiger-social-media-db-rehearsal/social-media.log
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Verify source remained immutable
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+
+      - name: Stop isolated local stack
+        if: always()
+        shell: bash
+        run: supabase stop --no-backup || true
