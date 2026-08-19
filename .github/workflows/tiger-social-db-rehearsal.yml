@@ -7,9 +7,13 @@ on:
       - "supabase/migrations/20260818133000_social_reactions.sql"
       - "supabase/migrations/20260818143000_social_comments.sql"
       - "supabase/migrations/20260819130000_social_privacy_controls.sql"
+      - "supabase/migrations/20260819131500_social_relationship_guard_authority_fix.sql"
+      - "supabase/migrations/20260819132000_social_post_returning_rls_fix.sql"
       - "docs/security/TIGER_SOCIAL_REACTIONS_MIGRATION_SECURITY_REVIEW.md"
       - "docs/security/TIGER_SOCIAL_COMMENTS_MIGRATION_SECURITY_REVIEW.md"
       - "docs/security/TIGER_SOCIAL_PRIVACY_CONTROLS_MIGRATION_SECURITY_REVIEW.md"
+      - "docs/security/TIGER_SOCIAL_RELATIONSHIP_GUARD_AUTHORITY_FIX_SECURITY_REVIEW.md"
+      - "docs/security/TIGER_SOCIAL_POST_RETURNING_RLS_FIX_SECURITY_REVIEW.md"
       - "tests/tiger-social-db-foundation.test.cjs"
       - "tests/tiger-social-db-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-reactions-db.test.cjs"
@@ -18,6 +22,10 @@ on:
       - "tests/tiger-social-comments-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-privacy-controls-db.test.cjs"
       - "tests/tiger-social-privacy-controls-reviewed-migration-hash.test.cjs"
+      - "tests/tiger-social-relationship-guard-authority-fix.test.cjs"
+      - "tests/tiger-social-relationship-guard-reviewed-migration-hash.test.cjs"
+      - "tests/tiger-social-post-returning-rls-fix.test.cjs"
+      - "tests/tiger-social-post-returning-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-db-rehearsal-workflow.test.cjs"
       - "tests/sql/tiger-social-core-foundation.sql"
       - "tests/sql/tiger-social-reactions.sql"
@@ -31,9 +39,13 @@ on:
       - "supabase/migrations/20260818133000_social_reactions.sql"
       - "supabase/migrations/20260818143000_social_comments.sql"
       - "supabase/migrations/20260819130000_social_privacy_controls.sql"
+      - "supabase/migrations/20260819131500_social_relationship_guard_authority_fix.sql"
+      - "supabase/migrations/20260819132000_social_post_returning_rls_fix.sql"
       - "docs/security/TIGER_SOCIAL_REACTIONS_MIGRATION_SECURITY_REVIEW.md"
       - "docs/security/TIGER_SOCIAL_COMMENTS_MIGRATION_SECURITY_REVIEW.md"
       - "docs/security/TIGER_SOCIAL_PRIVACY_CONTROLS_MIGRATION_SECURITY_REVIEW.md"
+      - "docs/security/TIGER_SOCIAL_RELATIONSHIP_GUARD_AUTHORITY_FIX_SECURITY_REVIEW.md"
+      - "docs/security/TIGER_SOCIAL_POST_RETURNING_RLS_FIX_SECURITY_REVIEW.md"
       - "tests/tiger-social-db-foundation.test.cjs"
       - "tests/tiger-social-db-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-reactions-db.test.cjs"
@@ -42,6 +54,10 @@ on:
       - "tests/tiger-social-comments-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-privacy-controls-db.test.cjs"
       - "tests/tiger-social-privacy-controls-reviewed-migration-hash.test.cjs"
+      - "tests/tiger-social-relationship-guard-authority-fix.test.cjs"
+      - "tests/tiger-social-relationship-guard-reviewed-migration-hash.test.cjs"
+      - "tests/tiger-social-post-returning-rls-fix.test.cjs"
+      - "tests/tiger-social-post-returning-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-db-rehearsal-workflow.test.cjs"
       - "tests/sql/tiger-social-core-foundation.sql"
       - "tests/sql/tiger-social-reactions.sql"
@@ -99,6 +115,10 @@ jobs:
           node --test tests/tiger-social-comments-reviewed-migration-hash.test.cjs
           node --test tests/tiger-social-privacy-controls-db.test.cjs
           node --test tests/tiger-social-privacy-controls-reviewed-migration-hash.test.cjs
+          node --test tests/tiger-social-relationship-guard-authority-fix.test.cjs
+          node --test tests/tiger-social-relationship-guard-reviewed-migration-hash.test.cjs
+          node --test tests/tiger-social-post-returning-rls-fix.test.cjs
+          node --test tests/tiger-social-post-returning-reviewed-migration-hash.test.cjs
           node --test tests/tiger-social-db-rehearsal-workflow.test.cjs
 
       - name: Assert local-only safety contract
