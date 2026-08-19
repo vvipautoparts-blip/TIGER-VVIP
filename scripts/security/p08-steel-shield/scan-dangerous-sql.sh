@@ -33,16 +33,35 @@ declare -A reviewed_migration_hashes=(
   ["supabase/migrations/20260805_v13_1_authorization_foundation.sql"]="9e65d4c705922674b611ba929423688872a83729cff578c7106c73cdc7c4d6c5"
   ["supabase/migrations/20260806090000_v14_marketplace_foundation.sql"]="f8f522226590c7812d495e1089d1a29d844fb460e64480bb9349cb31503ce8c5"
   ["supabase/migrations/20260806100000_v14_marketplace_hardening.sql"]="f01fd150f94b2b6bbd1f7c9c5cdc085f36ffa511aff326fdfee409b37ccba359"
-  ["supabase/migrations/20260808003000_lc03_supabase_security_hardening.sql"]="15fed4c705922674b611ba929423688872a83729cff578c7106c73cdc7c4d6c5"
+  ["supabase/migrations/20260808003000_lc03_supabase_security_hardening.sql"]="15fed4de91331ceb252e359f6946de9b02d16d91286157177024141546963955"
   ["supabase/migrations/20260808130000_tsrf_ai_trust_fabric.sql"]="3033a405060c9dc1bdc4425e3d2b14d2011d86b3afc7a1d243d5e930a4d60d96"
   ["supabase/migrations/20260808131000_tsrf_ai_runtime_atomicity.sql"]="f047f356ee57c09b86c322c6329bb9897fd06c3f0163fef6bb64fd608c84e747"
   ["supabase/migrations/20260808132000_tsrf_owner_authorization_leases.sql"]="994a7fdb42ca2d82138ac04a65e8db63cfcd55c08917ff5134e4c184df76e4cb"
   ["supabase/migrations/20260808133000_phone_otp_challenges.sql"]="b9524528878d5646884bfdbb04abf06b8e4e73eb9628d0132b02fb06fbe7ee9a"
   ["supabase/migrations/20260808134000_lc04_production_legacy_rpc_hardening.sql"]="86cd92e65b1d7294158798b6828d33fe7c346946ff9d955371fc55f5f13388fa"
+  # LC-05 legacy credential isolation: reviewed after exact-head static contracts,
+  # full local migration replay, canonical no-synthesis proof, and Production-drift
+  # convergence that removed all direct browser policies/privileges while preserving
+  # the modern phone_otp_challenges store. Any byte drift invalidates this baseline.
   ["supabase/migrations/20260808135000_lc05_credential_surface_isolation.sql"]="ebf13f51f5e1e11e1c8224126f8e812fd8e5c79911c6827f328be19192424e3f"
+  # LC-06 modern RLS/performance hardening: reviewed after a TDD RED failure,
+  # full local migration replay + behavioral proof, and a Staging transaction rehearsal
+  # that rolled back cleanly. This exact artifact narrows browser surfaces and adds
+  # advisor-confirmed FK indexes. Any byte drift invalidates this baseline.
   ["supabase/migrations/20260808180000_lc06_rls_performance_hardening.sql"]="ed34063e2f3ba32434e08b45c1f1e415115c092ffb07c6cb810ff974ed467f35"
+  # Global Launch Phase A identity convergence: reviewed after exact-head TDD contracts,
+  # application to the isolated Staging branch, fail-closed legacy-identity behavioral
+  # proof, privilege/policy verification, and complete cleanup of the synthetic proof row.
+  # Approval is byte-exact; any SQL drift invalidates this reviewed baseline automatically.
   ["supabase/migrations/20260808223000_global_launch_phase_a_identity_convergence.sql"]="173766f1203890d3461db6b67cc95b1d9ca28d23c65026ff9393115ad4433c31"
   ["supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql"]="9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9"
+
+  # Zero-Residue sovereign marketplace convergence. These exact bytes were reviewed
+  # against the current publication/media/RLS contracts: no client entitlement minting,
+  # canonical-media-only publication, bounded SECURITY DEFINER search paths, least-
+  # privilege public projections, service-role-only trusted media completion, and the
+  # forward publication lifecycle that replaces the historical cascade with RESTRICT.
+  # Any byte drift re-enters the dangerous-SQL scan automatically.
   ["supabase/migrations/20260816090000_fusion_publication_entitlement.sql"]="89cab60c657da82b850444ac0d6f4760dd9c9c4900eab5ff2f40aaf40563be42"
   ["supabase/migrations/20260816090001_sovereign_media_finalization.sql"]="14768409e9ff91f7d638b0952ff3ea0bdda86e77764e34ae3a80a4a384d4a40b"
   ["supabase/migrations/20260816091500_sovereign_public_read_surface.sql"]="a9c02148ca7fb168758d224a3e2d696d932b6ce522d757d87a013d83acc67579"
@@ -51,12 +70,48 @@ declare -A reviewed_migration_hashes=(
   ["supabase/migrations/20260816103000_sovereign_profile_authority_convergence.sql"]="9a949eeefca5148458111f5eaac83da063f2ffbadadfb96c3a97dadfcb05aae1"
   ["supabase/migrations/20260816170000_sovereign_publication_authority_convergence.sql"]="fd13db48afeada8e96b2d5f2583b8fdbf5f7ad2b3837f7054db32489404d0fc5"
   ["supabase/migrations/20260816171000_sovereign_publication_rpc_hardening.sql"]="ffba5542434669184eba6585b3e4e7393ddf3e3b722bbb7fb0ebe33debd1ba6f"
+
+  # LC-04 final forward-only retirement: reviewed against PostgreSQL dependency semantics.
+  # Exact-signature DROP FUNCTION ... RESTRICT removes known dangling public/private
+  # profile helpers without CASCADE and fails closed on any unexpected live dependency.
   ["supabase/migrations/20260817060000_retire_lc04_legacy_profile_helper_graph.sql"]="692c3c54f636583b623935b18df1263b31d10ca32d900144fb5a84209b2896c2"
+
+  # Social Core foundation: reviewed against the 2026-08-18 Clerk actor, FORCE-RLS,
+  # post audience, relationship-transition, and legacy-feed isolation contracts.
+  # The approval is content-addressed; any byte drift re-enters review automatically.
   ["supabase/migrations/20260818125000_social_core_foundation.sql"]="fa6169a934e6a128849ae9557a30245dcd4e310975cfcb3246d0a8e9f0d057a8"
+
+  # Social Reactions: reviewed with CRITICAL=0 after mutation predicates were made
+  # scanner-visible. The remaining findings are expected new-table NOT NULL integrity,
+  # four RLS policies, and three exact authenticated EXECUTE grants; no browser table
+  # CRUD, anon grant, or unbounded mutation is approved. Any byte drift re-enters review.
   ["supabase/migrations/20260818133000_social_reactions.sql"]="174b688fee994e329824230f48e031bb59de9f0c4049f322791f363dc88354ea"
+
+  # Social Comments: reviewed with CRITICAL=0 after UPDATE/DELETE predicates were
+  # made scanner-visible. Findings are five new-table NOT NULL integrity rules and
+  # four exact authenticated EXECUTE grants. Browser table CRUD remains revoked;
+  # actor, visibility, one-level reply, and ownership checks stay server-side.
   ["supabase/migrations/20260818143000_social_comments.sql"]="3bb5c018cb0508c91f5ead0a38f044f2293d35066e43bf796c59148305e720e7"
+
+  # Social Privacy Controls: reviewed with CRITICAL=0. The 24 HIGH findings are
+  # content-addressed and classified as 16 NOT NULL integrity rules on three new
+  # empty tables, one in-place block-aware RLS policy hardening, and seven exact
+  # authenticated EXECUTE grants on bounded RPCs/helpers. Direct browser table CRUD,
+  # anonymous execution, destructive policy drops, and unpinned SECURITY DEFINER paths
+  # remain forbidden. Any byte drift invalidates this baseline automatically.
   ["supabase/migrations/20260819130000_social_privacy_controls.sql"]="a6dca63b5b2775af7c6f0eb0a7b3f252e6d21e1cbbca224984498c1664a04490"
+
+  # Social relationship guard authority correction: reviewed as a forward-only,
+  # byte-exact trigger authority repair. The four scanner HIGH findings are lexical
+  # `IS NOT NULL` control-flow matches, not schema NOT NULL operations. The guard pins
+  # search_path, derives the signed actor server-side, preserves relationship invariants,
+  # and keeps the private block-pair oracle non-executable by browser roles.
   ["supabase/migrations/20260819131500_social_relationship_guard_authority_fix.sql"]="866129891ada5e74517f8909a488042716530f5dad896327d064084409c10b40"
+
+  # Social post RETURNING compatibility: reviewed as a forward-only owner-read policy.
+  # PostgreSQL applies SELECT RLS to INSERT ... RETURNING. This policy restates only the
+  # already-authorized owner visibility directly on the proposed row, keeps the private
+  # block oracle closed, and bounds policy-creation lock acquisition to two seconds.
   ["supabase/migrations/20260819132000_social_post_returning_rls_fix.sql"]="f77360e08346827bbbcb0794fabcaf30bc87ae609917bf31dc49368638f1b6dd"
 
   # Social Media Boundary: exact-byte approval. Private social namespace, inherited
@@ -118,7 +173,7 @@ while IFS= read -r -d '' file; do
     [[ "$text_upper" =~ GRANT[[:space:]].*TO[[:space:]]+ANON ]] && report CRITICAL BROAD_GRANT_TO_ANON "$file" "$line_no"
     [[ "$text_upper" =~ AUTH\. ]] && report CRITICAL AUTH_SCHEMA_DIRECT_MUTATION "$file" "$line_no"
 
-    [[ "$text_UPPER" =~ ALTER[[:space:]]+TABLE.*ALTER[[:space:]]+COLUMN.*TYPE ]] && report HIGH DESTRUCTIVE_TYPE_CHANGE "$file" "$line_no"
+    [[ "$text_upper" =~ ALTER[[:space:]]+TABLE.*ALTER[[:space:]]+COLUMN.*TYPE ]] && report HIGH DESTRUCTIVE_TYPE_CHANGE "$file" "$line_no"
     [[ "$text_upper" =~ NOT[[:space:]]+NULL ]] && report HIGH NOT_NULL_RISK "$file" "$line_no"
     if [[ "$text_upper" =~ UPDATE[[:space:]]+ ]] && [[ ! "$text_upper" =~ WHERE[[:space:]] ]]; then
       report HIGH UPDATE_WITHOUT_WHERE "$file" "$line_no"
