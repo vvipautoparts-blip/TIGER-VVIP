@@ -33,13 +33,34 @@ const NO_STORE_HEADERS = {
   "Pragma": "no-cache",
 };
 
+const PUBLIC_UPLOAD_CODES = new Set([
+  "REQUEST_BODY_REQUIRED",
+  "REQUEST_BODY_TOO_LARGE",
+  "REQUEST_JSON_INVALID",
+  "REQUEST_JSON_OBJECT_REQUIRED",
+  "POST_ID_INVALID",
+  "IDEMPOTENCY_KEY_INVALID",
+  "RESERVATION_DENIED",
+  "RESERVATION_EMPTY",
+  "RESERVATION_MEDIA_INVALID",
+  "RESERVATION_TICKET_INVALID",
+  "RESERVATION_BUCKET_INVALID",
+  "RESERVATION_PATH_INVALID",
+  "TIGER_UPLOAD_LEASE_EXPIRED",
+  "TIGER_UPLOAD_LEASE_INVALID",
+  "SIGNED_UPLOAD_CAPABILITY_FAILED",
+]);
+
 function jsonResponse(status: number, body: Record<string, unknown>): Response {
   return new Response(JSON.stringify(body), { status, headers: NO_STORE_HEADERS });
 }
 
 function requiredEnv(name: string): string {
   const value = Deno.env.get(name)?.trim();
-  if (!value) throw new Error(`SERVER_CONFIG_MISSING:${name}`);
+  if (!value) {
+    console.error("TIGER_UPLOAD_SERVER_CONFIG_MISSING", name);
+    throw new Error("UPLOAD_SERVICE_UNAVAILABLE");
+  }
   return value;
 }
 
@@ -97,6 +118,25 @@ function assertMetadataFree(body: Record<string, unknown>): void {
   }
 }
 
+function publicUploadError(error: unknown): { code: string; status: number } {
+  const raw = error instanceof Error ? error.message : "UPLOAD_TICKET_FAILED";
+  if (raw.startsWith("CLIENT_CANONICAL_FACT_REJECTED:")) {
+    return { code: "CLIENT_CANONICAL_FACT_REJECTED", status: 400 };
+  }
+  if (raw.startsWith("REQUEST_FIELD_NOT_ALLOWED:")) {
+    return { code: "REQUEST_FIELD_NOT_ALLOWED", status: 400 };
+  }
+  if (raw === "UPLOAD_SERVICE_UNAVAILABLE" || raw === "SIGNED_UPLOAD_CAPABILITY_FAILED") {
+    return { code: raw, status: 503 };
+  }
+  if (raw === "RESERVATION_DENIED") return { code: raw, status: 403 };
+  if (raw === "REQUEST_BODY_TOO_LARGE") return { code: raw, status: 413 };
+  if (PUBLIC_UPLOAD_CODES.has(raw)) return { code: raw, status: 400 };
+
+  console.error("TIGER_UPLOAD_UNEXPECTED_ERROR", raw.slice(0, 240));
+  return { code: "UPLOAD_TICKET_FAILED", status: 500 };
+}
+
 serve(async (request: Request) => {
   if (request.method !== "POST") {
     return jsonResponse(405, { ok: false, code: "METHOD_NOT_ALLOWED" });
@@ -135,7 +175,10 @@ serve(async (request: Request) => {
         request_idempotency_key: idempotencyKey.trim(),
       },
     );
-    if (reservationError) throw new Error(`RESERVATION_DENIED:${reservationError.message}`);
+    if (reservationError) {
+      console.error("TIGER_UPLOAD_RESERVATION_ERROR", reservationError.message);
+      throw new Error("RESERVATION_DENIED");
+    }
 
     const reservation = (Array.isArray(reservationData) ? reservationData[0] : reservationData) as ReservationRow | null;
     if (!reservation) throw new Error("RESERVATION_EMPTY");
@@ -168,7 +211,8 @@ serve(async (request: Request) => {
       .from(EXPECTED_BUCKET)
       .createSignedUploadUrl(reservation.quarantine_storage_path, { upsert: false });
     if (signedError || !signed?.signedUrl || !signed?.token) {
-      throw new Error(`SIGNED_UPLOAD_CAPABILITY_FAILED:${signedError?.message ?? "EMPTY"}`);
+      console.error("TIGER_SIGNED_UPLOAD_CAPABILITY_ERROR", signedError?.message ?? "EMPTY");
+      throw new Error("SIGNED_UPLOAD_CAPABILITY_FAILED");
     }
 
     return jsonResponse(201, {
@@ -183,11 +227,7 @@ serve(async (request: Request) => {
       provider_ttl_is_authoritative: false,
     });
   } catch (error) {
-    const code = error instanceof Error ? error.message : "UPLOAD_TICKET_FAILED";
-    const status = code.includes("AUTH") || code.includes("DENIED") ? 403
-      : code.includes("TOO_LARGE") ? 413
-      : code.includes("SERVER_CONFIG") || code.includes("CAPABILITY_FAILED") ? 503
-      : 400;
-    return jsonResponse(status, { ok: false, code });
+    const publicError = publicUploadError(error);
+    return jsonResponse(publicError.status, { ok: false, code: publicError.code });
   }
 });
