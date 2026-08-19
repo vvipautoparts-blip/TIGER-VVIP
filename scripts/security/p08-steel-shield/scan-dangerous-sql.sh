@@ -107,6 +107,12 @@ declare -A reviewed_migration_hashes=(
   # search_path, derives the signed actor server-side, preserves relationship invariants,
   # and keeps the private block-pair oracle non-executable by browser roles.
   ["supabase/migrations/20260819131500_social_relationship_guard_authority_fix.sql"]="866129891ada5e74517f8909a488042716530f5dad896327d064084409c10b40"
+
+  # Social post RETURNING compatibility: reviewed as a forward-only owner-read policy.
+  # PostgreSQL applies SELECT RLS to INSERT ... RETURNING. This policy restates only the
+  # already-authorized owner visibility directly on the proposed row, keeps the private
+  # block oracle closed, and bounds policy-creation lock acquisition to two seconds.
+  ["supabase/migrations/20260819132000_social_post_returning_rls_fix.sql"]="f77360e08346827bbbcb0794fabcaf30bc87ae609917bf31dc49368638f1b6dd"
 )
 
 reviewed_baseline_path() {
