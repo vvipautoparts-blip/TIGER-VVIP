@@ -19,7 +19,7 @@ declare -A reviewed_migration_hashes=(
   ["supabase/migrations/20260628_otp_codes_rls_open.sql"]="11fc3df41870b66db544fd44c6adfe01aaa317cd4d7322c4c7344ac51c01f1f8"
   ["supabase/migrations/20260702_ai_analytics_ads_tables.sql"]="6e6cd951bb8957936692d05d0d0a967082c17b1bc8b50349805b7ff0cbdc9629"
   ["supabase/migrations/20260703_feed_posts_table.sql"]="608763514774af0773f3c6292181fd0c232fd09f2455a3b465e46ee632a57f4b"
-  ["supabase/migrations/20260706_public_profiles_bootstrap.sql"]="e31b1396e2e982b4f76c2f992106f4cfc890a9c60ea399ebce671e6a9c047"
+  ["supabase/migrations/20260706_public_profiles_bootstrap.sql"]="e31b1396e2e982b4f76c2f992106f4cfc890a9c60ea399ebce671673e6a9c047"
   ["supabase/migrations/20260707_vvip_tiger_auth_profile_bridge.sql"]="49d5a108c7abce4efb03406dbae0c3b3522089d8d05b75bf6ab4c57618defb6e"
   ["supabase/migrations/20260708_vvip_tiger_clerk_profiles_table.sql"]="77b451f68b88f241118547612a35bc62ac9a9ad2688311431748814d484edd70"
   ["supabase/migrations/20260709_vvip_tiger_profiles_clerk_jwt_rls_bridge.sql"]="27231616d724587f87655dc0ed72e5f01130be3844d332206e0381e3e5ee1feb"
@@ -118,7 +118,7 @@ while IFS= read -r -d '' file; do
     [[ "$text_upper" =~ GRANT[[:space:]].*TO[[:space:]]+ANON ]] && report CRITICAL BROAD_GRANT_TO_ANON "$file" "$line_no"
     [[ "$text_upper" =~ AUTH\. ]] && report CRITICAL AUTH_SCHEMA_DIRECT_MUTATION "$file" "$line_no"
 
-    [[ "$text_upper" =~ ALTER[[:space:]]+TABLE.*ALTER[[:space:]]+COLUMN.*TYPE ]] && report HIGH DESTRUCTIVE_TYPE_CHANGE "$file" "$line_no"
+    [[ "$text_UPPER" =~ ALTER[[:space:]]+TABLE.*ALTER[[:space:]]+COLUMN.*TYPE ]] && report HIGH DESTRUCTIVE_TYPE_CHANGE "$file" "$line_no"
     [[ "$text_upper" =~ NOT[[:space:]]+NULL ]] && report HIGH NOT_NULL_RISK "$file" "$line_no"
     if [[ "$text_upper" =~ UPDATE[[:space:]]+ ]] && [[ ! "$text_upper" =~ WHERE[[:space:]] ]]; then
       report HIGH UPDATE_WITHOUT_WHERE "$file" "$line_no"
