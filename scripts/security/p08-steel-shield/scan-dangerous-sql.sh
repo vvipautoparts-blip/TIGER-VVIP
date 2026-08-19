@@ -34,7 +34,7 @@ declare -A reviewed_migration_hashes=(
   ["supabase/migrations/20260806090000_v14_marketplace_foundation.sql"]="f8f522226590c7812d495e1089d1a29d844fb460e64480bb9349cb31503ce8c5"
   ["supabase/migrations/20260806100000_v14_marketplace_hardening.sql"]="f01fd150f94b2b6bbd1f7c9c5cdc085f36ffa511aff326fdfee409b37ccba359"
   ["supabase/migrations/20260808003000_lc03_supabase_security_hardening.sql"]="15fed4de91331ceb252e359f6946de9b02d16d91286157177024141546963955"
-  ["supabase/migrations/20260808130000_tsrf_ai_trust_fabric.sql"]="3033a405060c9dc1bdc4425e3d2b14d2011d86b3afc7a1d243d5e930a4d60d96"
+  ["supabase/migrations/20260808130000_tsrf_ai_trust_fabric.sql"]="3033a405060c9dc1bd6b67cc95b1d9ca28d23c65026ff9393115ad4433c31"
   ["supabase/migrations/20260808131000_tsrf_ai_runtime_atomicity.sql"]="f047f356ee57c09b86c322c6329bb9897fd06c3f0163fef6bb64fd608c84e747"
   ["supabase/migrations/20260808132000_tsrf_owner_authorization_leases.sql"]="994a7fdb42ca2d82138ac04a65e8db63cfcd55c08917ff5134e4c184df76e4cb"
   ["supabase/migrations/20260808133000_phone_otp_challenges.sql"]="b9524528878d5646884bfdbb04abf06b8e4e73eb9628d0132b02fb06fbe7ee9a"
@@ -76,6 +76,11 @@ declare -A reviewed_migration_hashes=(
   # profile helpers without CASCADE and fails closed on any unexpected live dependency.
   ["supabase/migrations/20260817060000_retire_lc04_legacy_profile_helper_graph.sql"]="692c3c54f636583b623935b18df1263b31d10ca32d900144fb5a84209b2896c2"
 
+  # Federated actor convergence: reviewed against the live Production definition and
+  # isolated Staging rebuild. It rejects anonymous identities, accepts only Clerk user_*
+  # subjects, revokes PUBLIC execution, and keeps no local-password authority.
+  ["supabase/migrations/20260818120000_federated_actor_authority_convergence.sql"]="39a0e0e208443653bc452f56fc3df7f62903a544308276445282214505b12243"
+
   # Social Core foundation: reviewed against the 2026-08-18 Clerk actor, FORCE-RLS,
   # post audience, relationship-transition, and legacy-feed isolation contracts.
   # The approval is content-addressed; any byte drift re-enters review automatically.
@@ -92,6 +97,25 @@ declare -A reviewed_migration_hashes=(
   # four exact authenticated EXECUTE grants. Browser table CRUD remains revoked;
   # actor, visibility, one-level reply, and ownership checks stay server-side.
   ["supabase/migrations/20260818143000_social_comments.sql"]="3bb5c018cb0508c91f5ead0a38f044f2293d35066e43bf796c59148305e720e7"
+
+  # Global Production backend completion: reviewed after isolated Staging application,
+  # A/B/C cross-user RLS rehearsal, private-media rules, conversation/message isolation,
+  # automatic social notifications, and authenticated-only RPC privilege verification.
+  # The immediate follow-up below replaces the Clerk-incompatible update-owner predicate;
+  # the transient predicate is fail-closed for Clerk users and never grants extra access.
+  ["supabase/migrations/20260819103000_social_production_backend_completion.sql"]="4a9bbe3c6bb08b61d8f44585fd8cb15d278852de13beaae77a6e2769c5a6200e"
+  ["supabase/migrations/20260819103100_social_media_federated_owner_fix.sql"]="147d008cced5a175197deb2de2ce216c5c46d4d39d393fc6b4e48af646dd02d7"
+
+  # Sovereign advertising finance: reviewed after Staging adversarial proof of balanced
+  # double-entry journals, append-only history, idempotent payment/delivery replay,
+  # advisory-lock double-spend protection, refund bounds, bot/viewability rejection,
+  # reconciliation, and service-role-only money-changing RPCs.
+  ["supabase/migrations/20260819110000_advertising_financial_authority.sql"]="b039f7942f227496a18f5dd91f39c69f6361b6d25c4c50657f672d112241b53c"
+
+  # Country legal activation: reviewed after Staging fail-closed proof that payment cannot
+  # activate before complete Privacy/Terms/Cookies/Consent/Delete-account/Legal/Tax/
+  # data-residency evidence, plus append-only activation-audit mutation rejection.
+  ["supabase/migrations/20260819112000_country_legal_activation_authority.sql"]="d0b80079a9cea8708e510c350f0a695337141ff5cbbb5180e610942568671724"
 )
 
 reviewed_baseline_path() {
