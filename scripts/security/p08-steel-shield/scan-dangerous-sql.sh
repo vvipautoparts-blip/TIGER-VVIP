@@ -113,6 +113,18 @@ declare -A reviewed_migration_hashes=(
   # already-authorized owner visibility directly on the proposed row, keeps the private
   # block oracle closed, and bounds policy-creation lock acquisition to two seconds.
   ["supabase/migrations/20260819132000_social_post_returning_rls_fix.sql"]="f77360e08346827bbbcb0794fabcaf30bc87ae609917bf31dc49368638f1b6dd"
+
+  # Gate 2 canonical media authority: these exact migration bytes were reviewed only
+  # after exact-SHA static contracts, Deno typechecks, a complete local migration replay,
+  # and a transactional DB rehearsal proved metadata-free reservation, service-only
+  # Storage ingress, atomic READY+passport+event settlement, bounded DLQ, 2s reservation
+  # lock budget, and non-global digest ownership. Any byte drift re-enters Steel Shield.
+  ["supabase/migrations/20260820002000_social_media_canonical_authority.sql"]="110e5ebc1fa2b1f7eb64dbc85b521902ac10e3cb4452ef9c8e14ea91b6848c3c"
+  ["supabase/migrations/20260820002500_social_media_atomic_finalize_cleanup.sql"]="363df5db37b97b7784d58a72bb64e08f49ae56e598afd01623b2062aa3afe333"
+  ["supabase/migrations/20260820002700_social_media_durable_quarantine_purge.sql"]="339bdec95ec4310d1098b6fdfbaa91fd281ef1c3041b26a7cb2c592b6ff8136c"
+  ["supabase/migrations/20260820002900_social_media_unified_quarantine_cleanup.sql"]="904aa34c69ba10b2cf04f25485936ef9c61bf72468cbb062973be469d0475ed8"
+  ["supabase/migrations/20260820003100_social_media_reservation_content_identity_hardening.sql"]="23b0674202780fdaaab93387db5b343384e700719dc7f58188acdd8115e57d87"
+  ["supabase/migrations/20260820003300_social_media_storage_event_ingress.sql"]="b565b1e5fcc210e492c54bdfb036accf8ebf81a53609e2d4abf86afcf7fbc9dd"
 )
 
 reviewed_baseline_path() {
