@@ -45,17 +45,17 @@ test('block semantics are two-way, idempotent and sever existing friendship', ()
   expectPattern(text, /create\s+or\s+replace\s+function\s+public\.vvip_social_is_blocked_pair/i, 'internal block-pair authority is required');
   expectPattern(text, /create\s+or\s+replace\s+function\s+public\.vvip_social_block_user/i, 'block RPC is required');
   expectPattern(text, /create\s+or\s+replace\s+function\s+public\.vvip_social_unblock_user/i, 'unblock RPC is required');
-  expectPattern(text, /delete\s+from\s+public\.vvip_social_relationships/i, 'blocking must sever existing friendship state');
+  expectPattern(text, /delete\s+from\s+public\.vvip_social_relationships[^\n]*\swhere\s/i, 'blocking must sever existing friendship with an explicit predicate');
   expectPattern(text, /on\s+conflict\s*\([^)]*blocker_subject[^)]*blocked_subject[^)]*\)\s+do\s+nothing/i, 'block must be idempotent');
 });
 
-test('post visibility and relationship creation become block-aware', () => {
+test('post visibility and relationship creation become block-aware without dropping the current policy', () => {
   const text = sql();
 
   expectPattern(text, /create\s+or\s+replace\s+function\s+public\.vvip_social_can_view_post/i, 'post visibility function must be replaced');
   expectPattern(text, /vvip_social_is_blocked_pair/i, 'post visibility must consult block authority');
-  expectPattern(text, /drop\s+policy\s+if\s+exists\s+vvip_social_post_visible_read/i, 'current post read policy must be replaced deliberately');
-  expectPattern(text, /create\s+policy\s+vvip_social_post_visible_read/i, 'block-aware post read policy must be recreated');
+  expectPattern(text, /alter\s+policy\s+vvip_social_post_visible_read\s+on\s+public\.vvip_social_posts/i, 'current post read policy must be hardened in place');
+  assert.doesNotMatch(text, /drop\s+policy/i, 'privacy hardening must not drop an existing RLS policy');
   expectPattern(text, /create\s+or\s+replace\s+function\s+public\.vvip_social_guard_relationship_write/i, 'current relationship guard must remain the enforced boundary');
 });
 
@@ -76,7 +76,7 @@ test('reports are write-only through a bounded RPC for normal authenticated user
   expectPattern(text, /grant\s+execute\s+on\s+function\s+public\.vvip_social_report_user/i, 'authenticated users receive only bounded report execution');
 });
 
-test('privacy RPCs derive the actor from server-side identity authority', () => {
+test('privacy RPCs derive the actor from server-side identity authority and pin search_path', () => {
   const text = sql();
 
   for (const fn of [
@@ -91,6 +91,6 @@ test('privacy RPCs derive the actor from server-side identity authority', () => 
     assert.notEqual(start, -1, `${fn} must exist`);
     const fragment = text.slice(start, start + 4500);
     expectPattern(fragment, /vvip_marketplace_actor_id\s*\(\s*\)/i, `${fn} must derive actor from vvip_marketplace_actor_id()`);
-    expectPattern(fragment, /security\s+definer/i, `${fn} must be SECURITY DEFINER`);
+    expectPattern(fragment, /security\s+definer\s+set\s+search_path\s*=\s*pg_catalog,\s*public/i, `${fn} must pin SECURITY DEFINER search_path`);
   }
 });
