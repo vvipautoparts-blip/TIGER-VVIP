@@ -67,7 +67,6 @@ create function public.vvip_social_post_visible_to_actor(target_post uuid)
 returns boolean
 language sql
 stable
-security definer
 set search_path = pg_catalog, public
 as $function$
     select exists (
