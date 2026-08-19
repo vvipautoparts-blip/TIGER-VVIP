@@ -36,8 +36,10 @@ test('edge ingress accepts only authenticated INSERT events for the private quar
   assert.match(source, /payload\.type\s*!==\s*["']INSERT["']/);
   assert.match(source, /payload\.schema\s*!==\s*["']storage["']/);
   assert.match(source, /payload\.table\s*!==\s*["']objects["']/);
-  assert.match(source, /record\.bucket_id\s*!==\s+EXPECTED_BUCKET/);
-  assert.match(source, /quarantine\//);
+  assert.match(source, /requireString\s*\(\s*record\.bucket_id\s*,\s*["']STORAGE_WEBHOOK_BUCKET_INVALID["']\s*\)/);
+  assert.match(source, /bucketId\s*!==\s*EXPECTED_BUCKET/);
+  assert.match(source, /requireString\s*\(\s*record\.name\s*,\s*["']STORAGE_WEBHOOK_PATH_INVALID["']\s*\)/);
+  assert.match(source, /objectPath\.startsWith\s*\(\s*["']quarantine\//);
   assert.match(source, /vvip_social_media_webhook_accept_storage/);
   assert.doesNotMatch(source, /body\.(?:media_id|mime|mime_type|sha256|width|height|byte_size)/i);
 });
