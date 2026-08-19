@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "TIGER_EXACT_SHA_PREVIEW_GUARD_V1",
+  "targetRing": "R4_OWNER_PREVIEW",
+  "requiredEnvironment": "PREVIEW",
+  "requiredBackendEnvironment": "STAGING",
+  "requiredSeedClassification": "SYNTHETIC_SANITIZED",
+  "httpsRequired": true,
+  "deploymentMustMatchSourceSha": true,
+  "privilegedBrowserConfigNamePatterns": [
+    "service_role",
+    "service-role",
+    "secret",
+    "private",
+    "admin"
+  ]
+}
