@@ -54,9 +54,9 @@ test('post visibility and relationship creation become block-aware', () => {
 
   expectPattern(text, /create\s+or\s+replace\s+function\s+public\.vvip_social_can_view_post/i, 'post visibility function must be replaced');
   expectPattern(text, /vvip_social_is_blocked_pair/i, 'post visibility must consult block authority');
-  expectPattern(text, /drop\s+policy\s+if\s+exists\s+vvip_social_posts_read/i, 'post read policy must be replaced deliberately');
-  expectPattern(text, /create\s+policy\s+vvip_social_posts_read/i, 'block-aware post read policy must be recreated');
-  expectPattern(text, /vvip_social_relationship_guard/i, 'relationship guard must remain an enforced boundary');
+  expectPattern(text, /drop\s+policy\s+if\s+exists\s+vvip_social_post_visible_read/i, 'current post read policy must be replaced deliberately');
+  expectPattern(text, /create\s+policy\s+vvip_social_post_visible_read/i, 'block-aware post read policy must be recreated');
+  expectPattern(text, /create\s+or\s+replace\s+function\s+public\.vvip_social_guard_relationship_write/i, 'current relationship guard must remain the enforced boundary');
 });
 
 test('mute is feed-only and does not masquerade as a privacy block', () => {
