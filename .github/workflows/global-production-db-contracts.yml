@@ -1,0 +1,50 @@
+name: Global Production DB Contracts
+
+on:
+  pull_request:
+    branches:
+      - feat/tiger-one-living-surface-impl-20260818
+    paths:
+      - 'supabase/migrations/**'
+      - 'scripts/security/federated-actor-authority-migration.test.js'
+      - 'scripts/social/production-backend-schema.test.js'
+      - 'scripts/social/federated-social-storage-policy.test.js'
+      - 'scripts/advertising/financial-authority-schema.test.js'
+      - 'scripts/legal/country-activation-schema.test.js'
+      - 'scripts/marketplace/global-marketplace-convergence.test.js'
+      - '.github/workflows/global-production-db-contracts.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  db-authority-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - name: Setup Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '20'
+      - name: Federated actor migration contract
+        run: node scripts/security/federated-actor-authority-migration.test.js
+      - name: Social production backend contract
+        run: node scripts/social/production-backend-schema.test.js
+      - name: Federated social storage contract
+        run: node scripts/social/federated-social-storage-policy.test.js
+      - name: Advertising financial authority contract
+        run: node scripts/advertising/financial-authority-schema.test.js
+      - name: Country legal activation contract
+        run: node scripts/legal/country-activation-schema.test.js
+      - name: Global marketplace convergence contract
+        run: node scripts/marketplace/global-marketplace-convergence.test.js
+      - name: Candidate migration SHA-256 evidence
+        run: |
+          sha256sum \
+            supabase/migrations/20260819115900_marketplace_convergence_bootstrap.sql \
+            supabase/migrations/20260819120000_global_marketplace_convergence.sql \
+            supabase/migrations/20260819120100_marketplace_private_policy_helpers.sql \
+            supabase/migrations/20260819120200_marketplace_operations_authority.sql

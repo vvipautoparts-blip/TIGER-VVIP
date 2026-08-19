@@ -1,0 +1,35 @@
+name: Global Production Closure TDD
+
+on:
+  push:
+    branches:
+      - feat/global-production-closure-20260819
+    paths:
+      - 'scripts/project-control/global-production-closure-gate.js'
+      - 'scripts/project-control/global-production-closure-gate.test.js'
+      - '.github/workflows/global-production-closure-tdd.yml'
+  pull_request:
+    branches:
+      - feat/tiger-one-living-surface-impl-20260818
+    paths:
+      - 'scripts/project-control/global-production-closure-gate.js'
+      - 'scripts/project-control/global-production-closure-gate.test.js'
+      - '.github/workflows/global-production-closure-tdd.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  production-closure-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - name: Setup Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '20'
+      - name: Run production closure contract tests
+        run: node scripts/project-control/global-production-closure-gate.test.js

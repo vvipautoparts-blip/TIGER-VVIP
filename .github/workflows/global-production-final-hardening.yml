@@ -1,0 +1,33 @@
+name: Global Production Final Hardening
+
+on:
+  pull_request:
+    branches:
+      - feat/tiger-one-living-surface-impl-20260818
+    paths:
+      - 'supabase/migrations/20260819124500_global_production_final_hardening.sql'
+      - 'scripts/security/global-production-final-hardening.test.js'
+      - 'scripts/security/p08-steel-shield/scan-dangerous-sql.sh'
+      - '.github/workflows/global-production-final-hardening.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  final-hardening:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - name: Setup Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22'
+      - name: Verify final hardening contract
+        run: node scripts/security/global-production-final-hardening.test.js
+      - name: Re-run Steel Shield
+        run: bash scripts/security/p08-steel-shield/scan-dangerous-sql.sh
+      - name: Emit final hardening SHA-256
+        run: sha256sum supabase/migrations/20260819124500_global_production_final_hardening.sql

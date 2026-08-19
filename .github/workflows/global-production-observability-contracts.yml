@@ -1,0 +1,40 @@
+name: Global Production Observability Contracts
+
+on:
+  pull_request:
+    branches:
+      - feat/tiger-one-living-surface-impl-20260818
+    paths:
+      - 'supabase/migrations/20260819115900_marketplace_convergence_bootstrap.sql'
+      - 'supabase/migrations/20260819120000_global_marketplace_convergence.sql'
+      - 'supabase/migrations/20260819120100_marketplace_private_policy_helpers.sql'
+      - 'supabase/migrations/20260819120200_marketplace_operations_authority.sql'
+      - 'supabase/migrations/20260819123000_owner_observability_authority.sql'
+      - 'scripts/observability/owner-observability-schema.test.js'
+      - '.github/workflows/global-production-observability-contracts.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  observability-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - name: Setup Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '20'
+      - name: Owner observability authority contract
+        run: node scripts/observability/owner-observability-schema.test.js
+      - name: Candidate reviewed migration SHA-256 evidence
+        run: |
+          sha256sum \
+            supabase/migrations/20260819115900_marketplace_convergence_bootstrap.sql \
+            supabase/migrations/20260819120000_global_marketplace_convergence.sql \
+            supabase/migrations/20260819120100_marketplace_private_policy_helpers.sql \
+            supabase/migrations/20260819120200_marketplace_operations_authority.sql \
+            supabase/migrations/20260819123000_owner_observability_authority.sql
