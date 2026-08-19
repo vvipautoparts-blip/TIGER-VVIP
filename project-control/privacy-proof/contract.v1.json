@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "TIGER_PRIVACY_PROOF_V1",
+  "requiredDimensions": ["database", "realtime", "media", "cache"],
+  "dimensionStatuses": ["PASS", "FAIL", "UNBOUND"],
+  "safeUnauthorizedCount": 0,
+  "passRequiresEvidence": true,
+  "decisions": ["SAFE", "BLOCKED"]
+}
