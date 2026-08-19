@@ -29,40 +29,43 @@ function functionDefinition(text, fn) {
   return text.slice(start, end + '$function$;'.length);
 }
 
-test('bounded current-actor helper can inspect block state without exposing the pair oracle', () => {
-  const text = sql();
-  const helper = functionDefinition(text, 'vvip_social_is_blocked_for_current_actor');
-
-  assert.match(helper, /security\s+definer\s+set\s+search_path\s*=\s*pg_catalog,\s*public/i);
-  assert.match(helper, /vvip_marketplace_actor_id\s*\(\s*\)/i);
-  assert.match(helper, /vvip_social_is_blocked_pair\s*\(\s*v_actor\s*,\s*p_other_subject\s*\)/i);
-  assert.match(text, /grant\s+execute\s+on\s+function\s+public\.vvip_social_is_blocked_for_current_actor\s*\(\s*text\s*\)\s+to\s+authenticated/i);
-  assert.doesNotMatch(text, /grant\s+execute\s+on\s+function\s+public\.vvip_social_is_blocked_pair\s*\(\s*text\s*,\s*text\s*\)\s+to\s+authenticated/i);
-});
-
-test('relationship trigger remains invoker-authoritative and uses bounded helper for browser writes', () => {
+test('forward fix hardens the relationship guard as a pinned definer without exposing the private block oracle', () => {
   const text = sql();
   const guard = functionDefinition(text, 'vvip_social_guard_relationship_write');
 
-  assert.doesNotMatch(guard, /security\s+definer/i, 'relationship trigger must preserve current_user browser-role checks');
-  assert.match(guard, /set\s+search_path\s*=\s*pg_catalog,\s*public/i);
-  assert.match(guard, /current_user\s+in\s*\(\s*'anon'\s*,\s*'authenticated'\s*\)/i);
-  assert.match(guard, /vvip_social_is_blocked_for_current_actor/i);
-  assert.match(guard, /vvip_social_is_blocked_pair/i, 'trusted non-browser writes must still honor the private block authority');
+  assert.match(
+    guard,
+    /security\s+definer\s+set\s+search_path\s*=\s*pg_catalog,\s*public/i,
+    'guard must have database authority to call the private block helper'
+  );
+  assert.doesNotMatch(
+    text,
+    /grant\s+execute\s+on\s+function\s+public\.vvip_social_is_blocked_pair\s*\(\s*text\s*,\s*text\s*\)\s+to\s+authenticated/i,
+    'fix must not expose the private block-pair oracle'
+  );
+  assert.match(guard, /vvip_social_is_blocked_pair/i, 'guard must continue enforcing the private block boundary');
 });
 
-test('browser identity validation occurs before bounded block lookup on relationship insert and update', () => {
+test('definer guard is actor-authoritative and no longer trusts current_user role branches', () => {
   const text = sql();
   const guard = functionDefinition(text, 'vvip_social_guard_relationship_write');
 
-  const insertStart = guard.indexOf("if TG_OP = 'INSERT'");
-  const updateStart = guard.indexOf("if TG_OP = 'UPDATE'");
-  const deleteStart = guard.indexOf("if TG_OP = 'DELETE'");
-  assert.ok(insertStart >= 0 && updateStart > insertStart && deleteStart > updateStart);
+  assert.match(guard, /actor\s+text\s*:=\s*public\.vvip_marketplace_actor_id\s*\(\s*\)/i);
+  assert.doesNotMatch(guard, /current_user/i, 'SECURITY DEFINER guard must not branch on the definer current_user');
+  assert.match(guard, /actor\s+is\s+not\s+null\s+and\s+actor\s+not\s+like\s+'user\\_%'/i, 'non-user actor identities must fail closed');
+});
 
-  const insertBlock = guard.slice(insertStart, updateStart);
-  assert.ok(insertBlock.indexOf('NEW.requester_subject <> actor') < insertBlock.indexOf('vvip_social_is_blocked_for_current_actor'), 'insert must bind requester to actor before block lookup');
+test('relationship invariants remain enforced for insert, update and delete', () => {
+  const text = sql();
+  const guard = functionDefinition(text, 'vvip_social_guard_relationship_write');
 
-  const updateBlock = guard.slice(updateStart, deleteStart);
-  assert.ok(updateBlock.indexOf('actor <> OLD.addressee_subject') < updateBlock.indexOf('vvip_social_is_blocked_for_current_actor'), 'update must bind recipient to actor before block lookup');
+  assert.match(guard, /NEW\.requester_subject\s*=\s*NEW\.addressee_subject/i, 'self relationships stay forbidden');
+  assert.match(guard, /NEW\.relationship_state\s*<>\s*'pending'/i, 'new relationships must start pending');
+  assert.match(guard, /OLD\.relationship_state\s*<>\s*'pending'/i, 'updates must originate from pending');
+  assert.match(guard, /NEW\.relationship_state\s*<>\s*'friends'/i, 'accepted relationship must become friends');
+  assert.match(guard, /NEW\.requester_subject\s*<>\s*OLD\.requester_subject/i, 'relationship requester remains immutable');
+  assert.match(guard, /NEW\.addressee_subject\s*<>\s*OLD\.addressee_subject/i, 'relationship addressee remains immutable');
+  assert.match(guard, /actor\s+is\s+not\s+null\s+and\s+NEW\.requester_subject\s*<>\s*actor/i, 'signed actor must own an insert request');
+  assert.match(guard, /actor\s+is\s+not\s+null\s+and\s+actor\s*<>\s*OLD\.addressee_subject/i, 'signed actor must be the accepting recipient');
+  assert.match(guard, /actor\s+is\s+not\s+null[\s\S]*actor\s+not\s+in\s*\(\s*OLD\.requester_subject\s*,\s*OLD\.addressee_subject\s*\)/i, 'signed actor must be a participant to delete');
 });
