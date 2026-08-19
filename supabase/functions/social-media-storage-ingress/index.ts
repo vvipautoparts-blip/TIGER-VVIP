@@ -108,9 +108,13 @@ serve(async (request: Request) => {
   }
 
   try {
-    const serviceRoleKey = requiredEnv("SUPABASE_SERVICE_ROLE_KEY");
-    const authorization = request.headers.get("Authorization")?.trim() ?? "";
-    if (!(await constantTimeEqual(authorization, `Bearer ${serviceRoleKey}`))) {
+    // The webhook credential is deliberately distinct from the service-role key.
+    // Compromise of the external ingress credential therefore cannot become a
+    // general Supabase RLS-bypass credential. The service role is used only after
+    // the request has crossed this scoped authentication boundary.
+    const expectedWebhookSecret = requiredEnv("TIGER_STORAGE_WEBHOOK_SECRET");
+    const suppliedWebhookSecret = request.headers.get("x-tiger-storage-webhook-secret")?.trim() ?? "";
+    if (!suppliedWebhookSecret || !(await constantTimeEqual(suppliedWebhookSecret, expectedWebhookSecret))) {
       return jsonResponse(401, { ok: false, code: "STORAGE_WEBHOOK_AUTH_FAILED" });
     }
 
@@ -142,6 +146,7 @@ serve(async (request: Request) => {
     );
 
     const supabaseUrl = requiredEnv("SUPABASE_URL");
+    const serviceRoleKey = requiredEnv("SUPABASE_SERVICE_ROLE_KEY");
     const admin = createClient(supabaseUrl, serviceRoleKey, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
