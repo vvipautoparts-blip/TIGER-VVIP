@@ -10,6 +10,19 @@ const NO_STORE_HEADERS = {
   "Pragma": "no-cache",
 };
 
+const PUBLIC_READ_CODES = new Set([
+  "REQUEST_BODY_REQUIRED",
+  "REQUEST_BODY_TOO_LARGE",
+  "REQUEST_JSON_INVALID",
+  "REQUEST_JSON_OBJECT_REQUIRED",
+  "MEDIA_ID_INVALID",
+  "READ_DENIED",
+  "READ_GRANT_INVALID",
+  "READ_GRANT_CONSUME_FAILED",
+  "READ_GRANT_BINDING_INVALID",
+  "SIGNED_READ_FAILED",
+]);
+
 type ReadGrantRow = {
   media_id: string;
   canonical_storage_path: string;
@@ -28,7 +41,10 @@ function jsonResponse(status: number, body: Record<string, unknown>): Response {
 
 function requiredEnv(name: string): string {
   const value = Deno.env.get(name)?.trim();
-  if (!value) throw new Error(`SERVER_CONFIG_MISSING:${name}`);
+  if (!value) {
+    console.error("TIGER_READ_SERVER_CONFIG_MISSING", name);
+    throw new Error("READ_SERVICE_UNAVAILABLE");
+  }
   return value;
 }
 
@@ -77,6 +93,22 @@ async function readBoundedJson(request: Request): Promise<Record<string, unknown
   return parsed as Record<string, unknown>;
 }
 
+function publicReadError(error: unknown): { code: string; status: number } {
+  const raw = error instanceof Error ? error.message : "PRIVATE_READ_FAILED";
+  if (raw.startsWith("REQUEST_FIELD_NOT_ALLOWED:")) {
+    return { code: "REQUEST_FIELD_NOT_ALLOWED", status: 400 };
+  }
+  if (raw === "READ_DENIED") return { code: raw, status: 403 };
+  if (raw === "READ_SERVICE_UNAVAILABLE" || raw === "SIGNED_READ_FAILED") {
+    return { code: raw, status: 503 };
+  }
+  if (raw === "REQUEST_BODY_TOO_LARGE") return { code: raw, status: 413 };
+  if (PUBLIC_READ_CODES.has(raw)) return { code: raw, status: 400 };
+
+  console.error("TIGER_PRIVATE_READ_UNEXPECTED_ERROR", raw.slice(0, 240));
+  return { code: "PRIVATE_READ_FAILED", status: 500 };
+}
+
 serve(async (request: Request) => {
   if (request.method !== "POST") {
     return jsonResponse(405, { ok: false, code: "METHOD_NOT_ALLOWED" });
@@ -108,7 +140,10 @@ serve(async (request: Request) => {
       "vvip_social_media_request_read",
       { target_media: mediaId },
     );
-    if (grantError) throw new Error(`READ_DENIED:${grantError.message}`);
+    if (grantError) {
+      console.error("TIGER_PRIVATE_READ_GRANT_ERROR", grantError.message);
+      throw new Error("READ_DENIED");
+    }
 
     const grant = (Array.isArray(grantData) ? grantData[0] : grantData) as ReadGrantRow | null;
     if (!grant?.read_token || grant.media_id !== mediaId || !grant.canonical_storage_path) {
@@ -124,7 +159,10 @@ serve(async (request: Request) => {
       "vvip_social_media_consume_read",
       { target_media: mediaId, grant_token: grant.read_token },
     );
-    if (consumeError) throw new Error(`READ_GRANT_CONSUME_FAILED:${consumeError.message}`);
+    if (consumeError) {
+      console.error("TIGER_PRIVATE_READ_CONSUME_ERROR", consumeError.message);
+      throw new Error("READ_GRANT_CONSUME_FAILED");
+    }
 
     const consumed = (Array.isArray(consumedData) ? consumedData[0] : consumedData) as ConsumedReadRow | null;
     if (
@@ -141,7 +179,8 @@ serve(async (request: Request) => {
       .from(BUCKET)
       .createSignedUrl(consumed.canonical_storage_path, SIGNED_READ_SECONDS);
     if (signedError || !signed?.signedUrl) {
-      throw new Error(`SIGNED_READ_FAILED:${signedError?.message ?? "EMPTY"}`);
+      console.error("TIGER_SIGNED_READ_ERROR", signedError?.message ?? "EMPTY");
+      throw new Error("SIGNED_READ_FAILED");
     }
 
     return jsonResponse(200, {
@@ -151,14 +190,7 @@ serve(async (request: Request) => {
       expires_in_seconds: SIGNED_READ_SECONDS,
     });
   } catch (error) {
-    const code = (error instanceof Error ? error.message : "PRIVATE_READ_FAILED")
-      .toUpperCase()
-      .replace(/[^A-Z0-9_:-]/g, "_")
-      .slice(0, 160);
-    const status = code.includes("AUTH") || code.includes("DENIED") ? 403
-      : code.includes("TOO_LARGE") ? 413
-      : code.includes("SERVER_CONFIG") || code.includes("SIGNED_READ_FAILED") ? 503
-      : 400;
-    return jsonResponse(status, { ok: false, code });
+    const publicError = publicReadError(error);
+    return jsonResponse(publicError.status, { ok: false, code: publicError.code });
   }
 });
