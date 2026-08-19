@@ -49,13 +49,16 @@ test('TIGER acceptance capability is fail-closed at 300 seconds without pretendi
 
 test('upload ticket explicitly rejects browser attempts to submit canonical media facts', () => {
   const text = source();
+  const denylistStart = text.indexOf('const BANNED_CLIENT_FACTS');
+  const denylistEnd = text.indexOf('] as const;', denylistStart);
+  assert.notEqual(denylistStart, -1);
+  assert.notEqual(denylistEnd, -1);
+  const denylist = text.slice(denylistStart, denylistEnd);
   for (const field of ['mime_type', 'content_type', 'byte_size', 'width', 'height', 'sha256', 'filename']) {
-    assert.match(
-      text,
-      new RegExp(`(?:hasOwnProperty|in)\\s*(?:\\.call\\s*)?[^\\n]{0,160}["']${field}["']|["']${field}["'][^\\n]{0,160}(?:hasOwnProperty|\\sin\\s)`, 'i'),
-      `expected explicit rejection guard for ${field}`
-    );
+    assert.match(denylist, new RegExp(`["']${field}["']`, 'i'), `missing denylisted canonical field ${field}`);
   }
+  assert.match(text, /Object\.prototype\.hasOwnProperty\.call\s*\(\s*body\s*,\s*field\s*\)/i);
+  assert.match(text, /CLIENT_CANONICAL_FACT_REJECTED/i);
 });
 
 test('upload ticket is bounded, POST-only, no-store, and does not trust client content headers', () => {
