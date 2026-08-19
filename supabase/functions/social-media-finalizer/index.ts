@@ -25,7 +25,7 @@ const CANONICAL_WIDTH = 1600;
 const CANONICAL_HEIGHT = 1200;
 const CANONICAL_QUALITY = 85;
 const CLEANUP_BATCH = 32;
-const VERIFIER_VERSION = "tiger-media-finalizer/2026.08.20-v2";
+const VERIFIER_VERSION = "tiger-media-finalizer/2026.08.20-v3";
 
 const NO_STORE_HEADERS = {
   "Content-Type": "application/json; charset=utf-8",
@@ -71,6 +71,7 @@ type Gate2Database = {
         Args: {
           target_event: string;
           target_media: string;
+          expected_attempt_count: number;
           source_digest: string;
           source_mime: string;
           source_size: number;
@@ -90,6 +91,7 @@ type Gate2Database = {
       vvip_social_media_webhook_fail: {
         Args: {
           target_event: string;
+          expected_attempt_count: number;
           error_code: string;
         };
         Returns: string;
@@ -453,6 +455,9 @@ async function processOne(admin: AdminClient): Promise<{ processed: boolean; med
     if (claim.bucket_id !== BUCKET || !claim.quarantine_storage_path.startsWith("quarantine/")) {
       throw new TigerMediaError("SOCIAL_MEDIA_CLAIM_PATH_INVALID");
     }
+    if (!Number.isInteger(claim.attempt_count) || claim.attempt_count < 1 || claim.attempt_count > 5) {
+      throw new TigerMediaError("SOCIAL_MEDIA_WORKER_ATTEMPT_INVALID");
+    }
 
     const { data: sourceBlob, error: sourceError } = await admin.storage
       .from(BUCKET)
@@ -482,6 +487,7 @@ async function processOne(admin: AdminClient): Promise<{ processed: boolean; med
       {
         target_event: claim.event_id,
         target_media: claim.media_id,
+        expected_attempt_count: claim.attempt_count,
         source_digest: sourceSha256,
         source_mime: sourceFacts.mime,
         source_size: sourceBytes.byteLength,
@@ -526,6 +532,7 @@ async function processOne(admin: AdminClient): Promise<{ processed: boolean; med
     if (!committed) {
       const { error: failureError } = await admin.rpc("vvip_social_media_webhook_fail", {
         target_event: claim.event_id,
+        expected_attempt_count: claim.attempt_count,
         error_code: code,
       });
       if (failureError) console.error("TIGER_WEBHOOK_FAILURE_RECORD_FAILED", claim.event_id, failureError.message);
