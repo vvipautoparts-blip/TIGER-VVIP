@@ -10,6 +10,7 @@ on:
       - "supabase/migrations/20260820003100_social_media_reservation_content_identity_hardening.sql"
       - "supabase/migrations/20260820003300_social_media_storage_event_ingress.sql"
       - "supabase/migrations/20260820003500_social_media_worker_dispatch.sql"
+      - "supabase/migrations/20260820003700_social_media_stale_worker_recovery.sql"
       - "supabase/functions/social-media-upload-ticket/index.ts"
       - "supabase/functions/social-media-storage-ingress/index.ts"
       - "supabase/functions/social-media-finalizer/**"
@@ -191,6 +192,7 @@ jobs:
               supabase/migrations/20260820003100_social_media_reservation_content_identity_hardening.sql \
               supabase/migrations/20260820003300_social_media_storage_event_ingress.sql \
               supabase/migrations/20260820003500_social_media_worker_dispatch.sql \
+              supabase/migrations/20260820003700_social_media_stale_worker_recovery.sql \
               supabase/functions/social-media-upload-ticket/index.ts \
               supabase/functions/social-media-storage-ingress/index.ts \
               supabase/functions/social-media-finalizer/index.ts \
