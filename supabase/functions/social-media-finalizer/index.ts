@@ -25,7 +25,7 @@ const CANONICAL_WIDTH = 1600;
 const CANONICAL_HEIGHT = 1200;
 const CANONICAL_QUALITY = 85;
 const CLEANUP_BATCH = 32;
-const VERIFIER_VERSION = "tiger-media-finalizer/2026.08.20-v3";
+const VERIFIER_VERSION = "tiger-media-finalizer/2026.08.20-v4";
 
 const NO_STORE_HEADERS = {
   "Content-Type": "application/json; charset=utf-8",
@@ -329,15 +329,12 @@ function canonicalize(sourceBytes: Uint8Array, sourceFacts: MediaFacts): Uint8Ar
   return ImageMagick.read(sourceBytes, (image): Uint8Array => {
     image.autoOrient();
 
-    // Re-check the decoded image even though dimensions were parsed before decode.
     const width = image.width;
     const height = image.height;
     if (width * height > MAX_SOURCE_PIXELS || width <= 0 || height <= 0) {
       throw new TigerMediaError("SOCIAL_MEDIA_DECODED_GEOMETRY_INVALID");
     }
 
-    // Orientation may swap width/height, but material divergence from the parsed
-    // dimensions is rejected before any canonical output is trusted.
     const sameGeometry =
       (width === sourceFacts.width && height === sourceFacts.height) ||
       (width === sourceFacts.height && height === sourceFacts.width);
@@ -421,8 +418,8 @@ async function ensureCanonicalObject(
   );
   if (!uploadError) return;
 
-  // A prior attempt may have uploaded the deterministic path but lost the DB
-  // response. Never overwrite it: verify the existing bytes instead.
+  // A previous or concurrently recovered generation may already have produced the
+  // deterministic object. Never overwrite it; accept it only after byte identity proof.
   const { data: existing, error: downloadError } = await admin.storage.from(BUCKET).download(canonicalPath);
   if (downloadError || !existing) {
     throw new TigerMediaError(`CANONICAL_UPLOAD_FAILED:${uploadError.message}`);
@@ -434,13 +431,6 @@ async function ensureCanonicalObject(
   }
 }
 
-async function compensateCanonicalUpload(admin: AdminClient, canonicalPath: string): Promise<void> {
-  const { error } = await admin.storage.from(BUCKET).remove([canonicalPath]);
-  if (error) {
-    console.error("CANONICAL_PROMOTION_ROLLBACK_ORPHAN", canonicalPath, error.message);
-  }
-}
-
 async function processOne(admin: AdminClient): Promise<{ processed: boolean; media_id?: string }> {
   const { data: claimData, error: claimError } = await admin.rpc("vvip_social_media_webhook_claim");
   if (claimError) throw new TigerMediaError(`WEBHOOK_CLAIM_FAILED:${claimError.message}`);
@@ -448,7 +438,7 @@ async function processOne(admin: AdminClient): Promise<{ processed: boolean; med
   if (!claim) return { processed: false };
 
   let canonicalPath: string | null = null;
-  let canonicalUploaded = false;
+  let canonicalObjectEnsured = false;
   let committed = false;
 
   try {
@@ -469,7 +459,6 @@ async function processOne(admin: AdminClient): Promise<{ processed: boolean; med
       throw new TigerMediaError("SOCIAL_MEDIA_SIZE_INVALID");
     }
 
-    // Magic bytes + container dimensions are validated before ImageMagick.read.
     const sourceFacts = detectMedia(sourceBytes);
     const sourceSha256 = await sha256Hex(sourceBytes);
     const canonicalBytes = canonicalize(sourceBytes, sourceFacts);
@@ -480,7 +469,7 @@ async function processOne(admin: AdminClient): Promise<{ processed: boolean; med
     canonicalPath = `canonical/media/${canonicalSha256.slice(0, 2)}/${claim.media_id}.jpg`;
 
     await ensureCanonicalObject(admin, canonicalPath, canonicalBytes, canonicalSha256);
-    canonicalUploaded = true;
+    canonicalObjectEnsured = true;
 
     const { data: finalizedPath, error: finalizeError } = await admin.rpc(
       "vvip_social_media_finalize_event",
@@ -508,8 +497,6 @@ async function processOne(admin: AdminClient): Promise<{ processed: boolean; med
     }
     committed = true;
 
-    // Legacy vvip_social_media_webhook_complete is intentionally not called:
-    // vvip_social_media_finalize_event completes READY + passport + event atomically.
     const { error: sourceRemoveError } = await admin.storage.from(BUCKET).remove([
       claim.quarantine_storage_path,
     ]);
@@ -526,9 +513,15 @@ async function processOne(admin: AdminClient): Promise<{ processed: boolean; med
     return { processed: true, media_id: claim.media_id };
   } catch (error) {
     const code = safeErrorCode(error);
-    if (canonicalUploaded && canonicalPath && !committed) {
-      await compensateCanonicalUpload(admin, canonicalPath);
+
+    // Never delete a deterministic canonical path after losing the claim generation.
+    // A recovered generation may already be verifying or committing this same object.
+    // The object remains private and unreadable until DB READY + Media Passport exists;
+    // subsequent retries verify its digest before reuse.
+    if (canonicalObjectEnsured && canonicalPath && !committed) {
+      console.error("CANONICAL_ORPHAN_RETAINED_FOR_SAFE_RETRY", claim.media_id, canonicalPath, code);
     }
+
     if (!committed) {
       const { error: failureError } = await admin.rpc("vvip_social_media_webhook_fail", {
         target_event: claim.event_id,
