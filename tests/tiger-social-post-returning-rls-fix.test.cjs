@@ -3,8 +3,13 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const path = require('node:path');
 
-const migrationPath = 'supabase/migrations/20260819132000_social_post_returning_rls_fix.sql';
+const ROOT = path.resolve(__dirname, '..');
+const migrationPath = path.join(
+  ROOT,
+  'supabase/migrations/20260819132000_social_post_returning_rls_fix.sql'
+);
 
 function migration() {
   return fs.readFileSync(migrationPath, 'utf8');
