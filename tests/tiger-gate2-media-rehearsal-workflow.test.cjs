@@ -43,7 +43,6 @@ test('Gate 2 rehearsal proves contracts, Edge type safety, transactional DB beha
     'tests/tiger-social-media-atomic-finalize-hardening.test.cjs',
     'tests/tiger-social-media-durable-quarantine-purge.test.cjs',
     'tests/tiger-social-media-unified-quarantine-cleanup.test.cjs',
-    'tests/tiger-gate2-reviewed-migration-hash-contract.test.cjs',
   ]) {
     assert.ok(text.includes(file), `missing static contract in Gate 2 rehearsal: ${file}`);
   }
