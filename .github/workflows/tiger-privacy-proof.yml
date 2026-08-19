@@ -82,7 +82,26 @@ jobs:
           grep -Fq 'PRIVACY_DB_UNAUTHORIZED_EXACT_ID_ROWS_ZERO=PASS' privacy-db-proof.log
           grep -Fq 'PRIVACY_DB_FRIEND_EXACT_ID_ROWS_ZERO=PASS' privacy-db-proof.log
 
-      - name: Emit machine privacy evidence without inventing live runtime proof
+      - name: Prove Social media metadata and storage follow parent privacy
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 \
+            -p 54322 \
+            -U postgres \
+            -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/tiger-social-media-boundary.sql \
+            | tee privacy-media-proof.log
+          grep -Fq 'TIGER_SOCIAL_MEDIA_BOUNDARY=PASS' privacy-media-proof.log
+          grep -Fq 'SOCIAL_MEDIA_ONLY_ME_METADATA_ZERO=PASS' privacy-media-proof.log
+          grep -Fq 'SOCIAL_MEDIA_ONLY_ME_STORAGE_ZERO=PASS' privacy-media-proof.log
+          grep -Fq 'SOCIAL_MEDIA_FRIEND_ONLY_ME_METADATA_ZERO=PASS' privacy-media-proof.log
+          grep -Fq 'SOCIAL_MEDIA_FRIEND_METADATA_VISIBLE=PASS' privacy-media-proof.log
+          grep -Fq 'SOCIAL_MEDIA_POST_UNFRIEND_STORAGE_ZERO=PASS' privacy-media-proof.log
+
+      - name: Emit machine privacy evidence without inventing live Realtime proof
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -117,30 +136,34 @@ jobs:
                 evidence: []
               },
               media: {
-                status: 'UNBOUND',
+                status: 'PASS',
                 unauthorizedCount: 0,
-                evidence: []
+                evidence: [
+                  'ci://tiger-privacy-proof/social-media-exact-id-path-isolation',
+                  'ci://tiger-privacy-proof/social-media-parent-relationship-revocation'
+                ]
               }
             }
           };
 
           const evaluation = evaluatePrivacyProof({ dimensions: evidence.dimensions });
           if (evaluation.decision !== 'BLOCKED' || evaluation.eligible !== false) {
-            throw new Error('PRIVACY_FAIL_CLOSED_UNBOUND_EXPECTATION_BROKEN');
+            throw new Error('PRIVACY_FAIL_CLOSED_REALTIME_UNBOUND_EXPECTATION_BROKEN');
           }
-          for (const dimension of ['realtime', 'media']) {
-            if (!evaluation.reasons.some((item) => item.code === 'PRIVACY_DIMENSION_UNBOUND' && item.dimension === dimension)) {
-              throw new Error(`PRIVACY_${dimension.toUpperCase()}_UNBOUND_REASON_MISSING`);
-            }
+          if (!evaluation.reasons.some((item) => item.code === 'PRIVACY_DIMENSION_UNBOUND' && item.dimension === 'realtime')) {
+            throw new Error('PRIVACY_REALTIME_UNBOUND_REASON_MISSING');
+          }
+          if (evaluation.reasons.some((item) => item.dimension === 'media')) {
+            throw new Error('PRIVACY_MEDIA_SHOULD_BE_PROVEN');
           }
 
           evidence.evaluation = evaluation;
           fs.writeFileSync('privacy-evidence.json', JSON.stringify(evidence, null, 2) + '\n');
           console.log('TIGER_PRIVACY_DATABASE=PASS');
           console.log('TIGER_PRIVACY_CACHE=PASS');
+          console.log('TIGER_PRIVACY_MEDIA=PASS');
           console.log('TIGER_PRIVACY_REALTIME=UNBOUND');
-          console.log('TIGER_PRIVACY_MEDIA=UNBOUND');
-          console.log('TIGER_PRIVACY_RELEASE_DECISION=BLOCKED_UNBOUND');
+          console.log('TIGER_PRIVACY_RELEASE_DECISION=BLOCKED_REALTIME_UNBOUND');
           NODE
 
       - name: Verify source remained immutable
@@ -148,7 +171,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
-          test -z "$(git status --porcelain=v1 -uall -- ':!privacy-db-proof.log' ':!privacy-evidence.json')"
+          test -z "$(git status --porcelain=v1 -uall -- ':!privacy-db-proof.log' ':!privacy-media-proof.log' ':!privacy-evidence.json')"
 
       - name: Upload Privacy Proof evidence
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
@@ -156,6 +179,7 @@ jobs:
           name: tiger-privacy-proof-${{ env.SOURCE_SHA }}
           path: |
             privacy-db-proof.log
+            privacy-media-proof.log
             privacy-evidence.json
           if-no-files-found: error
           retention-days: 7
