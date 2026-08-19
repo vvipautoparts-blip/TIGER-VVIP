@@ -4,9 +4,13 @@ on:
   push:
     paths:
       - "supabase/migrations/20260819140000_social_media_boundary.sql"
+      - "supabase/migrations/20260819140500_social_media_webhook_claim_fix.sql"
       - "docs/security/TIGER_SOCIAL_MEDIA_BOUNDARY_SECURITY_REVIEW.md"
+      - "docs/security/TIGER_SOCIAL_MEDIA_WEBHOOK_CLAIM_FIX_SECURITY_REVIEW.md"
       - "tests/tiger-social-media-boundary-db.test.cjs"
       - "tests/tiger-social-media-boundary-reviewed-migration-hash.test.cjs"
+      - "tests/tiger-social-media-webhook-claim-fix.test.cjs"
+      - "tests/tiger-social-media-webhook-claim-fix-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-media-db-rehearsal-workflow.test.cjs"
       - "tests/sql/tiger-social-media-boundary.sql"
       - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
@@ -14,9 +18,13 @@ on:
   pull_request:
     paths:
       - "supabase/migrations/20260819140000_social_media_boundary.sql"
+      - "supabase/migrations/20260819140500_social_media_webhook_claim_fix.sql"
       - "docs/security/TIGER_SOCIAL_MEDIA_BOUNDARY_SECURITY_REVIEW.md"
+      - "docs/security/TIGER_SOCIAL_MEDIA_WEBHOOK_CLAIM_FIX_SECURITY_REVIEW.md"
       - "tests/tiger-social-media-boundary-db.test.cjs"
       - "tests/tiger-social-media-boundary-reviewed-migration-hash.test.cjs"
+      - "tests/tiger-social-media-webhook-claim-fix.test.cjs"
+      - "tests/tiger-social-media-webhook-claim-fix-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-media-db-rehearsal-workflow.test.cjs"
       - "tests/sql/tiger-social-media-boundary.sql"
       - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
@@ -65,6 +73,8 @@ jobs:
           set -euo pipefail
           node --test tests/tiger-social-media-boundary-db.test.cjs
           node --test tests/tiger-social-media-boundary-reviewed-migration-hash.test.cjs
+          node --test tests/tiger-social-media-webhook-claim-fix.test.cjs
+          node --test tests/tiger-social-media-webhook-claim-fix-reviewed-migration-hash.test.cjs
           node --test tests/tiger-social-media-db-rehearsal-workflow.test.cjs
 
       - name: Assert local-only safety contract
