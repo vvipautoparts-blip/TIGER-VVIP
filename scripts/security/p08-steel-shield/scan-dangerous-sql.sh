@@ -29,7 +29,7 @@ declare -A reviewed_migration_hashes=(
   ["supabase/migrations/202607200003_project_control_extended_seed.sql"]="65db935c2b6f81ffc4faca3c668a788a8820e531faa346f5f7c691db2751154a"
   ["supabase/migrations/202607230001_fix_security_and_jod_localization.sql"]="37d5fa2a5a99188504fc1398bc2f179c7d1ba38f83c9c51f8bfd66649d648be7"
   ["supabase/migrations/202607240001_global_v1_core_schema.sql"]="ac94c63757a4baa2f83ea2df6f01ccd0a4746ef703d4393ebbbcfd42dc44141a"
-  ["supabase/migrations/20260725210915_eb002_global_v1_security_corrections.sql"]="891a4ca68a65dc91896a3c6bcfd94c9a4659997708f1ae0328794566bccc74de"
+  ["supabase/migrations/20260725210915_eb002_global_v1_security_corrections.sql"]="891a4ca68a65dc91896b2d5f2583b8fdbf5f7ad2b3837f7054db32489404d0fc5"
   ["supabase/migrations/20260805_v13_1_authorization_foundation.sql"]="9e65d4c705922674b611ba929423688872a83729cff578c7106c73cdc7c4d6c5"
   ["supabase/migrations/20260806090000_v14_marketplace_foundation.sql"]="f8f522226590c7812d495e1089d1a29d844fb460e64480bb9349cb31503ce8c5"
   ["supabase/migrations/20260806100000_v14_marketplace_hardening.sql"]="f01fd150f94b2b6bbd1f7c9c5cdc085f36ffa511aff326fdfee409b37ccba359"
@@ -100,6 +100,13 @@ declare -A reviewed_migration_hashes=(
   # anonymous execution, destructive policy drops, and unpinned SECURITY DEFINER paths
   # remain forbidden. Any byte drift invalidates this baseline automatically.
   ["supabase/migrations/20260819130000_social_privacy_controls.sql"]="a6dca63b5b2775af7c6f0eb0a7b3f252e6d21e1cbbca224984498c1664a04490"
+
+  # Social relationship guard authority correction: reviewed as a forward-only,
+  # byte-exact trigger authority repair. The four scanner HIGH findings are lexical
+  # `IS NOT NULL` control-flow matches, not schema NOT NULL operations. The guard pins
+  # search_path, derives the signed actor server-side, preserves relationship invariants,
+  # and keeps the private block-pair oracle non-executable by browser roles.
+  ["supabase/migrations/20260819131500_social_relationship_guard_authority_fix.sql"]="866129891ada5e74517f8909a488042716530f5dad896327d064084409c10b40"
 )
 
 reviewed_baseline_path() {
