@@ -1,0 +1,166 @@
+name: TIGER Privacy Proof
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tiger-privacy-proof-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: true
+
+env:
+  SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+jobs:
+  privacy-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: "22"
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@ab058987d8d6c725971f6cf9d0b5c98467e30bd1
+        with:
+          version: 2.109.0
+
+      - name: Prove exact source and local-only boundary
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          if env | grep -E '^(SUPABASE_ACCESS_TOKEN|SUPABASE_DB_PASSWORD|SUPABASE_PROJECT_REF)=' >/dev/null; then
+            echo 'TIGER_PRIVACY_PROOF=BLOCKED_REMOTE_CREDENTIAL_ENV' >&2
+            exit 1
+          fi
+          echo 'TIGER_PRIVACY_EXACT_SOURCE=PASS'
+
+      - name: Verify fail-closed Privacy Proof contract
+        run: node --test tests/tiger-privacy-proof-contract.test.cjs
+
+      - name: Verify static cache privacy boundary
+        run: node --test tests/tiger-privacy-cache-boundary.test.cjs
+
+      - name: Start isolated local Supabase stack
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          supabase --version
+          supabase start
+
+      - name: Rebuild local database from repository migrations
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          supabase db reset --local
+          echo 'TIGER_PRIVACY_DB_RESET=PASS'
+
+      - name: Prove exact-id only-me RLS isolation
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 \
+            -p 54322 \
+            -U postgres \
+            -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/tiger-social-privacy-proof.sql \
+            | tee privacy-db-proof.log
+          grep -Fq 'TIGER_PRIVACY_DATABASE_PROOF=PASS' privacy-db-proof.log
+          grep -Fq 'PRIVACY_DB_UNAUTHORIZED_EXACT_ID_ROWS_ZERO=PASS' privacy-db-proof.log
+          grep -Fq 'PRIVACY_DB_FRIEND_EXACT_ID_ROWS_ZERO=PASS' privacy-db-proof.log
+
+      - name: Emit machine privacy evidence without inventing live runtime proof
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import { evaluatePrivacyProof } from './project-control/scripts/privacy_proof.mjs';
+
+          const evidence = {
+            schemaVersion: 'TIGER_PRIVACY_EVIDENCE_V1',
+            sourceSha: process.env.SOURCE_SHA,
+            protectedObjectClass: 'social_post:only_me',
+            dimensions: {
+              database: {
+                status: 'PASS',
+                unauthorizedCount: 0,
+                evidence: [
+                  'ci://tiger-privacy-proof/local-supabase-exact-id-rls',
+                  'ci://tiger-privacy-proof/friend-still-zero-rows'
+                ]
+              },
+              cache: {
+                status: 'PASS',
+                unauthorizedCount: 0,
+                evidence: [
+                  'ci://tiger-privacy-proof/static-service-worker-api-exclusion',
+                  'ci://tiger-privacy-proof/private-no-store-no-cache-exclusion'
+                ]
+              },
+              realtime: {
+                status: 'UNBOUND',
+                unauthorizedCount: 0,
+                evidence: []
+              },
+              media: {
+                status: 'UNBOUND',
+                unauthorizedCount: 0,
+                evidence: []
+              }
+            }
+          };
+
+          const evaluation = evaluatePrivacyProof({ dimensions: evidence.dimensions });
+          if (evaluation.decision !== 'BLOCKED' || evaluation.eligible !== false) {
+            throw new Error('PRIVACY_FAIL_CLOSED_UNBOUND_EXPECTATION_BROKEN');
+          }
+          for (const dimension of ['realtime', 'media']) {
+            if (!evaluation.reasons.some((item) => item.code === 'PRIVACY_DIMENSION_UNBOUND' && item.dimension === dimension)) {
+              throw new Error(`PRIVACY_${dimension.toUpperCase()}_UNBOUND_REASON_MISSING`);
+            }
+          }
+
+          evidence.evaluation = evaluation;
+          fs.writeFileSync('privacy-evidence.json', JSON.stringify(evidence, null, 2) + '\n');
+          console.log('TIGER_PRIVACY_DATABASE=PASS');
+          console.log('TIGER_PRIVACY_CACHE=PASS');
+          console.log('TIGER_PRIVACY_REALTIME=UNBOUND');
+          console.log('TIGER_PRIVACY_MEDIA=UNBOUND');
+          console.log('TIGER_PRIVACY_RELEASE_DECISION=BLOCKED_UNBOUND');
+          NODE
+
+      - name: Verify source remained immutable
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall -- ':!privacy-db-proof.log' ':!privacy-evidence.json')"
+
+      - name: Upload Privacy Proof evidence
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: tiger-privacy-proof-${{ env.SOURCE_SHA }}
+          path: |
+            privacy-db-proof.log
+            privacy-evidence.json
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Stop isolated local stack
+        if: always()
+        shell: bash
+        run: supabase stop --no-backup || true
