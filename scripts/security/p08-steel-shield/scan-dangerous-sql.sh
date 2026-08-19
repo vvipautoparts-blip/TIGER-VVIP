@@ -131,6 +131,12 @@ declare -A reviewed_migration_hashes=(
   # backed activation, fail-closed missing-secret behavior, and bounded HTTPS worker URL.
   # Exact-byte approval: any SQL drift re-enters the dangerous-SQL scanner automatically.
   ["supabase/migrations/20260820003500_social_media_worker_dispatch.sql"]="eff9c85c8674c8191e6951841fb4d329fedb7ebce8f958b5effff6734d25c4f5"
+
+  # Gate 2 stale-worker recovery + fencing: reviewed only after exact-SHA byte proof,
+  # clean local migration replay, and transactional rehearsal proved bounded stale
+  # recovery, generation advancement, stale-worker rejection on finalize/fail, and a
+  # terminal fifth-attempt DLQ. Any byte drift invalidates this approval automatically.
+  ["supabase/migrations/20260820003700_social_media_stale_worker_recovery.sql"]="434ac7789ff53ad2bef76c6e67a7beb87504cfd264742ed1d5ea971b49405060"
 )
 
 reviewed_baseline_path() {
