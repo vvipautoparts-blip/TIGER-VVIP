@@ -142,13 +142,24 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          mkdir -p /tmp/tiger-social-db-rehearsal
           PGPASSWORD=postgres psql \
             -h 127.0.0.1 \
             -p 54322 \
             -U postgres \
             -d postgres \
             -v ON_ERROR_STOP=1 \
-            -f tests/sql/tiger-social-reactions.sql
+            -f tests/sql/tiger-social-reactions.sql \
+            2>&1 | tee /tmp/tiger-social-db-rehearsal/reactions.log
+
+      - name: Upload Social Reactions rehearsal evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: tiger-social-reactions-rehearsal-${{ env.SOURCE_SHA }}
+          path: /tmp/tiger-social-db-rehearsal/reactions.log
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Prove Social Comments RPC and reply behavior
         shell: bash
