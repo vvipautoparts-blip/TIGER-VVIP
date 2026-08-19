@@ -75,3 +75,12 @@ test('upload ticket is bounded, POST-only, no-store, and does not trust client c
   assert.match(text, /Cache-Control["']?\s*:\s*["']no-store["']/i);
   assert.doesNotMatch(text, /request\.headers\.get\s*\(\s*["']content-type["']\s*\)[\s\S]{0,200}(mime|canonical)/i);
 });
+
+test('upload public errors are stable taxonomy and never echo database or storage messages', () => {
+  const text = source();
+  assert.match(text, /console\.error\s*\(/i);
+  assert.match(text, /RESERVATION_DENIED/i);
+  assert.match(text, /SIGNED_UPLOAD_CAPABILITY_FAILED/i);
+  assert.doesNotMatch(text, /throw\s+new\s+Error\s*\(\s*`RESERVATION_DENIED:\$\{reservationError\.message\}`/i);
+  assert.doesNotMatch(text, /throw\s+new\s+Error\s*\(\s*`SIGNED_UPLOAD_CAPABILITY_FAILED:\$\{signedError\?\.message/i);
+});
