@@ -1,8 +1,8 @@
 # TIGER SOVEREIGN RELEASE CONSTITUTION 2026
 
-**Master Standard v2.0**  
-**Status:** OWNER-APPROVED / NORMATIVE  
-**Adopted:** 2026-08-20  
+**Master Standard v2.0**
+**Status:** OWNER-APPROVED / NORMATIVE
+**Adopted:** 2026-08-20
 **Scope:** Gates 2–14 and all promotion decisions derived from them.
 
 ## 1. Constitutional release law
