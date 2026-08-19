@@ -2,7 +2,6 @@
 
 begin;
 
--- Browser roles must have no direct table CRUD authority.
 reset role;
 select (
   not has_table_privilege('authenticated', 'public.vvip_social_media', 'SELECT')
@@ -34,7 +33,6 @@ select (
   \quit 1
 \endif
 
--- Alice owns three posts and registers media under private actor/post namespaces.
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"user_alice"}', true);
 
@@ -53,45 +51,35 @@ values ('media-only-me-proof', 'only_me')
 returning post_id as only_me_post_id
 \gset
 
+select set_config('tiger.media_public_post_id', :'public_post_id', true);
+select set_config('tiger.media_friends_post_id', :'friends_post_id', true);
+select set_config('tiger.media_only_me_post_id', :'only_me_post_id', true);
+
 insert into public.vvip_social_relationships (addressee_subject)
 values ('user_bob');
 
 select public.vvip_social_media_register(
   :'public_post_id'::uuid,
   'social-private/user_alice/' || :'public_post_id' || '/hero.webp',
-  'image/webp',
-  2048,
-  800,
-  600,
-  repeat('a', 64)
+  'image/webp', 2048, 800, 600, repeat('a', 64)
 ) as public_media
 \gset
 
 select public.vvip_social_media_register(
   :'friends_post_id'::uuid,
   'social-private/user_alice/' || :'friends_post_id' || '/friends.jpg',
-  'image/jpeg',
-  4096,
-  1200,
-  800,
-  repeat('b', 64)
+  'image/jpeg', 4096, 1200, 800, repeat('b', 64)
 ) as friends_media
 \gset
 
 select public.vvip_social_media_register(
   :'only_me_post_id'::uuid,
   'social-private/user_alice/' || :'only_me_post_id' || '/private.webp',
-  'image/webp',
-  1024,
-  640,
-  480,
-  repeat('c', 64)
+  'image/webp', 1024, 640, 480, repeat('c', 64)
 ) as only_me_media
 \gset
 
-select (
-  :'public_media'::jsonb->>'storage_path' like 'social-private/user_alice/%'
-) as owner_private_path_registered
+select (:'public_media'::jsonb->>'storage_path' like 'social-private/user_alice/%') as owner_private_path_registered
 \gset
 \if :owner_private_path_registered
   \echo OWNER_PRIVATE_PATH_REGISTERED=PASS
@@ -100,27 +88,25 @@ select (
   \quit 1
 \endif
 
--- Invalid cross-owner/private namespace registration must fail closed.
 do $block$
+declare
+  v_post uuid := current_setting('tiger.media_public_post_id', true)::uuid;
 begin
   begin
     perform public.vvip_social_media_register(
-      :'public_post_id'::uuid,
-      'social-private/user_bob/' || :'public_post_id' || '/wrong.webp',
+      v_post,
+      'social-private/user_bob/' || v_post::text || '/wrong.webp',
       'image/webp', 100, 320, 240, repeat('d', 64)
     );
     raise exception 'SOCIAL_MEDIA_WRONG_NAMESPACE_WAS_NOT_DENIED';
-  exception
-    when others then
-      if sqlerrm = 'SOCIAL_MEDIA_WRONG_NAMESPACE_WAS_NOT_DENIED' then raise; end if;
-      if sqlerrm <> 'SOCIAL_MEDIA_PRIVATE_PATH_REQUIRED' then raise; end if;
+  exception when others then
+    if sqlerrm = 'SOCIAL_MEDIA_WRONG_NAMESPACE_WAS_NOT_DENIED' then raise; end if;
+    if sqlerrm <> 'SOCIAL_MEDIA_PRIVATE_PATH_REQUIRED' then raise; end if;
   end;
 end;
 $block$;
 
 reset role;
-
--- Bob accepts friendship and inherits post visibility for public/friends media only.
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"user_bob"}', true);
 
@@ -151,21 +137,20 @@ from public.vvip_social_media_read(:'friends_post_id'::uuid)
 \endif
 
 do $block$
+declare
+  v_post uuid := current_setting('tiger.media_only_me_post_id', true)::uuid;
 begin
   begin
-    perform * from public.vvip_social_media_read(:'only_me_post_id'::uuid);
+    perform 1 from public.vvip_social_media_read(v_post);
     raise exception 'SOCIAL_MEDIA_ONLY_ME_WAS_NOT_DENIED';
-  exception
-    when others then
-      if sqlerrm = 'SOCIAL_MEDIA_ONLY_ME_WAS_NOT_DENIED' then raise; end if;
-      if sqlerrm <> 'SOCIAL_POST_NOT_VISIBLE' then raise; end if;
+  exception when others then
+    if sqlerrm = 'SOCIAL_MEDIA_ONLY_ME_WAS_NOT_DENIED' then raise; end if;
+    if sqlerrm <> 'SOCIAL_POST_NOT_VISIBLE' then raise; end if;
   end;
 end;
 $block$;
 
 reset role;
-
--- Alice blocks Bob; previously visible public/friends media must become unavailable immediately.
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"user_alice"}', true);
 select public.vvip_social_block_user('user_bob');
@@ -175,34 +160,29 @@ set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"user_bob"}', true);
 
 do $block$
+declare
+  v_post uuid := current_setting('tiger.media_public_post_id', true)::uuid;
 begin
   begin
-    perform * from public.vvip_social_media_read(:'public_post_id'::uuid);
+    perform 1 from public.vvip_social_media_read(v_post);
     raise exception 'SOCIAL_MEDIA_BLOCK_PUBLIC_WAS_NOT_DENIED';
-  exception
-    when others then
-      if sqlerrm = 'SOCIAL_MEDIA_BLOCK_PUBLIC_WAS_NOT_DENIED' then raise; end if;
-      if sqlerrm <> 'SOCIAL_POST_NOT_VISIBLE' then raise; end if;
+  exception when others then
+    if sqlerrm = 'SOCIAL_MEDIA_BLOCK_PUBLIC_WAS_NOT_DENIED' then raise; end if;
+    if sqlerrm <> 'SOCIAL_POST_NOT_VISIBLE' then raise; end if;
   end;
 end;
 $block$;
 
 reset role;
-
--- Service-only webhook inbox: same key+digest is idempotent; key+different digest conflicts.
 set local role service_role;
 select public.vvip_social_media_webhook_accept(
-  'evt-social-media-00000001',
-  'media.object.ready',
-  repeat('1', 64)
+  'evt-social-media-00000001', 'media.object.ready', repeat('1', 64)
 ) as webhook_event_id
 \gset
 
 select (
   public.vvip_social_media_webhook_accept(
-    'evt-social-media-00000001',
-    'media.object.ready',
-    repeat('1', 64)
+    'evt-social-media-00000001', 'media.object.ready', repeat('1', 64)
   ) = :'webhook_event_id'::uuid
 ) as webhook_duplicate_is_idempotent
 \gset
@@ -217,20 +197,16 @@ do $block$
 begin
   begin
     perform public.vvip_social_media_webhook_accept(
-      'evt-social-media-00000001',
-      'media.object.ready',
-      repeat('2', 64)
+      'evt-social-media-00000001', 'media.object.ready', repeat('2', 64)
     );
     raise exception 'WEBHOOK_IDEMPOTENCY_CONFLICT_WAS_NOT_DENIED';
-  exception
-    when others then
-      if sqlerrm = 'WEBHOOK_IDEMPOTENCY_CONFLICT_WAS_NOT_DENIED' then raise; end if;
-      if sqlerrm <> 'SOCIAL_MEDIA_WEBHOOK_IDEMPOTENCY_CONFLICT' then raise; end if;
+  exception when others then
+    if sqlerrm = 'WEBHOOK_IDEMPOTENCY_CONFLICT_WAS_NOT_DENIED' then raise; end if;
+    if sqlerrm <> 'SOCIAL_MEDIA_WEBHOOK_IDEMPOTENCY_CONFLICT' then raise; end if;
   end;
 end;
 $block$;
 
--- Claim/fail five times; scheduler acceleration is performed by postgres between attempts.
 select event_id, attempt_count from public.vvip_social_media_webhook_claim()
 \gset
 select (:'event_id'::uuid = :'webhook_event_id'::uuid and :'attempt_count'::integer = 1) as webhook_first_claim
@@ -253,19 +229,21 @@ select (public.vvip_social_media_webhook_fail(:'webhook_event_id'::uuid, 'TRANSI
 reset role;
 update public.vvip_social_media_webhook_inbox set next_attempt_at = statement_timestamp() - interval '1 second' where event_id = :'webhook_event_id'::uuid;
 set local role service_role;
-
 select event_id from public.vvip_social_media_webhook_claim() \gset
 select public.vvip_social_media_webhook_fail(:'webhook_event_id'::uuid, 'TRANSIENT_2');
+
 reset role;
 update public.vvip_social_media_webhook_inbox set next_attempt_at = statement_timestamp() - interval '1 second' where event_id = :'webhook_event_id'::uuid;
 set local role service_role;
 select event_id from public.vvip_social_media_webhook_claim() \gset
 select public.vvip_social_media_webhook_fail(:'webhook_event_id'::uuid, 'TRANSIENT_3');
+
 reset role;
 update public.vvip_social_media_webhook_inbox set next_attempt_at = statement_timestamp() - interval '1 second' where event_id = :'webhook_event_id'::uuid;
 set local role service_role;
 select event_id from public.vvip_social_media_webhook_claim() \gset
 select public.vvip_social_media_webhook_fail(:'webhook_event_id'::uuid, 'TRANSIENT_4');
+
 reset role;
 update public.vvip_social_media_webhook_inbox set next_attempt_at = statement_timestamp() - interval '1 second' where event_id = :'webhook_event_id'::uuid;
 set local role service_role;
