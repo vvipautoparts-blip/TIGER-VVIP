@@ -31,6 +31,13 @@ test("Social DB rehearsal applies foundation reaction comment and privacy proofs
   assert.match(workflow, /supabase stop --no-backup/);
 });
 
+test("Social DB rehearsal explicitly guards the forward-only post RETURNING RLS fix", () => {
+  assert.match(workflow, /20260819132000_social_post_returning_rls_fix\.sql/);
+  assert.match(workflow, /TIGER_SOCIAL_POST_RETURNING_RLS_FIX_SECURITY_REVIEW\.md/);
+  assert.match(workflow, /tiger-social-post-returning-rls-fix\.test\.cjs/);
+  assert.match(workflow, /tiger-social-post-returning-reviewed-migration-hash\.test\.cjs/);
+});
+
 test("foundation behavior proof covers friend visibility and isolation from a third actor", () => {
   assert.match(foundationBehavior, /user_alice/);
   assert.match(foundationBehavior, /user_bob/);
