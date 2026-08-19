@@ -69,14 +69,15 @@ test('canonical output is newly encoded JPEG exactly 1600x1200 with independent 
   assert.match(text, /SOCIAL_MEDIA_CANONICAL_GEOMETRY_INVALID/i);
 });
 
-test('canonical promotion is no-overwrite, DB-verified, and compensates orphaned uploads', () => {
+test('canonical promotion is no-overwrite, DB-verified, and never deletes a path after losing claim generation', () => {
   const text = source();
   assert.match(text, /canonical\/media\//i);
   assert.match(text, /upload\s*\(/i);
   assert.match(text, /upsert\s*:\s*false/i);
   assert.match(text, /vvip_social_media_finalize/i);
-  assert.match(text, /remove\s*\(/i);
-  assert.match(text, /CANONICAL_PROMOTION_ROLLBACK|ORPHAN/i);
+  assert.match(text, /CANONICAL_ORPHAN_RETAINED_FOR_SAFE_RETRY/i);
+  assert.doesNotMatch(text, /function\s+compensateCanonicalUpload\s*\(/i);
+  assert.doesNotMatch(text, /canonicalUploaded[\s\S]{0,240}\.remove\s*\(\s*\[?\s*canonicalPath/i);
 });
 
 test('finalizer uses claim/complete/fail RPCs and leaves retry scheduling to PostgreSQL', () => {
