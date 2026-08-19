@@ -24,6 +24,15 @@ function expectPattern(text, pattern, message) {
   assert.match(text, pattern, message);
 }
 
+function functionDefinition(text, fn) {
+  const lower = text.toLowerCase();
+  const start = lower.indexOf(`function public.${fn.toLowerCase()}`);
+  assert.notEqual(start, -1, `${fn} must exist`);
+  const end = text.indexOf('$function$;', start);
+  assert.notEqual(end, -1, `${fn} definition must terminate`);
+  return text.slice(start, end + '$function$;'.length);
+}
+
 test('privacy controls create block, mute and report authorities with forced RLS', () => {
   const text = sql();
 
@@ -61,12 +70,10 @@ test('post visibility and relationship creation become block-aware without dropp
 
 test('relationship guard can call the private block helper without exposing that helper to browser roles', () => {
   const text = sql();
-  const start = text.toLowerCase().indexOf('function public.vvip_social_guard_relationship_write');
-  assert.notEqual(start, -1, 'relationship guard must exist');
-  const fragment = text.slice(start, start + 4200);
+  const guard = functionDefinition(text, 'vvip_social_guard_relationship_write');
 
   expectPattern(
-    fragment,
+    guard,
     /security\s+definer\s+set\s+search_path\s*=\s*pg_catalog,\s*public/i,
     'relationship guard must execute under the hardened database authority so authenticated writes can consult the private block helper'
   );
@@ -110,9 +117,7 @@ test('privacy RPCs derive the actor from server-side identity authority and pin 
     'vvip_social_report_user',
     'vvip_social_feed_read',
   ]) {
-    const start = text.toLowerCase().indexOf(`function public.${fn}`);
-    assert.notEqual(start, -1, `${fn} must exist`);
-    const fragment = text.slice(start, start + 4500);
+    const fragment = functionDefinition(text, fn);
     expectPattern(fragment, /vvip_marketplace_actor_id\s*\(\s*\)/i, `${fn} must derive actor from vvip_marketplace_actor_id()`);
     expectPattern(fragment, /security\s+definer\s+set\s+search_path\s*=\s*pg_catalog,\s*public/i, `${fn} must pin SECURITY DEFINER search_path`);
   }
