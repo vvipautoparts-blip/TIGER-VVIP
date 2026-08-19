@@ -57,15 +57,17 @@ jobs:
       - name: Verify Preview artifact contract
         run: python -m pytest -q tests/test_vvip_public_release_preview.py
 
-      - name: Build exact-SHA Preview artifact
+      - name: Build exact-SHA Preview artifact outside source tree
         shell: bash
         run: |
           set -Eeuo pipefail
-          rm -rf dist/preview
+          output="$RUNNER_TEMP/tiger-preview-public"
+          rm -rf "$output"
           python tools/vvip_preview_release.py \
             --source . \
-            --output dist/preview \
+            --output "$output" \
             --source-sha "$SOURCE_SHA"
+          echo "PREVIEW_OUTPUT=$output" >> "$GITHUB_ENV"
 
       - name: Verify artifact identity and emit fail-closed R4 evidence
         shell: bash
@@ -79,7 +81,7 @@ jobs:
 
           source_sha = os.environ['SOURCE_SHA']
           tree_sha = os.environ['TREE_SHA']
-          root = Path('dist/preview')
+          root = Path(os.environ['PREVIEW_OUTPUT'])
           manifest_path = root / 'release-manifest.json'
           identity_path = root / 'preview-identity.js'
           index_path = root / 'index.html'
@@ -138,7 +140,7 @@ jobs:
         with:
           name: tiger-preview-${{ github.event.pull_request.head.sha }}
           path: |
-            dist/preview
+            ${{ runner.temp }}/tiger-preview-public
             preview-evidence.json
           if-no-files-found: error
           retention-days: 7
