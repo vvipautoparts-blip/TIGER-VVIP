@@ -39,29 +39,10 @@ declare -A reviewed_migration_hashes=(
   ["supabase/migrations/20260808132000_tsrf_owner_authorization_leases.sql"]="994a7fdb42ca2d82138ac04a65e8db63cfcd55c08917ff5134e4c184df76e4cb"
   ["supabase/migrations/20260808133000_phone_otp_challenges.sql"]="b9524528878d5646884bfdbb04abf06b8e4e73eb9628d0132b02fb06fbe7ee9a"
   ["supabase/migrations/20260808134000_lc04_production_legacy_rpc_hardening.sql"]="86cd92e65b1d7294158798b6828d33fe7c346946ff9d955371fc55f5f13388fa"
-  # LC-05 legacy credential isolation: reviewed after exact-head static contracts,
-  # full local migration replay, canonical no-synthesis proof, and Production-drift
-  # convergence that removed all direct browser policies/privileges while preserving
-  # the modern phone_otp_challenges store. Any byte drift invalidates this baseline.
   ["supabase/migrations/20260808135000_lc05_credential_surface_isolation.sql"]="ebf13f51f5e1e11e1c8224126f8e812fd8e5c79911c6827f328be19192424e3f"
-  # LC-06 modern RLS/performance hardening: reviewed after a TDD RED failure,
-  # full local migration replay + behavioral proof, and a Staging transaction rehearsal
-  # that rolled back cleanly. This exact artifact narrows browser surfaces and adds
-  # advisor-confirmed FK indexes. Any byte drift invalidates this baseline.
   ["supabase/migrations/20260808180000_lc06_rls_performance_hardening.sql"]="ed34063e2f3ba32434e08b45c1f1e415115c092ffb07c6cb810ff974ed467f35"
-  # Global Launch Phase A identity convergence: reviewed after exact-head TDD contracts,
-  # application to the isolated Staging branch, fail-closed legacy-identity behavioral
-  # proof, privilege/policy verification, and complete cleanup of the synthetic proof row.
-  # Approval is byte-exact; any SQL drift invalidates this reviewed baseline automatically.
   ["supabase/migrations/20260808223000_global_launch_phase_a_identity_convergence.sql"]="173766f1203890d3461db6b67cc95b1d9ca28d23c65026ff9393115ad4433c31"
   ["supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql"]="9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9"
-
-  # Zero-Residue sovereign marketplace convergence. These exact bytes were reviewed
-  # against the current publication/media/RLS contracts: no client entitlement minting,
-  # canonical-media-only publication, bounded SECURITY DEFINER search paths, least-
-  # privilege public projections, service-role-only trusted media completion, and the
-  # forward publication lifecycle that replaces the historical cascade with RESTRICT.
-  # Any byte drift re-enters the dangerous-SQL scan automatically.
   ["supabase/migrations/20260816090000_fusion_publication_entitlement.sql"]="89cab60c657da82b850444ac0d6f4760dd9c9c4900eab5ff2f40aaf40563be42"
   ["supabase/migrations/20260816090001_sovereign_media_finalization.sql"]="14768409e9ff91f7d638b0952ff3ea0bdda86e77764e34ae3a80a4a384d4a40b"
   ["supabase/migrations/20260816091500_sovereign_public_read_surface.sql"]="a9c02148ca7fb168758d224a3e2d696d932b6ce522d757d87a013d83acc67579"
@@ -70,52 +51,20 @@ declare -A reviewed_migration_hashes=(
   ["supabase/migrations/20260816103000_sovereign_profile_authority_convergence.sql"]="9a949eeefca5148458111f5eaac83da063f2ffbadadfb96c3a97dadfcb05aae1"
   ["supabase/migrations/20260816170000_sovereign_publication_authority_convergence.sql"]="fd13db48afeada8e96b2d5f2583b8fdbf5f7ad2b3837f7054db32489404d0fc5"
   ["supabase/migrations/20260816171000_sovereign_publication_rpc_hardening.sql"]="ffba5542434669184eba6585b3e4e7393ddf3e3b722bbb7fb0ebe33debd1ba6f"
-
-  # LC-04 final forward-only retirement: reviewed against PostgreSQL dependency semantics.
-  # Exact-signature DROP FUNCTION ... RESTRICT removes known dangling public/private
-  # profile helpers without CASCADE and fails closed on any unexpected live dependency.
   ["supabase/migrations/20260817060000_retire_lc04_legacy_profile_helper_graph.sql"]="692c3c54f636583b623935b18df1263b31d10ca32d900144fb5a84209b2896c2"
-
-  # Federated actor convergence: reviewed against the live Production definition and
-  # isolated Staging rebuild. It rejects anonymous identities, accepts only Clerk user_*
-  # subjects, revokes PUBLIC execution, and keeps no local-password authority.
   ["supabase/migrations/20260818120000_federated_actor_authority_convergence.sql"]="39a0e0e208443653bc452f56fc3df7f62903a544308276445282214505b12243"
-
-  # Social Core foundation: reviewed against the 2026-08-18 Clerk actor, FORCE-RLS,
-  # post audience, relationship-transition, and legacy-feed isolation contracts.
-  # The approval is content-addressed; any byte drift re-enters review automatically.
   ["supabase/migrations/20260818125000_social_core_foundation.sql"]="fa6169a934e6a128849ae9557a30245dcd4e310975cfcb3246d0a8e9f0d057a8"
-
-  # Social Reactions: reviewed with CRITICAL=0 after mutation predicates were made
-  # scanner-visible. The remaining findings are expected new-table NOT NULL integrity,
-  # four RLS policies, and three exact authenticated EXECUTE grants; no browser table
-  # CRUD, anon grant, or unbounded mutation is approved. Any byte drift re-enters review.
   ["supabase/migrations/20260818133000_social_reactions.sql"]="174b688fee994e329824230f48e031bb59de9f0c4049f322791f363dc88354ea"
-
-  # Social Comments: reviewed with CRITICAL=0 after UPDATE/DELETE predicates were
-  # made scanner-visible. Findings are five new-table NOT NULL integrity rules and
-  # four exact authenticated EXECUTE grants. Browser table CRUD remains revoked;
-  # actor, visibility, one-level reply, and ownership checks stay server-side.
   ["supabase/migrations/20260818143000_social_comments.sql"]="3bb5c018cb0508c91f5ead0a38f044f2293d35066e43bf796c59148305e720e7"
-
-  # Global Production backend completion: reviewed after isolated Staging application,
-  # A/B/C cross-user RLS rehearsal, private-media rules, conversation/message isolation,
-  # automatic social notifications, and authenticated-only RPC privilege verification.
-  # The immediate follow-up below replaces the Clerk-incompatible update-owner predicate;
-  # the transient predicate is fail-closed for Clerk users and never grants extra access.
   ["supabase/migrations/20260819103000_social_production_backend_completion.sql"]="4a9bbe3c6bb08b61d8f44585fd8cb15d278852de13beaae77a6e2769c5a6200e"
   ["supabase/migrations/20260819103100_social_media_federated_owner_fix.sql"]="147d008cced5a175197deb2de2ce216c5c46d4d39d393fc6b4e48af646dd02d7"
-
-  # Sovereign advertising finance: reviewed after Staging adversarial proof of balanced
-  # double-entry journals, append-only history, idempotent payment/delivery replay,
-  # advisory-lock double-spend protection, refund bounds, bot/viewability rejection,
-  # reconciliation, and service-role-only money-changing RPCs.
   ["supabase/migrations/20260819110000_advertising_financial_authority.sql"]="b039f7942f227496a18f5dd91f39c69f6361b6d25c4c50657f672d112241b53c"
-
-  # Country legal activation: reviewed after Staging fail-closed proof that payment cannot
-  # activate before complete Privacy/Terms/Cookies/Consent/Delete-account/Legal/Tax/
-  # data-residency evidence, plus append-only activation-audit mutation rejection.
   ["supabase/migrations/20260819112000_country_legal_activation_authority.sql"]="d0b80079a9cea8708e510c350f0a695337141ff5cbbb5180e610942568671724"
+  ["supabase/migrations/20260819115900_marketplace_convergence_bootstrap.sql"]="153cf29ac1674bfc6c22830e9159afd4e57090279605ce57aeba9aa1d30f91ba"
+  ["supabase/migrations/20260819120000_global_marketplace_convergence.sql"]="1cefdb7e7021ab12d59da7267eb7f026de8b903e95db8a22bc4a11f1b5979a75"
+  ["supabase/migrations/20260819120100_marketplace_private_policy_helpers.sql"]="c9d096bdfac2c880e0d05ff6a784cf170c1b4169b5a422ef1f05908635498d57"
+  ["supabase/migrations/20260819120200_marketplace_operations_authority.sql"]="e001651e261dfb0bc6af69b176747b0a80dda994018cbdc1a01b95388f28a3c5"
+  ["supabase/migrations/20260819123000_owner_observability_authority.sql"]="55a00b15ca81f4bc11ca37ebcb6fb8780801dfe10800939cf98fc4d57a843904"
 )
 
 reviewed_baseline_path() {
