@@ -35,9 +35,9 @@ test('dispatcher reads scoped runtime URL and worker secret from Vault only when
   assert.match(text, /x-tiger-worker-secret/i);
 });
 
-test('dispatcher is not browser executable and fails closed when runtime secrets are absent', () => {
+test('dispatcher is not browser executable and quietly fails closed when runtime secrets are absent', () => {
   const text = sql();
-  assert.match(text, /raise\s+exception\s+'SOCIAL_MEDIA_WORKER_RUNTIME_NOT_CONFIGURED'/i);
+  assert.match(text, /if\s+v_worker_url\s+is\s+null\s+or\s+v_worker_secret\s+is\s+null\s+then[\s\S]{0,120}return\s+null/i);
   assert.match(text, /revoke\s+all\s+on\s+function\s+public\.vvip_social_media_dispatch_worker\(\)[^;]*from\s+public,\s*anon,\s*authenticated,\s*service_role/i);
   assert.doesNotMatch(text, /grant\s+execute[^;]*vvip_social_media_dispatch_worker[^;]*to\s+(?:anon|authenticated)/i);
 });
