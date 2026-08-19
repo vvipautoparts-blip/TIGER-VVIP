@@ -80,11 +80,13 @@ test('canonical promotion is no-overwrite, DB-verified, and never deletes a path
   assert.doesNotMatch(text, /canonicalUploaded[\s\S]{0,240}\.remove\s*\(\s*\[?\s*canonicalPath/i);
 });
 
-test('finalizer uses claim/complete/fail RPCs and leaves retry scheduling to PostgreSQL', () => {
+test('finalizer uses claim + atomic finalize + fenced fail and leaves retry scheduling to PostgreSQL', () => {
   const text = source();
   assert.match(text, /vvip_social_media_webhook_claim/i);
-  assert.match(text, /vvip_social_media_webhook_complete/i);
+  assert.match(text, /vvip_social_media_finalize_event/i);
   assert.match(text, /vvip_social_media_webhook_fail/i);
+  assert.match(text, /expected_attempt_count:\s*claim\.attempt_count/i);
+  assert.doesNotMatch(text, /admin\.rpc\(\s*["']vvip_social_media_webhook_complete["']/i);
   assert.doesNotMatch(text, /setTimeout\s*\(/i);
   assert.doesNotMatch(text, /next_attempt_at\s*:/i);
 });
