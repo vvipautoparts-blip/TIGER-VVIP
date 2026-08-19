@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import crypto from 'node:crypto';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -15,6 +15,12 @@ const manifest = readJson('data/manifest.json');
 const phases = readJson('data/phases.json');
 const tasks = readJson('data/tasks.json');
 const dependencies = readJson('data/task_dependencies.json');
+const releasePassportModulePath = path.join(root, 'scripts/release_passport.mjs');
+
+async function loadReleasePassportModule() {
+  assert.ok(fs.existsSync(releasePassportModulePath), 'release passport module must exist');
+  return import(pathToFileURL(releasePassportModulePath).href);
+}
 
 function assertUnique(values, label) {
   assert.equal(new Set(values).size, values.length, `${label} must be unique`);
@@ -102,7 +108,6 @@ test('database schema covers the complete control plane', () => {
   }
 });
 
-
 test('artifact registry covers generated files with matching hashes', () => {
   const rows = readText('data/artifact_register.csv').trim().split(/\r?\n/).slice(1);
   assert.ok(rows.length > 20, 'artifact registry must be populated');
@@ -115,4 +120,80 @@ test('artifact registry covers generated files with matching hashes', () => {
     const actualHash = crypto.createHash('sha256').update(fs.readFileSync(target)).digest('hex');
     assert.equal(actualHash, expectedHash, `artifact hash mismatch: ${relative}`);
   }
+});
+
+test('release passport blocks a preview target when prerequisite rings are missing', async () => {
+  const { evaluateReleasePassport } = await loadReleasePassportModule();
+  const result = evaluateReleasePassport({
+    targetRing: 'R4_OWNER_PREVIEW',
+    source: { commitSha: '0123456789abcdef0123456789abcdef01234567' },
+    rings: {},
+  });
+  assert.equal(result.decision, 'BLOCKED');
+  assert.equal(result.eligible, false);
+  assert.ok(result.reasons.some(reason => reason.code === 'MISSING_RING_EVIDENCE'));
+});
+
+test('release passport rejects PASS without evidence', async () => {
+  const { evaluateReleasePassport } = await loadReleasePassportModule();
+  const result = evaluateReleasePassport({
+    targetRing: 'R0_CODE',
+    source: { commitSha: '0123456789abcdef0123456789abcdef01234567' },
+    rings: { R0_CODE: { status: 'PASS', evidence: [] } },
+  });
+  assert.equal(result.decision, 'BLOCKED');
+  assert.equal(result.eligible, false);
+  assert.ok(result.reasons.some(reason => reason.code === 'PASS_WITHOUT_EVIDENCE'));
+});
+
+test('release passport marks exact-evidence owner preview safe', async () => {
+  const { evaluateReleasePassport } = await loadReleasePassportModule();
+  const pass = (id) => ({ status: 'PASS', evidence: [`evidence://${id}`] });
+  const result = evaluateReleasePassport({
+    targetRing: 'R4_OWNER_PREVIEW',
+    source: { commitSha: '0123456789abcdef0123456789abcdef01234567' },
+    rings: {
+      R0_CODE: pass('r0'),
+      R1_DATA: pass('r1'),
+      R2_TWIN: pass('r2'),
+      R3_DEVICE: pass('r3'),
+      R4_OWNER_PREVIEW: pass('r4'),
+    },
+  });
+  assert.equal(result.decision, 'SAFE');
+  assert.equal(result.eligible, true);
+  assert.deepEqual(result.reasons, []);
+});
+
+test('release passport requires exact tree SHA for production', async () => {
+  const { evaluateReleasePassport } = await loadReleasePassportModule();
+  const pass = (id) => ({ status: 'PASS', evidence: [`evidence://${id}`] });
+  const result = evaluateReleasePassport({
+    targetRing: 'R6_PRODUCTION',
+    source: { commitSha: '0123456789abcdef0123456789abcdef01234567' },
+    rings: {
+      R0_CODE: pass('r0'),
+      R1_DATA: pass('r1'),
+      R2_TWIN: pass('r2'),
+      R3_DEVICE: pass('r3'),
+      R4_OWNER_PREVIEW: pass('r4'),
+      R5_CANDIDATE: pass('r5'),
+      R6_PRODUCTION: pass('r6'),
+    },
+  });
+  assert.equal(result.decision, 'BLOCKED');
+  assert.equal(result.eligible, false);
+  assert.ok(result.reasons.some(reason => reason.code === 'TREE_SHA_REQUIRED'));
+});
+
+test('release passport fails closed on malformed commit SHA', async () => {
+  const { evaluateReleasePassport } = await loadReleasePassportModule();
+  const result = evaluateReleasePassport({
+    targetRing: 'R0_CODE',
+    source: { commitSha: 'not-a-sha' },
+    rings: { R0_CODE: { status: 'PASS', evidence: ['evidence://r0'] } },
+  });
+  assert.equal(result.decision, 'BLOCKED');
+  assert.equal(result.eligible, false);
+  assert.ok(result.reasons.some(reason => reason.code === 'INVALID_COMMIT_SHA'));
 });
