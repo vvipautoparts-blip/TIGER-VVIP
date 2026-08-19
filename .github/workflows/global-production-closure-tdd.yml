@@ -1,0 +1,28 @@
+name: Global Production Closure TDD
+
+on:
+  push:
+    branches:
+      - feat/global-production-closure-20260819
+    paths:
+      - 'scripts/project-control/global-production-closure-gate.js'
+      - 'scripts/project-control/global-production-closure-gate.test.js'
+      - '.github/workflows/global-production-closure-tdd.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  production-closure-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run production closure contract tests
+        run: node scripts/project-control/global-production-closure-gate.test.js
