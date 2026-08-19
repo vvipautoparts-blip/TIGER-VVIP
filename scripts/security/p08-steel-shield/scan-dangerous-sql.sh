@@ -118,6 +118,9 @@ declare -A reviewed_migration_hashes=(
   # post/block visibility, RPC-only browser access, and service-role idempotent webhook
   # inbox with bounded retry/dead-letter. Any byte drift re-enters security review.
   ["supabase/migrations/20260819140000_social_media_boundary.sql"]="380e441125090827cf22d81e7cd7fc3487bf74c9de335295aa01f707f7bc79af"
+
+  # Social Media webhook claim ambiguity repair: exact-byte forward-only routine fix.
+  ["supabase/migrations/20260819140500_social_media_webhook_claim_fix.sql"]="4a83063482a13034f4e04e15a4e964f62fa6a5138f0348d2a7d6b1d7cc376fb9"
 )
 
 reviewed_baseline_path() {
