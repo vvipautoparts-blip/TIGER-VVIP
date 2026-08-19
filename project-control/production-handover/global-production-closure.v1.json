@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "authority": "VVIP_TIGER_OWNER_GLOBAL_PRODUCTION_CLOSURE_2026_08_19",
+  "baseline_sha": "5422d144632ca6396f4599732d1359f5d3b4abbe",
+  "execution_branch": "feat/global-production-closure-20260819",
+  "fail_closed": true,
+  "unresolved_p0": 9,
+  "unresolved_p1": null,
+  "layers": [
+    {
+      "id": "production_backend",
+      "status": "blocked",
+      "evidence": [
+        {"type": "machine", "ref": "supabase-staging:mduummtnlupktjaujgyx:social_core_foundation+reactions+comments", "verified": true}
+      ],
+      "blockers": ["Social messages, notifications and post-media authority are not yet proven on Production", "Social Core migrations have not been promoted to Production"]
+    },
+    {
+      "id": "identity_security",
+      "status": "blocked",
+      "evidence": [
+        {"type": "contract", "ref": "docs/architecture/ADR-2026-08-08-federated-identity-sovereignty.md", "verified": true}
+      ],
+      "blockers": ["Live Clerk registration/login/recovery/passkey/2FA evidence is required", "Provider session/rate-limit production evidence is required"]
+    },
+    {
+      "id": "marketplace",
+      "status": "blocked",
+      "evidence": [
+        {"type": "machine", "ref": "supabase-production:vvip_marketplace_listings+vvip_marketplace_listing_media+vvip_marketplace_listing_audit:RLS_FORCE_RLS", "verified": true}
+      ],
+      "blockers": ["Live create/edit/delete/search/filter/report journey must pass against Production"]
+    },
+    {
+      "id": "campaigns_payments",
+      "status": "blocked",
+      "evidence": [
+        {"type": "repo", "ref": "PR#276:settlement-security-authority", "verified": true},
+        {"type": "repo", "ref": "PR#277:campaign-intelligence-current-head-not-fully-green", "verified": true}
+      ],
+      "blockers": ["No production campaign/credit/ledger authority is currently proven in Supabase", "Stripe live webhook/settlement/refund/reconciliation/anti-double-spend evidence is required"]
+    },
+    {
+      "id": "global_infrastructure",
+      "status": "blocked",
+      "evidence": [],
+      "blockers": ["Production DNS/CDN/WAF/autoscaling/storage/backups/DR live evidence not yet attached"]
+    },
+    {
+      "id": "legal_country_activation",
+      "status": "blocked",
+      "evidence": [
+        {"type": "machine", "ref": "supabase-production:vvip_country_authority_seals:RLS_FORCE_RLS", "verified": true}
+      ],
+      "blockers": ["Country Privacy/Terms/Cookies/Consent/Delete-account legal evidence must be attached before activation"]
+    },
+    {
+      "id": "observability",
+      "status": "blocked",
+      "evidence": [
+        {"type": "machine", "ref": "supabase-production:vvip_authorization_audit_events+vvip_authorization_envelope_audit:RLS_FORCE_RLS", "verified": true}
+      ],
+      "blockers": ["Live logs/metrics/alerts/crash tracking and Owner dashboard evidence is required"]
+    },
+    {
+      "id": "launch_tests",
+      "status": "blocked",
+      "evidence": [
+        {"type": "ci", "ref": "baseline:5422d144632ca6396f4599732d1359f5d3b4abbe:quality+security+social-db-green", "verified": true}
+      ],
+      "blockers": ["Load/stress, mobile browser, weak-network, recovery, payment and partial-failure production rehearsal evidence is incomplete"]
+    },
+    {
+      "id": "release_environments",
+      "status": "blocked",
+      "evidence": [
+        {"type": "machine", "ref": "supabase-staging:mduummtnlupktjaujgyx:social-migrations-applied", "verified": true}
+      ],
+      "blockers": ["Existing Supabase staging branch reports MIGRATIONS_FAILED and must converge with Production before promotion"]
+    },
+    {
+      "id": "launch_gate",
+      "status": "blocked",
+      "evidence": [
+        {"type": "tdd", "ref": "commit:65af77c2d1d8e52cf78036b107aefdcd0f6afc7d:local-red-green", "verified": true}
+      ],
+      "blockers": ["GitHub Global Production Closure TDD check must complete green and deploy path must invoke the strict manifest gate"]
+    }
+  ]
+}
