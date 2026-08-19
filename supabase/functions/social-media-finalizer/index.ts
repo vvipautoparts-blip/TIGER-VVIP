@@ -33,8 +33,6 @@ const NO_STORE_HEADERS = {
   "Pragma": "no-cache",
 };
 
-type AdminClient = ReturnType<typeof createClient>;
-
 type ClaimRow = {
   event_id: string;
   media_id: string;
@@ -48,6 +46,67 @@ type CleanupRow = {
   media_id: string;
   quarantine_storage_path: string;
 };
+
+type Gate2Database = {
+  public: {
+    Tables: Record<string, never>;
+    Views: Record<string, never>;
+    Functions: {
+      vvip_social_media_claim_quarantine_cleanup: {
+        Args: { max_rows: number };
+        Returns: CleanupRow[];
+      };
+      vvip_social_media_mark_quarantine_purged: {
+        Args: {
+          target_media: string;
+          expected_quarantine_path: string;
+        };
+        Returns: null;
+      };
+      vvip_social_media_webhook_claim: {
+        Args: Record<string, never>;
+        Returns: ClaimRow[];
+      };
+      vvip_social_media_finalize_event: {
+        Args: {
+          target_event: string;
+          target_media: string;
+          source_digest: string;
+          source_mime: string;
+          source_size: number;
+          source_image_width: number;
+          source_image_height: number;
+          canonical_path: string;
+          canonical_digest: string;
+          canonical_size: number;
+          canonical_mime: string;
+          canonical_image_width: number;
+          canonical_image_height: number;
+          verifier_id: string;
+          verifier_build_version: string;
+        };
+        Returns: string;
+      };
+      vvip_social_media_webhook_fail: {
+        Args: {
+          target_event: string;
+          error_code: string;
+        };
+        Returns: string;
+      };
+    };
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
+  };
+};
+
+function createGate2AdminClient(supabaseUrl: string, serviceRoleKey: string) {
+  return createClient<Gate2Database>(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
+type AdminClient = ReturnType<typeof createGate2AdminClient>;
 
 type MediaFacts = {
   mime: "image/jpeg" | "image/webp";
@@ -73,7 +132,9 @@ function requiredEnv(name: string): string {
 }
 
 async function sha256Hex(bytes: Uint8Array): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  const ownedBuffer = new ArrayBuffer(bytes.byteLength);
+  new Uint8Array(ownedBuffer).set(bytes);
+  const digest = await crypto.subtle.digest("SHA-256", ownedBuffer);
   return [...new Uint8Array(digest)]
     .map((value) => value.toString(16).padStart(2, "0"))
     .join("");
@@ -324,7 +385,7 @@ async function purgeQuarantine(admin: AdminClient): Promise<void> {
   });
   if (error) throw new TigerMediaError(`QUARANTINE_CLEANUP_CLAIM_FAILED:${error.message}`);
 
-  for (const row of (data ?? []) as CleanupRow[]) {
+  for (const row of data ?? []) {
     if (!row?.media_id || !row?.quarantine_storage_path) continue;
     const { error: removeError } = await admin.storage.from(BUCKET).remove([
       row.quarantine_storage_path,
@@ -487,9 +548,7 @@ serve(async (request: Request) => {
 
     const supabaseUrl = requiredEnv("SUPABASE_URL");
     const serviceRoleKey = requiredEnv("SUPABASE_SERVICE_ROLE_KEY");
-    const admin = createClient(supabaseUrl, serviceRoleKey, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
+    const admin = createGate2AdminClient(supabaseUrl, serviceRoleKey);
 
     await purgeQuarantine(admin);
     const result = await processOne(admin);
