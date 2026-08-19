@@ -8,6 +8,7 @@ const workflow = fs.readFileSync(".github/workflows/tiger-social-db-rehearsal.ym
 const foundationBehavior = fs.readFileSync("tests/sql/tiger-social-core-foundation.sql", "utf8");
 const reactionBehavior = fs.readFileSync("tests/sql/tiger-social-reactions.sql", "utf8");
 const commentBehavior = fs.readFileSync("tests/sql/tiger-social-comments.sql", "utf8");
+const privacyBehavior = fs.readFileSync("tests/sql/tiger-social-privacy-controls.sql", "utf8");
 
 test("Social DB rehearsal is exact-head and local-only", () => {
   assert.match(workflow, /github\.event\.pull_request\.head\.sha \|\| github\.sha/);
@@ -17,12 +18,14 @@ test("Social DB rehearsal is exact-head and local-only", () => {
   assert.doesNotMatch(workflow, /supabase db push|--linked|SUPABASE_ACCESS_TOKEN:\s*\$\{\{/);
 });
 
-test("Social DB rehearsal applies foundation reaction and comment proofs and always stops local stack", () => {
+test("Social DB rehearsal applies foundation reaction comment and privacy proofs and always stops local stack", () => {
   assert.match(workflow, /tests\/sql\/tiger-social-core-foundation\.sql/);
   assert.match(workflow, /tests\/sql\/tiger-social-reactions\.sql/);
   assert.match(workflow, /tests\/sql\/tiger-social-comments\.sql/);
+  assert.match(workflow, /tests\/sql\/tiger-social-privacy-controls\.sql/);
   assert.match(workflow, /tiger-social-reactions-reviewed-migration-hash\.test\.cjs/);
   assert.match(workflow, /tiger-social-comments-reviewed-migration-hash\.test\.cjs/);
+  assert.match(workflow, /tiger-social-privacy-controls-reviewed-migration-hash\.test\.cjs/);
   assert.match(workflow, /psql/);
   assert.match(workflow, /if:\s*always\(\)/);
   assert.match(workflow, /supabase stop --no-backup/);
@@ -63,4 +66,19 @@ test("comment behavior proof covers RPC-only access visibility reply depth and o
   assert.match(commentBehavior, /COMMENT_HIDDEN_POST_DENIED=PASS/);
   assert.match(commentBehavior, /TIGER_SOCIAL_COMMENTS_DB_BEHAVIOR=PASS/);
   assert.match(commentBehavior, /rollback;/i);
+});
+
+test("privacy behavior proof covers block isolation mute semantics report secrecy and only-me preservation", () => {
+  assert.match(privacyBehavior, /BLOCK_SEVERS_FRIENDSHIP=PASS/);
+  assert.match(privacyBehavior, /BLOCK_HIDES_ALL_CROSS_PARTY_POSTS=PASS/);
+  assert.match(privacyBehavior, /BLOCKED_RELATIONSHIP_WRITE_WAS_NOT_DENIED/);
+  assert.match(privacyBehavior, /BLOCKED_REACTION_WAS_NOT_DENIED/);
+  assert.match(privacyBehavior, /BLOCKED_COMMENT_WAS_NOT_DENIED/);
+  assert.match(privacyBehavior, /UNBLOCK_NO_FRIENDSHIP_RESURRECTION=PASS/);
+  assert.match(privacyBehavior, /MUTE_SUPPRESSES_FEED=PASS/);
+  assert.match(privacyBehavior, /MUTE_IS_NOT_AUTHORIZATION_BOUNDARY=PASS/);
+  assert.match(privacyBehavior, /REPORT_TABLE_READ_WAS_NOT_DENIED/);
+  assert.match(privacyBehavior, /ONLY_ME_PRIVACY_PRESERVED=PASS/);
+  assert.match(privacyBehavior, /TIGER_SOCIAL_PRIVACY_PROOF=PASS/);
+  assert.match(privacyBehavior, /rollback;/i);
 });
