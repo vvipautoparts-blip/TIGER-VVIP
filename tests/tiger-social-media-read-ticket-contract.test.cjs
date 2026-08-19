@@ -43,3 +43,14 @@ test('broker returns a short private signed download capability and never expose
   assert.doesNotMatch(response, /read_token\s*:/i);
   assert.doesNotMatch(response, /canonical_storage_path\s*:/i);
 });
+
+test('private-read public errors never echo database or storage messages', () => {
+  const text = source();
+  assert.match(text, /console\.error\s*\(/i);
+  assert.match(text, /READ_DENIED/i);
+  assert.match(text, /READ_GRANT_CONSUME_FAILED/i);
+  assert.match(text, /SIGNED_READ_FAILED/i);
+  assert.doesNotMatch(text, /throw\s+new\s+Error\s*\(\s*`READ_DENIED:\$\{grantError\.message\}`/i);
+  assert.doesNotMatch(text, /throw\s+new\s+Error\s*\(\s*`READ_GRANT_CONSUME_FAILED:\$\{consumeError\.message\}`/i);
+  assert.doesNotMatch(text, /throw\s+new\s+Error\s*\(\s*`SIGNED_READ_FAILED:\$\{signedError\?\.message/i);
+});
