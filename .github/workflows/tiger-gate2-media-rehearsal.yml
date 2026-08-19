@@ -12,7 +12,7 @@ on:
       - "supabase/migrations/20260820003500_social_media_worker_dispatch.sql"
       - "supabase/functions/social-media-upload-ticket/index.ts"
       - "supabase/functions/social-media-storage-ingress/index.ts"
-      - "supabase/functions/social-media-finalizer/index.ts"
+      - "supabase/functions/social-media-finalizer/**"
       - "supabase/functions/social-media-read-ticket/index.ts"
       - "tests/tiger-social-media-*.test.cjs"
       - "tests/tiger-gate2-media-rehearsal-workflow.test.cjs"
@@ -104,6 +104,12 @@ jobs:
           deno check supabase/functions/social-media-finalizer/index.ts
           deno check supabase/functions/social-media-read-ticket/index.ts
 
+      - name: Prove canonical image bytes
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          deno test --allow-read supabase/functions/social-media-finalizer/canonical_test.ts
+
   local-db-rehearsal:
     needs:
       - static-contracts
@@ -188,6 +194,8 @@ jobs:
               supabase/functions/social-media-upload-ticket/index.ts \
               supabase/functions/social-media-storage-ingress/index.ts \
               supabase/functions/social-media-finalizer/index.ts \
+              supabase/functions/social-media-finalizer/canonical.ts \
+              supabase/functions/social-media-finalizer/canonical_test.ts \
               supabase/functions/social-media-read-ticket/index.ts \
               tests/sql/tiger-gate2-canonical-media.sql \
               .github/workflows/tiger-gate2-media-rehearsal.yml
