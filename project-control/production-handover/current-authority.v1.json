@@ -43,6 +43,19 @@
     {"id":"P19","name":"Single current owner authority convergence","fail_closed":true,"evidence":["one human authority path","machine contract sync","historical evidence non-authoritative"]},
     {"id":"P20","name":"AWS exact-SHA sealed production handover and runtime proof","fail_closed":true,"evidence":["sealed exact-SHA artifact","CycloneDX SBOM","provenance attestation","fresh AWS runtime smoke evidence"]}
   ],
+  "release_assurance": {
+    "architecture": "TIGER_SOVEREIGN_LIVING_SYSTEM_2026",
+    "mode": "PROOF_NATIVE_FAIL_CLOSED",
+    "owner_authority": "docs/owner-control/TIGER_SOVEREIGN_LIVING_SYSTEM_2026_CURRENT_OWNER_AUTHORITY.md",
+    "engineering_spec": "docs/superpowers/specs/2026-08-19-tiger-sovereign-living-system-design.md",
+    "passport_contract": "project-control/release-passport/contract.v1.json",
+    "passport_evaluator": "project-control/scripts/release_passport.mjs",
+    "rings": ["R0_CODE","R1_DATA","R2_TWIN","R3_DEVICE","R4_OWNER_PREVIEW","R5_CANDIDATE","R6_PRODUCTION"],
+    "pass_requires_evidence": true,
+    "production_requires_exact_tree_sha": true,
+    "preview_requires_exact_source": true,
+    "historical_preview_authoritative": false
+  },
   "destructive_operations": {
     "production_database_delete": {"default_enabled":false,"requires_explicit_evidence":true,"requires_backup_proof":true,"requires_retention_allowlist":true},
     "git_history_rewrite": {"default_enabled":false,"requires_explicit_evidence":true,"rotate_or_revoke_first":true},
