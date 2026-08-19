@@ -83,8 +83,7 @@ create or replace function public.vvip_social_is_blocked_pair(
 returns boolean
 language sql
 stable
-security definer
-set search_path = pg_catalog, public
+security definer set search_path = pg_catalog, public
 as $function$
     select
         p_left is not null
@@ -109,8 +108,7 @@ create or replace function public.vvip_social_can_view_post(
 returns boolean
 language sql
 stable
-security definer
-set search_path = pg_catalog, public
+security definer set search_path = pg_catalog, public
 as $function$
     select
         p_actor is not null
@@ -211,8 +209,7 @@ create or replace function public.vvip_social_can_view_post_current(
 returns boolean
 language plpgsql
 stable
-security definer
-set search_path = pg_catalog, public
+security definer set search_path = pg_catalog, public
 as $function$
 declare
     v_actor text := public.vvip_marketplace_actor_id();
@@ -224,11 +221,8 @@ begin
 end;
 $function$;
 
-drop policy if exists vvip_social_post_visible_read on public.vvip_social_posts;
-create policy vvip_social_post_visible_read
+alter policy vvip_social_post_visible_read
 on public.vvip_social_posts
-for select
-to authenticated
 using (public.vvip_social_can_view_post_current(post_id));
 
 create or replace function public.vvip_social_block_user(
@@ -236,8 +230,7 @@ create or replace function public.vvip_social_block_user(
 )
 returns jsonb
 language plpgsql
-security definer
-set search_path = pg_catalog, public
+security definer set search_path = pg_catalog, public
 as $function$
 declare
     v_actor text := public.vvip_marketplace_actor_id();
@@ -256,12 +249,10 @@ begin
     values (v_actor, p_target_subject)
     on conflict (blocker_subject, blocked_subject) do nothing;
 
-    delete from public.vvip_social_relationships relationship
-    where relationship.subject_low = least(v_actor, p_target_subject)
+    delete from public.vvip_social_relationships relationship where relationship.subject_low = least(v_actor, p_target_subject)
       and relationship.subject_high = greatest(v_actor, p_target_subject);
 
-    delete from public.vvip_social_mutes mute_row
-    where mute_row.muter_subject = v_actor
+    delete from public.vvip_social_mutes mute_row where mute_row.muter_subject = v_actor
       and mute_row.muted_subject = p_target_subject;
 
     return jsonb_build_object(
@@ -277,8 +268,7 @@ create or replace function public.vvip_social_unblock_user(
 )
 returns jsonb
 language plpgsql
-security definer
-set search_path = pg_catalog, public
+security definer set search_path = pg_catalog, public
 as $function$
 declare
     v_actor text := public.vvip_marketplace_actor_id();
@@ -293,8 +283,7 @@ begin
         raise exception 'SOCIAL_SELF_BLOCK_DENIED';
     end if;
 
-    delete from public.vvip_social_blocks block_row
-    where block_row.blocker_subject = v_actor
+    delete from public.vvip_social_blocks block_row where block_row.blocker_subject = v_actor
       and block_row.blocked_subject = p_target_subject;
 
     return jsonb_build_object(
@@ -310,8 +299,7 @@ create or replace function public.vvip_social_mute_user(
 )
 returns jsonb
 language plpgsql
-security definer
-set search_path = pg_catalog, public
+security definer set search_path = pg_catalog, public
 as $function$
 declare
     v_actor text := public.vvip_marketplace_actor_id();
@@ -346,8 +334,7 @@ create or replace function public.vvip_social_unmute_user(
 )
 returns jsonb
 language plpgsql
-security definer
-set search_path = pg_catalog, public
+security definer set search_path = pg_catalog, public
 as $function$
 declare
     v_actor text := public.vvip_marketplace_actor_id();
@@ -362,8 +349,7 @@ begin
         raise exception 'SOCIAL_SELF_MUTE_DENIED';
     end if;
 
-    delete from public.vvip_social_mutes mute_row
-    where mute_row.muter_subject = v_actor
+    delete from public.vvip_social_mutes mute_row where mute_row.muter_subject = v_actor
       and mute_row.muted_subject = p_target_subject;
 
     return jsonb_build_object(
@@ -381,8 +367,7 @@ create or replace function public.vvip_social_report_user(
 )
 returns jsonb
 language plpgsql
-security definer
-set search_path = pg_catalog, public
+security definer set search_path = pg_catalog, public
 as $function$
 declare
     v_actor text := public.vvip_marketplace_actor_id();
@@ -441,8 +426,7 @@ create or replace function public.vvip_social_feed_read(
 returns setof public.vvip_social_posts
 language plpgsql
 stable
-security definer
-set search_path = pg_catalog, public
+security definer set search_path = pg_catalog, public
 as $function$
 declare
     v_actor text := public.vvip_marketplace_actor_id();
