@@ -26,7 +26,7 @@ test('upload ticket request schema accepts only post_id and idempotency_key', ()
   );
 });
 
-test('upload ticket reserves a server-derived path under caller auth then mints a no-upsert signed upload capability', () => {
+test('ticket reserves server-derived quarantine path under caller auth and mints no-upsert capability', () => {
   const text = source();
   assert.match(text, /Authorization/i);
   assert.match(text, /vvip_social_media_reserve_upload/i);
@@ -35,7 +35,16 @@ test('upload ticket reserves a server-derived path under caller auth then mints 
   assert.match(text, /createSignedUploadUrl\s*\(/i);
   assert.match(text, /upsert\s*:\s*false/i);
   assert.match(text, /social-private-media/i);
+  assert.match(text, /quarantine/i);
+  assert.match(text, /upload_lease_expires_at|lease_expires_at/i);
   assert.doesNotMatch(text, /service[_-]?role[^\n]{0,200}(return|jsonResponse)/i);
+});
+
+test('TIGER acceptance capability is fail-closed at 300 seconds without pretending provider expiry', () => {
+  const text = source();
+  assert.match(text, /300|5\s*\*\s*60/i);
+  assert.match(text, /TIGER_UPLOAD_LEASE_EXPIRED/i);
+  assert.match(text, /provider[^\n]{0,100}(ttl|expiry|expiration)|lease[^\n]{0,100}provider/i);
 });
 
 test('upload ticket explicitly rejects browser attempts to submit canonical media facts', () => {
