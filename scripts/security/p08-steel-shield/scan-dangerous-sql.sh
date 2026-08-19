@@ -38,7 +38,7 @@ declare -A reviewed_migration_hashes=(
   ["supabase/migrations/20260808131000_tsrf_ai_runtime_atomicity.sql"]="f047f356ee57c09b86c322c6329bb9897fd06c3f0163fef6bb64fd608c84e747"
   ["supabase/migrations/20260808132000_tsrf_owner_authorization_leases.sql"]="994a7fdb42ca2d82138ac04a65e8db63cfcd55c08917ff5134e4c184df76e4cb"
   ["supabase/migrations/20260808133000_phone_otp_challenges.sql"]="b9524528878d5646884bfdbb04abf06b8e4e73eb9628d0132b02fb06fbe7ee9a"
-  ["supabase/migrations/20260808134000_lc04_production_legacy_rpc_hardening.sql"]="86cd92e65b1d7294158798b33fe7c346946ff9d955371fc55f5f13388fa"
+  ["supabase/migrations/20260808134000_lc04_production_legacy_rpc_hardening.sql"]="86cd92e65b1d7294158798b6828d33fe7c346946ff9d955371fc55f5f13388fa"
   # LC-05 legacy credential isolation: reviewed after exact-head static contracts,
   # full local migration replay, canonical no-synthesis proof, and Production-drift
   # convergence that removed all direct browser policies/privileges while preserving
