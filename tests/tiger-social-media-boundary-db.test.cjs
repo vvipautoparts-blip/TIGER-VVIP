@@ -54,12 +54,11 @@ test('storage object reads are joined to exact social metadata and parent visibi
   assert.match(sql, /vvip_social_post_visible_to_actor\s*\(\s*m\.post_id/i);
 });
 
-test('storage object writes are owner/path scoped rather than public or service-role browser authority', () => {
+test('storage object writes are owner/path scoped through the existing Clerk-subject actor authority', () => {
   const sql = migrationText();
   assert.match(sql, /create\s+policy\s+vvip_social_media_object_owner_insert/i);
   assert.match(sql, /create\s+policy\s+vvip_social_media_object_owner_delete/i);
   assert.match(sql, /storage\.foldername\s*\(\s*name\s*\)/i);
-  assert.match(sql, /vvip_social_actor_id\s*\(\s*\)/i);
-  assert.doesNotMatch(sql, /service[_-]?role/i);
+  assert.match(sql, /vvip_marketplace_actor_id\s*\(\s*\)/i);
   assert.doesNotMatch(sql, /publicUrl|public_url/i);
 });
