@@ -8,6 +8,7 @@ const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..');
 const MIGRATION = path.join(ROOT, 'supabase/migrations/20260820003500_social_media_worker_dispatch.sql');
 const RECOVERY_MIGRATION = path.join(ROOT, 'supabase/migrations/20260820003700_social_media_stale_worker_recovery.sql');
+const HMAC_MIGRATION = path.join(ROOT, 'supabase/migrations/20260820003900_social_media_worker_hmac_boundary.sql');
 const FINALIZER = path.join(ROOT, 'supabase/functions/social-media-finalizer/index.ts');
 
 function sql() {
@@ -22,6 +23,15 @@ function recoverySql() {
     `Gate 2 stale-worker recovery migration missing: ${RECOVERY_MIGRATION}`,
   );
   return fs.readFileSync(RECOVERY_MIGRATION, 'utf8');
+}
+
+function hmacSql() {
+  assert.equal(
+    fs.existsSync(HMAC_MIGRATION),
+    true,
+    `Gate 2 HMAC worker-boundary migration missing: ${HMAC_MIGRATION}`,
+  );
+  return fs.readFileSync(HMAC_MIGRATION, 'utf8');
 }
 
 test('dispatcher uses pg_cron + pg_net and never embeds a project credential', () => {
@@ -43,7 +53,6 @@ test('dispatcher reads scoped runtime URL and worker secret from Vault only when
   assert.match(text, /vault\.decrypted_secrets/i);
   assert.match(text, /tiger_social_media_worker_url/i);
   assert.match(text, /tiger_media_worker_secret/i);
-  assert.match(text, /x-tiger-worker-secret/i);
 });
 
 test('dispatcher is not browser executable and quietly fails closed when runtime secrets are absent', () => {
@@ -71,4 +80,29 @@ test('stale workers cannot finalize or fail a newer claim generation', () => {
 
   const finalizer = fs.readFileSync(FINALIZER, 'utf8');
   assert.match(finalizer, /expected_attempt_count:\s*claim\.attempt_count/);
+});
+
+test('worker wakeup never transmits the Vault secret and is pinned to a Supabase HTTPS host', () => {
+  const text = hmacSql();
+  assert.match(text, /create\s+extension\s+if\s+not\s+exists\s+pgcrypto/i);
+  assert.match(text, /hmac\s*\(/i);
+  assert.match(text, /sha256/i);
+  assert.match(text, /x-tiger-worker-signature/i);
+  assert.match(text, /x-tiger-worker-timestamp/i);
+  assert.match(text, /x-tiger-worker-nonce/i);
+  assert.match(text, /\\\.supabase\\\.co\/functions\/v1\/social-media-finalizer/i);
+  assert.doesNotMatch(text, /['"]x-tiger-worker-secret['"]\s*,\s*v_worker_secret/i);
+});
+
+test('finalizer verifies a bounded HMAC challenge instead of accepting the raw worker secret', () => {
+  const text = fs.readFileSync(FINALIZER, 'utf8');
+  assert.match(text, /x-tiger-worker-signature/i);
+  assert.match(text, /x-tiger-worker-timestamp/i);
+  assert.match(text, /x-tiger-worker-nonce/i);
+  assert.match(text, /HMAC/i);
+  assert.match(text, /SHA-256/i);
+  assert.match(text, /crypto\.subtle\.importKey/i);
+  assert.match(text, /crypto\.subtle\.sign/i);
+  assert.match(text, /WORKER_AUTH_(?:EXPIRED|FAILED|INVALID)/i);
+  assert.doesNotMatch(text, /request\.headers\.get\(\s*["']x-tiger-worker-secret["']\s*\)/i);
 });
