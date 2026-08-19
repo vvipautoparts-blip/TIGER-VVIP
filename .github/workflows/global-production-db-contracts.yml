@@ -1,0 +1,37 @@
+name: Global Production DB Contracts
+
+on:
+  pull_request:
+    branches:
+      - feat/tiger-one-living-surface-impl-20260818
+    paths:
+      - 'supabase/migrations/**'
+      - 'scripts/security/federated-actor-authority-migration.test.js'
+      - 'scripts/social/production-backend-schema.test.js'
+      - 'scripts/social/federated-social-storage-policy.test.js'
+      - 'scripts/advertising/financial-authority-schema.test.js'
+      - '.github/workflows/global-production-db-contracts.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  db-authority-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Federated actor migration contract
+        run: node scripts/security/federated-actor-authority-migration.test.js
+      - name: Social production backend contract
+        run: node scripts/social/production-backend-schema.test.js
+      - name: Federated social storage contract
+        run: node scripts/social/federated-social-storage-policy.test.js
+      - name: Advertising financial authority contract
+        run: node scripts/advertising/financial-authority-schema.test.js
