@@ -1,8 +1,8 @@
 # TIGER Social Relationship Guard Authority Fix — Security Review
 
-**Date:** 2026-08-19  
-**Status:** `REVIEWED / BYTE-EXACT / PRIVACY PROOF`  
-**Migration:** `supabase/migrations/20260819131500_social_relationship_guard_authority_fix.sql`  
+**Date:** 2026-08-19
+**Status:** `REVIEWED / BYTE-EXACT / PRIVACY PROOF`
+**Migration:** `supabase/migrations/20260819131500_social_relationship_guard_authority_fix.sql`
 **SHA-256:** `866129891ada5e74517f8909a488042716530f5dad896327d064084409c10b40`
 
 ## Purpose
