@@ -9,9 +9,11 @@ on:
       - "supabase/migrations/20260820002900_social_media_unified_quarantine_cleanup.sql"
       - "supabase/migrations/20260820003100_social_media_reservation_content_identity_hardening.sql"
       - "supabase/migrations/20260820003300_social_media_storage_event_ingress.sql"
+      - "supabase/migrations/20260820003500_social_media_worker_dispatch.sql"
       - "supabase/functions/social-media-upload-ticket/index.ts"
       - "supabase/functions/social-media-storage-ingress/index.ts"
       - "supabase/functions/social-media-finalizer/index.ts"
+      - "supabase/functions/social-media-read-ticket/index.ts"
       - "tests/tiger-social-media-*.test.cjs"
       - "tests/tiger-gate2-media-rehearsal-workflow.test.cjs"
       - "tests/sql/tiger-gate2-canonical-media.sql"
@@ -62,6 +64,8 @@ jobs:
             tests/tiger-social-media-upload-ticket-contract.test.cjs \
             tests/tiger-social-media-finalizer-contract.test.cjs \
             tests/tiger-social-media-storage-webhook-ingress.test.cjs \
+            tests/tiger-social-media-read-ticket-contract.test.cjs \
+            tests/tiger-social-media-worker-dispatch-contract.test.cjs \
             tests/tiger-social-media-reservation-content-identity-hardening.test.cjs \
             tests/tiger-social-media-atomic-finalize-hardening.test.cjs \
             tests/tiger-social-media-durable-quarantine-purge.test.cjs \
@@ -98,6 +102,7 @@ jobs:
           deno check supabase/functions/social-media-upload-ticket/index.ts
           deno check supabase/functions/social-media-storage-ingress/index.ts
           deno check supabase/functions/social-media-finalizer/index.ts
+          deno check supabase/functions/social-media-read-ticket/index.ts
 
   local-db-rehearsal:
     needs:
@@ -179,9 +184,11 @@ jobs:
               supabase/migrations/20260820002900_social_media_unified_quarantine_cleanup.sql \
               supabase/migrations/20260820003100_social_media_reservation_content_identity_hardening.sql \
               supabase/migrations/20260820003300_social_media_storage_event_ingress.sql \
+              supabase/migrations/20260820003500_social_media_worker_dispatch.sql \
               supabase/functions/social-media-upload-ticket/index.ts \
               supabase/functions/social-media-storage-ingress/index.ts \
               supabase/functions/social-media-finalizer/index.ts \
+              supabase/functions/social-media-read-ticket/index.ts \
               tests/sql/tiger-gate2-canonical-media.sql \
               .github/workflows/tiger-gate2-media-rehearsal.yml
             sha256sum /tmp/tiger-gate2-media-rehearsal/db-rehearsal.log
