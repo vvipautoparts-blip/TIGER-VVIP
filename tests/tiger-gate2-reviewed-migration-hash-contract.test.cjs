@@ -18,6 +18,7 @@ const reviewed = new Map([
   ['supabase/migrations/20260820003100_social_media_reservation_content_identity_hardening.sql', '23b0674202780fdaaab93387db5b343384e700719dc7f58188acdd8115e57d87'],
   ['supabase/migrations/20260820003300_social_media_storage_event_ingress.sql', 'b565b1e5fcc210e492c54bdfb036accf8ebf81a53609e2d4abf86afcf7fbc9dd'],
   ['supabase/migrations/20260820003500_social_media_worker_dispatch.sql', 'eff9c85c8674c8191e6951841fb4d329fedb7ebce8f958b5effff6734d25c4f5'],
+  ['supabase/migrations/20260820003700_social_media_stale_worker_recovery.sql', '434ac7789ff53ad2bef76c6e67a7beb87504cfd264742ed1d5ea971b49405060'],
 ]);
 
 for (const [migrationRel, expected] of reviewed) {
