@@ -1,0 +1,146 @@
+name: TIGER Exact-SHA Preview Evidence
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  preview-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SOURCE_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: "22"
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: "3.12"
+
+      - name: Install Preview test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt pytest
+
+      - name: Prove exact source identity
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          actual="$(git rev-parse HEAD)"
+          tree="$(git rev-parse 'HEAD^{tree}')"
+          if [ "$actual" != "$SOURCE_SHA" ]; then
+            echo "PREVIEW_SOURCE_SHA_MISMATCH expected=$SOURCE_SHA actual=$actual" >&2
+            exit 1
+          fi
+          if [[ ! "$tree" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "PREVIEW_TREE_SHA_INVALID" >&2
+            exit 1
+          fi
+          echo "PREVIEW_EXACT_SOURCE=PASS"
+          echo "TREE_SHA=$tree" >> "$GITHUB_ENV"
+
+      - name: Verify Preview Guard contract
+        run: node --test tests/tiger-exact-sha-preview-guard.test.cjs
+
+      - name: Verify Preview artifact contract
+        run: python -m pytest -q tests/test_vvip_public_release_preview.py
+
+      - name: Build exact-SHA Preview artifact outside source tree
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          output="$RUNNER_TEMP/tiger-preview-public"
+          rm -rf "$output"
+          python tools/vvip_preview_release.py \
+            --source . \
+            --output "$output" \
+            --source-sha "$SOURCE_SHA"
+          echo "PREVIEW_OUTPUT=$output" >> "$GITHUB_ENV"
+
+      - name: Verify artifact identity and emit fail-closed R4 evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          source_sha = os.environ['SOURCE_SHA']
+          tree_sha = os.environ['TREE_SHA']
+          root = Path(os.environ['PREVIEW_OUTPUT'])
+          manifest_path = root / 'release-manifest.json'
+          identity_path = root / 'preview-identity.js'
+          index_path = root / 'index.html'
+
+          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+          if manifest.get('mode') != 'preview':
+              raise SystemExit('PREVIEW_MANIFEST_MODE_MISMATCH')
+          if manifest.get('sourceSha') != source_sha:
+              raise SystemExit('PREVIEW_MANIFEST_SOURCE_MISMATCH')
+          if (manifest.get('previewIdentity') or {}).get('environment') != 'PREVIEW':
+              raise SystemExit('PREVIEW_IDENTITY_ENVIRONMENT_MISMATCH')
+          if source_sha not in identity_path.read_text(encoding='utf-8'):
+              raise SystemExit('PREVIEW_IDENTITY_SOURCE_MISMATCH')
+          if 'preview-identity.js' not in index_path.read_text(encoding='utf-8'):
+              raise SystemExit('PREVIEW_IDENTITY_NOT_LOADED')
+          if (root / 'CNAME').exists():
+              raise SystemExit('PREVIEW_CNAME_FORBIDDEN')
+
+          digest = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
+          evidence = {
+              'schemaVersion': 'TIGER_PREVIEW_EVIDENCE_V1',
+              'source': {'commitSha': source_sha, 'treeSha': tree_sha},
+              'environment': 'PREVIEW',
+              'artifact': {
+                  'status': 'PASS',
+                  'manifestSha256': digest,
+                  'releaseEligible': bool(manifest.get('releaseEligible')),
+              },
+              'backend': {
+                  'status': 'UNBOUND',
+                  'requiredEnvironment': 'STAGING',
+              },
+              'seed': {
+                  'status': 'UNBOUND',
+                  'requiredClassification': 'SYNTHETIC_SANITIZED',
+              },
+              'deployment': {
+                  'status': 'BLOCKED_PROVIDER',
+                  'url': None,
+                  'evidence': [],
+              },
+              'releaseRing': 'R4_OWNER_PREVIEW',
+              'decision': 'BLOCKED_PROVIDER',
+              'eligible': False,
+          }
+          Path('preview-evidence.json').write_text(
+              json.dumps(evidence, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+          )
+          print('PREVIEW_ARTIFACT_IDENTITY=PASS')
+          print('R4_OWNER_PREVIEW=BLOCKED_PROVIDER')
+          PY
+
+      - name: Upload sealed Preview candidate and evidence
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: tiger-preview-${{ github.event.pull_request.head.sha }}
+          path: |
+            ${{ runner.temp }}/tiger-preview-public
+            preview-evidence.json
+          if-no-files-found: error
+          retention-days: 7

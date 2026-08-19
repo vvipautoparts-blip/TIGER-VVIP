@@ -62,6 +62,7 @@ where body = 'social-only-me-proof'
   \quit 1
 \endif
 
+\echo TIGER_FOUNDATION_MARKER_BOB_PUBLIC
 select (count(*) = 1) as bob_can_read_public_post
 from public.vvip_social_posts
 where body = 'social-public-proof'
@@ -79,6 +80,7 @@ reset role;
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"user_charlie"}', true);
 
+\echo TIGER_FOUNDATION_MARKER_CHARLIE_FRIENDS
 select (count(*) = 0) as charlie_cannot_read_friend_post
 from public.vvip_social_posts
 where body = 'social-friends-proof'
@@ -90,6 +92,7 @@ where body = 'social-friends-proof'
   \quit 1
 \endif
 
+\echo TIGER_FOUNDATION_MARKER_CHARLIE_ONLY_ME
 select (count(*) = 0) as charlie_cannot_read_only_me
 from public.vvip_social_posts
 where body = 'social-only-me-proof'
@@ -101,6 +104,7 @@ where body = 'social-only-me-proof'
   \quit 1
 \endif
 
+\echo TIGER_FOUNDATION_MARKER_CHARLIE_PUBLIC
 select (count(*) = 1) as charlie_can_read_public_post
 from public.vvip_social_posts
 where body = 'social-public-proof'
@@ -118,11 +122,13 @@ reset role;
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"user_bob"}', true);
 
+\echo TIGER_FOUNDATION_MARKER_UNFRIEND_DELETE
 delete from public.vvip_social_relationships
 where requester_subject = 'user_alice'
   and addressee_subject = 'user_bob'
   and relationship_state = 'friends';
 
+\echo TIGER_FOUNDATION_MARKER_UNFRIEND_VISIBILITY
 select (count(*) = 0) as bob_loses_friend_visibility_after_unfriend
 from public.vvip_social_posts
 where body = 'social-friends-proof'

@@ -35,8 +35,9 @@
 5. `docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md` — معمارية TIGER SYNAPSE v2 + TIGER VERITY FABRIC.
 6. `docs/owner-control/TIGER_SOVEREIGN_LIVING_SYSTEM_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة الضمان التشغيلي والإثبات والـPreview والمرونة والـRelease Rings.
 7. `docs/superpowers/specs/2026-08-19-tiger-sovereign-living-system-design.md` — المواصفة الهندسية لـTIGER Sovereign Living System 2026.
-8. `project-control/production-handover/current-authority.v1.json` — عقد التسليم الآلي وبوابات P01–P20.
-9. Git exact commit SHA + exact tree SHA + أدلة CI المطابقة لهما — حقيقة التنفيذ النهائية.
+8. `docs/owner-control/TIGER_PRODUCTION_READINESS_STANDARD_2026_CURRENT_OWNER_AUTHORITY.md` — معيار الجاهزية والإطلاق الحالي للمالك؛ يحدد متى يصبح أي محور `VERIFIED` أو `PRODUCTION_ELIGIBLE` ويلزم مسار Requirement → Code → Test → Rehearsal → Evidence → Exact SHA → Release Passport.
+9. `project-control/production-handover/current-authority.v1.json` — عقد التسليم الآلي وبوابات P01–P20.
+10. Git exact commit SHA + exact tree SHA + أدلة CI المطابقة لهما — حقيقة التنفيذ النهائية.
 
 إذا اختلف هذا المدخل المختصر مع حالة تنفيذ أحدث موثقة في المرجع الأول أو مع bytes المستودع وأدلة exact-head، تُصحح هذه الصفحة ولا تتحول إلى سلطة موازية.
 
@@ -48,6 +49,7 @@
 - **نظام الابتكار:** TIGER SYNAPSE v2 — Temporal Intent Operating System.
 - **نسيج الثقة والإصدار:** TIGER VERITY FABRIC.
 - **منظومة الضمان الحية:** TIGER Sovereign Living System 2026 — Proof-Native Runtime Assurance، Privacy Proof، Release Rings، Digital Twin Lab، Mobile Chaos، Owner Release Passport.
+- **معيار الجاهزية والإطلاق:** TIGER Production Readiness Standard 2026 — Owner Approved Edition؛ لا يغلق أي محور قبل تطابق Requirement وCode وTest وRehearsal وEvidence وExact SHA وRelease Passport.
 - **مصدر الدخل المعتمد حاليًا:** خدمات الإعلان والظهور المدفوع التي تملكها المنصة، ومنها Pulse وفق 3/10/20 JOD؛ النشر العادي المتوافق مجاني.
 - **دور المنصة:** الإعلان والاكتشاف والعرض والمطابقة القابلة للتفسير وتقريب المسافة، ثم إتاحة التواصل المباشر بين البائع والمشتري أو مقدم الخدمة والمستفيد.
 - **مسؤولية الصفقة:** يتواصل الطرفان ويتفقان ويتعاملان مباشرة وعلى مسؤوليتهما؛ TIGER لا يمثل أيًا منهما.
@@ -61,6 +63,7 @@
 - لا يعتمد فيديو قديم أو GitHub Pages قديم أو Preview متقاعد.
 - رابط المعاينة الصحيح يجب أن يكون معزولًا، قابلًا للفتح من الهاتف، ومبنيًا من exact head المطلوب دون تغيير `main` أو Production.
 - TIGER Sovereign Living System يفرض أن كل Promotion يمر بحلقات `R0_CODE -> R1_DATA -> R2_TWIN -> R3_DEVICE -> R4_OWNER_PREVIEW -> R5_CANDIDATE -> R6_PRODUCTION` دون تجاوز بوابة فاشلة.
+- TIGER Production Readiness Standard 2026 يفرض أن كل محور يمر بحالات `DESIGNED -> IMPLEMENTED -> VERIFIED -> PRODUCTION_ELIGIBLE` دون تحويل التصميم أو وجود الكود إلى ادعاء جاهزية.
 - أي `PASS` داخل Release Passport بلا Evidence مطابق يُعامل `BLOCKED`.
 - إذا لم يوجد رابط مطابق، فالحقيقة الصحيحة هي: `NO VALID PREVIEW YET`.
 
@@ -100,7 +103,8 @@
 4. اقرأ نتائج CI لنفس SHA، لا لالتزام أقدم.
 5. صنف الحالة بواحدة من: `APPROVED`, `IMPLEMENTED`, `VERIFIED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, `STALE`.
 6. ابدأ من أول بوابة غير ناجحة، ولا تعِد بناء ما هو مثبت وصحيح.
-7. لا تنقل أي قديم متعارض إلى المنصة الحالية.
+7. ارجع إلى `TIGER_PRODUCTION_READINESS_STANDARD_2026_CURRENT_OWNER_AUTHORITY.md` لتحديد أول محور إطلاق غير مغلق ومسار Evidence المطلوب له.
+8. لا تنقل أي قديم متعارض إلى المنصة الحالية.
 
 ## 8. العبارة المختصرة الملزمة
 

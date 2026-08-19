@@ -6,18 +6,31 @@ on:
       - "supabase/migrations/20260818125000_social_core_foundation.sql"
       - "supabase/migrations/20260818133000_social_reactions.sql"
       - "supabase/migrations/20260818143000_social_comments.sql"
+      - "supabase/migrations/20260819130000_social_privacy_controls.sql"
+      - "supabase/migrations/20260819131500_social_relationship_guard_authority_fix.sql"
+      - "supabase/migrations/20260819132000_social_post_returning_rls_fix.sql"
       - "docs/security/TIGER_SOCIAL_REACTIONS_MIGRATION_SECURITY_REVIEW.md"
       - "docs/security/TIGER_SOCIAL_COMMENTS_MIGRATION_SECURITY_REVIEW.md"
+      - "docs/security/TIGER_SOCIAL_PRIVACY_CONTROLS_MIGRATION_SECURITY_REVIEW.md"
+      - "docs/security/TIGER_SOCIAL_RELATIONSHIP_GUARD_AUTHORITY_FIX_SECURITY_REVIEW.md"
+      - "docs/security/TIGER_SOCIAL_POST_RETURNING_RLS_FIX_SECURITY_REVIEW.md"
       - "tests/tiger-social-db-foundation.test.cjs"
       - "tests/tiger-social-db-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-reactions-db.test.cjs"
       - "tests/tiger-social-reactions-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-comments-db.test.cjs"
       - "tests/tiger-social-comments-reviewed-migration-hash.test.cjs"
+      - "tests/tiger-social-privacy-controls-db.test.cjs"
+      - "tests/tiger-social-privacy-controls-reviewed-migration-hash.test.cjs"
+      - "tests/tiger-social-relationship-guard-authority-fix.test.cjs"
+      - "tests/tiger-social-relationship-guard-reviewed-migration-hash.test.cjs"
+      - "tests/tiger-social-post-returning-rls-fix.test.cjs"
+      - "tests/tiger-social-post-returning-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-db-rehearsal-workflow.test.cjs"
       - "tests/sql/tiger-social-core-foundation.sql"
       - "tests/sql/tiger-social-reactions.sql"
       - "tests/sql/tiger-social-comments.sql"
+      - "tests/sql/tiger-social-privacy-controls.sql"
       - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
       - ".github/workflows/tiger-social-db-rehearsal.yml"
   pull_request:
@@ -25,18 +38,31 @@ on:
       - "supabase/migrations/20260818125000_social_core_foundation.sql"
       - "supabase/migrations/20260818133000_social_reactions.sql"
       - "supabase/migrations/20260818143000_social_comments.sql"
+      - "supabase/migrations/20260819130000_social_privacy_controls.sql"
+      - "supabase/migrations/20260819131500_social_relationship_guard_authority_fix.sql"
+      - "supabase/migrations/20260819132000_social_post_returning_rls_fix.sql"
       - "docs/security/TIGER_SOCIAL_REACTIONS_MIGRATION_SECURITY_REVIEW.md"
       - "docs/security/TIGER_SOCIAL_COMMENTS_MIGRATION_SECURITY_REVIEW.md"
+      - "docs/security/TIGER_SOCIAL_PRIVACY_CONTROLS_MIGRATION_SECURITY_REVIEW.md"
+      - "docs/security/TIGER_SOCIAL_RELATIONSHIP_GUARD_AUTHORITY_FIX_SECURITY_REVIEW.md"
+      - "docs/security/TIGER_SOCIAL_POST_RETURNING_RLS_FIX_SECURITY_REVIEW.md"
       - "tests/tiger-social-db-foundation.test.cjs"
       - "tests/tiger-social-db-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-reactions-db.test.cjs"
       - "tests/tiger-social-reactions-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-comments-db.test.cjs"
       - "tests/tiger-social-comments-reviewed-migration-hash.test.cjs"
+      - "tests/tiger-social-privacy-controls-db.test.cjs"
+      - "tests/tiger-social-privacy-controls-reviewed-migration-hash.test.cjs"
+      - "tests/tiger-social-relationship-guard-authority-fix.test.cjs"
+      - "tests/tiger-social-relationship-guard-reviewed-migration-hash.test.cjs"
+      - "tests/tiger-social-post-returning-rls-fix.test.cjs"
+      - "tests/tiger-social-post-returning-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-db-rehearsal-workflow.test.cjs"
       - "tests/sql/tiger-social-core-foundation.sql"
       - "tests/sql/tiger-social-reactions.sql"
       - "tests/sql/tiger-social-comments.sql"
+      - "tests/sql/tiger-social-privacy-controls.sql"
       - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
       - ".github/workflows/tiger-social-db-rehearsal.yml"
   workflow_dispatch:
@@ -87,6 +113,12 @@ jobs:
           node --test tests/tiger-social-reactions-reviewed-migration-hash.test.cjs
           node --test tests/tiger-social-comments-db.test.cjs
           node --test tests/tiger-social-comments-reviewed-migration-hash.test.cjs
+          node --test tests/tiger-social-privacy-controls-db.test.cjs
+          node --test tests/tiger-social-privacy-controls-reviewed-migration-hash.test.cjs
+          node --test tests/tiger-social-relationship-guard-authority-fix.test.cjs
+          node --test tests/tiger-social-relationship-guard-reviewed-migration-hash.test.cjs
+          node --test tests/tiger-social-post-returning-rls-fix.test.cjs
+          node --test tests/tiger-social-post-returning-reviewed-migration-hash.test.cjs
           node --test tests/tiger-social-db-rehearsal-workflow.test.cjs
 
       - name: Assert local-only safety contract
@@ -130,13 +162,24 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          mkdir -p /tmp/tiger-social-db-rehearsal
           PGPASSWORD=postgres psql \
             -h 127.0.0.1 \
             -p 54322 \
             -U postgres \
             -d postgres \
             -v ON_ERROR_STOP=1 \
-            -f tests/sql/tiger-social-reactions.sql
+            -f tests/sql/tiger-social-reactions.sql \
+            2>&1 | tee /tmp/tiger-social-db-rehearsal/reactions.log
+
+      - name: Upload Social Reactions rehearsal evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: tiger-social-reactions-rehearsal-${{ env.SOURCE_SHA }}
+          path: /tmp/tiger-social-db-rehearsal/reactions.log
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Prove Social Comments RPC and reply behavior
         shell: bash
@@ -149,6 +192,18 @@ jobs:
             -d postgres \
             -v ON_ERROR_STOP=1 \
             -f tests/sql/tiger-social-comments.sql
+
+      - name: Prove Social Privacy block mute report behavior
+        shell: bash
+        run: |
+          set -euo pipefail
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 \
+            -p 54322 \
+            -U postgres \
+            -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/tiger-social-privacy-controls.sql
 
       - name: Verify source remained immutable
         shell: bash

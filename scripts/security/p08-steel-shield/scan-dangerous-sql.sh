@@ -92,6 +92,27 @@ declare -A reviewed_migration_hashes=(
   # four exact authenticated EXECUTE grants. Browser table CRUD remains revoked;
   # actor, visibility, one-level reply, and ownership checks stay server-side.
   ["supabase/migrations/20260818143000_social_comments.sql"]="3bb5c018cb0508c91f5ead0a38f044f2293d35066e43bf796c59148305e720e7"
+
+  # Social Privacy Controls: reviewed with CRITICAL=0. The 24 HIGH findings are
+  # content-addressed and classified as 16 NOT NULL integrity rules on three new
+  # empty tables, one in-place block-aware RLS policy hardening, and seven exact
+  # authenticated EXECUTE grants on bounded RPCs/helpers. Direct browser table CRUD,
+  # anonymous execution, destructive policy drops, and unpinned SECURITY DEFINER paths
+  # remain forbidden. Any byte drift invalidates this baseline automatically.
+  ["supabase/migrations/20260819130000_social_privacy_controls.sql"]="a6dca63b5b2775af7c6f0eb0a7b3f252e6d21e1cbbca224984498c1664a04490"
+
+  # Social relationship guard authority correction: reviewed as a forward-only,
+  # byte-exact trigger authority repair. The four scanner HIGH findings are lexical
+  # `IS NOT NULL` control-flow matches, not schema NOT NULL operations. The guard pins
+  # search_path, derives the signed actor server-side, preserves relationship invariants,
+  # and keeps the private block-pair oracle non-executable by browser roles.
+  ["supabase/migrations/20260819131500_social_relationship_guard_authority_fix.sql"]="866129891ada5e74517f8909a488042716530f5dad896327d064084409c10b40"
+
+  # Social post RETURNING compatibility: reviewed as a forward-only owner-read policy.
+  # PostgreSQL applies SELECT RLS to INSERT ... RETURNING. This policy restates only the
+  # already-authorized owner visibility directly on the proposed row, keeps the private
+  # block oracle closed, and bounds policy-creation lock acquisition to two seconds.
+  ["supabase/migrations/20260819132000_social_post_returning_rls_fix.sql"]="f77360e08346827bbbcb0794fabcaf30bc87ae609917bf31dc49368638f1b6dd"
 )
 
 reviewed_baseline_path() {
