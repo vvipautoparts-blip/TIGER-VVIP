@@ -8,6 +8,13 @@ on:
       - 'scripts/project-control/global-production-closure-gate.js'
       - 'scripts/project-control/global-production-closure-gate.test.js'
       - '.github/workflows/global-production-closure-tdd.yml'
+  pull_request:
+    branches:
+      - feat/tiger-one-living-surface-impl-20260818
+    paths:
+      - 'scripts/project-control/global-production-closure-gate.js'
+      - 'scripts/project-control/global-production-closure-gate.test.js'
+      - '.github/workflows/global-production-closure-tdd.yml'
   workflow_dispatch:
 
 permissions:
