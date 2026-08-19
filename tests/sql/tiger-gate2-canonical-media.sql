@@ -85,6 +85,7 @@ select * from public.vvip_social_media_webhook_claim() \gset claim_a_
 select public.vvip_social_media_finalize_event(
   :'claim_a_event_id'::uuid,
   :'claim_a_media_id'::uuid,
+  :'claim_a_attempt_count'::smallint,
   repeat('b', 64),
   'image/jpeg',
   100000,
@@ -168,6 +169,7 @@ select * from public.vvip_social_media_webhook_claim() \gset claim_b_
 select public.vvip_social_media_finalize_event(
   :'claim_b_event_id'::uuid,
   :'claim_b_media_id'::uuid,
+  :'claim_b_attempt_count'::smallint,
   repeat('b', 64),
   'image/jpeg',
   100000,
@@ -220,31 +222,31 @@ from public.vvip_social_media_webhook_accept_storage(
   :'d_quarantine_storage_path'
 ) \gset event_d_
 select * from public.vvip_social_media_webhook_claim() \gset d_claim1_
-select public.vvip_social_media_webhook_fail(:'d_claim1_event_id'::uuid, 'REHEARSAL_FAILURE_1') as d_state1 \gset
+select public.vvip_social_media_webhook_fail(:'d_claim1_event_id'::uuid, :'d_claim1_attempt_count'::smallint, 'REHEARSAL_FAILURE_1') as d_state1 \gset
 reset role;
 
 update public.vvip_social_media_webhook_inbox set next_attempt_at = statement_timestamp() - interval '1 second' where event_id = :'event_d_event_id'::uuid;
 set local role service_role;
 select * from public.vvip_social_media_webhook_claim() \gset d_claim2_
-select public.vvip_social_media_webhook_fail(:'d_claim2_event_id'::uuid, 'REHEARSAL_FAILURE_2') as d_state2 \gset
+select public.vvip_social_media_webhook_fail(:'d_claim2_event_id'::uuid, :'d_claim2_attempt_count'::smallint, 'REHEARSAL_FAILURE_2') as d_state2 \gset
 reset role;
 
 update public.vvip_social_media_webhook_inbox set next_attempt_at = statement_timestamp() - interval '1 second' where event_id = :'event_d_event_id'::uuid;
 set local role service_role;
 select * from public.vvip_social_media_webhook_claim() \gset d_claim3_
-select public.vvip_social_media_webhook_fail(:'d_claim3_event_id'::uuid, 'REHEARSAL_FAILURE_3') as d_state3 \gset
+select public.vvip_social_media_webhook_fail(:'d_claim3_event_id'::uuid, :'d_claim3_attempt_count'::smallint, 'REHEARSAL_FAILURE_3') as d_state3 \gset
 reset role;
 
 update public.vvip_social_media_webhook_inbox set next_attempt_at = statement_timestamp() - interval '1 second' where event_id = :'event_d_event_id'::uuid;
 set local role service_role;
 select * from public.vvip_social_media_webhook_claim() \gset d_claim4_
-select public.vvip_social_media_webhook_fail(:'d_claim4_event_id'::uuid, 'REHEARSAL_FAILURE_4') as d_state4 \gset
+select public.vvip_social_media_webhook_fail(:'d_claim4_event_id'::uuid, :'d_claim4_attempt_count'::smallint, 'REHEARSAL_FAILURE_4') as d_state4 \gset
 reset role;
 
 update public.vvip_social_media_webhook_inbox set next_attempt_at = statement_timestamp() - interval '1 second' where event_id = :'event_d_event_id'::uuid;
 set local role service_role;
 select * from public.vvip_social_media_webhook_claim() \gset d_claim5_
-select public.vvip_social_media_webhook_fail(:'d_claim5_event_id'::uuid, 'REHEARSAL_FAILURE_5') as d_state5 \gset
+select public.vvip_social_media_webhook_fail(:'d_claim5_event_id'::uuid, :'d_claim5_attempt_count'::smallint, 'REHEARSAL_FAILURE_5') as d_state5 \gset
 reset role;
 
 select (
@@ -261,6 +263,130 @@ where inbox.event_id = :'event_d_event_id'::uuid
   \echo GATE2_BOUNDED_DLQ=PASS
 \else
   \echo GATE2_BOUNDED_DLQ=FAIL
+  \quit 1
+\endif
+
+-- ---------------------------------------------------------------------------
+-- Hard-kill recovery + claim-generation fencing. A worker abandoned in
+-- processing for five minutes is requeued, then a stale previous generation is
+-- unable to fail/finalize the newly claimed generation. An abandoned fifth
+-- attempt terminates in DLQ rather than overflowing attempt_count.
+-- ---------------------------------------------------------------------------
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"user_gate2_alice"}', true);
+insert into public.vvip_social_posts (body, audience)
+values ('gate2-stale-worker-proof', 'only_me')
+returning post_id as post_stale \gset
+select *
+from public.vvip_social_media_reserve_upload(
+  :'post_stale'::uuid,
+  'gate2-idempotency-stale-0001'
+) \gset stale_
+reset role;
+
+set local role service_role;
+select *
+from public.vvip_social_media_webhook_accept_storage(
+  '55555555-5555-4555-8555-555555555555',
+  repeat('5', 64),
+  'social-private-media',
+  :'stale_quarantine_storage_path'
+) \gset stale_event_
+select * from public.vvip_social_media_webhook_claim() \gset stale_claim1_
+reset role;
+
+update public.vvip_social_media_webhook_inbox
+set locked_at = statement_timestamp() - interval '6 minutes'
+where event_id = :'stale_event_event_id'::uuid;
+
+-- No Vault secrets are present, but dispatcher must still recover the stale DB lease.
+select (public.vvip_social_media_dispatch_worker() is null) as stale_dispatch_no_network \gset
+select (
+  event_state = 'pending'
+  and attempt_count = 1
+  and locked_at is null
+  and last_error_code = 'SOCIAL_MEDIA_WORKER_LEASE_EXPIRED'
+) as stale_requeued
+from public.vvip_social_media_webhook_inbox
+where event_id = :'stale_event_event_id'::uuid
+\gset
+\if :stale_requeued
+  \echo GATE2_STALE_WORKER_RECOVERY=PASS
+\else
+  \echo GATE2_STALE_WORKER_RECOVERY=FAIL
+  \quit 1
+\endif
+
+set local role service_role;
+select * from public.vvip_social_media_webhook_claim() \gset stale_claim2_
+reset role;
+
+select (:'stale_claim2_attempt_count'::integer = 2) as stale_generation_advanced \gset
+\if :stale_generation_advanced
+  \echo GATE2_STALE_WORKER_GENERATION_ADVANCE=PASS
+\else
+  \echo GATE2_STALE_WORKER_GENERATION_ADVANCE=FAIL
+  \quit 1
+\endif
+
+select set_config('tiger.gate2.stale_event', :'stale_event_event_id', true);
+do $gate2_stale$
+begin
+  begin
+    perform public.vvip_social_media_webhook_fail(
+      current_setting('tiger.gate2.stale_event')::uuid,
+      1::smallint,
+      'STALE_WORKER_MUST_NOT_MUTATE'
+    );
+    raise exception 'GATE2_STALE_FENCE_DID_NOT_REJECT';
+  exception
+    when others then
+      if sqlerrm <> 'SOCIAL_MEDIA_WORKER_CLAIM_STALE' then
+        raise;
+      end if;
+  end;
+end;
+$gate2_stale$;
+\echo GATE2_STALE_WORKER_FENCE=PASS
+
+select (
+  pg_get_functiondef(
+    'public.vvip_social_media_finalize_event(uuid,uuid,smallint,text,text,integer,integer,integer,text,text,integer,text,integer,integer,text,text)'::regprocedure
+  ) like '%attempt_count <> expected_attempt_count%'
+  and pg_get_functiondef(
+    'public.vvip_social_media_webhook_fail(uuid,smallint,text)'::regprocedure
+  ) like '%attempt_count <> expected_attempt_count%'
+) as stale_both_mutations_fenced \gset
+\if :stale_both_mutations_fenced
+  \echo GATE2_STALE_FINALIZE_FAIL_FENCED=PASS
+\else
+  \echo GATE2_STALE_FINALIZE_FAIL_FENCED=FAIL
+  \quit 1
+\endif
+
+-- Simulate hard death on the fifth claim generation. Recovery must dead-letter
+-- directly and must never try to produce attempt_count=6.
+update public.vvip_social_media_webhook_inbox
+set attempt_count = 5,
+    locked_at = statement_timestamp() - interval '6 minutes'
+where event_id = :'stale_event_event_id'::uuid
+  and event_state = 'processing';
+
+select (public.vvip_social_media_dispatch_worker() is null) as stale_fifth_dispatch_no_network \gset
+select (
+  inbox.event_state = 'dead_letter'
+  and inbox.attempt_count = 5
+  and inbox.last_error_code = 'SOCIAL_MEDIA_WORKER_LEASE_EXPIRED'
+  and asset.media_state = 'failed'
+) as stale_fifth_dead_letter
+from public.vvip_social_media_webhook_inbox inbox
+join public.vvip_social_media_assets asset on asset.media_id = inbox.media_id
+where inbox.event_id = :'stale_event_event_id'::uuid
+\gset
+\if :stale_fifth_dead_letter
+  \echo GATE2_STALE_FIFTH_ATTEMPT_DLQ=PASS
+\else
+  \echo GATE2_STALE_FIFTH_ATTEMPT_DLQ=FAIL
   \quit 1
 \endif
 
@@ -286,6 +412,8 @@ select exists (
 select (
   not has_function_privilege('authenticated', 'public.vvip_social_media_dispatch_worker()', 'EXECUTE')
   and not has_function_privilege('service_role', 'public.vvip_social_media_dispatch_worker()', 'EXECUTE')
+  and not has_function_privilege('authenticated', 'public.vvip_social_media_recover_stale_processing(integer)', 'EXECUTE')
+  and not has_function_privilege('service_role', 'public.vvip_social_media_recover_stale_processing(integer)', 'EXECUTE')
 ) as worker_dispatch_private \gset
 \if :worker_dispatch_private
   \echo GATE2_WORKER_DISPATCH_PRIVATE=PASS
