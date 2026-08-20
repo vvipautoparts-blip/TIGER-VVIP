@@ -9,11 +9,25 @@ const migrationPath = path.resolve(
   __dirname,
   "../supabase/migrations/20260820223000_profile_owner_boundary.sql",
 );
+const proofPath = path.resolve(
+  __dirname,
+  "sql/tiger-profile-owner-boundary.sql",
+);
 
 function readMigration() {
   assert.equal(fs.existsSync(migrationPath), true, "profile owner boundary migration must exist");
   return fs.readFileSync(migrationPath, "utf8").toLowerCase();
 }
+
+test("owner boundary proof uses production-valid Clerk subject fixtures", () => {
+  const proof = fs.readFileSync(proofPath, "utf8");
+  const subjects = [...proof.matchAll(/"sub":"([^"]+)"/g)].map((match) => match[1]);
+
+  assert.ok(subjects.length > 0, "owner boundary proof must set authenticated subjects");
+  for (const subject of subjects) {
+    assert.match(subject, /^user_[A-Za-z0-9_-]{6,128}$/);
+  }
+});
 
 test("owner profile RPCs derive identity from the canonical Clerk-backed actor boundary", () => {
   const sql = readMigration();

@@ -32,7 +32,7 @@ select (
 \endif
 
 set local role authenticated;
-select set_config('request.jwt.claims', '{"sub":"user_alice"}', true);
+select set_config('request.jwt.claims', '{"sub":"user_alice01"}', true);
 select public.vvip_upsert_my_social_profile(
   'Alice Tiger',
   'https://example.invalid/alice.png',
@@ -48,7 +48,7 @@ select (
   and :'alice_saved'::jsonb->>'status' = 'profile_saved'
   and :'alice_saved'::jsonb->'profile'->>'display_name' = 'Alice Tiger'
   and :'alice_saved'::jsonb->'profile'->>'profile_state' = 'active'
-  and position('user_alice' in :'alice_saved') = 0
+  and position('user_alice01' in :'alice_saved') = 0
 ) as alice_owner_create
 \gset
 \if :alice_owner_create
@@ -63,7 +63,7 @@ select public.vvip_get_my_social_profile() as alice_loaded
 select (
   :'alice_loaded'::jsonb->>'status' = 'profile_loaded'
   and :'alice_loaded'::jsonb->'profile'->>'display_name' = 'Alice Tiger'
-  and position('user_alice' in :'alice_loaded') = 0
+  and position('user_alice01' in :'alice_loaded') = 0
 ) as alice_owner_read
 \gset
 \if :alice_owner_read
@@ -76,11 +76,11 @@ select (
 reset role;
 select profile_id as alice_profile_id
 from public.vvip_social_profile_projection
-where subject = 'user_alice'
+where subject = 'user_alice01'
 \gset
 
 set local role authenticated;
-select set_config('request.jwt.claims', '{"sub":"user_bob01"}', true);
+select set_config('request.jwt.claims', '{"sub":"user_bob001"}', true);
 select public.vvip_upsert_my_social_profile(
   'Bob Tiger',
   null,
@@ -94,8 +94,8 @@ select public.vvip_upsert_my_social_profile(
 reset role;
 select (
   (select display_name from public.vvip_social_profile_projection where profile_id = :'alice_profile_id'::uuid) = 'Alice Tiger'
-  and (select count(*) from public.vvip_social_profile_projection where subject = 'user_alice') = 1
-  and (select count(*) from public.vvip_social_profile_projection where subject = 'user_bob01') = 1
+  and (select count(*) from public.vvip_social_profile_projection where subject = 'user_alice01') = 1
+  and (select count(*) from public.vvip_social_profile_projection where subject = 'user_bob001') = 1
 ) as owner_profiles_subject_isolated
 \gset
 \if :owner_profiles_subject_isolated
@@ -107,10 +107,10 @@ select (
 
 update public.vvip_social_profile_projection
 set profile_state = 'deactivated'
-where subject = 'user_alice';
+where subject = 'user_alice01';
 
 set local role authenticated;
-select set_config('request.jwt.claims', '{"sub":"user_alice"}', true);
+select set_config('request.jwt.claims', '{"sub":"user_alice01"}', true);
 do $proof$
 begin
   begin
@@ -130,10 +130,10 @@ $proof$;
 reset role;
 update public.vvip_social_profile_projection
 set profile_state = 'deleted'
-where subject = 'user_alice';
+where subject = 'user_alice01';
 
 set local role authenticated;
-select set_config('request.jwt.claims', '{"sub":"user_alice"}', true);
+select set_config('request.jwt.claims', '{"sub":"user_alice01"}', true);
 do $proof$
 begin
   begin
@@ -156,7 +156,7 @@ select (
   and display_name = 'Alice Tiger'
 ) as owner_profile_lifecycle_preserved
 from public.vvip_social_profile_projection
-where subject = 'user_alice'
+where subject = 'user_alice01'
 \gset
 \if :owner_profile_lifecycle_preserved
   \echo OWNER_PROFILE_LIFECYCLE_PRESERVED=PASS
