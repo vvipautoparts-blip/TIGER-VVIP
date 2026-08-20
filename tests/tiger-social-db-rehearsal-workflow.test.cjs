@@ -8,6 +8,7 @@ const workflow = fs.readFileSync(".github/workflows/tiger-social-db-rehearsal.ym
 const foundationBehavior = fs.readFileSync("tests/sql/tiger-social-core-foundation.sql", "utf8");
 const reactionBehavior = fs.readFileSync("tests/sql/tiger-social-reactions.sql", "utf8");
 const commentBehavior = fs.readFileSync("tests/sql/tiger-social-comments.sql", "utf8");
+const ownerProfileBehavior = fs.readFileSync("tests/sql/tiger-profile-owner-boundary.sql", "utf8");
 
 test("Social DB rehearsal is exact-head and local-only", () => {
   assert.match(workflow, /github\.event\.pull_request\.head\.sha \|\| github\.sha/);
@@ -17,12 +18,16 @@ test("Social DB rehearsal is exact-head and local-only", () => {
   assert.doesNotMatch(workflow, /supabase db push|--linked|SUPABASE_ACCESS_TOKEN:\s*\$\{\{/);
 });
 
-test("Social DB rehearsal applies foundation reaction and comment proofs and always stops local stack", () => {
+test("Social DB rehearsal applies social and profile proofs and always stops local stack", () => {
   assert.match(workflow, /tests\/sql\/tiger-social-core-foundation\.sql/);
   assert.match(workflow, /tests\/sql\/tiger-social-reactions\.sql/);
   assert.match(workflow, /tests\/sql\/tiger-social-comments\.sql/);
+  assert.match(workflow, /tests\/sql\/tiger-public-profile-projection\.sql/);
+  assert.match(workflow, /tests\/sql\/tiger-profile-owner-boundary\.sql/);
   assert.match(workflow, /tiger-social-reactions-reviewed-migration-hash\.test\.cjs/);
   assert.match(workflow, /tiger-social-comments-reviewed-migration-hash\.test\.cjs/);
+  assert.match(workflow, /tiger-public-profile-projection-reviewed-migration-hash\.test\.cjs/);
+  assert.match(workflow, /tiger-profile-owner-boundary-reviewed-migration-hash\.test\.cjs/);
   assert.match(workflow, /psql/);
   assert.match(workflow, /if:\s*always\(\)/);
   assert.match(workflow, /supabase stop --no-backup/);
@@ -63,4 +68,17 @@ test("comment behavior proof covers RPC-only access visibility reply depth and o
   assert.match(commentBehavior, /COMMENT_HIDDEN_POST_DENIED=PASS/);
   assert.match(commentBehavior, /TIGER_SOCIAL_COMMENTS_DB_BEHAVIOR=PASS/);
   assert.match(commentBehavior, /rollback;/i);
+});
+
+test("owner profile behavior proof covers self-only mutation and lifecycle fail-closed semantics", () => {
+  assert.match(ownerProfileBehavior, /OWNER_PROFILE_NO_DIRECT_BROWSER_CRUD=PASS/);
+  assert.match(ownerProfileBehavior, /OWNER_PROFILE_RPC_BOUNDARY=PASS/);
+  assert.match(ownerProfileBehavior, /OWNER_PROFILE_SELF_CREATE=PASS/);
+  assert.match(ownerProfileBehavior, /OWNER_PROFILE_SELF_READ=PASS/);
+  assert.match(ownerProfileBehavior, /OWNER_PROFILE_CROSS_USER_ISOLATION=PASS/);
+  assert.match(ownerProfileBehavior, /OWNER_PROFILE_DEACTIVATED_MUTATION_DENIED=PASS/);
+  assert.match(ownerProfileBehavior, /OWNER_PROFILE_DELETED_MUTATION_DENIED=PASS/);
+  assert.match(ownerProfileBehavior, /OWNER_PROFILE_LIFECYCLE_PRESERVED=PASS/);
+  assert.match(ownerProfileBehavior, /TIGER_PROFILE_OWNER_BOUNDARY_DB_BEHAVIOR=PASS/);
+  assert.match(ownerProfileBehavior, /rollback;/i);
 });
