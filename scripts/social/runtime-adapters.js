@@ -107,6 +107,32 @@
     return { ok: true, value };
   }
 
+  function normalizeFeedCursor(options) {
+    if (!options || !Object.hasOwn(options, "cursor") || options.cursor === null || options.cursor === undefined) {
+      return { ok: true, value: null };
+    }
+
+    const cursor = options.cursor;
+    if (!cursor || typeof cursor !== "object" || Array.isArray(cursor)) {
+      return { ok: false, code: "SOCIAL_INVALID_FEED_CURSOR" };
+    }
+
+    const createdAt = cursor.createdAt;
+    const postId = cursor.postId;
+    const safeTimestamp = typeof createdAt === "string"
+      && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$/.test(createdAt)
+      && Number.isFinite(Date.parse(createdAt));
+
+    if (!safeTimestamp || !validPostUuid(postId)) {
+      return { ok: false, code: "SOCIAL_INVALID_FEED_CURSOR" };
+    }
+
+    return {
+      ok: true,
+      value: Object.freeze({ createdAt, postId }),
+    };
+  }
+
   async function execute(operation, requireConfirmation) {
     try {
       const response = await operation();
@@ -136,14 +162,43 @@
         const limit = normalizeLimit(options);
         if (!limit.ok) return frozenFailure(limit.code);
 
-        return execute(
-          () => client
-            .from(SOCIAL_POSTS_TABLE)
-            .select(POST_SELECT)
-            .order("created_at", { ascending: false })
-            .limit(limit.value),
+        const cursor = normalizeFeedCursor(options);
+        if (!cursor.ok) return frozenFailure(cursor.code);
+
+        const result = await execute(
+          () => {
+            let query = client
+              .from(SOCIAL_POSTS_TABLE)
+              .select(POST_SELECT)
+              .order("created_at", { ascending: false })
+              .order("post_id", { ascending: false });
+
+            if (cursor.value) {
+              query = query.or(
+                `created_at.lt.${cursor.value.createdAt},and(created_at.eq.${cursor.value.createdAt},post_id.lt.${cursor.value.postId})`
+              );
+            }
+
+            return query.limit(limit.value + 1);
+          },
           false
         );
+
+        if (!result.ok) return result;
+
+        const rows = Array.isArray(result.value) ? result.value : [];
+        const hasMore = rows.length > limit.value;
+        const value = rows.slice(0, limit.value);
+        const last = value.length ? value[value.length - 1] : null;
+        const nextCursor = hasMore && last
+          ? Object.freeze({ createdAt: last.created_at, postId: last.post_id })
+          : null;
+
+        return Object.freeze({
+          ok: true,
+          value,
+          page: Object.freeze({ hasMore, nextCursor }),
+        });
       },
 
       create: async function (input) {
