@@ -77,19 +77,19 @@ BEGIN
   IF char_length(v_display_name) < 1 OR char_length(v_display_name) > 160 THEN
     RAISE EXCEPTION 'SOCIAL_PROFILE_DISPLAY_NAME_INVALID';
   END IF;
-  IF v_avatar_url IS NOT NULL AND char_length(v_avatar_url) > 2048 THEN
+  IF coalesce(char_length(v_avatar_url), 0) > 2048 THEN
     RAISE EXCEPTION 'SOCIAL_PROFILE_AVATAR_URL_INVALID';
   END IF;
-  IF v_business_name IS NOT NULL AND char_length(v_business_name) > 200 THEN
+  IF coalesce(char_length(v_business_name), 0) > 200 THEN
     RAISE EXCEPTION 'SOCIAL_PROFILE_BUSINESS_NAME_INVALID';
   END IF;
-  IF v_location IS NOT NULL AND char_length(v_location) > 200 THEN
+  IF coalesce(char_length(v_location), 0) > 200 THEN
     RAISE EXCEPTION 'SOCIAL_PROFILE_LOCATION_INVALID';
   END IF;
-  IF v_specialization IS NOT NULL AND char_length(v_specialization) > 200 THEN
+  IF coalesce(char_length(v_specialization), 0) > 200 THEN
     RAISE EXCEPTION 'SOCIAL_PROFILE_SPECIALIZATION_INVALID';
   END IF;
-  IF v_business_description IS NOT NULL AND char_length(v_business_description) > 2000 THEN
+  IF coalesce(char_length(v_business_description), 0) > 2000 THEN
     RAISE EXCEPTION 'SOCIAL_PROFILE_DESCRIPTION_INVALID';
   END IF;
 
