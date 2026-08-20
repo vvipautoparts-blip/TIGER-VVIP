@@ -13,8 +13,8 @@ In scope:
 - durable messages with monotonic per-conversation sequence numbers;
 - idempotent client sends;
 - durable read cursors/receipts;
-- private Realtime Broadcast for low-latency message-created/read-cursor/revocation signals;
-- private Presence/typing as ephemeral hints only;
+- private database-originated Realtime Broadcast for low-latency message/read/revocation signals;
+- private Presence as ephemeral online/typing hints only;
 - exact membership + block authorization;
 - reconnect/catch-up by keyset cursor;
 - conversation/channel epochs so future data never continues on a revoked topic;
@@ -191,9 +191,11 @@ Authorization requires:
 - pair is not blocked;
 - extension is explicitly `broadcast` or `presence`.
 
-Broadcast receive is allowed for authorized members. Client Broadcast send is restricted to an explicit ephemeral event allowlist (`typing`, `typing_stopped`) and never permits clients to forge `message_created`, `read_cursor_advanced`, or revocation events. Durable events are database-originated only.
+**Client Broadcast INSERT is not granted at all in Gate 3.** Browsers can receive authorized Broadcast events but cannot originate Broadcast, so they cannot forge `message_created`, `read_cursor_advanced`, or `conversation_revoked`. Durable Broadcast is database-originated only via `realtime.send(..., true)`.
 
-Presence is low-sensitivity ephemeral state. Presence payloads must not contain message bodies, email, phone, legal name, financial data, device secrets, precise location, or other sensitive content.
+Client Realtime INSERT is limited to `extension = 'presence'` for an authorized current-epoch topic. Typing is represented as low-frequency Presence metadata, not Broadcast.
+
+Presence is low-sensitivity ephemeral state. Cooperative clients use a tiny payload shape such as `{state: 'online'|'away', typing: boolean}`. No security or business invariant depends on client-supplied Presence content.
 
 ## 9. Cached-policy / block revocation defense
 
@@ -204,7 +206,7 @@ Defense:
 2. all **future durable broadcasts** use only the new current epoch topic;
 3. a blocked member cannot obtain/join the new epoch topic;
 4. the old topic receives no future durable message/read data;
-5. a best-effort `conversation_revoked` signal may be emitted to the old epoch so cooperative clients tear it down promptly, but security does not depend on the blocked client cooperating;
+5. a best-effort database-originated `conversation_revoked` signal may be emitted to the old epoch so cooperative clients tear it down promptly, but security does not depend on the blocked client cooperating;
 6. clients discard events whose epoch differs from the latest channel ticket they hold and re-resolve after auth refresh/reconnect/revocation.
 
 Thus stale cached authorization cannot expose future durable message data.
@@ -214,11 +216,12 @@ Thus stale cached authorization cannot expose future durable message data.
 Presence/typing are explicitly non-durable and non-authoritative.
 
 Rules:
-- presence state has a tiny allowlist such as `{state: 'online'|'away', device_session_tag?: opaque}`;
-- typing payload includes conversation id/epoch and boolean typing state only;
-- rate limits are client/server configured; no high-frequency telemetry over Presence;
+- presence state is treated only as UI hint;
+- typing is a boolean/short-lived Presence hint, not stored in PostgreSQL;
+- no high-frequency telemetry over Presence;
 - UI tolerates dropped, duplicated, reordered, or delayed ephemeral events;
-- no business invariant depends on Presence.
+- no business invariant depends on Presence;
+- no durable message body, financial data, credential, precise location, or other sensitive data is emitted by TIGER's own client implementation through Presence.
 
 ## 11. Reconnect and ordering
 
@@ -263,7 +266,7 @@ Static contracts must reject:
 - browser INSERT/UPDATE/DELETE on message tables;
 - public channels;
 - Postgres Changes as the Gate 3 primary transport;
-- client ability to forge durable broadcast event names;
+- any authenticated/client Broadcast INSERT policy;
 - offset pagination;
 - Supabase `auth.uid()` as a second identity authority where the current Clerk actor helper is required.
 
@@ -273,7 +276,7 @@ Transactional DB rehearsal must prove at minimum:
 - blocked pair open/send/ticket denied;
 - exactly two direct members;
 - duplicate client message id returns one durable row;
-- concurrent/serial sends produce monotonic unique sequences;
+- serial/concurrent-safe sends produce monotonic unique sequences;
 - unauthorized third party cannot read/send/get ticket;
 - keyset catch-up has no gap/duplication;
 - read cursor advances monotonically and cannot exceed durable tail;
@@ -281,7 +284,7 @@ Transactional DB rehearsal must prove at minimum:
 - old epoch fails fresh Realtime authorization helper;
 - new epoch authorizes only unblocked members;
 - durable events are generated with current epoch only;
-- ephemeral client event allowlist excludes durable event names.
+- authenticated Realtime INSERT can authorize Presence but not Broadcast.
 
 CI evidence must bind exact source SHA, migration/function/test hashes, DB rehearsal logs, and workflow hash into a Gate 3 artifact.
 
