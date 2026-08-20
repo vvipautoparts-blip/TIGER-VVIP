@@ -17,10 +17,16 @@ function source() {
   return fs.readFileSync(FUNCTION, 'utf8');
 }
 
-test('finalizer is service-only and uses constant-time worker-secret verification', () => {
+test('finalizer is service-only and verifies a bounded one-time HMAC worker challenge', () => {
   const text = source();
-  assert.match(text, /x-tiger-worker-secret/i);
-  assert.match(text, /timingSafe|constantTime|crypto\.subtle/i);
+  assert.match(text, /x-tiger-worker-signature/i);
+  assert.match(text, /x-tiger-worker-timestamp/i);
+  assert.match(text, /x-tiger-worker-nonce/i);
+  assert.match(text, /crypto\.subtle\.importKey/i);
+  assert.match(text, /crypto\.subtle\.sign/i);
+  assert.match(text, /constantTime/i);
+  assert.match(text, /vvip_social_media_consume_worker_challenge/i);
+  assert.doesNotMatch(text, /request\.headers\.get\(\s*["']x-tiger-worker-secret["']\s*\)/i);
   assert.doesNotMatch(text, /auth\.getUser\s*\(/i);
   assert.match(text, /SUPABASE_SERVICE_ROLE_KEY/i);
 });
