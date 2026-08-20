@@ -1,0 +1,13 @@
+title = "TIGER Gitleaks policy"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Known non-secret historical idempotency fixture in the distribution-journal test"
+targetRules = ["generic-api-key"]
+condition = "AND"
+commits = ["413faabb778ea7ef466bfa026eed8fb640710c02"]
+paths = ['''^tests/vvip-distribution-journal\.test\.cjs$''']
+regexTarget = "line"
+regexes = ['''idempotencyKey:\s*"idem_distribution_001"''']
