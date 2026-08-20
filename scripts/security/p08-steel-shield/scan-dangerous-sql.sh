@@ -116,6 +116,12 @@ declare -A reviewed_migration_hashes=(
   # from the canonical Clerk-backed actor, lifecycle state is not a client input, and
   # non-active mutation fails closed. Any byte drift re-enters review automatically.
   ["supabase/migrations/20260820223000_profile_owner_boundary.sql"]="55bb7b98771cc26061a6d40625b9419627c38cc2ed2420a394bf35f4931013bc"
+
+  # Profile Lifecycle Boundary: reviewed with CRITICAL=0 after all three UPDATE
+  # predicates were made scanner-visible. The remaining findings are the two exact
+  # authenticated EXECUTE grants for self-deactivate/reactivate; trusted deletion stays
+  # service-role-only and browser table CRUD remains revoked. Byte drift re-enters review.
+  ["supabase/migrations/20260820231500_profile_lifecycle_boundary.sql"]="5e23b0f296e3b447ce42cc4d7bb11b42fe4c6cbed43d654b065d911f40a07b68"
 )
 
 reviewed_baseline_path() {
