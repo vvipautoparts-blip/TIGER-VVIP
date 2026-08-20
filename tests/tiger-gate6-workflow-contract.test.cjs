@@ -62,10 +62,12 @@ test('Gate 6 Cloudflare deployment is exact-version pinned and exact-SHA attribu
   const text = workflowText();
   assert.match(text, /wrangler@4\.124\.0 pages deploy/);
   assert.match(text, /--commit-hash "\$SOURCE_SHA"/);
-  assert.match(text, /pages deployment list/);
-  assert.match(text, /--json/);
+  assert.match(text, /api\.cloudflare\.com\/client\/v4\/accounts/);
+  assert.match(text, /\/pages\/projects\/\$\{CLOUDFLARE_PAGES_PROJECT\}\/deployments/);
   assert.match(text, /deployment_trigger/);
   assert.match(text, /commit_hash/);
+  assert.match(text, /deployment_id/);
+  assert.match(text, /staging_url/);
 });
 
 test('Gate 6 workflow runs live runtime verification and uploads sealed evidence', () => {
