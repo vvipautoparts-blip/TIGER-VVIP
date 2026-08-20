@@ -19,7 +19,6 @@ b585c591984e8034780ec2a5b55b8458002bd69b:tests/pr35/drafts-network.test.mjs:gene
 b585c591984e8034780ec2a5b55b8458002bd69b:tests/pr35/drafts-network.test.mjs:generic-api-key:78
 c1b390a024d5e906c0acd1ff6f3166a4de788bbe:tests/test_vvip_public_release.py:generic-api-key:126
 f3c94c1cdf9482c09731d122def8748c94164128:tests/vvip-commission-policy.test.cjs:generic-api-key:132
-fb0a0a023f7445c143ca88e16cf638174fb2c7fc:tests/tiger-gate5-network-chaos.test.mjs:generic-api-key:79
 
 # NON_SECRET_HASH (4): SHA-256/digest literals detected by entropy heuristics; not credentials.
 0098261e71b2aa7737bd20839eee605ea3cb8e73:.github/workflows/pcg-v1-production-config-verify.yml:generic-api-key:19
