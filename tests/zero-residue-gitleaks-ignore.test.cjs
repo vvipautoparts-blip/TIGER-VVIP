@@ -8,6 +8,7 @@ const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..');
 const IGNORE = path.join(ROOT, '.gitleaksignore');
 const EXACT_FINGERPRINT = /^[0-9a-f]{40}:.+:(?:generic-api-key|gcp-api-key|jwt|github-pat):[1-9][0-9]*$/;
+const GATE5_CHAOS_FIXTURE = 'fb0a0a023f7445c143ca88e16cf638174fb2c7fc:tests/tiger-gate5-network-chaos.test.mjs:generic-api-key:79';
 
 test('full-history Gitleaks exceptions are exact commit-scoped fingerprints only', () => {
   assert.equal(fs.existsSync(IGNORE), true, '.gitleaksignore must exist for reviewed historical findings');
@@ -18,6 +19,7 @@ test('full-history Gitleaks exceptions are exact commit-scoped fingerprints only
 
   assert.equal(entries.length, 76, 'reviewed baseline must match the classified 76-finding evidence set');
   assert.equal(new Set(entries).size, entries.length, 'historical fingerprint exceptions must be unique');
+  assert.ok(entries.includes(GATE5_CHAOS_FIXTURE), 'Gate 5 synthetic idempotency fixture must be reviewed by exact fingerprint');
 
   for (const entry of entries) {
     assert.match(entry, EXACT_FINGERPRINT, `exception must be exact commit:file:rule:line fingerprint: ${entry}`);
