@@ -9,6 +9,8 @@ const ROOT = path.resolve(__dirname, '..');
 const WORKER = path.join(ROOT, 'supabase/functions/tiger-notification-worker/index.ts');
 const ADAPTER = path.join(ROOT, 'supabase/functions/tiger-notification-worker/adapter.ts');
 const ADAPTER_TEST = path.join(ROOT, 'supabase/functions/tiger-notification-worker/adapter_test.ts');
+const AUTH = path.join(ROOT, 'supabase/functions/tiger-notification-worker/auth.ts');
+const AUTH_TEST = path.join(ROOT, 'supabase/functions/tiger-notification-worker/auth_test.ts');
 
 function readRequired(file, label) {
   assert.equal(fs.existsSync(file), true, `${label} missing: ${path.relative(ROOT, file)}`);
@@ -27,6 +29,24 @@ test('Gate 4 adapter exposes only normalized provider result classes and determi
   assert.match(text, /endpoint/i);
 });
 
+test('Gate 4 worker requires strict HMAC, expiry and durable replay consumption before claims', () => {
+  const worker = readRequired(WORKER, 'Gate 4 notification worker');
+  const auth = readRequired(AUTH, 'Gate 4 notification worker auth');
+  assert.match(worker, /TIGER_NOTIFICATION_WORKER_SECRET/);
+  assert.match(worker, /vvip_notification_consume_worker_challenge/);
+  assert.match(worker, /verifyWorkerChallenge/);
+  assert.match(auth, /x-tiger-worker-signature/i);
+  assert.match(auth, /x-tiger-worker-timestamp/i);
+  assert.match(auth, /x-tiger-worker-nonce/i);
+  assert.match(auth, /HMAC/i);
+  assert.match(auth, /SHA-256/i);
+  assert.match(auth, /WORKER_AUTH_WINDOW_SECONDS\s*=\s*60/);
+  assert.match(auth, /constantTimeEqual/);
+  assert.match(auth, /tiger-notification-worker-v1/);
+  assert.match(auth, /\/functions\/v1\/tiger-notification-worker/);
+  assert.ok(worker.indexOf('vvip_notification_consume_worker_challenge') < worker.indexOf('vvip_notification_claim_dispatches'), 'nonce must be consumed before dispatch claim');
+});
+
 test('Gate 4 repository worker fails closed instead of embedding production provider credentials', () => {
   const text = readRequired(WORKER, 'Gate 4 notification worker');
   assert.doesNotMatch(text, /APNS_KEY|FCM_SERVER_KEY|FIREBASE_PRIVATE_KEY|WEB_PUSH_PRIVATE_KEY|VAPID_PRIVATE_KEY/);
@@ -38,13 +58,13 @@ test('Gate 4 repository worker fails closed instead of embedding production prov
   assert.doesNotMatch(text, /auth\.uid\s*\(/i);
 });
 
-test('worker never logs endpoint capability or notification private payloads', () => {
+test('worker never logs endpoint capability, secrets or notification private payloads', () => {
   const text = readRequired(WORKER, 'Gate 4 notification worker');
-  assert.doesNotMatch(text, /console\.(?:log|info|debug|warn)\s*\([^\n]*(?:endpoint_capability|endpointCapability|template_args|message_body)/i);
-  assert.doesNotMatch(text, /JSON\.stringify\s*\([^\n]*(?:endpoint_capability|endpointCapability)/i);
+  assert.doesNotMatch(text, /console\.(?:log|info|debug|warn)\s*\([^\n]*(?:endpoint_capability|endpointCapability|template_args|message_body|WORKER_SECRET|signature|nonce)/i);
+  assert.doesNotMatch(text, /JSON\.stringify\s*\([^\n]*(?:endpoint_capability|endpointCapability|WORKER_SECRET)/i);
 });
 
-test('worker processes bounded batches through claim -> adapter -> settle only', () => {
+test('worker processes bounded batches through authenticated claim -> adapter -> settle only', () => {
   const text = readRequired(WORKER, 'Gate 4 notification worker');
   assert.match(text, /MAX_BATCH\s*=\s*(?:[1-9]|[12][0-9]|3[0-2])\b/);
   assert.match(text, /claim/i);
@@ -61,4 +81,13 @@ test('adapter has executable Deno tests for privacy and terminal normalization',
   assert.match(text, /expired|ttl/i);
   assert.match(text, /social_message|message/i);
   assert.match(text, /generic|redact/i);
+});
+
+test('worker HMAC module has executable Deno tests for signature, expiry and tamper denial', () => {
+  const text = readRequired(AUTH_TEST, 'Gate 4 worker HMAC tests');
+  assert.match(text, /Deno\.test/);
+  assert.match(text, /valid|accept/i);
+  assert.match(text, /expired/i);
+  assert.match(text, /tamper|invalid|signature/i);
+  assert.match(text, /nonce/i);
 });
