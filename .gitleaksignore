@@ -5,6 +5,7 @@
 # TEST_FIXTURE (16): Synthetic test-only credential/identifier fixtures; exact historical fingerprints only.
 2fe1b6a2f0a0b624eb6cc5a683a4055b07bd3388:tests/ai01-control-plane.test.cjs:generic-api-key:92
 413faabb778ea7ef466bfa026eed8fb640710c02:tests/vvip-distribution-journal.test.cjs:generic-api-key:27
+fb0a0a023f7445c143ca88e16cf638174fb2c7fc:tests/tiger-gate5-network-chaos.test.mjs:generic-api-key:79
 6303f799b01e6b80c337b090b9baee9599bb8035:tests/test_vvip_public_release.py:generic-api-key:79
 6303f799b01e6b80c337b090b9baee9599bb8035:tests/test_vvip_public_release.py:generic-api-key:94
 6e8a20c8bd7b62d83fb671b6d4f56a0564ebe06a:tests/tsrf-evidence-hardening.test.cjs:jwt:193
