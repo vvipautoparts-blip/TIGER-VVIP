@@ -102,7 +102,8 @@ test('expired worker leases are recovered with generation fencing and terminal b
   const text = recoverySql();
   assert.match(text, /state\s*=\s*'leased'/i);
   assert.match(text, /lease_expires_at\s*<=\s*statement_timestamp\s*\(\s*\)/i);
-  assert.match(text, /generation\s*=\s*generation\s*\+\s*1/i);
+  assert.match(text, /generation\s*=\s*dispatch\.generation\s*\+\s*1/i);
+  assert.doesNotMatch(text, /generation\s*=\s*generation\s*\+\s*1/i);
   assert.match(text, /attempt_count\s*>=\s*5/i);
   assert.match(text, /dead_letter/i);
   assert.match(text, /retry_wait/i);
