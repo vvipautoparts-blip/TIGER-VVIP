@@ -32,6 +32,10 @@
     return Object.freeze({ ok: false, code });
   }
 
+  function frozenRateLimit() {
+    return Object.freeze({ ok: false, code: "SOCIAL_RATE_LIMITED", retryAfterMs: 5_000 });
+  }
+
   function frozenSuccess(value) {
     return Object.freeze({ ok: true, value });
   }
@@ -132,6 +136,9 @@
   async function execute(operation, requireConfirmation) {
     try {
       const response = await operation();
+      if (response && response.status === 429) {
+        return frozenRateLimit();
+      }
       if (!response || response.error) {
         return frozenFailure("SOCIAL_PERSISTENCE_FAILED");
       }
