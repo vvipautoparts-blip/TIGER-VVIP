@@ -162,7 +162,8 @@ test("feed read is bounded, newest-first, and relies on database RLS for visibil
   assert.equal(result.ok, true);
   assert.ok(recorder.calls.some((call) => call.type === "select" && call.table === "vvip_social_posts"));
   assert.ok(recorder.calls.some((call) => call.type === "order" && call.column === "created_at" && call.options.ascending === false));
-  assert.ok(recorder.calls.some((call) => call.type === "limit" && call.value === 25));
+  assert.ok(recorder.calls.some((call) => call.type === "order" && call.column === "post_id" && call.options.ascending === false));
+  assert.ok(recorder.calls.some((call) => call.type === "limit" && call.value === 26));
 });
 
 test("invalid client inputs fail before any database call", async () => {
