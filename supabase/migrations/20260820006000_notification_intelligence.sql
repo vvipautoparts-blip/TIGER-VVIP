@@ -720,7 +720,7 @@ begin
     if p_endpoint_capability is null or char_length(p_endpoint_capability) < 16 or char_length(p_endpoint_capability) > 4096 then
         raise exception 'TIGER_NOTIFICATION_ENDPOINT_INVALID';
     end if;
-    v_fingerprint := encode(digest(convert_to(p_endpoint_capability,'UTF8'),'sha256'),'hex');
+    v_fingerprint := encode(extensions.digest(convert_to(p_endpoint_capability,'UTF8'),'sha256'),'hex');
     select * into v_existing from public.vvip_notification_endpoints where endpoint_fingerprint = v_fingerprint for update;
     if found and v_existing.owner_subject <> v_actor then
         raise exception 'TIGER_NOTIFICATION_ENDPOINT_OWNERSHIP_CONFLICT';
