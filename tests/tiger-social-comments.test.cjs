@@ -69,8 +69,12 @@ test("Social Comments runtime uses only bounded RPCs and never chooses author id
   ]).then(() => {
     assert.deepEqual(calls, [
       {
-        name: "vvip_social_comment_list",
-        payload: { p_post_id: "11111111-1111-4111-8111-111111111111" },
+        name: "vvip_social_comment_list_keyset",
+        payload: {
+          p_post_id: "11111111-1111-4111-8111-111111111111",
+          p_cursor: null,
+          p_limit: 50,
+        },
       },
       {
         name: "vvip_social_comment_create",

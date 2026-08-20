@@ -9,8 +9,8 @@ if [[ ! -d "$TARGET_DIR" ]]; then
 fi
 
 declare -A PREFIX_COUNT
+declare -A PREV_PREFIX_BY_WIDTH
 issues=0
-prev_prefix=""
 
 while IFS= read -r -d '' file; do
   base="$(basename "$file")"
@@ -29,11 +29,13 @@ while IFS= read -r -d '' file; do
   prefix="${base%%_*}"
   PREFIX_COUNT["$prefix"]=$(( ${PREFIX_COUNT["$prefix"]:-0} + 1 ))
 
+  prefix_width="${#prefix}"
+  prev_prefix="${PREV_PREFIX_BY_WIDTH[$prefix_width]:-}"
   if [[ -n "$prev_prefix" ]] && [[ "$prefix" < "$prev_prefix" ]]; then
     echo "INVALID_ORDER:$file"
     issues=$((issues + 1))
   fi
-  prev_prefix="$prefix"
+  PREV_PREFIX_BY_WIDTH["$prefix_width"]="$prefix"
 
   if [[ ! -s "$file" ]]; then
     echo "EMPTY_FILE:$file"

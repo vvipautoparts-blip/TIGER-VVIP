@@ -107,6 +107,28 @@
     return { ok: true, value };
   }
 
+  function normalizeCursor(options) {
+    if (!options || !Object.hasOwn(options, "cursor") || options.cursor === null) {
+      return { ok: true, value: null };
+    }
+    const value = options.cursor;
+    if (typeof value !== "string" || value.length < 1 || value.length > 2048 || !/^[A-Za-z0-9_-]+$/.test(value)) {
+      return { ok: false, code: "SOCIAL_INVALID_FEED_CURSOR" };
+    }
+    return { ok: true, value };
+  }
+
+  function normalizeTimelineOptions(options, defaultLimit, prefix) {
+    const value = options && typeof options === "object" && !Array.isArray(options) ? options : {};
+    const limit = Object.hasOwn(value, "limit") ? value.limit : defaultLimit;
+    if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+      return { ok: false, code: `${prefix}_INVALID_LIMIT` };
+    }
+    const cursor = normalizeCursor(value);
+    if (!cursor.ok) return { ok: false, code: `${prefix}_INVALID_CURSOR` };
+    return { ok: true, limit, cursor: cursor.value };
+  }
+
   async function execute(operation, requireConfirmation) {
     try {
       const response = await operation();
@@ -131,18 +153,19 @@
 
     const posts = Object.freeze({
       readFeed: async function (options) {
-        if (!hasClient(client)) return unavailable();
-
         const limit = normalizeLimit(options);
         if (!limit.ok) return frozenFailure(limit.code);
 
+        const cursor = normalizeCursor(options);
+        if (!cursor.ok) return frozenFailure(cursor.code);
+        if (!hasRpcClient(client)) return unavailable();
+
         return execute(
-          () => client
-            .from(SOCIAL_POSTS_TABLE)
-            .select(POST_SELECT)
-            .order("created_at", { ascending: false })
-            .limit(limit.value),
-          false
+          () => client.rpc("vvip_social_feed_read_keyset", {
+            p_cursor: cursor.value,
+            p_limit: limit.value,
+          }),
+          true
         );
       },
 
@@ -164,16 +187,17 @@
     });
 
     const relationships = Object.freeze({
-      readMine: async function () {
-        if (!hasClient(client)) return unavailable();
+      readMine: async function (options) {
+        const page = normalizeTimelineOptions(options, 50, "SOCIAL_RELATIONSHIPS");
+        if (!page.ok) return frozenFailure(page.code);
+        if (!hasRpcClient(client)) return unavailable();
 
         return execute(
-          () => client
-            .from(SOCIAL_RELATIONSHIPS_TABLE)
-            .select(RELATIONSHIP_SELECT)
-            .order("updated_at", { ascending: false })
-            .limit(100),
-          false
+          () => client.rpc("vvip_social_relationship_read_keyset", {
+            p_cursor: page.cursor,
+            p_limit: page.limit,
+          }),
+          true
         );
       },
 
@@ -270,13 +294,19 @@
     });
 
     const comments = Object.freeze({
-      list: async function (postId) {
+      list: async function (postId, options) {
         if (!validPostUuid(postId)) {
           return frozenFailure("SOCIAL_INVALID_POST_ID");
         }
+        const page = normalizeTimelineOptions(options, 50, "SOCIAL_COMMENTS");
+        if (!page.ok) return frozenFailure(page.code);
         if (!hasRpcClient(client)) return unavailable();
         return execute(
-          () => client.rpc("vvip_social_comment_list", { p_post_id: postId }),
+          () => client.rpc("vvip_social_comment_list_keyset", {
+            p_post_id: postId,
+            p_cursor: page.cursor,
+            p_limit: page.limit,
+          }),
           true
         );
       },

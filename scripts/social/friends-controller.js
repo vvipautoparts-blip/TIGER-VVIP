@@ -204,12 +204,15 @@
       } catch (_) {
         return renderFailure();
       }
-      if (!response || response.ok !== true || !Array.isArray(response.value)) {
+      const rows = response && response.ok === true
+        ? (Array.isArray(response.value) ? response.value : response.value && response.value.items)
+        : null;
+      if (!Array.isArray(rows)) {
         return renderFailure();
       }
 
       const normalized = [];
-      for (const relationship of response.value) {
+      for (const relationship of rows) {
         const result = normalizeRelationship(relationship, actorSubject);
         if (!result.ok) return renderFailure();
         normalized.push(result.value);
@@ -229,7 +232,13 @@
       });
 
       host.replaceChildren(...normalized.map((item) => relationshipNode(documentObject, item)));
-      return frozen({ ok: true, count: normalized.length, empty: false });
+      const result = {
+        ok: true,
+        count: normalized.length,
+        empty: false,
+      };
+      if (!Array.isArray(response.value)) result.nextCursor = response.value.next_cursor;
+      return frozen(result);
     }
 
     async function withAuth(operation) {

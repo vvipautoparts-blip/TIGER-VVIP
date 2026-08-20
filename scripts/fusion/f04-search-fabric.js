@@ -150,6 +150,7 @@ const FIELD_WEIGHTS = Object.freeze([
 ]);
 const MAX_SEMANTIC_CONTRIBUTION = 20;
 const MAX_RESULTS = 100;
+const DEFAULT_PAGE_SIZE = 20;
 
 function comparable(value) {
   if (Array.isArray(value)) return normalizeSearchQuery(value.join(" ")).normalized;
@@ -311,19 +312,64 @@ function eligibleListing(listing, activeMarketCountry) {
   return typeof listing.id === "string" && listing.id.length > 0;
 }
 
+function cursorFailure(code) {
+  return deepFreeze({ ok: false, code });
+}
+
+function canonicalSearchContext(normalizedQuery, intent, activeMarketCountry) {
+  const filters = Object.fromEntries(Object.entries(intent.filters).sort(([left], [right]) => left.localeCompare(right)));
+  return deepFreeze({
+    query: normalizedQuery.normalized,
+    filters,
+    country: String(activeMarketCountry || "").trim().toUpperCase()
+  });
+}
+
+function encodeSearchCursor(payload) {
+  const bytes = new TextEncoder().encode(JSON.stringify(payload));
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/=/gu, "").replace(/\+/gu, "-").replace(/\//gu, "_");
+}
+
+function decodeSearchCursor(cursor) {
+  if (typeof cursor !== "string" || cursor.length < 1 || cursor.length > 2048 || !/^[A-Za-z0-9_-]+$/u.test(cursor)) return null;
+  try {
+    const base64 = cursor.replace(/-/gu, "+").replace(/_/gu, "/");
+    const padded = base64 + "=".repeat((4 - base64.length % 4) % 4);
+    const binary = atob(padded);
+    const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+    const payload = JSON.parse(new TextDecoder().decode(bytes));
+    if (
+      payload?.v !== 1
+      || payload.kind !== "marketplace_search"
+      || !payload.context
+      || typeof payload.context !== "object"
+      || Array.isArray(payload.context)
+      || !Number.isFinite(payload.after?.score)
+      || typeof payload.after?.id !== "string"
+    ) return null;
+    return payload;
+  } catch (_) {
+    return null;
+  }
+}
+
 export function searchListings(options = {}) {
   const safeOptions = options && typeof options === "object" && !Array.isArray(options) ? options : {};
-  const { query = "", listings = [], dictionaries = {}, activeMarketCountry = "", semanticScores = {} } = safeOptions;
+  const { query = "", listings = [], dictionaries = {}, activeMarketCountry = "", semanticScores = {}, cursor = null } = safeOptions;
+  const limit = Object.hasOwn(safeOptions, "limit") ? safeOptions.limit : DEFAULT_PAGE_SIZE;
+  if (!Number.isInteger(limit) || limit < 1 || limit > MAX_RESULTS) return cursorFailure("SEARCH_LIMIT_INVALID");
   const normalizedQuery = normalizeSearchQuery(query);
   const intent = extractSearchIntent(normalizedQuery, dictionaries);
   const source = Array.isArray(listings) ? listings : [];
   const eligible = source.filter((listing) => eligibleListing(listing, activeMarketCountry) && passesStructuredFilters(listing, intent.filters));
 
-  let selected;
+  let ranked;
   if (!normalizedQuery.tokens.length) {
-    selected = eligible.slice(0, MAX_RESULTS).map((listing) => deepFreeze(clonePlain(listing)));
+    ranked = eligible.map((listing) => ({ listing, score: 0 }));
   } else {
-    const ranked = [];
+    ranked = [];
     for (const listing of eligible) {
       const lexical = lexicalScore(listing, intent.textTokens);
       const semantic = boundedSemanticScore(semanticScores, listing.id);
@@ -331,9 +377,32 @@ export function searchListings(options = {}) {
       ranked.push({ listing, score: lexical + semantic });
     }
     ranked.sort((a, b) => b.score - a.score || String(a.listing.id).localeCompare(String(b.listing.id)));
-    selected = ranked.slice(0, MAX_RESULTS).map(({ listing }) => deepFreeze(clonePlain(listing)));
   }
 
-  const rescue = selected.length === 0 ? buildRescue({ normalizedQuery, intent, dictionaries, activeMarketCountry }) : deepFreeze({ spelling: [], locations: [], relaxedFilters: [], adjacentCategories: [], aliases: [] });
-  return deepFreeze({ query: normalizedQuery, intent, results: selected, rescue });
+  const context = canonicalSearchContext(normalizedQuery, intent, activeMarketCountry);
+  let start = 0;
+  if (cursor !== null) {
+    const decoded = decodeSearchCursor(cursor);
+    if (!decoded) return cursorFailure("SEARCH_CURSOR_INVALID");
+    if (JSON.stringify(decoded.context) !== JSON.stringify(context)) {
+      return cursorFailure("SEARCH_CURSOR_CONTEXT_MISMATCH");
+    }
+    const position = ranked.findIndex(({ listing, score }) => listing.id === decoded.after.id && score === decoded.after.score);
+    if (position < 0) return cursorFailure("SEARCH_CURSOR_INVALID");
+    start = position + 1;
+  }
+
+  const page = ranked.slice(start, start + limit);
+  const selected = page.map(({ listing }) => deepFreeze(clonePlain(listing)));
+  const last = page.at(-1);
+  const nextCursor = start + page.length < ranked.length && last
+    ? encodeSearchCursor({
+        v: 1,
+        kind: "marketplace_search",
+        context,
+        after: { score: last.score, id: last.listing.id }
+      })
+    : null;
+  const rescue = ranked.length === 0 ? buildRescue({ normalizedQuery, intent, dictionaries, activeMarketCountry }) : deepFreeze({ spelling: [], locations: [], relaxedFilters: [], adjacentCategories: [], aliases: [] });
+  return deepFreeze({ query: normalizedQuery, intent, results: selected, nextCursor, rescue });
 }

@@ -34,6 +34,14 @@ fs.writeFileSync(
   path.join(validMigrations, '202607200001_project_control_schema.sql'),
   'grant usage on schema project_control to service_role;\n'
 );
+fs.writeFileSync(
+  path.join(validMigrations, '20260721_legacy_width.sql'),
+  'select 1;\n'
+);
+fs.writeFileSync(
+  path.join(validMigrations, '202607220001_current_width.sql'),
+  'select 1;\n'
+);
 
 const validRes = spawnSync(
   'bash',
