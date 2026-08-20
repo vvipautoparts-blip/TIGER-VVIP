@@ -28,7 +28,7 @@ test('Gate 4 workflow is exact-SHA, pinned, local-only and evidence-producing', 
   assert.match(text, /deno\s+(?:test|check)/i);
   assert.match(text, /tests\/sql\/tiger-gate4-notification-intelligence\.sql/);
   assert.match(text, /TIGER_GATE4_DB_REHEARSAL=PASS/);
-  assert.match(text, /sha256sum[\s\S]*20260820006000_notification_intelligence\.sql[\s\S]*20260820006100_notification_worker_hmac_boundary\.sql[\s\S]*tiger-notification-worker[\s\S]*tiger-gate4-notification-intelligence-db\.test\.cjs[\s\S]*tiger-gate4-notification-workflow\.test\.cjs[\s\S]*tiger-gate4-notification-intelligence\.sql[\s\S]*tiger-gate4-notification-intelligence-rehearsal\.yml/);
+  assert.match(text, /sha256sum[\s\S]*20260820006000_notification_intelligence\.sql[\s\S]*20260820006100_notification_worker_hmac_boundary\.sql[\s\S]*20260820006200_notification_dispatch_stale_recovery\.sql[\s\S]*tiger-notification-worker[\s\S]*tiger-gate4-notification-intelligence-db\.test\.cjs[\s\S]*tiger-gate4-notification-workflow\.test\.cjs[\s\S]*tiger-gate4-notification-intelligence\.sql[\s\S]*tiger-gate4-notification-intelligence-rehearsal\.yml/);
   assert.match(text, /name:\s*tiger-gate4-notification-intelligence-rehearsal-\$\{\{\s*env\.SOURCE_SHA\s*\}\}/);
 });
 
