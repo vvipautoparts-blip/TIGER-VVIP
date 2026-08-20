@@ -144,6 +144,15 @@ declare -A reviewed_migration_hashes=(
   # nonce consumption. The raw Vault worker secret never crosses the HTTP boundary.
   # Any byte drift invalidates this content-addressed approval automatically.
   ["supabase/migrations/20260820003900_social_media_worker_hmac_boundary.sql"]="cd1dc04ab5f1b916f4a2fbb0a2444688d93e18ea5c98b1eeb4d3c1df1cfe8dae"
+
+  # Gate 3 subject validation + realtime messaging: reviewed against the exact scanner
+  # findings. The subject validator's NOT NULL hit is control-flow only. Messaging NOT
+  # NULL rules create new empty durable tables; all real UPDATE statements are bounded,
+  # realtime policy changes are private-topic authorization gates, and authenticated
+  # grants are exact RPC EXECUTE only. Durable tables retain FORCE RLS and browser table
+  # CRUD remains revoked. Any byte drift re-enters Steel Shield automatically.
+  ["supabase/migrations/20260820004900_social_subject_validation.sql"]="79282249a073995430543087e32a91221a11e1fa903df3d97ff322e5d6287ef1"
+  ["supabase/migrations/20260820005000_social_realtime_messaging.sql"]="451ae6c04aa3c4cba121a03e37dbe7ffb2af282e7274cffb8082b62b790077d5"
 )
 
 reviewed_baseline_path() {
