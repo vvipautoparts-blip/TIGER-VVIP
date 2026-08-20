@@ -2,7 +2,7 @@
 
 **الحالة:** `CURRENT OWNER ENTRYPOINT / NOT A SECOND AUTHORITY`
 
-**تاريخ التثبيت:** 2026-08-18
+**تاريخ التثبيت:** 2026-08-19
 
 **الغرض:** هذه هي الصفحة الأولى التي يعود إليها مالك VVIP TIGER في أي وقت لمعرفة أين توجد الحقيقة الحالية، وما الذي أُلغي، وما الذي يمنع ادعاء الجاهزية.
 
@@ -33,8 +33,10 @@
 3. `docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md` — هوية المنتج الاجتماعية الحالية ووضع Marketplace كوحدة داخلها.
 4. `docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة الإعلان المدفوع وخدمة الظهور التي تملكها المنصة.
 5. `docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md` — معمارية TIGER SYNAPSE v2 + TIGER VERITY FABRIC.
-6. `project-control/production-handover/current-authority.v1.json` — عقد التسليم الآلي وبوابات P01–P20.
-7. Git exact commit SHA + exact tree SHA + أدلة CI المطابقة لهما — حقيقة التنفيذ النهائية.
+6. `docs/owner-control/TIGER_SOVEREIGN_LIVING_SYSTEM_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة الضمان التشغيلي والإثبات والـPreview والمرونة والـRelease Rings.
+7. `docs/superpowers/specs/2026-08-19-tiger-sovereign-living-system-design.md` — المواصفة الهندسية لـTIGER Sovereign Living System 2026.
+8. `project-control/production-handover/current-authority.v1.json` — عقد التسليم الآلي وبوابات P01–P20.
+9. Git exact commit SHA + exact tree SHA + أدلة CI المطابقة لهما — حقيقة التنفيذ النهائية.
 
 إذا اختلف هذا المدخل المختصر مع حالة تنفيذ أحدث موثقة في المرجع الأول أو مع bytes المستودع وأدلة exact-head، تُصحح هذه الصفحة ولا تتحول إلى سلطة موازية.
 
@@ -45,6 +47,7 @@
 - **هوية المنتج الأساسية:** شبكة اجتماعية أولًا، وMarketplace وPulse وحدتان داخل المنتج وليستا هوية المنتج كلها.
 - **نظام الابتكار:** TIGER SYNAPSE v2 — Temporal Intent Operating System.
 - **نسيج الثقة والإصدار:** TIGER VERITY FABRIC.
+- **منظومة الضمان الحية:** TIGER Sovereign Living System 2026 — Proof-Native Runtime Assurance، Privacy Proof، Release Rings، Digital Twin Lab، Mobile Chaos، Owner Release Passport.
 - **مصدر الدخل المعتمد حاليًا:** خدمات الإعلان والظهور المدفوع التي تملكها المنصة، ومنها Pulse وفق 3/10/20 JOD؛ النشر العادي المتوافق مجاني.
 - **دور المنصة:** الإعلان والاكتشاف والعرض والمطابقة القابلة للتفسير وتقريب المسافة، ثم إتاحة التواصل المباشر بين البائع والمشتري أو مقدم الخدمة والمستفيد.
 - **مسؤولية الصفقة:** يتواصل الطرفان ويتفقان ويتعاملان مباشرة وعلى مسؤوليتهما؛ TIGER لا يمثل أيًا منهما.
@@ -57,6 +60,8 @@
 - أي Quality Gate في حالة RED يمنع وصف الرأس بأنه جاهز.
 - لا يعتمد فيديو قديم أو GitHub Pages قديم أو Preview متقاعد.
 - رابط المعاينة الصحيح يجب أن يكون معزولًا، قابلًا للفتح من الهاتف، ومبنيًا من exact head المطلوب دون تغيير `main` أو Production.
+- TIGER Sovereign Living System يفرض أن كل Promotion يمر بحلقات `R0_CODE -> R1_DATA -> R2_TWIN -> R3_DEVICE -> R4_OWNER_PREVIEW -> R5_CANDIDATE -> R6_PRODUCTION` دون تجاوز بوابة فاشلة.
+- أي `PASS` داخل Release Passport بلا Evidence مطابق يُعامل `BLOCKED`.
 - إذا لم يوجد رابط مطابق، فالحقيقة الصحيحة هي: `NO VALID PREVIEW YET`.
 
 ## 5. قاعدة عدم ازدواج السلطة

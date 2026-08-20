@@ -46,6 +46,9 @@
   "tigerSocialCoreOwnerReference": "docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md",
   "tigerSocialCoreEngineeringSpec": "docs/superpowers/specs/2026-08-18-tiger-social-core-golden-architecture-design.md",
   "tigerSocialCoreParityMatrix": "docs/owner-control/TIGER_SOCIAL_FUNCTIONAL_PARITY_MATRIX.md",
+  "tigerSovereignLivingSystemOwnerReference": "docs/owner-control/TIGER_SOVEREIGN_LIVING_SYSTEM_2026_CURRENT_OWNER_AUTHORITY.md",
+  "tigerSovereignLivingSystemEngineeringSpec": "docs/superpowers/specs/2026-08-19-tiger-sovereign-living-system-design.md",
+  "releaseAssuranceMode": "PROOF_NATIVE_FAIL_CLOSED",
   "historicalEvidencePolicy": "PRESERVE_OUTSIDE_CURRENT_AUTHORITY",
   "fusionCore": {
     "keep": [
