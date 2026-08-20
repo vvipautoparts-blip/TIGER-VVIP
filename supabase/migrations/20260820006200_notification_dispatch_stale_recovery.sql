@@ -31,34 +31,34 @@ begin
 
     -- A worker crash/network failure may leave a leased row behind. Once its lease
     -- expires, fence the old generation and deterministically recover or terminate it.
-    update public.vvip_notification_dispatches
+    update public.vvip_notification_dispatches dispatch
        set state = case
-               when expires_at <= statement_timestamp() then 'expired'
-               when attempt_count >= 5 then 'dead_letter'
+               when dispatch.expires_at <= statement_timestamp() then 'expired'
+               when dispatch.attempt_count >= 5 then 'dead_letter'
                else 'retry_wait'
            end,
-           generation = generation + 1,
+           generation = dispatch.generation + 1,
            next_attempt_at = case
-               when expires_at <= statement_timestamp() or attempt_count >= 5 then next_attempt_at
+               when dispatch.expires_at <= statement_timestamp() or dispatch.attempt_count >= 5 then dispatch.next_attempt_at
                else statement_timestamp() + interval '5 seconds'
            end,
            lease_owner = null,
            lease_expires_at = null,
            last_error_class = case
-               when expires_at <= statement_timestamp() then 'lease_expired_after_ttl'
-               when attempt_count >= 5 then 'stale_lease_retry_budget_exhausted'
+               when dispatch.expires_at <= statement_timestamp() then 'lease_expired_after_ttl'
+               when dispatch.attempt_count >= 5 then 'stale_lease_retry_budget_exhausted'
                else 'stale_lease_recovered'
            end,
            updated_at = statement_timestamp()
-     where state = 'leased'
-       and lease_expires_at <= statement_timestamp();
-
-    update public.vvip_notification_dispatches
-       set state = 'expired', generation = generation + 1, updated_at = statement_timestamp()
-     where state in ('pending','retry_wait') and expires_at <= statement_timestamp();
+     where dispatch.state = 'leased'
+       and dispatch.lease_expires_at <= statement_timestamp();
 
     update public.vvip_notification_dispatches dispatch
-       set state = 'suppressed', generation = generation + 1, updated_at = statement_timestamp()
+       set state = 'expired', generation = dispatch.generation + 1, updated_at = statement_timestamp()
+     where dispatch.state in ('pending','retry_wait') and dispatch.expires_at <= statement_timestamp();
+
+    update public.vvip_notification_dispatches dispatch
+       set state = 'suppressed', generation = dispatch.generation + 1, updated_at = statement_timestamp()
       from public.vvip_notifications notification, public.vvip_notification_endpoints endpoint
      where notification.notification_id = dispatch.notification_id
        and endpoint.endpoint_id = dispatch.endpoint_id
