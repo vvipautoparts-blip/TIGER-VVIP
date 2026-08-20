@@ -1,6 +1,6 @@
 # TIGER Gate 4 — Notification Intelligence Design (2026)
 
-Status: owner-approved architecture; written specification requires explicit owner review before implementation begins.
+Status: owner-approved and implementation-complete; exact-SHA evidence is recorded in PR metadata and MUST be refreshed after every source change.
 
 This document is normative for Gate 4 and subordinate to `docs/tiger-sovereign-release-constitution-2026.md`.
 

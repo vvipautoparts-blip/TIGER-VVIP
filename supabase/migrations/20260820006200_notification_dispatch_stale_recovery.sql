@@ -105,7 +105,7 @@ begin
            ),
            notification.object_type,
            notification.object_id,
-           greatest(0,extract(epoch from (claimed.expires_at - statement_timestamp()))::integer),
+           greatest(0,ceil(extract(epoch from (claimed.expires_at - statement_timestamp()))))::integer,
            notification.importance,
            claimed.collapse_key
     from claimed

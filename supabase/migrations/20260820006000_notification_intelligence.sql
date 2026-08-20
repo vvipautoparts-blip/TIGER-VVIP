@@ -878,7 +878,7 @@ begin
            public.vvip_notification_push_preview(notification.category,notification.sensitivity,notification.template_key,notification.template_args),
            notification.object_type,
            notification.object_id,
-           greatest(0,extract(epoch from (claimed.expires_at - statement_timestamp()))::integer),
+           greatest(0,ceil(extract(epoch from (claimed.expires_at - statement_timestamp()))))::integer,
            notification.importance,
            claimed.collapse_key
     from claimed

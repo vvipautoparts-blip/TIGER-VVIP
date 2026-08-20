@@ -8,6 +8,7 @@ const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..');
 const MIGRATION = path.join(ROOT, 'supabase/migrations/20260820006000_notification_intelligence.sql');
 const RECOVERY = path.join(ROOT, 'supabase/migrations/20260820006200_notification_dispatch_stale_recovery.sql');
+const DESIGN = path.join(ROOT, 'docs/superpowers/specs/2026-08-20-tiger-gate4-notification-intelligence-design.md');
 
 function sql() {
   assert.equal(fs.existsSync(MIGRATION), true, 'Gate 4 migration missing: 20260820006000_notification_intelligence.sql');
@@ -17,6 +18,11 @@ function sql() {
 function recoverySql() {
   assert.equal(fs.existsSync(RECOVERY), true, 'Gate 4 stale recovery migration missing: 20260820006200_notification_dispatch_stale_recovery.sql');
   return fs.readFileSync(RECOVERY, 'utf8');
+}
+
+function design() {
+  assert.equal(fs.existsSync(DESIGN), true, 'Gate 4 design missing');
+  return fs.readFileSync(DESIGN, 'utf8');
 }
 
 test('Gate 4 creates durable notification authorities with browser table mutation closed', () => {
@@ -109,6 +115,28 @@ test('expired worker leases are recovered with generation fencing and terminal b
   assert.match(text, /retry_wait/i);
   assert.match(text, /expired/i);
   assert.match(text, /create\s+(?:or\s+replace\s+)?function\s+public\.vvip_notification_claim_dispatches\s*\(/i);
+});
+
+test('dispatch TTL rounds fractional remaining lifetime up until true expiry', () => {
+  for (const text of [sql(), recoverySql()]) {
+    assert.match(
+      text,
+      /greatest\s*\(\s*0\s*,\s*ceil\s*\(\s*extract\s*\(\s*epoch\s+from\s*\(\s*claimed\.expires_at\s*-\s*statement_timestamp\s*\(\s*\)\s*\)\s*\)\s*\)\s*\)\s*::\s*integer/i,
+    );
+    assert.doesNotMatch(
+      text,
+      /extract\s*\(\s*epoch\s+from\s*\(\s*claimed\.expires_at\s*-\s*statement_timestamp\s*\(\s*\)\s*\)\s*\)\s*::\s*integer/i,
+    );
+  }
+});
+
+test('Gate 4 design status records completed owner approval and implementation', () => {
+  const text = design();
+  assert.match(
+    text,
+    /^Status: owner-approved and implementation-complete; exact-SHA evidence is recorded in PR metadata and MUST be refreshed after every source change\.$/m,
+  );
+  assert.doesNotMatch(text, /requires explicit owner review before implementation begins/i);
 });
 
 test('activity lease, kill switches and privacy-safe message push policy are explicit', () => {
