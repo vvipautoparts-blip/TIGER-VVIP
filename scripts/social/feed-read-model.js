@@ -86,6 +86,15 @@
     return limit;
   }
 
+  function normalizeCursor(options) {
+    if (!options || !Object.hasOwn(options, "cursor") || options.cursor === null) return null;
+    if (typeof options.cursor !== "string" || options.cursor.length < 1 || options.cursor.length > 2048) {
+      return undefined;
+    }
+    if (!/^[A-Za-z0-9_-]+$/.test(options.cursor)) return undefined;
+    return options.cursor;
+  }
+
   function createSocialFeedReadModel(options) {
     const runtime = options && options.runtime;
 
@@ -98,9 +107,14 @@
         const limit = normalizeLimit(loadOptions);
         if (limit === null) return failure("SOCIAL_FEED_INVALID_LIMIT");
 
+        const cursor = normalizeCursor(loadOptions);
+        if (cursor === undefined) return failure("SOCIAL_FEED_INVALID_CURSOR");
+
         let response;
         try {
-          response = await runtime.posts.readFeed({ limit });
+          const request = { limit };
+          if (cursor !== null) request.cursor = cursor;
+          response = await runtime.posts.readFeed(request);
         } catch (_) {
           return failure("SOCIAL_FEED_READ_FAILED");
         }
@@ -109,23 +123,34 @@
           return failure("SOCIAL_FEED_READ_FAILED");
         }
 
-        if (!Array.isArray(response.value)) {
+        const legacyPayload = Array.isArray(response.value);
+        const rows = legacyPayload ? response.value : response.value && response.value.items;
+        const nextCursor = legacyPayload ? null : response.value && response.value.next_cursor;
+        if (!Array.isArray(rows)) {
           return failure("SOCIAL_FEED_INVALID_PAYLOAD");
         }
+        if (nextCursor !== null && (
+          typeof nextCursor !== "string"
+          || nextCursor.length < 1
+          || nextCursor.length > 2048
+          || !/^[A-Za-z0-9_-]+$/.test(nextCursor)
+        )) return failure("SOCIAL_FEED_INVALID_PAYLOAD");
 
         const items = [];
-        for (const row of response.value) {
+        for (const row of rows) {
           const normalized = normalizeFeedPost(row);
           if (!normalized.ok) return failure("SOCIAL_FEED_INVALID_ROW");
           items.push(normalized.value);
         }
 
         const frozenItems = Object.freeze(items);
-        return Object.freeze({
+        const result = {
           ok: true,
           items: frozenItems,
           empty: frozenItems.length === 0,
-        });
+        };
+        if (!legacyPayload) result.nextCursor = nextCursor;
+        return Object.freeze(result);
       },
     });
   }

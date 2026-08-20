@@ -1,0 +1,148 @@
+name: TIGER Gate 5 Adaptive Network Rehearsal
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/network/**'
+      - 'scripts/social/**'
+      - 'scripts/fusion/f04-search-fabric.js'
+      - 'supabase/migrations/20260820007000_gate5_feed_keyset.sql'
+      - 'supabase/migrations/20260820007100_gate5_social_keyset.sql'
+      - 'tests/tiger-gate5-*.test.*'
+      - 'tests/sql/tiger-gate5-adaptive-network.sql'
+      - '.github/workflows/tiger-gate5-adaptive-network-rehearsal.yml'
+      - 'scripts/security/p08-steel-shield/scan-dangerous-sql.sh'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SOURCE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+jobs:
+  static-and-chaos-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 1
+
+      - name: Run actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22'
+
+      - name: Verify exact source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+
+      - name: Run Gate 5 contracts and chaos simulation
+        run: node --test tests/tiger-gate5-*.test.*
+
+      - name: Run migration integrity and Steel Shield
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test \
+            tests/lc03-supabase-security-hardening.test.cjs \
+            tests/p08-modern-migration-integrity.test.cjs
+          bash scripts/security/p08-steel-shield/scan-dangerous-sql.sh \
+            | tee /tmp/tiger-gate5-steel-shield.log
+          grep -Fx 'SUMMARY:CRITICAL=0 HIGH=0' /tmp/tiger-gate5-steel-shield.log
+
+  local-db-rehearsal:
+    needs: [static-and-chaos-contracts]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '54322'
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: postgres
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 1
+
+      - name: Run supabase/setup-cli@ab058987d8d6c725971f6cf9d0b5c98467e30bd1
+        uses: supabase/setup-cli@ab058987d8d6c725971f6cf9d0b5c98467e30bd1
+        with:
+          version: 2.109.0
+
+      - name: Verify local-only exact source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          if env | grep -Eq '^(SUPABASE_ACCESS_TOKEN|SUPABASE_DB_PASSWORD|SUPABASE_PROJECT_REF)='; then
+            echo 'Remote Supabase credential detected; Gate 5 rehearsal is local-only.' >&2
+            exit 86
+          fi
+
+      - name: Rebuild isolated local database
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase start
+          supabase db reset --local
+
+      - name: Execute transactional Gate 5 rehearsal
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -v ON_ERROR_STOP=1 \
+            -f tests/sql/tiger-gate5-adaptive-network.sql \
+            2>&1 | tee /tmp/tiger-gate5-db-rehearsal.log
+          grep -Fx 'TIGER_GATE5_DB_REHEARSAL=PASS' /tmp/tiger-gate5-db-rehearsal.log
+
+      - name: Bind exact-SHA Gate 5 evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORKTREE_SHA="$(git rev-parse HEAD)"
+          test "$WORKTREE_SHA" = "$SOURCE_SHA"
+          mkdir -p /tmp/tiger-gate5-evidence
+          cp /tmp/tiger-gate5-db-rehearsal.log /tmp/tiger-gate5-evidence/db-rehearsal.log
+          {
+            echo "SOURCE_SHA=$SOURCE_SHA"
+            echo "WORKTREE_SHA=$WORKTREE_SHA"
+            echo 'TIGER_GATE5_DB_REHEARSAL=PASS'
+            echo 'PACKET_LOSS_SIMULATION=NOT_RUN_UNSUPPORTED_BY_DETERMINISTIC_HARNESS'
+            echo 'PRODUCTION_MUTATION=NO'
+          } > /tmp/tiger-gate5-evidence/manifest.env
+          sha256sum \
+            scripts/network/*.js \
+            scripts/social/feed-read-model.js \
+            scripts/social/runtime-adapters.js \
+            scripts/social/friends-controller.js \
+            scripts/fusion/f04-search-fabric.js \
+            supabase/migrations/20260820007000_gate5_feed_keyset.sql \
+            supabase/migrations/20260820007100_gate5_social_keyset.sql \
+            tests/tiger-gate5-*.test.* \
+            tests/sql/tiger-gate5-adaptive-network.sql \
+            .github/workflows/tiger-gate5-adaptive-network-rehearsal.yml \
+            > /tmp/tiger-gate5-evidence/input-sha256.txt
+
+      - name: Upload exact-SHA Gate 5 evidence
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: tiger-gate5-adaptive-network-rehearsal-${{ env.SOURCE_SHA }}
+          path: /tmp/tiger-gate5-evidence
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Stop isolated local stack
+        if: always()
+        run: supabase stop --no-backup || true
