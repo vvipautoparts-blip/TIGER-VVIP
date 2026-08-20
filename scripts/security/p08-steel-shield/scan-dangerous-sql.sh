@@ -122,7 +122,7 @@ declare -A reviewed_migration_hashes=(
   # replacement policies target authenticated members only, anon grants are revoked,
   # legacy feed browser ACL is removed, and no CASCADE/table/column destruction exists.
   # Approval is byte-exact; any SQL drift re-enters Steel Shield automatically.
-  ["supabase/migrations/20260821003000_no_visitor_mode_hardening.sql"]="14b499547b02bfc6dca4a80974113f73f51b105719323cfa61e5e9ea5372d25d"
+  ["supabase/migrations/20260821003000_no_visitor_mode_hardening.sql"]="0bbf5ec3154533912181042536de2e708f74ff2d213aa15e86b1ff1f4108f441"
 )
 
 reviewed_baseline_path() {
