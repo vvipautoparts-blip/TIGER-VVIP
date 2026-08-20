@@ -316,6 +316,7 @@
       if (nextInFlight) return nextInFlight;
       nextInFlight = appendNextPage().finally(function () {
         nextInFlight = null;
+        focusAfterNextAppend = false;
         if (host.getAttribute && host.getAttribute("aria-busy") === "true") {
           host.setAttribute("aria-busy", "false");
         }

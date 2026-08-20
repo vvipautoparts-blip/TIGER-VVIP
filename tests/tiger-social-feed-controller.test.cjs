@@ -277,6 +277,29 @@ test("keyboard pagination keeps a usable control and moves focus only when it is
   assert.equal(host.children[1].focused, true);
 });
 
+test("failed keyboard pagination cannot leak focus into a later observer retry", async () => {
+  const host = fakeElement("section");
+  const responses = [
+    { ok: true, empty: false, items: [post()], nextCursor: "cursor_02" },
+    { ok: false, code: "SOCIAL_FEED_PAGE_FAILED" },
+    { ok: true, empty: false, items: [post({ id: "post_02" })], nextCursor: null },
+  ];
+  const controller = createSocialFeedController({
+    host,
+    document: fakeDocument(),
+    readModel: { load: async () => responses.shift() },
+  });
+
+  await controller.load();
+  host.lastElementChild.click();
+  await new Promise((resolve) => setImmediate(resolve));
+
+  const automaticRetry = await controller.loadNext();
+  assert.equal(automaticRetry.ok, true);
+  assert.equal(host.children[1].attributes["data-social-post-id"], "post_02");
+  assert.equal(host.children[1].focused, undefined);
+});
+
 test("mounted feed observes each page tail and advances keyset pagination", async () => {
   const host = fakeElement("section");
   const observed = [];
