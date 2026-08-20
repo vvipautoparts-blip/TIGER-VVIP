@@ -2,6 +2,7 @@
   'use strict';
 
   const AUDIENCES = Object.freeze(['public', 'friends', 'only_me']);
+  const AUDIENCE_PRIVACY_RANK = Object.freeze({ public: 0, friends: 1, only_me: 2 });
   const MAX_BODY_LENGTH = 5000;
   const MAX_MEDIA = 10;
 
@@ -75,12 +76,44 @@
     return Object.freeze({ ok: true, intent });
   }
 
+  function buildRepostIntent(input) {
+    if (!input || typeof input !== 'object' || Array.isArray(input)) {
+      return fail('invalid_repost_input');
+    }
+
+    if (!validIdentifier(input.actorId)) {
+      return fail('invalid_repost_actor');
+    }
+
+    if (!validIdentifier(input.originalPostId)) {
+      return fail('invalid_repost_post');
+    }
+
+    if (!isAudience(input.originalAudience) || !isAudience(input.requestedAudience)) {
+      return fail('invalid_repost_audience');
+    }
+
+    if (AUDIENCE_PRIVACY_RANK[input.requestedAudience] < AUDIENCE_PRIVACY_RANK[input.originalAudience]) {
+      return fail('repost_audience_widening_forbidden');
+    }
+
+    const intent = Object.freeze({
+      action: 'repost_social_post',
+      actorId: input.actorId,
+      originalPostId: input.originalPostId,
+      audience: input.requestedAudience,
+    });
+
+    return Object.freeze({ ok: true, intent });
+  }
+
   const api = Object.freeze({
     AUDIENCES,
     MAX_BODY_LENGTH,
     MAX_MEDIA,
     isAudience,
     buildPostIntent,
+    buildRepostIntent,
   });
 
   if (typeof module !== 'undefined' && module.exports) {
