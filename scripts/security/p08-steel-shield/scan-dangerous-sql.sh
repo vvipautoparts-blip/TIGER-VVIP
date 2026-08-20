@@ -104,6 +104,12 @@ declare -A reviewed_migration_hashes=(
   # Expected HIGH findings are new-table NOT NULL integrity, three owner RLS policies,
   # and three exact authenticated EXECUTE grants. Raw table CRUD remains revoked.
   ["supabase/migrations/20260820213500_social_follows.sql"]="8ef753dc8f17e50e22c0174d5c62cc04f306d31420344f3ff0f8d5129ea0db81"
+
+  # Public Profile Projection: reviewed with CRITICAL=0 and six classified HIGH findings.
+  # Five are integrity NOT NULLs on a brand-new table; one is EXECUTE on the exact
+  # authenticated read RPC. Raw table CRUD is revoked, FORCE RLS is enabled, Clerk
+  # subject remains internal, and any byte drift re-enters Steel Shield automatically.
+  ["supabase/migrations/20260820220500_public_profile_projection.sql"]="28ca8d105c318327b6f2dce95303c4147f3ae7e73d312367d28922e990ee0257"
 )
 
 reviewed_baseline_path() {
