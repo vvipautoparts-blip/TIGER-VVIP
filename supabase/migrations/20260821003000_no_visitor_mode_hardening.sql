@@ -152,7 +152,4 @@ USING (
   AND vvip_private.vvip_marketplace_canonical_media_is_readable(storage.objects.name)
 );
 
-COMMENT ON POLICY vvip_listing_media_canonical_member_read ON storage.objects IS
-  'NO_VISITOR_MODE: canonical marketplace media is visible only to authenticated TIGER members under bounded listing policy.';
-
 COMMIT;
