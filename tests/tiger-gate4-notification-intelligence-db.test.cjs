@@ -83,7 +83,8 @@ test('browser RPC surface is bounded and endpoint capabilities are never browser
     assert.match(text, new RegExp(`grant\\s+execute[^;]*${fn}[^;]*to\\s+authenticated`, 'i'));
   }
   assert.doesNotMatch(text, /grant\s+select[^;]*vvip_notification_endpoints[^;]*to\s+authenticated/i);
-  assert.match(text, /digest\s*\([^;]*sha256|encode\s*\(\s*digest\s*\([^;]*'sha256'/i);
+  assert.match(text, /extensions\.digest\s*\([^;]*'sha256'/i);
+  assert.doesNotMatch(text, /(?<!extensions\.)digest\s*\([^;]*'sha256'/i);
 });
 
 test('dispatch claiming uses SKIP LOCKED, bounded leases and generation fencing', () => {
