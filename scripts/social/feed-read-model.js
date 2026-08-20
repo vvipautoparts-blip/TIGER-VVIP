@@ -80,6 +80,61 @@
     });
   }
 
+  function normalizePreferenceSubjects(value) {
+    if (!Array.isArray(value)) return new Set();
+    return new Set(value.filter(validUserSubject));
+  }
+
+  function normalizeSnoozes(value) {
+    const snoozes = new Map();
+    if (!value || typeof value !== "object" || Array.isArray(value)) return snoozes;
+
+    for (const [authorSubject, until] of Object.entries(value)) {
+      if (validUserSubject(authorSubject) && Number.isFinite(until)) {
+        snoozes.set(authorSubject, until);
+      }
+    }
+    return snoozes;
+  }
+
+  function applyFeedPreferences(authorizedItems, preferences, nowEpochMs) {
+    if (!Array.isArray(authorizedItems)) return Object.freeze([]);
+
+    const source = authorizedItems.filter(
+      (entry) => entry && typeof entry === "object" && validUserSubject(entry.authorSubject)
+    );
+    const options = preferences && typeof preferences === "object" && !Array.isArray(preferences)
+      ? preferences
+      : {};
+    const mutedAuthors = normalizePreferenceSubjects(options.mutedAuthors);
+    const snoozedUntilByAuthor = normalizeSnoozes(options.snoozedUntilByAuthor);
+    const preferredAuthors = normalizePreferenceSubjects(options.preferredAuthors);
+    const deprioritizedAuthors = normalizePreferenceSubjects(options.deprioritizedAuthors);
+    const now = Number.isFinite(nowEpochMs) ? nowEpochMs : 0;
+
+    const preferred = [];
+    const normal = [];
+    const deprioritized = [];
+
+    for (const entry of source) {
+      const authorSubject = entry.authorSubject;
+      if (mutedAuthors.has(authorSubject)) continue;
+
+      const snoozedUntil = snoozedUntilByAuthor.get(authorSubject);
+      if (Number.isFinite(snoozedUntil) && snoozedUntil > now) continue;
+
+      if (preferredAuthors.has(authorSubject)) {
+        preferred.push(entry);
+      } else if (deprioritizedAuthors.has(authorSubject)) {
+        deprioritized.push(entry);
+      } else {
+        normal.push(entry);
+      }
+    }
+
+    return Object.freeze(preferred.concat(normal, deprioritized));
+  }
+
   function normalizeLimit(options) {
     const limit = options && Object.hasOwn(options, "limit") ? options.limit : DEFAULT_LIMIT;
     if (!Number.isInteger(limit) || limit < 1 || limit > MAX_LIMIT) return null;
@@ -88,6 +143,8 @@
 
   function createSocialFeedReadModel(options) {
     const runtime = options && options.runtime;
+    const preferences = options && options.preferences;
+    const now = options && typeof options.now === "function" ? options.now : Date.now;
 
     return Object.freeze({
       load: async function (loadOptions) {
@@ -120,17 +177,18 @@
           items.push(normalized.value);
         }
 
-        const frozenItems = Object.freeze(items);
+        const presentedItems = applyFeedPreferences(items, preferences, now());
         return Object.freeze({
           ok: true,
-          items: frozenItems,
-          empty: frozenItems.length === 0,
+          items: presentedItems,
+          empty: presentedItems.length === 0,
         });
       },
     });
   }
 
   return Object.freeze({
+    applyFeedPreferences,
     createSocialFeedReadModel,
     normalizeFeedPost,
   });
