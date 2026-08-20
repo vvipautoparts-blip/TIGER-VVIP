@@ -1,8 +1,8 @@
 # TIGER Public Profile Projection — Content-Addressed Migration Security Review
 
-**Status:** REVIEWED REPOSITORY ARTIFACT — NOT PRODUCTION APPLIED  
-**Migration:** `supabase/migrations/20260820220500_public_profile_projection.sql`  
-**Reviewed SHA-256:** `28ca8d105c318327b6f2dce95303c4147f3ae7e73d312367d28922e990ee0257`  
+**Status:** REVIEWED REPOSITORY ARTIFACT — NOT PRODUCTION APPLIED
+**Migration:** `supabase/migrations/20260820220500_public_profile_projection.sql`
+**Reviewed SHA-256:** `28ca8d105c318327b6f2dce95303c4147f3ae7e73d312367d28922e990ee0257`
 **Review date:** 2026-08-20
 
 ## Decision
