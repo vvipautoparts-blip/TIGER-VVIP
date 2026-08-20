@@ -123,3 +123,32 @@ test('IndexedDB and SQLite-compatible adapters are real persistence boundaries',
   assert.match(statements[0].sql, /create\s+table\s+if\s+not\s+exists\s+vvip_mutation_journal/i);
   assert.match(statements[0].sql, /idempotency_key\s+text\s+not\s+null/i);
 });
+
+test('SQLite-compatible claim is one atomic conflict-returning statement', async () => {
+  const queries = [];
+  const record = {
+    mutationId: 'mutation-sqlite-001',
+    idempotencyKey: 'idem-sqlite-001',
+    actorId: 'user_alice',
+    kind: 'social.message.send',
+    payload: { body: 'hello' },
+    payloadSignature: '{"body":"hello"}',
+    state: 'LOCAL_PENDING',
+    attempts: 0,
+    nextAttemptAt: null,
+    createdAt: 1000,
+    updatedAt: 1000
+  };
+  const repository = createSqliteMutationRepository({
+    execute: async () => {},
+    query: async (sql, parameters) => {
+      queries.push({ sql, parameters });
+      return [{ record_json: JSON.stringify(record) }];
+    }
+  });
+
+  assert.deepEqual(await repository.claim(record), record);
+  assert.equal(queries.length, 1);
+  assert.match(queries[0].sql, /on\s+conflict\s*\(actor_id,\s*idempotency_key\)\s+do\s+update/i);
+  assert.match(queries[0].sql, /returning\s+record_json/i);
+});

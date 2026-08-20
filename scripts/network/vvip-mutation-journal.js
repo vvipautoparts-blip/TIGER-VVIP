@@ -266,10 +266,12 @@ export function createSqliteMutationRepository({ execute, query } = {}) {
       return parse(rows[0]);
     },
     async claim(record) {
-      await execute(`insert into vvip_mutation_journal
+      const rows = await query(`insert into vvip_mutation_journal
         (mutation_id, actor_id, idempotency_key, state, created_at, record_json)
         values (?, ?, ?, ?, ?, ?)
-        on conflict do nothing`, [
+        on conflict (actor_id, idempotency_key) do update set
+          idempotency_key = excluded.idempotency_key
+        returning record_json`, [
         record.mutationId,
         record.actorId,
         record.idempotencyKey,
@@ -277,10 +279,6 @@ export function createSqliteMutationRepository({ execute, query } = {}) {
         record.createdAt,
         JSON.stringify(record)
       ]);
-      const rows = await query(
-        'select record_json from vvip_mutation_journal where actor_id = ? and idempotency_key = ?',
-        [record.actorId, record.idempotencyKey]
-      );
       const canonical = parse(rows[0]);
       if (!canonical) throw new Error('MUTATION_REPOSITORY_CONFLICT');
       return canonical;
