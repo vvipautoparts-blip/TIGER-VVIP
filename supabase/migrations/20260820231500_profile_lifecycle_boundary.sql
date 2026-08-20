@@ -30,11 +30,7 @@ BEGIN
   END IF;
 
   IF v_profile.profile_state = 'active' THEN
-    UPDATE public.vvip_social_profile_projection
-    SET profile_state = 'deactivated', updated_at = statement_timestamp()
-    WHERE subject = v_actor
-      AND profile_state = 'active'
-    RETURNING * INTO v_profile;
+    UPDATE public.vvip_social_profile_projection SET profile_state = 'deactivated', updated_at = statement_timestamp() WHERE subject = v_actor AND profile_state = 'active' RETURNING * INTO v_profile;
 
     IF NOT FOUND THEN
       RAISE EXCEPTION 'SOCIAL_PROFILE_LIFECYCLE_CONFLICT';
@@ -86,11 +82,7 @@ BEGIN
   END IF;
 
   IF v_profile.profile_state = 'deactivated' THEN
-    UPDATE public.vvip_social_profile_projection
-    SET profile_state = 'active', updated_at = statement_timestamp()
-    WHERE subject = v_actor
-      AND profile_state = 'deactivated'
-    RETURNING * INTO v_profile;
+    UPDATE public.vvip_social_profile_projection SET profile_state = 'active', updated_at = statement_timestamp() WHERE subject = v_actor AND profile_state = 'deactivated' RETURNING * INTO v_profile;
 
     IF NOT FOUND THEN
       RAISE EXCEPTION 'SOCIAL_PROFILE_LIFECYCLE_CONFLICT';
@@ -129,17 +121,7 @@ BEGIN
 
   PERFORM pg_advisory_xact_lock(hashtextextended(p_subject, 0));
 
-  UPDATE public.vvip_social_profile_projection
-  SET profile_state = 'deleted',
-      display_name = 'Deleted member',
-      avatar_url = NULL,
-      business_name = NULL,
-      location = NULL,
-      specialization = NULL,
-      business_description = NULL,
-      updated_at = statement_timestamp()
-  WHERE subject = p_subject
-  RETURNING * INTO v_profile;
+  UPDATE public.vvip_social_profile_projection SET profile_state = 'deleted', display_name = 'Deleted member', avatar_url = NULL, business_name = NULL, location = NULL, specialization = NULL, business_description = NULL, updated_at = statement_timestamp() WHERE subject = p_subject RETURNING * INTO v_profile;
 
   IF NOT FOUND THEN
     RETURN jsonb_build_object(
