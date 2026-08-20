@@ -137,6 +137,13 @@ declare -A reviewed_migration_hashes=(
   # recovery, generation advancement, stale-worker rejection on finalize/fail, and a
   # terminal fifth-attempt DLQ. Any byte drift invalidates this approval automatically.
   ["supabase/migrations/20260820003700_social_media_stale_worker_recovery.sql"]="434ac7789ff53ad2bef76c6e67a7beb87504cfd264742ed1d5ea971b49405060"
+
+  # Gate 2 HMAC worker wake-up boundary: reviewed only after exact-SHA static/type/byte
+  # proof, clean local migration replay, and transactional evidence proved private RPC
+  # surface, first-use acceptance, replay denial, expired-challenge denial, and durable
+  # nonce consumption. The raw Vault worker secret never crosses the HTTP boundary.
+  # Any byte drift invalidates this content-addressed approval automatically.
+  ["supabase/migrations/20260820003900_social_media_worker_hmac_boundary.sql"]="cd1dc04ab5f1b916f4a2fbb0a2444688d93e18ea5c98b1eeb4d3c1df1cfe8dae"
 )
 
 reviewed_baseline_path() {
