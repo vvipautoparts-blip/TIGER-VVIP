@@ -153,6 +153,25 @@ declare -A reviewed_migration_hashes=(
   # CRUD remains revoked. Any byte drift re-enters Steel Shield automatically.
   ["supabase/migrations/20260820004900_social_subject_validation.sql"]="79282249a073995430543087e32a91221a11e1fa903df3d97ff322e5d6287ef1"
   ["supabase/migrations/20260820005000_social_realtime_messaging.sql"]="451ae6c04aa3c4cba121a03e37dbe7ffb2af282e7274cffb8082b62b790077d5"
+
+  # Gate 4 Notification Intelligence: exact bytes reviewed after CRITICAL=0 Steel Shield
+  # scan plus exact-head static/worker contracts, full local migration replay, and the
+  # transactional rehearsal proved durable idempotency/sequence, owner-only RPC access,
+  # private current-epoch Realtime receive, browser Broadcast denial, TTL/kill-switch
+  # terminal behavior, fractional-TTL ceiling, bounded five-attempt DLQ, and stale-worker
+  # generation fencing.
+  # Authenticated grants are EXECUTE on bounded RPCs only; all durable tables retain FORCE
+  # RLS and direct browser table CRUD is revoked. Any byte drift re-enters review.
+  ["supabase/migrations/20260820006000_notification_intelligence.sql"]="2cec5e6735d575ba8ffc2329a2e82cbba7f5881c0165e1d663b6b9966e1db971"
+  # Gate 4 HMAC replay authority: new nonce-table NOT NULL findings are integrity rules;
+  # the table and challenge-consumption RPC are service-role-only. Exact-head rehearsal
+  # proved first-use acceptance, replay denial, and rejection outside the 60-second window.
+  ["supabase/migrations/20260820006100_notification_worker_hmac_boundary.sql"]="3718ebfef0370c008bfce499f909066e93d67e3b3af3ea4c85d76a352367ef1e"
+  # Gate 4 stale dispatch recovery: every mutation is predicate-bounded by lease/state,
+  # TTL, endpoint/kill-switch authority, or the SKIP LOCKED candidate set; the replacement
+  # claimant remains service-role-only; fractional TTL is rounded up until true expiry,
+  # and exact-head evidence proves stale-worker denial.
+  ["supabase/migrations/20260820006200_notification_dispatch_stale_recovery.sql"]="4a331a103d47c5e2577f4ec037411c9234a4258bac21831f38348ad2c892e208"
 )
 
 reviewed_baseline_path() {

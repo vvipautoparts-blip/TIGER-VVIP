@@ -1,0 +1,180 @@
+name: TIGER Gate 4 Notification Intelligence Rehearsal
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/20260820006000_notification_intelligence.sql'
+      - 'supabase/migrations/20260820006100_notification_worker_hmac_boundary.sql'
+      - 'supabase/migrations/20260820006200_notification_dispatch_stale_recovery.sql'
+      - 'supabase/functions/tiger-notification-worker/**'
+      - 'tests/tiger-gate4-notification-intelligence-db.test.cjs'
+      - 'tests/tiger-gate4-notification-worker.test.cjs'
+      - 'tests/tiger-gate4-notification-workflow.test.cjs'
+      - 'tests/sql/tiger-gate4-notification-intelligence.sql'
+      - '.github/workflows/tiger-gate4-notification-intelligence-rehearsal.yml'
+      - 'scripts/security/p08-steel-shield/scan-dangerous-sql.sh'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SOURCE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+jobs:
+  static-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 1
+
+      - name: Run actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22'
+
+      - name: Verify exact source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+
+      - name: Run Gate 4 static contracts
+        run: |
+          node --test \
+            tests/tiger-gate4-notification-intelligence-db.test.cjs \
+            tests/tiger-gate4-notification-worker.test.cjs \
+            tests/tiger-gate4-notification-workflow.test.cjs
+
+  deno-worker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 1
+
+      - name: Run denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed
+        uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed
+        with:
+          deno-version: v2.x
+
+      - name: Verify exact source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+
+      - name: Test Gate 4 worker pure boundaries
+        run: |
+          deno test \
+            supabase/functions/tiger-notification-worker/adapter_test.ts \
+            supabase/functions/tiger-notification-worker/auth_test.ts
+
+      - name: Typecheck Gate 4 worker entrypoint
+        run: deno check supabase/functions/tiger-notification-worker/index.ts
+
+  local-db-rehearsal:
+    needs: [static-contracts, deno-worker]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '54322'
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: postgres
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 1
+
+      - name: Run supabase/setup-cli@ab058987d8d6c725971f6cf9d0b5c98467e30bd1
+        uses: supabase/setup-cli@ab058987d8d6c725971f6cf9d0b5c98467e30bd1
+        with:
+          version: 2.109.0
+
+      - name: Verify exact source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+
+      - name: Assert local-only safety contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          if env | grep -Eq '^(SUPABASE_ACCESS_TOKEN|SUPABASE_DB_PASSWORD|SUPABASE_PROJECT_REF)='; then
+            echo 'Remote Supabase credential detected; Gate 4 rehearsal is local-only.' >&2
+            exit 86
+          fi
+
+      - name: Start isolated local Supabase stack
+        run: supabase start
+
+      - name: Rebuild database from repository migrations
+        run: supabase db reset --local
+
+      - name: Execute Gate 4 transactional DB rehearsal
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -v ON_ERROR_STOP=1 \
+            -f tests/sql/tiger-gate4-notification-intelligence.sql \
+            2>&1 | tee /tmp/tiger-gate4-db-rehearsal.log
+          grep -Fx 'TIGER_GATE4_DB_REHEARSAL=PASS' /tmp/tiger-gate4-db-rehearsal.log
+
+      - name: Bind exact-SHA evidence manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORKTREE_SHA="$(git rev-parse HEAD)"
+          test "$WORKTREE_SHA" = "$SOURCE_SHA"
+          mkdir -p /tmp/tiger-gate4-evidence
+          cp /tmp/tiger-gate4-db-rehearsal.log /tmp/tiger-gate4-evidence/db-rehearsal.log
+          {
+            echo "SOURCE_SHA=$SOURCE_SHA"
+            echo "WORKTREE_SHA=$WORKTREE_SHA"
+            echo "TIGER_GATE4_DB_REHEARSAL=PASS"
+          } > /tmp/tiger-gate4-evidence/manifest.env
+          sha256sum \
+            supabase/migrations/20260820006000_notification_intelligence.sql \
+            supabase/migrations/20260820006100_notification_worker_hmac_boundary.sql \
+            supabase/migrations/20260820006200_notification_dispatch_stale_recovery.sql \
+            supabase/functions/tiger-notification-worker/index.ts \
+            supabase/functions/tiger-notification-worker/adapter.ts \
+            supabase/functions/tiger-notification-worker/adapter_test.ts \
+            supabase/functions/tiger-notification-worker/auth.ts \
+            supabase/functions/tiger-notification-worker/auth_test.ts \
+            tests/tiger-gate4-notification-intelligence-db.test.cjs \
+            tests/tiger-gate4-notification-worker.test.cjs \
+            tests/tiger-gate4-notification-workflow.test.cjs \
+            tests/sql/tiger-gate4-notification-intelligence.sql \
+            .github/workflows/tiger-gate4-notification-intelligence-rehearsal.yml \
+            > /tmp/tiger-gate4-evidence/input-sha256.txt
+          sha256sum /tmp/tiger-gate4-evidence/db-rehearsal.log \
+            >> /tmp/tiger-gate4-evidence/input-sha256.txt
+
+      - name: Upload exact-SHA Gate 4 evidence
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: tiger-gate4-notification-intelligence-rehearsal-${{ env.SOURCE_SHA }}
+          path: /tmp/tiger-gate4-evidence
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Stop isolated local stack
+        if: always()
+        run: supabase stop --no-backup || true
