@@ -163,6 +163,56 @@ test("failed comment mutation preserves confirmed content and hides provider det
   assert.doesNotMatch(JSON.stringify(host), /secret|provider|persistence/i);
 });
 
+test("rate-limited comment mutation enters a deterministic cooldown without duplicate writes", async () => {
+  const { createSocialCommentsController } = controllerApi();
+  const host = fakeElement("section");
+  let now = 1_000;
+  let createCalls = 0;
+  const comments = {
+    list: async () => list([row()]),
+    create: async () => {
+      createCalls += 1;
+      if (createCalls === 1) {
+        return {
+          ok: false,
+          code: "SOCIAL_RATE_LIMITED",
+          retryAfterMs: 5_000,
+          providerDetail: "secret-provider-bucket",
+        };
+      }
+      return { ok: true, value: { ok: true } };
+    },
+    update: async () => ({ ok: false, code: "unused" }),
+    remove: async () => ({ ok: false, code: "unused" }),
+  };
+  const controller = createSocialCommentsController({
+    host,
+    postId: POST_ID,
+    comments,
+    document: fakeDocument(),
+    now: () => now,
+  });
+  await controller.load();
+
+  assert.deepEqual(await controller.create("تعليق محدود"), {
+    ok: false,
+    code: "SOCIAL_COMMENTS_RATE_LIMITED",
+    retryAfterMs: 5_000,
+  });
+  assert.deepEqual(await controller.create("تعليق محدود"), {
+    ok: false,
+    code: "SOCIAL_COMMENTS_RATE_LIMITED",
+    retryAfterMs: 5_000,
+  });
+  assert.equal(createCalls, 1, "cooldown must not repeat the durable mutation");
+  assert.match(textOf(host), /تعليق مؤكد/);
+  assert.doesNotMatch(JSON.stringify(host), /secret|provider|bucket/i);
+
+  now = 6_000;
+  assert.equal((await controller.create("تعليق محدود")).ok, true);
+  assert.equal(createCalls, 2, "only an explicit retry after cooldown may write again");
+});
+
 test("reply update and remove methods call only the bounded adapter and refresh trusted state", async () => {
   const { createSocialCommentsController } = controllerApi();
   const host = fakeElement("section");

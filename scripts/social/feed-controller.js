@@ -46,9 +46,11 @@
 
   function postNode(documentObject, item) {
     const article = documentObject.createElement("article");
+    const authorId = `social-post-author-${item.id}`;
     article.className = "social-feed-post";
     article.setAttribute("data-social-post-id", item.id);
     article.setAttribute("data-social-post-audience", item.audience);
+    article.setAttribute("aria-labelledby", authorId);
 
     const header = documentObject.createElement("header");
     header.className = "social-feed-post__header";
@@ -63,6 +65,7 @@
 
     const author = documentObject.createElement("strong");
     author.className = "social-feed-post__author";
+    author.setAttribute("id", authorId);
     author.textContent = "عضو VVIP TIGER";
 
     const details = documentObject.createElement("div");
@@ -129,6 +132,9 @@
     const host = options && options.host;
     const readModel = options && options.readModel;
     const documentObject = options && options.document;
+    const sleep = options && typeof options.sleep === "function"
+      ? options.sleep
+      : function (delayMs) { return new Promise(function (resolve) { setTimeout(resolve, delayMs); }); };
 
     if (!host || typeof host.replaceChildren !== "function") {
       throw new TypeError("SOCIAL_FEED_HOST_REQUIRED");
@@ -140,6 +146,15 @@
       throw new TypeError("SOCIAL_FEED_DOCUMENT_REQUIRED");
     }
 
+    let initialLoadOptions = {};
+    let nextCursor = null;
+    let nextInFlight = null;
+    let reconnectRequired = false;
+    let focusAfterNextAppend = false;
+    let renderedNodes = [];
+    let paginationButton = null;
+    const renderedPostIds = new Set();
+
     function renderFailure() {
       host.setAttribute("aria-busy", "false");
       host.replaceChildren(statusNode(
@@ -150,38 +165,192 @@
       return frozen({ ok: false, code: "SOCIAL_FEED_RENDER_FAILED" });
     }
 
-    return frozen({
-      load: async function (loadOptions) {
-        host.setAttribute("aria-busy", "true");
-        host.replaceChildren(statusNode(documentObject, "loading", "جارٍ تحميل آخر الأخبار…"));
+    function normalizedInitialOptions(loadOptions) {
+      const normalized = {};
+      if (loadOptions && Number.isInteger(loadOptions.limit)) normalized.limit = loadOptions.limit;
+      return normalized;
+    }
 
+    function rememberSnapshot(snapshot) {
+      nextCursor = typeof snapshot.nextCursor === "string" ? snapshot.nextCursor : null;
+      reconnectRequired = false;
+    }
+
+    function paginationNode() {
+      if (paginationButton) return paginationButton;
+      paginationButton = documentObject.createElement("button");
+      paginationButton.type = "button";
+      paginationButton.className = "social-feed-load-more";
+      paginationButton.setAttribute("data-social-feed-load-more", "");
+      paginationButton.setAttribute("aria-label", "تحميل المزيد من آخر الأخبار");
+      paginationButton.addEventListener("click", function () {
+        paginationButton.disabled = true;
+        const operation = reconnectRequired ? reconnect() : loadNext({ focusAppended: true });
+        void operation.then(function (result) {
+          if (result && result.ok === true) return;
+          paginationButton.disabled = false;
+          paginationButton.textContent = reconnectRequired ? "تحديث آخر الأخبار" : "إعادة المحاولة";
+        });
+      });
+      return paginationButton;
+    }
+
+    function renderPosts() {
+      if (nextCursor !== null && !reconnectRequired) {
+        const button = paginationNode();
+        button.disabled = false;
+        button.textContent = "تحميل المزيد";
+        host.replaceChildren(...renderedNodes, button);
+        return;
+      }
+      host.replaceChildren(...renderedNodes);
+    }
+
+    async function load(loadOptions) {
+      initialLoadOptions = normalizedInitialOptions(loadOptions);
+      nextCursor = null;
+      reconnectRequired = false;
+      renderedPostIds.clear();
+      renderedNodes = [];
+      host.setAttribute("aria-busy", "true");
+      host.replaceChildren(statusNode(documentObject, "loading", "جارٍ تحميل آخر الأخبار…"));
+
+      let snapshot;
+      try {
+        snapshot = await readModel.load(loadOptions);
+      } catch (_) {
+        return renderFailure();
+      }
+
+      if (!snapshot || snapshot.ok !== true || !Array.isArray(snapshot.items)) {
+        return renderFailure();
+      }
+
+      host.setAttribute("aria-busy", "false");
+      rememberSnapshot(snapshot);
+
+      if (snapshot.empty || snapshot.items.length === 0) {
+        host.replaceChildren(statusNode(
+          documentObject,
+          "empty",
+          "لا توجد منشورات متاحة لك حتى الآن."
+        ));
+        return frozen({ ok: true, count: 0, empty: true });
+      }
+
+      const nodes = snapshot.items.map(function (item) {
+        renderedPostIds.add(item.id);
+        return postNode(documentObject, item);
+      });
+      renderedNodes = nodes;
+      renderPosts();
+      return frozen({ ok: true, count: nodes.length, empty: false, hasMore: nextCursor !== null });
+    }
+
+    function retryableFailure(value) {
+      return value && (value.retryable === true || value.code === "SOCIAL_FEED_RETRYABLE");
+    }
+
+    async function requestNextPage(cursor) {
+      const request = Object.assign({}, initialLoadOptions, { cursor });
+      for (let attempt = 0; attempt < 3; attempt += 1) {
         let snapshot;
         try {
-          snapshot = await readModel.load(loadOptions);
-        } catch (_) {
-          return renderFailure();
+          snapshot = await readModel.load(request);
+        } catch (error) {
+          if (!retryableFailure(error) || attempt === 2) throw error;
+          await sleep(250 * (2 ** attempt));
+          continue;
         }
 
-        if (!snapshot || snapshot.ok !== true || !Array.isArray(snapshot.items)) {
-          return renderFailure();
+        if (snapshot && snapshot.ok === false && snapshot.code === "SOCIAL_FEED_STALE_CURSOR") {
+          nextCursor = null;
+          reconnectRequired = true;
+          return frozen({ ok: false, code: snapshot.code, reconnectRequired: true });
         }
-
-        host.setAttribute("aria-busy", "false");
-
-        if (snapshot.empty || snapshot.items.length === 0) {
-          host.replaceChildren(statusNode(
-            documentObject,
-            "empty",
-            "لا توجد منشورات متاحة لك حتى الآن."
-          ));
-          return frozen({ ok: true, count: 0, empty: true });
+        if (snapshot && snapshot.ok === true && Array.isArray(snapshot.items)) return snapshot;
+        if (!retryableFailure(snapshot) || attempt === 2) {
+          return frozen({ ok: false, code: "SOCIAL_FEED_PAGE_FAILED" });
         }
+        await sleep(250 * (2 ** attempt));
+      }
+      return frozen({ ok: false, code: "SOCIAL_FEED_PAGE_FAILED" });
+    }
 
-        const nodes = snapshot.items.map((item) => postNode(documentObject, item));
-        host.replaceChildren(...nodes);
-        return frozen({ ok: true, count: nodes.length, empty: false });
-      },
-    });
+    async function appendNextPage() {
+      if (reconnectRequired) {
+        return frozen({ ok: false, code: "SOCIAL_FEED_STALE_CURSOR", reconnectRequired: true });
+      }
+      if (nextCursor === null) return frozen({ ok: true, count: 0, hasMore: false });
+
+      host.setAttribute("aria-busy", "true");
+      let snapshot;
+      try {
+        snapshot = await requestNextPage(nextCursor);
+      } catch (_) {
+        snapshot = frozen({ ok: false, code: "SOCIAL_FEED_PAGE_FAILED" });
+      }
+      host.setAttribute("aria-busy", "false");
+      if (!snapshot || snapshot.ok !== true) return snapshot;
+
+      const newItems = snapshot.items.filter(function (item) {
+        return item && typeof item.id === "string" && !renderedPostIds.has(item.id);
+      });
+      const nodes = newItems.map(function (item) {
+        renderedPostIds.add(item.id);
+        return postNode(documentObject, item);
+      });
+      renderedNodes.push(...nodes);
+      rememberSnapshot(snapshot);
+      renderPosts();
+      if (focusAfterNextAppend && nextCursor === null && nodes[0]) {
+        nodes[0].setAttribute("tabindex", "-1");
+        nodes[0].focus();
+      }
+      focusAfterNextAppend = false;
+      return frozen({ ok: true, count: nodes.length, hasMore: nextCursor !== null });
+    }
+
+    function loadNext(loadOptions) {
+      if (loadOptions && loadOptions.focusAppended === true) focusAfterNextAppend = true;
+      if (nextInFlight) return nextInFlight;
+      nextInFlight = appendNextPage().finally(function () {
+        nextInFlight = null;
+        focusAfterNextAppend = false;
+        if (host.getAttribute && host.getAttribute("aria-busy") === "true") {
+          host.setAttribute("aria-busy", "false");
+        }
+      });
+      return nextInFlight;
+    }
+
+    function reconnect() {
+      return load(initialLoadOptions);
+    }
+
+    return frozen({ load, loadNext, reconnect });
+  }
+
+  function observeFeedTail(rootObject, host, controller) {
+    if (!rootObject || typeof rootObject.IntersectionObserver !== "function") return null;
+
+    const observer = new rootObject.IntersectionObserver(function (entries) {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        observer.unobserve(entry.target);
+        void controller.loadNext().then(function (result) {
+          if (result && result.ok === true && result.hasMore === true) observeTail();
+        });
+      }
+    }, { rootMargin: "320px 0px" });
+
+    function observeTail() {
+      const tail = host.lastElementChild;
+      if (tail) observer.observe(tail);
+    }
+
+    observeTail();
+    return observer;
   }
 
   function renderBootstrapFailure(rootObject) {
@@ -223,6 +392,8 @@
     const readModel = feedApi.createSocialFeedReadModel({ runtime });
     const controller = createSocialFeedController({ host, readModel, document: documentObject });
     const result = await controller.load();
+
+    if (result.ok && result.hasMore) observeFeedTail(runtimeRoot, host, controller);
 
     const reactionsApi = runtimeRoot && runtimeRoot.TIGERSocialReactions;
     if (result.ok && reactionsApi && typeof reactionsApi.mountCurrentSocialReactions === "function") {

@@ -217,3 +217,28 @@ test("database errors and thrown client errors become opaque Social error codes"
     code: "SOCIAL_PERSISTENCE_FAILED",
   });
 });
+
+test("HTTP 429 becomes a bounded opaque rate-limit result without provider details", async () => {
+  const rateLimited = createRecorder(() => ({
+    data: null,
+    status: 429,
+    error: {
+      code: "provider-bucket-secret",
+      message: "sensitive rate-limit detail",
+      retry_after_ms: 999_999,
+    },
+  }));
+  const social = createSocialRuntimeAdapters({ client: rateLimited.client });
+
+  const result = await social.comments.create(
+    "11111111-1111-4111-8111-111111111111",
+    { body: "تعليق" }
+  );
+
+  assert.deepEqual(result, {
+    ok: false,
+    code: "SOCIAL_RATE_LIMITED",
+    retryAfterMs: 5_000,
+  });
+  assert.doesNotMatch(JSON.stringify(result), /provider|secret|999999/i);
+});
