@@ -4,6 +4,8 @@
 
 **تاريخ التثبيت:** 2026-08-18
 
+**آخر تحديث للسلطة:** 2026-08-21
+
 **الغرض:** هذه هي الصفحة الأولى التي يعود إليها مالك VVIP TIGER في أي وقت لمعرفة أين توجد الحقيقة الحالية، وما الذي أُلغي، وما الذي يمنع ادعاء الجاهزية.
 
 **قاعدة الظهور:** مرجع حوكمة خاص بالمالك من حيث الوظيفة، ويُمنع نسخه إلى Public Release أو عرضه داخل واجهة المنصة. ليس مخزن أسرار ولا يحتوي كلمات مرور أو مفاتيح أو بيانات اعتماد.
@@ -31,10 +33,12 @@
 1. `docs/MASTER_PROJECT_STATE.md` — حالة المشروع البشرية الحالية ومؤشر التنفيذ.
 2. `docs/owner-control/TIGER_ONE_2026_CURRENT_OWNER_AUTHORITY.md` — قاعدة سلطة المالك والإلغاء.
 3. `docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md` — هوية المنتج الاجتماعية الحالية ووضع Marketplace كوحدة داخلها.
-4. `docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة الإعلان المدفوع وخدمة الظهور التي تملكها المنصة.
-5. `docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md` — معمارية TIGER SYNAPSE v2 + TIGER VERITY FABRIC.
-6. `project-control/production-handover/current-authority.v1.json` — عقد التسليم الآلي وبوابات P01–P20.
-7. Git exact commit SHA + exact tree SHA + أدلة CI المطابقة لهما — حقيقة التنفيذ النهائية.
+4. `docs/owner-control/TIGER_FACEBOOK_1_TO_1_FAMILIARITY_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة UI/UX الحالية: Facebook 1:1 Familiarity في البنية والسلوك + TIGER Identity.
+5. `docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة الإعلان المدفوع وخدمة الظهور التي تملكها المنصة.
+6. `docs/superpowers/specs/2026-08-21-tiger-facebook-1-to-1-familiarity-design.md` — التصميم التنفيذي المرجعي للمطابقة البنيوية والسلوكية.
+7. `docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md` — معمارية TIGER SYNAPSE v2 + TIGER VERITY FABRIC.
+8. `project-control/production-handover/current-authority.v1.json` — عقد التسليم الآلي وبوابات P01–P20.
+9. Git exact commit SHA + exact tree SHA + أدلة CI المطابقة لهما — حقيقة التنفيذ النهائية.
 
 إذا اختلف هذا المدخل المختصر مع حالة تنفيذ أحدث موثقة في المرجع الأول أو مع bytes المستودع وأدلة exact-head، تُصحح هذه الصفحة ولا تتحول إلى سلطة موازية.
 
@@ -43,6 +47,7 @@
 - **المنصة:** VVIP TIGER.
 - **سطح المنتج:** TIGER ONE Living Surface.
 - **هوية المنتج الأساسية:** شبكة اجتماعية أولًا، وMarketplace وPulse وحدتان داخل المنتج وليستا هوية المنتج كلها.
+- **سلطة UI/UX الحالية:** `Facebook 1:1 Familiarity + TIGER Identity` — مطابقة بنيوية وسلوكية شديدة القرب مع بقاء TIGER مستقلًا في العلامة والهوية والأمن والبيانات.
 - **نظام الابتكار:** TIGER SYNAPSE v2 — Temporal Intent Operating System.
 - **نسيج الثقة والإصدار:** TIGER VERITY FABRIC.
 - **مصدر الدخل المعتمد حاليًا:** خدمات الإعلان والظهور المدفوع التي تملكها المنصة، ومنها Pulse وفق 3/10/20 JOD؛ النشر العادي المتوافق مجاني.
@@ -58,6 +63,7 @@
 - لا يعتمد فيديو قديم أو GitHub Pages قديم أو Preview متقاعد.
 - رابط المعاينة الصحيح يجب أن يكون معزولًا، قابلًا للفتح من الهاتف، ومبنيًا من exact head المطلوب دون تغيير `main` أو Production.
 - إذا لم يوجد رابط مطابق، فالحقيقة الصحيحة هي: `NO VALID PREVIEW YET`.
+- واجهة تبدو مثل Facebook بصريًا لكنها تحتوي أزرارًا ميتة أو placeholders لا تعتبر مطابقة ولا نجاحًا.
 
 ## 5. قاعدة عدم ازدواج السلطة
 
@@ -96,7 +102,8 @@
 5. صنف الحالة بواحدة من: `APPROVED`, `IMPLEMENTED`, `VERIFIED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, `STALE`.
 6. ابدأ من أول بوابة غير ناجحة، ولا تعِد بناء ما هو مثبت وصحيح.
 7. لا تنقل أي قديم متعارض إلى المنصة الحالية.
+8. في UI/UX ارجع إلى سلطة Facebook 1:1 Familiarity + TIGER Identity قبل قبول أي تصميم أو Preview.
 
 ## 8. العبارة المختصرة الملزمة
 
-> **مرجع واحد، سلطة حالية واحدة، مصدر دقيق واحد، ودليل مطابق واحد. الجديد المعتمد يحكم؛ القديم المتعارض يخرج نهائيًا من المنصة الحالية ويبقى — عند الضرورة فقط — أثرًا تاريخيًا بلا سلطة.**
+> **مرجع واحد، سلطة حالية واحدة، مصدر دقيق واحد، ودليل مطابق واحد. الجديد المعتمد يحكم؛ القديم المتعارض يخرج نهائيًا من المنصة الحالية. وفي UI/UX: Familiarity شديدة القرب من Facebook في البنية والسلوك، وهوية TIGER مستقلة وواضحة، ولا نجاح مع زر ميت أو واجهة وهمية.**
