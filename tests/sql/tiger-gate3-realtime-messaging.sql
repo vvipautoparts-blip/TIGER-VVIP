@@ -350,6 +350,32 @@ from public.vvip_social_list_messages(
 
 -- Unblocking never resurrects friendship, but the existing conversation gets a fresh epoch.
 select public.vvip_social_unblock_user('user_bob');
+
+-- RPC-first is a security boundary: authenticated clients must not be able to inspect
+-- the durable conversation table directly, even for a conversation they belong to.
+do $direct_table_denied$
+declare
+    v_denied boolean := false;
+begin
+    begin
+        perform 1
+        from public.vvip_social_conversations
+        where conversation_id = current_setting('tiger.gate3_conversation_id')::uuid;
+    exception
+        when insufficient_privilege then
+            v_denied := true;
+    end;
+
+    if not v_denied then
+        raise exception 'AUTHENTICATED_DIRECT_CONVERSATION_READ_WAS_NOT_DENIED';
+    end if;
+end;
+$direct_table_denied$;
+\echo AUTHENTICATED_DIRECT_TABLE_READ_DENIED=PASS
+
+-- Privileged test-only introspection verifies the epoch transition without changing
+-- the authenticated production surface.
+reset role;
 select (
     channel_epoch = current_setting('tiger.gate3_old_epoch')::bigint + 2
     and membership_version = current_setting('tiger.gate3_old_epoch')::bigint + 2
@@ -364,6 +390,8 @@ where conversation_id = current_setting('tiger.gate3_conversation_id')::uuid
   \quit 1
 \endif
 
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"user_alice"}', true);
 select set_config(
     'tiger.gate3_current_topic',
     (public.vvip_social_get_channel_ticket(
