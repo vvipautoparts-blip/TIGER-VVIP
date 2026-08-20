@@ -2,9 +2,11 @@
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const crypto = require("node:crypto");
 const fs = require("node:fs");
 
 const migrationPath = "supabase/migrations/20260820213500_social_follows.sql";
+const scannerPath = "scripts/security/p08-steel-shield/scan-dangerous-sql.sh";
 
 function migration() {
   return fs.readFileSync(migrationPath, "utf8");
@@ -57,4 +59,15 @@ test("Follow state does not create a raw public follower directory", () => {
   assert.doesNotMatch(sql, /grant\s+select\s+on\s+(table\s+)?public\.vvip_social_follows\s+to\s+(public|anon|authenticated)/i);
   assert.doesNotMatch(sql, /jsonb_agg\s*\(.*follower_subject/i);
   assert.doesNotMatch(sql, /array_agg\s*\(.*follower_subject/i);
+});
+
+test("Social Follow dangerous-SQL review is byte-exact", () => {
+  const sql = migration();
+  const scanner = fs.readFileSync(scannerPath, "utf8");
+  const digest = crypto.createHash("sha256").update(sql).digest("hex");
+  assert.equal(digest, "8ef753dc8f17e50e22c0174d5c62cc04f306d31420344f3ff0f8d5129ea0db81");
+  assert.ok(
+    scanner.includes(`[\"${migrationPath}\"]=\"${digest}\"`),
+    "dangerous-SQL review must bind the exact reviewed Follow migration bytes"
+  );
 });
