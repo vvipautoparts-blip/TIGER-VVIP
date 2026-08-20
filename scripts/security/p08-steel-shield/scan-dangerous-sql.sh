@@ -116,6 +116,13 @@ declare -A reviewed_migration_hashes=(
   # from the canonical Clerk-backed actor, lifecycle state is not a client input, and
   # non-active mutation fails closed. Any byte drift re-enters review automatically.
   ["supabase/migrations/20260820223000_profile_owner_boundary.sql"]="55bb7b98771cc26061a6d40625b9419627c38cc2ed2420a394bf35f4931013bc"
+
+  # NO_VISITOR_MODE hardening: reviewed as a privilege-narrowing forward migration.
+  # The DROP POLICY findings intentionally retire historical anonymous/public reads;
+  # replacement policies target authenticated members only, anon grants are revoked,
+  # legacy feed browser ACL is removed, and no CASCADE/table/column destruction exists.
+  # Approval is byte-exact; any SQL drift re-enters Steel Shield automatically.
+  ["supabase/migrations/20260821003000_no_visitor_mode_hardening.sql"]="14b499547b02bfc6dca4a80974113f73f51b105719323cfa61e5e9ea5372d25d"
 )
 
 reviewed_baseline_path() {
