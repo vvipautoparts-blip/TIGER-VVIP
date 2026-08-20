@@ -421,12 +421,17 @@ select set_config(
 select set_config('tiger.gate4_invalid_dispatch', dispatch_id::text, true),
        set_config('tiger.gate4_invalid_generation', generation::text, true)
 from public.vvip_notification_claim_dispatches(1,'gate4-invalid-worker');
-select (
+select set_config(
+    'tiger.gate4_invalid_settlement',
     public.vvip_notification_settle_dispatch(
         current_setting('tiger.gate4_invalid_dispatch')::uuid,
         current_setting('tiger.gate4_invalid_generation')::bigint,
         'endpoint_invalid',null,'synthetic_invalid',null
-    )->>'state' = 'invalid_endpoint'
+    )::text,
+    true
+);
+select (
+    current_setting('tiger.gate4_invalid_settlement')::jsonb->>'state' = 'invalid_endpoint'
     and exists (
         select 1 from public.vvip_notification_endpoints
         where endpoint_id = current_setting('tiger.gate4_endpoint_id')::uuid and state = 'invalid'
