@@ -24,8 +24,6 @@ returns table (
 language plpgsql
 security definer set search_path = pg_catalog, public
 as $function$
-declare
-    v_limit integer := least(greatest(coalesce(p_limit,1),1),32);
 begin
     if p_worker is null or char_length(p_worker) < 3 or char_length(p_worker) > 120 then
         raise exception 'TIGER_NOTIFICATION_WORKER_INVALID';
@@ -80,7 +78,7 @@ begin
           and not public.vvip_notification_push_blocked(notification.category,dispatch.provider)
         order by dispatch.next_attempt_at, dispatch.created_at, dispatch.dispatch_id
         for update of dispatch skip locked
-        limit v_limit
+        limit (least(greatest(coalesce(p_limit,1),1),32))
     ), claimed as (
         update public.vvip_notification_dispatches dispatch
            set state = 'leased',
