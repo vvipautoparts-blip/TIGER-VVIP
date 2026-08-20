@@ -25,7 +25,8 @@ const CANONICAL_WIDTH = 1600;
 const CANONICAL_HEIGHT = 1200;
 const CANONICAL_QUALITY = 85;
 const CLEANUP_BATCH = 32;
-const VERIFIER_VERSION = "tiger-media-finalizer/2026.08.20-v4";
+const WORKER_AUTH_WINDOW_SECONDS = 60;
+const VERIFIER_VERSION = "tiger-media-finalizer/2026.08.20-v5";
 
 const NO_STORE_HEADERS = {
   "Content-Type": "application/json; charset=utf-8",
@@ -96,6 +97,13 @@ type Gate2Database = {
         };
         Returns: string;
       };
+      vvip_social_media_consume_worker_challenge: {
+        Args: {
+          challenge_nonce: string;
+          challenge_timestamp: number;
+        };
+        Returns: boolean;
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
@@ -116,6 +124,11 @@ type MediaFacts = {
   height: number;
 };
 
+type WorkerChallenge = {
+  timestamp: number;
+  nonce: string;
+};
+
 class TigerMediaError extends Error {
   constructor(readonly code: string) {
     super(code);
@@ -133,13 +146,28 @@ function requiredEnv(name: string): string {
   return value;
 }
 
+function bytesToHex(bytes: Uint8Array): string {
+  return [...bytes].map((value) => value.toString(16).padStart(2, "0")).join("");
+}
+
 async function sha256Hex(bytes: Uint8Array): Promise<string> {
   const ownedBuffer = new ArrayBuffer(bytes.byteLength);
   new Uint8Array(ownedBuffer).set(bytes);
   const digest = await crypto.subtle.digest("SHA-256", ownedBuffer);
-  return [...new Uint8Array(digest)]
-    .map((value) => value.toString(16).padStart(2, "0"))
-    .join("");
+  return bytesToHex(new Uint8Array(digest));
+}
+
+async function hmacSha256Hex(secret: string, message: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(message));
+  return bytesToHex(new Uint8Array(signature));
 }
 
 async function constantTimeEqual(left: string, right: string): Promise<boolean> {
@@ -155,6 +183,38 @@ async function constantTimeEqual(left: string, right: string): Promise<boolean> 
     diff |= (a[i] ?? 0) ^ (b[i] ?? 0);
   }
   return diff === 0;
+}
+
+function workerChallengeMessage(timestamp: number, nonce: string): string {
+  return `tiger-media-worker-v1\n${timestamp}\n${nonce}\nPOST\n/functions/v1/social-media-finalizer`;
+}
+
+async function verifyWorkerChallenge(request: Request): Promise<WorkerChallenge> {
+  const signature = request.headers.get("x-tiger-worker-signature")?.trim().toLowerCase() ?? "";
+  const timestampRaw = request.headers.get("x-tiger-worker-timestamp")?.trim() ?? "";
+  const nonce = request.headers.get("x-tiger-worker-nonce")?.trim().toLowerCase() ?? "";
+
+  if (!/^[0-9a-f]{64}$/.test(signature) || !/^[0-9]{10,11}$/.test(timestampRaw) || !/^[0-9a-f]{32}$/.test(nonce)) {
+    throw new TigerMediaError("WORKER_AUTH_INVALID");
+  }
+
+  const timestamp = Number(timestampRaw);
+  const now = Math.floor(Date.now() / 1000);
+  if (!Number.isSafeInteger(timestamp) || Math.abs(now - timestamp) > WORKER_AUTH_WINDOW_SECONDS) {
+    throw new TigerMediaError("WORKER_AUTH_EXPIRED");
+  }
+
+  const secret = requiredEnv("TIGER_MEDIA_WORKER_SECRET");
+  if (secret.length < 32 || secret.length > 512) {
+    throw new TigerMediaError("SERVER_CONFIG_WORKER_SECRET_INVALID");
+  }
+
+  const expectedSignature = await hmacSha256Hex(secret, workerChallengeMessage(timestamp, nonce));
+  if (!(await constantTimeEqual(signature, expectedSignature))) {
+    throw new TigerMediaError("WORKER_AUTH_FAILED");
+  }
+
+  return { timestamp, nonce };
 }
 
 function ascii(bytes: Uint8Array, start: number, length: number): string {
@@ -370,19 +430,17 @@ function normalizeRpcRow<T>(data: unknown): T | null {
 }
 
 function safeErrorCode(error: unknown): string {
-  const raw = error instanceof TigerMediaError
-    ? error.code
-    : error instanceof Error
-    ? error.message
-    : "SOCIAL_MEDIA_WORKER_FAILURE";
-  return raw.toUpperCase().replace(/[^A-Z0-9_:-]/g, "_").slice(0, 120) || "SOCIAL_MEDIA_WORKER_FAILURE";
+  if (error instanceof TigerMediaError) {
+    return error.code.toUpperCase().replace(/[^A-Z0-9_:-]/g, "_").slice(0, 120);
+  }
+  return "SOCIAL_MEDIA_WORKER_FAILURE";
 }
 
 async function purgeQuarantine(admin: AdminClient): Promise<void> {
   const { data, error } = await admin.rpc("vvip_social_media_claim_quarantine_cleanup", {
     max_rows: CLEANUP_BATCH,
   });
-  if (error) throw new TigerMediaError(`QUARANTINE_CLEANUP_CLAIM_FAILED:${error.message}`);
+  if (error) throw new TigerMediaError("QUARANTINE_CLEANUP_CLAIM_FAILED");
 
   for (const row of data ?? []) {
     if (!row?.media_id || !row?.quarantine_storage_path) continue;
@@ -390,14 +448,14 @@ async function purgeQuarantine(admin: AdminClient): Promise<void> {
       row.quarantine_storage_path,
     ]);
     if (removeError) {
-      console.error("TIGER_QUARANTINE_PURGE_RETRY", row.media_id, removeError.message);
+      console.error("TIGER_QUARANTINE_PURGE_RETRY", row.media_id);
       continue;
     }
     const { error: ackError } = await admin.rpc("vvip_social_media_mark_quarantine_purged", {
       target_media: row.media_id,
       expected_quarantine_path: row.quarantine_storage_path,
     });
-    if (ackError) console.error("TIGER_QUARANTINE_PURGE_ACK_RETRY", row.media_id, ackError.message);
+    if (ackError) console.error("TIGER_QUARANTINE_PURGE_ACK_RETRY", row.media_id);
   }
 }
 
@@ -418,11 +476,9 @@ async function ensureCanonicalObject(
   );
   if (!uploadError) return;
 
-  // A previous or concurrently recovered generation may already have produced the
-  // deterministic object. Never overwrite it; accept it only after byte identity proof.
   const { data: existing, error: downloadError } = await admin.storage.from(BUCKET).download(canonicalPath);
   if (downloadError || !existing) {
-    throw new TigerMediaError(`CANONICAL_UPLOAD_FAILED:${uploadError.message}`);
+    throw new TigerMediaError("CANONICAL_UPLOAD_FAILED");
   }
   const existingBytes = new Uint8Array(await existing.arrayBuffer());
   const existingSha = await sha256Hex(existingBytes);
@@ -433,7 +489,7 @@ async function ensureCanonicalObject(
 
 async function processOne(admin: AdminClient): Promise<{ processed: boolean; media_id?: string }> {
   const { data: claimData, error: claimError } = await admin.rpc("vvip_social_media_webhook_claim");
-  if (claimError) throw new TigerMediaError(`WEBHOOK_CLAIM_FAILED:${claimError.message}`);
+  if (claimError) throw new TigerMediaError("WEBHOOK_CLAIM_FAILED");
   const claim = normalizeRpcRow<ClaimRow>(claimData);
   if (!claim) return { processed: false };
 
@@ -493,7 +549,7 @@ async function processOne(admin: AdminClient): Promise<{ processed: boolean; med
       },
     );
     if (finalizeError || finalizedPath !== canonicalPath) {
-      throw new TigerMediaError(`CANONICAL_DB_FINALIZE_FAILED:${finalizeError?.message ?? "PATH_MISMATCH"}`);
+      throw new TigerMediaError("CANONICAL_DB_FINALIZE_FAILED");
     }
     committed = true;
 
@@ -505,9 +561,9 @@ async function processOne(admin: AdminClient): Promise<{ processed: boolean; med
         target_media: claim.media_id,
         expected_quarantine_path: claim.quarantine_storage_path,
       });
-      if (purgeAckError) console.error("TIGER_READY_SOURCE_PURGE_ACK_RETRY", claim.media_id, purgeAckError.message);
+      if (purgeAckError) console.error("TIGER_READY_SOURCE_PURGE_ACK_RETRY", claim.media_id);
     } else {
-      console.error("TIGER_READY_SOURCE_PURGE_RETRY", claim.media_id, sourceRemoveError.message);
+      console.error("TIGER_READY_SOURCE_PURGE_RETRY", claim.media_id);
     }
 
     return { processed: true, media_id: claim.media_id };
@@ -516,8 +572,8 @@ async function processOne(admin: AdminClient): Promise<{ processed: boolean; med
 
     // Never delete a deterministic canonical path after losing the claim generation.
     // A recovered generation may already be verifying or committing this same object.
-    // The object remains private and unreadable until DB READY + Media Passport exists;
-    // subsequent retries verify its digest before reuse.
+    // The object remains private until DB READY + Media Passport exists; a retry only
+    // reuses it after exact digest and byte-length verification.
     if (canonicalObjectEnsured && canonicalPath && !committed) {
       console.error("CANONICAL_ORPHAN_RETAINED_FOR_SAFE_RETRY", claim.media_id, canonicalPath, code);
     }
@@ -528,7 +584,7 @@ async function processOne(admin: AdminClient): Promise<{ processed: boolean; med
         expected_attempt_count: claim.attempt_count,
         error_code: code,
       });
-      if (failureError) console.error("TIGER_WEBHOOK_FAILURE_RECORD_FAILED", claim.event_id, failureError.message);
+      if (failureError) console.error("TIGER_WEBHOOK_FAILURE_RECORD_FAILED", claim.event_id);
     }
     throw new TigerMediaError(code);
   }
@@ -540,22 +596,35 @@ serve(async (request: Request) => {
   }
 
   try {
-    const suppliedSecret = request.headers.get("x-tiger-worker-secret") ?? "";
-    const expectedSecret = requiredEnv("TIGER_MEDIA_WORKER_SECRET");
-    if (!suppliedSecret || !(await constantTimeEqual(suppliedSecret, expectedSecret))) {
-      return jsonResponse(401, { ok: false, code: "WORKER_AUTH_FAILED" });
-    }
-
+    const challenge = await verifyWorkerChallenge(request);
     const supabaseUrl = requiredEnv("SUPABASE_URL");
     const serviceRoleKey = requiredEnv("SUPABASE_SERVICE_ROLE_KEY");
     const admin = createGate2AdminClient(supabaseUrl, serviceRoleKey);
+
+    const { data: consumed, error: consumeError } = await admin.rpc(
+      "vvip_social_media_consume_worker_challenge",
+      {
+        challenge_nonce: challenge.nonce,
+        challenge_timestamp: challenge.timestamp,
+      },
+    );
+    if (consumeError) {
+      console.error("TIGER_WORKER_CHALLENGE_CONSUME_FAILED");
+      return jsonResponse(503, { ok: false, code: "WORKER_AUTH_UNAVAILABLE" });
+    }
+    if (consumed !== true) {
+      return jsonResponse(401, { ok: false, code: "WORKER_AUTH_REPLAYED" });
+    }
 
     await purgeQuarantine(admin);
     const result = await processOne(admin);
     return jsonResponse(200, { ok: true, ...result });
   } catch (error) {
     const code = safeErrorCode(error);
+    const status = code.startsWith("WORKER_AUTH_") ? 401
+      : code.startsWith("SERVER_CONFIG_") ? 503
+      : 500;
     console.error("TIGER_MEDIA_FINALIZER_ERROR", code);
-    return jsonResponse(500, { ok: false, code });
+    return jsonResponse(status, { ok: false, code });
   }
 });
