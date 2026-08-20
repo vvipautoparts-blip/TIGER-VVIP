@@ -5,31 +5,21 @@
 > أي وثيقة أخرى أو تقرير أو Ledger أو محادثة أو Archive هو **Evidence فقط** ولا يملك سلطة تغيير هذه الوثيقة أو الـruntime.
 > مدخل المالك الدائم للعودة إلى هذه الحقيقة هو `docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md`، وهو فهرس توجيهي لا سلطة موازية.
 
-## 0. مؤشر التنفيذ الحالي على فرع Social Core
+## 0. مؤشر التنفيذ الحالي — Gate 4 review closure
 
-- **العمل الحالي:** PR #271 على الفرع `feat/tiger-one-living-surface-impl-20260818`، فوق فرع المواصفة وليس فوق `main` مباشرة.
-- **حالة S0 (دالة fail-closed):** تكون `VERIFIED` **إذا وفقط إذا** نجح كل من `VVIP Quality Gate` و`TIGER Social DB Rehearsal` على رأس PR الحالي نفسه وشجرته نفسها؛ وفي غير ذلك تكون `IN_PROGRESS` أو `BLOCKED`. رأس PR الحالي وشجرته وقرار الحالة يُستمدّون حصراً من GitHub exact-head CI attestations خارج هذه الوثيقة، ولا يُستنتج `VERIFIED` من هذه الوثيقة أو من SHA تاريخي.
-- **نقطة دليل تنفيذ Social Core من Task 7:** `9f2dce40b352f67d80c81b60515442c860c58048`؛ **شجرتها:** `85ca87aa64714b3cac3a73ac0beefeb7e9df26fd`. هذه نقطة evidence تاريخية وليست رأس PR الحالي ولا قرار التحقق النهائي للوثائق.
-- **دليل الاختبارات المركزة للتعليقات/الردود:** `109/109 PASS`، بلا fail أو skipped أو todo.
-- **TIGER Social DB Rehearsal التاريخي:** `PASS` على نقطة Task 7 نفسها (التشغيل البعيد #103).
-- **VVIP Quality Gate التاريخي:** `PASS` على نقطة Task 7 نفسها (التشغيل البعيد #1474)؛ والتحقق المحلي المعزول الكامل `VVIP_QUALITY_GATE=PASS`. لا يغني أيٌّ من ذلك عن attestations الرأس الحالي.
-- **هوية المنتج الحالية:** `SOCIAL_NETWORK_FIRST` مع انتشار سوقي `GLOBAL_FIRST`؛ Marketplace وPulse وحدتان داخل المنتج.
-- **سلطة المنتج الحالية:** `docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md`.
-- **سلطة الإعلان المدفوع الحالية:** `docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md`؛ النشر العادي المتوافق مجاني.
-- **حالة فرع Sales DNA المنفصل:** تمت مراجعته ولم يُدمج في PR #271. صياغته العامة لكل "عملية بيع" ونقص قيد خدمة الإعلان التي تملكها TIGER يتعارضان مع دور المنصة، كما أن Quality Gate لذلك الفرع ليس أخضر؛ يبقى خارج `CURRENT` حتى إعادة تصميمه لخدمات إعلان TIGER فقط وإغلاق فجوات النزاهة والاختبارات.
-- **الواجهة الحالية:** TIGER Social Home مع Header مضغوط، تبويبات اجتماعية، Composer، عرض Stories، ومنشورات وتفاعلات اجتماعية مألوفة مع هوية TIGER مستقلة.
-- **الرؤية الابتكارية المعتمدة:** **TIGER SYNAPSE v2** — Temporal Intent Operating System يوحّد النية اللحظية، المطابقة القابلة للتفسير، إثبات الحاضر، الكشف المتبادل، والتواصل المباشر داخل Living Surface واحدة.
-- **نسيج السلطة والإثبات المعتمد:** **TIGER VERITY FABRIC** — Authority Graph + Hermetic Build Core + Release DNA/Proof Root + Typed P01–P20 Evidence + Fresh Runtime Witnesses.
-- **مرجع SYNAPSE الحالي:** `docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md`.
-- **حالة SYNAPSE:** `APPROVED / PLANNED / NOT IMPLEMENTED beyond S0`؛ اعتماد الاتجاه لا يعني أن المزايا موجودة في الـruntime أو أن Preview جاهز.
-- **حالة VERITY FABRIC:** `APPROVED / PLANNED / NOT IMPLEMENTED beyond existing foundations`؛ تبقى عقود TSRF وF05 والحزم الحالية أساسًا موجودًا، لكنها لا تثبت أن نسيج VERITY الكامل أو Gate Compiler قد نُفذا.
-- **قرار المالك المثبت:** اعتمد المالك النسخة المكتوبة لخيار C بتاريخ 2026-08-18؛ أصبحت SYNAPSE v2 + VERITY FABRIC سلطة `CURRENT_ONLY` في نطاقها، مع بقاء التنفيذ `NOT IMPLEMENTED` حتى ظهور أدلة الكود والاختبارات.
-- **خطة البرنامج الحالية:** `docs/superpowers/plans/2026-08-18-tiger-synapse-v2-verity-fabric-program-execution.md`.
-- **مؤشر التنفيذ الحالي / الشريحة التالية:** `V0 Owner Authority Graph` — تحويل مرجع المالك وقاعدة إلغاء القديم إلى Authority Graph قابل للتحقق آليًا، قبل توسيع محرك النوايا.
-- **قاعدة المالك النهائية:** أحدث قرار `CURRENT_ONLY` يلغي سلطة كل قديم متعارض ويخرجه من المنصة الحالية والحزمة العامة ومسارات التنفيذ؛ الأثر الضروري يبقى `HISTORICAL_ONLY` خارج المنصة بلا أي سلطة.
-- **سلطة المعاينة:** لا يُعتمد أي فيديو أو رابط نشر تاريخي أو رابط Pages سابق بوصفه معاينة لهذا العمل.
-- **شرط الرابط الصحيح:** Preview مستقل مبني من exact head الخاص بـPR #271، يعمل على الهاتف، ولا يغيّر `main` أو Production.
-- **الحقيقة السلبية:** عدم وجود رابط Preview صحيح أفضل من نشر رابط قديم أو غير مطابق؛ لا يجوز اختلاق الجاهزية أو إعادة استخدام رابط متقاعد.
+- **العمل الحالي:** إغلاق ملاحظات PR #290 `feat/tiger-gate4-notification-intelligence-20260820` على فرع إصلاح معزول `fix/tiger-gate4-review-20260820`.
+- **الرأس الأساسي المعتمد قبل المراجعة:** `1ddfef3bd0a44e8ac976ac87074e029f5c2174c7`.
+- **حالة الرأس الأساسي:** `VERIFIED HISTORICAL EVIDENCE` — جميع 12 workflow نجحت عليه، لكنه لا يغطي bytes إصلاح المراجعة الجديدة.
+- **حالة Gate 2:** `VERIFIED` على الرأس الأساسي مع دليل Gate 2 exact-SHA.
+- **حالة Gate 3:** `VERIFIED` على الرأس الأساسي مع دليل Gate 3 exact-SHA.
+- **حالة Gate 4 الحالية:** `IN_PROGRESS` حتى تُرفع إصلاحات TTL/حالة المواصفة ويُعاد Gate 4 + Quality/Security على الرأس الجديد.
+- **ملاحظات المراجعة:** منع تقريب TTL الجزئي إلى صفر قبل الانتهاء الحقيقي في migration الأساس وmigration استرداد الـlease، وتصحيح status قديم في المواصفة.
+- **الدليل المحلي للإصلاح:** اختبار الرجوع RED ثم GREEN؛ عقود Gate 4 `21/21 PASS`؛ Steel Shield `CRITICAL=0 HIGH=0`. هذا دليل محلي وليس exact-head CI نهائيًا.
+- **الخطوة التالية بعد إغلاق PR #290:** Gate 5 — TIGER Adaptive Network Fabric.
+- **مرجع المالك السيادي:** `docs/owner-control/TIGER_2026_SOVEREIGN_OWNER_CONSTITUTION_AR.md`.
+- **السجل الآلي:** `docs/owner-control/TIGER_2026_SOVEREIGN_EXECUTION_REGISTRY.json`.
+- **حاجز Production:** ساري. لا merge إلى `main` ولا Production DB/credentials/provider activation ولا real push ضمن هذا الإغلاق.
+- **سلطة المعاينة:** لا يُعتمد فيديو أو رابط Pages تاريخي. Preview الصحيح يجب أن يُبنى لاحقًا من exact head مع Staging معزول.
 
 ## 1. هوية المشروع والسلطة
 

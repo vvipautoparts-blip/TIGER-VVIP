@@ -2,7 +2,7 @@
 
 **الحالة:** `CURRENT OWNER ENTRYPOINT / NOT A SECOND AUTHORITY`
 
-**تاريخ التثبيت:** 2026-08-19
+**تاريخ التثبيت:** 2026-08-20
 
 **الغرض:** هذه هي الصفحة الأولى التي يعود إليها مالك VVIP TIGER في أي وقت لمعرفة أين توجد الحقيقة الحالية، وما الذي أُلغي، وما الذي يمنع ادعاء الجاهزية.
 
@@ -29,15 +29,17 @@
 هذا الملف هو **مدخل المالك** وليس نسخة ثانية من الحقيقة. ترتيب الرجوع الملزم هو:
 
 1. `docs/MASTER_PROJECT_STATE.md` — حالة المشروع البشرية الحالية ومؤشر التنفيذ.
-2. `docs/owner-control/TIGER_ONE_2026_CURRENT_OWNER_AUTHORITY.md` — قاعدة سلطة المالك والإلغاء.
-3. `docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md` — هوية المنتج الاجتماعية الحالية ووضع Marketplace كوحدة داخلها.
-4. `docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة الإعلان المدفوع وخدمة الظهور التي تملكها المنصة.
-5. `docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md` — معمارية TIGER SYNAPSE v2 + TIGER VERITY FABRIC.
-6. `docs/owner-control/TIGER_SOVEREIGN_LIVING_SYSTEM_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة الضمان التشغيلي والإثبات والـPreview والمرونة والـRelease Rings.
-7. `docs/superpowers/specs/2026-08-19-tiger-sovereign-living-system-design.md` — المواصفة الهندسية لـTIGER Sovereign Living System 2026.
-8. `docs/owner-control/TIGER_PRODUCTION_READINESS_STANDARD_2026_CURRENT_OWNER_AUTHORITY.md` — معيار الجاهزية والإطلاق الحالي للمالك؛ يحدد متى يصبح أي محور `VERIFIED` أو `PRODUCTION_ELIGIBLE` ويلزم مسار Requirement → Code → Test → Rehearsal → Evidence → Exact SHA → Release Passport.
-9. `project-control/production-handover/current-authority.v1.json` — عقد التسليم الآلي وبوابات P01–P20.
-10. Git exact commit SHA + exact tree SHA + أدلة CI المطابقة لهما — حقيقة التنفيذ النهائية.
+2. `docs/owner-control/TIGER_2026_SOVEREIGN_OWNER_CONSTITUTION_AR.md` — دستور الحقيقة والأمن والتكلفة والإغلاق الحالي.
+3. `docs/owner-control/TIGER_2026_SOVEREIGN_EXECUTION_REGISTRY.json` — سجل التنفيذ الآلي، ترتيب البوابات، الأختام، والحواجز.
+4. `docs/owner-control/TIGER_ONE_2026_CURRENT_OWNER_AUTHORITY.md` — قاعدة سلطة المالك والإلغاء.
+5. `docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md` — هوية المنتج الاجتماعية الحالية ووضع Marketplace كوحدة داخلها.
+6. `docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة الإعلان المدفوع وخدمة الظهور التي تملكها المنصة.
+7. `docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md` — معمارية TIGER SYNAPSE v2 + TIGER VERITY FABRIC.
+8. `docs/owner-control/TIGER_SOVEREIGN_LIVING_SYSTEM_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة الضمان التشغيلي والإثبات والـPreview والمرونة والـRelease Rings.
+9. `docs/superpowers/specs/2026-08-19-tiger-sovereign-living-system-design.md` — المواصفة الهندسية لـTIGER Sovereign Living System 2026.
+10. `docs/owner-control/TIGER_PRODUCTION_READINESS_STANDARD_2026_CURRENT_OWNER_AUTHORITY.md` — معيار الجاهزية والإطلاق الحالي للمالك؛ يحدد متى يصبح أي محور `VERIFIED` أو `PRODUCTION_ELIGIBLE` ويلزم مسار Requirement → Code → Test → Rehearsal → Evidence → Exact SHA → Release Passport.
+11. `project-control/production-handover/current-authority.v1.json` — عقد التسليم الآلي وبوابات P01–P20.
+12. Git exact commit SHA + exact tree SHA + أدلة CI المطابقة لهما — حقيقة التنفيذ النهائية.
 
 إذا اختلف هذا المدخل المختصر مع حالة تنفيذ أحدث موثقة في المرجع الأول أو مع bytes المستودع وأدلة exact-head، تُصحح هذه الصفحة ولا تتحول إلى سلطة موازية.
 
