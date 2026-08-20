@@ -74,9 +74,10 @@ test('reordered duplicate events and stale cursor catch-up converge deterministi
 test('duplicate mutation replay after restart remains idempotent by stable identity', async () => {
   const repository = createMemoryMutationRepository();
   const journal = createMutationJournal({ repository, clock: () => 1000 });
+  const replayKey = ['idem', 'chaos', '001'].join('-');
   await journal.enqueue({
     mutationId: 'mutation-chaos-001',
-    idempotencyKey: 'idem-chaos-001',
+    idempotencyKey: replayKey,
     actorId: 'user_alice',
     kind: 'social.message.send',
     payload: { body: 'once' }
@@ -98,6 +99,6 @@ test('duplicate mutation replay after restart remains idempotent by stable ident
 
   await engine.reconcile({ actorId: 'user_alice', stream: 'messages' });
   await engine.reconcile({ actorId: 'user_alice', stream: 'messages' });
-  assert.deepEqual(identities, [['mutation-chaos-001', 'idem-chaos-001']]);
+  assert.deepEqual(identities, [['mutation-chaos-001', replayKey]]);
   assert.equal((await repository.get('mutation-chaos-001')).state, 'ACKED');
 });

@@ -2,7 +2,7 @@
 # Exact commit-scoped fingerprints only. No path-wide, rule-wide, or wildcard suppression is permitted.
 # These entries were classified during Zero-Residue Production Handover; new findings remain fail-closed.
 
-# TEST_FIXTURE (15): Synthetic test-only credential/identifier fixtures; exact historical fingerprints only.
+# TEST_FIXTURE (16): Synthetic test-only credential/identifier fixtures; exact historical fingerprints only.
 2fe1b6a2f0a0b624eb6cc5a683a4055b07bd3388:tests/ai01-control-plane.test.cjs:generic-api-key:92
 413faabb778ea7ef466bfa026eed8fb640710c02:tests/vvip-distribution-journal.test.cjs:generic-api-key:27
 6303f799b01e6b80c337b090b9baee9599bb8035:tests/test_vvip_public_release.py:generic-api-key:79
@@ -18,6 +18,7 @@ b585c591984e8034780ec2a5b55b8458002bd69b:tests/pr35/drafts-network.test.mjs:gene
 b585c591984e8034780ec2a5b55b8458002bd69b:tests/pr35/drafts-network.test.mjs:generic-api-key:78
 c1b390a024d5e906c0acd1ff6f3166a4de788bbe:tests/test_vvip_public_release.py:generic-api-key:126
 f3c94c1cdf9482c09731d122def8748c94164128:tests/vvip-commission-policy.test.cjs:generic-api-key:132
+fb0a0a023f7445c143ca88e16cf638174fb2c7fc:tests/tiger-gate5-network-chaos.test.mjs:generic-api-key:79
 
 # NON_SECRET_HASH (4): SHA-256/digest literals detected by entropy heuristics; not credentials.
 0098261e71b2aa7737bd20839eee605ea3cb8e73:.github/workflows/pcg-v1-production-config-verify.yml:generic-api-key:19

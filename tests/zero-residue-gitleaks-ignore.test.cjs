@@ -16,7 +16,7 @@ test('full-history Gitleaks exceptions are exact commit-scoped fingerprints only
     .map((line) => line.trim())
     .filter((line) => line && !line.startsWith('#'));
 
-  assert.equal(entries.length, 75, 'reviewed baseline must match the classified 75-finding evidence set');
+  assert.equal(entries.length, 76, 'reviewed baseline must match the classified 76-finding evidence set');
   assert.equal(new Set(entries).size, entries.length, 'historical fingerprint exceptions must be unique');
 
   for (const entry of entries) {
@@ -28,7 +28,7 @@ test('full-history Gitleaks exceptions are exact commit-scoped fingerprints only
 test('review rationale stays explicit and no broad suppression language is introduced', () => {
   const text = fs.readFileSync(IGNORE, 'utf8');
   for (const group of [
-    'TEST_FIXTURE (15)',
+    'TEST_FIXTURE (16)',
     'NON_SECRET_HASH (4)',
     'PUBLIC_CLIENT_IDENTIFIER (55)',
     'DOCUMENTATION_FALSE_POSITIVE (1)'
