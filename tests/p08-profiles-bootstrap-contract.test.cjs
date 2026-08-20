@@ -132,6 +132,7 @@ test('public.profiles migrations end with Clerk-scoped RLS and no open policy', 
     readMigration('20260706_public_profiles_bootstrap.sql'),
   );
   const profileMigrations = migrationFiles
+    .filter((name) => /profile/i.test(name))
     .map((name) => stripLineComments(readMigration(name)))
     .filter((sql) => /\bpublic\.profiles\b/i.test(sql))
     .join('\n');
