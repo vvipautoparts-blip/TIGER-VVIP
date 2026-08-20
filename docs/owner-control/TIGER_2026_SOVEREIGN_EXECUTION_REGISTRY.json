@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "authority_mode": "CURRENT_ONLY",
+  "approved_at": "2026-08-20",
+  "fail_closed": true,
+  "production_barricade": true,
+  "current_cursor": {
+    "repository": "vvipautoparts-blip/TIGER-VVIP",
+    "pr": 290,
+    "base_branch": "feat/tiger-gate4-notification-intelligence-20260820",
+    "working_branch": "fix/tiger-gate4-review-20260820",
+    "base_sha": "1ddfef3bd0a44e8ac976ac87074e029f5c2174c7",
+    "status": "IN_PROGRESS",
+    "reason": "Three review findings are being corrected and exact-SHA evidence must be refreshed.",
+    "next_gate": 5
+  },
+  "truth_chain": [
+    "REQUIREMENT",
+    "CODE",
+    "TEST",
+    "REHEARSAL",
+    "EVIDENCE",
+    "EXACT_SHA",
+    "RELEASE_PASSPORT"
+  ],
+  "status_model": [
+    "DESIGNED",
+    "IMPLEMENTED",
+    "VERIFIED",
+    "PRODUCTION_ELIGIBLE"
+  ],
+  "execution_order": [
+    {
+      "gate": 2,
+      "name": "Media Security Boundary",
+      "status": "VERIFIED",
+      "evidence": "PR #290 inherited exact-head Gate 2 workflow evidence"
+    },
+    {
+      "gate": 3,
+      "name": "Messaging and Realtime",
+      "status": "VERIFIED",
+      "evidence": "PR #290 inherited exact-head Gate 3 workflow evidence"
+    },
+    {
+      "gate": 4,
+      "name": "Notification Intelligence",
+      "status": "IN_PROGRESS",
+      "evidence": "Review correction + fresh exact-head evidence required"
+    },
+    {
+      "gate": 5,
+      "name": "Adaptive Network Fabric",
+      "status": "APPROVED",
+      "evidence": "Owner-approved baseline; implementation not yet verified"
+    },
+    {
+      "gate": 6,
+      "name": "Exact-SHA Staging",
+      "status": "APPROVED",
+      "evidence": "Not implemented/verified on current train"
+    },
+    {
+      "gate": 7,
+      "name": "Dual Device Reality Lab",
+      "status": "APPROVED",
+      "evidence": "Not implemented/verified on current train"
+    },
+    {
+      "gate": 8,
+      "name": "Identity Fortress",
+      "status": "APPROVED",
+      "evidence": "Requires provider/runtime evidence"
+    },
+    {
+      "gate": 9,
+      "name": "Marketplace Integrity",
+      "status": "APPROVED",
+      "evidence": "Requires end-to-end evidence"
+    },
+    {
+      "gate": 10,
+      "name": "Campaign Financial Atomicity",
+      "status": "APPROVED",
+      "evidence": "Advertising payments only; sandbox required"
+    },
+    {
+      "gate": 11,
+      "name": "Global Resilience Shield",
+      "status": "APPROVED",
+      "evidence": "Provider/restore evidence required"
+    },
+    {
+      "gate": 12,
+      "name": "Observability and Owner Command Center",
+      "status": "APPROVED",
+      "evidence": "Runtime evidence required"
+    },
+    {
+      "gate": 13,
+      "name": "Legal and Country Activation",
+      "status": "APPROVED",
+      "evidence": "Per-country activation evidence required"
+    },
+    {
+      "gate": 14,
+      "name": "Load Chaos Security and Release",
+      "status": "APPROVED",
+      "evidence": "Final release evidence required"
+    }
+  ],
+  "launch_seals": [
+    "PRODUCT",
+    "SECURITY",
+    "FINANCIAL",
+    "RELIABILITY",
+    "DATA_LEGAL",
+    "SUPPLY_CHAIN_RELEASE",
+    "OPERATIONS",
+    "SOVEREIGN_LAUNCH"
+  ],
+  "launch_invariants": {
+    "p0_open": 0,
+    "p1_open": 0,
+    "critical_unaccepted": 0,
+    "high_unaccepted": 0,
+    "unexplained_financial_difference": 0,
+    "unknown_production_assets": 0
+  },
+  "screenshot_protection": {
+    "absolute_prevention_claim": false,
+    "reason": "Content visible on a user-controlled display can be captured by another camera or a compromised operating system.",
+    "strategy": [
+      "MINIMIZE",
+      "REDACT",
+      "DYNAMIC_WATERMARK",
+      "SHORT_LIVED_CAPABILITY",
+      "BACKGROUND_BLUR_NATIVE_WHERE_SUPPORTED",
+      "ABUSE_DETECTION",
+      "AUDIT",
+      "LEGAL_RESPONSE"
+    ]
+  },
+  "user_intent": {
+    "name": "TIGER SYNAPSE User Intent",
+    "status": "APPROVED",
+    "runtime_status": "NOT_ACTIVE",
+    "authority": "USER_CONTROLLED",
+    "pipeline": [
+      "INTENT_CAPTURE",
+      "CONSENT",
+      "NORMALIZE",
+      "EXPLAINABLE_MATCH",
+      "SAFE_ACTION",
+      "EVIDENCE"
+    ],
+    "first_surfaces": [
+      "COMPOSER",
+      "SEARCH",
+      "FEED",
+      "MARKETPLACE"
+    ],
+    "cross_session_persistence_default": false,
+    "user_can_view_edit_disable_clear": true,
+    "may_grant_authority": false,
+    "may_make_financial_or_security_decisions": false,
+    "activation_requires": [
+      "CODE",
+      "TEST",
+      "PRIVACY_REHEARSAL",
+      "EXACT_SHA_EVIDENCE"
+    ]
+  },
+  "cost_policy": {
+    "target": "LOWEST_SAFE_MEASURED_OPERATING_COST",
+    "prohibited_without_evidence": [
+      "KUBERNETES",
+      "KAFKA",
+      "MULTI_CLOUD",
+      "ACTIVE_ACTIVE",
+      "BLOCKCHAIN"
+    ],
+    "security_may_not_be_traded_for_cost": true
+  },
+  "source_records": [
+    "docs/owner-control/source-records/OWNER_BASELINE_ATTACHMENT_20260820.md"
+  ]
+}
