@@ -7,10 +7,16 @@ const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
 const MIGRATION = path.join(ROOT, 'supabase/migrations/20260820006000_notification_intelligence.sql');
+const RECOVERY = path.join(ROOT, 'supabase/migrations/20260820006200_notification_dispatch_stale_recovery.sql');
 
 function sql() {
   assert.equal(fs.existsSync(MIGRATION), true, 'Gate 4 migration missing: 20260820006000_notification_intelligence.sql');
   return fs.readFileSync(MIGRATION, 'utf8');
+}
+
+function recoverySql() {
+  assert.equal(fs.existsSync(RECOVERY), true, 'Gate 4 stale recovery migration missing: 20260820006200_notification_dispatch_stale_recovery.sql');
+  return fs.readFileSync(RECOVERY, 'utf8');
 }
 
 test('Gate 4 creates durable notification authorities with browser table mutation closed', () => {
@@ -83,12 +89,24 @@ test('browser RPC surface is bounded and endpoint capabilities are never browser
 test('dispatch claiming uses SKIP LOCKED, bounded leases and generation fencing', () => {
   const text = sql();
   assert.match(text, /create\s+(?:or\s+replace\s+)?function\s+public\.vvip_notification_claim_dispatches\s*\(/i);
-  assert.match(text, /for\s+update\s+skip\s+locked/i);
-  assert.match(text, /generation\s*=\s*generation\s*\+\s*1|generation\s*\+\s*1/i);
+  assert.match(text, /for\s+update(?:\s+of\s+\w+)?\s+skip\s+locked/i);
+  assert.match(text, /generation\s*=\s*(?:\w+\.)?generation\s*\+\s*1|generation\s*\+\s*1/i);
   assert.match(text, /lease_expires_at/i);
   assert.match(text, /create\s+(?:or\s+replace\s+)?function\s+public\.vvip_notification_settle_dispatch\s*\(/i);
   assert.match(text, /expected_generation|p_expected_generation/i);
   assert.match(text, /dead_letter/i);
+});
+
+test('expired worker leases are recovered with generation fencing and terminal budget', () => {
+  const text = recoverySql();
+  assert.match(text, /state\s*=\s*'leased'/i);
+  assert.match(text, /lease_expires_at\s*<=\s*statement_timestamp\s*\(\s*\)/i);
+  assert.match(text, /generation\s*=\s*generation\s*\+\s*1/i);
+  assert.match(text, /attempt_count\s*>=\s*5/i);
+  assert.match(text, /dead_letter/i);
+  assert.match(text, /retry_wait/i);
+  assert.match(text, /expired/i);
+  assert.match(text, /create\s+(?:or\s+replace\s+)?function\s+public\.vvip_notification_claim_dispatches\s*\(/i);
 });
 
 test('activity lease, kill switches and privacy-safe message push policy are explicit', () => {
