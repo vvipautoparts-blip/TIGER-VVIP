@@ -316,19 +316,13 @@ function cursorFailure(code) {
   return deepFreeze({ ok: false, code });
 }
 
-function contextFingerprint(normalizedQuery, intent, activeMarketCountry) {
+function canonicalSearchContext(normalizedQuery, intent, activeMarketCountry) {
   const filters = Object.fromEntries(Object.entries(intent.filters).sort(([left], [right]) => left.localeCompare(right)));
-  const value = JSON.stringify({
+  return deepFreeze({
     query: normalizedQuery.normalized,
     filters,
     country: String(activeMarketCountry || "").trim().toUpperCase()
   });
-  let hash = 2166136261;
-  for (let index = 0; index < value.length; index += 1) {
-    hash ^= value.charCodeAt(index);
-    hash = Math.imul(hash, 16777619);
-  }
-  return (hash >>> 0).toString(16).padStart(8, "0");
 }
 
 function encodeSearchCursor(payload) {
@@ -349,7 +343,9 @@ function decodeSearchCursor(cursor) {
     if (
       payload?.v !== 1
       || payload.kind !== "marketplace_search"
-      || typeof payload.context !== "string"
+      || !payload.context
+      || typeof payload.context !== "object"
+      || Array.isArray(payload.context)
       || !Number.isFinite(payload.after?.score)
       || typeof payload.after?.id !== "string"
     ) return null;
@@ -383,12 +379,14 @@ export function searchListings(options = {}) {
     ranked.sort((a, b) => b.score - a.score || String(a.listing.id).localeCompare(String(b.listing.id)));
   }
 
-  const context = contextFingerprint(normalizedQuery, intent, activeMarketCountry);
+  const context = canonicalSearchContext(normalizedQuery, intent, activeMarketCountry);
   let start = 0;
   if (cursor !== null) {
     const decoded = decodeSearchCursor(cursor);
     if (!decoded) return cursorFailure("SEARCH_CURSOR_INVALID");
-    if (decoded.context !== context) return cursorFailure("SEARCH_CURSOR_CONTEXT_MISMATCH");
+    if (JSON.stringify(decoded.context) !== JSON.stringify(context)) {
+      return cursorFailure("SEARCH_CURSOR_CONTEXT_MISMATCH");
+    }
     const position = ranked.findIndex(({ listing, score }) => listing.id === decoded.after.id && score === decoded.after.score);
     if (position < 0) return cursorFailure("SEARCH_CURSOR_INVALID");
     start = position + 1;

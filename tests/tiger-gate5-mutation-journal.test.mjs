@@ -64,6 +64,28 @@ test('idempotency key reuse is deterministic and conflicting payload reuse fails
   );
 });
 
+test('concurrent enqueue claims one actor idempotency key atomically', async () => {
+  const repository = createMemoryMutationRepository();
+  const first = createMutationJournal({ repository, clock: () => 1000 });
+  const second = createMutationJournal({ repository, clock: () => 1000 });
+  const common = {
+    idempotencyKey: 'idem-concurrent-001',
+    actorId: 'user_alice',
+    kind: 'social.reaction.set',
+    payload: { postId: 'post-1', reaction: 'like' }
+  };
+
+  const results = await Promise.allSettled([
+    first.enqueue({ ...common, mutationId: 'mutation-concurrent-001' }),
+    second.enqueue({ ...common, mutationId: 'mutation-concurrent-002' })
+  ]);
+
+  assert.equal(results.filter((result) => result.status === 'fulfilled').length, 1);
+  assert.equal(results.filter((result) => result.status === 'rejected').length, 1);
+  assert.match(results.find((result) => result.status === 'rejected').reason.message, /MUTATION_IDEMPOTENCY_CONFLICT/);
+  assert.equal((await repository.list('user_alice')).length, 1);
+});
+
 test('journal enforces state transitions and retains replay identity', async () => {
   const journal = createMutationJournal({ repository: createMemoryMutationRepository(), clock: () => 1000 });
   const pending = await journal.enqueue({

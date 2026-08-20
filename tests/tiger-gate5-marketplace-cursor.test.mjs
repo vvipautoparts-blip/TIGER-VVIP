@@ -55,6 +55,20 @@ test('Marketplace cursor cannot be reused with a different query or country cont
   assert.deepEqual(differentCountry, { ok: false, code: 'SEARCH_CURSOR_CONTEXT_MISMATCH' });
 });
 
+test('Marketplace cursor carries the complete canonical context instead of a short hash', () => {
+  const listings = [listing('listing-a'), listing('listing-b')];
+  const first = searchListings({ query: 'car', listings, activeMarketCountry: 'JO', limit: 1 });
+  const base64 = first.nextCursor.replace(/-/gu, '+').replace(/_/gu, '/');
+  const padded = base64 + '='.repeat((4 - base64.length % 4) % 4);
+  const decoded = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(padded), (character) => character.charCodeAt(0))));
+
+  assert.deepEqual(decoded.context, {
+    query: 'car',
+    filters: {},
+    country: 'JO'
+  });
+});
+
 test('Marketplace rejects malformed cursors and invalid limits without partial results', () => {
   const listings = [listing('listing-a')];
   assert.deepEqual(searchListings({ listings, cursor: '../../cursor' }), {

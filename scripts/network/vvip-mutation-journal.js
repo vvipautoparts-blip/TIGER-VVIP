@@ -61,7 +61,7 @@ function validateInput(input) {
 }
 
 function requireRepository(repository) {
-  for (const method of ['initialize', 'get', 'getByIdempotency', 'put', 'list']) {
+  for (const method of ['initialize', 'get', 'getByIdempotency', 'claim', 'put', 'list']) {
     if (!repository || typeof repository[method] !== 'function') {
       throw new TypeError('MUTATION_REPOSITORY_INVALID');
     }
@@ -80,16 +80,6 @@ export function createMutationJournal({ repository, clock = () => Date.now() } =
     async enqueue(input) {
       const payloadSignature = validateInput(input);
       await ready();
-      const existing = await repository.getByIdempotency(input.actorId, input.idempotencyKey);
-      if (existing) {
-        if (
-          existing.kind !== input.kind
-          || existing.payloadSignature !== payloadSignature
-          || existing.mutationId !== input.mutationId
-        ) throw new Error('MUTATION_IDEMPOTENCY_CONFLICT');
-        return immutableRecord(existing);
-      }
-
       const timestamp = clock();
       const record = {
         mutationId: input.mutationId,
@@ -104,8 +94,13 @@ export function createMutationJournal({ repository, clock = () => Date.now() } =
         createdAt: timestamp,
         updatedAt: timestamp
       };
-      await repository.put(record);
-      return immutableRecord(record);
+      const canonical = await repository.claim(record);
+      if (
+        canonical.kind !== input.kind
+        || canonical.payloadSignature !== payloadSignature
+        || canonical.mutationId !== input.mutationId
+      ) throw new Error('MUTATION_IDEMPOTENCY_CONFLICT');
+      return immutableRecord(canonical);
     },
 
     async transition(mutationId, nextState, metadata = {}) {
@@ -161,6 +156,15 @@ export function createMemoryMutationRepository() {
       );
       return record ? clone(record) : null;
     },
+    async claim(record) {
+      const existing = [...records.values()].find(
+        (candidate) => candidate.actorId === record.actorId && candidate.idempotencyKey === record.idempotencyKey
+      );
+      if (existing) return clone(existing);
+      if (records.has(record.mutationId)) throw new Error('MUTATION_REPOSITORY_CONFLICT');
+      records.set(record.mutationId, clone(record));
+      return clone(record);
+    },
     async put(record) {
       records.set(record.mutationId, clone(record));
     },
@@ -210,6 +214,26 @@ export function createIndexedDbMutationRepository({
       'readonly',
       (store) => store.index('actor_idempotency').get([actorId, key])
     ),
+    async claim(record) {
+      const db = await database();
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction('mutations', 'readwrite');
+        const store = transaction.objectStore('mutations');
+        const lookup = store.index('actor_idempotency').get([record.actorId, record.idempotencyKey]);
+        let canonical = null;
+        lookup.onsuccess = () => {
+          if (lookup.result) {
+            canonical = lookup.result;
+            return;
+          }
+          const insertion = store.add(clone(record));
+          insertion.onsuccess = () => { canonical = record; };
+        };
+        transaction.oncomplete = () => resolve(clone(canonical));
+        transaction.onerror = () => reject(new Error('INDEXEDDB_CLAIM_FAILED'));
+        transaction.onabort = () => reject(new Error('INDEXEDDB_CLAIM_ABORTED'));
+      });
+    },
     put: (record) => requestResult('readwrite', (store) => store.put(clone(record))),
     list: (actorId) => requestResult('readonly', (store) => store.index('actor').getAll(actorId))
   });
@@ -240,6 +264,26 @@ export function createSqliteMutationRepository({ execute, query } = {}) {
         [actorId, key]
       );
       return parse(rows[0]);
+    },
+    async claim(record) {
+      await execute(`insert into vvip_mutation_journal
+        (mutation_id, actor_id, idempotency_key, state, created_at, record_json)
+        values (?, ?, ?, ?, ?, ?)
+        on conflict do nothing`, [
+        record.mutationId,
+        record.actorId,
+        record.idempotencyKey,
+        record.state,
+        record.createdAt,
+        JSON.stringify(record)
+      ]);
+      const rows = await query(
+        'select record_json from vvip_mutation_journal where actor_id = ? and idempotency_key = ?',
+        [record.actorId, record.idempotencyKey]
+      );
+      const canonical = parse(rows[0]);
+      if (!canonical) throw new Error('MUTATION_REPOSITORY_CONFLICT');
+      return canonical;
     },
     async put(record) {
       await execute(`insert into vvip_mutation_journal
