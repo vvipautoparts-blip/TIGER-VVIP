@@ -28,11 +28,11 @@ test('Gate 4 workflow is exact-SHA, pinned, local-only and evidence-producing', 
   assert.match(text, /deno\s+(?:test|check)/i);
   assert.match(text, /tests\/sql\/tiger-gate4-notification-intelligence\.sql/);
   assert.match(text, /TIGER_GATE4_DB_REHEARSAL=PASS/);
-  assert.match(text, /sha256sum[\s\S]*20260820006000_notification_intelligence\.sql[\s\S]*tiger-notification-worker[\s\S]*tiger-gate4-notification-intelligence-db\.test\.cjs[\s\S]*tiger-gate4-notification-workflow\.test\.cjs[\s\S]*tiger-gate4-notification-intelligence\.sql[\s\S]*tiger-gate4-notification-intelligence-rehearsal\.yml/);
+  assert.match(text, /sha256sum[\s\S]*20260820006000_notification_intelligence\.sql[\s\S]*20260820006100_notification_worker_hmac_boundary\.sql[\s\S]*tiger-notification-worker[\s\S]*tiger-gate4-notification-intelligence-db\.test\.cjs[\s\S]*tiger-gate4-notification-workflow\.test\.cjs[\s\S]*tiger-gate4-notification-intelligence\.sql[\s\S]*tiger-gate4-notification-intelligence-rehearsal\.yml/);
   assert.match(text, /name:\s*tiger-gate4-notification-intelligence-rehearsal-\$\{\{\s*env\.SOURCE_SHA\s*\}\}/);
 });
 
-test('Gate 4 SQL rehearsal proves mandatory invariants and rolls back', () => {
+test('Gate 4 SQL rehearsal proves mandatory invariants, worker replay protection and rolls back', () => {
   const text = readRequired(REHEARSAL, 'Gate 4 SQL rehearsal');
   for (const marker of [
     'IDEMPOTENT_NOTIFICATION=PASS',
@@ -47,6 +47,9 @@ test('Gate 4 SQL rehearsal proves mandatory invariants and rolls back', () => {
     'PRIVATE_PREVIEW_REDACTED=PASS',
     'ENDPOINT_OWNER_BOUND=PASS',
     'ENDPOINT_SECRET_HIDDEN=PASS',
+    'WORKER_NONCE_FIRST_USE=PASS',
+    'WORKER_NONCE_REPLAY_DENIED=PASS',
+    'WORKER_NONCE_EXPIRED_DENIED=PASS',
     'STALE_WORKER_DENIED=PASS',
     'RETRY_BUDGET_DLQ=PASS',
     'INVALID_ENDPOINT_TERMINAL=PASS',
