@@ -18,6 +18,7 @@ function fakeElement(tagName) {
     children: [],
     attributes: {},
     dataset: {},
+    listeners: {},
     append(...nodes) {
       this.children.push(...nodes);
     },
@@ -33,6 +34,15 @@ function fakeElement(tagName) {
     },
     removeAttribute(name) {
       delete this.attributes[name];
+    },
+    addEventListener(name, listener) {
+      this.listeners[name] = listener;
+    },
+    click() {
+      if (this.listeners.click) this.listeners.click({ currentTarget: this });
+    },
+    focus() {
+      this.focused = true;
     },
     get lastElementChild() {
       return this.children[this.children.length - 1] || null;
@@ -116,6 +126,7 @@ test("controller renders trusted posts using text nodes and semantic post metada
         ok: true,
         empty: false,
         items: [post(), post({ id: "post_02", audience: "public", body: "Second post" })],
+        nextCursor: "cursor_03",
       }),
     },
   });
@@ -123,11 +134,14 @@ test("controller renders trusted posts using text nodes and semantic post metada
   const result = await controller.load({ limit: 10 });
   assert.equal(result.ok, true);
   assert.equal(result.count, 2);
-  assert.equal(host.children.length, 2);
+  assert.equal(host.children.length, 3);
   assert.equal(host.children[0].attributes["data-social-post-id"], "post_01");
   assert.equal(host.children[0].attributes["data-social-post-audience"], "friends");
+  assert.equal(host.children[0].attributes["aria-labelledby"], "social-post-author-post_01");
+  assert.match(JSON.stringify(host.children[0]), /social-post-author-post_01/);
   assert.match(JSON.stringify(host.children[0]), /Hello TIGER/);
   assert.match(JSON.stringify(host.children[1]), /Second post/);
+  assert.equal(host.children[2].attributes["data-social-feed-load-more"], "");
 });
 
 test("keyset retry keeps the same cursor, applies bounded backoff, and appends once", async () => {
@@ -164,7 +178,7 @@ test("keyset retry keeps the same cursor, applies bounded backoff, and appends o
   assert.deepEqual(delays, [250, 500]);
   assert.deepEqual(result, { ok: true, count: 1, hasMore: false });
   assert.deepEqual(
-    host.children.map((node) => node.attributes["data-social-post-id"]),
+    host.children.map((node) => node.attributes["data-social-post-id"]).filter(Boolean),
     ["post_01", "post_02"]
   );
 });
@@ -231,9 +245,36 @@ test("stale cursor preserves rendered data and reconnect restarts from a clean s
     { limit: 15 },
   ]);
   assert.deepEqual(
-    host.children.map((node) => node.attributes["data-social-post-id"]),
+    host.children.map((node) => node.attributes["data-social-post-id"]).filter(Boolean),
     ["post_fresh"]
   );
+});
+
+test("keyboard pagination keeps a usable control and moves focus only when it is exhausted", async () => {
+  const host = fakeElement("section");
+  const responses = [
+    { ok: true, empty: false, items: [post()], nextCursor: "cursor_02" },
+    { ok: true, empty: false, items: [post({ id: "post_02" })], nextCursor: null },
+  ];
+  const controller = createSocialFeedController({
+    host,
+    document: fakeDocument(),
+    readModel: { load: async () => responses.shift() },
+  });
+
+  await controller.load();
+  const loadMore = host.lastElementChild;
+  assert.equal(loadMore.tagName, "BUTTON");
+  assert.equal(loadMore.textContent, "تحميل المزيد");
+  assert.equal(loadMore.attributes["aria-label"], "تحميل المزيد من آخر الأخبار");
+
+  loadMore.click();
+  await new Promise((resolve) => setImmediate(resolve));
+
+  assert.equal(host.children.length, 2);
+  assert.equal(host.children[1].attributes["data-social-post-id"], "post_02");
+  assert.equal(host.children[1].attributes.tabindex, "-1");
+  assert.equal(host.children[1].focused, true);
 });
 
 test("mounted feed observes each page tail and advances keyset pagination", async () => {
@@ -273,17 +314,23 @@ test("mounted feed observes each page tail and advances keyset pagination", asyn
   const mounted = await mountCurrentSocialFeed(root);
   assert.equal(mounted.ok, true);
   assert.deepEqual(observerOptions, { rootMargin: "320px 0px" });
-  assert.equal(observed[0].attributes["data-social-post-id"], "post_01");
+  assert.equal(observed[0].attributes["data-social-feed-load-more"], "");
 
   observerCallback([{ isIntersecting: true, target: observed[0] }]);
   await new Promise((resolve) => setImmediate(resolve));
 
-  assert.equal(unobserved[0].attributes["data-social-post-id"], "post_01");
-  assert.equal(observed[1].attributes["data-social-post-id"], "post_02");
+  assert.equal(unobserved[0].attributes["data-social-feed-load-more"], "");
+  assert.equal(observed[1].attributes["data-social-feed-load-more"], "");
   assert.deepEqual(
-    host.children.map((node) => node.attributes["data-social-post-id"]),
+    host.children.map((node) => node.attributes["data-social-post-id"]).filter(Boolean),
     ["post_01", "post_02"]
   );
+});
+
+test("social feed motion respects the operating-system reduced-motion preference", () => {
+  const css = fs.readFileSync("styles/tiger-social/core-shell.css", "utf8");
+  assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)/);
+  assert.match(css, /prefers-reduced-motion:[\s\S]*?\.social-feed-post[\s\S]*?transition:\s*none/);
 });
 
 test("feed controller source never uses innerHTML for user content", () => {

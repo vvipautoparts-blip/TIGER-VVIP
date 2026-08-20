@@ -46,9 +46,11 @@
 
   function postNode(documentObject, item) {
     const article = documentObject.createElement("article");
+    const authorId = `social-post-author-${item.id}`;
     article.className = "social-feed-post";
     article.setAttribute("data-social-post-id", item.id);
     article.setAttribute("data-social-post-audience", item.audience);
+    article.setAttribute("aria-labelledby", authorId);
 
     const header = documentObject.createElement("header");
     header.className = "social-feed-post__header";
@@ -63,6 +65,7 @@
 
     const author = documentObject.createElement("strong");
     author.className = "social-feed-post__author";
+    author.setAttribute("id", authorId);
     author.textContent = "عضو VVIP TIGER";
 
     const details = documentObject.createElement("div");
@@ -147,6 +150,9 @@
     let nextCursor = null;
     let nextInFlight = null;
     let reconnectRequired = false;
+    let focusAfterNextAppend = false;
+    let renderedNodes = [];
+    let paginationButton = null;
     const renderedPostIds = new Set();
 
     function renderFailure() {
@@ -170,11 +176,42 @@
       reconnectRequired = false;
     }
 
+    function paginationNode() {
+      if (paginationButton) return paginationButton;
+      paginationButton = documentObject.createElement("button");
+      paginationButton.type = "button";
+      paginationButton.className = "social-feed-load-more";
+      paginationButton.setAttribute("data-social-feed-load-more", "");
+      paginationButton.setAttribute("aria-label", "تحميل المزيد من آخر الأخبار");
+      paginationButton.addEventListener("click", function () {
+        paginationButton.disabled = true;
+        const operation = reconnectRequired ? reconnect() : loadNext({ focusAppended: true });
+        void operation.then(function (result) {
+          if (result && result.ok === true) return;
+          paginationButton.disabled = false;
+          paginationButton.textContent = reconnectRequired ? "تحديث آخر الأخبار" : "إعادة المحاولة";
+        });
+      });
+      return paginationButton;
+    }
+
+    function renderPosts() {
+      if (nextCursor !== null && !reconnectRequired) {
+        const button = paginationNode();
+        button.disabled = false;
+        button.textContent = "تحميل المزيد";
+        host.replaceChildren(...renderedNodes, button);
+        return;
+      }
+      host.replaceChildren(...renderedNodes);
+    }
+
     async function load(loadOptions) {
       initialLoadOptions = normalizedInitialOptions(loadOptions);
       nextCursor = null;
       reconnectRequired = false;
       renderedPostIds.clear();
+      renderedNodes = [];
       host.setAttribute("aria-busy", "true");
       host.replaceChildren(statusNode(documentObject, "loading", "جارٍ تحميل آخر الأخبار…"));
 
@@ -205,7 +242,8 @@
         renderedPostIds.add(item.id);
         return postNode(documentObject, item);
       });
-      host.replaceChildren(...nodes);
+      renderedNodes = nodes;
+      renderPosts();
       return frozen({ ok: true, count: nodes.length, empty: false, hasMore: nextCursor !== null });
     }
 
@@ -262,14 +300,26 @@
         renderedPostIds.add(item.id);
         return postNode(documentObject, item);
       });
-      if (nodes.length > 0) host.append(...nodes);
+      renderedNodes.push(...nodes);
       rememberSnapshot(snapshot);
+      renderPosts();
+      if (focusAfterNextAppend && nextCursor === null && nodes[0]) {
+        nodes[0].setAttribute("tabindex", "-1");
+        nodes[0].focus();
+      }
+      focusAfterNextAppend = false;
       return frozen({ ok: true, count: nodes.length, hasMore: nextCursor !== null });
     }
 
-    function loadNext() {
+    function loadNext(loadOptions) {
+      if (loadOptions && loadOptions.focusAppended === true) focusAfterNextAppend = true;
       if (nextInFlight) return nextInFlight;
-      nextInFlight = appendNextPage().finally(function () { nextInFlight = null; });
+      nextInFlight = appendNextPage().finally(function () {
+        nextInFlight = null;
+        if (host.getAttribute && host.getAttribute("aria-busy") === "true") {
+          host.setAttribute("aria-busy", "false");
+        }
+      });
       return nextInFlight;
     }
 

@@ -270,6 +270,23 @@ button.social-story-card {
   text-align: center;
 }
 
+.social-feed-load-more {
+  min-height: 44px;
+  border: 1px solid var(--tiger-social-border);
+  border-radius: 8px;
+  background: var(--tiger-social-surface);
+  color: var(--tiger-social-text);
+  font: var(--t1-type-label-m);
+  cursor: pointer;
+}
+
+.social-feed-load-more:hover,
+.social-feed-load-more:focus-visible {
+  border-color: var(--tiger-social-accent);
+  outline: 3px solid color-mix(in srgb, var(--tiger-social-accent) 28%, transparent);
+  outline-offset: 2px;
+}
+
 .social-feed-post {
   padding: 0;
   overflow: visible;
@@ -432,6 +449,15 @@ button.social-story-card {
   transform: translateY(-2px) scale(1.1);
   background: #fff;
   border-color: currentColor;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .social-feed-post,
+  .social-feed-load-more,
+  .social-reactions__choice {
+    scroll-behavior: auto;
+    transition: none;
+  }
 }
 
 .social-reactions__choice--like { color: var(--tiger-reaction-like); }
