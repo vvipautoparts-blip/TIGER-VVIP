@@ -1,0 +1,151 @@
+name: TIGER Gate 3 Realtime Messaging Rehearsal
+
+on:
+  pull_request:
+    paths:
+      - "supabase/migrations/20260820005000_social_realtime_messaging.sql"
+      - "tests/tiger-gate3-realtime-messaging-db.test.cjs"
+      - "tests/tiger-gate3-realtime-workflow.test.cjs"
+      - "tests/sql/tiger-gate3-realtime-messaging.sql"
+      - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
+      - ".github/workflows/tiger-gate3-realtime-messaging-rehearsal.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tiger-gate3-realtime-messaging-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SOURCE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+jobs:
+  static-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: "22"
+
+      - name: Verify exact source identity
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          test "$actual_sha" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          echo "TIGER_GATE3_SOURCE_SHA=$actual_sha"
+
+      - name: Run Gate 3 static contracts
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          node --test \
+            tests/tiger-gate3-realtime-messaging-db.test.cjs \
+            tests/tiger-gate3-realtime-workflow.test.cjs
+
+  local-db-rehearsal:
+    needs: static-contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 0
+
+      - uses: supabase/setup-cli@ab058987d8d6c725971f6cf9d0b5c98467e30bd1
+        with:
+          version: 2.109.0
+
+      - name: Verify exact source identity
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          test "$actual_sha" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          echo "TIGER_GATE3_SOURCE_SHA=$actual_sha"
+
+      - name: Assert local-only safety contract
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test -f supabase/config.toml
+          if env | grep -E '^(SUPABASE_ACCESS_TOKEN|SUPABASE_DB_PASSWORD|SUPABASE_PROJECT_REF)=' >/dev/null; then
+            echo 'TIGER_GATE3_REHEARSAL=BLOCKED_REMOTE_CREDENTIAL_ENV'
+            exit 1
+          fi
+          echo 'TIGER_GATE3_REHEARSAL=LOCAL_ONLY_PASS'
+
+      - name: Start isolated local Supabase stack
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          supabase --version
+          supabase start
+
+      - name: Rebuild database from repository migrations
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          supabase db reset --local
+          echo 'TIGER_GATE3_DB_RESET=PASS'
+
+      - name: Execute Gate 3 transactional DB rehearsal
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          mkdir -p /tmp/tiger-gate3-realtime-messaging
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 \
+            -p 54322 \
+            -U postgres \
+            -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/tiger-gate3-realtime-messaging.sql \
+            2>&1 | tee /tmp/tiger-gate3-realtime-messaging/db-rehearsal.log
+          grep -F 'TIGER_GATE3_DB_REHEARSAL=PASS' /tmp/tiger-gate3-realtime-messaging/db-rehearsal.log
+
+      - name: Bind exact-SHA evidence manifest
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          mkdir -p /tmp/tiger-gate3-realtime-messaging
+          {
+            echo "SOURCE_SHA=$SOURCE_SHA"
+            echo "WORKTREE_SHA=$(git rev-parse HEAD)"
+            sha256sum \
+              supabase/migrations/20260820005000_social_realtime_messaging.sql \
+              tests/tiger-gate3-realtime-messaging-db.test.cjs \
+              tests/tiger-gate3-realtime-workflow.test.cjs \
+              tests/sql/tiger-gate3-realtime-messaging.sql \
+              .github/workflows/tiger-gate3-realtime-messaging-rehearsal.yml
+            sha256sum /tmp/tiger-gate3-realtime-messaging/db-rehearsal.log
+          } | tee /tmp/tiger-gate3-realtime-messaging/evidence-manifest.txt
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+
+      - name: Upload exact-SHA Gate 3 evidence
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: tiger-gate3-realtime-messaging-rehearsal-${{ env.SOURCE_SHA }}
+          path: /tmp/tiger-gate3-realtime-messaging
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Stop isolated local stack
+        if: always()
+        shell: bash
+        run: supabase stop --no-backup || true
