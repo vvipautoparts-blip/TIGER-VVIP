@@ -22,6 +22,8 @@
     edit: "data-social-comment-edit",
     remove: "data-social-comment-remove",
   });
+  const DEFAULT_RATE_LIMIT_MS = 5_000;
+  const MAX_RATE_LIMIT_MS = 60_000;
 
   function validId(value) {
     return typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
@@ -99,6 +101,7 @@
     const postId = options && options.postId;
     const comments = options && options.comments;
     const documentObject = options && options.document;
+    const now = options && typeof options.now === "function" ? options.now : Date.now;
 
     if (!host || typeof host.replaceChildren !== "function") {
       throw new TypeError("SOCIAL_COMMENTS_HOST_REQUIRED");
@@ -124,6 +127,7 @@
     let submit = null;
     let state = null;
     let mode = frozen({ type: "create", commentId: null });
+    let mutationCooldownUntil = 0;
 
     function setState(nextState, message) {
       if (!state) return;
@@ -329,9 +333,26 @@
       return frozen({ ok: false, code: "SOCIAL_COMMENTS_FAILED" });
     }
 
+    function rateLimitDelay(result) {
+      if (!result || result.code !== "SOCIAL_RATE_LIMITED") return null;
+      if (!Number.isSafeInteger(result.retryAfterMs) || result.retryAfterMs < 1) {
+        return DEFAULT_RATE_LIMIT_MS;
+      }
+      return Math.min(result.retryAfterMs, MAX_RATE_LIMIT_MS);
+    }
+
+    function renderRateLimit(retryAfterMs) {
+      host.setAttribute("aria-busy", "false");
+      setState("rate-limited", "تم إيقاف المحاولات مؤقتًا. حاول لاحقًا.");
+      return frozen({ ok: false, code: "SOCIAL_COMMENTS_RATE_LIMITED", retryAfterMs });
+    }
+
     async function applyMutation(operation, affectedControl) {
       if (destroyed) return frozen({ ok: false, code: "SOCIAL_COMMENTS_DESTROYED" });
       if (pending) return frozen({ ok: false, code: "SOCIAL_COMMENT_PENDING" });
+      const cooldownRemaining = Math.max(0, mutationCooldownUntil - now());
+      if (cooldownRemaining > 0) return renderRateLimit(cooldownRemaining);
+      mutationCooldownUntil = 0;
       pending = true;
       host.setAttribute("aria-busy", "true");
       const control = affectedControl || submit;
@@ -341,7 +362,14 @@
       try {
         const result = await operation();
         if (destroyed) return frozen({ ok: false, code: "SOCIAL_COMMENTS_DESTROYED" });
-        if (!result || result.ok !== true) return renderMutationFailure();
+        if (!result || result.ok !== true) {
+          const delay = rateLimitDelay(result);
+          if (delay !== null) {
+            mutationCooldownUntil = now() + delay;
+            return renderRateLimit(delay);
+          }
+          return renderMutationFailure();
+        }
         const refreshed = await load();
         if (refreshed.ok) resetMode();
         return refreshed;
