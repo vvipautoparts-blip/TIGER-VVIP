@@ -10,9 +10,9 @@ Base exact SHA: `f914b15bb3067e8beaf5f71bd337e24d39501916` (Gate 3 evidence-clos
 
 Gate 4 builds a durable, privacy-aware, provider-neutral notification system where PostgreSQL owns notification truth, private Realtime provides low-latency in-app delivery, and background push is a best-effort transport only.
 
-The system MUST never treat a push-provider response, device receipt, WebSocket event, badge count, or client-side state as the durable source of truth.
+The system MUST never treat a push-provider response, device receipt, WebSocket event, badge count, or client-side state as durable truth.
 
-The canonical chain is:
+Canonical chain:
 
 `Business Event -> Durable Notification Decision -> Durable Inbox/Outbox -> In-App Realtime and/or Push Attempt -> Delivery Evidence -> Exact-SHA Gate Evidence`
 
@@ -27,58 +27,51 @@ In scope:
 - bounded foreground/current-view activity hints;
 - private database-originated in-app Realtime Broadcast;
 - background push dispatch through provider-neutral adapters;
-- endpoint registration and revocation;
-- TTL, collapse, quiet-hours, suppression, priority and sensitivity handling;
-- retry, backoff, jitter, terminal failure, endpoint invalidation and DLQ;
+- endpoint registration/revocation;
+- TTL, collapse, quiet hours, priority and sensitivity handling;
+- bounded retry, jitter, endpoint invalidation and DLQ;
 - provider/category/global kill switches;
-- metrics/audit evidence without leaking notification contents or endpoint credentials;
-- exact-SHA local migration replay + transactional DB rehearsal + workflow artifact.
+- content-safe metrics/audit evidence;
+- exact-SHA local migration replay + transactional DB rehearsal + evidence artifact.
 
 Out of scope:
-- marketing campaign billing or ad delivery (Gate 10 / campaign bounded context);
-- SMS/email channel implementation;
+- marketing campaign billing/ad delivery;
+- SMS/email implementation;
 - group-message semantics;
-- full mobile native application packaging;
+- native mobile packaging;
 - production APNs/FCM/Web Push credential activation;
-- production push-provider mutation;
-- production database application;
+- production provider or database mutation;
 - country activation policy (Gate 13 consumes Gate 4 capability later).
 
 ## 3. Fixed authorities
 
 ### Identity
-
 `public.vvip_marketplace_actor_id()` remains the single signed browser actor authority. Gate 4 MUST NOT introduce a second user/session authority.
 
 ### Durable truth
-
 PostgreSQL owns notification existence, sequence, read state, preference state, endpoint ownership, dispatch state and evidence state.
 
 ### Realtime
-
-Supabase Realtime is transport only. A missed Realtime event is repaired by durable keyset catch-up.
+Supabase Realtime is transport only. Missed events are repaired by durable keyset catch-up.
 
 ### Push
+APNs, FCM, Web Push, or any future provider are adapters. Provider acknowledgements are operational evidence, not proof that a human saw a notification.
 
-APNs, FCM, Web Push, or any future provider are adapters. Provider acknowledgements are operational evidence, not proof that the human saw a notification.
+## 4. Architectural units
 
-## 4. Architectural components
-
-Gate 4 is one bounded subsystem with six explicit units:
-
+Gate 4 contains six bounded units:
 1. **Notification Authority** — creates one durable notification per eligible recipient/event.
-2. **Decision Engine** — determines in-app surface, push eligibility, quiet-hours behavior, sensitivity redaction and TTL.
-3. **Inbox Authority** — sequence, read cursor, listing and badge-safe projections.
-4. **Dispatch Outbox** — durable push work with retries, fencing and terminal outcomes.
-5. **Endpoint Registry** — service-protected push endpoints/capabilities owned by one user.
-6. **Realtime Transport Boundary** — private current-epoch in-app events; no browser-originated authoritative Broadcast.
+2. **Decision Engine** — evaluates preferences, activity, sensitivity, TTL, quiet hours and kill switches.
+3. **Inbox Authority** — sequence, read state, listing and badge-safe projection.
+4. **Dispatch Outbox** — durable push work, retries, leases, fencing and terminal outcomes.
+5. **Endpoint Registry** — service-protected provider endpoints owned by one user.
+6. **Realtime Boundary** — private current-epoch in-app receive channel; no browser-originated authoritative Broadcast.
 
-Each unit has a narrow interface and can fail without changing another unit's authority.
+Failure in one unit MUST NOT silently transfer authority to another unit.
 
 ## 5. Durable inbox model
 
 ### `public.vvip_notification_inboxes`
-
 One canonical inbox per user.
 
 Fields:
@@ -88,20 +81,23 @@ Fields:
 - `next_sequence bigint not null default 1`;
 - `last_sequence bigint not null default 0`;
 - `unread_count bigint not null default 0`;
-- timestamps.
+- `created_at timestamptz not null`;
+- `updated_at timestamptz not null`.
 
 Invariants:
-- owner is a valid canonical `user_*` subject;
+- valid canonical `user_*` owner;
 - one inbox per owner;
-- `last_sequence < next_sequence`;
-- sequence and epoch are positive/monotonic;
-- browser direct table mutations are denied.
+- `channel_epoch > 0`;
+- `next_sequence > 0`;
+- `last_sequence >= 0` and `last_sequence < next_sequence`;
+- `unread_count >= 0`;
+- browser direct mutations denied.
 
-Realtime topic uses opaque inbox identity rather than user subject:
+Realtime topic:
 
 `notifications:<inbox_uuid>:epoch:<positive-bigint>`
 
-This avoids embedding account identifiers in topic names and gives Gate 4 a revocable epoch boundary.
+The topic uses opaque inbox identity rather than the user subject.
 
 ### `public.vvip_notifications`
 
@@ -115,24 +111,24 @@ Fields:
 - `template_args jsonb not null default '{}'`;
 - `object_type text`;
 - `object_id text`;
-- `actor_subject text` optional;
-- `importance text`;
-- `sensitivity text`;
+- `actor_subject text`;
+- `importance text not null`;
+- `sensitivity text not null`;
 - `created_at timestamptz not null`;
-- `expires_at timestamptz` optional;
-- `read_at timestamptz` optional.
+- `expires_at timestamptz`;
+- `read_at timestamptz`.
 
 Required uniqueness:
 - unique `(inbox_id, sequence)`;
 - unique `(inbox_id, event_key)`.
 
-`event_key` is server-derived or server-validated and is the durable idempotency boundary. External callers MUST NOT be able to mint arbitrary recipient notifications by passing only client-asserted identity/event payloads.
+`event_key` is server-derived or service-validated and is the durable idempotency boundary. Browser clients cannot choose recipients or mint arbitrary canonical business events.
 
-Durable rows store semantic notification data (`template_key` + bounded args), not provider-specific push payloads.
+Durable rows store semantic notification data (`template_key` + bounded arguments), not provider-specific payloads.
 
-## 6. Notification categories
+## 6. Exact initial category registry
 
-Gate 4 initially supports a constrained category registry, for example:
+Gate 4 initial category set is exactly:
 - `social_message`;
 - `social_relationship`;
 - `social_comment`;
@@ -141,121 +137,119 @@ Gate 4 initially supports a constrained category registry, for example:
 - `security_account`;
 - `system_integrity`.
 
-New categories require an explicit forward migration/config review. Free-form category strings from browser clients are forbidden.
+Free-form browser categories are forbidden. New categories require explicit forward review.
 
-Each category declares:
-- default in-app behavior;
-- whether push is allowed;
-- default sensitivity;
-- default TTL;
-- collapse strategy;
-- whether user may disable push;
-- whether in-app persistence is mandatory.
+Each category has server-owned policy fields:
+- `durable_required`;
+- `push_allowed`;
+- `user_can_disable`;
+- `default_sensitivity`;
+- `default_ttl_seconds`;
+- `default_importance`;
+- `collapse_mode`.
 
-Security/account integrity notifications may remain mandatory in the durable inbox even if push is disabled.
+`security_account` and `system_integrity` are durable-required. Their durable inbox persistence cannot be disabled by a user preference.
 
 ## 7. Preferences
 
 ### `public.vvip_notification_preferences`
 
-One row per `(owner_subject, category)` with bounded values:
-- `in_app_enabled boolean`;
-- `push_enabled boolean`;
-- `quiet_hours_enabled boolean`;
-- `quiet_start local-time`;
-- `quiet_end local-time`;
-- `timezone text`;
-- `updated_at`.
+One row per `(owner_subject, category)`.
 
-Rules:
-- actor may update only own preferences through an RPC;
-- category policy may override attempts to disable mandatory in-app security notifications;
-- preferences influence transport/presentation only and MUST NOT grant access to business objects;
-- timezone values are validated against an allow-listed canonical timezone set;
+Fields:
+- `owner_subject text not null`;
+- `category text not null`;
+- `in_app_enabled boolean not null`;
+- `push_enabled boolean not null`;
+- `quiet_hours_enabled boolean not null`;
+- `quiet_start time without time zone`;
+- `quiet_end time without time zone`;
+- `timezone text not null`;
+- `updated_at timestamptz not null`;
+- primary key `(owner_subject, category)`.
+
+Semantics:
+- for optional categories, `in_app_enabled = false` means no notification is created and therefore no push is allowed;
+- `push_enabled = true` requires `in_app_enabled = true` because every push MUST correspond to durable notification truth;
+- durable-required categories force effective `in_app_enabled = true` regardless of attempted preference changes;
+- push may still be disabled for durable-required categories unless the category policy explicitly marks a future mandatory transport requirement;
+- timezone is validated against the repository/application canonical IANA timezone allow-list;
 - quiet-hours calculations occur server-side.
+
+Preferences influence notification/transport behavior only and never authorize the underlying business object.
 
 ## 8. Foreground/current-view activity hints
 
-To satisfy online/background/current-view decisions without turning presence into a security authority, Gate 4 uses a short-lived **activity hint lease**.
+Gate 4 uses a short-lived activity hint lease to reduce redundant push without making presence a security authority.
 
 ### `public.vvip_notification_activity_leases`
 
 Fields:
-- `owner_subject primary key`;
-- `foreground boolean`;
-- `view_scope text`;
-- `view_object_id text` optional;
-- `lease_expires_at timestamptz`;
-- `updated_at`.
+- `owner_subject text primary key`;
+- `foreground boolean not null`;
+- `view_scope text not null`;
+- `view_object_id text`;
+- `lease_expires_at timestamptz not null`;
+- `updated_at timestamptz not null`.
 
 Rules:
-- actor can update only own lease through a bounded RPC;
-- lease max lifetime is 90 seconds;
-- clients update on foreground/background/view transition and may renew at a bounded cadence;
-- no fine-grained URL, typed text, precise location, message body or credential is stored;
-- lease may only **reduce** redundant push/surface behavior; it can never grant access or suppress mandatory security persistence;
-- missing/stale lease is treated conservatively as background/unknown.
+- actor can update only their own lease through a bounded RPC;
+- lease lifetime is at most 90 seconds;
+- client writes occur on foreground/background/view transition plus bounded renewal no more frequently than once per 60 seconds;
+- `view_scope` is a constrained enum-like registry, not a URL;
+- no typed text, message body, precise location or credential is stored;
+- activity hints may reduce redundant push only; they cannot grant access or suppress mandatory durable security notification creation;
+- missing/expired lease is treated as background/unknown.
 
-A forged own-device hint can at worst suppress that user's own redundant push temporarily; it cannot alter another user's data or authorization.
+A forged own-device hint can at worst suppress that same user's redundant push for the short lease window; it cannot affect another user.
 
 ## 9. Decision engine
 
-The server-side decision function consumes:
-- canonical business event type/id;
-- recipient;
-- category registry;
-- user preferences;
-- activity lease;
-- current view scope/object;
-- notification sensitivity;
-- TTL/expiry;
-- global/provider/category kill-switch state;
-- endpoint availability.
+The server-side decision consumes:
+- canonical business event identity/type;
+- server-computed recipient;
+- category policy;
+- user preference;
+- activity lease/current view;
+- sensitivity/importance;
+- TTL;
+- provider/category/global kill-switch state;
+- active endpoint availability.
 
-It produces a deterministic decision:
-- create durable inbox item or suppress as duplicate/ineligible;
-- emit in-app Realtime event or only persist;
-- enqueue background push or suppress/defer;
-- push priority;
-- safe push preview policy;
-- collapse key;
-- expiry time.
+Deterministic outcomes:
+- `duplicate` — return existing durable notification;
+- `disabled_optional_category` — create nothing and send nothing;
+- `expired_before_creation` — create no transport work;
+- `persist_only` — durable inbox only;
+- `persist_and_realtime`;
+- `persist_realtime_and_push`;
+- `persist_and_defer_push` where bounded policy permits quiet-hour deferral.
 
-Decision semantics are explicit:
-- if duplicate `event_key`: return the existing durable notification;
-- if expired before decision: do not create transport work;
-- if recipient is actively viewing the same object: persist, but suppress redundant push by default;
-- if foreground elsewhere: persist + Realtime; push is category/policy dependent;
-- if background/unknown: persist + push if enabled/allowed;
-- if quiet hours: persist immediately, while low-priority push is suppressed or deferred according to category policy;
-- security-critical categories may bypass quiet-hours suppression but still use privacy-safe content.
-
-The exact decision result is auditable without storing secret provider credentials or full sensitive rendered payloads.
+Rules:
+- same-view active lease suppresses redundant push by default but does not suppress already-eligible durable persistence;
+- foreground elsewhere favors durable + Realtime; push remains category/policy dependent;
+- background/unknown allows push when preference/policy/endpoint permit;
+- quiet hours suppress or defer low-priority push but never delay durable persistence;
+- security-critical categories may bypass quiet-hour push suppression but still use privacy-safe content;
+- all decisions are auditable using opaque identifiers and decision codes.
 
 ## 10. Privacy and sensitive content
 
-Sensitivity values are constrained to:
+Sensitivity set is exactly:
 - `low`;
 - `private`;
 - `sensitive`;
 - `security`.
 
-Default push policy is conservative:
-- `low`: localized title/body may be rendered from approved template data;
-- `private`: generic category-level preview unless an explicit future user setting permits more;
-- `sensitive`: generic `You have a new notification`-style preview;
-- `security`: security-safe generic text with no secret, OTP, session token, recovery code or sensitive object data.
+Initial push preview policy:
+- `low`: approved localized title/body may be rendered;
+- `private`: generic category-level preview;
+- `sensitive`: generic new-notification preview;
+- `security`: generic security-safe preview with no secret, OTP, session token, recovery code or sensitive object data.
 
-For `social_message`, Gate 4 initial default MUST NOT put the durable message body into push payloads.
+`social_message` MUST NOT place durable message body content in push payloads in Gate 4.
 
-Deep links contain only routing identifiers. They are never bearer credentials. Authorization is re-evaluated when the app opens.
-
-Provider endpoint tokens/URLs are treated as credentials:
-- no browser read access;
-- no logs;
-- no CI artifact content;
-- no analytics export;
-- no PR/test fixture using real tokens.
+Deep links carry only routing identifiers and are never bearer credentials. Underlying object authorization is re-evaluated after app open.
 
 ## 11. Endpoint registry
 
@@ -267,27 +261,29 @@ Fields:
 - `provider text not null`;
 - `platform text not null`;
 - `endpoint_fingerprint text not null`;
-- `endpoint_secret text not null` or equivalent service-only opaque capability;
-- `state text not null` (`active`, `revoked`, `invalid`);
-- `last_success_at`;
-- `last_failure_at`;
-- timestamps.
+- `endpoint_capability text not null`;
+- `state text not null` constrained to `active|revoked|invalid`;
+- `last_success_at timestamptz`;
+- `last_failure_at timestamptz`;
+- `created_at timestamptz not null`;
+- `updated_at timestamptz not null`.
 
 Rules:
-- unique endpoint fingerprint per canonical ownership boundary;
+- endpoint capability is treated as credential-like sensitive data even when the provider calls it a token/URL;
+- table is service-protected and raw capability is never browser-readable;
+- managed database encryption-at-rest is the Gate 4 baseline; provider activation may impose stronger envelope-encryption requirements before Production and must be proven in the provider-specific production gate;
+- endpoint capability/fingerprint never appears in application logs, CI artifacts or analytics exports;
 - registration actor is server-derived;
-- browser may register/revoke only its own endpoint through RPCs;
-- browser cannot list raw endpoint capabilities;
-- changing ownership of an existing endpoint requires deterministic revocation/rebind semantics; silent cross-account reuse is forbidden;
-- logout/account revocation can revoke the endpoint without deleting durable notification history.
+- browser registers/revokes only its own endpoint through bounded RPC/service flow;
+- unique active fingerprint prevents duplicate ownership ambiguity;
+- cross-account reuse requires deterministic revoke/rebind; silent reassignment is forbidden;
+- account/session logout can revoke endpoint transport without deleting durable notification history.
 
-No production provider credentials are stored in migration files or repository source.
+No real provider credential or real endpoint is used in repository fixtures.
 
 ## 12. Durable dispatch outbox
 
 ### `public.vvip_notification_dispatches`
-
-One durable row per intended push delivery target.
 
 Fields:
 - `dispatch_id uuid primary key`;
@@ -295,52 +291,49 @@ Fields:
 - `endpoint_id uuid not null`;
 - `provider text not null`;
 - `collapse_key text`;
-- `state text not null`;
+- `state text not null` constrained to `pending|leased|accepted|retry_wait|invalid_endpoint|permanent_failure|expired|dead_letter|suppressed`;
 - `attempt_count integer not null default 0`;
 - `next_attempt_at timestamptz`;
-- `lease_owner text` optional;
-- `lease_expires_at timestamptz` optional;
+- `lease_owner text`;
+- `lease_expires_at timestamptz`;
 - `generation bigint not null default 1`;
-- `last_error_class text` optional;
-- `provider_message_ref text` optional;
+- `last_error_class text`;
+- `provider_message_ref text`;
 - `expires_at timestamptz not null`;
-- timestamps.
+- `created_at timestamptz not null`;
+- `updated_at timestamptz not null`.
 
-Unique identity prevents duplicate dispatch rows for the same `(notification_id, endpoint_id)`.
+Unique `(notification_id, endpoint_id)` prevents duplicate dispatch rows for one target.
 
-Worker claims use database-safe locking (`FOR UPDATE SKIP LOCKED` or equivalent) plus lease/generation fencing so stale workers cannot settle a newer claim.
+Claims use `FOR UPDATE SKIP LOCKED` (or equivalent database-safe locking), a bounded lease and generation fencing. A stale worker generation cannot settle a newer claim.
 
-## 13. Retry and failure semantics
+## 13. Retry and terminal semantics
 
-Push delivery is at-least-once transport; duplicate device presentation is possible at provider/network boundaries. Gate 4 therefore makes notification identity stable so clients can deduplicate by `notification_id`.
+Push is at-least-once transport. Duplicate device presentation can occur outside TIGER control, so clients deduplicate by stable `notification_id`.
 
-Retry policy:
-- network timeout / provider 5xx: exponential backoff with jitter;
-- provider 429: respect bounded `Retry-After` when valid;
-- endpoint gone/invalid (for example Web Push 404/410 or provider equivalent): mark endpoint invalid and stop retries;
-- malformed request/unsupported token: permanent failure;
-- maximum attempt budget: 5;
-- expired TTL: terminal `expired` without send;
-- exhausted retry budget: terminal `dead_letter`.
+Attempt budget is exactly 5.
+
+Classification:
+- network timeout/provider 5xx -> retryable with exponential backoff + jitter;
+- 429/rate-limited -> retryable, respecting bounded valid `Retry-After`;
+- endpoint gone/invalid -> terminal `invalid_endpoint`, endpoint state becomes `invalid`;
+- malformed/unsupported provider request -> terminal `permanent_failure`;
+- TTL elapsed before send/settlement -> terminal `expired`;
+- fifth failed retryable attempt -> terminal `dead_letter`.
 
 No infinite retry loop is permitted.
 
-Terminal states are deterministic and auditable.
-
 ## 14. Collapse semantics
 
-Collapse affects **background push transport only**. It never deletes or rewrites durable inbox history.
+Collapse changes push transport only; durable inbox history is never rewritten/deleted by collapse.
 
-Example:
-- many reaction notifications may share a bounded collapse key for provider transport;
-- the newest pending push may supersede an older unsent push for the same collapse scope;
-- both durable notifications remain available according to product policy.
+A server-derived bounded collapse key may cause a newer pending dispatch to supersede an older unsent dispatch in the same scope. Superseded transport rows become `suppressed`; their durable notifications remain governed by normal retention.
 
-A collapse key is server-derived and bounded in size; clients do not control arbitrary provider collapse identifiers.
+Clients cannot choose arbitrary provider collapse identifiers.
 
-## 15. Provider-neutral adapter contract
+## 15. Provider-neutral adapter
 
-Global core exposes an internal adapter interface:
+Internal interface:
 
 `send(push_request) -> normalized_provider_result`
 
@@ -353,183 +346,176 @@ Global core exposes an internal adapter interface:
 - priority;
 - collapse key.
 
-Normalized result classes:
+Normalized result set is exactly:
 - `accepted`;
 - `retryable`;
 - `rate_limited`;
 - `endpoint_invalid`;
 - `permanent_failure`.
 
-Provider-specific HTTP status codes, headers and message ids are normalized inside the adapter.
+Provider-specific statuses/headers/message IDs are normalized inside the adapter.
 
-Production credentials/config are external secrets/configuration. Gate 4 repository implementation and rehearsal use a deterministic fake/local adapter unless a separately authorized non-production provider test is approved.
+Repository rehearsal uses a deterministic fake/local adapter. Production providers/credentials require separate environment-specific authorization and evidence.
 
-## 16. Kill switches and containment
+## 16. Kill switches
 
-Gate 4 MUST support owner-controlled fail-closed switches for:
+Owner-controlled fail-closed switches are required for:
 - all background push;
 - one provider;
 - one notification category;
-- high-risk/sensitive push preview rendering.
+- high-risk/sensitive preview rendering.
 
-Kill switches do not delete durable inbox rows. They only prevent or sanitize transport behavior.
+Switches affect transport/presentation only. They never delete durable notification truth.
 
-If push is globally disabled, durable notifications and in-app catch-up continue.
+If push is globally disabled, durable inbox + in-app catch-up continue.
 
 ## 17. In-app Realtime boundary
 
-Gate 4 creates private Realtime authorization for the current notification inbox topic only.
+Gate 4 authorizes only the current private inbox topic.
 
 Authorization requires:
 - authenticated role;
-- current signed actor;
+- current signed actor from existing identity authority;
 - actor owns the inbox;
-- topic inbox UUID matches actor inbox;
-- topic epoch matches current `channel_epoch`;
+- topic UUID matches actor inbox;
+- topic epoch equals current inbox `channel_epoch`;
 - extension explicitly allowed for Gate 4 receive semantics.
 
-Database-originated Broadcast events may include:
+Database-originated Broadcast event names are bounded to:
 - `notification_created`;
 - `notification_read`;
 - `badge_changed`;
 - `notification_channel_revoked`.
 
-Payloads are sanitized and contain stable notification identifiers/sequence, not endpoint credentials.
+Payloads contain stable notification/inbox sequence metadata and approved presentation fields only. Endpoint capabilities are forbidden.
 
-Browser/client Broadcast INSERT for authoritative notification events is forbidden.
+Authenticated/browser authoritative Broadcast INSERT is forbidden.
 
-## 18. Reconnect and catch-up
+## 18. Reconnect and keyset catch-up
 
-Client algorithm:
-1. authenticate with existing application JWT;
-2. fetch current inbox channel ticket;
-3. subscribe to private topic;
+Client flow:
+1. authenticate using existing application JWT;
+2. obtain current notification channel ticket;
+3. subscribe to private current-epoch topic;
 4. call `vvip_notification_list(after_sequence, limit)`;
 5. merge by immutable `(inbox_id, sequence)`;
-6. deduplicate Realtime events by notification id/sequence;
-7. repair sequence gaps through keyset catch-up;
-8. compute badge/unread UI from durable server projection, not from counting local push events.
+6. deduplicate by notification id/sequence;
+7. repair gaps through keyset catch-up;
+8. use durable server unread projection for badge state.
 
 Offset pagination is prohibited for the unbounded notification stream.
 
 ## 19. Browser RPC boundary
 
-Expected bounded RPCs:
+Bounded browser RPCs:
 - `vvip_notification_list(after_sequence bigint, limit integer)`;
 - `vvip_notification_mark_read(notification_id uuid)`;
 - `vvip_notification_mark_all_read(up_to_sequence bigint)`;
 - `vvip_notification_get_channel_ticket()`;
 - `vvip_notification_get_preferences()`;
-- `vvip_notification_update_preference(category, ...)`;
-- `vvip_notification_update_activity_hint(...)`;
-- `vvip_notification_register_endpoint(...)`;
+- `vvip_notification_update_preference(category text, in_app_enabled boolean, push_enabled boolean, quiet_hours_enabled boolean, quiet_start time, quiet_end time, timezone text)`;
+- `vvip_notification_update_activity_hint(foreground boolean, view_scope text, view_object_id text)`;
+- `vvip_notification_register_endpoint(provider text, platform text, endpoint_capability text)`;
 - `vvip_notification_revoke_endpoint(endpoint_id uuid)`.
 
 Internal/service-only functions own:
-- canonical business-event ingestion;
+- business-event ingestion;
 - recipient computation;
-- notification creation;
-- push decision/enqueue;
-- outbox claim/settlement;
+- canonical notification creation;
+- decision/enqueue;
+- dispatch claim/settlement;
 - endpoint invalidation;
 - kill-switch mutation.
 
-Authenticated users MUST NOT receive direct UPDATE/DELETE rights on durable authority tables merely for convenience.
+Authenticated roles MUST NOT receive direct UPDATE/DELETE authority-table privileges for convenience.
 
 ## 20. Security properties
 
-Mandatory properties:
-- FORCE RLS on user-facing durable tables where appropriate;
-- browser direct mutation revoked;
-- SECURITY DEFINER functions pin safe `search_path`;
-- no `service_role` credential in browser;
-- no raw push endpoint/token readable by authenticated clients;
-- no client-selected recipient;
-- no client-selected authoritative actor;
-- no client-generated push/provider payload accepted as canonical;
-- no notification business object access inferred merely from notification ownership;
-- object authorization is rechecked when opened;
-- no push-provider callback can mutate durable business state without independent authorization/idempotency;
-- exact-byte migration review through Steel Shield after DB rehearsal.
+Mandatory:
+- FORCE RLS on user-facing durable tables where applicable;
+- browser direct authority-table mutation revoked;
+- SECURITY DEFINER functions use a pinned safe search path;
+- no `service_role` token in browser;
+- no raw endpoint capability readable by authenticated users;
+- no client-selected recipient or authoritative actor;
+- no client-generated provider payload accepted as canonical;
+- notification ownership does not imply authorization to the referenced business object;
+- object authorization is rechecked on open;
+- provider callbacks cannot mutate durable business state without independent authorization/idempotency;
+- Steel Shield exact-byte review only after DB rehearsal.
 
 ## 21. Observability
 
-Metrics MUST be content-safe and keyed by category/provider/result, not notification body.
-
-Minimum metrics:
-- durable notifications created/suppressed/deduplicated;
-- unread count integrity failures;
+Content-safe metrics:
+- notifications created/suppressed/deduplicated;
+- unread-count integrity failures;
 - Realtime emit success/failure;
 - dispatch queue depth/age;
 - attempts by provider/result class;
 - endpoint invalidation rate;
-- retry count;
-- DLQ count;
-- expired-before-send count;
-- push disabled by kill switch;
+- retry/DLQ/expired counts;
+- kill-switch suppressions;
 - decision latency P50/P95/P99;
-- outbox claim-to-settlement latency P50/P95/P99.
+- claim-to-settlement latency P50/P95/P99.
 
-Trace/log correlation uses stable opaque ids (`notification_id`, `dispatch_id`) and MUST redact endpoint capabilities and notification content classified private/sensitive/security.
+Logs/traces use opaque `notification_id`/`dispatch_id`. Endpoint capabilities and private/sensitive/security content are redacted.
 
 ## 22. SLO objectives
 
-Gate 4 SLOs are measured boundaries, not global delivery guarantees.
+Staging measurement objectives, not universal delivery guarantees:
+- decision + durable inbox commit: P95 <= 150 ms under defined rehearsal load;
+- eligible dispatch enqueue: P95 <= 250 ms;
+- database-originated Realtime handoff within controlled Staging boundary: target P95 <= 500 ms;
+- provider acceptance latency: measured per provider, no universal guarantee;
+- device/human display latency: measured only because OS/network/provider scheduling is outside TIGER control.
 
-Initial Staging objectives:
-- notification decision + durable inbox commit: P95 <= 150 ms under rehearsal load;
-- durable dispatch enqueue after eligible event: P95 <= 250 ms;
-- Realtime database-originated event handoff: separately measured, target P95 <= 500 ms inside controlled Staging boundary;
-- provider acceptance latency: observed per provider, no universal guarantee;
-- human/device display latency: measured only, never claimed as a hard platform guarantee because OS/network/provider scheduling is outside TIGER control.
+Stricter claims require deployed-stack evidence.
 
-Any future stricter SLO requires exact deployed-stack evidence.
+## 23. Retention and deletion
 
-## 23. Data retention and deletion
-
-Gate 4 distinguishes:
+Separate classes:
 - durable notification history;
 - dispatch operational evidence;
-- endpoint credentials/capabilities;
+- endpoint capability data;
 - short-lived activity hints.
 
-Baseline rules:
+Baseline:
 - activity hints expire automatically and are purged after a short operational window;
-- revoked/invalid endpoint capabilities are deleted or cryptographically destroyed according to the account/privacy deletion workflow;
-- dispatch logs retain only bounded operational metadata;
-- notification retention follows future country/account data policy and must be deletable under account-deletion authority where legally required;
-- no retention policy may preserve endpoint bearer capabilities merely for analytics.
+- revoked/invalid endpoint capabilities are removed under account/privacy deletion authority and are never retained for analytics;
+- dispatch evidence keeps bounded operational metadata only;
+- notification retention follows account/country policy and supports lawful account-data deletion;
+- no retention rule preserves endpoint bearer capability for analytics.
 
-## 24. Race and abuse defenses
+## 24. Race/abuse defenses
 
-DB rehearsal and implementation MUST address:
-- duplicate business events arriving concurrently;
+Implementation/rehearsal MUST address:
+- concurrent duplicate business events;
 - duplicate endpoint registration;
-- notification/read race;
-- endpoint revoke while worker holds a lease;
+- mark-read/unread-count race;
+- endpoint revoke while worker is leased;
 - kill switch toggled while work is queued;
-- TTL expiring while work is claimed;
+- TTL expiry during claim;
 - collapse replacement race;
 - stale worker settlement;
-- actor switching accounts on the same device;
+- same device switches accounts;
 - forged endpoint ownership;
-- fake foreground lease used to suppress another user's push (must be impossible);
-- browser attempt to emit authoritative Realtime notification Broadcast.
+- one user's activity lease attempting to affect another user's push;
+- browser attempt to emit authoritative notification Broadcast.
 
 ## 25. TDD requirements
 
 Implementation begins RED.
 
-Static tests MUST require, before migration exists:
-- durable inbox/notification/preferences/activity/endpoint/dispatch boundaries;
-- FORCE RLS / least privilege;
+Static contracts MUST require before migration/workflow exists:
+- inbox/notification/preferences/activity/endpoint/dispatch boundaries;
+- FORCE RLS + least privilege;
 - unique event idempotency;
 - keyset sequence pagination;
 - no authenticated direct authority-table mutation;
 - no raw endpoint read grant;
-- private Realtime topic/epoch parser;
+- private topic/epoch parser;
 - no authenticated authoritative Broadcast INSERT;
-- bounded retry budget;
+- attempt budget = 5;
 - TTL terminal behavior;
 - kill-switch checks;
 - exact-SHA workflow contract.
@@ -537,53 +523,54 @@ Static tests MUST require, before migration exists:
 Transactional DB rehearsal MUST prove at minimum:
 - one event -> one durable notification;
 - concurrent/idempotent duplicate event -> one notification;
-- monotonic per-inbox sequences;
-- unauthorized third party cannot list/read/update another inbox;
-- unread count and mark-read remain transactionally consistent;
-- mark-all-read is bounded by durable tail and cannot move backward;
-- mandatory security in-app persistence cannot be disabled by preference RPC;
-- active same-view lease suppresses redundant push but not durable persistence;
-- stale/expired lease does not suppress background push;
-- quiet-hours low-priority behavior follows policy;
-- sensitive/message notification push preview is redacted;
+- monotonic per-inbox sequence;
+- third party cannot list/read/update another inbox;
+- unread count and mark-read are transactionally consistent;
+- mark-all-read is bounded by durable tail and never moves state backward;
+- mandatory security/system durable persistence cannot be disabled;
+- `push_enabled=true` cannot exist effectively while optional category `in_app_enabled=false`;
+- active same-view lease suppresses redundant push but not eligible durable persistence;
+- stale activity lease does not suppress background push;
+- quiet-hours behavior follows category policy;
+- private/sensitive/message push previews are redacted as specified;
 - endpoint registration is owner-bound and raw capability is not browser-readable;
 - endpoint revoke invalidates pending/future dispatch;
-- worker claim uses fencing; stale generation cannot settle;
+- stale worker generation cannot settle;
 - retry budget reaches deterministic DLQ;
-- invalid endpoint becomes terminal and no longer retries;
+- invalid endpoint stops retries;
 - expired TTL never dispatches;
 - kill switch blocks transport without deleting durable notification;
-- Realtime current topic authorizes owner only;
+- current Realtime topic authorizes owner only;
 - browser authoritative Broadcast INSERT remains denied;
-- reconnect keyset catch-up yields no gap/duplicate;
-- all fixtures roll back and emit `TIGER_GATE4_DB_REHEARSAL=PASS`.
+- keyset reconnect produces no gap/duplicate;
+- fixture transaction rolls back and emits `TIGER_GATE4_DB_REHEARSAL=PASS`.
 
-## 26. Exact-SHA workflow and evidence
+## 26. Exact-SHA workflow/evidence
 
-Gate 4 gets a dedicated local-only workflow that:
-- checks out `github.event.pull_request.head.sha` exactly;
-- pins all Actions by immutable SHA;
-- pins the Supabase CLI version;
-- rejects remote Supabase credentials/environment variables;
-- runs static contracts;
-- starts isolated local Supabase;
-- performs clean `supabase db reset --local`;
-- runs transactional DB rehearsal;
-- hashes migrations/tests/workflow/evidence inputs;
-- uploads an artifact named with exact source SHA;
-- emits source/worktree SHA and `TIGER_GATE4_DB_REHEARSAL=PASS`.
+Dedicated local-only workflow MUST:
+- checkout `github.event.pull_request.head.sha` exactly;
+- pin Actions by immutable SHA;
+- pin Supabase CLI version;
+- reject remote Supabase credentials/environment variables;
+- run static contracts;
+- start isolated local Supabase;
+- run clean `supabase db reset --local`;
+- execute transactional rehearsal;
+- hash migration/tests/workflow/evidence inputs;
+- upload artifact named with exact source SHA;
+- include SOURCE_SHA/WORKTREE_SHA and `TIGER_GATE4_DB_REHEARSAL=PASS`.
 
-Only after static + clean migration replay + transactional DB proof on exact bytes may Gate 4 migration SHA256 values be added to Steel Shield's reviewed baseline.
+Only after exact-byte static + clean replay + DB rehearsal may Gate 4 migration SHA256 values enter Steel Shield reviewed baseline.
 
-A baseline change creates a new head SHA and therefore MUST rerun Gate 4 and the required repository workflows on that new SHA before closure.
+The Steel Shield baseline commit creates a new SHA, so all required checks MUST rerun on that new SHA before closure.
 
 ## 27. Gate close criteria
 
-Gate 4 can be marked evidence-closed only when, on one exact PR head SHA:
+Gate 4 closes only when one exact PR head SHA has:
 - static contracts GREEN;
 - clean local migration replay GREEN;
 - transactional Gate 4 DB rehearsal GREEN;
-- exact-SHA Gate 4 artifact exists and independently confirms PASS marker + source SHA;
+- exact-SHA Gate 4 artifact independently verified for head SHA + PASS marker;
 - VVIP Quality Gate GREEN;
 - TIGER CleanGuard GREEN;
 - Zero-Residue Full History GREEN;
@@ -591,24 +578,24 @@ Gate 4 can be marked evidence-closed only when, on one exact PR head SHA:
 - Exact-SHA Preview Evidence GREEN;
 - Social DB rehearsal GREEN;
 - LC04/LC05/LC06 regressions GREEN;
-- Gate 2 and Gate 3 required regressions remain GREEN where triggered;
-- Steel Shield sees Gate 4 reviewed exact migration bytes;
+- required Gate 2/Gate 3 regressions GREEN where triggered;
+- Steel Shield reviewed exact Gate 4 migration bytes;
 - unresolved Gate 4 P0 = 0;
 - unresolved Gate 4 P1 = 0.
 
 ## 28. Production barricade
 
-Gate 4 repository closure does **not** authorize:
+Gate 4 repository closure does NOT authorize:
 - merge to `main`;
-- production database migration;
-- production Realtime policy application;
-- production APNs/FCM/Web Push credentials;
+- Production database migration;
+- Production Realtime policy apply;
+- Production APNs/FCM/Web Push credentials;
 - real-user endpoint registration;
 - real push sends;
-- production promotion.
+- Production promotion.
 
-Production remains governed by the TIGER Release Constitution, owner approval, environment identity, Release Passport and later Gates 5–14.
+Production remains governed by the TIGER Release Constitution, exact environment identity, Release Passport, owner approval and later Gates 5–14.
 
 ## 29. Supersession
 
-The legacy P19 Notifications Center repository package is historical design/review material only. Where it conflicts with this Gate 4 specification or the 2026 Release Constitution, this Gate 4 specification is authoritative after owner review.
+The legacy P19 Notifications Center package is historical design/review material only. After owner review, this Gate 4 specification supersedes conflicting P19 notification architecture while remaining subordinate to the 2026 Release Constitution.
