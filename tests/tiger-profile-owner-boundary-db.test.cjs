@@ -36,13 +36,16 @@ test("owner profile RPCs derive identity from the canonical Clerk-backed actor b
 test("browser cannot mutate lifecycle state or gain direct projection table CRUD", () => {
   const sql = readMigration();
 
+  const upsertStart = sql.indexOf("create or replace function public.vvip_upsert_my_social_profile");
   const upsertSignature = sql.slice(
-    sql.indexOf("create or replace function public.vvip_upsert_my_social_profile"),
-    sql.indexOf("returns jsonb", sql.indexOf("create or replace function public.vvip_upsert_my_social_profile")),
+    upsertStart,
+    sql.indexOf("returns jsonb", upsertStart),
   );
 
   assert.doesNotMatch(upsertSignature, /profile_state/);
-  assert.match(sql, /profile_state\s*<>\s*'active'/);
+  assert.match(sql, /select\s+p\.profile_state\s*,\s*p\.profile_id\s+into\s+v_state\s*,\s*v_profile_id/);
+  assert.match(sql, /if\s+found\s+and\s+v_state\s*<>\s*'active'\s+then/);
+  assert.match(sql, /where\s+subject\s*=\s*v_actor\s+and\s+profile_state\s*=\s*'active'/);
   assert.match(sql, /social_profile_mutation_disabled/);
   assert.match(sql, /revoke\s+all\s+on\s+table\s+public\.vvip_social_profile_projection\s+from\s+authenticated/);
   assert.doesNotMatch(sql, /grant\s+(?:select|insert|update|delete|all).*table\s+public\.vvip_social_profile_projection\s+to\s+authenticated/);
