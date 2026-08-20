@@ -41,7 +41,7 @@ jobs:
           fetch-depth: 1
 
       - name: Set up Python verifier
-        uses: actions/setup-python@a079284f6907d469567d7000a6d0159d034d90b0 # v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
 
@@ -279,7 +279,7 @@ jobs:
         uses: actions/deploy-pages@ec56924218b2176fe6802ce5b3391b0d6127de51 # v4
 
       - name: Set up Python for live verification
-        uses: actions/setup-python@a079284f6907d469567d7000a6d0159d034d90b0 # v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
 
