@@ -34,8 +34,7 @@ CREATE OR REPLACE FUNCTION public.vvip_get_public_profile(
 RETURNS jsonb
 LANGUAGE sql
 STABLE
-SECURITY DEFINER
-SET search_path = public, pg_catalog
+SECURITY DEFINER SET search_path = pg_catalog
 AS $$
   SELECT jsonb_build_object(
     'profile_id', p.profile_id,
