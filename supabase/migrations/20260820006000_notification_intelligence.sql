@@ -467,7 +467,6 @@ as $function$
 declare
     v_actor text := public.vvip_marketplace_actor_id();
     v_inbox uuid;
-    v_limit integer;
 begin
     if v_actor is null or not public.vvip_social_subject_is_valid(v_actor) then
         raise exception 'TIGER_NOTIFICATION_AUTH_REQUIRED';
@@ -475,7 +474,6 @@ begin
     if after_sequence is null or after_sequence < 0 then
         raise exception 'TIGER_NOTIFICATION_CURSOR_INVALID';
     end if;
-    v_limit := least(greatest(coalesce(p_limit,50),1),100);
     select inbox_id into v_inbox from public.vvip_notification_inboxes where owner_subject = v_actor;
     if v_inbox is null then return; end if;
 
@@ -487,7 +485,7 @@ begin
     where n.inbox_id = v_inbox
       and n.sequence > after_sequence
     order by n.sequence asc
-    limit v_limit;
+    limit (least(greatest(coalesce(p_limit,50),1),100));
 end;
 $function$;
 
@@ -828,8 +826,6 @@ returns table (
 language plpgsql
 security definer set search_path = pg_catalog, public
 as $function$
-declare
-    v_limit integer := least(greatest(coalesce(p_limit,1),1),32);
 begin
     if p_worker is null or char_length(p_worker) < 3 or char_length(p_worker) > 120 then
         raise exception 'TIGER_NOTIFICATION_WORKER_INVALID';
@@ -860,7 +856,7 @@ begin
           and not public.vvip_notification_push_blocked(notification.category,dispatch.provider)
         order by dispatch.next_attempt_at, dispatch.created_at, dispatch.dispatch_id
         for update of dispatch skip locked
-        limit v_limit
+        limit (least(greatest(coalesce(p_limit,1),1),32))
     ), claimed as (
         update public.vvip_notification_dispatches dispatch
            set state = 'leased',
