@@ -3,6 +3,7 @@
 
   const AUDIENCES = Object.freeze(['public', 'friends', 'only_me']);
   const AUDIENCE_PRIVACY_RANK = Object.freeze({ public: 0, friends: 1, only_me: 2 });
+  const SOCIAL_REPLAY_KINDS = new Set(['bookmark_set', 'follow_set', 'repost_commit']);
   const MAX_BODY_LENGTH = 5000;
   const MAX_MEDIA = 10;
 
@@ -107,6 +108,84 @@
     return Object.freeze({ ok: true, intent });
   }
 
+  function sameReplayMutation(left, right) {
+    return left.sequence === right.sequence
+      && left.kind === right.kind
+      && left.value === right.value
+      && left.applied === right.applied;
+  }
+
+  function reconcileSocialReplay(initialState, mutations) {
+    if (!initialState || typeof initialState !== 'object' || Array.isArray(initialState)
+      || typeof initialState.bookmarked !== 'boolean'
+      || typeof initialState.following !== 'boolean'
+      || !Number.isSafeInteger(initialState.repostCount)
+      || initialState.repostCount < 0
+      || !Array.isArray(mutations)) {
+      return fail('invalid_social_replay_input');
+    }
+
+    const unique = new Map();
+    for (const mutation of mutations) {
+      if (!mutation || typeof mutation !== 'object' || Array.isArray(mutation)
+        || !validIdentifier(mutation.mutationId)
+        || !Number.isSafeInteger(mutation.sequence)
+        || mutation.sequence < 0
+        || !SOCIAL_REPLAY_KINDS.has(mutation.kind)
+        || typeof mutation.value !== 'boolean'
+        || typeof mutation.applied !== 'boolean') {
+        return fail('invalid_social_replay_mutation');
+      }
+
+      const normalized = Object.freeze({
+        mutationId: mutation.mutationId,
+        sequence: mutation.sequence,
+        kind: mutation.kind,
+        value: mutation.value,
+        applied: mutation.applied,
+      });
+      const existing = unique.get(normalized.mutationId);
+      if (existing) {
+        if (!sameReplayMutation(existing, normalized)) {
+          return fail('social_replay_idempotency_conflict');
+        }
+        continue;
+      }
+      unique.set(normalized.mutationId, normalized);
+    }
+
+    const ordered = [...unique.values()].sort((left, right) => {
+      if (left.sequence !== right.sequence) return left.sequence - right.sequence;
+      return left.mutationId.localeCompare(right.mutationId);
+    });
+
+    const state = {
+      bookmarked: initialState.bookmarked,
+      following: initialState.following,
+      repostCount: initialState.repostCount,
+    };
+    const appliedMutationIds = [];
+
+    for (const mutation of ordered) {
+      if (!mutation.applied) continue;
+
+      if (mutation.kind === 'bookmark_set') {
+        state.bookmarked = mutation.value;
+      } else if (mutation.kind === 'follow_set') {
+        state.following = mutation.value;
+      } else if (mutation.kind === 'repost_commit' && mutation.value) {
+        state.repostCount += 1;
+      }
+      appliedMutationIds.push(mutation.mutationId);
+    }
+
+    return Object.freeze({
+      ok: true,
+      state: Object.freeze(state),
+      appliedMutationIds: Object.freeze(appliedMutationIds),
+    });
+  }
+
   const api = Object.freeze({
     AUDIENCES,
     MAX_BODY_LENGTH,
@@ -114,6 +193,7 @@
     isAudience,
     buildPostIntent,
     buildRepostIntent,
+    reconcileSocialReplay,
   });
 
   if (typeof module !== 'undefined' && module.exports) {
