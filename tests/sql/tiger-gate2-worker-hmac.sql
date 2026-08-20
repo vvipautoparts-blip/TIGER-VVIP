@@ -67,11 +67,13 @@ select (:'hmac_ts'::bigint - 120) as expired_ts \gset
 insert into public.vvip_social_media_worker_challenges (
   nonce,
   issued_at_epoch,
-  expires_at
+  expires_at,
+  created_at
 ) values (
   'fedcba9876543210fedcba9876543210',
   :'expired_ts'::bigint,
-  statement_timestamp() - interval '1 second'
+  statement_timestamp() - interval '1 second',
+  statement_timestamp() - interval '2 minutes'
 );
 
 set local role service_role;
