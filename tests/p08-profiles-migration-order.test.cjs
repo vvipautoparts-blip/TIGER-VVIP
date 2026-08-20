@@ -32,5 +32,6 @@ test('profile migrations have unique ordered ledger versions', () => {
     '20260817060000_retire_lc04_legacy_profile_helper_graph.sql',
     '20260820220500_public_profile_projection.sql',
     '20260820223000_profile_owner_boundary.sql',
+    '20260820231500_profile_lifecycle_boundary.sql',
   ]);
 });
