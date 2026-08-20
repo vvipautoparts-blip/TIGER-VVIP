@@ -1,0 +1,236 @@
+name: TIGER Gate 2 Media Rehearsal
+
+on:
+  pull_request:
+    paths:
+      - "supabase/migrations/20260820002000_social_media_canonical_authority.sql"
+      - "supabase/migrations/20260820002500_social_media_atomic_finalize_cleanup.sql"
+      - "supabase/migrations/20260820002700_social_media_durable_quarantine_purge.sql"
+      - "supabase/migrations/20260820002900_social_media_unified_quarantine_cleanup.sql"
+      - "supabase/migrations/20260820003100_social_media_reservation_content_identity_hardening.sql"
+      - "supabase/migrations/20260820003300_social_media_storage_event_ingress.sql"
+      - "supabase/migrations/20260820003500_social_media_worker_dispatch.sql"
+      - "supabase/migrations/20260820003700_social_media_stale_worker_recovery.sql"
+      - "supabase/migrations/20260820003900_social_media_worker_hmac_boundary.sql"
+      - "supabase/functions/social-media-upload-ticket/index.ts"
+      - "supabase/functions/social-media-storage-ingress/index.ts"
+      - "supabase/functions/social-media-finalizer/**"
+      - "supabase/functions/social-media-read-ticket/index.ts"
+      - "tests/tiger-social-media-*.test.cjs"
+      - "tests/tiger-gate2-media-rehearsal-workflow.test.cjs"
+      - "tests/sql/tiger-gate2-canonical-media.sql"
+      - "tests/sql/tiger-gate2-worker-hmac.sql"
+      - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
+      - ".github/workflows/tiger-gate2-media-rehearsal.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tiger-gate2-media-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SOURCE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+jobs:
+  static-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: "22"
+
+      - name: Verify exact source identity
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          test "$actual_sha" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          echo "TIGER_GATE2_SOURCE_SHA=$actual_sha"
+
+      - name: Run Gate 2 static contracts
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          node --test \
+            tests/tiger-social-media-canonical-authority-db.test.cjs \
+            tests/tiger-social-media-upload-ticket-contract.test.cjs \
+            tests/tiger-social-media-finalizer-contract.test.cjs \
+            tests/tiger-social-media-storage-webhook-ingress.test.cjs \
+            tests/tiger-social-media-read-ticket-contract.test.cjs \
+            tests/tiger-social-media-worker-dispatch-contract.test.cjs \
+            tests/tiger-social-media-reservation-content-identity-hardening.test.cjs \
+            tests/tiger-social-media-atomic-finalize-hardening.test.cjs \
+            tests/tiger-social-media-durable-quarantine-purge.test.cjs \
+            tests/tiger-social-media-unified-quarantine-cleanup.test.cjs \
+            tests/tiger-gate2-media-rehearsal-workflow.test.cjs
+
+  edge-typecheck:
+    needs: static-contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 0
+
+      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed
+        with:
+          deno-version: v2.x
+
+      - name: Verify exact source identity
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          test "$actual_sha" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+
+      - name: Typecheck Gate 2 Edge functions
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          deno check supabase/functions/social-media-upload-ticket/index.ts
+          deno check supabase/functions/social-media-storage-ingress/index.ts
+          deno check supabase/functions/social-media-finalizer/index.ts
+          deno check supabase/functions/social-media-read-ticket/index.ts
+
+      - name: Prove canonical image bytes
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          deno test --allow-read supabase/functions/social-media-finalizer/canonical_test.ts
+
+  local-db-rehearsal:
+    needs:
+      - static-contracts
+      - edge-typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 0
+
+      - uses: supabase/setup-cli@ab058987d8d6c725971f6cf9d0b5c98467e30bd1
+        with:
+          version: 2.109.0
+
+      - name: Verify exact source identity
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          test "$actual_sha" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          echo "TIGER_GATE2_SOURCE_SHA=$actual_sha"
+
+      - name: Assert local-only safety contract
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          if env | grep -E '^(SUPABASE_ACCESS_TOKEN|SUPABASE_DB_PASSWORD|SUPABASE_PROJECT_REF)=' >/dev/null; then
+            echo 'TIGER_GATE2_REHEARSAL=BLOCKED_REMOTE_CREDENTIAL_ENV'
+            exit 1
+          fi
+          echo 'TIGER_GATE2_REHEARSAL=LOCAL_ONLY_PASS'
+
+      - name: Start isolated local Supabase stack
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          supabase --version
+          supabase start
+
+      - name: Rebuild database from repository migrations
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          supabase db reset --local
+          echo 'TIGER_GATE2_DB_RESET=PASS'
+
+      - name: Execute Gate 2 transactional DB rehearsal
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          mkdir -p /tmp/tiger-gate2-media-rehearsal
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 \
+            -p 54322 \
+            -U postgres \
+            -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/tiger-gate2-canonical-media.sql \
+            2>&1 | tee /tmp/tiger-gate2-media-rehearsal/db-rehearsal.log
+          grep -F 'TIGER_GATE2_DB_REHEARSAL=PASS' /tmp/tiger-gate2-media-rehearsal/db-rehearsal.log
+
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 \
+            -p 54322 \
+            -U postgres \
+            -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/tiger-gate2-worker-hmac.sql \
+            2>&1 | tee /tmp/tiger-gate2-media-rehearsal/hmac-rehearsal.log
+          grep -F 'TIGER_GATE2_HMAC_DB_REHEARSAL=PASS' /tmp/tiger-gate2-media-rehearsal/hmac-rehearsal.log
+
+      - name: Bind exact-SHA evidence manifest
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          mkdir -p /tmp/tiger-gate2-media-rehearsal
+          {
+            echo "SOURCE_SHA=$SOURCE_SHA"
+            echo "WORKTREE_SHA=$(git rev-parse HEAD)"
+            sha256sum \
+              supabase/migrations/20260820002000_social_media_canonical_authority.sql \
+              supabase/migrations/20260820002500_social_media_atomic_finalize_cleanup.sql \
+              supabase/migrations/20260820002700_social_media_durable_quarantine_purge.sql \
+              supabase/migrations/20260820002900_social_media_unified_quarantine_cleanup.sql \
+              supabase/migrations/20260820003100_social_media_reservation_content_identity_hardening.sql \
+              supabase/migrations/20260820003300_social_media_storage_event_ingress.sql \
+              supabase/migrations/20260820003500_social_media_worker_dispatch.sql \
+              supabase/migrations/20260820003700_social_media_stale_worker_recovery.sql \
+              supabase/migrations/20260820003900_social_media_worker_hmac_boundary.sql \
+              supabase/functions/social-media-upload-ticket/index.ts \
+              supabase/functions/social-media-storage-ingress/index.ts \
+              supabase/functions/social-media-finalizer/index.ts \
+              supabase/functions/social-media-finalizer/canonical.ts \
+              supabase/functions/social-media-finalizer/canonical_test.ts \
+              supabase/functions/social-media-read-ticket/index.ts \
+              tests/sql/tiger-gate2-canonical-media.sql \
+              tests/sql/tiger-gate2-worker-hmac.sql \
+              .github/workflows/tiger-gate2-media-rehearsal.yml
+            sha256sum /tmp/tiger-gate2-media-rehearsal/db-rehearsal.log
+            sha256sum /tmp/tiger-gate2-media-rehearsal/hmac-rehearsal.log
+          } | tee /tmp/tiger-gate2-media-rehearsal/evidence-manifest.txt
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+
+      - name: Upload exact-SHA Gate 2 evidence
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: tiger-gate2-media-rehearsal-${{ env.SOURCE_SHA }}
+          path: /tmp/tiger-gate2-media-rehearsal
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Stop isolated local stack
+        if: always()
+        shell: bash
+        run: supabase stop --no-backup || true

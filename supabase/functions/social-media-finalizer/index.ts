@@ -1,0 +1,630 @@
+import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.4";
+import {
+  AlphaAction,
+  Gravity,
+  ImageMagick,
+  initializeImageMagick,
+  MagickColor,
+  MagickFormat,
+} from "npm:@imagemagick/magick-wasm@0.0.42";
+
+const MAGICK_SPECIFIER = "npm:@imagemagick/magick-wasm@0.0.42";
+const wasmBytes = await Deno.readFile(
+  new URL("magick.wasm", import.meta.resolve(MAGICK_SPECIFIER)),
+);
+await initializeImageMagick(wasmBytes);
+
+const BUCKET = "social-private-media";
+const MAX_SOURCE_BYTES = 15 * 1024 * 1024;
+const MAX_CANONICAL_BYTES = 5 * 1024 * 1024;
+const MAX_SOURCE_WIDTH = 8192;
+const MAX_SOURCE_HEIGHT = 8192;
+const MAX_SOURCE_PIXELS = 16_000_000;
+const CANONICAL_WIDTH = 1600;
+const CANONICAL_HEIGHT = 1200;
+const CANONICAL_QUALITY = 85;
+const CLEANUP_BATCH = 32;
+const WORKER_AUTH_WINDOW_SECONDS = 60;
+const VERIFIER_VERSION = "tiger-media-finalizer/2026.08.20-v5";
+
+const NO_STORE_HEADERS = {
+  "Content-Type": "application/json; charset=utf-8",
+  "Cache-Control": "no-store",
+  "Pragma": "no-cache",
+};
+
+type ClaimRow = {
+  event_id: string;
+  media_id: string;
+  bucket_id: string;
+  quarantine_storage_path: string;
+  upload_lease_expires_at: string;
+  attempt_count: number;
+};
+
+type CleanupRow = {
+  media_id: string;
+  quarantine_storage_path: string;
+};
+
+type Gate2Database = {
+  public: {
+    Tables: Record<string, never>;
+    Views: Record<string, never>;
+    Functions: {
+      vvip_social_media_claim_quarantine_cleanup: {
+        Args: { max_rows: number };
+        Returns: CleanupRow[];
+      };
+      vvip_social_media_mark_quarantine_purged: {
+        Args: {
+          target_media: string;
+          expected_quarantine_path: string;
+        };
+        Returns: null;
+      };
+      vvip_social_media_webhook_claim: {
+        Args: Record<string, never>;
+        Returns: ClaimRow[];
+      };
+      vvip_social_media_finalize_event: {
+        Args: {
+          target_event: string;
+          target_media: string;
+          expected_attempt_count: number;
+          source_digest: string;
+          source_mime: string;
+          source_size: number;
+          source_image_width: number;
+          source_image_height: number;
+          canonical_path: string;
+          canonical_digest: string;
+          canonical_size: number;
+          canonical_mime: string;
+          canonical_image_width: number;
+          canonical_image_height: number;
+          verifier_id: string;
+          verifier_build_version: string;
+        };
+        Returns: string;
+      };
+      vvip_social_media_webhook_fail: {
+        Args: {
+          target_event: string;
+          expected_attempt_count: number;
+          error_code: string;
+        };
+        Returns: string;
+      };
+      vvip_social_media_consume_worker_challenge: {
+        Args: {
+          challenge_nonce: string;
+          challenge_timestamp: number;
+        };
+        Returns: boolean;
+      };
+    };
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
+  };
+};
+
+function createGate2AdminClient(supabaseUrl: string, serviceRoleKey: string) {
+  return createClient<Gate2Database>(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
+type AdminClient = ReturnType<typeof createGate2AdminClient>;
+
+type MediaFacts = {
+  mime: "image/jpeg" | "image/webp";
+  width: number;
+  height: number;
+};
+
+type WorkerChallenge = {
+  timestamp: number;
+  nonce: string;
+};
+
+class TigerMediaError extends Error {
+  constructor(readonly code: string) {
+    super(code);
+    this.name = "TigerMediaError";
+  }
+}
+
+function jsonResponse(status: number, body: Record<string, unknown>): Response {
+  return new Response(JSON.stringify(body), { status, headers: NO_STORE_HEADERS });
+}
+
+function requiredEnv(name: string): string {
+  const value = Deno.env.get(name)?.trim();
+  if (!value) throw new TigerMediaError(`SERVER_CONFIG_MISSING:${name}`);
+  return value;
+}
+
+function bytesToHex(bytes: Uint8Array): string {
+  return [...bytes].map((value) => value.toString(16).padStart(2, "0")).join("");
+}
+
+async function sha256Hex(bytes: Uint8Array): Promise<string> {
+  const ownedBuffer = new ArrayBuffer(bytes.byteLength);
+  new Uint8Array(ownedBuffer).set(bytes);
+  const digest = await crypto.subtle.digest("SHA-256", ownedBuffer);
+  return bytesToHex(new Uint8Array(digest));
+}
+
+async function hmacSha256Hex(secret: string, message: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(message));
+  return bytesToHex(new Uint8Array(signature));
+}
+
+async function constantTimeEqual(left: string, right: string): Promise<boolean> {
+  const encoder = new TextEncoder();
+  const [leftHash, rightHash] = await Promise.all([
+    crypto.subtle.digest("SHA-256", encoder.encode(left)),
+    crypto.subtle.digest("SHA-256", encoder.encode(right)),
+  ]);
+  const a = new Uint8Array(leftHash);
+  const b = new Uint8Array(rightHash);
+  let diff = a.byteLength ^ b.byteLength;
+  for (let i = 0; i < Math.max(a.byteLength, b.byteLength); i += 1) {
+    diff |= (a[i] ?? 0) ^ (b[i] ?? 0);
+  }
+  return diff === 0;
+}
+
+function workerChallengeMessage(timestamp: number, nonce: string): string {
+  return `tiger-media-worker-v1\n${timestamp}\n${nonce}\nPOST\n/functions/v1/social-media-finalizer`;
+}
+
+async function verifyWorkerChallenge(request: Request): Promise<WorkerChallenge> {
+  const signature = request.headers.get("x-tiger-worker-signature")?.trim().toLowerCase() ?? "";
+  const timestampRaw = request.headers.get("x-tiger-worker-timestamp")?.trim() ?? "";
+  const nonce = request.headers.get("x-tiger-worker-nonce")?.trim().toLowerCase() ?? "";
+
+  if (!/^[0-9a-f]{64}$/.test(signature) || !/^[0-9]{10,11}$/.test(timestampRaw) || !/^[0-9a-f]{32}$/.test(nonce)) {
+    throw new TigerMediaError("WORKER_AUTH_INVALID");
+  }
+
+  const timestamp = Number(timestampRaw);
+  const now = Math.floor(Date.now() / 1000);
+  if (!Number.isSafeInteger(timestamp) || Math.abs(now - timestamp) > WORKER_AUTH_WINDOW_SECONDS) {
+    throw new TigerMediaError("WORKER_AUTH_EXPIRED");
+  }
+
+  const secret = requiredEnv("TIGER_MEDIA_WORKER_SECRET");
+  if (secret.length < 32 || secret.length > 512) {
+    throw new TigerMediaError("SERVER_CONFIG_WORKER_SECRET_INVALID");
+  }
+
+  const expectedSignature = await hmacSha256Hex(secret, workerChallengeMessage(timestamp, nonce));
+  if (!(await constantTimeEqual(signature, expectedSignature))) {
+    throw new TigerMediaError("WORKER_AUTH_FAILED");
+  }
+
+  return { timestamp, nonce };
+}
+
+function ascii(bytes: Uint8Array, start: number, length: number): string {
+  if (start < 0 || length < 0 || start + length > bytes.byteLength) {
+    throw new TigerMediaError("SOCIAL_MEDIA_CONTAINER_TRUNCATED");
+  }
+  let output = "";
+  for (let i = start; i < start + length; i += 1) output += String.fromCharCode(bytes[i]);
+  return output;
+}
+
+function readU24LE(bytes: Uint8Array, offset: number): number {
+  if (offset + 3 > bytes.byteLength) throw new TigerMediaError("SOCIAL_MEDIA_CONTAINER_TRUNCATED");
+  return bytes[offset] | (bytes[offset + 1] << 8) | (bytes[offset + 2] << 16);
+}
+
+function readU32LE(bytes: Uint8Array, offset: number): number {
+  if (offset + 4 > bytes.byteLength) throw new TigerMediaError("SOCIAL_MEDIA_CONTAINER_TRUNCATED");
+  return (
+    bytes[offset] +
+    bytes[offset + 1] * 0x100 +
+    bytes[offset + 2] * 0x10000 +
+    bytes[offset + 3] * 0x1000000
+  );
+}
+
+function assertSourceGeometry(width: number, height: number): void {
+  if (
+    !Number.isSafeInteger(width) ||
+    !Number.isSafeInteger(height) ||
+    width < 320 ||
+    height < 240 ||
+    width > MAX_SOURCE_WIDTH ||
+    height > MAX_SOURCE_HEIGHT ||
+    width * height > MAX_SOURCE_PIXELS
+  ) {
+    throw new TigerMediaError("SOCIAL_MEDIA_SOURCE_GEOMETRY_INVALID");
+  }
+}
+
+function detectJpeg(bytes: Uint8Array): MediaFacts {
+  if (
+    bytes.byteLength < 4 ||
+    bytes[0] !== 0xff ||
+    bytes[1] !== 0xd8 ||
+    bytes[2] !== 0xff
+  ) {
+    throw new TigerMediaError("SOCIAL_MEDIA_MAGIC_INVALID");
+  }
+
+  const sofMarkers = new Set([
+    0xc0, 0xc1, 0xc2, 0xc3,
+    0xc5, 0xc6, 0xc7,
+    0xc9, 0xca, 0xcb,
+    0xcd, 0xce, 0xcf,
+  ]);
+  let offset = 2;
+  while (offset + 3 < bytes.byteLength) {
+    if (bytes[offset] !== 0xff) {
+      offset += 1;
+      continue;
+    }
+    while (offset < bytes.byteLength && bytes[offset] === 0xff) offset += 1;
+    if (offset >= bytes.byteLength) break;
+    const marker = bytes[offset++];
+
+    if (marker === 0xd9 || marker === 0xda) break;
+    if (marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) continue;
+    if (offset + 2 > bytes.byteLength) throw new TigerMediaError("SOCIAL_MEDIA_JPEG_TRUNCATED");
+
+    const segmentLength = (bytes[offset] << 8) | bytes[offset + 1];
+    if (segmentLength < 2 || offset + segmentLength > bytes.byteLength) {
+      throw new TigerMediaError("SOCIAL_MEDIA_JPEG_SEGMENT_INVALID");
+    }
+    if (sofMarkers.has(marker)) {
+      if (segmentLength < 7) throw new TigerMediaError("SOCIAL_MEDIA_JPEG_SOF_INVALID");
+      const height = (bytes[offset + 3] << 8) | bytes[offset + 4];
+      const width = (bytes[offset + 5] << 8) | bytes[offset + 6];
+      assertSourceGeometry(width, height);
+      return { mime: "image/jpeg", width, height };
+    }
+    offset += segmentLength;
+  }
+  throw new TigerMediaError("SOCIAL_MEDIA_JPEG_DIMENSIONS_MISSING");
+}
+
+function detectWebp(bytes: Uint8Array): MediaFacts {
+  if (
+    bytes.byteLength < 20 ||
+    ascii(bytes, 0, 4) !== "RIFF" ||
+    ascii(bytes, 8, 4) !== "WEBP"
+  ) {
+    throw new TigerMediaError("SOCIAL_MEDIA_MAGIC_INVALID");
+  }
+
+  const declaredSize = readU32LE(bytes, 4) + 8;
+  if (declaredSize !== bytes.byteLength) {
+    throw new TigerMediaError("SOCIAL_MEDIA_WEBP_CONTAINER_SIZE_INVALID");
+  }
+
+  let offset = 12;
+  let dimensions: { width: number; height: number } | null = null;
+  while (offset + 8 <= bytes.byteLength) {
+    const chunkType = ascii(bytes, offset, 4);
+    const chunkSize = readU32LE(bytes, offset + 4);
+    const dataStart = offset + 8;
+    const dataEnd = dataStart + chunkSize;
+    if (dataEnd > bytes.byteLength) throw new TigerMediaError("SOCIAL_MEDIA_WEBP_CHUNK_INVALID");
+
+    if (chunkType === "ANIM" || chunkType === "ANMF") {
+      throw new TigerMediaError("SOCIAL_MEDIA_ANIMATED_WEBP_REJECTED");
+    }
+
+    if (chunkType === "VP8X") {
+      if (chunkSize < 10) throw new TigerMediaError("SOCIAL_MEDIA_WEBP_VP8X_INVALID");
+      const flags = bytes[dataStart];
+      if ((flags & 0x02) !== 0) throw new TigerMediaError("SOCIAL_MEDIA_ANIMATED_WEBP_REJECTED");
+      dimensions = {
+        width: 1 + readU24LE(bytes, dataStart + 4),
+        height: 1 + readU24LE(bytes, dataStart + 7),
+      };
+    } else if (chunkType === "VP8 ") {
+      if (
+        chunkSize < 10 ||
+        bytes[dataStart + 3] !== 0x9d ||
+        bytes[dataStart + 4] !== 0x01 ||
+        bytes[dataStart + 5] !== 0x2a
+      ) {
+        throw new TigerMediaError("SOCIAL_MEDIA_WEBP_VP8_INVALID");
+      }
+      dimensions = {
+        width: ((bytes[dataStart + 7] << 8) | bytes[dataStart + 6]) & 0x3fff,
+        height: ((bytes[dataStart + 9] << 8) | bytes[dataStart + 8]) & 0x3fff,
+      };
+    } else if (chunkType === "VP8L") {
+      if (chunkSize < 5 || bytes[dataStart] !== 0x2f) {
+        throw new TigerMediaError("SOCIAL_MEDIA_WEBP_VP8L_INVALID");
+      }
+      const b1 = bytes[dataStart + 1];
+      const b2 = bytes[dataStart + 2];
+      const b3 = bytes[dataStart + 3];
+      const b4 = bytes[dataStart + 4];
+      dimensions = {
+        width: 1 + (((b2 & 0x3f) << 8) | b1),
+        height: 1 + (((b4 & 0x0f) << 10) | (b3 << 2) | ((b2 & 0xc0) >> 6)),
+      };
+    }
+
+    offset = dataEnd + (chunkSize & 1);
+  }
+
+  if (!dimensions) throw new TigerMediaError("SOCIAL_MEDIA_WEBP_DIMENSIONS_MISSING");
+  assertSourceGeometry(dimensions.width, dimensions.height);
+  return { mime: "image/webp", ...dimensions };
+}
+
+function detectMedia(bytes: Uint8Array): MediaFacts {
+  if (bytes.byteLength >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
+    return detectJpeg(bytes);
+  }
+  if (
+    bytes.byteLength >= 12 &&
+    ascii(bytes, 0, 4) === "RIFF" &&
+    ascii(bytes, 8, 4) === "WEBP"
+  ) {
+    return detectWebp(bytes);
+  }
+  throw new TigerMediaError("SOCIAL_MEDIA_MAGIC_INVALID");
+}
+
+function canonicalize(sourceBytes: Uint8Array, sourceFacts: MediaFacts): Uint8Array {
+  return ImageMagick.read(sourceBytes, (image): Uint8Array => {
+    image.autoOrient();
+
+    const width = image.width;
+    const height = image.height;
+    if (width * height > MAX_SOURCE_PIXELS || width <= 0 || height <= 0) {
+      throw new TigerMediaError("SOCIAL_MEDIA_DECODED_GEOMETRY_INVALID");
+    }
+
+    const sameGeometry =
+      (width === sourceFacts.width && height === sourceFacts.height) ||
+      (width === sourceFacts.height && height === sourceFacts.width);
+    if (!sameGeometry) throw new TigerMediaError("SOCIAL_MEDIA_DECODED_GEOMETRY_MISMATCH");
+
+    for (const profileName of [...image.profileNames]) image.removeProfile(profileName);
+    image.strip();
+
+    image.backgroundColor = new MagickColor("#ffffff");
+    if (image.hasAlpha) image.alpha(AlphaAction.Remove);
+
+    const targetRatio = CANONICAL_WIDTH / CANONICAL_HEIGHT;
+    const currentRatio = image.width / image.height;
+    if (currentRatio > targetRatio) {
+      image.crop(Math.floor(image.height * targetRatio), image.height, Gravity.Center);
+    } else if (currentRatio < targetRatio) {
+      image.crop(image.width, Math.floor(image.width / targetRatio), Gravity.Center);
+    }
+    image.resetPage();
+    image.resize(CANONICAL_WIDTH, CANONICAL_HEIGHT);
+    if (image.width !== CANONICAL_WIDTH || image.height !== CANONICAL_HEIGHT) {
+      throw new TigerMediaError("SOCIAL_MEDIA_CANONICAL_GEOMETRY_INVALID");
+    }
+
+    image.quality = CANONICAL_QUALITY;
+    return image.write(MagickFormat.Jpeg, (data) => Uint8Array.from(data));
+  });
+}
+
+function normalizeRpcRow<T>(data: unknown): T | null {
+  if (Array.isArray(data)) return (data[0] ?? null) as T | null;
+  return (data ?? null) as T | null;
+}
+
+function safeErrorCode(error: unknown): string {
+  if (error instanceof TigerMediaError) {
+    return error.code.toUpperCase().replace(/[^A-Z0-9_:-]/g, "_").slice(0, 120);
+  }
+  return "SOCIAL_MEDIA_WORKER_FAILURE";
+}
+
+async function purgeQuarantine(admin: AdminClient): Promise<void> {
+  const { data, error } = await admin.rpc("vvip_social_media_claim_quarantine_cleanup", {
+    max_rows: CLEANUP_BATCH,
+  });
+  if (error) throw new TigerMediaError("QUARANTINE_CLEANUP_CLAIM_FAILED");
+
+  for (const row of data ?? []) {
+    if (!row?.media_id || !row?.quarantine_storage_path) continue;
+    const { error: removeError } = await admin.storage.from(BUCKET).remove([
+      row.quarantine_storage_path,
+    ]);
+    if (removeError) {
+      console.error("TIGER_QUARANTINE_PURGE_RETRY", row.media_id);
+      continue;
+    }
+    const { error: ackError } = await admin.rpc("vvip_social_media_mark_quarantine_purged", {
+      target_media: row.media_id,
+      expected_quarantine_path: row.quarantine_storage_path,
+    });
+    if (ackError) console.error("TIGER_QUARANTINE_PURGE_ACK_RETRY", row.media_id);
+  }
+}
+
+async function ensureCanonicalObject(
+  admin: AdminClient,
+  canonicalPath: string,
+  canonicalBytes: Uint8Array,
+  canonicalSha256: string,
+): Promise<void> {
+  const { error: uploadError } = await admin.storage.from(BUCKET).upload(
+    canonicalPath,
+    canonicalBytes,
+    {
+      contentType: "image/jpeg",
+      cacheControl: "31536000",
+      upsert: false,
+    },
+  );
+  if (!uploadError) return;
+
+  const { data: existing, error: downloadError } = await admin.storage.from(BUCKET).download(canonicalPath);
+  if (downloadError || !existing) {
+    throw new TigerMediaError("CANONICAL_UPLOAD_FAILED");
+  }
+  const existingBytes = new Uint8Array(await existing.arrayBuffer());
+  const existingSha = await sha256Hex(existingBytes);
+  if (existingSha !== canonicalSha256 || existingBytes.byteLength !== canonicalBytes.byteLength) {
+    throw new TigerMediaError("CANONICAL_PATH_COLLISION");
+  }
+}
+
+async function processOne(admin: AdminClient): Promise<{ processed: boolean; media_id?: string }> {
+  const { data: claimData, error: claimError } = await admin.rpc("vvip_social_media_webhook_claim");
+  if (claimError) throw new TigerMediaError("WEBHOOK_CLAIM_FAILED");
+  const claim = normalizeRpcRow<ClaimRow>(claimData);
+  if (!claim) return { processed: false };
+
+  let canonicalPath: string | null = null;
+  let canonicalObjectEnsured = false;
+  let committed = false;
+
+  try {
+    if (claim.bucket_id !== BUCKET || !claim.quarantine_storage_path.startsWith("quarantine/")) {
+      throw new TigerMediaError("SOCIAL_MEDIA_CLAIM_PATH_INVALID");
+    }
+    if (!Number.isInteger(claim.attempt_count) || claim.attempt_count < 1 || claim.attempt_count > 5) {
+      throw new TigerMediaError("SOCIAL_MEDIA_WORKER_ATTEMPT_INVALID");
+    }
+
+    const { data: sourceBlob, error: sourceError } = await admin.storage
+      .from(BUCKET)
+      .download(claim.quarantine_storage_path);
+    if (sourceError || !sourceBlob) throw new TigerMediaError("SOCIAL_MEDIA_SOURCE_DOWNLOAD_FAILED");
+
+    const sourceBytes = new Uint8Array(await sourceBlob.arrayBuffer());
+    if (sourceBytes.byteLength < 1 || sourceBytes.byteLength > MAX_SOURCE_BYTES) {
+      throw new TigerMediaError("SOCIAL_MEDIA_SIZE_INVALID");
+    }
+
+    const sourceFacts = detectMedia(sourceBytes);
+    const sourceSha256 = await sha256Hex(sourceBytes);
+    const canonicalBytes = canonicalize(sourceBytes, sourceFacts);
+    if (canonicalBytes.byteLength < 1 || canonicalBytes.byteLength > MAX_CANONICAL_BYTES) {
+      throw new TigerMediaError("SOCIAL_MEDIA_CANONICAL_SIZE_INVALID");
+    }
+    const canonicalSha256 = await sha256Hex(canonicalBytes);
+    canonicalPath = `canonical/media/${canonicalSha256.slice(0, 2)}/${claim.media_id}.jpg`;
+
+    await ensureCanonicalObject(admin, canonicalPath, canonicalBytes, canonicalSha256);
+    canonicalObjectEnsured = true;
+
+    const { data: finalizedPath, error: finalizeError } = await admin.rpc(
+      "vvip_social_media_finalize_event",
+      {
+        target_event: claim.event_id,
+        target_media: claim.media_id,
+        expected_attempt_count: claim.attempt_count,
+        source_digest: sourceSha256,
+        source_mime: sourceFacts.mime,
+        source_size: sourceBytes.byteLength,
+        source_image_width: sourceFacts.width,
+        source_image_height: sourceFacts.height,
+        canonical_path: canonicalPath,
+        canonical_digest: canonicalSha256,
+        canonical_size: canonicalBytes.byteLength,
+        canonical_mime: "image/jpeg",
+        canonical_image_width: CANONICAL_WIDTH,
+        canonical_image_height: CANONICAL_HEIGHT,
+        verifier_id: "supabase-edge-magick-wasm",
+        verifier_build_version: VERIFIER_VERSION,
+      },
+    );
+    if (finalizeError || finalizedPath !== canonicalPath) {
+      throw new TigerMediaError("CANONICAL_DB_FINALIZE_FAILED");
+    }
+    committed = true;
+
+    const { error: sourceRemoveError } = await admin.storage.from(BUCKET).remove([
+      claim.quarantine_storage_path,
+    ]);
+    if (!sourceRemoveError) {
+      const { error: purgeAckError } = await admin.rpc("vvip_social_media_mark_quarantine_purged", {
+        target_media: claim.media_id,
+        expected_quarantine_path: claim.quarantine_storage_path,
+      });
+      if (purgeAckError) console.error("TIGER_READY_SOURCE_PURGE_ACK_RETRY", claim.media_id);
+    } else {
+      console.error("TIGER_READY_SOURCE_PURGE_RETRY", claim.media_id);
+    }
+
+    return { processed: true, media_id: claim.media_id };
+  } catch (error) {
+    const code = safeErrorCode(error);
+
+    // Never delete a deterministic canonical path after losing the claim generation.
+    // A recovered generation may already be verifying or committing this same object.
+    // The object remains private until DB READY + Media Passport exists; a retry only
+    // reuses it after exact digest and byte-length verification.
+    if (canonicalObjectEnsured && canonicalPath && !committed) {
+      console.error("CANONICAL_ORPHAN_RETAINED_FOR_SAFE_RETRY", claim.media_id, canonicalPath, code);
+    }
+
+    if (!committed) {
+      const { error: failureError } = await admin.rpc("vvip_social_media_webhook_fail", {
+        target_event: claim.event_id,
+        expected_attempt_count: claim.attempt_count,
+        error_code: code,
+      });
+      if (failureError) console.error("TIGER_WEBHOOK_FAILURE_RECORD_FAILED", claim.event_id);
+    }
+    throw new TigerMediaError(code);
+  }
+}
+
+serve(async (request: Request) => {
+  if (request.method !== "POST") {
+    return jsonResponse(405, { ok: false, code: "METHOD_NOT_ALLOWED" });
+  }
+
+  try {
+    const challenge = await verifyWorkerChallenge(request);
+    const supabaseUrl = requiredEnv("SUPABASE_URL");
+    const serviceRoleKey = requiredEnv("SUPABASE_SERVICE_ROLE_KEY");
+    const admin = createGate2AdminClient(supabaseUrl, serviceRoleKey);
+
+    const { data: consumed, error: consumeError } = await admin.rpc(
+      "vvip_social_media_consume_worker_challenge",
+      {
+        challenge_nonce: challenge.nonce,
+        challenge_timestamp: challenge.timestamp,
+      },
+    );
+    if (consumeError) {
+      console.error("TIGER_WORKER_CHALLENGE_CONSUME_FAILED");
+      return jsonResponse(503, { ok: false, code: "WORKER_AUTH_UNAVAILABLE" });
+    }
+    if (consumed !== true) {
+      return jsonResponse(401, { ok: false, code: "WORKER_AUTH_REPLAYED" });
+    }
+
+    await purgeQuarantine(admin);
+    const result = await processOne(admin);
+    return jsonResponse(200, { ok: true, ...result });
+  } catch (error) {
+    const code = safeErrorCode(error);
+    const status = code.startsWith("WORKER_AUTH_") ? 401
+      : code.startsWith("SERVER_CONFIG_") ? 503
+      : 500;
+    console.error("TIGER_MEDIA_FINALIZER_ERROR", code);
+    return jsonResponse(status, { ok: false, code });
+  }
+});
