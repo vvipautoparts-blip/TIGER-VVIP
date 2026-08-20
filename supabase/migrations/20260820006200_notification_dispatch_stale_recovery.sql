@@ -67,7 +67,7 @@ begin
 
     return query
     with candidates as (
-        select dispatch.dispatch_id
+        select dispatch.dispatch_id as candidate_dispatch_id
         from public.vvip_notification_dispatches dispatch
         join public.vvip_notification_endpoints endpoint on endpoint.endpoint_id = dispatch.endpoint_id
         join public.vvip_notifications notification on notification.notification_id = dispatch.notification_id
@@ -88,7 +88,7 @@ begin
                lease_expires_at = statement_timestamp() + interval '30 seconds',
                updated_at = statement_timestamp()
           from candidates
-         where dispatch.dispatch_id = candidates.dispatch_id
+         where dispatch.dispatch_id = candidates.candidate_dispatch_id
          returning dispatch.*
     )
     select claimed.dispatch_id,
