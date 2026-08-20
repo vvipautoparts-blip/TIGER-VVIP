@@ -1,8 +1,9 @@
 (function (window) {
   "use strict";
 
-  const OWNER_MODE = "OWNER_MODE";
-  const VISITOR_MODE = "VISITOR_MODE";
+  const AUTH_REQUIRED = "AUTH_REQUIRED";
+  const AUTHORIZED_MEMBER_VIEW = "AUTHORIZED_MEMBER_VIEW";
+  const OWNER_VIEW = "OWNER_VIEW";
   const PUBLISHING_STATES = Object.freeze(["none", "pending", "approved", "rejected", "suspended"]);
   const ACCOUNT_STATES = Object.freeze(["active", "pending", "suspended", "closed"]);
   const RESERVED_USERNAMES = new Set([
@@ -78,6 +79,7 @@
   }
 
   function canMessageForSubject(subject) {
+    if (subject.mode === AUTH_REQUIRED) return false;
     if (subject.accountType === "buyer-viewer") return false;
     if (subject.accountStatus === "suspended" || subject.accountStatus === "closed") return false;
     return true;
@@ -90,8 +92,9 @@
     const accountTypeDraft = input && input.accountTypeDraft || null;
 
     const sessionUserId = safeText(sessionUser && sessionUser.id, 120);
-    const provenOwner = !!(sessionUserId && subjectUserId && sessionUserId === subjectUserId);
-    const mode = provenOwner ? OWNER_MODE : VISITOR_MODE;
+    const authenticated = !!sessionUserId;
+    const provenOwner = !!(authenticated && subjectUserId && sessionUserId === subjectUserId);
+    const mode = !authenticated ? AUTH_REQUIRED : (provenOwner ? OWNER_VIEW : AUTHORIZED_MEMBER_VIEW);
 
     const displayName = safeText(profileSource.displayName || "مستخدم VVIP", 120) || "مستخدم VVIP";
     const publicUsername = sanitizeUsername(profileSource.publicUsername || "");
@@ -101,7 +104,7 @@
       publicUsername: publicUsername,
       avatarUrl: sanitizePublicUrl(profileSource.avatarUrl),
       coverUrl: sanitizePublicUrl(profileSource.coverUrl),
-      publicBio: safeText(profileSource.publicBio || "نبذة عامة ستظهر بعد التفعيل الرسمي.", 220),
+      publicBio: safeText(profileSource.publicBio || "نبذة العضو ستظهر بعد التفعيل الرسمي.", 220),
       publicLocation: safeText(profileSource.publicLocation || "", 120),
       accountType: resolveAccountType(profileSource, accountTypeDraft),
       publishingPermission: resolvePublishingPermission(profileSource, accountTypeDraft),
@@ -120,14 +123,15 @@
 
   function createOwnerMenuItems(isOwner) {
     if (isOwner) {
-      return Object.freeze(["viewAsVisitor", "copy", "settings", "tigerCare", "logout"]);
+      return Object.freeze(["copy", "settings", "tigerCare", "logout"]);
     }
     return Object.freeze(["copy", "report"]);
   }
 
   window.VVIP_PR39_PROFILE_CONTRACT = Object.freeze({
-    OWNER_MODE: OWNER_MODE,
-    VISITOR_MODE: VISITOR_MODE,
+    AUTH_REQUIRED: AUTH_REQUIRED,
+    AUTHORIZED_MEMBER_VIEW: AUTHORIZED_MEMBER_VIEW,
+    OWNER_VIEW: OWNER_VIEW,
     RESERVED_USERNAMES: RESERVED_USERNAMES,
     PUBLISHING_STATES: PUBLISHING_STATES,
     createProfileSubject: createProfileSubject,
