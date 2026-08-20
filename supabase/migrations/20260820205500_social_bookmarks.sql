@@ -118,9 +118,7 @@ begin
         raise exception 'SOCIAL_AUTH_REQUIRED';
     end if;
 
-    delete from public.vvip_social_bookmarks bookmark
-    where bookmark.post_id = p_post_id
-      and bookmark.actor_subject = v_actor;
+    delete from public.vvip_social_bookmarks bookmark where bookmark.post_id = p_post_id and bookmark.actor_subject = v_actor;
 
     return jsonb_build_object(
         'ok', true,
