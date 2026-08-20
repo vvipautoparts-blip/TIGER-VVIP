@@ -92,6 +92,12 @@ declare -A reviewed_migration_hashes=(
   # four exact authenticated EXECUTE grants. Browser table CRUD remains revoked;
   # actor, visibility, one-level reply, and ownership checks stay server-side.
   ["supabase/migrations/20260818143000_social_comments.sql"]="3bb5c018cb0508c91f5ead0a38f044f2293d35066e43bf796c59148305e720e7"
+
+  # Social Bookmarks: reviewed with CRITICAL=0 after the owner-scoped DELETE predicate
+  # was made scanner-visible. Expected findings are new-table NOT NULL integrity,
+  # three owner-only RLS policies, and three exact authenticated EXECUTE grants.
+  # Browser table CRUD remains revoked and no saver directory/count is exposed.
+  ["supabase/migrations/20260820205500_social_bookmarks.sql"]="776b1f7641c5a66ffdc96d58704ee6662c6c61e9f5f95f54060a97daa0e5c69e"
 )
 
 reviewed_baseline_path() {
