@@ -33,10 +33,10 @@ test('projection storage is FORCE RLS and browser roles have no direct table aut
 
 test('public profile RPC is authenticated-only, opaque-id based, and fails closed for non-active profiles', () => {
   const sql = readMigration();
+  const securityLine = sql.split('\n').find((line) => line.includes('security definer')) || '';
 
   assert.match(sql, /create\s+or\s+replace\s+function\s+public\.vvip_get_public_profile\s*\(\s*p_profile_id\s+uuid\s*\)/);
-  assert.match(sql, /security\s+definer/);
-  assert.match(sql, /set\s+search_path\s*=\s*public\s*,\s*pg_catalog/);
+  assert.match(securityLine, /security\s+definer.*set\s+search_path\s*=\s*pg_catalog/);
   assert.match(sql, /p\.profile_state\s*=\s*'active'/);
   assert.match(sql, /revoke\s+all\s+on\s+function\s+public\.vvip_get_public_profile\(uuid\)\s+from\s+public/);
   assert.match(sql, /revoke\s+all\s+on\s+function\s+public\.vvip_get_public_profile\(uuid\)\s+from\s+anon/);
