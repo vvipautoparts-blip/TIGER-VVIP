@@ -16,6 +16,7 @@
   const SOCIAL_AUDIENCES = new Set(["public", "friends", "only_me"]);
   const DEFAULT_LIMIT = 20;
   const MAX_LIMIT = 100;
+  const UNAVAILABLE_AUTHOR = "عضو غير متاح";
 
   function failure(code) {
     return Object.freeze({ ok: false, code });
@@ -25,8 +26,16 @@
     return typeof value === "string" && /^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/.test(value);
   }
 
-  function validUserSubject(value) {
-    return typeof value === "string" && /^user_[A-Za-z0-9._:-]{1,122}$/.test(value);
+  function validProfileId(value) {
+    return typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+  }
+
+  function validDisplayName(value) {
+    return typeof value === "string" && value.trim().length >= 1 && value.trim().length <= 160;
+  }
+
+  function validAvatarUrl(value) {
+    return value === null || (typeof value === "string" && value.length <= 2048);
   }
 
   function validTimestamp(value) {
@@ -42,7 +51,19 @@
       return failure("SOCIAL_FEED_INVALID_POST_ID");
     }
 
-    if (!validUserSubject(input.author_subject)) {
+    if (typeof input.author_available !== "boolean") {
+      return failure("SOCIAL_FEED_INVALID_AUTHOR");
+    }
+
+    if (input.author_available) {
+      if (!validProfileId(input.author_profile_id)
+          || !validDisplayName(input.author_display_name)
+          || !validAvatarUrl(input.author_avatar_url)) {
+        return failure("SOCIAL_FEED_INVALID_AUTHOR");
+      }
+    } else if (input.author_profile_id !== null
+      || input.author_display_name !== UNAVAILABLE_AUTHOR
+      || input.author_avatar_url !== null) {
       return failure("SOCIAL_FEED_INVALID_AUTHOR");
     }
 
@@ -71,7 +92,10 @@
       ok: true,
       value: Object.freeze({
         id: input.post_id,
-        authorSubject: input.author_subject,
+        authorProfileId: input.author_profile_id,
+        authorDisplayName: input.author_display_name,
+        authorAvatarUrl: input.author_avatar_url,
+        authorAvailable: input.author_available,
         body,
         audience: input.audience,
         createdAt: input.created_at,
@@ -80,18 +104,18 @@
     });
   }
 
-  function normalizePreferenceSubjects(value) {
+  function normalizePreferenceProfiles(value) {
     if (!Array.isArray(value)) return new Set();
-    return new Set(value.filter(validUserSubject));
+    return new Set(value.filter(validProfileId));
   }
 
   function normalizeSnoozes(value) {
     const snoozes = new Map();
     if (!value || typeof value !== "object" || Array.isArray(value)) return snoozes;
 
-    for (const [authorSubject, until] of Object.entries(value)) {
-      if (validUserSubject(authorSubject) && Number.isFinite(until)) {
-        snoozes.set(authorSubject, until);
+    for (const [profileId, until] of Object.entries(value)) {
+      if (validProfileId(profileId) && Number.isFinite(until)) {
+        snoozes.set(profileId, until);
       }
     }
     return snoozes;
@@ -100,16 +124,18 @@
   function applyFeedPreferences(authorizedItems, preferences, nowEpochMs) {
     if (!Array.isArray(authorizedItems)) return Object.freeze([]);
 
-    const source = authorizedItems.filter(
-      (entry) => entry && typeof entry === "object" && validUserSubject(entry.authorSubject)
-    );
+    const source = authorizedItems.filter((entry) => {
+      if (!entry || typeof entry !== "object") return false;
+      if (entry.authorAvailable === false) return entry.authorProfileId === null;
+      return entry.authorAvailable === true && validProfileId(entry.authorProfileId);
+    });
     const options = preferences && typeof preferences === "object" && !Array.isArray(preferences)
       ? preferences
       : {};
-    const mutedAuthors = normalizePreferenceSubjects(options.mutedAuthors);
+    const mutedAuthors = normalizePreferenceProfiles(options.mutedAuthors);
     const snoozedUntilByAuthor = normalizeSnoozes(options.snoozedUntilByAuthor);
-    const preferredAuthors = normalizePreferenceSubjects(options.preferredAuthors);
-    const deprioritizedAuthors = normalizePreferenceSubjects(options.deprioritizedAuthors);
+    const preferredAuthors = normalizePreferenceProfiles(options.preferredAuthors);
+    const deprioritizedAuthors = normalizePreferenceProfiles(options.deprioritizedAuthors);
     const now = Number.isFinite(nowEpochMs) ? nowEpochMs : 0;
 
     const preferred = [];
@@ -117,15 +143,15 @@
     const deprioritized = [];
 
     for (const entry of source) {
-      const authorSubject = entry.authorSubject;
-      if (mutedAuthors.has(authorSubject)) continue;
+      const profileId = entry.authorAvailable ? entry.authorProfileId : null;
+      if (profileId && mutedAuthors.has(profileId)) continue;
 
-      const snoozedUntil = snoozedUntilByAuthor.get(authorSubject);
+      const snoozedUntil = profileId ? snoozedUntilByAuthor.get(profileId) : null;
       if (Number.isFinite(snoozedUntil) && snoozedUntil > now) continue;
 
-      if (preferredAuthors.has(authorSubject)) {
+      if (profileId && preferredAuthors.has(profileId)) {
         preferred.push(entry);
-      } else if (deprioritizedAuthors.has(authorSubject)) {
+      } else if (profileId && deprioritizedAuthors.has(profileId)) {
         deprioritized.push(entry);
       } else {
         normal.push(entry);

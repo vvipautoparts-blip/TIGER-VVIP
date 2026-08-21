@@ -10,6 +10,7 @@ const reactionBehavior = fs.readFileSync("tests/sql/tiger-social-reactions.sql",
 const commentBehavior = fs.readFileSync("tests/sql/tiger-social-comments.sql", "utf8");
 const ownerProfileBehavior = fs.readFileSync("tests/sql/tiger-profile-owner-boundary.sql", "utf8");
 const lifecycleBehavior = fs.readFileSync("tests/sql/tiger-profile-lifecycle-boundary.sql", "utf8");
+const orphanSafeBehavior = fs.readFileSync("tests/sql/tiger-p0-orphan-safe-author-presentation.sql", "utf8");
 
 test("Social DB rehearsal is exact-head and local-only", () => {
   assert.match(workflow, /github\.event\.pull_request\.head\.sha \|\| github\.sha/);
@@ -26,21 +27,26 @@ test("Social DB rehearsal applies social and profile proofs and always stops loc
   assert.match(workflow, /tests\/sql\/tiger-public-profile-projection\.sql/);
   assert.match(workflow, /tests\/sql\/tiger-profile-owner-boundary\.sql/);
   assert.match(workflow, /tests\/sql\/tiger-profile-lifecycle-boundary\.sql/);
+  assert.match(workflow, /tests\/sql\/tiger-p0-orphan-safe-author-presentation\.sql/);
   assert.match(workflow, /tiger-social-reactions-reviewed-migration-hash\.test\.cjs/);
   assert.match(workflow, /tiger-social-comments-reviewed-migration-hash\.test\.cjs/);
   assert.match(workflow, /tiger-public-profile-projection-reviewed-migration-hash\.test\.cjs/);
   assert.match(workflow, /tiger-profile-owner-boundary-reviewed-migration-hash\.test\.cjs/);
   assert.match(workflow, /tiger-profile-lifecycle-boundary-reviewed-migration-hash\.test\.cjs/);
+  assert.match(workflow, /tiger-p0-orphan-safe-author-presentation-reviewed-migration-hash\.test\.cjs/);
   assert.match(workflow, /psql/);
   assert.match(workflow, /if:\s*always\(\)/);
   assert.match(workflow, /supabase stop --no-backup/);
 });
 
-test("foundation behavior proof covers friend visibility and isolation from a third actor", () => {
+test("foundation behavior proof covers safe-RPC friend visibility and isolation from a third actor", () => {
   assert.match(foundationBehavior, /user_alice/);
   assert.match(foundationBehavior, /user_bob/);
   assert.match(foundationBehavior, /user_charlie/);
-  assert.match(foundationBehavior, /audience.*friends/is);
+  assert.match(foundationBehavior, /vvip_social_post_create\('social-friends-proof',\s*'friends'\)/i);
+  assert.match(foundationBehavior, /vvip_social_feed_page\(20,\s*null,\s*null\)/i);
+  assert.doesNotMatch(foundationBehavior, /insert\s+into\s+public\.vvip_social_posts/i);
+  assert.doesNotMatch(foundationBehavior, /from\s+public\.vvip_social_posts/i);
   assert.match(foundationBehavior, /relationship_state.*friends/is);
   assert.match(foundationBehavior, /BOB_CAN_READ_FRIEND_POST/);
   assert.match(foundationBehavior, /CHARLIE_CANNOT_READ_FRIEND_POST/);
@@ -104,4 +110,19 @@ test("profile lifecycle proof covers self transitions, public visibility, truste
   assert.match(lifecycleBehavior, /PROFILE_LIFECYCLE_DELETED_MUTATION_DENIED=PASS/);
   assert.match(lifecycleBehavior, /TIGER_PROFILE_LIFECYCLE_BOUNDARY_DB_BEHAVIOR=PASS/);
   assert.match(lifecycleBehavior, /rollback;/i);
+});
+
+test("P0-B orphan-safe proof covers safe presentation, tombstones, reactivation, and mutation guards", () => {
+  assert.match(orphanSafeBehavior, /P0_ORPHAN_SAFE_PRIVILEGE_BOUNDARY=PASS/);
+  assert.match(orphanSafeBehavior, /P0_ORPHAN_SAFE_ACTIVE_FEED=PASS/);
+  assert.match(orphanSafeBehavior, /P0_ORPHAN_SAFE_ACTIVE_COMMENT=PASS/);
+  assert.match(orphanSafeBehavior, /P0_ORPHAN_SAFE_DEACTIVATED_FEED_TOMBSTONE=PASS/);
+  assert.match(orphanSafeBehavior, /P0_ORPHAN_SAFE_DEACTIVATED_COMMENT_TOMBSTONE=PASS/);
+  assert.match(orphanSafeBehavior, /P0_ORPHAN_SAFE_INACTIVE_MUTATION_GUARD=PASS/);
+  assert.match(orphanSafeBehavior, /P0_ORPHAN_SAFE_REACTIVATED_PRESENTATION=PASS/);
+  assert.match(orphanSafeBehavior, /P0_ORPHAN_SAFE_DELETED_FEED_TOMBSTONE=PASS/);
+  assert.match(orphanSafeBehavior, /P0_ORPHAN_SAFE_DELETED_COMMENT_TOMBSTONE=PASS/);
+  assert.match(orphanSafeBehavior, /P0_ORPHAN_SAFE_DELETED_MUTATION_GUARD=PASS/);
+  assert.match(orphanSafeBehavior, /TIGER_P0_ORPHAN_SAFE_AUTHOR_PRESENTATION_DB_BEHAVIOR=PASS/);
+  assert.match(orphanSafeBehavior, /rollback;/i);
 });
