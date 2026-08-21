@@ -60,20 +60,33 @@ select public.vvip_upsert_my_social_profile(
 select (:'bob_profile'::jsonb->'profile'->>'profile_id') as bob_profile_id
 \gset
 
-reset role;
-set local role service_role;
+select set_config('request.jwt.claims', '{"sub":"user_msgalice01"}', true);
 insert into public.vvip_social_relationships (
-  requester_subject,
   addressee_subject,
   relationship_state
 ) values (
-  'user_msgalice01',
   'user_msgbob001',
-  'friends'
-);
+  'pending'
+)
+returning relationship_id as friendship_id
+\gset
 
-reset role;
-set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"user_msgbob001"}', true);
+update public.vvip_social_relationships
+set relationship_state = 'friends'
+where relationship_id = :'friendship_id'::uuid;
+select count(*) = 1 as friendship_accepted
+from public.vvip_social_relationships
+where relationship_id = :'friendship_id'::uuid
+  and relationship_state = 'friends'
+\gset
+\if :friendship_accepted
+  \echo P0_MESSAGING_FRIENDSHIP_AUTHORITY=PASS
+\else
+  \echo P0_MESSAGING_FRIENDSHIP_AUTHORITY=FAIL
+  \quit 1
+\endif
+
 select set_config('request.jwt.claims', '{"sub":"user_msgalice01"}', true);
 select public.vvip_social_open_direct_conversation(
   :'bob_profile_id'::uuid,
@@ -290,8 +303,7 @@ select (
   \quit 1
 \endif
 
-reset role;
-set local role service_role;
+select set_config('request.jwt.claims', '{"sub":"user_msgalice01"}', true);
 select count(*) = 0 as friendship_removed_by_block
 from public.vvip_social_relationships
 where subject_low = least('user_msgalice01', 'user_msgbob001')
@@ -304,9 +316,6 @@ where subject_low = least('user_msgalice01', 'user_msgbob001')
   \quit 1
 \endif
 
-reset role;
-set local role authenticated;
-select set_config('request.jwt.claims', '{"sub":"user_msgalice01"}', true);
 select public.vvip_social_send_message(
   :'conversation_id'::uuid,
   '44444444-4444-4444-8444-444444444444'::uuid,
