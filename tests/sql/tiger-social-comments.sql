@@ -38,7 +38,7 @@ create temporary table social_comment_test_context (
 grant select on social_comment_test_context to authenticated;
 
 set local role authenticated;
-select set_config('request.jwt.claims', '{"sub":"user_alice"}', true);
+select set_config('request.jwt.claims', '{"sub":"user_alice01"}', true);
 select public.vvip_upsert_my_social_profile(
   'Alice Comment Proof', null, null, 'Amman', null, 'Comment rehearsal actor'
 );
@@ -53,19 +53,19 @@ select (public.vvip_social_post_create('comment-only-me-proof', 'only_me')->>'po
 \gset
 
 insert into public.vvip_social_relationships (addressee_subject)
-values ('user_bob');
+values ('user_bob001');
 
 reset role;
 set local role authenticated;
-select set_config('request.jwt.claims', '{"sub":"user_bob"}', true);
+select set_config('request.jwt.claims', '{"sub":"user_bob001"}', true);
 select public.vvip_upsert_my_social_profile(
   'Bob Comment Proof', null, null, 'Amman', null, 'Comment rehearsal actor'
 );
 
 update public.vvip_social_relationships
 set relationship_state = 'friends'
-where requester_subject = 'user_alice'
-  and addressee_subject = 'user_bob'
+where requester_subject = 'user_alice01'
+  and addressee_subject = 'user_bob001'
   and relationship_state = 'pending';
 
 select public.vvip_social_comment_create(
@@ -109,7 +109,7 @@ insert into social_comment_test_context (key, value) values
   ('bob_reply', :'bob_reply_id'::uuid);
 
 set local role authenticated;
-select set_config('request.jwt.claims', '{"sub":"user_bob"}', true);
+select set_config('request.jwt.claims', '{"sub":"user_bob001"}', true);
 
 do $proof$
 declare
@@ -224,7 +224,7 @@ $proof$;
 
 reset role;
 set local role authenticated;
-select set_config('request.jwt.claims', '{"sub":"user_bob"}', true);
+select set_config('request.jwt.claims', '{"sub":"user_bob001"}', true);
 
 select public.vvip_social_comment_remove(:'bob_reply_id'::uuid) as bob_remove_result
 \gset
