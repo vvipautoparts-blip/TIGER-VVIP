@@ -1,0 +1,356 @@
+name: TIGER Gate 6 Exact-SHA Staging
+
+on:
+  pull_request:
+    paths:
+      - 'project-control/gate6-staging/**'
+      - 'project-control/scripts/gate6_staging_guard.mjs'
+      - 'scripts/gate6/**'
+      - 'tools/vvip_staging_release.py'
+      - 'tests/tiger-gate6-*.test.cjs'
+      - 'tests/test_vvip_staging_release.py'
+      - '.github/workflows/tiger-gate6-exact-sha-staging.yml'
+      - 'docs/superpowers/specs/2026-08-20-tiger-gate6-exact-sha-staging-design.md'
+      - 'docs/superpowers/plans/2026-08-20-tiger-gate6-exact-sha-staging.md'
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact 40-character Gate 6 source SHA to deploy to isolated Staging
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  SOURCE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || inputs.source_sha }}
+  FORBIDDEN_PRODUCTION_SUPABASE_REF: zelcngyyvbomuzokvuxo
+
+jobs:
+  contracts:
+    name: Gate 6 static contracts and quality closure
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout exact Gate 6 source
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22'
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12'
+
+      - name: Install test dependencies
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt pytest
+
+      - name: Prove exact source identity
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          if [[ ! "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo 'GATE6_INVALID_SOURCE_SHA' >&2
+            exit 1
+          fi
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          echo 'GATE6_EXACT_SOURCE=PASS'
+
+      - name: Run Gate 6 focused Node contracts
+        run: node --test tests/tiger-gate6-*.test.cjs
+
+      - name: Run Gate 6 staging artifact contracts
+        run: python -m pytest -q tests/test_vvip_staging_release.py
+
+      - name: Preserve inherited Gate 5 contracts on the Gate 6 head
+        run: node --test tests/tiger-gate5-*.test.*
+
+      - name: Run full VVIP Quality Gate
+        run: bash scripts/quality-gate.sh
+
+      - name: Build fail-closed PR staging candidate without provider credentials
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          output="$RUNNER_TEMP/tiger-gate6-candidate"
+          rm -rf "$output"
+          python tools/vvip_staging_release.py \
+            --source . \
+            --output "$output" \
+            --source-sha "$SOURCE_SHA" \
+            --supabase-url 'https://aaaaaaaaaaaaaaaaaaaa.supabase.co' \
+            --supabase-publishable-key 'sb_publishable_gate6_contract_placeholder' \
+            --payment-mode disabled
+          node scripts/gate6/seed-synthetic.cjs \
+            --source-sha "$SOURCE_SHA" \
+            --output "$RUNNER_TEMP/gate6-synthetic-seed.json"
+          jq -e '.decision == "BLOCKED_PROVIDER" and .eligible == false' \
+            "$output/gate6-staging-manifest.json" >/dev/null
+          echo 'GATE6_PR_CANDIDATE=BLOCKED_PROVIDER'
+
+      - name: Upload exact-SHA Gate 6 candidate evidence
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: tiger-gate6-candidate-${{ env.SOURCE_SHA }}
+          path: |
+            ${{ runner.temp }}/tiger-gate6-candidate
+            ${{ runner.temp }}/gate6-synthetic-seed.json
+          if-no-files-found: error
+          retention-days: 14
+
+  provider-staging:
+    name: Gate 6 isolated provider staging
+    if: github.event_name == 'workflow_dispatch'
+    needs: [contracts]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: staging
+    env:
+      TIGER_STAGING_SUPABASE_URL: ${{ vars.TIGER_STAGING_SUPABASE_URL }}
+      TIGER_STAGING_SUPABASE_PROJECT_REF: ${{ vars.TIGER_STAGING_SUPABASE_PROJECT_REF }}
+      TIGER_STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ vars.TIGER_STAGING_SUPABASE_PUBLISHABLE_KEY }}
+      TIGER_STAGING_SUPABASE_DB_URL: ${{ secrets.TIGER_STAGING_SUPABASE_DB_URL }}
+      TIGER_STAGING_PAYMENT_MODE: ${{ vars.TIGER_STAGING_PAYMENT_MODE || 'disabled' }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_PAGES_PROJECT: ${{ vars.CLOUDFLARE_PAGES_PROJECT }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - name: Checkout exact requested source SHA
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ inputs.source_sha }}
+          fetch-depth: 1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22'
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12'
+
+      - name: Set up pinned Supabase CLI
+        uses: supabase/setup-cli@ab058987d8d6c725971f6cf9d0b5c98467e30bd1
+        with:
+          version: 2.109.0
+
+      - name: Fail closed unless protected Staging provider identity is complete
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          actual="$(git rev-parse HEAD)"
+          if [[ ! "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || [ "$actual" != "$SOURCE_SHA" ]; then
+            echo 'BLOCKED_PROVIDER: exact source identity mismatch' >&2
+            exit 1
+          fi
+          required=(
+            TIGER_STAGING_SUPABASE_URL
+            TIGER_STAGING_SUPABASE_PROJECT_REF
+            TIGER_STAGING_SUPABASE_PUBLISHABLE_KEY
+            TIGER_STAGING_SUPABASE_DB_URL
+            CLOUDFLARE_ACCOUNT_ID
+            CLOUDFLARE_PAGES_PROJECT
+            CLOUDFLARE_API_TOKEN
+          )
+          for name in "${required[@]}"; do
+            if [ -z "${!name:-}" ]; then
+              echo "BLOCKED_PROVIDER: missing protected Staging authority $name" >&2
+              exit 1
+            fi
+          done
+          if [[ ! "$TIGER_STAGING_SUPABASE_PROJECT_REF" =~ ^[a-z0-9]{20}$ ]]; then
+            echo 'BLOCKED_PROVIDER: invalid Staging Supabase project ref' >&2
+            exit 1
+          fi
+          if [ "$TIGER_STAGING_SUPABASE_PROJECT_REF" = "$FORBIDDEN_PRODUCTION_SUPABASE_REF" ]; then
+            echo 'BLOCKED_PROVIDER: Production Supabase project is forbidden' >&2
+            exit 1
+          fi
+          expected_supabase="https://${TIGER_STAGING_SUPABASE_PROJECT_REF}.supabase.co"
+          if [ "$TIGER_STAGING_SUPABASE_URL" != "$expected_supabase" ]; then
+            echo 'BLOCKED_PROVIDER: Staging Supabase URL/ref mismatch' >&2
+            exit 1
+          fi
+          case "$TIGER_STAGING_PAYMENT_MODE" in
+            disabled|sandbox) ;;
+            *) echo 'BLOCKED_PROVIDER: live payment mode is forbidden' >&2; exit 1 ;;
+          esac
+          if [[ "$TIGER_STAGING_SUPABASE_PUBLISHABLE_KEY" =~ (service[_-]?role|sb_secret_|private[_-]?key|admin[_-]?key) ]]; then
+            echo 'BLOCKED_PROVIDER: privileged browser key is forbidden' >&2
+            exit 1
+          fi
+          echo 'GATE6_PROVIDER_PREFLIGHT=PASS'
+
+      - name: Apply repository migrations only to dedicated Staging DB
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          supabase db push \
+            --db-url "$TIGER_STAGING_SUPABASE_DB_URL" \
+            --include-all
+          echo 'GATE6_STAGING_MIGRATIONS=PASS'
+
+      - name: Build exact-SHA Staging artifact
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          output="$RUNNER_TEMP/tiger-gate6-public"
+          rm -rf "$output"
+          python tools/vvip_staging_release.py \
+            --source . \
+            --output "$output" \
+            --source-sha "$SOURCE_SHA" \
+            --supabase-url "$TIGER_STAGING_SUPABASE_URL" \
+            --supabase-publishable-key "$TIGER_STAGING_SUPABASE_PUBLISHABLE_KEY" \
+            --payment-mode "$TIGER_STAGING_PAYMENT_MODE"
+          echo "GATE6_OUTPUT=$output" >> "$GITHUB_ENV"
+
+      - name: Generate and load deterministic synthetic Staging identities
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          seed="$RUNNER_TEMP/gate6-synthetic-seed.json"
+          node scripts/gate6/seed-synthetic.cjs \
+            --source-sha "$SOURCE_SHA" \
+            --output "$seed"
+          jq -e '.classification == "SYNTHETIC_SANITIZED" and (.fixtures | length == 2)' "$seed" >/dev/null
+          while IFS=$'\t' read -r subject email display_name; do
+            psql "$TIGER_STAGING_SUPABASE_DB_URL" \
+              -v ON_ERROR_STOP=1 \
+              -v subject="$subject" \
+              -v email="$email" \
+              -v display_name="$display_name" <<'SQL'
+          insert into public.vvip_clerk_profiles (
+            clerk_user_id, email, display_name, account_status
+          ) values (
+            :'subject', :'email', :'display_name', 'active'
+          )
+          on conflict (clerk_user_id) do update set
+            email = excluded.email,
+            display_name = excluded.display_name,
+            account_status = 'active',
+            updated_at = now();
+          SQL
+          done < <(jq -r '.fixtures[] | [.external_subject, .email, .display_name] | @tsv' "$seed")
+          tag="${SOURCE_SHA:0:12}"
+          seeded_count="$(psql "$TIGER_STAGING_SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -Atc \
+            "select count(*) from public.vvip_clerk_profiles where clerk_user_id like 'gate6-synthetic-%-${tag}' and email like '%@example.invalid';")"
+          if [ "$seeded_count" != '2' ]; then
+            echo 'BLOCKED_PROVIDER: synthetic seed verification failed' >&2
+            exit 1
+          fi
+          seed_digest="$(jq -er '.digest_sha256' "$seed")"
+          {
+            echo "seeded_count=$seeded_count"
+            echo "seed_digest=$seed_digest"
+          } > "$RUNNER_TEMP/gate6-seed-proof.env"
+          echo 'GATE6_SYNTHETIC_STAGING=PASS'
+
+      - name: Deploy exact artifact to Cloudflare Pages preview
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          branch="gate6-${SOURCE_SHA:0:12}"
+          npx --yes wrangler@4.124.0 pages deploy "$GATE6_OUTPUT" \
+            --project-name "$CLOUDFLARE_PAGES_PROJECT" \
+            --branch "$branch" \
+            --commit-hash "$SOURCE_SHA" \
+            --commit-message "TIGER Gate 6 exact-SHA staging $SOURCE_SHA"
+
+      - name: Resolve immutable Cloudflare deployment identity
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          metadata="$RUNNER_TEMP/cloudflare-deployments.json"
+          curl --fail --location --silent --show-error \
+            --connect-timeout 10 --max-time 60 \
+            -H 'Accept: application/json' \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/${CLOUDFLARE_PAGES_PROJECT}/deployments?env=preview&per_page=25" \
+            -o "$metadata"
+          jq -e '.success == true' "$metadata" >/dev/null
+          deployment="$(jq -cer --arg sha "$SOURCE_SHA" \
+            '[.result[] | select(.deployment_trigger.metadata.commit_hash == $sha and .latest_stage.status == "success")][0]' \
+            "$metadata")"
+          deployment_id="$(jq -er '.id' <<<"$deployment")"
+          staging_url="$(jq -er '.url' <<<"$deployment")"
+          if [[ ! "$staging_url" =~ ^https:// ]]; then
+            echo 'BLOCKED_PROVIDER: Cloudflare deployment is not HTTPS' >&2
+            exit 1
+          fi
+          echo "GATE6_CLOUDFLARE_DEPLOYMENT_ID=$deployment_id" >> "$GITHUB_ENV"
+          echo "GATE6_STAGING_URL=$staging_url" >> "$GITHUB_ENV"
+          echo 'GATE6_CLOUDFLARE_IDENTITY=PASS'
+
+      - name: Verify live HTTPS frontend to dedicated Staging backend binding
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          node scripts/gate6/verify-runtime.cjs \
+            --source-sha "$SOURCE_SHA" \
+            --staging-url "$GATE6_STAGING_URL" \
+            --supabase-url "$TIGER_STAGING_SUPABASE_URL" \
+            --supabase-project-ref "$TIGER_STAGING_SUPABASE_PROJECT_REF" \
+            --supabase-publishable-key "$TIGER_STAGING_SUPABASE_PUBLISHABLE_KEY" \
+            --output "$RUNNER_TEMP/gate6-runtime-evidence.json"
+          jq -e '.status == "PASS"' "$RUNNER_TEMP/gate6-runtime-evidence.json" >/dev/null
+
+      - name: Seal Gate 6 provider evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          source "$RUNNER_TEMP/gate6-seed-proof.env"
+          release_digest="$(sha256sum "$GATE6_OUTPUT/release-manifest.json" | awk '{print $1}')"
+          jq -n \
+            --arg source_sha "$SOURCE_SHA" \
+            --arg release_digest "$release_digest" \
+            --arg supabase_ref "$TIGER_STAGING_SUPABASE_PROJECT_REF" \
+            --arg supabase_url "$TIGER_STAGING_SUPABASE_URL" \
+            --arg deployment_id "$GATE6_CLOUDFLARE_DEPLOYMENT_ID" \
+            --arg staging_url "$GATE6_STAGING_URL" \
+            --arg seed_digest "$seed_digest" \
+            --arg payment_mode "$TIGER_STAGING_PAYMENT_MODE" \
+            --argjson seeded_count "$seeded_count" \
+            '{
+              schema_version: 1,
+              gate: 6,
+              decision: "PASS",
+              eligible: true,
+              source_sha: $source_sha,
+              artifact: {release_manifest_sha256: $release_digest},
+              backend: {provider: "supabase", project_ref: $supabase_ref, url_origin: $supabase_url},
+              frontend: {provider: "cloudflare-pages", deployment_id: $deployment_id, url: $staging_url, https: true},
+              seed: {classification: "SYNTHETIC_SANITIZED", digest_sha256: $seed_digest, verified_rows: $seeded_count},
+              payment_mode: $payment_mode,
+              runtime_smoke: "PASS",
+              production_mutation: false
+            }' > "$RUNNER_TEMP/gate6-final-evidence.json"
+          jq -e '.eligible == true and .runtime_smoke == "PASS" and .production_mutation == false' \
+            "$RUNNER_TEMP/gate6-final-evidence.json" >/dev/null
+          echo 'TIGER_GATE6_PROVIDER_EVIDENCE=PASS'
+
+      - name: Upload sealed exact-SHA Gate 6 evidence
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: tiger-gate6-staging-evidence-${{ env.SOURCE_SHA }}
+          path: |
+            ${{ runner.temp }}/tiger-gate6-public
+            ${{ runner.temp }}/gate6-synthetic-seed.json
+            ${{ runner.temp }}/gate6-runtime-evidence.json
+            ${{ runner.temp }}/gate6-final-evidence.json
+          if-no-files-found: error
+          retention-days: 14

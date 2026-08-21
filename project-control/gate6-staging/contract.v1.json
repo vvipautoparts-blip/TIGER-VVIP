@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "TIGER_GATE6_STAGING_GUARD_V1",
+  "requiredEnvironment": "staging",
+  "backendProvider": "supabase",
+  "frontendProvider": "cloudflare-pages",
+  "requiredDataMode": "SYNTHETIC_SANITIZED",
+  "allowedPaymentModes": ["disabled", "sandbox"],
+  "forbiddenProductionSupabaseRef": "zelcngyyvbomuzokvuxo"
+}
