@@ -39,25 +39,17 @@ grant select on social_comment_test_context to authenticated;
 
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"user_alice"}', true);
+select public.vvip_upsert_my_social_profile(
+  'Alice Comment Proof', null, null, 'Amman', null, 'Comment rehearsal actor'
+);
 
-insert into public.vvip_social_posts (body, audience)
-values ('comment-public-proof', 'public')
-returning post_id as public_post_id
+select (public.vvip_social_post_create('comment-public-proof', 'public')->>'post_id')::uuid as public_post_id
 \gset
-
-insert into public.vvip_social_posts (body, audience)
-values ('comment-other-public-proof', 'public')
-returning post_id as other_public_post_id
+select (public.vvip_social_post_create('comment-other-public-proof', 'public')->>'post_id')::uuid as other_public_post_id
 \gset
-
-insert into public.vvip_social_posts (body, audience)
-values ('comment-friends-proof', 'friends')
-returning post_id as friends_post_id
+select (public.vvip_social_post_create('comment-friends-proof', 'friends')->>'post_id')::uuid as friends_post_id
 \gset
-
-insert into public.vvip_social_posts (body, audience)
-values ('comment-only-me-proof', 'only_me')
-returning post_id as only_me_post_id
+select (public.vvip_social_post_create('comment-only-me-proof', 'only_me')->>'post_id')::uuid as only_me_post_id
 \gset
 
 insert into public.vvip_social_relationships (addressee_subject)
@@ -66,6 +58,9 @@ values ('user_bob');
 reset role;
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"user_bob"}', true);
+select public.vvip_upsert_my_social_profile(
+  'Bob Comment Proof', null, null, 'Amman', null, 'Comment rehearsal actor'
+);
 
 update public.vvip_social_relationships
 set relationship_state = 'friends'
@@ -164,6 +159,9 @@ select (
 reset role;
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"user_charlie"}', true);
+select public.vvip_upsert_my_social_profile(
+  'Charlie Comment Proof', null, null, 'Amman', null, 'Comment rehearsal actor'
+);
 
 select (
   public.vvip_social_comment_list(:'public_post_id'::uuid)->>'total' = '2'
