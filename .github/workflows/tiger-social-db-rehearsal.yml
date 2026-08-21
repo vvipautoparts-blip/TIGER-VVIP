@@ -166,13 +166,24 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/tiger-social-db"
           PGPASSWORD=postgres psql \
             -h 127.0.0.1 \
             -p 54322 \
             -U postgres \
             -d postgres \
             -v ON_ERROR_STOP=1 \
-            -f tests/sql/tiger-social-core-foundation.sql
+            -f tests/sql/tiger-social-core-foundation.sql \
+            2>&1 | tee "$RUNNER_TEMP/tiger-social-db/social-core.log"
+
+      - name: Upload Social Core rehearsal log
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: tiger-social-core-rehearsal-${{ env.SOURCE_SHA }}
+          path: ${{ runner.temp }}/tiger-social-db/social-core.log
+          if-no-files-found: warn
+          retention-days: 3
 
       - name: Prove Social Reactions RPC and visibility behavior
         shell: bash
