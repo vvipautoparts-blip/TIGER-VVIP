@@ -18,6 +18,7 @@ function installBrowserFixture(clerkOverrides) {
     location: global.location,
     document: global.document,
     runtimeReady: global.VVIPRuntimeReady,
+    fusionSurface: global.VVIPFusionSurface,
     pr29: global.VVIP_PR29,
     sessionStorage: global.sessionStorage,
     dispatchEvent: global.dispatchEvent,
@@ -27,6 +28,7 @@ function installBrowserFixture(clerkOverrides) {
   const mounted = [];
   let listener = null;
   let homeCalls = 0;
+  let hideHomeCalls = 0;
   let gateCalls = 0;
   const gate = {
     hidden: true,
@@ -56,6 +58,10 @@ function installBrowserFixture(clerkOverrides) {
     }
   };
   global.sessionStorage = storage;
+  global.VVIPFusionSurface = {
+    showHome() { homeCalls += 1; },
+    hideHome() { hideHomeCalls += 1; }
+  };
   global.VVIP_PR29 = {
     showHome() { homeCalls += 1; },
     showGate() { gateCalls += 1; }
@@ -81,11 +87,13 @@ function installBrowserFixture(clerkOverrides) {
     dispatched,
     getListener: () => listener,
     getHomeCalls: () => homeCalls,
+    getHideHomeCalls: () => hideHomeCalls,
     getGateCalls: () => gateCalls,
     restore() {
       global.location = original.location;
       global.document = original.document;
       global.VVIPRuntimeReady = original.runtimeReady;
+      global.VVIPFusionSurface = original.fusionSurface;
       global.VVIP_PR29 = original.pr29;
       global.sessionStorage = original.sessionStorage;
       global.dispatchEvent = original.dispatchEvent;
@@ -128,6 +136,7 @@ test("unsigned start is fail-closed and mounts the authentication gate", async (
   try {
     await auth.start();
     assert.equal(fixture.getHomeCalls(), 0);
+    assert.ok(fixture.getHideHomeCalls() >= 1);
     assert.equal(fixture.mounted.length, 1);
     assert.equal(fixture.mounted[0].props.routing, "hash");
     assert.equal(fixture.gate.hidden, false);
@@ -183,6 +192,26 @@ test("signed-in listener reveals home and resumes an in-memory protected intent 
   }
 });
 
+test("sign-out transition immediately hides home and restores the authentication gate", async () => {
+  const fixture = installBrowserFixture({ isSignedIn: true });
+  try {
+    await auth.start();
+    assert.equal(fixture.getHomeCalls(), 1);
+    const hideCallsBeforeSignOut = fixture.getHideHomeCalls();
+    const listener = fixture.getListener();
+
+    fixture.clerk.isSignedIn = false;
+    listener();
+    await new Promise((resolve) => setImmediate(resolve));
+
+    assert.ok(fixture.getHideHomeCalls() > hideCallsBeforeSignOut);
+    assert.equal(fixture.gate.hidden, false);
+    assert.equal(fixture.mounted.length, 1);
+  } finally {
+    fixture.restore();
+  }
+});
+
 test("signed-in start reveals home and dispatches one safe resume event", async () => {
   const fixture = installBrowserFixture({ isSignedIn: true });
   try {
@@ -217,6 +246,7 @@ test("recovery stays fail-closed and never exposes client error details", () => 
   assert.equal(JSON.stringify(calls).includes("SENSITIVE_CLIENT_DETAIL"), false);
   assert.equal(JSON.stringify(calls).includes("do-not-log"), false);
   assert.equal(fixture.getHomeCalls(), 0);
+  assert.ok(fixture.getHideHomeCalls() >= 1);
   assert.equal(fixture.gate.hidden, false);
   assert.equal(fixture.authError.hidden, false);
 });
