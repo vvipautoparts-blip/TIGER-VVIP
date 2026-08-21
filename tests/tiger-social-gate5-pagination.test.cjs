@@ -7,46 +7,13 @@ const { createSocialRuntimeAdapters } = require("../scripts/social/runtime-adapt
 
 function createRecorder(rows) {
   const calls = [];
-
-  function query(table) {
-    const state = {
-      table,
-      orders: [],
-      limit: null,
-      or: null,
-    };
-
-    const builder = {
-      select(selection) {
-        calls.push({ type: "select", table, selection });
-        return builder;
-      },
-      order(column, options) {
-        state.orders.push([column, options]);
-        calls.push({ type: "order", table, column, options });
-        return builder;
-      },
-      or(expression) {
-        state.or = expression;
-        calls.push({ type: "or", table, expression });
-        return builder;
-      },
-      limit(value) {
-        state.limit = value;
-        calls.push({ type: "limit", table, value });
-        return builder;
-      },
-      then(resolve, reject) {
-        const data = rows.slice(0, state.limit || rows.length);
-        return Promise.resolve({ data, error: null }).then(resolve, reject);
-      },
-    };
-
-    return builder;
-  }
-
   return {
-    client: { from: query },
+    client: {
+      rpc(name, params) {
+        calls.push({ type: "rpc", name, params });
+        return Promise.resolve({ data: rows, error: null });
+      },
+    },
     calls,
   };
 }
@@ -66,7 +33,7 @@ const rows = [
   },
 ];
 
-test("Gate 5 feed page uses stable created_at/post_id keyset ordering and limit+1 evidence", async () => {
+test("Gate 5 feed page uses server-side stable keyset ordering and limit+1 evidence", async () => {
   const recorder = createRecorder(rows);
   const social = createSocialRuntimeAdapters({ client: recorder.client });
 
@@ -81,16 +48,18 @@ test("Gate 5 feed page uses stable created_at/post_id keyset ordering and limit+
       postId: rows[1].post_id,
     },
   });
-
-  const orders = recorder.calls.filter((call) => call.type === "order");
-  assert.deepEqual(orders, [
-    { type: "order", table: "vvip_social_posts", column: "created_at", options: { ascending: false } },
-    { type: "order", table: "vvip_social_posts", column: "post_id", options: { ascending: false } },
-  ]);
-  assert.ok(recorder.calls.some((call) => call.type === "limit" && call.value === 3));
+  assert.deepEqual(recorder.calls, [{
+    type: "rpc",
+    name: "vvip_social_feed_page",
+    params: {
+      p_limit: 2,
+      p_before_created_at: null,
+      p_before_post_id: null,
+    },
+  }]);
 });
 
-test("Gate 5 next page applies strict keyset cursor before returning rows", async () => {
+test("Gate 5 next page passes the strict keyset cursor to the safe feed RPC", async () => {
   const recorder = createRecorder(rows.slice(2));
   const social = createSocialRuntimeAdapters({ client: recorder.client });
   const cursor = {
@@ -102,13 +71,15 @@ test("Gate 5 next page applies strict keyset cursor before returning rows", asyn
 
   assert.equal(result.ok, true);
   assert.deepEqual(result.page, { hasMore: false, nextCursor: null });
-
-  const cursorCall = recorder.calls.find((call) => call.type === "or");
-  assert.ok(cursorCall, "expected a keyset cursor filter");
-  assert.equal(
-    cursorCall.expression,
-    `created_at.lt.${cursor.createdAt},and(created_at.eq.${cursor.createdAt},post_id.lt.${cursor.postId})`
-  );
+  assert.deepEqual(recorder.calls, [{
+    type: "rpc",
+    name: "vvip_social_feed_page",
+    params: {
+      p_limit: 2,
+      p_before_created_at: cursor.createdAt,
+      p_before_post_id: cursor.postId,
+    },
+  }]);
 });
 
 test("Gate 5 rejects malformed feed cursors before any database call", async () => {
