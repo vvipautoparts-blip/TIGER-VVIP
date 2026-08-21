@@ -79,7 +79,7 @@ test("deactivated or deleted actors fail closed at every integrated social mutat
 
 test("social runtime reads and creates posts through safe RPCs rather than raw subject-bearing SELECT", () => {
   const runtime = read("scripts/social/runtime-adapters.js");
-  assert.match(runtime, /client\.rpc\(\s*["']vvip_social_feed_page["']/);
+  assert.match(runtime, /client\.rpc\(\s*["']vvip_social_feed_read_keyset["']/);
   assert.match(runtime, /client\.rpc\(\s*["']vvip_social_post_create["']/);
   assert.doesNotMatch(
     runtime,
