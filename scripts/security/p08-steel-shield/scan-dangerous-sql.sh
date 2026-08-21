@@ -137,6 +137,16 @@ declare -A reviewed_migration_hashes=(
   # is revoked, anon/PUBLIC execute is revoked, and subject identifiers remain internal.
   # Approval is byte-exact; any SQL drift re-enters Steel Shield automatically.
   ["supabase/migrations/20260821120000_orphan_safe_author_presentation.sql"]="a16eb9e91dd03b107c474a82362f3874c1de2112955c1d960262ce074a87a3a1"
+
+  # P0 Messaging Clean Convergence: reviewed only after exact-head local migration replay
+  # and behavioral proof. Block/privacy contributes 3 new-table NOT NULL integrity hits
+  # plus 2 exact authenticated EXECUTE grants. Durable Messaging contributes 24 new-table
+  # NOT NULL integrity hits plus one bounded IS NOT NULL predicate, 2 private Realtime
+  # policy reviews, and 6 exact authenticated EXECUTE grants. FORCE RLS/raw-table revokes,
+  # subject-blind presentation, block epoch fencing, lifecycle denial, and Broadcast INSERT
+  # denial were reviewed against the exact bytes below. Any byte drift re-enters review.
+  ["supabase/migrations/20260821123000_social_block_privacy_convergence.sql"]="122be6e0eab63bbf7453e1d4eca90a11740cc83ef6531aa9158381448f88895c"
+  ["supabase/migrations/20260821130000_social_realtime_messaging_convergence.sql"]="3a0473da73370fbbb17f64204f7a5d6254e697309ec68fdf793efb0046806f25"
 )
 
 reviewed_baseline_path() {
