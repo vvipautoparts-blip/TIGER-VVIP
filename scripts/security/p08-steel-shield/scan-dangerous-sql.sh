@@ -129,6 +129,14 @@ declare -A reviewed_migration_hashes=(
   # legacy feed browser ACL is removed, and no CASCADE/table/column destruction exists.
   # Approval is byte-exact; any SQL drift re-enters Steel Shield automatically.
   ["supabase/migrations/20260821003000_no_visitor_mode_hardening.sql"]="4c3e7c7d1d3e6eed8d76f1bede9c127d58ae93487d578fc811eb7d9e2644a2ef"
+
+  # P0-B orphan-safe author presentation: reviewed with CRITICAL=0 and 12 lexical HIGH
+  # findings. Two NOT_NULL hits are IS NOT NULL predicates; six UPDATE_WITHOUT_WHERE hits
+  # are BEFORE ... UPDATE trigger event clauses, not UPDATE statements; four authenticated
+  # grants are exact EXECUTE grants on bounded actor/feed/post/comment RPCs. Raw post CRUD
+  # is revoked, anon/PUBLIC execute is revoked, and subject identifiers remain internal.
+  # Approval is byte-exact; any SQL drift re-enters Steel Shield automatically.
+  ["supabase/migrations/20260821120000_orphan_safe_author_presentation.sql"]="a16eb9e91dd03b107c474a82362f3874c1de2112955c1d960262ce074a87a3a1"
 )
 
 reviewed_baseline_path() {
