@@ -55,11 +55,11 @@ select (:'viewer_profile'::jsonb->'profile'->>'profile_id') as viewer_profile_id
 select public.vvip_social_block_profile(:'beta_profile_id'::uuid) as block_beta
 \gset
 
-select public.vvip_social_search_people('  TÏGER  ', null, 2) as people_page_one
+select public.vvip_social_search_people('  TÏGER  ', null, 1) as people_page_one
 \gset
 select (
   :'people_page_one'::jsonb->>'ok' = 'true'
-  and jsonb_array_length(:'people_page_one'::jsonb->'items') = 2
+  and jsonb_array_length(:'people_page_one'::jsonb->'items') = 1
   and :'people_page_one'::jsonb->>'next_cursor' is not null
   and position('user_search' in :'people_page_one') = 0
   and not exists (
