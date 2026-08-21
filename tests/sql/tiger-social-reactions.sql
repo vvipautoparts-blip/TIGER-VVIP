@@ -32,23 +32,18 @@ select (
   \quit 1
 \endif
 
--- Alice creates three posts and sends Bob a friend request.
+-- Alice is an active profile actor, creates posts through the safe post RPC, then sends Bob a request.
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"user_alice"}', true);
+select public.vvip_upsert_my_social_profile(
+  'Alice Reaction Proof', null, null, 'Amman', null, 'Reaction rehearsal actor'
+);
 
-insert into public.vvip_social_posts (body, audience)
-values ('reaction-public-proof', 'public')
-returning post_id as public_post_id
+select (public.vvip_social_post_create('reaction-public-proof', 'public')->>'post_id')::uuid as public_post_id
 \gset
-
-insert into public.vvip_social_posts (body, audience)
-values ('reaction-friends-proof', 'friends')
-returning post_id as friends_post_id
+select (public.vvip_social_post_create('reaction-friends-proof', 'friends')->>'post_id')::uuid as friends_post_id
 \gset
-
-insert into public.vvip_social_posts (body, audience)
-values ('reaction-only-me-proof', 'only_me')
-returning post_id as only_me_post_id
+select (public.vvip_social_post_create('reaction-only-me-proof', 'only_me')->>'post_id')::uuid as only_me_post_id
 \gset
 
 insert into public.vvip_social_relationships (addressee_subject)
@@ -56,9 +51,12 @@ values ('user_bob');
 
 reset role;
 
--- Bob accepts the friendship and can react to visible public/friends posts.
+-- Bob becomes active, accepts the friendship and can react to visible public/friends posts.
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"user_bob"}', true);
+select public.vvip_upsert_my_social_profile(
+  'Bob Reaction Proof', null, null, 'Amman', null, 'Reaction rehearsal actor'
+);
 
 update public.vvip_social_relationships
 set relationship_state = 'friends'
