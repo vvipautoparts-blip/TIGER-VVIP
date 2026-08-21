@@ -131,24 +131,17 @@ jobs:
           test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
           test -z "$(git status --porcelain=v1 -uall)"
 
-      - name: Run Social DB static contracts
+      - name: Run Social DB structural contracts
         shell: bash
         run: |
           set -euo pipefail
           node --test tests/tiger-social-db-foundation.test.cjs
-          node --test tests/tiger-social-db-reviewed-migration-hash.test.cjs
           node --test tests/tiger-social-reactions-db.test.cjs
-          node --test tests/tiger-social-reactions-reviewed-migration-hash.test.cjs
           node --test tests/tiger-social-comments-db.test.cjs
-          node --test tests/tiger-social-comments-reviewed-migration-hash.test.cjs
           node --test tests/tiger-public-profile-projection-db.test.cjs
-          node --test tests/tiger-public-profile-projection-reviewed-migration-hash.test.cjs
           node --test tests/tiger-profile-owner-boundary-db.test.cjs
-          node --test tests/tiger-profile-owner-boundary-reviewed-migration-hash.test.cjs
           node --test tests/tiger-profile-lifecycle-boundary-db.test.cjs
-          node --test tests/tiger-profile-lifecycle-boundary-reviewed-migration-hash.test.cjs
           node --test tests/tiger-p0-orphan-safe-author-presentation.test.cjs
-          node --test tests/tiger-p0-orphan-safe-author-presentation-reviewed-migration-hash.test.cjs
           node --test tests/tiger-p0-messaging-convergence.test.cjs
           node --test tests/tiger-runtime-adapters-messaging.test.cjs
           node --test tests/tiger-messaging-read-model.test.cjs
@@ -297,6 +290,18 @@ jobs:
           path: ${{ runner.temp }}/tiger-social-db/p0-messaging.log
           if-no-files-found: warn
           retention-days: 3
+
+      - name: Verify content-addressed migration review
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tests/tiger-social-db-reviewed-migration-hash.test.cjs
+          node --test tests/tiger-social-reactions-reviewed-migration-hash.test.cjs
+          node --test tests/tiger-social-comments-reviewed-migration-hash.test.cjs
+          node --test tests/tiger-public-profile-projection-reviewed-migration-hash.test.cjs
+          node --test tests/tiger-profile-owner-boundary-reviewed-migration-hash.test.cjs
+          node --test tests/tiger-profile-lifecycle-boundary-reviewed-migration-hash.test.cjs
+          node --test tests/tiger-p0-orphan-safe-author-presentation-reviewed-migration-hash.test.cjs
 
       - name: Verify source remained immutable
         shell: bash
