@@ -26,7 +26,8 @@
     "angry",
   ]);
   const RELATIONSHIP_SELECT = "relationship_id,requester_subject,addressee_subject,relationship_state,created_at,updated_at";
-  const SOCIAL_RATE_LIMIT_RETRY_MS = 30000;
+  const SOCIAL_RATE_LIMIT_RETRY_MS = 5000;
+  const SOCIAL_SEARCH_RATE_LIMIT_RETRY_MS = 30000;
   const SOCIAL_SEARCH_DEFAULT_LIMIT = 20;
   const SOCIAL_SEARCH_MAX_LIMIT = 50;
   const SOCIAL_SEARCH_MAX_QUERY_LENGTH = 160;
@@ -40,11 +41,11 @@
     return Object.freeze({ ok: false, code });
   }
 
-  function frozenRateLimitFailure() {
+  function frozenRateLimitFailure(retryAfterMs = SOCIAL_RATE_LIMIT_RETRY_MS) {
     return Object.freeze({
       ok: false,
       code: "SOCIAL_RATE_LIMITED",
-      retryAfterMs: SOCIAL_RATE_LIMIT_RETRY_MS,
+      retryAfterMs,
     });
   }
 
@@ -275,7 +276,7 @@
     const message = errorMessage(error);
 
     if (isRateLimited(response, error) || message === "SOCIAL_SEARCH_RATE_LIMITED") {
-      return frozenRateLimitFailure();
+      return frozenRateLimitFailure(SOCIAL_SEARCH_RATE_LIMIT_RETRY_MS);
     }
     if (message === "GATE5_CURSOR_INVALID" || message === "GATE5_CURSOR_CONTEXT_MISMATCH") {
       return frozenFailure("SOCIAL_SEARCH_STALE_CURSOR");
