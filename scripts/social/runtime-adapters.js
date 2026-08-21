@@ -26,9 +26,18 @@
     "angry",
   ]);
   const RELATIONSHIP_SELECT = "relationship_id,requester_subject,addressee_subject,relationship_state,created_at,updated_at";
+  const SOCIAL_RATE_LIMIT_RETRY_MS = 5000;
 
   function frozenFailure(code) {
     return Object.freeze({ ok: false, code });
+  }
+
+  function frozenRateLimitFailure() {
+    return Object.freeze({
+      ok: false,
+      code: "SOCIAL_RATE_LIMITED",
+      retryAfterMs: SOCIAL_RATE_LIMIT_RETRY_MS,
+    });
   }
 
   function frozenSuccess(value) {
@@ -112,24 +121,14 @@
     }
 
     const cursor = options.cursor;
-    if (!cursor || typeof cursor !== "object" || Array.isArray(cursor)) {
+    if (typeof cursor !== "string"
+        || cursor.length < 8
+        || cursor.length > 2048
+        || !/^[A-Za-z0-9_-]+$/.test(cursor)) {
       return { ok: false, code: "SOCIAL_INVALID_FEED_CURSOR" };
     }
 
-    const createdAt = cursor.createdAt;
-    const postId = cursor.postId;
-    const safeTimestamp = typeof createdAt === "string"
-      && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$/.test(createdAt)
-      && Number.isFinite(Date.parse(createdAt));
-
-    if (!safeTimestamp || !validPostUuid(postId)) {
-      return { ok: false, code: "SOCIAL_INVALID_FEED_CURSOR" };
-    }
-
-    return {
-      ok: true,
-      value: Object.freeze({ createdAt, postId }),
-    };
+    return { ok: true, value: cursor };
   }
 
   function validMessageSequence(value) {
@@ -166,17 +165,58 @@
     return { ok: true, value: body };
   }
 
+  function responseStatus(responseOrError) {
+    if (!responseOrError || typeof responseOrError !== "object") return null;
+    for (const key of ["status", "statusCode"]) {
+      if (Number.isInteger(responseOrError[key])) return responseOrError[key];
+    }
+    if (typeof responseOrError.code === "string" && /^\d{3}$/.test(responseOrError.code)) {
+      return Number(responseOrError.code);
+    }
+    return null;
+  }
+
+  function isRateLimited(response, error) {
+    return responseStatus(response) === 429 || responseStatus(error) === 429;
+  }
+
+  function errorMessage(error) {
+    return error && typeof error.message === "string" ? error.message : "";
+  }
+
+  function classifyFeedFailure(response, thrown) {
+    const error = thrown || (response && response.error);
+    if (isRateLimited(response, error)) return frozenRateLimitFailure();
+
+    const message = errorMessage(error);
+    if (message === "GATE5_CURSOR_INVALID" || message === "GATE5_CURSOR_CONTEXT_MISMATCH") {
+      return frozenFailure("SOCIAL_FEED_STALE_CURSOR");
+    }
+    if (message === "SOCIAL_PROFILE_INACTIVE" || message === "SOCIAL_AUTH_REQUIRED") {
+      return frozenFailure("SOCIAL_FEED_SESSION_STALE");
+    }
+
+    const status = responseStatus(response) || responseStatus(error);
+    if (thrown || (Number.isInteger(status) && status >= 500 && status <= 599)) {
+      return frozenFailure("SOCIAL_FEED_RETRYABLE");
+    }
+
+    return frozenFailure("SOCIAL_PERSISTENCE_FAILED");
+  }
+
   async function execute(operation, requireConfirmation) {
     try {
       const response = await operation();
       if (!response || response.error) {
+        if (isRateLimited(response, response && response.error)) return frozenRateLimitFailure();
         return frozenFailure("SOCIAL_PERSISTENCE_FAILED");
       }
       if (requireConfirmation && (response.data === null || response.data === undefined)) {
         return frozenFailure("SOCIAL_PERSISTENCE_UNCONFIRMED");
       }
       return frozenSuccess(response.data);
-    } catch (_) {
+    } catch (error) {
+      if (isRateLimited(null, error)) return frozenRateLimitFailure();
       return frozenFailure("SOCIAL_PERSISTENCE_FAILED");
     }
   }
@@ -198,30 +238,21 @@
         const cursor = normalizeFeedCursor(options);
         if (!cursor.ok) return frozenFailure(cursor.code);
 
-        const result = await execute(
-          () => client.rpc("vvip_social_feed_page", {
+        let response;
+        try {
+          response = await client.rpc("vvip_social_feed_read_keyset", {
+            p_cursor: cursor.value,
             p_limit: limit.value,
-            p_before_created_at: cursor.value ? cursor.value.createdAt : null,
-            p_before_post_id: cursor.value ? cursor.value.postId : null,
-          }),
-          false
-        );
+          });
+        } catch (error) {
+          return classifyFeedFailure(null, error);
+        }
 
-        if (!result.ok) return result;
+        if (!response || response.error) {
+          return classifyFeedFailure(response, null);
+        }
 
-        const rows = Array.isArray(result.value) ? result.value : [];
-        const hasMore = rows.length > limit.value;
-        const value = rows.slice(0, limit.value);
-        const last = value.length ? value[value.length - 1] : null;
-        const nextCursor = hasMore && last
-          ? Object.freeze({ createdAt: last.created_at, postId: last.post_id })
-          : null;
-
-        return Object.freeze({
-          ok: true,
-          value,
-          page: Object.freeze({ hasMore, nextCursor }),
-        });
+        return frozenSuccess(response.data);
       },
 
       create: async function (input) {

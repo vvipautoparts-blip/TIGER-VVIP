@@ -17,9 +17,29 @@
   const DEFAULT_LIMIT = 20;
   const MAX_LIMIT = 100;
   const UNAVAILABLE_AUTHOR = "عضو غير متاح";
+  const DEFAULT_RATE_LIMIT_MS = 5000;
+  const MAX_RATE_LIMIT_MS = 60000;
+  const BOUNDED_READ_FAILURES = new Set([
+    "SOCIAL_FEED_STALE_CURSOR",
+    "SOCIAL_FEED_SESSION_STALE",
+    "SOCIAL_FEED_RETRYABLE",
+  ]);
 
   function failure(code) {
     return Object.freeze({ ok: false, code });
+  }
+
+  function rateLimitFailure(retryAfterMs) {
+    const bounded = Number.isFinite(retryAfterMs)
+      && retryAfterMs > 0
+      && retryAfterMs <= MAX_RATE_LIMIT_MS
+      ? Math.floor(retryAfterMs)
+      : DEFAULT_RATE_LIMIT_MS;
+    return Object.freeze({
+      ok: false,
+      code: "SOCIAL_RATE_LIMITED",
+      retryAfterMs: bounded,
+    });
   }
 
   function validResourceId(value) {
@@ -40,6 +60,13 @@
 
   function validTimestamp(value) {
     return typeof value === "string" && value.length <= 64 && Number.isFinite(Date.parse(value));
+  }
+
+  function validOpaqueCursor(value) {
+    return typeof value === "string"
+      && value.length >= 8
+      && value.length <= 2048
+      && /^[A-Za-z0-9_-]+$/.test(value);
   }
 
   function normalizeFeedPost(input) {
@@ -167,6 +194,26 @@
     return limit;
   }
 
+  function normalizeCursor(options) {
+    if (!options || !Object.hasOwn(options, "cursor") || options.cursor === null || options.cursor === undefined) {
+      return null;
+    }
+    return validOpaqueCursor(options.cursor) ? options.cursor : false;
+  }
+
+  function normalizeReadFailure(response) {
+    if (!response || response.ok !== false || typeof response.code !== "string") {
+      return failure("SOCIAL_FEED_READ_FAILED");
+    }
+    if (response.code === "SOCIAL_RATE_LIMITED") {
+      return rateLimitFailure(response.retryAfterMs);
+    }
+    if (BOUNDED_READ_FAILURES.has(response.code)) {
+      return failure(response.code);
+    }
+    return failure("SOCIAL_FEED_READ_FAILED");
+  }
+
   function createSocialFeedReadModel(options) {
     const runtime = options && options.runtime;
     const preferences = options && options.preferences;
@@ -181,23 +228,35 @@
         const limit = normalizeLimit(loadOptions);
         if (limit === null) return failure("SOCIAL_FEED_INVALID_LIMIT");
 
+        const cursor = normalizeCursor(loadOptions);
+        if (cursor === false) return failure("SOCIAL_FEED_INVALID_CURSOR");
+
         let response;
         try {
-          response = await runtime.posts.readFeed({ limit });
+          response = await runtime.posts.readFeed({ limit, cursor });
         } catch (_) {
           return failure("SOCIAL_FEED_READ_FAILED");
         }
 
         if (!response || response.ok !== true) {
-          return failure("SOCIAL_FEED_READ_FAILED");
+          return normalizeReadFailure(response);
         }
 
-        if (!Array.isArray(response.value)) {
+        if (!response.value || typeof response.value !== "object" || Array.isArray(response.value)) {
+          return failure("SOCIAL_FEED_INVALID_PAYLOAD");
+        }
+
+        const rows = response.value.items;
+        const nextCursor = response.value.next_cursor === null || response.value.next_cursor === undefined
+          ? null
+          : response.value.next_cursor;
+
+        if (!Array.isArray(rows) || (nextCursor !== null && !validOpaqueCursor(nextCursor))) {
           return failure("SOCIAL_FEED_INVALID_PAYLOAD");
         }
 
         const items = [];
-        for (const row of response.value) {
+        for (const row of rows) {
           const normalized = normalizeFeedPost(row);
           if (!normalized.ok) return failure("SOCIAL_FEED_INVALID_ROW");
           items.push(normalized.value);
@@ -207,7 +266,8 @@
         return Object.freeze({
           ok: true,
           items: presentedItems,
-          empty: presentedItems.length === 0,
+          empty: presentedItems.length === 0 && nextCursor === null,
+          nextCursor,
         });
       },
     });

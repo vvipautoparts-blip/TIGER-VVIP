@@ -91,10 +91,13 @@ test("feed load delegates visibility to trusted persistence and preserves newest
         calls.push(options);
         return {
           ok: true,
-          value: [
-            frozenPost({ post_id: "post_new", author_profile_id: PROFILE_ALICE, created_at: "2026-08-18T11:00:00.000Z", updated_at: "2026-08-18T11:00:00.000Z" }),
-            frozenPost({ post_id: "post_old", author_profile_id: PROFILE_BOB, author_display_name: "Bob Tiger", created_at: "2026-08-18T10:00:00.000Z", updated_at: "2026-08-18T10:00:00.000Z" }),
-          ],
+          value: {
+            items: [
+              frozenPost({ post_id: "post_new", author_profile_id: PROFILE_ALICE, created_at: "2026-08-18T11:00:00.000Z", updated_at: "2026-08-18T11:00:00.000Z" }),
+              frozenPost({ post_id: "post_old", author_profile_id: PROFILE_BOB, author_display_name: "Bob Tiger", created_at: "2026-08-18T10:00:00.000Z", updated_at: "2026-08-18T10:00:00.000Z" }),
+            ],
+            next_cursor: null,
+          },
         };
       },
     },
@@ -103,10 +106,11 @@ test("feed load delegates visibility to trusted persistence and preserves newest
   const feed = createSocialFeedReadModel({ runtime });
   const result = await feed.load({ limit: 25 });
 
-  assert.deepEqual(calls, [{ limit: 25 }]);
+  assert.deepEqual(calls, [{ limit: 25, cursor: null }]);
   assert.equal(result.ok, true);
   assert.deepEqual(result.items.map((item) => item.id), ["post_new", "post_old"]);
   assert.equal(result.empty, false);
+  assert.equal(result.nextCursor, null);
   assert.equal(Object.isFrozen(result.items), true);
   assert.ok(result.items.every((item) => !Object.hasOwn(item, "authorSubject")));
 });
@@ -117,13 +121,16 @@ test("feed load preserves unavailable historical posts rather than dropping them
       posts: {
         readFeed: async () => ({
           ok: true,
-          value: [frozenPost({
-            post_id: "post_orphan",
-            author_profile_id: null,
-            author_display_name: "عضو غير متاح",
-            author_avatar_url: null,
-            author_available: false,
-          })],
+          value: {
+            items: [frozenPost({
+              post_id: "post_orphan",
+              author_profile_id: null,
+              author_display_name: "عضو غير متاح",
+              author_avatar_url: null,
+              author_available: false,
+            })],
+            next_cursor: null,
+          },
         }),
       },
     },
@@ -133,17 +140,19 @@ test("feed load preserves unavailable historical posts rather than dropping them
   assert.equal(result.ok, true);
   assert.deepEqual(result.items.map((item) => item.id), ["post_orphan"]);
   assert.equal(result.items[0].authorAvailable, false);
+  assert.equal(result.nextCursor, null);
 });
 
 test("feed load returns an explicit empty snapshot", async () => {
   const feed = createSocialFeedReadModel({
-    runtime: { posts: { readFeed: async () => ({ ok: true, value: [] }) } },
+    runtime: { posts: { readFeed: async () => ({ ok: true, value: { items: [], next_cursor: null } }) } },
   });
 
   assert.deepEqual(await feed.load(), {
     ok: true,
     items: [],
     empty: true,
+    nextCursor: null,
   });
 });
 
@@ -177,7 +186,10 @@ test("one malformed row blocks the whole snapshot instead of silently widening t
       posts: {
         readFeed: async () => ({
           ok: true,
-          value: [frozenPost(), frozenPost({ author_profile_id: "user_legacy" })],
+          value: {
+            items: [frozenPost(), frozenPost({ author_profile_id: "user_legacy" })],
+            next_cursor: null,
+          },
         }),
       },
     },

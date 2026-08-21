@@ -744,6 +744,26 @@ button.social-story-card {
   margin: 24px auto 12px;
 }
 
+.social-feed-load-more {
+  min-height: 44px;
+  border: 1px solid var(--tiger-social-border);
+  border-radius: 10px;
+  background: var(--tiger-social-surface);
+  color: var(--tiger-social-accent);
+  font: var(--t1-type-label-m);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.social-feed-load-more:hover {
+  background: var(--tiger-social-control);
+}
+
+.social-feed-load-more:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--tiger-social-accent) 30%, transparent);
+  outline-offset: 2px;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .social-reactions__picker {
     position: absolute;
@@ -839,5 +859,22 @@ button.social-story-card {
 
   .market-bottom-nav {
     display: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .social-feed-post,
+  .social-reactions__choice,
+  .social-reactions__picker {
+    transition: none;
+  }
+
+  .social-feed-post:hover,
+  .social-reactions__choice:hover,
+  .social-reactions__choice:focus-visible,
+  .social-reactions__choice[aria-pressed="true"],
+  .social-reactions__actions:hover .social-reactions__picker,
+  .social-reactions__actions:focus-within .social-reactions__picker {
+    transform: none;
   }
 }
