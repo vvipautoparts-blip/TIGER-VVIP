@@ -103,6 +103,6 @@ test("feed and comment renderers remain Clerk-subject-blind while P0-B closes", 
 
   assert.doesNotMatch(feed, /authorSubject|author_subject/);
   assert.doesNotMatch(comments, /authorSubject|author_subject/);
-  assert.match(feed, /عضو VVIP TIGER/);
+  assert.match(feed, /authorDisplayName/);
   assert.match(comments, /عضو VVIP TIGER/);
 });
