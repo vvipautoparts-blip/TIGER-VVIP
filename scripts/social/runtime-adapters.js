@@ -26,7 +26,7 @@
     "angry",
   ]);
   const RELATIONSHIP_SELECT = "relationship_id,requester_subject,addressee_subject,relationship_state,created_at,updated_at";
-  const SOCIAL_RATE_LIMIT_RETRY_MS = 5000;
+  const SOCIAL_RATE_LIMIT_RETRY_MS = 30000;
   const SOCIAL_SEARCH_DEFAULT_LIMIT = 20;
   const SOCIAL_SEARCH_MAX_LIMIT = 50;
   const SOCIAL_SEARCH_MAX_QUERY_LENGTH = 160;
