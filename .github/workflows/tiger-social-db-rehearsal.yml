@@ -33,8 +33,8 @@ on:
       - "tests/tiger-p0-orphan-safe-author-presentation.test.cjs"
       - "tests/tiger-p0-orphan-safe-author-presentation-reviewed-migration-hash.test.cjs"
       - "tests/tiger-p0-messaging-convergence.test.cjs"
-      - "tests/tiger-runtime-adapters-messaging.test.cjs"
-      - "tests/tiger-messaging-read-model.test.cjs"
+      - "tests/tiger-social-runtime-adapters.test.cjs"
+      - "tests/tiger-p0-messaging-read-model.test.cjs"
       - "tests/tiger-p0-messaging-db-rehearsal.test.cjs"
       - "tests/tiger-social-db-rehearsal-workflow.test.cjs"
       - "tests/sql/tiger-social-core-foundation.sql"
@@ -79,8 +79,8 @@ on:
       - "tests/tiger-p0-orphan-safe-author-presentation.test.cjs"
       - "tests/tiger-p0-orphan-safe-author-presentation-reviewed-migration-hash.test.cjs"
       - "tests/tiger-p0-messaging-convergence.test.cjs"
-      - "tests/tiger-runtime-adapters-messaging.test.cjs"
-      - "tests/tiger-messaging-read-model.test.cjs"
+      - "tests/tiger-social-runtime-adapters.test.cjs"
+      - "tests/tiger-p0-messaging-read-model.test.cjs"
       - "tests/tiger-p0-messaging-db-rehearsal.test.cjs"
       - "tests/tiger-social-db-rehearsal-workflow.test.cjs"
       - "tests/sql/tiger-social-core-foundation.sql"
@@ -143,8 +143,8 @@ jobs:
           node --test tests/tiger-profile-lifecycle-boundary-db.test.cjs
           node --test tests/tiger-p0-orphan-safe-author-presentation.test.cjs
           node --test tests/tiger-p0-messaging-convergence.test.cjs
-          node --test tests/tiger-runtime-adapters-messaging.test.cjs
-          node --test tests/tiger-messaging-read-model.test.cjs
+          node --test tests/tiger-social-runtime-adapters.test.cjs
+          node --test tests/tiger-p0-messaging-read-model.test.cjs
           node --test tests/tiger-p0-messaging-db-rehearsal.test.cjs
           node --test tests/tiger-social-db-rehearsal-workflow.test.cjs
 
