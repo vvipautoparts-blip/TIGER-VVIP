@@ -1,8 +1,8 @@
 # ONE FIELD Phase 1 — Implementation Plan
 
-**Date:** 2026-08-22  
-**Branch:** `feat/one-field-living-discovery-20260822`  
-**Authority:** Issue #312 + `docs/superpowers/specs/2026-08-22-tiger-one-field-living-discovery-design.md`  
+**Date:** 2026-08-22
+**Branch:** `feat/one-field-living-discovery-20260822`
+**Authority:** Issue #312 + `docs/superpowers/specs/2026-08-22-tiger-one-field-living-discovery-design.md`
 **Method:** strict RED → GREEN → REFACTOR TDD
 
 ## Goal
