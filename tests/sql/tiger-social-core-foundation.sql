@@ -6,7 +6,7 @@ begin;
 -- creates/reads posts only through the safe RPC surface while keeping relationship
 -- transition coverage on the existing RLS-protected relationship table.
 set local role authenticated;
-select set_config('request.jwt.claims', '{"sub":"user_alice"}', true);
+select set_config('request.jwt.claims', '{"sub":"user_alice01"}', true);
 select public.vvip_upsert_my_social_profile(
   'Alice Social Proof', null, null, 'Amman', null, 'Social Core rehearsal actor'
 );
@@ -16,12 +16,12 @@ select public.vvip_social_post_create('social-friends-proof', 'friends');
 select public.vvip_social_post_create('social-only-me-proof', 'only_me');
 
 insert into public.vvip_social_relationships (addressee_subject)
-values ('user_bob');
+values ('user_bob001');
 
 select (count(*) = 1) as alice_request_visible
 from public.vvip_social_relationships
-where requester_subject = 'user_alice'
-  and addressee_subject = 'user_bob'
+where requester_subject = 'user_alice01'
+  and addressee_subject = 'user_bob001'
   and relationship_state = 'pending'
 \gset
 \if :alice_request_visible
@@ -35,15 +35,15 @@ reset role;
 
 -- Bob becomes an active profile actor, accepts Alice's request, and gains friends-only visibility.
 set local role authenticated;
-select set_config('request.jwt.claims', '{"sub":"user_bob"}', true);
+select set_config('request.jwt.claims', '{"sub":"user_bob001"}', true);
 select public.vvip_upsert_my_social_profile(
   'Bob Social Proof', null, null, 'Amman', null, 'Social Core rehearsal actor'
 );
 
 update public.vvip_social_relationships
 set relationship_state = 'friends'
-where requester_subject = 'user_alice'
-  and addressee_subject = 'user_bob'
+where requester_subject = 'user_alice01'
+  and addressee_subject = 'user_bob001'
   and relationship_state = 'pending';
 
 select (count(*) = 1) as bob_can_read_friend_post
@@ -125,7 +125,7 @@ reset role;
 
 -- Alice must still see her own only_me post through the same safe read boundary.
 set local role authenticated;
-select set_config('request.jwt.claims', '{"sub":"user_alice"}', true);
+select set_config('request.jwt.claims', '{"sub":"user_alice01"}', true);
 select (count(*) = 1) as alice_can_read_only_me
 from public.vvip_social_feed_page(20, null, null)
 where body = 'social-only-me-proof'
@@ -141,11 +141,11 @@ reset role;
 
 -- Bob removes the friendship. Friends-only visibility must disappear immediately.
 set local role authenticated;
-select set_config('request.jwt.claims', '{"sub":"user_bob"}', true);
+select set_config('request.jwt.claims', '{"sub":"user_bob001"}', true);
 
 delete from public.vvip_social_relationships
-where requester_subject = 'user_alice'
-  and addressee_subject = 'user_bob'
+where requester_subject = 'user_alice01'
+  and addressee_subject = 'user_bob001'
   and relationship_state = 'friends';
 
 select (count(*) = 0) as bob_loses_friend_visibility_after_unfriend
