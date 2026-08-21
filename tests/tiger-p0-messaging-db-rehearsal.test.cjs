@@ -16,10 +16,16 @@ test("P0 messaging is wired into the exact-head local-only Social DB rehearsal",
   assert.match(workflow, /tests\/tiger-p0-messaging-db-rehearsal\.test\.cjs/);
   assert.match(workflow, /tests\/sql\/tiger-p0-messaging-convergence\.sql/);
   assert.match(workflow, /Prove P0 Messaging durable and privacy behavior/);
+  assert.match(workflow, /Verify content-addressed migration review/);
   assert.match(workflow, /github\.event\.pull_request\.head\.sha \|\| github\.sha/);
   assert.match(workflow, /supabase db reset --local/);
   assert.match(workflow, /BLOCKED_REMOTE_CREDENTIAL_ENV/);
   assert.doesNotMatch(workflow, /supabase db push|--linked|SUPABASE_ACCESS_TOKEN:\s*\$\{\{/);
+
+  const behaviorStep = workflow.indexOf("Prove P0 Messaging durable and privacy behavior");
+  const reviewStep = workflow.indexOf("Verify content-addressed migration review");
+  assert.ok(behaviorStep >= 0, "messaging behavior step must exist");
+  assert.ok(reviewStep > behaviorStep, "content-addressed review must remain enforced after behavioral proof");
 });
 
 test("P0 messaging behavioral proof covers durable truth, privacy fencing, lifecycle, and no-subject presentation", () => {
