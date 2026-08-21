@@ -13,7 +13,7 @@ test("P0-C budget guard rejects request 31 before the table CHECK can fire", () 
 
   assert.match(sql, /CREATE\s+OR\s+REPLACE\s+FUNCTION\s+public\.vvip_social_search_consume_budget/i);
   assert.match(sql, /FOR\s+UPDATE/i);
-  assert.match(sql, /request_count\s*>=\s*30/i);
+  assert.match(sql, /v_existing_count\s*>=\s*30/i);
   assert.match(sql, /SOCIAL_SEARCH_RATE_LIMITED/i);
   assert.match(sql, /SECURITY\s+DEFINER\s+SET\s+search_path\s*=\s*pg_catalog,\s*public/i);
   assert.doesNotMatch(sql, /DROP\s+(?:TABLE|SCHEMA|DATABASE)/i);
