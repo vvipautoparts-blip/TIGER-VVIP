@@ -175,10 +175,10 @@ test("relationship removal is server-confirmed and scoped by relationship id", a
   assert.ok(recorder.calls.some((call) => call.type === "eq" && call.column === "relationship_id" && call.value === "r1"));
 });
 
-test("feed read is bounded and delegates visibility plus keyset ordering to the safe RPC", async () => {
+test("feed read is bounded and delegates visibility plus keyset ordering to the actor-bound safe RPC", async () => {
   const recorder = createRecorder((state) => {
     if (state.operation === "rpc") {
-      return { data: [{ post_id: "p1" }], error: null };
+      return { data: { ok: true, items: [{ post_id: "p1" }], next_cursor: null }, error: null };
     }
     return { data: null, error: null };
   });
@@ -188,11 +188,10 @@ test("feed read is bounded and delegates visibility plus keyset ordering to the 
   assert.equal(result.ok, true);
   assert.deepEqual(recorder.calls, [{
     type: "rpc",
-    name: "vvip_social_feed_page",
+    name: "vvip_social_feed_read_keyset",
     params: {
+      p_cursor: null,
       p_limit: 25,
-      p_before_created_at: null,
-      p_before_post_id: null,
     },
   }]);
   assert.equal(recorder.calls.some((call) => call.type === "select" && call.table === "vvip_social_posts"), false);
@@ -236,7 +235,7 @@ test("database errors and thrown client errors become opaque Social error codes"
   const socialThrow = createSocialRuntimeAdapters({ client: throwingClient });
   assert.deepEqual(await socialThrow.posts.readFeed(), {
     ok: false,
-    code: "SOCIAL_PERSISTENCE_FAILED",
+    code: "SOCIAL_FEED_RETRYABLE",
   });
 });
 
