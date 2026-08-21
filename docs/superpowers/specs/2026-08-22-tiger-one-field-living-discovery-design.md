@@ -1,10 +1,10 @@
 # ONE FIELD — Living Discovery Fabric Design
 
-**Date:** 2026-08-22  
-**Status:** OWNER APPROVED — IMPLEMENTATION AUTHORIZED  
-**Branch:** `feat/one-field-living-discovery-20260822`  
-**Authority:** Issue #312 is the controlling commercial/discovery boundary.  
-**Brand note:** `TIGER`, `VVIP TIGER`, `ONE FIELD`, `Mall`, sector labels, and all other human-facing names are current working/presentation labels only unless a later owner decision explicitly freezes a commercial brand.  
+**Date:** 2026-08-22
+**Status:** OWNER APPROVED — IMPLEMENTATION AUTHORIZED
+**Branch:** `feat/one-field-living-discovery-20260822`
+**Authority:** Issue #312 is the controlling commercial/discovery boundary.
+**Brand note:** `TIGER`, `VVIP TIGER`, `ONE FIELD`, `Mall`, sector labels, and all other human-facing names are current working/presentation labels only unless a later owner decision explicitly freezes a commercial brand.
 **Public-repository note:** this specification intentionally defines interfaces, invariants, and acceptance behavior without publishing proprietary ranking weights, secret promotion thresholds, fraud heuristics, or patent-sensitive implementation constants.
 
 ## 1. Decision
