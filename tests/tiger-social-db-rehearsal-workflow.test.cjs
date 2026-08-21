@@ -28,12 +28,17 @@ test("Social DB rehearsal applies social and profile proofs and always stops loc
   assert.match(workflow, /tests\/sql\/tiger-profile-owner-boundary\.sql/);
   assert.match(workflow, /tests\/sql\/tiger-profile-lifecycle-boundary\.sql/);
   assert.match(workflow, /tests\/sql\/tiger-p0-orphan-safe-author-presentation\.sql/);
+  assert.match(workflow, /tests\/sql\/tiger-p0-messaging-convergence\.sql/);
+  assert.match(workflow, /docs\/security\/TIGER_P0_MESSAGING_CONVERGENCE_MIGRATION_SECURITY_REVIEW\.md/);
   assert.match(workflow, /tiger-social-reactions-reviewed-migration-hash\.test\.cjs/);
   assert.match(workflow, /tiger-social-comments-reviewed-migration-hash\.test\.cjs/);
   assert.match(workflow, /tiger-public-profile-projection-reviewed-migration-hash\.test\.cjs/);
   assert.match(workflow, /tiger-profile-owner-boundary-reviewed-migration-hash\.test\.cjs/);
   assert.match(workflow, /tiger-profile-lifecycle-boundary-reviewed-migration-hash\.test\.cjs/);
   assert.match(workflow, /tiger-p0-orphan-safe-author-presentation-reviewed-migration-hash\.test\.cjs/);
+  assert.match(workflow, /tiger-p0-messaging-convergence-reviewed-migration-hash\.test\.cjs/);
+  assert.match(workflow, /Prove P0 Messaging durable and privacy behavior/);
+  assert.match(workflow, /Verify content-addressed migration review/);
   assert.match(workflow, /psql/);
   assert.match(workflow, /if:\s*always\(\)/);
   assert.match(workflow, /supabase stop --no-backup/);
