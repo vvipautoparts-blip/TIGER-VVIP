@@ -92,7 +92,7 @@ test("P0-C maps rate-limit and stale-cursor failures to opaque search codes", as
   assert.deepEqual(await rateSearch.search.people("member"), {
     ok: false,
     code: "SOCIAL_RATE_LIMITED",
-    retryAfterMs: 5000,
+    retryAfterMs: 30000,
   });
 
   const stale = recorder({ data: null, error: { message: "GATE5_CURSOR_CONTEXT_MISMATCH" } });
