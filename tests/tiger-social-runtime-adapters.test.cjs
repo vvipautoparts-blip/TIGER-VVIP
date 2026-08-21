@@ -239,3 +239,95 @@ test("database errors and thrown client errors become opaque Social error codes"
     code: "SOCIAL_PERSISTENCE_FAILED",
   });
 });
+
+test("messaging runtime exposes only bounded subject-blind RPC calls", async () => {
+  const recorder = createRecorder(() => ({ data: { ok: true }, error: null }));
+  const social = createSocialRuntimeAdapters({ client: recorder.client });
+
+  assert.ok(social.messaging, "messaging adapter must exist before browser integration");
+  assert.equal(typeof social.messaging.open, "function");
+  assert.equal(typeof social.messaging.list, "function");
+  assert.equal(typeof social.messaging.send, "function");
+  assert.equal(typeof social.messaging.markRead, "function");
+  assert.equal(typeof social.messaging.getChannelTicket, "function");
+
+  const profileId = "11111111-1111-4111-8111-111111111111";
+  const conversationId = "22222222-2222-4222-8222-222222222222";
+  const clientMessageId = "33333333-3333-4333-8333-333333333333";
+
+  assert.equal((await social.messaging.open(profileId)).ok, true);
+  assert.equal((await social.messaging.list(conversationId, { afterSequence: 7, limit: 25 })).ok, true);
+  assert.equal((await social.messaging.send(conversationId, {
+    clientMessageId,
+    body: " مرحباً من TIGER ",
+  })).ok, true);
+  assert.equal((await social.messaging.markRead(conversationId, 8)).ok, true);
+  assert.equal((await social.messaging.getChannelTicket(conversationId)).ok, true);
+
+  assert.deepEqual(recorder.calls, [
+    {
+      type: "rpc",
+      name: "vvip_social_open_direct_conversation",
+      params: { p_peer_profile_id: profileId, p_idempotency_key: null },
+    },
+    {
+      type: "rpc",
+      name: "vvip_social_list_messages",
+      params: { p_conversation_id: conversationId, p_after_sequence: 7, p_limit: 25 },
+    },
+    {
+      type: "rpc",
+      name: "vvip_social_send_message",
+      params: {
+        p_conversation_id: conversationId,
+        p_client_message_id: clientMessageId,
+        p_body: "مرحباً من TIGER",
+      },
+    },
+    {
+      type: "rpc",
+      name: "vvip_social_mark_read",
+      params: { p_conversation_id: conversationId, p_sequence: 8 },
+    },
+    {
+      type: "rpc",
+      name: "vvip_social_get_channel_ticket",
+      params: { p_conversation_id: conversationId },
+    },
+  ]);
+
+  for (const call of recorder.calls) {
+    assert.equal(call.type, "rpc", "messaging must never access durable tables directly");
+    for (const key of Object.keys(call.params || {})) {
+      assert.doesNotMatch(key, /subject/i, "browser messaging params must not carry Clerk subjects");
+    }
+  }
+});
+
+test("messaging runtime rejects malformed UUIDs, cursors, limits, and bodies before persistence", async () => {
+  const recorder = createRecorder(() => ({ data: { ok: true }, error: null }));
+  const social = createSocialRuntimeAdapters({ client: recorder.client });
+
+  assert.ok(social.messaging, "messaging adapter must exist before validation can be exercised");
+
+  const conversationId = "22222222-2222-4222-8222-222222222222";
+  const clientMessageId = "33333333-3333-4333-8333-333333333333";
+  const invalidCalls = [
+    social.messaging.open("user_bob001"),
+    social.messaging.list("bad", { afterSequence: 0, limit: 50 }),
+    social.messaging.list(conversationId, { afterSequence: -1, limit: 50 }),
+    social.messaging.list(conversationId, { afterSequence: 0, limit: 101 }),
+    social.messaging.send(conversationId, { clientMessageId: "bad", body: "x" }),
+    social.messaging.send(conversationId, { clientMessageId, body: "" }),
+    social.messaging.send(conversationId, { clientMessageId, body: "x".repeat(4001) }),
+    social.messaging.markRead(conversationId, -1),
+    social.messaging.getChannelTicket("bad"),
+  ];
+
+  const results = await Promise.all(invalidCalls);
+  for (const result of results) {
+    assert.equal(result.ok, false);
+    assert.match(result.code, /^SOCIAL_INVALID_MESSAGE_/);
+  }
+  assert.equal(recorder.calls.length, 0);
+});
