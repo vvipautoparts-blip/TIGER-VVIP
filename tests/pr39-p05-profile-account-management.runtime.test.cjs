@@ -95,22 +95,25 @@ function runScript(relativePath, context) {
     profileSource: { displayName: "Owner", publicUsername: "owner_user", accountType: "personal-vip" }
   });
   assert(ownerSubject.isOwner === true, "owner mode must be true when identities match");
+  assert(ownerSubject.mode === "OWNER_VIEW", "owner must use OWNER_VIEW");
   assert(ownerSubject.canEdit === true, "owner should be able to edit");
 
-  const visitorSubject = contract.createProfileSubject({
+  const memberSubject = contract.createProfileSubject({
     sessionUser: { id: "u1" },
     subjectUserId: "u2",
-    profileSource: { displayName: "Visitor", accountType: "buyer-standard" }
+    profileSource: { displayName: "Member", accountType: "buyer-standard" }
   });
-  assert(visitorSubject.isOwner === false, "visitor mode must be active when identities mismatch");
-  assert(visitorSubject.canManageAccount === false, "visitor must not manage account");
+  assert(memberSubject.isOwner === false, "member view must not receive owner privileges");
+  assert(memberSubject.mode === "AUTHORIZED_MEMBER_VIEW", "signed-in non-owner must use authorized member view");
+  assert(memberSubject.canManageAccount === false, "member must not manage another account");
 
-  const fallbackVisitor = contract.createProfileSubject({
+  const authRequired = contract.createProfileSubject({
     sessionUser: null,
     subjectUserId: "u2",
-    profileSource: { displayName: "Unknown", accountType: "buyer-standard" }
+    profileSource: { displayName: "Hidden", accountType: "buyer-standard" }
   });
-  assert(fallbackVisitor.mode === "VISITOR_MODE", "safe fallback must use visitor mode");
+  assert(authRequired.mode === "AUTH_REQUIRED", "missing session must fail closed to AUTH_REQUIRED");
+  assert(authRequired.canMessage === false, "unauthenticated actor must not get messaging capability");
 
   const buyerViewer = contract.createProfileSubject({
     sessionUser: { id: "u1" },
@@ -150,18 +153,18 @@ function runScript(relativePath, context) {
   const blockedReturn = contract.safeReturnPath("https://evil.example");
   assert(blockedReturn === "index.html", "open redirect should be blocked");
 
-  const menu = controller.createMenuModel(withDraft, false);
-  assert(menu.items.includes("copy"), "menu should include copy");
-  assert(menu.items.includes("settings"), "owner menu should include settings");
-  const visitorMenu = controller.createMenuModel(withDraft, true);
-  assert(visitorMenu.items.includes("report"), "visitor menu should include report");
-  assert(visitorMenu.items.includes("settings") === false, "visitor menu must not include settings");
+  const ownerMenu = controller.createMenuModel(withDraft);
+  assert(ownerMenu.items.includes("copy"), "menu should include copy");
+  assert(ownerMenu.items.includes("settings"), "owner menu should include settings");
+  assert(ownerMenu.items.includes("viewAsVisitor") === false, "owner menu must not expose visitor preview");
+
+  const memberMenu = controller.createMenuModel(memberSubject);
+  assert(memberMenu.items.includes("report"), "member menu should include report");
+  assert(memberMenu.items.includes("settings") === false, "member menu must not include settings");
 
   const viewState = controller.createViewState(withDraft);
-  controller.setVisitorPreview(viewState, true);
-  assert(viewState.activeMode === "VISITOR_MODE", "view as visitor must hide owner tools");
-  controller.setVisitorPreview(viewState, false);
-  assert(viewState.activeMode === "OWNER_MODE", "return from visitor preview should restore owner mode");
+  assert(viewState.activeMode === "OWNER_VIEW", "owner view state must stay OWNER_VIEW");
+  assert(typeof controller.setVisitorPreview === "undefined", "visitor preview API must be removed");
 
   let signOutCalls = 0;
   const logoutResult = controller.logoutSessionOnly({

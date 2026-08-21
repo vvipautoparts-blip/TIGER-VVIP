@@ -33,6 +33,15 @@
     return true;
   }
 
+  function hideHome() {
+    const root = rootElement();
+    if (!root) return false;
+
+    root.hidden = true;
+    if (typeof root.setAttribute === 'function') root.setAttribute('aria-hidden', 'true');
+    return true;
+  }
+
   function snapshot() {
     const root = rootElement();
     return Object.freeze({
@@ -44,5 +53,5 @@
     });
   }
 
-  global.VVIPFusionSurface = Object.freeze({ showHome, snapshot });
+  global.VVIPFusionSurface = Object.freeze({ showHome, hideHome, snapshot });
 })(window);
