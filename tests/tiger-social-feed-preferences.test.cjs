@@ -170,7 +170,10 @@ test("feed read model applies presentation preferences only after runtime author
 
   const runtime = {
     posts: {
-      readFeed: async () => ({ ok: true, value: runtimeRows }),
+      readFeed: async () => ({
+        ok: true,
+        value: { items: runtimeRows, next_cursor: null },
+      }),
     },
   };
 
@@ -184,5 +187,6 @@ test("feed read model applies presentation preferences only after runtime author
   assert.equal(snapshot.ok, true);
   assert.deepEqual(snapshot.items.map((entry) => entry.id), ["p1"]);
   assert.equal(snapshot.items[0].audience, "public");
+  assert.equal(snapshot.nextCursor, null);
   assert.equal(Object.hasOwn(snapshot.items[0], "authorSubject"), false);
 });
