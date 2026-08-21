@@ -239,6 +239,27 @@ test("database errors and thrown client errors become opaque Social error codes"
   });
 });
 
+test("comment mutation 429 is reduced to an opaque bounded runtime signal", async () => {
+  const recorder = createRecorder(() => ({
+    data: null,
+    error: { message: "secret provider rate-limit detail" },
+    status: 429,
+  }));
+  const social = createSocialRuntimeAdapters({ client: recorder.client });
+  const postId = "11111111-1111-4111-8111-111111111111";
+
+  const result = await social.comments.create(postId, { body: "تعليق" });
+
+  assert.deepEqual(result, {
+    ok: false,
+    code: "SOCIAL_RATE_LIMITED",
+    retryAfterMs: 5000,
+  });
+  assert.equal(JSON.stringify(result).includes("secret"), false);
+  assert.equal(recorder.calls.length, 1);
+  assert.equal(recorder.calls[0].name, "vvip_social_comment_create");
+});
+
 test("messaging runtime exposes only bounded subject-blind RPC calls", async () => {
   const recorder = createRecorder(() => ({ data: { ok: true }, error: null }));
   const social = createSocialRuntimeAdapters({ client: recorder.client });
