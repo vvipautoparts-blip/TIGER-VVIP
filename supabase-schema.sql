@@ -375,8 +375,7 @@ BEGIN
     WHERE conname = 'vehicle_catalog_unique_vehicle'
   ) THEN
     ALTER TABLE public.vehicle_catalog
-      ADD CONSTRAINT vehicle_catalog_unique_vehicle
-      UNIQUE (brand, model, year, body_type, category);
+      ADD CONSTRAINT vehicle_catalog_unique_vehicle UNIQUE (brand, model, year, body_type, category);
   END IF;
 END $$;
 
@@ -894,3 +893,41 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.lookup_profile_by_phone(text) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.lookup_profile_by_email(text) TO anon, authenticated;
+
+-- Issue #312 zero-brokerage convergence for fresh bootstrap.
+-- Legacy order/commission rows remain readable for audit where existing SELECT
+-- policies permit, but all new mutation paths fail closed.
+DROP POLICY IF EXISTS "Users can insert own orders" ON public.orders;
+DROP POLICY IF EXISTS "Users can update own orders" ON public.orders;
+DROP POLICY IF EXISTS "Users can insert own commissions" ON public.commissions;
+DROP POLICY IF EXISTS "Users can update own commissions" ON public.commissions;
+
+REVOKE INSERT, UPDATE, DELETE ON TABLE public.orders FROM public, anon, authenticated;
+REVOKE INSERT, UPDATE, DELETE ON TABLE public.commissions FROM public, anon, authenticated;
+
+CREATE OR REPLACE FUNCTION public.vvip_reject_legacy_brokerage_write()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SET search_path = pg_catalog
+AS $$
+BEGIN
+  RAISE EXCEPTION USING
+    ERRCODE = '42501',
+    MESSAGE = 'LEGACY_BROKERAGE_WRITE_RETIRED';
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.vvip_reject_legacy_brokerage_write()
+FROM public, anon, authenticated;
+
+DROP TRIGGER IF EXISTS vvip_zero_brokerage_write_lock ON public.orders;
+CREATE TRIGGER vvip_zero_brokerage_write_lock
+BEFORE INSERT OR UPDATE OR DELETE ON public.orders
+FOR EACH STATEMENT
+EXECUTE FUNCTION public.vvip_reject_legacy_brokerage_write();
+
+DROP TRIGGER IF EXISTS vvip_zero_brokerage_write_lock ON public.commissions;
+CREATE TRIGGER vvip_zero_brokerage_write_lock
+BEFORE INSERT OR UPDATE OR DELETE ON public.commissions
+FOR EACH STATEMENT
+EXECUTE FUNCTION public.vvip_reject_legacy_brokerage_write();
