@@ -10,6 +10,8 @@ on:
       - "supabase/migrations/20260820223000_profile_owner_boundary.sql"
       - "supabase/migrations/20260820231500_profile_lifecycle_boundary.sql"
       - "supabase/migrations/20260821120000_orphan_safe_author_presentation.sql"
+      - "supabase/migrations/20260821123000_social_block_privacy_convergence.sql"
+      - "supabase/migrations/20260821130000_social_realtime_messaging_convergence.sql"
       - "docs/security/TIGER_SOCIAL_REACTIONS_MIGRATION_SECURITY_REVIEW.md"
       - "docs/security/TIGER_SOCIAL_COMMENTS_MIGRATION_SECURITY_REVIEW.md"
       - "docs/security/TIGER_PUBLIC_PROFILE_PROJECTION_MIGRATION_SECURITY_REVIEW.md"
@@ -30,6 +32,10 @@ on:
       - "tests/tiger-profile-lifecycle-boundary-reviewed-migration-hash.test.cjs"
       - "tests/tiger-p0-orphan-safe-author-presentation.test.cjs"
       - "tests/tiger-p0-orphan-safe-author-presentation-reviewed-migration-hash.test.cjs"
+      - "tests/tiger-p0-messaging-convergence.test.cjs"
+      - "tests/tiger-runtime-adapters-messaging.test.cjs"
+      - "tests/tiger-messaging-read-model.test.cjs"
+      - "tests/tiger-p0-messaging-db-rehearsal.test.cjs"
       - "tests/tiger-social-db-rehearsal-workflow.test.cjs"
       - "tests/sql/tiger-social-core-foundation.sql"
       - "tests/sql/tiger-social-reactions.sql"
@@ -38,6 +44,7 @@ on:
       - "tests/sql/tiger-profile-owner-boundary.sql"
       - "tests/sql/tiger-profile-lifecycle-boundary.sql"
       - "tests/sql/tiger-p0-orphan-safe-author-presentation.sql"
+      - "tests/sql/tiger-p0-messaging-convergence.sql"
       - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
       - ".github/workflows/tiger-social-db-rehearsal.yml"
   pull_request:
@@ -49,6 +56,8 @@ on:
       - "supabase/migrations/20260820223000_profile_owner_boundary.sql"
       - "supabase/migrations/20260820231500_profile_lifecycle_boundary.sql"
       - "supabase/migrations/20260821120000_orphan_safe_author_presentation.sql"
+      - "supabase/migrations/20260821123000_social_block_privacy_convergence.sql"
+      - "supabase/migrations/20260821130000_social_realtime_messaging_convergence.sql"
       - "docs/security/TIGER_SOCIAL_REACTIONS_MIGRATION_SECURITY_REVIEW.md"
       - "docs/security/TIGER_SOCIAL_COMMENTS_MIGRATION_SECURITY_REVIEW.md"
       - "docs/security/TIGER_PUBLIC_PROFILE_PROJECTION_MIGRATION_SECURITY_REVIEW.md"
@@ -69,6 +78,10 @@ on:
       - "tests/tiger-profile-lifecycle-boundary-reviewed-migration-hash.test.cjs"
       - "tests/tiger-p0-orphan-safe-author-presentation.test.cjs"
       - "tests/tiger-p0-orphan-safe-author-presentation-reviewed-migration-hash.test.cjs"
+      - "tests/tiger-p0-messaging-convergence.test.cjs"
+      - "tests/tiger-runtime-adapters-messaging.test.cjs"
+      - "tests/tiger-messaging-read-model.test.cjs"
+      - "tests/tiger-p0-messaging-db-rehearsal.test.cjs"
       - "tests/tiger-social-db-rehearsal-workflow.test.cjs"
       - "tests/sql/tiger-social-core-foundation.sql"
       - "tests/sql/tiger-social-reactions.sql"
@@ -77,6 +90,7 @@ on:
       - "tests/sql/tiger-profile-owner-boundary.sql"
       - "tests/sql/tiger-profile-lifecycle-boundary.sql"
       - "tests/sql/tiger-p0-orphan-safe-author-presentation.sql"
+      - "tests/sql/tiger-p0-messaging-convergence.sql"
       - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
       - ".github/workflows/tiger-social-db-rehearsal.yml"
   workflow_dispatch:
@@ -135,6 +149,10 @@ jobs:
           node --test tests/tiger-profile-lifecycle-boundary-reviewed-migration-hash.test.cjs
           node --test tests/tiger-p0-orphan-safe-author-presentation.test.cjs
           node --test tests/tiger-p0-orphan-safe-author-presentation-reviewed-migration-hash.test.cjs
+          node --test tests/tiger-p0-messaging-convergence.test.cjs
+          node --test tests/tiger-runtime-adapters-messaging.test.cjs
+          node --test tests/tiger-messaging-read-model.test.cjs
+          node --test tests/tiger-p0-messaging-db-rehearsal.test.cjs
           node --test tests/tiger-social-db-rehearsal-workflow.test.cjs
 
       - name: Assert local-only safety contract
@@ -256,6 +274,29 @@ jobs:
             -d postgres \
             -v ON_ERROR_STOP=1 \
             -f tests/sql/tiger-p0-orphan-safe-author-presentation.sql
+
+      - name: Prove P0 Messaging durable and privacy behavior
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/tiger-social-db"
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 \
+            -p 54322 \
+            -U postgres \
+            -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/tiger-p0-messaging-convergence.sql \
+            2>&1 | tee "$RUNNER_TEMP/tiger-social-db/p0-messaging.log"
+
+      - name: Upload P0 Messaging rehearsal log
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: tiger-p0-messaging-rehearsal-${{ env.SOURCE_SHA }}
+          path: ${{ runner.temp }}/tiger-social-db/p0-messaging.log
+          if-no-files-found: warn
+          retention-days: 3
 
       - name: Verify source remained immutable
         shell: bash
