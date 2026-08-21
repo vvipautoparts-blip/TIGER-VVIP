@@ -132,6 +132,40 @@
     };
   }
 
+  function validMessageSequence(value) {
+    return Number.isSafeInteger(value) && value >= 0;
+  }
+
+  function normalizeMessageListOptions(options) {
+    const afterSequence = options && Object.hasOwn(options, "afterSequence")
+      ? options.afterSequence
+      : 0;
+    const limit = options && Object.hasOwn(options, "limit") ? options.limit : 50;
+
+    if (!validMessageSequence(afterSequence)) {
+      return { ok: false, code: "SOCIAL_INVALID_MESSAGE_CURSOR" };
+    }
+    if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+      return { ok: false, code: "SOCIAL_INVALID_MESSAGE_LIMIT" };
+    }
+
+    return {
+      ok: true,
+      value: Object.freeze({ afterSequence, limit }),
+    };
+  }
+
+  function normalizeMessageBody(value) {
+    if (typeof value !== "string") {
+      return { ok: false, code: "SOCIAL_INVALID_MESSAGE_BODY" };
+    }
+    const body = value.trim();
+    if (!body || body.length > 4000) {
+      return { ok: false, code: "SOCIAL_INVALID_MESSAGE_BODY" };
+    }
+    return { ok: true, value: body };
+  }
+
   async function execute(operation, requireConfirmation) {
     try {
       const response = await operation();
@@ -378,7 +412,98 @@
       },
     });
 
-    return Object.freeze({ posts, relationships, reactions, comments });
+    const messaging = Object.freeze({
+      open: async function (peerProfileId) {
+        if (!validPostUuid(peerProfileId)) {
+          return frozenFailure("SOCIAL_INVALID_MESSAGE_PEER_PROFILE_ID");
+        }
+        if (!hasRpcClient(client)) return unavailable();
+
+        return execute(
+          () => client.rpc("vvip_social_open_direct_conversation", {
+            p_peer_profile_id: peerProfileId,
+            p_idempotency_key: null,
+          }),
+          true
+        );
+      },
+
+      list: async function (conversationId, options) {
+        if (!validPostUuid(conversationId)) {
+          return frozenFailure("SOCIAL_INVALID_MESSAGE_CONVERSATION_ID");
+        }
+        const normalized = normalizeMessageListOptions(options);
+        if (!normalized.ok) return frozenFailure(normalized.code);
+        if (!hasRpcClient(client)) return unavailable();
+
+        return execute(
+          () => client.rpc("vvip_social_list_messages", {
+            p_conversation_id: conversationId,
+            p_after_sequence: normalized.value.afterSequence,
+            p_limit: normalized.value.limit,
+          }),
+          true
+        );
+      },
+
+      send: async function (conversationId, input) {
+        if (!validPostUuid(conversationId)) {
+          return frozenFailure("SOCIAL_INVALID_MESSAGE_CONVERSATION_ID");
+        }
+        if (!input || typeof input !== "object" || Array.isArray(input)) {
+          return frozenFailure("SOCIAL_INVALID_MESSAGE_INPUT");
+        }
+        if (!validPostUuid(input.clientMessageId)) {
+          return frozenFailure("SOCIAL_INVALID_MESSAGE_CLIENT_ID");
+        }
+        const body = normalizeMessageBody(input.body);
+        if (!body.ok) return frozenFailure(body.code);
+        if (!hasRpcClient(client)) return unavailable();
+
+        return execute(
+          () => client.rpc("vvip_social_send_message", {
+            p_conversation_id: conversationId,
+            p_client_message_id: input.clientMessageId,
+            p_body: body.value,
+          }),
+          true
+        );
+      },
+
+      markRead: async function (conversationId, sequence) {
+        if (!validPostUuid(conversationId)) {
+          return frozenFailure("SOCIAL_INVALID_MESSAGE_CONVERSATION_ID");
+        }
+        if (!validMessageSequence(sequence)) {
+          return frozenFailure("SOCIAL_INVALID_MESSAGE_SEQUENCE");
+        }
+        if (!hasRpcClient(client)) return unavailable();
+
+        return execute(
+          () => client.rpc("vvip_social_mark_read", {
+            p_conversation_id: conversationId,
+            p_sequence: sequence,
+          }),
+          true
+        );
+      },
+
+      getChannelTicket: async function (conversationId) {
+        if (!validPostUuid(conversationId)) {
+          return frozenFailure("SOCIAL_INVALID_MESSAGE_CONVERSATION_ID");
+        }
+        if (!hasRpcClient(client)) return unavailable();
+
+        return execute(
+          () => client.rpc("vvip_social_get_channel_ticket", {
+            p_conversation_id: conversationId,
+          }),
+          true
+        );
+      },
+    });
+
+    return Object.freeze({ posts, relationships, reactions, comments, messaging });
   }
 
   function createCurrentSocialRuntime(rootObject) {
