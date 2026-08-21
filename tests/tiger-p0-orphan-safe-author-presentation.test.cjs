@@ -46,6 +46,41 @@ test("P0-B orphan-safe DB boundary exposes presentation identity only", () => {
   );
 });
 
+test("deactivated or deleted actors fail closed on every integrated social mutation path", () => {
+  const sql = readMigration();
+  assert.match(sql, /CREATE OR REPLACE FUNCTION public\.vvip_social_actor_active\s*\(\s*\)/i);
+  assert.match(sql, /profile_state\s*=\s*'active'/i);
+  assert.match(sql, /SOCIAL_PROFILE_INACTIVE/i);
+
+  const mutationFunctions = [
+    "vvip_social_post_create",
+    "vvip_social_comment_create",
+    "vvip_social_comment_update",
+    "vvip_social_comment_remove",
+    "vvip_social_set_reaction",
+    "vvip_social_remove_reaction",
+    "vvip_social_save_post",
+    "vvip_social_unsave_post",
+    "vvip_social_follow_user",
+    "vvip_social_unfollow_user",
+    "vvip_social_guard_relationship_write",
+  ];
+
+  for (const functionName of mutationFunctions) {
+    const marker = new RegExp(
+      `CREATE OR REPLACE FUNCTION public\\.${functionName}\\b[\\s\\S]*?vvip_social_actor_active\\s*\\(\\s*\\)`,
+      "i"
+    );
+    assert.match(sql, marker, `${functionName} must enforce the current actor lifecycle`);
+  }
+
+  assert.doesNotMatch(
+    sql,
+    /vvip_social_actor_active\s*\([^)]/i,
+    "lifecycle helper must never accept an arbitrary subject from the browser"
+  );
+});
+
 test("social runtime reads and creates posts through safe RPCs rather than raw subject-bearing SELECT", () => {
   const runtime = read("scripts/social/runtime-adapters.js");
   assert.match(runtime, /client\.rpc\(\s*["']vvip_social_feed_page["']/);
