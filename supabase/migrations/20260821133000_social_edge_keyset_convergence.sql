@@ -22,7 +22,7 @@ BEGIN
     RAISE EXCEPTION 'GATE5_CURSOR_INVALID' USING ERRCODE = '22023';
   END IF;
 
-  v_text := encode(convert_to(p_payload::text, 'UTF8'), 'base64');
+  v_text := replace(replace(encode(convert_to(p_payload::text, 'UTF8'), 'base64'), E'\n', ''), E'\r', '');
   RETURN rtrim(replace(replace(v_text, '+', '-'), '/', '_'), '=');
 END;
 $function$;
