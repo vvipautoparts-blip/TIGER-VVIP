@@ -11,8 +11,8 @@ test("P0 messaging is wired into the exact-head local-only Social DB rehearsal",
   assert.match(workflow, /20260821123000_social_block_privacy_convergence\.sql/);
   assert.match(workflow, /20260821130000_social_realtime_messaging_convergence\.sql/);
   assert.match(workflow, /tests\/tiger-p0-messaging-convergence\.test\.cjs/);
-  assert.match(workflow, /tests\/tiger-runtime-adapters-messaging\.test\.cjs/);
-  assert.match(workflow, /tests\/tiger-messaging-read-model\.test\.cjs/);
+  assert.match(workflow, /tests\/tiger-social-runtime-adapters\.test\.cjs/);
+  assert.match(workflow, /tests\/tiger-p0-messaging-read-model\.test\.cjs/);
   assert.match(workflow, /tests\/tiger-p0-messaging-db-rehearsal\.test\.cjs/);
   assert.match(workflow, /tests\/sql\/tiger-p0-messaging-convergence\.sql/);
   assert.match(workflow, /Prove P0 Messaging durable and privacy behavior/);
