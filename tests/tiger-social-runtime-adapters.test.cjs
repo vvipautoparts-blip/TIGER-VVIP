@@ -64,8 +64,14 @@ function createRecorder(resolver) {
     return builder;
   }
 
+  function rpc(name, params) {
+    const state = { operation: "rpc", name, params };
+    calls.push({ type: "rpc", name, params });
+    return Promise.resolve(resolver(state));
+  }
+
   return {
-    client: { from: query },
+    client: { from: query, rpc },
     calls,
   };
 }
@@ -93,21 +99,36 @@ test("adapter fails closed when Supabase runtime is unavailable", async () => {
   });
 });
 
-test("create post sends only user content and audience; database owns author identity", async () => {
-  const recorder = createRecorder((state) => ({
-    data: { post_id: "p1", body: state.payload.body, audience: state.payload.audience },
-    error: null,
-  }));
+test("create post sends only user content and audience through the safe RPC", async () => {
+  const recorder = createRecorder((state) => {
+    if (state.operation === "rpc") {
+      return {
+        data: {
+          post_id: "p1",
+          body: state.params.p_body,
+          audience: state.params.p_audience,
+          author_profile_id: "11111111-1111-4111-8111-111111111111",
+          author_display_name: "Tiger Member",
+          author_avatar_url: null,
+          author_available: true,
+        },
+        error: null,
+      };
+    }
+    return { data: null, error: null };
+  });
   const social = createSocialRuntimeAdapters({ client: recorder.client });
 
   const result = await social.posts.create({ body: " مرحباً ", audience: "friends" });
   assert.equal(result.ok, true);
 
-  const insert = recorder.calls.find((call) => call.type === "insert");
-  assert.equal(insert.table, "vvip_social_posts");
-  assert.deepEqual(insert.payload, { body: "مرحباً", audience: "friends" });
-  assert.equal(Object.hasOwn(insert.payload, "author_subject"), false);
-  assert.equal(Object.hasOwn(insert.payload, "authorId"), false);
+  assert.deepEqual(recorder.calls, [{
+    type: "rpc",
+    name: "vvip_social_post_create",
+    params: { p_body: "مرحباً", p_audience: "friends" },
+  }]);
+  assert.equal(Object.hasOwn(recorder.calls[0].params, "author_subject"), false);
+  assert.equal(Object.hasOwn(recorder.calls[0].params, "authorId"), false);
 });
 
 test("friend request sends only addressee; database owns requester and pending default", async () => {
@@ -154,16 +175,27 @@ test("relationship removal is server-confirmed and scoped by relationship id", a
   assert.ok(recorder.calls.some((call) => call.type === "eq" && call.column === "relationship_id" && call.value === "r1"));
 });
 
-test("feed read is bounded, newest-first, and relies on database RLS for visibility", async () => {
-  const recorder = createRecorder(() => ({ data: [{ post_id: "p1" }], error: null }));
+test("feed read is bounded and delegates visibility plus keyset ordering to the safe RPC", async () => {
+  const recorder = createRecorder((state) => {
+    if (state.operation === "rpc") {
+      return { data: [{ post_id: "p1" }], error: null };
+    }
+    return { data: null, error: null };
+  });
   const social = createSocialRuntimeAdapters({ client: recorder.client });
 
   const result = await social.posts.readFeed({ limit: 25 });
   assert.equal(result.ok, true);
-  assert.ok(recorder.calls.some((call) => call.type === "select" && call.table === "vvip_social_posts"));
-  assert.ok(recorder.calls.some((call) => call.type === "order" && call.column === "created_at" && call.options.ascending === false));
-  assert.ok(recorder.calls.some((call) => call.type === "order" && call.column === "post_id" && call.options.ascending === false));
-  assert.ok(recorder.calls.some((call) => call.type === "limit" && call.value === 26));
+  assert.deepEqual(recorder.calls, [{
+    type: "rpc",
+    name: "vvip_social_feed_page",
+    params: {
+      p_limit: 25,
+      p_before_created_at: null,
+      p_before_post_id: null,
+    },
+  }]);
+  assert.equal(recorder.calls.some((call) => call.type === "select" && call.table === "vvip_social_posts"), false);
 });
 
 test("invalid client inputs fail before any database call", async () => {
@@ -197,7 +229,7 @@ test("database errors and thrown client errors become opaque Social error codes"
   });
 
   const throwingClient = {
-    from() {
+    rpc() {
       throw new Error("secret connection detail");
     },
   };
