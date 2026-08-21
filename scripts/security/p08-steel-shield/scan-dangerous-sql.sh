@@ -147,6 +147,13 @@ declare -A reviewed_migration_hashes=(
   # denial were reviewed against the exact bytes below. Any byte drift re-enters review.
   ["supabase/migrations/20260821123000_social_block_privacy_convergence.sql"]="122be6e0eab63bbf7453e1d4eca90a11740cc83ef6531aa9158381448f88895c"
   ["supabase/migrations/20260821130000_social_realtime_messaging_convergence.sql"]="3a0473da73370fbbb17f64204f7a5d6254e697309ec68fdf793efb0046806f25"
+
+  # P0-D edge keyset convergence: reviewed after exact-head local reset and behavioral
+  # proof. The only lexical HIGHs were one bounded IS NOT NULL cursor predicate and one
+  # exact authenticated EXECUTE grant on the subject-blind feed read RPC. Cursor helpers
+  # stay private, raw post table reads remain revoked, and every page rechecks current
+  # block/privacy/lifecycle authority. Any byte drift re-enters review automatically.
+  ["supabase/migrations/20260821133000_social_edge_keyset_convergence.sql"]="6a2195497edb441f4e0525d14c608e5934ae55e7b388937f189a777aeb6ba3cb"
 )
 
 reviewed_baseline_path() {
