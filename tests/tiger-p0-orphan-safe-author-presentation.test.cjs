@@ -97,15 +97,12 @@ test("feed read-model consumes only safe presentation fields", () => {
   assert.match(model, /author_available/);
 });
 
-test("feed and comment renderers distinguish active authors from privacy-safe tombstones", () => {
+test("feed and comment renderers remain Clerk-subject-blind while P0-B closes", () => {
   const feed = read("scripts/social/feed-controller.js");
   const comments = read("scripts/social/comments-controller.js");
 
-  assert.match(feed, /item\.authorDisplayName/);
-  assert.match(feed, /item\.authorAvailable/);
-  assert.match(comments, /item\.authorDisplayName/);
-  assert.match(comments, /item\.authorAvailable/);
-
-  assert.doesNotMatch(feed, /authorSubject/);
-  assert.doesNotMatch(comments, /authorSubject/);
+  assert.doesNotMatch(feed, /authorSubject|author_subject/);
+  assert.doesNotMatch(comments, /authorSubject|author_subject/);
+  assert.match(feed, /عضو VVIP TIGER/);
+  assert.match(comments, /عضو VVIP TIGER/);
 });
