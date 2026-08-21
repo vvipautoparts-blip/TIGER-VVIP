@@ -46,32 +46,28 @@ test("P0-B orphan-safe DB boundary exposes presentation identity only", () => {
   );
 });
 
-test("deactivated or deleted actors fail closed on every integrated social mutation path", () => {
+test("deactivated or deleted actors fail closed at every integrated social mutation table", () => {
   const sql = readMigration();
   assert.match(sql, /CREATE OR REPLACE FUNCTION public\.vvip_social_actor_active\s*\(\s*\)/i);
   assert.match(sql, /profile_state\s*=\s*'active'/i);
+  assert.match(sql, /CREATE OR REPLACE FUNCTION public\.vvip_social_guard_active_actor_mutation\s*\(\s*\)/i);
   assert.match(sql, /SOCIAL_PROFILE_INACTIVE/i);
 
-  const mutationFunctions = [
-    "vvip_social_post_create",
-    "vvip_social_comment_create",
-    "vvip_social_comment_update",
-    "vvip_social_comment_remove",
-    "vvip_social_set_reaction",
-    "vvip_social_remove_reaction",
-    "vvip_social_save_post",
-    "vvip_social_unsave_post",
-    "vvip_social_follow_user",
-    "vvip_social_unfollow_user",
-    "vvip_social_guard_relationship_write",
+  const mutationTables = [
+    "vvip_social_posts",
+    "vvip_social_comments",
+    "vvip_social_reactions",
+    "vvip_social_bookmarks",
+    "vvip_social_follows",
+    "vvip_social_relationships",
   ];
 
-  for (const functionName of mutationFunctions) {
-    const marker = new RegExp(
-      `CREATE OR REPLACE FUNCTION public\\.${functionName}\\b[\\s\\S]*?vvip_social_actor_active\\s*\\(\\s*\\)`,
+  for (const tableName of mutationTables) {
+    const trigger = new RegExp(
+      `CREATE\\s+TRIGGER\\s+vvip_social_active_actor_[A-Za-z0-9_]+[\\s\\S]*?ON\\s+public\\.${tableName}[\\s\\S]*?vvip_social_guard_active_actor_mutation\\s*\\(\\s*\\)`,
       "i"
     );
-    assert.match(sql, marker, `${functionName} must enforce the current actor lifecycle`);
+    assert.match(sql, trigger, `${tableName} must be protected by the active-actor mutation guard`);
   }
 
   assert.doesNotMatch(
