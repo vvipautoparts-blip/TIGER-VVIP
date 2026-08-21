@@ -1,35 +1,59 @@
-# TIGER ONE FIELD — Living Discovery Fabric Design
+# ONE FIELD — Living Discovery Fabric Design
 
 **Date:** 2026-08-22  
-**Status:** OWNER-APPROVED CONCEPT — WRITTEN DESIGN FOR OWNER REVIEW  
+**Status:** OWNER APPROVED — IMPLEMENTATION AUTHORIZED  
 **Branch:** `feat/one-field-living-discovery-20260822`  
 **Authority:** Issue #312 is the controlling commercial/discovery boundary.  
+**Brand note:** `TIGER`, `VVIP TIGER`, `ONE FIELD`, `Mall`, sector labels, and all other human-facing names are current working/presentation labels only unless a later owner decision explicitly freezes a commercial brand.  
 **Public-repository note:** this specification intentionally defines interfaces, invariants, and acceptance behavior without publishing proprietary ranking weights, secret promotion thresholds, fraud heuristics, or patent-sensitive implementation constants.
 
 ## 1. Decision
 
-TIGER adopts **ONE FIELD / Invisible Semantic Discovery Fabric** as the internal architecture for cross-sector social discovery. The name is temporary and may be renamed without changing semantic identifiers, stored data, URLs, authorization, or integration contracts.
+The platform adopts **ONE FIELD / Invisible Semantic Discovery Fabric** as the current internal architecture for cross-sector social discovery. Neither the platform name nor the architecture name is a permanent identity contract. Both may be renamed without changing semantic identifiers, stored relationships, authorization, discovery contracts, integration contracts, or data ownership.
 
 The governing formula is:
 
 > ONE SURFACE + ONE SEMANTIC FIELD + INFINITE VIEWS + INVISIBLE AI + EXPLAINABLE RELEVANCE + ZERO BROKERAGE
 
-The user experience remains familiar and stable. Intelligence is ambient and hidden inside search, posting, enrichment, discovery, filtering, and rendering. TIGER must not require a visible chatbot persona to make the system usable.
+The user experience remains familiar and stable. Intelligence is ambient and hidden inside search, posting, enrichment, discovery, filtering, and rendering. The platform must not require a visible chatbot persona to make the system usable.
+
+### 1.1 Brand Abstraction Layer
+
+The commercial brand is presentation metadata, never a primary key or domain invariant.
+
+```text
+platform_brand_id = brand_current
+brand_aliases = [current public name, localized names, future replacement names]
+canonical_platform_subject = platform_core
+```
+
+Required behavior:
+
+- changing the public platform name must not require a database migration of domain records;
+- canonical IDs must never embed the mutable commercial brand;
+- authorization permissions, policy keys, event semantics, semantic concepts, personas, listing identities, and evidence hashes must be brand-neutral;
+- public routes/domains may be redirected or aliased through a controlled brand/routing layer without changing canonical object IDs;
+- UI copy, logos, locale strings, SEO metadata, email display names, and app-store labels are projections of the active brand profile;
+- compatibility aliases may preserve old URLs or names during a rename, but old labels must not remain authoritative business logic;
+- internal source filenames may retain historical names during migration, but new core contracts must use neutral semantic terminology where practical.
+
+This rule also applies recursively to sector/domain/view/category names.
 
 ## 2. Non-negotiable invariants
 
-1. **All sector/domain names are presentation aliases.** Stable internal semantic IDs are authoritative. Renaming a sector/domain must not require data migration or code forks.
-2. **No new sector replaces an existing sector or feature.** New domains/views are additive through shared registries and contracts.
-3. **Personas are not sectors.** Individual, company, institution, shop, freelancer, factory, farm, importer, wholesaler, supermarket, and future organization types are actor/persona types that may operate across multiple domains.
-4. **Posting identity is explicit.** A post/listing stores the authorized `persona_id` used to publish it. AI may suggest a persona; it may never silently select or change one.
-5. **Product meaning is independent of seller/persona.** A product/concept does not store `seller_type_id` as identity. The relation is `Actor -> Persona -> Listing/Post -> Product/Service/Object`.
-6. **No rigid taxonomy owns discovery.** Categories and subcategories remain supported for conventional browse, but are projections over the semantic field, not the source of truth.
-7. **Condition is semantic and policy-bound.** `new`, `used`, `refurbished`, `open_box`, freshness, grade, harvest/expiry/package state, and future states are vocabulary concepts with applicability policies. Nonsensical combinations fail closed (for example, `used` sugar).
-8. **AI cannot directly mutate canonical ontology.** It may propose concepts, aliases, attributes, relations, merges, and experience manifests. Promotion to canonical state follows deterministic validation and governance.
-9. **Organic relevance and paid delivery are separate systems.** Advertising budget may buy eligible exposure; it must not buy semantic truth, evidence, trust, or organic fit score.
-10. **Zero brokerage is absolute for user-to-user/provider commerce.** Allowed flow: `Discovery -> Relevance/Explanation -> Contact Handoff -> TIGER Stops`. No order creation, checkout, buyer/seller payment, escrow, negotiation, deal close, fulfillment, or sales/deal commission.
-11. **Platform-owned finance remains allowed only for TIGER advertising/services** under Issue #312 policy.
-12. **The stable shell remains familiar.** Home/feed, stories, composer, search/intent entry, messages, notifications, profile, and browse anchors remain predictable while discovery content may adapt.
+1. **The platform brand/name is a presentation alias.** `TIGER`, `VVIP TIGER`, and any future replacement name are mutable labels. Stable brand-neutral internal IDs and contracts are authoritative.
+2. **All sector/domain/view names are presentation aliases.** Stable internal semantic IDs are authoritative. Renaming a sector/domain/view must not require data migration or code forks.
+3. **No new sector replaces an existing sector or feature.** New domains/views are additive through shared registries and contracts.
+4. **Personas are not sectors.** Individual, company, institution, shop, freelancer, factory, farm, importer, wholesaler, supermarket, and future organization types are actor/persona types that may operate across multiple domains.
+5. **Posting identity is explicit.** A post/listing stores the authorized `persona_id` used to publish it. AI may suggest a persona; it may never silently select or change one.
+6. **Product meaning is independent of seller/persona.** A product/concept does not store `seller_type_id` as identity. The relation is `Actor -> Persona -> Listing/Post -> Product/Service/Object`.
+7. **No rigid taxonomy owns discovery.** Categories and subcategories remain supported for conventional browse, but are projections over the semantic field, not the source of truth.
+8. **Condition is semantic and policy-bound.** `new`, `used`, `refurbished`, `open_box`, freshness, grade, harvest/expiry/package state, and future states are vocabulary concepts with applicability policies. Nonsensical combinations fail closed (for example, `used` sugar).
+9. **AI cannot directly mutate canonical ontology.** It may propose concepts, aliases, attributes, relations, merges, and experience manifests. Promotion to canonical state follows deterministic validation and governance.
+10. **Organic relevance and paid delivery are separate systems.** Advertising budget may buy eligible exposure; it must not buy semantic truth, evidence, trust, or organic fit score.
+11. **Zero brokerage is absolute for user-to-user/provider commerce.** Allowed flow: `Discovery -> Relevance/Explanation -> Contact Handoff -> Platform Stops`. No order creation, checkout, buyer/seller payment, escrow, negotiation, deal close, fulfillment, or sales/deal commission.
+12. **Platform-owned finance remains allowed only for the platform's own advertising/services** under Issue #312 policy.
+13. **The stable shell remains familiar.** Home/feed, stories, composer, search/intent entry, messages, notifications, profile, and browse anchors remain predictable while discovery content may adapt.
 
 ## 3. Core model
 
@@ -131,7 +155,7 @@ AI can suggest: likely domain, product family, attributes, condition, media-deri
 
 ## 5. One Intent Entry
 
-TIGER supports one principal intent entry in Home while retaining traditional browse.
+The platform supports one principal intent entry in Home while retaining traditional browse.
 
 Input may progressively support text, voice, image, video, barcode/QR, location, and object context. Input modality is normalized into an **Intent Frame** rather than forcing the user through a category tree.
 
@@ -204,7 +228,7 @@ Signal fusion is deterministic at the contract boundary and auditable by version
 
 ### 7.1 Semantic Gravity
 
-For each Intent Frame, TIGER computes which attributes matter most to that intent. The UI exposes a small bounded set of the most useful facets (target experience: approximately 5–8 primary facets, with expansion available), not every attribute in the schema.
+For each Intent Frame, the platform computes which attributes matter most to that intent. The UI exposes a small bounded set of the most useful facets (target experience: approximately 5–8 primary facets, with expansion available), not every attribute in the schema.
 
 For cereal, sugar/allergens/ingredients may dominate. For a used sofa, dimensions/condition/material/location may dominate. Attribute importance is therefore query-scoped, not globally static.
 
@@ -223,7 +247,7 @@ Paid status is a separate label and may never be represented as a fit reason.
 
 ## 8. Bidirectional Ontology Evolution
 
-TIGER learns candidate concepts from both supply and demand without allowing uncontrolled ontology mutation.
+The platform learns candidate concepts from both supply and demand without allowing uncontrolled ontology mutation.
 
 Lifecycle:
 
@@ -319,7 +343,8 @@ Required properties:
 - canonical changes are versioned and auditable;
 - generated experience manifests use allowlisted component schemas;
 - no secret values in semantic capsules, logs, prompts, or client manifests;
-- crypto implementations remain replaceable behind provider interfaces.
+- crypto implementations remain replaceable behind provider interfaces;
+- no authorization decision may depend on a mutable commercial brand string.
 
 Any historical authorization language that permits commercial mediation must be treated as superseded where it conflicts with Issue #312.
 
@@ -364,16 +389,17 @@ Implementation must be incremental and additive.
 
 Phase boundaries should preserve current behavior while introducing compatibility contracts:
 
-1. semantic IDs/aliases and persona registry contracts;
-2. semantic capsule projection over existing posts/listings;
-3. condition/applicability vocabulary;
-4. intent frame and deterministic parser boundary;
-5. hybrid retrieval interfaces with local/test adapters first;
-6. discovery scene/experience manifest contracts;
-7. Universal Composer `Posting As` authorization path;
-8. generated facets and fit explanations;
-9. ephemeral concept proposal lifecycle;
-10. progressive domain/view onboarding, including the temporary Mall view.
+1. brand-neutral canonical identifiers plus brand/alias projection;
+2. semantic IDs/aliases and persona registry contracts;
+3. semantic capsule projection over existing posts/listings;
+4. condition/applicability vocabulary;
+5. intent frame and deterministic parser boundary;
+6. hybrid retrieval interfaces with local/test adapters first;
+7. discovery scene/experience manifest contracts;
+8. Universal Composer `Posting As` authorization path;
+9. generated facets and fit explanations;
+10. ephemeral concept proposal lifecycle;
+11. progressive domain/view onboarding, including the temporary Mall view.
 
 No phase may require an automatic merge to `main`, production migration, or deletion of legacy data.
 
@@ -381,6 +407,7 @@ No phase may require an automatic merge to `main`, production migration, or dele
 
 At minimum, implementation planning must include tests proving:
 
+- renaming the platform brand does not change canonical IDs, authorization subjects, stored relationships, semantic concepts, event semantics, or evidence ownership;
 - renaming a sector/view alias does not change canonical IDs or stored relationships;
 - adding a new domain/view does not change or remove existing sectors;
 - one persona can publish across multiple eligible domains when authorized;
@@ -397,12 +424,12 @@ At minimum, implementation planning must include tests proving:
 
 ## 16. Definition of done for this architecture slice
 
-This design is ready for implementation planning only when:
+This design is implementation-authorized only when:
 
-- owner accepts this written specification;
+- owner accepts this written specification and its brand-abstraction amendment;
 - repository impact mapping identifies the exact existing files/contracts/tests/migrations to extend or supersede;
 - Issue #312 conflict audit is respected;
 - the implementation plan names exact files and test commands from repository truth;
+- production code follows test-first RED -> GREEN -> REFACTOR with observed failing tests before implementation;
 - work proceeds on isolated branches/PRs with real test output and exact commit SHAs;
 - no production or `main` mutation occurs without explicit owner approval.
-
