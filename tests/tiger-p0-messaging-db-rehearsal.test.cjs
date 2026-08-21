@@ -10,10 +10,12 @@ const behavior = fs.readFileSync("tests/sql/tiger-p0-messaging-convergence.sql",
 test("P0 messaging is wired into the exact-head local-only Social DB rehearsal", () => {
   assert.match(workflow, /20260821123000_social_block_privacy_convergence\.sql/);
   assert.match(workflow, /20260821130000_social_realtime_messaging_convergence\.sql/);
+  assert.match(workflow, /docs\/security\/TIGER_P0_MESSAGING_CONVERGENCE_MIGRATION_SECURITY_REVIEW\.md/);
   assert.match(workflow, /tests\/tiger-p0-messaging-convergence\.test\.cjs/);
   assert.match(workflow, /tests\/tiger-social-runtime-adapters\.test\.cjs/);
   assert.match(workflow, /tests\/tiger-p0-messaging-read-model\.test\.cjs/);
   assert.match(workflow, /tests\/tiger-p0-messaging-db-rehearsal\.test\.cjs/);
+  assert.match(workflow, /tests\/tiger-p0-messaging-convergence-reviewed-migration-hash\.test\.cjs/);
   assert.match(workflow, /tests\/sql\/tiger-p0-messaging-convergence\.sql/);
   assert.match(workflow, /Prove P0 Messaging durable and privacy behavior/);
   assert.match(workflow, /Verify content-addressed migration review/);
@@ -24,8 +26,10 @@ test("P0 messaging is wired into the exact-head local-only Social DB rehearsal",
 
   const behaviorStep = workflow.indexOf("Prove P0 Messaging durable and privacy behavior");
   const reviewStep = workflow.indexOf("Verify content-addressed migration review");
+  const messagingHashTest = workflow.indexOf("node --test tests/tiger-p0-messaging-convergence-reviewed-migration-hash.test.cjs");
   assert.ok(behaviorStep >= 0, "messaging behavior step must exist");
   assert.ok(reviewStep > behaviorStep, "content-addressed review must remain enforced after behavioral proof");
+  assert.ok(messagingHashTest > reviewStep, "messaging reviewed-hash test must run inside the post-behavior review step");
 });
 
 test("P0 messaging behavioral proof covers durable truth, privacy fencing, lifecycle, and no-subject presentation", () => {
