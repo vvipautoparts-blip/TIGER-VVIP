@@ -39,11 +39,14 @@ test("Social DB rehearsal applies social and profile proofs and always stops loc
   assert.match(workflow, /supabase stop --no-backup/);
 });
 
-test("foundation behavior proof covers friend visibility and isolation from a third actor", () => {
+test("foundation behavior proof covers safe-RPC friend visibility and isolation from a third actor", () => {
   assert.match(foundationBehavior, /user_alice/);
   assert.match(foundationBehavior, /user_bob/);
   assert.match(foundationBehavior, /user_charlie/);
-  assert.match(foundationBehavior, /audience.*friends/is);
+  assert.match(foundationBehavior, /vvip_social_post_create\('social-friends-proof',\s*'friends'\)/i);
+  assert.match(foundationBehavior, /vvip_social_feed_page\(20,\s*null,\s*null\)/i);
+  assert.doesNotMatch(foundationBehavior, /insert\s+into\s+public\.vvip_social_posts/i);
+  assert.doesNotMatch(foundationBehavior, /from\s+public\.vvip_social_posts/i);
   assert.match(foundationBehavior, /relationship_state.*friends/is);
   assert.match(foundationBehavior, /BOB_CAN_READ_FRIEND_POST/);
   assert.match(foundationBehavior, /CHARLIE_CANNOT_READ_FRIEND_POST/);
