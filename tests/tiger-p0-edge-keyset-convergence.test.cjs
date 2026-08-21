@@ -37,3 +37,12 @@ test("P0-D convergence never imports the stale Gate5 migration filenames", () =>
   assert.equal(fs.existsSync("supabase/migrations/20260820007000_gate5_feed_keyset.sql"), false);
   assert.equal(fs.existsSync("supabase/migrations/20260820007100_gate5_social_keyset.sql"), false);
 });
+
+test("LC03 security rehearsal is triggered by the P0-D migration", () => {
+  const workflow = fs.readFileSync(".github/workflows/lc03-supabase-security-rehearsal.yml", "utf8");
+  assert.match(
+    workflow,
+    /supabase\/migrations\/20260821133000_social_edge_keyset_convergence\.sql/,
+    "P0-D migration must trigger LC03 on the exact PR head",
+  );
+});
