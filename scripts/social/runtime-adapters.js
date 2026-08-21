@@ -25,7 +25,6 @@
     "sad",
     "angry",
   ]);
-  const POST_SELECT = "post_id,author_subject,body,audience,created_at,updated_at";
   const RELATIONSHIP_SELECT = "relationship_id,requester_subject,addressee_subject,relationship_state,created_at,updated_at";
 
   function frozenFailure(code) {
@@ -157,7 +156,7 @@
 
     const posts = Object.freeze({
       readFeed: async function (options) {
-        if (!hasClient(client)) return unavailable();
+        if (!hasRpcClient(client)) return unavailable();
 
         const limit = normalizeLimit(options);
         if (!limit.ok) return frozenFailure(limit.code);
@@ -166,21 +165,11 @@
         if (!cursor.ok) return frozenFailure(cursor.code);
 
         const result = await execute(
-          () => {
-            let query = client
-              .from(SOCIAL_POSTS_TABLE)
-              .select(POST_SELECT)
-              .order("created_at", { ascending: false })
-              .order("post_id", { ascending: false });
-
-            if (cursor.value) {
-              query = query.or(
-                `created_at.lt.${cursor.value.createdAt},and(created_at.eq.${cursor.value.createdAt},post_id.lt.${cursor.value.postId})`
-              );
-            }
-
-            return query.limit(limit.value + 1);
-          },
+          () => client.rpc("vvip_social_feed_page", {
+            p_limit: limit.value,
+            p_before_created_at: cursor.value ? cursor.value.createdAt : null,
+            p_before_post_id: cursor.value ? cursor.value.postId : null,
+          }),
           false
         );
 
@@ -202,17 +191,16 @@
       },
 
       create: async function (input) {
-        if (!hasClient(client)) return unavailable();
+        if (!hasRpcClient(client)) return unavailable();
 
         const post = normalizePost(input);
         if (!post.ok) return frozenFailure(post.code);
 
         return execute(
-          () => client
-            .from(SOCIAL_POSTS_TABLE)
-            .insert(post.payload)
-            .select(POST_SELECT)
-            .single(),
+          () => client.rpc("vvip_social_post_create", {
+            p_body: post.payload.body,
+            p_audience: post.payload.audience,
+          }),
           true
         );
       },
