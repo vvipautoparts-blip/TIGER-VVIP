@@ -32,8 +32,7 @@ CREATE OR REPLACE FUNCTION public.vvip_social_is_blocked_pair(
 RETURNS boolean
 LANGUAGE sql
 STABLE
-SECURITY DEFINER
-SET search_path = pg_catalog, public
+SECURITY DEFINER SET search_path = pg_catalog, public
 AS $function$
   SELECT CASE
     WHEN p_left_subject IS NULL
@@ -65,8 +64,7 @@ CREATE OR REPLACE FUNCTION public.vvip_social_block_profile(
 RETURNS jsonb
 LANGUAGE plpgsql
 VOLATILE
-SECURITY DEFINER
-SET search_path = pg_catalog, public
+SECURITY DEFINER SET search_path = pg_catalog, public
 AS $function$
 DECLARE
   v_actor text := public.vvip_marketplace_actor_id();
@@ -115,8 +113,7 @@ BEGIN
 
   GET DIAGNOSTICS v_row_count = ROW_COUNT;
 
-  DELETE FROM public.vvip_social_relationships AS relationship
-  WHERE relationship.subject_low = least(v_actor, v_peer_subject)
+  DELETE FROM public.vvip_social_relationships AS relationship WHERE relationship.subject_low = least(v_actor, v_peer_subject)
     AND relationship.subject_high = greatest(v_actor, v_peer_subject);
 
   RETURN jsonb_build_object(
@@ -134,8 +131,7 @@ CREATE OR REPLACE FUNCTION public.vvip_social_unblock_profile(
 RETURNS jsonb
 LANGUAGE plpgsql
 VOLATILE
-SECURITY DEFINER
-SET search_path = pg_catalog, public
+SECURITY DEFINER SET search_path = pg_catalog, public
 AS $function$
 DECLARE
   v_actor text := public.vvip_marketplace_actor_id();
@@ -173,8 +169,7 @@ BEGIN
     hashtextextended(least(v_actor, v_peer_subject) || ':' || greatest(v_actor, v_peer_subject), 0)
   );
 
-  DELETE FROM public.vvip_social_blocks AS block_row
-  WHERE block_row.blocker_subject = v_actor
+  DELETE FROM public.vvip_social_blocks AS block_row WHERE block_row.blocker_subject = v_actor
     AND block_row.blocked_subject = v_peer_subject;
 
   GET DIAGNOSTICS v_row_count = ROW_COUNT;
@@ -202,12 +197,10 @@ CREATE OR REPLACE FUNCTION public.vvip_social_can_view_post(
 RETURNS boolean
 LANGUAGE sql
 STABLE
-SECURITY DEFINER
-SET search_path = pg_catalog, public
+SECURITY DEFINER SET search_path = pg_catalog, public
 AS $function$
   SELECT
-    p_actor IS NOT NULL
-    AND p_actor ~ '^user_[A-Za-z0-9_-]{6,128}$'
+    COALESCE(p_actor ~ '^user_[A-Za-z0-9_-]{6,128}$', false)
     AND EXISTS (
       SELECT 1
       FROM public.vvip_social_posts AS post
