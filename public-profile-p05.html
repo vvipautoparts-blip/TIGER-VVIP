@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#f0f2f5">
-  <title>الملف العام — VVIP TIGER</title>
+  <title>ملف العضو — VVIP TIGER</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -14,7 +14,7 @@
   <script defer src="scripts/profile/pr39-profile-contract.js"></script>
   <script defer src="scripts/profile/pr39-profile-controller.js"></script>
 </head>
-<body data-pr39-public-profile data-page="public-profile">
+<body data-pr39-member-profile data-page="member-profile">
   <a class="pr39-skip" href="#pr39-main">تخطي إلى المحتوى</a>
 
   <header class="pr39-header">
@@ -25,7 +25,7 @@
     </nav>
   </header>
 
-  <main id="pr39-main" class="pr39-profile" data-pr39-public-profile>
+  <main id="pr39-main" class="pr39-profile" data-pr39-member-profile>
     <section class="pr39-cover" aria-label="صورة الغلاف">
       <div class="pr39-avatar" role="img" aria-label="الصورة الشخصية"></div>
     </section>
@@ -33,8 +33,8 @@
     <section class="pr39-identity-card">
       <h1 data-pr39-name>مستخدم VVIP</h1>
       <p data-pr39-username>@</p>
-      <p data-pr39-bio>نبذة عامة ستظهر بعد التفعيل الرسمي.</p>
-      <p data-pr39-location>الموقع العام غير متاح حاليًا.</p>
+      <p data-pr39-bio>نبذة العضو ستظهر بعد التفعيل الرسمي.</p>
+      <p data-pr39-location>الموقع المسموح بعرضه غير متاح حاليًا.</p>
       <p>نوع الحساب المختار: <strong data-pr39-account-type>غير محدد</strong></p>
       <p data-pr39-account-type-status aria-live="polite">اختيار غير مفعّل رسميًا بعد.</p>
       <p>صلاحية النشر: <strong data-pr39-permission>النشر غير مفعّل.</strong></p>
@@ -42,22 +42,19 @@
 
       <div class="pr39-actions" data-pr39-owner-tools>
         <a class="pr39-btn pr39-btn-primary" href="edit-profile-p05.html">تعديل الملف</a>
-        <button class="pr39-btn" type="button" data-pr39-view-as-visitor>عرض كزائر</button>
         <a class="pr39-btn" href="private-profile-p03.html">العودة لمركز الحساب</a>
         <button class="pr39-btn" type="button" data-pr39-logout>تسجيل الخروج</button>
       </div>
 
-      <div class="pr39-actions" data-pr39-visitor-tools hidden>
+      <div class="pr39-actions" data-pr39-member-tools hidden>
         <button class="pr39-btn" type="button" data-pr39-copy-link>نسخ رابط الملف</button>
         <button class="pr39-btn" type="button" data-pr39-message>رسالة خاصة</button>
-        <button class="pr39-btn" type="button" data-pr39-back-owner hidden>العودة لوضع المالك</button>
       </div>
 
       <div class="pr39-menu-wrap">
         <button class="pr39-btn" type="button" data-pr39-menu-trigger aria-expanded="false" aria-controls="pr39-menu-panel">⋮</button>
         <div id="pr39-menu-panel" class="pr39-menu" data-pr39-menu hidden>
           <p data-pr39-menu-summary>copy | report</p>
-          <button type="button" data-pr39-menu-item="viewAsVisitor">عرض كزائر</button>
           <button type="button" data-pr39-menu-item="copy" data-pr39-copy-link>نسخ رابط الملف</button>
           <button type="button" data-pr39-menu-item="settings">إعدادات الحساب</button>
           <button type="button" data-pr39-menu-item="tigerCare">Tiger Care</button>
@@ -76,15 +73,15 @@
     <section class="pr39-columns">
       <aside class="pr39-card">
         <h2>حول</h2>
-        <p>يعرض هذا القسم البيانات العامة فقط دون معلومات خاصة.</p>
+        <p>يعرض هذا القسم البيانات المسموح بعرضها للأعضاء المصادق عليهم فقط.</p>
       </aside>
       <section class="pr39-card">
         <h2>المنشورات والإعلانات</h2>
-        <div class="pr39-empty" role="status" aria-live="polite">لا توجد منشورات عامة لهذا الحساب حتى الآن.</div>
+        <div class="pr39-empty" role="status" aria-live="polite">لا توجد منشورات مرئية للأعضاء لهذا الحساب حتى الآن.</div>
       </section>
       <section class="pr39-card">
         <h2>الصور</h2>
-        <div class="pr39-empty">لا توجد صور عامة حتى الآن.</div>
+        <div class="pr39-empty">لا توجد صور مرئية للأعضاء حتى الآن.</div>
       </section>
     </section>
   </main>

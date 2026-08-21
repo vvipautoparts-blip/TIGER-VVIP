@@ -18,6 +18,7 @@ function installBrowserFixture(clerkOverrides) {
     location: global.location,
     document: global.document,
     runtimeReady: global.VVIPRuntimeReady,
+    fusionSurface: global.VVIPFusionSurface,
     pr29: global.VVIP_PR29,
     sessionStorage: global.sessionStorage,
     dispatchEvent: global.dispatchEvent,
@@ -27,6 +28,7 @@ function installBrowserFixture(clerkOverrides) {
   const mounted = [];
   let listener = null;
   let homeCalls = 0;
+  let hideHomeCalls = 0;
   let gateCalls = 0;
   const gate = {
     hidden: true,
@@ -56,6 +58,10 @@ function installBrowserFixture(clerkOverrides) {
     }
   };
   global.sessionStorage = storage;
+  global.VVIPFusionSurface = {
+    showHome() { homeCalls += 1; },
+    hideHome() { hideHomeCalls += 1; }
+  };
   global.VVIP_PR29 = {
     showHome() { homeCalls += 1; },
     showGate() { gateCalls += 1; }
@@ -81,11 +87,13 @@ function installBrowserFixture(clerkOverrides) {
     dispatched,
     getListener: () => listener,
     getHomeCalls: () => homeCalls,
+    getHideHomeCalls: () => hideHomeCalls,
     getGateCalls: () => gateCalls,
     restore() {
       global.location = original.location;
       global.document = original.document;
       global.VVIPRuntimeReady = original.runtimeReady;
+      global.VVIPFusionSurface = original.fusionSurface;
       global.VVIP_PR29 = original.pr29;
       global.sessionStorage = original.sessionStorage;
       global.dispatchEvent = original.dispatchEvent;
@@ -94,9 +102,8 @@ function installBrowserFixture(clerkOverrides) {
   };
 }
 
-test("allows preview only on localhost", () => {
-  assert.equal(auth.localPreviewAllowed({ hostname: "localhost", search: "?preview=home" }), true);
-  assert.equal(auth.localPreviewAllowed({ hostname: "example.com", search: "?preview=home" }), false);
+test("does not expose a local preview authentication bypass", () => {
+  assert.equal(auth.localPreviewAllowed, undefined);
 });
 
 test("allows only bounded internal return paths", () => {
@@ -124,20 +131,22 @@ test("normalizes only allowlisted non-sensitive intent descriptors", () => {
   assert.throws(() => auth.normalizeIntentDescriptor({ name: "CREATE_LISTING", token: "secret" }), { code: "AUTH_INTENT_INVALID" });
 });
 
-test("unsigned start keeps public home visible and does not mount Clerk", async () => {
+test("unsigned start is fail-closed and mounts the authentication gate", async () => {
   const fixture = installBrowserFixture();
   try {
     await auth.start();
-    assert.equal(fixture.getHomeCalls(), 1);
-    assert.equal(fixture.getGateCalls(), 0);
-    assert.equal(fixture.mounted.length, 0);
-    assert.equal(fixture.gate.hidden, true);
+    assert.equal(fixture.getHomeCalls(), 0);
+    assert.ok(fixture.getHideHomeCalls() >= 1);
+    assert.equal(fixture.mounted.length, 1);
+    assert.equal(fixture.mounted[0].props.routing, "hash");
+    assert.equal(fixture.gate.hidden, false);
+    assert.equal(fixture.gate.attrs["aria-hidden"], "false");
   } finally {
     fixture.restore();
   }
 });
 
-test("protected action mounts Clerk once and persists only the safe intent descriptor", async () => {
+test("protected action reuses the mounted Clerk gate and persists only the safe intent descriptor", async () => {
   const fixture = installBrowserFixture();
   try {
     await auth.start();
@@ -156,21 +165,11 @@ test("protected action mounts Clerk once and persists only the safe intent descr
   }
 });
 
-test("continue without sign-in closes access sheet and clears pending intent", async () => {
-  const fixture = installBrowserFixture();
-  try {
-    await auth.start();
-    await auth.requireAuth({ name: "CREATE_LISTING" }, () => {});
-    auth.continueWithoutSignIn();
-
-    assert.equal(fixture.gate.hidden, true);
-    assert.equal(fixture.storage.getItem("vvip.auth.intent.v1"), null);
-  } finally {
-    fixture.restore();
-  }
+test("does not expose continue-without-sign-in escape hatch", () => {
+  assert.equal(auth.continueWithoutSignIn, undefined);
 });
 
-test("signed-in listener consumes and resumes an in-memory protected intent at most once", async () => {
+test("signed-in listener reveals home and resumes an in-memory protected intent at most once", async () => {
   const fixture = installBrowserFixture();
   try {
     await auth.start();
@@ -185,6 +184,7 @@ test("signed-in listener consumes and resumes an in-memory protected intent at m
     await new Promise((resolve) => setImmediate(resolve));
 
     assert.equal(resumed, 1);
+    assert.equal(fixture.getHomeCalls(), 1);
     assert.equal(fixture.storage.getItem("vvip.auth.intent.v1"), null);
     assert.equal(fixture.gate.hidden, true);
   } finally {
@@ -192,13 +192,35 @@ test("signed-in listener consumes and resumes an in-memory protected intent at m
   }
 });
 
-test("signed-in start dispatches one safe resume event for a redirect-surviving descriptor", async () => {
+test("sign-out transition immediately hides home and restores the authentication gate", async () => {
+  const fixture = installBrowserFixture({ isSignedIn: true });
+  try {
+    await auth.start();
+    assert.equal(fixture.getHomeCalls(), 1);
+    const hideCallsBeforeSignOut = fixture.getHideHomeCalls();
+    const listener = fixture.getListener();
+
+    fixture.clerk.isSignedIn = false;
+    listener();
+    await new Promise((resolve) => setImmediate(resolve));
+
+    assert.ok(fixture.getHideHomeCalls() > hideCallsBeforeSignOut);
+    assert.equal(fixture.gate.hidden, false);
+    assert.equal(fixture.mounted.length, 1);
+  } finally {
+    fixture.restore();
+  }
+});
+
+test("signed-in start reveals home and dispatches one safe resume event", async () => {
   const fixture = installBrowserFixture({ isSignedIn: true });
   try {
     fixture.storage.setItem("vvip.auth.intent.v1", JSON.stringify({ name: "OPEN_ACCOUNT" }));
     await auth.start();
     await new Promise((resolve) => setImmediate(resolve));
 
+    assert.equal(fixture.getHomeCalls(), 1);
+    assert.equal(fixture.gate.hidden, true);
     assert.equal(fixture.storage.getItem("vvip.auth.intent.v1"), null);
     assert.equal(fixture.dispatched.length, 1);
     assert.equal(fixture.dispatched[0].type, "vvip:auth-resume");
@@ -208,7 +230,7 @@ test("signed-in start dispatches one safe resume event for a redirect-surviving 
   }
 });
 
-test("recovery keeps public home visible and never exposes client error details", () => {
+test("recovery stays fail-closed and never exposes client error details", () => {
   const fixture = installBrowserFixture();
   const originalWarn = console.warn;
   const calls = [];
@@ -223,5 +245,8 @@ test("recovery keeps public home visible and never exposes client error details"
   assert.deepEqual(calls, [["VVIP_CLERK_GATE_RECOVERY"]]);
   assert.equal(JSON.stringify(calls).includes("SENSITIVE_CLIENT_DETAIL"), false);
   assert.equal(JSON.stringify(calls).includes("do-not-log"), false);
-  assert.equal(fixture.getHomeCalls(), 1);
+  assert.equal(fixture.getHomeCalls(), 0);
+  assert.ok(fixture.getHideHomeCalls() >= 1);
+  assert.equal(fixture.gate.hidden, false);
+  assert.equal(fixture.authError.hidden, false);
 });

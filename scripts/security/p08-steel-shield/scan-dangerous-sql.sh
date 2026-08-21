@@ -122,6 +122,13 @@ declare -A reviewed_migration_hashes=(
   # authenticated EXECUTE grants for self-deactivate/reactivate; trusted deletion stays
   # service-role-only and browser table CRUD remains revoked. Byte drift re-enters review.
   ["supabase/migrations/20260820231500_profile_lifecycle_boundary.sql"]="5e23b0f296e3b447ce42cc4d7bb11b42fe4c6cbed43d654b065d911f40a07b68"
+
+  # NO_VISITOR_MODE hardening: reviewed as a privilege-narrowing forward migration.
+  # The DROP POLICY findings intentionally retire historical anonymous/public reads;
+  # replacement policies target authenticated members only, anon grants are revoked,
+  # legacy feed browser ACL is removed, and no CASCADE/table/column destruction exists.
+  # Approval is byte-exact; any SQL drift re-enters Steel Shield automatically.
+  ["supabase/migrations/20260821003000_no_visitor_mode_hardening.sql"]="4c3e7c7d1d3e6eed8d76f1bede9c127d58ae93487d578fc811eb7d9e2644a2ef"
 )
 
 reviewed_baseline_path() {

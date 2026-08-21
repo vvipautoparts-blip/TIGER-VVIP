@@ -40,13 +40,6 @@
     return error;
   }
 
-  function localPreviewAllowed(locationLike) {
-    const location = locationLike || root.location;
-    const preview = new URLSearchParams(location.search).get("preview");
-    const local = ["localhost", "127.0.0.1", "::1", "[::1]", "0.0.0.0"].includes(location.hostname);
-    return local && preview === "home";
-  }
-
   function safeReturnPath(locationLike, runtimeConfigLike) {
     const location = locationLike || root.location;
     const returnTo = new URLSearchParams(location.search).get("return_to");
@@ -65,6 +58,24 @@
     if (root.VVIP_PR29 && typeof root.VVIP_PR29.showHome === "function") root.VVIP_PR29.showHome();
   }
 
+  function hideHome() {
+    if (root.VVIPFusionSurface && typeof root.VVIPFusionSurface.hideHome === "function") {
+      root.VVIPFusionSurface.hideHome();
+      return;
+    }
+
+    const home = root.document && typeof root.document.querySelector === "function"
+      ? root.document.querySelector("[data-vvip-fusion-authoritative]")
+      : null;
+    if (home) {
+      home.hidden = true;
+      if (typeof home.setAttribute === "function") home.setAttribute("aria-hidden", "true");
+      return;
+    }
+
+    if (root.VVIP_PR29 && typeof root.VVIP_PR29.hideHome === "function") root.VVIP_PR29.hideHome();
+  }
+
   function gateElement() {
     return root.document && typeof root.document.querySelector === "function"
       ? root.document.querySelector("[data-vvip-auth-gate]")
@@ -78,6 +89,7 @@
   }
 
   function showGate() {
+    hideHome();
     const gate = gateElement();
     if (gate) {
       gate.hidden = false;
@@ -195,8 +207,9 @@
     if (resumeInFlight) return;
     resumeInFlight = true;
     try {
-      hideGate();
       clearAuthError();
+      showHome();
+      hideGate();
       const stored = consumeStoredIntent();
       const resume = pendingResume;
       const descriptor = pendingIntent || stored;
@@ -221,11 +234,25 @@
     }
   }
 
+  function lockSignedOut(clerk) {
+    clearAuthError();
+    showGate();
+    mountClerk(clerk);
+  }
+
   function registerListener(clerk) {
     if (listenerRegistered || !clerk || typeof clerk.addListener !== "function") return;
     listenerRegistered = true;
     clerk.addListener(function () {
-      if (clerk.isSignedIn) completeSignedIn().catch(recover);
+      if (clerk.isSignedIn) {
+        completeSignedIn().catch(recover);
+        return;
+      }
+      try {
+        lockSignedOut(clerk);
+      } catch (_) {
+        recover();
+      }
     });
   }
 
@@ -261,13 +288,15 @@
   }
 
   async function start() {
-    showHome();
-    hideGate();
     clearAuthError();
-    if (localPreviewAllowed()) return;
+    showGate();
 
     const clerk = await resolveClerk();
-    if (clerk.isSignedIn) await completeSignedIn();
+    if (clerk.isSignedIn) {
+      await completeSignedIn();
+      return;
+    }
+    mountClerk(clerk);
   }
 
   async function requireAuth(descriptor, resume) {
@@ -288,29 +317,18 @@
     return false;
   }
 
-  function continueWithoutSignIn() {
-    pendingIntent = null;
-    pendingResume = null;
-    clearStoredIntent();
-    clearAuthError();
-    hideGate();
-    showHome();
-  }
-
   function recover() {
     console.warn("VVIP_CLERK_GATE_RECOVERY");
-    showHome();
+    showGate();
     showAuthError();
   }
 
   return Object.freeze({
     start,
     requireAuth,
-    continueWithoutSignIn,
     normalizeIntentDescriptor,
     consumeStoredIntent,
     recover,
-    localPreviewAllowed,
     safeReturnPath,
     authError
   });
