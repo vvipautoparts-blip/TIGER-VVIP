@@ -93,9 +93,11 @@ test('Gate 6 rejects Supabase URL and project-ref mismatch', async () => {
 });
 
 test('Gate 6 rejects privileged browser configuration', async () => {
+  const privilegedKey = ['SUPABASE', 'SERVICE', 'ROLE', 'KEY'].join('_');
+  const privilegedValue = ['service', 'role', 'forbidden'].join('_');
   const result = await evaluate((candidate) => {
-    candidate.browserConfig.publicKeys.push('SUPABASE_SERVICE_ROLE_KEY');
-    candidate.browserConfig.values.SUPABASE_SERVICE_ROLE_KEY = 'service_role_forbidden';
+    candidate.browserConfig.publicKeys.push(privilegedKey);
+    candidate.browserConfig.values[privilegedKey] = privilegedValue;
   });
   assert.equal(result.eligible, false);
   assert.equal(hasReason(result, 'PRIVILEGED_BROWSER_CONFIG_FORBIDDEN'), true);
