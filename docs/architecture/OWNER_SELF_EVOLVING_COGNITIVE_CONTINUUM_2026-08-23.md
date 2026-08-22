@@ -1,7 +1,7 @@
 # OWNER SELF-EVOLVING COGNITIVE CONTINUUM — 2026-08-23
 
-**Status:** ACTIVE — OWNER AUTHORITY  
-**Scope:** internal cognitive continuity only  
+**Status:** ACTIVE — OWNER AUTHORITY
+**Scope:** internal cognitive continuity only
 **Relationship:** extends the current ONE FIELD / Private Intent / Semantic World Graph / Capability Graph / Reciprocal Matching / Relevance / Counterfactual / Living Intent Space / CONTACT HANDOFF route. It does not create a parallel platform core and does not authorize a big-bang rewrite.
 
 ## Canonical model
@@ -71,7 +71,7 @@ The existing Counterfactual Explainer remains part of the user-facing route; int
 
 The system may actively identify unknowns, contradictions, high uncertainty, missing relationships, weak matches, emerging concepts, repeated workarounds and capability gaps.
 
-Curiosity asks: `what do I not understand?`  
+Curiosity asks: `what do I not understand?`
 Innovation Reflex asks: `what can be made materially better?`
 
 Both remain bounded by the Constitutional Genome.
