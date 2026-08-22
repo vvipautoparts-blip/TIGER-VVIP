@@ -20,14 +20,12 @@ on:
       - "docs/security/TIGER_SOCIAL_REACTIONS_MIGRATION_SECURITY_REVIEW.md"
       - "docs/security/TIGER_SOCIAL_COMMENTS_MIGRATION_SECURITY_REVIEW.md"
       - "docs/security/TIGER_SYNAPSE_INTENT_MIGRATION_SECURITY_REVIEW.md"
-      - "docs/security/TIGER_SYNAPSE_INTENT_MIGRATION_SECURITY_REVIEW.md"
       - "tests/tiger-social-db-foundation.test.cjs"
       - "tests/tiger-social-db-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-reactions-db.test.cjs"
       - "tests/tiger-social-reactions-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-comments-db.test.cjs"
       - "tests/tiger-social-comments-reviewed-migration-hash.test.cjs"
-      - "tests/tiger-synapse-intent-reviewed-migration-hash.test.cjs"
       - "tests/tiger-synapse-intent-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-runtime-adapters.test.cjs"
       - "tests/tiger-social-post-domain.test.cjs"
@@ -65,14 +63,12 @@ on:
       - "docs/security/TIGER_SOCIAL_REACTIONS_MIGRATION_SECURITY_REVIEW.md"
       - "docs/security/TIGER_SOCIAL_COMMENTS_MIGRATION_SECURITY_REVIEW.md"
       - "docs/security/TIGER_SYNAPSE_INTENT_MIGRATION_SECURITY_REVIEW.md"
-      - "docs/security/TIGER_SYNAPSE_INTENT_MIGRATION_SECURITY_REVIEW.md"
       - "tests/tiger-social-db-foundation.test.cjs"
       - "tests/tiger-social-db-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-reactions-db.test.cjs"
       - "tests/tiger-social-reactions-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-comments-db.test.cjs"
       - "tests/tiger-social-comments-reviewed-migration-hash.test.cjs"
-      - "tests/tiger-synapse-intent-reviewed-migration-hash.test.cjs"
       - "tests/tiger-synapse-intent-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-runtime-adapters.test.cjs"
       - "tests/tiger-social-post-domain.test.cjs"
@@ -139,7 +135,6 @@ jobs:
           node --test tests/tiger-social-reactions-reviewed-migration-hash.test.cjs
           node --test tests/tiger-social-comments-db.test.cjs
           node --test tests/tiger-social-comments-reviewed-migration-hash.test.cjs
-          node --test tests/tiger-synapse-intent-reviewed-migration-hash.test.cjs
           node --test tests/tiger-synapse-intent-reviewed-migration-hash.test.cjs
           node --test tests/tiger-social-db-rehearsal-workflow.test.cjs
           node --test tests/tiger-social-runtime-adapters.test.cjs
