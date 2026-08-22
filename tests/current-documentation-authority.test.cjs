@@ -119,3 +119,12 @@ test("strategic backlog cannot preserve external-deal escrow or fulfillment as f
   assert.doesNotMatch(text, /BL-003[^\n]*Future regulated release[^\n]*backlog/i);
   assert.doesNotMatch(text, /BL-013[^\n]*Future country rollout[^\n]*backlog/i);
 });
+
+test("product scope freeze cannot make a mutable brand or three launch sectors into core architecture", () => {
+  const text = read("docs/product-readiness/PRODUCT_SCOPE_FREEZE.md");
+  assert.match(text, /brand-neutral|mutable.*brand|presentation label/i);
+  assert.match(text, /additive sector registry|sector registry.*additive/i);
+  assert.match(text, /three sectors.*launch|launch.*three sectors|current launch.*three sectors/i);
+  assert.doesNotMatch(text, /VVIP TIGER is one unified platform identity\./i);
+  assert.doesNotMatch(text, /## Three Sectors As Filters/i);
+});
