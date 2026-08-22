@@ -28,6 +28,8 @@
     });
   }
 
+  let lastPostTrigger = null;
+
   function showDestination(destination) {
     if (!SOCIAL_DESTINATIONS.has(destination)) return false;
 
@@ -59,9 +61,13 @@
     return SOCIAL_DESTINATIONS.has(value) ? value : null;
   }
 
-  function setPostSheetOpen(open) {
+  function setPostSheetOpen(open, returnFocus) {
     const sheet = document.querySelector('[data-social-post-sheet]');
     if (!sheet) return;
+
+    if (open) {
+      lastPostTrigger = returnFocus || document.querySelector('[data-social-post-trigger]');
+    }
 
     sheet.hidden = !open;
     sheet.setAttribute('aria-hidden', open ? 'false' : 'true');
@@ -70,7 +76,13 @@
       const dialog = sheet.querySelector('[role="dialog"]');
       const draft = sheet.querySelector('[data-social-post-draft]');
       (draft || dialog)?.focus();
+      return;
     }
+
+    if (lastPostTrigger && typeof lastPostTrigger.focus === 'function') {
+      lastPostTrigger.focus();
+    }
+    lastPostTrigger = null;
   }
 
   function ensureSearchStyles() {
@@ -203,7 +215,7 @@
     const postTrigger = event.target.closest('[data-social-post-trigger]');
     if (postTrigger) {
       event.preventDefault();
-      setPostSheetOpen(true);
+      setPostSheetOpen(true, postTrigger);
       return;
     }
 
