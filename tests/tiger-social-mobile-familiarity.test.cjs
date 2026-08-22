@@ -21,8 +21,12 @@ test('mobile social home uses a light neutral canvas and white content surfaces'
   assert.match(css, /background:\s*var\(--tiger-social-canvas\)/);
 });
 
-test('each rendered post exposes comment and share actions beside reactions', () => {
+test('each rendered post exposes only implemented comment and reaction actions', () => {
   assert.match(feedController, /data-social-post-actions/);
+  assert.match(feedController, /data-social-reactions-host/);
+  assert.match(feedController, /data-social-comment-trigger/);
   assert.match(feedController, /تعليق/);
-  assert.match(feedController, /مشاركة/);
+  assert.doesNotMatch(feedController, /المشاركة غير متاحة حاليًا/);
+  assert.doesNotMatch(feedController, /خيارات المنشور غير متاحة حاليًا/);
+  assert.doesNotMatch(feedController, /data\.socialShareTrigger\s*=/);
 });

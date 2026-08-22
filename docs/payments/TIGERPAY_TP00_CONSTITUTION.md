@@ -1,19 +1,21 @@
 # TigerPay TP-00 — Constitution & Boundary Freeze
 
-Status: **IMPLEMENTED — DOCUMENTATION/POLICY ONLY**
-Date: **2026-08-07**
+Status: **SPLIT_SCOPE — SUPERSEDED FOR EXTERNAL COMMERCE / KEEP_PLATFORM_FINANCE ONLY**
+Original date: **2026-08-07**
+Current authority amendment: **2026-08-22 — Issue #312**
 Project: **VVIP TIGER (`vviptiger`)**
-Parent architecture: **TigerPay Vault 3.0 — Sovereign Treasury & Trust Fabric**
 Owner authority label: **`OWNER_VIP_TIGER`**
 Runtime effect: **NONE**
+
+> **Issue #312 economic-scope amendment:** This document is `KEEP_PLATFORM_FINANCE` only for TIGER's platform-owned advertising, ad credits/packages, explicitly approved platform-owned services, and their own refunds/adjustments, taxes/fees, treasury/accounting, provider processing, settlement and reconciliation. Any interpretation that would execute buyer/seller/provider, user-to-user, or user-to-provider payment, payout, escrow, settlement, negotiation, fulfillment, checkout, order completion, or deal completion for an advertised external good/service is `SUPERSEDED` / `RETIRE_BROKERAGE` and must be `REDESIGN_DISCOVERY_ONLY`. The binding external-commerce path is **DISCOVERY → RELEVANCE → EXPLANATION → CONTACT HANDOFF → TIGER STOPS**. Historical terminology below is retained for security/audit provenance; it is not authority to implement external-deal finance.
 
 ---
 
 ## 1. Purpose
 
-TP-00 freezes the financial-domain constitution that every later TigerPay implementation slice must obey. It creates terminology, authority boundaries, permanent deny rules, regulated-provider/custody boundaries, and the migration contract from the legacy `P18 — Payment Gateway` package.
+Within the Issue #312 split scope above, TP-00 preserves financial-domain security and evidence constraints for any future **allowed platform-owned finance** implementation slice. It defines terminology, authority boundaries, permanent deny rules, regulated-provider/custody boundaries, and the migration contract from historical payment designs.
 
-TP-00 deliberately introduces no payment runtime, no provider integration, no database migration, no production credentials, no payout executor, and no production financial mutation.
+TP-00 itself introduces no payment runtime, provider integration, database migration, production credential, payout executor, or production financial mutation.
 
 The foundational separation is permanent:
 
@@ -21,55 +23,43 @@ The foundational separation is permanent:
 MONEY ≠ SETTLEMENT ≠ ACCOUNTING ≠ AUTHORIZATION ≠ AUDIT ≠ AI
 ```
 
-A component may exchange typed facts with another component, but no component may silently inherit the authority or truth semantics of another domain.
+No component silently inherits another component's authority or truth semantics.
 
 ---
 
-## 2. Normative Terminology
+## 2. Normative terminology — platform-owned finance only
 
 ### 2.1 `OWNER_VIP_TIGER`
 
-`OWNER_VIP_TIGER` means a **trusted server-side authorization result** proving that the current actor is the sovereign owner for the requested financial scope.
-
-It is never:
-
-- a browser `localStorage` value,
-- a DOM attribute,
-- a query parameter,
-- a caller-provided JSON field,
-- a partner role string,
-- an AI claim,
-- a provider callback claim.
+`OWNER_VIP_TIGER` means a trusted server-side authorization result proving that the current actor is the sovereign owner for the requested **allowed platform-owned financial scope**. It is never a browser value, DOM attribute, query parameter, caller-provided JSON field, partner role, AI claim, or provider callback claim.
 
 ### 2.2 Payment
 
-A **PAYMENT** is the customer/provider economic payment lifecycle from TigerPay payment intent through provider processing, accounting, settlement, and reconciliation.
-
-A payment-provider state is not automatically accounting truth, settlement truth, or authorization truth.
+A `PAYMENT` is a payment lifecycle for an allowed TIGER-owned charge, such as advertising, ad credits/packages, or another explicitly approved platform-owned service. It may include provider processing, accounting, settlement and reconciliation. It does **not** mean payment between parties to an advertised external deal.
 
 ### 2.3 Payout
 
-A **PAYOUT** is an outbound platform-controlled disbursement lifecycle. A payout may be drafted, risk-assessed, placed in Action Escrow, approved, capability-bound, submitted, settled, accounted, and reconciled as separate facts.
+A `PAYOUT` is an outbound platform-controlled disbursement lifecycle arising from allowed platform-owned finance. It does not authorize payout between external buyer/seller/provider deal parties and cannot be derived from external transaction value.
 
 ### 2.4 Settlement
 
-**SETTLEMENT** is the provider/bank realization of expected money movement. A successful provider API response does not prove settlement.
+`SETTLEMENT` is provider/bank realization of expected money movement for allowed platform-owned finance. A provider success response does not prove settlement. External-deal settlement is superseded by Issue #312.
 
 ### 2.5 Accounting
 
-**ACCOUNTING** is TigerPay's independent double-entry financial truth. Posted historical accounting entries are not edited in place; corrections occur through reversing/adjusting entries in later ledger slices.
+`ACCOUNTING` is TIGER's double-entry truth for allowed platform-owned finance. Posted historical entries are not edited in place; corrections use reversing/adjusting entries.
 
 ### 2.6 Authorization
 
-**AUTHORIZATION** is a deterministic permission result produced by trusted server-side policy and identity controls. Provider events, dashboard state, AI output, client fields, or network success cannot grant authorization.
+`AUTHORIZATION` is a deterministic permission result produced by trusted server-side policy and identity controls. Provider events, dashboard state, AI output, client fields, or network success cannot grant authorization.
 
 ### 2.7 Evidence / Audit
 
-**EVIDENCE** is reconstructable proof of actor, policy, approved payload, provider result, accounting result, settlement result, and verification outcome. Evidence is distinct from the accounting ledger.
+`EVIDENCE` is reconstructable proof of actor, policy, approved payload, provider result, accounting result, settlement result, and verification outcome for an allowed flow. Evidence is distinct from the accounting ledger.
 
 ### 2.8 AI
 
-**AI** in the TigerPay financial domain is limited to:
+AI in the TigerPay financial domain is limited to:
 
 ```text
 READ + ANALYZE + RECOMMEND + DRAFT
@@ -79,173 +69,140 @@ AI output is never payment authorization, owner approval, capability issuance, t
 
 ---
 
-## 3. Permanent Financial Deny Rules
+## 3. Permanent deny rules
 
-The following rules are constitutional denies for TigerPay unless a future architecture decision is explicitly approved by the owner and separately passes legal/security review. No ordinary feature flag, AI recommendation, provider response, partner request, or browser input may override them.
+These denies apply in addition to Issue #312. No feature flag, AI recommendation, provider response, partner request, browser input, old roadmap, old percentage, or historical owner label may override them.
 
-1. **No AI money movement.**
-2. **No AI treasury-destination mutation.**
-3. **No AI owner-permission mutation.**
-4. **No partner write access to treasury or settlement controls.**
-5. **No client-side L4 authorization.**
-6. **No raw card PAN or CVV storage/handling in TigerPay browser/runtime.**
-7. **No financial execution without an idempotency/replay-protection contract.**
-8. **No L2/L3 financial write without deterministic rollback or compensating-action design.**
-9. **No L4 execution without trusted owner authorization.**
-10. **No country payment activation without a certified Country Payment Package.**
-11. **No provider callback is trusted merely because its payload claims success.** Provider authenticity and event uniqueness must be verified in the appropriate future slice.
-12. **No historical accounting entry is edited in place.**
-13. **No ordinary application role may update/delete immutable financial evidence.**
-14. **No financial incident recovery may expand privileges.**
-15. **Freeze is intentionally easier than unfreeze.**
-16. **Core marketplace functionality must degrade safely when financial AI is unavailable.**
-17. **Provider failure must not corrupt accounting state.**
-18. **Dashboard failure must not authorize or execute money movement.**
-19. **No voice request directly sends money, approves payouts, changes treasury destinations, or unfreezes the vault.**
-20. **No provider normalization layer may import provider-supplied authority fields into TigerPay authorization state.**
+1. **No external-deal payment execution.** TIGER does not collect or route the buyer/seller/provider price of advertised goods/services.
+2. **No external-deal escrow or custody.**
+3. **No transaction-value commission or percentage on external deals.**
+4. **No external-deal payout, settlement, fulfillment, deal closing, or order-completion authority.**
+5. **No AI money movement.**
+6. **No AI treasury-destination or owner-permission mutation.**
+7. **No partner write access to treasury or settlement controls.**
+8. **No client-side high-risk financial authorization.**
+9. **No raw PAN/CVV storage or handling in ordinary TIGER browser/runtime.**
+10. **No allowed financial execution without idempotency/replay protection.**
+11. **No high-risk write without deterministic rollback or compensating-action design.**
+12. **No production money movement without trusted owner authorization and the applicable release/legal/provider gates.**
+13. **No country payment activation without an approved Country Payment Profile/Package.**
+14. **No provider callback is trusted merely because its payload claims success.**
+15. **No historical accounting entry is edited in place.**
+16. **No ordinary application role may update/delete immutable financial evidence.**
+17. **No incident recovery may expand privileges.**
+18. **Freeze is easier than unfreeze.**
+19. **Discovery must degrade safely when finance or financial AI is unavailable.**
+20. **Provider failure must not corrupt accounting state.**
+21. **Dashboard failure must not authorize or execute money movement.**
+22. **No voice request directly sends money, approves payouts, changes treasury destinations, or unfreezes a financial control.**
+23. **No provider-normalization layer may import provider-supplied authority fields into TIGER authorization state.**
 
 ---
 
-## 4. Provider, Custody & Money-Movement Boundary
+## 4. Provider, custody and money-movement boundary
 
-The initial TigerPay operating model is frozen as:
+For **allowed platform-owned finance only**:
 
 ```text
 TigerPay
 = orchestration
 + deterministic governance
 + accounting control
-+ settlement/reconciliation control
-+ evidence/audit control
++ reconciliation/evidence control
 + risk/incident control
 
-Licensed/approved bank, PSP or merchant acquirer
-= actual payment rail
-+ regulated money movement
-+ provider-side card processing/settlement functions under the selected commercial arrangement
+Approved bank / PSP / merchant acquirer
+= regulated payment rail
++ provider-side card processing
++ provider-side settlement functions under the selected commercial arrangement
 ```
 
-TigerPay's initial runtime is **not** designed to operate as an unlicensed:
+TigerPay is not designed to operate as an unlicensed stored-value wallet, customer-fund custodian, bank, money-transfer operator, or card vault.
 
-- stored-value wallet,
-- customer-fund custodian,
-- bank,
-- money-transfer operator,
-- card vault.
+Production activation for a country requires the exact legal/compliance position for the selected provider, entity, commercial model, money flow, settlement model and supported payment rails. This requirement cannot be satisfied by CI alone.
 
-Production activation for a country requires the exact legal/compliance position for the selected provider, entity, commercial model, money flow, settlement model, and supported payment rails.
+### 4.1 Card boundary
 
-### 4.1 Card Boundary
+Allowed platform-owned card charges use hosted/tokenized provider patterns. Raw PAN/CVV must not enter ordinary TIGER browser/runtime logs, telemetry, storage, partner projections, AI context, or domain contracts.
 
-TigerPay targets hosted/tokenized provider checkout patterns. Raw card PAN/CVV must not enter ordinary TigerPay browser/runtime logs, telemetry, storage, partner projections, AI context, or domain contracts.
+### 4.2 Country/rail boundary
 
-### 4.2 CliQ / Jordan Boundary
-
-CliQ is treated as a country/provider rail capability through supported bank/acquirer/provider integration. It is not a hard-coded personal-account automation path and is not exposed as a browser transfer primitive.
-
-Provider/country limits and capabilities are configuration facts owned by a future Country Payment Package/provider registry, not permanent global constants in TP-00/TP-01 code.
+Country-specific rails (including CliQ in Jordan where lawfully supported) are provider capabilities configured through the country payment profile. They are not personal-account automation paths or browser transfer primitives.
 
 ---
 
-## 5. Authority Separation Matrix
+## 5. Authority separation matrix
 
-| Source / Component | May provide financial facts | May recommend | May authorize L4 | May execute money movement |
+| Source / Component | May provide financial facts | May recommend | May authorize | May execute allowed provider movement |
 | --- | --- | --- | --- | --- |
 | Owner browser UI | Yes | No | No by itself | No |
-| Trusted owner server authorization | Yes | No | Yes, when full future ceremony passes | No by itself |
+| Trusted owner server authorization | Yes | No | Yes within allowed scope and ceremony | No by itself |
 | Partner surface | Read-only projection | No | No | No |
 | Financial AI | Yes, within granted read scope | Yes | No | No |
 | Provider callback | Yes, after authenticity checks | No | No | No |
-| Deterministic policy kernel | Yes | No | Produces/requests required authorization decision | No |
-| Future capability broker | Yes | No | Consumes trusted approval; does not create owner identity | Issues scoped execution capability only |
-| Future provider executor | Yes | No | No | Yes only with valid scoped capability |
-| Accounting poster | Yes | No | No | Posts accounting effect only, not provider transfer authority |
-| Evidence writer | Yes | No | No | Writes evidence only |
+| Deterministic policy kernel | Yes | No | Produces/requests decision | No |
+| Scoped capability broker | Yes | No | Consumes trusted approval only | Issues scoped capability only |
+| Provider executor | Yes | No | No | Yes only for an allowed platform-owned flow with valid capability |
+| Accounting poster | Yes | No | No | Accounting effect only |
+| Evidence writer | Yes | No | No | Evidence only |
 
-No row inherits another row's authority merely because data flows between them.
+No row inherits another row's authority because data flows between them.
 
 ---
 
-## 6. P18 Migration Contract
+## 6. Historical payment-design migration contract
 
-The historical repository artifact `docs/owner-control/P18_PAYMENT_GATEWAY.md` is preserved as evidence of a prior design-and-review closure package. It explicitly contained no production payment execution.
+Historical payment architecture is preserved as provenance, not external-commerce authority. Reusable security primitives may survive only after the Issue #312 economic-scope test.
 
-TigerPay Vault 3.0 supersedes P18's **implementation intent**, not its historical record.
-
-### 6.1 Mapping
-
-| Legacy P18 concept | TigerPay replacement |
+| Historical concept | Current classification |
 | --- | --- |
-| Payment gateway design | TP-01 domain contracts + TP-05 provider registry/sandbox adapter + TP-06 inbound payment sandbox runtime |
-| Hosted payment flow plan | TP-05/TP-06 provider-hosted/tokenized checkout contracts |
-| Payment completion concept | Canonical payment state machine + Accounting + Settlement + Reconciliation; provider success alone is insufficient |
-| Owner payment control | TP-02 sovereign identity + TP-08 Action Escrow + TP-09 capability broker/executor gates |
-| Financial records | TP-04 Triple Ledger + TP-07 reconciliation |
-| Financial dashboard | TP-12/TP-13 Sovereign Command Center slices under the master roadmap |
-| Production launch | Country certification/activation + security/BLACKBOX/owner gates in later milestones |
+| External buyer/seller/provider checkout | `RETIRE_BROKERAGE` / `REDESIGN_DISCOVERY_ONLY` |
+| External-deal order completion | `RETIRE_BROKERAGE` |
+| External-deal escrow/custody | `RETIRE_BROKERAGE` |
+| External transaction-value commission | `RETIRE_BROKERAGE` / `HISTORICAL_EVIDENCE_ONLY` |
+| TIGER advertising/ad-credit checkout | `KEEP_PLATFORM_FINANCE` subject to security/legal/country/provider gates |
+| TIGER-owned service accounting/reconciliation/evidence | `KEEP_PLATFORM_FINANCE` subject to its normal gates |
+| Generic provider security/idempotency/event verification | reusable primitive only when independently scoped to an allowed flow |
 
-### 6.2 Migration Rules
-
-- Do not delete `P18_PAYMENT_GATEWAY.md` merely because TigerPay exists.
-- Do not mark P18 production payment runtime implemented based on historical design evidence.
-- Do not re-use a legacy state name if it collapses payment, accounting, settlement, or authorization truth.
-- New TigerPay runtime must consume the canonical contracts introduced milestone-by-milestone.
+Historical `P18_PAYMENT_GATEWAY.md` and TigerPay roadmap material may remain for evidence. They must not be marked or interpreted as live external-commerce payment implementation authority.
 
 ---
 
-## 7. TP-00 Outputs Consumed by TP-01
+## 7. Future implementation rule
 
-TP-01 must encode only deterministic, dependency-free domain syntax/normalization contracts for:
-
-- canonical payment states,
-- canonical payout states,
-- treasury destination states,
-- business continuity modes,
-- financial data classes,
-- action decisions,
-- money amount/currency validation,
-- TigerPay identifiers,
-- idempotency-key syntax,
-- provider-event normalization.
-
-TP-01 must not implement authorization transitions, WebAuthn, TFAL enforcement, network calls, SQL, provider signatures, accounting posting, settlement reconciliation, capability consumption, or live dashboard data.
-
----
-
-## 8. Security Invariants for Provider Normalization
-
-A provider event is untrusted external data until verified in the future provider-security slice.
-
-Even after provider authenticity is verified, normalization may map provider facts into canonical payment facts only. It must never import provider-supplied fields such as:
+Every future financial slice must declare before code:
 
 ```text
-approved
-authorized
-ownerApproved
-capability
-executionAllowed
-role
-ownerRole
-permissions
+ECONOMIC_PRINCIPAL=<TIGER_PLATFORM|EXTERNAL_DEAL_PARTY>
+REVENUE_SOURCE=<ADVERTISING|AD_CREDIT|APPROVED_PLATFORM_SERVICE|EXTERNAL_DEAL_VALUE>
+ISSUE_312_CLASSIFICATION=<KEEP_PLATFORM_FINANCE|RETIRE_BROKERAGE|REDESIGN_DISCOVERY_ONLY|HISTORICAL_EVIDENCE_ONLY>
 ```
 
-into TigerPay authorization state.
-
-Provider normalization therefore uses an allowlisted output contract rather than spreading arbitrary provider input.
+Only `ECONOMIC_PRINCIPAL=TIGER_PLATFORM` with an explicitly allowed revenue source can enter an executable `KEEP_PLATFORM_FINANCE` design. `EXTERNAL_DEAL_VALUE` is never a valid TIGER commission basis under current authority.
 
 ---
 
-## 9. TP-00 Verification Statement
+## 8. Provider normalization security invariant
 
-This milestone is complete only as a constitution/boundary freeze.
+Provider input remains untrusted external data until verified. Even after authenticity verification, normalization may map facts only; it must never import provider-supplied fields such as `approved`, `authorized`, `ownerApproved`, `capability`, `executionAllowed`, `role`, `ownerRole`, or `permissions` into TIGER authorization state.
+
+Use allowlisted output contracts rather than spreading arbitrary provider input.
+
+---
+
+## 9. TP-00 verification statement
+
+TP-00 is a documentation/policy boundary, not runtime evidence:
 
 ```text
 TP00_RUNTIME_CHANGE=NONE
 TP00_LIVE_PROVIDER=NONE
 TP00_PRODUCTION_SQL=NONE
 TP00_PRODUCTION_CREDENTIALS=NONE
-TP00_MONEY_MOVEMENT=NONE
+TP00_EXTERNAL_DEAL_PAYMENT=PROHIBITED
+TP00_EXTERNAL_TRANSACTION_COMMISSION=PROHIBITED
+TP00_PLATFORM_FINANCE_SCOPE=ADVERTISING_AD_CREDITS_APPROVED_PLATFORM_SERVICES_ONLY
 TP00_BOUNDARY_FREEZE=ENFORCED_BY_SPEC
 ```
 
-TP-00 does not claim that future runtime controls are implemented. It defines the contract against which those controls must later be tested.
+Real Production financial readiness requires separate same-SHA environment, provider, legal, security, accounting, reconciliation, rollback and release evidence. No prose in this document grants it.

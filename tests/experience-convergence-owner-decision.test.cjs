@@ -56,7 +56,7 @@ test('social post financing is optional and appears only after publication succe
   assert.equal(value.social_post_financing.server_payment_verification_required, true);
 });
 
-test('every monetary purchase binds Clerk identity to the trusted internal account', () => {
+test('every platform-owned advertising purchase binds trusted identity without external-deal payment authority', () => {
   const value = decision();
   assert.equal(value.purchase_identity.clerk_identity_required, true);
   assert.equal(value.purchase_identity.internal_account_required, true);
@@ -65,13 +65,17 @@ test('every monetary purchase binds Clerk identity to the trusted internal accou
   assert.equal(value.purchase_identity.client_supplied_account_override_allowed, false);
   assert.equal(value.purchase_identity.server_authorization_required, true);
   assert.equal(value.purchase_identity.audit_required, true);
+  assert.equal(value.purchase_identity.economic_scope, 'PLATFORM_OWNED_ADVERTISING_SERVICES_ONLY');
+  assert.equal(value.purchase_identity.external_deal_payment_execution, 'SUPERSEDED_BY_ISSUE_312');
   assert.deepEqual(value.purchase_identity.applies_to, [
-    'PURCHASE',
-    'PAYMENT',
+    'AD_CREDIT_PURCHASE',
+    'AD_SERVICE_PAYMENT',
     'POST_BOOST',
     'LISTING_VISIBILITY',
     'SUBSCRIPTION'
   ]);
+  assert.equal(value.purchase_identity.applies_to.includes('PURCHASE'), false);
+  assert.equal(value.purchase_identity.applies_to.includes('PAYMENT'), false);
 });
 
 test('owner decision declares all seven approved marketplace sectors', () => {
