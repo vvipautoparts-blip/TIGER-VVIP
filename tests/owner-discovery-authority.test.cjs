@@ -89,3 +89,20 @@ test("canonical owner master and current state ledger both reflect Issue #312 in
   assert.match(registry, /VVIP_TIGER_OWNER_MASTER_DECISIONS_2026-08-12\.md/);
   assert.match(registry, /MASTER_PROJECT_STATE\.md/);
 });
+
+test("product-readiness governance cannot keep resolved brokerage or commercial-registration decisions open", () => {
+  const openDecisions = read("docs/product-readiness/OPEN_DECISIONS_REGISTER.md");
+  const scopeFreeze = read("docs/product-readiness/PRODUCT_SCOPE_FREEZE.md");
+
+  assert.match(openDecisions, /Issue\s+#312/i);
+  assert.doesNotMatch(openDecisions, /\|\s*ODR-001\s*\|/);
+  assert.doesNotMatch(openDecisions, /\|\s*ODR-003\s*\|/);
+  assert.doesNotMatch(openDecisions, /\|\s*ODR-004\s*\|/);
+  assert.doesNotMatch(openDecisions, /commission only|fixed %|tiered %|commission activation/i);
+  assert.match(openDecisions, /advertising|ad credits|platform-owned advertising services/i);
+
+  assert.match(scopeFreeze, /Issue\s+#312/i);
+  assert.match(scopeFreeze, /HISTORICAL_EVIDENCE_ONLY|NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION/i);
+  assert.doesNotMatch(scopeFreeze, /Commission settlement workflow/);
+  assert.match(scopeFreeze, /discovery.*contact|contact.*handoff|discovery and private-contact/i);
+});
