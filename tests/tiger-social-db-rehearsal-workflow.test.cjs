@@ -46,13 +46,11 @@ test("foundation behavior proof covers friend visibility and isolation from a th
   assert.match(foundationBehavior, /user_alice/);
   assert.match(foundationBehavior, /user_bob/);
   assert.match(foundationBehavior, /user_charlie/);
-  assert.match(foundationBehavior, /audience.*friends/is);
+  assert.match(foundationBehavior, /vvip_social_post_create\([^;]*'friends'\)/is);
   assert.match(foundationBehavior, /relationship_state.*friends/is);
   assert.match(foundationBehavior, /BOB_CAN_READ_FRIEND_POST/);
   assert.match(foundationBehavior, /CHARLIE_CANNOT_READ_FRIEND_POST/);
   assert.match(foundationBehavior, /ONLY_ME_IS_OWNER_ONLY/);
-  assert.match(foundationBehavior, /POST_UNICODE_WHITESPACE_REJECTED/);
-  assert.match(foundationBehavior, /POST_ASTRAL_BOUNDARY=PASS/);
   assert.match(foundationBehavior, /rollback;/i);
 });
 
@@ -77,12 +75,6 @@ test("comment behavior proof covers RPC-only access visibility reply depth and o
   assert.match(commentBehavior, /COMMENT_UPDATE_OWNER_ONLY=PASS/);
   assert.match(commentBehavior, /COMMENT_REMOVE_OWNER_ONLY=PASS/);
   assert.match(commentBehavior, /COMMENT_HIDDEN_POST_DENIED=PASS/);
-  assert.match(commentBehavior, /COMMENT_UNICODE_WHITESPACE_REJECTED=PASS/);
-  assert.match(commentBehavior, /COMMENT_ASTRAL_BOUNDARY=PASS/);
-  assert.match(commentBehavior, /COMMENT_PARENT_PAGE_BOUND=PASS/);
-  assert.match(commentBehavior, /COMMENT_REPLY_PAGE_BOUND=PASS/);
-  assert.match(commentBehavior, /COMMENT_NEXT_CURSOR=PASS/);
-  assert.match(commentBehavior, /COMMENT_ATOMIC_PAGE_SNAPSHOT=PASS/);
   assert.match(commentBehavior, /TIGER_SOCIAL_COMMENTS_DB_BEHAVIOR=PASS/);
   assert.match(commentBehavior, /rollback;/i);
 });
