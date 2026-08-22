@@ -31,3 +31,13 @@ test("current ONE FIELD design preserves zero-brokerage and additive-sector inva
   assert.match(design, /No new sector replaces an existing sector or feature/i);
   assert.match(design, /Platform-owned finance remains allowed only for the platform's own advertising\/services/i);
 });
+
+test("dependent TigerPay plans cannot re-authorize advertised-goods brokerage through stale implementation authority", () => {
+  const registry = fs.readFileSync(registryPath, "utf8");
+
+  assert.match(registry, /2026-08-07-tigerpay-tp00-tp01-implementation-plan\.md/);
+  assert.match(registry, /2026-08-07-tigerpay-vault-3-sovereign-treasury-design\.md/);
+  assert.match(registry, /KEEP_PLATFORM_FINANCE/);
+  assert.match(registry, /order\/listing|hosted checkout|buyer\/seller\/provider|advertised goods\/services/i);
+  assert.match(registry, /SUPERSEDED|HISTORICAL_EVIDENCE_ONLY|REDESIGN_DISCOVERY_ONLY/i);
+});
