@@ -7,7 +7,8 @@
     "extends": [
       "docs/architecture/OWNER_AUTHORITY_REGISTRY.md",
       "docs/superpowers/specs/2026-08-22-proximity-only-three-lane-interaction-design.md",
-      "docs/superpowers/specs/2026-08-22-universal-rendezvous-platform-design.md"
+      "docs/superpowers/specs/2026-08-22-universal-rendezvous-platform-design.md",
+      "docs/architecture/OWNER_SOVEREIGN_PAYMENT_RAIL_FABRIC_2026-08-22.md"
     ],
     "conflicting_active_runtime_or_current_docs": "SUPERSEDED_ON_COVERED_TOPICS",
     "git_history": "HISTORICAL_EVIDENCE_ONLY"
@@ -94,6 +95,19 @@
     "simple_grouped_user_interface": true,
     "server_side_authoritative": true,
     "owner_high_risk_requires_fresh_step_up": true,
+    "owner_core_capabilities": [
+      "PAYMENT_RAIL_VIEW_ALL",
+      "PAYMENT_RAIL_CREATE",
+      "PAYMENT_RAIL_EDIT_DRAFT",
+      "PAYMENT_DESTINATION_ROTATE",
+      "PAYMENT_PROVIDER_ONBOARD",
+      "PAYMENT_RAIL_VERIFY",
+      "PAYMENT_RAIL_ACTIVATE",
+      "PAYMENT_RAIL_SUSPEND",
+      "PAYMENT_RAIL_RETIRE",
+      "PAYMENT_POLICY_EDIT",
+      "PAYMENT_CHANGESET_APPROVE"
+    ],
     "grant_fields": [
       "principal",
       "action",
@@ -127,7 +141,10 @@
   },
   "owner_dashboard": {
     "same_capability_model": true,
-    "separate_authorization_universe": false
+    "separate_authorization_universe": false,
+    "country_payment_profiles_visible": true,
+    "payment_change_sets_visible": true,
+    "payment_route_history_visible": true
   },
   "platform_earnings": {
     "external_deal_commission_allowed": false,
@@ -160,6 +177,76 @@
       "status",
       "reconciliation_evidence"
     ]
+  },
+  "owner_payment_control": {
+    "model": "SOVEREIGN_PAYMENT_RAIL_FABRIC",
+    "owner_is_root_authority": true,
+    "final_activation_requires_owner": true,
+    "fresh_step_up_required_for_activation_rotation_retirement": true,
+    "purpose_scope": [
+      "advertising",
+      "campaigns",
+      "ad_credits_packages",
+      "paid_visibility",
+      "explicitly_approved_platform_owned_services"
+    ],
+    "external_buyer_seller_deal_payments_allowed": false,
+    "payment_numbers_hardcoded_in_application_code": false,
+    "country_payment_profile_required": true,
+    "provider_neutral_core": true,
+    "new_rail_requires_core_rebuild": false,
+    "active_configuration_is_versioned_immutable": true,
+    "all_changes_use_change_sets": true,
+    "atomic_activation": true,
+    "rollback_to_last_verified_version": true,
+    "silent_cross_country_fallback_allowed": false,
+    "fallback_requires_preapproved_verified_route_same_policy_scope": true,
+    "raw_payment_credentials_in_client_or_repo_allowed": false,
+    "secret_or_sensitive_endpoint_storage": "VAULT_KMS_HSM_REFERENCE",
+    "display_sensitive_destination_masked": true,
+    "endpoint_verification_required_where_supported": true,
+    "payee_confirmation_required_where_rail_supports_it": true,
+    "rail_statuses": [
+      "DRAFT",
+      "VERIFYING",
+      "READY",
+      "ACTIVE",
+      "SUSPENDED",
+      "RETIRED"
+    ],
+    "payment_route_record_fields": [
+      "rail_uid",
+      "country_code",
+      "legal_entity_scope",
+      "purpose_scope",
+      "rail_type",
+      "provider_or_acquirer_ref",
+      "destination_type",
+      "destination_vault_ref",
+      "supported_currencies",
+      "limits_policy_ref",
+      "regulatory_policy_ref",
+      "verification_evidence_ref",
+      "configuration_version",
+      "status",
+      "created_by",
+      "approved_by",
+      "activated_at",
+      "retired_at"
+    ],
+    "jordan_profile": {
+      "country_code": "JO",
+      "cliq_supported_as_configurable_rail": true,
+      "cliq_assumed_active_without_provider_contract": false,
+      "cliq_endpoint_types_supported_by_manifest": [
+        "ALIAS",
+        "MOBILE",
+        "EMAIL",
+        "IBAN",
+        "MERCHANT_ACQUIRER_QR"
+      ],
+      "messaging_standard": "ISO_20022"
+    }
   },
   "disclosure": {
     "classes": ["PUBLIC", "USER_OWN", "INTERNAL", "CONFIDENTIAL", "OWNER_ONLY"],
