@@ -17,11 +17,11 @@ test("social shell does not expose messaging before a real inbox discovery contr
   assert.doesNotMatch(html, /data-social-module-placeholder=["']messages["']/i);
   assert.doesNotMatch(shell, /["']messages["']/i);
 
-  assert.match(runtime, /async\s+open\s*\(\s*conversationId\s*\)/);
-  assert.match(runtime, /async\s+list\s*\(\s*conversationId/);
-  assert.match(runtime, /async\s+send\s*\(\s*conversationId/);
-  assert.match(runtime, /async\s+markRead\s*\(\s*conversationId/);
-  assert.match(runtime, /async\s+getChannelTicket\s*\(\s*conversationId\s*\)/);
+  assert.match(runtime, /open\s*:\s*async\s+function\s*\(\s*peerProfileId\s*\)/);
+  assert.match(runtime, /list\s*:\s*async\s+function\s*\(\s*conversationId/);
+  assert.match(runtime, /send\s*:\s*async\s+function\s*\(\s*conversationId/);
+  assert.match(runtime, /markRead\s*:\s*async\s+function\s*\(\s*conversationId/);
+  assert.match(runtime, /getChannelTicket\s*:\s*async\s+function\s*\(\s*conversationId\s*\)/);
   assert.doesNotMatch(runtime, /\blistConversations\b|\breadInbox\b/);
 });
 
