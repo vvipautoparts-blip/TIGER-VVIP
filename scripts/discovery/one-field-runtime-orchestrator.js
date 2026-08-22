@@ -24,6 +24,11 @@
       .slice(0, 500);
   }
 
+  function safeSourceName(value) {
+    const name = boundedText(value).toLowerCase().slice(0, 64).replace(/[^a-z0-9_-]/g, "_");
+    return name || "organic";
+  }
+
   function matchesHardConstraints(intent, candidate) {
     const constraints = Array.isArray(intent && intent.hardConstraints)
       ? intent.hardConstraints
@@ -44,6 +49,9 @@
     const rankOrganic = source.rankOrganic;
     const buildFit = source.buildFit;
     const organicSources = Array.isArray(source.organicSources) ? source.organicSources.slice() : [];
+    const sponsoredSource = source.sponsoredSource && typeof source.sponsoredSource.discover === "function"
+      ? source.sponsoredSource
+      : null;
 
     if (
       typeof interpret !== "function" ||
@@ -66,9 +74,18 @@
       })));
 
       const candidates = [];
+      const degradedSources = [];
       for (const organicSource of organicSources) {
-        const rows = await organicSource.discover(frozen({ intent: intent, signal: input.signal }));
-        if (Array.isArray(rows)) candidates.push.apply(candidates, rows);
+        try {
+          const rows = await organicSource.discover(frozen({ intent: intent, signal: input.signal }));
+          if (Array.isArray(rows)) {
+            candidates.push.apply(candidates, rows.filter(function (candidate) {
+              return candidate && candidate.sponsored !== true;
+            }));
+          }
+        } catch (_) {
+          degradedSources.push(safeSourceName(organicSource && organicSource.name));
+        }
       }
 
       const constrained = candidates
@@ -81,13 +98,23 @@
         }));
       });
 
+      let sponsored = [];
+      if (sponsoredSource) {
+        const sponsoredRows = await sponsoredSource.discover(frozen({ intent: intent, signal: input.signal }));
+        if (Array.isArray(sponsoredRows)) {
+          sponsored = sponsoredRows
+            .filter(function (candidate) { return candidate && candidate.sponsored === true; })
+            .map(function (candidate) { return frozen(Object.assign({}, candidate)); });
+        }
+      }
+
       return frozen({
-        status: ranked.length ? "results" : "empty",
+        status: degradedSources.length ? "degraded" : (ranked.length ? "results" : "empty"),
         intent: intent,
         organic: frozen(ranked.slice()),
-        sponsored: frozen([]),
+        sponsored: frozen(sponsored.slice()),
         facets: frozen([]),
-        degradedSources: frozen([])
+        degradedSources: frozen(degradedSources.slice())
       });
     }
 
