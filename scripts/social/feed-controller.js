@@ -91,7 +91,10 @@
     details.append(time, separator, meta);
     identity.append(author, details);
 
-    const menu = iconButton(documentObject, "خيارات المنشور", "social-feed-post__menu", "•••");
+    const menu = iconButton(documentObject, "خيارات المنشور غير متاحة في الإصدار الحالي", "social-feed-post__menu", "•••");
+    menu.disabled = true;
+    menu.setAttribute("aria-disabled", "true");
+    menu.setAttribute("data-social-feature-state", "future-hidden");
     header.append(avatar, identity, menu);
 
     const body = documentObject.createElement("p");
@@ -114,8 +117,10 @@
     const comment = iconButton(documentObject, "تعليق", "social-post-action social-post-action--comment", "تعليق");
     comment.setAttribute("data-social-comment-trigger", "");
 
-    const share = iconButton(documentObject, "مشاركة", "social-post-action social-post-action--share", "مشاركة");
+    const share = iconButton(documentObject, "المشاركة غير متاحة في الإصدار الحالي", "social-post-action social-post-action--share", "مشاركة");
     share.setAttribute("data-social-share-trigger", "");
+    share.setAttribute("aria-disabled", "true");
+    share.setAttribute("data-social-feature-state", "future-hidden");
     share.disabled = true;
 
     secondaryActions.append(comment, share);
