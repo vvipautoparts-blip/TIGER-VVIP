@@ -35,7 +35,7 @@ function fakeDocument() {
   };
 }
 
-test("unimplemented post actions are explicitly unavailable instead of dead enabled controls", async () => {
+test("unimplemented post actions are omitted until a real capability exists", async () => {
   const host = fakeElement("section");
   const controller = createSocialFeedController({
     host,
@@ -60,13 +60,16 @@ test("unimplemented post actions are explicitly unavailable instead of dead enab
   assert.equal(result.ok, true);
 
   const renderedPost = host.children[0];
-  const menu = renderedPost.children[0].children[2];
-  const secondaryActions = renderedPost.children[2].children[1];
-  const share = secondaryActions.children[1];
+  const header = renderedPost.children[0];
+  const actions = renderedPost.children[2];
+  const reactions = actions.children[0];
+  const secondaryActions = actions.children[1];
+  const comment = secondaryActions.children[0];
 
-  for (const control of [menu, share]) {
-    assert.equal(control.disabled, true);
-    assert.equal(control.attributes["aria-disabled"], "true");
-    assert.equal(control.attributes["data-social-feature-state"], "future-hidden");
-  }
+  assert.equal(header.children.length, 2, "post header must not render a dead options menu");
+  assert.equal(actions.children.length, 2, "post actions must contain reactions plus implemented secondary actions only");
+  assert.equal(reactions.attributes["data-social-reactions-host"], "");
+  assert.equal(secondaryActions.children.length, 1, "Share stays absent until a real distribution capability exists");
+  assert.equal(comment.attributes["data-social-comment-trigger"], "");
+  assert.equal(comment.disabled, false);
 });
