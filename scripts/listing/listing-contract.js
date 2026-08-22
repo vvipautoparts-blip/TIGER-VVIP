@@ -14,8 +14,13 @@
   const CATEGORIES = Object.freeze({
     automotive: Object.freeze(["parts", "supplies", "tires", "oils", "batteries", "maintenance-tools", "maintenance", "electrical-hybrid", "roadside-service"]),
     materials: Object.freeze(["suppliers", "traders", "importers", "distributors", "wholesale", "retail", "markets", "materials-supplies", "other"]),
-    "real-estate": Object.freeze(["house", "apartment", "land", "villa", "shop", "office", "warehouse", "farm", "commercial-property"])
+    "real-estate": Object.freeze(["house", "apartment", "land", "villa", "shop", "office", "warehouse", "farm", "commercial-property"]),
+    food: Object.freeze([
+      "meat", "poultry", "fish-seafood", "dairy", "eggs", "grains-cereals", "bakery",
+      "fruit", "vegetables", "fresh-produce", "frozen-food", "packaged-food", "beverages", "other-food"
+    ])
   });
+  const ORIGIN_CLASSIFICATIONS = Object.freeze(["local", "imported", "mixed", "unknown"]);
   const LEGACY_SECTOR_VIEW_IDS = Object.freeze({
     automotive: "view_automotive",
     materials: "view_materials",
@@ -82,6 +87,29 @@
       if (safeValue !== "") result[safeKey] = safeValue;
     });
     return result;
+  }
+
+  function normalizeProvenanceAttributes(value) {
+    const source = value && typeof value === "object" && !Array.isArray(value) ? value : {};
+    const originClassification = ORIGIN_CLASSIFICATIONS.includes(source.originClassification)
+      ? source.originClassification
+      : "unknown";
+    const result = { originClassification };
+    const fields = Object.freeze([
+      ["countryOfOrigin", 100],
+      ["brand", 140],
+      ["manufacturer", 180],
+      ["producer", 180],
+      ["importer", 180],
+      ["distributor", 180],
+      ["supplier", 180],
+      ["batchOrLot", 100]
+    ]);
+    fields.forEach(([field, maxLength]) => {
+      const normalized = sanitizeText(source[field], maxLength);
+      if (normalized) result[field] = normalized;
+    });
+    return Object.freeze(result);
   }
 
   function resolveSectorViewId(sector) {
@@ -185,8 +213,8 @@
 
   return Object.freeze({
     SCHEMA_VERSION, MAX_IMAGES, PAGINATION_DEFAULT_LIMIT, PAGINATION_MAX_LIMIT, STATUSES, CATEGORIES,
-    LEGACY_SECTOR_VIEW_IDS, resolveSectorViewId,
+    ORIGIN_CLASSIFICATIONS, LEGACY_SECTOR_VIEW_IDS, resolveSectorViewId,
     normalizeDigits, normalizePriceInput, validatePrice, sanitizeText, normalizeTitle, sanitizeAttributes,
-    validateListing, createListing, normalizePagination
+    normalizeProvenanceAttributes, validateListing, createListing, normalizePagination
   });
 });
