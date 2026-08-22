@@ -26,7 +26,7 @@ test("P0 messaging is wired into the exact-head local-only Social DB rehearsal",
 
   const behaviorStep = workflow.indexOf("Prove P0 Messaging durable and privacy behavior");
   const reviewStep = workflow.indexOf("Verify content-addressed migration review");
-  const messagingHashTest = workflow.indexOf("node --test tests/tiger-p0-messaging-convergence-reviewed-migration-hash.test.cjs");
+  const messagingHashTest = workflow.lastIndexOf("node --test tests/tiger-p0-messaging-convergence-reviewed-migration-hash.test.cjs");
   assert.ok(behaviorStep >= 0, "messaging behavior step must exist");
   assert.ok(reviewStep > behaviorStep, "content-addressed review must remain enforced after behavioral proof");
   assert.ok(messagingHashTest > reviewStep, "messaging reviewed-hash test must run inside the post-behavior review step");
