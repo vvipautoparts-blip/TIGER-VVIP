@@ -119,7 +119,7 @@
       if (!response || response.ok !== true) {
         setStatus("تعذر نشر المنشور الآن. حاول مرة أخرى.", "error");
         sync();
-        return failure((response && response.code) || "SOCIAL_POST_PUBLISH_FAILED");
+        return failure("SOCIAL_POST_PUBLISH_FAILED");
       }
 
       draftInput.value = "";
