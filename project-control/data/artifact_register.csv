@@ -2,7 +2,7 @@
 ART-0001,,md,README_AR.md,README_AR.md,2.1.0,6044476df0b572e9bbb19c00ead33b1c2d500839fe8f6fb0622882ed8e311240,,generated_verified
 ART-0002,,html,VVIP_TIGER_Project_Control_Center_AR.html,dashboard/VVIP_TIGER_Project_Control_Center_AR.html,2.1.0,76c69c6212f53cde686456062ae8b456e5ee1cac3e4a4f28b2ed55ab7864349a,,generated_verified
 ART-0003,,csv,country_capability_matrix.csv,data/country_capability_matrix.csv,2.1.0,7e27cbf87286fc83432c37eea2c804194db21768c3d747733c9bc2d16ae61d26,,generated_verified
-ART-0004,,csv,decision_log.csv,data/decision_log.csv,2.1.0,a51c8eb85a828f8a5c190f14c3e7729dbe8e2f4b09d2f320914adae39cad64f3,,generated_verified
+ART-0004,,csv,decision_log.csv,data/decision_log.csv,2.1.0,0529ba5fc574ce668227040c3b52865126395a08bc3e972343438495a4771ce1,,generated_verified
 ART-0005,,json,global_scale_targets.json,data/global_scale_targets.json,2.1.0,1b186058e63e1e1d0a443f6256604524afdbeb6b811e12eae000a3ea90452e87,,generated_verified
 ART-0006,,csv,launch_gate_register.csv,data/launch_gate_register.csv,2.1.0,7264a85db571610665ec82fe9ef437c611896a5b72eedb62886f69a5feed695a,,generated_verified
 ART-0007,,csv,legacy_phase_mapping.csv,data/legacy_phase_mapping.csv,2.1.0,fae8ef6e394663c7f979ba70319f76efc9de2693c98d6f87d7c0e58694ff5fe0,,generated_verified
@@ -15,12 +15,12 @@ ART-0013,,csv,risk_register.csv,data/risk_register.csv,2.1.0,0efedeccf16375b8091
 ART-0014,,json,search_facets.json,data/search_facets.json,2.1.0,096c0eb05dc8682945e7975c8c7a957a10087d55cc28b5a07c5e48f293a2f2fb,,generated_verified
 ART-0015,,json,source_registry.json,data/source_registry.json,2.1.0,7e0cac4fdd27d9a4365d0a64d653eec47d92227ad745d964932ec665017ccfef,,generated_verified
 ART-0016,,json,strategic_archive.json,data/strategic_archive.json,2.1.0,d2fb2a4cb0824108f2e04d08274a2a01be9c60f99f17700969183aa40a1b07ea,,generated_verified
-ART-0017,,csv,strategic_backlog.csv,data/strategic_backlog.csv,2.1.0,eba7ed8e360bbe243a043ae99cc53c590517ebc38aca0360efe27ecfb7cc9b5b,,generated_verified
+ART-0017,,csv,strategic_backlog.csv,data/strategic_backlog.csv,2.1.0,443d8bec7780af871a2edbde7ee0cddf9f92472d1ca7f31c6873b91e1ffc02b4,,generated_verified
 ART-0018,,csv,task_dependencies.csv,data/task_dependencies.csv,2.1.0,1a34e985a43adb72cbe366f015773c055e0400e8185819ac4fe4b9d04037ee84,,generated_verified
 ART-0019,,json,task_dependencies.json,data/task_dependencies.json,2.1.0,3484483be28ef26c328fd9bc6c832f13080259c6a75d4e8faef03ff236efd2f0,,generated_verified
 ART-0020,,json,tasks.json,data/tasks.json,2.1.0,b8fc2a020de2a349d6147fb12c9d9b000bcafef9e3427f532f417a1205338861,,generated_verified
 ART-0021,,csv,test_case_catalog.csv,data/test_case_catalog.csv,2.1.0,aaf526701ae59a4aa314c154f3c2b7ba0f4a72d7a34794f25be35866f1fb2c9f,,generated_verified
-ART-0022,,csv,vendor_register.csv,data/vendor_register.csv,2.1.0,1af13ee2abea428f8d797dd598a625a255f72258d6849a8d5a8139eecb874eaa,,generated_verified
+ART-0022,,csv,vendor_register.csv,data/vendor_register.csv,2.1.0,827a788e3014b746aa0adac072d0c11df74178b910be0eb4ca869e2a117ed143,,generated_verified
 ART-0023,,sql,001_project_control_schema.sql,database/001_project_control_schema.sql,2.1.0,c01b6f6222235ea8b3299333cc5b51029488e5f2a9064c87abfbf9f8f39c1521,,generated_verified
 ART-0024,,sql,002_project_control_seed.sql,database/002_project_control_seed.sql,2.1.0,a1f410b3daf9da0a4d4215617d89043b49248e510add95944b817afbf945b761,,generated_verified
 ART-0025,,sql,003_project_control_extended_seed.sql,database/003_project_control_extended_seed.sql,2.1.0,65db935c2b6f81ffc4faca3c668a788a8820e531faa346f5f7c691db2751154a,,generated_verified

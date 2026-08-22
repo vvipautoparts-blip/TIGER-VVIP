@@ -2,13 +2,14 @@
 
 Open items only. No final approval is assumed without explicit owner decision.
 
+**Current authority:** Issue #312 controls discovery/commerce. Platform revenue for this architecture is advertising and approved platform-owned advertising services. Transaction-value commission / percentage of external user-to-user or user-to-provider deals is superseded and is not an open monetization option. Commercial-register/business-registration collection as a platform field is also already prohibited by current owner authority, so it is not an open decision here.
+
+Resolved/superseded decisions are intentionally absent from this register rather than left as `Pending` choices that a future agent could reactivate.
+
 | Decision ID | Question | Options | Recommendation | Owner Decision | Status | Dependency |
 | --- | --- | --- | --- | --- | --- | --- |
-| ODR-001 | What is the post-launch revenue model? | Subscription only / commission only / hybrid / phased | Phased: start subscription readiness, defer commission activation | Pending | Open | Legal + finance alignment |
-| ODR-002 | What is the subscription model after free period? | Monthly / quarterly / annual / sector-based | Start with simple monthly then expand | Pending | Open | Billing policy and legal text |
-| ODR-003 | Is commission required and when? | No commission / fixed % / tiered % | Keep disabled at launch; re-evaluate after stabilization | Pending | Open | Contract and accounting model |
-| ODR-004 | What business registration requirements apply by account type? | Mandatory for all / conditional by type / optional initially | Conditional by high-risk or high-volume business types | Pending | Open | Compliance framework |
-| ODR-005 | What is the final business verification flow? | Manual review / hybrid / full automation | Hybrid staged rollout with audit trail | Pending | Open | Ops tooling + policy |
+| ODR-002 | What advertiser advertising-service package cadence should follow any free/pilot period? | Monthly / quarterly / annual / campaign-based | Start with a simple monthly advertising-service package, then expand from measured demand | Pending | Open | Advertising billing policy + legal/tax text |
+| ODR-005 | What is the final non-commercial-register trust/business verification flow where a real trust signal is needed? | Manual review / hybrid / full automation | Hybrid staged rollout with audit trail and no commercial-register platform field | Pending | Open | Ops tooling + policy |
 | ODR-006 | What is the final app direction? | Flutter native / hybrid web app / phased dual path | Keep decision open until post-UAT device evidence | Pending | Open | Engineering capacity and timeline |
 | ODR-007 | What is the conversation retention policy? | 30/90/180 days / role-based retention | Start with conservative retention and legal review | Pending | Open | Privacy and legal approval |
 | ODR-008 | What is the account deletion policy detail? | Immediate / grace period / staged anonymization | Grace period + reversible path before permanent deletion | Pending | Open | Legal + data lifecycle policy |
@@ -16,4 +17,4 @@ Open items only. No final approval is assumed without explicit owner decision.
 
 ## Conflict Handling Rule
 
-If any requirement conflicts with official references, record new decision rows here and keep status `Open` until owner decision is explicit.
+If a genuinely unresolved requirement conflicts with official references, record a new decision row here and keep status `Open` until owner decision is explicit. Do not reopen an item already resolved by Issue #312 or another later owner authority merely because an older document contains a conflicting option.

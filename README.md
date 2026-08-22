@@ -32,19 +32,19 @@ Key rules:
 
 Legacy Firebase/Supabase password runtimes have been removed from the current product tree. Historical compatibility routes such as `reset-password.html` redirect users back to the external identity entry rather than performing local recovery.
 
-## Identity remediation state
+## Identity remediation evidence
 
-The historical email-linking compatibility gap is **semantically remediated in the deployed Production resolver**. Production uses subject-first profile ownership and does not transfer ownership of an existing profile from browser-supplied email. Sovereign Staging runtime proof also passed with rollback and zero synthetic residue.
+Historical deployment and reconciliation records are provenance only; they do not establish current Production runtime truth. Repository identity requirements remain subject to the current exact-SHA tests, security controls, RLS/policy evidence, and the execution-state authority in `docs/MASTER_PROJECT_STATE.md`.
 
-The standalone repository IDENTITY-01 migration is retained as forward provenance but is not reapplied to Production while the deployed Phase A resolver remains semantically canonical. See [Federated Identity Known Gap](docs/security/FEDERATED_IDENTITY_KNOWN_GAP_20260808.md).
+The standalone repository IDENTITY-01 migration remains forward provenance. Whether any migration or resolver is active in Production must be established by fresh runtime evidence rather than inferred from historical repository documentation. See [Federated Identity Known Gap](docs/security/FEDERATED_IDENTITY_KNOWN_GAP_20260808.md).
 
-## Production state
+## Deployment evidence boundary
 
-The current Production Web source is `3d8bbfc8611e53510b3bb776b8d9752df6595d8d`. GitHub Pages deployment succeeded on the repository's default Pages URL. The custom domain `tigerautoparts.shop` is not yet configured in the GitHub Pages API.
+Production runtime status is separate from repository readiness. Historical Production deployment/reconciliation evidence must not be represented as current runtime state, and any current Production claim requires fresh exact-SHA/runtime evidence under the applicable deployment controls.
 
-Phase B marketplace/authority schema is present in Supabase Production as a **dark launch**. Fresh read-only reconciliation verified RLS/FORCE RLS, expected schema/policies/storage boundaries, zero authority/country seed rows, zero marketplace rows, and a PASS Phase A regression proof.
+The current commercial/discovery authority is Issue #312: TIGER supports discovery, relevance/explanation and contact handoff, then stops for advertised user-to-user or user-to-provider goods/services. Platform finance is limited to platform-owned advertising, ad credits/packages, approved platform-owned services, and their own refunds/adjustments/taxes/treasury/accounting.
 
-See `docs/MASTER_PROJECT_STATE.md` and `reports/reconciliation/2026-08-10/` for the authoritative current-state evidence once the reconciliation PR is merged.
+See `docs/MASTER_PROJECT_STATE.md` and `docs/architecture/OWNER_AUTHORITY_REGISTRY.md` for current repository execution and owner-authority boundaries. Historical reconciliation reports remain audit provenance unless independently re-verified against the current runtime.
 
 ## Runtime boundary
 
@@ -66,4 +66,4 @@ Then open `http://localhost:800/index.html`.
 
 ## Production boundary
 
-Observed Production state does not grant authority for future Production mutations. Country activation, Owner seeding, data mutation, provider configuration changes, and future deployments remain independently governed and must fail closed on drift.
+Observed or historical Production state does not grant authority for future Production mutations. Country activation, Owner seeding, data mutation, provider configuration changes, and future deployments remain independently governed and must fail closed on drift.

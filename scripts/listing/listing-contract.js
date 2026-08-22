@@ -16,6 +16,11 @@
     materials: Object.freeze(["suppliers", "traders", "importers", "distributors", "wholesale", "retail", "markets", "materials-supplies", "other"]),
     "real-estate": Object.freeze(["house", "apartment", "land", "villa", "shop", "office", "warehouse", "farm", "commercial-property"])
   });
+  const LEGACY_SECTOR_VIEW_IDS = Object.freeze({
+    automotive: "view_automotive",
+    materials: "view_materials",
+    "real-estate": "view_real_estate"
+  });
   const FIELD_ORDER = Object.freeze([
     "listingId", "ownerClerkUserId", "sector", "category", "title", "description",
     "numericPrice", "currency", "country", "city", "area", "sectorAttributes",
@@ -77,6 +82,12 @@
       if (safeValue !== "") result[safeKey] = safeValue;
     });
     return result;
+  }
+
+  function resolveSectorViewId(sector) {
+    return Object.hasOwn(LEGACY_SECTOR_VIEW_IDS, sector)
+      ? LEGACY_SECTOR_VIEW_IDS[sector]
+      : null;
   }
 
   function error(field, code) {
@@ -174,6 +185,7 @@
 
   return Object.freeze({
     SCHEMA_VERSION, MAX_IMAGES, PAGINATION_DEFAULT_LIMIT, PAGINATION_MAX_LIMIT, STATUSES, CATEGORIES,
+    LEGACY_SECTOR_VIEW_IDS, resolveSectorViewId,
     normalizeDigits, normalizePriceInput, validatePrice, sanitizeText, normalizeTitle, sanitizeAttributes,
     validateListing, createListing, normalizePagination
   });

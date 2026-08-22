@@ -1,8 +1,20 @@
 # TigerPay Vault 3.0 — Spec Review & Terminology Lock
 
+## 2026-08-22 authority amendment — Issue #312
+
+The 2026-08-07 review remains historical architecture evidence, but its current executable authority is limited to `KEEP_PLATFORM_FINANCE_ONLY`: TIGER's own **platform-owned advertising** and approved platform advertising services, including their credits/packages/boosts, refunds/adjustments, applicable taxes/fees, treasury/accounting, provider settlement, reconciliation, and evidence.
+
+`NO_RUNTIME_AUTHORITY_FOR_EXTERNAL_DEAL_PAYMENT`
+
+For advertised goods/services and user-to-user or user-to-provider commerce:
+
+**DISCOVERY → RELEVANCE → EXPLANATION → CONTACT HANDOFF → TIGER STOPS**
+
+Issue #312 supersedes any older interpretation that could authorize external-deal checkout, buyer/seller payment, escrow between parties, settlement, fulfillment, payout, or percentage-of-deal commission. Terms below such as settlement, payout approval, treasury destination, provider integration, or financial assurance apply only inside independently allowed platform-owned finance unless a later explicit owner authority says otherwise.
+
 Date: **2026-08-07**
 Applies to: `docs/superpowers/specs/2026-08-07-tigerpay-vault-3-sovereign-treasury-design.md`
-Status: **SELF-REVIEW COMPLETE — RUNTIME STILL GATED**
+Status: **SELF-REVIEW COMPLETE — RUNTIME STILL GATED — ISSUE #312 SCOPE APPLIES**
 
 ## 1. Review Result
 
@@ -26,6 +38,7 @@ Result:
 PLACEHOLDERS=T0
 CONTRADICTIONS=0_CRITICAL
 SCOPE=DECOMPOSED_TP00_TP16
+EXTERNAL_DEAL_PAYMENT_AUTHORITY=NONE
 LIVE_MONEY_AUTHORIZATION=NO
 PRODUCTION_DB_AUTHORIZATION=NO
 PRODUCTION_PROVIDER_AUTHORIZATION=NO
@@ -50,7 +63,7 @@ Any `FAL*` occurrence in the architecture document is interpreted as the corresp
 
 ### TFAL0_VIEW
 
-Purpose: authenticated read access to non-sovereign financial views.
+Purpose: authenticated read access to non-sovereign financial views within allowed platform-owned finance.
 
 Does not authorize:
 
@@ -62,7 +75,7 @@ Does not authorize:
 
 ### TFAL1_SENSITIVE_READ
 
-Purpose: fresh step-up for restricted read/export operations.
+Purpose: fresh step-up for restricted read/export operations within allowed platform-owned finance.
 
 Examples:
 
@@ -74,7 +87,7 @@ Does not authorize money movement or treasury mutation.
 
 ### TFAL2_CONFIG_CHANGE
 
-Purpose: phishing-resistant fresh step-up for proposing/confirming sensitive financial configuration.
+Purpose: phishing-resistant fresh step-up for proposing/confirming sensitive financial configuration within allowed platform-owned finance.
 
 Examples:
 
@@ -82,11 +95,11 @@ Examples:
 - payment-provider configuration approval,
 - country financial configuration approval.
 
-It does not by itself execute a payout.
+It does not by itself execute a payout and does not create external-deal payment authority.
 
 ### TFAL3_MONEY_AUTHORIZATION
 
-Purpose: strongest TigerPay owner ceremony for high-impact financial authorization or controlled unfreeze.
+Purpose: strongest TigerPay owner ceremony for high-impact financial authorization or controlled unfreeze **inside allowed platform-owned finance only**.
 
 Target controls include:
 
@@ -108,13 +121,13 @@ Voice, AI output, browser role flags, partner approval, SMS alone, or an old aut
 
 The legacy P18 artifact remains historical design evidence and is not deleted.
 
-TigerPay Vault 3.0 supersedes P18's implementation contract but does not mark P18 implemented merely because the new architecture is approved.
+TigerPay Vault 3.0 supersedes P18's implementation contract only within the finance scope still allowed by Issue #312 and does not mark P18 implemented merely because the newer architecture was approved.
 
-The roadmap status file is not changed in this architecture-only branch.
+The roadmap status file is not changed by this review.
 
 ## 4. Financial Truth Separation
 
-Review confirms the architecture consistently separates:
+Review confirms the architecture consistently separates, for allowed platform-owned finance:
 
 1. payment/provider state,
 2. accounting state,
@@ -166,7 +179,7 @@ Financial AI has no capability for:
 
 ## 7. Dashboard Review
 
-The TigerPay Sovereign Command Center is a projection/control interface over server-side services.
+The TigerPay Sovereign Command Center is a projection/control interface over server-side services for allowed platform-owned finance.
 
 The dashboard itself is never the financial source of truth.
 
@@ -180,7 +193,7 @@ Unknown/loading states must never render as financial success.
 
 ## 8. Country/Provider Boundary Review
 
-Jordan-specific CliQ/payment assumptions remain inside a Country Payment Package and provider registry.
+Jordan-specific CliQ/payment assumptions remain inside a Country Payment Package and provider registry for allowed platform-owned finance.
 
 They are not global constants.
 
@@ -188,10 +201,11 @@ No production integration is authorized until a specific bank/PSP/merchant-acqui
 
 ## 9. Implementation Gate
 
-The next authorized activity after human review of the written architecture is implementation planning for **TP-00/TP-01 only**.
+Any implementation planning derived from this review is subordinate to Issue #312 and may cover only platform-owned advertising/services finance unless later explicit owner authority changes the scope.
 
 This review does not authorize:
 
+- external-deal payment, payout, escrow, settlement, fulfillment, or commission,
 - SQL migrations,
 - live payment collection,
 - payout execution,

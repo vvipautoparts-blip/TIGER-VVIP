@@ -1,52 +1,50 @@
 # Documentation Index
 
-Source-of-truth index for current repository state.
+**Status:** CURRENT NAVIGATION INDEX
 
-## Start Here
+This file is an index only. It is not an independent owner-decision or readiness authority.
 
-1. `README.md` - project overview and architecture.
-2. `SETUP-GUIDE.md` - local setup and runtime configuration.
-3. `AGENTS.md` - working conventions and code map.
+## Start Here — Current Authority
 
-## Core Runtime Files
+1. `AGENTS.md` — repository working conventions, current code map, and continuity protocol.
+2. `docs/MASTER_PROJECT_STATE.md` — current execution-state ledger and continuation cursor.
+3. `docs/architecture/OWNER_AUTHORITY_REGISTRY.md` — canonical precedence for Issue #312 commerce/discovery authority.
+4. `README.md` — project overview; resolve any conflict through the authorities above.
 
-- `index.html` - auth entry page.
-- `public-profile.html` - public feed page.
-- `private-profile.html` - private profile page.
-- `auth.js` - Firebase auth/session snapshot logic.
-- `social-ui.js` - feed/profile UI behavior + i18n + optional Supabase sync.
-- `styles.css` - shared styles.
-- `reset-password.html` / `reset-password.js` - password reset flow.
+## Canonical Runtime Entry Points
 
-## Backend-Related Assets
+- `index.html` — unified marketplace/authentication entry page.
+- `auth-clerk-index.js` — canonical Clerk authentication gate.
+- `scripts/runtime/vvip-runtime-loader.js` — Clerk session + Supabase data-layer runtime bridge.
+- `scripts/vvip-pr29-home-marketplace.js` — canonical marketplace feed/interactions.
+- `private-profile-p03.html` — canonical private account center.
+- `scripts/vvip-p03-profile.js` — private account-center interactions.
+- `scripts/vvip-p03-profile-identity.js` — authenticated profile resolver bridge.
+- `reset-password.html` — compatibility redirect to external-provider recovery only.
 
-- `supabase/migrations/20260702_feed_posts_table.sql` - feed posts table + policies.
-- `supabase/functions/phone-verification/index.ts` - phone verification edge function.
-- `supabase-schema.sql` - broader schema SQL history.
+## Validation
 
-## Testing And Validation
+- `scripts/quality-gate.sh` — full repository quality gate.
+- GitHub protected workflows must be evaluated on the exact reviewed head SHA.
+- A historical document containing PASS/100%/production-ready wording is not current evidence.
 
-- `scripts/qa-smoke.sh` - smoke checks for current structure.
-- `FINAL-VERIFICATION.md` - verification checklist (review for legacy references).
+## Legacy Documentation Tombstones
 
-## Operational Docs
+The following root documents preserve only historical provenance and must not be used as current runtime/readiness authority:
 
-- `SUPABASE-EDGE-OTP-GUIDE.md` - phone verification setup.
-- `ADMIN-SETUP-GUIDE.md` - admin bootstrap steps.
-- `TEST-ACCOUNTS-GUIDE.md` and `TEST-USERS.md` - test users and setup references.
-- `PRODUCT-REQUIREMENTS-ADDENDUM.md` - expanded social-platform scope and future product requirements.
+- `PROJECT-SUMMARY.md`
+- `FINAL-VERIFICATION.md`
+- `USER-GUIDE.md`
+- `UNIFIED-PLATFORM-STATUS.md`
 
-## PWA
+Their earlier detailed content remains available through Git history. Historical test credentials must never be provisioned or reused from documentation.
 
-- `sw.js` - service worker.
-- `manifest.webmanifest` - app manifest.
+## Conflict Rule
 
-## Notes About Legacy Docs
+Use this precedence:
 
-Some older docs still reference removed assets from the prior architecture (monolithic JS/bootstrap era).
-
-When docs conflict, prioritize:
-
-1. `AGENTS.md`
-2. `README.md`
-3. `SETUP-GUIDE.md`
+1. current repository bytes/refs;
+2. exact-head CI/test/security evidence;
+3. current PR/commit metadata;
+4. `docs/MASTER_PROJECT_STATE.md` and `docs/architecture/OWNER_AUTHORITY_REGISTRY.md` for their governed scopes;
+5. historical snapshots/prose.
