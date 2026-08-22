@@ -116,7 +116,6 @@ declare -A reviewed_migration_hashes=(
   # from the canonical Clerk-backed actor, lifecycle state is not a client input, and
   # non-active mutation fails closed. Any byte drift re-enters review automatically.
   ["supabase/migrations/20260820223000_profile_owner_boundary.sql"]="55bb7b98771cc26061a6d40625b9419627c38cc2ed2420a394bf35f4931013bc"
-
   # Profile Lifecycle Boundary: reviewed with CRITICAL=0 after all three UPDATE
   # predicates were made scanner-visible. The remaining findings are the two exact
   # authenticated EXECUTE grants for self-deactivate/reactivate; trusted deletion stays
@@ -154,6 +153,19 @@ declare -A reviewed_migration_hashes=(
   # stay private, raw post table reads remain revoked, and every page rechecks current
   # block/privacy/lifecycle authority. Any byte drift re-enters review automatically.
   ["supabase/migrations/20260821133000_social_edge_keyset_convergence.sql"]="6a2195497edb441f4e0525d14c608e5934ae55e7b388937f189a777aeb6ba3cb"
+
+  # SYNAPSE S1 intent foundation: reviewed for actor-bound RPC-only writes,
+  # FORCE RLS, expiry/revision invariants, and the expected lexical findings
+  # on new-table NOT NULL rules, the scoped update, and exact RPC grants.
+  # Exact-byte review remains fail-closed on any migration drift.
+  ["supabase/migrations/20260818150000_synapse_intent_foundation.sql"]="c854a7ebf64d6710a9eb9351044108a10b97a5c35f5afc330288232fc7df5072"
+
+  # Issue #312 zero-brokerage legacy write lock: reviewed as privilege-narrowing only.
+  # Exact bytes revoke browser INSERT/UPDATE/DELETE, retire the two legacy own-write
+  # policies, and install a statement-level fail-closed trigger while preserving every
+  # historical row/table. No CASCADE, row deletion, table/schema drop, or privilege grant.
+  # Any byte drift re-enters Steel Shield automatically.
+  ["supabase/migrations/20260822023000_zero_brokerage_legacy_transaction_write_lock.sql"]="76acd972b74e69aaeb592f5e01140c2458c4be50cf2576aef678c2815423dc89"
 
   # Identity-01/02 and LC-07 legacy-surface hardening: reviewed as forward-only,
   # subject-first, privilege-narrowing compatibility changes. These exact bytes
