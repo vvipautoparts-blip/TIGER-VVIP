@@ -9,13 +9,13 @@ ART-0007,,csv,legacy_phase_mapping.csv,data/legacy_phase_mapping.csv,2.1.0,fae8e
 ART-0008,,json,manifest.json,data/manifest.json,2.1.0,2d51268a32af14bbba169b6a4379ef311db4da27f9f6982e8bf9bfd1dc350894,,generated_verified
 ART-0009,,csv,master_task_registry.csv,data/master_task_registry.csv,2.1.0,91da5d5896d3920098429d562e969128d4155cc56ab1549f9624bbdd4f27dfa4,,generated_verified
 ART-0010,,json,phases.json,data/phases.json,2.1.0,85b2d86a2912893330c51d711d910f1f91c2682029292162aed31a37fa99f2f4,,generated_verified
-ART-0011,,json,requirements_catalog.json,data/requirements_catalog.json,2.1.0,ff29571794b1495bd565fdb055ce54a90b08095cbc85454a30b06bc4c8854f2d,,generated_verified
+ART-0011,,json,requirements_catalog.json,data/requirements_catalog.json,2.1.0,ff29571794b1495bd565fdb055ce54a30b06bc4c8854f2d,,generated_verified
 ART-0012,,csv,requirements_traceability.csv,data/requirements_traceability.csv,2.1.0,c5f2de9c9ee3a3985ec41a182aa02a096da6323520e73a059f808ba595d090a4,,generated_verified
 ART-0013,,csv,risk_register.csv,data/risk_register.csv,2.1.0,0efedeccf16375b80918a4d55a1cc19237e24e8940f400732a55b6a5933e78a2,,generated_verified
 ART-0014,,json,search_facets.json,data/search_facets.json,2.1.0,096c0eb05dc8682945e7975c8c7a957a10087d55cc28b5a07c5e48f293a2f2fb,,generated_verified
 ART-0015,,json,source_registry.json,data/source_registry.json,2.1.0,7e0cac4fdd27d9a4365d0a64d653eec47d92227ad745d964932ec665017ccfef,,generated_verified
 ART-0016,,json,strategic_archive.json,data/strategic_archive.json,2.1.0,d2fb2a4cb0824108f2e04d08274a2a01be9c60f99f17700969183aa40a1b07ea,,generated_verified
-ART-0017,,csv,strategic_backlog.csv,data/strategic_backlog.csv,2.1.0,eba7ed8e360bbe243a043ae99cc53c590517ebc38aca0360efe27ecfb7cc9b5b,,generated_verified
+ART-0017,,csv,strategic_backlog.csv,data/strategic_backlog.csv,2.1.0,443d8bec7780af871a2edbde7ee0cddf9f92472d1ca7f31c6873b91e1ffc02b4,,generated_verified
 ART-0018,,csv,task_dependencies.csv,data/task_dependencies.csv,2.1.0,1a34e985a43adb72cbe366f015773c055e0400e8185819ac4fe4b9d04037ee84,,generated_verified
 ART-0019,,json,task_dependencies.json,data/task_dependencies.json,2.1.0,3484483be28ef26c328fd9bc6c832f13080259c6a75d4e8faef03ff236efd2f0,,generated_verified
 ART-0020,,json,tasks.json,data/tasks.json,2.1.0,b8fc2a020de2a349d6147fb12c9d9b000bcafef9e3427f532f417a1205338861,,generated_verified
