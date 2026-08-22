@@ -89,3 +89,17 @@ test("role identity binding plan cannot delegate future work to superseded trans
   assert.match(text, /platform-owned advertising|platform advertising services/i);
   assert.match(text, /CONTACT HANDOFF.*TIGER STOPS/i);
 });
+
+for (const rel of [
+  "docs/payments/README.md",
+  "docs/payments/TIGERPAY_VAULT_3_SPEC_REVIEW.md",
+  "docs/payments/TIGERPAY_VAULT_3_APPROVAL_RECORD.md"
+]) {
+  test(`${rel} cannot present TigerPay authority broader than platform-owned finance`, () => {
+    const text = read(rel);
+    assert.match(text, /Issue #312/i);
+    assert.match(text, /platform-owned advertising|platform advertising services/i);
+    assert.match(text, /CONTACT HANDOFF.*TIGER STOPS/i);
+    assert.match(text, /NO_RUNTIME_AUTHORITY_FOR_EXTERNAL_DEAL_PAYMENT|external[- ]deal.*not authorized/i);
+  });
+}
