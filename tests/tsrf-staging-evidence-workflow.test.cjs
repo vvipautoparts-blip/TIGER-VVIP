@@ -61,7 +61,9 @@ test('workflow retrieves proof bytes only from an exact-SHA successful allowlist
   assert.match(workflow, /inputs\.proof_artifact_id/);
   assert.match(workflow, /actions\/artifacts\/\$?\{?PROOF_ARTIFACT_ID\}?/);
   assert.match(workflow, /actions\/runs\/\$?\{?producer_run_id\}?/);
-  assert.match(workflow, /tsrf-staging-source-proof-\$\{?SOURCE_SHA\}?/);
+  assert.match(workflow, /const sourceSha = process\.env\.SOURCE_SHA;/);
+  assert.match(workflow, /const expectedName = `tsrf-staging-source-proof-\$\{sourceSha\}`;/);
+  assert.match(workflow, /artifact\.name\s*!==\s*expectedName/);
   assert.match(workflow, /artifact\.workflow_run\.head_sha/);
   assert.match(workflow, /producerRun\.head_sha/);
   assert.match(workflow, /producerRun\.workflow_id/);
