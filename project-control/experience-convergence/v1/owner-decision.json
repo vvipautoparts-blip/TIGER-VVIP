@@ -27,9 +27,11 @@
     "client_supplied_account_override_allowed": false,
     "server_authorization_required": true,
     "audit_required": true,
+    "economic_scope": "PLATFORM_OWNED_ADVERTISING_SERVICES_ONLY",
+    "external_deal_payment_execution": "SUPERSEDED_BY_ISSUE_312",
     "applies_to": [
-      "PURCHASE",
-      "PAYMENT",
+      "AD_CREDIT_PURCHASE",
+      "AD_SERVICE_PAYMENT",
       "POST_BOOST",
       "LISTING_VISIBILITY",
       "SUBSCRIPTION"
