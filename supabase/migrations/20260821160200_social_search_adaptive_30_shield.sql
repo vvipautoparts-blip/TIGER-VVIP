@@ -8,7 +8,7 @@ BEGIN;
 ALTER TABLE public.vvip_social_search_budget
   ADD COLUMN IF NOT EXISTS blocked_until timestamptz;
 
-REVOKE ALL ON TABLE public.vvip_social_search_budget FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON TABLE public.vvip_social_search_budget FROM anon, authenticated;
 
 CREATE OR REPLACE FUNCTION public.vvip_social_search_consume_budget(
   p_actor_profile_id uuid
@@ -68,15 +68,21 @@ BEGIN
 
   IF FOUND AND v_existing_window = v_window THEN
     v_next_count := v_existing_count + 1;
-    UPDATE public.vvip_social_search_budget AS budget
-    SET
-      request_count = v_next_count,
-      blocked_until = CASE
-        WHEN v_next_count = 30 THEN v_now + interval '30 seconds'
-        ELSE NULL
-      END,
-      updated_at = v_now
-    WHERE budget.actor_profile_id = p_actor_profile_id;
+    IF v_next_count = 30 THEN
+      UPDATE public.vvip_social_search_budget AS budget
+      SET
+        request_count = v_next_count,
+        blocked_until = v_now + interval '30 seconds',
+        updated_at = v_now
+      WHERE budget.actor_profile_id = p_actor_profile_id;
+    ELSE
+      UPDATE public.vvip_social_search_budget AS budget
+      SET
+        request_count = v_next_count,
+        blocked_until = NULL,
+        updated_at = v_now
+      WHERE budget.actor_profile_id = p_actor_profile_id;
+    END IF;
   ELSIF FOUND THEN
     UPDATE public.vvip_social_search_budget AS budget
     SET
