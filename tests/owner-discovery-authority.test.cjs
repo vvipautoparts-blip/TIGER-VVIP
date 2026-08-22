@@ -42,6 +42,16 @@ test("dependent TigerPay plans cannot re-authorize advertised-goods brokerage th
   assert.match(registry, /SUPERSEDED|HISTORICAL_EVIDENCE_ONLY|REDESIGN_DISCOVERY_ONLY/i);
 });
 
+test("TigerPay TP-00 locally declares Issue #312 split scope instead of acting as external-commerce authority", () => {
+  const tp00 = read("docs/payments/TIGERPAY_TP00_CONSTITUTION.md");
+  assert.match(tp00, /Issue\s+#312/i);
+  assert.match(tp00, /KEEP_PLATFORM_FINANCE/i);
+  assert.match(tp00, /SUPERSEDED|REDESIGN_DISCOVERY_ONLY/i);
+  assert.match(tp00, /platform-owned advertising|ad credits|platform-owned services/i);
+  assert.match(tp00, /contact handoff|TIGER STOPS/i);
+  assert.match(tp00, /buyer\/seller\/provider|user-to-user|user-to-provider/i);
+});
+
 test("machine-readable owner master decision cannot retain transaction-commission or external-purchase authority", () => {
   const rel = "project-control/owner/VVIP_TIGER_OWNER_DECISIONS_2026-08-12.json";
   const decision = JSON.parse(read(rel));
