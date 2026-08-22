@@ -1,26 +1,48 @@
 # VVIP TIGER
 
-VVIP TIGER is a security-first social and marketplace platform under controlled development.
+VVIP TIGER is a security-first social, discovery, advertising, and direct-contact platform under controlled development.
 
 ## Current product surface
 
-The current implementation direction is the TIGER Social Core on PR #271:
+The current convergence authority is the exact head of PR #320 on `feat/final-release-closure-20260822`, together with the owner authority registry and checks from that same SHA. A PR number, branch name, document, screenshot, or historical deployment is never sufficient evidence by itself.
 
-- `index.html` — the unified social Home and Marketplace entry surface;
-- `scripts/social/` — feed, composer, friends, reactions, and bounded runtime adapters;
+Current implementation surfaces include:
+
+- `index.html` — the unified social Home and Marketplace/discovery entry surface;
+- `scripts/social/` — feed, composer, friends, reactions, comments, search, and bounded runtime adapters;
 - `styles/tiger-social/core-shell.css` — the active social shell and mobile presentation;
 - `styles/tiger-one/` — the active TIGER ONE design tokens and typography;
 - Clerk — external identity and authentication runtime;
 - Supabase — subject/RLS-controlled data and storage layer;
 - VVIP-owned authorization, moderation, audit, and release controls.
 
-The Home presentation uses a compact TIGER header, social tabs, a social composer, a Stories presentation, and Facebook-familiar post interaction patterns while retaining independent TIGER branding and implementation.
+The Home presentation keeps familiar social-network interaction patterns while retaining independent TIGER branding and implementation. Unimplemented capabilities are omitted from the UI rather than presented as dead or disabled controls.
+
+## Constitutional proximity boundary
+
+The owner-authoritative platform boundary is:
+
+`DISCOVERY → RELEVANCE → EXPLANATION → CONTACT HANDOFF → TIGER STOPS`
+
+TIGER reduces the distance between a person's intent and a relevant person, entity, content, advertisement, product listing, or service provider. For external deals, TIGER does not negotiate, agree, order, checkout, collect deal value, escrow, fulfill, ship, settle, guarantee, or earn a transaction-value commission or success fee.
+
+TIGER finance is limited to TIGER-owned advertising, ad credits/campaigns, and explicitly approved platform-owned services. Advertising revenue is independent of whether an external deal occurs, succeeds, or has any particular value.
+
+The binding interaction model is:
+
+- `SHARE = DISTRIBUTE`
+- `••• = CONTROL`
+- `CONTACT = HANDOFF → TIGER STOPS`
+
+A control is rendered only when its real capability, authorization, policy, and runtime contract exist. No capability means no button.
+
+The machine/human governance entrypoint for these rules is `docs/architecture/OWNER_AUTHORITY_REGISTRY.md` together with the current owner-control references.
 
 ## Source of truth
 
-Repository bytes, the exact branch SHA, and checks from that same SHA are the implementation source of truth. Historical videos, screenshots, deployment notes, and archived state files are evidence only.
+Repository bytes, the exact branch SHA/tree, and checks from that same SHA are the implementation source of truth. Historical videos, screenshots, deployment notes, archived state files, and superseded PRs are evidence only.
 
-The retired GitHub Pages address is not an accepted preview of PR #271 and must not be shared as the current TIGER Social build. A valid review link must be an isolated preview built from the exact PR #271 head without modifying `main` or Production.
+A valid review surface must be built from the exact current head without modifying `main` or Production. A retired GitHub Pages address or historical preview must never be represented as the current build.
 
 ## Identity architecture
 
@@ -59,4 +81,4 @@ Then open `http://localhost:800/index.html`. This local address is only for deve
 - Smoke checks: `./scripts/qa-smoke.sh`.
 - Full repository gate: `bash scripts/quality-gate.sh`.
 
-Do not describe a branch as ready until the checks for its exact current head are GREEN.
+Do not describe a branch as ready until the required checks for its exact current head are GREEN. CI success alone does not establish protected-staging, Production, device, disaster-recovery, observability, or legal/country evidence.
