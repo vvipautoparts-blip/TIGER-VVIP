@@ -50,6 +50,26 @@ test("validates sector, category and status", () => {
   assert.equal(contract.validateListing(validInput({ status: "live" })).errors[0].code, "invalid_status");
 });
 
+test("legacy sector aliases resolve to stable semantic view ids without changing accepted legacy inputs", () => {
+  assert.equal(typeof contract.resolveSectorViewId, "function");
+  assert.deepEqual(
+    ["automotive", "materials", "real-estate"].map((sector) => contract.resolveSectorViewId(sector)),
+    ["view_automotive", "view_materials", "view_real_estate"]
+  );
+  assert.equal(contract.resolveSectorViewId("cars"), null);
+
+  const samples = [
+    ["automotive", "parts"],
+    ["materials", "suppliers"],
+    ["real-estate", "house"]
+  ];
+  for (const [sector, category] of samples) {
+    const result = contract.createListing(validInput({ sector, category }), { now: "2026-07-14T12:00:00.000Z" });
+    assert.equal(result.ok, true, `${sector}:${category}`);
+    assert.equal(result.value.sector, sector);
+  }
+});
+
 test("sanitizes title, description and structured attributes", () => {
   const result = contract.createListing(validInput({
     title: "<img src=x onerror=alert(1)> قطعة <script>alert(1)</script>",
