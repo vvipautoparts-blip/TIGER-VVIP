@@ -13,7 +13,42 @@ For advertised goods and services, TIGER is discovery-only. It does not create a
 
 This is the active **zero brokerage / no commission** rule.
 
-Platform-owned finance remains allowed only for TIGER's own advertising, ad credits/packages, approved platform-owned services, and the refunds/adjustments, taxes/fees, treasury/accounting, provider processing and reconciliation belonging to those platform-owned flows. Paid delivery must remain separate from organic relevance and fit.
+Platform-owned finance remains allowed only for TIGER's own advertising, ad credits/packages, approved platform-owned services, and the refunds/adjustments, taxes/fees, treasury/accounting, provider processing and reconciliation belonging to those platform-owned flows. Paid delivery must remain separate from organic relevance and fit. TIGER advertising and platform-owned service revenue is independent from any external deal outcome or external transaction value.
+
+## Proximity-only constitution and three-lane interaction authority
+
+The owner-approved design authority for this topic is `docs/superpowers/specs/2026-08-22-proximity-only-three-lane-interaction-design.md`. It extends and does not weaken Issue #312 or this registry.
+
+TIGER's constitutional purpose in external commercial/discovery interactions is to reduce distance between user intent and a relevant person, company, institution, shop, independent professional, provider, content item, advertised good, advertised service, or other eligible entity. The terminal boundary remains contact handoff; nothing after that handoff gives TIGER authority to participate in the external deal.
+
+The canonical user-interaction grammar is:
+
+```text
+SHARE   = DISTRIBUTE
+•••     = CONTROL
+CONTACT = HANDOFF -> TIGER STOPS
+```
+
+- `SHARE = DISTRIBUTE` means content/reference distribution only. Share must not create an order, checkout, payment, escrow, settlement, fulfillment, success fee, or transaction-value commission path.
+- `••• = CONTROL` means contextual user control over content, recommendations, privacy, moderation, discovery preferences, and only those actions for which a real authorized capability exists.
+- `CONTACT = HANDOFF -> TIGER STOPS` means contact is the terminal external-commercial handoff. Any later negotiation, agreement, service delivery, purchase, payment, or other deal activity belongs directly to the external parties and is outside TIGER.
+
+Capability precedes UI: a destination or action that lacks a real, authorized and tested runtime capability must not be rendered as a usable or disabled future control. Historical UI placeholders do not create product authority.
+
+External-deal execution and monetization remain fail-closed. A renamed alias does not bypass these semantic invariants:
+
+```text
+CONTACT_HANDOFF_IS_TERMINAL=true
+EXTERNAL_DEAL_STATE_MACHINE=0
+ACTIVE_EXTERNAL_DEAL_PAYMENT=0
+ACTIVE_EXTERNAL_DEAL_COMMISSION=0
+ACTIVE_SUCCESS_FEE=0
+ACTIVE_EXTERNAL_DEAL_SETTLEMENT=0
+ACTIVE_EXTERNAL_DEAL_FULFILLMENT=0
+AD_REVENUE_DEPENDS_ON_DEAL_OUTCOME=false
+```
+
+A transaction-value commission, success fee, or any other TIGER revenue calculated from whether an external deal occurred, succeeded, or from the value of that deal is prohibited. Platform-owned advertising, campaigns, ad credits/packages, paid visibility, and explicitly approved platform-owned services remain separate `KEEP_PLATFORM_FINANCE` scope and remain independent from external-deal outcome/value.
 
 ## Required classifications
 
