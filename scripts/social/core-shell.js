@@ -123,6 +123,15 @@
     state.setAttribute('aria-live', 'polite');
     state.textContent = 'ابحث عن أشخاص أو منشورات داخل VVIP TIGER.';
 
+    const retry = document.createElement('button');
+    retry.type = 'button';
+    retry.className = 'social-search-retry';
+    retry.dataset.socialSearchRetry = 'true';
+    retry.setAttribute('aria-label', 'إعادة محاولة البحث');
+    retry.hidden = true;
+    retry.setAttribute('aria-hidden', 'true');
+    retry.textContent = 'إعادة المحاولة';
+
     const peopleSection = document.createElement('section');
     peopleSection.className = 'social-search-results';
     const peopleTitle = document.createElement('h3');
@@ -139,7 +148,7 @@
     posts.dataset.socialSearchPosts = 'true';
     postsSection.append(postsTitle, posts);
 
-    section.append(heading, label, state, peopleSection, postsSection);
+    section.append(heading, label, state, retry, peopleSection, postsSection);
     marketplace.parentNode.insertBefore(section, marketplace);
   }
 
