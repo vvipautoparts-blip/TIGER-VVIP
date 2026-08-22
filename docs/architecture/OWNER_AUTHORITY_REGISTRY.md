@@ -14,7 +14,7 @@ Platform-owned finance remains allowed only for TIGER's own advertising, ad cred
 
 ## Precedence
 
-When a historical document, implementation note, test fixture, migration, event name, API contract, machine-readable owner decision, current-state ledger, or runtime path conflicts with Issue #312, Issue #312 controls. A conflicting historical `OWNER APPROVED`, `OWNER-CANONICAL`, or execution-state label does not override this registry or Issue #312.
+When a historical document, implementation note, test fixture, migration, event name, API contract, machine-readable owner decision, current-state ledger, product-readiness register, or runtime path conflicts with Issue #312, Issue #312 controls. A conflicting historical `OWNER APPROVED`, `OWNER-CANONICAL`, execution-state, scope-freeze, or open-decision label does not override this registry or Issue #312.
 
 All existing sectors and non-conflicting platform capabilities remain preserved. New sectors/views are additive through shared contracts and must not replace or fork the existing platform core.
 
@@ -31,6 +31,8 @@ All existing sectors and non-conflicting platform capabilities remain preserved.
 | `docs/owner-control/OWNER_BINDING_DECISIONS_2026-08-12.md` | Split binding authority: all non-conflicting security, identity, UX, governance and release rules remain binding; its historical transaction-commission section is `HISTORICAL_EVIDENCE_ONLY` / `SUPERSEDED` by Issue #312 | Historical percentages remain only for provenance with `NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION`. Active finance is limited to platform-owned advertising/services; external advertised-goods/services commerce stops at contact handoff. |
 | `docs/owner-control/VVIP_TIGER_OWNER_MASTER_DECISIONS_2026-08-12.md` | Split owner-master authority: non-conflicting product, security, privacy, authorization and UX decisions remain active; transaction-value commission material is `HISTORICAL_EVIDENCE_ONLY` / `SUPERSEDED`; finance is `KEEP_PLATFORM_FINANCE` only | The owner master cannot authorize external-deal purchase, checkout, payment, payout, escrow, settlement, fulfillment or commission. External user-to-user/user-to-provider commerce ends at contact handoff. |
 | `docs/MASTER_PROJECT_STATE.md` | Current execution-state ledger corrected by Issue #312 precedence | Historical PR #191 commission implementation remains provenance only with `NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION`. Current finance is limited to platform-owned advertising/services, while external commerce remains discovery-only through contact handoff. |
+| `docs/product-readiness/OPEN_DECISIONS_REGISTER.md` | Current unresolved-decision register with brokerage/commercial-registration questions removed because they are already resolved by later owner authority | Transaction commission is not a pending monetization choice. Remaining finance questions are limited to platform-owned advertising-service packaging; resolved commercial-registration prohibition is not reopened. |
+| `docs/product-readiness/PRODUCT_SCOPE_FREEZE.md` | `REDESIGN_DISCOVERY_ONLY` for external commerce plus `KEEP_PLATFORM_FINANCE` for separately gated platform-owned advertising/services | Deferred scope cannot revive commission settlement, external-deal payment, escrow, settlement, fulfillment or deal closing. Historical commission concepts are `HISTORICAL_EVIDENCE_ONLY`. |
 
 ## TigerPay split-scope rule
 
@@ -44,7 +46,7 @@ A machine-readable file may retain a broad owner-authority label for unrelated a
 
 ## Canonical-document authority rule
 
-A canonical or current-state document may retain superseded material only when the supersession is explicit in that same file. Later Issue #312 commerce authority must be stated locally so an agent or validator cannot infer transaction authority merely from older `OWNER APPROVED`, `OWNER-CANONICAL`, or merged-state wording.
+A canonical or current-state document may retain superseded material only when the supersession is explicit in that same file. Later Issue #312 commerce authority must be stated locally so an agent or validator cannot infer transaction authority merely from older `OWNER APPROVED`, `OWNER-CANONICAL`, merged-state, scope-freeze, or open-decision wording.
 
 ## Implementation rule
 
