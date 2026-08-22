@@ -33,7 +33,7 @@ Scope: Social Core only. ONE FIELD-owned discovery files and PR #313 remain read
 | Bookmark | Social bookmark control | FUTURE_HIDDEN | No Social V1 bookmark control is rendered in the Social feed. Marketplace save is a separate module. |
 | Follow | Follow control | FUTURE_HIDDEN | No Social V1 follow control is rendered. Existing friendship actions are not relabeled as follow. |
 | Marketplace entry | `[data-social-nav="marketplace"]` | REAL_WORKING | Shell routes to the existing Marketplace module; listing search, details, save, contact, share, and composer paths remain Fusion-owned and are not changed by this audit. |
-| Stories | `[data-social-story-strip]` story cards | PLACEHOLDER | Static, non-interactive cards only. They have no click handler and are not classified as an enabled story action. End-to-end stories remain a G4 decision. |
+| Stories | `[data-social-story-strip]` story cards | FUTURE_HIDDEN | End-to-end stories are not implemented; the strip is hidden and marked `data-social-feature-state="future-hidden"` so it is not presented as complete. |
 | Video / Reels | `.social-nav-item--inactive` video item | FUTURE_HIDDEN | The item is a non-interactive `aria-hidden` shell element, not a button or link. No fake video/reels navigation is exposed. |
 
 ## G3 result
@@ -41,7 +41,7 @@ Scope: Social Core only. ONE FIELD-owned discovery files and PR #313 remain read
 - `DEAD_OR_FAKE_SOCIAL_CONTROLS=0` for enabled Social controls on this branch.
 - The only previously dead enabled Social control was the post-menu button. It is now explicitly unavailable.
 - Unimplemented share is explicitly unavailable rather than silently clickable.
-- Messages, Notifications, Stories, and Video/Reels remain honest shell/placeholder/future states.
+- Messages and Notifications remain honest shell placeholders; Stories and Video/Reels are now explicitly future-hidden.
 - No ONE FIELD-owned path, PR #313 branch, main, Production, Staging, provider credential, payment, or real-user data was changed.
 
 ## Verification
