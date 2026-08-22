@@ -26,6 +26,30 @@
       .slice(0, maximum);
   }
 
+  function normalizeEvidenceText(value) {
+    return cleanText(value, 2200)
+      .normalize("NFKC")
+      .replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/gu, "")
+      .replace(/\u0640/gu, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function noAddedSugarEvidence() {
+    const text = normalizeEvidenceText(Array.from(arguments).filter(Boolean).join(" "));
+    if (!text) return null;
+
+    if (/(?:بدون|من\s+دون)\s+(?:سكر|السكر)|خال(?:ي|ية|يه)\s+من\s+(?:سكر|السكر)|غير\s+محلا(?:ة|ه)?/u.test(text)) {
+      return true;
+    }
+
+    if (/(?:يحتوي|تحتوي)\s+(?:على\s+)?(?:سكر|السكر)|سكر\s+مضاف|محلا(?:ة|ه)?/u.test(text)) {
+      return false;
+    }
+
+    return null;
+  }
+
   function stableId(value) {
     const id = cleanText(value, 128);
     return /^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/.test(id) ? id : "";
@@ -57,6 +81,7 @@
     const label = cleanText(source.title, 160);
     if (!id || !label) return null;
 
+    const summary = cleanText(source.summary, 2000);
     const phone = normalizePhone(source.contact_phone);
     const sector = source.sector == null ? null : cleanText(source.sector, 64) || null;
 
@@ -65,7 +90,7 @@
       source: "marketplace",
       kind: "listing",
       label: label,
-      summary: cleanText(source.summary, 2000),
+      summary: summary,
       facts: frozen({
         sector: sector,
         country: cleanText(source.active_market_country, 16) || null,
@@ -73,7 +98,8 @@
         priceMinor: Number.isSafeInteger(source.price_minor) && source.price_minor > 0 ? source.price_minor : null,
         currencyCode: /^[A-Z]{3}$/.test(cleanText(source.currency_code, 3).toUpperCase())
           ? cleanText(source.currency_code, 3).toUpperCase()
-          : null
+          : null,
+        noAddedSugar: noAddedSugarEvidence(label, summary)
       }),
       contact: phone ? frozen({ kind: "phone", value: phone }) : null,
       sponsored: false
@@ -99,7 +125,8 @@
       facts: frozen({
         businessName: businessName || null,
         specialization: specialization || null,
-        location: cleanText(source.location, 120) || null
+        location: cleanText(source.location, 120) || null,
+        noAddedSugar: noAddedSugarEvidence(summary)
       }),
       contact: null,
       sponsored: false
@@ -112,14 +139,16 @@
     const label = cleanText(source.author_display_name, 160);
     if (!id || !label) return null;
 
+    const summary = cleanText(source.body, 2000);
     return frozen({
       id: id,
       source: "social_posts",
       kind: "post",
       label: label,
-      summary: cleanText(source.body, 2000),
+      summary: summary,
       facts: frozen({
-        authorDisplayName: label
+        authorDisplayName: label,
+        noAddedSugar: noAddedSugarEvidence(summary)
       }),
       contact: null,
       sponsored: false
