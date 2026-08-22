@@ -110,3 +110,12 @@ test("project-control decision log cannot keep superseded V2 as the current offi
   assert.match(text, /DEC-001[\s\S]*HISTORICAL_EVIDENCE_ONLY|DEC-001[\s\S]*SUPERSEDED/i);
   assert.match(text, /CONTACT HANDOFF[\s\S]*TIGER STOPS/i);
 });
+
+test("strategic backlog cannot preserve external-deal escrow or fulfillment as future TIGER capabilities", () => {
+  const text = read("project-control/data/strategic_backlog.csv");
+  assert.match(text, /BL-003[\s\S]*RETIRE_BROKERAGE[\s\S]*Issue #312/i);
+  assert.match(text, /BL-013[\s\S]*REDESIGN_DISCOVERY_ONLY[\s\S]*CONTACT HANDOFF[\s\S]*TIGER STOPS/i);
+  assert.match(text, /BL-008[\s\S]*KEEP_PLATFORM_FINANCE[\s\S]*platform-owned advertising|BL-008[\s\S]*HISTORICAL_EVIDENCE_ONLY/i);
+  assert.doesNotMatch(text, /BL-003[^\n]*Future regulated release[^\n]*backlog/i);
+  assert.doesNotMatch(text, /BL-013[^\n]*Future country rollout[^\n]*backlog/i);
+});
