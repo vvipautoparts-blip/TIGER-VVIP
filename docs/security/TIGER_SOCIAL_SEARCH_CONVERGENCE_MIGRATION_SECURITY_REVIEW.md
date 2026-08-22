@@ -12,7 +12,21 @@ Scope: the three forward-only Social Search migrations introduced by PR #310.
 | --- | --- |
 | supabase/migrations/20260821160000_social_search_convergence.sql | cd9031ee26d709fada7d1a91828c02171c68fc791de02739df35f1cdcb77cb4f |
 | supabase/migrations/20260821160100_social_search_budget_guard.sql | 01511711186643d423d510578abad280e6c3a732287ba70309166d327b67ed75 |
-| supabase/migrations/20260821160200_social_search_adaptive_30_shield.sql | c2b8ccb13dedcd12f7b1c15610938c22d80f6a1b2e4c427cb085c7fdb7056b31 |
+| supabase/migrations/20260821160200_social_search_adaptive_30_shield.sql | d788463f7d8f5a71cc17d71128c963bfaf19e376fa59c193a2edcce182f9b145 |
+
+## Inherited migration dependencies reviewed
+
+The Steel Shield baseline also pins these pre-existing migrations required for a green exact-head scan. They are not P0-C implementation changes:
+
+| Migration | SHA-256 |
+| --- | --- |
+| supabase/migrations/20260808_vvip_identity_fail_closed_profile_resolver.sql | ee361b3bbdbef9695ac23d6ad597c49c4732f19ee45d1154745e5e387e12d0d6 |
+| supabase/migrations/20260812063600_identity02_profile_resolver_minimum_truth.sql | 838ae0ede07292c0c645f1b967753fda97cde672a04de24e787cba21aa4c0ac5 |
+| supabase/migrations/20260812070600_lc07_legacy_otp_sequence_isolation.sql | c2ff8704bd504bc9385613ba6276408d5f18ea27e3626f4f961720c5c2cffadc |
+| supabase/migrations/20260816104500_retire_legacy_profile_rpc.sql | ac8b769352b88bcb457e28d667c5b947464d6a14c68fb166b524e07553bcfe5a |
+| supabase/migrations/20260816105000_drop_legacy_profiles_table.sql | 206bc99d55ccb0828c4aa42a2ea1b62e0bbc97268e846df139baa85aa7a35974 |
+
+The dependency review confirmed subject-first identity resolution, browser-role privilege revocation, no synthetic legacy object creation, idempotent retirement, and no CASCADE table removal. The baseline remains fail-closed on any byte drift.
 
 ## Security invariants checked
 
@@ -28,11 +42,11 @@ Scope: the three forward-only Social Search migrations introduced by PR #310.
 
 ## Expected Steel Shield findings
 
-The scanner reports no Critical findings for these exact bytes. It reports 12 expected lexical High findings:
+The scanner reports no Critical findings for these exact bytes. It reports 13 expected lexical High findings after the explicit cooldown update branch:
 
 - 5 NOT_NULL_RISK hits in the new budget/search declarations.
 - 1 UPDATE_WITHOUT_WHERE hit in the budget guard source text; the actual UPDATE is owner-scoped.
-- 3 UPDATE_WITHOUT_WHERE or integrity hits in the adaptive shield; each UPDATE is actor-scoped, and the NOT NULL hit is a declaration-level integrity check.
+- 4 UPDATE_WITHOUT_WHERE hits plus 1 integrity hit in the adaptive shield; each UPDATE is actor-scoped, and the NOT NULL hit is a declaration-level integrity check.
 - 2 exact authenticated EXECUTE grants for the People/Post RPCs.
 - 1 additional authenticated grant classification from the search migration RPC surface.
 
