@@ -1,5 +1,5 @@
 ﻿decision_id,date,title,decision,reason,affected_tasks,owner,status
-DEC-001,2026-07-20,مصدر حقيقة واحد,اعتماد نظام project_control والوثيقة التطبيقية V2 كمصدر رسمي، مع إبقاء جميع المصادر القديمة للرجوع.,منع تضارب الوثائق وفقد المتطلبات,G00-01|G01-01,Owner,approved
+DEC-001,2026-07-20,مصدر حقيقة واحد,"كان اعتماد project_control والوثيقة التطبيقية V2 كمصدر رسمي قرارًا تاريخيًا عند نقطة 2026-07-20؛ وهو الآن HISTORICAL_EVIDENCE_ONLY / SUPERSEDED فيما يتعارض مع Issue #312. السلطة الحالية هي Issue #312 وdocs/architecture/OWNER_AUTHORITY_REGISTRY.md: DISCOVERY → RELEVANCE → EXPLANATION → CONTACT HANDOFF → TIGER STOPS.","حفظ provenance التاريخي مع منع أي أتمتة أو قارئ من إعادة منح V2 أسبقية على سلطة المالك الحالية.",G00-01|G01-01,Owner,approved
 DEC-002,2026-07-20,منع التعديل المباشر على main,كل تغيير عبر فرع وPull Request واختبارات وRollback.,تقليل الأعطال والتعارض,G01-01|G01-02,Technical Lead,approved
 DEC-003,2026-07-20,معمارية انتقالية عالمية,استخدام Strangler Pattern ونواة Modular Monolith بدل إعادة كتابة عمياء أو Microservices مبكرة.,حماية الموجود وتسريع الانتقال مع قابلية التوسع,G01-01|G02-01,Architecture,approved
 DEC-004,2026-07-20,Clerk هوية وحيدة,إلغاء أي Runtime موازٍ للهوية واعتماد Clerk للجلسات والدخول.,منع تضارب الجلسات والحسابات,G03-01|G03-02,Security,approved
