@@ -14,7 +14,7 @@ Platform-owned finance remains allowed only for TIGER's own advertising, ad cred
 
 ## Precedence
 
-When a historical document, implementation note, test fixture, migration, event name, API contract, machine-readable owner decision, current-state ledger, product-readiness register, blueprint, memory map, owner-approved design, or runtime path conflicts with Issue #312, Issue #312 controls. A conflicting historical `OWNER APPROVED`, `OWNER-CANONICAL`, `highest product reference`, execution-state, scope-freeze, open-decision, or agentic-plan label does not override this registry or Issue #312.
+When a historical document, implementation note, test fixture, migration, event name, API contract, machine-readable owner decision, current-state ledger, product-readiness register, blueprint, memory map, owner-approved design, execution roadmap, or runtime path conflicts with Issue #312, Issue #312 controls. A conflicting historical `OWNER APPROVED`, `OWNER-CANONICAL`, `highest product reference`, `source_of_truth`, `current_phase`, `execution_lock`, execution-state, scope-freeze, open-decision, or agentic-plan label does not override this registry or Issue #312.
 
 All existing sectors and non-conflicting platform capabilities remain preserved. New sectors/views are additive through shared contracts and must not replace or fork the existing platform core.
 
@@ -42,6 +42,9 @@ All existing sectors and non-conflicting platform capabilities remain preserved.
 | `docs/VVIP_TIGER_DB_AUDIT.md` | `HISTORICAL_EVIDENCE_ONLY` — historical database audit snapshot | This audit is not a migration and is not current commerce/schema authority. Its references to legacy `orders`/`commissions` record what existed at that checkpoint and cannot authorize new transaction paths. |
 | `docs/architecture/LEGACY_SUPABASE_SCHEMA_BLOCK.md` | Historical safety classification: `SUPERSEDED_DO_NOT_APPLY_REMOTE` | The root legacy schema is explicitly blocked from remote application; historical order/commission behavior cannot be treated as current migration authority. |
 | `docs/product-readiness/P08_WAIT_READINESS_REPORT.md` | `HISTORICAL_EVIDENCE_ONLY` — historical readiness snapshot | Its then-open commission/commercial-registration questions are time-stamped evidence only. Commission is not an open decision now and this snapshot cannot reopen superseded owner decisions; current readiness registers and Issue #312 control. |
+| `docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml` | `HISTORICAL_EXECUTION_SNAPSHOT` — preserved machine-readable execution provenance | Its historical `source_of_truth`, `current_phase`, `execution_lock`, and generic `P18 — Payment Gateway` wording have no current runtime execution authority. P18 cannot authorize buyer/seller or other external-deal payment; any reusable payment architecture is `KEEP_PLATFORM_FINANCE` only for platform-owned advertising services and remains separately gated. |
+| `docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md` | `HISTORICAL_EXECUTION_SNAPSHOT` — preserved human-readable execution provenance | Its phase sequencing is not a current execution cursor. Generic P18 payment wording is superseded for external deals; discovery still ends at contact handoff. |
+| `docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP_AUTHORITY_OVERLAY.md` | Current authority overlay for the preserved roadmap snapshots | Explicitly maps historical P18 to `KEEP_PLATFORM_FINANCE` / `PLATFORM_OWNED_ADVERTISING_SERVICES_ONLY` and `NO_RUNTIME_AUTHORITY_FOR_EXTERNAL_DEAL_PAYMENT`; user-to-user/user-to-provider deals remain outside TIGER after contact handoff. |
 
 ## Runtime and database enforcement evidence
 
@@ -66,7 +69,7 @@ A canonical or current-state document may retain superseded material only when t
 
 ## Historical-snapshot rule
 
-Historical audits, readiness reports, state archives and schema snapshots preserve what was believed or present at their checkpoint. They are evidence, not current authority. A stale `open question`, legacy table name, or old implementation plan inside a preserved snapshot cannot reopen a decision already superseded by later owner authority.
+Historical audits, readiness reports, state archives, schema snapshots, and execution roadmaps preserve what was believed or present at their checkpoint. They are evidence, not current authority. A stale `open question`, legacy table name, old implementation plan, `source_of_truth`, `current_phase`, `execution_lock`, or generic payment phase inside a preserved snapshot cannot reopen a decision already superseded by later owner authority.
 
 ## Implementation rule
 
