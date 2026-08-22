@@ -10,11 +10,15 @@ Transaction-value commission is `HISTORICAL_EVIDENCE_ONLY` / superseded and has 
 
 ## Platform Direction
 
-- VVIP TIGER is one unified platform identity.
-- Sector choice is a classification filter, not a separate app.
-- Jordan-first controlled launch direction stays active.
+- Core semantic identity is brand-neutral. `VVIP TIGER`, `TIGER`, `ONE FIELD`, `Mall`, and sector/domain/view names are mutable presentation labels unless the owner later freezes a commercial brand.
+- Renaming a presentation label must not migrate or redefine semantic IDs, personas, listings/posts, sector membership, authorization subjects, discovery behavior, or evidence ownership.
+- Sector choice is a classification/filter projection, not a separate app or a fixed core allowlist.
+- All current and future sectors are additive through the shared additive sector registry/core; launch sequencing never limits the architecture to a fixed sector count.
+- Jordan-first controlled launch direction stays active as rollout sequencing, not as a country-bound core identity.
 
-## Three Sectors As Filters
+## Current Three Launch Sectors As Filters
+
+The current three sectors below remain preserved as launch filters/examples. They do not define the complete platform taxonomy and do not prevent additional sectors from being added through the shared sector registry.
 
 - Auto parts and services
 - Materials and supplies
@@ -22,17 +26,18 @@ Transaction-value commission is `HISTORICAL_EVIDENCE_ONLY` / superseded and has 
 
 Rule:
 
-- Sector is required when creating a listing.
+- Sector is required when creating a listing where the active posting contract requires a sector classification.
 - Sector is optional for general browsing and can be used as a filter.
+- A newly approved sector is additive and must not require replacement, removal, or forking of existing sectors/features.
 
 ## قاعدة الحساب الموحد | Unified Base Account Rule
 
-- لكل مستخدم حساب أساسي واحد فقط في منصة VVIP TIGER.
+- لكل مستخدم حساب أساسي واحد فقط في المنصة؛ الاسم التجاري الظاهر قابل للتغيير ولا يدخل في هوية الحساب الأساسية.
 - حساب أساسي واحد لكل مستخدم.
 - الحساب نفسه يستخدم للدخول إلى Home وMarketplace وSearch والملف الشخصي.
-- القطاعات الثلاثة ليست حسابات منفصلة.
+- القطاعات الحالية أو المستقبلية ليست حسابات منفصلة.
 - الأدوار والصلاحيات تضاف إلى الحساب نفسه، ولا تنشئ حسابًا ثانيًا للمستخدم.
-- One user has one base VVIP TIGER account.
+- One user has one base platform account; the mutable brand label is presentation only.
 - One base account per user.
 - Sectors and operational permissions do not create separate accounts.
 
@@ -80,7 +85,7 @@ No deferred item may reintroduce buyer/seller transaction execution or transacti
 - No transaction-value commission or percentage of external deal value is active or deferred.
 - No escrow, settlement, fulfillment, or deal closing for advertised goods/services is included.
 - Platform-owned advertising-service monetization may be activated only through separate approved finance/security/legal/production gates.
-- VVIP TIGER remains a discovery and private-contact platform for external commerce.
+- The current brand presentation remains a discovery and private-contact experience for external commerce; changing that label does not change this authority boundary.
 
 ## Rejected Items (Final Exclusions For This Window)
 
