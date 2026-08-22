@@ -57,3 +57,16 @@ test("machine-readable owner master decision cannot retain transaction-commissio
   assert.equal(decision.financial_validation.transaction_value_commission_authority, "HISTORICAL_EVIDENCE_ONLY");
   assert.match(registry, /VVIP_TIGER_OWNER_DECISIONS_2026-08-12\.json/);
 });
+
+test("binding owner document locally supersedes its historical commission section without weakening other owner controls", () => {
+  const rel = "docs/owner-control/OWNER_BINDING_DECISIONS_2026-08-12.md";
+  const ownerBinding = read(rel);
+  const registry = fs.readFileSync(registryPath, "utf8");
+
+  assert.match(ownerBinding, /Issue\s+#312/i);
+  assert.match(ownerBinding, /HISTORICAL_EVIDENCE_ONLY/i);
+  assert.match(ownerBinding, /NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION/i);
+  assert.match(ownerBinding, /platform-owned advertising|ad credits|platform-owned services/i);
+  assert.match(ownerBinding, /external user-to-user|user-to-provider|advertised goods\/services/i);
+  assert.match(registry, /OWNER_BINDING_DECISIONS_2026-08-12\.md/);
+});
