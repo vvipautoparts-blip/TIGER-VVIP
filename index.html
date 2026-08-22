@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="styles/tiger-one/tokens.css">
   <link rel="stylesheet" href="styles/tiger-one/type.css">
   <link rel="stylesheet" href="styles/tiger-social/core-shell.css">
+  <link rel="stylesheet" href="styles/tiger-social/one-field-runtime.css">
 
   <script defer crossorigin="anonymous" src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/ui@1/dist/ui.browser.js"></script>
   <script defer crossorigin="anonymous" data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk" src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"></script>
@@ -43,6 +44,15 @@
   <script defer src="scripts/fusion/account-surface.js"></script>
   <script defer src="scripts/fusion/single-surface-controller.js"></script>
   <script defer src="scripts/social/runtime-adapters.js"></script>
+  <script defer src="scripts/discovery/one-field-semantic-core.js"></script>
+  <script defer src="scripts/discovery/one-field-intent-scene.js"></script>
+  <script defer src="scripts/discovery/one-field-semantic-capsule.js"></script>
+  <script defer src="scripts/discovery/one-field-hybrid-retrieval.js"></script>
+  <script defer src="scripts/discovery/one-field-fit-facets.js"></script>
+  <script defer src="scripts/discovery/one-field-runtime-adapters.js"></script>
+  <script defer src="scripts/discovery/one-field-runtime-orchestrator.js"></script>
+  <script defer src="scripts/discovery/one-field-runtime-controller.js"></script>
+  <script defer src="scripts/discovery/one-field-runtime-view.js"></script>
   <script defer src="scripts/social/feed-read-model.js"></script>
   <script defer src="scripts/social/reactions-controller.js"></script>
   <script defer src="scripts/social/comments-controller.js"></script>
@@ -95,6 +105,31 @@
     <section data-tiger-one-pulse aria-label="مساحة الحملات الممولة" hidden></section>
 
     <section class="tiger-social-home" data-tiger-social-feed aria-label="آخر الأخبار والمنشورات" aria-hidden="false">
+      <section class="one-field-runtime" data-one-field-runtime data-state="idle" aria-labelledby="one-field-title" aria-busy="false">
+        <header class="one-field-runtime__heading">
+          <span class="eyebrow">ONE FIELD</span>
+          <h2 id="one-field-title">اكتب ما تريد كما تفكر به</h2>
+          <p>طلب واحد موحّد يبحث في المصادر المناسبة ويشرح لك لماذا ظهرت النتيجة.</p>
+        </header>
+        <form class="one-field-runtime__form" data-one-field-intent-form>
+          <label class="one-field-runtime__label" for="one-field-intent">ماذا تريد أن تجد؟</label>
+          <div class="one-field-runtime__control">
+            <input id="one-field-intent" type="search" data-one-field-intent-input required minlength="2" maxlength="500" autocomplete="off" placeholder="مثال: أريد كورن فليكس للأطفال بدون سكر" aria-describedby="one-field-runtime-status">
+            <button class="button button--primary" type="submit" data-one-field-intent-submit>ابحث بنيّتك</button>
+          </div>
+        </form>
+        <p id="one-field-runtime-status" class="one-field-runtime__status" data-one-field-runtime-status role="status" aria-live="polite">اكتب ما تريد بلغتك الطبيعية.</p>
+        <p class="one-field-runtime__handoff-note">يمكنك فتح عرض التفاصيل أو تواصل مباشر مع الجهة المناسبة؛ دور المنصة ينتهي عند الاكتشاف والتواصل.</p>
+        <section class="one-field-runtime__group" aria-labelledby="one-field-organic-title">
+          <h3 id="one-field-organic-title">النتائج الأنسب</h3>
+          <div class="one-field-runtime__results" data-one-field-organic-results></div>
+        </section>
+        <section class="one-field-runtime__group" data-one-field-sponsored-results hidden aria-labelledby="one-field-sponsored-title">
+          <h3 id="one-field-sponsored-title">نتائج ممولة</h3>
+          <div class="one-field-runtime__results" data-one-field-sponsored-list></div>
+        </section>
+      </section>
+
       <div class="social-post-composer" data-social-post-composer>
         <span class="social-post-avatar" aria-hidden="true">V</span>
         <button class="social-post-trigger" type="button" data-social-post-trigger aria-haspopup="dialog">بماذا تفكر؟</button>

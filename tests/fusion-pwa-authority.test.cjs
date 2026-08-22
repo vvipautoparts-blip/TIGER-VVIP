@@ -32,5 +32,5 @@ test('new FUSION runtime assets are eligible for bounded same-origin static cach
 });
 
 test('FUSION integration rotates the static cache namespace', () => {
-  assert.equal(sw.CACHE_NAME, 'vvip-static-v2');
+  assert.equal(sw.CACHE_NAME, 'vvip-static-v3');
 });

@@ -39,7 +39,7 @@ test("static service worker module exists", () => {
 
 test("static delivery exports the current bounded cache contract", () => {
   assert.ok(worker, "service worker module must be loadable in Node");
-  assert.equal(worker.CACHE_NAME, "vvip-static-v2");
+  assert.equal(worker.CACHE_NAME, "vvip-static-v3");
   assert.equal(worker.MAX_AGE_MS, 60 * 60 * 1000);
   assert.equal(typeof worker.shouldHandleRequest, "function");
   assert.equal(typeof worker.isResponseCacheable, "function");

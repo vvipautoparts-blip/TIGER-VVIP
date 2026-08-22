@@ -41,6 +41,7 @@ PUBLIC_STYLE_FILES = (
     "styles/tiger-one/type.css",
     "styles/tiger-social/core-shell.css",
     "styles/tiger-social/search.css",
+    "styles/tiger-social/one-field-runtime.css",
 )
 
 PUBLIC_ICON_FILES = (
@@ -68,6 +69,15 @@ PUBLIC_SCRIPT_FILES = (
     "scripts/fusion/account-surface.js",
     "scripts/fusion/single-surface-controller.js",
     "scripts/social/runtime-adapters.js",
+    "scripts/discovery/one-field-semantic-core.js",
+    "scripts/discovery/one-field-intent-scene.js",
+    "scripts/discovery/one-field-semantic-capsule.js",
+    "scripts/discovery/one-field-hybrid-retrieval.js",
+    "scripts/discovery/one-field-fit-facets.js",
+    "scripts/discovery/one-field-runtime-adapters.js",
+    "scripts/discovery/one-field-runtime-orchestrator.js",
+    "scripts/discovery/one-field-runtime-controller.js",
+    "scripts/discovery/one-field-runtime-view.js",
     "scripts/social/feed-read-model.js",
     "scripts/social/reactions-controller.js",
     "scripts/social/comments-controller.js",
