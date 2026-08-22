@@ -1,0 +1,170 @@
+{
+  "status": "ACTIVE_OWNER_AUTHORITY",
+  "effective_at": "2026-08-23",
+  "scope": "INTERNAL_COGNITIVE_CONTINUITY",
+  "precedence": {
+    "extends": [
+      "docs/architecture/OWNER_AUTHORITY_REGISTRY.md",
+      "docs/architecture/OWNER_FOUNDATIONAL_INVARIANTS_2026-08-22.md",
+      "docs/superpowers/specs/2026-08-22-universal-rendezvous-platform-design.md"
+    ],
+    "conflicting_learning_stops_semantics": "SUPERSEDED",
+    "git_history": "HISTORICAL_EVIDENCE_ONLY"
+  },
+  "architecture": {
+    "model": "SELF_EVOLVING_COGNITIVE_CONTINUUM_WITH_CONSTITUTIONAL_GENOME",
+    "same_route_extension": true,
+    "new_parallel_core": false,
+    "big_bang_rewrite": false,
+    "one_field_preserved": true,
+    "private_intent_field_preserved": true,
+    "semantic_world_graph_preserved": true,
+    "capability_graph_preserved": true,
+    "reciprocal_matching_preserved": true,
+    "proof_of_relevance_preserved": true,
+    "counterfactual_explainer_preserved": true,
+    "living_intent_space_preserved": true,
+    "contact_handoff_preserved": true
+  },
+  "cognition": {
+    "permanent_mind": true,
+    "constitutional_genome": {
+      "stable": true,
+      "self_rewrite_allowed": false,
+      "protects": [
+        "privacy",
+        "security",
+        "owner_authority",
+        "zero_brokerage",
+        "contact_handoff_terminal",
+        "organic_paid_separation",
+        "applicable_policy",
+        "user_rights"
+      ]
+    },
+    "selective_memory": true,
+    "living_world_model": true,
+    "imagination_and_simulation": true,
+    "autonomous_curiosity": true,
+    "capability_genesis": true,
+    "independent_critic": true,
+    "shadow_evolution": true,
+    "real_selective_forgetting": true,
+    "experience_distillation": true,
+    "procedural_memory": true,
+    "cognitive_metabolism": true,
+    "uncertainty_ledger": true,
+    "contradiction_engine": true,
+    "knowledge_provenance": true,
+    "self_challenge_generator": true,
+    "synthetic_world_laboratory": true,
+    "cognitive_immune_system": true,
+    "memory_firewall": true
+  },
+  "memory_governance": {
+    "store_everything_forever": false,
+    "provenance_required": true,
+    "confidence_required": true,
+    "freshness_required": true,
+    "privacy_class_required": true,
+    "cognitive_half_life": true,
+    "full_pipeline_erasure_propagation": true,
+    "knowledge_classes": [
+      "FACT",
+      "OBSERVATION",
+      "EXPERIENCE",
+      "HYPOTHESIS",
+      "BELIEF",
+      "PREDICTION",
+      "OPINION",
+      "UNKNOWN"
+    ],
+    "truth_envelope_fields": [
+      "content",
+      "provenance",
+      "confidence",
+      "freshness",
+      "valid_from",
+      "valid_until",
+      "privacy_class",
+      "utility",
+      "contradiction_score",
+      "decay_rate",
+      "evidence"
+    ],
+    "memory_dimensions": [
+      "semantic",
+      "temporal",
+      "causal",
+      "entity",
+      "procedural",
+      "policy"
+    ]
+  },
+  "evolution": {
+    "required_sequence": [
+      "IMAGINE",
+      "SIMULATE",
+      "CRITIQUE",
+      "VERIFY",
+      "SHADOW",
+      "GATE",
+      "PROMOTE_OR_REJECT"
+    ],
+    "creator_is_sole_verifier": false,
+    "direct_unverified_production_self_modification": false,
+    "creator_critic_verifier_separation": true,
+    "multi_objective_gate": true,
+    "selective_foresight": true,
+    "fast_cognitive_path": true,
+    "deep_cognitive_path": true,
+    "structural_changes_require_governed_promotion": true
+  },
+  "post_handoff_boundary": {
+    "contact_handoff_terminal": true,
+    "tiger_commercial_role_stops": true,
+    "external_deal_observation_allowed": false,
+    "external_negotiation_learning_allowed": false,
+    "external_payment_learning_allowed": false,
+    "external_settlement_learning_allowed": false,
+    "internal_cognitive_continuum_continues": true,
+    "legacy_learning_stops_semantic_active": false,
+    "canonical_phrase": "THE DEAL STOPS. THE MIND EVOLVES."
+  },
+  "learning_boundary": {
+    "allowed_internal_signals": [
+      "intent_understanding_quality",
+      "retrieval_quality",
+      "match_quality",
+      "result_selection",
+      "result_hide_or_reject",
+      "reformulation_need",
+      "explanation_usefulness",
+      "capability_gap",
+      "error_signal",
+      "knowledge_freshness"
+    ],
+    "forbidden_external_deal_signals": [
+      "external_negotiation_content",
+      "external_final_price",
+      "external_payment",
+      "external_settlement",
+      "external_fulfillment",
+      "external_deal_completion"
+    ]
+  },
+  "naming": {
+    "display_name": "TIGER Cognitive Continuum",
+    "display_name_mutable": true,
+    "architectural_contracts_mutable_by_rebrand": false,
+    "canonical_model_key": "SELF_EVOLVING_COGNITIVE_CONTINUUM_WITH_CONSTITUTIONAL_GENOME"
+  },
+  "implementation_state": {
+    "authority_slice_only": true,
+    "runtime_behavior_changed_by_this_slice": false,
+    "production_changed_by_this_slice": false,
+    "staging_changed_by_this_slice": false,
+    "remote_database_changed_by_this_slice": false,
+    "next_method": "TDD_ISOLATED_SLICES_WITH_EXACT_SHA_EVIDENCE"
+  }
+}
