@@ -75,8 +75,8 @@ test('audit-bearing grants and state events are append-only and cannot be delete
 
   assert.match(sql, /SENSITIVE_PERMISSION_GRANT_IMMUTABLE/);
   assert.match(sql, /SENSITIVE_PERMISSION_EVENT_IMMUTABLE/);
-  assert.match(sql, /before update or delete on public\.sensitive_permission_grants/i);
-  assert.match(sql, /before update or delete on public\.sensitive_permission_grant_events/i);
+  assert.match(sql, /before\s+delete\s+or\s+update\s+on\s+public\.sensitive_permission_grants/i);
+  assert.match(sql, /before\s+delete\s+or\s+update\s+on\s+public\.sensitive_permission_grant_events/i);
   assert.doesNotMatch(sql, /grant\s+delete\s+on\s+table\s+public\.sensitive_permission_grants/i);
   assert.doesNotMatch(sql, /grant\s+delete\s+on\s+table\s+public\.sensitive_permission_grant_events/i);
 });
@@ -84,8 +84,9 @@ test('audit-bearing grants and state events are append-only and cannot be delete
 test('revocation and expiry are explicit append-only state events', () => {
   const sql = migrationText();
 
-  assert.match(sql, /event_type\s+text\s+not null/i);
+  assert.match(sql, /event_type\s+text/i);
   assert.match(sql, /event_type\s+in\s*\([^)]*'GRANTED'[^)]*'REVOKED'[^)]*'EXPIRED'/is);
+  assert.match(sql, /event_type\s+is\s+distinct\s+from\s+null/i);
   assert.match(sql, /create or replace function public\.revoke_sensitive_permission_grant/i);
   assert.match(sql, /create or replace function public\.expire_sensitive_permission_grant/i);
   assert.match(sql, /insert into public\.sensitive_permission_grant_events/i);
@@ -116,7 +117,7 @@ test('grant creation verifies exact delegation authority and subset ceilings bef
   assert.ok(subsetCheck >= 0 && insertGrant > subsetCheck, 'subset verification must precede grant insertion');
 });
 
-test('grant creation and state mutation functions are service-role only', () => {
+test('grant creation and state mutation functions are service-role only with safe definer paths', () => {
   const sql = migrationText();
   const signatures = [
     'create_sensitive_permission_grant',
@@ -127,25 +128,43 @@ test('grant creation and state mutation functions are service-role only', () => 
   ];
 
   for (const name of signatures) {
+    const block = functionBlock(sql, name);
+    assert.match(block, /security\s+definer\s+set\s+search_path\s*=\s*public,\s*pg_temp/i);
     assert.match(sql, new RegExp(`revoke all on function public\\.${name}[^;]* from public, anon, authenticated`, 'i'));
     assert.match(sql, new RegExp(`grant execute on function public\\.${name}[^;]* to service_role`, 'i'));
   }
 });
 
-test('leases are exact-bound, short-lived, single-use, and fail closed after revoke or expiry', () => {
+test('leases are exact-bound, required, short-lived, single-use, and fail closed after revoke or expiry', () => {
   const sql = migrationText();
   const consume = functionBlock(sql, 'consume_sensitive_permission_lease');
 
   assert.match(sql, /status\s+in\s*\([^)]*'ISSUED'[^)]*'CONSUMED'[^)]*'REVOKED'[^)]*'EXPIRED'/is);
-  assert.match(sql, /grant_id\s+uuid\s+not null/i);
-  assert.match(sql, /principal\s+text\s+not null/i);
-  assert.match(sql, /action\s+text\s+not null/i);
-  assert.match(sql, /scope_digest\s+text\s+not null/i);
-  assert.match(sql, /nonce_hash\s+text\s+not null/i);
-  assert.match(sql, /not_before\s+timestamptz\s+not null/i);
-  assert.match(sql, /expires_at\s+timestamptz\s+not null/i);
-  assert.match(sql, /consumed_at\s+timestamptz/i);
-  assert.match(sql, /revoked_at\s+timestamptz/i);
+  for (const declaration of [
+    /grant_id\s+uuid/i,
+    /principal\s+text/i,
+    /action\s+text/i,
+    /scope_digest\s+text/i,
+    /nonce_hash\s+text/i,
+    /not_before\s+timestamptz/i,
+    /expires_at\s+timestamptz/i,
+    /consumed_at\s+timestamptz/i,
+    /revoked_at\s+timestamptz/i,
+  ]) {
+    assert.match(sql, declaration);
+  }
+  assert.match(sql, /constraint\s+sensitive_permission_lease_required_bindings_check\s+check/i);
+  for (const field of [
+    'grant_id',
+    'principal',
+    'action',
+    'scope_digest',
+    'nonce_hash',
+    'not_before',
+    'expires_at',
+  ]) {
+    assert.match(sql, new RegExp(`${field}\\s+is\\s+distinct\\s+from\\s+null`, 'i'));
+  }
 
   assert.notEqual(consume, '');
   assert.match(consume, /for update/i);
