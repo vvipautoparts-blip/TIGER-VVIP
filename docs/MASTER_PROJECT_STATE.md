@@ -8,6 +8,8 @@
 ## 0. مؤشر التنفيذ الحالي على فرع Social Core
 
 - **العمل الحالي:** PR #271 على الفرع `feat/tiger-one-living-surface-impl-20260818`، فوق فرع المواصفة وليس فوق `main` مباشرة.
+- **S1 exact implementation checkpoint:** `794de87b2055b9dddf8dfbdbc366d83ba122b1b0`؛ شجرتها `cae245647b50e2cc9c88fc08427cf560add16219`؛ `VVIP Quality Gate #2096 = PASS` و`TIGER Social DB Rehearsal #497 = PASS` على نفس الـSHA؛ LC03 #760 وLC04 #555 وLC05 #528 وLC06 #526 = PASS.
+- **حالة S1 الحالية:** `VERIFIED` على checkpoint أعلاه؛ `main` وProduction لم يتغيرا.
 - **V0 exact implementation checkpoint:** `4bc6252bbc217b4a65a0bdd54c8756b4b5a4ffee`؛ شجرتها `d42f0a8176d368e6de8e873dd795356108da7942`؛ `VVIP Quality Gate #2071 = PASS` و`TIGER Social DB Rehearsal #465 = PASS` على نفس الـSHA.
 - **حالة S0 الحالية:** `VERIFIED` على checkpoint أعلاه؛ `main` وProduction لم يتغيرا.
 - **حالة S0 (دالة fail-closed):** تكون `VERIFIED` **إذا وفقط إذا** نجح كل من `VVIP Quality Gate` و`TIGER Social DB Rehearsal` على رأس PR الحالي نفسه وشجرته نفسها؛ وفي غير ذلك تكون `IN_PROGRESS` أو `BLOCKED`. رأس PR الحالي وشجرته وقرار الحالة يُستمدّون حصراً من GitHub exact-head CI attestations خارج هذه الوثيقة، ولا يُستنتج `VERIFIED` من هذه الوثيقة أو من SHA تاريخي.
@@ -23,12 +25,12 @@
 - **الرؤية الابتكارية المعتمدة:** **TIGER SYNAPSE v2** — Temporal Intent Operating System يوحّد النية اللحظية، المطابقة القابلة للتفسير، إثبات الحاضر، الكشف المتبادل، والتواصل المباشر داخل Living Surface واحدة.
 - **نسيج السلطة والإثبات المعتمد:** **TIGER VERITY FABRIC** — Authority Graph + Hermetic Build Core + Release DNA/Proof Root + Typed P01–P20 Evidence + Fresh Runtime Witnesses.
 - **مرجع SYNAPSE الحالي:** `docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md`.
-- **حالة SYNAPSE:** `APPROVED / PLANNED / NOT IMPLEMENTED beyond S0`؛ اعتماد الاتجاه لا يعني أن المزايا موجودة في الـruntime أو أن Preview جاهز.
-- **حالة VERITY FABRIC:** `APPROVED / V0 VERIFIED / V1+ NOT IMPLEMENTED`؛ أصبح OWNER Authority Graph machine-enforced مع سجل Authority، schema، validator، ودمج fail-closed في Quality Gate؛ ما بعد V0 يحتاج أدلته المستقلة.
-- **قرار المالك المثبت:** اعتمد المالك النسخة المكتوبة لخيار C بتاريخ 2026-08-18؛ أصبحت SYNAPSE v2 + VERITY FABRIC سلطة `CURRENT_ONLY` في نطاقها، مع بقاء التنفيذ `NOT IMPLEMENTED` حتى ظهور أدلة الكود والاختبارات.
+- **حالة SYNAPSE:** `APPROVED / S1 VERIFIED / S2+ NOT IMPLEMENTED`؛ Intent Domain Foundation صار actor-bound ومؤكدًا عبر lifecycle وprivacy modes وexpiry وRPC/RLS وexact-head DB rehearsal؛ المطابقة والتنفيذات اللاحقة ما زالت غير منفذة.
+- **حالة VERITY FABRIC:** `APPROVED / V0+S1 VERIFIED / S2+ NOT IMPLEMENTED`؛ أصبح OWNER Authority Graph machine-enforced، وأضيفت طبقة Intent Foundation ذات الأدلة المستقلة؛ ما بعد S1 يحتاج أدلته المستقلة.
+- **قرار المالك المثبت:** اعتمد المالك النسخة المكتوبة لخيار C بتاريخ 2026-08-18؛ أصبحت SYNAPSE v2 + VERITY FABRIC سلطة `CURRENT_ONLY` في نطاقها، والتنفيذ المثبت حاليًا هو V0 Authority Graph وS1 Intent Foundation فقط.
 - **خطة البرنامج الحالية:** `docs/superpowers/plans/2026-08-18-tiger-synapse-v2-verity-fabric-program-execution.md`.
 - **V0 Owner Authority Graph:** `VERIFIED` — exactly one current authority per covered domain، graph digest deterministic، cycles/resurrection/missing paths fail closed، وAuthority records خارج Web Artifact.
-- **مؤشر التنفيذ الحالي / الشريحة التالية:** `S1 Intent Domain Foundation` — تأسيس intent lifecycle وprivacy modes وexpiry وRPC/RLS قبل توسيع محرك النوايا.
+- **مؤشر التنفيذ الحالي / الشريحة التالية:** `S2 Deterministic Match Fabric` — eligibility وranking وexplanations مع golden fixtures قبل أي توسع شبكي جديد.
 - **قاعدة المالك النهائية:** أحدث قرار `CURRENT_ONLY` يلغي سلطة كل قديم متعارض ويخرجه من المنصة الحالية والحزمة العامة ومسارات التنفيذ؛ الأثر الضروري يبقى `HISTORICAL_ONLY` خارج المنصة بلا أي سلطة.
 - **سلطة المعاينة:** لا يُعتمد أي فيديو أو رابط نشر تاريخي أو رابط Pages سابق بوصفه معاينة لهذا العمل.
 - **شرط الرابط الصحيح:** Preview مستقل مبني من exact head الخاص بـPR #271، يعمل على الهاتف، ولا يغيّر `main` أو Production.
