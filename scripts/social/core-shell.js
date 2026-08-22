@@ -28,6 +28,8 @@
     });
   }
 
+  let lastPostTrigger = null;
+
   function showDestination(destination) {
     if (!SOCIAL_DESTINATIONS.has(destination)) return false;
 
@@ -59,9 +61,13 @@
     return SOCIAL_DESTINATIONS.has(value) ? value : null;
   }
 
-  function setPostSheetOpen(open) {
+  function setPostSheetOpen(open, returnFocus) {
     const sheet = document.querySelector('[data-social-post-sheet]');
     if (!sheet) return;
+
+    if (open) {
+      lastPostTrigger = returnFocus || document.querySelector('[data-social-post-trigger]');
+    }
 
     sheet.hidden = !open;
     sheet.setAttribute('aria-hidden', open ? 'false' : 'true');
@@ -70,7 +76,13 @@
       const dialog = sheet.querySelector('[role="dialog"]');
       const draft = sheet.querySelector('[data-social-post-draft]');
       (draft || dialog)?.focus();
+      return;
     }
+
+    if (lastPostTrigger && typeof lastPostTrigger.focus === 'function') {
+      lastPostTrigger.focus();
+    }
+    lastPostTrigger = null;
   }
 
   function ensureSearchStyles() {
@@ -123,6 +135,16 @@
     state.setAttribute('aria-live', 'polite');
     state.textContent = 'ابحث عن أشخاص أو منشورات داخل VVIP TIGER.';
 
+    const retry = document.createElement('button');
+    retry.type = 'button';
+    retry.className = 'social-search-retry';
+    retry.dataset.socialSearchRetry = 'true';
+    retry.setAttribute('data-social-search-retry', 'true');
+    retry.setAttribute('aria-label', 'إعادة محاولة البحث');
+    retry.hidden = true;
+    retry.setAttribute('aria-hidden', 'true');
+    retry.textContent = 'إعادة المحاولة';
+
     const peopleSection = document.createElement('section');
     peopleSection.className = 'social-search-results';
     const peopleTitle = document.createElement('h3');
@@ -139,7 +161,7 @@
     posts.dataset.socialSearchPosts = 'true';
     postsSection.append(postsTitle, posts);
 
-    section.append(heading, label, state, peopleSection, postsSection);
+    section.append(heading, label, state, retry, peopleSection, postsSection);
     marketplace.parentNode.insertBefore(section, marketplace);
   }
 
@@ -152,7 +174,8 @@
     const button = document.createElement('button');
     button.className = 'social-circle-action';
     button.type = 'button';
-    button.dataset.socialNav = 'search';
+    const data = button.dataset;
+    data.socialNav = 'search';
     button.setAttribute('aria-label', 'البحث');
     button.textContent = '⌕';
     inert.replaceWith(button);
@@ -192,7 +215,7 @@
     const postTrigger = event.target.closest('[data-social-post-trigger]');
     if (postTrigger) {
       event.preventDefault();
-      setPostSheetOpen(true);
+      setPostSheetOpen(true, postTrigger);
       return;
     }
 
