@@ -51,3 +51,17 @@ test("README cannot present historical deployment evidence as current Production
   assert.doesNotMatch(readme, /## Production state\s*\n\s*The current Production Web source is/i);
   assert.doesNotMatch(readme, /semantically remediated in the deployed Production resolver/i);
 });
+
+test("legacy TigerPay implementation plan cannot govern advertised-goods or provider transactions", () => {
+  const text = read("docs/superpowers/plans/2026-08-07-tigerpay-tp00-tp01-implementation-plan.md");
+  assert.match(text, /HISTORICAL_EVIDENCE_ONLY|SUPERSEDED.*Issue #312/i);
+  assert.match(text, /platform-owned advertising|platform advertising services/i);
+  assert.match(text, /CONTACT HANDOFF.*TIGER STOPS/i);
+});
+
+test("TigerPay Vault 3 design is explicitly narrowed to platform-owned finance", () => {
+  const text = read("docs/superpowers/specs/2026-08-07-tigerpay-vault-3-sovereign-treasury-design.md");
+  assert.match(text, /HISTORICAL_EVIDENCE_ONLY|SUPERSEDED.*Issue #312/i);
+  assert.match(text, /platform-owned advertising|platform advertising services/i);
+  assert.match(text, /CONTACT HANDOFF.*TIGER STOPS/i);
+});
