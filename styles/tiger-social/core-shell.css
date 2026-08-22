@@ -70,8 +70,10 @@ body[data-vvip-fusion-app] {
 }
 
 .social-circle-action {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   border: 0;
   border-radius: 50%;
   display: grid;
@@ -180,7 +182,7 @@ body[data-vvip-fusion-app] {
 }
 
 .social-post-trigger {
-  min-height: 42px;
+  min-height: 44px;
   border: 1px solid var(--tiger-social-border);
   border-radius: 999px;
   background: #f8f9fb;
@@ -392,6 +394,7 @@ button.social-story-card {
 
 .social-reactions__main {
   min-width: 88px;
+  min-height: 44px;
   border-radius: 8px;
   color: var(--tiger-social-muted);
   font: var(--t1-type-label-m);
@@ -420,8 +423,9 @@ button.social-story-card {
 }
 
 .social-reactions__choice {
-  width: 42px;
-  min-width: 42px;
+  width: 44px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -456,7 +460,7 @@ button.social-story-card {
 }
 
 .social-post-action {
-  min-height: 40px;
+  min-height: 44px;
   border: 0;
   border-radius: 8px;
   background: transparent;
@@ -693,7 +697,7 @@ button.social-story-card {
 }
 
 .social-friend-action {
-  min-block-size: 42px;
+  min-block-size: 44px;
   border: 1px solid var(--tiger-social-border);
   border-radius: 8px;
   background: var(--tiger-social-control);
