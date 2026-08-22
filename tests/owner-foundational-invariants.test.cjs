@@ -54,6 +54,63 @@ test("sensitive permissions fail closed and delegation cannot exceed grantor sco
   assert.equal(authority.delegation.grantor_can_widen_beyond_delegation_ceiling, false);
 });
 
+test("owner has sovereign country-scoped payment rail authority", () => {
+  const authority = readAuthority();
+  const payment = authority.owner_payment_control;
+
+  assert.equal(payment.owner_is_root_authority, true);
+  assert.equal(payment.final_activation_requires_owner, true);
+  assert.equal(payment.fresh_step_up_required_for_activation_rotation_retirement, true);
+  assert.equal(payment.country_payment_profile_required, true);
+  assert.equal(payment.provider_neutral_core, true);
+  assert.equal(payment.new_rail_requires_core_rebuild, false);
+  assert.equal(payment.payment_numbers_hardcoded_in_application_code, false);
+  assert.equal(payment.active_configuration_is_versioned_immutable, true);
+  assert.equal(payment.all_changes_use_change_sets, true);
+  assert.equal(payment.atomic_activation, true);
+  assert.equal(payment.rollback_to_last_verified_version, true);
+  assert.equal(payment.silent_cross_country_fallback_allowed, false);
+  assert.equal(payment.raw_payment_credentials_in_client_or_repo_allowed, false);
+
+  for (const capability of [
+    "PAYMENT_RAIL_CREATE",
+    "PAYMENT_DESTINATION_ROTATE",
+    "PAYMENT_PROVIDER_ONBOARD",
+    "PAYMENT_RAIL_VERIFY",
+    "PAYMENT_RAIL_ACTIVATE",
+    "PAYMENT_RAIL_SUSPEND",
+    "PAYMENT_RAIL_RETIRE",
+    "PAYMENT_CHANGESET_APPROVE"
+  ]) {
+    assert.ok(authority.permissions.owner_core_capabilities.includes(capability), capability);
+  }
+});
+
+test("Jordan country payment profile can configure CliQ without falsely claiming it is live", () => {
+  const payment = readAuthority().owner_payment_control;
+  const jordan = payment.jordan_profile;
+
+  assert.equal(jordan.country_code, "JO");
+  assert.equal(jordan.cliq_supported_as_configurable_rail, true);
+  assert.equal(jordan.cliq_assumed_active_without_provider_contract, false);
+  assert.equal(jordan.messaging_standard, "ISO_20022");
+  assert.ok(jordan.cliq_endpoint_types_supported_by_manifest.includes("ALIAS"));
+  assert.ok(jordan.cliq_endpoint_types_supported_by_manifest.includes("IBAN"));
+  assert.ok(jordan.cliq_endpoint_types_supported_by_manifest.includes("MERCHANT_ACQUIRER_QR"));
+});
+
+test("platform payment rails remain platform-owned-service only and never external-deal settlement", () => {
+  const authority = readAuthority();
+  const payment = authority.owner_payment_control;
+
+  assert.equal(payment.external_buyer_seller_deal_payments_allowed, false);
+  assert.ok(payment.purpose_scope.includes("advertising"));
+  assert.ok(payment.purpose_scope.includes("campaigns"));
+  assert.ok(payment.purpose_scope.includes("ad_credits_packages"));
+  assert.equal(authority.contact_boundary.external_deal_payment, 0);
+  assert.equal(authority.contact_boundary.external_deal_settlement, 0);
+});
+
 test("platform earnings use immutable 14-day cycles and never external-deal commission", () => {
   const authority = readAuthority();
   assert.equal(authority.platform_earnings.cycle_days, 14);
