@@ -155,6 +155,12 @@ declare -A reviewed_migration_hashes=(
   # block/privacy/lifecycle authority. Any byte drift re-enters review automatically.
   ["supabase/migrations/20260821133000_social_edge_keyset_convergence.sql"]="6a2195497edb441f4e0525d14c608e5934ae55e7b388937f189a777aeb6ba3cb"
 
+  # SYNAPSE S1 intent foundation: reviewed for actor-bound RPC-only writes,
+  # FORCE RLS, expiry/revision invariants, and the expected lexical findings
+  # on new-table NOT NULL rules, the scoped update, and exact RPC grants.
+  # Exact-byte review remains fail-closed on any migration drift.
+  ["supabase/migrations/20260818150000_synapse_intent_foundation.sql"]="c854a7ebf64d6710a9eb9351044108a10b97a5c35f5afc330288232fc7df5072"
+
   # Issue #312 zero-brokerage legacy write lock: reviewed as privilege-narrowing only.
   # Exact bytes revoke browser INSERT/UPDATE/DELETE, retire the two legacy own-write
   # policies, and install a statement-level fail-closed trigger while preserving every
