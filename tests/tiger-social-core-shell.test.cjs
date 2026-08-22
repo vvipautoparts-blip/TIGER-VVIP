@@ -16,11 +16,16 @@ test('authoritative entrypoint declares Social Core as the primary product shell
   assert.match(html, /styles\/tiger-social\/core-shell\.css/);
 });
 
-test('global navigation exposes familiar Social Core destinations while Marketplace remains a module', () => {
+test('global navigation exposes only implemented Social Core destinations while Marketplace remains a module', () => {
   const html = read('index.html');
 
-  for (const destination of ['home', 'friends', 'messages', 'notifications', 'profile', 'marketplace']) {
+  for (const destination of ['home', 'friends', 'profile', 'marketplace']) {
     assert.match(html, new RegExp(`data-social-nav="${destination}"`));
+  }
+
+  for (const unavailableDestination of ['messages', 'notifications']) {
+    assert.doesNotMatch(html, new RegExp(`data-social-nav="${unavailableDestination}"`));
+    assert.doesNotMatch(html, new RegExp(`data-social-module-placeholder="${unavailableDestination}"`));
   }
 
   assert.match(html, /data-social-nav="home"[^>]*aria-current="page"|aria-current="page"[^>]*data-social-nav="home"/);
