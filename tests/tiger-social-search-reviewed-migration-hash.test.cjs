@@ -20,7 +20,27 @@ const reviewed = new Map([
   ],
   [
     "supabase/migrations/20260821160200_social_search_adaptive_30_shield.sql",
-    "c2b8ccb13dedcd12f7b1c15610938c22d80f6a1b2e4c427cb085c7fdb7056b31",
+    "d788463f7d8f5a71cc17d71128c963bfaf19e376fa59c193a2edcce182f9b145",
+  ],
+  [
+    "supabase/migrations/20260808_vvip_identity_fail_closed_profile_resolver.sql",
+    "ee361b3bbdbef9695ac23d6ad597c49c4732f19ee45d1154745e5e387e12d0d6",
+  ],
+  [
+    "supabase/migrations/20260812063600_identity02_profile_resolver_minimum_truth.sql",
+    "838ae0ede07292c0c645f1b967753fda97cde672a04de24e787cba21aa4c0ac5",
+  ],
+  [
+    "supabase/migrations/20260812070600_lc07_legacy_otp_sequence_isolation.sql",
+    "c2ff8704bd504bc9385613ba6276408d5f18ea27e3626f4f961720c5c2cffadc",
+  ],
+  [
+    "supabase/migrations/20260816104500_retire_legacy_profile_rpc.sql",
+    "ac8b769352b88bcb457e28d667c5b947464d6a14c68fb166b524e07553bcfe5a",
+  ],
+  [
+    "supabase/migrations/20260816105000_drop_legacy_profiles_table.sql",
+    "206bc99d55ccb0828c4aa42a2ea1b62e0bbc97268e846df139baa85aa7a35974",
   ],
 ]);
 
