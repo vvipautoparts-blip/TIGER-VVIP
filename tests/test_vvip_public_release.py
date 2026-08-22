@@ -244,6 +244,8 @@ class PublicReleaseTests(unittest.TestCase):
             )
             self.assert_local_html_refs_exist(self, output)
             self.assertTrue((output / "sw-vvip-static.js").is_file())
+            self.assertFalse((output / "project-control").exists())
+            self.assertFalse((output / "docs").exists())
             webmanifest = json.loads((output / "manifest.webmanifest").read_text(encoding="utf-8"))
             start_url = str(webmanifest.get("start_url") or "").split("#", 1)[0].split("?", 1)[0]
             start_path = start_url.removeprefix("./") or "index.html"
