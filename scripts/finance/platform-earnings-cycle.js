@@ -150,7 +150,7 @@ function closeCycle(entries, cycle) {
 
   const currencies = new Set(included.map((entry) => requireCurrency(entry.currency)));
   if (currencies.size > 1) {
-    throw new TypeError('one authoritative cycle total cannot mix currencies');
+    throw new TypeError('one authoritative cycle total cannot mix currency codes');
   }
 
   let totalMinor = 0n;
