@@ -45,6 +45,12 @@
     return cleanText(source.text || source.normalizedQuery || source.query || "", 160);
   }
 
+  function adapterError() {
+    const error = new Error("ONE_FIELD_SOCIAL_SEARCH_UNAVAILABLE");
+    error.code = "ONE_FIELD_SOCIAL_SEARCH_UNAVAILABLE";
+    return error;
+  }
+
   function projectMarketplaceRow(row) {
     const source = row && typeof row === "object" && !Array.isArray(row) ? row : {};
     const id = stableId(source.listing_id);
@@ -74,6 +80,52 @@
     });
   }
 
+  function projectSocialPerson(row) {
+    const source = row && typeof row === "object" && !Array.isArray(row) ? row : {};
+    const id = stableId(source.profile_id);
+    const label = cleanText(source.display_name, 160);
+    if (!id || !label) return null;
+
+    const businessName = cleanText(source.business_name, 160);
+    const specialization = cleanText(source.specialization, 160);
+    const summary = [businessName, specialization].filter(Boolean).join(" · ");
+
+    return frozen({
+      id: id,
+      source: "social_people",
+      kind: "person",
+      label: label,
+      summary: summary,
+      facts: frozen({
+        businessName: businessName || null,
+        specialization: specialization || null,
+        location: cleanText(source.location, 120) || null
+      }),
+      contact: null,
+      sponsored: false
+    });
+  }
+
+  function projectSocialPost(row) {
+    const source = row && typeof row === "object" && !Array.isArray(row) ? row : {};
+    const id = stableId(source.post_id);
+    const label = cleanText(source.author_display_name, 160);
+    if (!id || !label) return null;
+
+    return frozen({
+      id: id,
+      source: "social_posts",
+      kind: "post",
+      label: label,
+      summary: cleanText(source.body, 2000),
+      facts: frozen({
+        authorDisplayName: label
+      }),
+      contact: null,
+      sponsored: false
+    });
+  }
+
   function createMarketplaceCandidateAdapter(repository) {
     if (!repository || typeof repository.listPublic !== "function") {
       throw new TypeError("ONE_FIELD_MARKETPLACE_REPOSITORY_REQUIRED");
@@ -99,7 +151,43 @@
     });
   }
 
+  function createSocialSearchCandidateAdapter(searchApi, mode) {
+    const kind = mode === "people" ? "people" : mode === "posts" ? "posts" : null;
+    if (!kind || !searchApi || typeof searchApi[kind] !== "function") {
+      throw new TypeError("ONE_FIELD_SOCIAL_SEARCH_ADAPTER_REQUIRED");
+    }
+
+    async function discover(request) {
+      const input = request && typeof request === "object" ? request : {};
+      const query = intentText(input.intent);
+      if (!query) return frozen([]);
+
+      let result;
+      try {
+        result = await searchApi[kind](query, { limit: 20 });
+      } catch (_) {
+        throw adapterError();
+      }
+
+      if (!result || result.ok !== true || !result.value || !Array.isArray(result.value.items)) {
+        throw adapterError();
+      }
+
+      const projector = kind === "people" ? projectSocialPerson : projectSocialPost;
+      return frozen(result.value.items
+        .slice(0, 20)
+        .map(projector)
+        .filter(Boolean));
+    }
+
+    return frozen({
+      name: kind === "people" ? "social_people" : "social_posts",
+      discover: discover
+    });
+  }
+
   return frozen({
-    createMarketplaceCandidateAdapter: createMarketplaceCandidateAdapter
+    createMarketplaceCandidateAdapter: createMarketplaceCandidateAdapter,
+    createSocialSearchCandidateAdapter: createSocialSearchCandidateAdapter
   });
 });
