@@ -8,6 +8,14 @@
   "use strict";
 
   const DEFAULT_DEBOUNCE_MS = 250;
+  const SEARCH_RETRYABLE_STATES = new Set([
+    "partial",
+    "error",
+    "rate-limited",
+    "session-stale",
+    "cursor-stale",
+    "offline",
+  ]);
 
   function safeItems(result) {
     if (!result || result.ok !== true || !result.value || !Array.isArray(result.value.items)) return [];
@@ -49,6 +57,9 @@
     const view = config.view;
     const onStateChange = typeof config.onStateChange === "function" ? config.onStateChange : function () {};
     let generation = 0;
+    let lastQuery = null;
+    let online = true;
+    const inFlight = new Map();
 
     if (!searchAdapter || typeof searchAdapter.people !== "function" || typeof searchAdapter.posts !== "function") {
       throw new TypeError("TIGER_SOCIAL_SEARCH_ADAPTER_REQUIRED");
@@ -70,14 +81,41 @@
       return state;
     }
 
-    async function search(query) {
+    function isOnline() {
+      if (typeof config.isOnline === "function") return config.isOnline() !== false;
+      return online;
+    }
+
+    async function settleSearch(operation, query) {
+      try {
+        const result = await operation(query, { limit: 20 });
+        if (result && typeof result === "object") return result;
+        return { ok: false, code: "SOCIAL_SEARCH_RETRYABLE" };
+      } catch (_error) {
+        return { ok: false, code: "SOCIAL_SEARCH_RETRYABLE" };
+      }
+    }
+
+    async function runSearch(query) {
       const activeGeneration = ++generation;
+      lastQuery = query;
       if (typeof view.setQuery === "function") view.setQuery(query);
+
+      if (!isOnline()) {
+        const offlineState = emit("offline", { code: "SOCIAL_SEARCH_OFFLINE" });
+        return Object.freeze({
+          state: offlineState.kind,
+          peopleCount: 0,
+          postsCount: 0,
+          code: offlineState.code,
+        });
+      }
+
       emit("loading");
 
       const [peopleResult, postsResult] = await Promise.all([
-        searchAdapter.people(query, { limit: 20 }),
-        searchAdapter.posts(query, { limit: 20 }),
+        settleSearch(searchAdapter.people, query),
+        settleSearch(searchAdapter.posts, query),
       ]);
 
       if (activeGeneration !== generation) {
@@ -104,11 +142,47 @@
       });
     }
 
+    function queryKey(query) {
+      return typeof query === "string" ? query.trim().replace(/\s+/g, " ") : String(query);
+    }
+
+    function search(query) {
+      const key = queryKey(query);
+      const existing = inFlight.get(key);
+      if (existing) return existing;
+
+      const promise = runSearch(query);
+      inFlight.set(key, promise);
+      promise.then(
+        () => { if (inFlight.get(key) === promise) inFlight.delete(key); },
+        () => { if (inFlight.get(key) === promise) inFlight.delete(key); }
+      );
+      return promise;
+    }
+
+    function retry() {
+      if (lastQuery === null) {
+        return Promise.resolve(Object.freeze({
+          state: "idle",
+          peopleCount: 0,
+          postsCount: 0,
+          code: null,
+        }));
+      }
+      return search(lastQuery);
+    }
+
     function invalidate() {
       generation += 1;
     }
 
-    return Object.freeze({ search, invalidate });
+    function setOnline(value) {
+      online = value !== false;
+      if (!online) invalidate();
+      return online;
+    }
+
+    return Object.freeze({ search, retry, invalidate, setOnline });
   }
 
   function appendText(parent, tagName, className, value) {
@@ -124,6 +198,7 @@
     const peopleNode = root.querySelector("[data-social-search-people]");
     const postsNode = root.querySelector("[data-social-search-posts]");
     const input = root.querySelector("[data-social-search-input]");
+    const retryButton = root.querySelector("[data-social-search-retry]");
 
     function clear(node) {
       while (node && node.firstChild) node.removeChild(node.firstChild);
@@ -165,6 +240,7 @@
         case "session-stale": return "انتهت صلاحية جلسة البحث. حدّث الجلسة ثم أعد المحاولة.";
         case "cursor-stale": return "تغيّر سياق البحث. أعد البحث من البداية.";
         case "error": return "تعذر إكمال البحث الآن. أعد المحاولة.";
+        case "offline": return "لا يوجد اتصال حاليًا. ستتمكن من إعادة المحاولة بعد عودة الاتصال.";
         case "content": return `${state.peopleCount + state.postsCount} نتيجة متاحة.`;
         default: return "ابحث عن أشخاص أو منشورات داخل VVIP TIGER.";
       }
@@ -174,6 +250,11 @@
       setState(state) {
         root.dataset.searchState = state.kind;
         if (stateNode) stateNode.textContent = stateMessage(state);
+        if (retryButton) {
+          const retryVisible = SEARCH_RETRYABLE_STATES.has(state.kind);
+          retryButton.hidden = !retryVisible;
+          retryButton.setAttribute("aria-hidden", retryVisible ? "false" : "true");
+        }
         root.setAttribute("aria-busy", state.kind === "loading" ? "true" : "false");
       },
       renderPeople,
@@ -190,11 +271,16 @@
     if (!input) return null;
 
     const config = options && typeof options === "object" ? options : {};
-    const debounceMs = Number.isInteger(config.debounceMs) ? config.debounceMs : DEFAULT_DEBOUNCE_MS;
+    const retryButton = root.querySelector("[data-social-search-retry]");
     const view = config.view || createDomSearchView(root);
+    const ownerWindow = root.ownerDocument && root.ownerDocument.defaultView;
+    const isOnline = typeof config.isOnline === "function"
+      ? config.isOnline
+      : () => !ownerWindow || !ownerWindow.navigator || ownerWindow.navigator.onLine !== false;
     const controller = createTigerSocialSearchController({
       search: searchAdapter,
       view,
+      isOnline,
       onStateChange: config.onStateChange,
     });
     let timer = null;
@@ -227,6 +313,23 @@
       event.preventDefault();
       submit();
     });
+
+    if (retryButton) {
+      retryButton.addEventListener("click", () => {
+        controller.retry();
+      });
+    }
+
+    if (ownerWindow && typeof ownerWindow.addEventListener === "function") {
+      ownerWindow.addEventListener("offline", () => {
+        controller.setOnline(false);
+        view.setState({ kind: "offline", peopleCount: 0, postsCount: 0, code: "SOCIAL_SEARCH_OFFLINE" });
+      });
+      ownerWindow.addEventListener("online", () => {
+        controller.setOnline(true);
+        if (retryButton && root.dataset.searchState === "offline") retryButton.focus();
+      });
+    }
 
     return controller;
   }
