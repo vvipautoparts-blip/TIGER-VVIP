@@ -81,3 +81,11 @@ test("legacy all-sector commission implementation plan cannot instruct new trans
   assert.match(text, /platform-owned advertising|platform advertising services/i);
   assert.match(text, /CONTACT HANDOFF.*TIGER STOPS/i);
 });
+
+test("role identity binding plan cannot delegate future work to superseded transaction commission authority", () => {
+  const text = read("docs/superpowers/plans/2026-08-11-vvip-role-identity-binding.md");
+  assert.match(text, /Issue #312/i);
+  assert.match(text, /NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION|transaction-value commission.*retired/i);
+  assert.match(text, /platform-owned advertising|platform advertising services/i);
+  assert.match(text, /CONTACT HANDOFF.*TIGER STOPS/i);
+});
