@@ -8,6 +8,12 @@
 ## 0. مؤشر التنفيذ الحالي على فرع Social Core
 
 - **العمل الحالي:** PR #271 على الفرع `feat/tiger-one-living-surface-impl-20260818`، فوق فرع المواصفة وليس فوق `main` مباشرة.
+- **S1 exact implementation checkpoint:** `794de87b2055b9dddf8dfbdbc366d83ba122b1b0`؛ شجرتها `cae245647b50e2cc9c88fc08427cf560add16219`؛ `VVIP Quality Gate #2096 = PASS` و`TIGER Social DB Rehearsal #497 = PASS` على نفس الـSHA؛ LC03 #760 وLC04 #555 وLC05 #528 وLC06 #526 = PASS.
+- **حالة S1 الحالية:** `VERIFIED` على checkpoint أعلاه؛ `main` وProduction لم يتغيرا.
+- **S2 exact implementation checkpoint:** `cf78f57721c008e866160ee2c55b883d7daabb59`؛ شجرتها `c826496c3e5be9c1b64c6c97230ccb559654613e`؛ `VVIP Quality Gate #2098 = PASS` و`TIGER Social DB Rehearsal #499 = PASS` على نفس الـSHA؛ LC03 #762 وLC04 #557 وLC05 #530 وLC06 #528 = PASS.
+- **حالة S2 الحالية:** `VERIFIED` على checkpoint أعلاه؛ `main` وProduction لم يتغيرا.
+- **V0 exact implementation checkpoint:** `4bc6252bbc217b4a65a0bdd54c8756b4b5a4ffee`؛ شجرتها `d42f0a8176d368e6de8e873dd795356108da7942`؛ `VVIP Quality Gate #2071 = PASS` و`TIGER Social DB Rehearsal #465 = PASS` على نفس الـSHA.
+- **حالة S0 الحالية:** `VERIFIED` على checkpoint أعلاه؛ `main` وProduction لم يتغيرا.
 - **حالة S0 (دالة fail-closed):** تكون `VERIFIED` **إذا وفقط إذا** نجح كل من `VVIP Quality Gate` و`TIGER Social DB Rehearsal` على رأس PR الحالي نفسه وشجرته نفسها؛ وفي غير ذلك تكون `IN_PROGRESS` أو `BLOCKED`. رأس PR الحالي وشجرته وقرار الحالة يُستمدّون حصراً من GitHub exact-head CI attestations خارج هذه الوثيقة، ولا يُستنتج `VERIFIED` من هذه الوثيقة أو من SHA تاريخي.
 - **نقطة دليل تنفيذ Social Core من Task 7:** `9f2dce40b352f67d80c81b60515442c860c58048`؛ **شجرتها:** `85ca87aa64714b3cac3a73ac0beefeb7e9df26fd`. هذه نقطة evidence تاريخية وليست رأس PR الحالي ولا قرار التحقق النهائي للوثائق.
 - **دليل الاختبارات المركزة للتعليقات/الردود:** `109/109 PASS`، بلا fail أو skipped أو todo.
@@ -21,11 +27,12 @@
 - **الرؤية الابتكارية المعتمدة:** **TIGER SYNAPSE v2** — Temporal Intent Operating System يوحّد النية اللحظية، المطابقة القابلة للتفسير، إثبات الحاضر، الكشف المتبادل، والتواصل المباشر داخل Living Surface واحدة.
 - **نسيج السلطة والإثبات المعتمد:** **TIGER VERITY FABRIC** — Authority Graph + Hermetic Build Core + Release DNA/Proof Root + Typed P01–P20 Evidence + Fresh Runtime Witnesses.
 - **مرجع SYNAPSE الحالي:** `docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md`.
-- **حالة SYNAPSE:** `APPROVED / PLANNED / NOT IMPLEMENTED beyond S0`؛ اعتماد الاتجاه لا يعني أن المزايا موجودة في الـruntime أو أن Preview جاهز.
-- **حالة VERITY FABRIC:** `APPROVED / PLANNED / NOT IMPLEMENTED beyond existing foundations`؛ تبقى عقود TSRF وF05 والحزم الحالية أساسًا موجودًا، لكنها لا تثبت أن نسيج VERITY الكامل أو Gate Compiler قد نُفذا.
-- **قرار المالك المثبت:** اعتمد المالك النسخة المكتوبة لخيار C بتاريخ 2026-08-18؛ أصبحت SYNAPSE v2 + VERITY FABRIC سلطة `CURRENT_ONLY` في نطاقها، مع بقاء التنفيذ `NOT IMPLEMENTED` حتى ظهور أدلة الكود والاختبارات.
+- **حالة SYNAPSE:** `APPROVED / S2 VERIFIED / S3+ NOT IMPLEMENTED`؛ Intent Foundation وDeterministic Match Fabric صارا مؤكدين عبر lifecycle وprivacy modes وexpiry وRPC/RLS وpolicy-before-ranking وsignal decay وdiversity وgolden fixtures؛ تكامل Living Surface والتنفيذات اللاحقة ما زالت غير منفذة.
+- **حالة VERITY FABRIC:** `APPROVED / V0+S1+S2 VERIFIED / S3+ NOT IMPLEMENTED`؛ أصبح OWNER Authority Graph machine-enforced، وأضيفت طبقتا Intent Foundation وDeterministic Match Fabric بأدلتهما المستقلة؛ ما بعد S2 يحتاج أدلته المستقلة.
+- **قرار المالك المثبت:** اعتمد المالك النسخة المكتوبة لخيار C بتاريخ 2026-08-18؛ أصبحت SYNAPSE v2 + VERITY FABRIC سلطة `CURRENT_ONLY` في نطاقها، والتنفيذ المثبت حاليًا هو V0 Authority Graph وS1 Intent Foundation وS2 Deterministic Match Fabric.
 - **خطة البرنامج الحالية:** `docs/superpowers/plans/2026-08-18-tiger-synapse-v2-verity-fabric-program-execution.md`.
-- **مؤشر التنفيذ الحالي / الشريحة التالية:** `V0 Owner Authority Graph` — تحويل مرجع المالك وقاعدة إلغاء القديم إلى Authority Graph قابل للتحقق آليًا، قبل توسيع محرك النوايا.
+- **V0 Owner Authority Graph:** `VERIFIED` — exactly one current authority per covered domain، graph digest deterministic، cycles/resurrection/missing paths fail closed، وAuthority records خارج Web Artifact.
+- **مؤشر التنفيذ الحالي / الشريحة التالية:** `S3 Living Surface integration` — Home intent entry وMatch Constellation وMarketplace rescue وsocial-to-intent عبر سلطة Intent واحدة.
 - **قاعدة المالك النهائية:** أحدث قرار `CURRENT_ONLY` يلغي سلطة كل قديم متعارض ويخرجه من المنصة الحالية والحزمة العامة ومسارات التنفيذ؛ الأثر الضروري يبقى `HISTORICAL_ONLY` خارج المنصة بلا أي سلطة.
 - **سلطة المعاينة:** لا يُعتمد أي فيديو أو رابط نشر تاريخي أو رابط Pages سابق بوصفه معاينة لهذا العمل.
 - **شرط الرابط الصحيح:** Preview مستقل مبني من exact head الخاص بـPR #271، يعمل على الهاتف، ولا يغيّر `main` أو Production.

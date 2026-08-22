@@ -32,19 +32,21 @@
 
 1. `docs/MASTER_PROJECT_STATE.md` — حالة المشروع البشرية الحالية ومؤشر التنفيذ.
 2. `docs/owner-control/TIGER_ONE_2026_CURRENT_OWNER_AUTHORITY.md` — قاعدة سلطة المالك والإلغاء.
-3. `docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md` — هوية المنتج الاجتماعية الحالية ووضع Marketplace كوحدة داخلها.
-4. `docs/owner-control/TIGER_FACEBOOK_1_TO_1_FAMILIARITY_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة UI/UX الحالية: Facebook 1:1 Familiarity في البنية والسلوك + TIGER Identity.
-5. `docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة الإعلان المدفوع وخدمة الظهور التي تملكها المنصة.
-6. `docs/superpowers/specs/2026-08-21-tiger-facebook-1-to-1-familiarity-design.md` — التصميم التنفيذي المرجعي للمطابقة البنيوية والسلوكية.
-7. `docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md` — معمارية TIGER SYNAPSE v2 + TIGER VERITY FABRIC.
-8. `project-control/production-handover/current-authority.v1.json` — عقد التسليم الآلي وبوابات P01–P20.
-9. Git exact commit SHA + exact tree SHA + أدلة CI المطابقة لهما — حقيقة التنفيذ النهائية.
+3. `docs/owner-control/TIGER_9D_TEMPORARY_OPERATING_CODENAME_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة اسم التشغيل المؤقت TIGER 9D وحدود استعماله واستبداله لاحقًا.
+4. `docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md` — هوية المنتج الاجتماعية الحالية ووضع Marketplace كوحدة داخلها.
+5. `docs/owner-control/TIGER_FACEBOOK_1_TO_1_FAMILIARITY_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة UI/UX الحالية: Facebook 1:1 Familiarity في البنية والسلوك + TIGER Identity.
+6. `docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة الإعلان المدفوع وخدمة الظهور التي تملكها المنصة.
+7. `docs/superpowers/specs/2026-08-21-tiger-facebook-1-to-1-familiarity-design.md` — التصميم التنفيذي المرجعي للمطابقة البنيوية والسلوكية.
+8. `docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md` — معمارية TIGER SYNAPSE v2 + TIGER VERITY FABRIC.
+9. `project-control/production-handover/current-authority.v1.json` — عقد التسليم الآلي وبوابات P01–P20.
+10. Git exact commit SHA + exact tree SHA + أدلة CI المطابقة لهما — حقيقة التنفيذ النهائية.
 
 إذا اختلف هذا المدخل المختصر مع حالة تنفيذ أحدث موثقة في المرجع الأول أو مع bytes المستودع وأدلة exact-head، تُصحح هذه الصفحة ولا تتحول إلى سلطة موازية.
 
 ## 3. هوية المنتج النهائية الحالية
 
-- **المنصة:** VVIP TIGER.
+- **اسم التشغيل المؤقت المعتمد:** TIGER 9D — اسم مرجعي قابل للاستبدال لاحقًا وليس اعتمادًا للعلامة العالمية النهائية.
+- **المنصة/المعرّفات الحالية:** VVIP TIGER و`TIGER-VVIP` تبقى مراجع تقنية/تاريخية حالية إلى أن يصدر قرار مستقل وآمن بإعادة التسمية؛ اعتماد TIGER 9D المؤقت لا يغيّرها آليًا.
 - **سطح المنتج:** TIGER ONE Living Surface.
 - **هوية المنتج الأساسية:** شبكة اجتماعية أولًا، وMarketplace وPulse وحدتان داخل المنتج وليستا هوية المنتج كلها.
 - **سلطة UI/UX الحالية:** `Facebook 1:1 Familiarity + TIGER Identity` — مطابقة بنيوية وسلوكية شديدة القرب مع بقاء TIGER مستقلًا في العلامة والهوية والأمن والبيانات.
@@ -103,7 +105,8 @@
 6. ابدأ من أول بوابة غير ناجحة، ولا تعِد بناء ما هو مثبت وصحيح.
 7. لا تنقل أي قديم متعارض إلى المنصة الحالية.
 8. في UI/UX ارجع إلى سلطة Facebook 1:1 Familiarity + TIGER Identity قبل قبول أي تصميم أو Preview.
+9. في أي تسمية أو توثيق جديد، عامل TIGER 9D كاسم تشغيل مؤقت فقط ولا تحوله إلى معرّف تقني دائم بلا ضرورة.
 
 ## 8. العبارة المختصرة الملزمة
 
-> **مرجع واحد، سلطة حالية واحدة، مصدر دقيق واحد، ودليل مطابق واحد. الجديد المعتمد يحكم؛ القديم المتعارض يخرج نهائيًا من المنصة الحالية. وفي UI/UX: Familiarity شديدة القرب من Facebook في البنية والسلوك، وهوية TIGER مستقلة وواضحة، ولا نجاح مع زر ميت أو واجهة وهمية.**
+> **مرجع واحد، سلطة حالية واحدة، مصدر دقيق واحد، ودليل مطابق واحد. الجديد المعتمد يحكم؛ القديم المتعارض يخرج نهائيًا من المنصة الحالية. TIGER 9D اسم تشغيل مؤقت قابل للاستبدال ولا يربط البنية التقنية بالعلامة النهائية. وفي UI/UX: Familiarity شديدة القرب من Facebook في البنية والسلوك، وهوية TIGER مستقلة وواضحة، ولا نجاح مع زر ميت أو واجهة وهمية.**

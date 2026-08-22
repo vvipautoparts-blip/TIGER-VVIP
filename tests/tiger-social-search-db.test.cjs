@@ -53,8 +53,10 @@ test("P0-C migration pins SECURITY DEFINER search paths and keeps cursor helpers
 test("Social DB rehearsal is required to execute the P0-C structural and behavioral proof", () => {
   const workflow = fs.readFileSync(workflowPath, "utf8");
   assert.match(workflow, /20260821160000_social_search_convergence\.sql/);
+  assert.match(workflow, /20260821160100_social_search_budget_guard\.sql/);
+  assert.match(workflow, /20260821160200_social_search_adaptive_30_shield\.sql/);
   assert.match(workflow, /tests\/tiger-social-search-db\.test\.cjs/);
   assert.match(workflow, /tests\/sql\/tiger-social-search-convergence\.sql/);
   assert.match(workflow, /node --test tests\/tiger-social-search-runtime\.test\.cjs/);
-  assert.match(workflow, /Prove P0-C Social Search privacy and cursor behavior/);
+  assert.match(workflow, /Prove P0-C Social Search privacy, cursor, and budget behavior/);
 });

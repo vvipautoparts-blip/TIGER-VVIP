@@ -1,0 +1,106 @@
+{
+  "schemaVersion": "S2",
+  "policyVersion": "S2-DETERMINISTIC-1",
+  "now": "2026-08-22T12:00:00.000Z",
+  "intent": {
+    "intentId": "intent-golden-1",
+    "actorSubject": "user_alice",
+    "direction": "NEED",
+    "sector": "food",
+    "category": "cereal",
+    "market": { "countryCode": "JO", "areaClass": "urban" },
+    "status": "ACTIVE",
+    "expiresAt": "2026-08-25T12:00:00.000Z",
+    "policyVersion": "S2-DETERMINISTIC-1"
+  },
+  "candidates": [
+    {
+      "id": "match-alpha",
+      "ownerSubject": "user_seller_a",
+      "direction": "OFFER",
+      "sector": "food",
+      "category": "cereal",
+      "countryCode": "JO",
+      "contentType": "business",
+      "availability": true,
+      "updatedAt": "2026-08-22T11:00:00.000Z",
+      "signals": [
+        { "kind": "fit", "value": 1, "at": "2026-08-22T11:00:00.000Z" },
+        { "kind": "availability", "value": 1, "at": "2026-08-22T11:00:00.000Z" },
+        { "kind": "evidence", "value": 0.95, "at": "2026-08-22T10:00:00.000Z" }
+      ]
+    },
+    {
+      "id": "match-beta",
+      "ownerSubject": "user_seller_b",
+      "direction": "OFFER",
+      "sector": "food",
+      "category": "cereal",
+      "countryCode": "JO",
+      "contentType": "listing",
+      "availability": true,
+      "updatedAt": "2026-08-20T12:00:00.000Z",
+      "signals": [
+        { "kind": "fit", "value": 0.88, "at": "2026-08-20T12:00:00.000Z" },
+        { "kind": "availability", "value": 0.8, "at": "2026-08-20T12:00:00.000Z" },
+        { "kind": "evidence", "value": 0.75, "at": "2026-08-19T12:00:00.000Z" }
+      ]
+    },
+    {
+      "id": "match-gamma",
+      "ownerSubject": "user_seller_c",
+      "direction": "OFFER",
+      "sector": "food",
+      "category": "cereal",
+      "countryCode": "JO",
+      "contentType": "community",
+      "availability": true,
+      "updatedAt": "2026-08-18T12:00:00.000Z",
+      "signals": [
+        { "kind": "fit", "value": 0.84, "at": "2026-08-18T12:00:00.000Z" },
+        { "kind": "availability", "value": 0.75, "at": "2026-08-18T12:00:00.000Z" },
+        { "kind": "evidence", "value": 0.7, "at": "2026-08-18T12:00:00.000Z" }
+      ]
+    },
+    {
+      "id": "match-delta",
+      "ownerSubject": "user_seller_d",
+      "direction": "OFFER",
+      "sector": "food",
+      "category": "cereal",
+      "countryCode": "JO",
+      "contentType": "service",
+      "availability": true,
+      "updatedAt": "2026-08-17T12:00:00.000Z",
+      "signals": [
+        { "kind": "fit", "value": 0.8, "at": "2026-08-17T12:00:00.000Z" },
+        { "kind": "availability", "value": 0.7, "at": "2026-08-17T12:00:00.000Z" },
+        { "kind": "evidence", "value": 0.6, "at": "2026-08-17T12:00:00.000Z" }
+      ]
+    },
+    {
+      "id": "ineligible-spend",
+      "ownerSubject": "user_seller_e",
+      "direction": "OFFER",
+      "sector": "food",
+      "category": "cereal",
+      "countryCode": "JO",
+      "policyEligible": false,
+      "sponsored": true,
+      "spend": 999999,
+      "semanticScore": 1
+    },
+    {
+      "id": "expired-offer",
+      "ownerSubject": "user_seller_f",
+      "direction": "OFFER",
+      "sector": "food",
+      "category": "cereal",
+      "countryCode": "JO",
+      "expiresAt": "2026-08-21T12:00:00.000Z",
+      "semanticScore": 1
+    }
+  ],
+  "expectedOrder": ["match-alpha", "match-beta", "match-gamma", "match-delta"],
+  "rejectedIds": ["ineligible-spend", "expired-offer"]
+}
