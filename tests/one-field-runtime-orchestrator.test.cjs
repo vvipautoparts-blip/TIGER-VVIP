@@ -116,3 +116,41 @@ test('successful sources with no eligible candidates return empty', async () => 
   assert.deepEqual(result.organic, []);
   assert.deepEqual(result.degradedSources, []);
 });
+
+test('all configured discovery sources failing returns a bounded runtime error instead of fake degraded success', async () => {
+  const orchestrator = createOneFieldRuntimeOrchestrator(baseDependencies({
+    organicSources: [
+      Object.freeze({ name: 'marketplace', discover: async () => { throw new Error('DATABASE_PRIVATE_DETAIL'); } }),
+      Object.freeze({ name: 'social_posts', discover: async () => { throw new Error('RPC_PRIVATE_DETAIL'); } })
+    ]
+  }));
+
+  await assert.rejects(
+    orchestrator.run({ text: 'ابحث لي', locale: 'ar', context: Object.freeze({}) }),
+    (error) => error
+      && error.code === 'ONE_FIELD_ALL_SOURCES_UNAVAILABLE'
+      && error.message === 'ONE_FIELD_ALL_SOURCES_UNAVAILABLE'
+      && !String(error.stack || '').includes('DATABASE_PRIVATE_DETAIL')
+      && !String(error.stack || '').includes('RPC_PRIVATE_DETAIL')
+  );
+});
+
+test('configured sponsored provider failure cannot erase valid organic results', async () => {
+  const orchestrator = createOneFieldRuntimeOrchestrator(baseDependencies({
+    organicSources: [Object.freeze({
+      name: 'marketplace',
+      discover: async () => [Object.freeze({ id: 'organic-1', label: 'نتيجة عضوية', facts: Object.freeze({}), sponsored: false })]
+    })],
+    sponsoredSource: Object.freeze({
+      name: 'advertising',
+      discover: async () => { throw new Error('CAMPAIGN_PROVIDER_PRIVATE_DETAIL'); }
+    })
+  }));
+
+  const result = await orchestrator.run({ text: 'ابحث لي', locale: 'ar', context: Object.freeze({}) });
+  assert.equal(result.status, 'degraded');
+  assert.deepEqual(result.organic.map((item) => item.id), ['organic-1']);
+  assert.deepEqual(result.sponsored, []);
+  assert.deepEqual(result.degradedSources, ['advertising']);
+  assert.equal(JSON.stringify(result).includes('CAMPAIGN_PROVIDER_PRIVATE_DETAIL'), false);
+});
