@@ -1,0 +1,207 @@
+{
+  "status": "ACTIVE_OWNER_AUTHORITY",
+  "effective_at": "2026-08-22",
+  "design_horizon": "2026-2096+",
+  "scope": "ENTIRE_PLATFORM",
+  "precedence": {
+    "extends": [
+      "docs/architecture/OWNER_AUTHORITY_REGISTRY.md",
+      "docs/superpowers/specs/2026-08-22-proximity-only-three-lane-interaction-design.md",
+      "docs/superpowers/specs/2026-08-22-universal-rendezvous-platform-design.md"
+    ],
+    "conflicting_active_runtime_or_current_docs": "SUPERSEDED_ON_COVERED_TOPICS",
+    "git_history": "HISTORICAL_EVIDENCE_ONLY"
+  },
+  "automotive": {
+    "parts_only": true,
+    "whole_vehicle_listings_allowed": false,
+    "whole_vehicle_sale_rental_inventory_allowed": false,
+    "vehicle_models_or_miniatures_as_automotive_vehicle_inventory_allowed": false
+  },
+  "food": {
+    "full_scope": true,
+    "required_category_families": [
+      "meat",
+      "poultry",
+      "fish_seafood",
+      "dairy",
+      "eggs",
+      "grains_cereals",
+      "bakery",
+      "fruit",
+      "vegetables",
+      "fresh_produce",
+      "frozen_food",
+      "packaged_food",
+      "beverages_policy_permitting",
+      "future_food_categories"
+    ]
+  },
+  "universal_provenance": {
+    "origin_classification": ["local", "imported", "mixed", "unknown"],
+    "fields": [
+      "country_of_origin",
+      "brand",
+      "manufacturer",
+      "producer",
+      "importer",
+      "distributor",
+      "supplier",
+      "batch_or_lot",
+      "certification_refs",
+      "condition",
+      "source",
+      "verification_state",
+      "freshness"
+    ]
+  },
+  "global_architecture": {
+    "single_country_master": false,
+    "hardcoded_launch_country": false,
+    "separate_contexts": [
+      "incorporation_jurisdiction",
+      "deployment_region",
+      "user_location",
+      "entity_location",
+      "market_geography",
+      "data_residency_policy",
+      "currency_settlement_context",
+      "applicable_country_sector_policy"
+    ],
+    "applicable_law_bypass_allowed": false
+  },
+  "brand_abstraction": {
+    "working_name_mutable": true,
+    "sector_labels_mutable": true,
+    "advertising_display_names_mutable_within_policy": true,
+    "canonical_ids_depend_on_display_name": false
+  },
+  "decision_envelope": {
+    "priority": [
+      "people_privacy_security_rights_constitution",
+      "user_legitimate_goal_and_fairness",
+      "platform_continuity_integrity_reputation",
+      "owner_authority_and_legitimate_partner_interests_within_scope"
+    ],
+    "reason_code_required_for_high_impact_automation": true
+  },
+  "permissions": {
+    "model": "SOVEREIGN_CAPABILITY_FABRIC",
+    "surface": "THREE_DOTS_CONTROL_PERMISSIONS",
+    "ordinary_features_default_available": true,
+    "sensitive_permissions_default_granted": false,
+    "fine_grained_internal_actions": true,
+    "simple_grouped_user_interface": true,
+    "server_side_authoritative": true,
+    "owner_high_risk_requires_fresh_step_up": true,
+    "grant_fields": [
+      "principal",
+      "action",
+      "resource_scope",
+      "sector_scope",
+      "entity_scope",
+      "geo_policy_scope",
+      "purpose",
+      "grantor",
+      "policy_version",
+      "issued_at",
+      "not_before",
+      "expires_at",
+      "delegability_ceiling",
+      "audit_evidence_ref"
+    ]
+  },
+  "delegation": {
+    "owner_selects_partners": true,
+    "partner_can_delegate_only_with_explicit_capability": true,
+    "grantor_can_exceed_own_capability": false,
+    "grantor_can_widen_beyond_delegation_ceiling": false,
+    "owner_root_identity_delegable": false,
+    "revocation_fail_closed_for_sensitive_actions": true
+  },
+  "permission_ui": {
+    "granted_marker": "checked",
+    "not_granted_marker": "unchecked",
+    "checkbox_is_security_boundary": false,
+    "high_risk_changes_require_confirmation_sheet_and_step_up": true
+  },
+  "owner_dashboard": {
+    "same_capability_model": true,
+    "separate_authorization_universe": false
+  },
+  "platform_earnings": {
+    "external_deal_commission_allowed": false,
+    "allowed_sources": [
+      "advertising",
+      "campaigns",
+      "ad_credits_packages",
+      "paid_visibility",
+      "explicitly_approved_platform_owned_services"
+    ],
+    "cycle_days": 14,
+    "current_meter_resets_each_cycle": true,
+    "reset_deletes_history": false,
+    "ledger": "APPEND_ONLY_WITH_REVERSING_ADJUSTMENTS",
+    "cycle_states": ["OPEN", "LOCKED", "RECONCILED", "STATEMENT_READY", "CLOSED"]
+  },
+  "currency": {
+    "standard": "ISO_4217",
+    "invent_exchange_rate_allowed": false,
+    "financial_conversion_statement_required_fields": [
+      "source_amount_currency",
+      "destination_requested_currency",
+      "exchange_rate",
+      "rate_source_provider",
+      "quote_timestamp",
+      "quote_expiry",
+      "fees",
+      "result_amount",
+      "provider_reference",
+      "status",
+      "reconciliation_evidence"
+    ]
+  },
+  "disclosure": {
+    "classes": ["PUBLIC", "USER_OWN", "INTERNAL", "CONFIDENTIAL", "OWNER_ONLY"],
+    "owner_only_requires_fresh_auth": true,
+    "requester_receives_owner_approval_code": false,
+    "short_lived_disclosure_lease": true,
+    "repository_iam_must_align": true
+  },
+  "screen_capture": {
+    "goal": "MAXIMUM_DIGITAL_PREVENTION_AND_ATTRIBUTION",
+    "absolute_physical_camera_prevention_claim": false,
+    "android_secure_surface": true,
+    "android_integrity_and_capture_risk_signals": true,
+    "apple_capture_detection_response": true,
+    "web_absolute_prevention_claim": false,
+    "forensic_watermark_for_protected_views": true
+  },
+  "anti_tamper": {
+    "sensitive_authority_server_side": true,
+    "durable_client_secrets_allowed": false,
+    "signed_builds": true,
+    "attestation_for_high_risk_actions": true,
+    "obfuscation_anti_debug_anti_tamper_rasp_where_appropriate": true,
+    "build_provenance": true,
+    "tampered_client_confers_server_authority": false
+  },
+  "engineering": {
+    "big_bang_rewrite": false,
+    "fake_navigation": false,
+    "fake_success": false,
+    "dead_future_controls": false,
+    "duplicate_current_authorities": false,
+    "current_runtime_authorities_per_responsibility": 1,
+    "research_current_authoritative_sources_when_problem_is_material_or_unfamiliar": true,
+    "claim_100_percent_without_evidence": false
+  },
+  "contact_boundary": {
+    "terminal": true,
+    "external_deal_state_machine": 0,
+    "external_deal_payment": 0,
+    "external_deal_commission": 0,
+    "external_deal_settlement": 0,
+    "external_deal_fulfillment": 0
+  }
+}
