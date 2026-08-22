@@ -26,6 +26,10 @@ from (
 ) created
 \gset
 
+-- Browser role has no table privileges; use postgres only as the local rehearsal observer.
+reset role;
+set local role postgres;
+
 select (
   count(*) = 1
   and min(actor_subject) = 'user_alice'
@@ -42,6 +46,10 @@ where intent_id = :'intent_id'::uuid
   \echo INTENT_ACTOR_BOUND_AND_MATCHING=FAIL
   \quit 1
 \endif
+
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"user_alice"}', true);
 
 do $proof$
 declare
