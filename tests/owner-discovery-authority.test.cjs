@@ -106,3 +106,30 @@ test("product-readiness governance cannot keep resolved brokerage or commercial-
   assert.doesNotMatch(scopeFreeze, /Commission settlement workflow/);
   assert.match(scopeFreeze, /discovery.*contact|contact.*handoff|discovery and private-contact/i);
 });
+
+test("official blueprint, memory map and readiness matrix cannot outrank later owner commerce authority", () => {
+  const blueprint = read("docs/VVIP_TIGER_OFFICIAL_PRODUCT_BLUEPRINT.md");
+  const memoryMap = read("docs/VVIP_TIGER_MEMORY_MAP.md");
+  const matrix = read("docs/product-readiness/READINESS_TRACEABILITY_MATRIX.md");
+  const registry = fs.readFileSync(registryPath, "utf8");
+
+  for (const text of [blueprint, memoryMap, matrix]) {
+    assert.match(text, /Issue\s+#312/i);
+    assert.match(text, /contact handoff|discovery.*contact|discovery-only/i);
+  }
+
+  assert.doesNotMatch(blueprint, /This file is the highest product reference/i);
+  assert.doesNotMatch(blueprint, /Separate companies and commercial registration should be introduced/i);
+  assert.doesNotMatch(blueprint, /Commissions.*future organized phases/i);
+  assert.match(blueprint, /HISTORICAL_EVIDENCE_ONLY|NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION/i);
+
+  assert.doesNotMatch(memoryMap, /The highest reference is \[Official Product Blueprint\]/i);
+  assert.match(memoryMap, /OWNER_AUTHORITY_REGISTRY|Issue\s+#312/i);
+
+  assert.doesNotMatch(matrix, /DOCUMENTED - POST-LAUNCH DECISION/i);
+  assert.match(matrix, /SUPERSEDED|NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION/i);
+
+  assert.match(registry, /VVIP_TIGER_OFFICIAL_PRODUCT_BLUEPRINT\.md/);
+  assert.match(registry, /VVIP_TIGER_MEMORY_MAP\.md/);
+  assert.match(registry, /READINESS_TRACEABILITY_MATRIX\.md/);
+});
