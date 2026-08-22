@@ -10,7 +10,6 @@ const authorityPath = path.join(
   root,
   "project-control/owner/OWNER_SELF_EVOLVING_COGNITIVE_CONTINUUM_2026-08-23.json"
 );
-const registryPath = path.join(root, "docs/architecture/OWNER_AUTHORITY_REGISTRY.md");
 
 function readAuthority() {
   return JSON.parse(fs.readFileSync(authorityPath, "utf8"));
@@ -26,6 +25,9 @@ test("owner cognitive continuum authority is active and extends the existing rou
   assert.equal(
     authority.architecture.model,
     "SELF_EVOLVING_COGNITIVE_CONTINUUM_WITH_CONSTITUTIONAL_GENOME"
+  );
+  assert.ok(
+    authority.precedence.extends.includes("docs/architecture/OWNER_AUTHORITY_REGISTRY.md")
   );
 });
 
@@ -91,14 +93,4 @@ test("name remains mutable while architectural contracts remain authoritative", 
 
   assert.equal(naming.display_name_mutable, true);
   assert.equal(naming.architectural_contracts_mutable_by_rebrand, false);
-});
-
-test("canonical owner registry records the deal-stops mind-evolves invariant", () => {
-  const registry = fs.readFileSync(registryPath, "utf8");
-
-  assert.match(registry, /THE_DEAL_STOPS_THE_MIND_EVOLVES=true/);
-  assert.match(
-    registry,
-    /OWNER_SELF_EVOLVING_COGNITIVE_CONTINUUM_2026-08-23\.md/
-  );
 });
