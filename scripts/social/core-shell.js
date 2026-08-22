@@ -5,8 +5,6 @@
     'home',
     'search',
     'friends',
-    'messages',
-    'notifications',
     'profile',
     'marketplace',
   ]);
