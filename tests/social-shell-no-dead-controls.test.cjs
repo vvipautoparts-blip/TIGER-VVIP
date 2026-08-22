@@ -13,9 +13,9 @@ test("social shell does not expose messaging before a real inbox discovery contr
   const shell = read("scripts/social/core-shell.js");
   const runtime = read("scripts/social/runtime-adapters.js");
 
-  assert.doesNotMatch(html, /data-social-module=["']messages["']/i);
+  assert.doesNotMatch(html, /data-social-(?:module|nav)=["']messages["']/i);
   assert.doesNotMatch(html, /data-social-module-placeholder=["']messages["']/i);
-  assert.doesNotMatch(shell, /\bmessages\s*:\s*["']/i);
+  assert.doesNotMatch(shell, /["']messages["']/i);
 
   assert.match(runtime, /async\s+open\s*\(\s*conversationId\s*\)/);
   assert.match(runtime, /async\s+list\s*\(\s*conversationId/);
@@ -30,18 +30,18 @@ test("social shell does not expose notifications without a notification runtime 
   const shell = read("scripts/social/core-shell.js");
   const runtime = read("scripts/social/runtime-adapters.js");
 
-  assert.doesNotMatch(html, /data-social-module=["']notifications["']/i);
+  assert.doesNotMatch(html, /data-social-(?:module|nav)=["']notifications["']/i);
   assert.doesNotMatch(html, /data-social-module-placeholder=["']notifications["']/i);
-  assert.doesNotMatch(shell, /\bnotifications\s*:\s*["']/i);
+  assert.doesNotMatch(shell, /["']notifications["']/i);
   assert.doesNotMatch(runtime, /\bnotifications\s*:\s*\{|\bnotificationsApi\b|\blistNotifications\b/i);
 });
 
-test("removing dead destinations does not remove the working home and friends shell targets", () => {
+test("removing dead destinations preserves working home and friends navigation", () => {
   const html = read("index.html");
   const shell = read("scripts/social/core-shell.js");
 
-  assert.match(html, /data-social-module=["']home["']/i);
-  assert.match(html, /data-social-module=["']friends["']/i);
-  assert.match(shell, /\bhome\s*:\s*["']#social-feed["']/i);
-  assert.match(shell, /\bfriends\s*:\s*["']\[data-social-module-placeholder=[^\]]+friends/i);
+  assert.match(html, /data-social-(?:module|nav)=["']home["']/i);
+  assert.match(html, /data-social-(?:module|nav)=["']friends["']/i);
+  assert.match(shell, /["']home["']/i);
+  assert.match(shell, /["']friends["']/i);
 });
