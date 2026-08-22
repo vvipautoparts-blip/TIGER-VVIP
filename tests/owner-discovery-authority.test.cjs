@@ -134,3 +134,19 @@ test("official blueprint and readiness matrix cannot outrank later owner commerc
   assert.match(registry, /READINESS_TRACEABILITY_MATRIX\.md/);
   assert.match(registry, /Historical\/execution context map|historical.*context/i);
 });
+
+test("owner-approved TIGER FLOW cannot retain commission or ambiguous external-payment authority", () => {
+  const flow = read("docs/superpowers/specs/2026-08-11-vvip-tiger-flow-design.md");
+  const registry = fs.readFileSync(registryPath, "utf8");
+
+  assert.match(flow, /Issue\s+#312/i);
+  assert.match(flow, /HISTORICAL_EVIDENCE_ONLY/i);
+  assert.match(flow, /NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION/i);
+  assert.match(flow, /platform-owned advertising|ad credits|platform-owned services/i);
+  assert.match(flow, /contact handoff|user-to-user|user-to-provider/i);
+  assert.doesNotMatch(flow, /Commission policy applies centrally to every current and future sector/i);
+
+  assert.match(registry, /2026-08-11-vvip-tiger-flow-design\.md/);
+  assert.match(registry, /TIGER_PULSE_ENGINEERING_EXECUTION_REFERENCE\.md/);
+  assert.match(registry, /2026-08-12-vvip-all-sector-commission-role-retirement\.md/);
+});
