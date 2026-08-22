@@ -14,7 +14,7 @@ Platform-owned finance remains allowed only for TIGER's own advertising, ad cred
 
 ## Precedence
 
-When a historical document, implementation note, test fixture, migration, event name, API contract, machine-readable owner decision, current-state ledger, product-readiness register, or runtime path conflicts with Issue #312, Issue #312 controls. A conflicting historical `OWNER APPROVED`, `OWNER-CANONICAL`, execution-state, scope-freeze, or open-decision label does not override this registry or Issue #312.
+When a historical document, implementation note, test fixture, migration, event name, API contract, machine-readable owner decision, current-state ledger, product-readiness register, blueprint, memory map, or runtime path conflicts with Issue #312, Issue #312 controls. A conflicting historical `OWNER APPROVED`, `OWNER-CANONICAL`, `highest product reference`, execution-state, scope-freeze, or open-decision label does not override this registry or Issue #312.
 
 All existing sectors and non-conflicting platform capabilities remain preserved. New sectors/views are additive through shared contracts and must not replace or fork the existing platform core.
 
@@ -33,6 +33,9 @@ All existing sectors and non-conflicting platform capabilities remain preserved.
 | `docs/MASTER_PROJECT_STATE.md` | Current execution-state ledger corrected by Issue #312 precedence | Historical PR #191 commission implementation remains provenance only with `NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION`. Current finance is limited to platform-owned advertising/services, while external commerce remains discovery-only through contact handoff. |
 | `docs/product-readiness/OPEN_DECISIONS_REGISTER.md` | Current unresolved-decision register with brokerage/commercial-registration questions removed because they are already resolved by later owner authority | Transaction commission is not a pending monetization choice. Remaining finance questions are limited to platform-owned advertising-service packaging; resolved commercial-registration prohibition is not reopened. |
 | `docs/product-readiness/PRODUCT_SCOPE_FREEZE.md` | `REDESIGN_DISCOVERY_ONLY` for external commerce plus `KEEP_PLATFORM_FINANCE` for separately gated platform-owned advertising/services | Deferred scope cannot revive commission settlement, external-deal payment, escrow, settlement, fulfillment or deal closing. Historical commission concepts are `HISTORICAL_EVIDENCE_ONLY`. |
+| `docs/VVIP_TIGER_OFFICIAL_PRODUCT_BLUEPRINT.md` | Historical/product blueprint with current local amendment; `SUPERSEDED` wherever older wording implied commercial-registration collection, merchant contracts, external-deal payments or commissions as future platform phases | It is not higher than Issue #312. Existing non-conflicting product/security/search principles remain reusable; external commerce remains `REDESIGN_DISCOVERY_ONLY` and platform finance remains `KEEP_PLATFORM_FINANCE` only. |
+| `docs/VVIP_TIGER_MEMORY_MAP.md` | Historical/execution context map, not independent current commerce authority | Its preserved older hierarchy pointer cannot override the amended Blueprint, Issue #312, or this registry. Non-conflicting memory/context remains useful; external commerce still ends at contact handoff. |
+| `docs/product-readiness/READINESS_TRACEABILITY_MATRIX.md` | Current readiness matrix aligned to Issue #312 | External-deal finance is `SUPERSEDED`, not a post-launch open decision. Platform-owned advertising/services finance remains separately gateable; historical commission checks do not imply an active commission feature. |
 
 ## TigerPay split-scope rule
 
@@ -46,7 +49,7 @@ A machine-readable file may retain a broad owner-authority label for unrelated a
 
 ## Canonical-document authority rule
 
-A canonical or current-state document may retain superseded material only when the supersession is explicit in that same file. Later Issue #312 commerce authority must be stated locally so an agent or validator cannot infer transaction authority merely from older `OWNER APPROVED`, `OWNER-CANONICAL`, merged-state, scope-freeze, or open-decision wording.
+A canonical or current-state document may retain superseded material only when the supersession is explicit in that same file or when this registry explicitly classifies the file as historical/context-only and its referenced controlling source is itself amended. Later Issue #312 commerce authority must be stated or transitively enforced so an agent or validator cannot infer transaction authority merely from older `OWNER APPROVED`, `OWNER-CANONICAL`, `highest product reference`, merged-state, scope-freeze, open-decision, or memory-map wording.
 
 ## Implementation rule
 
