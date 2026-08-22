@@ -65,3 +65,11 @@ test("TigerPay Vault 3 design is explicitly narrowed to platform-owned finance",
   assert.match(text, /platform-owned advertising|platform advertising services/i);
   assert.match(text, /CONTACT HANDOFF.*TIGER STOPS/i);
 });
+
+test("legacy all-sector commission design cannot retain current transaction-value commission authority", () => {
+  const text = read("docs/superpowers/specs/2026-08-11-vvip-commission-policy-all-sectors-design.md");
+  assert.match(text, /HISTORICAL_EVIDENCE_ONLY|SUPERSEDED.*Issue #312/i);
+  assert.match(text, /NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION|transaction-value commission.*retired/i);
+  assert.match(text, /platform-owned advertising|platform advertising services/i);
+  assert.match(text, /CONTACT HANDOFF.*TIGER STOPS/i);
+});
