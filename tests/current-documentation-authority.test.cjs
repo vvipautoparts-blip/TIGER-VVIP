@@ -128,3 +128,11 @@ test("product scope freeze cannot make a mutable brand or three launch sectors i
   assert.doesNotMatch(text, /VVIP TIGER is one unified platform identity\./i);
   assert.doesNotMatch(text, /## Three Sectors As Filters/i);
 });
+
+test("payment vendor planning cannot authorize checkout outside platform-owned advertising services", () => {
+  const text = read("project-control/data/vendor_register.csv");
+  assert.match(text, /VND-009[^\n]*KEEP_PLATFORM_FINANCE/i);
+  assert.match(text, /VND-009[^\n]*(platform-owned advertising|platform advertising services)/i);
+  assert.match(text, /VND-009[^\n]*Issue #312/i);
+  assert.doesNotMatch(text, /VND-009[^\n]*Transaction\/subscription[^\n]*evaluation/i);
+});
