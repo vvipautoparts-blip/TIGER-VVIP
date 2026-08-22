@@ -286,10 +286,11 @@ CREATE POLICY "Users manage own sessions" ON public.user_sessions
   FOR ALL USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
+-- Legacy otp_codes is retained only as historical bootstrap compatibility.
+-- Direct browser/client access is intentionally fail-closed; current phone OTP
+-- runtime uses the isolated server-side challenge flow instead.
 DROP POLICY IF EXISTS "Users can manage otp by phone" ON public.otp_codes;
-CREATE POLICY "Users can manage otp by phone" ON public.otp_codes
-  FOR ALL USING (true)
-  WITH CHECK (true);
+REVOKE ALL PRIVILEGES ON TABLE public.otp_codes FROM public, anon, authenticated;
 
 -- Seed admin profile placeholder (replace user UUID after creating auth user)
 -- INSERT INTO public.profiles (id, full_name, phone, account_type, account_category, role, is_approved, subscription)
