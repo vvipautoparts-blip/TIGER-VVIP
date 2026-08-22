@@ -127,6 +127,7 @@
     retry.type = 'button';
     retry.className = 'social-search-retry';
     retry.dataset.socialSearchRetry = 'true';
+    retry.setAttribute('data-social-search-retry', 'true');
     retry.setAttribute('aria-label', 'إعادة محاولة البحث');
     retry.hidden = true;
     retry.setAttribute('aria-hidden', 'true');
