@@ -29,6 +29,12 @@
     return name || "organic";
   }
 
+  function boundedRuntimeError(code) {
+    const error = new Error(code);
+    error.code = code;
+    return error;
+  }
+
   function matchesHardConstraints(intent, candidate) {
     const constraints = Array.isArray(intent && intent.hardConstraints)
       ? intent.hardConstraints
@@ -75,9 +81,13 @@
 
       const candidates = [];
       const degradedSources = [];
+      const configuredSourceCount = organicSources.length + (sponsoredSource ? 1 : 0);
+      let successfulSourceCount = 0;
+
       for (const organicSource of organicSources) {
         try {
           const rows = await organicSource.discover(frozen({ intent: intent, signal: input.signal }));
+          successfulSourceCount += 1;
           if (Array.isArray(rows)) {
             candidates.push.apply(candidates, rows.filter(function (candidate) {
               return candidate && candidate.sponsored !== true;
@@ -100,12 +110,21 @@
 
       let sponsored = [];
       if (sponsoredSource) {
-        const sponsoredRows = await sponsoredSource.discover(frozen({ intent: intent, signal: input.signal }));
-        if (Array.isArray(sponsoredRows)) {
-          sponsored = sponsoredRows
-            .filter(function (candidate) { return candidate && candidate.sponsored === true; })
-            .map(function (candidate) { return frozen(Object.assign({}, candidate)); });
+        try {
+          const sponsoredRows = await sponsoredSource.discover(frozen({ intent: intent, signal: input.signal }));
+          successfulSourceCount += 1;
+          if (Array.isArray(sponsoredRows)) {
+            sponsored = sponsoredRows
+              .filter(function (candidate) { return candidate && candidate.sponsored === true; })
+              .map(function (candidate) { return frozen(Object.assign({}, candidate)); });
+          }
+        } catch (_) {
+          degradedSources.push(safeSourceName(sponsoredSource && sponsoredSource.name));
         }
+      }
+
+      if (configuredSourceCount > 0 && successfulSourceCount === 0) {
+        throw boundedRuntimeError("ONE_FIELD_ALL_SOURCES_UNAVAILABLE");
       }
 
       return frozen({
