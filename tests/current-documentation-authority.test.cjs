@@ -103,3 +103,10 @@ for (const rel of [
     assert.match(text, /NO_RUNTIME_AUTHORITY_FOR_EXTERNAL_DEAL_PAYMENT|external[- ]deal.*not authorized/i);
   });
 }
+
+test("project-control decision log cannot keep superseded V2 as the current official authority", () => {
+  const text = read("project-control/data/decision_log.csv");
+  assert.match(text, /Issue #312/i);
+  assert.match(text, /DEC-001[\s\S]*HISTORICAL_EVIDENCE_ONLY|DEC-001[\s\S]*SUPERSEDED/i);
+  assert.match(text, /CONTACT HANDOFF[\s\S]*TIGER STOPS/i);
+});
