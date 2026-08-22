@@ -45,7 +45,8 @@ test("product-readiness governance cannot reopen resolved brokerage", () => {
   assert.doesNotMatch(openDecisions, /\|\s*ODR-001\s*\|/);
   assert.doesNotMatch(openDecisions, /\|\s*ODR-003\s*\|/);
   assert.doesNotMatch(openDecisions, /\|\s*ODR-004\s*\|/);
-  assert.doesNotMatch(openDecisions, /commission only|fixed %|tiered %|commission activation/i);
+  assert.doesNotMatch(openDecisions, /\|\s*ODR-\d+\s*\|[^\n]*(commission only|fixed %|tiered %|commission activation)/i);
+  assert.match(openDecisions, /commission activation[^\n]*(historical evidence only|HISTORICAL_EVIDENCE_ONLY)|historical evidence only[^\n]*commission activation/i);
   assert.match(openDecisions, /advertising|ad credits|platform-owned advertising services/i);
 
   assert.match(scopeFreeze, /Issue\s+#312/i);
