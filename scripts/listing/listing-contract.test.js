@@ -194,3 +194,61 @@ test("local repository update requires a new idempotency key", async () => {
     )
   );
 });
+
+test("automotive contract remains parts-only and rejects whole-vehicle inventory", () => {
+  assert.equal(contract.CATEGORIES.automotive.includes("whole-vehicle"), false);
+  assert.equal(contract.CATEGORIES.automotive.includes("cars"), false);
+  assert.equal(contract.validateListing(validInput({ category: "whole-vehicle" })).valid, false);
+  assert.equal(contract.validateListing(validInput({ category: "cars" })).valid, false);
+});
+
+test("food contract covers full-scope foundation including meat and poultry", () => {
+  assert.ok(contract.CATEGORIES.food.includes("meat"));
+  assert.ok(contract.CATEGORIES.food.includes("poultry"));
+  assert.ok(contract.CATEGORIES.food.includes("fish-seafood"));
+  assert.ok(contract.CATEGORIES.food.includes("dairy"));
+
+  const result = contract.createListing(validInput({
+    listingId: "food_01",
+    sector: "food",
+    category: "meat",
+    title: "لحم طازج",
+    description: "منتج غذائي موصوف بوضوح",
+    sectorAttributes: { storage: "chilled" },
+    idempotencyKey: "idem_food_01"
+  }), { now: "2026-08-22T20:50:00.000Z" });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.value.sector, "food");
+  assert.equal(result.value.category, "meat");
+});
+
+test("universal provenance distinguishes local imported mixed and unknown goods", () => {
+  assert.deepEqual(
+    contract.ORIGIN_CLASSIFICATIONS,
+    ["local", "imported", "mixed", "unknown"]
+  );
+  assert.equal(typeof contract.normalizeProvenanceAttributes, "function");
+
+  assert.deepEqual(
+    contract.normalizeProvenanceAttributes({
+      originClassification: "imported",
+      countryOfOrigin: "DE",
+      brand: "Acme",
+      manufacturer: "Acme GmbH",
+      importer: "Importer A"
+    }),
+    {
+      originClassification: "imported",
+      countryOfOrigin: "DE",
+      brand: "Acme",
+      manufacturer: "Acme GmbH",
+      importer: "Importer A"
+    }
+  );
+
+  assert.equal(
+    contract.normalizeProvenanceAttributes({ originClassification: "invalid" }).originClassification,
+    "unknown"
+  );
+});
