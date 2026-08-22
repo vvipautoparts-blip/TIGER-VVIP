@@ -41,6 +41,36 @@ test('no earlier migration creates the historical public.otp_codes table', () =>
   );
 });
 
+test('historical schema snapshot retains legacy OTP only in a fail-closed state', () => {
+  const historicalSnapshot = fs.readFileSync(
+    path.resolve(__dirname, '../supabase-schema.sql'),
+    'utf8',
+  );
+
+  const otpPolicyStatements = historicalSnapshot.match(
+    /create\s+policy[\s\S]*?\bon\s+public\.otp_codes\b[\s\S]*?;/gi,
+  ) || [];
+
+  for (const statement of otpPolicyStatements) {
+    assert.doesNotMatch(
+      statement,
+      /\busing\s*\(\s*true\s*\)|\bwith\s+check\s*\(\s*true\s*\)/i,
+      'historical snapshot must not grant unconditional direct-client OTP access',
+    );
+  }
+
+  assert.match(
+    historicalSnapshot,
+    /drop\s+policy\s+if\s+exists\s+"Users can manage otp by phone"\s+on\s+public\.otp_codes\s*;/i,
+    'historical snapshot must remove the legacy permissive OTP policy',
+  );
+  assert.match(
+    historicalSnapshot,
+    /revoke\s+all\s+privileges\s+on\s+table\s+public\.otp_codes\s+from\s+public\s*,\s*anon\s*,\s*authenticated\s*;/i,
+    'historical snapshot must revoke direct-client OTP table privileges',
+  );
+});
+
 test('legacy OTP migration is safe when public.otp_codes is absent', () => {
   assert.match(
     executableSql,
