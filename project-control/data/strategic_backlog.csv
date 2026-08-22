@@ -1,17 +1,17 @@
 ﻿item_id,title,description,origin,target_release,priority,status,notes
 BL-001,Native iOS application,Build only after PWA telemetry proves need,Approved global scope review,Global V2,P2,backlog,Preserved; not part of Global V1 launch gate
 BL-002,Native Android application,Build only after PWA telemetry proves need,Approved global scope review,Global V2,P2,backlog,Preserved; not part of Global V1 launch gate
-BL-003,Escrow marketplace payments,Requires licensing/KYC/AML/disputes,Approved global scope review,Future regulated release,P3,backlog,Preserved; not part of Global V1 launch gate
+BL-003,Escrow marketplace payments,External-deal escrow between buyers/sellers/providers is prohibited by the active owner architecture,Issue #312 owner lock,Not allowed,P3,retired,RETIRE_BROKERAGE; Issue #312; preserved as historical backlog evidence only; no current or future runtime authority
 BL-004,Live streaming,High moderation and bandwidth cost,Approved global scope review,Future,P3,backlog,Preserved; not part of Global V1 launch gate
 BL-005,Long-form video,High storage/transcoding cost,Approved global scope review,Future,P3,backlog,Preserved; not part of Global V1 launch gate
 BL-006,Groups and group chat,Outside approved private 1:1 scope,Approved global scope review,Future,P3,backlog,Preserved; not part of Global V1 launch gate
 BL-007,Broadcast messaging,Abuse risk and outside V1,Approved global scope review,Future,P3,backlog,Preserved; not part of Global V1 launch gate
-BL-008,Digital wallet,Regulated financial feature,Approved global scope review,Future regulated release,P3,backlog,Preserved; not part of Global V1 launch gate
+BL-008,Platform advertising-credit wallet,Wallet capability is restricted to TIGER-owned advertising credits/services and internal platform finance,Issue #312 owner lock,Platform finance roadmap,P3,backlog,KEEP_PLATFORM_FINANCE; platform-owned advertising/services only; no buyer/seller/provider funds or external-deal settlement
 BL-009,Crypto payments,Regulatory and volatility risk,Approved global scope review,Not planned,P4,backlog,Preserved; not part of Global V1 launch gate
 BL-010,Advanced recommendation ML,Start with transparent deterministic ranking,Approved global scope review,Post-telemetry,P2,backlog,Preserved; not part of Global V1 launch gate
 BL-011,Behavioral biometrics,Requires privacy/security review and proof of need,Approved global scope review,Future security research,P4,backlog,Preserved; not part of Global V1 launch gate
 BL-012,Multi-region active-active database,Adopt after observed latency/failover needs,Approved global scope review,Scale phase,P2,backlog,Preserved; not part of Global V1 launch gate
-BL-013,Seller logistics integration,Country-specific carrier contracts,Approved global scope review,Future country rollout,P3,backlog,Preserved; not part of Global V1 launch gate
+BL-013,Carrier and logistics discovery,Discover relevant logistics providers and hand off contact without TIGER-managed fulfillment,Issue #312 owner lock,Discovery rollout,P3,backlog,REDESIGN_DISCOVERY_ONLY; CONTACT HANDOFF -> TIGER STOPS; contracts delivery payment tracking and fulfillment occur outside TIGER
 BL-014,Automated translation of legal text,Legal text requires human approval,Approved global scope review,Not allowed automatically,P4,backlog,Preserved; not part of Global V1 launch gate
 BL-015,Public API for partners,"Requires quotas, contracts and abuse controls",Approved global scope review,B2B V2,P2,backlog,Preserved; not part of Global V1 launch gate
 BL-016,Ads manager self-service,After analytics and billing maturity,Approved global scope review,Growth V2,P2,backlog,Preserved; not part of Global V1 launch gate

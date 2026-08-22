@@ -7,7 +7,7 @@ VND-005,Transactional Email,Provider via mail adapter,Global with restrictions,E
 VND-006,Push Notifications,Web Push/APNs/FCM adapter,Global,Device tokens,Volume,Token export + provider abstraction,evaluation
 VND-007,Error Monitoring,Sentry-compatible service,Global,Technical telemetry,Events/seats,OpenTelemetry export,evaluation
 VND-008,Product Analytics,Privacy-aware analytics adapter,Global,Pseudonymous events,Events,Event export + dual-write period,evaluation
-VND-009,Payments,Hosted checkout provider,Country-dependent,Billing data,Transaction/subscription,Ledger remains internal + provider adapter,evaluation
+VND-009,Platform Advertising Payments,Hosted checkout provider,Country-dependent,Platform-owned advertising billing data,Platform advertising services transaction/subscription,"KEEP_PLATFORM_FINANCE under Issue #312; ledger remains internal + provider adapter; external-deal checkout/payment prohibited",evaluation
 VND-010,Object Malware Scan,ClamAV/service adapter,Global,Uploaded files,Compute/scan,Quarantine contract,evaluation
 VND-011,Translation Management,TMS adapter,Global,Localized content,Seats/strings,XLIFF/JSON export,evaluation
 VND-012,Feature Flags,Self-hosted/config provider,Global,Configuration,Seats/requests,Database-backed fallback,proposed

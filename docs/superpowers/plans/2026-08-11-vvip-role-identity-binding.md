@@ -1,6 +1,8 @@
 # VVIP Role Identity Binding Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **Commerce-authority amendment — Issue #312 controls.** Role identity binding remains valid as an authorization/security plan, but it must not delegate future work to superseded transaction-commission designs. `NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION` applies to advertised goods/services. TIGER's active boundary is **DISCOVERY → RELEVANCE → EXPLANATION → CONTACT HANDOFF → TIGER STOPS**. Financial scope is limited to TIGER's own **platform-owned advertising** and approved platform advertising services; no user-to-user/user-to-provider deal commission, payout, checkout, escrow, settlement, negotiation, fulfillment, or percentage-of-deal behavior is authorized here.
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. Every task is subordinate to Issue #312 and the current owner-authority registry.
 
 **Goal:** Require every new operational role assignment to bind the worker to exactly one trusted VVIP internal account identifier or Clerk user identifier, expose that choice in Operations Console, and fail closed until the server verifies the identity/account mapping.
 
@@ -18,8 +20,10 @@
 - The identity binding must resolve to the same target person/account represented by the assignment subject; no cross-account reassignment.
 - Current and future worker roles use the same central rule.
 - Historical audit/assignment facts remain readable and are not rewritten to fabricate identity history.
+- For advertised goods/services, transaction-value commission is retired; role identity must never be used to reactivate a brokerage recipient or payout path.
+- Platform finance is limited to platform-owned advertising/services and their own accounting obligations; organic relevance/fit remains separate from paid exposure.
 - Do not mutate Production data, Clerk provider configuration, secrets, DNS, country activation, owner seeding or real-money state in this PR.
-- Keep PR #191 Draft until all same-head quality/security checks pass.
+- Keep protected PR work Draft until all same-head quality/security checks pass.
 
 ---
 
@@ -93,18 +97,23 @@
 - [ ] **Step 3: Confirm historical reads do not require fabricated identity data** and remain readable.
 - [ ] **Step 4: Run repository/idempotency tests** and require PASS.
 
-### Task 5: All-sector commission integration remains isolated but compatible
+### Task 5: Zero-brokerage compatibility and platform-finance isolation
 
 **Files:**
-- Continue under the separate all-sector commission tasks defined by `docs/superpowers/specs/2026-08-11-vvip-commission-policy-all-sectors-design.md`.
+- Read authority: Issue #312 and `docs/architecture/OWNER_AUTHORITY_REGISTRY.md`.
+- Verify retirement boundary: `scripts/finance/vvip-commission-policy.js` and zero-brokerage tests where applicable.
+- Do not use the superseded all-sector transaction-commission specification as current implementation authority.
 
 **Interfaces:**
 - Role identity binding applies to every surviving operational role.
-- Retired roles `SECONDARY_MARKETER`, `SUPERVISOR`, and `AREA_MANAGER` cannot be newly assigned through the active role path.
+- Retired roles `SECONDARY_MARKETER`, `SUPERVISOR`, and `AREA_MANAGER` cannot be newly assigned through the active role path where current authorization contracts retire them.
+- No trusted identity binding may grant a transaction-value commission, buyer/seller payout, escrow, settlement, or percentage-of-deal authority for advertised goods/services.
 
 - [ ] **Step 1: Ensure role catalog cleanup tests include the identity-bound assignment path.**
-- [ ] **Step 2: Ensure no retired role can pass create-assignment validation.**
-- [ ] **Step 3: Keep the central commission calculation and role cleanup in PR #191 without mixing Production payout execution.**
+- [ ] **Step 2: Ensure no retired brokerage-equivalent role can pass create-assignment validation.**
+- [ ] **Step 3: Prove transaction-value commission runtime remains retired/fail-closed under Issue #312.**
+- [ ] **Step 4: Keep allowed finance strictly to platform-owned advertising/services; do not mix it with external-deal payment or settlement.**
+- [ ] **Step 5: Preserve `CONTACT HANDOFF → TIGER STOPS` as the commerce boundary and keep organic relevance independent from paid exposure.**
 
 ### Task 6: Same-head verification and handoff
 
@@ -116,5 +125,5 @@
 
 - [ ] **Step 1: Run focused Node tests for role identity, command boundary, server handler, repository and semantic idempotency.**
 - [ ] **Step 2: Run VVIP Quality Gate, V14 Release Candidate, CodeQL, Dependency Review, TIGER CleanGuard and Project Control on the same head SHA.**
-- [ ] **Step 3: Inspect the final diff for Production data mutation, secrets, DNS, Clerk provider changes, country activation, owner seeding or real-money execution; require none.**
-- [ ] **Step 4: Keep PR #191 Draft until all required checks are green and protected review is appropriate.**
+- [ ] **Step 3: Inspect the final diff for Production data mutation, secrets, DNS, Clerk provider changes, country activation, owner seeding, real-money execution, or external-deal brokerage; require none.**
+- [ ] **Step 4: Keep the protected implementation PR Draft until all required checks are green and protected review is appropriate.**

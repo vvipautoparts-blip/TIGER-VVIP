@@ -1,5 +1,7 @@
 # TigerPay TP-00 + TP-01 Implementation Plan
 
+> **CURRENT AUTHORITY — SUPERSEDED by Issue #312 for advertised-goods/services commerce:** this 2026-08-07 implementation plan is retained as historical design evidence only where it describes customer/provider, marketplace, order/listing, user-to-user, user-to-provider, brokerage, escrow, payout, or settlement flows for third-party goods/services. It MUST NOT authorize those flows. Current TigerPay money scope is limited to **platform-owned advertising and platform-owned services**. For advertised third-party goods/services the authoritative path is **DISCOVERY → RELEVANCE → EXPLANATION → CONTACT HANDOFF → TIGER STOPS**; negotiation, agreement, delivery, sale, payment, settlement, and completion occur outside TIGER.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Freeze TigerPay's permanent financial constitution and expose deterministic, testable domain contracts for canonical financial states, money values, identifiers, idempotency, and provider-event normalization without any live provider or production financial execution.

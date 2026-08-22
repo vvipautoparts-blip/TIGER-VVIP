@@ -4,6 +4,8 @@
 **Effective date:** 2026-08-12
 **Purpose:** Permanent owner reference for the currently approved product, UX, identity, finance, authorization, privacy and security direction. This document records decisions; implementation status is tracked separately in `MASTER_PROJECT_STATE.md`.
 
+> **2026-08-22 commerce-authority amendment — Issue #312 controls.** For user-to-user and user-to-provider advertised goods/services, the platform is discovery-only: discovery → relevance → explanation → contact handoff, then TIGER stops. The historical transaction-value commission material retained in this document is `HISTORICAL_EVIDENCE_ONLY`, `SUPERSEDED`, and has `NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION`. Active financial scope is `KEEP_PLATFORM_FINANCE` only for platform-owned advertising, ad credits/packages, approved platform-owned services and their own refunds/adjustments/taxes/treasury/accounting. External deal purchase, checkout, payment, payout, escrow, settlement, negotiation, fulfillment and completion are not authorized by this document.
+
 ## 1. Governing product principle
 
 VVIP TIGER is governed by:
@@ -74,7 +76,9 @@ Commercial marketplace listings likewise complete their content first; any paid 
 
 ## 6. Purchase, payment and account identity
 
-Any purchase, funding, subscription or payment initiated by a signed-in VVIP TIGER user must be bound server-side to:
+This section applies only to `KEEP_PLATFORM_FINANCE`: purchases/payments for platform-owned advertising, ad credits/packages, boosts, listing visibility, approved subscriptions, and other explicitly approved platform-owned services. It does not authorize payment for an advertised good/service between external parties.
+
+Any allowed platform-owned purchase, funding, subscription or payment initiated by a signed-in VVIP TIGER user must be bound server-side to:
 
 `Clerk user.id <-> canonical VVIP accountId/profile`
 
@@ -86,6 +90,8 @@ Rules:
 - do not invent a parallel account-number authority if the canonical `accountId` already exists;
 - identity evidence and financial evidence must remain traceable through correlation/idempotency/audit identifiers.
 
+For external user-to-user/user-to-provider advertised goods/services, discovery ends at contact handoff; TIGER does not execute the purchase or payment.
+
 ## 7. Worker/staff role identity binding
 
 Every new operational/staff role assignment must contain exactly one trusted reference:
@@ -94,29 +100,32 @@ Every new operational/staff role assignment must contain exactly one trusted ref
 
 Before activation the server must prove that the reference resolves to the same canonical subject/account. Missing, malformed, ambiguous, unresolved or mismatched identity fails closed. The browser cannot self-assert authority.
 
-## 8. Global commission policy — every sector
+## 8. Historical commission policy — superseded for external deals
 
-The commission decision applies centrally to **every current and future sector**. Sector-local copies/overrides of the retired role distribution are not allowed.
+**Classification:** `HISTORICAL_EVIDENCE_ONLY` / `SUPERSEDED_BY_ISSUE_312`
+**Current effect:** `NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION`
 
-Retired financial/operational roles:
+The following values are retained only to reconstruct the historical 2026-08-12 decision. They must not authorize commission, payout, brokerage, or percentage-of-deal-value behavior for current or future user-to-user/user-to-provider commerce.
+
+Historical retired financial/operational roles:
 
 - `SECONDARY_MARKETER` — old 4.30%;
 - `SUPERVISOR` — old 3.12%;
 - `AREA_MANAGER` — old 3.51%.
 
-Removed total: **10.93%**.
+Historical removed total: **10.93%**.
 
-It is redistributed equally and exactly among:
+Historical redistribution record:
 
 - `SECTOR_MANAGER`: nominal `7.943333...%`, display `7.94%`;
 - `COUNTRY_EXECUTIVE_COMMISSIONER`: nominal `9.113333...%`, display `9.11%`;
 - `MARKETING`: nominal `11.013333...%`, display `11.01%`.
 
-`PRIMARY_MARKETER` remains **4.30%**.
+Historical `PRIMARY_MARKETER`: **4.30%**.
 
-Financial calculation must use exact rational/fixed-point/integer minor-unit logic, not rounded display percentages or binary floating-point money arithmetic. Any indivisible remainder is resolved deterministically with no silent loss and no systematic fixed beneficiary bias. Historical financial facts are not rewritten.
+Exact-arithmetic, immutability, audit and reconciliation principles remain reusable only when independently compatible with allowed platform-owned finance. Historical financial facts are not rewritten.
 
-`area_manager` is retired as an active role; geographic `area` may remain a valid location/scope concept.
+`area_manager` remains retired as an active role; geographic `area` may remain a valid location/scope concept.
 
 ## 9. TIGER PULSE
 
@@ -126,7 +135,8 @@ TIGER PULSE remains an internal contextual market-intelligence/visibility capabi
 - paid visibility cannot purchase truth or override core eligibility;
 - the base marketplace must continue operating if paid Pulse functions are disabled;
 - financial delivery requires verifiable evidence before billing/recognition;
-- launch of real-money Pulse remains separately gated.
+- launch of real-money Pulse remains separately gated;
+- Pulse finance is platform-owned advertising/service finance only and cannot become a buyer/seller transaction rail.
 
 ## 10. Security architecture — TIGER SEAL
 
@@ -214,11 +224,11 @@ Non-production-truth canary identifiers may be placed only in controlled securit
 
 ## 14. Financial reliability and testing
 
-Financial logic is fail-closed and auditable. Architecture should preserve double-entry/reconciliation/idempotency semantics where money movement is introduced.
+Financial logic is fail-closed and auditable. Architecture should preserve double-entry/reconciliation/idempotency semantics for `KEEP_PLATFORM_FINANCE` where platform-owned money movement is introduced.
 
-Before real-money activation, the test program must include at least **5,000,000 simulated financial/operational movements** across mixed scenarios such as retries, duplicate requests, concurrency, timeouts, refunds, insufficient balance, role/account rebinding, delayed services, duplicate delivery evidence and recovery.
+Before real-money activation for platform-owned advertising/services, the test program must include at least **5,000,000 simulated financial/operational movements** across mixed scenarios such as retries, duplicate requests, concurrency, timeouts, refunds, insufficient balance, role/account rebinding, delayed services, duplicate delivery evidence and recovery.
 
-A large test count alone is not acceptance. Required invariants include zero double charge, zero duplicate commission, exact reconciliation, no unknown money origin/destination and deterministic replay for idempotent operations.
+A large test count alone is not acceptance. Required invariants include zero double charge, exact reconciliation, no unknown money origin/destination and deterministic replay for idempotent operations. Historical duplicate-commission checks may remain as regression evidence but do not imply an active commission feature.
 
 ## 15. Production and release integrity
 
@@ -238,6 +248,8 @@ Required principles:
 
 The following must not be reintroduced as current product requirements unless the owner makes a new explicit decision:
 
+- transaction-value commission or percentage-of-external-deal revenue;
+- platform order/checkout/payment/escrow/payout/settlement for an advertised good/service between external parties;
 - mandatory commercial-registration upload for an ordinary social post;
 - default administrator/human approval before ordinary post publication;
 - default manual preview queue for ordinary posting;
@@ -251,7 +263,7 @@ Normal legal obligations, abuse response, fraud handling, valid complaints and m
 
 ## 17. Owner reference rule
 
-This document is the owner-approved decision baseline until superseded by a newer dated owner decision. `MASTER_PROJECT_STATE.md` records implementation truth and must distinguish clearly among:
+This document remains the owner-approved decision baseline for non-conflicting decisions. For the commercial/discovery boundary, Issue #312 and `docs/architecture/OWNER_AUTHORITY_REGISTRY.md` are the later controlling authority. `MASTER_PROJECT_STATE.md` records implementation truth and must distinguish clearly among:
 
 - `APPROVED_NOT_IMPLEMENTED`;
 - `IMPLEMENTING`;
@@ -259,4 +271,4 @@ This document is the owner-approved decision baseline until superseded by a newe
 - `PRODUCTION_VERIFIED`;
 - `BLOCKED_HUMAN_GATE`.
 
-No conversation summary, developer assumption, UI label or old historical document may silently override this owner baseline.
+No conversation summary, developer assumption, UI label or old historical document may silently override the current owner authority.

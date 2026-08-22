@@ -31,12 +31,18 @@
   },
   "identity_binding": {
     "protected_purchase_requires_canonical_identity": true,
+    "protected_purchase_scope": "PLATFORM_OWNED_ADVERTISING_SERVICES_ONLY",
+    "external_deal_purchase_execution": "SUPERSEDED_BY_ISSUE_312",
     "worker_role_binding_required": true,
     "accepted_reference_types": ["ACCOUNT_ID", "CLERK_USER_ID"],
     "browser_reference_is_proof": false,
     "server_subject_account_match_required": true
   },
   "commission": {
+    "authority": "HISTORICAL_EVIDENCE_ONLY",
+    "status": "SUPERSEDED",
+    "superseded_by": "ISSUE_312_PRIVATE_DISCOVERY_RENDEZVOUS",
+    "current_effect": "NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION",
     "all_current_sectors": true,
     "all_future_sectors": true,
     "retired_roles": ["SECONDARY_MARKETER", "SUPERVISOR", "AREA_MANAGER"],
@@ -90,6 +96,7 @@
     "minimum_simulated_movements": 5000000,
     "double_charge_allowed": false,
     "duplicate_commission_allowed": false,
+    "transaction_value_commission_authority": "HISTORICAL_EVIDENCE_ONLY",
     "exact_reconciliation_required": true,
     "deterministic_idempotent_replay_required": true
   },

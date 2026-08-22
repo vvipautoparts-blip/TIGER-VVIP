@@ -8,6 +8,7 @@ const path = require("node:path");
 const ROOT = path.resolve(__dirname, "..");
 const read = (rel) => fs.readFileSync(path.join(ROOT, rel), "utf8");
 const registry = () => read("docs/architecture/OWNER_AUTHORITY_REGISTRY.md");
+const csvRow = (text, id) => text.split(/\r?\n/).find((line) => line.includes(id)) || "";
 
 test("machine-readable owner decision retires transaction-value authority without weakening identity", () => {
   const decision = JSON.parse(read("project-control/owner/VVIP_TIGER_OWNER_DECISIONS_2026-08-12.json"));
@@ -50,7 +51,7 @@ test("product-readiness governance cannot reopen resolved brokerage", () => {
   assert.match(scopeFreeze, /Issue\s+#312/i);
   assert.match(scopeFreeze, /HISTORICAL_EVIDENCE_ONLY|NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION/i);
   assert.doesNotMatch(scopeFreeze, /Commission settlement workflow/);
-  assert.match(scopeFreeze, /discovery.*contact|contact.*handoff|discovery and private-contact/i);
+  assert.match(scopeFreeze, /contact handoff|discovery and private-contact|DISCOVERY → RELEVANCE/i);
 
   assert.match(matrix, /Issue\s+#312/i);
   assert.doesNotMatch(matrix, /DOCUMENTED - POST-LAUNCH DECISION/i);
@@ -93,18 +94,27 @@ test("project-control rows cannot queue retired brokerage for future implementat
   const backlog = read("project-control/data/strategic_backlog.csv");
   const vendors = read("project-control/data/vendor_register.csv");
 
-  assert.match(decisionLog, /DEC-001[\s\S]*Issue #312[\s\S]*HISTORICAL_EVIDENCE_ONLY|DEC-001[\s\S]*Issue #312[\s\S]*SUPERSEDED/i);
-  assert.match(decisionLog, /CONTACT HANDOFF[\s\S]*TIGER STOPS/i);
+  const dec001 = csvRow(decisionLog, "DEC-001");
+  assert.match(dec001, /Issue #312/i);
+  assert.match(dec001, /HISTORICAL_EVIDENCE_ONLY|SUPERSEDED/i);
+  assert.match(dec001, /CONTACT HANDOFF.*TIGER STOPS/i);
 
-  assert.match(backlog, /BL-003[^\n]*RETIRE_BROKERAGE[^\n]*Issue #312/i);
-  assert.match(backlog, /BL-013[^\n]*REDESIGN_DISCOVERY_ONLY[^\n]*CONTACT HANDOFF[^\n]*TIGER STOPS/i);
-  assert.match(backlog, /BL-008[^\n]*KEEP_PLATFORM_FINANCE[^\n]*platform-owned advertising/i);
-  assert.doesNotMatch(backlog, /BL-003[^\n]*Future regulated release[^\n]*backlog/i);
-  assert.doesNotMatch(backlog, /BL-013[^\n]*Future country rollout[^\n]*backlog/i);
+  const bl003 = csvRow(backlog, "BL-003");
+  const bl008 = csvRow(backlog, "BL-008");
+  const bl013 = csvRow(backlog, "BL-013");
+  assert.match(bl003, /RETIRE_BROKERAGE/i);
+  assert.match(bl003, /Issue #312/i);
+  assert.doesNotMatch(bl003, /Future regulated release/i);
+  assert.match(bl008, /KEEP_PLATFORM_FINANCE/i);
+  assert.match(bl008, /platform-owned advertising/i);
+  assert.match(bl013, /REDESIGN_DISCOVERY_ONLY/i);
+  assert.match(bl013, /CONTACT HANDOFF.*TIGER STOPS/i);
+  assert.doesNotMatch(bl013, /Future country rollout/i);
 
-  assert.match(vendors, /VND-009[^\n]*KEEP_PLATFORM_FINANCE/i);
-  assert.match(vendors, /VND-009[^\n]*(platform-owned advertising|platform advertising services)/i);
-  assert.match(vendors, /VND-009[^\n]*Issue #312/i);
+  const vnd009 = csvRow(vendors, "VND-009");
+  assert.match(vnd009, /KEEP_PLATFORM_FINANCE/i);
+  assert.match(vnd009, /platform[- ]owned advertising/i);
+  assert.match(vnd009, /Issue #312/i);
 });
 
 test("historical schema and roadmap evidence cannot become current execution authority", () => {
@@ -116,7 +126,7 @@ test("historical schema and roadmap evidence cannot become current execution aut
     "docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml",
     "docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md",
     "project-control/sources/VVIP_TIGER_Global_Execution_Specification_V2_AR.md"
-  ]) assert.match(text, new RegExp(needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  ]) assert.ok(text.includes(needle), `${needle} must be explicitly classified`);
   assert.match(text, /HISTORICAL_EVIDENCE_ONLY/);
   assert.match(text, /SUPERSEDED_DO_NOT_APPLY_REMOTE/);
 });

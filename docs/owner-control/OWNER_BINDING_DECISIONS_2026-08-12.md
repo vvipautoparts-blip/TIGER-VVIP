@@ -5,6 +5,8 @@
 **Status:** BINDING / OWNER-CANONICAL
 **Purpose:** Preserve the owner's latest approved product, security, financial, identity, UX, TIGER PULSE, and governance decisions as repository truth. If an older design, chat note, mockup, source document, or historical requirement conflicts with this file, this file controls unless a later owner decision explicitly supersedes it.
 
+**Commercial/discovery supersession:** Issue #312 (`Private Discovery Rendezvous`) is the later authoritative owner decision for user-to-user and user-to-provider commerce. It supersedes every conflicting transaction-value commission, external purchase/payment, escrow, negotiation, deal-close, settlement, or fulfillment interpretation in this document. Such legacy commission material is `HISTORICAL_EVIDENCE_ONLY` with `NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION`. Active finance is limited to platform-owned advertising, ad credits/packages, approved platform-owned services, and the platform's own related refunds, adjustments, taxes/fees, treasury, accounting, and provider settlement. For external user-to-user or user-to-provider advertised goods/services, the platform stops at discovery, relevance, explanation, and contact handoff.
+
 ## 1. Product constitution
 
 VVIP TIGER follows one governing product principle:
@@ -114,24 +116,32 @@ TIGER PULSE remains an integrated contextual market-intelligence/visibility laye
 - Verified/billable exposure requires server-verifiable evidence, de-duplication, policy versioning, and audit.
 - A browser must never be trusted to declare `is_billable=true` by itself.
 - Financial activation requires a valid account/identity linkage.
-- Pulse financial execution must remain isolated from ordinary marketplace availability so a Pulse/financial kill switch does not take down public browsing/search.
+- Pulse financial execution is platform-owned advertising/service finance only and must remain isolated from ordinary marketplace availability so a Pulse/financial kill switch does not take down public browsing/search.
 
-## 9. Financial constitution
+## 9. Financial constitution — current authority and historical evidence
 
-- Use one central all-sector commission policy inherited by every current and future sector unless the owner explicitly changes the global policy.
-- `PRIMARY_MARKETER`: remains **4.30%**.
-- Retired roles from new operational/financial assignment paths: `SECONDARY_MARKETER`, `SUPERVISOR`, `AREA_MANAGER`.
-- Removed share: **10.93%**, redistributed completely and equally in exact arithmetic among:
+### 9.1 Current active finance
+
+- Current financial authority is `KEEP_PLATFORM_FINANCE` only for platform-owned advertising, ad credits/packages, approved platform-owned services, and their own refunds/adjustments, taxes/fees, treasury/accounting, reconciliation, and provider settlement.
+- External user-to-user or user-to-provider advertised goods/services have no platform order, checkout, buyer/seller payment, escrow, platform-managed negotiation, deal close, fulfillment, or transaction-value commission path.
+- Transaction-value commission authority is `HISTORICAL_EVIDENCE_ONLY` and `NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION` under Issue #312.
+- Money arithmetic for allowed platform-owned finance uses exact/fixed-point/rational or adequate decimal precision plus deterministic minor-unit reconciliation.
+- Sensitive platform-owned money operations require idempotency/correlation/audit and reconciliation.
+- Real Production money movement remains subject to protected Production gates and is not authorized by this document alone.
+
+### 9.2 Historical commission evidence — SUPERSEDED / NON-OPERATIVE
+
+The following values are retained only to reconstruct the prior owner decision and must not be consumed as active runtime/business authority for external deals:
+
+- Historical central all-sector commission policy applied to every current and future sector before Issue #312.
+- `PRIMARY_MARKETER`: **4.30%**.
+- Historically retired roles from new operational/financial assignment paths: `SECONDARY_MARKETER`, `SUPERVISOR`, `AREA_MANAGER`.
+- Historical removed share: **10.93%**, redistributed completely and equally in exact arithmetic among:
   - `SECTOR_MANAGER`: old 4.30% + 10.93/3 = **7.943333...%** (display may round to 7.94%).
   - `COUNTRY_EXECUTIVE_COMMISSIONER`: old 5.47% + 10.93/3 = **9.113333...%** (display may round to 9.11%).
   - `MARKETING`: old 7.37% + 10.93/3 = **11.013333...%** (display may round to 11.01%).
-- Rounded UI values are not the source of truth.
-- Money arithmetic uses exact/fixed-point/rational or adequate decimal precision plus deterministic minor-unit reconciliation.
-- No residual/unassigned amount is permitted.
-- Missing recipient assignment must fail/hold with an explicit state; no silent auto-redirection or automatic promotion.
-- Historical payout rows are immutable; policy changes are prospective/versioned.
-- Sensitive money operations require idempotency/correlation/audit and reconciliation.
-- Real Production money movement remains subject to protected Production gates.
+- Rounded historical UI values were not the source of truth.
+- Historical payout rows remain immutable evidence; supersession does not rewrite prior facts.
 
 ## 10. Role retirement semantics
 
@@ -141,11 +151,11 @@ Retired role cleanup must include active assignment catalogs, permission hierarc
 
 ## 11. Financial resilience / simulation
 
-Before real-money activation, financial logic must support a high-volume deterministic simulation target of **at least 5,000,000 virtual movements**, covering varied failure modes rather than repeating one happy path.
+Before real-money activation for any allowed **platform-owned advertising/service finance**, financial logic must support a high-volume deterministic simulation target of **at least 5,000,000 virtual movements**, covering varied failure modes rather than repeating one happy path. This section does not authorize buyer/seller/provider money movement for advertised goods/services.
 
-Scenarios include concurrent operations, duplicate requests, retry, network timeout, insufficient balance, partial dependency failure, reservation/capture/release/refund, disputes, role/policy changes, exposure de-duplication, and recovery/reconciliation.
+Scenarios may include concurrent operations, duplicate requests, retry, network timeout, insufficient balance where applicable, partial dependency failure, reservation/capture/release/refund for platform-owned charges, disputes, policy changes, exposure de-duplication, and recovery/reconciliation.
 
-Release acceptance must prove no unexplained money creation/loss, no duplicate charge caused by replay, no unbalanced journal, no unauthorized recipient, and deterministic reconciliation for the tested model. This is a test target, not a promise that software can never fail.
+Release acceptance must prove no unexplained money creation/loss, no duplicate charge caused by replay, no unbalanced journal, no unauthorized recipient, and deterministic reconciliation for the tested platform-owned finance model. This is a test target, not a promise that software can never fail.
 
 ## 12. Security constitution
 
@@ -198,13 +208,13 @@ Useful technical ideas from them may be implemented invisibly under ordinary arc
 
 - PR #190 guest-first authentication direction is preserved and must not regress.
 - PR #189 is the isolated experience-convergence path and must preserve guest-first behavior.
-- PR #191 is the isolated role-identity/retired-role/commission-policy path.
+- PR #191 is the isolated role-identity/retired-role/historical-commission-policy path; its transaction-value commission material is superseded by Issue #312.
 - Do not mix large TIGER PULSE/security/product rewrites into PR #191.
 - Production DB changes, real-money activation, provider-secret changes, and protected Production deployment remain separate gated operations even when repository implementation is owner-approved.
 
 ## 17. Continuity rule
 
-Repository/current refs and exact-head automated evidence are implementation truth. This Owner Binding Decisions file is the binding owner decision truth. A `MASTER_PROJECT_STATE` ledger records current execution cursor/state. Historical chat is supporting context, not the sole source of truth.
+Repository/current refs and exact-head automated evidence are implementation truth. This Owner Binding Decisions file remains binding owner decision truth for non-conflicting sections; Issue #312 and the active Owner Architecture Authority Registry control every later commercial/discovery supersession described above. A `MASTER_PROJECT_STATE` ledger records current execution cursor/state. Historical chat is supporting context, not the sole source of truth.
 
 Required continuation pattern:
 
@@ -214,14 +224,14 @@ At each material owner decision or completed execution slice, update the owner r
 
 ## 18. Simplicity, eradication, interaction integrity, and scale evidence
 
-The owner requires the platform to reach a state where an ordinary user can enter, browse, publish, communicate, buy, or finance where those capabilities actually exist without needing an explanatory manual. Familiar interaction logic may be used, but the finished experience must be recognizably VVIP TIGER rather than a copy of another product.
+The owner requires the platform to reach a state where an ordinary user can enter, browse, publish, communicate, discover relevant goods/services, contact counterparties, and purchase approved platform-owned advertising/services where implemented without needing an explanatory manual. External advertised-goods/services negotiation, agreement, payment, delivery, and completion remain outside the platform after contact handoff. Familiar interaction logic may be used, but the finished experience must be recognizably VVIP TIGER rather than a copy of another product.
 
 Binding experience DNA:
 
 - sky/celestial blue and royal blue as the primary visual family;
 - restrained glass, depth, precise motion, consistent cards, and small coherent icons;
 - low clutter and progressive disclosure;
-- a manager/owner should understand money, sectors, workers, financing, risk, and performance from one primary control view, using drill-down only when detail is needed.
+- a manager/owner should understand platform-owned finance, sectors, workers, advertising performance, risk, and performance from one primary control view, using drill-down only when detail is needed.
 
 Binding eradication rule:
 
@@ -241,7 +251,7 @@ Binding scale-evidence rule:
 
 - the engineering target may model a population of up to **12,000,000 users**, but registered-user population, daily active users, concurrent users, requests per second, websocket/chat concurrency, and background jobs are separate capacity dimensions and must never be conflated;
 - no claim that VVIP TIGER "supports 12 million users" is permitted until the relevant workload profile has been demonstrated by documented, reproducible measurements on representative infrastructure;
-- load and stress work must be staged and distributed, with realistic mixed scenarios including registration/authentication, browsing/search/feed, listing or post publication, media paths, views, contact/chat, paid/financial actions where implemented, retries, failures, reconciliation, and recovery;
+- load and stress work must be staged and distributed, with realistic mixed scenarios including registration/authentication, browsing/search/feed, listing or post publication, media paths, views, contact/chat, paid platform-owned advertising/financial actions where implemented, retries, failures, reconciliation, and recovery;
 - acceptance evidence must record at least throughput, error rate, p50/p95/p99 latency, saturation signals, database/queue limits, chat delivery lag where applicable, authentication/provider limits, financial-integrity results, and the exact tested topology/configuration;
 - tests must distinguish normal load, peak load, stress-to-failure, soak/endurance, recovery, and failover behavior.
 
