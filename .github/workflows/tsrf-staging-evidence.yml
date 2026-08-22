@@ -7,8 +7,13 @@ on:
         description: Exact 40-character source commit SHA to verify
         required: true
         type: string
+      proof_artifact_id:
+        description: GitHub Actions artifact ID produced by the allowlisted real Staging proof workflow for this exact SHA
+        required: true
+        type: string
 
 permissions:
+  actions: read
   contents: read
 
 jobs:
@@ -24,6 +29,7 @@ jobs:
       STAGING_PROMPT_VERSION: ${{ vars.TIGER_AI_PROMPT_VERSION }}
       STAGING_MAX_OUTPUT_TOKENS: ${{ vars.TIGER_AI_MAX_OUTPUT_TOKENS }}
       STAGING_IDENTITY_VERIFIER_URL: ${{ vars.TIGER_IDENTITY_VERIFIER_URL }}
+      STAGING_PROOF_PRODUCER_WORKFLOW_ID: ${{ vars.TSRF_STAGING_PROOF_PRODUCER_WORKFLOW_ID }}
     steps:
       - name: Checkout exact source SHA
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
@@ -77,6 +83,10 @@ jobs:
             echo "BLOCKED_STAGING_IDENTITY_UNPROVEN" >&2
             exit 1
           fi
+          if [[ ! "$STAGING_PROOF_PRODUCER_WORKFLOW_ID" =~ ^[0-9]+$ ]] || (( STAGING_PROOF_PRODUCER_WORKFLOW_ID < 1 )); then
+            echo "BLOCKED_STAGING_PRODUCER_UNPROVEN: protected producer workflow id is absent or invalid" >&2
+            exit 1
+          fi
 
       - name: Build deterministic same-SHA V14 candidate
         shell: bash
@@ -88,6 +98,113 @@ jobs:
             --output "$RUNNER_TEMP/vvip-candidate" \
             --mode candidate \
             --source-sha "$SOURCE_SHA"
+
+      - name: Download trusted same-SHA Staging proof artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PROOF_ARTIFACT_ID: ${{ inputs.proof_artifact_id }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          if [[ ! "$PROOF_ARTIFACT_ID" =~ ^[0-9]+$ ]] || (( PROOF_ARTIFACT_ID < 1 )); then
+            echo "BLOCKED_STAGING_PRODUCER_UNPROVEN: proof_artifact_id is not a positive integer" >&2
+            exit 1
+          fi
+
+          proof_dir="$RUNNER_TEMP/tsrf-staging-proof"
+          metadata_dir="$RUNNER_TEMP/tsrf-staging-proof-metadata"
+          archive="$RUNNER_TEMP/tsrf-staging-proof.zip"
+          rm -rf "$proof_dir" "$metadata_dir" "$archive"
+          mkdir -p "$proof_dir" "$metadata_dir"
+
+          api_base="${GITHUB_API_URL:-https://api.github.com}/repos/${GITHUB_REPOSITORY}"
+          common_headers=(
+            -H "Accept: application/vnd.github+json"
+            -H "Authorization: Bearer $GH_TOKEN"
+            -H "X-GitHub-Api-Version: 2022-11-28"
+          )
+
+          curl --fail --silent --show-error --location --retry 2 \
+            "${common_headers[@]}" \
+            "$api_base/actions/artifacts/${PROOF_ARTIFACT_ID}" \
+            -o "$metadata_dir/artifact.json"
+
+          producer_run_id="$(node -e '
+            const fs = require("node:fs");
+            const artifact = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+            const id = artifact && artifact.workflow_run && artifact.workflow_run.id;
+            if (!Number.isSafeInteger(id) || id < 1) process.exit(2);
+            process.stdout.write(String(id));
+          ' "$metadata_dir/artifact.json")" || {
+            echo "BLOCKED_STAGING_PRODUCER_UNPROVEN: artifact has no trusted producer run binding" >&2
+            exit 1
+          }
+
+          curl --fail --silent --show-error --location --retry 2 \
+            "${common_headers[@]}" \
+            "$api_base/actions/runs/${producer_run_id}" \
+            -o "$metadata_dir/producer-run.json"
+
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+
+          const metadataDir = path.join(process.env.RUNNER_TEMP, 'tsrf-staging-proof-metadata');
+          const artifact = JSON.parse(fs.readFileSync(path.join(metadataDir, 'artifact.json'), 'utf8'));
+          const producerRun = JSON.parse(fs.readFileSync(path.join(metadataDir, 'producer-run.json'), 'utf8'));
+          const sourceSha = process.env.SOURCE_SHA;
+          const expectedName = `tsrf-staging-source-proof-${sourceSha}`;
+          const expectedWorkflowId = Number(process.env.STAGING_PROOF_PRODUCER_WORKFLOW_ID);
+          const currentRunId = Number(process.env.WORKFLOW_RUN_ID);
+
+          const block = (reason) => {
+            console.error(`BLOCKED_STAGING_PRODUCER_UNPROVEN: ${reason}`);
+            process.exit(1);
+          };
+
+          if (!Number.isSafeInteger(expectedWorkflowId) || expectedWorkflowId < 1) block('allowlisted workflow id invalid');
+          if (!artifact || artifact.expired === true) block('artifact missing or expired');
+          if (artifact.name !== expectedName) block('artifact name is not exact-SHA bound');
+          if (!artifact.workflow_run || artifact.workflow_run.head_sha !== sourceSha) block('artifact metadata source SHA mismatch');
+          if (!producerRun || producerRun.id !== artifact.workflow_run.id) block('producer run identity mismatch');
+          if (producerRun.head_sha !== sourceSha) block('producer run source SHA mismatch');
+          if (producerRun.workflow_id !== expectedWorkflowId) block('producer workflow is not allowlisted by protected Staging');
+          if (producerRun.status !== 'completed') block('producer run is not completed');
+          if (producerRun.conclusion !== 'success') block('producer run did not succeed');
+          if (producerRun.id === currentRunId) block('evidence consumer cannot be its own proof producer');
+          NODE
+
+          curl --fail --silent --show-error --location --retry 2 \
+            "${common_headers[@]}" \
+            "$api_base/actions/artifacts/${PROOF_ARTIFACT_ID}/zip" \
+            -o "$archive"
+
+          mapfile -t archive_entries < <(unzip -Z1 "$archive")
+          if (( ${#archive_entries[@]} != 2 )); then
+            echo "BLOCKED_STAGING_PRODUCER_UNPROVEN: proof artifact must contain exactly two root files" >&2
+            exit 1
+          fi
+          for entry in "${archive_entries[@]}"; do
+            if [[ "$entry" == /* || "$entry" == *".."* || "$entry" == *\\* ]]; then
+              echo "BLOCKED_STAGING_PRODUCER_UNPROVEN: unsafe proof artifact path" >&2
+              exit 1
+            fi
+            case "$entry" in
+              proof-input.json|source-proof.json) ;;
+              *)
+                echo "BLOCKED_STAGING_PRODUCER_UNPROVEN: unexpected proof artifact member" >&2
+                exit 1
+                ;;
+            esac
+          done
+          printf '%s\n' "${archive_entries[@]}" | LC_ALL=C sort > "$metadata_dir/archive-files.txt"
+          printf '%s\n' proof-input.json source-proof.json | LC_ALL=C sort > "$metadata_dir/expected-files.txt"
+          cmp -s "$metadata_dir/archive-files.txt" "$metadata_dir/expected-files.txt" || {
+            echo "BLOCKED_STAGING_PRODUCER_UNPROVEN: required proof files are not exact" >&2
+            exit 1
+          }
+          unzip -q "$archive" -d "$proof_dir"
+          chmod 600 "$proof_dir/proof-input.json" "$proof_dir/source-proof.json"
 
       - name: Require same-SHA Staging proof producer handoff
         shell: bash
