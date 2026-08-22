@@ -97,7 +97,7 @@ declare -A reviewed_migration_hashes=(
   # was made scanner-visible. Expected findings are new-table NOT NULL integrity,
   # three owner-only RLS policies, and three exact authenticated EXECUTE grants.
   # Browser table CRUD remains revoked and no saver directory/count is exposed.
-  ["supabase/migrations/20260820205500_social_bookmarks.sql"]="776b1f7641c5a66ffdc96d58704ee6662c6c61e9f5f95f54060a97daa0e5c69e"
+  ["supabase/migrations/20260820205500_social_bookmarks.sql"]="776b1f7641c5a66ffdc96d58704bee6662c6c61e9f5f95f54060a97daa0e5c69e"
 
   # Social Follows: reviewed with CRITICAL=0. Follow is directional and isolated from
   # friendship authority; the owner-scoped unfollow predicate is scanner-visible.
@@ -154,6 +154,13 @@ declare -A reviewed_migration_hashes=(
   # stay private, raw post table reads remain revoked, and every page rechecks current
   # block/privacy/lifecycle authority. Any byte drift re-enters review automatically.
   ["supabase/migrations/20260821133000_social_edge_keyset_convergence.sql"]="6a2195497edb441f4e0525d14c608e5934ae55e7b388937f189a777aeb6ba3cb"
+
+  # Issue #312 zero-brokerage legacy write lock: reviewed as privilege-narrowing only.
+  # Exact bytes revoke browser INSERT/UPDATE/DELETE, retire the two legacy own-write
+  # policies, and install a statement-level fail-closed trigger while preserving every
+  # historical row/table. No CASCADE, row deletion, table/schema drop, or privilege grant.
+  # Any byte drift re-enters Steel Shield automatically.
+  ["supabase/migrations/20260822023000_zero_brokerage_legacy_transaction_write_lock.sql"]="76acd972b74e69aaeb592f5e01140c2458c4be50cf2576aef678c2815423dc89"
 )
 
 reviewed_baseline_path() {
