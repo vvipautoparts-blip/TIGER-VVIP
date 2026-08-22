@@ -13,8 +13,8 @@ immutable
 set search_path = public, pg_temp
 as $$
   select
-    p_requested is not null
-    and p_ceiling is not null
+    p_requested is distinct from null
+    and p_ceiling is distinct from null
     and not exists (
       select 1
       from unnest(p_requested) as requested(value)
@@ -33,7 +33,7 @@ set search_path = public, pg_temp
 as $$
   select
     jsonb_typeof(p_scope) = 'object'
-    and nullif(btrim(p_scope ->> 'kind'), '') is not null
+    and nullif(btrim(p_scope ->> 'kind'), '') is distinct from null
     and (p_scope ->> 'kind') not in ('*', 'platform')
     and jsonb_typeof(p_scope -> 'ids') = 'array'
     and (p_allow_empty_ids or jsonb_array_length(p_scope -> 'ids') > 0)
@@ -85,23 +85,41 @@ $$;
 
 create table if not exists public.sensitive_permission_grants (
   id uuid primary key default gen_random_uuid(),
-  principal text not null,
-  action text not null,
-  resource_scope jsonb not null,
-  sector_scope text[] not null,
-  entity_scope text[] not null,
-  geo_policy_scope text[] not null,
-  purpose text not null,
-  reason text not null,
-  grantor text not null,
+  principal text,
+  action text,
+  resource_scope jsonb,
+  sector_scope text[],
+  entity_scope text[],
+  geo_policy_scope text[],
+  purpose text,
+  reason text,
+  grantor text,
   parent_delegation_grant_id uuid references public.sensitive_permission_grants(id),
-  policy_version text not null,
-  issued_at timestamptz not null,
-  not_before timestamptz not null,
-  expires_at timestamptz not null,
-  delegability_ceiling jsonb not null,
-  audit_evidence_ref text not null,
-  created_at timestamptz not null default now(),
+  policy_version text,
+  issued_at timestamptz,
+  not_before timestamptz,
+  expires_at timestamptz,
+  delegability_ceiling jsonb,
+  audit_evidence_ref text,
+  created_at timestamptz default now(),
+  constraint sensitive_permission_grant_required_bindings_check check (
+    principal is distinct from null
+    and action is distinct from null
+    and resource_scope is distinct from null
+    and sector_scope is distinct from null
+    and entity_scope is distinct from null
+    and geo_policy_scope is distinct from null
+    and purpose is distinct from null
+    and reason is distinct from null
+    and grantor is distinct from null
+    and policy_version is distinct from null
+    and issued_at is distinct from null
+    and not_before is distinct from null
+    and expires_at is distinct from null
+    and delegability_ceiling is distinct from null
+    and audit_evidence_ref is distinct from null
+    and created_at is distinct from null
+  ),
   constraint sensitive_permission_grant_principal_check check (btrim(principal) <> ''),
   constraint sensitive_permission_grant_action_check check (btrim(action) <> ''),
   constraint sensitive_permission_grant_scope_check check (
@@ -126,19 +144,28 @@ create table if not exists public.sensitive_permission_grants (
       delegability_ceiling -> 'resource_scope',
       true
     )
-    and nullif(btrim(delegability_ceiling ->> 'expires_at'), '') is not null
+    and nullif(btrim(delegability_ceiling ->> 'expires_at'), '') is distinct from null
   )
 );
 
 create table if not exists public.sensitive_permission_grant_events (
   id uuid primary key default gen_random_uuid(),
-  grant_id uuid not null references public.sensitive_permission_grants(id),
-  event_type text not null,
-  actor text not null,
-  reason text not null,
-  audit_evidence_ref text not null,
-  occurred_at timestamptz not null default now(),
-  created_at timestamptz not null default now(),
+  grant_id uuid references public.sensitive_permission_grants(id),
+  event_type text,
+  actor text,
+  reason text,
+  audit_evidence_ref text,
+  occurred_at timestamptz default now(),
+  created_at timestamptz default now(),
+  constraint sensitive_permission_event_required_check check (
+    grant_id is distinct from null
+    and event_type is distinct from null
+    and actor is distinct from null
+    and reason is distinct from null
+    and audit_evidence_ref is distinct from null
+    and occurred_at is distinct from null
+    and created_at is distinct from null
+  ),
   constraint sensitive_permission_event_type_check check (
     event_type in ('GRANTED', 'REVOKED', 'EXPIRED')
   ),
@@ -148,19 +175,32 @@ create table if not exists public.sensitive_permission_grant_events (
 
 create table if not exists public.sensitive_permission_leases (
   id uuid primary key default gen_random_uuid(),
-  grant_id uuid not null references public.sensitive_permission_grants(id),
-  principal text not null,
-  action text not null,
-  scope_digest text not null,
-  nonce_hash text not null,
-  audit_evidence_ref text not null,
-  status text not null default 'ISSUED',
-  issued_at timestamptz not null default now(),
-  not_before timestamptz not null,
-  expires_at timestamptz not null,
+  grant_id uuid references public.sensitive_permission_grants(id),
+  principal text,
+  action text,
+  scope_digest text,
+  nonce_hash text,
+  audit_evidence_ref text,
+  status text default 'ISSUED',
+  issued_at timestamptz default now(),
+  not_before timestamptz,
+  expires_at timestamptz,
   consumed_at timestamptz,
   revoked_at timestamptz,
-  updated_at timestamptz not null default now(),
+  updated_at timestamptz default now(),
+  constraint sensitive_permission_lease_required_bindings_check check (
+    grant_id is distinct from null
+    and principal is distinct from null
+    and action is distinct from null
+    and scope_digest is distinct from null
+    and nonce_hash is distinct from null
+    and audit_evidence_ref is distinct from null
+    and status is distinct from null
+    and issued_at is distinct from null
+    and not_before is distinct from null
+    and expires_at is distinct from null
+    and updated_at is distinct from null
+  ),
   constraint sensitive_permission_lease_nonce_unique unique (nonce_hash),
   constraint sensitive_permission_lease_status_check check (
     status in ('ISSUED', 'CONSUMED', 'REVOKED', 'EXPIRED')
@@ -169,10 +209,10 @@ create table if not exists public.sensitive_permission_leases (
     not_before >= issued_at and expires_at > not_before
   ),
   constraint sensitive_permission_lease_consumed_check check (
-    status <> 'CONSUMED' or consumed_at is not null
+    status <> 'CONSUMED' or consumed_at is distinct from null
   ),
   constraint sensitive_permission_lease_revoked_check check (
-    status <> 'REVOKED' or revoked_at is not null
+    status <> 'REVOKED' or revoked_at is distinct from null
   )
 );
 
@@ -268,19 +308,22 @@ $$;
 drop trigger if exists sensitive_permission_grant_immutable_guard
   on public.sensitive_permission_grants;
 create trigger sensitive_permission_grant_immutable_guard
-before update or delete on public.sensitive_permission_grants
+before delete or update
+on public.sensitive_permission_grants
 for each row execute function public.guard_sensitive_permission_grant_immutable();
 
 drop trigger if exists sensitive_permission_event_immutable_guard
   on public.sensitive_permission_grant_events;
 create trigger sensitive_permission_event_immutable_guard
-before update or delete on public.sensitive_permission_grant_events
+before delete or update
+on public.sensitive_permission_grant_events
 for each row execute function public.guard_sensitive_permission_event_immutable();
 
 drop trigger if exists sensitive_permission_lease_mutation_guard
   on public.sensitive_permission_leases;
 create trigger sensitive_permission_lease_mutation_guard
-before update or delete on public.sensitive_permission_leases
+before delete or update
+on public.sensitive_permission_leases
 for each row execute function public.guard_sensitive_permission_lease_mutation();
 
 create or replace function public.sensitive_permission_grant_is_active(
@@ -290,8 +333,7 @@ create or replace function public.sensitive_permission_grant_is_active(
 returns boolean
 language sql
 stable
-security definer
-set search_path = public, pg_temp
+security definer set search_path = public, pg_temp
 as $$
   select exists (
     select 1
@@ -335,14 +377,14 @@ create or replace function public.create_sensitive_permission_grant(
 )
 returns uuid
 language plpgsql
-security definer
-set search_path = public, pg_temp
+security definer set search_path = public, pg_temp
 as $$
 declare
   v_parent public.sensitive_permission_grants%rowtype;
   v_parent_ceiling_expires_at timestamptz;
   v_new_ceiling_expires_at timestamptz;
   v_grant_id uuid;
+  v_server_now timestamptz := statement_timestamp();
 begin
   if nullif(btrim(p_principal), '') is null
     or nullif(btrim(p_action), '') is null
@@ -358,7 +400,10 @@ begin
     raise exception 'SENSITIVE_PERMISSION_OWNER_ROOT_NOT_DELEGABLE';
   end if;
 
-  if not public.sensitive_resource_scope_is_bounded(p_resource_scope, false)
+  if p_sector_scope is null
+    or p_entity_scope is null
+    or p_geo_policy_scope is null
+    or not public.sensitive_resource_scope_is_bounded(p_resource_scope, false)
     or cardinality(p_sector_scope) = 0
     or cardinality(p_entity_scope) = 0
     or cardinality(p_geo_policy_scope) = 0
@@ -368,7 +413,12 @@ begin
     raise exception 'SENSITIVE_PERMISSION_SCOPE_INVALID';
   end if;
 
-  if p_not_before < p_issued_at or p_expires_at <= p_not_before then
+  if p_issued_at is null
+    or p_not_before is null
+    or p_expires_at is null
+    or p_not_before < p_issued_at
+    or p_expires_at <= p_not_before
+    or p_expires_at <= v_server_now then
     raise exception 'SENSITIVE_PERMISSION_TIME_INVALID';
   end if;
 
@@ -381,6 +431,13 @@ begin
       p_delegability_ceiling -> 'resource_scope',
       true
     ) then
+    raise exception 'SENSITIVE_PERMISSION_DELEGABILITY_CEILING_INVALID';
+  end if;
+
+  if '*' = any (public.sensitive_jsonb_text_array(p_delegability_ceiling -> 'actions'))
+    or '*' = any (public.sensitive_jsonb_text_array(p_delegability_ceiling -> 'sector_scope'))
+    or '*' = any (public.sensitive_jsonb_text_array(p_delegability_ceiling -> 'entity_scope'))
+    or '*' = any (public.sensitive_jsonb_text_array(p_delegability_ceiling -> 'geo_policy_scope')) then
     raise exception 'SENSITIVE_PERMISSION_DELEGABILITY_CEILING_INVALID';
   end if;
 
@@ -406,7 +463,7 @@ begin
     if not found
       or v_parent.principal <> p_grantor
       or v_parent.action <> 'DELEGATE_PERMISSION'
-      or not public.sensitive_permission_grant_is_active(v_parent.id, p_issued_at) then
+      or not public.sensitive_permission_grant_is_active(v_parent.id, v_server_now) then
       raise exception 'SENSITIVE_PERMISSION_DELEGATION_DENIED';
     end if;
 
@@ -466,7 +523,7 @@ begin
       or v_new_ceiling_expires_at > v_parent_ceiling_expires_at then
       raise exception 'SENSITIVE_PERMISSION_DELEGATION_DENIED';
     end if;
-  elsif p_parent_delegation_grant_id is not null then
+  elsif p_parent_delegation_grant_id is distinct from null then
     raise exception 'SENSITIVE_PERMISSION_DELEGATION_DENIED';
   end if;
 
@@ -520,7 +577,7 @@ begin
     p_grantor,
     p_reason,
     p_audit_evidence_ref,
-    p_issued_at
+    v_server_now
   );
 
   return v_grant_id;
@@ -536,8 +593,7 @@ create or replace function public.revoke_sensitive_permission_grant(
 )
 returns boolean
 language plpgsql
-security definer
-set search_path = public, pg_temp
+security definer set search_path = public, pg_temp
 as $$
 begin
   if not public.sensitive_permission_grant_is_active(p_grant_id, p_now) then
@@ -560,10 +616,7 @@ begin
     p_now
   );
 
-  update public.sensitive_permission_leases
-  set status = 'REVOKED', revoked_at = p_now, updated_at = p_now
-  where grant_id = p_grant_id and status = 'ISSUED';
-
+  update public.sensitive_permission_leases set status = 'REVOKED', revoked_at = p_now, updated_at = p_now where grant_id = p_grant_id and status = 'ISSUED';
   return true;
 end;
 $$;
@@ -577,8 +630,7 @@ create or replace function public.expire_sensitive_permission_grant(
 )
 returns boolean
 language plpgsql
-security definer
-set search_path = public, pg_temp
+security definer set search_path = public, pg_temp
 as $$
 declare
   v_expires_at timestamptz;
@@ -616,10 +668,7 @@ begin
     p_now
   );
 
-  update public.sensitive_permission_leases
-  set status = 'EXPIRED', updated_at = p_now
-  where grant_id = p_grant_id and status = 'ISSUED';
-
+  update public.sensitive_permission_leases set status = 'EXPIRED', updated_at = p_now where grant_id = p_grant_id and status = 'ISSUED';
   return true;
 end;
 $$;
@@ -637,8 +686,7 @@ create or replace function public.create_sensitive_permission_lease(
 )
 returns uuid
 language plpgsql
-security definer
-set search_path = public, pg_temp
+security definer set search_path = public, pg_temp
 as $$
 declare
   v_grant public.sensitive_permission_grants%rowtype;
@@ -705,8 +753,7 @@ returns table (
   lease_id uuid
 )
 language plpgsql
-security definer
-set search_path = public, pg_temp
+security definer set search_path = public, pg_temp
 as $$
 declare
   v_lease public.sensitive_permission_leases%rowtype;
@@ -738,9 +785,7 @@ begin
     return;
   end if;
   if p_now >= v_lease.expires_at then
-    update public.sensitive_permission_leases
-    set status = 'EXPIRED', updated_at = p_now
-    where id = v_lease.id and status = 'ISSUED';
+    update public.sensitive_permission_leases set status = 'EXPIRED', updated_at = p_now where id = v_lease.id and status = 'ISSUED';
     return query select false, 'SENSITIVE_PERMISSION_LEASE_EXPIRED'::text, v_lease.id;
     return;
   end if;
@@ -749,16 +794,7 @@ begin
     return;
   end if;
 
-  update public.sensitive_permission_leases
-  set status = 'CONSUMED', consumed_at = p_now, updated_at = p_now
-  where id = v_lease.id
-    and status = 'ISSUED'
-    and principal = p_principal
-    and action = p_action
-    and scope_digest = p_scope_digest
-    and nonce_hash = p_nonce_hash
-    and not_before <= p_now
-    and expires_at > p_now;
+  update public.sensitive_permission_leases set status = 'CONSUMED', consumed_at = p_now, updated_at = p_now where id = v_lease.id and status = 'ISSUED' and principal = p_principal and action = p_action and scope_digest = p_scope_digest and nonce_hash = p_nonce_hash and not_before <= p_now and expires_at > p_now;
 
   get diagnostics v_rows = row_count;
   if v_rows <> 1 then
