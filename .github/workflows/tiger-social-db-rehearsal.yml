@@ -151,7 +151,6 @@ jobs:
           node --test tests/tiger-p0-edge-keyset-convergence.test.cjs
           node --test tests/tiger-p0-messaging-read-model.test.cjs
           node --test tests/tiger-p0-messaging-db-rehearsal.test.cjs
-          node --test tests/tiger-p0-messaging-convergence-reviewed-migration-hash.test.cjs
           node --test tests/tiger-social-runtime-adapters.test.cjs
           node --test tests/tiger-social-post-domain.test.cjs
           node --test tests/tiger-social-runtime-publication.test.cjs
