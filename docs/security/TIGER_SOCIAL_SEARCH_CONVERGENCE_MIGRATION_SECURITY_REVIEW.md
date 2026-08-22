@@ -61,4 +61,3 @@ The failing PR #310 run 32507037763 recorded:
 - Social DB Rehearsal run 32507037702 failed only at Verify content-addressed migration review.
 
 This review closes that specific P0-C root cause. It does not claim the PR, production readiness, Gate 6, or platform-wide 100% readiness.
-
