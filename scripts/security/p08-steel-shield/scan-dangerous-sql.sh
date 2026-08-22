@@ -154,6 +154,13 @@ declare -A reviewed_migration_hashes=(
   # stay private, raw post table reads remain revoked, and every page rechecks current
   # block/privacy/lifecycle authority. Any byte drift re-enters review automatically.
   ["supabase/migrations/20260821133000_social_edge_keyset_convergence.sql"]="6a2195497edb441f4e0525d14c608e5934ae55e7b388937f189a777aeb6ba3cb"
+
+  # P0-C Social Search: exact-byte review after static contracts, isolated local
+  # migration replay, privacy/cursor/budget behavior proof, and the final review of
+  # expected lexical HIGH findings. Any byte drift returns this slice to RED.
+  ["supabase/migrations/20260821160000_social_search_convergence.sql"]="cd9031ee26d709fada7d1a91828c02171c68fc791de02739df35f1cdcb77cb4f"
+  ["supabase/migrations/20260821160100_social_search_budget_guard.sql"]="01511711186643d423d510578abad280e6c3a732287ba70309166d327b67ed75"
+  ["supabase/migrations/20260821160200_social_search_adaptive_30_shield.sql"]="c2b8ccb13dedcd12f7b1c15610938c22d80f6a1b2e4c427cb085c7fdb7056b31"
 )
 
 reviewed_baseline_path() {
