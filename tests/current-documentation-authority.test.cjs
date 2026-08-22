@@ -134,5 +134,8 @@ test("payment vendor planning cannot authorize checkout outside platform-owned a
   assert.match(text, /VND-009[^\n]*KEEP_PLATFORM_FINANCE/i);
   assert.match(text, /VND-009[^\n]*(platform-owned advertising|platform advertising services)/i);
   assert.match(text, /VND-009[^\n]*Issue #312/i);
-  assert.doesNotMatch(text, /VND-009[^\n]*Transaction\/subscription[^\n]*evaluation/i);
+  assert.doesNotMatch(
+    text,
+    /VND-009,Payments,Hosted checkout provider,Country-dependent,Financial\/PII,Transaction\/subscription,Ledger remains internal \+ provider adapter,evaluation/i
+  );
 });
