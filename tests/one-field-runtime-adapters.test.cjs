@@ -2,7 +2,10 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { createMarketplaceCandidateAdapter } = require('../scripts/discovery/one-field-runtime-adapters.js');
+const {
+  createMarketplaceCandidateAdapter,
+  createSocialSearchCandidateAdapter
+} = require('../scripts/discovery/one-field-runtime-adapters.js');
 
 test('marketplace adapter strips private identifiers and preserves direct contact handoff', async () => {
   const calls = [];
@@ -60,4 +63,92 @@ test('marketplace adapter does not require a legacy sector to discover by natura
   assert.deepEqual(received, { search: 'شيء جديد لا يطابق اسم قطاع ثابت', limit: 60 });
   assert.equal(rows[0].id, 'freeform-1');
   assert.equal(rows[0].facts.sector, null);
+});
+
+test('social people adapter reuses reviewed search API and emits only public projection fields', async () => {
+  const calls = [];
+  const search = {
+    people: async (query, options) => {
+      calls.push({ query, options });
+      return Object.freeze({
+        ok: true,
+        value: Object.freeze({
+          items: Object.freeze([
+            Object.freeze({
+              profile_id: 'profile_1',
+              display_name: 'شركة الغذاء',
+              business_name: 'شركة الغذاء',
+              specialization: 'أغذية أطفال',
+              location: 'عمّان',
+              clerk_subject: 'user_PRIVATE',
+              provider_secret: 'DO_NOT_LEAK',
+              sponsored_score: 42
+            })
+          ]),
+          next_cursor: null
+        })
+      });
+    }
+  };
+  const adapter = createSocialSearchCandidateAdapter(search, 'people');
+
+  const rows = await adapter.discover({ intent: Object.freeze({ text: 'أغذية أطفال' }) });
+
+  assert.deepEqual(calls, [{ query: 'أغذية أطفال', options: { limit: 20 } }]);
+  assert.equal(adapter.name, 'social_people');
+  assert.equal(rows[0].id, 'profile_1');
+  assert.equal(rows[0].source, 'social_people');
+  assert.equal(rows[0].kind, 'person');
+  assert.equal(rows[0].label, 'شركة الغذاء');
+  assert.equal(rows[0].facts.location, 'عمّان');
+  assert.equal(rows[0].sponsored, false);
+  assert.equal(JSON.stringify(rows[0]).includes('user_PRIVATE'), false);
+  assert.equal(JSON.stringify(rows[0]).includes('DO_NOT_LEAK'), false);
+  assert.equal(JSON.stringify(rows[0]).includes('sponsored_score'), false);
+});
+
+test('social post adapter projects visible post search results without private author subjects', async () => {
+  const calls = [];
+  const search = {
+    posts: async (query, options) => {
+      calls.push({ query, options });
+      return Object.freeze({
+        ok: true,
+        value: Object.freeze({
+          items: Object.freeze([
+            Object.freeze({
+              post_id: 'post_1',
+              author_display_name: 'عضو متاح',
+              body: 'لدينا منتجات مناسبة للأطفال',
+              author_subject: 'user_PRIVATE_AUTHOR'
+            })
+          ]),
+          next_cursor: null
+        })
+      });
+    }
+  };
+  const adapter = createSocialSearchCandidateAdapter(search, 'posts');
+
+  const rows = await adapter.discover({ intent: Object.freeze({ text: 'منتجات للأطفال' }) });
+
+  assert.deepEqual(calls, [{ query: 'منتجات للأطفال', options: { limit: 20 } }]);
+  assert.equal(adapter.name, 'social_posts');
+  assert.equal(rows[0].id, 'post_1');
+  assert.equal(rows[0].source, 'social_posts');
+  assert.equal(rows[0].kind, 'post');
+  assert.equal(rows[0].label, 'عضو متاح');
+  assert.equal(rows[0].summary, 'لدينا منتجات مناسبة للأطفال');
+  assert.equal(JSON.stringify(rows[0]).includes('user_PRIVATE_AUTHOR'), false);
+});
+
+test('social search failure is reduced to a bounded adapter error', async () => {
+  const adapter = createSocialSearchCandidateAdapter({
+    people: async () => Object.freeze({ ok: false, code: 'SOCIAL_RATE_LIMITED', retryAfterMs: 30000 })
+  }, 'people');
+
+  await assert.rejects(
+    adapter.discover({ intent: Object.freeze({ text: 'بحث' }) }),
+    (error) => error && error.code === 'ONE_FIELD_SOCIAL_SEARCH_UNAVAILABLE' && !String(error.message).includes('SOCIAL_RATE_LIMITED')
+  );
 });
