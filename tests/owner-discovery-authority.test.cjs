@@ -41,3 +41,19 @@ test("dependent TigerPay plans cannot re-authorize advertised-goods brokerage th
   assert.match(registry, /order\/listing|hosted checkout|buyer\/seller\/provider|advertised goods\/services/i);
   assert.match(registry, /SUPERSEDED|HISTORICAL_EVIDENCE_ONLY|REDESIGN_DISCOVERY_ONLY/i);
 });
+
+test("machine-readable owner master decision cannot retain transaction-commission or external-purchase authority", () => {
+  const rel = "project-control/owner/VVIP_TIGER_OWNER_DECISIONS_2026-08-12.json";
+  const decision = JSON.parse(read(rel));
+  const registry = fs.readFileSync(registryPath, "utf8");
+
+  assert.equal(decision.authority, "OWNER_APPROVED");
+  assert.equal(decision.commission.authority, "HISTORICAL_EVIDENCE_ONLY");
+  assert.equal(decision.commission.status, "SUPERSEDED");
+  assert.equal(decision.commission.superseded_by, "ISSUE_312_PRIVATE_DISCOVERY_RENDEZVOUS");
+  assert.equal(decision.commission.current_effect, "NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION");
+  assert.equal(decision.identity_binding.protected_purchase_scope, "PLATFORM_OWNED_ADVERTISING_SERVICES_ONLY");
+  assert.equal(decision.identity_binding.external_deal_purchase_execution, "SUPERSEDED_BY_ISSUE_312");
+  assert.equal(decision.financial_validation.transaction_value_commission_authority, "HISTORICAL_EVIDENCE_ONLY");
+  assert.match(registry, /VVIP_TIGER_OWNER_DECISIONS_2026-08-12\.json/);
+});
