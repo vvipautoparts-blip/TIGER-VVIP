@@ -55,6 +55,11 @@ declare -A reviewed_migration_hashes=(
   # Approval is byte-exact; any SQL drift invalidates this reviewed baseline automatically.
   ["supabase/migrations/20260808223000_global_launch_phase_a_identity_convergence.sql"]="173766f1203890d3461db6b67cc95b1d9ca28d23c65026ff9393115ad4433c31"
   ["supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql"]="9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9"
+  # Issue #312 zero-brokerage write lock: reviewed byte-exact after RED evidence from
+  # Steel Shield. It preserves historical rows/tables while revoking browser writes,
+  # dropping conflicting write policies, and installing fail-closed mutation triggers.
+  # No Production/Staging application is authorized by this reviewed source baseline.
+  ["supabase/migrations/20260822023000_zero_brokerage_legacy_transaction_write_lock.sql"]="76acd972b74e69aaeb592f5e01140c2458c4be50cf2576aef678c2815423dc89"
 )
 
 reviewed_baseline_path() {
