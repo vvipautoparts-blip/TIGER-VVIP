@@ -67,7 +67,7 @@
 
 .social-search-retry {
   justify-self: start;
-  min-height: 40px;
+  min-height: 44px;
   border: 1px solid var(--tiger-social-border);
   border-radius: 999px;
   background: var(--tiger-social-surface);
