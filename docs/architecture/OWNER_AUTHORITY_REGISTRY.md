@@ -14,11 +14,11 @@ Platform-owned finance remains allowed only for TIGER's own advertising, ad cred
 
 ## Precedence
 
-When a historical document, implementation note, test fixture, migration, event name, API contract, machine-readable owner decision, or runtime path conflicts with Issue #312, Issue #312 controls. A conflicting historical `OWNER APPROVED` label does not override this registry or Issue #312.
+When a historical document, implementation note, test fixture, migration, event name, API contract, machine-readable owner decision, current-state ledger, or runtime path conflicts with Issue #312, Issue #312 controls. A conflicting historical `OWNER APPROVED`, `OWNER-CANONICAL`, or execution-state label does not override this registry or Issue #312.
 
 All existing sectors and non-conflicting platform capabilities remain preserved. New sectors/views are additive through shared contracts and must not replace or fork the existing platform core.
 
-## Classified historical authorities
+## Classified historical and split authorities
 
 | Artifact | Classification | Current effect |
 | --- | --- | --- |
@@ -29,6 +29,8 @@ All existing sectors and non-conflicting platform capabilities remain preserved.
 | `project-control/owner/VVIP_TIGER_OWNER_DECISIONS_2026-08-12.json` | Split machine-readable authority: top-level `OWNER_APPROVED` remains active for non-conflicting security, identity, UX and release controls; its commission subtree is `HISTORICAL_EVIDENCE_ONLY` / `SUPERSEDED`; protected purchase is `KEEP_PLATFORM_FINANCE` only for platform-owned advertising/services | Historical basis points and redistribution values remain audit evidence only and have no runtime authority for transaction-value commission. Canonical identity protection remains required for allowed platform-owned purchases, while external user-to-user/user-to-provider purchase execution is superseded by Issue #312. |
 | `project-control/experience-convergence/v1/owner-decision.json` | `KEEP_PLATFORM_FINANCE` only for platform-owned ad credits, advertising services, boosts, listing visibility and approved subscriptions; external-deal payment execution is `SUPERSEDED` | Identity binding, server authorization, payment verification and audit controls remain active for TIGER-owned monetization. Generic external `PURCHASE`/`PAYMENT` authority is removed; discovery commerce still stops at contact handoff. |
 | `docs/owner-control/OWNER_BINDING_DECISIONS_2026-08-12.md` | Split binding authority: all non-conflicting security, identity, UX, governance and release rules remain binding; its historical transaction-commission section is `HISTORICAL_EVIDENCE_ONLY` / `SUPERSEDED` by Issue #312 | Historical percentages remain only for provenance with `NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION`. Active finance is limited to platform-owned advertising/services; external advertised-goods/services commerce stops at contact handoff. |
+| `docs/owner-control/VVIP_TIGER_OWNER_MASTER_DECISIONS_2026-08-12.md` | Split owner-master authority: non-conflicting product, security, privacy, authorization and UX decisions remain active; transaction-value commission material is `HISTORICAL_EVIDENCE_ONLY` / `SUPERSEDED`; finance is `KEEP_PLATFORM_FINANCE` only | The owner master cannot authorize external-deal purchase, checkout, payment, payout, escrow, settlement, fulfillment or commission. External user-to-user/user-to-provider commerce ends at contact handoff. |
+| `docs/MASTER_PROJECT_STATE.md` | Current execution-state ledger corrected by Issue #312 precedence | Historical PR #191 commission implementation remains provenance only with `NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION`. Current finance is limited to platform-owned advertising/services, while external commerce remains discovery-only through contact handoff. |
 
 ## TigerPay split-scope rule
 
@@ -39,6 +41,10 @@ Generic historical terms such as `payment`, `payout`, `order`, `listing`, `merch
 ## Machine-readable authority rule
 
 A machine-readable file may retain a broad owner-authority label for unrelated active controls while containing locally superseded historical fields. Every such conflicting subtree must carry its own explicit authority/status/current-effect markers. Numeric commission history may remain for audit reconstruction, but no consumer may infer runtime permission from the presence of historical values alone.
+
+## Canonical-document authority rule
+
+A canonical or current-state document may retain superseded material only when the supersession is explicit in that same file. Later Issue #312 commerce authority must be stated locally so an agent or validator cannot infer transaction authority merely from older `OWNER APPROVED`, `OWNER-CANONICAL`, or merged-state wording.
 
 ## Implementation rule
 
