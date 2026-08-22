@@ -99,6 +99,11 @@ declare -A reviewed_migration_hashes=(
   # FORCE RLS, expiry/revision invariants, and the expected lexical findings
   # on new-table NOT NULL rules, the scoped update, and exact RPC grants.
   ["supabase/migrations/20260818150000_synapse_intent_foundation.sql"]="c854a7ebf64d6710a9eb9351044108a10b97a5c35f5afc330288232fc7df5072"
+
+  # SYNAPSE S1 intent foundation: reviewed for actor-bound RPC-only writes,
+  # FORCE RLS, expiry/revision invariants, and the expected lexical findings
+  # on new-table NOT NULL rules, the scoped update, and exact RPC grants.
+  ["supabase/migrations/20260818150000_synapse_intent_foundation.sql"]="c854a7ebf64d6710a9eb9351044108a10b97a5c35f5afc330288232fc7df5072"
 )
 
 reviewed_baseline_path() {

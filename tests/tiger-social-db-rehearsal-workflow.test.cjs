@@ -23,6 +23,7 @@ test("Social DB rehearsal applies foundation reaction and comment proofs and alw
   assert.match(workflow, /tests\/tiger-synapse-intent-domain\.test\.cjs/);
   assert.match(workflow, /tests\/tiger-synapse-intent-db\.test\.cjs/);
   assert.match(workflow, /tests\/tiger-synapse-intent-reviewed-migration-hash\.test\.cjs/);
+  assert.match(workflow, /tests\/tiger-synapse-intent-reviewed-migration-hash\.test\.cjs/);
   assert.match(workflow, /tests\/sql\/tiger-synapse-intent\.sql/);
   assert.match(workflow, /scripts\/social\/text-contract\.js/);
   assert.match(workflow, /scripts\/social\/runtime-adapters\.js/);
