@@ -1,14 +1,25 @@
 # VVIP TIGER FUSION 2026 — CURRENT PRODUCT AUTHORITY
 
-**Status:** CURRENT OWNER-OPERATIONAL REFERENCE AFTER F00 RECONCILIATION
+**Status:** CURRENT OWNER-OPERATIONAL FOUNDATION UNDER SOCIAL CORE / AFTER F00 RECONCILIATION
 
 ## Highest current reference
 
 `docs/superpowers/specs/2026-08-13-vvip-tiger-fusion-2026-owner-constitution-FINAL.md`
 
-Product identity: `GLOBAL_FIRST`
+Market posture: `GLOBAL_FIRST`
+
+Primary product identity: `SOCIAL_NETWORK_FIRST`
 
 Execution order: `F00 -> F16`
+
+## Current domain authorities
+
+- Product identity and Social Core: `docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md`.
+- Social Core implementation architecture: `docs/superpowers/specs/2026-08-18-tiger-social-core-golden-architecture-design.md`.
+- Monetization and paid verified visibility: `docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md`.
+- Pulse Ring engineering design: `docs/superpowers/specs/2026-08-18-tiger-pulse-ring-attention-allocation-engine-design.md`.
+
+FUSION remains a compatible global platform and Marketplace foundation. It must not re-promote Marketplace as the whole-product identity or override the newer Social Core and Pulse Ring domain authorities.
 
 ## Owner vision reference
 
@@ -24,19 +35,21 @@ The current binding rule for the marketplace relationship is:
 
 `docs/fusion/OWNER_RULE_ADVERTISING_CONNECTION_ONLY_2026.md`
 
-VVIP TIGER is an advertising, discovery, and direct-contact platform. It reduces the distance between seller and buyer and between service provider and beneficiary. The platform is not a party to the parties' subsequent transaction or service relationship after contact.
+Within Marketplace and service-discovery journeys, VVIP TIGER is an advertising, discovery, presentation, and direct-contact platform. It reduces the distance between seller and buyer and between service provider and beneficiary. The parties then communicate, agree, pay, deliver, and perform directly on their own responsibility.
 
-No checkout, escrow, delivery/shipping operation, transaction settlement/commission, warranty/compensation execution, or platform-run buyer/seller or provider/beneficiary dispute-resolution workflow may be introduced as an assumed product feature. A future change that makes VVIP TIGER a transaction intermediary requires a new explicit OWNER decision and separate legal/product approval.
+VVIP TIGER is not a broker, agent, representative, intermediary, guarantor, or transaction counterparty. No checkout, escrow or funds custody, delivery/shipping operation, marketplace payment, transaction settlement/commission/payout, counterparty or outcome guarantee, warranty/compensation execution, or platform-run buyer/seller or provider/beneficiary dispute-resolution workflow may be introduced as an assumed product feature. A future change that makes VVIP TIGER a transaction intermediary requires a new explicit OWNER decision and separate legal/product approval.
 
 This boundary does not remove responsibilities for operating VVIP TIGER itself, including platform security, account/advertising controls, moderation/abuse controls, technical operations, billing for VVIP TIGER advertising services, and legally required compliance.
 
 ## Financial scope after Owner advertising-only decision
 
-F06 — Global Money Fabric is limited to money owned by the operation of VVIP TIGER itself, including advertising-package pricing, country/currency presentation, taxes or fees legally applicable to VVIP TIGER's own advertising services, platform advertising billing, platform accounting, and reconciliation of those platform-owned advertising receipts.
+F06 — Global Money Fabric is limited to money owned by the operation of VVIP TIGER itself, including approved Pulse/advertising-service pricing, country/currency presentation, taxes or fees legally applicable to VVIP TIGER's own advertising services, platform advertising billing, platform accounting, and reconciliation of those platform-owned advertising receipts. Ordinary compliant publishing remains free under the current Pulse Ring authority.
 
 F06 must not become a checkout, escrow, payout, refund, settlement, transaction-commission, delivery-payment, buyer/seller money-transfer, or provider/beneficiary transaction system for the advertised marketplace relationship.
 
 Older financial designs may be reused only where their controls are compatible with this narrowed platform-owned advertising-billing scope. Their marketplace transaction-intermediary behavior is not current authority.
+
+Any allocation, commission, refund, chargeback, payout, or Sales DNA design that cannot prove its input is a VVIP TIGER-owned advertising-service charge — and not the advertised parties' transaction — is outside current authority and must fail closed.
 
 ## Legacy status
 
@@ -100,13 +113,19 @@ Global-launch eligibility requires both:
 
 A lower proven capacity may support only a limited-capacity launch claim. It cannot set `GLOBAL_LAUNCH_ELIGIBLE = TRUE`.
 
-## F07 owner reference
+## F07 / Pulse Ring authority
 
-TIGER Pulse is formally inside the owner-operational roadmap:
+Current owner authority:
+
+`docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md`
+
+Current engineering design:
+
+`docs/superpowers/specs/2026-08-18-tiger-pulse-ring-attention-allocation-engine-design.md`
+
+The earlier F07 campaign presentation references remain compatible implementation foundations only; they are not the current pricing, publishing, or monetization authority:
 
 `docs/fusion/OWNER_REFERENCE_F07_TIGER_PULSE.md`
-
-Detailed engineering specification:
 
 `docs/superpowers/specs/2026-08-13-f07-tiger-pulse-hero-dynamic-ad-ribbon-design.md`
 

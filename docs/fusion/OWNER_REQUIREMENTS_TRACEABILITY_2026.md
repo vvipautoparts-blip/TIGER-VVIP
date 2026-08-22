@@ -33,6 +33,12 @@ No silent deletion, no silent replacement, no hidden scope reduction.
 - Verification: authority/current-reference tests.
 - Status: APPROVED.
 
+### REQ-A001B — SOCIAL_NETWORK_FIRST
+- Requirement: `GLOBAL_FIRST` describes market reach; the primary product identity is `SOCIAL_NETWORK_FIRST`, with Marketplace and Pulse as modules inside the same product.
+- Phase: F00/F02.
+- Verification: authority manifest validator + Social Core authority tests.
+- Status: APPROVED.
+
 ### REQ-A002 — SINGLE_SURFACE
 - Requirement: one product surface for user/employee/partner/owner; no separate final admin skin.
 - Phase: F02/F03.
@@ -55,6 +61,12 @@ No silent deletion, no silent replacement, no hidden scope reduction.
 - Requirement: unapproved blue login screen must not be introduced; recover/use the previously owner-approved login visual.
 - Phase: F00/F02.
 - Verification: design-token separation + visual approval evidence.
+- Status: APPROVED.
+
+### REQ-A006 — ADVERTISING_CONNECTION_ONLY
+- Requirement: Marketplace and service-discovery journeys only advertise, present, discover, reduce distance, and enable direct contact. The parties transact directly. VVIP TIGER is not a broker, agent, representative, intermediary, guarantor, funds custodian, settlement party, or marketplace commission recipient.
+- Phase: F00/F06/F07.
+- Verification: machine authority boundary validator + financial-scope tests.
 - Status: APPROVED.
 
 ---
@@ -88,6 +100,12 @@ No silent deletion, no silent replacement, no hidden scope reduction.
 ### REQ-B005 — NO_UNIVERSAL_120_DAY_LIFE
 - Listing lifecycle is policy-driven; only Synthetic Showcase has explicit 90-day life.
 - Phase: F00/F08.
+- Status: APPROVED.
+
+### REQ-B006 — FREE_SOCIAL_AND_MARKETPLACE_PUBLISHING
+- Requirement: ordinary compliant Social posts and Marketplace listings publish without a paid posting subscription or quota; paid Pulse is an optional platform-owned verified-visibility service, separate from publishing access.
+- Phase: F00/F02/F07.
+- Verification: Pulse authority tests + separate composer/runtime contracts.
 - Status: APPROVED.
 
 ---
@@ -186,7 +204,7 @@ No silent deletion, no silent replacement, no hidden scope reduction.
 ## G. Money / profitability
 
 ### REQ-G001 — GLOBAL_MONEY_FABRIC
-- Listing/display/billing/ledger currencies + FX snapshot separation.
+- Platform-owned Pulse/advertising-service display, billing, ledger currencies, and FX snapshot separation only; never the buyer/seller or provider/beneficiary transaction.
 - Phase: F06.
 - Status: APPROVED.
 
@@ -196,7 +214,7 @@ No silent deletion, no silent replacement, no hidden scope reduction.
 - Status: APPROVED.
 
 ### REQ-G003 — NO_KNOWN_NEGATIVE_MARGIN_SALE
-- Missing/unverified cost, FX, tax/fees, risk reserve, capacity, or margin blocks sale.
+- Missing/unverified cost, FX, tax/fees, risk reserve, capacity, or margin blocks a VVIP TIGER-owned Pulse/advertising-service sale. This requirement grants no authority over the advertised parties' transaction.
 - Phase: F06/F07.
 - Status: APPROVED.
 
@@ -264,9 +282,22 @@ No silent deletion, no silent replacement, no hidden scope reduction.
 - Status: APPROVED.
 
 ### REQ-I007 — CAMPAIGN_OWNER_REFERENCE
-- Canonical owner reference: `docs/fusion/OWNER_REFERENCE_F07_TIGER_PULSE.md`.
+- Current owner reference: `docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md`.
+- Current engineering design: `docs/superpowers/specs/2026-08-18-tiger-pulse-ring-attention-allocation-engine-design.md`.
+- Earlier `docs/fusion/OWNER_REFERENCE_F07_TIGER_PULSE.md` is a compatible campaign-presentation foundation only.
 - Phase: F00/F07.
 - Status: GREEN documentation.
+
+### REQ-I008 — PULSE_3_10_20_ONLY
+- Only 3/10/20 JOD Pulse purchases are current; no fourth tier, publishing subscription, paid quota, guaranteed first position, or guaranteed sale/contact.
+- Phase: F00/F07.
+- Status: APPROVED.
+
+### REQ-I009 — PULSE_PLATFORM_SERVICE_ONLY
+- Pulse billing and accounting apply only to VVIP TIGER's own verified-visibility/advertising service. No marketplace transaction amount, commission, payout, escrow, guarantee, or settlement may enter the Pulse or financial allocation path.
+- Phase: F00/F06/F07.
+- Verification: authority boundary validator + typed service-kind allowlist before any financial allocation.
+- Status: APPROVED.
 
 ---
 

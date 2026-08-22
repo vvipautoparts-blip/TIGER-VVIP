@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#f0f2f5">
-  <title>VVIP TIGER FUSION 2026</title>
+  <meta name="theme-color" content="#ffffff">
+  <title>VVIP TIGER Social 2026</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,6 +13,9 @@
   <link rel="stylesheet" href="styles/vvip-pr36-media.css">
   <link rel="stylesheet" href="styles/fusion/f02-single-surface.css">
   <link rel="stylesheet" href="styles/fusion/progressive-composer.css">
+  <link rel="stylesheet" href="styles/tiger-one/tokens.css">
+  <link rel="stylesheet" href="styles/tiger-one/type.css">
+  <link rel="stylesheet" href="styles/tiger-social/core-shell.css">
 
   <script defer crossorigin="anonymous" src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/ui@1/dist/ui.browser.js"></script>
   <script defer crossorigin="anonymous" data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk" src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"></script>
@@ -39,6 +42,14 @@
   <script defer src="scripts/fusion/progressive-composer.js"></script>
   <script defer src="scripts/fusion/account-surface.js"></script>
   <script defer src="scripts/fusion/single-surface-controller.js"></script>
+  <script defer src="scripts/social/runtime-adapters.js"></script>
+  <script defer src="scripts/social/feed-read-model.js"></script>
+  <script defer src="scripts/social/reactions-controller.js"></script>
+  <script defer src="scripts/social/comments-controller.js"></script>
+  <script defer src="scripts/social/feed-controller.js"></script>
+  <script defer src="scripts/social/post-composer.js"></script>
+  <script defer src="scripts/social/friends-controller.js"></script>
+  <script defer src="scripts/social/core-shell.js"></script>
 </head>
 <body data-vvip-fusion-app>
   <div class="network-notice" data-network-notice role="status" aria-live="polite" hidden></div>
@@ -47,100 +58,124 @@
     <div class="auth-gate__brand">
       <span class="brand-mark">VVIP</span>
       <h1>VVIP TIGER</h1>
-      <p>بوابتك الآمنة إلى المنصة الموحدة.</p>
+      <p>بوابتك الآمنة إلى المنصة الاجتماعية.</p>
     </div>
     <div class="auth-gate__card">
       <span class="eyebrow">SECURE ACCESS</span>
       <h2>سجّل الدخول للمتابعة</h2>
-      <p>تسجيل الدخول مطلوب فقط عند تنفيذ إجراء محمي.</p>
+      <p>تسجيل الدخول مطلوب للوصول إلى المنصة ومحتواها.</p>
       <p data-auth-error role="alert" hidden></p>
       <div id="clerk-main-auth"><div id="clerk-sign-in"></div></div>
     </div>
   </section>
 
-  <main class="app-shell" data-vvip-unified-home data-vvip-fusion-authoritative data-fusion-state="idle" aria-hidden="true" hidden>
-    <header class="app-header">
-      <a class="brand" href="index.html" data-safe-nav data-nav-target="index.html" aria-label="VVIP TIGER">
+  <main class="app-shell" data-vvip-unified-home data-vvip-fusion-authoritative data-tiger-one-surface data-tiger-social-app data-fusion-state="idle" aria-hidden="true" hidden>
+    <header class="app-header social-mobile-header" data-tiger-one-app-bar data-social-mobile-header>
+      <a class="brand social-mobile-brand" href="#home" data-social-nav="home" aria-current="page" aria-label="VVIP TIGER الرئيسية">
         <span class="brand-icon" aria-hidden="true">V</span>
-        <span><b>VVIP TIGER</b><small>FUSION 2026</small></span>
-        <span class="vvip-badge">VVIP</span>
+        <span class="social-mobile-brand__name">VVIP TIGER</span>
       </a>
-      <nav class="header-actions" aria-label="إجراءات الحساب">
-        <button class="fusion-icon-button" type="button" data-fusion-capability-menu aria-label="صلاحياتي وخيارات الحساب">⋮</button>
-        <button class="button button--quiet" type="button" data-fusion-account-trigger>حسابي</button>
-        <button class="button button--primary" type="button" data-fusion-composer-trigger>إنشاء إعلان</button>
+
+      <nav class="header-actions social-mobile-header__actions" aria-label="إجراءات سريعة">
+        <span class="social-circle-action social-circle-action--inactive" aria-hidden="true" style="cursor:default">⌕</span>
+        <button class="social-circle-action" type="button" data-social-nav="messages" aria-label="الرسائل">✉</button>
+        <button class="social-circle-action" type="button" data-fusion-capability-menu aria-label="القائمة">☰</button>
       </nav>
     </header>
 
-    <section class="fusion-discovery" id="search" aria-label="البحث والاستكشاف">
-      <label class="search-box" aria-label="البحث في VVIP TIGER">
-        <span aria-hidden="true">⌕</span>
-        <span class="visually-hidden">البحث في VVIP TIGER</span>
-        <input type="search" data-listing-search placeholder="ابحث عن منتج، خدمة، شركة، عقار أو سيارة..." autocomplete="off" aria-controls="marketplace-listings">
-      </label>
+    <nav class="social-primary-nav social-mobile-tabs" data-social-mobile-tabs aria-label="التنقل الاجتماعي الرئيسي">
+      <button class="social-nav-item" type="button" data-social-nav="home" aria-current="page" aria-label="الرئيسية"><span aria-hidden="true">⌂</span><span class="visually-hidden">الرئيسية</span></button>
+      <button class="social-nav-item" type="button" data-social-nav="friends" aria-label="الأصدقاء"><span aria-hidden="true">👥</span><span class="visually-hidden">الأصدقاء</span></button>
+      <span class="social-nav-item social-nav-item--inactive" aria-hidden="true" style="cursor:default"><span>▶</span><span class="visually-hidden">الفيديو</span></span>
+      <button class="social-nav-item" type="button" data-social-nav="marketplace" aria-label="السوق"><span aria-hidden="true">▣</span><span class="visually-hidden">السوق</span></button>
+      <button class="social-nav-item" type="button" data-social-nav="notifications" aria-label="الإشعارات"><span aria-hidden="true">🔔</span><span class="visually-hidden">الإشعارات</span></button>
+      <button class="social-nav-item" type="button" data-social-nav="profile" data-fusion-account-trigger aria-label="الملف الشخصي"><span aria-hidden="true">●</span><span class="visually-hidden">الملف الشخصي</span></button>
+    </nav>
+
+    <section data-tiger-one-pulse aria-label="مساحة الحملات الممولة" hidden></section>
+
+    <section class="tiger-social-home" data-tiger-social-feed aria-label="آخر الأخبار والمنشورات" aria-hidden="false">
+      <div class="social-post-composer" data-social-post-composer>
+        <span class="social-post-avatar" aria-hidden="true">V</span>
+        <button class="social-post-trigger" type="button" data-social-post-trigger aria-haspopup="dialog">بماذا تفكر؟</button>
+      </div>
+
+      <section class="social-story-strip" data-social-story-strip aria-label="القصص">
+        <article class="social-story-card social-story-card--create" aria-label="معاينة إنشاء قصة">
+          <span class="social-story-card__avatar" aria-hidden="true">V</span>
+          <span class="social-story-card__plus" aria-hidden="true">+</span>
+          <span>إنشاء قصة</span>
+        </article>
+        <article class="social-story-card" aria-label="قصة عضو VVIP TIGER"><span class="social-story-card__avatar" aria-hidden="true">T</span><span>عضو TIGER</span></article>
+        <article class="social-story-card" aria-label="قصة عضو VVIP TIGER"><span class="social-story-card__avatar" aria-hidden="true">V</span><span>VVIP</span></article>
+        <article class="social-story-card" aria-label="قصة عضو VVIP TIGER"><span class="social-story-card__avatar" aria-hidden="true">T</span><span>TIGER</span></article>
+      </section>
+
+      <section class="social-feed-items" data-social-feed-items aria-live="polite" aria-busy="true">
+        <p class="social-feed-state" data-social-feed-state="loading" role="status">جارٍ تحميل آخر الأخبار…</p>
+      </section>
     </section>
 
-    <section class="fusion-composer" data-fusion-composer aria-label="إنشاء إعلان">
-      <span class="fusion-composer__avatar" aria-hidden="true">V</span>
-      <button class="fusion-composer__trigger" type="button" data-fusion-composer-trigger>ماذا تريد أن تعرض؟</button>
+    <section class="tiger-social-home social-module-placeholder" data-social-module-placeholder="friends" data-social-friends aria-label="الأصدقاء" aria-hidden="true" hidden>
+      <header class="social-friends-heading">
+        <div><span class="eyebrow">VVIP TIGER SOCIAL</span><h2>الأصدقاء</h2></div>
+        <p>طلبات الصداقة والأصدقاء الحاليون في مكان واحد.</p>
+      </header>
+      <section class="social-friends-items" data-social-friends-items aria-live="polite" aria-busy="true">
+        <p class="social-friends-state" data-social-friends-state="loading" role="status">جارٍ تحميل الأصدقاء…</p>
+      </section>
     </section>
 
-    <section class="marketplace" id="marketplace" aria-labelledby="marketplace-title">
-      <div class="section-heading">
-        <div><span class="eyebrow">VVIP TIGER FUSION</span><h1 id="marketplace-title">المنشورات والإعلانات</h1></div>
-        <p data-results-count></p>
-      </div>
-      <div class="sector-filters" data-vvip-sector-filters role="group" aria-label="تصفية حسب القطاع"></div>
-      <div class="search-rescue" data-search-rescue role="status" aria-live="polite" hidden></div>
-      <div class="listing-grid" id="marketplace-listings" data-vvip-marketplace-feed aria-live="polite" aria-busy="true">
-        <article class="listing-skeleton" aria-hidden="true"></article>
-        <article class="listing-skeleton" aria-hidden="true"></article>
-      </div>
-      <div class="empty-state" data-empty-state role="status" hidden>
-        <p>لا توجد نتائج متاحة وفق السوق والسياسة الحالية.</p>
-      </div>
+    <section class="tiger-social-home social-module-placeholder" data-social-module-placeholder="messages" aria-label="الرسائل" aria-hidden="true" hidden>
+      <h2>الرسائل</h2>
+      <p>المحادثات ستظهر هنا بعد ربط طبقة الرسائل والصلاحيات في Slice مستقل.</p>
+    </section>
+
+    <section class="tiger-social-home social-module-placeholder" data-social-module-placeholder="notifications" aria-label="الإشعارات" aria-hidden="true" hidden>
+      <h2>الإشعارات</h2>
+      <p>الإشعارات الاجتماعية ستظهر هنا بعد ربط خدمة الأحداث والتسليم.</p>
+    </section>
+
+    <section data-social-marketplace-surface aria-label="السوق" aria-hidden="true" hidden>
+      <div class="marketplace-module-heading"><span class="eyebrow">VVIP TIGER MARKETPLACE</span><h2>السوق</h2></div>
+      <section class="fusion-discovery" id="search" aria-label="البحث والاستكشاف">
+        <label class="search-box" aria-label="البحث في سوق VVIP TIGER"><span aria-hidden="true">⌕</span><span class="visually-hidden">البحث في سوق VVIP TIGER</span><input type="search" data-listing-search placeholder="ابحث عن منتج، خدمة، شركة، عقار أو سيارة..." autocomplete="off" aria-controls="marketplace-listings"></label>
+      </section>
+      <section class="fusion-composer" data-fusion-composer aria-label="إنشاء إعلان"><span class="fusion-composer__avatar" aria-hidden="true">V</span><button class="fusion-composer__trigger" type="button" data-marketplace-listing-trigger data-fusion-composer-trigger>ماذا تريد أن تعرض في السوق؟</button></section>
+      <section class="marketplace" id="marketplace" aria-labelledby="marketplace-title">
+        <div class="section-heading"><div><span class="eyebrow">VVIP TIGER MARKETPLACE</span><h1 id="marketplace-title">المنشورات والإعلانات التجارية</h1></div><p data-results-count></p></div>
+        <div class="sector-filters" data-tiger-one-context-rail data-vvip-sector-filters role="group" aria-label="تصفية حسب القطاع"></div>
+        <div class="search-rescue" data-search-rescue role="status" aria-live="polite" hidden></div>
+        <div class="listing-grid" id="marketplace-listings" data-vvip-marketplace-feed aria-live="polite" aria-busy="true"><article class="listing-skeleton" aria-hidden="true"></article><article class="listing-skeleton" aria-hidden="true"></article></div>
+        <div class="empty-state" data-empty-state role="status" hidden><p>لا توجد نتائج متاحة وفق السوق والسياسة الحالية.</p></div>
+      </section>
     </section>
   </main>
 
   <nav class="market-bottom-nav" aria-label="التنقل الرئيسي">
-    <a href="index.html" data-safe-nav data-nav-target="index.html" aria-current="page">الرئيسية</a>
-    <a href="#marketplace" data-safe-nav data-nav-target="#marketplace">السوق</a>
-    <button type="button" data-fusion-composer-trigger>إعلان</button>
-    <button type="button" data-fusion-account-trigger>حسابي</button>
+    <a href="#home" data-social-nav="home" aria-current="page">الرئيسية</a>
+    <button type="button" data-social-nav="friends">الأصدقاء</button>
+    <button type="button" data-social-nav="marketplace">السوق</button>
+    <button type="button" data-social-nav="messages">الرسائل</button>
+    <button type="button" data-social-nav="notifications">الإشعارات</button>
   </nav>
 
-  <div class="sheet-layer" data-vvip-listing-detail-sheet aria-hidden="true" hidden>
-    <button class="sheet-backdrop" type="button" data-sheet-close aria-label="إغلاق التفاصيل"></button>
-    <section class="detail-sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" tabindex="-1">
-      <button class="sheet-close" type="button" data-sheet-close aria-label="إغلاق">×</button>
-      <div data-sheet-content></div>
-    </section>
-  </div>
+  <div class="sheet-layer" data-vvip-listing-detail-sheet aria-hidden="true" hidden><button class="sheet-backdrop" type="button" data-sheet-close aria-label="إغلاق التفاصيل"></button><section class="detail-sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" tabindex="-1"><button class="sheet-close" type="button" data-sheet-close aria-label="إغلاق">×</button><div data-sheet-content></div></section></div>
 
-  <div class="fusion-capability-layer" data-fusion-capability-sheet aria-hidden="true" hidden>
-    <button class="fusion-capability-backdrop" type="button" data-fusion-capability-close aria-label="إغلاق قائمة الصلاحيات"></button>
-    <section class="fusion-capability-panel" role="dialog" aria-modal="true" aria-labelledby="fusion-capability-title" tabindex="-1">
-      <h2 id="fusion-capability-title">صلاحياتي</h2>
-      <p>تظهر هنا الصلاحيات التي أكدها الخادم لهذه الجلسة فقط.</p>
-      <div data-fusion-capability-entries></div>
-    </section>
-  </div>
+  <div class="fusion-capability-layer" data-fusion-capability-sheet aria-hidden="true" hidden><button class="fusion-capability-backdrop" type="button" data-fusion-capability-close aria-label="إغلاق قائمة الصلاحيات"></button><section class="fusion-capability-panel" role="dialog" aria-modal="true" aria-labelledby="fusion-capability-title" tabindex="-1"><h2 id="fusion-capability-title">صلاحياتي</h2><p>تظهر هنا الصلاحيات التي أكدها الخادم لهذه الجلسة فقط.</p><div data-fusion-capability-entries></div></section></div>
 
-  <div class="fusion-capability-layer" data-fusion-account-sheet aria-hidden="true" hidden>
-    <button class="fusion-capability-backdrop" type="button" data-fusion-account-close aria-label="إغلاق الحساب"></button>
-    <section class="fusion-capability-panel fusion-account-panel" role="dialog" aria-modal="true" aria-labelledby="fusion-account-title" tabindex="-1">
-      <header class="fusion-account-heading">
-        <div><span class="eyebrow">VVIP TIGER</span><h2 id="fusion-account-title">الحساب والإعدادات</h2></div>
-        <button class="fusion-icon-button" type="button" data-fusion-account-close aria-label="إغلاق">×</button>
-      </header>
-      <section data-fusion-profile-host aria-labelledby="fusion-profile-title">
-        <h3 id="fusion-profile-title">الحساب</h3>
-        <div data-fusion-account-identity role="status">يتم تحميل بيانات الجلسة الآمنة عند فتح الحساب.</div>
-      </section>
-      <section data-fusion-settings-host aria-labelledby="fusion-settings-title">
-        <h3 id="fusion-settings-title">الإعدادات</h3>
-        <div data-fusion-account-actions></div>
-      </section>
+  <div class="fusion-capability-layer" data-fusion-account-sheet aria-hidden="true" hidden><button class="fusion-capability-backdrop" type="button" data-fusion-account-close aria-label="إغلاق الحساب"></button><section class="fusion-capability-panel fusion-account-panel" role="dialog" aria-modal="true" aria-labelledby="fusion-account-title" tabindex="-1"><header class="fusion-account-heading"><div><span class="eyebrow">VVIP TIGER</span><h2 id="fusion-account-title">الحساب والإعدادات</h2></div><button class="fusion-icon-button" type="button" data-fusion-account-close aria-label="إغلاق">×</button></header><section data-fusion-profile-host aria-labelledby="fusion-profile-title"><h3 id="fusion-profile-title">الحساب</h3><div data-fusion-account-identity role="status">يتم تحميل بيانات الجلسة الآمنة عند فتح الحساب.</div></section><section data-fusion-settings-host aria-labelledby="fusion-settings-title"><h3 id="fusion-settings-title">الإعدادات</h3><div data-fusion-account-actions></div></section></section></div>
+
+  <div class="fusion-capability-layer" data-social-post-sheet aria-hidden="true" hidden>
+    <button class="fusion-capability-backdrop" type="button" data-social-post-close aria-label="إغلاق إنشاء المنشور"></button>
+    <section class="fusion-capability-panel" role="dialog" aria-modal="true" aria-labelledby="social-post-title" tabindex="-1">
+      <header class="fusion-account-heading"><div><span class="eyebrow">VVIP TIGER SOCIAL</span><h2 id="social-post-title">إنشاء منشور</h2></div><button class="fusion-icon-button" type="button" data-social-post-close aria-label="إغلاق">×</button></header>
+      <label for="social-post-draft">محتوى المنشور</label>
+      <textarea id="social-post-draft" data-social-post-draft rows="6" maxlength="5000" placeholder="اكتب ما تريد مشاركته..."></textarea>
+      <label for="social-post-audience">الجمهور</label>
+      <select id="social-post-audience" data-social-post-audience><option value="public">عام</option><option value="friends" selected>الأصدقاء</option><option value="only_me">أنا فقط</option></select>
+      <p data-social-post-status role="status" aria-live="polite"></p>
+      <button class="button button--primary" type="button" data-social-post-submit disabled>نشر</button>
     </section>
   </div>
 

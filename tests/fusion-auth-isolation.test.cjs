@@ -20,11 +20,12 @@ test('FUSION shell keeps the existing Clerk gate and isolated marketplace stylin
   assert.doesNotMatch(fusionCss, /#clerk-sign-in/);
 });
 
-test('auth runtime delegates public-home presentation to FUSION without transferring auth authority', () => {
+test('auth runtime delegates signed-in home presentation to FUSION without anonymous auth bypasses', () => {
   assert.match(auth, /VVIPFusionSurface/);
   assert.match(auth, /showHome/);
   assert.match(auth, /requireAuth/);
-  assert.match(auth, /continueWithoutSignIn/);
+  assert.doesNotMatch(auth, /continueWithoutSignIn/);
+  assert.doesNotMatch(auth, /localPreviewAllowed/);
 });
 
 test('FUSION presentation controller cannot become a parallel Clerk authority', () => {

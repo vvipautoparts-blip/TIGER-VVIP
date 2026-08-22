@@ -1,6 +1,6 @@
 # TIGER PULSE RING 2026 — Verified Attention Allocation Engine
 
-**Status:** OWNER-APPROVED DIRECTION — WRITTEN SPEC FOR OWNER REVIEW  
+**Status:** OWNER APPROVED / CURRENT DESIGN INPUT / NOT IMPLEMENTED  
 **Date:** 2026-08-18  
 **Branch:** `feat/tiger-one-living-surface-spec-20260818`  
 **Owner authority:** `docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md`  
