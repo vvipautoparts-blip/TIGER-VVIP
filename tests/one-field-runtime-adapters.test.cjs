@@ -44,6 +44,7 @@ test('marketplace adapter strips private identifiers and preserves direct contac
   assert.equal(rows[0].contact.value, '+962700000000');
   assert.equal(rows[0].sponsored, false);
   assert.equal(rows[0].facts.sector, 'trade-supply');
+  assert.equal(rows[0].facts.noAddedSugar, true);
   assert.equal(JSON.stringify(rows[0]).includes('user_private_subject'), false);
   assert.equal(JSON.stringify(rows[0]).includes('DO_NOT_LEAK'), false);
   assert.equal(JSON.stringify(rows[0]).includes('paid_boost'), false);
@@ -63,6 +64,7 @@ test('marketplace adapter does not require a legacy sector to discover by natura
   assert.deepEqual(received, { search: 'شيء جديد لا يطابق اسم قطاع ثابت', limit: 60 });
   assert.equal(rows[0].id, 'freeform-1');
   assert.equal(rows[0].facts.sector, null);
+  assert.equal(rows[0].facts.noAddedSugar, null);
 });
 
 test('social people adapter reuses reviewed search API and emits only public projection fields', async () => {
@@ -119,7 +121,7 @@ test('social post adapter projects visible post search results without private a
             Object.freeze({
               post_id: 'post_1',
               author_display_name: 'عضو متاح',
-              body: 'لدينا منتجات مناسبة للأطفال',
+              body: 'لدينا كورن فليكس للأطفال بدون سكر',
               author_subject: 'user_PRIVATE_AUTHOR'
             })
           ]),
@@ -138,8 +140,24 @@ test('social post adapter projects visible post search results without private a
   assert.equal(rows[0].source, 'social_posts');
   assert.equal(rows[0].kind, 'post');
   assert.equal(rows[0].label, 'عضو متاح');
-  assert.equal(rows[0].summary, 'لدينا منتجات مناسبة للأطفال');
+  assert.equal(rows[0].summary, 'لدينا كورن فليكس للأطفال بدون سكر');
+  assert.equal(rows[0].facts.noAddedSugar, true);
   assert.equal(JSON.stringify(rows[0]).includes('user_PRIVATE_AUTHOR'), false);
+});
+
+test('sugar fact extraction is explicit-evidence-only and never guesses', async () => {
+  const marketplace = createMarketplaceCandidateAdapter({
+    listPublic: async () => [
+      Object.freeze({ listing_id: 'plain-1', title: 'حبوب إفطار للأطفال', summary: 'طعم لطيف' }),
+      Object.freeze({ listing_id: 'sugar-1', title: 'حبوب إفطار محلاة', summary: 'تحتوي على سكر' }),
+      Object.freeze({ listing_id: 'free-1', title: 'حبوب إفطار', summary: 'خالي من السكر' })
+    ]
+  });
+
+  const rows = await marketplace.discover({ intent: Object.freeze({ text: 'حبوب إفطار للأطفال' }) });
+  assert.equal(rows[0].facts.noAddedSugar, null);
+  assert.equal(rows[1].facts.noAddedSugar, false);
+  assert.equal(rows[2].facts.noAddedSugar, true);
 });
 
 test('social search failure is reduced to a bounded adapter error', async () => {
