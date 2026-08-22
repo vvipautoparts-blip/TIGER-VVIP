@@ -110,6 +110,8 @@ end;
 $proof$;
 \echo INTENT_REVISION_CONFLICT=PASS
 
+select set_config('test.intent_id', :'intent_id', true);
+
 reset role;
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"user_bob"}', true);
@@ -119,7 +121,7 @@ declare
   v_rejected boolean := false;
 begin
   begin
-    perform public.vvip_synapse_intent_transition(:'intent_id'::uuid, 'CANCELLED', 1, true);
+    perform public.vvip_synapse_intent_transition(current_setting('test.intent_id')::uuid, 'CANCELLED', 1, true);
   exception when others then
     if sqlerrm = 'INTENT_NOT_FOUND' then
       v_rejected := true;
