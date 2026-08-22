@@ -14,7 +14,7 @@ Platform-owned finance remains allowed only for TIGER's own advertising, ad cred
 
 ## Precedence
 
-When a historical document, implementation note, test fixture, migration, event name, API contract, or runtime path conflicts with Issue #312, Issue #312 controls. A conflicting historical `OWNER APPROVED` label does not override this registry or Issue #312.
+When a historical document, implementation note, test fixture, migration, event name, API contract, machine-readable owner decision, or runtime path conflicts with Issue #312, Issue #312 controls. A conflicting historical `OWNER APPROVED` label does not override this registry or Issue #312.
 
 All existing sectors and non-conflicting platform capabilities remain preserved. New sectors/views are additive through shared contracts and must not replace or fork the existing platform core.
 
@@ -26,12 +26,17 @@ All existing sectors and non-conflicting platform capabilities remain preserved.
 | `docs/payments/TIGERPAY_TP00_CONSTITUTION.md` | `SUPERSEDED` wherever it could authorize buyer/seller/provider payment, escrow, payout, settlement, or deal execution for advertised goods/services | Financial architecture may survive only inside the platform-owned advertising/services scope above and remains subject to separate security/legal/country-policy gates. |
 | `docs/superpowers/plans/2026-08-07-tigerpay-tp00-tp01-implementation-plan.md` | Split scope: `KEEP_PLATFORM_FINANCE` only for reusable validation, normalization, idempotency, provider-event, accounting/evidence primitives when they serve platform-owned advertising/services; `SUPERSEDED` for external-deal payment/payout execution | The plan is not authority to create an advertised-goods order, bind payment to order/listing context, execute buyer/seller/provider settlement, or revive transaction-value commissions. Any future implementation must be re-scoped under Issue #312 before code is added. |
 | `docs/superpowers/specs/2026-08-07-tigerpay-vault-3-sovereign-treasury-design.md` | Split scope: `KEEP_PLATFORM_FINANCE` for platform treasury, accounting, reconciliation, risk, evidence and licensed-provider orchestration solely for platform-owned advertising/services; `SUPERSEDED` / `REDESIGN_DISCOVERY_ONLY` for external commerce execution | Merchant-flow, order/listing context, hosted checkout, buyer/seller/provider payment or payout, Action Escrow, settlement, or fulfillment semantics tied to advertised goods/services cannot drive active implementation. Discovery must stop at contact handoff. |
+| `project-control/owner/VVIP_TIGER_OWNER_DECISIONS_2026-08-12.json` | Split machine-readable authority: top-level `OWNER_APPROVED` remains active for non-conflicting security, identity, UX and release controls; its commission subtree is `HISTORICAL_EVIDENCE_ONLY` / `SUPERSEDED`; protected purchase is `KEEP_PLATFORM_FINANCE` only for platform-owned advertising/services | Historical basis points and redistribution values remain audit evidence only and have no runtime authority for transaction-value commission. Canonical identity protection remains required for allowed platform-owned purchases, while external user-to-user/user-to-provider purchase execution is superseded by Issue #312. |
 
 ## TigerPay split-scope rule
 
 TigerPay terminology is not sufficient to authorize a financial flow. Every future TigerPay feature must identify the economic principal and revenue source before implementation. If the flow charges for TIGER advertising, ad credits/packages, or another explicitly approved platform-owned service, it may enter `KEEP_PLATFORM_FINANCE` subject to normal security, legal, tax, country-policy and provider gates. If the flow transfers value between a buyer, seller, service provider, beneficiary, merchant, or other external deal party for an advertised good/service, the flow is `SUPERSEDED` for execution and must terminate as `REDESIGN_DISCOVERY_ONLY` at contact handoff.
 
 Generic historical terms such as `payment`, `payout`, `order`, `listing`, `merchant`, `hosted checkout`, `settlement`, or `Action Escrow` never override this economic-scope test.
+
+## Machine-readable authority rule
+
+A machine-readable file may retain a broad owner-authority label for unrelated active controls while containing locally superseded historical fields. Every such conflicting subtree must carry its own explicit authority/status/current-effect markers. Numeric commission history may remain for audit reconstruction, but no consumer may infer runtime permission from the presence of historical values alone.
 
 ## Implementation rule
 
