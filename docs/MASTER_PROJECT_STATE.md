@@ -5,37 +5,39 @@
 > أي وثيقة أخرى أو تقرير أو Ledger أو محادثة أو Archive هو **Evidence فقط** ولا يملك سلطة تغيير هذه الوثيقة أو الـruntime.
 > مدخل المالك الدائم للعودة إلى هذه الحقيقة هو `docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md`، وهو فهرس توجيهي لا سلطة موازية.
 
-## 0. مؤشر التنفيذ الحالي على فرع Social Core
+## 0. مؤشر التنفيذ الحالي — Final Release Closure
 
-- **العمل الحالي:** PR #271 على الفرع `feat/tiger-one-living-surface-impl-20260818`، فوق فرع المواصفة وليس فوق `main` مباشرة.
-- **S1 exact implementation checkpoint:** `794de87b2055b9dddf8dfbdbc366d83ba122b1b0`؛ شجرتها `cae245647b50e2cc9c88fc08427cf560add16219`؛ `VVIP Quality Gate #2096 = PASS` و`TIGER Social DB Rehearsal #497 = PASS` على نفس الـSHA؛ LC03 #760 وLC04 #555 وLC05 #528 وLC06 #526 = PASS.
-- **حالة S1 الحالية:** `VERIFIED` على checkpoint أعلاه؛ `main` وProduction لم يتغيرا.
-- **S2 exact implementation checkpoint:** `cf78f57721c008e866160ee2c55b883d7daabb59`؛ شجرتها `c826496c3e5be9c1b64c6c97230ccb559654613e`؛ `VVIP Quality Gate #2098 = PASS` و`TIGER Social DB Rehearsal #499 = PASS` على نفس الـSHA؛ LC03 #762 وLC04 #557 وLC05 #530 وLC06 #528 = PASS.
-- **حالة S2 الحالية:** `VERIFIED` على checkpoint أعلاه؛ `main` وProduction لم يتغيرا.
-- **V0 exact implementation checkpoint:** `4bc6252bbc217b4a65a0bdd54c8756b4b5a4ffee`؛ شجرتها `d42f0a8176d368e6de8e873dd795356108da7942`؛ `VVIP Quality Gate #2071 = PASS` و`TIGER Social DB Rehearsal #465 = PASS` على نفس الـSHA.
-- **حالة S0 الحالية:** `VERIFIED` على checkpoint أعلاه؛ `main` وProduction لم يتغيرا.
-- **حالة S0 (دالة fail-closed):** تكون `VERIFIED` **إذا وفقط إذا** نجح كل من `VVIP Quality Gate` و`TIGER Social DB Rehearsal` على رأس PR الحالي نفسه وشجرته نفسها؛ وفي غير ذلك تكون `IN_PROGRESS` أو `BLOCKED`. رأس PR الحالي وشجرته وقرار الحالة يُستمدّون حصراً من GitHub exact-head CI attestations خارج هذه الوثيقة، ولا يُستنتج `VERIFIED` من هذه الوثيقة أو من SHA تاريخي.
+- **العمل الحالي:** PR #320 على الفرع `feat/final-release-closure-20260822`، فوق مسار ONE FIELD/Social convergence، وليس فوق `main` أو Production مباشرة.
+- **السلطة الدستورية الحالية:** `docs/architecture/OWNER_AUTHORITY_REGISTRY.md` + قرارات المالك الحالية؛ وأي PR أو SHA تاريخي هو Evidence فقط ولا يملك حق إحياء منطق متعارض.
+- **حد المنصة الملزم:** `DISCOVERY → RELEVANCE → EXPLANATION → CONTACT HANDOFF → TIGER STOPS`.
+- **النموذج الثلاثي الملزم:** `SHARE = DISTRIBUTE`، و`••• = CONTROL`، و`CONTACT = HANDOFF → TIGER STOPS`.
+- **قاعدة Capability → UI:** أي إجراء غير منفذ بعقد runtime/authorization/policy حقيقي لا يظهر كزر حي أو disabled أو coming-soon؛ غياب القدرة يعني غياب الزر.
+- **قاعدة المال:** مالية TIGER الحالية تخص الإعلان/أرصدة وحملات الإعلان والخدمات المملوكة للمنصة فقط، ولا تعتمد على حدوث صفقة خارجية أو نجاحها أو قيمتها.
+- **حظر الصفقة الخارجية:** لا تفاوض أو اتفاق أو Order/Checkout أو تحصيل قيمة الصفقة أو Escrow أو Fulfillment أو Shipping أو Settlement أو ضمان أو عمولة على قيمة الصفقة أو Success Fee.
+- **S1 exact implementation checkpoint التاريخي:** `794de87b2055b9dddf8dfbdbc366d83ba122b1b0`؛ شجرتها `cae245647b50e2cc9c88fc08427cf560add16219`؛ `VVIP Quality Gate #2096 = PASS` و`TIGER Social DB Rehearsal #497 = PASS` على نفس الـSHA؛ LC03 #760 وLC04 #555 وLC05 #528 وLC06 #526 = PASS.
+- **حالة S1 التاريخية:** `VERIFIED` على checkpoint أعلاه؛ لا يمثل الرأس الحالي، و`main` وProduction لم يتغيرا بسببه.
+- **S2 exact implementation checkpoint التاريخي:** `cf78f57721c008e866160ee2c55b883d7daabb59`؛ شجرتها `c826496c3e5be9c1b64c6c97230ccb559654613e`؛ `VVIP Quality Gate #2098 = PASS` و`TIGER Social DB Rehearsal #499 = PASS` على نفس الـSHA؛ LC03 #762 وLC04 #557 وLC05 #530 وLC06 #528 = PASS.
+- **حالة S2 التاريخية:** `VERIFIED` على checkpoint أعلاه؛ لا يمثل الرأس الحالي، و`main` وProduction لم يتغيرا بسببه.
+- **V0 exact implementation checkpoint التاريخي:** `4bc6252bbc217b4a65a0bdd54c8756b4b5a4ffee`؛ شجرتها `d42f0a8176d368e6de8e873dd795356108da7942`؛ `VVIP Quality Gate #2071 = PASS` و`TIGER Social DB Rehearsal #465 = PASS` على نفس الـSHA.
+- **حالة S0 التاريخية:** `VERIFIED` على checkpoint أعلاه؛ لا يمثل الرأس الحالي، و`main` وProduction لم يتغيرا بسببه.
+- **حالة الرأس الحالي (دالة fail-closed):** تكون `VERIFIED` **إذا وفقط إذا** نجحت الأدلة المطلوبة على رأس PR الحالي نفسه وشجرته نفسها؛ وفي غير ذلك تكون `IN_PROGRESS` أو `BLOCKED`. رأس PR الحالي وشجرته وقرار الحالة يُستمدّون حصراً من GitHub exact-head CI attestations خارج هذه الوثيقة، ولا يُستنتج `VERIFIED` من هذه الوثيقة أو من SHA تاريخي.
 - **نقطة دليل تنفيذ Social Core من Task 7:** `9f2dce40b352f67d80c81b60515442c860c58048`؛ **شجرتها:** `85ca87aa64714b3cac3a73ac0beefeb7e9df26fd`. هذه نقطة evidence تاريخية وليست رأس PR الحالي ولا قرار التحقق النهائي للوثائق.
-- **دليل الاختبارات المركزة للتعليقات/الردود:** `109/109 PASS`، بلا fail أو skipped أو todo.
+- **دليل الاختبارات المركزة للتعليقات/الردود التاريخي:** `109/109 PASS`، بلا fail أو skipped أو todo.
 - **TIGER Social DB Rehearsal التاريخي:** `PASS` على نقطة Task 7 نفسها (التشغيل البعيد #103).
 - **VVIP Quality Gate التاريخي:** `PASS` على نقطة Task 7 نفسها (التشغيل البعيد #1474)؛ والتحقق المحلي المعزول الكامل `VVIP_QUALITY_GATE=PASS`. لا يغني أيٌّ من ذلك عن attestations الرأس الحالي.
-- **هوية المنتج الحالية:** `SOCIAL_NETWORK_FIRST` مع انتشار سوقي `GLOBAL_FIRST`؛ Marketplace وPulse وحدتان داخل المنتج.
-- **سلطة المنتج الحالية:** `docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md`.
-- **سلطة الإعلان المدفوع الحالية:** `docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md`؛ النشر العادي المتوافق مجاني.
-- **حالة فرع Sales DNA المنفصل:** تمت مراجعته ولم يُدمج في PR #271. صياغته العامة لكل "عملية بيع" ونقص قيد خدمة الإعلان التي تملكها TIGER يتعارضان مع دور المنصة، كما أن Quality Gate لذلك الفرع ليس أخضر؛ يبقى خارج `CURRENT` حتى إعادة تصميمه لخدمات إعلان TIGER فقط وإغلاق فجوات النزاهة والاختبارات.
-- **الواجهة الحالية:** TIGER Social Home مع Header مضغوط، تبويبات اجتماعية، Composer، عرض Stories، ومنشورات وتفاعلات اجتماعية مألوفة مع هوية TIGER مستقلة.
-- **الرؤية الابتكارية المعتمدة:** **TIGER SYNAPSE v2** — Temporal Intent Operating System يوحّد النية اللحظية، المطابقة القابلة للتفسير، إثبات الحاضر، الكشف المتبادل، والتواصل المباشر داخل Living Surface واحدة.
+- **هوية المنتج الحالية:** `SOCIAL_NETWORK_FIRST` مع انتشار سوقي `GLOBAL_FIRST`؛ Marketplace وPulse وحدتان داخل المنتج، وMarketplace سطح اكتشاف/اتصال لا محرك صفقة.
+- **سلطة المنتج الحالية:** `docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md` ضمن precedence الأحدث في `OWNER_AUTHORITY_REGISTRY.md`.
+- **سلطة الإعلان المدفوع الحالية:** `docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md`؛ النشر العادي المتوافق مجاني، وتمويل الإعلان منفصل عن قيمة/نتيجة أي صفقة خارجية.
+- **Sales DNA التاريخي:** أي صياغة عامة تربط TIGER بقيمة "عملية بيع" أو عمولة نتيجة صفقة خارجية هي `HISTORICAL_EVIDENCE_ONLY`/`SUPERSEDED` ولا تملك Runtime Authority. أي مفهوم مالي حالي يجب أن يقتصر على خدمات الإعلان والمنصة المملوكة لـTIGER.
+- **الواجهة الحالية:** TIGER Social Home مع Header مضغوط، تبويبات اجتماعية، Composer، ومنشورات وتفاعلات اجتماعية مألوفة مع هوية TIGER مستقلة؛ الميزات غير المنفذة لا تقدم كأزرار وهمية.
+- **الرؤية الابتكارية المعتمدة:** **TIGER SYNAPSE v2** — Temporal Intent Operating System يوحّد النية اللحظية، المطابقة القابلة للتفسير، إثبات الحاضر، الكشف المتبادل، والتواصل المباشر داخل Living Surface واحدة، مع بقاء Contact Handoff حدًا نهائيًا لدور TIGER في الصفقات الخارجية.
 - **نسيج السلطة والإثبات المعتمد:** **TIGER VERITY FABRIC** — Authority Graph + Hermetic Build Core + Release DNA/Proof Root + Typed P01–P20 Evidence + Fresh Runtime Witnesses.
-- **مرجع SYNAPSE الحالي:** `docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md`.
-- **حالة SYNAPSE:** `APPROVED / S2 VERIFIED / S3+ NOT IMPLEMENTED`؛ Intent Foundation وDeterministic Match Fabric صارا مؤكدين عبر lifecycle وprivacy modes وexpiry وRPC/RLS وpolicy-before-ranking وsignal decay وdiversity وgolden fixtures؛ تكامل Living Surface والتنفيذات اللاحقة ما زالت غير منفذة.
-- **حالة VERITY FABRIC:** `APPROVED / V0+S1+S2 VERIFIED / S3+ NOT IMPLEMENTED`؛ أصبح OWNER Authority Graph machine-enforced، وأضيفت طبقتا Intent Foundation وDeterministic Match Fabric بأدلتهما المستقلة؛ ما بعد S2 يحتاج أدلته المستقلة.
-- **قرار المالك المثبت:** اعتمد المالك النسخة المكتوبة لخيار C بتاريخ 2026-08-18؛ أصبحت SYNAPSE v2 + VERITY FABRIC سلطة `CURRENT_ONLY` في نطاقها، والتنفيذ المثبت حاليًا هو V0 Authority Graph وS1 Intent Foundation وS2 Deterministic Match Fabric.
-- **خطة البرنامج الحالية:** `docs/superpowers/plans/2026-08-18-tiger-synapse-v2-verity-fabric-program-execution.md`.
-- **V0 Owner Authority Graph:** `VERIFIED` — exactly one current authority per covered domain، graph digest deterministic، cycles/resurrection/missing paths fail closed، وAuthority records خارج Web Artifact.
-- **مؤشر التنفيذ الحالي / الشريحة التالية:** `S3 Living Surface integration` — Home intent entry وMatch Constellation وMarketplace rescue وsocial-to-intent عبر سلطة Intent واحدة.
+- **مرجع SYNAPSE الحالي:** `docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md` في نطاقه غير المتعارض مع قرارات المالك الأحدث.
+- **حالة SYNAPSE:** `APPROVED / PARTIALLY IMPLEMENTED` وفق الأدلة المنفذة؛ لا يجوز تحويل عناصر غير منفذة إلى UI أو ادعاء جاهزية.
+- **حالة VERITY FABRIC:** `APPROVED / PARTIALLY VERIFIED` وفق الأدلة المطابقة للـexact SHA؛ ما لم يثبت على الرأس الحالي يبقى غير مكتمل.
 - **قاعدة المالك النهائية:** أحدث قرار `CURRENT_ONLY` يلغي سلطة كل قديم متعارض ويخرجه من المنصة الحالية والحزمة العامة ومسارات التنفيذ؛ الأثر الضروري يبقى `HISTORICAL_ONLY` خارج المنصة بلا أي سلطة.
 - **سلطة المعاينة:** لا يُعتمد أي فيديو أو رابط نشر تاريخي أو رابط Pages سابق بوصفه معاينة لهذا العمل.
-- **شرط الرابط الصحيح:** Preview مستقل مبني من exact head الخاص بـPR #271، يعمل على الهاتف، ولا يغيّر `main` أو Production.
+- **شرط الرابط الصحيح:** Preview مستقل مبني من exact head الخاص بفرع/PR الحالي (حاليًا PR #320)، يعمل على الهاتف، ولا يغيّر `main` أو Production.
 - **الحقيقة السلبية:** عدم وجود رابط Preview صحيح أفضل من نشر رابط قديم أو غير مطابق؛ لا يجوز اختلاق الجاهزية أو إعادة استخدام رابط متقاعد.
 
 ## 1. هوية المشروع والسلطة
@@ -44,6 +46,7 @@
 - **المستودع:** `vvipautoparts-blip/TIGER-VVIP`.
 - **مدخل المالك الدائم:** `docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md`.
 - **مرجع المالك البشري:** `docs/MASTER_PROJECT_STATE.md` فقط.
+- **سجل السلطة الحاكم:** `docs/architecture/OWNER_AUTHORITY_REGISTRY.md`.
 - **العقد الآلي المطابق:** `project-control/production-handover/current-authority.v1.json`.
 - **وضع المرجعية:** `CURRENT_ONLY`.
 - **التاريخ والأرشيف:** أدلة غير تنفيذية وغير مخولة باتخاذ قرار تشغيل.
@@ -51,11 +54,23 @@
 
 ## 2. وظيفة المنصة وحدودها
 
-VVIP TIGER شبكة اجتماعية عالمية تتضمن وحدات للإعلان والاكتشاف والربط المباشر. في Marketplace والخدمات، دور المنصة هو عرض الإعلانات والبحث واكتشاف العروض وتقريب البائع من المشتري ومقدم الخدمة من المستفيد، ثم إتاحة التواصل المباشر بين الأطراف.
+VVIP TIGER شبكة اجتماعية عالمية للإعلان والاكتشاف والربط المباشر. وظيفتها الأساسية هي **تقريب المسافة فقط** بين نية المستخدم والجهة أو الشخص أو المحتوى أو الإعلان أو المنتج المدرج أو مقدم الخدمة المناسب.
 
-يتواصل الأطراف ويتفقون ويتعاملون مباشرة وعلى مسؤوليتهم. المنصة ليست وسيطًا أو سمسارًا أو وكيلًا أو ممثلًا أو كفيلًا أو ضامنًا أو حافظةً للأموال أو طرفًا في الصفقة، ولا تتولى الاتفاق أو السعر أو دفع الصفقة أو تسويتها أو عمولتها أو التوصيل أو الشحن أو التسليم أو نقل الملكية أو الضمان أو تنفيذ الخدمة أو النزاعات أو التعويض.
+المسار الدستوري الملزم هو:
 
-مصدر الدخل التشغيلي المعتمد حاليًا هو خدمات الإعلان والظهور التي تملكها TIGER نفسها، ومنها Pulse وفق سلطة 3/10/20 JOD. لا يدخل مبلغ صفقة البائع والمشتري أو مقدم الخدمة والمستفيد في نظام TIGER المالي. بنية الأسواق والتسجيل عالمية وليست مرتبطة بدولة واحدة.
+`DISCOVERY → RELEVANCE → EXPLANATION → CONTACT HANDOFF → TIGER STOPS`
+
+يتواصل الأطراف بعد الـHandoff ويتفقون ويتعاملون مباشرة وعلى مسؤوليتهم. المنصة ليست وسيطًا أو سمسارًا أو وكيلًا أو ممثلًا أو كفيلًا أو ضامنًا أو حافظةً للأموال أو طرفًا في الصفقة، ولا تتولى التفاوض أو الاتفاق أو السعر أو Order/Checkout أو دفع قيمة الصفقة أو Escrow أو Settlement أو Fulfillment أو التوصيل أو الشحن أو التسليم أو نقل الملكية أو الضمان أو تنفيذ الخدمة أو النزاعات أو التعويض.
+
+لا توجد عمولة على قيمة الصفقة الخارجية ولا Success Fee ولا إيراد مشروط بحدوثها أو نجاحها. مصدر الدخل التشغيلي المعتمد هو خدمات الإعلان والظهور وأرصدة/حملات الإعلان والخدمات المملوكة لـTIGER نفسها فقط. لا يدخل مبلغ صفقة البائع والمشتري أو مقدم الخدمة والمستفيد في نظام TIGER المالي. بنية الأسواق والتسجيل عالمية وليست مرتبطة بدولة واحدة.
+
+النموذج الثلاثي لواجهة التفاعل:
+
+- `SHARE = DISTRIBUTE` — توزيع المحتوى فقط وفق capability/policy حقيقية.
+- `••• = CONTROL` — تحكم سياقي بالمحتوى وتفضيلات الاكتشاف، لا مسار صفقة.
+- `CONTACT = HANDOFF → TIGER STOPS` — تسليم قناة التواصل ثم انتهاء دور TIGER.
+
+قاعدة الواجهة: `Capability → Authorization/Policy → Runtime Availability → UI`. لا Capability حقيقية = لا زر.
 
 ## 3. الـStack التقني المعتمد
 
@@ -261,10 +276,9 @@ AWS لا يستقبل نسخًا يدوية من ملفات المستودع. ا
 ## 16. Git وPR Governance
 
 - `main` لا يستقبل تغييرات مباشرة تتجاوز الحوكمة.
-- PR #261 يمثل طبقة sovereign runtime authority convergence الحالية في الـstack.
-- PR #262 يمثل طبقة Zero-Residue Production Handover التابعة لها.
-- #262 لا يندمج مباشرة إلى `main`؛ يحافظ على ترتيب الـstack.
-- PR #271 يمثل طبقة Social Core الحالية في stack مستقل؛ لا يُقاس بفيديو أو رابط نشر سابق ولا يُقدّم كجاهز قبل GREEN exact-head evidence.
+- PR #261 وPR #262 وPR #271 تمثل طبقات/نقاط تنفيذ تاريخية في تطور الـstack؛ لا تُستخدم أي منها كسلطة current لمجرد رقمها أو نجاح تاريخي سابق.
+- **PR #320** هو مسار الإغلاق/convergence الحالي على `feat/final-release-closure-20260822`، مع بقاء exact-head evidence هو الحَكم وليس رقم PR ذاته.
+- لا يندمج مسار متعارض مثل PR #313 wholesale؛ أي مادة مفيدة منه يعاد تقييمها وانتقاؤها فقط إذا كانت متوافقة مع سلطة المالك الحالية واختبارات fail-closed.
 - branch/tag deletion لا يحدث لمجرد العمر أو الاسم؛ يحتاج merged/stale proof وعدم وجود PR/runtime/release dependency.
 - لا يسمح auto-push أو background Git mutation غير خاضع للمراجعة.
 
@@ -272,7 +286,7 @@ AWS لا يستقبل نسخًا يدوية من ملفات المستودع. ا
 
 **الحالة:** `PRE-PRODUCTION / ZERO-RESIDUE HANDOVER IN PROGRESS`.
 
-**Global Launch Ready:** `NO` حتى تملك P01–P20 أدلة مكتملة ومطابقة للـexact release SHA/artifact، وتنجح AWS runtime verification الفعلية.
+**Global Launch Ready:** `NO` حتى تملك P01–P20 أدلة مكتملة ومطابقة للـexact release SHA/artifact، وتنجح protected staging وProduction runtime verification الفعلية، إضافةً إلى أدلة rollback/DR/observability/device/legal المطلوبة.
 
 هذه العبارة Fail-Closed: لا يحولها أي وصف بشري إلى `YES`. التحويل يعتمد على الأدلة التنفيذية فقط.
 
@@ -280,6 +294,6 @@ AWS لا يستقبل نسخًا يدوية من ملفات المستودع. ا
 
 أي مهندس أو Agent أو مزود يستلم المشروع يعمل بهذا الترتيب فقط:
 
-`RESOLVE CURRENT REFS -> READ THIS FILE -> READ MACHINE CONTRACT -> VERIFY EXACT SHA/TREE -> RUN REQUIRED GATES -> CHANGE ONE AUTHORITY PATH -> VERIFY -> PRODUCE EVIDENCE -> UPDATE THIS CURRENT REFERENCE ONLY WHEN THE CURRENT CONTRACT CHANGES`
+`RESOLVE CURRENT REFS -> READ THIS FILE -> READ OWNER_AUTHORITY_REGISTRY -> READ MACHINE CONTRACT -> VERIFY EXACT SHA/TREE -> RUN REQUIRED GATES -> CHANGE ONE AUTHORITY PATH -> VERIFY -> PRODUCE EVIDENCE -> UPDATE THIS CURRENT REFERENCE ONLY WHEN THE CURRENT CONTRACT CHANGES`
 
-لا تُنشأ وثيقة حالة منافسة. لا يُعاد اعتماد مسار تشغيل موازٍ. لا تستخدم وثائق Evidence لتجاوز source code أو CI أو live-provider evidence.
+لا تُنشأ وثيقة حالة منافسة. لا يُعاد اعتماد مسار تشغيل موازٍ. لا تستخدم وثائق Evidence لتجاوز source code أو CI أو live-provider evidence. وكل منطق خارجي للصفقات يتوقف عند `CONTACT HANDOFF → TIGER STOPS`.
