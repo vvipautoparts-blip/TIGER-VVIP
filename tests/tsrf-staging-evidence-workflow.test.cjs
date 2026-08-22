@@ -11,11 +11,12 @@ function workflowText() {
   return fs.readFileSync(WORKFLOW_PATH, 'utf8');
 }
 
-test('staging evidence workflow is manual, read-only, and checks out exact requested SHA', () => {
+test('staging evidence workflow is manual, least-privilege, and checks out exact requested SHA', () => {
   const workflow = workflowText();
   assert.match(workflow, /workflow_dispatch:/);
   assert.match(workflow, /source_sha:/);
-  assert.match(workflow, /permissions:\s*\n\s*contents:\s*read/);
+  assert.match(workflow, /proof_artifact_id:/);
+  assert.match(workflow, /permissions:[\s\S]*?actions:\s*read[\s\S]*?contents:\s*read/);
   assert.match(workflow, /uses:\s*actions\/checkout@b4ffde65f46336ab88eb53be808477a3936bae11/);
   assert.match(workflow, /ref:\s*\$\{\{\s*inputs\.source_sha\s*\}\}/);
   assert.match(workflow, /fetch-depth:\s*0/);
@@ -24,7 +25,7 @@ test('staging evidence workflow is manual, read-only, and checks out exact reque
   assert.match(workflow, /HEAD_MISMATCH/);
 });
 
-test('workflow derives runner identity and model configuration only from trusted GitHub context', () => {
+test('workflow derives runner identity, model configuration, and producer authority only from trusted GitHub context', () => {
   const workflow = workflowText();
   assert.match(workflow, /github\.run_id/);
   assert.match(workflow, /runner\.os/);
@@ -34,7 +35,9 @@ test('workflow derives runner identity and model configuration only from trusted
   assert.match(workflow, /vars\.TIGER_AI_PROMPT_VERSION/);
   assert.match(workflow, /vars\.TIGER_AI_MAX_OUTPUT_TOKENS/);
   assert.match(workflow, /vars\.TIGER_IDENTITY_VERIFIER_URL/);
+  assert.match(workflow, /vars\.TSRF_STAGING_PROOF_PRODUCER_WORKFLOW_ID/);
   assert.match(workflow, /BLOCKED_STAGING_IDENTITY_UNPROVEN/);
+  assert.match(workflow, /BLOCKED_STAGING_PRODUCER_UNPROVEN/);
 
   const inputBlock = workflow.match(/workflow_dispatch:[\s\S]*?permissions:/)?.[0] || '';
   for (const forbidden of [
@@ -46,9 +49,28 @@ test('workflow derives runner identity and model configuration only from trusted
     'prompt_version',
     'max_output_tokens',
     'provider_endpoint',
+    'producer_workflow_id',
   ]) {
     assert.doesNotMatch(inputBlock, new RegExp(`\\b${forbidden}\\s*:`));
   }
+});
+
+test('workflow retrieves proof bytes only from an exact-SHA successful allowlisted producer run', () => {
+  const workflow = workflowText();
+  assert.match(workflow, /Download trusted same-SHA Staging proof artifact/);
+  assert.match(workflow, /inputs\.proof_artifact_id/);
+  assert.match(workflow, /actions\/artifacts\/\$?\{?PROOF_ARTIFACT_ID\}?/);
+  assert.match(workflow, /actions\/runs\/\$?\{?producer_run_id\}?/);
+  assert.match(workflow, /tsrf-staging-source-proof-\$\{?SOURCE_SHA\}?/);
+  assert.match(workflow, /artifact\.workflow_run\.head_sha/);
+  assert.match(workflow, /producerRun\.head_sha/);
+  assert.match(workflow, /producerRun\.workflow_id/);
+  assert.match(workflow, /producerRun\.status\s*!==\s*['"]completed['"]/);
+  assert.match(workflow, /producerRun\.conclusion\s*!==\s*['"]success['"]/);
+  assert.match(workflow, /BLOCKED_STAGING_PRODUCER_UNPROVEN/);
+  assert.match(workflow, /unzip\s+-Z1/);
+  assert.match(workflow, /proof-input\.json/);
+  assert.match(workflow, /source-proof\.json/);
 });
 
 test('workflow writes evidence only under runner temp and binds artifact name to exact source SHA', () => {
