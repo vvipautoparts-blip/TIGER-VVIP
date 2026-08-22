@@ -4,6 +4,12 @@
   "mode": "CURRENT_ONLY",
   "human_authority": "docs/MASTER_PROJECT_STATE.md",
   "machine_contract": "project-control/production-handover/current-authority.v1.json",
+  "owner_authority_graph": {
+    "registry": "project-control/authority/authority-registry.v1.json",
+    "record_schema": "project-control/schemas/authority-record.schema.json",
+    "validator": "project-control/scripts/validate_authority_graph.mjs",
+    "fail_closed": true
+  },
   "historical_evidence_authoritative": false,
   "baseline_sha": "1c39076c15e351de601f822275e556caeef43a34",
   "stack": {
