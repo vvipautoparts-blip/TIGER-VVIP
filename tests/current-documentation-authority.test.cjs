@@ -42,3 +42,12 @@ test("legacy test credentials are explicitly non-operative and must not be provi
     assert.match(text, /historical git|git history|commit history/i);
   }
 });
+
+test("README cannot present historical deployment evidence as current Production truth", () => {
+  const readme = read("README.md");
+  assert.match(readme, /docs\/MASTER_PROJECT_STATE\.md/);
+  assert.match(readme, /Production runtime status.*separate|Production.*fresh exact-SHA|historical.*Production/i);
+  assert.match(readme, /platform-owned advertising|contact handoff|Issue #312/i);
+  assert.doesNotMatch(readme, /## Production state\s*\n\s*The current Production Web source is/i);
+  assert.doesNotMatch(readme, /semantically remediated in the deployed Production resolver/i);
+});
