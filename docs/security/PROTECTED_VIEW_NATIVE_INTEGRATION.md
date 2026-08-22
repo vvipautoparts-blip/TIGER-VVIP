@@ -1,7 +1,7 @@
 # Protected View Native Integration
 
-**Status:** implementation guidance for platform adapters.  
-**Scope:** OWNER, FINANCIAL and DISCLOSURE protected surfaces.  
+**Status:** implementation guidance for platform adapters.
+**Scope:** OWNER, FINANCIAL and DISCLOSURE protected surfaces.
 **Authority:** the JavaScript policy returns a decision and adapter requirements; it does not pretend a web page can invoke operating-system security primitives by itself.
 
 ## Core rule
