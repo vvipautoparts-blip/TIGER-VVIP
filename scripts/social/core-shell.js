@@ -152,7 +152,8 @@
     const button = document.createElement('button');
     button.className = 'social-circle-action';
     button.type = 'button';
-    button.dataset.socialNav = 'search';
+    const data = button.dataset;
+    data.socialNav = 'search';
     button.setAttribute('aria-label', 'البحث');
     button.textContent = '⌕';
     inert.replaceWith(button);
