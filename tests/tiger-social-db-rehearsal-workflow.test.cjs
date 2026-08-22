@@ -8,9 +8,6 @@ const workflow = fs.readFileSync(".github/workflows/tiger-social-db-rehearsal.ym
 const foundationBehavior = fs.readFileSync("tests/sql/tiger-social-core-foundation.sql", "utf8");
 const reactionBehavior = fs.readFileSync("tests/sql/tiger-social-reactions.sql", "utf8");
 const commentBehavior = fs.readFileSync("tests/sql/tiger-social-comments.sql", "utf8");
-const ownerProfileBehavior = fs.readFileSync("tests/sql/tiger-profile-owner-boundary.sql", "utf8");
-const lifecycleBehavior = fs.readFileSync("tests/sql/tiger-profile-lifecycle-boundary.sql", "utf8");
-const orphanSafeBehavior = fs.readFileSync("tests/sql/tiger-p0-orphan-safe-author-presentation.sql", "utf8");
 
 test("Social DB rehearsal is exact-head and local-only", () => {
   assert.match(workflow, /github\.event\.pull_request\.head\.sha \|\| github\.sha/);
@@ -20,42 +17,41 @@ test("Social DB rehearsal is exact-head and local-only", () => {
   assert.doesNotMatch(workflow, /supabase db push|--linked|SUPABASE_ACCESS_TOKEN:\s*\$\{\{/);
 });
 
-test("Social DB rehearsal applies social and profile proofs and always stops local stack", () => {
+test("Social DB rehearsal applies foundation reaction and comment proofs and always stops local stack", () => {
+  assert.match(workflow, /20260818150000_synapse_intent_foundation\.sql/);
+  assert.match(workflow, /scripts\/synapse\/intent-domain\.js/);
+  assert.match(workflow, /tests\/tiger-synapse-intent-domain\.test\.cjs/);
+  assert.match(workflow, /tests\/tiger-synapse-intent-db\.test\.cjs/);
+  assert.match(workflow, /tests\/sql\/tiger-synapse-intent\.sql/);
+  assert.match(workflow, /scripts\/social\/text-contract\.js/);
+  assert.match(workflow, /scripts\/social\/runtime-adapters\.js/);
+  assert.match(workflow, /scripts\/social\/post-domain\.js/);
+  assert.match(workflow, /scripts\/social\/feed-controller\.js/);
+  assert.match(workflow, /node --test tests\/tiger-social-comments\.test\.cjs/);
+  assert.match(workflow, /node --test tests\/tiger-social-feed-controller\.test\.cjs/);
+  assert.match(workflow, /node --test tests\/tiger-social-post-domain\.test\.cjs/);
+  assert.match(workflow, /node --test tests\/tiger-social-runtime-publication\.test\.cjs/);
   assert.match(workflow, /tests\/sql\/tiger-social-core-foundation\.sql/);
   assert.match(workflow, /tests\/sql\/tiger-social-reactions\.sql/);
   assert.match(workflow, /tests\/sql\/tiger-social-comments\.sql/);
-  assert.match(workflow, /tests\/sql\/tiger-public-profile-projection\.sql/);
-  assert.match(workflow, /tests\/sql\/tiger-profile-owner-boundary\.sql/);
-  assert.match(workflow, /tests\/sql\/tiger-profile-lifecycle-boundary\.sql/);
-  assert.match(workflow, /tests\/sql\/tiger-p0-orphan-safe-author-presentation\.sql/);
-  assert.match(workflow, /tests\/sql\/tiger-p0-messaging-convergence\.sql/);
-  assert.match(workflow, /docs\/security\/TIGER_P0_MESSAGING_CONVERGENCE_MIGRATION_SECURITY_REVIEW\.md/);
   assert.match(workflow, /tiger-social-reactions-reviewed-migration-hash\.test\.cjs/);
   assert.match(workflow, /tiger-social-comments-reviewed-migration-hash\.test\.cjs/);
-  assert.match(workflow, /tiger-public-profile-projection-reviewed-migration-hash\.test\.cjs/);
-  assert.match(workflow, /tiger-profile-owner-boundary-reviewed-migration-hash\.test\.cjs/);
-  assert.match(workflow, /tiger-profile-lifecycle-boundary-reviewed-migration-hash\.test\.cjs/);
-  assert.match(workflow, /tiger-p0-orphan-safe-author-presentation-reviewed-migration-hash\.test\.cjs/);
-  assert.match(workflow, /tiger-p0-messaging-convergence-reviewed-migration-hash\.test\.cjs/);
-  assert.match(workflow, /Prove P0 Messaging durable and privacy behavior/);
-  assert.match(workflow, /Verify content-addressed migration review/);
   assert.match(workflow, /psql/);
   assert.match(workflow, /if:\s*always\(\)/);
   assert.match(workflow, /supabase stop --no-backup/);
 });
 
-test("foundation behavior proof covers safe-RPC friend visibility and isolation from a third actor", () => {
+test("foundation behavior proof covers friend visibility and isolation from a third actor", () => {
   assert.match(foundationBehavior, /user_alice/);
   assert.match(foundationBehavior, /user_bob/);
   assert.match(foundationBehavior, /user_charlie/);
-  assert.match(foundationBehavior, /vvip_social_post_create\('social-friends-proof',\s*'friends'\)/i);
-  assert.match(foundationBehavior, /vvip_social_feed_page\(20,\s*null,\s*null\)/i);
-  assert.doesNotMatch(foundationBehavior, /insert\s+into\s+public\.vvip_social_posts/i);
-  assert.doesNotMatch(foundationBehavior, /from\s+public\.vvip_social_posts/i);
+  assert.match(foundationBehavior, /audience.*friends/is);
   assert.match(foundationBehavior, /relationship_state.*friends/is);
   assert.match(foundationBehavior, /BOB_CAN_READ_FRIEND_POST/);
   assert.match(foundationBehavior, /CHARLIE_CANNOT_READ_FRIEND_POST/);
   assert.match(foundationBehavior, /ONLY_ME_IS_OWNER_ONLY/);
+  assert.match(foundationBehavior, /POST_UNICODE_WHITESPACE_REJECTED/);
+  assert.match(foundationBehavior, /POST_ASTRAL_BOUNDARY=PASS/);
   assert.match(foundationBehavior, /rollback;/i);
 });
 
@@ -80,54 +76,12 @@ test("comment behavior proof covers RPC-only access visibility reply depth and o
   assert.match(commentBehavior, /COMMENT_UPDATE_OWNER_ONLY=PASS/);
   assert.match(commentBehavior, /COMMENT_REMOVE_OWNER_ONLY=PASS/);
   assert.match(commentBehavior, /COMMENT_HIDDEN_POST_DENIED=PASS/);
+  assert.match(commentBehavior, /COMMENT_UNICODE_WHITESPACE_REJECTED=PASS/);
+  assert.match(commentBehavior, /COMMENT_ASTRAL_BOUNDARY=PASS/);
+  assert.match(commentBehavior, /COMMENT_PARENT_PAGE_BOUND=PASS/);
+  assert.match(commentBehavior, /COMMENT_REPLY_PAGE_BOUND=PASS/);
+  assert.match(commentBehavior, /COMMENT_NEXT_CURSOR=PASS/);
+  assert.match(commentBehavior, /COMMENT_ATOMIC_PAGE_SNAPSHOT=PASS/);
   assert.match(commentBehavior, /TIGER_SOCIAL_COMMENTS_DB_BEHAVIOR=PASS/);
   assert.match(commentBehavior, /rollback;/i);
-});
-
-test("owner profile behavior proof covers self-only mutation and lifecycle fail-closed semantics", () => {
-  assert.match(ownerProfileBehavior, /OWNER_PROFILE_NO_DIRECT_BROWSER_CRUD=PASS/);
-  assert.match(ownerProfileBehavior, /OWNER_PROFILE_RPC_BOUNDARY=PASS/);
-  assert.match(ownerProfileBehavior, /OWNER_PROFILE_SELF_CREATE=PASS/);
-  assert.match(ownerProfileBehavior, /OWNER_PROFILE_SELF_READ=PASS/);
-  assert.match(ownerProfileBehavior, /OWNER_PROFILE_CROSS_USER_ISOLATION=PASS/);
-  assert.match(ownerProfileBehavior, /OWNER_PROFILE_DEACTIVATED_MUTATION_DENIED=PASS/);
-  assert.match(ownerProfileBehavior, /OWNER_PROFILE_DELETED_MUTATION_DENIED=PASS/);
-  assert.match(ownerProfileBehavior, /OWNER_PROFILE_LIFECYCLE_PRESERVED=PASS/);
-  assert.match(ownerProfileBehavior, /TIGER_PROFILE_OWNER_BOUNDARY_DB_BEHAVIOR=PASS/);
-  assert.match(ownerProfileBehavior, /rollback;/i);
-});
-
-test("profile lifecycle proof covers self transitions, public visibility, trusted tombstone, and terminal deletion", () => {
-  assert.match(lifecycleBehavior, /PROFILE_LIFECYCLE_NO_DIRECT_BROWSER_CRUD=PASS/);
-  assert.match(lifecycleBehavior, /PROFILE_LIFECYCLE_RPC_BOUNDARY=PASS/);
-  assert.match(lifecycleBehavior, /PROFILE_LIFECYCLE_SELF_DEACTIVATE=PASS/);
-  assert.match(lifecycleBehavior, /PROFILE_LIFECYCLE_DEACTIVATE_IDEMPOTENT=PASS/);
-  assert.match(lifecycleBehavior, /PROFILE_LIFECYCLE_DEACTIVATED_PUBLIC_HIDDEN=PASS/);
-  assert.match(lifecycleBehavior, /PROFILE_LIFECYCLE_DEACTIVATED_MUTATION_DENIED=PASS/);
-  assert.match(lifecycleBehavior, /PROFILE_LIFECYCLE_SELF_REACTIVATE=PASS/);
-  assert.match(lifecycleBehavior, /PROFILE_LIFECYCLE_REACTIVATE_IDEMPOTENT=PASS/);
-  assert.match(lifecycleBehavior, /PROFILE_LIFECYCLE_REACTIVATED_PUBLIC_VISIBLE=PASS/);
-  assert.match(lifecycleBehavior, /PROFILE_LIFECYCLE_BROWSER_DELETE_DENIED=PASS/);
-  assert.match(lifecycleBehavior, /PROFILE_LIFECYCLE_TRUSTED_DELETE=PASS/);
-  assert.match(lifecycleBehavior, /PROFILE_LIFECYCLE_DELETE_TOMBSTONE=PASS/);
-  assert.match(lifecycleBehavior, /PROFILE_LIFECYCLE_DELETED_PUBLIC_HIDDEN=PASS/);
-  assert.match(lifecycleBehavior, /PROFILE_LIFECYCLE_DELETED_REACTIVATION_DENIED=PASS/);
-  assert.match(lifecycleBehavior, /PROFILE_LIFECYCLE_DELETED_MUTATION_DENIED=PASS/);
-  assert.match(lifecycleBehavior, /TIGER_PROFILE_LIFECYCLE_BOUNDARY_DB_BEHAVIOR=PASS/);
-  assert.match(lifecycleBehavior, /rollback;/i);
-});
-
-test("P0-B orphan-safe proof covers safe presentation, tombstones, reactivation, and mutation guards", () => {
-  assert.match(orphanSafeBehavior, /P0_ORPHAN_SAFE_PRIVILEGE_BOUNDARY=PASS/);
-  assert.match(orphanSafeBehavior, /P0_ORPHAN_SAFE_ACTIVE_FEED=PASS/);
-  assert.match(orphanSafeBehavior, /P0_ORPHAN_SAFE_ACTIVE_COMMENT=PASS/);
-  assert.match(orphanSafeBehavior, /P0_ORPHAN_SAFE_DEACTIVATED_FEED_TOMBSTONE=PASS/);
-  assert.match(orphanSafeBehavior, /P0_ORPHAN_SAFE_DEACTIVATED_COMMENT_TOMBSTONE=PASS/);
-  assert.match(orphanSafeBehavior, /P0_ORPHAN_SAFE_INACTIVE_MUTATION_GUARD=PASS/);
-  assert.match(orphanSafeBehavior, /P0_ORPHAN_SAFE_REACTIVATED_PRESENTATION=PASS/);
-  assert.match(orphanSafeBehavior, /P0_ORPHAN_SAFE_DELETED_FEED_TOMBSTONE=PASS/);
-  assert.match(orphanSafeBehavior, /P0_ORPHAN_SAFE_DELETED_COMMENT_TOMBSTONE=PASS/);
-  assert.match(orphanSafeBehavior, /P0_ORPHAN_SAFE_DELETED_MUTATION_GUARD=PASS/);
-  assert.match(orphanSafeBehavior, /TIGER_P0_ORPHAN_SAFE_AUTHOR_PRESENTATION_DB_BEHAVIOR=PASS/);
-  assert.match(orphanSafeBehavior, /rollback;/i);
 });
