@@ -1,7 +1,10 @@
 {
   "decision_id": "COMMISSION-ROLE-POLICY-2026-08-11",
   "effective_at": "2026-08-11",
-  "authority": "OWNER_APPROVED_PLATFORM_POLICY",
+  "authority": "HISTORICAL_EVIDENCE_ONLY",
+  "status": "SUPERSEDED",
+  "superseded_by": "ISSUE_312_PRIVATE_DISCOVERY_RENDEZVOUS",
+  "current_effect": "NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION",
   "scope": {
     "all_current_sectors": true,
     "all_future_sectors": true,
@@ -44,6 +47,7 @@
     ],
     "silent_rounding_loss_allowed": false
   },
+  "historical_evidence_note": "The numeric commission design is retained only for audit history. Issue #312 supersedes it for user-to-user and user-to-provider commerce, and runtime allocation is retired fail-closed.",
   "role_assignment_identity_binding": {
     "required_for_every_new_operational_role": true,
     "accepted_reference_types": [

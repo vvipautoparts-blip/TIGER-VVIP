@@ -190,8 +190,8 @@ for file in active_runtime:
         raise SystemExit(f"[smoke][fail] native browser dialog in active runtime: {file}")
 
 worker = Path("sw-vvip-static.js").read_text(encoding="utf-8")
-if 'CACHE_NAME = "vvip-static-v2"' not in worker:
-    raise SystemExit("[smoke][fail] current bounded static cache version is not v2")
+if 'CACHE_NAME = "vvip-static-v3"' not in worker:
+    raise SystemExit("[smoke][fail] current bounded static cache version is not v3")
 
 owner = Path("docs/owner-control/OWNER_BINDING_DECISIONS_2026-08-15.md").read_text(encoding="utf-8")
 for contract in ["FUSION 2026", "maximum 7 images", "CANCELLED", "OpenSooq-style search", "Latest-decision-wins", "GLOBAL_LAUNCH_ELIGIBLE = TRUE"]:

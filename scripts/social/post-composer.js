@@ -58,6 +58,8 @@
     const runtime = options && options.runtime;
     const auth = options && options.auth;
     const onPublished = options && options.onPublished;
+    const dualLaneCommit = options && options.dualLaneCommit;
+    const authorityProvider = options && options.authorityProvider;
 
     if (!draftInput || !audienceInput || !submitButton || !statusHost || !postSheet) {
       throw new TypeError("SOCIAL_POST_COMPOSER_SURFACE_REQUIRED");
@@ -67,6 +69,12 @@
     }
     if (!auth || typeof auth.requireAuth !== "function") {
       throw new TypeError("SOCIAL_POST_AUTH_REQUIRED");
+    }
+    if (dualLaneCommit && typeof dualLaneCommit.commit !== "function") {
+      throw new TypeError("ONE_FIELD_DUAL_LANE_COMMIT_INVALID");
+    }
+    if (dualLaneCommit && typeof authorityProvider !== "function") {
+      throw new TypeError("ONE_FIELD_AUTHORITY_PROVIDER_REQUIRED");
     }
 
     function setStatus(message, state) {
@@ -95,7 +103,15 @@
 
       let response;
       try {
-        response = await runtime.posts.create(draft);
+        if (dualLaneCommit) {
+          const authority = await authorityProvider();
+          const committed = await dualLaneCommit.commit({ draft, authority });
+          response = committed && committed.ok === true
+            ? frozen({ ok: true, value: committed.publication || null })
+            : committed;
+        } else {
+          response = await runtime.posts.create(draft);
+        }
       } catch (_) {
         response = null;
       }
@@ -198,14 +214,37 @@
       return renderInstallFailure(runtimeRoot);
     }
 
+    const runtime = runtimeApi.createCurrentSocialRuntime(runtimeRoot);
+    const oneField = runtimeRoot.TIGEROneFieldPostCommit;
+    const oneFieldBridge = runtimeRoot.TIGEROneFieldComposerBridge;
+    let dualLaneCommit = null;
+    let authorityProvider = null;
+
+    if (oneField && typeof oneField.createDualLanePostCommit === "function" && oneFieldBridge) {
+      if (
+        typeof oneFieldBridge.authorize === "function" &&
+        typeof oneFieldBridge.enrich === "function" &&
+        typeof oneFieldBridge.authority === "function"
+      ) {
+        dualLaneCommit = oneField.createDualLanePostCommit({
+          authorize: oneFieldBridge.authorize,
+          enrich: oneFieldBridge.enrich,
+          publish: function (draft) { return runtime.posts.create(draft); },
+        });
+        authorityProvider = oneFieldBridge.authority;
+      }
+    }
+
     const controller = createSocialPostComposer({
       draftInput,
       audienceInput,
       submitButton,
       statusHost,
       sheet: postSheet,
-      runtime: runtimeApi.createCurrentSocialRuntime(runtimeRoot),
+      runtime,
       auth,
+      dualLaneCommit,
+      authorityProvider,
       onPublished: async function () {
         const feed = runtimeRoot.TIGERSocialFeedController;
         if (feed && typeof feed.mountCurrentSocialFeed === "function") {

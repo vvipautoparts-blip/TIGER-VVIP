@@ -27,16 +27,25 @@
   ]);
   const RELATIONSHIP_SELECT = "relationship_id,requester_subject,addressee_subject,relationship_state,created_at,updated_at";
   const SOCIAL_RATE_LIMIT_RETRY_MS = 5000;
+  const SOCIAL_SEARCH_RATE_LIMIT_RETRY_MS = 30000;
+  const SOCIAL_SEARCH_DEFAULT_LIMIT = 20;
+  const SOCIAL_SEARCH_MAX_LIMIT = 50;
+  const SOCIAL_SEARCH_MAX_QUERY_LENGTH = 160;
+  const SOCIAL_SEARCH_MAX_RAW_QUERY_LENGTH = 512;
+  const ARABIC_DIACRITICS = /[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/gu;
+  const TATWEEL = /\u0640/gu;
+  const ARABIC_INDIC = "٠١٢٣٤٥٦٧٨٩";
+  const PERSIAN_DIGITS = "۰۱۲۳۴۵۶۷۸۹";
 
   function frozenFailure(code) {
     return Object.freeze({ ok: false, code });
   }
 
-  function frozenRateLimitFailure() {
+  function frozenRateLimitFailure(retryAfterMs = SOCIAL_RATE_LIMIT_RETRY_MS) {
     return Object.freeze({
       ok: false,
       code: "SOCIAL_RATE_LIMITED",
-      retryAfterMs: SOCIAL_RATE_LIMIT_RETRY_MS,
+      retryAfterMs,
     });
   }
 
@@ -131,6 +140,64 @@
     return { ok: true, value: cursor };
   }
 
+  function normalizeSearchDigits(value) {
+    return value.replace(/[٠-٩۰-۹]/gu, (digit) => {
+      const arabicIndex = ARABIC_INDIC.indexOf(digit);
+      if (arabicIndex >= 0) return String(arabicIndex);
+      return String(PERSIAN_DIGITS.indexOf(digit));
+    });
+  }
+
+  function normalizeSearchArabicLetters(value) {
+    return value
+      .replace(/[إأآٱ]/gu, "ا")
+      .replace(/ى/gu, "ي")
+      .replace(/ؤ/gu, "و")
+      .replace(/ئ/gu, "ي");
+  }
+
+  function normalizeSocialSearchQuery(input) {
+    if (typeof input !== "string" || input.length > SOCIAL_SEARCH_MAX_RAW_QUERY_LENGTH) {
+      return { ok: false, code: "SOCIAL_INVALID_SEARCH_QUERY" };
+    }
+
+    const value = normalizeSearchArabicLetters(
+      normalizeSearchDigits(
+        input.normalize("NFKC").replace(TATWEEL, "").replace(ARABIC_DIACRITICS, "")
+      )
+    )
+      .toLocaleLowerCase("en-US")
+      .replace(/[^\p{L}\p{N}]+/gu, " ")
+      .trim()
+      .replace(/\s+/gu, " ");
+
+    if (value.length < 2 || value.length > SOCIAL_SEARCH_MAX_QUERY_LENGTH) {
+      return { ok: false, code: "SOCIAL_INVALID_SEARCH_QUERY" };
+    }
+
+    return { ok: true, value };
+  }
+
+  function normalizeSearchOptions(options) {
+    const safe = options && typeof options === "object" && !Array.isArray(options) ? options : {};
+    const limit = Object.hasOwn(safe, "limit") ? safe.limit : SOCIAL_SEARCH_DEFAULT_LIMIT;
+    if (!Number.isInteger(limit) || limit < 1 || limit > SOCIAL_SEARCH_MAX_LIMIT) {
+      return { ok: false, code: "SOCIAL_INVALID_SEARCH_LIMIT" };
+    }
+
+    const cursor = Object.hasOwn(safe, "cursor") ? safe.cursor : null;
+    if (cursor !== null && cursor !== undefined) {
+      if (typeof cursor !== "string"
+          || cursor.length < 8
+          || cursor.length > 2048
+          || !/^[A-Za-z0-9_-]+$/.test(cursor)) {
+        return { ok: false, code: "SOCIAL_INVALID_SEARCH_CURSOR" };
+      }
+    }
+
+    return { ok: true, value: Object.freeze({ cursor: cursor || null, limit }) };
+  }
+
   function validMessageSequence(value) {
     return Number.isSafeInteger(value) && value >= 0;
   }
@@ -204,6 +271,28 @@
     return frozenFailure("SOCIAL_PERSISTENCE_FAILED");
   }
 
+  function classifySearchFailure(response, thrown) {
+    const error = thrown || (response && response.error);
+    const message = errorMessage(error);
+
+    if (isRateLimited(response, error) || message === "SOCIAL_SEARCH_RATE_LIMITED") {
+      return frozenRateLimitFailure(SOCIAL_SEARCH_RATE_LIMIT_RETRY_MS);
+    }
+    if (message === "GATE5_CURSOR_INVALID" || message === "GATE5_CURSOR_CONTEXT_MISMATCH") {
+      return frozenFailure("SOCIAL_SEARCH_STALE_CURSOR");
+    }
+    if (message === "SOCIAL_PROFILE_INACTIVE" || message === "SOCIAL_AUTH_REQUIRED") {
+      return frozenFailure("SOCIAL_SEARCH_SESSION_STALE");
+    }
+
+    const status = responseStatus(response) || responseStatus(error);
+    if (thrown || (Number.isInteger(status) && status >= 500 && status <= 599)) {
+      return frozenFailure("SOCIAL_SEARCH_RETRYABLE");
+    }
+
+    return frozenFailure("SOCIAL_PERSISTENCE_FAILED");
+  }
+
   async function execute(operation, requireConfirmation) {
     try {
       const response = await operation();
@@ -268,6 +357,41 @@
           }),
           true
         );
+      },
+    });
+
+    async function runSearch(rpcName, queryInput, optionInput) {
+      const query = normalizeSocialSearchQuery(queryInput);
+      if (!query.ok) return frozenFailure(query.code);
+
+      const normalizedOptions = normalizeSearchOptions(optionInput);
+      if (!normalizedOptions.ok) return frozenFailure(normalizedOptions.code);
+
+      if (!hasRpcClient(client)) return unavailable();
+
+      let response;
+      try {
+        response = await client.rpc(rpcName, {
+          p_query: query.value,
+          p_cursor: normalizedOptions.value.cursor,
+          p_limit: normalizedOptions.value.limit,
+        });
+      } catch (error) {
+        return classifySearchFailure(null, error);
+      }
+
+      if (!response || response.error) {
+        return classifySearchFailure(response, null);
+      }
+      return frozenSuccess(response.data);
+    }
+
+    const search = Object.freeze({
+      people: function (query, options) {
+        return runSearch("vvip_social_search_people", query, options);
+      },
+      posts: function (query, options) {
+        return runSearch("vvip_social_search_posts", query, options);
       },
     });
 
@@ -534,7 +658,7 @@
       },
     });
 
-    return Object.freeze({ posts, relationships, reactions, comments, messaging });
+    return Object.freeze({ posts, search, relationships, reactions, comments, messaging });
   }
 
   function createCurrentSocialRuntime(rootObject) {
@@ -549,6 +673,7 @@
     SOCIAL_RELATIONSHIPS_TABLE,
     SOCIAL_AUDIENCES,
     SOCIAL_REACTION_TYPES,
+    normalizeSocialSearchQuery,
     createSocialRuntimeAdapters,
     createCurrentSocialRuntime,
   });
