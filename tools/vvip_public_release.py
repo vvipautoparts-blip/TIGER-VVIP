@@ -40,6 +40,7 @@ PUBLIC_STYLE_FILES = (
     "styles/tiger-one/tokens.css",
     "styles/tiger-one/type.css",
     "styles/tiger-social/core-shell.css",
+    "styles/tiger-social/search.css",
 )
 
 PUBLIC_ICON_FILES = (
@@ -74,6 +75,7 @@ PUBLIC_SCRIPT_FILES = (
     "scripts/social/post-composer.js",
     "scripts/social/friends-controller.js",
     "scripts/social/core-shell.js",
+    "scripts/social/search-controller.js",
 )
 
 PUBLIC_MEDIA_FILES = (
