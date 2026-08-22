@@ -39,6 +39,9 @@ All existing sectors and non-conflicting platform capabilities remain preserved.
 | `docs/superpowers/specs/2026-08-11-vvip-tiger-flow-design.md` | Owner-approved UX/flow design with current commerce amendment; `KEEP_PLATFORM_FINANCE` only for TIGER-owned advertising/services and `HISTORICAL_EVIDENCE_ONLY` for the former commission section | Promotion/payment language cannot authorize an external deal. External commerce ends at contact handoff and transaction-value commission has `NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION`. |
 | `docs/owner-control/TIGER_PULSE_ENGINEERING_EXECUTION_REFERENCE.md` | `KEEP_PLATFORM_FINANCE` for paid visibility, ad-credit/top-up, verified-exposure billing, platform accounting/reconciliation and related platform advertising services | Pulse finance is allowed only as TIGER-owned advertising-service finance. Its ranking/organic relevance separation remains active. Any interpretation as buyer/seller/provider deal payment, payout or settlement is `SUPERSEDED` by Issue #312. |
 | `docs/superpowers/plans/2026-08-12-vvip-all-sector-commission-role-retirement.md` | `HISTORICAL_EVIDENCE_ONLY` for commission allocation/redistribution implementation; role-retirement and trusted identity-binding evidence may remain independently applicable | Agentic task wording must not be re-executed to revive transaction-value commission. Historical percentages and redistribution logic are audit/regression evidence only. |
+| `docs/VVIP_TIGER_DB_AUDIT.md` | `HISTORICAL_EVIDENCE_ONLY` — historical database audit snapshot | This audit is not a migration and is not current commerce/schema authority. Its references to legacy `orders`/`commissions` record what existed at that checkpoint and cannot authorize new transaction paths. |
+| `docs/architecture/LEGACY_SUPABASE_SCHEMA_BLOCK.md` | Historical safety classification: `SUPERSEDED_DO_NOT_APPLY_REMOTE` | The root legacy schema is explicitly blocked from remote application; historical order/commission behavior cannot be treated as current migration authority. |
+| `docs/product-readiness/P08_WAIT_READINESS_REPORT.md` | `HISTORICAL_EVIDENCE_ONLY` — historical readiness snapshot | Its then-open commission/commercial-registration questions are time-stamped evidence only. Commission is not an open decision now and this snapshot cannot reopen superseded owner decisions; current readiness registers and Issue #312 control. |
 
 ## Runtime and database enforcement evidence
 
@@ -60,6 +63,10 @@ A machine-readable file may retain a broad owner-authority label for unrelated a
 ## Canonical-document authority rule
 
 A canonical or current-state document may retain superseded material only when the supersession is explicit in that same file or when this registry explicitly classifies the file as historical/context-only and its referenced controlling source is itself amended. Later Issue #312 commerce authority must be stated or transitively enforced so an agent or validator cannot infer transaction authority merely from older `OWNER APPROVED`, `OWNER-CANONICAL`, `highest product reference`, merged-state, scope-freeze, open-decision, agentic-plan, or memory-map wording.
+
+## Historical-snapshot rule
+
+Historical audits, readiness reports, state archives and schema snapshots preserve what was believed or present at their checkpoint. They are evidence, not current authority. A stale `open question`, legacy table name, or old implementation plan inside a preserved snapshot cannot reopen a decision already superseded by later owner authority.
 
 ## Implementation rule
 
