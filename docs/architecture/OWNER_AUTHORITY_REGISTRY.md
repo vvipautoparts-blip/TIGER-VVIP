@@ -14,7 +14,7 @@ Platform-owned finance remains allowed only for TIGER's own advertising, ad cred
 
 ## Precedence
 
-When a historical document, implementation note, test fixture, migration, event name, API contract, machine-readable owner decision, current-state ledger, product-readiness register, blueprint, memory map, or runtime path conflicts with Issue #312, Issue #312 controls. A conflicting historical `OWNER APPROVED`, `OWNER-CANONICAL`, `highest product reference`, execution-state, scope-freeze, or open-decision label does not override this registry or Issue #312.
+When a historical document, implementation note, test fixture, migration, event name, API contract, machine-readable owner decision, current-state ledger, product-readiness register, blueprint, memory map, owner-approved design, or runtime path conflicts with Issue #312, Issue #312 controls. A conflicting historical `OWNER APPROVED`, `OWNER-CANONICAL`, `highest product reference`, execution-state, scope-freeze, open-decision, or agentic-plan label does not override this registry or Issue #312.
 
 All existing sectors and non-conflicting platform capabilities remain preserved. New sectors/views are additive through shared contracts and must not replace or fork the existing platform core.
 
@@ -36,6 +36,16 @@ All existing sectors and non-conflicting platform capabilities remain preserved.
 | `docs/VVIP_TIGER_OFFICIAL_PRODUCT_BLUEPRINT.md` | Historical/product blueprint with current local amendment; `SUPERSEDED` wherever older wording implied commercial-registration collection, merchant contracts, external-deal payments or commissions as future platform phases | It is not higher than Issue #312. Existing non-conflicting product/security/search principles remain reusable; external commerce remains `REDESIGN_DISCOVERY_ONLY` and platform finance remains `KEEP_PLATFORM_FINANCE` only. |
 | `docs/VVIP_TIGER_MEMORY_MAP.md` | Historical/execution context map, not independent current commerce authority | Its preserved older hierarchy pointer cannot override the amended Blueprint, Issue #312, or this registry. Non-conflicting memory/context remains useful; external commerce still ends at contact handoff. |
 | `docs/product-readiness/READINESS_TRACEABILITY_MATRIX.md` | Current readiness matrix aligned to Issue #312 | External-deal finance is `SUPERSEDED`, not a post-launch open decision. Platform-owned advertising/services finance remains separately gateable; historical commission checks do not imply an active commission feature. |
+| `docs/superpowers/specs/2026-08-11-vvip-tiger-flow-design.md` | Owner-approved UX/flow design with current commerce amendment; `KEEP_PLATFORM_FINANCE` only for TIGER-owned advertising/services and `HISTORICAL_EVIDENCE_ONLY` for the former commission section | Promotion/payment language cannot authorize an external deal. External commerce ends at contact handoff and transaction-value commission has `NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION`. |
+| `docs/owner-control/TIGER_PULSE_ENGINEERING_EXECUTION_REFERENCE.md` | `KEEP_PLATFORM_FINANCE` for paid visibility, ad-credit/top-up, verified-exposure billing, platform accounting/reconciliation and related platform advertising services | Pulse finance is allowed only as TIGER-owned advertising-service finance. Its ranking/organic relevance separation remains active. Any interpretation as buyer/seller/provider deal payment, payout or settlement is `SUPERSEDED` by Issue #312. |
+| `docs/superpowers/plans/2026-08-12-vvip-all-sector-commission-role-retirement.md` | `HISTORICAL_EVIDENCE_ONLY` for commission allocation/redistribution implementation; role-retirement and trusted identity-binding evidence may remain independently applicable | Agentic task wording must not be re-executed to revive transaction-value commission. Historical percentages and redistribution logic are audit/regression evidence only. |
+
+## Runtime and database enforcement evidence
+
+| Artifact | Classification | Current effect |
+| --- | --- | --- |
+| `scripts/finance/vvip-commission-policy.js` | `RETIRE_BROKERAGE` implemented fail-closed | Active recipients are empty and brokerage allocation/policy entrypoints reject with `BROKERAGE_COMMISSION_RETIRED`; historical metadata remains readable. |
+| `supabase/migrations/20260822023000_zero_brokerage_legacy_transaction_write_lock.sql` | `RETIRE_BROKERAGE` database hardening source | Preserves historical tables/rows while revoking legacy browser writes and installing fail-closed mutation guards. Source review does not authorize Production/Staging application. |
 
 ## TigerPay split-scope rule
 
@@ -49,7 +59,7 @@ A machine-readable file may retain a broad owner-authority label for unrelated a
 
 ## Canonical-document authority rule
 
-A canonical or current-state document may retain superseded material only when the supersession is explicit in that same file or when this registry explicitly classifies the file as historical/context-only and its referenced controlling source is itself amended. Later Issue #312 commerce authority must be stated or transitively enforced so an agent or validator cannot infer transaction authority merely from older `OWNER APPROVED`, `OWNER-CANONICAL`, `highest product reference`, merged-state, scope-freeze, open-decision, or memory-map wording.
+A canonical or current-state document may retain superseded material only when the supersession is explicit in that same file or when this registry explicitly classifies the file as historical/context-only and its referenced controlling source is itself amended. Later Issue #312 commerce authority must be stated or transitively enforced so an agent or validator cannot infer transaction authority merely from older `OWNER APPROVED`, `OWNER-CANONICAL`, `highest product reference`, merged-state, scope-freeze, open-decision, agentic-plan, or memory-map wording.
 
 ## Implementation rule
 
