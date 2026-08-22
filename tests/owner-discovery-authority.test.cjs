@@ -70,3 +70,22 @@ test("binding owner document locally supersedes its historical commission sectio
   assert.match(ownerBinding, /external user-to-user|user-to-provider|advertised goods\/services/i);
   assert.match(registry, /OWNER_BINDING_DECISIONS_2026-08-12\.md/);
 });
+
+test("canonical owner master and current state ledger both reflect Issue #312 instead of stale commission authority", () => {
+  const ownerMasterRel = "docs/owner-control/VVIP_TIGER_OWNER_MASTER_DECISIONS_2026-08-12.md";
+  const stateRel = "docs/MASTER_PROJECT_STATE.md";
+  const ownerMaster = read(ownerMasterRel);
+  const state = read(stateRel);
+  const registry = fs.readFileSync(registryPath, "utf8");
+
+  for (const text of [ownerMaster, state]) {
+    assert.match(text, /Issue\s+#312/i);
+    assert.match(text, /HISTORICAL_EVIDENCE_ONLY/i);
+    assert.match(text, /NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION/i);
+    assert.match(text, /KEEP_PLATFORM_FINANCE|platform-owned advertising|ad credits|platform-owned services/i);
+    assert.match(text, /contact handoff|external user-to-user|user-to-provider/i);
+  }
+
+  assert.match(registry, /VVIP_TIGER_OWNER_MASTER_DECISIONS_2026-08-12\.md/);
+  assert.match(registry, /MASTER_PROJECT_STATE\.md/);
+});
