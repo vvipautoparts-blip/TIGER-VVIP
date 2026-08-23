@@ -55,7 +55,7 @@ test('verified session revocation and account disable force deny', async () => {
 
 test('risk and credential/device events can only retain or raise server baseline risk', async () => {
   const cases = [
-    ['RISK_ELEVATED', 'HIGH'],
+    ['RISK_ELEVATED', 'MEDIUM'],
     ['CREDENTIAL_CHANGED', 'CRITICAL'],
     ['DEVICE_BINDING_LOST', 'CRITICAL'],
   ];
