@@ -2,8 +2,11 @@
 
 const { ACTIVATION_MODES, normalizeIntentEnvelope } = require("./intent-domain.js");
 
-function createIntentRuntimeAdapter({ rpc } = {}) {
+function createIntentRuntimeAdapter({ rpc, marketGenesisBridge } = {}) {
   if (typeof rpc !== "function") throw new TypeError("intent RPC adapter is required");
+  if (marketGenesisBridge != null && typeof marketGenesisBridge.dispatchConfirmedIntent !== "function") {
+    throw new TypeError("Market Genesis bridge must expose dispatchConfirmedIntent()");
+  }
 
   return {
     async create(input, context = {}) {
@@ -34,7 +37,16 @@ function createIntentRuntimeAdapter({ rpc } = {}) {
         p_explicit_confirmation: true,
       });
       if (!response || response.error) return { ok: false, code: "INTENT_CREATE_FAILED" };
-      return { ok: true, value: response.data };
+
+      if (!marketGenesisBridge) {
+        return { ok: true, value: response.data };
+      }
+
+      const marketGenesis = await marketGenesisBridge.dispatchConfirmedIntent(
+        response.data,
+        context.marketGenesisAuthority,
+      );
+      return { ok: true, value: response.data, marketGenesis };
     },
   };
 }
