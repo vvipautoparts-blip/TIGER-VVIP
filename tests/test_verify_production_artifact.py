@@ -23,6 +23,7 @@ SOURCE_SHA = "a" * 40
 SOURCE_TREE = "b" * 40
 ARCHIVE_NAME = f"vvip-production-release-{SOURCE_SHA}.tar.gz"
 CHECKSUM_NAME = f"vvip-production-release-{SOURCE_SHA}.sha256"
+REVIEWED_REPLAY_MIGRATION_SHA256 = "484fc1ee834ecce2ac8184ed0756e17f39b5424bbf58c6fff84e61acee6a70ad"
 
 
 def sha256(data: bytes) -> str:
@@ -163,6 +164,60 @@ def valid_outer_zip(inner: bytes | None = None) -> bytes:
     inner = inner if inner is not None else valid_inner_tar()
     checksum = f"{sha256(inner)}  {ARCHIVE_NAME}\n".encode()
     return zip_bytes([(ARCHIVE_NAME, inner), (CHECKSUM_NAME, checksum)])
+
+
+def tar_file_entries(payload: bytes) -> dict[str, bytes]:
+    with tarfile.open(fileobj=io.BytesIO(payload), mode="r:gz") as archive:
+        return {
+            member.name: archive.extractfile(member).read()
+            for member in archive.getmembers()
+            if member.isfile()
+        }
+
+
+def valid_market_source_readiness() -> dict:
+    return {
+        "schema": "TIGER_MARKET_GENESIS_SOURCE_READINESS_V1",
+        "source_sha": SOURCE_SHA,
+        "source_tree": SOURCE_TREE,
+        "state": "SOURCE_VERIFIED",
+        "deployed_durable_verified": False,
+        "reviewed_replay_migration_sha256": REVIEWED_REPLAY_MIGRATION_SHA256,
+        "authority": {
+            "market_genesis_active": True,
+            "living_classified_fabric_active": False,
+            "transaction_capabilities_enabled": False,
+            "pulse_ad_billing_authority_preserved": True,
+            "contact_replay_protection_durable": True,
+        },
+        "source_contract": {
+            "contract_version": "market-genesis-source-contract-v1",
+            "whole_vehicle_ads_forbidden": True,
+            "no_transaction": True,
+            "release_evidence_required_for_contact": True,
+            "retired_fallback_forbidden": True,
+        },
+    }
+
+
+def valid_m11_inner_tar(
+    *,
+    readiness: dict | None = None,
+    include_readiness: bool = True,
+    bundle_overrides: dict | None = None,
+) -> bytes:
+    entries = tar_file_entries(valid_inner_tar())
+    readiness_value = readiness if readiness is not None else valid_market_source_readiness()
+    readiness_bytes = canonical_file(readiness_value)
+    bundle = json.loads(entries["evidence/release-bundle-manifest.json"])
+    bundle["bundle_version"] = "SVEF_PRODUCTION_RELEASE_BUNDLE_V2"
+    bundle["market_genesis_source_readiness_sha256"] = sha256(readiness_bytes)
+    if bundle_overrides:
+        bundle.update(bundle_overrides)
+    entries["evidence/release-bundle-manifest.json"] = canonical_file(bundle)
+    if include_readiness:
+        entries["evidence/market-genesis-source-readiness.json"] = readiness_bytes
+    return tar_bytes(entries)
 
 
 class VerifyProductionArtifactTests(unittest.TestCase):
@@ -338,6 +393,117 @@ class VerifyProductionArtifactTests(unittest.TestCase):
                             output_public=root / f"out-{label}",
                         )
                     self.assertEqual(ctx.exception.code, code)
+
+    def test_m11_rejects_pre_m11_v1_bundle(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            archive = root / "pre-m11.tar.gz"
+            archive.write_bytes(valid_inner_tar())
+            with self.assertRaises(verifier.VerificationError) as ctx:
+                verifier.verify_inner_bundle(
+                    inner_tar=archive,
+                    release_sha=SOURCE_SHA,
+                    output_public=root / "out-pre-m11",
+                )
+            self.assertEqual(ctx.exception.code, "SVEF_PRODUCTION_BUNDLE_VERSION_MISMATCH")
+
+    def test_m11_rejects_missing_fifth_evidence_member(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            archive = root / "missing-market-evidence.tar.gz"
+            archive.write_bytes(valid_m11_inner_tar(include_readiness=False))
+            with self.assertRaises(verifier.VerificationError) as ctx:
+                verifier.verify_inner_bundle(
+                    inner_tar=archive,
+                    release_sha=SOURCE_SHA,
+                    output_public=root / "out-missing",
+                )
+            self.assertEqual(ctx.exception.code, "VVIP_INNER_ENTRY_SET_INVALID")
+
+    def test_m11_rejects_unknown_readiness_keys(self):
+        readiness = {**valid_market_source_readiness(), "unexpected": True}
+        self._assert_m11_inner_error(
+            valid_m11_inner_tar(readiness=readiness),
+            "MARKET_SOURCE_READINESS_INVALID",
+            "unknown-key",
+        )
+
+    def test_m11_rejects_source_sha_tree_and_migration_digest_mismatch(self):
+        cases: list[tuple[str, dict, str]] = []
+        wrong_sha = valid_market_source_readiness()
+        wrong_sha["source_sha"] = "c" * 40
+        cases.append(("sha", wrong_sha, "MARKET_SOURCE_SHA_MISMATCH"))
+
+        wrong_tree = valid_market_source_readiness()
+        wrong_tree["source_tree"] = "c" * 40
+        cases.append(("tree", wrong_tree, "MARKET_SOURCE_TREE_MISMATCH"))
+
+        wrong_migration = valid_market_source_readiness()
+        wrong_migration["reviewed_replay_migration_sha256"] = "0" * 64
+        cases.append(("migration", wrong_migration, "MARKET_REPLAY_MIGRATION_DIGEST_MISMATCH"))
+
+        for label, readiness, code in cases:
+            with self.subTest(label=label):
+                self._assert_m11_inner_error(valid_m11_inner_tar(readiness=readiness), code, label)
+
+    def test_m11_rejects_contract_invariant_and_deployed_durable_source_claim(self):
+        wrong_contract = valid_market_source_readiness()
+        wrong_contract["source_contract"] = {
+            **wrong_contract["source_contract"],
+            "whole_vehicle_ads_forbidden": False,
+        }
+        self._assert_m11_inner_error(
+            valid_m11_inner_tar(readiness=wrong_contract),
+            "MARKET_SOURCE_CONTRACT_MISMATCH",
+            "contract",
+        )
+
+        deployed_claim = valid_market_source_readiness()
+        deployed_claim["deployed_durable_verified"] = True
+        self._assert_m11_inner_error(
+            valid_m11_inner_tar(readiness=deployed_claim),
+            "MARKET_DEPLOYED_DURABLE_SOURCE_CLAIM_FORBIDDEN",
+            "deployed-claim",
+        )
+
+    def test_m11_rejects_source_readiness_digest_tamper(self):
+        entries = tar_file_entries(valid_m11_inner_tar())
+        readiness = json.loads(entries["evidence/market-genesis-source-readiness.json"])
+        readiness["state"] = "TAMPERED"
+        entries["evidence/market-genesis-source-readiness.json"] = canonical_file(readiness)
+        self._assert_m11_inner_error(
+            tar_bytes(entries),
+            "MARKET_SOURCE_READINESS_DIGEST_MISMATCH",
+            "digest-tamper",
+        )
+
+    def test_m11_accepts_exact_valid_attested_source_readiness_fixture(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            archive = root / "m11-valid.tar.gz"
+            archive.write_bytes(valid_m11_inner_tar())
+            output = root / "verified-public"
+            result = verifier.verify_inner_bundle(
+                inner_tar=archive,
+                release_sha=SOURCE_SHA,
+                output_public=output,
+            )
+            self.assertEqual(result["source_sha"], SOURCE_SHA)
+            self.assertEqual(result["source_tree"], SOURCE_TREE)
+            self.assertEqual(result["public_file_count"], 1)
+
+    def _assert_m11_inner_error(self, payload: bytes, code: str, label: str) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            archive = root / f"{label}.tar.gz"
+            archive.write_bytes(payload)
+            with self.assertRaises(verifier.VerificationError) as ctx:
+                verifier.verify_inner_bundle(
+                    inner_tar=archive,
+                    release_sha=SOURCE_SHA,
+                    output_public=root / f"out-{label}",
+                )
+            self.assertEqual(ctx.exception.code, code)
 
 
 if __name__ == "__main__":
