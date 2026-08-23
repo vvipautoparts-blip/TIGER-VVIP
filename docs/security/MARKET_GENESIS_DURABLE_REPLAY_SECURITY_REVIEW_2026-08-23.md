@@ -1,8 +1,8 @@
 # Market Genesis Durable Replay Authority — Security Review
 
-**Date:** 2026-08-23  
-**Scope:** source-only review of `supabase/migrations/20260823190000_market_genesis_durable_replay.sql`  
-**Reviewed SHA-256:** `484fc1ee834ecce2ac8184ed0756e17f39b5424bbf58c6fff84e61acee6a70ad`  
+**Date:** 2026-08-23
+**Scope:** source-only review of `supabase/migrations/20260823190000_market_genesis_durable_replay.sql`
+**Reviewed SHA-256:** `484fc1ee834ecce2ac8184ed0756e17f39b5424bbf58c6fff84e61acee6a70ad`
 **Scanner result on exact bytes:** `CRITICAL=0 HIGH=15`
 
 ## Security objective
