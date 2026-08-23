@@ -2,18 +2,22 @@
 
 const { CONTACT_STATES } = require('../private-market-contracts.js');
 
+const REAL_ESTATE_CATEGORY_TO_ENTITY = Object.freeze({
+  apartment: 'APARTMENT',
+  house: 'HOUSE',
+  villa: 'VILLA',
+  land: 'LAND',
+  office: 'OFFICE',
+  shop: 'SHOP',
+  warehouse: 'WAREHOUSE',
+  farm: 'FARM',
+  'commercial-property': 'COMMERCIAL_PROPERTY',
+});
+
 const REAL_ESTATE_PHYSICS = Object.freeze({
   sector_id: 'real-estate',
   version: '1.0.0',
-  allowed_entity_types: Object.freeze([
-    'APARTMENT',
-    'HOUSE',
-    'VILLA',
-    'LAND',
-    'OFFICE',
-    'SHOP',
-    'WAREHOUSE',
-  ]),
+  allowed_entity_types: Object.freeze(Object.values(REAL_ESTATE_CATEGORY_TO_ENTITY)),
   forbidden_entity_types: Object.freeze(['WHOLE_VEHICLE']),
   required_dimensions: Object.freeze(['property_type', 'offer_mode', 'area_sqm', 'availability_from']),
   optional_dimensions: Object.freeze([
@@ -28,7 +32,7 @@ const REAL_ESTATE_PHYSICS = Object.freeze({
     'price',
   ]),
   normalization_rules: Object.freeze({
-    property_type: 'UPPERCASE_ENUM',
+    property_type: 'CATEGORY_TO_ENTITY_ENUM',
     offer_mode: 'UPPERCASE_ENUM',
     area_sqm: 'POSITIVE_NUMBER',
     land_area_sqm: 'POSITIVE_NUMBER',
@@ -123,7 +127,9 @@ function optionalPositiveNumber(value, field) {
 }
 
 function normalizePropertyType(value) {
-  const normalized = nonEmptyString(value, 'property_type').toUpperCase();
+  const raw = nonEmptyString(value, 'property_type');
+  const fromCategory = REAL_ESTATE_CATEGORY_TO_ENTITY[raw.toLowerCase()];
+  const normalized = fromCategory || raw.toUpperCase();
   if (!ALLOWED_PROPERTY_TYPES.has(normalized)) {
     throw new Error(`property_type is not allowed by Real Estate Physics: ${normalized}`);
   }
@@ -153,30 +159,38 @@ function compactObject(entries) {
   return Object.fromEntries(Object.entries(entries).filter(([, value]) => value !== undefined && value !== null));
 }
 
-function descriptivePrice(price) {
-  if (price == null) return undefined;
-  if (!price || typeof price !== 'object') throw new TypeError('price must be an object');
-  const amount = positiveNumber(price.amount, 'price.amount');
-  const currency = nonEmptyString(price.currency, 'price.currency').toUpperCase();
-  const period = price.period == null ? 'TOTAL' : nonEmptyString(price.period, 'price.period').toUpperCase();
+function descriptivePriceFromListing(record, attributes) {
+  if (record.numericPrice == null) return undefined;
+  const amount = positiveNumber(record.numericPrice, 'numericPrice');
+  const currency = nonEmptyString(record.currency, 'currency').toUpperCase();
+  const period = attributes.pricePeriod == null
+    ? 'TOTAL'
+    : nonEmptyString(attributes.pricePeriod, 'sectorAttributes.pricePeriod').toUpperCase();
   if (!REAL_ESTATE_PHYSICS.price_value_semantics.allowed_periods.includes(period)) {
-    throw new Error(`price.period is not allowed: ${period}`);
+    throw new Error(`price period is not allowed: ${period}`);
   }
   return { amount, currency, period, descriptive_only: true };
 }
 
-function canonicalizeRealEstateRecord(record) {
+function canonicalizeRealEstateRecord(record, context = {}) {
   if (!record || typeof record !== 'object' || Array.isArray(record)) {
-    throw new TypeError('Real Estate source record must be an object');
+    throw new TypeError('Real Estate Listing Contract record must be an object');
+  }
+  if (record.sector !== REAL_ESTATE_PHYSICS.sector_id) {
+    throw new Error('Real Estate Lens accepts only records from the real-estate sector');
   }
 
-  const propertyType = normalizePropertyType(record.property_type);
-  const offerMode = normalizeOfferMode(record.offer_mode);
-  const areaSqm = positiveNumber(record.area_sqm, 'area_sqm');
+  const attributesSource = record.sectorAttributes && typeof record.sectorAttributes === 'object' && !Array.isArray(record.sectorAttributes)
+    ? record.sectorAttributes
+    : {};
+  const propertyType = normalizePropertyType(record.category);
+  const offerMode = normalizeOfferMode(attributesSource.offerMode);
+  const areaSqm = positiveNumber(attributesSource.areaSqm, 'sectorAttributes.areaSqm');
   const country = nonEmptyString(record.country, 'country').toUpperCase();
-  const region = nonEmptyString(record.region, 'region');
-  const contact = record.contact && typeof record.contact === 'object' ? record.contact : {};
-  const sponsored = record.sponsored === true;
+  const contact = context.contact && typeof context.contact === 'object' && !Array.isArray(context.contact)
+    ? context.contact
+    : {};
+  const sponsored = context.sponsored === true;
 
   const contactCapability = contact.blocked_by_policy === true
     ? CONTACT_STATES.CONTACT_BLOCKED
@@ -186,58 +200,58 @@ function canonicalizeRealEstateRecord(record) {
     property_type: propertyType,
     offer_mode: offerMode,
     area_sqm: areaSqm,
-    land_area_sqm: optionalPositiveNumber(record.land_area_sqm, 'land_area_sqm'),
-    bedrooms: record.bedrooms,
-    bathrooms: record.bathrooms,
-    furnishing: record.furnishing,
-    availability_from: record.available_from,
+    land_area_sqm: optionalPositiveNumber(attributesSource.landAreaSqm, 'sectorAttributes.landAreaSqm'),
+    bedrooms: attributesSource.bedrooms,
+    bathrooms: attributesSource.bathrooms,
+    furnishing: attributesSource.furnishing,
+    availability_from: attributesSource.availableFrom,
   });
 
   const coarseGeo = compactObject({
     country,
-    region,
+    region: context.region,
     city: record.city,
     area: record.area,
   });
 
   return {
     identity: {
-      ad_id: nonEmptyString(record.id, 'id'),
-      owner_subject: nonEmptyString(record.owner_subject, 'owner_subject'),
+      ad_id: nonEmptyString(record.listingId, 'listingId'),
+      owner_subject: nonEmptyString(record.ownerClerkUserId, 'ownerClerkUserId'),
       source_type: 'LISTING',
-      source_revision: Number.isInteger(record.source_revision) ? record.source_revision : 1,
-      created_at: nonEmptyString(record.created_at, 'created_at'),
-      updated_at: nonEmptyString(record.updated_at, 'updated_at'),
-      provenance_state: nonEmptyString(record.provenance_state, 'provenance_state'),
-      moderation_state: nonEmptyString(record.moderation_state, 'moderation_state'),
+      source_revision: Number.isInteger(context.source_revision) ? context.source_revision : record.schemaVersion,
+      created_at: nonEmptyString(record.createdAt, 'createdAt'),
+      updated_at: nonEmptyString(record.updatedAt, 'updatedAt'),
+      provenance_state: nonEmptyString(context.provenance_state, 'context.provenance_state'),
+      moderation_state: nonEmptyString(context.moderation_state, 'context.moderation_state'),
       country,
-      policy_version: nonEmptyString(record.policy_version, 'policy_version'),
+      policy_version: nonEmptyString(context.policy_version, 'context.policy_version'),
     },
     taxonomy: {
       sector_id: REAL_ESTATE_PHYSICS.sector_id,
       category_id: 'property',
-      subcategory_id: propertyType.toLowerCase(),
+      subcategory_id: record.category,
       entity_type: propertyType,
       offer_mode: offerMode,
       attributes,
     },
     discovery: compactObject({
       title: nonEmptyString(record.title, 'title'),
-      summary: nonEmptyString(record.summary, 'summary'),
-      searchable_tokens: tokenize(record.title, record.summary, record.city, record.area, propertyType, offerMode),
+      summary: nonEmptyString(record.description, 'description'),
+      searchable_tokens: tokenize(record.title, record.description, record.city, record.area, propertyType, offerMode),
       coarse_geo: coarseGeo,
-      price_value: descriptivePrice(record.price),
+      price_value: descriptivePriceFromListing(record, attributesSource),
       freshness_state: 'FRESH',
-      expires_at: nonEmptyString(record.expires_at, 'expires_at'),
+      expires_at: nonEmptyString(record.expiresAt, 'expiresAt'),
     }),
     advertising: {
-      organic_eligibility_state: record.organic_eligibility_state || 'PENDING_POLICY',
-      sponsorship_eligibility_state: record.sponsorship_eligibility_state || 'PENDING_POLICY',
+      organic_eligibility_state: context.organic_eligibility_state || 'PENDING_POLICY',
+      sponsorship_eligibility_state: context.sponsorship_eligibility_state || 'PENDING_POLICY',
       sponsored,
-      pulse_campaign_ref: sponsored ? record.pulse_campaign_ref || null : null,
+      pulse_campaign_ref: sponsored ? context.pulse_campaign_ref || null : null,
       delivery_market: country,
       labeling_requirement: sponsored,
-      verified_viewability_eligible: record.verified_viewability_eligible === true,
+      verified_viewability_eligible: context.verified_viewability_eligible === true,
     },
     contact: {
       contact_capability_class: contactCapability,
