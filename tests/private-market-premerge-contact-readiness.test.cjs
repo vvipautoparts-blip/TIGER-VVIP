@@ -52,16 +52,20 @@ test('rollout blocks contact/handoff when replay protection is not durable acros
   assert.ok(verdict.reason_codes.includes('CONTACT_REPLAY_PROTECTION_NOT_DURABLE'));
 });
 
-test('durable replay protection is required only when contact/handoff is enabled', () => {
+test('boolean-only source durability cannot authorize contact/handoff rollout', () => {
+  const verdict = evaluate(snapshot({
+    contact_handoff_enabled: true,
+    contact_replay_protection_durable: true,
+  }));
+  assert.equal(verdict.ready, false);
+  assert.equal(verdict.state, 'ROLLOUT_BLOCKED');
+  assert.ok(verdict.reason_codes.includes('CONTACT_REPLAY_RELEASE_EVIDENCE_MISSING'));
+});
+
+test('release evidence is required only when contact/handoff is enabled', () => {
   const contactDisabled = evaluate(snapshot({
     contact_handoff_enabled: false,
     contact_replay_protection_durable: false,
   }));
   assert.equal(contactDisabled.ready, true);
-
-  const durableContact = evaluate(snapshot({
-    contact_handoff_enabled: true,
-    contact_replay_protection_durable: true,
-  }));
-  assert.equal(durableContact.ready, true);
 });
