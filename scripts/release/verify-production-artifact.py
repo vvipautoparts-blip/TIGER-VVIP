@@ -39,12 +39,14 @@ MAX_INNER_MEMBER_BYTES = 256 * 1024 * 1024
 MAX_INNER_TOTAL_BYTES = 512 * 1024 * 1024
 MAX_INNER_ENTRIES = 10_000
 MAX_JSON_BYTES = 16 * 1024 * 1024
+REVIEWED_REPLAY_MIGRATION_SHA256 = "484fc1ee834ecce2ac8184ed0756e17f39b5424bbf58c6fff84e61acee6a70ad"
 EXPECTED_EVIDENCE_FILES = frozenset(
     {
         "evidence/source.json",
         "evidence/materials.json",
         "evidence/sbom.cdx.json",
         "evidence/release-bundle-manifest.json",
+        "evidence/market-genesis-source-readiness.json",
     }
 )
 BUNDLE_FIELDS = frozenset(
@@ -56,6 +58,7 @@ BUNDLE_FIELDS = frozenset(
         "candidate_content_sha256",
         "sbom_sha256",
         "materials_sha256",
+        "market_genesis_source_readiness_sha256",
         "created_by",
     }
 )
@@ -68,6 +71,36 @@ RELEASE_MANIFEST_FIELDS = frozenset(
         "configurationErrors",
         "forbiddenFindings",
         "files",
+    }
+)
+MARKET_SOURCE_READINESS_FIELDS = frozenset(
+    {
+        "schema",
+        "source_sha",
+        "source_tree",
+        "state",
+        "deployed_durable_verified",
+        "reviewed_replay_migration_sha256",
+        "authority",
+        "source_contract",
+    }
+)
+MARKET_AUTHORITY_FIELDS = frozenset(
+    {
+        "market_genesis_active",
+        "living_classified_fabric_active",
+        "transaction_capabilities_enabled",
+        "pulse_ad_billing_authority_preserved",
+        "contact_replay_protection_durable",
+    }
+)
+MARKET_SOURCE_CONTRACT_FIELDS = frozenset(
+    {
+        "contract_version",
+        "whole_vehicle_ads_forbidden",
+        "no_transaction",
+        "release_evidence_required_for_contact",
+        "retired_fallback_forbidden",
     }
 )
 
@@ -365,6 +398,82 @@ def _assert_exact_keys(value: Any, keys: set[str] | frozenset[str], code: str) -
     return value
 
 
+def _validate_market_source_readiness(
+    data: bytes,
+    release_sha: str,
+    source_tree: str,
+) -> dict[str, Any]:
+    obj = _assert_exact_keys(
+        _parse_json_bytes(data, "MARKET_SOURCE_READINESS_INVALID"),
+        MARKET_SOURCE_READINESS_FIELDS,
+        "MARKET_SOURCE_READINESS_INVALID",
+    )
+    authority = _assert_exact_keys(
+        obj["authority"],
+        MARKET_AUTHORITY_FIELDS,
+        "MARKET_SOURCE_READINESS_INVALID",
+    )
+    source_contract = _assert_exact_keys(
+        obj["source_contract"],
+        MARKET_SOURCE_CONTRACT_FIELDS,
+        "MARKET_SOURCE_READINESS_INVALID",
+    )
+
+    if data != _canonical_json_bytes(obj):
+        fail("MARKET_SOURCE_READINESS_INVALID", "Market Genesis source-readiness evidence is not canonical JSON")
+    if not isinstance(obj["schema"], str) or not isinstance(obj["state"], str):
+        fail("MARKET_SOURCE_READINESS_INVALID", "Market Genesis source-readiness identity fields are invalid")
+    if not isinstance(obj["source_sha"], str) or not SHA40_RE.fullmatch(obj["source_sha"]):
+        fail("MARKET_SOURCE_READINESS_INVALID", "Market Genesis source SHA is invalid")
+    if not isinstance(obj["source_tree"], str) or not SHA40_RE.fullmatch(obj["source_tree"]):
+        fail("MARKET_SOURCE_READINESS_INVALID", "Market Genesis source tree is invalid")
+    if not isinstance(obj["reviewed_replay_migration_sha256"], str) or not SHA256_RE.fullmatch(
+        obj["reviewed_replay_migration_sha256"]
+    ):
+        fail("MARKET_SOURCE_READINESS_INVALID", "Market Genesis replay migration digest is invalid")
+    if not isinstance(obj["deployed_durable_verified"], bool):
+        fail("MARKET_SOURCE_READINESS_INVALID", "Market Genesis deployed durability source claim is invalid")
+    if any(not isinstance(authority[field], bool) for field in MARKET_AUTHORITY_FIELDS):
+        fail("MARKET_SOURCE_READINESS_INVALID", "Market Genesis authority values must be booleans")
+    if not isinstance(source_contract["contract_version"], str):
+        fail("MARKET_SOURCE_READINESS_INVALID", "Market Genesis source contract version is invalid")
+    if any(
+        field != "contract_version" and not isinstance(source_contract[field], bool)
+        for field in MARKET_SOURCE_CONTRACT_FIELDS
+    ):
+        fail("MARKET_SOURCE_READINESS_INVALID", "Market Genesis source contract values must be booleans")
+
+    if obj["deployed_durable_verified"] is True:
+        fail(
+            "MARKET_DEPLOYED_DURABLE_SOURCE_CLAIM_FORBIDDEN",
+            "source readiness cannot claim deployed durable replay verification",
+        )
+    if obj["reviewed_replay_migration_sha256"] != REVIEWED_REPLAY_MIGRATION_SHA256:
+        fail("MARKET_REPLAY_MIGRATION_DIGEST_MISMATCH", "reviewed replay migration digest does not match")
+    if obj["source_sha"] != release_sha:
+        fail("MARKET_SOURCE_SHA_MISMATCH", "Market Genesis source SHA does not match approved release SHA")
+    if obj["source_tree"] != source_tree:
+        fail("MARKET_SOURCE_TREE_MISMATCH", "Market Genesis source tree does not match trusted source tree")
+
+    if (
+        obj["schema"] != "TIGER_MARKET_GENESIS_SOURCE_READINESS_V1"
+        or obj["state"] != "SOURCE_VERIFIED"
+        or authority["market_genesis_active"] is not True
+        or authority["living_classified_fabric_active"] is not False
+        or authority["transaction_capabilities_enabled"] is not False
+        or authority["pulse_ad_billing_authority_preserved"] is not True
+        or authority["contact_replay_protection_durable"] is not True
+        or source_contract["contract_version"] != "market-genesis-source-contract-v1"
+        or source_contract["whole_vehicle_ads_forbidden"] is not True
+        or source_contract["no_transaction"] is not True
+        or source_contract["release_evidence_required_for_contact"] is not True
+        or source_contract["retired_fallback_forbidden"] is not True
+    ):
+        fail("MARKET_SOURCE_CONTRACT_MISMATCH", "Market Genesis source contract invariants do not match")
+
+    return obj
+
+
 def _validate_materials(value: Any, release_sha: str, source_tree: str) -> list[dict[str, str]]:
     obj = _assert_exact_keys(
         value,
@@ -473,7 +582,7 @@ def verify_inner_bundle(*, inner_tar: Path, release_sha: str, output_public: Pat
             if member.isfile() and relative.startswith("evidence/")
         }
         if evidence_files != EXPECTED_EVIDENCE_FILES:
-            fail("VVIP_EVIDENCE_ENTRY_SET_INVALID", "inner evidence file set is not exact")
+            fail("VVIP_INNER_ENTRY_SET_INVALID", "inner evidence file set is not exact")
 
         public_root = temp_root / "public"
         evidence_root = temp_root / "evidence"
@@ -556,14 +665,16 @@ def verify_inner_bundle(*, inner_tar: Path, release_sha: str, output_public: Pat
         bundle_bytes = _read_required(
             evidence_root / "release-bundle-manifest.json", "VVIP_RELEASE_BUNDLE_INVALID"
         )
+        bundle_value = _parse_json_bytes(bundle_bytes, "VVIP_RELEASE_BUNDLE_INVALID")
+        if not isinstance(bundle_value, dict) or bundle_value.get("bundle_version") != "SVEF_PRODUCTION_RELEASE_BUNDLE_V2":
+            fail("SVEF_PRODUCTION_BUNDLE_VERSION_MISMATCH", "Production release bundle must use SVEF Production V2")
         bundle = _assert_exact_keys(
-            _parse_json_bytes(bundle_bytes, "VVIP_RELEASE_BUNDLE_INVALID"),
+            bundle_value,
             BUNDLE_FIELDS,
             "VVIP_RELEASE_BUNDLE_INVALID",
         )
         if (
-            bundle["bundle_version"] != "SVEF_RELEASE_BUNDLE_V1"
-            or bundle["source_sha"] != release_sha
+            bundle["source_sha"] != release_sha
             or bundle["source_tree"] != source_tree
             or bundle["created_by"] != "github-actions:production-release-artifact"
         ):
@@ -573,6 +684,7 @@ def verify_inner_bundle(*, inner_tar: Path, release_sha: str, output_public: Pat
             "candidate_content_sha256",
             "sbom_sha256",
             "materials_sha256",
+            "market_genesis_source_readiness_sha256",
         ):
             if not isinstance(bundle[field], str) or not SHA256_RE.fullmatch(bundle[field]):
                 fail("VVIP_RELEASE_BUNDLE_INVALID", "Production release bundle contains an invalid digest")
@@ -585,6 +697,17 @@ def verify_inner_bundle(*, inner_tar: Path, release_sha: str, output_public: Pat
             fail("VVIP_RELEASE_BUNDLE_MISMATCH", "SBOM digest is not bundle-bound")
         if bundle["materials_sha256"] != _sha256_bytes(_canonical_json_bytes(material_records)):
             fail("VVIP_RELEASE_BUNDLE_MISMATCH", "materials digest is not bundle-bound")
+
+        market_readiness_bytes = _read_required(
+            evidence_root / "market-genesis-source-readiness.json",
+            "MARKET_SOURCE_READINESS_MISSING",
+        )
+        if bundle["market_genesis_source_readiness_sha256"] != _sha256_bytes(market_readiness_bytes):
+            fail(
+                "MARKET_SOURCE_READINESS_DIGEST_MISMATCH",
+                "Market Genesis source-readiness bytes are not bundle-bound",
+            )
+        _validate_market_source_readiness(market_readiness_bytes, release_sha, source_tree)
 
         source_public = public_root
         source_public.replace(output_public)
