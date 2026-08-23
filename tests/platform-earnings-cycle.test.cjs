@@ -119,6 +119,30 @@ test('closeCycle totals only entries inside that cycle and the next cycle starts
   assert.equal(Object.isFrozen(closed0), true);
 });
 
+test('closeCycle revalidates raw candidate entries and cannot bypass earning-source policy', () => {
+  const cycle = earnings.cycleFor('2026-08-02T00:00:00.000Z', ANCHOR);
+
+  const forbiddenRawEntry = earningInput({
+    id: 'raw:external-deal',
+    source: 'EXTERNAL_DEAL_VALUE',
+    amount_minor: '999999999',
+  });
+  assert.throws(
+    () => earnings.closeCycle([forbiddenRawEntry], cycle),
+    /source|external|commission/i,
+  );
+
+  const invalidRawEarning = earningInput({
+    id: 'raw:negative-earning',
+    amount_minor: '-1',
+    entry_type: 'EARNING',
+  });
+  assert.throws(
+    () => earnings.closeCycle([invalidRawEarning], cycle),
+    /earning|negative|amount/i,
+  );
+});
+
 test('a cycle cannot mix currencies into one authoritative total', () => {
   const cycle = earnings.cycleFor('2026-08-02T00:00:00.000Z', ANCHOR);
   const entries = [
