@@ -4,56 +4,57 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const permissions = require('../scripts/social/permissions-control.js');
-const sensitive = require('../scripts/security/sensitive-permission-contract.js');
 
-const NOW = '2026-08-23T00:30:00.000Z';
-
-function targetGrant(overrides = {}) {
-  return sensitive.createSensitiveGrant({
-    principal: 'user:target',
-    action: 'VIEW_FINANCIAL_EARNINGS',
-    resource_scope: { kind: 'sector', ids: ['food'] },
-    sector_scope: ['food'],
-    entity_scope: ['entity:target'],
-    geo_policy_scope: ['JO'],
-    purpose: 'scoped permission state',
-    reason: 'OWNER_APPROVED_SCOPED_ACCESS',
-    grantor: 'owner:root',
-    policy_version: '2026-08-22',
-    issued_at: '2026-08-23T00:00:00.000Z',
-    not_before: '2026-08-23T00:00:00.000Z',
-    expires_at: '2026-08-24T00:00:00.000Z',
-    delegability_ceiling: {
-      actions: [],
-      sector_scope: [],
-      entity_scope: [],
-      geo_policy_scope: [],
-      resource_scope: { kind: 'sector', ids: [] },
-      expires_at: '2026-08-24T00:00:00.000Z',
-    },
-    audit_evidence_ref: 'audit:grant:target:001',
-    status: 'ACTIVE',
-    revoked_at: null,
-    ...overrides,
-  });
-}
-
-function modelInput(overrides = {}) {
+function projectedState(overrides = {}) {
   return {
-    viewer_id: 'user:viewer',
-    target_id: 'user:target',
-    viewer_capabilities: [],
-    target_grants: [],
-    now: NOW,
+    capability_id: 'VIEW_FINANCIAL_EARNINGS',
+    label: 'عرض أرباح المنصة',
+    checked: true,
+    active: true,
+    status: 'ACTIVE',
+    scope: 'القطاع: food · الكيان: entity:target · السياسة الجغرافية: JO',
+    expires_at: '2026-08-24T00:00:00.000Z',
     ...overrides,
   };
 }
 
-test('self always receives VIEW_OWN_PERMISSIONS state without inventing management authority', () => {
-  const model = permissions.buildPermissionsControlModel(modelInput({
-    viewer_id: 'user:self',
+function snapshot(overrides = {}) {
+  return {
+    snapshot_id: 'authz-snapshot:permissions-control',
+    principal: 'user:viewer',
+    target_id: 'user:target',
+    surface: 'PROFILE_MORE_MENU',
+    execution_authority: false,
+    presentation_status: 'ACTIVE',
+    visible_capabilities: [],
+    management_capabilities: [],
+    permission_state_projection: [],
+    policy_version: '2026-08-23',
+    authority_version: 'authz-v1',
+    issued_at: '2026-08-23T00:30:00.000Z',
+    expires_at: '2026-08-23T00:30:30.000Z',
+    ttl_seconds: 30,
+    ...overrides,
+  };
+}
+
+function modelInput(overrides = {}) {
+  return {
+    target_id: 'user:target',
+    snapshot: snapshot(),
+    ...overrides,
+  };
+}
+
+test('self receives VIEW_OWN_PERMISSIONS presentation state without invented management authority', () => {
+  const model = permissions.buildPermissionsControlModel({
     target_id: 'user:self',
-  }));
+    snapshot: snapshot({
+      principal: 'user:self',
+      target_id: 'user:self',
+      permission_state_projection: [projectedState()],
+    }),
+  });
 
   assert.equal(model.relation, 'SELF');
   assert.equal(model.can_view, true);
@@ -63,9 +64,9 @@ test('self always receives VIEW_OWN_PERMISSIONS state without inventing manageme
   assert.ok(model.effective_capabilities.includes('VIEW_OWN_PERMISSIONS'));
 });
 
-test('viewer of another user sees no permission state without VIEW_PERMISSION_STATE', () => {
+test('viewer of another user sees no permission state without server VIEW_PERMISSION_STATE', () => {
   const model = permissions.buildPermissionsControlModel(modelInput({
-    target_grants: [targetGrant()],
+    snapshot: snapshot({ permission_state_projection: [projectedState()] }),
   }));
 
   assert.equal(model.relation, 'OTHER');
@@ -75,39 +76,48 @@ test('viewer of another user sees no permission state without VIEW_PERMISSION_ST
   assert.deepEqual(model.management_controls, []);
 });
 
-test('VIEW_PERMISSION_STATE reveals state but does not create management controls', () => {
+test('server VIEW_PERMISSION_STATE reveals projected state but does not create management controls', () => {
   const model = permissions.buildPermissionsControlModel(modelInput({
-    viewer_capabilities: ['VIEW_PERMISSION_STATE'],
-    target_grants: [targetGrant()],
+    snapshot: snapshot({
+      visible_capabilities: ['VIEW_PERMISSION_STATE'],
+      permission_state_projection: [projectedState()],
+    }),
   }));
 
   assert.equal(model.can_view, true);
   assert.equal(model.can_manage, false);
-  assert.ok(model.permission_state.length > 0);
+  assert.equal(model.permission_state.length, 1);
   assert.deepEqual(model.management_controls, []);
 });
 
-test('management controls require both VIEW_PERMISSION_STATE and GRANT_PERMISSION', () => {
+test('management controls require both server VIEW_PERMISSION_STATE and GRANT_PERMISSION', () => {
   const onlyGrant = permissions.buildPermissionsControlModel(modelInput({
-    viewer_capabilities: ['GRANT_PERMISSION'],
+    snapshot: snapshot({ management_capabilities: ['GRANT_PERMISSION'] }),
   }));
   assert.equal(onlyGrant.can_view, false);
   assert.equal(onlyGrant.can_manage, false);
   assert.deepEqual(onlyGrant.management_controls, []);
 
   const both = permissions.buildPermissionsControlModel(modelInput({
-    viewer_capabilities: ['VIEW_PERMISSION_STATE', 'GRANT_PERMISSION'],
+    snapshot: snapshot({
+      visible_capabilities: ['VIEW_PERMISSION_STATE'],
+      management_capabilities: ['GRANT_PERMISSION'],
+      permission_state_projection: [projectedState()],
+    }),
   }));
   assert.equal(both.can_view, true);
   assert.equal(both.can_manage, true);
-  assert.ok(both.management_controls.length > 0);
+  assert.equal(both.management_controls.length, 1);
 });
 
-test('active target grant renders checked with human-readable scope and expiry', () => {
-  const grant = targetGrant();
+test('active server projection renders checked with human-readable scope and expiry', () => {
+  const projected = projectedState();
   const model = permissions.buildPermissionsControlModel(modelInput({
-    viewer_capabilities: ['VIEW_PERMISSION_STATE', 'GRANT_PERMISSION'],
-    target_grants: [grant],
+    snapshot: snapshot({
+      visible_capabilities: ['VIEW_PERMISSION_STATE'],
+      management_capabilities: ['GRANT_PERMISSION'],
+      permission_state_projection: [projected],
+    }),
   }));
 
   const state = model.permission_state.find((item) => item.capability_id === 'VIEW_FINANCIAL_EARNINGS');
@@ -116,19 +126,27 @@ test('active target grant renders checked with human-readable scope and expiry',
   assert.equal(state.active, true);
   assert.equal(state.label, 'عرض أرباح المنصة');
   assert.equal(state.scope, 'القطاع: food · الكيان: entity:target · السياسة الجغرافية: JO');
-  assert.equal(state.expires_at, grant.expires_at);
+  assert.equal(state.expires_at, projected.expires_at);
 
   const control = model.management_controls.find((item) => item.capability_id === 'VIEW_FINANCIAL_EARNINGS');
   assert.ok(control);
   assert.equal(control.checked, true);
   assert.equal(control.actionable, true);
-  assert.equal('disabled' in control, false, 'no disabled future control is rendered');
+  assert.equal('disabled' in control, false);
 });
 
-test('unchecked means no active grant', () => {
+test('unchecked server projection means no active grant', () => {
   const model = permissions.buildPermissionsControlModel(modelInput({
-    viewer_capabilities: ['VIEW_PERMISSION_STATE', 'GRANT_PERMISSION'],
-    target_grants: [],
+    snapshot: snapshot({
+      visible_capabilities: ['VIEW_PERMISSION_STATE'],
+      permission_state_projection: [projectedState({
+        checked: false,
+        active: false,
+        status: 'NOT_GRANTED',
+        scope: null,
+        expires_at: null,
+      })],
+    }),
   }));
 
   const state = model.permission_state.find((item) => item.capability_id === 'VIEW_FINANCIAL_EARNINGS');
@@ -138,49 +156,34 @@ test('unchecked means no active grant', () => {
   assert.equal(state.expires_at, null);
 });
 
-test('expired target grant renders unchecked and inactive', () => {
-  const expired = targetGrant({
-    expires_at: '2026-08-23T00:15:00.000Z',
-    delegability_ceiling: {
-      actions: [],
-      sector_scope: [],
-      entity_scope: [],
-      geo_policy_scope: [],
-      resource_scope: { kind: 'sector', ids: [] },
-      expires_at: '2026-08-23T00:15:00.000Z',
-    },
-  });
-  const model = permissions.buildPermissionsControlModel(modelInput({
-    viewer_capabilities: ['VIEW_PERMISSION_STATE'],
-    target_grants: [expired],
-  }));
+test('expired and revoked server projections render unchecked and inactive', () => {
+  for (const status of ['EXPIRED', 'REVOKED']) {
+    const model = permissions.buildPermissionsControlModel(modelInput({
+      snapshot: snapshot({
+        visible_capabilities: ['VIEW_PERMISSION_STATE'],
+        permission_state_projection: [projectedState({
+          checked: false,
+          active: false,
+          status,
+        })],
+      }),
+    }));
 
-  const state = model.permission_state.find((item) => item.capability_id === 'VIEW_FINANCIAL_EARNINGS');
-  assert.equal(state.checked, false);
-  assert.equal(state.active, false);
-  assert.equal(state.status, 'EXPIRED');
+    const state = model.permission_state.find((item) => item.capability_id === 'VIEW_FINANCIAL_EARNINGS');
+    assert.equal(state.checked, false);
+    assert.equal(state.active, false);
+    assert.equal(state.status, status);
+  }
 });
 
-test('revoked target grant renders unchecked and inactive', () => {
-  const revoked = targetGrant({
-    status: 'REVOKED',
-    revoked_at: '2026-08-23T00:20:00.000Z',
-  });
+test('role labels and legacy caller authority fields are ignored', () => {
   const model = permissions.buildPermissionsControlModel(modelInput({
-    viewer_capabilities: ['VIEW_PERMISSION_STATE'],
-    target_grants: [revoked],
-  }));
-
-  const state = model.permission_state.find((item) => item.capability_id === 'VIEW_FINANCIAL_EARNINGS');
-  assert.equal(state.checked, false);
-  assert.equal(state.active, false);
-  assert.equal(state.status, 'REVOKED');
-});
-
-test('role labels are never accepted as permission authority', () => {
-  const model = permissions.buildPermissionsControlModel(modelInput({
-    viewer_capabilities: [],
+    snapshot: snapshot(),
     viewer_role: 'Owner / Super Admin',
+    role: 'moderator',
+    viewer_capabilities: ['VIEW_PERMISSION_STATE', 'GRANT_PERMISSION'],
+    target_grants: [projectedState()],
+    now: '2099-01-01T00:00:00.000Z',
   }));
 
   assert.equal(model.can_view, false);
@@ -189,11 +192,15 @@ test('role labels are never accepted as permission authority', () => {
 
 test('view model is declarative and contains no DOM or navigation side effects', () => {
   const model = permissions.buildPermissionsControlModel(modelInput({
-    viewer_capabilities: ['VIEW_PERMISSION_STATE', 'GRANT_PERMISSION'],
+    snapshot: snapshot({
+      visible_capabilities: ['VIEW_PERMISSION_STATE'],
+      management_capabilities: ['GRANT_PERMISSION'],
+    }),
   }));
 
   assert.equal(Object.isFrozen(model), true);
   assert.equal(typeof permissions.buildPermissionsControlModel, 'function');
   assert.equal('mountPermissionsControl' in permissions, false);
   assert.equal('navigate' in permissions, false);
+  assert.equal(model.integration.dom_ready, false);
 });
