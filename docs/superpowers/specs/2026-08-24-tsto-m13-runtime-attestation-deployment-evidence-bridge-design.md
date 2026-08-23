@@ -16,7 +16,7 @@ M13 does **not** make Production trusted merely because a server, cloud provider
 
 The invariant is:
 
-`Runtime authority = authenticated verifier result ∩ exact release binding ∩ exact environment binding ∩ trusted freshness ∩ M10 deployment evidence ∩ M11 source readiness ∩ TSTO policy`
+`Runtime evidence eligibility = authenticated verifier result ∩ exact release binding ∩ exact environment binding ∩ trusted freshness ∩ M10 deployment evidence ∩ M11 source readiness ∩ TSTO policy`
 
 Missing or inconsistent evidence is `BLOCKED`.
 
@@ -112,7 +112,9 @@ Required fields:
 - `fresh_until_ms`
 - `state = PASS`
 
-Unknown keys, malformed digests, invalid environment, invalid chronology, stale/future-invalid results, or non-PASS state fail closed.
+Unknown keys, malformed/all-zero placeholder digests, invalid environment, invalid chronology, stale/future-invalid results, or non-PASS state fail closed.
+
+The module-owned M13 source contract caps attestation-result lifetime at **5 minutes**. Caller input cannot raise this cap.
 
 ### 5.2 `TIGER_TRUST_PULSE_V2`
 
@@ -136,6 +138,8 @@ Required fields:
 - `state = PASS`
 
 The Pulse must be derived by trusted source code from validated inputs. A caller cannot submit a V2 object and make it trusted by shape alone.
+
+The module-owned M13 Pulse lifetime is at most **60 seconds** and can never extend beyond the underlying attestation result's `fresh_until_ms`. This gives M13 bounded trust decay before M14 adds authenticated event-driven revocation.
 
 ### 5.3 `TIGER_DEPLOYMENT_ATTESTATION_BRIDGE_V1`
 
@@ -184,6 +188,8 @@ Runtime attestation must be time-bounded.
 Rules:
 
 - `fresh_until_ms > issued_at_ms`.
+- attestation-result lifetime must not exceed the module-owned 5-minute cap.
+- Trust Pulse V2 lifetime must not exceed 60 seconds or the underlying attestation expiry, whichever comes first.
 - trusted `now_ms` must be within the attestation/Pulse validity window.
 - freshness material is represented only by a digest/reference; raw nonce is not propagated into TSTO decision output.
 - a reused/stale attestation result cannot create a fresh Trust Pulse merely by changing local timestamps.
@@ -264,18 +270,19 @@ M13 source tests must prove at minimum:
 4. exact release SHA mismatch blocks;
 5. Staging/Production mismatch blocks;
 6. runtime artifact digest mismatch blocks;
-7. stale/future-invalid attestation blocks;
-8. invalid verifier/appraisal/freshness digests block;
-9. valid M11 alone cannot create runtime attestation truth;
-10. valid M10 alone cannot create runtime attestation truth;
-11. valid attestation alone cannot create deployed-durable truth;
-12. only mutually consistent M10 + M11 + trusted M13 result may derive an attested deployment state;
-13. whole-vehicle prohibition still overrides otherwise perfect runtime trust;
-14. transaction-authority prohibition still overrides otherwise perfect runtime trust;
-15. caller cannot manufacture verifier identity/current time/expected release/environment/artifact or proof requirements;
-16. output contains no raw nonce, secrets, PII or unnecessary runtime details;
-17. M12 focused tests remain GREEN;
-18. full existing repository gates remain GREEN on the exact final SHA.
+7. stale/future-invalid/overlong-lifetime attestation blocks;
+8. V2 Pulse cannot outlive 60 seconds or its source attestation;
+9. invalid/all-zero verifier/appraisal/freshness digests block;
+10. valid M11 alone cannot create runtime attestation truth;
+11. valid M10 alone cannot create runtime attestation truth;
+12. valid attestation alone cannot create deployed-durable truth;
+13. only mutually consistent M10 + M11 + trusted M13 result may derive an attested deployment state;
+14. whole-vehicle prohibition still overrides otherwise perfect runtime trust;
+15. transaction-authority prohibition still overrides otherwise perfect runtime trust;
+16. caller cannot manufacture verifier identity/current time/expected release/environment/artifact or proof requirements;
+17. output contains no raw nonce, secrets, PII or unnecessary runtime details;
+18. M12 focused tests remain GREEN;
+19. full existing repository gates remain GREEN on the exact final SHA.
 
 ## 14. Completion truth
 
