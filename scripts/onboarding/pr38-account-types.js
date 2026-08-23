@@ -102,10 +102,10 @@
     },
     {
       id: "broker",
-      nameAr: "وسيط",
-      nameEn: "Broker",
-      descriptionAr: "وساطة منظمة بين الأطراف ضمن ضوابط المنصة.",
-      descriptionEn: "Structured brokering between parties under platform rules."
+      nameAr: "وسيط مستقل",
+      nameEn: "Independent Broker",
+      descriptionAr: "حساب لمقدم خدمة وساطة مستقل؛ TIGER تقتصر على الاكتشاف والتواصل ثم تنتهي عند التسليم بين الأطراف.",
+      descriptionEn: "Account for an independent brokerage professional; TIGER is limited to discovery and contact handoff between the parties."
     },
     {
       id: "service-provider",
