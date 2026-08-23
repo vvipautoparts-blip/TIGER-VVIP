@@ -12,11 +12,40 @@ const REQUIRED_WORKFLOWS = Object.freeze([
   'Zero-Residue Full History',
 ]);
 
-function snapshot(authorityOverrides = {}) {
-  const sha = '36e15ea84a9cd3abec75d3da338f46dd9ee2ddae';
+const SHA = '36e15ea84a9cd3abec75d3da338f46dd9ee2ddae';
+const MIGRATION_SHA256 = '484fc1ee834ecce2ac8184ed0756e17f39b5424bbf58c6fff84e61acee6a70ad';
+
+function deployedReplayEvidence(sha = SHA) {
   return {
-    expected_head_sha: sha,
-    observed_head_sha: sha,
+    target_environment: 'production',
+    contact_replay_release_evidence: {
+      schema_version: 'market-contact-replay-release-evidence-v1',
+      environment: 'production',
+      release_sha: sha,
+      migration_sha256: MIGRATION_SHA256,
+      migration_applied: true,
+      migration_applied_at: '2026-08-23T15:00:00.000Z',
+      probe_completed_at: '2026-08-23T15:05:00.000Z',
+      probe_run_id: 'probe-32650000000',
+      runtime_instance_count: 2,
+      duplicate_nonce_probe: {
+        attempts: 2,
+        successes: 1,
+        replay_rejections: 1,
+      },
+      duplicate_consume_probe: {
+        attempts: 2,
+        successes: 1,
+        replay_rejections: 1,
+      },
+    },
+  };
+}
+
+function snapshot(authorityOverrides = {}, release) {
+  return {
+    expected_head_sha: SHA,
+    observed_head_sha: SHA,
     workflows: REQUIRED_WORKFLOWS.map((name) => ({ name, status: 'completed', conclusion: 'success' })),
     authority: {
       market_genesis_active: true,
@@ -38,6 +67,7 @@ function snapshot(authorityOverrides = {}) {
       organic_path_verified: true,
       pulse_proof_available: true,
     },
+    ...(release === undefined ? {} : { release }),
   };
 }
 
@@ -68,4 +98,19 @@ test('release evidence is required only when contact/handoff is enabled', () => 
     contact_replay_protection_durable: false,
   }));
   assert.equal(contactDisabled.ready, true);
+});
+
+test('exact deployed durable replay evidence authorizes contact/handoff rollout', () => {
+  const verdict = evaluate(snapshot({}, deployedReplayEvidence()));
+  assert.equal(verdict.ready, true);
+  assert.equal(verdict.state, 'ROLLOUT_ELIGIBLE');
+  assert.deepEqual(verdict.reason_codes, []);
+});
+
+test('release evidence failure reason is propagated without weakening other readiness checks', () => {
+  const evidence = deployedReplayEvidence();
+  evidence.contact_replay_release_evidence.environment = 'staging';
+  const verdict = evaluate(snapshot({}, evidence));
+  assert.equal(verdict.ready, false);
+  assert.ok(verdict.reason_codes.includes('CONTACT_REPLAY_RELEASE_ENVIRONMENT_MISMATCH'));
 });
