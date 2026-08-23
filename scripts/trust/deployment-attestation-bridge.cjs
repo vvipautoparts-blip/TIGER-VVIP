@@ -2,10 +2,12 @@
 
 const {
   TrustContractError,
+  MAX_TRUST_PULSE_V2_LIFETIME_MS,
   canonicalJson,
   sha256Hex,
   validateTrustDna,
   validateEpochVector,
+  validateTrustPulse,
   digestValidated,
 } = require('./contracts.cjs');
 const {
@@ -32,6 +34,7 @@ const DERIVE_KEYS = Object.freeze([
 ]);
 
 const trustedBridgeResults = new WeakSet();
+const trustedPulseV2Results = new WeakSet();
 
 function fail(code) {
   throw new TrustContractError(code);
@@ -192,8 +195,54 @@ function isTrustedDeploymentAttestationBridge(value) {
   return Boolean(value && typeof value === 'object' && trustedBridgeResults.has(value));
 }
 
+function deriveTrustPulseV2(bridgeResult) {
+  if (!isTrustedDeploymentAttestationBridge(bridgeResult)) fail('TRUST_PULSE_UNTRUSTED');
+  if (bridgeResult.state !== 'PASS'
+    || bridgeResult.runtime_attestation_verified !== true
+    || bridgeResult.source_readiness_verified !== true
+    || bridgeResult.deployment_evidence_verified !== true
+    || bridgeResult.production_activation_authorized !== false
+    || bridgeResult.transaction_authority_enabled !== false) {
+    fail('TRUST_PULSE_UNTRUSTED');
+  }
+
+  const issuedAtMs = bridgeResult.verified_at_ms;
+  const freshUntilMs = Math.min(
+    issuedAtMs + MAX_TRUST_PULSE_V2_LIFETIME_MS,
+    bridgeResult.attestation_fresh_until_ms,
+  );
+  if (!Number.isSafeInteger(issuedAtMs)
+    || !Number.isSafeInteger(freshUntilMs)
+    || freshUntilMs <= issuedAtMs) {
+    fail('TRUST_PULSE_UNTRUSTED');
+  }
+
+  const pulse = validateTrustPulse({
+    schema: 'TIGER_TRUST_PULSE_V2',
+    evidence_class: 'ATTESTED_RUNTIME_RESULT',
+    release_dna_sha256: bridgeResult.trust_dna_sha256,
+    epoch_vector_sha256: bridgeResult.epoch_vector_sha256,
+    deployment_evidence_sha256: bridgeResult.deployment_evidence_sha256,
+    attestation_result_sha256: bridgeResult.attestation_result_sha256,
+    runtime_artifact_sha256: bridgeResult.runtime_artifact_sha256,
+    verifier_ref_sha256: bridgeResult.verifier_ref_sha256,
+    attester_ref_sha256: bridgeResult.attester_ref_sha256,
+    issued_at_ms: issuedAtMs,
+    fresh_until_ms: freshUntilMs,
+    state: 'PASS',
+  });
+  trustedPulseV2Results.add(pulse);
+  return pulse;
+}
+
+function isTrustedTrustPulseV2(value) {
+  return Boolean(value && typeof value === 'object' && trustedPulseV2Results.has(value));
+}
+
 module.exports = {
   DEPLOYMENT_ATTESTATION_BRIDGE_SCHEMA,
   createDeploymentAttestationBridge,
   isTrustedDeploymentAttestationBridge,
+  deriveTrustPulseV2,
+  isTrustedTrustPulseV2,
 };
