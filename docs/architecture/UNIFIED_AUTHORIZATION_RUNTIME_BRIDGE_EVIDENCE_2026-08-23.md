@@ -1,8 +1,8 @@
 # Unified Authorization Runtime Bridge — Source Integration Evidence
 
-Date: 2026-08-23  
-PR: #321  
-Branch: `design/universal-rendezvous-platform-20260822`  
+Date: 2026-08-23
+PR: #321
+Branch: `design/universal-rendezvous-platform-20260822`
 Integration checkpoint SHA: `1f26a9656faa9e4a5b193f75814d24cea3b880f5`
 
 ## Scope of this evidence
