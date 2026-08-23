@@ -111,6 +111,10 @@ jobs:
         shell: bash
         run: bash scripts/quality-gate.sh
 
+      - name: Run fixed Market Genesis source verification
+        shell: bash
+        run: node --test tests/private-market-*.test.cjs
+
       - name: Run Production release regression tests
         shell: bash
         run: |
@@ -120,7 +124,8 @@ jobs:
             tests/release-workflow-hardening.test.cjs \
             tests/pages-production-artifact-isolation.test.cjs \
             tests/svef-release-bundle-modern.test.cjs \
-            tests/svef-release-bundle-postmerge-hardening.test.cjs
+            tests/svef-release-bundle-postmerge-hardening.test.cjs \
+            tests/svef-production-market-readiness-v2.test.cjs
 
       - name: Build Production public bytes exactly once
         shell: bash
@@ -135,7 +140,7 @@ jobs:
             --include-cname
           test -f "$RUNNER_TEMP/vvip-production-public/release-manifest.json"
 
-      - name: Generate deterministic source, materials, SBOM, and Production bundle evidence
+      - name: Generate deterministic source, materials, SBOM, Market Genesis source readiness, and Production bundle evidence
         shell: bash
         env:
           SOURCE_TREE: ${{ steps.source.outputs.source_tree }}
@@ -149,6 +154,10 @@ jobs:
           const path = require('node:path');
           const { canonicalJson, sha256Hex } = require('./scripts/tsrf/evidence/contracts.cjs');
           const {
+            createMarketSourceReadinessEvidence,
+            serializeMarketSourceReadinessEvidence,
+          } = require('./scripts/marketplace/market-source-readiness-evidence.js');
+          const {
             createProductionReleaseBundleManifest,
             serializeReleaseBundleManifest,
           } = require('./scripts/tsrf/svef/release-bundle.cjs');
@@ -159,12 +168,18 @@ jobs:
           const sourceSha = process.env.RELEASE_SHA;
           const sourceTree = process.env.SOURCE_TREE;
           const read = (relative) => fs.readFileSync(path.join(root, relative));
+          const replayMigrationPath = 'supabase/migrations/20260823190000_market_genesis_durable_replay.sql';
           const materialPaths = [
             '.github/workflows/production-release-artifact.yml',
             'requirements-dev.txt',
             'scripts/quality-gate.sh',
+            'scripts/marketplace/market-source-readiness-evidence.js',
+            'scripts/marketplace/market-readiness-gate.js',
+            'scripts/marketplace/market-release-evidence-contract.js',
+            'scripts/release/verify-production-artifact.py',
             'scripts/tsrf/evidence/contracts.cjs',
             'scripts/tsrf/svef/release-bundle.cjs',
+            replayMigrationPath,
             'tools/vvip_public_release.py',
           ];
           const materialRecords = materialPaths.sort().map((relative) => ({
@@ -234,6 +249,21 @@ jobs:
           const sbomBytes = Buffer.from(`${canonicalJson(sbom)}\n`);
           fs.writeFileSync(path.join(evidenceDir, 'sbom.cdx.json'), sbomBytes, { mode: 0o600 });
 
+          const marketSourceReadiness = createMarketSourceReadinessEvidence({
+            sourceSha,
+            sourceTree,
+            replayMigrationBytes: read(replayMigrationPath),
+          });
+          const marketGenesisSourceReadinessBytes = Buffer.from(
+            serializeMarketSourceReadinessEvidence(marketSourceReadiness),
+            'utf8',
+          );
+          fs.writeFileSync(
+            path.join(evidenceDir, 'market-genesis-source-readiness.json'),
+            marketGenesisSourceReadinessBytes,
+            { mode: 0o600 },
+          );
+
           const git = {
             headSha: () => sourceSha,
             treeSha: () => sourceTree,
@@ -243,6 +273,7 @@ jobs:
             candidateDir: publicDir,
             sbomBytes,
             materialRecords,
+            marketGenesisSourceReadinessBytes,
             createdBy: 'github-actions:production-release-artifact',
             git,
             fsApi: fs,
@@ -280,6 +311,7 @@ jobs:
           cp "$RUNNER_TEMP/vvip-production-evidence/materials.json" "$root/evidence/materials.json"
           cp "$RUNNER_TEMP/vvip-production-evidence/sbom.cdx.json" "$root/evidence/sbom.cdx.json"
           cp "$RUNNER_TEMP/vvip-production-evidence/release-bundle-manifest.json" "$root/evidence/release-bundle-manifest.json"
+          cp "$RUNNER_TEMP/vvip-production-evidence/market-genesis-source-readiness.json" "$root/evidence/market-genesis-source-readiness.json"
 
           archive="$out/vvip-production-release-${RELEASE_SHA}.tar.gz"
           checksum="$out/vvip-production-release-${RELEASE_SHA}.sha256"
