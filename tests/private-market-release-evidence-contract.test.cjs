@@ -50,7 +50,7 @@ if (moduleExists) {
     };
   }
 
-  function validate(release = validRelease(), expectedHeadSha = SHA, observedHeadSha = SHA) {
+  function validate(release, expectedHeadSha = SHA, observedHeadSha = SHA) {
     return validateContactReplayReleaseEvidence({
       release,
       expectedHeadSha,
@@ -66,7 +66,7 @@ if (moduleExists) {
   });
 
   test('accepts exact bounded deployed replay evidence and returns a frozen verdict', () => {
-    const verdict = validate();
+    const verdict = validate(validRelease());
     assert.deepEqual(verdict, {
       ok: true,
       reason_code: 'CONTACT_REPLAY_RELEASE_EVIDENCE_VERIFIED',
