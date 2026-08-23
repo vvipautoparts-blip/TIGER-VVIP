@@ -4,9 +4,9 @@
  * TIGER PRIVATE MARKET GENESIS — M4 Contact/Handoff Convergence.
  *
  * This boundary authorizes an opaque, short-lived one-to-one contact
- * capability. It deliberately does not create conversations, store message
- * content, expose direct contact values/private intent, or model any buyer ↔
- * seller transaction state.
+ * capability and emits a terminal handoff receipt. It deliberately does not
+ * create conversations, store message content, expose direct contact values /
+ * private intent, or model any buyer ↔ seller transaction state.
  */
 
 const { randomUUID } = require('node:crypto');
@@ -31,6 +31,7 @@ const PRIVATE_OR_MESSAGING_FIELDS = Object.freeze([
   'group_id',
   'room_id',
   'broadcast_id',
+  'payment_intent',
 ]);
 
 const FORBIDDEN_INPUT_FIELDS = new Set([
@@ -40,6 +41,22 @@ const FORBIDDEN_INPUT_FIELDS = new Set([
 
 const ONE_TO_ONE_CHANNELS = new Set(['SOCIAL_MESSAGE']);
 const DEFAULT_MAX_CAPABILITY_TTL_MS = 5 * 60 * 1000;
+const CAPABILITY_BINDING_FIELDS = Object.freeze([
+  'capability_id',
+  'request_id',
+  'requester_subject',
+  'owner_subject_ref',
+  'ad_id',
+  'sector_id',
+  'country',
+  'channel',
+  'policy_version',
+  'physics_version',
+  'reveal_policy_ref',
+  'reveal_authorized',
+  'issued_at',
+  'expires_at',
+]);
 
 function isPlainObject(value) {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -61,13 +78,17 @@ function addReason(reasonCodes, errors, code, message) {
   errors.push(message);
 }
 
-function denied(reasonCodes, errors) {
+function denied(reasonCodes, errors, state = 'CONTACT_REQUESTED') {
   return Object.freeze({
     ok: false,
-    state: 'CONTACT_REQUESTED',
+    state,
     reason_codes: Object.freeze([...reasonCodes]),
     errors: Object.freeze([...errors]),
   });
+}
+
+function capabilityMatches(stored, supplied) {
+  return CAPABILITY_BINDING_FIELDS.every((field) => stored[field] === supplied[field]);
 }
 
 function createContactHandoffConvergence(options = {}) {
@@ -77,6 +98,8 @@ function createContactHandoffConvergence(options = {}) {
     : DEFAULT_MAX_CAPABILITY_TTL_MS;
   const maxCapabilityTtlMs = Math.max(1, Math.min(configuredTtl, DEFAULT_MAX_CAPABILITY_TTL_MS));
   const consumedAuthorizationNonces = new Set();
+  const issuedCapabilities = new Map();
+  const consumedHandoffCapabilities = new Set();
 
   function authorizeContact(input = {}) {
     const reasonCodes = [];
@@ -210,6 +233,8 @@ function createContactHandoffConvergence(options = {}) {
       expires_at: new Date(expiresAtMs).toISOString(),
     });
 
+    issuedCapabilities.set(capability.capability_id, capability);
+
     return Object.freeze({
       ok: true,
       state: 'CONTACT_AUTHORIZED',
@@ -219,7 +244,94 @@ function createContactHandoffConvergence(options = {}) {
     });
   }
 
-  return Object.freeze({ authorizeContact });
+  function emitHandoff(input = {}) {
+    const reasonCodes = [];
+    const errors = [];
+    const suppliedCapability = isPlainObject(input.capability) ? input.capability : {};
+
+    if (!isPlainObject(input) || !isPlainObject(input.capability)) {
+      addReason(reasonCodes, errors, 'SCHEMA_INVALID', 'handoff input and capability are required objects');
+      return denied(reasonCodes, errors, 'CONTACT_AUTHORIZED');
+    }
+
+    if (hasForbiddenField(input)) {
+      addReason(
+        reasonCodes,
+        errors,
+        'PRIVATE_OR_TRANSACTION_PAYLOAD_FORBIDDEN',
+        'handoff accepts opaque references only, never private content, direct PII, group state, message content, or transaction payloads',
+      );
+    }
+
+    const capabilityId = suppliedCapability.capability_id;
+    if (typeof capabilityId !== 'string' || capabilityId.length === 0) {
+      addReason(reasonCodes, errors, 'SCHEMA_INVALID', 'capability.capability_id is required');
+      return denied(reasonCodes, errors, 'CONTACT_AUTHORIZED');
+    }
+
+    if (consumedHandoffCapabilities.has(capabilityId)) {
+      addReason(reasonCodes, errors, 'HANDOFF_REPLAY_DETECTED', 'contact capability has already emitted a terminal handoff');
+      return denied(reasonCodes, errors, 'CONTACT_AUTHORIZED');
+    }
+
+    const storedCapability = issuedCapabilities.get(capabilityId);
+    if (!storedCapability) {
+      addReason(reasonCodes, errors, 'CAPABILITY_NOT_ISSUED', 'contact capability was not issued by this authority instance');
+      return denied(reasonCodes, errors, 'CONTACT_AUTHORIZED');
+    }
+
+    if (!capabilityMatches(storedCapability, suppliedCapability)) {
+      addReason(reasonCodes, errors, 'CAPABILITY_BINDING_MISMATCH', 'contact capability binding does not match the issued authority record');
+    }
+
+    if (input.actor_subject !== storedCapability.requester_subject) {
+      addReason(reasonCodes, errors, 'ACTOR_AUTHORITY_MISMATCH', 'handoff actor does not match the authorized requester');
+    }
+
+    if (!ONE_TO_ONE_CHANNELS.has(storedCapability.channel)) {
+      addReason(reasonCodes, errors, 'CHANNEL_NOT_ALLOWED', 'handoff channel is not an authorized one-to-one channel');
+    }
+
+    const emittedAt = now();
+    const emittedAtMs = Date.parse(emittedAt);
+    const expiresAtMs = Date.parse(storedCapability.expires_at);
+    if (!Number.isFinite(emittedAtMs) || !Number.isFinite(expiresAtMs)) {
+      addReason(reasonCodes, errors, 'SCHEMA_INVALID', 'handoff timestamps must be valid');
+    } else if (emittedAtMs >= expiresAtMs) {
+      addReason(reasonCodes, errors, 'CAPABILITY_EXPIRED', 'contact capability has expired');
+    }
+
+    if (reasonCodes.length > 0) return denied(reasonCodes, errors, 'CONTACT_AUTHORIZED');
+
+    consumedHandoffCapabilities.add(capabilityId);
+
+    const receipt = Object.freeze({
+      handoff_id: `handoff_${randomUUID()}`,
+      capability_id: storedCapability.capability_id,
+      ad_id: storedCapability.ad_id,
+      requester_subject: storedCapability.requester_subject,
+      owner_subject_ref: storedCapability.owner_subject_ref,
+      sector_id: storedCapability.sector_id,
+      country: storedCapability.country,
+      channel: storedCapability.channel,
+      policy_version: storedCapability.policy_version,
+      physics_version: storedCapability.physics_version,
+      emitted_at: new Date(emittedAtMs).toISOString(),
+      state: 'HANDOFF_EMITTED',
+      terminal_state: 'TIGER_MARKET_ROLE_ENDED',
+    });
+
+    return Object.freeze({
+      ok: true,
+      state: 'HANDOFF_EMITTED',
+      terminal_state: 'TIGER_MARKET_ROLE_ENDED',
+      reason_codes: Object.freeze([]),
+      errors: Object.freeze([]),
+      receipt,
+    });
+  }
+
+  return Object.freeze({ authorizeContact, emitHandoff });
 }
 
 module.exports = {
