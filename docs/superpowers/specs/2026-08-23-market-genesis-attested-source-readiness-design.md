@@ -1,7 +1,7 @@
 # TIGER Private Market Genesis — M11 Attested Source Readiness Design
 
-**Date:** 2026-08-23  
-**Status:** Design approved / written specification pending owner review before implementation  
+**Date:** 2026-08-23
+**Status:** Design approved / written specification approved before implementation
 **Baseline:** M0–M10 are source-implemented and exact-head repository verified on Draft PR #323. M10 distinguishes `SOURCE_DURABLE` from `DEPLOYED_DURABLE_VERIFIED`; it does not itself create deployed-environment evidence.
 
 ## 1. Purpose
@@ -50,14 +50,14 @@ Adopt **M11 — Market Genesis Attested Source Readiness**.
 
 The trust chain becomes:
 
-`exact current main SHA`  
-→ `fixed Market Genesis source verification`  
-→ `TIGER_MARKET_GENESIS_SOURCE_READINESS_V1`  
-→ `SVEF_PRODUCTION_RELEASE_BUNDLE_V2`  
-→ `sealed Production release bundle`  
-→ `inner SHA-256`  
-→ `GitHub artifact digest`  
-→ `GitHub attestation`  
+`exact current main SHA`
+→ `fixed Market Genesis source verification`
+→ `TIGER_MARKET_GENESIS_SOURCE_READINESS_V1`
+→ `SVEF_PRODUCTION_RELEASE_BUNDLE_V2`
+→ `sealed Production release bundle`
+→ `inner SHA-256`
+→ `GitHub artifact digest`
+→ `GitHub attestation`
 → `existing exact-artifact Production promotion verifier`
 
 M11 extends the existing release plane; it does not replace or fork it.
