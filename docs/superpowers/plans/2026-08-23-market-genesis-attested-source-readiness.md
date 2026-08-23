@@ -92,6 +92,8 @@ assert.ok(verdict.reason_codes.includes('REQUIRED_WORKFLOW_NOT_GREEN'));
 node --test tests/private-market-readiness-gate.test.cjs tests/private-market-premerge-contact-readiness.test.cjs
 ```
 
+Expected: the new shrink-resistance assertion FAILS on the old second-argument behavior.
+
 - [ ] **Step 3: Remove `options.requiredWorkflows`** so `evaluateMarketGenesisReadiness(snapshot)` always uses frozen module-owned `DEFAULT_REQUIRED_WORKFLOWS`.
 
 - [ ] **Step 4: Run GREEN and all Market Genesis tests**
@@ -100,6 +102,8 @@ node --test tests/private-market-readiness-gate.test.cjs tests/private-market-pr
 node --test tests/private-market-readiness-gate.test.cjs tests/private-market-premerge-contact-readiness.test.cjs
 node --test tests/private-market-*.test.cjs
 ```
+
+Expected: both commands PASS.
 
 - [ ] **Step 5: Commit**
 
@@ -114,7 +118,9 @@ git commit -m "security(market): make readiness workflow set immutable"
 
 **Files:**
 - Modify: `scripts/tsrf/svef/release-bundle.cjs`
-- Add/modify focused SVEF tests.
+- Modify: `tests/svef-release-bundle-postmerge-hardening.test.cjs`
+- Create: `tests/svef-production-market-source-readiness.test.cjs`
+- Regression: `tests/svef-release-bundle-modern.test.cjs`
 
 **Interfaces:**
 - Candidate output remains `SVEF_RELEASE_BUNDLE_V1`.
@@ -126,20 +132,38 @@ git commit -m "security(market): make readiness workflow set immutable"
 
 ```js
 assert.equal(candidate.bundle_version, 'SVEF_RELEASE_BUNDLE_V1');
+assert.equal(Object.hasOwn(candidate, 'market_genesis_source_readiness_sha256'), false);
 assert.equal(production.bundle_version, 'SVEF_PRODUCTION_RELEASE_BUNDLE_V2');
 assert.match(production.market_genesis_source_readiness_sha256, /^[0-9a-f]{64}$/);
 ```
 
-- [ ] **Step 2: Run RED** against the focused SVEF test file(s).
+Also assert Production creation rejects missing/empty `marketGenesisSourceReadinessBytes`, and serialization rejects V1/V2 hybrid field sets.
 
-- [ ] **Step 3: Implement exact V1/V2 field sets** and reject mixed/unknown manifest shapes.
+- [ ] **Step 2: Run RED**
 
-- [ ] **Step 4: Run GREEN** for all SVEF release-bundle tests.
+```bash
+node --test tests/svef-production-market-source-readiness.test.cjs tests/svef-release-bundle-postmerge-hardening.test.cjs
+```
+
+Expected: new Production V2 assertions FAIL against the current V1 implementation.
+
+- [ ] **Step 3: Implement exact V1/V2 field sets** and reject mixed/unknown manifest shapes. `createReleaseBundleManifest` remains Candidate V1; `createProductionReleaseBundleManifest` hashes the exact supplied readiness bytes and emits Production V2.
+
+- [ ] **Step 4: Run GREEN plus Candidate regression**
+
+```bash
+node --test \
+  tests/svef-production-market-source-readiness.test.cjs \
+  tests/svef-release-bundle-postmerge-hardening.test.cjs \
+  tests/svef-release-bundle-modern.test.cjs
+```
+
+Expected: all PASS, including unchanged Candidate V1 assertions.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add scripts/tsrf/svef/release-bundle.cjs tests/
+git add scripts/tsrf/svef/release-bundle.cjs tests/svef-production-market-source-readiness.test.cjs tests/svef-release-bundle-postmerge-hardening.test.cjs
 git commit -m "feat(release): bind Market Genesis evidence in Production SVEF v2"
 ```
 
@@ -159,6 +183,8 @@ git commit -m "feat(release): bind Market Genesis evidence in Production SVEF v2
 python -m unittest -v tests/test_verify_production_artifact.py
 ```
 
+Expected: new M11 tests FAIL against the current V1 verifier.
+
 - [ ] **Step 3: Implement strict verification**: exact five-file evidence set, exact `SVEF_PRODUCTION_RELEASE_BUNDLE_V2`, exact new digest field, strict JSON duplicate-key rejection, exact source/migration/invariant checks, bounded failure codes from the spec.
 
 - [ ] **Step 4: Run GREEN and promotion regressions**
@@ -168,10 +194,12 @@ python -m unittest -v tests/test_verify_production_artifact.py
 node --test tests/release-workflow-hardening.test.cjs tests/exact-artifact-production-promotion.test.cjs tests/pages-production-artifact-isolation.test.cjs
 ```
 
+Expected: all PASS.
+
 - [ ] **Step 5: Commit**
 
 ```bash
-git add scripts/release/verify-production-artifact.py tests/
+git add scripts/release/verify-production-artifact.py tests/test_verify_production_artifact.py tests/exact-artifact-production-promotion.test.cjs tests/pages-production-artifact-isolation.test.cjs
 git commit -m "security(release): verify Market Genesis attested source evidence"
 ```
 
@@ -191,7 +219,9 @@ git commit -m "security(release): verify Market Genesis attested source evidence
 node --test tests/release-workflow-hardening.test.cjs
 ```
 
-- [ ] **Step 3: Implement builder integration** using exact checked-out SHA/tree and local bytes from `supabase/migrations/20260823190000_market_genesis_durable_replay.sql`. Write `evidence/market-genesis-source-readiness.json`, pass its exact bytes to Production V2 bundle creation, add M11 trust-boundary source files to materials, and seal exactly five evidence files.
+Expected: new M11 workflow assertions FAIL against the current builder.
+
+- [ ] **Step 3: Implement builder integration** using exact checked-out SHA/tree and local bytes from `supabase/migrations/20260823190000_market_genesis_durable_replay.sql`. Write `evidence/market-genesis-source-readiness.json`, pass its exact bytes to Production V2 bundle creation, add the M11 trust-boundary source files listed in the spec to materials, and seal exactly five evidence files.
 
 - [ ] **Step 4: Run GREEN/full source verification**
 
@@ -202,10 +232,12 @@ node --test tests/private-market-*.test.cjs
 bash scripts/quality-gate.sh
 ```
 
+Expected: all commands exit 0.
+
 - [ ] **Step 5: Commit**
 
 ```bash
-git add .github/workflows/production-release-artifact.yml tests/
+git add .github/workflows/production-release-artifact.yml tests/release-workflow-hardening.test.cjs
 git commit -m "feat(release): seal Market Genesis source readiness evidence"
 ```
 
@@ -234,6 +266,8 @@ node --test tests/private-market-*.test.cjs
 python -m unittest -v tests/test_verify_production_artifact.py
 bash scripts/quality-gate.sh
 ```
+
+Expected: all commands exit 0.
 
 - [ ] **Step 4: Commit docs**, capture the exact final SHA, and do not reuse earlier workflow evidence.
 
