@@ -1,7 +1,7 @@
 # Zero-Residue Semantic Audit — 2026-08-23
 
-**Status:** implementation evidence for PR #321  
-**Scope:** active runtime/current UI/current migration sources relevant to the 2026-08-22 foundational invariants.  
+**Status:** implementation evidence for PR #321
+**Scope:** active runtime/current UI/current migration sources relevant to the 2026-08-22 foundational invariants.
 **Safety boundary:** this audit and its source migrations do not prove or perform Production/Staging deployment or remote database mutation.
 
 ## Governing rules checked
