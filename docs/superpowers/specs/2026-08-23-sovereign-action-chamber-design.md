@@ -1,66 +1,120 @@
-# TIGER Sovereign Action Chamber — Proof-Bound Privileged BFF
+# TIGER Sovereign Proof Continuum v2
 
-**Status:** OWNER-APPROVED DESIGN — WRITTEN SPEC FOR REVIEW
+**Status:** ACTIVE OWNER-APPROVED ARCHITECTURE
 **Date:** 2026-08-23
-**Base checkpoint:** `f60a99414fb92ff825ad144bd4a15dd9d4288280`
-**Scope:** privileged/sensitive execution only; normal Social, ONE FIELD, discovery and ordinary RLS-governed reads remain on the existing fast path.
+**Base verified checkpoint:** `f60a99414fb92ff825ad144bd4a15dd9d4288280`
+**Atomic execution core:** TIGER Sovereign Action Chamber / Proof-Bound Privileged BFF
+**Scope:** privileged/sensitive execution only; normal Social, ONE FIELD, discovery and ordinary RLS-governed fast paths remain unchanged unless separately classified by server policy.
 
 ## 1. Decision
 
-TIGER will add a **Proof-Bound Privileged Backend-for-Frontend (BFF)** for high-risk actions only.
+TIGER adopts **Sovereign Proof Continuum v2** as the current architecture for HIGH/CRITICAL privileged execution.
 
-The browser may request a privileged action and render a confirmation surface, but it must never possess a portable credential that is sufficient by itself to execute that action.
+The Sovereign Action Chamber remains the atomic execution core inside the continuum. The browser may request an action and render safe confirmation data, but it must never possess a portable credential that is sufficient by itself to execute a protected mutation.
 
-Canonical rule:
+Canonical rules:
 
 ```text
 PRESENTATION != AUTHORITY
 ACTION_INTENT != AUTHORITY
 AUTHENTICATION != PLATFORM_PERMISSION
+DEVICE_SIGNAL != PLATFORM_PERMISSION
+RISK_SIGNAL != PLATFORM_PERMISSION
+RELEASE_PROOF != PLATFORM_PERMISSION
 PERSISTENT_GRANT = PERMISSION AUTHORITY
 SINGLE_USE_PERSISTENT_LEASE = EXECUTION AUTHORITY
 DATABASE = FINAL ATOMIC ENFORCEMENT
+AI_CAN_RAISE_SECURITY_BAR=true
+AI_CAN_LOWER_AUTHORITY_BAR=false
 ```
 
-This extends the existing Unified Authorization Runtime Bridge. It does not create a second permission engine, a second identity system, or a parallel audit ledger.
+The continuum extends the existing Unified Authorization Runtime Bridge. It does not create a second permission engine, a second identity system, a second grant store, or a parallel audit ledger.
 
-## 2. Research basis
+## 2. Research basis and 2026 correction
 
-The design follows current 2025–2026 security direction:
+This architecture follows current security direction and deliberately distinguishes final standards from emerging capabilities:
 
-- RFC 10017 (OAuth 2.0 for Browser-Based Applications, August 2026): BFF is the preferred high-security browser pattern because access/refresh tokens can be kept out of JavaScript.
-- RFC 9700 (OAuth 2.0 Security Best Current Practice): sender-constrained credentials such as DPoP/mTLS reduce replay value of stolen tokens.
-- FAPI 2.0 Security Profile: confidential clients, PKCE, PAR and sender-constrained access for high-value systems.
-- NIST SP 800-63-4: phishing-resistant cryptographic authentication for stronger assurance levels.
-- WebAuthn Level 3 (2026 Candidate Recommendation): modern passkey/WebAuthn foundation for phishing-resistant step-up.
-- Device Bound Session Credentials (DBSC): promising 2026 session-theft mitigation, but not yet sufficiently universal to be mandatory.
-- IETF Transaction Tokens work: useful principle of transaction-bound authorization context; TIGER adopts the binding principle without creating a portable bearer transaction token.
-- Trusted Types + strict CSP: defense-in-depth against DOM-XSS in privileged confirmation surfaces.
+- RFC 10017 (OAuth 2.0 for Browser-Based Applications, August 2026): selective BFF is the preferred high-security browser pattern for keeping provider access/refresh credentials out of general JavaScript.
+- RFC 9700 (OAuth 2.0 Security Best Current Practice): sender-constrained credentials such as DPoP/mTLS reduce replay value of stolen tokens where supported.
+- FAPI 2.0 Security Profile: high-value deployments benefit from confidential-client, PKCE/PAR and sender-constrained principles.
+- NIST SP 800-63-4: stronger assurance favors phishing-resistant cryptographic authentication when the provider and flow actually support it.
+- WebAuthn Level 3: modern phishing-resistant authentication foundation, but browser capability alone does not prove that the selected identity provider supports WebAuthn for every privileged reverification flow.
+- Clerk current reverification capability must be discovered/verified rather than assumed. TIGER must not claim Passkey/WebAuthn privileged step-up unless the selected provider flow explicitly supports it. A provider reverification identifier/freshness signal may be used only under its documented semantics and must be bound server-side to the TIGER action intent.
+- Continuous Access Evaluation / Shared Signals concepts may reduce trust after events such as session revocation, credential change or risk change. Such signals can tighten or revoke trust; they cannot grant TIGER permissions.
+- Device Bound Session Credentials (DBSC) are a promising 2026 device/session-theft mitigation but remain optional until support is sufficiently broad and environment-tested.
+- IETF Transaction Tokens provide a useful transaction-context principle; TIGER adopts intent-bound context without creating a browser-held portable bearer transaction token.
+- CSP3, Trusted Types, Fetch Metadata and subresource integrity/integrity-policy concepts provide browser defense-in-depth for the privileged confirmation island.
+- SLSA provenance and signed/transparency-backed attestations are suitable release/supply-chain evidence. They are evidence inputs, never authorization by themselves.
+- HTTP Message Signatures / Content-Digest may be used for service-to-service semantic integrity when TIGER later has multiple privileged workloads; they are not required for the first single-boundary implementation.
 
-These sources guide the architecture; TIGER remains fail-closed when a provider/browser lacks an optional enhancement.
+No emerging technology is allowed to weaken fail-closed behavior when absent or unsupported.
 
-## 3. Threat model
+## 3. Core innovation — Proof Convergence
 
-The chamber is designed to reduce damage from:
+A protected action is executable only when all mandatory proof dimensions converge on the same canonical action at execution time.
+
+Conceptual envelope:
+
+```text
+IDENTITY PROOF
+      +
+SESSION FRESHNESS / REVOCATION PROOF
+      +
+CONTINUOUS RISK PROOF
+      +
+DEVICE / SENDER PROOF [OPTIONAL, POLICY-DEFINED]
+      +
+ACTION INTENT PROOF
+      +
+REVERIFICATION PROOF [WHEN REQUIRED]
+      +
+PERSISTENT GRANT PROOF
+      +
+EXACT SCOPE PROOF
+      +
+POLICY / AUTHORITY VERSION PROOF
+      +
+RELEASE / SUPPLY-CHAIN PROOF
+      +
+SINGLE-USE EXECUTION LEASE
+      +
+ATOMIC AUDIT PROOF
+              ↓
+       EXECUTION ALLOWED
+```
+
+The **Sovereign Proof Envelope** is server-side canonical state/evidence. It is not a JWT, not a browser bearer token and not an alternative grant.
+
+If any proof required by the server-owned risk policy is missing, stale, contradictory or unverifiable, execution fails closed.
+
+## 4. Threat model
+
+The continuum is designed to reduce damage from:
 
 - stolen browser bearer/session tokens;
 - malicious or injected same-origin JavaScript;
-- stale UI snapshots;
+- XSS on the general Social/Marketplace surface;
+- stale presentation snapshots;
 - replayed privileged requests;
+- replayed/fabricated reverification identifiers;
 - confused-deputy scope substitution;
 - TOCTOU between confirmation and execution;
 - caller-controlled time;
 - grant revocation races;
-- cross-tab/process replay;
-- privileged action parameter tampering;
-- accidental leakage of approval/authorization secrets into logs or analytics;
-- deployment-version mismatch between what was approved and what executes.
+- session-revocation races;
+- cross-tab/process/device replay;
+- action parameter tampering;
+- client risk-tier downgrade;
+- release/policy drift between confirmation and execution;
+- compromised or stale build/release evidence;
+- accidental leakage of credentials/approval material into logs, analytics or audit metadata;
+- supply-chain substitution of privileged UI/runtime assets.
 
-It does not claim to make a compromised endpoint or identity provider harmless. It is a defense-in-depth execution boundary.
+The design does not claim an endpoint, browser, identity provider, operating system or supply chain can never be compromised. The objective is layered containment, short authority lifetime, exact binding, revocation responsiveness, auditability and recovery.
 
-## 4. Scope classification
+## 5. Scope classification
 
-### 4.1 Normal fast path — unchanged
+### 5.1 Normal fast path — preserved
 
 Examples:
 
@@ -68,11 +122,11 @@ Examples:
 - ONE FIELD intent capture;
 - ordinary discovery/search;
 - public/profile presentation under existing RLS;
-- ordinary low-risk user actions already safely enforced by RLS and current server contracts.
+- ordinary low-risk user actions already enforced by RLS/current server contracts.
 
-These do not need to be forced through the privileged chamber merely for architectural purity.
+These flows are not forced through the privileged BFF merely for architectural purity.
 
-### 4.2 Chamber path — mandatory
+### 5.2 Privileged continuum path — mandatory
 
 At minimum:
 
@@ -84,35 +138,59 @@ At minimum:
 - payment configuration or production-enablement controls;
 - security-policy mutations;
 - protected owner/admin actions;
-- future actions explicitly classified `HIGH` or `CRITICAL` by policy.
+- future actions classified `HIGH` or `CRITICAL` by authoritative server policy.
 
-Risk classification is server policy. The browser cannot downgrade a risk tier.
+The client cannot choose or downgrade the risk tier.
 
-## 5. Components
+## 6. Component model
 
-### 5.1 Privileged BFF endpoint
+### 6.1 Privileged Security Island
 
-A narrowly scoped server/edge execution boundary used only for privileged flows.
+HIGH/CRITICAL confirmation is rendered in a minimal isolated surface separate from general Social/Marketplace script composition.
+
+Requirements:
+
+- no ads;
+- no analytics;
+- no marketplace widgets;
+- no arbitrary third-party UI code;
+- minimal dependencies;
+- strict CSP;
+- Trusted Types enforcement where supported;
+- clickjacking denial through `frame-ancestors` or equivalent;
+- restrictive `form-action`, referrer and navigation policy;
+- Fetch Metadata/origin checks at the privileged request boundary;
+- no raw credential/token/lease material in DOM, logs, URLs or analytics;
+- deterministic rendering from safe server-canonical confirmation data.
+
+The security island is presentation only. Its UI state is never execution authority.
+
+### 6.2 Proof-Bound Privileged BFF
+
+A narrowly scoped server/edge boundary for privileged actions only.
 
 Responsibilities:
 
-- verify federated identity/session server-side;
-- enforce CSRF/origin/request-method policy;
-- create canonical action intents;
-- decide whether fresh step-up is required;
-- resolve persistent TIGER grants;
+- verify the federated identity/session server-side;
+- enforce HTTPS/origin/CSRF/request-method/content-type policy;
+- create/read canonical Action Intents;
+- evaluate server-owned risk tier and required proof classes;
+- validate supported provider reverification evidence when required;
+- consume session-revocation/risk signals where available;
+- re-resolve persistent TIGER grants;
 - request/consume persistent execution leases;
-- execute the exact approved action atomically;
+- verify release/policy binding;
+- invoke the atomic executor;
 - append structured audit evidence;
-- return a minimal result.
+- return bounded opaque results.
 
-It must never expose service-role credentials, provider secrets, private keys, persistent grants, raw audit evidence, or execution-lease secrets to browser JavaScript.
+It must never expose service-role credentials, provider secrets, private signing keys, persistent grants, raw audit evidence or execution-lease secrets to browser JavaScript.
 
-### 5.2 Action Intent Record
+### 6.3 Canonical Action Intent
 
-A server-side record representing exactly what the user is asking to do.
+The server creates the exact meaning of the requested action.
 
-Minimum canonical fields:
+Minimum fields:
 
 ```text
 intent_id
@@ -124,9 +202,11 @@ resource_type
 resource_id
 canonical_scope
 risk_tier
+required_proof_classes
 policy_version
 authority_version
 release_sha
+release_proof_ref
 request_nonce
 correlation_id
 created_at
@@ -135,15 +215,274 @@ status
 intent_digest
 ```
 
-The digest is computed server-side over a canonical representation.
+The digest is calculated over a stable canonical representation. Client-generated digests are never authority.
 
-The browser receives only an opaque `intent_reference` plus safe human-readable confirmation data. The reference is not execution authority.
+The browser receives only an opaque `intent_reference` and safe confirmation projection. The reference alone cannot execute anything.
 
-### 5.3 Proof-Bound Confirmation Surface
+### 6.4 Sovereign Proof Envelope
 
-A minimal privileged confirmation UI isolated from the normal Social/Marketplace surface.
+A server-side evaluation record assembled for one intent/execution attempt.
 
-For `HIGH/CRITICAL` actions it must display the exact server-canonical meaning of the action, for example:
+Representative fields:
+
+```text
+intent_digest
+principal
+identity_proof_ref
+session_proof_ref
+session_freshness
+session_revocation_state
+risk_decision
+risk_evidence_refs
+device_signal_class
+sender_constraint_class
+reverification_ref
+reverification_freshness
+reverification_bound_intent_digest
+grant_id
+grant_state
+scope_digest
+policy_version
+authority_version
+release_sha
+release_proof_ref
+lease_id
+lease_expiry
+proof_decision
+proof_reason_codes
+evaluated_at
+```
+
+Only non-secret references/claims needed for authorization and audit are retained. The envelope itself is not reusable execution authority.
+
+### 6.5 Federated Identity and Reverification Adapter
+
+TIGER keeps credential lifecycle with the approved external provider.
+
+Rules:
+
+- discover provider capabilities rather than assuming them;
+- use the strongest **verified provider-supported** reverification appropriate to the risk policy;
+- prefer phishing-resistant mechanisms only when the selected provider/action flow actually supports them;
+- bind accepted reverification evidence server-side to `intent_digest`, principal, challenge/context and freshness window;
+- treat provider authentication/reverification as identity evidence, never TIGER permission;
+- reject unknown, stale, replayed or mismatched reverification references;
+- never create a TIGER password, first-party recovery secret or parallel credential database.
+
+Provider replacement must not change TIGER capability IDs, grant semantics or audit authority.
+
+### 6.6 Continuous Trust / Revocation Adapter
+
+The continuum may consume authoritative session/risk events or polling results from provider/security systems.
+
+Examples:
+
+- session revoked;
+- account disabled;
+- credential changed;
+- provider signals elevated risk;
+- impossible session continuity detected;
+- device/session binding lost.
+
+Rules:
+
+- these signals may revoke trust, shorten proof lifetime, force reverification, increase risk tier or deny execution;
+- they may never grant capabilities, expand scope or lower mandatory authorization requirements;
+- absence of an optional signal source must not be misrepresented as positive trust.
+
+### 6.7 Risk Ratchet
+
+Risk evaluation is server-owned and monotonic with respect to baseline authorization.
+
+Canonical invariant:
+
+```text
+AI_OR_RISK_ENGINE_CAN_RAISE_SECURITY_BAR=true
+AI_OR_RISK_ENGINE_CAN_REQUIRE_REVERIFICATION=true
+AI_OR_RISK_ENGINE_CAN_DENY=true
+AI_OR_RISK_ENGINE_CAN_GRANT_PERMISSION=false
+AI_OR_RISK_ENGINE_CAN_EXPAND_SCOPE=false
+AI_OR_RISK_ENGINE_CAN_LOWER_BASELINE_REQUIREMENTS=false
+```
+
+Any AI/behavioral model contributes bounded risk signals only. Deterministic policy remains the authority for what proofs are required.
+
+### 6.8 Persistent Grant Resolver
+
+Reuse the existing authoritative grant model from the Unified Authorization Runtime Bridge.
+
+Immediately before execution the continuum re-resolves:
+
+- principal;
+- capability/action;
+- resource/sector/entity/geo scope;
+- policy version;
+- authority version;
+- database time;
+- revocation/expiry;
+- delegation ceiling where applicable.
+
+A browser presentation snapshot can never substitute for this check.
+
+### 6.9 Non-Portable Intent-Bound Execution Lease
+
+Reuse/extend the existing persistent single-use lease model.
+
+Properties:
+
+- created by trusted server/database authority;
+- database-time bounded;
+- exact principal/action/scope binding;
+- bound to `intent_digest`;
+- bound to current grant/policy/authority version;
+- optionally bound to required reverification/proof references;
+- TTL no greater than the existing privileged maximum, and policy may require shorter;
+- single-use;
+- revoked/invalid when required grant/proof/session state becomes invalid according to policy;
+- no reusable lease secret is returned to browser JavaScript.
+
+The browser may carry only an opaque operation/reference ID with no standalone execution power.
+
+### 6.10 Atomic Execution Core — Sovereign Action Chamber
+
+Final protected mutation order:
+
+```text
+LOCK / RE-RESOLVE GRANT
+LOCK / VERIFY ACTION INTENT
+VERIFY SESSION / REVOCATION STATE
+VERIFY REQUIRED REVERIFICATION
+VERIFY RISK POLICY
+VERIFY SCOPE / POLICY / AUTHORITY VERSION
+VERIFY RELEASE PROOF POLICY
+VERIFY SINGLE-USE LEASE
+EXECUTE PROTECTED MUTATION
+CONSUME LEASE
+FINALIZE INTENT
+APPEND REQUIRED AUDIT EVENT
+COMMIT
+```
+
+The protected mutation and authority consumption must be in one transaction whenever the database boundary permits it. If an external provider operation prevents a single transaction, use an explicit state machine with idempotency, compensating/fail-closed states and no false success claim.
+
+### 6.11 Existing Audit Chain
+
+Reuse the current append-only audit chain. Do not create a second ledger.
+
+Record bounded non-secret facts such as:
+
+- correlation/intent IDs and digest;
+- principal/action/resource;
+- risk tier and reason codes;
+- required/satisfied proof classes;
+- provider reverification class/reference hash where safe;
+- grant/lease outcome references;
+- scope digest;
+- policy/authority versions;
+- release SHA/proof reference;
+- session-revocation decision;
+- server timestamps;
+- final execution decision.
+
+Reject recursively:
+
+- passwords;
+- OTP values;
+- bearer/access/refresh tokens;
+- authorization headers;
+- provider session secrets;
+- WebAuthn private material;
+- raw approval/recovery secrets;
+- reusable execution lease secrets;
+- raw user prompts/content not required for the authorization audit.
+
+### 6.12 Release and Supply-Chain Proof
+
+`release_sha` alone is evidence, not permission.
+
+The privileged boundary should support a release-proof verifier that can consume approved provenance/attestation metadata such as:
+
+- exact source SHA;
+- build provenance;
+- artifact digest;
+- builder/workflow identity;
+- signed/transparency-backed attestation reference where adopted;
+- environment/policy compatibility.
+
+SLSA-style provenance and Sigstore-style attestations are suitable evidence mechanisms. No supply-chain attestation can create a TIGER capability.
+
+Policy may reject a HIGH/CRITICAL action when the current executing release cannot prove the minimum required release evidence or when confirmation/execution semantics crossed a forbidden version boundary.
+
+### 6.13 Sender-Constrained and Device-Bound Enhancements
+
+Where supported and independently verified:
+
+- prefer DPoP/mTLS/private-key client authentication for server-to-server OAuth over portable bearer-only semantics;
+- expose DBSC/device-bound session evidence as an optional proof class;
+- use HTTP Message Signatures + Content-Digest for multi-workload privileged service calls if/when that topology exists.
+
+These mechanisms improve replay/device/workload binding. None replaces persistent TIGER grants or execution leases.
+
+## 7. Session and token isolation
+
+### 7.1 General fast path
+
+The existing Clerk→Supabase browser runtime may remain for ordinary RLS-governed operations.
+
+### 7.2 Privileged continuum
+
+For HIGH/CRITICAL paths, the target state is that provider credentials used for privileged backend calls are unavailable to general application JavaScript.
+
+A narrow server-managed continuation/session mechanism may be used after verified federated identity. If cookie-based it must be:
+
+- `HttpOnly`;
+- `Secure`;
+- narrowly scoped;
+- short-lived;
+- SameSite/CSRF protected;
+- origin-bound by request policy;
+- incapable of bypassing persistent TIGER grant/lease checks.
+
+Exact provider mechanics remain adapter-specific and require environment evidence before Production claims.
+
+## 8. Risk tiers and proof policy
+
+Initial model:
+
+```text
+LOW       -> existing RLS/server contract; continuum optional
+MEDIUM    -> privileged BFF + persistent grant + short lease
+HIGH      -> MEDIUM + fresh provider-supported reverification + security island
+CRITICAL  -> HIGH + owner/policy approval when required + stricter release/risk/session proof
+```
+
+Server policy maps action → baseline tier → mandatory proof classes.
+
+Risk signals may only retain or raise the effective tier. They cannot reduce it below the action baseline.
+
+## 9. Browser security policy
+
+The privileged security island targets:
+
+- strict allowlist CSP;
+- Trusted Types where supported;
+- no arbitrary inline script;
+- no ads/analytics/marketplace dependencies;
+- `frame-ancestors 'none'` or equivalently strict policy unless a reviewed embedding flow exists;
+- restrictive `form-action` and navigation destinations;
+- strict referrer policy;
+- Fetch Metadata and exact-origin validation at server boundary;
+- SRI/integrity policy where feasible for static privileged assets;
+- deterministic server-safe confirmation rendering;
+- no sensitive data in URL query/fragment;
+- no token/credential logging;
+- fail-closed response when integrity/session/reverification state is uncertain.
+
+## 10. Confirmation semantics
+
+The user must approve the exact server-canonical action meaning.
+
+Example:
 
 ```text
 Grant: VIEW_FINANCIAL_EARNINGS
@@ -154,208 +493,47 @@ Geo policy: JO
 Expires: <server-derived expiry>
 ```
 
-The user must never confirm one set of fields while the server executes a different set.
+The confirmation is bound to the same `intent_digest` that reaches execution. Any mutation of principal, target, action, scope, policy, expiry semantics or other protected fields invalidates confirmation/proof convergence.
 
-The confirmation response is bound to `intent_digest` and cannot authorize a mutated intent.
-
-The surface must not load advertising, marketplace, analytics, arbitrary third-party widgets, or unrelated application scripts.
-
-### 5.4 Federated Step-Up Adapter
-
-TIGER continues to delegate credential lifecycle to the approved external identity provider.
-
-For policy-required step-up:
-
-- prefer provider-managed passkey/WebAuthn or another phishing-resistant method;
-- require fresh authentication evidence appropriate to the risk tier;
-- bind the successful step-up to the exact `intent_digest`, principal and challenge;
-- never store a TIGER password or first-party recovery secret;
-- never treat authentication success as sufficient platform authorization.
-
-The step-up adapter must support provider replacement without changing TIGER capability IDs or grant semantics.
-
-### 5.5 Persistent Grant Resolver
-
-Reuse the existing authoritative grant model.
-
-The chamber must re-resolve the current persistent grant immediately before execution. A presentation snapshot is never enough.
-
-Checks include:
-
-- principal;
-- capability/action;
-- resource scope;
-- sector/entity/geo scope;
-- policy version;
-- current server/database time;
-- revocation/expiry;
-- delegation ceiling where applicable.
-
-### 5.6 Non-Portable Execution Lease
-
-Reuse/extend the existing persistent single-use lease model.
-
-Properties:
-
-- created server-side;
-- database-time bounded;
-- exact action/scope binding;
-- bound to `intent_digest`;
-- bound to principal;
-- TTL no greater than the existing privileged maximum and policy may require less;
-- single-use;
-- consumed atomically with the protected mutation when technically possible;
-- invalid after grant revocation/expiry;
-- no reusable lease secret is returned to browser JavaScript.
-
-The browser may carry only an opaque operation/reference ID that has no standalone execution power.
-
-### 5.7 Atomic Executor
-
-The final protected mutation must execute only after all required gates pass.
-
-Preferred transaction shape:
-
-```text
-LOCK / RE-RESOLVE GRANT
-VERIFY ACTION INTENT
-VERIFY STEP-UP IF REQUIRED
-VERIFY LEASE
-VERIFY RELEASE/POLICY BINDING
-EXECUTE PROTECTED MUTATION
-CONSUME LEASE
-APPEND AUDIT EVENT
-COMMIT
-```
-
-If any step fails, the transaction fails closed. No half-consumed authorization and no half-applied protected mutation may be reported as success.
-
-### 5.8 Existing Audit Chain
-
-Reuse the current append-only authorization/audit chain.
-
-Record structured non-secret facts such as:
-
-- correlation ID;
-- intent ID/digest;
-- principal;
-- action;
-- target/resource;
-- policy version;
-- release SHA;
-- risk tier;
-- decision/reason code;
-- step-up class (not credential material);
-- grant/lease outcome identifiers safe for audit;
-- server timestamps.
-
-Never log passwords, OTPs, bearer tokens, provider tokens, WebAuthn private material, raw approval secrets, authorization headers, or reusable lease secrets.
-
-## 6. Session and token isolation
-
-### 6.1 Existing general browser runtime
-
-The existing Clerk→Supabase browser path may remain for ordinary operations already protected by RLS and current contracts.
-
-### 6.2 Privileged chamber
-
-For chamber operations, the target end-state is that provider access/refresh credentials required for privileged backend calls are not exposed to general application JavaScript.
-
-The privileged BFF may use a narrow server-managed session/continuation mechanism after server-side federated verification. Such a mechanism:
-
-- is not a TIGER password or recovery credential;
-- must be `HttpOnly`, `Secure`, tightly scoped and short-lived if cookie-based;
-- must use strong SameSite/CSRF/origin protections;
-- cannot itself bypass TIGER persistent capability/grant checks;
-- is rotated/expired according to risk policy.
-
-Exact provider mechanics remain adapter-specific and must be proven against the selected provider before Production activation.
-
-## 7. Sender-constrained and device-bound enhancements
-
-### 7.1 DPoP / mTLS / private-key client auth
-
-Where TIGER's server-to-server OAuth/provider integration supports it, prefer sender-constrained credentials over bearer-only semantics.
-
-This is an enhancement to transport/token replay resistance, not a substitute for TIGER authorization.
-
-### 7.2 DBSC
-
-Prepare an optional device-bound session signal interface.
-
-Rules:
-
-- DBSC is never mandatory for basic platform compatibility until browser/platform support is sufficiently broad and proven;
-- presence may raise confidence or reduce re-auth frequency under policy;
-- absence must not silently grant equivalent high-assurance status;
-- DBSC can never replace capability/grant/lease checks.
-
-## 8. Browser hardening for the confirmation surface
-
-The privileged surface should target:
-
-- strict CSP with no unnecessary third-party origins;
-- Trusted Types enforcement where supported;
-- no inline arbitrary script execution;
-- no analytics/ads/marketplace code;
-- clickjacking protection (`frame-ancestors` / equivalent);
-- strict referrer policy;
-- minimal DOM and dependency count;
-- no credential/token logging;
-- deterministic action rendering from server-safe data;
-- fail-closed behavior when integrity/session/step-up state is uncertain.
-
-## 9. Release binding
-
-Privileged intents and execution audit must carry the active release/source identity.
-
-`release_sha` is evidence, not authorization by itself.
-
-A policy may reject execution when the confirmation was produced under a release/policy version that no longer matches the authoritative execution environment.
-
-This prevents silent execution under materially different privileged semantics after a deployment change.
-
-## 10. Risk tiers
-
-Initial policy model:
-
-```text
-LOW       -> existing RLS/server contract; chamber optional
-MEDIUM    -> chamber required; persistent grant + short lease
-HIGH      -> chamber + fresh federated step-up + short single-use lease
-CRITICAL  -> HIGH controls + owner/policy-specific approval + stricter confirmation/isolation
-```
-
-The server owns risk classification. Client-provided risk labels are ignored.
+The UI never displays hashes/tokens/leases unless a diagnostic owner-only mode is separately authorized; ordinary users see plain human meaning.
 
 ## 11. Failure behavior
 
 Fail closed on:
 
-- missing/expired action intent;
+- missing/expired/finalized action intent;
 - intent digest mismatch;
-- stale/missing step-up;
+- unknown/stale/replayed reverification evidence;
+- session revoked or untrusted according to mandatory policy;
 - missing/revoked/expired grant;
-- scope mismatch;
-- policy/release mismatch when policy requires exact binding;
-- reused/expired lease;
-- failed atomic audit append where audit is mandatory;
+- principal/action/scope mismatch;
+- policy/authority version mismatch;
+- release proof below required policy;
+- risk tier/proof class not satisfied;
+- reused/expired/revoked lease;
+- caller-controlled security time;
+- failed mandatory audit append;
 - unsupported privileged runtime configuration;
-- uncertain identity/session binding.
+- uncertain identity/session binding;
+- unknown critical reason code.
 
-Return stable opaque reason codes to the browser. Keep sensitive diagnostic detail server-side.
+Return stable opaque reason codes to the browser. Sensitive diagnostic detail remains server-side.
 
-## 12. Privacy and minimization
+## 12. Privacy, retention and HANDOFF boundary
 
-The chamber stores only data needed to authorize, execute and audit protected operations.
+The continuum stores only authorization/execution evidence necessary for protected operations, security and audit policy.
 
-Action intents receive a short retention lifecycle. Rejected/expired intents should be compacted or deleted according to audit/legal policy without retaining unnecessary user content.
+- Action Intents are short-lived.
+- Rejected/expired intents are compacted/deleted according to retention policy.
+- Device/risk evidence is minimized to bounded classifications/references rather than unnecessary behavioral raw data.
+- The continuum does not become a surveillance profile.
+- It must never observe or control external buyer/seller negotiation, payment, delivery or outcome after CONTACT/HANDOFF.
 
-The chamber must not become a post-HANDOFF deal-observation channel. It does not change TIGER's discovery/contact commercial boundary.
+`CONTACT -> HANDOFF -> TIGER COMMERCIAL ROLE STOPS` remains unchanged.
 
-## 13. Compatibility with the existing architecture
+## 13. Compatibility with existing architecture
 
-This design preserves:
+Preserved without replacement:
 
 - Federated Identity Sovereignty;
 - ONE FIELD / Social Home fast path;
@@ -363,55 +541,67 @@ This design preserves:
 - persistent capability grants;
 - single-use persistent leases;
 - Owner-Sealed Disclosure;
-- DB authoritative time;
+- database-authoritative time;
 - append-only audit chain;
-- CONTACT -> HANDOFF terminal commercial boundary;
+- Self-Evolving Cognitive Continuum safety/governance boundary;
+- CONTACT/HANDOFF commercial terminal boundary;
 - no buyer/seller transaction-value commission.
 
-It adds an execution chamber around high-risk actions only.
+The v1 Sovereign Action Chamber is retained as the atomic execution core; v2 wraps it with proof convergence rather than forking it.
 
-## 14. Explicit non-goals
+## 14. Explicit non-goals / non-claims
 
 This phase will not:
 
 - migrate all TIGER traffic behind a full BFF;
-- create a first-party password/passkey credential store;
-- replace Clerk/federated identity with TIGER authentication;
+- create first-party TIGER passwords or passkey credential storage;
+- claim Passkey/WebAuthn privileged reverification when the selected provider flow does not support it;
 - create a second permission engine;
+- create a second grant store;
 - create a second audit ledger;
-- create browser-held transaction JWTs;
+- issue browser-held transaction JWTs;
 - make DBSC mandatory;
-- claim DPoP/mTLS support where the selected provider does not support it;
-- claim Production protection before real environment deployment/evidence;
-- monitor or control external deals after CONTACT/HANDOFF.
+- treat AI/risk scoring as authorization;
+- claim DPoP/mTLS/HTTP Message Signatures support without real provider/workload support;
+- claim SLSA/Sigstore release proof until build/release integration is implemented and evidenced;
+- claim Production protection before deployed environment verification;
+- monitor external deals after CONTACT/HANDOFF.
 
 ## 15. Implementation sequence
 
-Implementation should proceed as isolated TDD slices:
+Implementation proceeds as isolated RED → GREEN → exact-SHA slices:
 
-1. Action Intent canonical contract and digest.
-2. Privileged BFF request boundary and CSRF/origin/session contract.
-3. Server-side persistent grant re-resolution adapter.
-4. Intent-bound execution lease extension.
-5. Step-up policy adapter and phishing-resistant capability contract.
-6. Minimal secure confirmation surface contract.
-7. Atomic protected-action executor.
-8. Structured audit integration and secret rejection.
-9. Release/policy binding and replay/race tests.
-10. Optional DPoP/DBSC capability hooks (non-mandatory until provider/browser evidence exists).
-11. Full integration, threat-model regression and exact-SHA evidence.
+1. Sovereign Action Intent canonical contract and digest.
+2. Server-owned risk tier and mandatory proof-class policy.
+3. Privileged BFF request boundary: method/origin/CSRF/session/content-type rules.
+4. Persistent Action Intent storage with database time and state transitions.
+5. Federated reverification capability adapter with explicit provider-capability discovery and intent binding.
+6. Continuous session/revocation/risk adapter + monotonic Risk Ratchet.
+7. Persistent grant re-resolution bridge into the proof evaluator.
+8. Intent-bound non-portable execution lease extension.
+9. Minimal Privileged Security Island + CSP/Trusted Types/integrity contract.
+10. Release/supply-chain proof contract and release-policy binding.
+11. Atomic protected-action executor and audit finalization.
+12. Optional sender/device/workload proof hooks: DPoP/mTLS/DBSC/message-signature interfaces with fail-safe unsupported states.
+13. Full Proof Envelope integration, replay/race/TOCTOU/secret-leak threat-model regression and exact-SHA evidence.
 
-Every implementation slice follows RED -> GREEN -> exact-SHA gates.
+No optional technology is required to become mandatory until its provider/browser/runtime support is independently evidenced.
 
 ## 16. Acceptance invariants
 
 ```text
+SOVEREIGN_PROOF_CONTINUUM_V2=true
+SOVEREIGN_ACTION_CHAMBER_IS_ATOMIC_CORE=true
 BROWSER_PORTABLE_EXECUTION_AUTHORITY=false
 BROWSER_SERVICE_ROLE_SECRET=false
 BROWSER_PERSISTENT_GRANT_AUTHORITY=false
 BROWSER_EXECUTION_LEASE_SECRET=false
 ACTION_INTENT_IS_AUTHORITY=false
+PROOF_ENVELOPE_IS_PORTABLE_AUTHORITY=false
 AUTHENTICATION_ALONE_IS_AUTHORIZATION=false
+DEVICE_SIGNAL_ALONE_IS_AUTHORIZATION=false
+RISK_SIGNAL_ALONE_IS_AUTHORIZATION=false
+RELEASE_PROOF_ALONE_IS_AUTHORIZATION=false
 PERSISTENT_GRANT_RECHECK_BEFORE_EXECUTION=true
 EXECUTION_LEASE_SINGLE_USE=true
 EXECUTION_LEASE_INTENT_BOUND=true
@@ -419,13 +609,22 @@ DATABASE_TIME_AUTHORITATIVE=true
 PRIVILEGED_MUTATION_ATOMIC=true
 PRIVILEGED_AUDIT_SECRET_SAFE=true
 PRIVILEGED_RISK_CLASS_SERVER_OWNED=true
+RISK_RATCHET_MONOTONIC=true
+AI_CAN_RAISE_SECURITY_BAR=true
+AI_CAN_LOWER_AUTHORITY_BAR=false
+PROVIDER_CAPABILITY_MUST_BE_VERIFIED=true
+UNSUPPORTED_OPTIONAL_PROOF_CANNOT_BE_FAKED=true
 FIRST_PARTY_PASSWORD_SYSTEM=false
 NORMAL_FAST_PATH_PRESERVED=true
 CONTACT_HANDOFF_BOUNDARY_PRESERVED=true
 ```
 
-## 17. Naming
+## 17. Naming and supersession
 
-`TIGER Sovereign Action Chamber` and `Proof-Bound Privileged BFF` are mutable internal names.
+`TIGER Sovereign Proof Continuum`, `Sovereign Action Chamber`, `Proof Envelope` and `Proof-Bound Privileged BFF` are mutable internal names.
 
-The durable authority is the execution contract: **non-portable, intent-bound, server-enforced privileged authority**.
+The durable contract is:
+
+**one persistent authorization authority + convergent non-portable proof + intent-bound single-use execution + atomic enforcement + monotonic security ratchet.**
+
+This v2 specification supersedes the earlier v1 design language where they differ. The v1 Action Chamber implementation concept survives only as the atomic execution core inside v2.
