@@ -8,6 +8,7 @@ const {
 } = require('../evidence/contracts.cjs');
 
 const BUNDLE_VERSION = 'SVEF_RELEASE_BUNDLE_V1';
+const PRODUCTION_BUNDLE_VERSION = 'SVEF_PRODUCTION_RELEASE_BUNDLE_V2';
 const MANIFEST_NAME = 'release-manifest.json';
 const ALLOWED_INPUT_KEYS = new Set([
   'candidateDir',
@@ -18,6 +19,10 @@ const ALLOWED_INPUT_KEYS = new Set([
   'repositoryRoot',
   'sbomBytes',
 ]);
+const PRODUCTION_ALLOWED_INPUT_KEYS = new Set([
+  ...ALLOWED_INPUT_KEYS,
+  'marketGenesisSourceReadinessBytes',
+]);
 const OUTPUT_KEYS = Object.freeze([
   'bundle_version',
   'source_sha',
@@ -26,6 +31,17 @@ const OUTPUT_KEYS = Object.freeze([
   'candidate_content_sha256',
   'sbom_sha256',
   'materials_sha256',
+  'created_by',
+]);
+const PRODUCTION_OUTPUT_KEYS = Object.freeze([
+  'bundle_version',
+  'source_sha',
+  'source_tree',
+  'candidate_manifest_sha256',
+  'candidate_content_sha256',
+  'sbom_sha256',
+  'materials_sha256',
+  'market_genesis_source_readiness_sha256',
   'created_by',
 ]);
 
@@ -47,12 +63,12 @@ function isPlainObject(value) {
   return prototype === Object.prototype || prototype === null;
 }
 
-function assertExactInputShape(options) {
+function assertInputShape(options, allowedKeys, { production = false } = {}) {
   if (!isPlainObject(options)) {
     fail('SVEF_INPUT_INVALID', 'Release-bundle options must be a plain object.');
   }
   for (const key of Object.keys(options)) {
-    if (!ALLOWED_INPUT_KEYS.has(key)) {
+    if (!allowedKeys.has(key)) {
       fail('SVEF_UNTRUSTED_INPUT', `Untrusted release-bundle input field: ${key}`);
     }
   }
@@ -61,6 +77,17 @@ function assertExactInputShape(options) {
       fail('SVEF_INPUT_INVALID', `Missing required release-bundle input: ${key}`);
     }
   }
+  if (production && !Object.hasOwn(options, 'marketGenesisSourceReadinessBytes')) {
+    fail('MARKET_SOURCE_READINESS_MISSING', 'Market Genesis source-readiness evidence is required for Production V2.');
+  }
+}
+
+function assertExactInputShape(options) {
+  assertInputShape(options, ALLOWED_INPUT_KEYS);
+}
+
+function assertExactProductionInputShape(options) {
+  assertInputShape(options, PRODUCTION_ALLOWED_INPUT_KEYS, { production: true });
 }
 
 function assertSha40(value, code, label) {
@@ -282,6 +309,16 @@ function normalizeSbomBytes(value) {
   return value;
 }
 
+function normalizeMarketSourceReadinessBytes(value) {
+  if (!Buffer.isBuffer(value) && !(value instanceof Uint8Array)) {
+    fail('MARKET_SOURCE_READINESS_INVALID', 'Market Genesis source-readiness evidence must be non-empty bytes.');
+  }
+  if (value.byteLength === 0) {
+    fail('MARKET_SOURCE_READINESS_INVALID', 'Market Genesis source-readiness evidence must be non-empty bytes.');
+  }
+  return value;
+}
+
 function verifyMaterials(fsApi, repositoryRoot, materialRecords) {
   if (!Array.isArray(materialRecords) || materialRecords.length === 0) {
     fail('SVEF_MATERIALS_INVALID', 'Material records must be a non-empty array.');
@@ -325,8 +362,12 @@ function assertCreatedBy(value) {
   return value;
 }
 
-function trustedBundleInputs(options) {
-  assertExactInputShape(options);
+function trustedBundleInputs(options, { production = false } = {}) {
+  if (production) {
+    assertExactProductionInputShape(options);
+  } else {
+    assertExactInputShape(options);
+  }
   const {
     candidateDir,
     createdBy,
@@ -344,7 +385,7 @@ function trustedBundleInputs(options) {
     fail('SVEF_GIT_INVALID', 'git must provide headSha() and treeSha().');
   }
 
-  return Object.freeze({
+  const trusted = {
     fsApi,
     materialRecords,
     trustedRepositoryRoot: assertDirectory(fsApi, repositoryRoot, 'SVEF_REPOSITORY_ROOT_INVALID', 'repositoryRoot'),
@@ -353,7 +394,15 @@ function trustedBundleInputs(options) {
     sourceTree: assertSha40(git.treeSha(), 'SVEF_SOURCE_TREE_INVALID', 'Source tree'),
     trustedCreatedBy: assertCreatedBy(createdBy),
     trustedSbomBytes: normalizeSbomBytes(sbomBytes),
-  });
+  };
+
+  if (production) {
+    trusted.trustedMarketSourceReadinessBytes = normalizeMarketSourceReadinessBytes(
+      options.marketGenesisSourceReadinessBytes,
+    );
+  }
+
+  return Object.freeze(trusted);
 }
 
 function createBundleFromVerifiedManifest(trusted, manifest, manifestBytes) {
@@ -376,6 +425,27 @@ function createBundleFromVerifiedManifest(trusted, manifest, manifestBytes) {
   });
 }
 
+function createProductionBundleFromVerifiedManifest(trusted, manifest, manifestBytes) {
+  const candidateRecords = verifyCandidateFiles(trusted.fsApi, trusted.trustedCandidateRoot, manifest.files);
+  const verifiedMaterials = verifyMaterials(
+    trusted.fsApi,
+    trusted.trustedRepositoryRoot,
+    trusted.materialRecords,
+  );
+
+  return Object.freeze({
+    bundle_version: PRODUCTION_BUNDLE_VERSION,
+    source_sha: trusted.sourceSha,
+    source_tree: trusted.sourceTree,
+    candidate_manifest_sha256: sha256Hex(manifestBytes),
+    candidate_content_sha256: sha256Hex(canonicalJson(candidateRecords)),
+    sbom_sha256: sha256Hex(trusted.trustedSbomBytes),
+    materials_sha256: sha256Hex(canonicalJson(verifiedMaterials)),
+    market_genesis_source_readiness_sha256: sha256Hex(trusted.trustedMarketSourceReadinessBytes),
+    created_by: trusted.trustedCreatedBy,
+  });
+}
+
 function createReleaseBundleManifest(options) {
   const trusted = trustedBundleInputs(options);
   const { manifest, manifestBytes } = parseCandidateManifest(trusted.fsApi, trusted.trustedCandidateRoot);
@@ -393,7 +463,7 @@ function createReleaseBundleManifest(options) {
 }
 
 function createProductionReleaseBundleManifest(options) {
-  const trusted = trustedBundleInputs(options);
+  const trusted = trustedBundleInputs(options, { production: true });
   const { manifest, manifestBytes } = parseProductionManifest(trusted.fsApi, trusted.trustedCandidateRoot);
   if (manifest.sourceSha !== trusted.sourceSha) {
     fail('SVEF_PRODUCTION_SOURCE_MISMATCH', 'Production release manifest source SHA does not match exact Git source.');
@@ -405,22 +475,37 @@ function createProductionReleaseBundleManifest(options) {
   ) {
     fail('SVEF_PRODUCTION_INELIGIBLE', 'Production release manifest is not independently release eligible.');
   }
-  return createBundleFromVerifiedManifest(trusted, manifest, manifestBytes);
+  return createProductionBundleFromVerifiedManifest(trusted, manifest, manifestBytes);
+}
+
+function hasExactKeys(manifest, expectedKeys) {
+  return Object.keys(manifest).length === expectedKeys.length
+    && expectedKeys.every((key) => Object.hasOwn(manifest, key));
 }
 
 function serializeReleaseBundleManifest(manifest) {
-  if (
-    !isPlainObject(manifest) ||
-    Object.keys(manifest).length !== OUTPUT_KEYS.length ||
-    !OUTPUT_KEYS.every((key) => Object.hasOwn(manifest, key))
-  ) {
+  if (!isPlainObject(manifest)) {
     fail('SVEF_BUNDLE_MANIFEST_INVALID', 'Release-bundle manifest has an unexpected field set.');
+  }
+  const isCandidateV1 = manifest.bundle_version === BUNDLE_VERSION && hasExactKeys(manifest, OUTPUT_KEYS);
+  const isProductionV2 = manifest.bundle_version === PRODUCTION_BUNDLE_VERSION
+    && hasExactKeys(manifest, PRODUCTION_OUTPUT_KEYS);
+  if (!isCandidateV1 && !isProductionV2) {
+    fail('SVEF_BUNDLE_MANIFEST_INVALID', 'Release-bundle manifest has an unexpected field set or version.');
+  }
+  if (isProductionV2) {
+    assertSha256(
+      manifest.market_genesis_source_readiness_sha256,
+      'SVEF_BUNDLE_MANIFEST_INVALID',
+      'Market Genesis source-readiness digest',
+    );
   }
   return `${canonicalJson(manifest)}\n`;
 }
 
 module.exports = {
   BUNDLE_VERSION,
+  PRODUCTION_BUNDLE_VERSION,
   SvefReleaseBundleError,
   createProductionReleaseBundleManifest,
   createReleaseBundleManifest,
