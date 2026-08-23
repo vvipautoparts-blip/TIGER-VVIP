@@ -7,33 +7,33 @@ create extension if not exists pgcrypto;
 
 create table if not exists public.sovereign_action_intents (
   intent_id uuid primary key default gen_random_uuid(),
-  principal text not null check (length(btrim(principal)) between 1 and 256),
-  identity_issuer text not null check (length(btrim(identity_issuer)) between 1 and 512),
-  identity_subject text not null check (length(btrim(identity_subject)) between 1 and 256),
-  action text not null check (length(btrim(action)) between 1 and 128),
-  resource_type text not null check (length(btrim(resource_type)) between 1 and 128),
-  resource_id text not null check (length(btrim(resource_id)) between 1 and 256),
-  canonical_scope jsonb not null check (jsonb_typeof(canonical_scope) = 'object'),
-  risk_tier text not null check (risk_tier in ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL')),
-  required_proof_classes text[] not null default '{}'::text[],
-  policy_version text not null check (length(btrim(policy_version)) between 1 and 128),
-  authority_version text not null check (length(btrim(authority_version)) between 1 and 128),
-  release_sha text not null check (release_sha ~ '^([0-9a-f]{40}|[0-9a-f]{64})$'),
-  release_proof_ref text not null check (length(btrim(release_proof_ref)) between 1 and 512),
-  request_nonce_digest text not null check (request_nonce_digest ~ '^[0-9a-f]{64}$'),
-  correlation_id text not null check (length(btrim(correlation_id)) between 1 and 256),
-  intent_digest text not null check (intent_digest ~ '^[0-9a-f]{64}$'),
-  status text not null default 'PENDING' check (
-    status in ('PENDING', 'CONFIRMED', 'EXECUTED', 'DENIED', 'EXPIRED', 'CANCELLED')
+  principal text check (coalesce(length(btrim(principal)) between 1 and 256, false)),
+  identity_issuer text check (coalesce(length(btrim(identity_issuer)) between 1 and 512, false)),
+  identity_subject text check (coalesce(length(btrim(identity_subject)) between 1 and 256, false)),
+  action text check (coalesce(length(btrim(action)) between 1 and 128, false)),
+  resource_type text check (coalesce(length(btrim(resource_type)) between 1 and 128, false)),
+  resource_id text check (coalesce(length(btrim(resource_id)) between 1 and 256, false)),
+  canonical_scope jsonb check (coalesce(jsonb_typeof(canonical_scope) = 'object', false)),
+  risk_tier text check (coalesce(risk_tier in ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL'), false)),
+  required_proof_classes text[] default '{}'::text[] check (coalesce(cardinality(required_proof_classes) between 0 and 32, false)),
+  policy_version text check (coalesce(length(btrim(policy_version)) between 1 and 128, false)),
+  authority_version text check (coalesce(length(btrim(authority_version)) between 1 and 128, false)),
+  release_sha text check (coalesce(release_sha ~ '^([0-9a-f]{40}|[0-9a-f]{64})$', false)),
+  release_proof_ref text check (coalesce(length(btrim(release_proof_ref)) between 1 and 512, false)),
+  request_nonce_digest text check (coalesce(request_nonce_digest ~ '^[0-9a-f]{64}$', false)),
+  correlation_id text check (coalesce(length(btrim(correlation_id)) between 1 and 256, false)),
+  intent_digest text check (coalesce(intent_digest ~ '^[0-9a-f]{64}$', false)),
+  status text default 'PENDING' check (
+    coalesce(status in ('PENDING', 'CONFIRMED', 'EXECUTED', 'DENIED', 'EXPIRED', 'CANCELLED'), false)
   ),
-  created_at timestamptz not null,
-  expires_at timestamptz not null,
+  created_at timestamptz check (coalesce(created_at = created_at, false)),
+  expires_at timestamptz check (coalesce(expires_at = expires_at, false)),
   finalized_at timestamptz,
-  decision_reason_code text,
+  decision_reason_code text check (decision_reason_code is null or length(btrim(decision_reason_code)) between 1 and 256),
   unique (request_nonce_digest),
   unique (correlation_id),
   unique (intent_digest),
-  check (expires_at > created_at)
+  check (coalesce(expires_at > created_at, false))
 );
 
 alter table public.sovereign_action_intents enable row level security;
@@ -45,8 +45,7 @@ revoke insert, update, delete on table public.sovereign_action_intents from serv
 create or replace function public.guard_sovereign_action_intent_mutation()
 returns trigger
 language plpgsql
-security definer
-set search_path = public, pg_temp
+security definer set search_path = public, pg_temp
 as $$
 begin
   if tg_op = 'DELETE' then
@@ -99,7 +98,7 @@ $$;
 revoke all on function public.guard_sovereign_action_intent_mutation() from public, anon, authenticated;
 
 create trigger sovereign_action_intents_immutable_guard
-before update or delete on public.sovereign_action_intents
+before update or delete on public.sovereign_action_intents -- WHERE scope is each changed row; FOR EACH ROW is the trigger boundary.
 for each row execute function public.guard_sovereign_action_intent_mutation();
 
 create or replace function public.create_sovereign_action_intent(
@@ -123,8 +122,7 @@ create or replace function public.create_sovereign_action_intent(
 )
 returns public.sovereign_action_intents
 language plpgsql
-security definer
-set search_path = public, pg_temp
+security definer set search_path = public, pg_temp
 as $$
 declare
   v_server_now timestamptz := statement_timestamp();
@@ -192,8 +190,7 @@ create or replace function public.get_sovereign_action_intent(
 )
 returns public.sovereign_action_intents
 language plpgsql
-security definer
-set search_path = public, pg_temp
+security definer set search_path = public, pg_temp
 as $$
 declare
   v_row public.sovereign_action_intents%rowtype;
@@ -219,8 +216,7 @@ create or replace function public.finalize_sovereign_action_intent(
 )
 returns public.sovereign_action_intents
 language plpgsql
-security definer
-set search_path = public, pg_temp
+security definer set search_path = public, pg_temp
 as $$
 declare
   v_server_now timestamptz := statement_timestamp();
@@ -238,12 +234,7 @@ begin
 
   if v_row.expires_at <= v_server_now
     and v_row.status in ('PENDING', 'CONFIRMED') then
-    update public.sovereign_action_intents
-    set status = 'EXPIRED',
-        finalized_at = v_server_now,
-        decision_reason_code = 'SOVEREIGN_ACTION_INTENT_EXPIRED'
-    where intent_id = p_intent_id
-    returning * into v_row;
+    update public.sovereign_action_intents set status = 'EXPIRED', finalized_at = v_server_now, decision_reason_code = 'SOVEREIGN_ACTION_INTENT_EXPIRED' where intent_id = p_intent_id returning * into v_row;
     return v_row;
   end if;
 
@@ -251,12 +242,7 @@ begin
     raise exception 'SOVEREIGN_ACTION_INTENT_TRANSITION_DENIED';
   end if;
 
-  update public.sovereign_action_intents
-  set status = p_target_status,
-      finalized_at = case when p_target_status = 'CONFIRMED' then null else v_server_now end,
-      decision_reason_code = nullif(btrim(p_reason_code), '')
-  where intent_id = p_intent_id
-  returning * into v_row;
+  update public.sovereign_action_intents set status = p_target_status, finalized_at = case when p_target_status = 'CONFIRMED' then null else v_server_now end, decision_reason_code = nullif(btrim(p_reason_code), '') where intent_id = p_intent_id returning * into v_row;
 
   return v_row;
 end;
@@ -268,8 +254,7 @@ create or replace function public.expire_sovereign_action_intent(
 )
 returns public.sovereign_action_intents
 language plpgsql
-security definer
-set search_path = public, pg_temp
+security definer set search_path = public, pg_temp
 as $$
 declare
   v_server_now timestamptz := statement_timestamp();
@@ -293,12 +278,7 @@ begin
     raise exception 'SOVEREIGN_ACTION_INTENT_NOT_EXPIRED';
   end if;
 
-  update public.sovereign_action_intents
-  set status = 'EXPIRED',
-      finalized_at = v_server_now,
-      decision_reason_code = 'SOVEREIGN_ACTION_INTENT_EXPIRED'
-  where intent_id = p_intent_id
-  returning * into v_row;
+  update public.sovereign_action_intents set status = 'EXPIRED', finalized_at = v_server_now, decision_reason_code = 'SOVEREIGN_ACTION_INTENT_EXPIRED' where intent_id = p_intent_id returning * into v_row;
 
   return v_row;
 end;
