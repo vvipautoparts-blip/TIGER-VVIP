@@ -162,33 +162,41 @@ test('delegation cannot exceed capability family or any scope ceiling', () => {
   }));
   assert.equal(contract.canDelegate(grantor, outsideCapability, LATER), false);
 
-  const widerSector = contract.createSensitiveGrant(grantInput({
-    principal: 'partner:beta',
-    grantor: 'partner:alpha',
-    sector_scope: ['automotive'],
-  }));
-  assert.equal(contract.canDelegate(grantor, widerSector, LATER), false);
+  assert.throws(
+    () => contract.createSensitiveGrant(grantInput({
+      principal: 'partner:beta',
+      grantor: 'partner:alpha',
+      sector_scope: ['automotive'],
+    })),
+    /delegability|ceiling|scope/i,
+  );
 
-  const widerEntity = contract.createSensitiveGrant(grantInput({
-    principal: 'partner:beta',
-    grantor: 'partner:alpha',
-    entity_scope: ['entity:beta'],
-  }));
-  assert.equal(contract.canDelegate(grantor, widerEntity, LATER), false);
+  assert.throws(
+    () => contract.createSensitiveGrant(grantInput({
+      principal: 'partner:beta',
+      grantor: 'partner:alpha',
+      entity_scope: ['entity:beta'],
+    })),
+    /delegability|ceiling|scope/i,
+  );
 
-  const widerGeo = contract.createSensitiveGrant(grantInput({
-    principal: 'partner:beta',
-    grantor: 'partner:alpha',
-    geo_policy_scope: ['US'],
-  }));
-  assert.equal(contract.canDelegate(grantor, widerGeo, LATER), false);
+  assert.throws(
+    () => contract.createSensitiveGrant(grantInput({
+      principal: 'partner:beta',
+      grantor: 'partner:alpha',
+      geo_policy_scope: ['US'],
+    })),
+    /delegability|ceiling|scope/i,
+  );
 
-  const widerResource = contract.createSensitiveGrant(grantInput({
-    principal: 'partner:beta',
-    grantor: 'partner:alpha',
-    resource_scope: { kind: 'sector', ids: ['automotive'] },
-  }));
-  assert.equal(contract.canDelegate(grantor, widerResource, LATER), false);
+  assert.throws(
+    () => contract.createSensitiveGrant(grantInput({
+      principal: 'partner:beta',
+      grantor: 'partner:alpha',
+      resource_scope: { kind: 'sector', ids: ['automotive'] },
+    })),
+    /delegability|ceiling|scope/i,
+  );
 });
 
 test('delegation cannot outlive its ceiling and owner root identity is never delegable', () => {
