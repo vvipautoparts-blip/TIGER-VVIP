@@ -1,7 +1,7 @@
 # TIGER SOVEREIGN TRUST ORGANISM 2026 — M13 Runtime Attestation and Deployment Evidence Bridge
 
 **Date:** 2026-08-24
-**Status:** `WRITTEN SPEC PENDING OWNER REVIEW / NO M13 IMPLEMENTATION YET`
+**Status:** `OWNER APPROVED / SOURCE IMPLEMENTED / EXACT-HEAD VERIFICATION REQUIRED`
 **Program:** `TIGER SOVEREIGN TRUST ORGANISM 2026 (TSTO)`
 **Milestone:** `M13 — Runtime Attestation and Deployment Evidence Bridge`
 **Depends on:** M9 durable replay authority, M10 deployment evidence contract, M11 source/artifact readiness, M12 Sovereign Continuous Authority Core
@@ -252,12 +252,12 @@ Unknown/missing mandatory evidence is `BLOCKED`; no warning-to-PASS path exists.
 
 ## 12. M13 source implementation scope
 
-The implementation plan should remain small and composable. Expected source units:
+The implementation remains small and composable. Implemented source units:
 
 - `scripts/trust/runtime-attestation.cjs` — closed normalized result validation/digesting and trusted-adapter boundary marker contract.
-- `scripts/trust/deployment-attestation-bridge.cjs` — pure M10+M11+M13 cross-binding.
-- `scripts/trust/contracts.cjs` — add V2 Trust Pulse validation without mutating V1 semantics.
-- `scripts/trust/scae.cjs` — accept a trusted V2 Pulse through the same proof-geometry model while preserving all M12 laws.
+- `scripts/trust/deployment-attestation-bridge.cjs` — pure M10+M11+M13 cross-binding and trusted V2 derivation.
+- `scripts/trust/contracts.cjs` — V2 Trust Pulse validation without mutating V1 semantics.
+- `scripts/trust/scae.cjs` — accepts only trusted V2 Pulse provenance through the same proof-geometry model while preserving all M12 laws.
 - focused `tests/tsto-m13-*.test.cjs`.
 
 No cloud SDK, network call, remote database call, or Production integration is required for source completion.
