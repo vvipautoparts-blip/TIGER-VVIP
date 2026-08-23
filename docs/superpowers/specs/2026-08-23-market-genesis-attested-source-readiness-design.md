@@ -1,7 +1,7 @@
 # TIGER Private Market Genesis — M11 Attested Source Readiness Design
 
 **Date:** 2026-08-23  
-**Status:** Approved design / written specification before implementation  
+**Status:** Design approved / written specification pending owner review before implementation  
 **Baseline:** M0–M10 are source-implemented and exact-head repository verified on Draft PR #323. M10 distinguishes `SOURCE_DURABLE` from `DEPLOYED_DURABLE_VERIFIED`; it does not itself create deployed-environment evidence.
 
 ## 1. Purpose
@@ -51,8 +51,9 @@ Adopt **M11 — Market Genesis Attested Source Readiness**.
 The trust chain becomes:
 
 `exact current main SHA`  
-→ `fixed source/Market Genesis verification`  
+→ `fixed Market Genesis source verification`  
 → `TIGER_MARKET_GENESIS_SOURCE_READINESS_V1`  
+→ `SVEF_PRODUCTION_RELEASE_BUNDLE_V2`  
 → `sealed Production release bundle`  
 → `inner SHA-256`  
 → `GitHub artifact digest`  
@@ -69,7 +70,7 @@ The sealed Production artifact will contain:
 
 The object is canonical JSON with a closed field set.
 
-### 5.1 Top-level schema
+### 5.1 Exact schema
 
 ```json
 {
@@ -100,19 +101,7 @@ The object is canonical JSON with a closed field set.
 
 The top-level object, `authority`, and `source_contract` are closed allowlists. Unknown keys fail verification.
 
-The evidence must not contain:
-
-- database URLs;
-- credentials, publishable/secret/service-role keys, tokens, or cookies;
-- hostnames or IP addresses;
-- raw authorization nonces or nonce hashes;
-- reusable Contact/Handoff capabilities;
-- runtime instance identifiers;
-- PII or message content;
-- raw private intent or precise private location;
-- buyer/seller order, payment, escrow, settlement, delivery, ownership-transfer, or dispute state.
-
-The object is a source-readiness statement only.
+The evidence must not contain database URLs; credentials, publishable/secret/service-role keys, tokens, or cookies; hostnames or IP addresses; raw authorization nonces or nonce hashes; reusable Contact/Handoff capabilities; runtime instance identifiers; PII or message content; raw private intent or precise private location; or buyer/seller order, payment, escrow, settlement, delivery, ownership-transfer, or dispute state.
 
 ### 5.3 Source-only state law
 
@@ -126,62 +115,69 @@ Only separately authorized target-environment activity satisfying the M10 Releas
 
 ## 6. Deterministic evidence generation
 
-M11 will add a small Market Genesis source-readiness generator/validator under `scripts/marketplace/`.
+M11 will add:
+
+`scripts/marketplace/market-source-readiness-evidence.js`
+
+It is a pure local source-evidence generator/validator.
 
 The generator must:
 
 1. use the exact checked-out Git SHA and tree;
 2. compute the SHA-256 of `supabase/migrations/20260823190000_market_genesis_durable_replay.sql` from local bytes;
-3. require that digest to equal the reviewed M10/M9 constant;
-4. emit only the closed canonical source-readiness schema;
+3. require that digest to equal `484fc1ee834ecce2ac8184ed0756e17f39b5424bbf58c6fff84e61acee6a70ad`;
+4. emit only the exact canonical source-readiness schema;
 5. expose no network or database I/O;
 6. read no deployment state;
 7. never infer or emit deployed durability;
-8. never serialize environment variables, credentials, host information, runtime identifiers, private intent, or user data.
+8. never serialize environment variables, credentials, host information, runtime identifiers, private intent, or user data;
+9. accept no caller-supplied authority booleans or source-contract booleans.
 
-The Production artifact workflow is responsible for sequencing: fixed Market Genesis verification must complete successfully before the generator is invoked. A caller cannot supply alternate booleans to weaken the source contract.
+The Production artifact workflow is responsible for sequencing: fixed Market Genesis verification must complete successfully before the generator is invoked.
 
 ## 7. Fixed Market Genesis source verification in the existing Production builder
 
 `.github/workflows/production-release-artifact.yml` remains the sole sealed Production artifact builder.
 
-Before `market-genesis-source-readiness.json` is generated, the builder must run a fixed Market Genesis source verification set covering at least:
+The existing full `bash scripts/quality-gate.sh` remains required.
 
-- Market Genesis core contracts;
-- whole-vehicle hard prohibition;
-- no-transaction negative boundary;
-- Living Classified Fabric anti-fallback protections;
-- durable replay authority/store/runtime tests;
-- reviewed durable replay migration contract/digest;
-- M10 Release Evidence Contract tests;
-- readiness integration tests;
-- privacy/security regressions relevant to Market Genesis.
+After that full gate and before source-readiness evidence generation, the builder must run this fixed Market Genesis command:
 
-The set is source-controlled by the trusted workflow and test files. It is not a workflow-dispatch input and cannot be reduced by a caller.
+```bash
+node --test tests/private-market-*.test.cjs
+```
 
-The existing full `scripts/quality-gate.sh` remains required; M11 adds a fixed Market Genesis-specific source attestation step rather than replacing the full gate.
+The command is source-controlled, is not a workflow-dispatch input, and cannot be replaced or reduced by a caller. It covers the current Market Genesis contracts, reference Lenses, whole-vehicle prohibition, no-transaction boundary, sponsored firewall, SYNAPSE integration, Contact/Handoff, durable replay, migration contract, privacy/observability, readiness, M10 release evidence, and anti-fallback regressions represented by the repository's `private-market-*` tests.
 
-## 8. SVEF integration and versioning
+A non-zero result prevents evidence generation and prevents sealing.
 
-The current Production SVEF bundle manifest is a closed `SVEF_RELEASE_BUNDLE_V1` object and the current Production verifier accepts an exact four-file evidence set. M11 must not smuggle a fifth evidence file into that closed schema without versioning.
+## 8. SVEF integration and exact versioning
 
-### 8.1 Production bundle V2
+The current Production SVEF bundle manifest is a closed `SVEF_RELEASE_BUNDLE_V1` object and the current Production verifier accepts an exact four-file evidence set. M11 must not add an unbound fifth evidence file to that closed schema.
 
-M11 will introduce a Production bundle schema/version that explicitly binds the new evidence digest.
+### 8.1 Exact Production bundle version
 
-The Production release-bundle manifest adds exactly:
+M11 introduces exactly:
+
+`SVEF_PRODUCTION_RELEASE_BUNDLE_V2`
+
+for sealed Production bundles.
+
+Candidate/non-Production release-bundle behavior remains on the existing `SVEF_RELEASE_BUNDLE_V1` contract. M11 does not perform a shared candidate-schema migration.
+
+### 8.2 Exact Production V2 digest field
+
+The Production V2 release-bundle manifest adds exactly:
 
 `market_genesis_source_readiness_sha256`
 
 The value is the SHA-256 of the exact canonical bytes of `evidence/market-genesis-source-readiness.json`.
 
-The production bundle version advances to a new explicit version (implementation name expected to be `SVEF_PRODUCTION_RELEASE_BUNDLE_V2`, unless the implementation plan identifies an existing repository naming convention that requires a semantically equivalent exact name).
+The Production V2 manifest remains a closed schema. No optional compatibility field or V1 fallback is allowed in the Production promotion path.
 
-Candidate/non-Production bundle behavior should remain on its existing schema unless implementation evidence proves a shared version bump is safer and does not broaden scope. The preferred design is a Production-only V2 so unrelated candidate contracts are not churned.
+### 8.3 Exact evidence member set
 
-### 8.2 Exact evidence member set
-
-The attested inner Production tarball will contain exactly these evidence files:
+The attested inner Production tarball contains exactly these evidence files:
 
 - `evidence/source.json`
 - `evidence/materials.json`
@@ -193,19 +189,27 @@ plus the already-built `public/` tree.
 
 No extra evidence member is accepted.
 
-### 8.3 Materials binding
+### 8.4 Materials binding
 
-The Production builder material inventory must include the M11 trust-boundary implementation and tests needed to interpret the evidence, including at minimum the source-readiness generator/validator, Market Genesis readiness/release-evidence contracts, Production builder, Production verifier, SVEF release-bundle code, and the reviewed durable replay migration.
+The Production builder material inventory must include at least these M11 trust-boundary source files after implementation:
 
-The existing materials digest continues to bind those repository source bytes.
+- `.github/workflows/production-release-artifact.yml`
+- `scripts/marketplace/market-source-readiness-evidence.js`
+- `scripts/marketplace/market-readiness-gate.js`
+- `scripts/marketplace/market-release-evidence-contract.js`
+- `scripts/tsrf/svef/release-bundle.cjs`
+- `scripts/release/verify-production-artifact.py`
+- `supabase/migrations/20260823190000_market_genesis_durable_replay.sql`
+
+and the existing release material set. The existing materials digest continues to bind those repository source bytes.
 
 ## 9. Promotion verifier requirements
 
 `scripts/release/verify-production-artifact.py` will fail closed unless all of the following are true after existing outer-artifact and attestation verification:
 
 1. the inner evidence set is exact and contains `market-genesis-source-readiness.json`;
-2. the Production bundle version is the M11 version;
-3. the release-bundle manifest contains the exact new digest field and no unknown fields;
+2. `bundle_version` is exactly `SVEF_PRODUCTION_RELEASE_BUNDLE_V2`;
+3. the release-bundle manifest contains the exact V2 field set and no unknown fields;
 4. the SHA-256 of the source-readiness JSON equals `market_genesis_source_readiness_sha256`;
 5. the source-readiness JSON is strict JSON with no duplicate keys and the exact closed field sets;
 6. `source_sha` matches the expected release SHA, `source.json`, and the release-bundle manifest;
@@ -216,23 +220,19 @@ The existing materials digest continues to bind those repository source bytes.
 11. every authority/source-contract invariant has the exact required value;
 12. forbidden evidence content is absent.
 
-Any M11 failure blocks promotion before Pages packaging/deployment.
-
-Historical pre-M11 Production artifacts that lack the new evidence are intentionally not sufficient for a post-M11 promotion path. This is a security-boundary upgrade, not a compatibility fallback.
+Historical pre-M11 Production V1 artifacts are intentionally not sufficient for the post-M11 Production promotion path. This is a security-boundary upgrade, not a compatibility fallback.
 
 ## 10. Repository readiness gate hardening
 
-M11 also removes one unsafe source-level override from `scripts/marketplace/market-readiness-gate.js`:
+M11 removes the caller-controlled workflow-set override from:
 
-- callers may no longer replace the required repository workflow set through `options.requiredWorkflows`.
+`scripts/marketplace/market-readiness-gate.js`
 
-The required repository workflow set becomes module-owned and immutable.
+`evaluateMarketGenesisReadiness` will use the module-owned immutable repository workflow set only. A second argument cannot shrink, replace, or bypass that set.
 
 This does **not** elevate caller-supplied workflow records into Production provenance. Repository workflow snapshots remain repository/pre-merge evidence only. The attested Production source-readiness artifact is the release-source authority.
 
-M11 will add regression coverage proving that passing a smaller workflow set as a second argument cannot weaken readiness.
-
-M11 does not require every GitHub workflow in the repository to run on every `main` commit. Existing path-filtered workflows may remain path-filtered. This is another reason Production trust must come from the fixed sealed-artifact builder rather than from a caller-selected historical workflow list.
+M11 does not require every GitHub workflow in the repository to run on every `main` commit. Existing path-filtered workflows may remain path-filtered. Production trust comes from the fixed sealed-artifact builder rather than from a caller-selected historical workflow list.
 
 ## 11. M10 relationship
 
@@ -247,30 +247,28 @@ Therefore:
 
 Production Contact/Handoff remains fail-closed until both the source/release chain and the real target-environment M10 evidence are satisfied at the appropriate release stage.
 
-## 12. Failure model
+## 12. Exact failure model
 
-M11 is fail-closed.
+M11 uses bounded failure codes. The implementation must expose these exact semantic codes at the applicable layer:
 
-Representative bounded failure codes should distinguish at least:
+- `MARKET_SOURCE_READINESS_MISSING`
+- `MARKET_SOURCE_READINESS_INVALID`
+- `MARKET_SOURCE_SHA_MISMATCH`
+- `MARKET_SOURCE_TREE_MISMATCH`
+- `MARKET_REPLAY_MIGRATION_DIGEST_MISMATCH`
+- `MARKET_SOURCE_CONTRACT_MISMATCH`
+- `MARKET_DEPLOYED_DURABLE_SOURCE_CLAIM_FORBIDDEN`
+- `MARKET_SOURCE_READINESS_DIGEST_MISMATCH`
+- `SVEF_PRODUCTION_BUNDLE_VERSION_MISMATCH`
+- `VVIP_INNER_ENTRY_SET_INVALID` for an unexpected/missing inner evidence member set, preserving the existing verifier category.
 
-- source-readiness evidence missing;
-- source-readiness schema invalid;
-- source SHA mismatch;
-- source tree mismatch;
-- reviewed migration digest mismatch;
-- source contract invariant mismatch;
-- deployed-durable source claim forbidden;
-- source-readiness digest mismatch;
-- Production bundle version mismatch;
-- unexpected evidence member set.
-
-Exact code names will be fixed in the implementation plan/tests, but they must remain bounded and must not expose secrets, filesystem internals, user data, private intent, or remote infrastructure details.
+Failure output must not expose secrets, filesystem internals, user data, private intent, or remote infrastructure details.
 
 ## 13. TDD and verification requirements
 
 Implementation must follow strict RED → GREEN.
 
-Required RED coverage before production changes includes at least:
+Required RED coverage before production changes includes:
 
 1. caller cannot shrink required repository workflows;
 2. Production verifier rejects a pre-M11/V1 bundle on the M11 path;
@@ -280,41 +278,41 @@ Required RED coverage before production changes includes at least:
 6. migration digest mismatch is rejected;
 7. `deployed_durable_verified=true` is rejected;
 8. wrong whole-vehicle/no-transaction/anti-fallback authority values are rejected;
-9. tampered source-readiness bytes fail the bundle digest binding;
+9. tampered source-readiness bytes fail the Production V2 digest binding;
 10. an exact M11 sealed fixture passes.
 
 After GREEN, all existing Market Genesis M0–M10 privacy, security, whole-vehicle, no-transaction, Pulse, SYNAPSE, RLS, durable replay, release-artifact, and promotion tests must remain green.
 
 Final repository verification must be exact-head. No successful workflow from an older SHA may be reused after the M11 implementation/docs head changes.
 
-## 14. Files expected to change
+## 14. Exact implementation surface
 
-Implementation is expected to touch a focused set such as:
+M11 is expected to change only the following trust-boundary areas plus focused tests/docs:
 
-- `scripts/marketplace/market-source-readiness-evidence.js` — new pure generator/validator;
-- `scripts/marketplace/market-readiness-gate.js` — remove caller workflow-set override;
-- `.github/workflows/production-release-artifact.yml` — fixed Market Genesis source verification + evidence generation + sealing;
-- `scripts/tsrf/svef/release-bundle.cjs` — Production V2 digest binding;
-- `scripts/release/verify-production-artifact.py` — strict M11 verification;
-- focused Node/Python release and Market Genesis tests;
+- new `scripts/marketplace/market-source-readiness-evidence.js`;
+- `scripts/marketplace/market-readiness-gate.js`;
+- `.github/workflows/production-release-artifact.yml`;
+- `scripts/tsrf/svef/release-bundle.cjs`;
+- `scripts/release/verify-production-artifact.py`;
+- focused Node/Python Market Genesis and release tests;
 - current owner authority and PR truth after final exact-head verification.
 
-The implementation plan may refine filenames to match repository conventions, but may not create a second release/promotion plane or broaden M11 into deployed-environment automation.
+No new release artifact workflow, promotion workflow, database apply workflow, or parallel Market Genesis release plane is permitted by M11.
 
 ## 15. Acceptance criteria
 
 M11 is source-complete only when:
 
 1. the written contract is implemented with closed schemas and no secret/private-data surface;
-2. the Production builder creates Market Genesis source evidence only after fixed source verification succeeds;
-3. the exact evidence bytes are cryptographically bound into the sealed Production release bundle;
+2. the Production builder creates Market Genesis source evidence only after the full Quality Gate and fixed `node --test tests/private-market-*.test.cjs` command succeed;
+3. the exact evidence bytes are bound by `market_genesis_source_readiness_sha256` in `SVEF_PRODUCTION_RELEASE_BUNDLE_V2`;
 4. the existing GitHub artifact/attestation trust chain authenticates the bundle containing that evidence;
 5. Production promotion rejects missing, stale, tampered, V1/pre-M11, source-mismatched, or semantically invalid Market Genesis source evidence;
 6. caller-controlled workflow-list reduction is removed from the repository readiness gate;
 7. all immutable Market Genesis commercial/privacy/security laws remain enforced;
 8. all applicable exact-head repository/security/database rehearsal workflows are GREEN on one final SHA;
 9. PR #323 remains Draft/Open/Unmerged unless separately authorized;
-10. no remote Staging/Production/Supabase/DNS/secret/payment-provider mutation or Contact/Handoff activation has occurred as part of M11 source implementation.
+10. no remote Staging/Production/Supabase/DNS/secret/payment-provider mutation or Contact/Handoff activation occurs as part of M11 source implementation.
 
 ## 16. Completion meaning
 
