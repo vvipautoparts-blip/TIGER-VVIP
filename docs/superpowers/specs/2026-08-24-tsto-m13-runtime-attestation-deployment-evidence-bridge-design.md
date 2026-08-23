@@ -116,6 +116,8 @@ Unknown keys, malformed/all-zero placeholder digests, invalid environment, inval
 
 The module-owned M13 source contract caps attestation-result lifetime at **5 minutes**. Caller input cannot raise this cap.
 
+**Important source boundary:** structural validation of `TIGER_ATTESTATION_RESULT_V1` is not cryptographic authentication. Only a trusted verifier adapter may mark an external appraisal as eligible to enter this normalized contract. Unit-test fixtures emulate that trusted boundary only for source verification and never constitute real runtime attestation.
+
 ### 5.2 `TIGER_TRUST_PULSE_V2`
 
 M12 `TIGER_TRUST_PULSE_V1` remains immutable and `SYNTHETIC_TEST_ONLY`. M13 must not weaken or reinterpret it.
@@ -147,14 +149,14 @@ The bridge is a pure deterministic derivation contract over already-authenticate
 
 1. M11 source readiness validates for the expected source SHA/tree.
 2. M10 release evidence validates for the same exact release SHA and target environment.
-3. `TIGER_ATTESTATION_RESULT_V1` validates and is fresh at a trusted `now_ms`.
+3. `TIGER_ATTESTATION_RESULT_V1` validates and is fresh at a trusted `now_ms` **and has been supplied by the trusted verifier-adapter boundary, not by caller data**.
 4. Attestation `release_sha` equals M10 release SHA and expected/observed head SHA.
 5. Attestation `environment` equals M10 target environment.
 6. Runtime artifact digest equals the trusted expected artifact digest supplied by the release/deployment adapter.
 7. Trust DNA digest and sovereign epoch digest are exact trusted inputs.
 8. No raw secrets, nonce, credentials, PII, private intent, message content, database connection strings, or unnecessary host identifiers appear in bridge output.
 
-The bridge output may establish `runtime_attestation_verified=true` only for the authenticated normalized verifier result. It must never translate that into Production activation authority.
+The bridge output may establish `runtime_attestation_verified=true` only for an authenticated normalized verifier result supplied through the trusted-adapter boundary. Shape-valid caller data can never establish this state. The bridge must never translate runtime appraisal into Production activation authority.
 
 ## 6. Relying-Party law
 
@@ -252,7 +254,7 @@ Unknown/missing mandatory evidence is `BLOCKED`; no warning-to-PASS path exists.
 
 The implementation plan should remain small and composable. Expected source units:
 
-- `scripts/trust/runtime-attestation.cjs` — closed normalized result validation/digesting.
+- `scripts/trust/runtime-attestation.cjs` — closed normalized result validation/digesting and trusted-adapter boundary marker contract.
 - `scripts/trust/deployment-attestation-bridge.cjs` — pure M10+M11+M13 cross-binding.
 - `scripts/trust/contracts.cjs` — add V2 Trust Pulse validation without mutating V1 semantics.
 - `scripts/trust/scae.cjs` — accept a trusted V2 Pulse through the same proof-geometry model while preserving all M12 laws.
@@ -267,22 +269,23 @@ M13 source tests must prove at minimum:
 1. closed attestation-result schema; unknown fields rejected;
 2. V1 synthetic Pulse semantics remain unchanged;
 3. V2 Pulse cannot be trusted directly from request payload;
-4. exact release SHA mismatch blocks;
-5. Staging/Production mismatch blocks;
-6. runtime artifact digest mismatch blocks;
-7. stale/future-invalid/overlong-lifetime attestation blocks;
-8. V2 Pulse cannot outlive 60 seconds or its source attestation;
-9. invalid/all-zero verifier/appraisal/freshness digests block;
-10. valid M11 alone cannot create runtime attestation truth;
-11. valid M10 alone cannot create runtime attestation truth;
-12. valid attestation alone cannot create deployed-durable truth;
-13. only mutually consistent M10 + M11 + trusted M13 result may derive an attested deployment state;
-14. whole-vehicle prohibition still overrides otherwise perfect runtime trust;
-15. transaction-authority prohibition still overrides otherwise perfect runtime trust;
-16. caller cannot manufacture verifier identity/current time/expected release/environment/artifact or proof requirements;
-17. output contains no raw nonce, secrets, PII or unnecessary runtime details;
-18. M12 focused tests remain GREEN;
-19. full existing repository gates remain GREEN on the exact final SHA.
+4. shape-valid attestation data without trusted-adapter provenance cannot derive runtime-attestation truth;
+5. exact release SHA mismatch blocks;
+6. Staging/Production mismatch blocks;
+7. runtime artifact digest mismatch blocks;
+8. stale/future-invalid/overlong-lifetime attestation blocks;
+9. V2 Pulse cannot outlive 60 seconds or its source attestation;
+10. invalid/all-zero verifier/appraisal/freshness digests block;
+11. valid M11 alone cannot create runtime attestation truth;
+12. valid M10 alone cannot create runtime attestation truth;
+13. valid attestation alone cannot create deployed-durable truth;
+14. only mutually consistent M10 + M11 + trusted M13 result may derive an attested deployment state;
+15. whole-vehicle prohibition still overrides otherwise perfect runtime trust;
+16. transaction-authority prohibition still overrides otherwise perfect runtime trust;
+17. caller cannot manufacture verifier identity/current time/expected release/environment/artifact or proof requirements;
+18. output contains no raw nonce, secrets, PII or unnecessary runtime details;
+19. M12 focused tests remain GREEN;
+20. full existing repository gates remain GREEN on the exact final SHA.
 
 ## 14. Completion truth
 
