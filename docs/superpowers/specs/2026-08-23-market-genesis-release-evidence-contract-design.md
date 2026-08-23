@@ -75,6 +75,10 @@ release: {
 }
 ```
 
+`release.target_environment` and evidence `environment` are restricted to the exact lowercase values `staging` or `production`.
+
+The `release` object and `contact_replay_release_evidence` object are closed allowlists. Unknown keys are invalid rather than ignored. The two probe objects are also closed allowlists containing only `attempts`, `successes`, and `replay_rejections`.
+
 The evidence is deliberately aggregate. It must not contain database URLs, credentials, service-role keys, hostnames, IP addresses, raw authorization nonces, nonce hashes, reusable contact capabilities, user PII, message content, private intent, payment/order/escrow/settlement state, or runtime instance identifiers.
 
 ## 5. Reviewed migration identity
@@ -96,17 +100,18 @@ Changing the reviewed migration bytes requires a new security review and a corre
 If Contact/Handoff is enabled, all of the following are required:
 
 1. `authority.contact_replay_protection_durable === true`.
-2. `release.target_environment` is a non-empty supported environment string.
+2. `release.target_environment` is exactly `staging` or `production`.
 3. `contact_replay_release_evidence.schema_version` matches the exact v1 schema.
-4. evidence `environment` exactly matches `release.target_environment`.
-5. evidence `release_sha` exactly matches both `expected_head_sha` and `observed_head_sha`.
-6. evidence `migration_sha256` exactly matches the current reviewed release-contract digest.
+4. evidence `environment` exactly matches `release.target_environment` and is itself exactly `staging` or `production`.
+5. evidence `release_sha` is exactly 40 lowercase hexadecimal characters and exactly matches both `expected_head_sha` and `observed_head_sha`.
+6. evidence `migration_sha256` is exactly 64 lowercase hexadecimal characters and exactly matches the current reviewed release-contract digest.
 7. `migration_applied === true`.
 8. `migration_applied_at` and `probe_completed_at` are valid ISO timestamps, and the probe is not earlier than migration application.
-9. `probe_run_id` is a bounded non-empty opaque reference.
+9. `probe_run_id` is an opaque string between 1 and 256 characters.
 10. `runtime_instance_count` is an integer greater than or equal to 2.
 11. duplicate-nonce probe reports exactly two attempts, one success, and one replay rejection.
 12. duplicate-consume probe reports exactly two attempts, one success, and one replay rejection.
+13. no unknown keys are present in `release`, the evidence object, or either probe object.
 
 If any requirement fails, Contact/Handoff rollout is blocked. No source flag, paid status, sponsored eligibility, admin override, or missing-evidence default may bypass this rule.
 
@@ -128,7 +133,7 @@ M10 introduces bounded internal reason codes sufficient for diagnosis without ex
 - `CONTACT_REPLAY_NONCE_PROBE_FAILED`
 - `CONTACT_REPLAY_CONSUME_PROBE_FAILED`
 
-Malformed timestamps, schema shape, probe references, or unsupported values may collapse to `CONTACT_REPLAY_RELEASE_EVIDENCE_INVALID` instead of creating additional high-cardinality error strings.
+Malformed timestamps, unsupported environments, unknown keys, schema shape, probe references, or other unsupported values collapse to `CONTACT_REPLAY_RELEASE_EVIDENCE_INVALID` instead of creating additional high-cardinality error strings.
 
 ## 8. Components
 
@@ -138,6 +143,8 @@ A small server/release-policy module will define:
 
 - the exact evidence schema version;
 - the exact reviewed replay migration SHA-256;
+- the exact supported environment set (`staging`, `production`);
+- closed allowlists for release/evidence/probe keys;
 - pure evidence-shape validation helpers;
 - no credentials, network clients, environment secrets, or remote actions.
 
@@ -161,12 +168,13 @@ M10 will add focused release-evidence tests and update existing readiness tests.
 - missing evidence blocks;
 - release SHA mismatch blocks;
 - migration digest mismatch blocks;
-- environment mismatch blocks;
+- environment mismatch or unsupported environment blocks;
 - `migration_applied !== true` blocks;
 - fewer than two runtime instances blocks;
 - duplicate-nonce probe shape/result mismatch blocks;
 - duplicate-consume probe shape/result mismatch blocks;
 - malformed/chronologically impossible timestamps block;
+- unknown release/evidence/probe keys block;
 - Contact/Handoff disabled does not require release evidence;
 - existing whole-vehicle and no-transaction regression contracts remain green.
 
