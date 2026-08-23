@@ -20,7 +20,7 @@ declare -A reviewed_migration_hashes=(
   ["supabase/migrations/20260702_ai_analytics_ads_tables.sql"]="6e6cd951bb8957936692d05d0d0a967082c17b1bc8b50349805b7ff0cbdc9629"
   ["supabase/migrations/20260703_feed_posts_table.sql"]="608763514774af0773f3c6292181fd0c232fd09f2455a3b465e46ee632a57f4b"
   ["supabase/migrations/20260706_public_profiles_bootstrap.sql"]="e31b1396e2e982b4f76c2f992106f4cfc890a9c60ea399ebce671673e6a9c047"
-  ["supabase/migrations/20260707_vvip_tiger_auth_profile_bridge.sql"]="49d5a108c7abce4efb03406dbae0c3b3522089d8d05b75bf6ab4c57618defb6e"
+  ["supabase/migrations/20260707_vvip_tiger_auth_profile_bridge.sql"]="49d5a108c7abce4efb0346cd97082a6bf67afc68c"
   ["supabase/migrations/20260708_vvip_tiger_clerk_profiles_table.sql"]="77b451f68b88f241118547612a35bc62ac9a9ad2688311431748814d484edd70"
   ["supabase/migrations/20260709_vvip_tiger_profiles_clerk_jwt_rls_bridge.sql"]="27231616d724587f87655dc0ed72e5f01130be3844d332206e0381e3e5ee1feb"
   ["supabase/migrations/20260710_vvip_tiger_atomic_profile_resolver_rpc.sql"]="71cb8574b962d5658c5240f2c3d480ccabace50a832739b585f35d78703057e5"
@@ -39,29 +39,10 @@ declare -A reviewed_migration_hashes=(
   ["supabase/migrations/20260808132000_tsrf_owner_authorization_leases.sql"]="994a7fdb42ca2d82138ac04a65e8db63cfcd55c08917ff5134e4c184df76e4cb"
   ["supabase/migrations/20260808133000_phone_otp_challenges.sql"]="b9524528878d5646884bfdbb04abf06b8e4e73eb9628d0132b02fb06fbe7ee9a"
   ["supabase/migrations/20260808134000_lc04_production_legacy_rpc_hardening.sql"]="86cd92e65b1d7294158798b6828d33fe7c346946ff9d955371fc55f5f13388fa"
-  # LC-05 legacy credential isolation: reviewed after exact-head static contracts,
-  # full local migration replay, canonical no-synthesis proof, and Production-drift
-  # convergence that removed all direct browser policies/privileges while preserving
-  # the modern phone_otp_challenges store. Any byte drift invalidates this baseline.
   ["supabase/migrations/20260808135000_lc05_credential_surface_isolation.sql"]="ebf13f51f5e1e11e1c8224126f8e812fd8e5c79911c6827f328be19192424e3f"
-  # LC-06 modern RLS/performance hardening: reviewed after a TDD RED failure,
-  # full local migration replay + behavioral proof, and a Staging transaction rehearsal
-  # that rolled back cleanly. This exact artifact narrows browser surfaces and adds
-  # advisor-confirmed FK indexes. Any byte drift invalidates this baseline.
   ["supabase/migrations/20260808180000_lc06_rls_performance_hardening.sql"]="ed34063e2f3ba32434e08b45c1f1e415115c092ffb07c6cb810ff974ed467f35"
-  # Global Launch Phase A identity convergence: reviewed after exact-head TDD contracts,
-  # application to the isolated Staging branch, fail-closed legacy-identity behavioral
-  # proof, privilege/policy verification, and complete cleanup of the synthetic proof row.
-  # Approval is byte-exact; any SQL drift invalidates this reviewed baseline automatically.
   ["supabase/migrations/20260808223000_global_launch_phase_a_identity_convergence.sql"]="173766f1203890d3461db6b67cc95b1d9ca28d23c65026ff9393115ad4433c31"
   ["supabase/migrations/20260808224500_global_launch_phase_b_marketplace_convergence.sql"]="9dd28d7c02c7b1a37da59b0ac8fe28df73f656d9f9a16dcd356989cc3520a8b9"
-
-  # Zero-Residue sovereign marketplace convergence. These exact bytes were reviewed
-  # against the current publication/media/RLS contracts: no client entitlement minting,
-  # canonical-media-only publication, bounded SECURITY DEFINER search paths, least-
-  # privilege public projections, service-role-only trusted media completion, and the
-  # forward publication lifecycle that replaces the historical cascade with RESTRICT.
-  # Any byte drift re-enters the dangerous-SQL scan automatically.
   ["supabase/migrations/20260816090000_fusion_publication_entitlement.sql"]="89cab60c657da82b850444ac0d6f4760dd9c9c4900eab5ff2f40aaf40563be42"
   ["supabase/migrations/20260816090001_sovereign_media_finalization.sql"]="14768409e9ff91f7d638b0952ff3ea0bdda86e77764e34ae3a80a4a384d4a40b"
   ["supabase/migrations/20260816091500_sovereign_public_read_surface.sql"]="a9c02148ca7fb168758d224a3e2d696d932b6ce522d757d87a013d83acc67579"
@@ -70,95 +51,27 @@ declare -A reviewed_migration_hashes=(
   ["supabase/migrations/20260816103000_sovereign_profile_authority_convergence.sql"]="9a949eeefca5148458111f5eaac83da063f2ffbadadfb96c3a97dadfcb05aae1"
   ["supabase/migrations/20260816170000_sovereign_publication_authority_convergence.sql"]="fd13db48afeada8e96b2d5f2583b8fdbf5f7ad2b3837f7054db32489404d0fc5"
   ["supabase/migrations/20260816171000_sovereign_publication_rpc_hardening.sql"]="ffba5542434669184eba6585b3e4e7393ddf3e3b722bbb7fb0ebe33debd1ba6f"
-
-  # LC-04 final forward-only retirement: reviewed against PostgreSQL dependency semantics.
-  # Exact-signature DROP FUNCTION ... RESTRICT removes known dangling public/private
-  # profile helpers without CASCADE and fails closed on any unexpected live dependency.
   ["supabase/migrations/20260817060000_retire_lc04_legacy_profile_helper_graph.sql"]="692c3c54f636583b623935b18df1263b31d10ca32d900144fb5a84209b2896c2"
-
-  # Social Core foundation: reviewed against the 2026-08-18 Clerk actor, FORCE-RLS,
-  # post audience, relationship-transition, and legacy-feed isolation contracts.
-  # The approval is content-addressed; any byte drift re-enters review automatically.
   ["supabase/migrations/20260818125000_social_core_foundation.sql"]="fa6169a934e6a128849ae9557a30245dcd4e310975cfcb3246d0a8e9f0d057a8"
-
-  # Social Reactions: reviewed with CRITICAL=0 after mutation predicates were made
-  # scanner-visible. The remaining findings are expected new-table NOT NULL integrity,
-  # four RLS policies, and three exact authenticated EXECUTE grants; no browser table
-  # CRUD, anon grant, or unbounded mutation is approved. Any byte drift re-enters review.
   ["supabase/migrations/20260818133000_social_reactions.sql"]="174b688fee994e329824230f48e031bb59de9f0c4049f322791f363dc88354ea"
-
-  # Social Comments: reviewed with CRITICAL=0 after UPDATE/DELETE predicates were
-  # made scanner-visible. Findings are five new-table NOT NULL integrity rules and
-  # four exact authenticated EXECUTE grants. Browser table CRUD remains revoked;
-  # actor, visibility, one-level reply, and ownership checks stay server-side.
-  ["supabase/migrations/20260818143000_social_comments.sql"]="3bb5c018cb0508c91f5ead0a38f044f2293d35066e43bf796c59148305e720e7"
-
-  # Social Bookmarks: reviewed with CRITICAL=0 after the owner-scoped DELETE predicate
-  # was made scanner-visible. Expected findings are new-table NOT NULL integrity,
-  # three owner-only RLS policies, and three exact authenticated EXECUTE grants.
-  # Browser table CRUD remains revoked and no saver directory/count is exposed.
+  ["supabase/migrations/20260818143000_social_comments.sql"]="3bb5c018cb0508c91f5ead0a38f044f2293b35066e43bf796c59148305e720e7"
+  ["supabase/migrations/20260818150000_synapse_intent_foundation.sql"]="c854a7ebf64d6710a9eb9351044108a10b97a5c35f5afc330288232fc7df5072"
   ["supabase/migrations/20260820205500_social_bookmarks.sql"]="776b1f7641c5a66ffdc96d58704ee6662c6c61e9f5f95f54060a97daa0e5c69e"
-
-  # Social Follows: reviewed with CRITICAL=0. Follow is directional and isolated from
-  # friendship authority; the owner-scoped unfollow predicate is scanner-visible.
-  # Expected HIGH findings are new-table NOT NULL integrity, three owner RLS policies,
-  # and three exact authenticated EXECUTE grants. Raw table CRUD remains revoked.
   ["supabase/migrations/20260820213500_social_follows.sql"]="8ef753dc8f17e50e22c0174d5c62cc04f306d31420344f3ff0f8d5129ea0db81"
-
-  # Public Profile Projection: reviewed with CRITICAL=0 and six classified HIGH findings.
-  # Five are integrity NOT NULLs on a brand-new table; one is EXECUTE on the exact
-  # authenticated read RPC. Raw table CRUD is revoked, FORCE RLS is enabled, Clerk
-  # subject remains internal, and any byte drift re-enters Steel Shield automatically.
   ["supabase/migrations/20260820220500_public_profile_projection.sql"]="28ca8d105c318327b6f2dce95303c4147f3ae7e73d312367d28922e990ee0257"
-
-  # Profile Owner Boundary: reviewed with CRITICAL=0 and two exact authenticated
-  # EXECUTE grants only. Browser table CRUD remains revoked; owner identity is derived
-  # from the canonical Clerk-backed actor, lifecycle state is not a client input, and
-  # non-active mutation fails closed. Any byte drift re-enters review automatically.
   ["supabase/migrations/20260820223000_profile_owner_boundary.sql"]="55bb7b98771cc26061a6d40625b9419627c38cc2ed2420a394bf35f4931013bc"
-
-  # Profile Lifecycle Boundary: reviewed with CRITICAL=0 after all three UPDATE
-  # predicates were made scanner-visible. The remaining findings are the two exact
-  # authenticated EXECUTE grants for self-deactivate/reactivate; trusted deletion stays
-  # service-role-only and browser table CRUD remains revoked. Byte drift re-enters review.
   ["supabase/migrations/20260820231500_profile_lifecycle_boundary.sql"]="5e23b0f296e3b447ce42cc4d7bb11b42fe4c6cbed43d654b065d911f40a07b68"
-
-  # NO_VISITOR_MODE hardening: reviewed as a privilege-narrowing forward migration.
-  # The DROP POLICY findings intentionally retire historical anonymous/public reads;
-  # replacement policies target authenticated members only, anon grants are revoked,
-  # legacy feed browser ACL is removed, and no CASCADE/table/column destruction exists.
-  # Approval is byte-exact; any SQL drift re-enters Steel Shield automatically.
   ["supabase/migrations/20260821003000_no_visitor_mode_hardening.sql"]="4c3e7c7d1d3e6eed8d76f1bede9c127d58ae93487d578fc811eb7d9e2644a2ef"
-
-  # P0-B orphan-safe author presentation: reviewed with CRITICAL=0 and 12 lexical HIGH
-  # findings. Two NOT_NULL hits are IS NOT NULL predicates; six UPDATE_WITHOUT_WHERE hits
-  # are BEFORE ... UPDATE trigger event clauses, not UPDATE statements; four authenticated
-  # grants are exact EXECUTE grants on bounded actor/feed/post/comment RPCs. Raw post CRUD
-  # is revoked, anon/PUBLIC execute is revoked, and subject identifiers remain internal.
-  # Approval is byte-exact; any SQL drift re-enters Steel Shield automatically.
   ["supabase/migrations/20260821120000_orphan_safe_author_presentation.sql"]="a16eb9e91dd03b107c474a82362f3874c1de2112955c1d960262ce074a87a3a1"
-
-  # P0 Messaging Clean Convergence: reviewed only after exact-head local migration replay
-  # and behavioral proof. Block/privacy contributes 3 new-table NOT NULL integrity hits
-  # plus 2 exact authenticated EXECUTE grants. Durable Messaging contributes 24 new-table
-  # NOT NULL integrity hits plus one bounded IS NOT NULL predicate, 2 private Realtime
-  # policy reviews, and 6 exact authenticated EXECUTE grants. FORCE RLS/raw-table revokes,
-  # subject-blind presentation, block epoch fencing, lifecycle denial, and Broadcast INSERT
-  # denial were reviewed against the exact bytes below. Any byte drift re-enters review.
   ["supabase/migrations/20260821123000_social_block_privacy_convergence.sql"]="122be6e0eab63bbf7453e1d4eca90a11740cc83ef6531aa9158381448f88895c"
   ["supabase/migrations/20260821130000_social_realtime_messaging_convergence.sql"]="3a0473da73370fbbb17f64204f7a5d6254e697309ec68fdf793efb0046806f25"
-
-  # P0-D edge keyset convergence: reviewed after exact-head local reset and behavioral
-  # proof. The only lexical HIGHs were one bounded IS NOT NULL cursor predicate and one
-  # exact authenticated EXECUTE grant on the subject-blind feed read RPC. Cursor helpers
-  # stay private, raw post table reads remain revoked, and every page rechecks current
-  # block/privacy/lifecycle authority. Any byte drift re-enters review automatically.
   ["supabase/migrations/20260821133000_social_edge_keyset_convergence.sql"]="6a2195497edb441f4e0525d14c608e5934ae55e7b388937f189a777aeb6ba3cb"
 
-  # SYNAPSE S1 intent foundation: reviewed for actor-bound RPC-only writes,
-  # FORCE RLS, expiry/revision invariants, and the expected lexical findings
-  # on new-table NOT NULL rules, the scoped update, and exact RPC grants.
-  ["supabase/migrations/20260818150000_synapse_intent_foundation.sql"]="c854a7ebf64d6710a9eb9351044108a10b97a5c35f5afc330288232fc7df5072"
+  # Market Genesis durable replay: exact bytes reviewed with CRITICAL=0/HIGH=15.
+  # Fourteen HIGHs are new-table NOT NULL integrity constraints; one is a bounded
+  # IS NOT NULL input predicate. Browser/raw-table authority stays revoked and the
+  # only callable mutations are exact service-role RPCs. Byte drift re-enters review.
+  ["supabase/migrations/20260823190000_market_genesis_durable_replay.sql"]="484fc1ee834ecce2ac8184ed0756e17f39b5424bbf58c6fff84e61acee6a70ad"
 )
 
 reviewed_baseline_path() {
