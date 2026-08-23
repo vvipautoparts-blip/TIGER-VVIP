@@ -250,5 +250,5 @@ test('Sector Physics validates required dimensions/entity rules and country over
   assert.throws(() => registry.activate(validPhysics({ allowed_entity_types: ['PROPERTY'], forbidden_entity_types: ['PROPERTY'] })), /allowed.*forbidden/i);
   assert.throws(() => registry.activate(validPhysics({
     country_overlays: { JO: { hard_invariants: { transaction_features_forbidden: false } } },
-  })), /hard invariants/i);
+  })), /hard invariants|protected field hard_invariants/i);
 });
