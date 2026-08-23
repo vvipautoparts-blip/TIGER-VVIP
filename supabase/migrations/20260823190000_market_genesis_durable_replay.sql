@@ -73,8 +73,7 @@ returns table (
   reason_code text
 )
 language plpgsql
-security definer
-set search_path = pg_catalog
+security definer set search_path = pg_catalog
 as $$
 declare
   v_rows integer := 0;
@@ -172,8 +171,7 @@ returns table (
   reason_code text
 )
 language plpgsql
-security definer
-set search_path = pg_catalog
+security definer set search_path = pg_catalog
 as $$
 declare
   v_rows integer := 0;
@@ -192,8 +190,7 @@ begin
     return;
   end if;
 
-  update public.market_contact_replay_authority set consumed_at = statement_timestamp()
-  where capability_id = p_capability_id
+  update public.market_contact_replay_authority set consumed_at = statement_timestamp() where capability_id = p_capability_id
     and request_id = p_request_id
     and requester_subject = p_requester_subject
     and owner_subject_ref = p_owner_subject_ref
