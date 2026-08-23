@@ -15,6 +15,7 @@ const {
 
 const SOURCE_SHA = 'a'.repeat(40);
 const SOURCE_TREE = 'b'.repeat(40);
+const MARKET_EVIDENCE_BYTES = Buffer.from('{"schema":"TIGER_MARKET_GENESIS_SOURCE_READINESS_V1"}', 'utf8');
 
 function write(root, relativePath, value) {
   const absolute = path.join(root, relativePath);
@@ -95,9 +96,10 @@ function build(f) {
 }
 
 function buildProduction(f) {
-  return createProductionReleaseBundleManifest(
-    bundleOptions(f, 'github-actions:production-release-artifact'),
-  );
+  return createProductionReleaseBundleManifest({
+    ...bundleOptions(f, 'github-actions:production-release-artifact'),
+    marketGenesisSourceReadinessBytes: MARKET_EVIDENCE_BYTES,
+  });
 }
 
 test('serialized release bundle round-trips through JSON parse without depending on insertion order', (t) => {
