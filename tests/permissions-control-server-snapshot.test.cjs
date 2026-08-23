@@ -124,7 +124,7 @@ test('self view is read-only unless server snapshot explicitly supplies manageme
   assert.deepEqual(self.management_controls, []);
 });
 
-test('expired or inactive presentation snapshot fails closed', () => {
+test('expired or inactive presentation snapshot fails closed without making a DOM wiring claim', () => {
   for (const presentation_status of ['EXPIRED', 'REVOKED', 'INVALID']) {
     const model = permissions.buildPermissionsControlModel(input({
       snapshot: snapshot({ presentation_status }),
@@ -133,7 +133,8 @@ test('expired or inactive presentation snapshot fails closed', () => {
     assert.equal(model.can_manage, false);
     assert.deepEqual(model.permission_state, []);
     assert.deepEqual(model.management_controls, []);
-    assert.equal(model.integration.dom_ready, false);
+    assert.equal(Object.hasOwn(model.integration, 'dom_ready'), false);
+    assert.equal(model.integration.state, 'SNAPSHOT_INACTIVE');
     assert.equal(model.integration.reason, 'AUTHORIZATION_SNAPSHOT_NOT_ACTIVE');
   }
 });
@@ -171,10 +172,11 @@ test('projected permission state is copied, frozen, and raw grant internals are 
   assert.equal('snapshot' in model, false);
 });
 
-test('DOM integration remains disabled until profile runtime wiring is implemented', () => {
+test('presentation model reports model readiness but leaves DOM readiness to the runtime adapter', () => {
   const model = permissions.buildPermissionsControlModel(input());
 
   assert.equal(model.integration.surface, 'PROFILE_MORE_MENU');
-  assert.equal(model.integration.dom_ready, false);
-  assert.equal(model.integration.reason, 'AUTHORIZATION_RUNTIME_NOT_WIRED');
+  assert.equal(Object.hasOwn(model.integration, 'dom_ready'), false);
+  assert.equal(model.integration.state, 'PRESENTATION_MODEL_READY');
+  assert.equal(model.integration.reason, 'AUTHORIZATION_PRESENTATION_MODEL_READY');
 });
