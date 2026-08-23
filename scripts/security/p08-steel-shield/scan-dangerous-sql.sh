@@ -83,6 +83,10 @@ declare -A reviewed_migration_hashes=(
 
   # Issue #312 zero-brokerage forward lock. Exact-byte reviewed, privilege narrowing only.
   ["supabase/migrations/20260822023000_zero_brokerage_legacy_transaction_write_lock.sql"]="76acd972b74e69aaeb592f5e01140c2458c4be50cf2576aef678c2815423dc89"
+
+  # Owner-approved UARB Task 5: extends canonical owner step-up with APPROVE_DISCLOSURE.
+  # Exact-byte reviewed: two CHECK replacements preserve all existing actions and add least-privilege disclosure authority.
+  ["supabase/migrations/20260823051000_owner_sealed_disclosure_runtime.sql"]="17641fe5b56dc1d97d5e7cc221171ce702b28bcf67a81f2e2c96ae06e9543bdb"
 )
 
 reviewed_baseline_path() {
