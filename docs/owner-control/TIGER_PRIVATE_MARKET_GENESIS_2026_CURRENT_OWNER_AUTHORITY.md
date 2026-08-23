@@ -142,6 +142,8 @@ A successful Market Genesis result may expose only an authorized contact action 
 
 The handoff is the terminal Marketplace responsibility boundary for the underlying transaction. After handoff, TIGER may continue to provide ordinary social messaging or user safety controls where separately authorized, but it must not silently transform that communication into order, payment, settlement, delivery, ownership-transfer, or dispute infrastructure.
 
+Production rollout of Contact/Handoff is additionally fail-closed unless release evidence proves replay protection is durable across runtime instances. Volatile in-process nonce/capability state may be used for isolated tests or non-production authority instances only; it is not sufficient evidence for distributed Production activation.
+
 ## 10. Migration and anti-duplication rule
 
 For this domain, implementation must:
@@ -157,13 +159,15 @@ For this domain, implementation must:
 
 ## 11. Current implementation truth
 
-Approval of this authority is not proof that Market Genesis runtime exists.
+Private Market Genesis implementation slices M0–M8 exist on the current Draft feature branch and are covered by repository tests and exact-head CI evidence. This includes the versioned contracts, Sector Physics Registry, Ad Genome validation, shared Lens compiler, Real Estate and Auto Parts reference Lenses, whole-vehicle prohibition, Contact/Handoff convergence, SYNAPSE runtime bridge, privacy-safe observability, and readiness/security/compatibility gates.
 
-Until its versioned contracts, reference Lenses, adapters, tests, and exact-head evidence are implemented and verified, the correct state is:
+The correct current state is:
 
-`OWNER-APPROVED / WRITTEN SPEC FOR OWNER REVIEW / NOT IMPLEMENTED`
+`IMPLEMENTED_AND_VERIFIED_ON_DRAFT_FEATURE_BRANCH / NOT_MERGED_TO_MAIN / NOT_DEPLOYED_TO_PRODUCTION`
 
-Existing compatible Social Core and SYNAPSE behavior remains runtime truth. No UI mockup, document, stale Preview, or old implementation may be represented as Market Genesis implementation evidence.
+Implementation evidence on a feature branch is not release evidence. Contact/Handoff Production activation remains blocked unless the exact release evidence proves durable cross-instance replay protection. No UI mockup, document, stale Preview, old implementation, or non-exact-head workflow may be represented as Production deployment evidence.
+
+Existing compatible Social Core, SYNAPSE, Pulse, privacy, security, and release protections remain authoritative. `main` and Production remain unchanged until an explicit owner-authorized merge/release decision passes the applicable exact-head gates.
 
 ## 12. Owner acceptance statement
 
