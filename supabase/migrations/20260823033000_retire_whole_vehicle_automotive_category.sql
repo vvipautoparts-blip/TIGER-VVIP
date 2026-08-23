@@ -3,13 +3,7 @@
 
 begin;
 
-update vvip_categories
-set is_active = false
-where id = 'auto_full_cars'
-  and sector_id = 'automotive';
-
-alter table vvip_listings
-  drop constraint if exists vvip_listings_no_whole_vehicle_automotive;
+update vvip_categories set is_active = false where id = 'auto_full_cars' and sector_id = 'automotive';
 
 -- NOT VALID deliberately avoids retroactively rejecting historical rows while
 -- still enforcing the check for future inserts/updates once this migration is
