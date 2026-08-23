@@ -2,6 +2,28 @@
 
 const { ACTIVATION_MODES, normalizeIntentEnvelope } = require("./intent-domain.js");
 
+const NON_RETRYABLE_MARKET_GENESIS_CODES = new Set([
+  "MARKET_AUTHORITY_INCOMPLETE",
+  "INTENT_NOT_MARKET_ELIGIBLE",
+  "ACTOR_AUTHORITY_MISMATCH",
+  "STALE_INTENT_REVISION",
+  "POLICY_VERSION_MISMATCH",
+  "SECTOR_AUTHORITY_MISMATCH",
+  "MARKET_GENESIS_REQUEST_INVALID",
+]);
+
+function marketGenesisFailure(error) {
+  const code = error && typeof error.code === "string" && error.code.length > 0
+    ? error.code
+    : "MARKET_GENESIS_DISPATCH_FAILED";
+
+  return {
+    ok: false,
+    code,
+    retryable: !NON_RETRYABLE_MARKET_GENESIS_CODES.has(code),
+  };
+}
+
 function createIntentRuntimeAdapter({ rpc, marketGenesisBridge } = {}) {
   if (typeof rpc !== "function") throw new TypeError("intent RPC adapter is required");
   if (marketGenesisBridge != null && typeof marketGenesisBridge.dispatchConfirmedIntent !== "function") {
@@ -42,10 +64,19 @@ function createIntentRuntimeAdapter({ rpc, marketGenesisBridge } = {}) {
         return { ok: true, value: response.data };
       }
 
-      const marketGenesis = await marketGenesisBridge.dispatchConfirmedIntent(
-        response.data,
-        context.marketGenesisAuthority,
-      );
+      let marketGenesis;
+      try {
+        marketGenesis = await marketGenesisBridge.dispatchConfirmedIntent(
+          response.data,
+          context.marketGenesisAuthority,
+        );
+      } catch (error) {
+        // Persistence already succeeded. Do not misreport a durable SYNAPSE intent
+        // as failed or encourage duplicate creation retries because a downstream
+        // Market Genesis compilation step is temporarily unavailable.
+        marketGenesis = marketGenesisFailure(error);
+      }
+
       return { ok: true, value: response.data, marketGenesis };
     },
   };
