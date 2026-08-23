@@ -33,7 +33,7 @@ Marketplace remains a module inside the social-network-first TIGER product. Priv
 
 The automotive commercial domain may publish, discover, advertise, rank, and contact around eligible vehicle parts, components, consumables, and explicitly approved accessories only.
 
-A listing, ad, offer, or intent whose commercial object is a complete road vehicle is ineligible for Marketplace publication and paid placement. The rejection must occur before ranking or sponsored-placement admission. No price, premium placement, wording trick, category alias, image-only submission, or advertiser status may bypass this rule.
+A listing, ad, offer, or intent whose commercial object is a complete vehicle of any kind is ineligible for Marketplace publication and paid placement. The rejection must occur before ranking or sponsored-placement admission. No price, premium placement, wording trick, category alias, image-only submission, advertiser status, vehicle class, or propulsion type may bypass this rule.
 
 This law governs the commercial object. A part may reference make, model, year, trim, engine, chassis family, fitment, or compatible vehicle data solely to establish part compatibility; those references do not authorize an advertisement for the vehicle itself.
 
@@ -161,7 +161,7 @@ Approval of this authority is not proof that Market Genesis runtime exists.
 
 Until its versioned contracts, reference Lenses, adapters, tests, and exact-head evidence are implemented and verified, the correct state is:
 
-`OWNER-APPROVED / DESIGN-TO-BE-SPECIFIED / NOT IMPLEMENTED`
+`OWNER-APPROVED / WRITTEN SPEC FOR OWNER REVIEW / NOT IMPLEMENTED`
 
 Existing compatible Social Core and SYNAPSE behavior remains runtime truth. No UI mockup, document, stale Preview, or old implementation may be represented as Market Genesis implementation evidence.
 
