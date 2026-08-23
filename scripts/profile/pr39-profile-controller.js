@@ -3,6 +3,8 @@
 
   const contract = window.VVIP_PR39_PROFILE_CONTRACT;
   const pr38Summary = window.VVIP_PR38_ACCOUNT_SUMMARY;
+  const permissionsControl = window.VVIP_PERMISSIONS_CONTROL;
+  const PROFILE_SURFACE = "PROFILE_MORE_MENU";
 
   function createViewState(subject) {
     return {
@@ -43,6 +45,74 @@
     node.hidden = !visible;
   }
 
+  function hidePermissionsSurface(permissionsItem, managementNode) {
+    show(permissionsItem, false);
+    if (managementNode) {
+      managementNode.textContent = "";
+      show(managementNode, false);
+    }
+  }
+
+  function createPermissionsRuntimeAdapter(options) {
+    const input = options && typeof options === "object" ? options : {};
+    const targetId = typeof input.targetId === "string" ? input.targetId.trim() : "";
+    const permissionsItem = input.permissionsItem || null;
+    const managementNode = input.managementNode || null;
+    const modelBuilder = input.permissionsControl;
+    const loadCapabilitySnapshot = input.loadCapabilitySnapshot;
+
+    async function prepareForMenuOpen() {
+      hidePermissionsSurface(permissionsItem, managementNode);
+      if (!targetId
+        || !modelBuilder
+        || typeof modelBuilder.buildPermissionsControlModel !== "function"
+        || typeof loadCapabilitySnapshot !== "function") {
+        return null;
+      }
+
+      try {
+        const snapshot = await loadCapabilitySnapshot({
+          target_id: targetId,
+          surface: PROFILE_SURFACE
+        });
+        const model = modelBuilder.buildPermissionsControlModel({
+          snapshot: snapshot,
+          target_id: targetId
+        });
+        const readyModel = Object.freeze(Object.assign({}, model, {
+          integration: Object.freeze(Object.assign({}, model.integration || {}, {
+            surface: PROFILE_SURFACE,
+            dom_ready: true,
+            reason: "AUTHORIZATION_RUNTIME_ADAPTER_WIRED"
+          }))
+        }));
+
+        if (model.can_view || model.can_manage) {
+          if (permissionsItem) {
+            permissionsItem.textContent = "الصلاحيات";
+            show(permissionsItem, true);
+          }
+        }
+
+        if (model.can_manage && managementNode) {
+          managementNode.textContent = (model.management_controls || []).map(function (item) {
+            return item && item.label ? String(item.label) : "";
+          }).filter(Boolean).join(" · ");
+          show(managementNode, true);
+        }
+
+        return readyModel;
+      } catch (error) {
+        hidePermissionsSurface(permissionsItem, managementNode);
+        return null;
+      }
+    }
+
+    return Object.freeze({
+      prepareForMenuOpen: prepareForMenuOpen
+    });
+  }
+
   function draftAccountTypeInfo() {
     if (!pr38Summary || typeof pr38Summary.readDraftFromStorage !== "function") {
       return { name: "غير محدد", isDraft: false };
@@ -59,7 +129,7 @@
     };
   }
 
-  function applyMenuInteractions(menuButton, menuPanel) {
+  function applyMenuInteractions(menuButton, menuPanel, onOpen) {
     if (!menuButton || !menuPanel) return;
 
     const closeMenu = function () {
@@ -70,6 +140,11 @@
     const openMenu = function () {
       menuPanel.hidden = false;
       menuButton.setAttribute("aria-expanded", "true");
+      if (typeof onOpen === "function") {
+        Promise.resolve(onOpen()).catch(function () {
+          // Fail closed inside the permissions adapter; do not surface security details.
+        });
+      }
     };
 
     menuButton.addEventListener("click", function () {
@@ -99,15 +174,22 @@
     });
   }
 
+  function runtimeTargetId() {
+    let sessionUserId = "";
+    if (window.Clerk && window.Clerk.user && window.Clerk.user.id) {
+      sessionUserId = String(window.Clerk.user.id);
+    }
+    const params = new URLSearchParams(window.location.search);
+    return String(params.get("subject") || sessionUserId || "").trim();
+  }
+
   function buildSubjectFromRuntime() {
     let sessionUser = null;
     if (window.Clerk && window.Clerk.user && window.Clerk.user.id) {
       sessionUser = { id: String(window.Clerk.user.id) };
     }
 
-    const params = new URLSearchParams(window.location.search);
-    const subjectUserId = String(params.get("subject") || (sessionUser && sessionUser.id) || "");
-
+    const subjectUserId = runtimeTargetId();
     const draft = pr38Summary && pr38Summary.readDraftFromStorage ? pr38Summary.readDraftFromStorage(window.localStorage) : null;
 
     return contract.createProfileSubject({
@@ -179,7 +261,19 @@
 
     const menuButton = root.querySelector("[data-pr39-menu-trigger]");
     const menuPanel = root.querySelector("[data-pr39-menu]");
-    applyMenuInteractions(menuButton, menuPanel);
+    const permissionsItem = root.querySelector("[data-pr39-permissions-item]");
+    const permissionsManagement = root.querySelector("[data-pr39-permissions-management]");
+    const authorizationRuntime = window.VVIP_AUTHORIZATION_RUNTIME;
+    const runtimeAdapter = createPermissionsRuntimeAdapter({
+      targetId: runtimeTargetId(),
+      permissionsItem: permissionsItem,
+      managementNode: permissionsManagement,
+      permissionsControl: permissionsControl,
+      loadCapabilitySnapshot: authorizationRuntime && typeof authorizationRuntime.loadCapabilitySnapshot === "function"
+        ? authorizationRuntime.loadCapabilitySnapshot.bind(authorizationRuntime)
+        : null
+    });
+    applyMenuInteractions(menuButton, menuPanel, runtimeAdapter.prepareForMenuOpen);
 
     if (menuPanel) {
       menuPanel.addEventListener("click", function (event) {
@@ -216,6 +310,7 @@
   window.VVIP_PR39_PROFILE_CONTROLLER = Object.freeze({
     createViewState: createViewState,
     createMenuModel: createMenuModel,
+    createPermissionsRuntimeAdapter: createPermissionsRuntimeAdapter,
     logoutSessionOnly: logoutSessionOnly,
     syncMenuItems: syncMenuItems,
     buildSubjectFromRuntime: buildSubjectFromRuntime
