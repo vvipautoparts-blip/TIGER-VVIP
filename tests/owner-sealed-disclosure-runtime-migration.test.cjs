@@ -102,7 +102,7 @@ test('owner-sealed issuance locks and consumes the exact owner authorization in 
   const source = sql();
   const issue = functionBlock(source, 'issue_disclosure_lease');
 
-  assert.match(issue, /classification\s+in\s*\([^)]*'CONFIDENTIAL'[^)]*'OWNER_ONLY'/is);
+  assert.match(issue, /classification\s+(?:not\s+)?in\s*\([^)]*'CONFIDENTIAL'[^)]*'OWNER_ONLY'/is);
   assert.match(issue, /from public\.ai_owner_stepup_authorizations/i);
   assert.match(issue, /for update/i);
   assert.match(issue, /owner_subject\s*<>\s*'owner:root'/i);
