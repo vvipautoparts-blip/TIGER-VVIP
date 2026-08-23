@@ -93,8 +93,8 @@ function workflowsAreGreen(workflows, requiredWorkflows) {
   });
 }
 
-function evaluateMarketGenesisReadiness(snapshot, options = {}) {
-  const requiredWorkflows = options.requiredWorkflows || DEFAULT_REQUIRED_WORKFLOWS;
+function evaluateMarketGenesisReadiness(snapshot) {
+  const requiredWorkflows = DEFAULT_REQUIRED_WORKFLOWS;
   if (!hasRequiredEvidence(snapshot, requiredWorkflows)) return invalidEvidence();
 
   const reasonCodes = [];
