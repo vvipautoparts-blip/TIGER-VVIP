@@ -138,8 +138,16 @@ function createSensitiveGrant(input) {
   const issuedAt = parseTimestamp(input.issued_at, 'issued_at');
   const notBefore = parseTimestamp(input.not_before, 'not_before');
   const expiresAt = parseTimestamp(input.expires_at, 'expires_at');
+  const ceilingExpiry = parseTimestamp(ceiling.expires_at, 'delegability_ceiling.expires_at');
   if (notBefore < issuedAt) throw new TypeError('not_before cannot precede issued_at');
   if (expiresAt <= notBefore) throw new TypeError('expires_at must be later than not_before');
+  if (ceilingExpiry > expiresAt
+    || !isSubset(ceiling.sector_scope, input.sector_scope)
+    || !isSubset(ceiling.entity_scope, input.entity_scope)
+    || !isSubset(ceiling.geo_policy_scope, input.geo_policy_scope)
+    || !isResourceSubset(ceiling.resource_scope, input.resource_scope)) {
+    throw new TypeError('delegability_ceiling cannot exceed the grant authority scope or expiry');
+  }
 
   const status = input.status === undefined ? 'ACTIVE' : input.status;
   if (status !== 'ACTIVE' && status !== 'REVOKED') {
@@ -231,6 +239,11 @@ function canDelegate(grantorGrant, requestedGrant, now) {
   if (grantorGrant.action !== 'DELEGATE_PERMISSION') return false;
   if (requestedGrant.principal === 'owner:root') return false;
   if (requestedGrant.grantor !== grantorGrant.principal) return false;
+
+  if (!isSubset(requestedGrant.sector_scope, grantorGrant.sector_scope)) return false;
+  if (!isSubset(requestedGrant.entity_scope, grantorGrant.entity_scope)) return false;
+  if (!isSubset(requestedGrant.geo_policy_scope, grantorGrant.geo_policy_scope)) return false;
+  if (!isResourceSubset(requestedGrant.resource_scope, grantorGrant.resource_scope)) return false;
 
   const ceiling = grantorGrant.delegability_ceiling;
   if (!isPlainObject(ceiling)) return false;
