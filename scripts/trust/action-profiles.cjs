@@ -5,6 +5,9 @@ const {
   canonicalJson,
   sha256Hex,
 } = require('./contracts.cjs');
+const {
+  RELEASE_EVIDENCE_SCHEMA_VERSION,
+} = require('../marketplace/market-release-evidence-contract.js');
 
 const ACTION_PROFILE_IDS = Object.freeze({
   MARKET_GENESIS_CONTACT_HANDOFF: 'MARKET_GENESIS.CONTACT_HANDOFF',
@@ -29,7 +32,7 @@ const MARKET_GENESIS_CONTACT_HANDOFF = Object.freeze({
     transaction_authority_forbidden: true,
     source_durable_required: true,
     deployed_durable_verified_required: true,
-    release_evidence_schema: 'market-contact-replay-release-evidence-v1',
+    release_evidence_schema: RELEASE_EVIDENCE_SCHEMA_VERSION,
   }),
   lease_policy: Object.freeze({
     ttl_ms: 45_000,
