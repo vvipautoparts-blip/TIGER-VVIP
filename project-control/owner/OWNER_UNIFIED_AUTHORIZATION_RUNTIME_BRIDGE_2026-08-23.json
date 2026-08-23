@@ -1,0 +1,26 @@
+{
+  "status": "ACTIVE_OWNER_AUTHORITY",
+  "effective_at": "2026-08-23",
+  "scope": "UNIFIED_AUTHORIZATION_RUNTIME_BRIDGE",
+  "architecture": {
+    "same_platform_extension": true,
+    "new_parallel_permission_engine": false,
+    "spec": "docs/superpowers/specs/2026-08-23-unified-authorization-runtime-bridge-design.md",
+    "authoritative_runtime_source": "SERVER_AND_DATABASE_AUTHORITY",
+    "ui_snapshot_is_execution_authority": false,
+    "sensitive_actions_require_exact_bound_single_use_lease": true,
+    "owner_sealed_disclosure_requires_persistent_atomic_authority": true,
+    "database_time_is_security_authority": true,
+    "browser_role_direct_sensitive_mutation": false,
+    "contact_handoff_boundary_preserved": true
+  },
+  "implementation": {
+    "method": "TDD_RED_GREEN_EXACT_SHA",
+    "pr": 321,
+    "branch": "design/universal-rendezvous-platform-20260822",
+    "remote_database_apply_authorized": false,
+    "production_mutation_authorized": false,
+    "staging_mutation_authorized": false,
+    "merge_authorized": false
+  }
+}
