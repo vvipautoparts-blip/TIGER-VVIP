@@ -211,9 +211,16 @@ function buildPermissionsControlModel(input) {
   });
 }
 
-module.exports = {
+const api = Object.freeze({
   VIEW_OWN_PERMISSIONS,
   VIEW_PERMISSION_STATE,
   CAPABILITY_LABELS,
   buildPermissionsControlModel,
-};
+});
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = api;
+}
+if (typeof window !== 'undefined') {
+  window.VVIP_PERMISSIONS_CONTROL = api;
+}
