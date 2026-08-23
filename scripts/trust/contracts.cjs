@@ -8,7 +8,9 @@ const MAX_STRING_LENGTH = 4096;
 const POLLUTION_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
 const SHA40 = /^[0-9a-f]{40}$/;
 const SHA256 = /^[0-9a-f]{64}$/;
+const ZERO_SHA256 = /^0{64}$/;
 const COUNTRY = /^[A-Z]{2}$/;
+const MAX_TRUST_PULSE_V2_LIFETIME_MS = 60 * 1000;
 
 class TrustContractError extends Error {
   constructor(code) {
@@ -22,6 +24,7 @@ const TRUST_SCHEMAS = Object.freeze({
   TRUST_DNA: 'TIGER_TRUST_DNA_V1',
   EPOCH_VECTOR: 'TIGER_SOVEREIGN_EPOCH_VECTOR_V1',
   TRUST_PULSE: 'TIGER_TRUST_PULSE_V1',
+  TRUST_PULSE_V2: 'TIGER_TRUST_PULSE_V2',
 });
 
 const TRUST_DIMENSIONS = Object.freeze([
@@ -112,6 +115,10 @@ function nonNegativeInt(value) {
   return Number.isSafeInteger(value) && value >= 0;
 }
 
+function strongSha256(value) {
+  return typeof value === 'string' && SHA256.test(value) && !ZERO_SHA256.test(value);
+}
+
 function validateTrustDna(value) {
   const keys = [
     'schema',
@@ -193,7 +200,7 @@ function validateEpochVector(value) {
   });
 }
 
-function validateTrustPulse(value) {
+function validateTrustPulseV1(value) {
   const keys = [
     'schema',
     'evidence_class',
@@ -225,6 +232,64 @@ function validateTrustPulse(value) {
   });
 }
 
+function validateTrustPulseV2(value) {
+  const keys = [
+    'schema',
+    'evidence_class',
+    'release_dna_sha256',
+    'epoch_vector_sha256',
+    'deployment_evidence_sha256',
+    'attestation_result_sha256',
+    'runtime_artifact_sha256',
+    'verifier_ref_sha256',
+    'attester_ref_sha256',
+    'issued_at_ms',
+    'fresh_until_ms',
+    'state',
+  ];
+  const digestFields = [
+    'release_dna_sha256',
+    'epoch_vector_sha256',
+    'deployment_evidence_sha256',
+    'attestation_result_sha256',
+    'runtime_artifact_sha256',
+    'verifier_ref_sha256',
+    'attester_ref_sha256',
+  ];
+  if (!hasExactKeys(value, keys)
+    || value.schema !== TRUST_SCHEMAS.TRUST_PULSE_V2
+    || value.evidence_class !== 'ATTESTED_RUNTIME_RESULT'
+    || digestFields.some((field) => !strongSha256(value[field]))
+    || !nonNegativeInt(value.issued_at_ms)
+    || !positiveInt(value.fresh_until_ms)
+    || value.fresh_until_ms <= value.issued_at_ms
+    || value.fresh_until_ms - value.issued_at_ms > MAX_TRUST_PULSE_V2_LIFETIME_MS
+    || value.state !== 'PASS') {
+    fail('TRUST_PULSE_INVALID');
+  }
+  return deepFreeze({
+    schema: value.schema,
+    evidence_class: value.evidence_class,
+    release_dna_sha256: value.release_dna_sha256,
+    epoch_vector_sha256: value.epoch_vector_sha256,
+    deployment_evidence_sha256: value.deployment_evidence_sha256,
+    attestation_result_sha256: value.attestation_result_sha256,
+    runtime_artifact_sha256: value.runtime_artifact_sha256,
+    verifier_ref_sha256: value.verifier_ref_sha256,
+    attester_ref_sha256: value.attester_ref_sha256,
+    issued_at_ms: value.issued_at_ms,
+    fresh_until_ms: value.fresh_until_ms,
+    state: value.state,
+  });
+}
+
+function validateTrustPulse(value) {
+  if (isPlainObject(value) && value.schema === TRUST_SCHEMAS.TRUST_PULSE_V2) {
+    return validateTrustPulseV2(value);
+  }
+  return validateTrustPulseV1(value);
+}
+
 function digestValidated(value, validator) {
   if (typeof validator !== 'function') fail('TRUST_CANONICAL_INVALID');
   return sha256Hex(canonicalJson(validator(value)));
@@ -234,6 +299,7 @@ module.exports = {
   TrustContractError,
   TRUST_SCHEMAS,
   TRUST_DIMENSIONS,
+  MAX_TRUST_PULSE_V2_LIFETIME_MS,
   canonicalJson,
   sha256Hex,
   validateTrustDna,
