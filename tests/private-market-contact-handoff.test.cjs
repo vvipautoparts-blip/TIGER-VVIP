@@ -105,6 +105,15 @@ function service(overrides = {}) {
   });
 }
 
+function authorize(convergence) {
+  return convergence.authorizeContact({
+    request: validRequest(),
+    genome: validGenome(),
+    physics: validPhysics(),
+    authority: validAuthority(),
+  });
+}
+
 test('authorizes one-to-one contact with server-bound actor, reveal policy, channel intersection, and bounded immutable capability', () => {
   const result = service().authorizeContact({
     request: validRequest(),
@@ -224,9 +233,113 @@ test('sponsorship never overrides contact policy and successful nonce cannot be 
   assert.ok(sponsoredBlocked.reason_codes.includes('CONTACT_BLOCKED'));
 
   const convergence = service();
-  const first = convergence.authorizeContact({ request: validRequest(), genome: validGenome(), physics: validPhysics(), authority: validAuthority() });
+  const first = authorize(convergence);
   assert.equal(first.ok, true);
   const replay = convergence.authorizeContact({ request: validRequest(), genome: validGenome(), physics: validPhysics(), authority: validAuthority() });
   assert.equal(replay.ok, false);
   assert.ok(replay.reason_codes.includes('REPLAY_DETECTED'));
+});
+
+test('emits one immutable terminal handoff receipt and ends the TIGER market role', () => {
+  const convergence = service();
+  const authorization = authorize(convergence);
+  assert.equal(authorization.ok, true);
+
+  const result = convergence.emitHandoff({
+    capability: authorization.capability,
+    actor_subject: 'buyer_001',
+  });
+
+  assert.equal(result.ok, true, result.errors && result.errors.join(', '));
+  assert.equal(result.state, 'HANDOFF_EMITTED');
+  assert.equal(result.terminal_state, 'TIGER_MARKET_ROLE_ENDED');
+  assert.equal(Object.isFrozen(result.receipt), true);
+  assert.equal(result.receipt.capability_id, authorization.capability.capability_id);
+  assert.equal(result.receipt.ad_id, 'ad_001');
+  assert.equal(result.receipt.requester_subject, 'buyer_001');
+  assert.equal(result.receipt.owner_subject_ref, 'seller_001');
+  assert.equal(result.receipt.channel, 'SOCIAL_MESSAGE');
+  assert.equal(result.receipt.policy_version, 'policy-2026-08');
+  assert.equal(result.receipt.physics_version, '1.0.0');
+  assert.equal(result.receipt.state, 'HANDOFF_EMITTED');
+  assert.equal(result.receipt.terminal_state, 'TIGER_MARKET_ROLE_ENDED');
+
+  for (const forbidden of [
+    'raw_intent', 'intent_text', 'email', 'phone', 'message_body', 'group_id',
+    'checkout', 'order', 'transaction', 'payment_intent', 'escrow', 'settlement',
+    'delivery_order', 'deal_status',
+  ]) {
+    assert.equal(Object.prototype.hasOwnProperty.call(result.receipt, forbidden), false, `${forbidden} must not enter the handoff receipt`);
+  }
+});
+
+test('handoff fails closed on actor mismatch and rejects private, group, message, and transaction payload injection', () => {
+  const convergence = service();
+  const authorization = authorize(convergence);
+  assert.equal(authorization.ok, true);
+
+  const actorMismatch = convergence.emitHandoff({
+    capability: authorization.capability,
+    actor_subject: 'attacker',
+  });
+  assert.equal(actorMismatch.ok, false);
+  assert.ok(actorMismatch.reason_codes.includes('ACTOR_AUTHORITY_MISMATCH'));
+
+  for (const [field, value] of [
+    ['raw_intent', 'private intent'],
+    ['email', 'seller@example.com'],
+    ['message_body', 'continue negotiating'],
+    ['group_id', 'group_1'],
+    ['payment_intent', { amount: 100 }],
+  ]) {
+    const isolated = service();
+    const isolatedAuthorization = authorize(isolated);
+    const result = isolated.emitHandoff({
+      capability: isolatedAuthorization.capability,
+      actor_subject: 'buyer_001',
+      [field]: value,
+    });
+    assert.equal(result.ok, false, `${field} must fail closed`);
+    assert.ok(result.reason_codes.includes('PRIVATE_OR_TRANSACTION_PAYLOAD_FORBIDDEN'));
+  }
+});
+
+test('handoff capability is short-lived, instance-bound, and single-use', () => {
+  let clock = NOW;
+  const expiring = createContactHandoffConvergence({
+    now: () => clock,
+    maxCapabilityTtlMs: 5 * 60 * 1000,
+  });
+  const expiringAuthorization = authorize(expiring);
+  assert.equal(expiringAuthorization.ok, true);
+  clock = '2026-08-23T12:51:00.000Z';
+  const expired = expiring.emitHandoff({
+    capability: expiringAuthorization.capability,
+    actor_subject: 'buyer_001',
+  });
+  assert.equal(expired.ok, false);
+  assert.ok(expired.reason_codes.includes('CAPABILITY_EXPIRED'));
+
+  const source = service();
+  const sourceAuthorization = authorize(source);
+  const foreign = service().emitHandoff({
+    capability: sourceAuthorization.capability,
+    actor_subject: 'buyer_001',
+  });
+  assert.equal(foreign.ok, false);
+  assert.ok(foreign.reason_codes.includes('CAPABILITY_NOT_ISSUED'));
+
+  const convergence = service();
+  const authorization = authorize(convergence);
+  const first = convergence.emitHandoff({
+    capability: authorization.capability,
+    actor_subject: 'buyer_001',
+  });
+  assert.equal(first.ok, true);
+  const replay = convergence.emitHandoff({
+    capability: authorization.capability,
+    actor_subject: 'buyer_001',
+  });
+  assert.equal(replay.ok, false);
+  assert.ok(replay.reason_codes.includes('HANDOFF_REPLAY_DETECTED'));
 });
