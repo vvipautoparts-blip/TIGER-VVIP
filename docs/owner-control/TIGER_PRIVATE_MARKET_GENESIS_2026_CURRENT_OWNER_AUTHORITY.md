@@ -162,6 +162,8 @@ The release evidence contract must not carry database URLs, credentials, service
 
 M10 source implementation does not itself apply the migration, collect distributed proof, deploy a runtime, or activate Contact/Handoff in any remote environment. Those are separate release actions requiring real environment evidence and separate authorization.
 
+M11 adds a separate source/release fact without weakening M10: the exact Market Genesis source-readiness object is bound into `SVEF_PRODUCTION_RELEASE_BUNDLE_V2` through `market_genesis_source_readiness_sha256` and the existing sealed Production artifact/attestation chain. Candidate bundles remain on `SVEF_RELEASE_BUNDLE_V1`. M11 source evidence is exactly `SOURCE_VERIFIED` with `deployed_durable_verified=false`; it cannot substitute for M10 target-environment evidence.
+
 ## 10. Migration and anti-duplication rule
 
 For this domain, implementation must:
@@ -177,17 +179,29 @@ For this domain, implementation must:
 
 ## 11. Current implementation truth
 
-Private Market Genesis implementation slices M0–M10 exist on the current Draft feature branch. This includes the versioned contracts, Sector Physics Registry, Ad Genome validation, shared Lens compiler, Real Estate and Auto Parts reference Lenses, whole-vehicle prohibition, Contact/Handoff convergence, SYNAPSE runtime bridge, privacy-safe observability, readiness/security/compatibility gates, durable cross-instance replay authority, and the M10 Release Evidence Contract that prevents a Boolean-only durability flag from becoming deployed-release proof.
+Private Market Genesis implementation slices M0–M11 exist on the current Draft feature branch. This includes the versioned contracts, Sector Physics Registry, Ad Genome validation, shared Lens compiler, Real Estate and Auto Parts reference Lenses, whole-vehicle prohibition, Contact/Handoff convergence, SYNAPSE runtime bridge, privacy-safe observability, readiness/security/compatibility gates, durable cross-instance replay authority, the M10 Release Evidence Contract, and the M11 Attested Source Readiness extension to the existing sealed Production release plane.
 
 M9 supplies the source-level durable replay implementation and reviewed migration. M10 separates **SOURCE_DURABLE** from **DEPLOYED_DURABLE_VERIFIED** and requires exact environment, exact release SHA, exact reviewed migration digest, applied-migration evidence, at least two runtime instances, and successful duplicate-issuance/duplicate-consumption replay-rejection probes whenever Contact/Handoff contributes to rollout eligibility.
 
-The correct source/release state is:
+M11 adds one pure, closed Market Genesis source-readiness evidence contract; removes caller control over the repository readiness workflow set; preserves Candidate SVEF V1; introduces Production-only `SVEF_PRODUCTION_RELEASE_BUNDLE_V2`; binds the exact Market Genesis source-readiness bytes into the Production bundle digest contract; upgrades the existing Production verifier to require the exact five-file evidence set and reject pre-M11/V1, missing, stale, mismatched, tampered, or semantically invalid source evidence; and extends the existing Production builder so evidence is generated only after the full Quality Gate and the fixed `node --test tests/private-market-*.test.cjs` source gate.
 
-`SOURCE_IMPLEMENTED_ON_DRAFT_FEATURE_BRANCH / DEPLOYED_DURABLE_VERIFIED_NOT_CLAIMED / NOT_MERGED_TO_MAIN / NOT_DEPLOYED_TO_PRODUCTION`
+The M11 source-complete release-source state is:
+
+`EXACT_RELEASE_SOURCE_ATTESTED_FOR_MARKET_GENESIS`
+
+The deployment state remains:
+
+`DEPLOYED_DURABLE_VERIFIED_NOT_CLAIMED`
+
+Together with branch/release truth:
+
+`M0_M11_SOURCE_IMPLEMENTED_ON_DRAFT_FEATURE_BRANCH / EXACT_RELEASE_SOURCE_ATTESTED_FOR_MARKET_GENESIS / DEPLOYED_DURABLE_VERIFIED_NOT_CLAIMED / NOT_MERGED_TO_MAIN / NOT_DEPLOYED_TO_PRODUCTION`
+
+These M11 statements describe the implemented exact-artifact source/verification contract on the Draft feature branch. They do **not** assert that a Production release artifact was dispatched or produced during this implementation work, do not assert that the durable replay migration was applied remotely, and do not assert that any Production/Staging runtime completed the M10 distributed replay probes. No Production artifact build, promotion, deployment, remote database mutation, DNS change, secret mutation, payment-provider mutation, or Contact/Handoff activation is implied by M11 source completion.
 
 Repository verification is valid only when the applicable workflows are GREEN on the exact current feature-branch head; successful evidence from an older SHA must not be reused after the head changes. The PR is the dynamic record for current exact-head workflow run identifiers.
 
-Implementation evidence on a feature branch is not deployment or release evidence. The durable replay migration is not considered applied merely because its reviewed SQL exists in the repository. Contact/Handoff Production activation remains blocked unless separately authorized release activity supplies the exact M10 evidence from the target environment and proves durable cross-instance replay protection. No UI mockup, document, stale Preview, old implementation, source-level Boolean, or non-exact-head workflow may be represented as Production deployment evidence.
+Implementation evidence on a feature branch is not deployment or target-environment release evidence. The durable replay migration is not considered applied merely because its reviewed SQL exists in the repository. Contact/Handoff Production activation remains blocked unless separately authorized release activity supplies the exact M10 evidence from the target environment and proves durable cross-instance replay protection. No UI mockup, document, stale Preview, old implementation, source-level Boolean, M11 source attestation contract, or non-exact-head workflow may be represented as Production deployment evidence.
 
 Existing compatible Social Core, SYNAPSE, Pulse, privacy, security, and release protections remain authoritative. `main` and Production remain unchanged until an explicit owner-authorized merge/release decision passes the applicable exact-head gates.
 
