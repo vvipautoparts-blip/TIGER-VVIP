@@ -71,12 +71,12 @@
       }
 
       try {
-        const request = Object.assign({}, {
+        const request = Object.assign(Object(), {
           target_id: targetId,
           surface: PROFILE_SURFACE
         });
         const snapshot = await loadCapabilitySnapshot(request);
-        const model = modelBuilder.buildPermissionsControlModel(Object.assign({}, {
+        const model = modelBuilder.buildPermissionsControlModel(Object.assign(Object(), {
           snapshot: snapshot,
           target_id: targetId
         }));
