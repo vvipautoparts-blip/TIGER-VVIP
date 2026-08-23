@@ -1,10 +1,10 @@
 'use strict';
 
-const sensitive = require('../security/sensitive-permission-contract.js');
-
 const VIEW_OWN_PERMISSIONS = 'VIEW_OWN_PERMISSIONS';
 const VIEW_PERMISSION_STATE = 'VIEW_PERMISSION_STATE';
 const GRANT_PERMISSION = 'GRANT_PERMISSION';
+const PROFILE_SURFACE = 'PROFILE_MORE_MENU';
+const MAX_SNAPSHOT_TTL_SECONDS = 60;
 
 const CAPABILITY_LABELS = Object.freeze({
   VIEW_FINANCIAL_EARNINGS: 'عرض أرباح المنصة',
@@ -23,6 +23,13 @@ function deepFreeze(value) {
   return Object.freeze(value);
 }
 
+function requireObject(value, field) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new TypeError(`${field} must be an object`);
+  }
+  return value;
+}
+
 function requireNonEmptyString(value, field) {
   if (typeof value !== 'string' || value.trim() === '') {
     throw new TypeError(`${field} must be a non-empty string`);
@@ -39,102 +46,48 @@ function parseTimestamp(value, field) {
   return timestamp;
 }
 
-function normalizeCapabilities(value) {
+function normalizeCapabilityList(value, allowed) {
   if (!Array.isArray(value)) return [];
-  return [...new Set(value.filter((item) => typeof item === 'string' && item.trim() !== ''))];
+  const allowedSet = new Set(allowed);
+  return [...new Set(value.filter((item) => (
+    typeof item === 'string' && allowedSet.has(item)
+  )))];
 }
 
-function targetGrantsForCapability(grants, targetId, capabilityId) {
-  if (!Array.isArray(grants)) return [];
-  return grants.filter((grant) => grant
-    && typeof grant === 'object'
-    && grant.principal === targetId
-    && grant.action === capabilityId);
-}
+function normalizeProjectedState(value) {
+  if (!Array.isArray(value)) return [];
 
-function scopeLabel(grant) {
-  if (!grant) return null;
-  const parts = [];
-  if (Array.isArray(grant.sector_scope) && grant.sector_scope.length > 0) {
-    parts.push(`القطاع: ${grant.sector_scope.join(', ')}`);
-  }
-  if (Array.isArray(grant.entity_scope) && grant.entity_scope.length > 0) {
-    parts.push(`الكيان: ${grant.entity_scope.join(', ')}`);
-  }
-  if (Array.isArray(grant.geo_policy_scope) && grant.geo_policy_scope.length > 0) {
-    parts.push(`السياسة الجغرافية: ${grant.geo_policy_scope.join(', ')}`);
-  }
-  return parts.length > 0 ? parts.join(' · ') : null;
-}
+  const seen = new Set();
+  const result = [];
+  for (const item of value) {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) continue;
+    const capabilityId = typeof item.capability_id === 'string'
+      ? item.capability_id.trim()
+      : '';
+    if (!capabilityId || seen.has(capabilityId)) continue;
+    seen.add(capabilityId);
 
-function grantState(grants, targetId, capabilityId, now) {
-  const candidates = targetGrantsForCapability(grants, targetId, capabilityId);
-  const active = candidates.find((grant) => sensitive.isGrantActive(grant, now));
-  if (active) {
-    return {
-      grant: active,
-      active: true,
-      checked: true,
-      status: 'ACTIVE',
-    };
+    const status = typeof item.status === 'string' && item.status.trim() !== ''
+      ? item.status
+      : 'NOT_GRANTED';
+    const active = status === 'ACTIVE' && item.active === true;
+    const checked = active && item.checked === true;
+
+    result.push({
+      capability_id: capabilityId,
+      label: CAPABILITY_LABELS[capabilityId] || capabilityId,
+      checked,
+      active,
+      status,
+      scope: active && typeof item.scope === 'string' && item.scope.trim() !== ''
+        ? item.scope
+        : null,
+      expires_at: active && typeof item.expires_at === 'string'
+        ? item.expires_at
+        : null,
+    });
   }
-
-  const revoked = candidates.find((grant) => grant.status === 'REVOKED' || grant.revoked_at !== null);
-  if (revoked) {
-    return {
-      grant: revoked,
-      active: false,
-      checked: false,
-      status: 'REVOKED',
-    };
-  }
-
-  const nowMs = parseTimestamp(now, 'now');
-  const expired = candidates.find((grant) => {
-    const expiresAt = typeof grant.expires_at === 'string' ? Date.parse(grant.expires_at) : NaN;
-    return Number.isFinite(expiresAt) && expiresAt <= nowMs;
-  });
-  if (expired) {
-    return {
-      grant: expired,
-      active: false,
-      checked: false,
-      status: 'EXPIRED',
-    };
-  }
-
-  const scheduled = candidates.find((grant) => {
-    const notBefore = typeof grant.not_before === 'string' ? Date.parse(grant.not_before) : NaN;
-    return grant.status === 'ACTIVE' && Number.isFinite(notBefore) && notBefore > nowMs;
-  });
-  if (scheduled) {
-    return {
-      grant: scheduled,
-      active: false,
-      checked: false,
-      status: 'NOT_YET_ACTIVE',
-    };
-  }
-
-  return {
-    grant: null,
-    active: false,
-    checked: false,
-    status: 'NOT_GRANTED',
-  };
-}
-
-function buildStateItem(capabilityId, grants, targetId, now) {
-  const state = grantState(grants, targetId, capabilityId, now);
-  return {
-    capability_id: capabilityId,
-    label: CAPABILITY_LABELS[capabilityId] || capabilityId,
-    checked: state.checked,
-    active: state.active,
-    status: state.status,
-    scope: state.active ? scopeLabel(state.grant) : null,
-    expires_at: state.active ? state.grant.expires_at : null,
-  };
+  return result;
 }
 
 function buildManagementControl(stateItem) {
@@ -151,52 +104,109 @@ function buildManagementControl(stateItem) {
   };
 }
 
-function buildPermissionsControlModel(input) {
-  if (!input || typeof input !== 'object' || Array.isArray(input)) {
-    throw new TypeError('input must be an object');
+function validateSnapshot(snapshot, targetId) {
+  requireObject(snapshot, 'authorization snapshot');
+
+  const snapshotId = requireNonEmptyString(snapshot.snapshot_id, 'snapshot.snapshot_id');
+  const principal = requireNonEmptyString(snapshot.principal, 'snapshot.principal');
+  const snapshotTarget = requireNonEmptyString(snapshot.target_id, 'snapshot.target_id');
+  const surface = requireNonEmptyString(snapshot.surface, 'snapshot.surface');
+  const policyVersion = requireNonEmptyString(snapshot.policy_version, 'snapshot.policy_version');
+  const authorityVersion = requireNonEmptyString(snapshot.authority_version, 'snapshot.authority_version');
+  parseTimestamp(snapshot.issued_at, 'snapshot.issued_at');
+  parseTimestamp(snapshot.expires_at, 'snapshot.expires_at');
+
+  if (snapshot.execution_authority !== false) {
+    throw new TypeError('authorization snapshot cannot carry execution authority');
+  }
+  if (surface !== PROFILE_SURFACE) {
+    throw new TypeError('authorization snapshot surface mismatch');
+  }
+  if (snapshotTarget !== targetId) {
+    throw new TypeError('authorization snapshot target mismatch');
+  }
+  if (!Number.isInteger(snapshot.ttl_seconds)
+    || snapshot.ttl_seconds < 1
+    || snapshot.ttl_seconds > MAX_SNAPSHOT_TTL_SECONDS) {
+    throw new TypeError('authorization snapshot TTL is invalid');
   }
 
-  const viewerId = requireNonEmptyString(input.viewer_id, 'viewer_id');
-  const targetId = requireNonEmptyString(input.target_id, 'target_id');
-  parseTimestamp(input.now, 'now');
+  return {
+    snapshot_id: snapshotId,
+    principal,
+    target_id: snapshotTarget,
+    surface,
+    policy_version: policyVersion,
+    authority_version: authorityVersion,
+    issued_at: snapshot.issued_at,
+    expires_at: snapshot.expires_at,
+    ttl_seconds: snapshot.ttl_seconds,
+    presentation_status: snapshot.presentation_status === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE',
+    visible_capabilities: normalizeCapabilityList(
+      snapshot.visible_capabilities,
+      [VIEW_PERMISSION_STATE],
+    ),
+    management_capabilities: normalizeCapabilityList(
+      snapshot.management_capabilities,
+      [GRANT_PERMISSION],
+    ),
+    permission_state_projection: normalizeProjectedState(snapshot.permission_state_projection),
+  };
+}
 
-  const relation = viewerId === targetId ? 'SELF' : 'OTHER';
-  const upstreamCapabilities = normalizeCapabilities(input.viewer_capabilities);
-  const effectiveCapabilities = [...upstreamCapabilities];
-  if (relation === 'SELF' && !effectiveCapabilities.includes(VIEW_OWN_PERMISSIONS)) {
+function buildPermissionsControlModel(input) {
+  requireObject(input, 'input');
+
+  const targetId = requireNonEmptyString(input.target_id, 'target_id');
+  const snapshot = validateSnapshot(input.snapshot, targetId);
+  const relation = snapshot.principal === snapshot.target_id ? 'SELF' : 'OTHER';
+  const snapshotActive = snapshot.presentation_status === 'ACTIVE';
+
+  const hasViewState = snapshot.visible_capabilities.includes(VIEW_PERMISSION_STATE);
+  const hasGrant = snapshot.management_capabilities.includes(GRANT_PERMISSION);
+  const canViewOwn = snapshotActive && relation === 'SELF';
+  const canView = snapshotActive && (canViewOwn || hasViewState);
+  const canManage = snapshotActive && hasViewState && hasGrant;
+
+  const effectiveCapabilities = [
+    ...snapshot.visible_capabilities,
+    ...snapshot.management_capabilities,
+  ];
+  if (canViewOwn && !effectiveCapabilities.includes(VIEW_OWN_PERMISSIONS)) {
     effectiveCapabilities.push(VIEW_OWN_PERMISSIONS);
   }
 
-  const hasViewState = effectiveCapabilities.includes(VIEW_PERMISSION_STATE);
-  const hasGrant = effectiveCapabilities.includes(GRANT_PERMISSION);
-  const canViewOwn = relation === 'SELF';
-  const canView = canViewOwn || hasViewState;
-  const canManage = relation === 'OTHER' && hasViewState && hasGrant;
-
   const permissionState = canView
-    ? sensitive.SENSITIVE_CAPABILITIES.map((capabilityId) => (
-        buildStateItem(capabilityId, input.target_grants, targetId, input.now)
-      ))
+    ? snapshot.permission_state_projection.map((item) => ({ ...item }))
     : [];
-
   const managementControls = canManage
     ? permissionState.map(buildManagementControl)
     : [];
 
   return deepFreeze({
-    viewer_id: viewerId,
-    target_id: targetId,
+    viewer_id: snapshot.principal,
+    target_id: snapshot.target_id,
     relation,
     can_view: canView,
     can_view_own_permissions: canViewOwn,
     can_manage: canManage,
-    effective_capabilities: effectiveCapabilities,
+    effective_capabilities: [...new Set(effectiveCapabilities)],
     permission_state: permissionState,
     management_controls: managementControls,
+    snapshot_meta: {
+      snapshot_id: snapshot.snapshot_id,
+      policy_version: snapshot.policy_version,
+      authority_version: snapshot.authority_version,
+      issued_at: snapshot.issued_at,
+      expires_at: snapshot.expires_at,
+      ttl_seconds: snapshot.ttl_seconds,
+    },
     integration: {
-      surface: 'PROFILE_MORE_MENU',
+      surface: PROFILE_SURFACE,
       dom_ready: false,
-      reason: 'AUTHORIZATION_DATA_SOURCE_NOT_WIRED',
+      reason: snapshotActive
+        ? 'AUTHORIZATION_RUNTIME_NOT_WIRED'
+        : 'AUTHORIZATION_SNAPSHOT_NOT_ACTIVE',
     },
   });
 }
