@@ -202,5 +202,6 @@ test('view model is declarative and contains no DOM or navigation side effects',
   assert.equal(typeof permissions.buildPermissionsControlModel, 'function');
   assert.equal('mountPermissionsControl' in permissions, false);
   assert.equal('navigate' in permissions, false);
-  assert.equal(model.integration.dom_ready, false);
+  assert.equal(Object.hasOwn(model.integration, 'dom_ready'), false);
+  assert.equal(model.integration.state, 'PRESENTATION_MODEL_READY');
 });
