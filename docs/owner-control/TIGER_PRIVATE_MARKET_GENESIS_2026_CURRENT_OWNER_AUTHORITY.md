@@ -144,6 +144,24 @@ The handoff is the terminal Marketplace responsibility boundary for the underlyi
 
 Production rollout of Contact/Handoff is additionally fail-closed unless release evidence proves replay protection is durable across runtime instances. Volatile in-process nonce/capability state may be used for isolated tests or non-production authority instances only; it is not sufficient evidence for distributed Production activation.
 
+The source capability flag `contact_replay_protection_durable=true` proves **SOURCE_DURABLE** only. It is necessary but never sufficient to claim **DEPLOYED_DURABLE_VERIFIED** or Production Contact/Handoff eligibility.
+
+When Contact/Handoff is enabled, the M10 release boundary requires a closed, server-validated evidence contract bound to the exact target environment and exact release head. The evidence must prove, at minimum:
+
+- target environment is exactly `staging` or `production` and matches the evidence environment;
+- schema version is exactly `market-contact-replay-release-evidence-v1`;
+- release SHA is a 40-character lowercase hexadecimal SHA matching both expected and observed release heads;
+- migration SHA-256 equals the reviewed durable-replay migration digest `484fc1ee834ecce2ac8184ed0756e17f39b5424bbf58c6fff84e61acee6a70ad`;
+- the reviewed migration was applied and the evidence timestamps are valid and chronological;
+- at least two runtime instances participated in the distributed proof;
+- duplicate nonce issuance was attempted exactly twice with one success and one replay rejection;
+- duplicate capability consumption was attempted exactly twice with one success and one replay rejection;
+- release, evidence, and probe objects contain no unknown keys.
+
+The release evidence contract must not carry database URLs, credentials, service-role keys, hostnames, IP addresses, raw authorization nonces, nonce hashes, reusable capabilities, runtime-instance identifiers, PII, message content, raw private intent, or buyer-seller transaction state. The readiness gate is deterministic, pure, and fail-closed; it does not perform remote database or network I/O and cannot treat paid status, sponsorship, administrator status, or missing-evidence defaults as an override.
+
+M10 source implementation does not itself apply the migration, collect distributed proof, deploy a runtime, or activate Contact/Handoff in any remote environment. Those are separate release actions requiring real environment evidence and separate authorization.
+
 ## 10. Migration and anti-duplication rule
 
 For this domain, implementation must:
@@ -159,13 +177,17 @@ For this domain, implementation must:
 
 ## 11. Current implementation truth
 
-Private Market Genesis implementation slices M0–M8 exist on the current Draft feature branch and are covered by repository tests and exact-head CI evidence. This includes the versioned contracts, Sector Physics Registry, Ad Genome validation, shared Lens compiler, Real Estate and Auto Parts reference Lenses, whole-vehicle prohibition, Contact/Handoff convergence, SYNAPSE runtime bridge, privacy-safe observability, and readiness/security/compatibility gates.
+Private Market Genesis implementation slices M0–M10 exist on the current Draft feature branch. This includes the versioned contracts, Sector Physics Registry, Ad Genome validation, shared Lens compiler, Real Estate and Auto Parts reference Lenses, whole-vehicle prohibition, Contact/Handoff convergence, SYNAPSE runtime bridge, privacy-safe observability, readiness/security/compatibility gates, durable cross-instance replay authority, and the M10 Release Evidence Contract that prevents a Boolean-only durability flag from becoming deployed-release proof.
 
-The correct current state is:
+M9 supplies the source-level durable replay implementation and reviewed migration. M10 separates **SOURCE_DURABLE** from **DEPLOYED_DURABLE_VERIFIED** and requires exact environment, exact release SHA, exact reviewed migration digest, applied-migration evidence, at least two runtime instances, and successful duplicate-issuance/duplicate-consumption replay-rejection probes whenever Contact/Handoff contributes to rollout eligibility.
 
-`IMPLEMENTED_AND_VERIFIED_ON_DRAFT_FEATURE_BRANCH / NOT_MERGED_TO_MAIN / NOT_DEPLOYED_TO_PRODUCTION`
+The correct source/release state is:
 
-Implementation evidence on a feature branch is not release evidence. Contact/Handoff Production activation remains blocked unless the exact release evidence proves durable cross-instance replay protection. No UI mockup, document, stale Preview, old implementation, or non-exact-head workflow may be represented as Production deployment evidence.
+`SOURCE_IMPLEMENTED_ON_DRAFT_FEATURE_BRANCH / DEPLOYED_DURABLE_VERIFIED_NOT_CLAIMED / NOT_MERGED_TO_MAIN / NOT_DEPLOYED_TO_PRODUCTION`
+
+Repository verification is valid only when the applicable workflows are GREEN on the exact current feature-branch head; successful evidence from an older SHA must not be reused after the head changes. The PR is the dynamic record for current exact-head workflow run identifiers.
+
+Implementation evidence on a feature branch is not deployment or release evidence. The durable replay migration is not considered applied merely because its reviewed SQL exists in the repository. Contact/Handoff Production activation remains blocked unless separately authorized release activity supplies the exact M10 evidence from the target environment and proves durable cross-instance replay protection. No UI mockup, document, stale Preview, old implementation, source-level Boolean, or non-exact-head workflow may be represented as Production deployment evidence.
 
 Existing compatible Social Core, SYNAPSE, Pulse, privacy, security, and release protections remain authoritative. `main` and Production remain unchanged until an explicit owner-authorized merge/release decision passes the applicable exact-head gates.
 
