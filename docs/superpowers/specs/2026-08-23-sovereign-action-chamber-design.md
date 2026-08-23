@@ -1,8 +1,8 @@
 # TIGER Sovereign Action Chamber — Proof-Bound Privileged BFF
 
-**Status:** OWNER-APPROVED DESIGN — WRITTEN SPEC FOR REVIEW  
-**Date:** 2026-08-23  
-**Base checkpoint:** `f60a99414fb92ff825ad144bd4a15dd9d4288280`  
+**Status:** OWNER-APPROVED DESIGN — WRITTEN SPEC FOR REVIEW
+**Date:** 2026-08-23
+**Base checkpoint:** `f60a99414fb92ff825ad144bd4a15dd9d4288280`
 **Scope:** privileged/sensitive execution only; normal Social, ONE FIELD, discovery and ordinary RLS-governed reads remain on the existing fast path.
 
 ## 1. Decision
