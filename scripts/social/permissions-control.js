@@ -203,9 +203,9 @@ function buildPermissionsControlModel(input) {
     },
     integration: {
       surface: PROFILE_SURFACE,
-      dom_ready: false,
+      state: snapshotActive ? 'PRESENTATION_MODEL_READY' : 'SNAPSHOT_INACTIVE',
       reason: snapshotActive
-        ? 'AUTHORIZATION_RUNTIME_NOT_WIRED'
+        ? 'AUTHORIZATION_PRESENTATION_MODEL_READY'
         : 'AUTHORIZATION_SNAPSHOT_NOT_ACTIVE',
     },
   });
