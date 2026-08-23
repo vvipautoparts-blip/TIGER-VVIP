@@ -135,6 +135,51 @@ test('grant creation and state mutation functions are service-role only with saf
   }
 });
 
+test('sensitive state transitions use database-authoritative time rather than caller supplied p_now', () => {
+  const sql = migrationText();
+  for (const name of [
+    'create_sensitive_permission_grant',
+    'revoke_sensitive_permission_grant',
+    'expire_sensitive_permission_grant',
+    'create_sensitive_permission_lease',
+    'consume_sensitive_permission_lease',
+  ]) {
+    const block = functionBlock(sql, name);
+    assert.notEqual(block, '');
+    assert.doesNotMatch(block, /\bp_now\b/i, `${name} must not accept or trust caller time`);
+    assert.match(block, /statement_timestamp\(\)/i, `${name} must use database server time`);
+  }
+});
+
+test('lease scope is a verified subset of grant scope and digest is computed by the database', () => {
+  const sql = migrationText();
+  const createLease = functionBlock(sql, 'create_sensitive_permission_lease');
+  const consumeLease = functionBlock(sql, 'consume_sensitive_permission_lease');
+
+  assert.match(sql, /create or replace function public\.sensitive_permission_scope_digest/i);
+  assert.match(sql, /digest\s*\(/i);
+  assert.match(sql, /sha256/i);
+
+  for (const declaration of [
+    /resource_scope\s+jsonb/i,
+    /sector_scope\s+text\[\]/i,
+    /entity_scope\s+text\[\]/i,
+    /geo_policy_scope\s+text\[\]/i,
+  ]) {
+    assert.match(sql, declaration);
+  }
+
+  assert.match(createLease, /sensitive_resource_scope_is_subset/i);
+  assert.match(createLease, /sensitive_text_array_is_subset/i);
+  assert.match(createLease, /sensitive_permission_scope_digest/i);
+  assert.doesNotMatch(createLease, /p_scope_digest/i, 'caller must not choose authoritative lease scope digest');
+  assert.match(createLease, /SENSITIVE_PERMISSION_LEASE_SCOPE_DENIED/);
+
+  assert.match(consumeLease, /sensitive_permission_scope_digest/i);
+  assert.match(consumeLease, /scope_digest/i);
+  assert.match(consumeLease, /SENSITIVE_PERMISSION_LEASE_BINDING_MISMATCH/);
+});
+
 test('leases are exact-bound, required, short-lived, single-use, and fail closed after revoke or expiry', () => {
   const sql = migrationText();
   const consume = functionBlock(sql, 'consume_sensitive_permission_lease');
@@ -158,6 +203,10 @@ test('leases are exact-bound, required, short-lived, single-use, and fail closed
     'grant_id',
     'principal',
     'action',
+    'resource_scope',
+    'sector_scope',
+    'entity_scope',
+    'geo_policy_scope',
     'scope_digest',
     'nonce_hash',
     'not_before',
