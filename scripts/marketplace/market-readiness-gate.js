@@ -48,6 +48,8 @@ function hasRequiredEvidence(snapshot, requiredWorkflows) {
     'living_classified_fabric_active',
     'transaction_capabilities_enabled',
     'pulse_ad_billing_authority_preserved',
+    'contact_handoff_enabled',
+    'contact_replay_protection_durable',
   ]) {
     if (typeof authority[field] !== 'boolean') return false;
   }
@@ -131,6 +133,10 @@ function evaluateMarketGenesisReadiness(snapshot, options = {}) {
 
   if (authority.pulse_ad_billing_authority_preserved !== true) {
     pushUnique(reasonCodes, 'PULSE_AUTHORITY_NOT_PRESERVED');
+  }
+
+  if (authority.contact_handoff_enabled === true && authority.contact_replay_protection_durable !== true) {
+    pushUnique(reasonCodes, 'CONTACT_REPLAY_PROTECTION_NOT_DURABLE');
   }
 
   let organicMode = compatibility.organic_path_verified ? 'ELIGIBLE' : 'BLOCKED';
