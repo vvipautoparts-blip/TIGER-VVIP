@@ -2,7 +2,7 @@
 
 **Status:** `CURRENT_ONLY / BINDING OWNER AUTHORITY FOR TRUST AND CONTINUOUS AUTHORIZATION`
 
-**Effective date:** 2026-08-23
+**Effective date:** 2026-08-24
 
 **Program:** `TIGER SOVEREIGN TRUST ORGANISM 2026 (TSTO)`
 
@@ -10,13 +10,15 @@
 
 **M12 implementation plan:** `docs/superpowers/plans/2026-08-23-tsto-m12-sovereign-continuous-authority-core.md`
 
+**M13 approved design:** `docs/superpowers/specs/2026-08-24-tsto-m13-runtime-attestation-deployment-evidence-bridge-design.md`
+
 ## 1. Owner adoption
 
-The owner adopts **TSTO 2026** as the current base architecture for TIGER trust and continuous authorization.
+The owner adopts **TSTO 2026** as the current base architecture for TIGER trust and continuous authorization and approves **M13 — Runtime Attestation and Deployment Evidence Bridge** as the next implemented TSTO slice after M12.
 
-TSTO is not an optional proposal and is not a parallel trust engine. `TSLTG` is the Genome subsystem inside TSTO, and `SCAE` is the deterministic continuous-authority decision equation inside TSTO.
+TSTO is not an optional proposal and is not a parallel trust engine. `TSLTG` is the Genome subsystem inside TSTO, and `SCAE` is the deterministic continuous-authority decision equation inside TSTO. M13 extends TSTO; it does not create another trust architecture.
 
-The owner direction is also a scope-control law:
+The owner direction remains a scope-control law:
 
 > **Do not propose or stack additional trust architectures outside TSTO merely for novelty. Extend TSTO only when implementation evidence proves a concrete security, correctness, interoperability, resilience, privacy, or compliance gap that the current architecture cannot safely express.**
 
@@ -28,7 +30,7 @@ The current architecture consists of these coordinated organs:
 
 1. **TSLTG / Trust DNA** — immutable or slow-changing source/release trust identity.
 2. **Sovereign Epoch Chain** — deterministic invalidation when controlling authority changes.
-3. **Runtime Trust Pulse** — time-bounded runtime evidence; M12 defines only a synthetic source contract, not real Production evidence.
+3. **Runtime Trust Pulse** — time-bounded runtime evidence; M12 defines synthetic-only V1 and M13 adds attested-runtime V2 derived only from trusted M13 evidence.
 4. **Trust Nervous System** — future authenticated change/revocation signals.
 5. **Authority Cortex (PDP)** — deterministic exact-action decision point.
 6. **Capability Enforcement Point (PEP)** — exact-action enforcement boundary.
@@ -51,9 +53,11 @@ TSTO must preserve all stricter current owner laws. For Private Market Genesis s
 3. Living Classified Fabric remains retired with no fallback.
 4. Advertising billing remains TIGER Pulse/country-payment authority and does not create buyer–seller transaction authority.
 5. Missing evidence never becomes permission.
-6. AI output, a UI role, administrator status, sponsorship, payment, workflow text, or a source Boolean cannot mint sovereign authority.
-7. Raw private intent, PII, secrets, reusable capabilities, and unnecessary runtime-identifying evidence are not trust-output or advertising inventory.
+6. AI output, a UI role, administrator status, sponsorship, payment, workflow text, a source Boolean, or an attestation-looking payload cannot mint sovereign authority.
+7. Raw private intent, PII, secrets, reusable capabilities, raw nonce/challenges, and unnecessary runtime-identifying evidence are not trust-output or advertising inventory.
 8. Production/Staging deployment, remote database mutation, release activation, secrets, DNS, and payment-provider changes remain separately gated operations.
+9. A verifier `PASS` is evidence only and never equals SCAE `ALLOW` by itself.
+10. Staging evidence can never satisfy Production and Production evidence can never be manufactured from source-only fixtures.
 
 ## 4. M9–M11 remain founding genes — no rebuild
 
@@ -65,9 +69,11 @@ TSTO consumes those facts. It does not replace the durable replay migration, cre
 
 `M11 SOURCE_VERIFIED` never implies `M10 DEPLOYED_DURABLE_VERIFIED`.
 
+M13 additionally requires that M10, M11, and an authenticated/fresh M13 verifier result be mutually consistent before runtime-attested deployment state can be derived.
+
 ## 5. M12 implemented source boundary
 
-**M12 — Sovereign Continuous Authority Core** is the first implemented TSTO slice on Draft PR #323.
+**M12 — Sovereign Continuous Authority Core** is the first implemented TSTO source slice on Draft PR #323.
 
 M12 source implementation contains:
 
@@ -78,64 +84,76 @@ M12 source implementation contains:
 - `scripts/trust/market-genesis-evidence.cjs`
 - focused `tests/tsto-m12-*.test.cjs`
 
-The source core defines:
+The source core defines closed Trust DNA and epoch contracts, synthetic-only `TIGER_TRUST_PULSE_V1`, immutable Market Genesis Contact/Handoff proof geometry, deterministic SCAE/PDP semantics, test-only PCAL candidate semantics, and a pure M10+M11 Market Genesis evidence adapter.
 
-- closed canonical `TIGER_TRUST_DNA_V1`;
-- closed canonical `TIGER_SOVEREIGN_EPOCH_VECTOR_V1`;
-- closed synthetic-only `TIGER_TRUST_PULSE_V1`;
-- immutable `MARKET_GENESIS.CONTACT_HANDOFF` action profile;
-- Adaptive Proof Geometry that callers cannot shrink;
-- deterministic SCAE/PDP decision semantics;
-- test-only `TIGER_PCAL_V1` candidate contract;
-- trusted-context separation so callers cannot self-assert current time, current epochs, environment, workflow identity, attestation result, trusted signal issuer, `ALLOW`, or proof requirements;
-- a pure M10+M11 Market Genesis evidence adapter that cannot convert M11 source readiness alone into deployed durability.
+The first Market Genesis PCAL policy remains deliberately bounded to **45 seconds and one use** in the M12 source contract.
 
-The first Market Genesis PCAL policy is deliberately bounded to **45 seconds and one use** in the M12 source contract.
-
-## 6. M12 security meaning
-
-M12 is intentionally source-only.
-
-It **does not**:
-
-- mint a live Production or Staging capability;
-- create a real target-environment Trust Pulse;
-- apply any database migration remotely;
-- perform RATS/EAT runtime attestation;
-- ingest real CAEP/SSF signals;
-- register SCITT/Sigstore transparency evidence;
-- deploy SPIFFE/SPIRE;
-- claim AuthZEN, SLSA, RATS, SCITT, SPIFFE, or PQC conformance;
-- change `SVEF_PRODUCTION_RELEASE_BUNDLE_V2`;
-- dispatch the Production artifact builder;
-- activate Contact/Handoff;
-- merge PR #323;
-- mutate Production, Staging, remote Supabase, DNS, secrets, or payment-provider configuration.
-
-The only valid M12 completion statement after same-SHA repository verification is:
+The valid M12 completion statement remains:
 
 `SOVEREIGN_CONTINUOUS_AUTHORITY_CORE_SOURCE_VERIFIED`
 
-It is never equivalent to:
+## 6. M13 approved and implemented source boundary
 
-`DEPLOYED_DURABLE_VERIFIED`
+**M13 — Runtime Attestation and Deployment Evidence Bridge** is owner-approved as part of the same TSTO architecture and is implemented source-only on Draft PR #323.
 
-or to Production authorization.
+M13 source implementation contains:
 
-## 7. Evidence discipline
+- `scripts/trust/runtime-attestation.cjs`
+- `scripts/trust/deployment-attestation-bridge.cjs`
+- M13 extensions in `scripts/trust/contracts.cjs`
+- M13 trusted-V2 enforcement in `scripts/trust/scae.cjs`
+- focused `tests/tsto-m13-*.test.cjs`
 
-The source file cannot safely embed its own final commit SHA as an authority fact because changing that SHA would change the commit itself.
+The M13 source contract establishes:
+
+- closed `TIGER_ATTESTATION_RESULT_V1` normalization with a trusted verifier-adapter provenance boundary;
+- module-owned maximum attestation lifetime of **5 minutes**;
+- exact release SHA, target environment, runtime artifact, verifier/attester reference, appraisal/evidence and freshness digest binding;
+- pure cross-binding of M10 deployment evidence, M11 source readiness, M12 Trust DNA/epochs, and trusted M13 attestation results;
+- `TIGER_TRUST_PULSE_V2` with `ATTESTED_RUNTIME_RESULT`, a module-owned maximum lifetime of **60 seconds**, and a hard ceiling at the source attestation expiry;
+- SCAE acceptance of V2 only when the original Pulse carries trusted Bridge provenance;
+- preservation of M12 V1 semantics and all Market Genesis immutable laws;
+- evidence-minimized outputs containing bounded digest references rather than raw nonce, secrets, PII, credentials, database URLs, or unnecessary runtime host data.
+
+M13 source completion may state only:
+
+`RUNTIME_ATTESTATION_DEPLOYMENT_BRIDGE_SOURCE_VERIFIED`
+
+That statement requires exact-head repository verification and must be read together with the current PR/CI evidence.
+
+## 7. Explicit M13 non-claims
+
+M13 source implementation does **not**:
+
+- mint a live Production or Staging capability;
+- claim `PRODUCTION_RUNTIME_ATTESTED`;
+- claim `DEPLOYED_DURABLE_VERIFIED` without real separately authorized M10 target-environment evidence;
+- apply a database migration remotely;
+- activate Contact/Handoff;
+- dispatch/promote/deploy a Production artifact;
+- perform real cloud or hardware/TEE attestation;
+- claim RATS, EAT, EAR, AR4SI, provider, SLSA, SCITT, SPIFFE, or PQC conformance merely from source structure;
+- merge PR #323;
+- mutate Production, Staging, remote Supabase, DNS, secrets, or payment-provider configuration.
+
+M13 provider/verifier adapters remain replaceable boundaries. Provider-specific crypto verification, certificate-chain validation, cloud API calls, nonce issuance, or hardware appraisal are outside this source-only slice unless separately approved and evidenced later.
+
+## 8. Evidence discipline
+
+The source files cannot safely embed their own final commit SHA as an authority fact because changing that SHA would change the commit itself.
 
 Therefore current implementation truth is established by:
 
 1. exact Git commit SHA and tree;
 2. same-SHA repository/security/database workflows;
-3. focused M12 tests and the full Quality Gate;
+3. focused M12/M13 tests and the full Quality Gate;
 4. PR #323 as the dynamic exact-head evidence record.
 
 Evidence from an older SHA remains historical only after the branch head changes.
 
-## 8. Current owner truth
+No source-only test fixture is real runtime attestation evidence.
+
+## 9. Current owner truth
 
 The binding trust architecture is:
 
@@ -143,7 +161,11 @@ The binding trust architecture is:
 
 The source implementation state is:
 
-`M0_M12_SOURCE_IMPLEMENTED_ON_DRAFT_FEATURE_BRANCH`
+`M0_M13_SOURCE_IMPLEMENTED_ON_DRAFT_FEATURE_BRANCH`
+
+The M13 source completion truth, once exact-head verification is GREEN, is:
+
+`RUNTIME_ATTESTATION_DEPLOYMENT_BRIDGE_SOURCE_VERIFIED`
 
 The deployment truth remains:
 
