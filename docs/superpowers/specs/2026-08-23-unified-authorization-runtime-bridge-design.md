@@ -1,8 +1,8 @@
 # Unified Authorization Runtime Bridge — Design
 
-**Date:** 2026-08-23  
-**Status:** Owner-approved design direction; implementation not started  
-**PR:** #321  
+**Date:** 2026-08-23
+**Status:** Owner-approved design direction; implementation not started
+**PR:** #321
 **Base architecture:** additive extension of the approved capability/lease, owner-step-up, disclosure, protected-view, and profile-permissions contracts.
 
 ## 1. Purpose
