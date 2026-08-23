@@ -58,6 +58,16 @@ const REQUIRED_GENESIS_RESPONSE_FIELDS = Object.freeze([
   'expires_at',
 ]);
 
+const PROTECTED_COUNTRY_OVERLAY_FIELDS = Object.freeze(new Set([
+  'hard_invariants',
+  'allowed_entity_types',
+  'forbidden_entity_types',
+  'category_firewall',
+  'publication_validators',
+  'discovery_validators',
+  'sponsored_admission_validators',
+]));
+
 function result(reasonCodes, errors) {
   return {
     ok: reasonCodes.length === 0,
@@ -296,8 +306,10 @@ function assertPhysicsDefinition(physics) {
   if (isPlainObject(physics.country_overlays)) {
     for (const [country, overlay] of Object.entries(physics.country_overlays)) {
       if (!isPlainObject(overlay)) throw new TypeError(`country overlay ${country} must be an object`);
-      if (Object.prototype.hasOwnProperty.call(overlay, 'hard_invariants')) {
-        throw new Error(`country overlay ${country} cannot override hard invariants`);
+      for (const field of Object.keys(overlay)) {
+        if (PROTECTED_COUNTRY_OVERLAY_FIELDS.has(field)) {
+          throw new Error(`country overlay ${country} cannot override protected field ${field}`);
+        }
       }
     }
   }
@@ -307,7 +319,7 @@ function mergeCountryOverlay(base, overlay) {
   if (!isPlainObject(overlay)) return base;
   const merged = deepClone(base);
   for (const [key, value] of Object.entries(overlay)) {
-    if (key === 'hard_invariants') continue;
+    if (PROTECTED_COUNTRY_OVERLAY_FIELDS.has(key)) continue;
     merged[key] = deepClone(value);
   }
   return merged;
