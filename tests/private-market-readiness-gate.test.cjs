@@ -24,6 +24,8 @@ function validSnapshot(overrides = {}) {
       living_classified_fabric_active: false,
       transaction_capabilities_enabled: false,
       pulse_ad_billing_authority_preserved: true,
+      contact_handoff_enabled: false,
+      contact_replay_protection_durable: false,
     },
     compatibility: {
       policy_version: 'policy-2026-08',
