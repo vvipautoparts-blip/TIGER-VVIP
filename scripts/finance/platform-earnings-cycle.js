@@ -140,22 +140,20 @@ function closeCycle(entries, cycle) {
   }
 
   const { startMs, endMs } = validateCycle(cycle);
-  const included = entries.filter((entry) => {
-    if (!entry || typeof entry !== 'object') {
-      throw new TypeError('each entry must be an object');
-    }
+  const validatedEntries = entries.map((entry) => recordEntry(entry));
+  const included = validatedEntries.filter((entry) => {
     const occurredAt = parseTimestamp(entry.occurred_at, 'entry.occurred_at');
     return occurredAt >= startMs && occurredAt < endMs;
   });
 
-  const currencies = new Set(included.map((entry) => requireCurrency(entry.currency)));
+  const currencies = new Set(included.map((entry) => entry.currency));
   if (currencies.size > 1) {
     throw new TypeError('one authoritative cycle total cannot mix currency codes');
   }
 
   let totalMinor = 0n;
   for (const entry of included) {
-    totalMinor += parseInteger(entry.amount_minor, 'entry.amount_minor');
+    totalMinor += entry.amount_minor;
   }
 
   return freeze({
