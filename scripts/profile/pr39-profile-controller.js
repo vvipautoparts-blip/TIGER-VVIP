@@ -71,14 +71,15 @@
       }
 
       try {
-        const snapshot = await loadCapabilitySnapshot({
+        const request = Object.assign({}, {
           target_id: targetId,
           surface: PROFILE_SURFACE
         });
-        const model = modelBuilder.buildPermissionsControlModel({
+        const snapshot = await loadCapabilitySnapshot(request);
+        const model = modelBuilder.buildPermissionsControlModel(Object.assign({}, {
           snapshot: snapshot,
           target_id: targetId
-        });
+        }));
         const readyModel = Object.freeze(Object.assign({}, model, {
           integration: Object.freeze(Object.assign({}, model.integration || {}, {
             surface: PROFILE_SURFACE,
