@@ -2,6 +2,7 @@
 
 const {
   TrustContractError,
+  TRUST_SCHEMAS,
   TRUST_DIMENSIONS,
   canonicalJson,
   sha256Hex,
@@ -14,6 +15,9 @@ const {
   getActionProfile,
   compileProofGeometry,
 } = require('./action-profiles.cjs');
+const {
+  isTrustedTrustPulseV2,
+} = require('./deployment-attestation-bridge.cjs');
 
 const DECISION_SCHEMA = 'TIGER_SCAE_DECISION_V1';
 const REQUEST_KEYS = Object.freeze([
@@ -197,6 +201,17 @@ function evaluateSovereignAction({ request, trustedContext } = {}) {
       profile,
       geometry,
       reasonCodes: [code],
+    });
+  }
+
+  if (trustPulse.schema === TRUST_SCHEMAS.TRUST_PULSE_V2
+    && !isTrustedTrustPulseV2(trustedContext.trust_pulse)) {
+    return blockedDecision({
+      request,
+      trustedContext,
+      profile,
+      geometry,
+      reasonCodes: ['TRUST_PULSE_UNTRUSTED'],
     });
   }
 
