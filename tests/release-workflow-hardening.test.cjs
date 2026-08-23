@@ -7,6 +7,14 @@ const test = require('node:test');
 
 const WORKFLOW_PATH = path.join(__dirname, '..', '.github', 'workflows', 'pages.yml');
 const workflow = fs.readFileSync(WORKFLOW_PATH, 'utf8');
+const BUILDER_WORKFLOW_PATH = path.join(
+  __dirname,
+  '..',
+  '.github',
+  'workflows',
+  'production-release-artifact.yml',
+);
+const builderWorkflow = fs.readFileSync(BUILDER_WORKFLOW_PATH, 'utf8');
 
 function externalActions(text) {
   return text
@@ -74,4 +82,51 @@ test('previously-built release bytes remain bound to owner-approved exact SHA an
   assert.match(workflow, /--source-ref\s+refs\/heads\/main/);
   assert.match(workflow, /PROMOTION_MAIN_SHA_MISMATCH/);
   assert.doesNotMatch(workflow, /--source-sha\s+"\$EXPECTED_RELEASE_SHA"/, 'promotion must never rebuild release bytes');
+});
+
+test('M11 Production builder seals Market Genesis source readiness only after fixed source gates', () => {
+  const qualityGateIndex = builderWorkflow.indexOf('bash scripts/quality-gate.sh');
+  const marketGateIndex = builderWorkflow.indexOf('node --test tests/private-market-*.test.cjs');
+  const sourceReadinessIndex = builderWorkflow.indexOf('createMarketSourceReadinessEvidence');
+  const productionBundleIndex = builderWorkflow.indexOf('createProductionReleaseBundleManifest');
+  const sealCopyIndex = builderWorkflow.indexOf(
+    'cp "$RUNNER_TEMP/vvip-production-evidence/market-genesis-source-readiness.json" "$root/evidence/market-genesis-source-readiness.json"',
+  );
+
+  assert.ok(qualityGateIndex >= 0, 'full quality gate must remain required');
+  assert.ok(marketGateIndex > qualityGateIndex, 'fixed Market Genesis tests must run after the full quality gate');
+  assert.ok(sourceReadinessIndex > marketGateIndex, 'source evidence must be generated only after fixed Market tests');
+  assert.ok(productionBundleIndex > sourceReadinessIndex, 'Production V2 must bind already-generated evidence bytes');
+  assert.ok(sealCopyIndex > productionBundleIndex, 'exact source-readiness evidence must be copied into the seal root');
+
+  assert.match(builderWorkflow, /serializeMarketSourceReadinessEvidence/);
+  assert.match(builderWorkflow, /supabase\/migrations\/20260823190000_market_genesis_durable_replay\.sql/);
+  assert.match(builderWorkflow, /marketGenesisSourceReadinessBytes/);
+  assert.match(builderWorkflow, /market-genesis-source-readiness\.json/);
+});
+
+test('M11 Production builder dispatch cannot supply source-readiness authority or state', () => {
+  const permissionsIndex = builderWorkflow.indexOf('\npermissions:');
+  assert.ok(permissionsIndex > 0, 'builder permissions boundary must exist');
+  const dispatchHeader = builderWorkflow.slice(0, permissionsIndex);
+  assert.match(dispatchHeader, /workflow_dispatch:/);
+  assert.match(dispatchHeader, /release_sha:/);
+  assert.doesNotMatch(
+    dispatchHeader,
+    /deployed_durable_verified|market_genesis_active|living_classified_fabric_active|transaction_capabilities_enabled|contact_replay_protection_durable|whole_vehicle_ads_forbidden|no_transaction/,
+  );
+});
+
+test('M11 Production builder material inventory binds every new release trust boundary', () => {
+  for (const requiredPath of [
+    '.github/workflows/production-release-artifact.yml',
+    'scripts/marketplace/market-source-readiness-evidence.js',
+    'scripts/marketplace/market-readiness-gate.js',
+    'scripts/marketplace/market-release-evidence-contract.js',
+    'scripts/tsrf/svef/release-bundle.cjs',
+    'scripts/release/verify-production-artifact.py',
+    'supabase/migrations/20260823190000_market_genesis_durable_replay.sql',
+  ]) {
+    assert.ok(builderWorkflow.includes(`'${requiredPath}'`), `missing M11 material: ${requiredPath}`);
+  }
 });
