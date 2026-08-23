@@ -1,0 +1,45 @@
+{
+  "status": "ACTIVE_OWNER_AUTHORITY",
+  "effective_at": "2026-08-23",
+  "scope": "SOVEREIGN_PROOF_CONTINUUM_V2",
+  "supersedes": "SOVEREIGN_ACTION_CHAMBER_V1_AS_TOP_LEVEL_ARCHITECTURE",
+  "preserves": {
+    "sovereign_action_chamber_as_atomic_execution_core": true,
+    "unified_authorization_runtime_bridge": true,
+    "federated_identity_sovereignty": true,
+    "persistent_grants": true,
+    "single_use_persistent_leases": true,
+    "database_authoritative_time": true,
+    "existing_append_only_audit_chain": true,
+    "normal_social_one_field_discovery_fast_path": true,
+    "contact_handoff_boundary": true
+  },
+  "architecture": {
+    "spec": "docs/superpowers/specs/2026-08-23-sovereign-action-chamber-design.md",
+    "proof_convergence_required_for_privileged_execution": true,
+    "browser_portable_execution_authority": false,
+    "proof_envelope_is_portable_authority": false,
+    "risk_tier_server_owned": true,
+    "risk_ratchet_monotonic": true,
+    "ai_can_raise_security_bar": true,
+    "ai_can_lower_authority_bar": false,
+    "provider_capability_must_be_verified": true,
+    "passkey_reverification_must_not_be_assumed": true,
+    "optional_device_sender_supply_chain_proofs_are_additive": true,
+    "unsupported_optional_proof_cannot_be_faked": true,
+    "first_party_password_system": false,
+    "parallel_permission_engine": false,
+    "parallel_grant_store": false,
+    "parallel_audit_ledger": false
+  },
+  "implementation": {
+    "method": "TDD_RED_GREEN_EXACT_SHA",
+    "pr": 322,
+    "branch": "feat/sovereign-action-chamber-20260823",
+    "base_verified_checkpoint": "f60a99414fb92ff825ad144bd4a15dd9d4288280",
+    "remote_database_apply_authorized": false,
+    "production_mutation_authorized": false,
+    "staging_mutation_authorized": false,
+    "merge_authorized": false
+  }
+}
