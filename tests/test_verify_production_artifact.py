@@ -88,6 +88,7 @@ def patch_central_directory_file_size(payload: bytes, filename: str, declared_si
 
 
 def valid_inner_tar() -> bytes:
+    """Historical pre-M11 V1 inner bundle fixture."""
     public_file = b"<!doctype html><title>VVIP TIGER</title>\n"
     release_manifest = {
         "schemaVersion": 1,
@@ -208,7 +209,7 @@ def valid_m11_inner_tar(
 ) -> bytes:
     entries = tar_file_entries(valid_inner_tar())
     readiness_value = readiness if readiness is not None else valid_market_source_readiness()
-    readiness_bytes = canonical_file(readiness_value)
+    readiness_bytes = canonical_json(readiness_value)
     bundle = json.loads(entries["evidence/release-bundle-manifest.json"])
     bundle["bundle_version"] = "SVEF_PRODUCTION_RELEASE_BUNDLE_V2"
     bundle["market_genesis_source_readiness_sha256"] = sha256(readiness_bytes)
@@ -335,7 +336,7 @@ class VerifyProductionArtifactTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             archive = root / ARCHIVE_NAME
-            archive.write_bytes(valid_inner_tar())
+            archive.write_bytes(valid_m11_inner_tar())
             output = root / "verified-public"
 
             result = verifier.verify_inner_bundle(
@@ -353,13 +354,8 @@ class VerifyProductionArtifactTests(unittest.TestCase):
     def test_inner_fails_closed_on_mode_source_hash_and_undeclared_public_bytes(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            good = valid_inner_tar()
-            with tarfile.open(fileobj=io.BytesIO(good), mode="r:gz") as archive:
-                entries = {
-                    member.name: archive.extractfile(member).read()
-                    for member in archive.getmembers()
-                    if member.isfile()
-                }
+            good = valid_m11_inner_tar()
+            entries = tar_file_entries(good)
 
             release = json.loads(entries["public/release-manifest.json"])
             mutations = []
@@ -405,7 +401,14 @@ class VerifyProductionArtifactTests(unittest.TestCase):
                     release_sha=SOURCE_SHA,
                     output_public=root / "out-pre-m11",
                 )
-            self.assertEqual(ctx.exception.code, "SVEF_PRODUCTION_BUNDLE_VERSION_MISMATCH")
+            self.assertEqual(ctx.exception.code, "VVIP_INNER_ENTRY_SET_INVALID")
+
+    def test_m11_rejects_v1_bundle_version_inside_five_file_evidence_set(self):
+        self._assert_m11_inner_error(
+            valid_m11_inner_tar(bundle_overrides={"bundle_version": "SVEF_RELEASE_BUNDLE_V1"}),
+            "SVEF_PRODUCTION_BUNDLE_VERSION_MISMATCH",
+            "v1-version",
+        )
 
     def test_m11_rejects_missing_fifth_evidence_member(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -470,7 +473,7 @@ class VerifyProductionArtifactTests(unittest.TestCase):
         entries = tar_file_entries(valid_m11_inner_tar())
         readiness = json.loads(entries["evidence/market-genesis-source-readiness.json"])
         readiness["state"] = "TAMPERED"
-        entries["evidence/market-genesis-source-readiness.json"] = canonical_file(readiness)
+        entries["evidence/market-genesis-source-readiness.json"] = canonical_json(readiness)
         self._assert_m11_inner_error(
             tar_bytes(entries),
             "MARKET_SOURCE_READINESS_DIGEST_MISMATCH",
