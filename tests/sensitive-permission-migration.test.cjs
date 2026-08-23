@@ -5,16 +5,31 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const migrationPath = path.join(
+const baseMigrationPath = path.join(
   __dirname,
   '..',
   'supabase',
   'migrations',
   '20260823003000_sensitive_permission_grants.sql',
 );
+const hardeningMigrationPath = path.join(
+  __dirname,
+  '..',
+  'supabase',
+  'migrations',
+  '20260823040000_sensitive_permission_server_authority_hardening.sql',
+);
 
 function migrationText() {
-  return fs.readFileSync(migrationPath, 'utf8');
+  return fs.readFileSync(baseMigrationPath, 'utf8');
+}
+
+function hardeningText() {
+  return fs.readFileSync(hardeningMigrationPath, 'utf8');
+}
+
+function effectiveMigrationText() {
+  return `${migrationText()}\n${hardeningText()}`;
 }
 
 function functionBlock(sql, functionName) {
@@ -26,7 +41,7 @@ function functionBlock(sql, functionName) {
 }
 
 test('migration creates grant, state-event, and short-lived lease persistence', () => {
-  const sql = migrationText();
+  const sql = effectiveMigrationText();
 
   assert.match(sql, /create table if not exists public\.sensitive_permission_grants/i);
   assert.match(sql, /create table if not exists public\.sensitive_permission_grant_events/i);
@@ -54,7 +69,7 @@ test('migration creates grant, state-event, and short-lived lease persistence', 
 });
 
 test('all sensitive permission tables enable and force RLS with no browser-role mutations', () => {
-  const sql = migrationText();
+  const sql = effectiveMigrationText();
   const tables = [
     'sensitive_permission_grants',
     'sensitive_permission_grant_events',
@@ -82,7 +97,7 @@ test('audit-bearing grants and state events are append-only and cannot be delete
 });
 
 test('revocation and expiry are explicit append-only state events', () => {
-  const sql = migrationText();
+  const sql = effectiveMigrationText();
 
   assert.match(sql, /event_type\s+text/i);
   assert.match(sql, /event_type\s+in\s*\([^)]*'GRANTED'[^)]*'REVOKED'[^)]*'EXPIRED'/is);
@@ -99,8 +114,8 @@ test('grant and lease expiry paths are indexed', () => {
   assert.match(sql, /create index if not exists sensitive_permission_leases_status_expiry_idx[\s\S]*status[\s\S]*expires_at/i);
 });
 
-test('grant creation verifies exact delegation authority and subset ceilings before insert', () => {
-  const sql = migrationText();
+test('hardened grant creation verifies exact delegation authority and subset ceilings before insert', () => {
+  const sql = hardeningText();
   const block = functionBlock(sql, 'create_sensitive_permission_grant');
 
   assert.notEqual(block, '');
@@ -117,8 +132,8 @@ test('grant creation verifies exact delegation authority and subset ceilings bef
   assert.ok(subsetCheck >= 0 && insertGrant > subsetCheck, 'subset verification must precede grant insertion');
 });
 
-test('grant creation and state mutation functions are service-role only with safe definer paths', () => {
-  const sql = migrationText();
+test('hardened grant creation and state mutation functions are service-role only with safe definer paths', () => {
+  const sql = hardeningText();
   const signatures = [
     'create_sensitive_permission_grant',
     'revoke_sensitive_permission_grant',
@@ -135,8 +150,22 @@ test('grant creation and state mutation functions are service-role only with saf
   }
 });
 
+test('legacy caller-time function signatures lose service-role execution authority', () => {
+  const sql = hardeningText();
+  for (const signature of [
+    /create_sensitive_permission_grant\(text, text, jsonb, text\[\], text\[\], text\[\], text, text, text, uuid, text, timestamptz, timestamptz, timestamptz, jsonb, text\)/i,
+    /revoke_sensitive_permission_grant\(uuid, text, text, text, timestamptz\)/i,
+    /expire_sensitive_permission_grant\(uuid, text, text, text, timestamptz\)/i,
+    /create_sensitive_permission_lease\(uuid, text, text, text, text, timestamptz, timestamptz, text, timestamptz\)/i,
+    /consume_sensitive_permission_lease\(uuid, text, text, text, text, timestamptz\)/i,
+  ]) {
+    const match = sql.match(new RegExp(`revoke execute on function public\\.${signature.source} from service_role`, 'i'));
+    assert.ok(match, `legacy signature must be revoked from service_role: ${signature}`);
+  }
+});
+
 test('sensitive state transitions use database-authoritative time rather than caller supplied p_now', () => {
-  const sql = migrationText();
+  const sql = hardeningText();
   for (const name of [
     'create_sensitive_permission_grant',
     'revoke_sensitive_permission_grant',
@@ -152,7 +181,7 @@ test('sensitive state transitions use database-authoritative time rather than ca
 });
 
 test('lease scope is a verified subset of grant scope and digest is computed by the database', () => {
-  const sql = migrationText();
+  const sql = hardeningText();
   const createLease = functionBlock(sql, 'create_sensitive_permission_lease');
   const consumeLease = functionBlock(sql, 'consume_sensitive_permission_lease');
 
@@ -161,10 +190,10 @@ test('lease scope is a verified subset of grant scope and digest is computed by 
   assert.match(sql, /sha256/i);
 
   for (const declaration of [
-    /resource_scope\s+jsonb/i,
-    /sector_scope\s+text\[\]/i,
-    /entity_scope\s+text\[\]/i,
-    /geo_policy_scope\s+text\[\]/i,
+    /add column if not exists resource_scope\s+jsonb/i,
+    /add column if not exists sector_scope\s+text\[\]/i,
+    /add column if not exists entity_scope\s+text\[\]/i,
+    /add column if not exists geo_policy_scope\s+text\[\]/i,
   ]) {
     assert.match(sql, declaration);
   }
@@ -176,13 +205,13 @@ test('lease scope is a verified subset of grant scope and digest is computed by 
   assert.match(createLease, /SENSITIVE_PERMISSION_LEASE_SCOPE_DENIED/);
 
   assert.match(consumeLease, /sensitive_permission_scope_digest/i);
-  assert.match(consumeLease, /scope_digest/i);
+  assert.match(consumeLease, /v_requested_scope_digest/i);
   assert.match(consumeLease, /SENSITIVE_PERMISSION_LEASE_BINDING_MISMATCH/);
 });
 
 test('leases are exact-bound, required, short-lived, single-use, and fail closed after revoke or expiry', () => {
-  const sql = migrationText();
-  const consume = functionBlock(sql, 'consume_sensitive_permission_lease');
+  const sql = effectiveMigrationText();
+  const consume = functionBlock(hardeningText(), 'consume_sensitive_permission_lease');
 
   assert.match(sql, /status\s+in\s*\([^)]*'ISSUED'[^)]*'CONSUMED'[^)]*'REVOKED'[^)]*'EXPIRED'/is);
   for (const declaration of [
@@ -199,6 +228,7 @@ test('leases are exact-bound, required, short-lived, single-use, and fail closed
     assert.match(sql, declaration);
   }
   assert.match(sql, /constraint\s+sensitive_permission_lease_required_bindings_check\s+check/i);
+  assert.match(sql, /constraint\s+sensitive_permission_lease_scope_binding_check/i);
   for (const field of [
     'grant_id',
     'principal',
@@ -227,8 +257,8 @@ test('leases are exact-bound, required, short-lived, single-use, and fail closed
   assert.match(consume, /SENSITIVE_PERMISSION_LEASE_(?:CONSUMED|REPLAY_OR_CONFLICT)/);
 });
 
-test('migration is definition-only and contains no remote apply or production deployment command', () => {
-  const sql = migrationText();
+test('migration sequence is definition-only and contains no remote apply or production deployment command', () => {
+  const sql = effectiveMigrationText();
 
   assert.doesNotMatch(sql, /supabase\s+db\s+push/i);
   assert.doesNotMatch(sql, /psql\s+/i);
