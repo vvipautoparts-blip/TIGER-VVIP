@@ -121,8 +121,8 @@ test('runtime adapter loads exactly one server snapshot for each menu-open and m
         management_controls: [],
         integration: Object.freeze({
           surface: 'PROFILE_MORE_MENU',
-          dom_ready: false,
-          reason: 'AUTHORIZATION_RUNTIME_NOT_WIRED',
+          state: 'PRESENTATION_MODEL_READY',
+          reason: 'AUTHORIZATION_PRESENTATION_MODEL_READY',
         }),
       });
     },
@@ -152,6 +152,7 @@ test('runtime adapter loads exactly one server snapshot for each menu-open and m
   assert.equal(managementNode.hidden, true);
   assert.equal(model.integration.dom_ready, true);
   assert.equal(model.integration.surface, 'PROFILE_MORE_MENU');
+  assert.equal(model.integration.state, 'PRESENTATION_MODEL_READY');
 
   await adapter.prepareForMenuOpen();
   assert.equal(loadCount, 2, 'a second menu-open refreshes rather than trusting a stale browser cache');
@@ -198,7 +199,11 @@ test('management projection is shown only when server model says can_manage', as
           management_controls: Object.freeze([
             Object.freeze({ label: 'عرض أرباح المنصة', intent: 'REQUEST_GRANT' }),
           ]),
-          integration: Object.freeze({ surface: 'PROFILE_MORE_MENU', dom_ready: false }),
+          integration: Object.freeze({
+            surface: 'PROFILE_MORE_MENU',
+            state: 'PRESENTATION_MODEL_READY',
+            reason: 'AUTHORIZATION_PRESENTATION_MODEL_READY',
+          }),
         });
       },
     },
@@ -211,6 +216,7 @@ test('management projection is shown only when server model says can_manage', as
   assert.equal(model.can_manage, true);
   assert.equal(managementNode.hidden, false);
   assert.match(managementNode.textContent, /عرض أرباح المنصة/);
+  assert.equal(model.integration.dom_ready, true);
 });
 
 test('profile controller contains no direct database/service-role permission authority', () => {
