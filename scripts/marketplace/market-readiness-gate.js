@@ -1,5 +1,9 @@
 'use strict';
 
+const {
+  validateContactReplayReleaseEvidence,
+} = require('./market-release-evidence-contract.js');
+
 const DEFAULT_REQUIRED_WORKFLOWS = Object.freeze([
   'VVIP Quality Gate',
   'TIGER CleanGuard',
@@ -137,6 +141,17 @@ function evaluateMarketGenesisReadiness(snapshot, options = {}) {
 
   if (authority.contact_handoff_enabled === true && authority.contact_replay_protection_durable !== true) {
     pushUnique(reasonCodes, 'CONTACT_REPLAY_PROTECTION_NOT_DURABLE');
+  }
+
+  if (authority.contact_handoff_enabled === true) {
+    const releaseEvidence = validateContactReplayReleaseEvidence({
+      release: snapshot.release,
+      expectedHeadSha: snapshot.expected_head_sha,
+      observedHeadSha: snapshot.observed_head_sha,
+    });
+    if (releaseEvidence.ok !== true) {
+      pushUnique(reasonCodes, releaseEvidence.reason_code);
+    }
   }
 
   let organicMode = compatibility.organic_path_verified ? 'ELIGIBLE' : 'BLOCKED';
