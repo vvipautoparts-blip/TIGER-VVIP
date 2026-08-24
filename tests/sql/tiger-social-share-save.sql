@@ -183,8 +183,8 @@ $proof$;
 \echo INVISIBLE_BOOKMARK_DENIED=PASS
 reset role;
 
--- Bob cannot rewrite the repost snapshot to impersonate Alice.
-set local role authenticated;
+-- Direct browser writes are already denied above. A trusted table writer carrying
+-- Bob's Clerk claim must still hit the defense-in-depth snapshot guard.
 select set_config('request.jwt.claims', '{"sub":"user_bob001"}', true);
 do $proof$
 begin
@@ -202,6 +202,7 @@ end;
 $proof$;
 \echo REPOST_SNAPSHOT_IMMUTABLE=PASS
 
+set local role authenticated;
 select (public.vvip_social_unsave_post(:'original_post_id'::uuid)->>'saved' = 'false') as bob_unsave_post
 \gset
 \if :bob_unsave_post
@@ -213,7 +214,6 @@ select (public.vvip_social_unsave_post(:'original_post_id'::uuid)->>'saved' = 'f
 reset role;
 
 -- Original edits synchronize the immutable repost snapshot.
-set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"user_alice01"}', true);
 update public.vvip_social_posts
 set body = 'friends-original-v2'
@@ -232,7 +232,6 @@ select (
 \endif
 
 -- Deleting the original preserves lineage but makes the repost fail closed for everyone.
-set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"user_alice01"}', true);
 delete from public.vvip_social_posts where post_id = :'original_post_id'::uuid;
 reset role;
