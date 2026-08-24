@@ -10,6 +10,9 @@ const {
 } = require('../scripts/trust/contracts.cjs');
 const { ACTION_PROFILE_IDS } = require('../scripts/trust/action-profiles.cjs');
 const { evaluateSovereignAction } = require('../scripts/trust/scae.cjs');
+const {
+  createTrustedRevocationStateFixture,
+} = require('./helpers/tsto-m14-revocation-fixture.cjs');
 
 const HEX = (c, n = 64) => c.repeat(n);
 
@@ -62,6 +65,7 @@ function proofs() {
 function trustedContext() {
   const trustedDna = validateTrustDna(dna());
   const currentEpochs = validateEpochVector(epochs());
+  const releaseDnaSha256 = digestValidated(trustedDna, validateTrustDna);
   return {
     now_ms: 1500,
     trust_dna: trustedDna,
@@ -69,17 +73,18 @@ function trustedContext() {
     trust_pulse: {
       schema: 'TIGER_TRUST_PULSE_V1',
       evidence_class: 'SYNTHETIC_TEST_ONLY',
-      release_dna_sha256: digestValidated(trustedDna, validateTrustDna),
+      release_dna_sha256: releaseDnaSha256,
       epoch_vector_sha256: digestValidated(currentEpochs, validateEpochVector),
       issued_at_ms: 1000,
       fresh_until_ms: 2000,
       state: 'PASS',
     },
     proofs: proofs(),
-    trusted_signals: {
-      status: 'PASS',
-      issuer_ref_sha256: HEX('a'),
-    },
+    revocation_state: createTrustedRevocationStateFixture({
+      request: request(),
+      releaseDnaSha256,
+      nowMs: 1500,
+    }),
     market_state: {
       whole_vehicle_ad: false,
       transaction_authority_enabled: false,
@@ -167,7 +172,13 @@ test('current sovereign epoch mismatch against the Pulse blocks the action', () 
 
 test('trusted revocation signal blocks before nominal expiry', () => {
   const context = trustedContext();
-  context.trusted_signals = { ...context.trusted_signals, status: 'REVOKED' };
+  const releaseDnaSha256 = digestValidated(context.trust_dna, validateTrustDna);
+  context.revocation_state = createTrustedRevocationStateFixture({
+    request: request(),
+    releaseDnaSha256,
+    nowMs: 1500,
+    status: 'REVOKED',
+  });
   assertBlocked(
     evaluateSovereignAction({ request: request(), trustedContext: context }),
     'TRUST_SIGNAL_REVOKED',
