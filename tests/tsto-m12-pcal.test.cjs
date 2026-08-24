@@ -14,6 +14,9 @@ const {
   createPcalCandidate,
   verifyPcalCandidate,
 } = require('../scripts/trust/pcal.cjs');
+const {
+  createTrustedRevocationStateFixture,
+} = require('./helpers/tsto-m14-revocation-fixture.cjs');
 
 const HEX = (c, n = 64) => c.repeat(n);
 
@@ -66,6 +69,7 @@ function proofs() {
 function trustedContext() {
   const trustedDna = validateTrustDna(dna());
   const currentEpochs = validateEpochVector(epochs());
+  const releaseDnaSha256 = digestValidated(trustedDna, validateTrustDna);
   return {
     now_ms: 1500,
     trust_dna: trustedDna,
@@ -73,14 +77,18 @@ function trustedContext() {
     trust_pulse: {
       schema: 'TIGER_TRUST_PULSE_V1',
       evidence_class: 'SYNTHETIC_TEST_ONLY',
-      release_dna_sha256: digestValidated(trustedDna, validateTrustDna),
+      release_dna_sha256: releaseDnaSha256,
       epoch_vector_sha256: digestValidated(currentEpochs, validateEpochVector),
       issued_at_ms: 1000,
       fresh_until_ms: 100000,
       state: 'PASS',
     },
     proofs: proofs(),
-    trusted_signals: { status: 'PASS', issuer_ref_sha256: HEX('a') },
+    revocation_state: createTrustedRevocationStateFixture({
+      request: request(),
+      releaseDnaSha256,
+      nowMs: 1500,
+    }),
     market_state: {
       whole_vehicle_ad: false,
       transaction_authority_enabled: false,
@@ -139,7 +147,7 @@ test('PCAL candidate is exact, deterministic, one-use, short-lived, and non-sens
   assert.ok(Object.isFrozen(one));
 
   const serialized = JSON.stringify(one);
-  for (const forbidden of ['market_state', 'proofs', 'trusted_signals', 'raw_nonce', 'private_intent', 'service_role']) {
+  for (const forbidden of ['market_state', 'proofs', 'trusted_signals', 'revocation_state', 'raw_nonce', 'private_intent', 'service_role']) {
     assert.equal(serialized.includes(forbidden), false, forbidden);
   }
 });
