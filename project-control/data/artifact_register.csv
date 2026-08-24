@@ -4,7 +4,7 @@ ART-0002,,html,VVIP_TIGER_Project_Control_Center_AR.html,dashboard/VVIP_TIGER_Pr
 ART-0003,,csv,country_capability_matrix.csv,data/country_capability_matrix.csv,2.1.0,7e27cbf87286fc83432c37eea2c804194db21768c3d747733c9bc2d16ae61d26,,generated_verified
 ART-0004,,csv,decision_log.csv,data/decision_log.csv,2.1.0,0529ba5fc574ce668227040c3b52865126395a08bc3e972343438495a4771ce1,,generated_verified
 ART-0005,,json,global_scale_targets.json,data/global_scale_targets.json,2.1.0,1b186058e63e1e1d0a443f6256604524afdbeb6b811e12eae000a3ea90452e87,,generated_verified
-ART-0006,,csv,launch_gate_register.csv,data/launch_gate_register.csv,2.1.0,7264a85db571610665ec82fe9ef437c611896a5b72eedb62886f69a5feed695a,,generated_verified
+ART-0006,,csv,launch_gate_register.csv,data/launch_gate_register.csv,2.1.0,cc2843591a48b7fa267f48a7accaada455b053bc10f55a06dd39cd5c81a283af,,generated_verified
 ART-0007,,csv,legacy_phase_mapping.csv,data/legacy_phase_mapping.csv,2.1.0,fae8ef6e394663c7f979ba70319f76efc9de2693c98d6f87d7c0e58694ff5fe0,,generated_verified
 ART-0008,,json,manifest.json,data/manifest.json,2.1.0,2d51268a32af14bbba169b6a4379ef311db4da27f9f6982e8bf9bfd1dc350894,,generated_verified
 ART-0009,,csv,master_task_registry.csv,data/master_task_registry.csv,2.1.0,91da5d5896d3920098429d562e969128d4155cc56ab1549f9624bbdd4f27dfa4,,generated_verified
