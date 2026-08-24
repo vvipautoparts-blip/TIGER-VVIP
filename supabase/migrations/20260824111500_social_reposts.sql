@@ -102,23 +102,43 @@ $function$;
 
 revoke all on function public.vvip_social_can_view_post(uuid, text) from public, anon, authenticated;
 
--- Repost posts are server-owned snapshots. Normal browser post-update/delete paths may
--- not detach them from their lineage; only trusted server maintenance may synchronize
--- them with the original or trusted lifecycle cleanup may remove them.
+-- Repost posts are server-owned snapshots. Browser-originated writes may not detach them
+-- from lineage or change their audience. The only harmless write allowed for a Clerk
+-- actor is a body value that exactly mirrors the still-existing original post.
 create function public.vvip_social_guard_repost_snapshot_write()
 returns trigger
 language plpgsql
 security definer set search_path = pg_catalog, public
 as $function$
+declare
+    v_actor text := public.vvip_marketplace_actor_id();
+    v_original_body text;
 begin
-    if current_user in ('anon', 'authenticated')
+    if coalesce(v_actor, '') like 'user\_%' escape '\'
        and exists (
            select 1
            from public.vvip_social_reposts as repost
            where repost.repost_post_id = old.post_id
        ) then
-        raise exception 'SOCIAL_REPOST_SNAPSHOT_IMMUTABLE';
+        if tg_op = 'DELETE' then
+            raise exception 'SOCIAL_REPOST_SNAPSHOT_IMMUTABLE';
+        end if;
+
+        select original.body
+          into v_original_body
+          from public.vvip_social_reposts as repost
+          join public.vvip_social_posts as original
+            on original.post_id = repost.original_post_id
+         where repost.repost_post_id = old.post_id
+         limit 1;
+
+        if not found
+           or new.body is distinct from v_original_body
+           or new.audience is distinct from old.audience then
+            raise exception 'SOCIAL_REPOST_SNAPSHOT_IMMUTABLE';
+        end if;
     end if;
+
     return case when tg_op = 'DELETE' then old else new end;
 end;
 $function$;
@@ -130,8 +150,8 @@ before update or delete on public.vvip_social_posts
 for each row execute function public.vvip_social_guard_repost_snapshot_write();
 
 -- If an original author edits the body, all still-linked repost snapshots are updated
--- transactionally. The nested updates execute under this function owner, so the browser
--- cannot use the ordinary post mutation boundary to edit a repost snapshot independently.
+-- transactionally. The nested writes mirror exactly the original body and therefore pass
+-- the snapshot guard without permitting the repost author to invent replacement content.
 create function public.vvip_social_sync_repost_snapshot()
 returns trigger
 language plpgsql
