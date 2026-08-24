@@ -199,7 +199,7 @@
   async function handleShare(control) {
     const article = postArticle(control);
     const postId = article?.dataset?.socialPostId;
-    const audience = article?.dataset?.socialPostAudience;
+    const audience = article?.getAttribute?.('data-social-post-audience');
     if (!article || !validPostId(postId) || !SOCIAL_AUDIENCES.has(audience) || control.disabled) return;
 
     control.disabled = true;
