@@ -65,7 +65,9 @@ select (
   :'people_search'::jsonb->>'query' = 'search bob'
   and jsonb_array_length(:'people_search'::jsonb->'profiles') = 1
   and :'people_search'::jsonb->'profiles'->0->>'profile_id' = :'bob_profile_id'
-  and jsonb_object_length(:'people_search'::jsonb->'profiles'->0) = 7
+  and (
+    select count(*) from jsonb_object_keys(:'people_search'::jsonb->'profiles'->0)
+  ) = 7
   and not (:'people_search'::jsonb->'profiles'->0 ? 'subject')
   and position('user_searchalice01' in :'people_search') = 0
   and position('user_searchbob001' in :'people_search') = 0
@@ -97,7 +99,9 @@ select (
   )
   and not exists (
     select 1 from jsonb_array_elements(:'alice_post_search'::jsonb->'posts') item
-    where jsonb_object_length(item) <> 9 or item ? 'subject' or item ? 'author_subject'
+    where (
+      select count(*) from jsonb_object_keys(item)
+    ) <> 9 or item ? 'subject' or item ? 'author_subject'
   )
   and position('user_searchalice01' in :'alice_post_search') = 0
   and position('user_searchbob001' in :'alice_post_search') = 0
@@ -135,7 +139,9 @@ select (
   and not exists (
     select 1 from jsonb_array_elements(:'alice_discovery'::jsonb->'profiles') item
     where item->>'profile_id' = :'alice_profile_id'
-      or jsonb_object_length(item) <> 7
+      or (
+        select count(*) from jsonb_object_keys(item)
+      ) <> 7
       or item ? 'subject'
   )
   and position('user_searchalice01' in :'alice_discovery') = 0
