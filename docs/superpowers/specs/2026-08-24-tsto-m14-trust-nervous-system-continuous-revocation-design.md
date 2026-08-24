@@ -1,7 +1,7 @@
 # TSTO M14 — Trust Nervous System and Continuous Revocation Design
 
 **Date:** 2026-08-24
-**Status:** `OWNER APPROVED DESIGN / SOURCE IMPLEMENTATION NOT STARTED`
+**Status:** `OWNER APPROVED / SOURCE IMPLEMENTED / EXACT-HEAD VERIFICATION REQUIRED`
 **Program:** `TIGER SOVEREIGN TRUST ORGANISM 2026 (TSTO)`
 **Milestone:** `M14 — Trust Nervous System and Continuous Revocation`
 **Authority:** `docs/owner-control/TIGER_TSTO_2026_CURRENT_OWNER_AUTHORITY.md`
@@ -10,9 +10,9 @@
 
 ## 1. Purpose
 
-M14 closes the concrete trust gap left after M13: SCAE currently accepts a minimal `trusted_signals` object with only a status and issuer digest. That source shape does not by itself establish authenticated provenance, bounded freshness, ordering, anti-replay semantics, or capability scope.
+M14 closes the concrete trust gap that existed after M13: before M14, SCAE accepted a minimal `trusted_signals` object with only a status and issuer digest. That source shape did not by itself establish authenticated provenance, bounded freshness, ordering, anti-replay semantics, or capability scope.
 
-M14 adds the **Trust Nervous System** inside TSTO. It does not introduce a parallel trust architecture and does not create a network event bus, Production integration, or external provider dependency in this source-only slice.
+M14 adds the **Trust Nervous System** inside TSTO. The source implementation replaces that weak shape-only path with authenticated signal provenance, monotonic scope resolution, trusted revocation-state provenance, and SCAE enforcement. It does not introduce a parallel trust architecture and does not create a network event bus, Production integration, or external provider dependency in this source-only slice.
 
 The governing principle is:
 
@@ -89,7 +89,7 @@ The M14 source contract sets a module-owned **maximum signal lifetime of 5 minut
 
 Shape validation never creates trusted provenance.
 
-M14 introduces a trusted adapter boundary similar in discipline to M13:
+M14 implements a trusted adapter boundary similar in discipline to M13:
 
 `createTrustedSignalAdapter({ authenticate, clock })`
 
@@ -117,7 +117,7 @@ A revocation for one subject/resource/action/country/release tuple does not auto
 
 ## 7. Monotonic sequence and anti-replay
 
-M14 introduces deterministic sequence ordering per exact signal scope and issuer.
+M14 implements deterministic sequence ordering per exact signal scope and issuer.
 
 Rules:
 
@@ -127,11 +127,11 @@ Rules:
 4. Duplicate same-sequence signals are idempotent only when their canonical digest is identical; conflicting same-sequence signals fail closed.
 5. Sequence ordering is source-contract logic in M14; durable cross-instance storage or distributed delivery is not claimed until a separately approved integration provides durable state.
 
-The source-only implementation may keep sequence observation inside a bounded in-process resolver instance used by tests. It must not claim cross-instance durability.
+The source-only resolver keeps sequence observation inside a bounded in-process resolver instance. This does not claim cross-instance durability.
 
 ## 8. Revocation state
 
-M14 introduces `TIGER_REVOCATION_STATE_V1`, derived only from original trusted signal objects.
+M14 implements `TIGER_REVOCATION_STATE_V1`, derived only from original trusted signal objects.
 
 Required output fields:
 
@@ -154,7 +154,7 @@ Revocation-state provenance is also non-serializable. SCAE accepts M14 revocatio
 
 M14 replaces the weak M12-style `trusted_signals` acceptance path with provenance-enforced revocation state while preserving M12/M13 decision laws.
 
-The SCAE trusted context will consume one bounded M14 revocation-state input for the current governed action.
+The SCAE trusted context consumes one bounded M14 revocation-state input for the current governed action.
 
 SCAE behavior:
 
@@ -167,23 +167,24 @@ SCAE behavior:
 
 A trusted `PASS` does not itself create `ALLOW`; SCAE still requires all mandatory dimensions.
 
-A trusted `REVOKED` always blocks the exact governed capability regardless of otherwise valid M13 runtime attestation.
+A trusted `REVOKED` always blocks the exact governed capability regardless of otherwise valid M13 runtime attestation. Focused tests additionally prove that a trusted M14 `REVOKED` blocks even when the M13 Bridge-derived Trust Pulse V2 is valid and trusted.
 
 ## 10. Backward-compatibility boundary
 
-M14 must not weaken or silently reinterpret prior source contracts.
+M14 does not weaken or silently reinterpret prior source contracts.
 
 - `TIGER_TRUST_PULSE_V1` remains synthetic-test-only under M12 semantics.
 - `TIGER_TRUST_PULSE_V2` remains trusted only through the M13 deployment-attestation bridge.
 - Existing M12/M13 validators remain closed.
 - Existing immutable Market Genesis laws remain unchanged.
 - Existing M13 attestation/verifier provenance remains unchanged.
+- M12/M13 test fixtures were migrated to original trusted M14 revocation-state objects; no executable shape-only `trusted_signals` fallback remains in SCAE.
 
 Focused tests may construct M12/M13 fixtures, but those fixtures never become real Production/Staging evidence.
 
-## 11. Proposed source units
+## 11. Implemented source units
 
-Create:
+Created:
 
 - `scripts/trust/trust-signals.cjs`
   - signal schema validation
@@ -197,20 +198,22 @@ Create:
   - trusted revocation-state derivation
   - revocation-state provenance checks
 
-Modify:
+Modified:
 
 - `scripts/trust/scae.cjs`
-  - consume trusted M14 revocation state rather than trusting signal shape
-  - enforce freshness/scope/revocation reason codes
+  - consumes trusted M14 revocation state rather than trusting signal shape
+  - enforces freshness/scope/revocation reason codes
 
-- `scripts/trust/contracts.cjs` only if a shared constant/helper is genuinely required; do not move M14 logic there merely for symmetry.
+- Existing M12/M13 SCAE/PCAL test fixtures were migrated to the M14 trusted revocation-state boundary without weakening their original assertions.
 
-Create focused tests:
+Created focused tests:
 
 - `tests/tsto-m14-trust-signals.test.cjs`
 - `tests/tsto-m14-revocation-state.test.cjs`
 - `tests/tsto-m14-scae-revocation.test.cjs`
 - `tests/tsto-m14-acceptance-boundaries.test.cjs`
+
+A test-only fixture helper exists at `tests/helpers/tsto-m14-revocation-fixture.cjs` to avoid duplicating security-sensitive fixture construction across M12/M13 regression tests.
 
 ## 12. Required acceptance tests
 
@@ -241,9 +244,11 @@ M14 source implementation is not complete unless tests prove at least:
 23. M12 V1 and M13 V2 pulse semantics remain unchanged;
 24. no network, cloud, remote DB, Production/Staging, DNS, secret, payment-provider, or `main` mutation is required by the M14 source tests.
 
+The focused acceptance suite also proves capability-scope isolation: revocation of one exact scope does not poison an unrelated scope inside the source resolver.
+
 ## 13. Completion truth and non-claims
 
-After implementation and exact-head GREEN verification, M14 may state only:
+The source implementation exists, but the completion truth below is valid only after the final current head receives exact-head GREEN verification:
 
 `TRUST_NERVOUS_SYSTEM_CONTINUOUS_REVOCATION_SOURCE_VERIFIED`
 
