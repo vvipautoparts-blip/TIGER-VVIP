@@ -150,3 +150,12 @@ test("payment integrity launch gate cannot authorize checkout outside platform-o
     /GATE-09,Payment Integrity,"Hosted checkout, signed webhooks, idempotency and ledger reconciliation pass",Payment sandbox report,Finance\/QA,not_started,/i
   );
 });
+
+test("generated requirements catalog cannot grant external-deal payment authority", () => {
+  const registry = read("docs/architecture/OWNER_AUTHORITY_REGISTRY.md");
+  const row = registry.split("\n").find((line) => line.includes("project-control/data/requirements_catalog.json")) || "";
+  assert.match(row, /HISTORICAL_DERIVED_REQUIREMENTS/i);
+  assert.match(row, /KEEP_PLATFORM_FINANCE/i);
+  assert.match(row, /NO_RUNTIME_AUTHORITY_FOR_EXTERNAL_DEAL_PAYMENT/i);
+  assert.match(row, /platform-owned advertising|platform advertising services/i);
+});
