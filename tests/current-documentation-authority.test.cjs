@@ -159,3 +159,13 @@ test("generated requirements catalog cannot grant external-deal payment authorit
   assert.match(row, /NO_RUNTIME_AUTHORITY_FOR_EXTERNAL_DEAL_PAYMENT/i);
   assert.match(row, /platform-owned advertising|platform advertising services/i);
 });
+
+test("generated master task registry cannot grant generic G17 checkout authority", () => {
+  const registry = read("docs/architecture/OWNER_AUTHORITY_REGISTRY.md");
+  const row = registry.split("\n").find((line) => line.includes("project-control/data/master_task_registry.csv")) || "";
+  assert.match(row, /HISTORICAL_DERIVED_EXECUTION_TASKS/i);
+  assert.match(row, /KEEP_PLATFORM_FINANCE/i);
+  assert.match(row, /NO_RUNTIME_AUTHORITY_FOR_EXTERNAL_DEAL_PAYMENT/i);
+  assert.match(row, /G17-02/i);
+  assert.match(row, /platform-owned advertising|platform advertising services/i);
+});
