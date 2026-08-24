@@ -27,6 +27,7 @@
     node.className = "social-feed-state";
     node.setAttribute("data-social-feed-state", state);
     node.setAttribute("role", "status");
+    node.setAttribute("aria-live", "polite");
     node.textContent = message;
     return node;
   }
@@ -148,6 +149,9 @@
     const sleep = options && typeof options.sleep === "function"
       ? options.sleep
       : (delayMs) => new Promise((resolve) => setTimeout(resolve, delayMs));
+    const isOnline = options && typeof options.isOnline === "function"
+      ? options.isOnline
+      : function () { return true; };
     const onItemsAppended = options && typeof options.onItemsAppended === "function"
       ? options.onItemsAppended
       : null;
@@ -197,6 +201,24 @@
       return frozen({ ok: false, code: "SOCIAL_FEED_RENDER_FAILED" });
     }
 
+    function offlineFailure() {
+      return frozen({
+        ok: false,
+        code: "SOCIAL_FEED_OFFLINE",
+        reconnectRequired: true,
+      });
+    }
+
+    function renderOffline() {
+      host.setAttribute("aria-busy", "false");
+      host.replaceChildren(statusNode(
+        documentObject,
+        "offline",
+        "لا يوجد اتصال الآن. ستُحدّث آخر الأخبار عند عودة الاتصال."
+      ));
+      return offlineFailure();
+    }
+
     function renderLoadMore() {
       if (!nextCursor) return null;
       const button = iconButton(
@@ -229,16 +251,18 @@
       if (Number.isFinite(snapshot.retryAfterMs)) {
         failure.retryAfterMs = snapshot.retryAfterMs;
       }
-      if (snapshot.code === "SOCIAL_FEED_STALE_CURSOR" || snapshot.code === "SOCIAL_FEED_SESSION_STALE") {
+      if (snapshot.code === "SOCIAL_FEED_STALE_CURSOR"
+          || snapshot.code === "SOCIAL_FEED_SESSION_STALE"
+          || snapshot.code === "SOCIAL_FEED_OFFLINE") {
         failure.reconnectRequired = true;
       }
       return frozen(failure);
     }
 
-    async function readNextWithRetry(cursor) {
-      const request = nextOptions(cursor);
+    async function readWithRetry(request) {
       let attempt = 0;
       while (true) {
+        if (!isOnline()) return offlineFailure();
         let snapshot;
         try {
           snapshot = await readModel.load(request);
@@ -256,6 +280,17 @@
       }
     }
 
+    function renderPageRecovery(snapshot) {
+      host.setAttribute("aria-busy", "false");
+      const failure = normalizePageFailure(snapshot);
+      if (loadMoreButton) {
+        loadMoreButton.textContent = "إعادة المحاولة";
+        loadMoreButton.setAttribute("aria-label", "إعادة محاولة تحميل المزيد من آخر الأخبار");
+        loadMoreButton.setAttribute("data-social-feed-page-state", failure.code);
+      }
+      return failure;
+    }
+
     async function loadNextInternal(keyboardRequested) {
       if (inFlightNext) return inFlightNext;
       if (!nextCursor) {
@@ -266,11 +301,10 @@
       const focusAfterTerminalSuccess = keyboardRequested === true;
       inFlightNext = (async function () {
         host.setAttribute("aria-busy", "true");
-        const snapshot = await readNextWithRetry(cursor);
+        const snapshot = await readWithRetry(nextOptions(cursor));
 
         if (!snapshot || snapshot.ok !== true || !Array.isArray(snapshot.items)) {
-          host.setAttribute("aria-busy", "false");
-          return normalizePageFailure(snapshot);
+          return renderPageRecovery(snapshot);
         }
 
         const newNodes = [];
@@ -323,14 +357,10 @@
       host.setAttribute("aria-busy", "true");
       host.replaceChildren(statusNode(documentObject, "loading", "جارٍ تحميل آخر الأخبار…"));
 
-      let snapshot;
-      try {
-        snapshot = await readModel.load(loadOptions);
-      } catch (_) {
-        return renderFailure();
-      }
+      const snapshot = await readWithRetry(loadOptions);
 
       if (!snapshot || snapshot.ok !== true || !Array.isArray(snapshot.items)) {
+        if (snapshot && snapshot.code === "SOCIAL_FEED_OFFLINE") return renderOffline();
         return renderFailure();
       }
 
@@ -368,10 +398,16 @@
       return load(baseLoadOptions);
     }
 
+    function markOffline() {
+      if (renderedNodes.length === 0) return renderOffline();
+      return renderPageRecovery(offlineFailure());
+    }
+
     return frozen({
       load,
       loadNext: function () { return loadNextInternal(false); },
       reconnect,
+      markOffline,
       getLoadMoreTarget: function () { return loadMoreButton; },
     });
   }
@@ -425,6 +461,7 @@
     const commentsApi = runtimeRoot && runtimeRoot.TIGERSocialComments;
     let observer = null;
     let observedTarget = null;
+    let reconnectInFlight = null;
     let controller;
 
     function mountPostEnhancers() {
@@ -451,6 +488,9 @@
       host,
       readModel,
       document: documentObject,
+      isOnline: function () {
+        return !runtimeRoot.navigator || runtimeRoot.navigator.onLine !== false;
+      },
       onItemsAppended: function () {
         mountPostEnhancers();
       },
@@ -458,11 +498,6 @@
         observeCurrentTail();
       },
     });
-
-    const result = await controller.load();
-    if (!result.ok) return result;
-
-    mountPostEnhancers();
 
     if (typeof runtimeRoot.IntersectionObserver === "function") {
       observer = new runtimeRoot.IntersectionObserver(function (entries) {
@@ -475,8 +510,47 @@
           break;
         }
       }, { rootMargin: "320px 0px" });
-      observeCurrentTail();
     }
+
+    const previousCleanup = runtimeRoot.TIGERSocialFeedCurrentCleanup;
+    if (typeof previousCleanup === "function") previousCleanup();
+    runtimeRoot.TIGERSocialFeedCurrent = controller;
+
+    const onOffline = function () {
+      controller.markOffline();
+    };
+    const onOnline = function () {
+      if (runtimeRoot.navigator && runtimeRoot.navigator.onLine === false) return;
+      if (reconnectInFlight) return;
+      reconnectInFlight = Promise.resolve(controller.reconnect())
+        .then(function (reconnected) {
+          if (reconnected && reconnected.ok === true) {
+            mountPostEnhancers();
+            observeCurrentTail();
+          }
+          return reconnected;
+        })
+        .catch(function () { return frozen({ ok: false, code: "SOCIAL_FEED_RECONNECT_FAILED" }); })
+        .finally(function () { reconnectInFlight = null; });
+    };
+
+    if (typeof runtimeRoot.addEventListener === "function") {
+      runtimeRoot.addEventListener("offline", onOffline);
+      runtimeRoot.addEventListener("online", onOnline);
+    }
+    runtimeRoot.TIGERSocialFeedCurrentCleanup = function () {
+      if (typeof runtimeRoot.removeEventListener === "function") {
+        runtimeRoot.removeEventListener("offline", onOffline);
+        runtimeRoot.removeEventListener("online", onOnline);
+      }
+      if (observer && typeof observer.disconnect === "function") observer.disconnect();
+    };
+
+    const result = await controller.load();
+    if (!result.ok) return result;
+
+    mountPostEnhancers();
+    observeCurrentTail();
 
     return result;
   }

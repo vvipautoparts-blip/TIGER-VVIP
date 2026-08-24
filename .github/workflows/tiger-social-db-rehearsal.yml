@@ -85,6 +85,7 @@ on:
       - "tests/tiger-p0-account-lifecycle-runtime-adapter.test.cjs"
       - "tests/tiger-p0-account-lifecycle-surface-db.test.cjs"
       - "tests/tiger-p0-account-lifecycle-surface.test.cjs"
+      - "tests/tiger-p0-social-operational-resilience.test.cjs"
       - "tests/tiger-p0-messaging-surface.test.cjs"
       - "tests/tiger-p0-messaging-convergence-reviewed-migration-hash.test.cjs"
       - "tests/tiger-p0-messaging-surface-reviewed-migration-hash.test.cjs"
@@ -202,6 +203,7 @@ on:
       - "tests/tiger-p0-account-lifecycle-runtime-adapter.test.cjs"
       - "tests/tiger-p0-account-lifecycle-surface-db.test.cjs"
       - "tests/tiger-p0-account-lifecycle-surface.test.cjs"
+      - "tests/tiger-p0-social-operational-resilience.test.cjs"
       - "tests/tiger-p0-messaging-surface.test.cjs"
       - "tests/tiger-p0-messaging-convergence-reviewed-migration-hash.test.cjs"
       - "tests/tiger-p0-messaging-surface-reviewed-migration-hash.test.cjs"
@@ -322,6 +324,7 @@ jobs:
           node --test tests/tiger-p0-account-lifecycle-runtime-adapter.test.cjs
           node --test tests/tiger-p0-account-lifecycle-surface-db.test.cjs
           node --test tests/tiger-p0-account-lifecycle-surface.test.cjs
+          node --test tests/tiger-p0-social-operational-resilience.test.cjs
 
       - name: Assert local-only safety contract
         shell: bash
