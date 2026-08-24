@@ -6,7 +6,8 @@ const {
   sha256Hex,
 } = require('./contracts.cjs');
 
-const WORKLOAD_IDENTITY_SCHEMA = 'TIGER_WORKLOAD_IDENTITY_V1';
+const WORKLOAD_IDENTITY_SCHEMA = 'TIGER_WORKLOAD_IDENTITY_V2';
+const WORKLOAD_IDENTITY_CLASS = 'AUTHENTICATED_PROOF_BOUND_WORKLOAD_IDENTITY';
 const MAX_WORKLOAD_IDENTITY_LIFETIME_MS = 5 * 60 * 1000;
 const SHA256 = /^[0-9a-f]{64}$/;
 const ZERO_SHA256 = /^0{64}$/;
@@ -17,12 +18,23 @@ const WORKLOAD_IDENTITY_KEYS = Object.freeze([
   'environment',
   'release_dna_sha256',
   'runtime_artifact_sha256',
+  'trust_domain_sha256',
   'workload_ref_sha256',
+  'identity_public_key_sha256',
   'issuer_ref_sha256',
   'evidence_sha256',
   'issued_at_ms',
   'fresh_until_ms',
   'state',
+]);
+const DIGEST_FIELDS = Object.freeze([
+  'release_dna_sha256',
+  'runtime_artifact_sha256',
+  'trust_domain_sha256',
+  'workload_ref_sha256',
+  'identity_public_key_sha256',
+  'issuer_ref_sha256',
+  'evidence_sha256',
 ]);
 const trustedWorkloadIdentities = new WeakSet();
 
@@ -67,13 +79,9 @@ function validateWorkloadIdentity(value, { nowMs } = {}) {
   if (!safeInt(nowMs)) fail('TRUST_WORKLOAD_IDENTITY_TIME_INVALID');
   if (!hasExactKeys(value, WORKLOAD_IDENTITY_KEYS)
     || value.schema !== WORKLOAD_IDENTITY_SCHEMA
-    || value.identity_class !== 'AUTHENTICATED_WORKLOAD_IDENTITY'
+    || value.identity_class !== WORKLOAD_IDENTITY_CLASS
     || !ENVIRONMENTS.has(value.environment)
-    || !strongSha256(value.release_dna_sha256)
-    || !strongSha256(value.runtime_artifact_sha256)
-    || !strongSha256(value.workload_ref_sha256)
-    || !strongSha256(value.issuer_ref_sha256)
-    || !strongSha256(value.evidence_sha256)
+    || DIGEST_FIELDS.some((field) => !strongSha256(value[field]))
     || !safeInt(value.issued_at_ms)
     || !safeInt(value.fresh_until_ms)
     || value.state !== 'PASS') {
@@ -85,7 +93,22 @@ function validateWorkloadIdentity(value, { nowMs } = {}) {
     fail('TRUST_WORKLOAD_IDENTITY_FRESHNESS_INVALID');
   }
   if (nowMs >= value.fresh_until_ms) fail('TRUST_WORKLOAD_IDENTITY_STALE');
-  return Object.freeze({ ...value });
+
+  return Object.freeze({
+    schema: value.schema,
+    identity_class: value.identity_class,
+    environment: value.environment,
+    release_dna_sha256: value.release_dna_sha256,
+    runtime_artifact_sha256: value.runtime_artifact_sha256,
+    trust_domain_sha256: value.trust_domain_sha256,
+    workload_ref_sha256: value.workload_ref_sha256,
+    identity_public_key_sha256: value.identity_public_key_sha256,
+    issuer_ref_sha256: value.issuer_ref_sha256,
+    evidence_sha256: value.evidence_sha256,
+    issued_at_ms: value.issued_at_ms,
+    fresh_until_ms: value.fresh_until_ms,
+    state: value.state,
+  });
 }
 
 function digestWorkloadIdentity(value, { nowMs } = {}) {
@@ -119,6 +142,7 @@ function isTrustedWorkloadIdentity(value) {
 
 module.exports = {
   WORKLOAD_IDENTITY_SCHEMA,
+  WORKLOAD_IDENTITY_CLASS,
   MAX_WORKLOAD_IDENTITY_LIFETIME_MS,
   createTrustedWorkloadIdentityAdapter,
   validateWorkloadIdentity,
