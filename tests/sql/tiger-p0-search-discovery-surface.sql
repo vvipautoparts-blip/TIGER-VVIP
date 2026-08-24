@@ -112,7 +112,7 @@ select set_config('request.jwt.claims', '{"sub":"user_searchcharlie01"}', true);
 select public.vvip_social_search_discovery('needle', 20) as charlie_post_search
 \gset
 select (
-  :alice_post_visibility_ok
+  :'alice_post_visibility_ok'::boolean
   and jsonb_array_length(:'charlie_post_search'::jsonb->'posts') = 2
   and exists (
     select 1 from jsonb_array_elements(:'charlie_post_search'::jsonb->'posts') item
