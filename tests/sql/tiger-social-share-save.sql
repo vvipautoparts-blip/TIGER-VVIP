@@ -81,6 +81,8 @@ select public.vvip_social_repost_post(:'original_post_id'::uuid, 'friends') as f
 \gset
 select (:'first_repost'::jsonb->>'repost_post_id')::uuid as repost_post_id
 \gset
+select set_config('tiger.share_save.original_post_id', :'original_post_id', true);
+select set_config('tiger.share_save.repost_post_id', :'repost_post_id', true);
 select (:'first_repost'::jsonb->>'created' = 'true') as bob_repost_created
 \gset
 \if :bob_repost_created
@@ -109,7 +111,10 @@ select (
 do $proof$
 begin
   begin
-    perform public.vvip_social_repost_post(:'original_post_id'::uuid, 'public');
+    perform public.vvip_social_repost_post(
+      current_setting('tiger.share_save.original_post_id')::uuid,
+      'public'
+    );
     raise exception 'EXPECTED_REPOST_WIDENING_REJECTION';
   exception when others then
     if position('SOCIAL_REPOST_AUDIENCE_WIDENING_FORBIDDEN' in sqlerrm) = 0 then
@@ -118,7 +123,10 @@ begin
   end;
 
   begin
-    perform public.vvip_social_repost_post(:'repost_post_id'::uuid, 'friends');
+    perform public.vvip_social_repost_post(
+      current_setting('tiger.share_save.repost_post_id')::uuid,
+      'friends'
+    );
     raise exception 'EXPECTED_REPOST_CHAIN_REJECTION';
   exception when others then
     if position('SOCIAL_REPOST_CHAIN_FORBIDDEN' in sqlerrm) = 0 then
@@ -161,7 +169,9 @@ select set_config('request.jwt.claims', '{"sub":"user_charlie01"}', true);
 do $proof$
 begin
   begin
-    perform public.vvip_social_save_post(:'original_post_id'::uuid);
+    perform public.vvip_social_save_post(
+      current_setting('tiger.share_save.original_post_id')::uuid
+    );
     raise exception 'EXPECTED_INVISIBLE_BOOKMARK_REJECTION';
   exception when others then
     if position('SOCIAL_POST_NOT_VISIBLE' in sqlerrm) = 0 then
@@ -181,7 +191,7 @@ begin
   begin
     update public.vvip_social_posts
        set body = 'spoofed-original'
-     where post_id = :'repost_post_id'::uuid;
+     where post_id = current_setting('tiger.share_save.repost_post_id')::uuid;
     raise exception 'EXPECTED_REPOST_SNAPSHOT_REJECTION';
   exception when others then
     if position('SOCIAL_REPOST_SNAPSHOT_IMMUTABLE' in sqlerrm) = 0 then
