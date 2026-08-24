@@ -162,6 +162,13 @@ declare -A reviewed_migration_hashes=(
   # intersection of repost and original authority. Any byte drift re-enters review.
   ["supabase/migrations/20260824111500_social_reposts.sql"]="1b4694956de038c004e6cdc9d505e1ed59a5a528cd8e7b37622b8713803254e4"
 
+  # P0 Messaging Surface: reviewed with CRITICAL=0 and two exact authenticated
+  # EXECUTE grants. The RPCs derive the active actor internally, require real
+  # conversation-party membership or an active unblocked friendship, serialize
+  # safe profile UUID presentation only, and expose no raw durable table CRUD.
+  # Any byte drift re-enters Steel Shield and the exact-head DB rehearsal.
+  ["supabase/migrations/20260824120000_social_messaging_surface.sql"]="769a1f9bc537f3b324d8fc4a51206f24bb0553a6487168c77d109a284d8be602"
+
   # SYNAPSE S1 intent foundation: reviewed for actor-bound RPC-only writes,
   # FORCE RLS, expiry/revision invariants, and the expected lexical findings
   # on new-table NOT NULL rules, the scoped update, and exact RPC grants.

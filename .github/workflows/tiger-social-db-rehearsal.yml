@@ -31,6 +31,7 @@ on:
       - "docs/security/TIGER_SOCIAL_REPOSTS_MIGRATION_SECURITY_REVIEW.md"
       - "docs/security/TIGER_SYNAPSE_INTENT_MIGRATION_SECURITY_REVIEW.md"
       - "docs/security/TIGER_P0_MESSAGING_CONVERGENCE_MIGRATION_SECURITY_REVIEW.md"
+      - "docs/security/TIGER_P0_MESSAGING_SURFACE_MIGRATION_SECURITY_REVIEW.md"
       - "tests/tiger-social-db-foundation.test.cjs"
       - "tests/tiger-social-db-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-reactions-db.test.cjs"
@@ -48,6 +49,7 @@ on:
       - "tests/tiger-p0-messaging-surface-db.test.cjs"
       - "tests/tiger-p0-messaging-surface.test.cjs"
       - "tests/tiger-p0-messaging-convergence-reviewed-migration-hash.test.cjs"
+      - "tests/tiger-p0-messaging-surface-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-runtime-adapters.test.cjs"
       - "tests/tiger-social-post-domain.test.cjs"
       - "tests/tiger-social-runtime-publication.test.cjs"
@@ -98,6 +100,7 @@ on:
       - "docs/security/TIGER_SOCIAL_REPOSTS_MIGRATION_SECURITY_REVIEW.md"
       - "docs/security/TIGER_SYNAPSE_INTENT_MIGRATION_SECURITY_REVIEW.md"
       - "docs/security/TIGER_P0_MESSAGING_CONVERGENCE_MIGRATION_SECURITY_REVIEW.md"
+      - "docs/security/TIGER_P0_MESSAGING_SURFACE_MIGRATION_SECURITY_REVIEW.md"
       - "tests/tiger-social-db-foundation.test.cjs"
       - "tests/tiger-social-db-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-reactions-db.test.cjs"
@@ -115,6 +118,7 @@ on:
       - "tests/tiger-p0-messaging-surface-db.test.cjs"
       - "tests/tiger-p0-messaging-surface.test.cjs"
       - "tests/tiger-p0-messaging-convergence-reviewed-migration-hash.test.cjs"
+      - "tests/tiger-p0-messaging-surface-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-runtime-adapters.test.cjs"
       - "tests/tiger-social-post-domain.test.cjs"
       - "tests/tiger-social-runtime-publication.test.cjs"
@@ -320,6 +324,7 @@ jobs:
           set -euo pipefail
           node --test tests/tiger-social-reposts-reviewed-migration-hash.test.cjs
           node --test tests/tiger-p0-messaging-convergence-reviewed-migration-hash.test.cjs
+          node --test tests/tiger-p0-messaging-surface-reviewed-migration-hash.test.cjs
 
       - name: Verify source remained immutable
         shell: bash
