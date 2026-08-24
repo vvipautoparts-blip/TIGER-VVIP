@@ -139,3 +139,14 @@ test("payment vendor planning cannot authorize checkout outside platform-owned a
     /VND-009,Payments,Hosted checkout provider,Country-dependent,Financial\/PII,Transaction\/subscription,Ledger remains internal \+ provider adapter,evaluation/i
   );
 });
+
+test("payment integrity launch gate cannot authorize checkout outside platform-owned advertising services", () => {
+  const text = read("project-control/data/launch_gate_register.csv");
+  assert.match(text, /GATE-09[^\n]*KEEP_PLATFORM_FINANCE/i);
+  assert.match(text, /GATE-09[^\n]*(platform-owned advertising|platform advertising services)/i);
+  assert.match(text, /GATE-09[^\n]*Issue #312/i);
+  assert.doesNotMatch(
+    text,
+    /GATE-09,Payment Integrity,"Hosted checkout, signed webhooks, idempotency and ledger reconciliation pass",Payment sandbox report,Finance\/QA,not_started,/i
+  );
+});
