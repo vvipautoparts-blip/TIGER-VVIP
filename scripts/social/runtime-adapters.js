@@ -173,6 +173,62 @@
     return { ok: true, value: body };
   }
 
+  function normalizeProfileText(value, maximum, required) {
+    if (value === null || value === undefined) {
+      return required
+        ? { ok: false, code: "SOCIAL_INVALID_PROFILE_DRAFT" }
+        : { ok: true, value: null };
+    }
+    if (typeof value !== "string") {
+      return { ok: false, code: "SOCIAL_INVALID_PROFILE_DRAFT" };
+    }
+    const text = value.trim();
+    if ((required && !text) || text.length > maximum) {
+      return { ok: false, code: "SOCIAL_INVALID_PROFILE_DRAFT" };
+    }
+    return { ok: true, value: text || null };
+  }
+
+  function normalizeProfileDraft(input) {
+    if (!input || typeof input !== "object" || Array.isArray(input)) {
+      return { ok: false, code: "SOCIAL_INVALID_PROFILE_DRAFT" };
+    }
+    const allowedKeys = new Set([
+      "displayName",
+      "avatarUrl",
+      "businessName",
+      "location",
+      "specialization",
+      "businessDescription",
+    ]);
+    if (Object.keys(input).some((key) => !allowedKeys.has(key))) {
+      return { ok: false, code: "SOCIAL_INVALID_PROFILE_DRAFT" };
+    }
+
+    const displayName = normalizeProfileText(input.displayName, 160, true);
+    const avatarUrl = normalizeProfileText(input.avatarUrl, 2048, false);
+    const businessName = normalizeProfileText(input.businessName, 200, false);
+    const location = normalizeProfileText(input.location, 200, false);
+    const specialization = normalizeProfileText(input.specialization, 200, false);
+    const businessDescription = normalizeProfileText(input.businessDescription, 2000, false);
+    const fields = [displayName, avatarUrl, businessName, location, specialization, businessDescription];
+    if (fields.some((field) => !field.ok)) {
+      return { ok: false, code: "SOCIAL_INVALID_PROFILE_DRAFT" };
+    }
+
+    return {
+      ok: true,
+      value: Object.freeze({
+        displayName: displayName.value,
+        avatarUrl: avatarUrl.value,
+        businessName: businessName.value,
+        location: location.value,
+        specialization: specialization.value,
+        businessDescription: businessDescription.value,
+      }),
+    };
+  }
+
   function responseStatus(responseOrError) {
     if (!responseOrError || typeof responseOrError !== "object") return null;
     for (const key of ["status", "statusCode"]) {
@@ -568,7 +624,62 @@
       },
     });
 
-    return Object.freeze({ posts, relationships, reactions, comments, messaging });
+    const profiles = Object.freeze({
+      get: async function (profileId) {
+        const targetId = profileId === null || profileId === undefined ? null : profileId;
+        if (targetId !== null && !validPostUuid(targetId)) {
+          return frozenFailure("SOCIAL_INVALID_PROFILE_ID");
+        }
+        if (!hasRpcClient(client)) return unavailable();
+
+        return execute(
+          () => client.rpc("vvip_social_get_profile_surface", {
+            p_profile_id: targetId,
+          }),
+          true
+        );
+      },
+
+      listPosts: async function (profileId, options) {
+        if (!validPostUuid(profileId)) {
+          return frozenFailure("SOCIAL_INVALID_PROFILE_ID");
+        }
+        const limit = normalizeLimit(options);
+        if (!limit.ok) return frozenFailure("SOCIAL_INVALID_PROFILE_LIMIT");
+        const cursor = normalizeFeedCursor(options);
+        if (!cursor.ok) return frozenFailure("SOCIAL_INVALID_PROFILE_CURSOR");
+        if (!hasRpcClient(client)) return unavailable();
+
+        return execute(
+          () => client.rpc("vvip_social_list_profile_posts", {
+            p_profile_id: profileId,
+            p_cursor: cursor.value,
+            p_limit: limit.value,
+          }),
+          true
+        );
+      },
+
+      save: async function (input) {
+        const draft = normalizeProfileDraft(input);
+        if (!draft.ok) return frozenFailure(draft.code);
+        if (!hasRpcClient(client)) return unavailable();
+
+        return execute(
+          () => client.rpc("vvip_upsert_my_social_profile", {
+            p_display_name: draft.value.displayName,
+            p_avatar_url: draft.value.avatarUrl,
+            p_business_name: draft.value.businessName,
+            p_location: draft.value.location,
+            p_specialization: draft.value.specialization,
+            p_business_description: draft.value.businessDescription,
+          }),
+          true
+        );
+      },
+    });
+
+    return Object.freeze({ posts, relationships, reactions, comments, messaging, profiles });
   }
 
   function createCurrentSocialRuntime(rootObject) {

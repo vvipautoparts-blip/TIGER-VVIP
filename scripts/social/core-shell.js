@@ -36,7 +36,7 @@
 
     const showHome = destination === 'home';
     const showMarketplace = destination === 'marketplace';
-    const showPlaceholder = !showHome && !showMarketplace && destination !== 'profile';
+    const showPlaceholder = !showHome && !showMarketplace;
 
     setHidden('[data-tiger-social-feed]', !showHome);
     setHidden('[data-social-module-placeholder]', true);
@@ -52,6 +52,34 @@
   function destinationFromHash() {
     const value = window.location.hash.replace(/^#/, '').trim().toLowerCase();
     return SOCIAL_DESTINATIONS.has(value) ? value : null;
+  }
+
+  function loadProfile(profileId) {
+    const current = window.TIGERSocialProfileCurrent;
+    if (current && typeof current.load === 'function') {
+      return current.load(profileId);
+    }
+    const ready = window.TIGERSocialProfileReady;
+    if (ready && typeof ready.then === 'function') {
+      return ready.then((controller) => (
+        controller && typeof controller.load === 'function'
+          ? controller.load(profileId)
+          : { ok: false, code: 'SOCIAL_PROFILE_UNAVAILABLE' }
+      ));
+    }
+    return Promise.resolve({ ok: false, code: 'SOCIAL_PROFILE_UNAVAILABLE' });
+  }
+
+  function openProfile(profileId) {
+    const targetId = profileId === null || profileId === undefined ? null : profileId;
+    if (targetId !== null && !POST_UUID.test(targetId)) {
+      return Promise.resolve({ ok: false, code: 'SOCIAL_INVALID_PROFILE_ID' });
+    }
+    showDestination('profile');
+    if (window.location.hash !== '#profile') {
+      window.history.replaceState(null, '', '#profile');
+    }
+    return loadProfile(targetId);
   }
 
   function setPostSheetOpen(open) {
@@ -166,6 +194,7 @@
 
   function installFeedEnhancer() {
     enhancePostActions();
+    document.addEventListener('vvip:social-posts-rendered', enhancePostActions);
     const host = document.querySelector('[data-social-feed-items]');
     if (!host || typeof MutationObserver !== 'function') return;
 
@@ -248,6 +277,13 @@
       return;
     }
 
+    const profileTarget = event.target.closest('[data-social-profile-id]');
+    if (profileTarget) {
+      event.preventDefault();
+      void openProfile(profileTarget.getAttribute('data-social-profile-id'));
+      return;
+    }
+
     const control = event.target.closest('[data-social-nav]');
     if (!control) return;
 
@@ -260,13 +296,16 @@
       event.preventDefault();
     }
 
+    if (destination === 'profile') {
+      void openProfile(null);
+      return;
+    }
+
     showDestination(destination);
 
-    if (destination !== 'profile') {
-      const nextHash = `#${destination}`;
-      if (window.location.hash !== nextHash) {
-        window.history.replaceState(null, '', nextHash);
-      }
+    const nextHash = `#${destination}`;
+    if (window.location.hash !== nextHash) {
+      window.history.replaceState(null, '', nextHash);
     }
   });
 
@@ -276,11 +315,19 @@
 
   window.addEventListener('hashchange', () => {
     const destination = destinationFromHash();
-    if (destination) showDestination(destination);
+    if (destination === 'profile') {
+      void openProfile(null);
+    } else if (destination) {
+      showDestination(destination);
+    }
   });
 
   window.addEventListener('DOMContentLoaded', () => {
-    showDestination(destinationFromHash() || 'home');
+    const destination = destinationFromHash() || 'home';
+    if (destination === 'profile') void openProfile(null);
+    else showDestination(destination);
     installFeedEnhancer();
   });
+
+  window.TIGERSocialShell = Object.freeze({ showDestination, openProfile });
 })();

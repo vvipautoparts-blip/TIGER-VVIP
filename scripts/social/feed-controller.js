@@ -66,10 +66,17 @@
     const identity = documentObject.createElement("div");
     identity.className = "social-feed-post__identity";
 
-    const author = documentObject.createElement("strong");
+    const author = documentObject.createElement(
+      item.authorAvailable && item.authorProfileId ? "button" : "strong"
+    );
     author.className = "social-feed-post__author";
     author.setAttribute("id", authorLabelId);
     author.textContent = item.authorDisplayName;
+    if (item.authorAvailable && item.authorProfileId) {
+      author.type = "button";
+      author.setAttribute("data-social-profile-id", item.authorProfileId);
+      author.setAttribute("aria-label", `عرض ملف ${item.authorDisplayName}`);
+    }
 
     const details = documentObject.createElement("div");
     details.className = "social-feed-post__details";
@@ -506,6 +513,7 @@
   }
 
   return frozen({
+    createSocialPostNode: postNode,
     createSocialFeedController,
     mountCurrentSocialFeed,
     installCurrentSocialFeed,

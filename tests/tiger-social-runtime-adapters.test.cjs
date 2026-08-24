@@ -367,3 +367,71 @@ test("messaging runtime rejects malformed UUIDs, cursors, limits, and bodies bef
   }
   assert.equal(recorder.calls.length, 0);
 });
+
+test("profile runtime uses only profile UUID RPC boundaries for surface, timeline, and owner save", async () => {
+  const recorder = createRecorder(() => ({ data: { ok: true }, error: null }));
+  const social = createSocialRuntimeAdapters({ client: recorder.client });
+  const profileId = "11111111-1111-4111-8111-111111111111";
+
+  assert.equal((await social.profiles.get()).ok, true);
+  assert.equal((await social.profiles.get(profileId)).ok, true);
+  assert.equal((await social.profiles.listPosts(profileId, { cursor: null, limit: 25 })).ok, true);
+  assert.equal((await social.profiles.save({
+    displayName: " Tiger Member ",
+    avatarUrl: " https://cdn.example.test/member.webp ",
+    businessName: " Tiger Motors ",
+    location: " Amman ",
+    specialization: " Automotive ",
+    businessDescription: " Trusted business profile ",
+  })).ok, true);
+
+  assert.deepEqual(recorder.calls, [
+    { type: "rpc", name: "vvip_social_get_profile_surface", params: { p_profile_id: null } },
+    { type: "rpc", name: "vvip_social_get_profile_surface", params: { p_profile_id: profileId } },
+    {
+      type: "rpc",
+      name: "vvip_social_list_profile_posts",
+      params: { p_profile_id: profileId, p_cursor: null, p_limit: 25 },
+    },
+    {
+      type: "rpc",
+      name: "vvip_upsert_my_social_profile",
+      params: {
+        p_display_name: "Tiger Member",
+        p_avatar_url: "https://cdn.example.test/member.webp",
+        p_business_name: "Tiger Motors",
+        p_location: "Amman",
+        p_specialization: "Automotive",
+        p_business_description: "Trusted business profile",
+      },
+    },
+  ]);
+
+  for (const call of recorder.calls) {
+    assert.equal(call.type, "rpc", "profile browser code must not read raw durable tables");
+    assert.doesNotMatch(JSON.stringify(call.params), /subject|clerk|user_/i);
+  }
+});
+
+test("profile runtime rejects identity-bearing input and malformed profile pagination before RPC", async () => {
+  const recorder = createRecorder(() => ({ data: { ok: true }, error: null }));
+  const social = createSocialRuntimeAdapters({ client: recorder.client });
+  const profileId = "11111111-1111-4111-8111-111111111111";
+
+  const results = await Promise.all([
+    social.profiles.get("user_profile-owner"),
+    social.profiles.listPosts("user_profile-owner", { limit: 20 }),
+    social.profiles.listPosts(profileId, { cursor: "bad!", limit: 20 }),
+    social.profiles.listPosts(profileId, { limit: 0 }),
+    social.profiles.save({ displayName: "Member", subject: "user_private" }),
+    social.profiles.save({ displayName: "" }),
+    social.profiles.save({ displayName: "x".repeat(161) }),
+    social.profiles.save({ displayName: "Member", businessDescription: "x".repeat(2001) }),
+  ]);
+
+  for (const result of results) {
+    assert.equal(result.ok, false);
+    assert.match(result.code, /^SOCIAL_INVALID_PROFILE_/);
+  }
+  assert.equal(recorder.calls.length, 0);
+});

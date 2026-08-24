@@ -82,6 +82,17 @@ values (
 returning profile_id as deleted_profile_id
 \gset
 
+insert into public.vvip_social_profile_projection (
+  subject,
+  profile_state,
+  display_name
+)
+values (
+  'user_profile_viewer',
+  'active',
+  'Profile Viewer'
+);
+
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"user_profile_viewer"}', true);
 
