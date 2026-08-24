@@ -17,14 +17,16 @@ const NOW = 1_700_000_000_000;
 
 function identity(overrides = {}) {
   return {
-    schema: 'TIGER_WORKLOAD_IDENTITY_V1',
-    identity_class: 'AUTHENTICATED_WORKLOAD_IDENTITY',
+    schema: 'TIGER_WORKLOAD_IDENTITY_V2',
+    identity_class: 'AUTHENTICATED_PROOF_BOUND_WORKLOAD_IDENTITY',
     environment: 'staging',
     release_dna_sha256: HEX('1'),
     runtime_artifact_sha256: HEX('2'),
-    workload_ref_sha256: HEX('3'),
-    issuer_ref_sha256: HEX('4'),
-    evidence_sha256: HEX('5'),
+    trust_domain_sha256: HEX('3'),
+    workload_ref_sha256: HEX('4'),
+    identity_public_key_sha256: HEX('5'),
+    issuer_ref_sha256: HEX('6'),
+    evidence_sha256: HEX('7'),
     issued_at_ms: NOW - 1_000,
     fresh_until_ms: NOW + 60_000,
     state: 'PASS',
@@ -49,21 +51,50 @@ function adapter(clock = () => NOW) {
   });
 }
 
-test('M15 workload identity constants are source-owned', () => {
-  assert.equal(WORKLOAD_IDENTITY_SCHEMA, 'TIGER_WORKLOAD_IDENTITY_V1');
+test('M15-R1 workload identity constants are source-owned and V2-only', () => {
+  assert.equal(WORKLOAD_IDENTITY_SCHEMA, 'TIGER_WORKLOAD_IDENTITY_V2');
   assert.equal(MAX_WORKLOAD_IDENTITY_LIFETIME_MS, 5 * 60 * 1000);
+  expectCode(
+    () => validateWorkloadIdentity({
+      schema: 'TIGER_WORKLOAD_IDENTITY_V1',
+      identity_class: 'AUTHENTICATED_WORKLOAD_IDENTITY',
+      environment: 'staging',
+      release_dna_sha256: HEX('1'),
+      runtime_artifact_sha256: HEX('2'),
+      workload_ref_sha256: HEX('4'),
+      issuer_ref_sha256: HEX('6'),
+      evidence_sha256: HEX('7'),
+      issued_at_ms: NOW - 1_000,
+      fresh_until_ms: NOW + 60_000,
+      state: 'PASS',
+    }, { nowMs: NOW }),
+    'TRUST_WORKLOAD_IDENTITY_INVALID',
+  );
 });
 
-test('workload identity contract is exact and rejects zero security digests', () => {
-  assert.equal(validateWorkloadIdentity(identity(), { nowMs: NOW }).schema, WORKLOAD_IDENTITY_SCHEMA);
+test('proof-bound workload identity contract is exact and rejects zero security digests', () => {
+  const validated = validateWorkloadIdentity(identity(), { nowMs: NOW });
+  assert.equal(validated.schema, WORKLOAD_IDENTITY_SCHEMA);
+  assert.equal(validated.trust_domain_sha256, HEX('3'));
+  assert.equal(validated.identity_public_key_sha256, HEX('5'));
   expectCode(
     () => validateWorkloadIdentity({ ...identity(), admin: true }, { nowMs: NOW }),
     'TRUST_WORKLOAD_IDENTITY_INVALID',
   );
-  expectCode(
-    () => validateWorkloadIdentity(identity({ evidence_sha256: HEX('0') }), { nowMs: NOW }),
-    'TRUST_WORKLOAD_IDENTITY_INVALID',
-  );
+  for (const field of [
+    'release_dna_sha256',
+    'runtime_artifact_sha256',
+    'trust_domain_sha256',
+    'workload_ref_sha256',
+    'identity_public_key_sha256',
+    'issuer_ref_sha256',
+    'evidence_sha256',
+  ]) {
+    expectCode(
+      () => validateWorkloadIdentity(identity({ [field]: HEX('0') }), { nowMs: NOW }),
+      'TRUST_WORKLOAD_IDENTITY_INVALID',
+    );
+  }
 });
 
 test('trusted time enforces future, overlong, and expired workload identity rejection', () => {
@@ -86,7 +117,6 @@ test('adapter authentication is mandatory and adapter clock owns freshness', () 
     () => adapter().admit({ authenticated: false, identity: identity() }),
     'TRUST_WORKLOAD_IDENTITY_ISSUER_UNTRUSTED',
   );
-
   const staleAdapter = adapter(() => NOW + 120_000);
   expectCode(
     () => staleAdapter.admit({ authenticated: true, identity: identity() }),
@@ -94,7 +124,7 @@ test('adapter authentication is mandatory and adapter clock owns freshness', () 
   );
 });
 
-test('only admitted original workload identity carries provenance', () => {
+test('only admitted original proof-bound workload identity carries provenance', () => {
   const trusted = adapter().admit({ authenticated: true, identity: identity() });
   assert.equal(isTrustedWorkloadIdentity(trusted), true);
   assert.equal(Object.isFrozen(trusted), true);
