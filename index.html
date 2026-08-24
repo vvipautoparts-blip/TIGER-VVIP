@@ -44,11 +44,13 @@
   <script defer src="scripts/fusion/single-surface-controller.js"></script>
   <script defer src="scripts/social/runtime-adapters.js"></script>
   <script defer src="scripts/social/feed-read-model.js"></script>
+  <script defer src="scripts/social/messaging-read-model.js"></script>
   <script defer src="scripts/social/reactions-controller.js"></script>
   <script defer src="scripts/social/comments-controller.js"></script>
   <script defer src="scripts/social/feed-controller.js"></script>
   <script defer src="scripts/social/post-composer.js"></script>
   <script defer src="scripts/social/friends-controller.js"></script>
+  <script defer src="scripts/social/messaging-controller.js"></script>
   <script defer src="scripts/social/core-shell.js"></script>
 </head>
 <body data-vvip-fusion-app>
@@ -126,9 +128,40 @@
       </section>
     </section>
 
-    <section class="tiger-social-home social-module-placeholder" data-social-module-placeholder="messages" aria-label="الرسائل" aria-hidden="true" hidden>
-      <h2>الرسائل</h2>
-      <p>المحادثات ستظهر هنا بعد ربط طبقة الرسائل والصلاحيات في Slice مستقل.</p>
+    <section class="tiger-social-home social-module-placeholder social-messaging" data-social-module-placeholder="messages" data-social-messages data-social-messaging-view="list" aria-label="الرسائل" aria-hidden="true" hidden>
+      <header class="social-messaging__heading">
+        <div><span class="eyebrow">VVIP TIGER SOCIAL</span><h2>الرسائل</h2></div>
+        <p>محادثات مباشرة وآمنة مع أصدقائك.</p>
+      </header>
+      <div class="social-messaging__layout">
+        <aside class="social-messaging__sidebar" aria-label="المحادثات وجهات الاتصال">
+          <section aria-labelledby="social-conversations-title">
+            <h3 id="social-conversations-title">المحادثات</h3>
+            <div class="social-conversation-list" data-social-conversation-list aria-live="polite" aria-busy="true">
+              <div class="social-messaging-state" role="status">جارٍ تحميل المحادثات…</div>
+            </div>
+          </section>
+          <section class="social-message-contacts" aria-labelledby="social-message-contacts-title">
+            <h3 id="social-message-contacts-title">بدء محادثة</h3>
+            <div data-social-message-contacts aria-live="polite" aria-busy="true"></div>
+          </section>
+        </aside>
+        <section class="social-messaging__thread" aria-labelledby="social-message-peer-name">
+          <header class="social-message-thread__heading">
+            <button class="social-message-back" type="button" data-social-message-back aria-label="العودة إلى المحادثات">←</button>
+            <strong id="social-message-peer-name" data-social-message-peer>اختر محادثة</strong>
+          </header>
+          <div class="social-message-thread__items" data-social-message-thread aria-live="polite" aria-busy="false">
+            <div class="social-messaging-state" role="status">اختر محادثة أو ابدأ واحدة جديدة.</div>
+          </div>
+          <form class="social-message-composer" data-social-message-composer>
+            <label class="visually-hidden" for="social-message-draft">اكتب رسالة</label>
+            <textarea id="social-message-draft" data-social-message-draft rows="2" maxlength="4000" placeholder="اكتب رسالة…" disabled></textarea>
+            <button type="submit" data-social-message-send disabled>إرسال</button>
+            <p data-social-message-status role="status" aria-live="polite"></p>
+          </form>
+        </section>
+      </div>
     </section>
 
     <section class="tiger-social-home social-module-placeholder" data-social-module-placeholder="notifications" aria-label="الإشعارات" aria-hidden="true" hidden>

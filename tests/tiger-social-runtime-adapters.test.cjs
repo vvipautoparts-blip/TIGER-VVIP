@@ -270,11 +270,15 @@ test("messaging runtime exposes only bounded subject-blind RPC calls", async () 
   assert.equal(typeof social.messaging.send, "function");
   assert.equal(typeof social.messaging.markRead, "function");
   assert.equal(typeof social.messaging.getChannelTicket, "function");
+  assert.equal(typeof social.messaging.listConversations, "function");
+  assert.equal(typeof social.messaging.listContacts, "function");
 
   const profileId = "11111111-1111-4111-8111-111111111111";
   const conversationId = "22222222-2222-4222-8222-222222222222";
   const clientMessageId = "33333333-3333-4333-8333-333333333333";
 
+  assert.equal((await social.messaging.listConversations({ limit: 20 })).ok, true);
+  assert.equal((await social.messaging.listContacts({ limit: 50 })).ok, true);
   assert.equal((await social.messaging.open(profileId)).ok, true);
   assert.equal((await social.messaging.list(conversationId, { afterSequence: 7, limit: 25 })).ok, true);
   assert.equal((await social.messaging.send(conversationId, {
@@ -285,6 +289,16 @@ test("messaging runtime exposes only bounded subject-blind RPC calls", async () 
   assert.equal((await social.messaging.getChannelTicket(conversationId)).ok, true);
 
   assert.deepEqual(recorder.calls, [
+    {
+      type: "rpc",
+      name: "vvip_social_list_conversations",
+      params: { p_limit: 20 },
+    },
+    {
+      type: "rpc",
+      name: "vvip_social_list_message_contacts",
+      params: { p_limit: 50 },
+    },
     {
       type: "rpc",
       name: "vvip_social_open_direct_conversation",
@@ -333,6 +347,8 @@ test("messaging runtime rejects malformed UUIDs, cursors, limits, and bodies bef
   const conversationId = "22222222-2222-4222-8222-222222222222";
   const clientMessageId = "33333333-3333-4333-8333-333333333333";
   const invalidCalls = [
+    social.messaging.listConversations({ limit: 0 }),
+    social.messaging.listContacts({ limit: 101 }),
     social.messaging.open("user_bob001"),
     social.messaging.list("bad", { afterSequence: 0, limit: 50 }),
     social.messaging.list(conversationId, { afterSequence: -1, limit: 50 }),

@@ -154,6 +154,14 @@
     };
   }
 
+  function normalizeMessageDiscoveryOptions(options) {
+    const limit = options && Object.hasOwn(options, "limit") ? options.limit : 50;
+    if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+      return { ok: false, code: "SOCIAL_INVALID_MESSAGE_LIMIT" };
+    }
+    return { ok: true, value: Object.freeze({ limit }) };
+  }
+
   function normalizeMessageBody(value) {
     if (typeof value !== "string") {
       return { ok: false, code: "SOCIAL_INVALID_MESSAGE_BODY" };
@@ -444,6 +452,32 @@
     });
 
     const messaging = Object.freeze({
+      listConversations: async function (options) {
+        const normalized = normalizeMessageDiscoveryOptions(options);
+        if (!normalized.ok) return frozenFailure(normalized.code);
+        if (!hasRpcClient(client)) return unavailable();
+
+        return execute(
+          () => client.rpc("vvip_social_list_conversations", {
+            p_limit: normalized.value.limit,
+          }),
+          true
+        );
+      },
+
+      listContacts: async function (options) {
+        const normalized = normalizeMessageDiscoveryOptions(options);
+        if (!normalized.ok) return frozenFailure(normalized.code);
+        if (!hasRpcClient(client)) return unavailable();
+
+        return execute(
+          () => client.rpc("vvip_social_list_message_contacts", {
+            p_limit: normalized.value.limit,
+          }),
+          true
+        );
+      },
+
       open: async function (peerProfileId) {
         if (!validPostUuid(peerProfileId)) {
           return frozenFailure("SOCIAL_INVALID_MESSAGE_PEER_PROFILE_ID");

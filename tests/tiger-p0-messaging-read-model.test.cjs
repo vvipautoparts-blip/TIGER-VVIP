@@ -27,6 +27,28 @@ const activeRow = Object.freeze({
   created_at: "2026-08-21T11:40:00.000Z",
 });
 
+const activeConversationRow = Object.freeze({
+  conversation_id: "22222222-2222-4222-8222-222222222222",
+  peer_profile_id: "33333333-3333-4333-8333-333333333333",
+  peer_display_name: "Tiger Member",
+  peer_avatar_url: "https://cdn.example.test/avatar.webp",
+  peer_available: true,
+  can_message: true,
+  last_message_sequence: 7,
+  last_read_sequence: 5,
+  unread_count: 2,
+  last_message_body: "آخر رسالة",
+  last_message_viewer_is_sender: false,
+  last_message_at: "2026-08-21T11:40:00.000Z",
+  activity_at: "2026-08-21T11:40:00.000Z",
+});
+
+const activeContactRow = Object.freeze({
+  peer_profile_id: "33333333-3333-4333-8333-333333333333",
+  peer_display_name: "Tiger Member",
+  peer_avatar_url: "https://cdn.example.test/avatar.webp",
+});
+
 test("messaging read model exists and exports a bounded normalization surface", () => {
   assert.equal(
     fs.existsSync(modulePath),
@@ -123,4 +145,54 @@ test("read-model implementation has no Clerk user identifier convention", () => 
   const source = fs.readFileSync(modulePath, "utf8");
   assert.doesNotMatch(source, /\buser_/i);
   assert.doesNotMatch(source, /clerk/i);
+});
+
+test("conversation discovery normalizes unread state and safe peer presentation", () => {
+  const model = loadModel();
+
+  assert.equal(typeof model.normalizeConversationRow, "function");
+  assert.equal(typeof model.normalizeConversationRows, "function");
+  assert.deepEqual(model.normalizeConversationRow(activeConversationRow), activeConversationRow);
+  assert.deepEqual(model.normalizeConversationRows([activeConversationRow]), [activeConversationRow]);
+});
+
+test("unavailable conversation peers become a non-messageable neutral tombstone", () => {
+  const model = loadModel();
+  const result = model.normalizeConversationRow({
+    ...activeConversationRow,
+    peer_profile_id: null,
+    peer_display_name: "stale private name",
+    peer_avatar_url: "https://stale.example.test/avatar.webp",
+    peer_available: false,
+    can_message: false,
+  });
+
+  assert.deepEqual(result, {
+    ...activeConversationRow,
+    peer_profile_id: null,
+    peer_display_name: "عضو غير متاح",
+    peer_avatar_url: null,
+    peer_available: false,
+    can_message: false,
+  });
+});
+
+test("conversation discovery rejects malformed counters and internal identities", () => {
+  const model = loadModel();
+
+  assert.equal(model.normalizeConversationRow({ ...activeConversationRow, unread_count: -1 }), null);
+  assert.equal(model.normalizeConversationRow({ ...activeConversationRow, subject: "private" }), null);
+  assert.equal(model.normalizeConversationRows([
+    activeConversationRow,
+    { ...activeConversationRow, peer_subject: "private" },
+  ]), null);
+});
+
+test("message contacts normalize active safe profiles and fail closed on identity-bearing rows", () => {
+  const model = loadModel();
+
+  assert.equal(typeof model.normalizeContactRows, "function");
+  assert.deepEqual(model.normalizeContactRows([activeContactRow]), [activeContactRow]);
+  assert.equal(model.normalizeContactRows([{ ...activeContactRow, member_subject: "private" }]), null);
+  assert.equal(model.normalizeContactRows([{ ...activeContactRow, peer_profile_id: "bad" }]), null);
 });
