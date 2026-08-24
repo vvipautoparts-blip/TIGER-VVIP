@@ -24,6 +24,7 @@
     "SOCIAL_FEED_SESSION_STALE",
     "SOCIAL_FEED_RETRYABLE",
   ]);
+  const FEED_RANK_MODES = new Set(["normal", "prefer", "deprioritize"]);
 
   function failure(code) {
     return Object.freeze({ ok: false, code });
@@ -188,6 +189,44 @@
     return Object.freeze(preferred.concat(normal, deprioritized));
   }
 
+  function normalizeFeedPreferencesPayload(input) {
+    if (!input || typeof input !== "object" || Array.isArray(input)
+        || Object.keys(input).some((key) => !["ok", "items"].includes(key))
+        || input.ok !== true || !Array.isArray(input.items) || input.items.length > 500) {
+      return failure("SOCIAL_FEED_PREFERENCES_INVALID");
+    }
+
+    const seen = new Set();
+    const preferences = {
+      mutedAuthors: [],
+      snoozedUntilByAuthor: {},
+      preferredAuthors: [],
+      deprioritizedAuthors: [],
+    };
+    for (const row of input.items) {
+      if (!row || typeof row !== "object" || Array.isArray(row)
+          || Object.keys(row).length !== 4
+          || !Object.hasOwn(row, "profile_id")
+          || !Object.hasOwn(row, "muted")
+          || !Object.hasOwn(row, "snoozed_until")
+          || !Object.hasOwn(row, "rank_mode")
+          || !validProfileId(row.profile_id) || seen.has(row.profile_id)
+          || typeof row.muted !== "boolean"
+          || (row.snoozed_until !== null && !validTimestamp(row.snoozed_until))
+          || !FEED_RANK_MODES.has(row.rank_mode)) {
+        return failure("SOCIAL_FEED_PREFERENCES_INVALID");
+      }
+      seen.add(row.profile_id);
+      if (row.muted) preferences.mutedAuthors.push(row.profile_id);
+      if (row.snoozed_until !== null) {
+        preferences.snoozedUntilByAuthor[row.profile_id] = Date.parse(row.snoozed_until);
+      }
+      if (row.rank_mode === "prefer") preferences.preferredAuthors.push(row.profile_id);
+      if (row.rank_mode === "deprioritize") preferences.deprioritizedAuthors.push(row.profile_id);
+    }
+    return Object.freeze({ ok: true, value: Object.freeze(preferences) });
+  }
+
   function normalizeLimit(options) {
     const limit = options && Object.hasOwn(options, "limit") ? options.limit : DEFAULT_LIMIT;
     if (!Number.isInteger(limit) || limit < 1 || limit > MAX_LIMIT) return null;
@@ -217,6 +256,9 @@
   function createSocialFeedReadModel(options) {
     const runtime = options && options.runtime;
     const preferences = options && options.preferences;
+    const loadPreferences = options && typeof options.loadPreferences === "function"
+      ? options.loadPreferences
+      : null;
     const now = options && typeof options.now === "function" ? options.now : Date.now;
 
     return Object.freeze({
@@ -230,6 +272,23 @@
 
         const cursor = normalizeCursor(loadOptions);
         if (cursor === false) return failure("SOCIAL_FEED_INVALID_CURSOR");
+
+        let currentPreferences = preferences;
+        if (loadPreferences) {
+          let preferenceResponse;
+          try {
+            preferenceResponse = await loadPreferences();
+          } catch (_) {
+            preferenceResponse = null;
+          }
+          const preferenceValue = preferenceResponse && preferenceResponse.ok === true
+            ? normalizeFeedPreferencesPayload(preferenceResponse.value)
+            : null;
+          if (!preferenceValue || preferenceValue.ok !== true) {
+            return failure("SOCIAL_FEED_PREFERENCES_FAILED");
+          }
+          currentPreferences = preferenceValue.value;
+        }
 
         let response;
         try {
@@ -262,7 +321,7 @@
           items.push(normalized.value);
         }
 
-        const presentedItems = applyFeedPreferences(items, preferences, now());
+        const presentedItems = applyFeedPreferences(items, currentPreferences, now());
         return Object.freeze({
           ok: true,
           items: presentedItems,
@@ -276,6 +335,7 @@
   return Object.freeze({
     applyFeedPreferences,
     createSocialFeedReadModel,
+    normalizeFeedPreferencesPayload,
     normalizeFeedPost,
   });
 });

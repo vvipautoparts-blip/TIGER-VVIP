@@ -1139,6 +1139,28 @@ button.social-feed-post__author:hover {
   background: #fff5f4;
 }
 
+.social-profile-feed-rank {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--tiger-social-muted);
+  font: var(--t1-type-label-m);
+}
+
+.social-profile-feed-rank:has(select[hidden]) {
+  display: none;
+}
+
+.social-profile-feed-rank select {
+  min-height: 40px;
+  border: 1px solid var(--tiger-social-border);
+  border-radius: 9px;
+  background: #fff;
+  color: var(--tiger-social-text);
+  padding-inline: 10px;
+  font: inherit;
+}
+
 .social-report-panel form {
   display: grid;
   gap: 10px;

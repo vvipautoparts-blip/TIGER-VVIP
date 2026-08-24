@@ -34,6 +34,16 @@
     "fraud",
     "other",
   ]);
+  const SOCIAL_FEED_PREFERENCE_ACTIONS = Object.freeze([
+    "mute",
+    "unmute",
+    "snooze_24h",
+    "snooze_7d",
+    "unsnooze",
+    "prefer",
+    "deprioritize",
+    "normal",
+  ]);
   const RELATIONSHIP_SELECT = "relationship_id,requester_subject,addressee_subject,relationship_state,created_at,updated_at";
   const SOCIAL_RATE_LIMIT_RETRY_MS = 5000;
 
@@ -263,6 +273,16 @@
       ok: true,
       value: Object.freeze({ reason: input.reason, details }),
     };
+  }
+
+  function normalizeFeedPreferenceInput(input) {
+    if (!input || typeof input !== "object" || Array.isArray(input)
+        || Object.keys(input).length !== 1 || !Object.hasOwn(input, "action")
+        || typeof input.action !== "string"
+        || !SOCIAL_FEED_PREFERENCE_ACTIONS.includes(input.action)) {
+      return { ok: false, code: "SOCIAL_INVALID_FEED_PREFERENCE" };
+    }
+    return { ok: true, action: input.action };
   }
 
   function responseStatus(responseOrError) {
@@ -781,7 +801,70 @@
       },
     });
 
-    return Object.freeze({ posts, relationships, reactions, comments, messaging, profiles, safety });
+    const follows = Object.freeze({
+      controls: async function (profileId) {
+        if (!validPostUuid(profileId)) return frozenFailure("SOCIAL_INVALID_PROFILE_ID");
+        if (!hasRpcClient(client)) return unavailable();
+        return execute(
+          () => client.rpc("vvip_social_get_relationship_controls", { p_profile_id: profileId }),
+          true
+        );
+      },
+
+      follow: async function (profileId) {
+        if (!validPostUuid(profileId)) return frozenFailure("SOCIAL_INVALID_PROFILE_ID");
+        if (!hasRpcClient(client)) return unavailable();
+        return execute(
+          () => client.rpc("vvip_social_follow_profile", { p_profile_id: profileId }),
+          true
+        );
+      },
+
+      unfollow: async function (profileId) {
+        if (!validPostUuid(profileId)) return frozenFailure("SOCIAL_INVALID_PROFILE_ID");
+        if (!hasRpcClient(client)) return unavailable();
+        return execute(
+          () => client.rpc("vvip_social_unfollow_profile", { p_profile_id: profileId }),
+          true
+        );
+      },
+    });
+
+    const feedPreferences = Object.freeze({
+      list: async function () {
+        if (!hasRpcClient(client)) return unavailable();
+        return execute(
+          () => client.rpc("vvip_social_list_feed_preferences", {}),
+          true
+        );
+      },
+
+      set: async function (profileId, input) {
+        if (!validPostUuid(profileId)) return frozenFailure("SOCIAL_INVALID_PROFILE_ID");
+        const preference = normalizeFeedPreferenceInput(input);
+        if (!preference.ok) return frozenFailure(preference.code);
+        if (!hasRpcClient(client)) return unavailable();
+        return execute(
+          () => client.rpc("vvip_social_set_feed_preference", {
+            p_profile_id: profileId,
+            p_action: preference.action,
+          }),
+          true
+        );
+      },
+    });
+
+    return Object.freeze({
+      posts,
+      relationships,
+      reactions,
+      comments,
+      messaging,
+      profiles,
+      safety,
+      follows,
+      feedPreferences,
+    });
   }
 
   function createCurrentSocialRuntime(rootObject) {
@@ -797,6 +880,7 @@
     SOCIAL_AUDIENCES,
     SOCIAL_REACTION_TYPES,
     SOCIAL_REPORT_REASONS,
+    SOCIAL_FEED_PREFERENCE_ACTIONS,
     createSocialRuntimeAdapters,
     createCurrentSocialRuntime,
   });

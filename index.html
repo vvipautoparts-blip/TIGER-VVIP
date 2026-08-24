@@ -177,6 +177,20 @@
         </div>
         <div class="social-profile__actions">
           <button type="button" data-social-profile-message hidden>مراسلة</button>
+          <button type="button" data-social-profile-follow hidden>متابعة</button>
+          <button type="button" data-social-profile-unfollow hidden>إلغاء المتابعة</button>
+          <button type="button" data-social-profile-mute hidden>كتم</button>
+          <button type="button" data-social-profile-unmute hidden>إلغاء الكتم</button>
+          <button type="button" data-social-profile-snooze hidden>غفوة 24 ساعة</button>
+          <button type="button" data-social-profile-unsnooze hidden>إنهاء الغفوة</button>
+          <label class="social-profile-feed-rank" data-social-profile-feed-rank-label>
+            <span>ترتيب المنشورات</span>
+            <select data-social-profile-feed-rank aria-label="ترتيب منشورات هذا العضو" hidden>
+              <option value="normal">عادي</option>
+              <option value="prefer">عرض أولًا</option>
+              <option value="deprioritize">عرض أقل</option>
+            </select>
+          </label>
           <button type="button" data-social-profile-report hidden>إبلاغ</button>
           <button type="button" data-social-profile-block hidden>حظر</button>
           <button type="button" data-social-profile-unblock hidden>إلغاء الحظر</button>

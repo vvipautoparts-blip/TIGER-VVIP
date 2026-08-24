@@ -412,7 +412,15 @@
     }
 
     const runtime = runtimeApi.createCurrentSocialRuntime(runtimeRoot);
-    const readModel = feedApi.createSocialFeedReadModel({ runtime });
+    const readModel = feedApi.createSocialFeedReadModel({
+      runtime,
+      loadPreferences: async function () {
+        if (!runtime.feedPreferences || typeof runtime.feedPreferences.list !== "function") {
+          return frozen({ ok: false, code: "SOCIAL_FEED_PREFERENCES_UNAVAILABLE" });
+        }
+        return runtime.feedPreferences.list();
+      },
+    });
     const reactionsApi = runtimeRoot && runtimeRoot.TIGERSocialReactions;
     const commentsApi = runtimeRoot && runtimeRoot.TIGERSocialComments;
     let observer = null;

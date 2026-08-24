@@ -19,6 +19,14 @@
   const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   const CURSOR_PATTERN = /^[A-Za-z0-9_-]{8,2048}$/;
   const EDIT_INTENT = Object.freeze({ name: "SOCIAL_PROFILE_EDIT" });
+  const FOLLOW_INTENT = Object.freeze({ name: "SOCIAL_PROFILE_FOLLOW" });
+  const UNFOLLOW_INTENT = Object.freeze({ name: "SOCIAL_PROFILE_UNFOLLOW" });
+  const FEED_PREFERENCE_INTENT = Object.freeze({ name: "SOCIAL_FEED_PREFERENCE" });
+  const FEED_PREFERENCE_ACTIONS = new Set([
+    "mute", "unmute", "snooze_24h", "snooze_7d", "unsnooze",
+    "prefer", "deprioritize", "normal",
+  ]);
+  const FEED_RANK_MODES = new Set(["normal", "prefer", "deprioritize"]);
 
   function frozen(value) {
     return Object.freeze(value);
@@ -74,6 +82,13 @@
     const blockButton = options && options.blockButton;
     const unblockButton = options && options.unblockButton;
     const reportButton = options && options.reportButton;
+    const followButton = options && options.followButton;
+    const unfollowButton = options && options.unfollowButton;
+    const muteButton = options && options.muteButton;
+    const unmuteButton = options && options.unmuteButton;
+    const snoozeButton = options && options.snoozeButton;
+    const unsnoozeButton = options && options.unsnoozeButton;
+    const rankSelect = options && options.rankSelect;
     const auth = options && options.auth;
     const onProfileNavigate = options && options.onProfileNavigate;
     const onMessage = options && options.onMessage;
@@ -83,6 +98,7 @@
       : function () { return false; };
     const onPostsRendered = options && options.onPostsRendered;
     const renderPost = options && options.renderPost;
+    const now = options && typeof options.now === "function" ? options.now : Date.now;
 
     if (!documentObject || typeof documentObject.createElement !== "function") {
       throw new TypeError("SOCIAL_PROFILE_DOCUMENT_REQUIRED");
@@ -109,6 +125,7 @@
     let nextCursor = null;
     let renderedPostIds = new Set();
     let blockedProfileId = null;
+    let currentControls = null;
 
     function clearSurface(view) {
       shell.dataset.socialProfileView = view;
@@ -126,9 +143,17 @@
       if (blockButton) blockButton.hidden = true;
       if (unblockButton) unblockButton.hidden = true;
       if (reportButton) reportButton.hidden = true;
+      if (followButton) followButton.hidden = true;
+      if (unfollowButton) unfollowButton.hidden = true;
+      if (muteButton) muteButton.hidden = true;
+      if (unmuteButton) unmuteButton.hidden = true;
+      if (snoozeButton) snoozeButton.hidden = true;
+      if (unsnoozeButton) unsnoozeButton.hidden = true;
+      if (rankSelect) rankSelect.hidden = true;
       if (unavailable) unavailable.hidden = view !== "unavailable";
       currentProfile = null;
       blockedProfileId = null;
+      currentControls = null;
       nextCursor = null;
       renderedPostIds = new Set();
     }
@@ -202,6 +227,60 @@
         if (!profile.viewer_is_owner) reportButton.setAttribute("data-social-profile-id", profile.profile_id);
       }
       if (profile.viewer_is_owner) populateEditor(profile);
+    }
+
+    function normalizeControls(value, profileId) {
+      if (!value || typeof value !== "object" || Array.isArray(value)
+          || Object.keys(value).some((key) => ![
+            "ok", "profile_id", "following", "muted", "snoozed_until", "rank_mode",
+          ].includes(key))
+          || value.ok !== true || value.profile_id !== profileId
+          || typeof value.following !== "boolean" || typeof value.muted !== "boolean"
+          || (value.snoozed_until !== null
+            && (typeof value.snoozed_until !== "string" || !Number.isFinite(Date.parse(value.snoozed_until))))
+          || !FEED_RANK_MODES.has(value.rank_mode)) {
+        return null;
+      }
+      return frozen({
+        profileId,
+        following: value.following,
+        muted: value.muted,
+        snoozedUntil: value.snoozed_until,
+        rankMode: value.rank_mode,
+      });
+    }
+
+    function renderControls(controls) {
+      currentControls = controls;
+      const snoozed = controls.snoozedUntil !== null
+        && Date.parse(controls.snoozedUntil) > now();
+      if (followButton) followButton.hidden = controls.following;
+      if (unfollowButton) unfollowButton.hidden = !controls.following;
+      if (muteButton) muteButton.hidden = controls.muted;
+      if (unmuteButton) unmuteButton.hidden = !controls.muted;
+      if (snoozeButton) snoozeButton.hidden = snoozed;
+      if (unsnoozeButton) unsnoozeButton.hidden = !snoozed;
+      if (rankSelect) {
+        rankSelect.hidden = false;
+        rankSelect.value = controls.rankMode;
+      }
+    }
+
+    async function loadControls(profileId, expectedGeneration) {
+      if (!runtime.follows || typeof runtime.follows.controls !== "function") return false;
+      let response;
+      try {
+        response = await runtime.follows.controls(profileId);
+      } catch (_) {
+        response = null;
+      }
+      if (expectedGeneration !== generation) return false;
+      const controls = response && response.ok === true
+        ? normalizeControls(response.value, profileId)
+        : null;
+      if (!controls) return false;
+      renderControls(controls);
+      return true;
     }
 
     function renderTimelineState(message, state) {
@@ -327,6 +406,10 @@
       }
 
       renderProfile(surface.profile);
+      if (!surface.profile.viewer_is_owner) {
+        await loadControls(surface.profile.profile_id, loadGeneration);
+        if (loadGeneration !== generation) return failure("SOCIAL_PROFILE_LOAD_SUPERSEDED");
+      }
       renderTimelineState("جارٍ تحميل المنشورات…", "loading");
       const timelineResult = await readTimeline(surface.profile.profile_id, null, true, loadGeneration);
       if (!timelineResult.ok) return timelineResult;
@@ -449,6 +532,59 @@
       return onReport("profile", currentProfile.profile_id) === true;
     }
 
+    async function runRelationshipMutation(intent, operation) {
+      if (!currentProfile || currentProfile.viewer_is_owner || !currentControls
+          || !auth || typeof auth.requireAuth !== "function") {
+        return failure("SOCIAL_PROFILE_RELATIONSHIP_UNAVAILABLE");
+      }
+      const profileId = currentProfile.profile_id;
+      let result = null;
+      let granted = false;
+      statusText(status, "جارٍ حفظ تفضيل العلاقة…");
+      try {
+        granted = await auth.requireAuth(intent, async function () {
+          result = await operation(profileId);
+          return result;
+        });
+      } catch (_) {
+        result = null;
+      }
+      if (!granted || !result || result.ok !== true
+          || !result.value || result.value.ok !== true) {
+        statusText(status, "تعذر حفظ تفضيل العلاقة الآن.");
+        return failure("SOCIAL_PROFILE_RELATIONSHIP_FAILED");
+      }
+      return load(profileId);
+    }
+
+    function follow() {
+      if (!runtime.follows || typeof runtime.follows.follow !== "function") {
+        return Promise.resolve(failure("SOCIAL_PROFILE_FOLLOW_UNAVAILABLE"));
+      }
+      return runRelationshipMutation(FOLLOW_INTENT, function (profileId) {
+        return runtime.follows.follow(profileId);
+      });
+    }
+
+    function unfollow() {
+      if (!runtime.follows || typeof runtime.follows.unfollow !== "function") {
+        return Promise.resolve(failure("SOCIAL_PROFILE_UNFOLLOW_UNAVAILABLE"));
+      }
+      return runRelationshipMutation(UNFOLLOW_INTENT, function (profileId) {
+        return runtime.follows.unfollow(profileId);
+      });
+    }
+
+    function setFeedPreference(action) {
+      if (!FEED_PREFERENCE_ACTIONS.has(action)
+          || !runtime.feedPreferences || typeof runtime.feedPreferences.set !== "function") {
+        return Promise.resolve(failure("SOCIAL_FEED_PREFERENCE_UNAVAILABLE"));
+      }
+      return runRelationshipMutation(FEED_PREFERENCE_INTENT, function (profileId) {
+        return runtime.feedPreferences.set(profileId, { action });
+      });
+    }
+
     function openEditor() {
       if (!currentProfile || !currentProfile.viewer_is_owner || !editForm) return false;
       editForm.hidden = false;
@@ -456,7 +592,19 @@
       return true;
     }
 
-    return frozen({ load, loadNext, save, message, block, unblock, report, openEditor });
+    return frozen({
+      load,
+      loadNext,
+      save,
+      message,
+      block,
+      unblock,
+      report,
+      follow,
+      unfollow,
+      setFeedPreference,
+      openEditor,
+    });
   }
 
   function mountCurrentSocialProfile(rootObject) {
@@ -499,6 +647,13 @@
       blockButton: query("[data-social-profile-block]"),
       unblockButton: query("[data-social-profile-unblock]"),
       reportButton: query("[data-social-profile-report]"),
+      followButton: query("[data-social-profile-follow]"),
+      unfollowButton: query("[data-social-profile-unfollow]"),
+      muteButton: query("[data-social-profile-mute]"),
+      unmuteButton: query("[data-social-profile-unmute]"),
+      snoozeButton: query("[data-social-profile-snooze]"),
+      unsnoozeButton: query("[data-social-profile-unsnooze]"),
+      rankSelect: query("[data-social-profile-feed-rank]"),
       auth: runtimeRoot.VVIP_AUTH,
       confirmBlock: function () {
         return typeof runtimeRoot.confirm === "function"
@@ -565,6 +720,28 @@
     });
     query("[data-social-profile-report]")?.addEventListener("click", function () {
       controller.report();
+    });
+    query("[data-social-profile-follow]")?.addEventListener("click", function () {
+      void controller.follow();
+    });
+    query("[data-social-profile-unfollow]")?.addEventListener("click", function () {
+      void controller.unfollow();
+    });
+    query("[data-social-profile-mute]")?.addEventListener("click", function () {
+      void controller.setFeedPreference("mute");
+    });
+    query("[data-social-profile-unmute]")?.addEventListener("click", function () {
+      void controller.setFeedPreference("unmute");
+    });
+    query("[data-social-profile-snooze]")?.addEventListener("click", function () {
+      void controller.setFeedPreference("snooze_24h");
+    });
+    query("[data-social-profile-unsnooze]")?.addEventListener("click", function () {
+      void controller.setFeedPreference("unsnooze");
+    });
+    query("[data-social-profile-feed-rank]")?.addEventListener("change", function (event) {
+      const value = event && event.target ? event.target.value : "";
+      void controller.setFeedPreference(value);
     });
     runtimeRoot.TIGERSocialProfileCurrent = controller;
     return controller;

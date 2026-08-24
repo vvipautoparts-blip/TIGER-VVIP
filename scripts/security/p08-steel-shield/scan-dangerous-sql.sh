@@ -184,6 +184,14 @@ declare -A reviewed_migration_hashes=(
   # re-enters Steel Shield and the exact-head DB rehearsal automatically.
   ["supabase/migrations/20260824130000_social_safety_surface.sql"]="c856c0bcc57bea9116273a4dcecc4b1e8ec807fada7ceb3d57e77a0a103d09e1"
 
+  # P0 Follow and Feed Preferences: reviewed with CRITICAL=0 and thirteen
+  # classified lexical HIGH findings. Five NOT NULL hits protect new-table
+  # integrity, one is an expiry IS NOT NULL branch, one UPDATE hit is a unique-key
+  # UPSERT, and six grants are exact authenticated RPC execution. Legacy subject
+  # follow RPCs are revoked; UUID controls, bounded private preferences, pair-lock
+  # block cleanup, and lifecycle-safe unfollow are byte-exact. Drift re-enters review.
+  ["supabase/migrations/20260824133000_social_follow_preferences_surface.sql"]="13b133d39845be1f753348ea61b581acab0614eb58759664c85693a35d555ef8"
+
   # SYNAPSE S1 intent foundation: reviewed for actor-bound RPC-only writes,
   # FORCE RLS, expiry/revision invariants, and the expected lexical findings
   # on new-table NOT NULL rules, the scoped update, and exact RPC grants.
