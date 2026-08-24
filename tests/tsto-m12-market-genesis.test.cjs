@@ -21,6 +21,9 @@ const {
 const {
   validateMarketSourceReadinessEvidence,
 } = require('../scripts/marketplace/market-source-readiness-evidence.js');
+const {
+  createTrustedRevocationStateFixture,
+} = require('./helpers/tsto-m14-revocation-fixture.cjs');
 
 const HEX = (c, n = 64) => c.repeat(n);
 const SOURCE_SHA = HEX('a', 40);
@@ -99,6 +102,7 @@ function baseTrustedContext(marketState) {
     crypto_epoch: 2,
     country_epochs: [{ country_code: 'JO', epoch: 5 }],
   });
+  const releaseDnaSha256 = digestValidated(dna, validateTrustDna);
   const dimensions = [
     'IDENTITY', 'SOURCE', 'ARTIFACT', 'RUNTIME', 'POLICY',
     'COUNTRY', 'RISK_SIGNAL', 'REPLAY', 'FRESHNESS',
@@ -110,7 +114,7 @@ function baseTrustedContext(marketState) {
     trust_pulse: {
       schema: 'TIGER_TRUST_PULSE_V1',
       evidence_class: 'SYNTHETIC_TEST_ONLY',
-      release_dna_sha256: digestValidated(dna, validateTrustDna),
+      release_dna_sha256: releaseDnaSha256,
       epoch_vector_sha256: digestValidated(epochs, validateEpochVector),
       issued_at_ms: 1000,
       fresh_until_ms: 100000,
@@ -120,7 +124,11 @@ function baseTrustedContext(marketState) {
       dimension,
       { status: 'PASS', digest_sha256: String(index + 1).repeat(64) },
     ])),
-    trusted_signals: { status: 'PASS', issuer_ref_sha256: HEX('f') },
+    revocation_state: createTrustedRevocationStateFixture({
+      request: request(),
+      releaseDnaSha256,
+      nowMs: 1500,
+    }),
     market_state: marketState,
     replay_binding_sha256: HEX('9'),
   };
