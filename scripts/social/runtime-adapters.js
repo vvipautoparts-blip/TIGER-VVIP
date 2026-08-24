@@ -134,6 +134,31 @@
     return { ok: true, value };
   }
 
+  function normalizeSearchLimit(options, fallback) {
+    if (options !== undefined && (
+      !options || typeof options !== "object" || Array.isArray(options)
+      || Object.keys(options).some((key) => key !== "limit")
+    )) {
+      return { ok: false, code: "SOCIAL_INVALID_SEARCH_OPTIONS" };
+    }
+    const value = options && Object.hasOwn(options, "limit") ? options.limit : fallback;
+    if (!Number.isInteger(value) || value < 1 || value > 25) {
+      return { ok: false, code: "SOCIAL_INVALID_SEARCH_LIMIT" };
+    }
+    return { ok: true, value };
+  }
+
+  function normalizeSearchQuery(value) {
+    if (typeof value !== "string") {
+      return { ok: false, code: "SOCIAL_INVALID_SEARCH_QUERY" };
+    }
+    const query = value.trim();
+    if (query.length < 2 || query.length > 100) {
+      return { ok: false, code: "SOCIAL_INVALID_SEARCH_QUERY" };
+    }
+    return { ok: true, value: query };
+  }
+
   function normalizeFeedCursor(options) {
     if (!options || !Object.hasOwn(options, "cursor") || options.cursor === null || options.cursor === undefined) {
       return { ok: true, value: null };
@@ -854,6 +879,35 @@
       },
     });
 
+    const search = Object.freeze({
+      query: async function (queryInput, options) {
+        const query = normalizeSearchQuery(queryInput);
+        if (!query.ok) return frozenFailure(query.code);
+        const limit = normalizeSearchLimit(options, 20);
+        if (!limit.ok) return frozenFailure(limit.code);
+        if (!hasRpcClient(client)) return unavailable();
+        return execute(
+          () => client.rpc("vvip_social_search_discovery", {
+            p_query: query.value,
+            p_limit: limit.value,
+          }),
+          true
+        );
+      },
+
+      discover: async function (options) {
+        const limit = normalizeSearchLimit(options, 12);
+        if (!limit.ok) return frozenFailure(limit.code);
+        if (!hasRpcClient(client)) return unavailable();
+        return execute(
+          () => client.rpc("vvip_social_discover_profiles", {
+            p_limit: limit.value,
+          }),
+          true
+        );
+      },
+    });
+
     return Object.freeze({
       posts,
       relationships,
@@ -864,6 +918,7 @@
       safety,
       follows,
       feedPreferences,
+      search,
     });
   }
 

@@ -192,6 +192,13 @@ declare -A reviewed_migration_hashes=(
   # block cleanup, and lifecycle-safe unfollow are byte-exact. Drift re-enters review.
   ["supabase/migrations/20260824133000_social_follow_preferences_surface.sql"]="13b133d39845be1f753348ea61b581acab0614eb58759664c85693a35d555ef8"
 
+  # P0 Social Search and Discovery: reviewed with CRITICAL=0 and two exact
+  # authenticated EXECUTE grants. Both bounded RPCs derive the active actor,
+  # keep subjects internal, exclude blocked/inactive people, and recheck the
+  # current post visibility predicate for every content result. Raw table CRUD
+  # and anon execution remain unavailable. Any byte drift re-enters review.
+  ["supabase/migrations/20260824140000_social_search_discovery_surface.sql"]="520d5f3dc7bad2aae58d4f6f0aa2e62504e99ba6231971b63c4f861ea6d75a1b"
+
   # SYNAPSE S1 intent foundation: reviewed for actor-bound RPC-only writes,
   # FORCE RLS, expiry/revision invariants, and the expected lexical findings
   # on new-table NOT NULL rules, the scoped update, and exact RPC grants.

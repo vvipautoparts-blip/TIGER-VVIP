@@ -3,6 +3,7 @@
 
   const SOCIAL_DESTINATIONS = new Set([
     'home',
+    'search',
     'friends',
     'messages',
     'notifications',

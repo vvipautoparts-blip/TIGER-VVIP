@@ -162,6 +162,92 @@ body[data-vvip-fusion-app] {
   align-items: center;
 }
 
+.social-search {
+  padding: 18px;
+}
+
+.social-search__heading,
+.social-search__form,
+.social-search-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.social-search__heading {
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.social-search__heading h2,
+.social-search__heading p,
+.social-search__group h3,
+.social-search__status {
+  margin: 0;
+}
+
+.social-search__heading p,
+.social-search__status,
+.social-search-profile__details span {
+  color: var(--tiger-social-muted);
+}
+
+.social-search__form input {
+  min-width: 0;
+  flex: 1;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--tiger-social-border);
+  border-radius: 999px;
+  background: var(--tiger-social-control);
+  color: var(--tiger-social-text);
+  font: inherit;
+}
+
+.social-search__form button,
+.social-search-profile__open {
+  min-height: 40px;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--tiger-social-accent);
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.social-search__group,
+.social-search__people {
+  display: grid;
+  gap: 10px;
+}
+
+.social-search-profile {
+  padding: 12px;
+  border: 1px solid var(--tiger-social-border);
+  border-radius: 10px;
+}
+
+.social-search-profile__avatar {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #1f2937;
+  color: #f5c84c;
+  font-weight: 800;
+}
+
+.social-search-profile__details {
+  min-width: 0;
+  flex: 1;
+  display: grid;
+  gap: 2px;
+}
+
 .social-post-avatar,
 .social-feed-post__avatar,
 .social-friend-card__avatar,

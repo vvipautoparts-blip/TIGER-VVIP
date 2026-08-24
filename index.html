@@ -50,6 +50,7 @@
   <script defer src="scripts/social/comments-controller.js"></script>
   <script defer src="scripts/social/safety-controller.js"></script>
   <script defer src="scripts/social/feed-controller.js"></script>
+  <script defer src="scripts/social/search-controller.js"></script>
   <script defer src="scripts/social/post-composer.js"></script>
   <script defer src="scripts/social/friends-controller.js"></script>
   <script defer src="scripts/social/messaging-controller.js"></script>
@@ -82,7 +83,7 @@
       </a>
 
       <nav class="header-actions social-mobile-header__actions" aria-label="إجراءات سريعة">
-        <span class="social-circle-action social-circle-action--inactive" aria-hidden="true" style="cursor:default">⌕</span>
+        <button class="social-circle-action" type="button" data-social-nav="search" aria-label="البحث الاجتماعي">⌕</button>
         <button class="social-circle-action" type="button" data-social-nav="messages" aria-label="الرسائل">✉</button>
         <button class="social-circle-action" type="button" data-fusion-capability-menu aria-label="القائمة">☰</button>
       </nav>
@@ -118,6 +119,27 @@
 
       <section class="social-feed-items" data-social-feed-items aria-live="polite" aria-busy="true">
         <p class="social-feed-state" data-social-feed-state="loading" role="status">جارٍ تحميل آخر الأخبار…</p>
+      </section>
+    </section>
+
+    <section class="tiger-social-home social-module-placeholder social-search" data-social-module-placeholder="search" data-social-search aria-labelledby="social-search-title" aria-hidden="true" hidden>
+      <header class="social-search__heading">
+        <div><span class="eyebrow">VVIP TIGER SOCIAL</span><h2 id="social-search-title">البحث والاكتشاف</h2></div>
+        <p>ابحث عن الأشخاص والمنشورات التي يسمح لك إعداد الخصوصية بعرضها.</p>
+      </header>
+      <form class="social-search__form" data-social-search-form role="search">
+        <label class="visually-hidden" for="social-search-input">ابحث عن أشخاص أو منشورات</label>
+        <input id="social-search-input" type="search" data-social-search-input minlength="2" maxlength="100" autocomplete="off" placeholder="اسم شخص أو محتوى منشور">
+        <button type="submit" data-social-search-submit>بحث</button>
+      </form>
+      <p class="social-search__status" data-social-search-status role="status" aria-live="polite">جارٍ تجهيز الاقتراحات…</p>
+      <section class="social-search__group" aria-labelledby="social-search-people-title">
+        <h3 id="social-search-people-title">الأشخاص</h3>
+        <div class="social-search__people" data-social-search-people></div>
+      </section>
+      <section class="social-search__group" aria-labelledby="social-search-posts-title">
+        <h3 id="social-search-posts-title">المنشورات</h3>
+        <div class="social-feed-items social-search__posts" data-social-search-posts></div>
       </section>
     </section>
 

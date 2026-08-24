@@ -74,6 +74,7 @@ PUBLIC_SCRIPT_FILES = (
     "scripts/social/comments-controller.js",
     "scripts/social/safety-controller.js",
     "scripts/social/feed-controller.js",
+    "scripts/social/search-controller.js",
     "scripts/social/post-composer.js",
     "scripts/social/friends-controller.js",
     "scripts/social/messaging-controller.js",
