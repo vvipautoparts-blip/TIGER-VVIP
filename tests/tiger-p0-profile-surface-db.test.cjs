@@ -64,6 +64,7 @@ test("P0 Profile Surface is wired into the exact-head local-only Social DB rehea
 
 test("P0 Profile SQL proof executes boundary, privacy, lifecycle, and keyset behavior", () => {
   const proof = fs.readFileSync(proofPath, "utf8");
+  const workflow = fs.readFileSync(workflowPath, "utf8");
 
   for (const marker of [
     "P0_PROFILE_RPC_BOUNDARY=PASS",
@@ -86,5 +87,10 @@ test("P0 Profile SQL proof executes boundary, privacy, lifecycle, and keyset beh
   assert.match(proof, /bob_page_one_post_id/);
   assert.match(proof, /blocked_continued_timeline/);
   assert.match(proof, /inactive_continued_timeline/);
+  assert.doesNotMatch(proof, /\\quit\s+1/i, "psql ignores numeric arguments to \\quit");
+  assert.match(proof, /select\s+1\s*\/\s*0\s*;/i, "false proof branches must raise under ON_ERROR_STOP");
+  assert.match(workflow, /profile_proof_log/);
+  assert.match(workflow, /TIGER_P0_PROFILE_SURFACE_DB_BEHAVIOR=PASS/);
+  assert.match(workflow, /P0_PROFILE_\.\*=FAIL/);
   assert.match(proof, /rollback;/i);
 });

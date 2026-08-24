@@ -347,13 +347,20 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          profile_proof_log="$(mktemp)"
+          trap 'rm -f "$profile_proof_log"' EXIT
           PGPASSWORD=postgres psql \
             -h 127.0.0.1 \
             -p 54322 \
             -U postgres \
             -d postgres \
             -v ON_ERROR_STOP=1 \
-            -f tests/sql/tiger-p0-profile-surface.sql
+            -f tests/sql/tiger-p0-profile-surface.sql | tee "$profile_proof_log"
+          grep -Fx 'TIGER_P0_PROFILE_SURFACE_DB_BEHAVIOR=PASS' "$profile_proof_log"
+          if grep -Eq '^P0_PROFILE_.*=FAIL$' "$profile_proof_log"; then
+            echo 'TIGER_P0_PROFILE_SURFACE_DB_BEHAVIOR=FAIL_MARKER_DETECTED'
+            exit 1
+          fi
 
       - name: Verify content-addressed migration review
         shell: bash

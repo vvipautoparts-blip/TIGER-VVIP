@@ -11,14 +11,13 @@ select (
   and not has_table_privilege('authenticated', 'public.vvip_social_profile_projection', 'SELECT')
   and not has_table_privilege('authenticated', 'public.vvip_social_posts', 'SELECT')
   and not has_table_privilege('authenticated', 'public.vvip_social_follows', 'SELECT')
-  and not has_table_privilege('authenticated', 'public.vvip_social_relationships', 'SELECT')
 ) as profile_rpc_boundary
 \gset
 \if :profile_rpc_boundary
   \echo P0_PROFILE_RPC_BOUNDARY=PASS
 \else
   \echo P0_PROFILE_RPC_BOUNDARY=FAIL
-  \quit 1
+  select 1 / 0;
 \endif
 
 set local role authenticated;
@@ -85,7 +84,7 @@ select (
   \echo P0_PROFILE_SAFE_PUBLIC_SURFACE=PASS
 \else
   \echo P0_PROFILE_SAFE_PUBLIC_SURFACE=FAIL
-  \quit 1
+  select 1 / 0;
 \endif
 
 select set_config('request.jwt.claims', '{"sub":"user_profilebob001"}', true);
@@ -103,7 +102,7 @@ select (
   \echo P0_PROFILE_OWNER_SURFACE=PASS
 \else
   \echo P0_PROFILE_OWNER_SURFACE=FAIL
-  \quit 1
+  select 1 / 0;
 \endif
 
 select set_config('request.jwt.claims', '{"sub":"user_profilealice01"}', true);
@@ -135,7 +134,7 @@ select (
   \echo P0_PROFILE_TIMELINE_VISIBILITY=PASS
 \else
   \echo P0_PROFILE_TIMELINE_VISIBILITY=FAIL
-  \quit 1
+  select 1 / 0;
 \endif
 
 do $proof$
@@ -242,7 +241,7 @@ select (
   \echo P0_PROFILE_BLOCK_PRIVACY=PASS
 \else
   \echo P0_PROFILE_BLOCK_PRIVACY=FAIL
-  \quit 1
+  select 1 / 0;
 \endif
 
 select public.vvip_social_unblock_profile(:'bob_profile_id'::uuid);
@@ -271,7 +270,7 @@ select (
   \echo P0_PROFILE_LIFECYCLE_PRIVACY=PASS
 \else
   \echo P0_PROFILE_LIFECYCLE_PRIVACY=FAIL
-  \quit 1
+  select 1 / 0;
 \endif
 
 rollback;

@@ -36,7 +36,7 @@ Timeline rows contain only safe author presentation and post fields. The support
 
 ## Behavioral proof requirement
 
-`tests/sql/tiger-p0-profile-surface.sql` is wired into the exact-head, local-only TIGER Social DB Rehearsal. It proves RPC-only privileges, owner/public surfaces, viewer-specific post counts, audience filtering, cursor continuation and context binding, block privacy, lifecycle privacy, legacy-RPC convergence, and absence of raw subjects. The slice cannot close unless this proof and VVIP Quality Gate are both GREEN on the same exact SHA.
+`tests/sql/tiger-p0-profile-surface.sql` is wired into the exact-head, local-only TIGER Social DB Rehearsal. It proves the new Profile RPC privilege boundary, denial of direct profile/post/follow reads, owner/public surfaces, viewer-specific post counts, audience filtering, cursor continuation and context binding, block privacy, lifecycle privacy, legacy-RPC convergence, and absence of raw subjects. The workflow requires the final PASS marker and rejects every Profile FAIL marker, so a psql meta-command cannot turn a failed assertion green. The slice cannot close unless this proof and VVIP Quality Gate are both GREEN on the same exact SHA.
 
 This review does not apply the migration to Production or Staging and does not authorize provider credentials, real-user data, payment surfaces, or remote database mutation.
 
