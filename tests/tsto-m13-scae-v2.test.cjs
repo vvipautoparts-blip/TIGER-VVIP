@@ -168,7 +168,7 @@ function proofs() {
   ]));
 }
 
-function trustedContext({ pulseOverride, marketOverride } = {}) {
+function trustedContext({ pulseOverride, marketOverride, revocationStatus = 'PASS' } = {}) {
   const inputs = trustedInputs();
   const releaseDnaSha256 = inputs.pulse.release_dna_sha256;
   return {
@@ -181,6 +181,7 @@ function trustedContext({ pulseOverride, marketOverride } = {}) {
       request: request(),
       releaseDnaSha256,
       nowMs: NOW,
+      status: revocationStatus,
     }),
     market_state: {
       whole_vehicle_ad: false,
@@ -214,6 +215,14 @@ test('trusted Bridge-derived Trust Pulse V2 can satisfy the existing SCAE proof 
   assert.deepEqual(result.reason_codes, []);
   assert.match(result.trust_pulse_sha256, /^[0-9a-f]{64}$/);
   assert.equal(result.issued_at_ms, NOW);
+});
+
+test('trusted M14 REVOKED state blocks even with a trusted Bridge-derived Trust Pulse V2', () => {
+  const result = evaluateSovereignAction({
+    request: request(),
+    trustedContext: trustedContext({ revocationStatus: 'REVOKED' }),
+  });
+  assertBlocked(result, 'TRUST_SIGNAL_REVOKED');
 });
 
 test('whole-vehicle prohibition overrides otherwise perfect runtime attestation', () => {
