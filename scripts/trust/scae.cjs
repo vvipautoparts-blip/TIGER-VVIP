@@ -18,6 +18,11 @@ const {
 const {
   isTrustedTrustPulseV2,
 } = require('./deployment-attestation-bridge.cjs');
+const {
+  validateRevocationState,
+  digestSignalScope,
+  isTrustedRevocationState,
+} = require('./revocation-state.cjs');
 
 const DECISION_SCHEMA = 'TIGER_SCAE_DECISION_V1';
 const REQUEST_KEYS = Object.freeze([
@@ -33,10 +38,13 @@ const TRUSTED_CONTEXT_KEYS = Object.freeze([
   'current_epochs',
   'trust_pulse',
   'proofs',
-  'trusted_signals',
+  'revocation_state',
   'market_state',
   'replay_binding_sha256',
 ]);
+const TRUSTED_CONTEXT_WITHOUT_REVOCATION_KEYS = Object.freeze(
+  TRUSTED_CONTEXT_KEYS.filter((key) => key !== 'revocation_state'),
+);
 const MARKET_STATE_KEYS = Object.freeze([
   'whole_vehicle_ad',
   'transaction_authority_enabled',
@@ -44,7 +52,6 @@ const MARKET_STATE_KEYS = Object.freeze([
   'deployed_durable_verified',
   'release_evidence_schema',
 ]);
-const SIGNAL_KEYS = Object.freeze(['status', 'issuer_ref_sha256']);
 const PROOF_KEYS = Object.freeze(['status', 'digest_sha256']);
 const SHA256 = /^[0-9a-f]{64}$/;
 const COUNTRY = /^[A-Z]{2}$/;
@@ -129,12 +136,6 @@ function proofEntryIsValid(value) {
     && SHA256.test(value.digest_sha256);
 }
 
-function signalIsValid(value) {
-  return hasExactKeys(value, SIGNAL_KEYS)
-    && (value.status === 'PASS' || value.status === 'REVOKED')
-    && SHA256.test(value.issuer_ref_sha256);
-}
-
 function marketStateShapeIsValid(value) {
   return hasExactKeys(value, MARKET_STATE_KEYS)
     && typeof value.whole_vehicle_ad === 'boolean'
@@ -151,8 +152,25 @@ function trustedContextShapeIsValid(value) {
     && SHA256.test(value.replay_binding_sha256);
 }
 
+function trustedContextOnlyMissingRevocation(value) {
+  return hasExactKeys(value, TRUSTED_CONTEXT_WITHOUT_REVOCATION_KEYS)
+    && safeInt(value.now_ms)
+    && isPlainObject(value.proofs)
+    && SHA256.test(value.replay_binding_sha256);
+}
+
 function getCountryEpoch(epochVector, countryCode) {
   return epochVector.country_epochs.find((entry) => entry.country_code === countryCode) ?? null;
+}
+
+function expectedRevocationScope(request, trustDnaDigest) {
+  return Object.freeze({
+    subject_ref_sha256: sha256Hex(request.subject_ref),
+    resource_ref_sha256: sha256Hex(request.resource_ref),
+    action_profile_ref_sha256: sha256Hex(request.profile_id),
+    country_ref_sha256: sha256Hex(request.country_code),
+    release_dna_sha256: trustDnaDigest,
+  });
 }
 
 function evaluateSovereignAction({ request, trustedContext } = {}) {
@@ -170,6 +188,16 @@ function evaluateSovereignAction({ request, trustedContext } = {}) {
       return blockedDecision({ request, trustedContext, reasonCodes: ['TRUST_ACTION_PROFILE_UNKNOWN'] });
     }
     throw error;
+  }
+
+  if (trustedContextOnlyMissingRevocation(trustedContext)) {
+    return blockedDecision({
+      request,
+      trustedContext,
+      profile,
+      geometry,
+      reasonCodes: ['TRUST_SIGNAL_MISSING'],
+    });
   }
 
   if (!trustedContextShapeIsValid(trustedContext)) {
@@ -257,10 +285,33 @@ function evaluateSovereignAction({ request, trustedContext } = {}) {
     digests.evidenceSet = sha256Hex(canonicalJson(evidenceRecords));
   }
 
-  if (!signalIsValid(trustedContext.trusted_signals)) {
+  if (!isTrustedRevocationState(trustedContext.revocation_state)) {
     reasons.push('TRUST_SIGNAL_UNTRUSTED');
-  } else if (trustedContext.trusted_signals.status === 'REVOKED') {
-    reasons.push('TRUST_SIGNAL_REVOKED');
+  } else {
+    let revocationState;
+    try {
+      revocationState = validateRevocationState(
+        trustedContext.revocation_state,
+        { nowMs: trustedContext.now_ms },
+      );
+    } catch (error) {
+      if (error?.code === 'TRUST_SIGNAL_STALE' || error?.code === 'TRUST_SIGNAL_FRESHNESS_INVALID') {
+        reasons.push('TRUST_SIGNAL_STALE');
+      } else {
+        reasons.push('TRUST_SIGNAL_UNTRUSTED');
+      }
+    }
+
+    if (revocationState) {
+      const scope = expectedRevocationScope(request, trustDnaDigest);
+      if (revocationState.scope_digest_sha256 !== digestSignalScope(scope)
+        || revocationState.release_dna_sha256 !== trustDnaDigest) {
+        reasons.push('TRUST_SIGNAL_SCOPE_MISMATCH');
+      }
+      if (revocationState.effective_status === 'REVOKED') {
+        reasons.push('TRUST_SIGNAL_REVOKED');
+      }
+    }
   }
 
   if (!marketStateShapeIsValid(trustedContext.market_state)) {
