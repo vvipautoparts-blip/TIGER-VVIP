@@ -103,7 +103,7 @@ $function$;
 revoke all on function public.vvip_social_can_view_post(uuid, text) from public, anon, authenticated;
 
 -- Repost posts are server-owned snapshots. Normal browser post-update/delete paths may
--- not detach them from their lineage; only SECURITY DEFINER maintenance may synchronize
+-- not detach them from their lineage; only trusted server maintenance may synchronize
 -- them with the original or trusted lifecycle cleanup may remove them.
 create function public.vvip_social_guard_repost_snapshot_write()
 returns trigger
