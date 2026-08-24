@@ -16,6 +16,9 @@ const {
   createDeploymentAttestationBridge,
   deriveTrustPulseV2,
 } = require('../scripts/trust/deployment-attestation-bridge.cjs');
+const {
+  createTrustedRevocationStateFixture,
+} = require('./helpers/tsto-m14-revocation-fixture.cjs');
 
 const HEX = (c, n = 64) => c.repeat(n);
 const SHA = HEX('a', 40);
@@ -167,16 +170,18 @@ function proofs() {
 
 function trustedContext({ pulseOverride, marketOverride } = {}) {
   const inputs = trustedInputs();
+  const releaseDnaSha256 = inputs.pulse.release_dna_sha256;
   return {
     now_ms: NOW,
     trust_dna: inputs.dna,
     current_epochs: inputs.currentEpochs,
     trust_pulse: pulseOverride === undefined ? inputs.pulse : pulseOverride(inputs.pulse),
     proofs: proofs(),
-    trusted_signals: {
-      status: 'PASS',
-      issuer_ref_sha256: HEX('a'),
-    },
+    revocation_state: createTrustedRevocationStateFixture({
+      request: request(),
+      releaseDnaSha256,
+      nowMs: NOW,
+    }),
     market_state: {
       whole_vehicle_ad: false,
       transaction_authority_enabled: false,
