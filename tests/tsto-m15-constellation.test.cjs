@@ -21,8 +21,10 @@ const SHA = HEX('a', 40);
 const TREE = HEX('b', 40);
 const ARTIFACT = HEX('1');
 const WORKLOAD = HEX('2');
-const STATEMENT = HEX('3');
-const REGISTRY = HEX('4');
+const TRUST_DOMAIN = HEX('3');
+const IDENTITY_PUBLIC_KEY = HEX('4');
+const STATEMENT = HEX('5');
+const REGISTRY = HEX('6');
 const NOW = 1_700_000_000_000;
 const MIGRATION = '484fc1ee834ecce2ac8184ed0756e17f39b5424bbf58c6fff84e61acee6a70ad';
 
@@ -45,7 +47,7 @@ function releaseEvidence() {
 }
 function dna(source) {
   return validateTrustDna({ schema: 'TIGER_TRUST_DNA_V1', repository: 'vvipautoparts-blip/TIGER-VVIP', source_sha: SHA, source_tree: TREE,
-    source_readiness_sha256: sha256Hex(canonicalJson(source)), release_evidence_contract_sha256: HEX('5'), authority_policy_sha256: HEX('6') });
+    source_readiness_sha256: sha256Hex(canonicalJson(source)), release_evidence_contract_sha256: HEX('7'), authority_policy_sha256: HEX('8') });
 }
 function epochs() {
   return validateEpochVector({ schema: 'TIGER_SOVEREIGN_EPOCH_VECTOR_V1', owner_epoch: 1, policy_epoch: 2, market_epoch: 3, ai_policy_epoch: 4, crypto_epoch: 5, country_epochs: [{ country_code: 'JO', epoch: 6 }] });
@@ -55,21 +57,22 @@ function trustedBridge() {
   const verifier = createTrustedVerifierAdapter({ authenticate(x) { return x?.ok ? x.result : null; } });
   const attestation = verifier.admit({ ok: true, result: {
     schema: 'TIGER_ATTESTATION_RESULT_V1', result_class: 'VERIFIED_RUNTIME_APPRAISAL', environment: 'staging', release_sha: SHA,
-    runtime_artifact_sha256: ARTIFACT, verifier_ref_sha256: HEX('7'), attester_ref_sha256: HEX('8'), evidence_sha256: HEX('9'), appraisal_policy_sha256: HEX('a'), freshness_binding_sha256: HEX('b'),
+    runtime_artifact_sha256: ARTIFACT, verifier_ref_sha256: HEX('9'), attester_ref_sha256: HEX('a'), evidence_sha256: HEX('b'), appraisal_policy_sha256: HEX('c'), freshness_binding_sha256: HEX('d'),
     issued_at_ms: NOW - 10_000, fresh_until_ms: NOW + 120_000, state: 'PASS',
   } }, { nowMs: NOW });
   return createDeploymentAttestationBridge({ expectedSourceSha: SHA, expectedSourceTree: TREE, observedHeadSha: SHA, expectedEnvironment: 'staging', expectedArtifactSha256: ARTIFACT, trustDna, epochVector, clock: () => NOW }).derive({ sourceReadinessEvidence: source, releaseEvidence: releaseEvidence(), attestationResult: attestation });
 }
 function trustedWorkload(releaseDna) {
   return createTrustedWorkloadIdentityAdapter({ authenticate(x) { return x?.ok ? x.result : null; }, clock: () => NOW }).admit({ ok: true, result: {
-    schema: 'TIGER_WORKLOAD_IDENTITY_V1', identity_class: 'AUTHENTICATED_WORKLOAD_IDENTITY', environment: 'staging', release_dna_sha256: releaseDna,
-    runtime_artifact_sha256: ARTIFACT, workload_ref_sha256: WORKLOAD, issuer_ref_sha256: HEX('c'), evidence_sha256: HEX('d'), issued_at_ms: NOW - 1_000, fresh_until_ms: NOW + 90_000, state: 'PASS',
+    schema: 'TIGER_WORKLOAD_IDENTITY_V2', identity_class: 'AUTHENTICATED_PROOF_BOUND_WORKLOAD_IDENTITY', environment: 'staging', release_dna_sha256: releaseDna,
+    runtime_artifact_sha256: ARTIFACT, trust_domain_sha256: TRUST_DOMAIN, workload_ref_sha256: WORKLOAD, identity_public_key_sha256: IDENTITY_PUBLIC_KEY,
+    issuer_ref_sha256: HEX('e'), evidence_sha256: HEX('f'), issued_at_ms: NOW - 1_000, fresh_until_ms: NOW + 90_000, state: 'PASS',
   } });
 }
 function trustedTransparency(releaseDna) {
   return createTrustedTransparencyAdapter({ authenticate(x) { return x?.ok ? x.result : null; }, clock: () => NOW }).admit({ ok: true, result: {
     schema: 'TIGER_TRANSPARENCY_RESULT_V1', result_class: 'VERIFIED_TRANSPARENCY_STATEMENT', release_dna_sha256: releaseDna, runtime_artifact_sha256: ARTIFACT,
-    statement_sha256: STATEMENT, registry_ref_sha256: REGISTRY, verifier_ref_sha256: HEX('e'), receipt_sha256: HEX('f'), verified_at_ms: NOW - 1_000, fresh_until_ms: NOW + 60_000, state: 'PASS',
+    statement_sha256: STATEMENT, registry_ref_sha256: REGISTRY, verifier_ref_sha256: HEX('a'), receipt_sha256: HEX('b'), verified_at_ms: NOW - 1_000, fresh_until_ms: NOW + 60_000, state: 'PASS',
   } });
 }
 function factory(releaseDna) {
