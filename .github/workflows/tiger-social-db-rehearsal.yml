@@ -14,6 +14,7 @@ on:
       - "supabase/migrations/20260824111500_social_reposts.sql"
       - "supabase/migrations/20260824120000_social_messaging_surface.sql"
       - "supabase/migrations/20260824123000_social_profile_surface.sql"
+      - "supabase/migrations/20260824130000_social_safety_surface.sql"
       - "scripts/social/text-contract.js"
       - "scripts/social/post-domain.js"
       - "scripts/social/runtime-adapters.js"
@@ -22,6 +23,7 @@ on:
       - "scripts/social/messaging-controller.js"
       - "scripts/social/profile-read-model.js"
       - "scripts/social/profile-controller.js"
+      - "scripts/social/safety-controller.js"
       - "scripts/social/feed-controller.js"
       - "scripts/social/core-shell.js"
       - "scripts/social/post-composer.js"
@@ -36,6 +38,7 @@ on:
       - "docs/security/TIGER_P0_MESSAGING_CONVERGENCE_MIGRATION_SECURITY_REVIEW.md"
       - "docs/security/TIGER_P0_MESSAGING_SURFACE_MIGRATION_SECURITY_REVIEW.md"
       - "docs/security/TIGER_P0_PROFILE_SURFACE_MIGRATION_SECURITY_REVIEW.md"
+      - "docs/security/TIGER_P0_SAFETY_SURFACE_MIGRATION_SECURITY_REVIEW.md"
       - "tests/tiger-social-db-foundation.test.cjs"
       - "tests/tiger-social-db-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-reactions-db.test.cjs"
@@ -55,10 +58,14 @@ on:
       - "tests/tiger-p0-profile-runtime-adapter.test.cjs"
       - "tests/tiger-p0-profile-surface-db.test.cjs"
       - "tests/tiger-p0-profile-surface.test.cjs"
+      - "tests/tiger-p0-safety-runtime-adapter.test.cjs"
+      - "tests/tiger-p0-safety-surface-db.test.cjs"
+      - "tests/tiger-p0-safety-surface.test.cjs"
       - "tests/tiger-p0-messaging-surface.test.cjs"
       - "tests/tiger-p0-messaging-convergence-reviewed-migration-hash.test.cjs"
       - "tests/tiger-p0-messaging-surface-reviewed-migration-hash.test.cjs"
       - "tests/tiger-p0-profile-surface-reviewed-migration-hash.test.cjs"
+      - "tests/tiger-p0-safety-surface-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-runtime-adapters.test.cjs"
       - "tests/tiger-social-post-domain.test.cjs"
       - "tests/tiger-social-runtime-publication.test.cjs"
@@ -78,6 +85,7 @@ on:
       - "tests/sql/tiger-p0-messaging-convergence.sql"
       - "tests/sql/tiger-p0-messaging-surface.sql"
       - "tests/sql/tiger-p0-profile-surface.sql"
+      - "tests/sql/tiger-p0-safety-surface.sql"
       - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
       - ".github/workflows/tiger-social-db-rehearsal.yml"
   pull_request:
@@ -93,6 +101,7 @@ on:
       - "supabase/migrations/20260824111500_social_reposts.sql"
       - "supabase/migrations/20260824120000_social_messaging_surface.sql"
       - "supabase/migrations/20260824123000_social_profile_surface.sql"
+      - "supabase/migrations/20260824130000_social_safety_surface.sql"
       - "scripts/social/text-contract.js"
       - "scripts/social/post-domain.js"
       - "scripts/social/runtime-adapters.js"
@@ -101,6 +110,7 @@ on:
       - "scripts/social/messaging-controller.js"
       - "scripts/social/profile-read-model.js"
       - "scripts/social/profile-controller.js"
+      - "scripts/social/safety-controller.js"
       - "scripts/social/feed-controller.js"
       - "scripts/social/core-shell.js"
       - "scripts/social/post-composer.js"
@@ -115,6 +125,7 @@ on:
       - "docs/security/TIGER_P0_MESSAGING_CONVERGENCE_MIGRATION_SECURITY_REVIEW.md"
       - "docs/security/TIGER_P0_MESSAGING_SURFACE_MIGRATION_SECURITY_REVIEW.md"
       - "docs/security/TIGER_P0_PROFILE_SURFACE_MIGRATION_SECURITY_REVIEW.md"
+      - "docs/security/TIGER_P0_SAFETY_SURFACE_MIGRATION_SECURITY_REVIEW.md"
       - "tests/tiger-social-db-foundation.test.cjs"
       - "tests/tiger-social-db-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-reactions-db.test.cjs"
@@ -134,10 +145,14 @@ on:
       - "tests/tiger-p0-profile-runtime-adapter.test.cjs"
       - "tests/tiger-p0-profile-surface-db.test.cjs"
       - "tests/tiger-p0-profile-surface.test.cjs"
+      - "tests/tiger-p0-safety-runtime-adapter.test.cjs"
+      - "tests/tiger-p0-safety-surface-db.test.cjs"
+      - "tests/tiger-p0-safety-surface.test.cjs"
       - "tests/tiger-p0-messaging-surface.test.cjs"
       - "tests/tiger-p0-messaging-convergence-reviewed-migration-hash.test.cjs"
       - "tests/tiger-p0-messaging-surface-reviewed-migration-hash.test.cjs"
       - "tests/tiger-p0-profile-surface-reviewed-migration-hash.test.cjs"
+      - "tests/tiger-p0-safety-surface-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-runtime-adapters.test.cjs"
       - "tests/tiger-social-post-domain.test.cjs"
       - "tests/tiger-social-runtime-publication.test.cjs"
@@ -157,6 +172,7 @@ on:
       - "tests/sql/tiger-p0-messaging-convergence.sql"
       - "tests/sql/tiger-p0-messaging-surface.sql"
       - "tests/sql/tiger-p0-profile-surface.sql"
+      - "tests/sql/tiger-p0-safety-surface.sql"
       - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
       - ".github/workflows/tiger-social-db-rehearsal.yml"
   workflow_dispatch:
@@ -233,6 +249,9 @@ jobs:
           node --test tests/tiger-p0-profile-runtime-adapter.test.cjs
           node --test tests/tiger-p0-profile-surface-db.test.cjs
           node --test tests/tiger-p0-profile-surface.test.cjs
+          node --test tests/tiger-p0-safety-runtime-adapter.test.cjs
+          node --test tests/tiger-p0-safety-surface-db.test.cjs
+          node --test tests/tiger-p0-safety-surface.test.cjs
 
       - name: Assert local-only safety contract
         shell: bash
@@ -362,6 +381,25 @@ jobs:
             exit 1
           fi
 
+      - name: Prove P0 Safety block and report behavior
+        shell: bash
+        run: |
+          set -euo pipefail
+          safety_proof_log="$(mktemp)"
+          trap 'rm -f "$safety_proof_log"' EXIT
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 \
+            -p 54322 \
+            -U postgres \
+            -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/tiger-p0-safety-surface.sql | tee "$safety_proof_log"
+          grep -Fx 'TIGER_P0_SAFETY_SURFACE_DB_BEHAVIOR=PASS' "$safety_proof_log"
+          if grep -Eq '^P0_SAFETY_.*=FAIL$' "$safety_proof_log"; then
+            echo 'TIGER_P0_SAFETY_SURFACE_DB_BEHAVIOR=FAIL_MARKER_DETECTED'
+            exit 1
+          fi
+
       - name: Verify content-addressed migration review
         shell: bash
         run: |
@@ -370,6 +408,7 @@ jobs:
           node --test tests/tiger-p0-messaging-convergence-reviewed-migration-hash.test.cjs
           node --test tests/tiger-p0-messaging-surface-reviewed-migration-hash.test.cjs
           node --test tests/tiger-p0-profile-surface-reviewed-migration-hash.test.cjs
+          node --test tests/tiger-p0-safety-surface-reviewed-migration-hash.test.cjs
 
       - name: Verify source remained immutable
         shell: bash

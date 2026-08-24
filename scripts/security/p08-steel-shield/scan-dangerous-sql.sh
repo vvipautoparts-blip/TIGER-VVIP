@@ -176,6 +176,14 @@ declare -A reviewed_migration_hashes=(
   # Timeline cursors bind actor+target and every page rechecks current visibility.
   ["supabase/migrations/20260824123000_social_profile_surface.sql"]="88c414e6a2b70e66784a96a1fe3d5930fc0900c2533c7ebce40a8ea4f789f0e4"
 
+  # P0 Safety Surface: reviewed with CRITICAL=0 and twelve classified lexical
+  # HIGH findings. Seven are new-table NOT NULL integrity rules and five are
+  # exact authenticated EXECUTE grants. Reports are append-only/RPC-only, post
+  # reports recheck visibility, block lookups stay directional and subject-blind,
+  # and unblock remains available after target lifecycle changes. Byte drift
+  # re-enters Steel Shield and the exact-head DB rehearsal automatically.
+  ["supabase/migrations/20260824130000_social_safety_surface.sql"]="c856c0bcc57bea9116273a4dcecc4b1e8ec807fada7ceb3d57e77a0a103d09e1"
+
   # SYNAPSE S1 intent foundation: reviewed for actor-bound RPC-only writes,
   # FORCE RLS, expiry/revision invariants, and the expected lexical findings
   # on new-table NOT NULL rules, the scoped update, and exact RPC grants.

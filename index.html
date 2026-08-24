@@ -48,6 +48,7 @@
   <script defer src="scripts/social/profile-read-model.js"></script>
   <script defer src="scripts/social/reactions-controller.js"></script>
   <script defer src="scripts/social/comments-controller.js"></script>
+  <script defer src="scripts/social/safety-controller.js"></script>
   <script defer src="scripts/social/feed-controller.js"></script>
   <script defer src="scripts/social/post-composer.js"></script>
   <script defer src="scripts/social/friends-controller.js"></script>
@@ -176,6 +177,9 @@
         </div>
         <div class="social-profile__actions">
           <button type="button" data-social-profile-message hidden>مراسلة</button>
+          <button type="button" data-social-profile-report hidden>إبلاغ</button>
+          <button type="button" data-social-profile-block hidden>حظر</button>
+          <button type="button" data-social-profile-unblock hidden>إلغاء الحظر</button>
           <button type="button" data-social-profile-edit hidden>تعديل الملف</button>
           <button type="button" data-fusion-account-trigger>الحساب والإعدادات</button>
         </div>
@@ -247,6 +251,33 @@
       <select id="social-post-audience" data-social-post-audience><option value="public">عام</option><option value="friends" selected>الأصدقاء</option><option value="only_me">أنا فقط</option></select>
       <p data-social-post-status role="status" aria-live="polite"></p>
       <button class="button button--primary" type="button" data-social-post-submit disabled>نشر</button>
+    </section>
+  </div>
+
+  <div class="fusion-capability-layer" data-social-report-sheet aria-hidden="true" hidden>
+    <button class="fusion-capability-backdrop" type="button" data-social-report-close aria-label="إغلاق البلاغ"></button>
+    <section class="fusion-capability-panel social-report-panel" role="dialog" aria-modal="true" aria-labelledby="social-report-title" tabindex="-1">
+      <header class="fusion-account-heading">
+        <div><span class="eyebrow">VVIP TIGER SAFETY</span><h2 id="social-report-title">إرسال بلاغ</h2></div>
+        <button class="fusion-icon-button" type="button" data-social-report-close aria-label="إغلاق">×</button>
+      </header>
+      <form data-social-report-form>
+        <label for="social-report-reason">سبب البلاغ</label>
+        <select id="social-report-reason" data-social-report-reason required>
+          <option value="">اختر السبب</option>
+          <option value="spam">محتوى مزعج أو متكرر</option>
+          <option value="harassment">مضايقة أو تنمر</option>
+          <option value="hate">خطاب كراهية</option>
+          <option value="violence">عنف أو تهديد</option>
+          <option value="nudity">محتوى غير لائق</option>
+          <option value="fraud">احتيال أو انتحال</option>
+          <option value="other">سبب آخر</option>
+        </select>
+        <label for="social-report-details">تفاصيل إضافية (اختياري)</label>
+        <textarea id="social-report-details" data-social-report-details rows="4" maxlength="1000"></textarea>
+        <p data-social-report-status role="status" aria-live="polite"></p>
+        <button class="button button--primary" type="submit" data-social-report-submit>إرسال البلاغ</button>
+      </form>
     </section>
   </div>
 

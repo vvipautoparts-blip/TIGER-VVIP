@@ -125,7 +125,10 @@
     share.setAttribute("data-social-share-trigger", "");
     share.disabled = true;
 
-    secondaryActions.append(comment, share);
+    const report = iconButton(documentObject, "الإبلاغ عن المنشور", "social-post-action social-post-action--report", "إبلاغ");
+    report.setAttribute("data-social-report-post", "");
+
+    secondaryActions.append(comment, share, report);
     actions.append(reactions, secondaryActions);
 
     const comments = documentObject.createElement("section");

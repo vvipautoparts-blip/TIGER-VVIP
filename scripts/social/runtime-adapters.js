@@ -25,6 +25,15 @@
     "sad",
     "angry",
   ]);
+  const SOCIAL_REPORT_REASONS = Object.freeze([
+    "spam",
+    "harassment",
+    "hate",
+    "violence",
+    "nudity",
+    "fraud",
+    "other",
+  ]);
   const RELATIONSHIP_SELECT = "relationship_id,requester_subject,addressee_subject,relationship_state,created_at,updated_at";
   const SOCIAL_RATE_LIMIT_RETRY_MS = 5000;
 
@@ -226,6 +235,33 @@
         specialization: specialization.value,
         businessDescription: businessDescription.value,
       }),
+    };
+  }
+
+  function normalizeReportInput(input) {
+    if (!input || typeof input !== "object" || Array.isArray(input)) {
+      return { ok: false, code: "SOCIAL_INVALID_REPORT" };
+    }
+    const allowedKeys = new Set(["reason", "details"]);
+    if (Object.keys(input).some((key) => !allowedKeys.has(key))) {
+      return { ok: false, code: "SOCIAL_INVALID_REPORT" };
+    }
+    if (typeof input.reason !== "string" || !SOCIAL_REPORT_REASONS.includes(input.reason)) {
+      return { ok: false, code: "SOCIAL_INVALID_REPORT_REASON" };
+    }
+    let details = null;
+    if (input.details !== null && input.details !== undefined) {
+      if (typeof input.details !== "string") {
+        return { ok: false, code: "SOCIAL_INVALID_REPORT_DETAILS" };
+      }
+      details = input.details.trim() || null;
+      if (details && details.length > 1000) {
+        return { ok: false, code: "SOCIAL_INVALID_REPORT_DETAILS" };
+      }
+    }
+    return {
+      ok: true,
+      value: Object.freeze({ reason: input.reason, details }),
     };
   }
 
@@ -679,7 +715,73 @@
       },
     });
 
-    return Object.freeze({ posts, relationships, reactions, comments, messaging, profiles });
+    async function reportTarget(kind, targetId, input) {
+      if (!validPostUuid(targetId)) {
+        return frozenFailure("SOCIAL_INVALID_REPORT_TARGET");
+      }
+      const report = normalizeReportInput(input);
+      if (!report.ok) return frozenFailure(report.code);
+      if (!hasRpcClient(client)) return unavailable();
+
+      return execute(
+        () => client.rpc("vvip_social_submit_report", {
+          p_target_kind: kind,
+          p_target_id: targetId,
+          p_reason: report.value.reason,
+          p_details: report.value.details,
+        }),
+        true
+      );
+    }
+
+    const safety = Object.freeze({
+      blockState: async function (profileId) {
+        if (!validPostUuid(profileId)) return frozenFailure("SOCIAL_INVALID_PROFILE_ID");
+        if (!hasRpcClient(client)) return unavailable();
+        return execute(
+          () => client.rpc("vvip_social_block_state", { p_peer_profile_id: profileId }),
+          true
+        );
+      },
+
+      block: async function (profileId) {
+        if (!validPostUuid(profileId)) return frozenFailure("SOCIAL_INVALID_PROFILE_ID");
+        if (!hasRpcClient(client)) return unavailable();
+        return execute(
+          () => client.rpc("vvip_social_block_profile", { p_peer_profile_id: profileId }),
+          true
+        );
+      },
+
+      unblock: async function (profileId) {
+        if (!validPostUuid(profileId)) return frozenFailure("SOCIAL_INVALID_PROFILE_ID");
+        if (!hasRpcClient(client)) return unavailable();
+        return execute(
+          () => client.rpc("vvip_social_unblock_profile", { p_peer_profile_id: profileId }),
+          true
+        );
+      },
+
+      listBlocks: async function (options) {
+        const limit = normalizeLimit(options);
+        if (!limit.ok) return frozenFailure("SOCIAL_INVALID_SAFETY_LIMIT");
+        if (!hasRpcClient(client)) return unavailable();
+        return execute(
+          () => client.rpc("vvip_social_list_my_blocks", { p_limit: limit.value }),
+          true
+        );
+      },
+
+      reportProfile: function (profileId, input) {
+        return reportTarget("profile", profileId, input);
+      },
+
+      reportPost: function (postId, input) {
+        return reportTarget("post", postId, input);
+      },
+    });
+
+    return Object.freeze({ posts, relationships, reactions, comments, messaging, profiles, safety });
   }
 
   function createCurrentSocialRuntime(rootObject) {
@@ -694,6 +796,7 @@
     SOCIAL_RELATIONSHIPS_TABLE,
     SOCIAL_AUDIENCES,
     SOCIAL_REACTION_TYPES,
+    SOCIAL_REPORT_REASONS,
     createSocialRuntimeAdapters,
     createCurrentSocialRuntime,
   });

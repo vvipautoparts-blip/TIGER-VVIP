@@ -71,9 +71,16 @@
     const businessDescription = options && options.businessDescription;
     const saveButton = options && options.saveButton;
     const messageButton = options && options.messageButton;
+    const blockButton = options && options.blockButton;
+    const unblockButton = options && options.unblockButton;
+    const reportButton = options && options.reportButton;
     const auth = options && options.auth;
     const onProfileNavigate = options && options.onProfileNavigate;
     const onMessage = options && options.onMessage;
+    const onReport = options && options.onReport;
+    const confirmBlock = options && typeof options.confirmBlock === "function"
+      ? options.confirmBlock
+      : function () { return false; };
     const onPostsRendered = options && options.onPostsRendered;
     const renderPost = options && options.renderPost;
 
@@ -101,6 +108,7 @@
     let requestedProfileId = null;
     let nextCursor = null;
     let renderedPostIds = new Set();
+    let blockedProfileId = null;
 
     function clearSurface(view) {
       shell.dataset.socialProfileView = view;
@@ -115,8 +123,12 @@
       if (editButton) editButton.hidden = true;
       if (editForm) editForm.hidden = true;
       if (messageButton) messageButton.hidden = true;
+      if (blockButton) blockButton.hidden = true;
+      if (unblockButton) unblockButton.hidden = true;
+      if (reportButton) reportButton.hidden = true;
       if (unavailable) unavailable.hidden = view !== "unavailable";
       currentProfile = null;
+      blockedProfileId = null;
       nextCursor = null;
       renderedPostIds = new Set();
     }
@@ -180,6 +192,15 @@
       if (editButton) editButton.hidden = !profile.viewer_is_owner;
       if (editForm) editForm.hidden = true;
       if (messageButton) messageButton.hidden = profile.viewer_is_owner || !profile.can_message;
+      if (blockButton) {
+        blockButton.hidden = profile.viewer_is_owner;
+        if (!profile.viewer_is_owner) blockButton.setAttribute("data-social-profile-id", profile.profile_id);
+      }
+      if (unblockButton) unblockButton.hidden = true;
+      if (reportButton) {
+        reportButton.hidden = profile.viewer_is_owner;
+        if (!profile.viewer_is_owner) reportButton.setAttribute("data-social-profile-id", profile.profile_id);
+      }
       if (profile.viewer_is_owner) populateEditor(profile);
     }
 
@@ -284,6 +305,24 @@
       if (surface.status === "profile_unavailable") {
         clearSurface("unavailable");
         statusText(status, "هذا الملف غير متاح.");
+        if (requestedProfileId && runtime.safety
+            && typeof runtime.safety.blockState === "function") {
+          let blockState = null;
+          try {
+            blockState = await runtime.safety.blockState(requestedProfileId);
+          } catch (_) {
+            blockState = null;
+          }
+          if (loadGeneration !== generation) return failure("SOCIAL_PROFILE_LOAD_SUPERSEDED");
+          const blockValue = blockState && blockState.ok === true ? blockState.value : null;
+          if (blockValue && blockValue.ok === true && blockValue.blocked_by_viewer === true) {
+            blockedProfileId = requestedProfileId;
+            if (unblockButton) {
+              unblockButton.hidden = false;
+              unblockButton.setAttribute("data-social-profile-id", requestedProfileId);
+            }
+          }
+        }
         return frozen({ ok: true, status: "profile_unavailable" });
       }
 
@@ -349,6 +388,67 @@
       return onMessage(currentProfile.profile_id);
     }
 
+    async function runSafetyMutation(intentName, profileId, operation) {
+      if (!validProfileId(profileId) || !auth || typeof auth.requireAuth !== "function") {
+        return failure("SOCIAL_PROFILE_SAFETY_UNAVAILABLE");
+      }
+      let result = null;
+      let granted = false;
+      statusText(status, "جارٍ تطبيق إعداد الأمان…");
+      try {
+        granted = await auth.requireAuth(frozen({ name: intentName }), async function () {
+          result = await operation();
+          return result;
+        });
+      } catch (_) {
+        result = null;
+      }
+      if (!granted || !result || result.ok !== true) {
+        statusText(status, "تعذر تطبيق إعداد الأمان الآن.");
+        return failure("SOCIAL_PROFILE_SAFETY_FAILED");
+      }
+      const loaded = await load(profileId);
+      if (!loaded || loaded.ok !== true) return loaded || failure("SOCIAL_PROFILE_SAFETY_FAILED");
+      return frozen({ ok: true, code: intentName + "_APPLIED" });
+    }
+
+    async function block() {
+      if (!currentProfile || currentProfile.viewer_is_owner || !runtime.safety
+          || typeof runtime.safety.block !== "function") {
+        return failure("SOCIAL_PROFILE_BLOCK_UNAVAILABLE");
+      }
+      const profileId = currentProfile.profile_id;
+      let confirmed = false;
+      try {
+        confirmed = await confirmBlock(profileId);
+      } catch (_) {
+        confirmed = false;
+      }
+      if (!confirmed) return failure("SOCIAL_PROFILE_BLOCK_CANCELLED");
+      return runSafetyMutation(
+        "SOCIAL_PROFILE_BLOCK",
+        profileId,
+        function () { return runtime.safety.block(profileId); }
+      );
+    }
+
+    async function unblock() {
+      if (!blockedProfileId || !runtime.safety || typeof runtime.safety.unblock !== "function") {
+        return failure("SOCIAL_PROFILE_UNBLOCK_UNAVAILABLE");
+      }
+      const profileId = blockedProfileId;
+      return runSafetyMutation(
+        "SOCIAL_PROFILE_UNBLOCK",
+        profileId,
+        function () { return runtime.safety.unblock(profileId); }
+      );
+    }
+
+    function report() {
+      if (!currentProfile || currentProfile.viewer_is_owner || typeof onReport !== "function") return false;
+      return onReport("profile", currentProfile.profile_id) === true;
+    }
+
     function openEditor() {
       if (!currentProfile || !currentProfile.viewer_is_owner || !editForm) return false;
       editForm.hidden = false;
@@ -356,7 +456,7 @@
       return true;
     }
 
-    return frozen({ load, loadNext, save, message, openEditor });
+    return frozen({ load, loadNext, save, message, block, unblock, report, openEditor });
   }
 
   function mountCurrentSocialProfile(rootObject) {
@@ -396,7 +496,15 @@
       businessDescription: query("[data-social-profile-description]"),
       saveButton: query("[data-social-profile-save]"),
       messageButton: query("[data-social-profile-message]"),
+      blockButton: query("[data-social-profile-block]"),
+      unblockButton: query("[data-social-profile-unblock]"),
+      reportButton: query("[data-social-profile-report]"),
       auth: runtimeRoot.VVIP_AUTH,
+      confirmBlock: function () {
+        return typeof runtimeRoot.confirm === "function"
+          ? runtimeRoot.confirm("سيؤدي الحظر إلى إزالة الصداقة وإخفاء المحتوى والرسائل بينكما. هل تريد المتابعة؟")
+          : false;
+      },
       renderPost: function (row) {
         const normalized = feedModel.normalizeFeedPost(row);
         return normalized && normalized.ok === true
@@ -418,6 +526,11 @@
           runtimeRoot.TIGERSocialShell.showDestination("messages");
         }
         return result;
+      },
+      onReport: function (kind, profileId) {
+        const safety = runtimeRoot.TIGERSocialSafetyCurrent;
+        return Boolean(safety && typeof safety.openReport === "function"
+          && safety.openReport(kind, profileId));
       },
       onPostsRendered: function () {
         const reactions = runtimeRoot.TIGERSocialReactions;
@@ -443,6 +556,15 @@
     });
     query("[data-social-profile-message]")?.addEventListener("click", function () {
       void controller.message();
+    });
+    query("[data-social-profile-block]")?.addEventListener("click", function () {
+      void controller.block();
+    });
+    query("[data-social-profile-unblock]")?.addEventListener("click", function () {
+      void controller.unblock();
+    });
+    query("[data-social-profile-report]")?.addEventListener("click", function () {
+      controller.report();
     });
     runtimeRoot.TIGERSocialProfileCurrent = controller;
     return controller;

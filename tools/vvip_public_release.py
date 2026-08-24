@@ -72,6 +72,7 @@ PUBLIC_SCRIPT_FILES = (
     "scripts/social/profile-read-model.js",
     "scripts/social/reactions-controller.js",
     "scripts/social/comments-controller.js",
+    "scripts/social/safety-controller.js",
     "scripts/social/feed-controller.js",
     "scripts/social/post-composer.js",
     "scripts/social/friends-controller.js",
