@@ -40,6 +40,17 @@ test("repost persistence preserves original identity, privacy intersection, and 
   assert.doesNotMatch(sql, /auth\.uid\(\)/i);
 });
 
+test("repost snapshots are immutable to the Clerk actor while trusted synchronization can mirror the original body", () => {
+  const sql = fs.readFileSync(repostMigrationPath, "utf8");
+
+  assert.match(sql, /create function public\.vvip_social_guard_repost_snapshot_write\(\)/i);
+  assert.match(sql, /v_actor text := public\.vvip_marketplace_actor_id\(\)/i);
+  assert.match(sql, /SOCIAL_REPOST_SNAPSHOT_IMMUTABLE/i);
+  assert.match(sql, /new\.body is distinct from v_original_body/i);
+  assert.match(sql, /new\.audience is distinct from old\.audience/i);
+  assert.match(sql, /create function public\.vvip_social_sync_repost_snapshot\(\)/i);
+});
+
 test("repost table is not browser-readable or directly mutable", () => {
   const sql = fs.readFileSync(repostMigrationPath, "utf8");
 
