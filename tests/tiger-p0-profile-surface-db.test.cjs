@@ -37,6 +37,16 @@ test("P0 Profile migration keeps the surface and keyset timeline actor-bound", (
   assert.doesNotMatch(sql, /\boffset\b/i);
 });
 
+test("P0 Profile timeline rejects cursors with null actor or target bindings", () => {
+  const sql = fs.readFileSync(migrationPath, "utf8");
+
+  assert.match(
+    sql,
+    /v_cursor_actor_profile_id\s+is\s+null[\s\S]{0,240}v_cursor_target_profile_id\s+is\s+null/i,
+    "nullable UUID comparisons must fail closed before actor and target context matching",
+  );
+});
+
 test("P0 Profile Surface is wired into the exact-head local-only Social DB rehearsal", () => {
   const workflow = fs.readFileSync(workflowPath, "utf8");
 
@@ -61,6 +71,7 @@ test("P0 Profile SQL proof executes boundary, privacy, lifecycle, and keyset beh
     "P0_PROFILE_OWNER_SURFACE=PASS",
     "P0_PROFILE_TIMELINE_VISIBILITY=PASS",
     "P0_PROFILE_CURSOR_BINDING=PASS",
+    "P0_PROFILE_NULL_CURSOR_BINDING=PASS",
     "P0_PROFILE_BLOCK_PRIVACY=PASS",
     "P0_PROFILE_LIFECYCLE_PRIVACY=PASS",
     "TIGER_P0_PROFILE_SURFACE_DB_BEHAVIOR=PASS",

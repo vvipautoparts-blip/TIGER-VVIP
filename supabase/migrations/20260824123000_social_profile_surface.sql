@@ -279,6 +279,8 @@ BEGIN
 
       IF v_cursor_version <> 2
          OR v_cursor_kind <> 'social_profile_timeline'
+         OR v_cursor_actor_profile_id IS NULL
+         OR v_cursor_target_profile_id IS NULL
          OR v_before_created_at IS NULL
          OR v_before_post_id IS NULL THEN
         RAISE EXCEPTION 'GATE5_CURSOR_INVALID';

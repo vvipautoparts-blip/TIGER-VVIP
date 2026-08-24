@@ -169,6 +169,13 @@ declare -A reviewed_migration_hashes=(
   # Any byte drift re-enters Steel Shield and the exact-head DB rehearsal.
   ["supabase/migrations/20260824120000_social_messaging_surface.sql"]="769a1f9bc537f3b324d8fc4a51206f24bb0553a6487168c77d109a284d8be602"
 
+  # P0 Profile Surface: reviewed with CRITICAL=0 and four classified lexical HIGH
+  # findings. Three are exact authenticated EXECUTE grants; the fourth is a bounded
+  # cursor IS NOT NULL predicate. Both profile reads derive an active actor, collapse
+  # blocked/lifecycle targets, keep subjects internal, and grant no raw table CRUD.
+  # Timeline cursors bind actor+target and every page rechecks current visibility.
+  ["supabase/migrations/20260824123000_social_profile_surface.sql"]="88c414e6a2b70e66784a96a1fe3d5930fc0900c2533c7ebce40a8ea4f789f0e4"
+
   # SYNAPSE S1 intent foundation: reviewed for actor-bound RPC-only writes,
   # FORCE RLS, expiry/revision invariants, and the expected lexical findings
   # on new-table NOT NULL rules, the scoped update, and exact RPC grants.

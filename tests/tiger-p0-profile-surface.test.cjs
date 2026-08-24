@@ -23,7 +23,7 @@ function element(tagName) {
     tagName: String(tagName || "div").toUpperCase(), textContent: "", value: "", hidden: false,
     disabled: false, children: [], dataset: {}, attrs: {}, className: "",
     append(...nodes) { this.children.push(...nodes); },
-    replaceChildren(...nodes) { this.children = [...nodes]; },
+    replaceChildren(...nodes) { this.children = [...nodes]; this.textContent = ""; },
     setAttribute(name, value) {
       this.attrs[name] = String(value);
       if (name.startsWith("data-")) {
@@ -59,7 +59,7 @@ function fixture(overrides) {
   const calls = [];
   const renderedPosts = [];
   const nodes = {
-    shell: element("section"), heading: element("h1"), details: element("div"), counts: element("div"),
+    shell: element("section"), heading: element("h1"), avatar: element("div"), details: element("div"), counts: element("div"),
     timeline: element("div"), unavailable: element("p"), status: element("p"), editButton: element("button"),
     editForm: element("form"), displayName: element("input"), avatarUrl: element("input"),
     businessName: element("input"), location: element("input"), specialization: element("input"),
@@ -147,6 +147,7 @@ test("unavailable and failed Profile loads clear stale details and timeline with
   await controller.load(publicProfileId);
   assert.equal(unavailable.nodes.shell.dataset.socialProfileView, "unavailable");
   assert.equal(unavailable.nodes.heading.textContent, "");
+  assert.equal(unavailable.nodes.avatar.textContent, "V");
   assert.equal(unavailable.nodes.timeline.children.length, 0);
   assert.doesNotMatch(unavailable.nodes.status.textContent, /block|deactiv|deleted|subject/i);
 

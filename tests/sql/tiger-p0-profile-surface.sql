@@ -169,6 +169,55 @@ end;
 $proof$;
 \echo P0_PROFILE_CURSOR_BINDING=PASS
 
+reset role;
+select public.vvip_gate5_cursor_encode(jsonb_build_object(
+  'v', 2,
+  'kind', 'social_profile_timeline',
+  'actor_profile_id', null,
+  'target_profile_id', :'bob_profile_id'::uuid,
+  'created_at', '9999-12-31T23:59:59Z',
+  'id', 'ffffffff-ffff-4fff-bfff-ffffffffffff'
+)) as null_actor_cursor
+\gset
+select public.vvip_gate5_cursor_encode(jsonb_build_object(
+  'v', 2,
+  'kind', 'social_profile_timeline',
+  'actor_profile_id', :'alice_profile_id'::uuid,
+  'target_profile_id', null,
+  'created_at', '9999-12-31T23:59:59Z',
+  'id', 'ffffffff-ffff-4fff-bfff-ffffffffffff'
+)) as null_target_cursor
+\gset
+
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"user_profilealice01"}', true);
+select set_config('vvip.test.profile_null_actor_cursor', :'null_actor_cursor', true);
+select set_config('vvip.test.profile_null_target_cursor', :'null_target_cursor', true);
+do $proof$
+declare
+  v_cursor text;
+begin
+  foreach v_cursor in array array[
+    current_setting('vvip.test.profile_null_actor_cursor'),
+    current_setting('vvip.test.profile_null_target_cursor')
+  ] loop
+    begin
+      perform public.vvip_social_list_profile_posts(
+        current_setting('vvip.test.profile_bob_id')::uuid,
+        v_cursor,
+        1
+      );
+      raise exception 'P0_PROFILE_NULL_CURSOR_BINDING_ALLOWED';
+    exception when others then
+      if sqlerrm <> 'GATE5_CURSOR_INVALID' then
+        raise;
+      end if;
+    end;
+  end loop;
+end;
+$proof$;
+\echo P0_PROFILE_NULL_CURSOR_BINDING=PASS
+
 select set_config('request.jwt.claims', '{"sub":"user_profilealice01"}', true);
 select public.vvip_social_block_profile(:'bob_profile_id'::uuid);
 select public.vvip_social_get_profile_surface(:'bob_profile_id'::uuid) as blocked_surface

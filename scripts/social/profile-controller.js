@@ -109,8 +109,8 @@
       counts.replaceChildren();
       timeline.replaceChildren();
       if (avatar) {
-        avatar.textContent = "V";
         avatar.replaceChildren?.();
+        avatar.textContent = "V";
       }
       if (editButton) editButton.hidden = true;
       if (editForm) editForm.hidden = true;
