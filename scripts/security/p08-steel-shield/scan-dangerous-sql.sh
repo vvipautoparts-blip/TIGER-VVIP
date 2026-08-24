@@ -155,6 +155,13 @@ declare -A reviewed_migration_hashes=(
   # block/privacy/lifecycle authority. Any byte drift re-enters review automatically.
   ["supabase/migrations/20260821133000_social_edge_keyset_convergence.sql"]="6a2195497edb441f4e0525d14c608e5934ae55e7b388937f189a777aeb6ba3cb"
 
+  # Social Reposts: reviewed with CRITICAL=0 and eight classified lexical HIGH findings.
+  # Four are new-table NOT NULL integrity rules, one is a bounded IS NOT NULL predicate,
+  # two are UPDATE trigger event clauses rather than unbounded statements, and one is an
+  # exact authenticated EXECUTE grant. Raw table CRUD remains revoked; visibility is the
+  # intersection of repost and original authority. Any byte drift re-enters review.
+  ["supabase/migrations/20260824111500_social_reposts.sql"]="1b4694956de038c004e6cdc9d505e1ed59a5a528cd8e7b37622b8713803254e4"
+
   # SYNAPSE S1 intent foundation: reviewed for actor-bound RPC-only writes,
   # FORCE RLS, expiry/revision invariants, and the expected lexical findings
   # on new-table NOT NULL rules, the scoped update, and exact RPC grants.
