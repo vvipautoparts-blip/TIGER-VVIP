@@ -66,7 +66,7 @@ function proofs() {
   ]));
 }
 
-function trustedContext() {
+function trustedContext(req = request()) {
   const trustedDna = validateTrustDna(dna());
   const currentEpochs = validateEpochVector(epochs());
   const releaseDnaSha256 = digestValidated(trustedDna, validateTrustDna);
@@ -85,7 +85,7 @@ function trustedContext() {
     },
     proofs: proofs(),
     revocation_state: createTrustedRevocationStateFixture({
-      request: request(),
+      request: req,
       releaseDnaSha256,
       nowMs: 1500,
     }),
@@ -196,8 +196,9 @@ test('expired, replayed, exhausted, revoked, and out-of-scope PCAL candidates fa
     'TRUST_SIGNAL_REVOKED',
   );
 
+  const otherRequest = { ...request(), resource_ref: 'market-item:other' };
   expectVerifyCode(
-    verifyPcalCandidate({ pcal, request: { ...request(), resource_ref: 'market-item:other' }, trustedContext: trustedContext(), consumeState: { uses: 0, replayed: false, revoked: false } }),
+    verifyPcalCandidate({ pcal, request: otherRequest, trustedContext: trustedContext(otherRequest), consumeState: { uses: 0, replayed: false, revoked: false } }),
     false,
     'TRUST_LEASE_SCOPE_MISMATCH',
   );
@@ -221,10 +222,16 @@ test('PCAL candidate dies when current epoch, DNA, Pulse, or replay binding chan
 
   const dnaContext = trustedContext();
   dnaContext.trust_dna = { ...dnaContext.trust_dna, source_sha: HEX('f', 40) };
+  const reboundDnaSha256 = digestValidated(dnaContext.trust_dna, validateTrustDna);
   dnaContext.trust_pulse = {
     ...dnaContext.trust_pulse,
-    release_dna_sha256: digestValidated(dnaContext.trust_dna, validateTrustDna),
+    release_dna_sha256: reboundDnaSha256,
   };
+  dnaContext.revocation_state = createTrustedRevocationStateFixture({
+    request: request(),
+    releaseDnaSha256: reboundDnaSha256,
+    nowMs: dnaContext.now_ms,
+  });
   expectVerifyCode(
     verifyPcalCandidate({ pcal, request: request(), trustedContext: dnaContext, consumeState: { uses: 0, replayed: false, revoked: false } }),
     false,
