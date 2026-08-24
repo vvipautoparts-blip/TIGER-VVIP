@@ -8,6 +8,7 @@ const workflow = fs.readFileSync(".github/workflows/tiger-social-db-rehearsal.ym
 const foundationBehavior = fs.readFileSync("tests/sql/tiger-social-core-foundation.sql", "utf8");
 const reactionBehavior = fs.readFileSync("tests/sql/tiger-social-reactions.sql", "utf8");
 const commentBehavior = fs.readFileSync("tests/sql/tiger-social-comments.sql", "utf8");
+const shareSaveBehavior = fs.readFileSync("tests/sql/tiger-social-share-save.sql", "utf8");
 
 test("Social DB rehearsal is exact-head and local-only", () => {
   assert.match(workflow, /github\.event\.pull_request\.head\.sha \|\| github\.sha/);
@@ -17,8 +18,13 @@ test("Social DB rehearsal is exact-head and local-only", () => {
   assert.doesNotMatch(workflow, /supabase db push|--linked|SUPABASE_ACCESS_TOKEN:\s*\$\{\{/);
 });
 
-test("Social DB rehearsal applies foundation reaction and comment proofs and always stops local stack", () => {
+test("Social DB rehearsal applies foundation reaction comment share-save and intent proofs and always stops local stack", () => {
   assert.match(workflow, /20260818150000_synapse_intent_foundation\.sql/);
+  assert.match(workflow, /20260824111500_social_reposts\.sql/);
+  assert.match(workflow, /TIGER_SOCIAL_REPOSTS_MIGRATION_SECURITY_REVIEW\.md/);
+  assert.match(workflow, /tests\/tiger-social-reposts-reviewed-migration-hash\.test\.cjs/);
+  assert.match(workflow, /tests\/tiger-social-share-save-closure\.test\.cjs/);
+  assert.match(workflow, /tests\/sql\/tiger-social-share-save\.sql/);
   assert.match(workflow, /scripts\/synapse\/intent-domain\.js/);
   assert.match(workflow, /tests\/tiger-synapse-intent-domain\.test\.cjs/);
   assert.match(workflow, /tests\/tiger-synapse-intent-db\.test\.cjs/);
@@ -32,6 +38,8 @@ test("Social DB rehearsal applies foundation reaction and comment proofs and alw
   assert.match(workflow, /node --test tests\/tiger-social-feed-controller\.test\.cjs/);
   assert.match(workflow, /node --test tests\/tiger-social-post-domain\.test\.cjs/);
   assert.match(workflow, /node --test tests\/tiger-social-runtime-publication\.test\.cjs/);
+  assert.match(workflow, /node --test tests\/tiger-social-share-save-closure\.test\.cjs/);
+  assert.match(workflow, /node --test tests\/tiger-social-reposts-reviewed-migration-hash\.test\.cjs/);
   assert.match(workflow, /tests\/sql\/tiger-social-core-foundation\.sql/);
   assert.match(workflow, /tests\/sql\/tiger-social-reactions\.sql/);
   assert.match(workflow, /tests\/sql\/tiger-social-comments\.sql/);
@@ -77,4 +85,19 @@ test("comment behavior proof covers RPC-only access visibility reply depth and o
   assert.match(commentBehavior, /COMMENT_HIDDEN_POST_DENIED=PASS/);
   assert.match(commentBehavior, /TIGER_SOCIAL_COMMENTS_DB_BEHAVIOR=PASS/);
   assert.match(commentBehavior, /rollback;/i);
+});
+
+test("share-save behavior proof covers least privilege privacy intersection idempotency immutability and fail-closed deletion", () => {
+  assert.match(shareSaveBehavior, /SHARE_SAVE_NO_DIRECT_BROWSER_CRUD=PASS/);
+  assert.match(shareSaveBehavior, /SHARE_SAVE_RPC_BOUNDARY=PASS/);
+  assert.match(shareSaveBehavior, /BOB_SAVE_IDEMPOTENT=PASS/);
+  assert.match(shareSaveBehavior, /REPOST_IDEMPOTENT=PASS/);
+  assert.match(shareSaveBehavior, /REPOST_WIDENING_AND_CHAIN_DENIAL=PASS/);
+  assert.match(shareSaveBehavior, /REPOST_PRIVACY_INTERSECTION=PASS/);
+  assert.match(shareSaveBehavior, /INVISIBLE_BOOKMARK_DENIED=PASS/);
+  assert.match(shareSaveBehavior, /REPOST_SNAPSHOT_IMMUTABLE=PASS/);
+  assert.match(shareSaveBehavior, /REPOST_SNAPSHOT_TRACKS_ORIGINAL=PASS/);
+  assert.match(shareSaveBehavior, /DELETED_ORIGINAL_FAILS_CLOSED=PASS/);
+  assert.match(shareSaveBehavior, /TIGER_SOCIAL_SHARE_SAVE_DB_BEHAVIOR=PASS/);
+  assert.match(shareSaveBehavior, /rollback;/i);
 });
