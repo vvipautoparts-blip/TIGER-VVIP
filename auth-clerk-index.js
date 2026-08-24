@@ -34,6 +34,7 @@
   ]);
   const LISTING_INTENTS = new Set(["TOGGLE_FAVORITE", "CONTACT_SELLER_INTERNAL"]);
   const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  const CLERK_USER_PATTERN = /^user_[A-Za-z0-9_-]{6,128}$/;
 
   let activeClerk = null;
   let listenerRegistered = false;
@@ -46,6 +47,18 @@
     const error = new Error(code);
     error.code = code;
     return error;
+  }
+
+  function hasActiveSession(clerk) {
+    return Boolean(
+      clerk
+      && clerk.isSignedIn === true
+      && clerk.user
+      && typeof clerk.user.id === "string"
+      && CLERK_USER_PATTERN.test(clerk.user.id)
+      && clerk.session
+      && typeof clerk.session.getToken === "function"
+    );
   }
 
   function safeReturnPath(locationLike, runtimeConfigLike) {
@@ -213,6 +226,10 @@
 
   async function completeSignedIn() {
     if (resumeInFlight) return;
+    if (!hasActiveSession(activeClerk)) {
+      if (activeClerk) lockSignedOut(activeClerk);
+      return;
+    }
     resumeInFlight = true;
     try {
       clearAuthError();
@@ -252,7 +269,7 @@
     if (listenerRegistered || !clerk || typeof clerk.addListener !== "function") return;
     listenerRegistered = true;
     clerk.addListener(function () {
-      if (clerk.isSignedIn) {
+      if (hasActiveSession(clerk)) {
         completeSignedIn().catch(recover);
         return;
       }
@@ -300,7 +317,7 @@
     showGate();
 
     const clerk = await resolveClerk();
-    if (clerk.isSignedIn) {
+    if (hasActiveSession(clerk)) {
       await completeSignedIn();
       return;
     }
@@ -310,7 +327,7 @@
   async function requireAuth(descriptor, resume) {
     const normalized = normalizeIntentDescriptor(descriptor);
     const clerk = await resolveClerk();
-    if (clerk.isSignedIn) {
+    if (hasActiveSession(clerk)) {
       clearStoredIntent();
       if (typeof resume === "function") await Promise.resolve(resume());
       return true;
@@ -338,6 +355,7 @@
     consumeStoredIntent,
     recover,
     safeReturnPath,
-    authError
+    authError,
+    hasActiveSession
   });
 });

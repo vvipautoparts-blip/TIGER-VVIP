@@ -199,6 +199,13 @@ declare -A reviewed_migration_hashes=(
   # and anon execution remain unavailable. Any byte drift re-enters review.
   ["supabase/migrations/20260824140000_social_search_discovery_surface.sql"]="520d5f3dc7bad2aae58d4f6f0aa2e62504e99ba6231971b63c4f861ea6d75a1b"
 
+  # P0 Social Account Lifecycle: reviewed with CRITICAL=0 and one exact
+  # authenticated EXECUTE grant. The subject-blind read RPC derives identity
+  # internally and returns only lifecycle state plus profile UUID. Raw profile
+  # CRUD remains revoked; deletion stays service-role-only and terminal. Any
+  # byte drift re-enters Steel Shield and the exact-head DB rehearsal.
+  ["supabase/migrations/20260824143000_social_account_lifecycle_surface.sql"]="3616254febcc3ad53b8b71faaf428bfb4dca35dc369e280ffd86d3eb64c7b1bf"
+
   # SYNAPSE S1 intent foundation: reviewed for actor-bound RPC-only writes,
   # FORCE RLS, expiry/revision invariants, and the expected lexical findings
   # on new-table NOT NULL rules, the scoped update, and exact RPC grants.

@@ -908,6 +908,32 @@
       },
     });
 
+    const accountLifecycle = Object.freeze({
+      state: async function () {
+        if (!hasRpcClient(client)) return unavailable();
+        return execute(
+          () => client.rpc("vvip_social_get_my_lifecycle_state", {}),
+          true
+        );
+      },
+
+      deactivate: async function () {
+        if (!hasRpcClient(client)) return unavailable();
+        return execute(
+          () => client.rpc("vvip_deactivate_my_social_profile", {}),
+          true
+        );
+      },
+
+      reactivate: async function () {
+        if (!hasRpcClient(client)) return unavailable();
+        return execute(
+          () => client.rpc("vvip_reactivate_my_social_profile", {}),
+          true
+        );
+      },
+    });
+
     return Object.freeze({
       posts,
       relationships,
@@ -919,6 +945,7 @@
       follows,
       feedPreferences,
       search,
+      accountLifecycle,
     });
   }
 

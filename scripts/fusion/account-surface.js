@@ -26,6 +26,20 @@
     const host = root.document.querySelector('[data-fusion-account-actions]');
     if (!host) return;
     host.replaceChildren();
+    const recovery = root.document.createElement('button');
+    recovery.type = 'button';
+    recovery.className = 'button button--quiet';
+    recovery.dataset.fusionAccountRecovery = 'true';
+    recovery.textContent = 'الأمان واستعادة الوصول';
+    recovery.addEventListener('click', function () {
+      const clerk = runtime && runtime.clerk;
+      if (!clerk || typeof clerk.openUserProfile !== 'function') {
+        setIdentity('تعذر فتح إدارة الأمان لدى مزود الهوية الآن.', true);
+        return;
+      }
+      clerk.openUserProfile({ routing: 'hash' });
+    });
+
     const signOut = root.document.createElement('button');
     signOut.type = 'button';
     signOut.className = 'button button--quiet';
@@ -41,6 +55,7 @@
         setIdentity('تعذر تسجيل الخروج الآن. حاول مرة أخرى.', true);
       });
     });
+    host.appendChild(recovery);
     host.appendChild(signOut);
   }
 
@@ -59,6 +74,11 @@
       const count = Array.isArray(listings) ? listings.length : 0;
       setIdentity([name, email, `${count} إعلان في حسابك`].filter(Boolean).join(' · '), false);
       renderActions(ready.runtime);
+      const lifecycle = root.TIGERSocialAccountLifecycleCurrent;
+      if (!lifecycle || typeof lifecycle.load !== 'function') {
+        throw new Error('ACCOUNT_LIFECYCLE_UNAVAILABLE');
+      }
+      await lifecycle.load();
     } catch (_) {
       setIdentity('تعذر تحميل بيانات الحساب الآمنة الآن.', true);
     } finally {

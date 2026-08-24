@@ -76,6 +76,10 @@ function installBrowserFixture(clerkOverrides) {
     mountSignIn(node, props) { mounted.push({ node, props }); },
     addListener(callback) { listener = callback; }
   }, clerkOverrides || {});
+  if (clerk.isSignedIn === true) {
+    clerk.user = clerk.user || { id: "user_authfixture01" };
+    clerk.session = clerk.session || { getToken() { return Promise.resolve("opaque"); } };
+  }
   global.VVIPRuntimeReady = Promise.resolve({ clerk });
 
   return {
@@ -179,6 +183,8 @@ test("signed-in listener reveals home and resumes an in-memory protected intent 
     assert.equal(typeof listener, "function");
 
     fixture.clerk.isSignedIn = true;
+    fixture.clerk.user = { id: "user_authfixture01" };
+    fixture.clerk.session = { getToken() { return Promise.resolve("opaque"); } };
     listener();
     listener();
     await new Promise((resolve) => setImmediate(resolve));
