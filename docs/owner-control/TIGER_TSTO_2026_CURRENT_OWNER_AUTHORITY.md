@@ -16,6 +16,8 @@
 
 **M14 implementation plan:** `docs/superpowers/plans/2026-08-24-tsto-m14-trust-nervous-system-continuous-revocation.md`
 
+**M15 approved design:** `docs/superpowers/specs/2026-08-24-tsto-m15-transparency-workload-identity-constellation-design.md`
+
 ## 1. Owner adoption
 
 The owner adopts **TSTO 2026** as the one current base architecture for TIGER trust and continuous authorization.
@@ -26,9 +28,9 @@ The implemented source sequence is:
 - **M13 — Runtime Attestation and Deployment Evidence Bridge**;
 - **M14 — Trust Nervous System and Continuous Revocation**.
 
-M14 is the owner-approved next TSTO organ after M13 and is now source-implemented on Draft PR #323. It extends TSTO; it does not create another trust architecture.
+The owner additionally approves **M15 — Transparency and Workload Identity Constellation** as the next TSTO design slice after M14. M15 is design-documented only at this authority state and is **not yet source-implemented**.
 
-TSTO is not an optional proposal and is not a parallel trust engine. `TSLTG` is the Genome subsystem inside TSTO, `SCAE` is the deterministic continuous-authority decision equation inside TSTO, and the M14 Trust Nervous System supplies authenticated bounded change/revocation state to that same decision path.
+TSTO is not an optional proposal and is not a parallel trust engine. `TSLTG` is the Genome subsystem inside TSTO, `SCAE` is the deterministic continuous-authority decision equation inside TSTO, M14 supplies authenticated bounded change/revocation state to that same decision path, and M15 is approved to add independently trusted workload-identity and transparency evidence to the existing TSTO constellation without creating another trust architecture.
 
 The owner direction remains a scope-control law:
 
@@ -50,11 +52,12 @@ The current architecture consists of these coordinated organs:
 8. **Evidence Constellation** — independent evidence classes; no percentage trust score for critical actions.
 9. **SCAE** — `ALLOW` only when every mandatory dimension for that action is satisfied; M14 adds provenance-enforced revocation-state evaluation.
 10. **PCAL** — Proof-Carrying Action Lease: bounded, exact-scope, short-lived authority rather than permanent privilege.
-11. **Digital Immune System** — later capability-scoped isolation beyond M14 signal/revocation source semantics; M16 remains separately gated.
-12. **Transparency Memory** — later bounded cryptographic transparency evidence.
-13. **Crypto Genome** — later cryptographic inventory and agility.
-14. **Sovereign Cell** — optional future confidential-computing tier only where a concrete threat model justifies it.
-15. **AI Sentinel** — analysis and explanation only; never sovereign permission or trusted evidence creation.
+11. **Transparency and Workload Identity Constellation** — M15 approved design for provenance-protected workload identity and transparency evidence cross-bound to the existing M13 runtime-attestation bridge; source implementation is not yet started.
+12. **Digital Immune System** — later capability-scoped isolation beyond M14 signal/revocation source semantics; M16 remains separately gated.
+13. **Transparency Memory** — later bounded cryptographic transparency history beyond the M15 live authorization evidence slice.
+14. **Crypto Genome** — later cryptographic inventory and agility.
+15. **Sovereign Cell** — optional future confidential-computing tier only where a concrete threat model justifies it.
+16. **AI Sentinel** — analysis and explanation only; never sovereign permission or trusted evidence creation.
 
 ## 3. Non-negotiable authority laws
 
@@ -65,13 +68,15 @@ TSTO must preserve all stricter current owner laws. For Private Market Genesis s
 3. Living Classified Fabric remains retired with no fallback.
 4. Advertising billing remains TIGER Pulse/country-payment authority and does not create buyer–seller transaction authority.
 5. Missing evidence never becomes permission.
-6. AI output, a UI role, administrator status, sponsorship, payment, workflow text, a source Boolean, an attestation-looking payload, or a signal-looking payload cannot mint sovereign authority.
-7. Raw private intent, PII, secrets, reusable capabilities, raw nonce/challenges, and unnecessary runtime-identifying evidence are not trust-output or advertising inventory.
-8. Production/Staging deployment, remote database mutation, release activation, secrets, DNS, and payment-provider changes remain separately gated operations.
+6. AI output, a UI role, administrator status, sponsorship, payment, workflow text, a source Boolean, an attestation-looking payload, a signal-looking payload, a workload-looking payload, or a transparency-looking receipt cannot mint sovereign authority.
+7. Raw private intent, PII, secrets, reusable capabilities, raw nonce/challenges, raw workload identifiers, private keys, and unnecessary runtime-identifying evidence are not trust-output or advertising inventory.
+8. Production/Staging deployment, remote database mutation, release activation, certificates, secrets, DNS, and payment-provider changes remain separately gated operations.
 9. A verifier `PASS` is evidence only and never equals SCAE `ALLOW` by itself.
 10. A trusted M14 signal `PASS` satisfies only its signal requirement and never equals SCAE `ALLOW` by itself.
 11. A trusted M14 `REVOKED` blocks only the exact governed capability scope to which it is bound; it does not create a global platform kill switch.
-12. Staging evidence can never satisfy Production and Production evidence can never be manufactured from source-only fixtures.
+12. A future trusted M15 workload/transparency constellation, once source-implemented and proven, may satisfy only its defined identity/transparency requirements and never equals SCAE `ALLOW` by itself.
+13. M14 `REVOKED` remains stronger than otherwise valid M15 evidence.
+14. Staging evidence can never satisfy Production and Production evidence can never be manufactured from source-only fixtures.
 
 ## 4. M9–M11 remain founding genes — no rebuild
 
@@ -86,6 +91,8 @@ TSTO consumes those facts. It does not replace the durable replay migration, cre
 M13 additionally requires that M10, M11, and an authenticated/fresh M13 verifier result be mutually consistent before runtime-attested deployment state can be derived.
 
 M14 does not change those facts. It adds a separate continuous signal/revocation requirement to the same exact-action authorization path.
+
+M15 design does not change those facts either. It is approved to require independently trusted workload-identity and transparency evidence only as additional exact-action evidence inside TSTO; it cannot manufacture M10, M11, M13, or M14 truth.
 
 ## 5. M12 implemented source boundary
 
@@ -172,7 +179,28 @@ M14 source completion may state only after exact-head repository verification is
 
 M14 sequence observation is intentionally in-process in this source slice. It does **not** claim distributed or cross-instance durable signal delivery/state.
 
-## 8. Explicit M13 non-claims
+## 8. M15 owner-approved design boundary
+
+**M15 — Transparency and Workload Identity Constellation** is owner-approved as the next TSTO slice after M14 and is design-documented at:
+
+`docs/superpowers/specs/2026-08-24-tsto-m15-transparency-workload-identity-constellation-design.md`
+
+M15 is **not yet source-implemented** at this authority state.
+
+The approved M15 design requires, before any source-completion claim:
+
+- closed `TIGER_WORKLOAD_IDENTITY_V1` with authenticated adapter provenance, exact release-DNA/runtime-artifact/environment binding, and bounded freshness;
+- closed `TIGER_TRANSPARENCY_RESULT_V1` with independently authenticated verifier/registry/statement/receipt digest binding and bounded live-use freshness;
+- a provenance-protected `TIGER_IDENTITY_TRANSPARENCY_CONSTELLATION_V1` derived only from the original trusted M13 deployment-attestation bridge result plus original trusted M15 workload and transparency results;
+- exact cross-binding of release DNA, runtime artifact, environment, workload identity, and source-controlled transparency policy references;
+- Contact/Handoff action-profile version 2 with `TRANSPARENCY` added to source-controlled mandatory proof geometry;
+- SCAE fail-closed behavior for missing, copied/untrusted, stale, runtime-mismatched, workload-mismatched, or transparency-mismatched constellation evidence;
+- preservation of all M12/M13/M14 semantics and precedence, including M14 `REVOKED` overriding otherwise valid M15 evidence;
+- source-only TDD with no network, cloud, remote database, certificate provisioning, DNS, secret, payment-provider, Production/Staging, or `main` mutation.
+
+M15 may not state `TRANSPARENCY_WORKLOAD_IDENTITY_CONSTELLATION_SOURCE_VERIFIED` until implementation exists and the exact branch head has fresh same-SHA GREEN verification evidence.
+
+## 9. Explicit M13 non-claims
 
 M13 source implementation does **not**:
 
@@ -189,7 +217,7 @@ M13 source implementation does **not**:
 
 M13 provider/verifier adapters remain replaceable boundaries. Provider-specific crypto verification, certificate-chain validation, cloud API calls, nonce issuance, or hardware appraisal are outside this source-only slice unless separately approved and evidenced later.
 
-## 9. Explicit M14 non-claims
+## 10. Explicit M14 non-claims
 
 M14 source implementation does **not**:
 
@@ -206,7 +234,27 @@ M14 source implementation does **not**:
 
 A source-only trusted adapter or fixture is not evidence that a Production/Staging signal issuer exists.
 
-## 10. Evidence discipline
+## 11. Explicit M15 non-claims
+
+The M15 approved design does **not** mean any M15 source capability exists yet and does **not** claim:
+
+- `PRODUCTION_WORKLOAD_IDENTITY_ACTIVE`;
+- `SPIFFE_ATTESTED` or `SPIFFE_CONFORMANT`;
+- `SCITT_VERIFIED` or `SCITT_CONFORMANT`;
+- `REKOR_VERIFIED` or `SIGSTORE_VERIFIED`;
+- `PRODUCTION_TRANSPARENCY_ACTIVE`;
+- real certificate-chain validation;
+- real external registry receipt verification;
+- real mTLS/OIDC workload federation;
+- Production/Staging workload registration;
+- `CONTACT_HANDOFF_ENABLED`;
+- `PRODUCTION_READY`;
+- remote deployment;
+- merge to `main`.
+
+A design document, future adapter API, fixture, digest, workflow success string, or receipt-looking object is not Production/Staging workload or transparency evidence.
+
+## 12. Evidence discipline
 
 The source files cannot safely embed their own final commit SHA as an authority fact because changing that SHA would change the commit itself.
 
@@ -219,25 +267,31 @@ Therefore current implementation truth is established by:
 
 Evidence from an older SHA remains historical only after the branch head changes.
 
-No source-only test fixture is real runtime attestation or live continuous-revocation evidence.
+No source-only test fixture is real runtime attestation or live continuous-revocation evidence. M15 design documentation is not implementation evidence and invalidates any attempt to carry the older M14 exact-head verification forward to the new branch head without fresh CI.
 
-## 11. Current owner truth
+## 13. Current owner truth
 
 The binding trust architecture is:
 
 `TSTO_2026_CURRENT_ONLY`
 
-The source implementation state is:
+The implemented source state remains:
 
 `M0_M14_SOURCE_IMPLEMENTED_ON_DRAFT_FEATURE_BRANCH`
 
-The M13 source completion truth remains:
+The next approved design state is:
+
+`M15_OWNER_APPROVED / DESIGN_DOCUMENTED / SOURCE_IMPLEMENTATION_NOT_STARTED`
+
+The M13 source completion truth remains historically established at its verified exact head:
 
 `RUNTIME_ATTESTATION_DEPLOYMENT_BRIDGE_SOURCE_VERIFIED`
 
-The M14 source completion truth is permitted only when the current exact branch head has matching GREEN external CI/rehearsal evidence:
+The M14 source completion truth was established at its prior exact verified head, but after M15 documentation commits the current branch head requires fresh same-SHA CI before any current-head verified statement is repeated:
 
 `TRUST_NERVOUS_SYSTEM_CONTINUOUS_REVOCATION_SOURCE_VERIFIED`
+
+No M15 source-completion statement is currently authorized.
 
 The deployment truth remains:
 
