@@ -81,7 +81,7 @@ test('AION authority preserves every mandatory owner-approved concept', () => {
   assert.ok(text.includes('TIGER AEGIS NEXUS'));
   assert.ok(text.includes('TIGER ORACLE IMMUNE CORE'));
   assert.match(text, /لا تملك أي سلطة CURRENT ولا fallback/);
-  assert.match(text, /لا يدعي أمانًا بنسبة 100%/);
+  assert.match(text, /ولا تدعي أمانًا بنسبة 100%/);
 });
 
 test('authority graph has exactly one CURRENT post-launch authority and resolves its canonical file', () => {
