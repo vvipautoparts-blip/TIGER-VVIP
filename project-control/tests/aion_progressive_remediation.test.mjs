@@ -41,7 +41,7 @@ function a5(level = 'L5_PREAPPROVED_REVERSIBLE_REMEDIATION') {
     freshness_deadline: '2026-08-25T16:30:00.000Z',
     simulation_refs: ['twin:a8-release', 'twin:a8-security'],
     policy_decisions: { constitution: true, policy: true, identity: true, provenance: true, evidence: true, recovery_path: true, risk_budget: true },
-    blast_radius: 'BOUNDED_COHORT',
+    blast_radius: 'MULTI_COHORT',
     provenance_refs: [`github:commit:${sourceSha}`],
     rollback_ref: 'rollback:a8-rate-limit',
     recovery_checkpoint_ref: 'recovery:a8-checkpoint',
@@ -68,7 +68,7 @@ function rollout(level = 'L5_PREAPPROVED_REVERSIBLE_REMEDIATION') {
     recovery_verified: true,
     preapproved: level === 'L5_PREAPPROVED_REVERSIBLE_REMEDIATION',
     reversible: true,
-    blast_radius: 'BOUNDED_COHORT',
+    blast_radius: 'MULTI_COHORT',
   });
 }
 
@@ -130,7 +130,7 @@ test('a failed guardrail yields rollback candidacy only for verified L5 preappro
 test('missing metrics and tampering fail closed', () => {
   const { passport, authorization } = a5();
   const { cost_rate: ignored, ...missing } = baseline;
-  assert.throws(() => createProgressiveRemediationRollout({ rollout_id: 'bad', created_at: '2026-08-25T15:31:00.000Z', passport, authorization, baseline: missing, guardrails, rollback_verified: true, recovery_verified: true, preapproved: true, reversible: true, blast_radius: 'BOUNDED_COHORT' }), (error) => error?.code === 'AION_REMEDIATION_METRICS_INVALID');
+  assert.throws(() => createProgressiveRemediationRollout({ rollout_id: 'bad', created_at: '2026-08-25T15:31:00.000Z', passport, authorization, baseline: missing, guardrails, rollback_verified: true, recovery_verified: true, preapproved: true, reversible: true, blast_radius: 'MULTI_COHORT' }), (error) => error?.code === 'AION_REMEDIATION_METRICS_INVALID');
   const value = rollout();
   assert.throws(() => verifyProgressiveRemediationRollout({ ...value, blast_radius: 'CHANGED' }), (error) => error?.code === 'AION_REMEDIATION_INTEGRITY_INVALID');
 });
