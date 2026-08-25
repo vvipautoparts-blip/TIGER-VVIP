@@ -32,7 +32,13 @@
 
 **المجال الآلي:** `post-launch-autonomy`
 
-**الحالة:** `CURRENT_ONLY / OWNER_APPROVED / IMPLEMENTATION_REQUIRED`
+**حالة السلطة/runtime:** `CURRENT_ONLY / OWNER_APPROVED / IMPLEMENTATION_REQUIRED`
+
+**حالة برنامج AION على فرع PR #271:** `BRANCH_A0_TO_A9_VERIFIED / PRODUCTION_NOT_ACTIVATED`
+
+**نقطة تحقق A9:** `ca76f5e1d8dcf60521b0d25545ed0c1c12d015ec` — أُغلقت عليها جميع بوابات GitHub العشر المطلوبة بنجاح على الـSHA نفسه.
+
+حالة السلطة/runtime أعلاه لا تتعارض مع اكتمال عقود A0→A9 على الفرع: التحقق الحالي يثبت **control-plane/branch implementation** فقط، ولا يعني تفعيل AION في Production، ولا يمنح runtime autonomy، ولا يصرح بأي تغيير في `main` أو Production.
 
 TIGER AION ∞ هو المرجع الوحيد لما بعد الإطلاق: التشغيل والاستقرار والنمو والأمن والاستعادة ومكافحة spam/fraud/abuse والقياس والتحديثات والدعم والامتثال حسب الدولة والتنظيف المستمر.
 
@@ -135,7 +141,8 @@ Authority Graph يجب أن يفشل مغلقًا عند duplicate current autho
 
 - `APPROVED` لا يعني `IMPLEMENTED`.
 - `IMPLEMENTED` لا يعني `VERIFIED`.
-- AION حاليًا يبدأ من **A0 Authority & Contract**؛ لا يدعي runtime autonomy قبل أدلة التنفيذ.
+- برنامج AION على فرع PR #271 وصل إلى `BRANCH_A0_TO_A9_VERIFIED` عند checkpoint `ca76f5e1d8dcf60521b0d25545ed0c1c12d015ec`.
+- هذا التحقق هو **PR branch/control-plane verification فقط**؛ الحالة التشغيلية هي `PRODUCTION_NOT_ACTIVATED`، ولا يمنح runtime autonomy ولا إذنًا بتغيير `main` أو Production.
 - لا يوصف exact head بأنه GREEN إلا بنتائج CI الحديثة على SHA نفسه.
 - لا يعتمد Preview أو فيديو أو Pages متقاعد.
 - أي Quality Gate RED يمنع وصف الرأس بأنه جاهز.
@@ -170,4 +177,4 @@ AION لا يستطيع تغيير هذه الحدود بنفسه:
 
 ## 9. العبارة المختصرة الملزمة
 
-> **مرجع مالك واحد، Authority Graph واحد، وسلطة CURRENT واحدة لكل domain. في ما بعد الإطلاق: TIGER AION ∞ فقط. تتخيل TIGER مستقبلها، تختبره في Twin Swarm وSynthetic Society، تحمل كل عملية حساسة Action Passport، تستعيد نفسها فعليًا، تنظف entropy باستمرار، وتقيّد الذكاء الاصطناعي بدستور وإثبات وصلاحيات. AEGIS وORACLE وأي Post-Launch قديم متعارض بلا سلطة وبلا fallback.**
+> **مرجع مالك واحد، Authority Graph واحد، وسلطة CURRENT واحدة لكل domain. في ما بعد الإطلاق: TIGER AION ∞ فقط. برنامج A0→A9 موثق كـ`BRANCH_A0_TO_A9_VERIFIED` مع `PRODUCTION_NOT_ACTIVATED` حتى وجود تفويض وأدلة تشغيل مستقلة. تتخيل TIGER مستقبلها، تختبره في Twin Swarm وSynthetic Society، تحمل كل عملية حساسة Action Passport، تستعيد نفسها فعليًا، تنظف entropy باستمرار، وتقيّد الذكاء الاصطناعي بدستور وإثبات وصلاحيات. AEGIS وORACLE وأي Post-Launch قديم متعارض بلا سلطة وبلا fallback.**
