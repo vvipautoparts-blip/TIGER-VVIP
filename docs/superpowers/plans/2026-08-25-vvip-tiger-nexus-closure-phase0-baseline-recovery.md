@@ -87,11 +87,11 @@ Expected: the assertion FAILS because the current Quality Gate invocation has `-
 Change the header from Markdown hard-break spacing:
 
 ```markdown
-**Date:** 2026-08-25  
-**Status:** OWNER-APPROVED DESIGN — WRITTEN SPEC REVIEW PENDING  
-**Branch:** `feat/one-field-living-discovery-20260822`  
-**PR:** #313  
-**Scope:** Close only the current Discovery context-isolation failures and V14 release-state/closure-proof failures.  
+**Date:** 2026-08-25
+**Status:** OWNER-APPROVED DESIGN — WRITTEN SPEC REVIEW PENDING
+**Branch:** `feat/one-field-living-discovery-20260822`
+**PR:** #313
+**Scope:** Close only the current Discovery context-isolation failures and V14 release-state/closure-proof failures.
 ```
 
 To whitespace-clean lines with identical semantic text:

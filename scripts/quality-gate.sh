@@ -311,6 +311,7 @@ if [ -f project-control/value-governance/zero-residue-cli.mjs ]; then
         "zero_residue" \
         node project-control/value-governance/zero-residue-cli.mjs \
             --check \
+            --source-commit-sha "$SOURCE_HEAD" \
             --report-json "$CLEANROOM_EVIDENCE_ROOT/zero-residue-proof.json"
 else
     echo "GATE_zero_residue=SKIP"

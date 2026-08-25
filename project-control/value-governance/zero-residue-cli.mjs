@@ -9,21 +9,35 @@ import { buildZeroResidueProof } from "./zero-residue.mjs";
 const EXIT_USAGE = 2;
 const EXIT_BLOCKED = 3;
 const EXIT_INTERNAL = 4;
+const GIT_SHA_PATTERN = /^[a-f0-9]{40}$/;
 
 function failUsage() {
   process.stderr.write("ZERO_RESIDUE_CLI_INVALID\n");
   process.exit(EXIT_USAGE);
 }
 
+function validateSourceCommitSha(value) {
+  if (value === null) return null;
+  if (!GIT_SHA_PATTERN.test(value)) failUsage();
+  return value;
+}
+
 function parseArgs(argv) {
   let check = false;
   let reportJson = null;
+  let sourceCommitSha = null;
 
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === "--check") {
       if (check) failUsage();
       check = true;
+      continue;
+    }
+    if (arg === "--source-commit-sha") {
+      if (sourceCommitSha !== null || index + 1 >= argv.length) failUsage();
+      sourceCommitSha = argv[index + 1];
+      index += 1;
       continue;
     }
     if (arg === "--report-json") {
@@ -36,7 +50,11 @@ function parseArgs(argv) {
   }
 
   if (!check && reportJson === null) failUsage();
-  return { check, reportJson };
+  return {
+    check,
+    reportJson,
+    sourceCommitSha: validateSourceCommitSha(sourceCommitSha)
+  };
 }
 
 function git(root, args) {
@@ -79,10 +97,29 @@ function worktreeEntries(root) {
   return output.split("\n").filter(Boolean);
 }
 
-function sourceIdentity(root) {
+function sourceIdentity(root, sourceCommitSha) {
+  const snapshotCommitSha = git(root, ["rev-parse", "HEAD"]).trim();
+  const snapshotTreeSha = git(root, ["rev-parse", "HEAD^{tree}"]).trim();
+
+  if (sourceCommitSha === null) {
+    return {
+      sourceCommitSha: snapshotCommitSha,
+      sourceTreeSha: snapshotTreeSha
+    };
+  }
+
+  git(root, ["cat-file", "-e", `${sourceCommitSha}^{commit}`]);
+  const sourceTreeSha = git(root, ["rev-parse", `${sourceCommitSha}^{tree}`]).trim();
+
+  if (sourceTreeSha !== snapshotTreeSha) {
+    const error = new Error("ZERO_RESIDUE_SOURCE_TREE_MISMATCH");
+    error.code = "ZERO_RESIDUE_SOURCE_TREE_MISMATCH";
+    throw error;
+  }
+
   return {
-    sourceCommitSha: git(root, ["rev-parse", "HEAD"]).trim(),
-    sourceTreeSha: git(root, ["rev-parse", "HEAD^{tree}"]).trim()
+    sourceCommitSha,
+    sourceTreeSha
   };
 }
 
@@ -99,7 +136,7 @@ function main() {
   const args = parseArgs(process.argv.slice(2));
   const root = repositoryRoot();
   const reportPath = ensureExternalReportPath(root, args.reportJson);
-  const source = sourceIdentity(root);
+  const source = sourceIdentity(root, args.sourceCommitSha);
 
   const proof = buildZeroResidueProof({
     ...source,
@@ -121,7 +158,9 @@ function main() {
 try {
   main();
 } catch (error) {
-  if (error && error.code === "ENOENT") {
+  if (error && error.code === "ZERO_RESIDUE_SOURCE_TREE_MISMATCH") {
+    process.stderr.write("ZERO_RESIDUE_SOURCE_TREE_MISMATCH\n");
+  } else if (error && error.code === "ENOENT") {
     process.stderr.write("ZERO_RESIDUE_GIT_UNAVAILABLE\n");
   } else {
     process.stderr.write("ZERO_RESIDUE_INTERNAL_ERROR\n");
