@@ -35,3 +35,4 @@ jobs:
           tests/tsn26-payout-reactivation.test.cjs
           tests/tsn26-settlement-lifecycle.test.cjs
           tests/tsn26-legacy-financial-guard.test.cjs
+          tests/tsn26-financial-schema-contract.test.cjs
