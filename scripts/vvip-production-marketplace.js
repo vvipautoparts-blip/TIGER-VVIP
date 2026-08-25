@@ -151,6 +151,7 @@
       AUTH_REQUIRED: "سجّل الدخول أولًا.",
       MARKETPLACE_COUNTRY_NOT_ACTIVE: "هذا السوق غير مفعّل رسميًا بعد.",
       LISTING_CREATE_FAILED: "تعذر حفظ الإعلان. تحقق من السوق والبيانات.",
+      LISTING_SUBMIT_FAILED: "تعذر إرسال الإعلان للمراجعة الآن.",
       MEDIA_LIMIT_EXCEEDED: "يمكن رفع سبع صور كحد أقصى.",
       MEDIA_MIME_INVALID: "الصور المدعومة: JPG وPNG وWebP فقط.",
       MEDIA_SIZE_INVALID: "إحدى الصور تتجاوز الحجم المسموح.",
@@ -159,8 +160,6 @@
       CURRENCY_INVALID: "رمز العملة غير صحيح.",
       PHONE_INVALID: "رقم التواصل غير صحيح.",
       LISTINGS_READ_FAILED: "تعذر تحميل الإعلانات الآن.",
-      ENTITLEMENT_REQUIRED: "اختر خدمة الظهور المناسبة قبل النشر.",
-      PUBLICATION_TRANSPORT_UNAVAILABLE: "النشر المدفوع لهذا السوق لم يُفعّل بعد. إعلانك محفوظ بأمان.",
       RUNTIME_BOOT_FAILED: "تعذر تشغيل الاتصال الآمن بالمنصة."
     };
     return messages[code] || "تعذر إكمال العملية بأمان. حاول مرة أخرى.";
@@ -190,8 +189,7 @@
       favorites: new Set(),
       repository: null,
       runtime: null,
-      draftListingId: null,
-      selectedPlan: null
+      draftListingId: null
     };
     let toastTimer = null;
     let searchTimer = null;
@@ -217,6 +215,7 @@
       showGate: function () { setView(false); },
       refresh: function () { return refresh(); }
     });
+
     function report(error) {
       console.warn("VVIP_MARKETPLACE_RECOVERY", error && error.code);
       showToast(messageFor(error), true);
@@ -231,9 +230,7 @@
     function shareListing(listing) {
       const url = root.location ? root.location.href.split("#")[0] + "#listing-" + encodeURIComponent(listing.listing_id) : "";
       const payload = { title: listing.title, text: listing.summary || listing.title, url: url };
-      if (root.navigator && typeof root.navigator.share === "function") {
-        return root.navigator.share(payload);
-      }
+      if (root.navigator && typeof root.navigator.share === "function") return root.navigator.share(payload);
       if (root.navigator && root.navigator.clipboard && typeof root.navigator.clipboard.writeText === "function") {
         return root.navigator.clipboard.writeText(url).then(function () {
           showToast("تم نسخ رابط الإعلان.", false);
@@ -406,13 +403,11 @@
           <div class="vvip-create-heading">
             <span class="vvip-step-kicker">VVIP TIGER STUDIO</span>
             <h2 id="production-listing-title">أنشئ إعلانك بحرية</h2>
-            <p>أكمل المحتوى أولًا، راجعه كما سيظهر، ثم اختر خدمة الظهور والدفع المناسبة لسوقك.</p>
+            <p>أضف المحتوى، راجعه كما سيظهر، ثم أرسله للمراجعة. الترويج الإعلاني خدمة مستقلة بعد اعتماد الإعلان.</p>
           </div>
           <div class="vvip-stepper" aria-label="مراحل إنشاء الإعلان">
             <span data-step-dot="content" class="is-active">1 المحتوى</span>
             <span data-step-dot="preview">2 المعاينة</span>
-            <span data-step-dot="plan">3 الظهور</span>
-            <span data-step-dot="payment">4 الدفع</span>
           </div>
           <form data-production-listing-form novalidate>
             <section class="vvip-create-step is-active" data-vvip-content-step data-step="content">
@@ -429,25 +424,10 @@
 
             <section class="vvip-create-step" data-vvip-preview-step data-step="preview" hidden>
               <div class="vvip-preview-card" data-vvip-preview-card></div>
-              <p class="vvip-trust-note">لن تُخصم أي قيمة في هذه المرحلة. يمكنك العودة والتعديل قبل اختيار الظهور.</p>
-              <div class="vvip-step-actions"><button class="button button--quiet" type="button" data-create-back="content">تعديل المحتوى</button><button class="button button--primary" type="button" data-save-draft>حفظ ومتابعة</button></div>
+              <p class="vvip-trust-note">سيُحفظ الإعلان ويُرسل للمراجعة. لن يظهر للعامة قبل الاعتماد.</p>
+              <div class="vvip-step-actions"><button class="button button--quiet" type="button" data-create-back="content">تعديل المحتوى</button><button class="button button--primary" type="button" data-save-draft>إرسال للمراجعة</button></div>
             </section>
 
-            <section class="vvip-create-step" data-vvip-plan-step data-step="plan" hidden>
-              <div class="vvip-step-intro"><span class="vvip-step-kicker">VISIBILITY</span><h3>اختر قوة الظهور المناسبة</h3><p>الأسعار والكمية تأتي من سياسة السوق المعتمدة؛ لا توجد أسعار عالمية مخفية أو ثابتة داخل الواجهة.</p></div>
-              <div class="vvip-plan-grid" data-vvip-plan-options></div>
-              <div class="vvip-step-actions"><button class="button button--quiet" type="button" data-create-back="preview">العودة للمعاينة</button><button class="button button--primary" type="button" data-create-next="payment" disabled>متابعة إلى الدفع</button></div>
-            </section>
-
-            <section class="vvip-create-step" data-vvip-payment-step data-step="payment" hidden>
-              <div class="vvip-payment-shell">
-                <span class="vvip-step-kicker">SECURE PAYMENT</span>
-                <h3>الدفع الآمن</h3>
-                <p data-vvip-payment-summary>سيظهر مزود الدفع المعتمد لهذا السوق بعد اختيار خدمة ظهور صالحة.</p>
-                <div class="vvip-security-row"><span>✓ تحقق من الجلسة</span><span>✓ سعر من سياسة الدولة</span><span>✓ لا نجاح وهمي</span></div>
-              </div>
-              <div class="vvip-step-actions"><button class="button button--quiet" type="button" data-create-back="plan">تغيير الظهور</button><button class="button button--primary" type="button" data-publish-listing>الدفع والنشر</button></div>
-            </section>
             <p data-production-progress class="vvip-progress" role="status" aria-live="polite"></p>
           </form>
         </section>
@@ -512,56 +492,12 @@
       return true;
     }
 
-    function approvedPlans() {
-      const config = state.runtime && state.runtime.config;
-      const raw = config && Array.isArray(config.visibilityPlans) ? config.visibilityPlans : [];
-      return raw.filter(function (plan) {
-        return plan && plan.id && plan.label && Number.isSafeInteger(Number(plan.priceMinor)) && Number(plan.priceMinor) > 0 && /^[A-Z]{3}$/.test(String(plan.currency || ""));
-      }).slice(0, 6);
-    }
-
-    function renderPlans() {
-      if (!modal) return;
-      const host = modal.querySelector("[data-vvip-plan-options]");
-      const next = modal.querySelector('[data-create-next="payment"]');
-      if (!host || !next) return;
-      host.replaceChildren();
-      state.selectedPlan = null;
-      next.disabled = true;
-      const plans = approvedPlans();
-      if (!plans.length) {
-        const emptyPlan = doc.createElement("div");
-        emptyPlan.className = "vvip-plan-empty";
-        emptyPlan.innerHTML = "<strong>خطط الظهور لم تُفعّل لهذا السوق بعد.</strong><span>إعلانك محفوظ كمسودة ولن نفترض سعرًا أو نخصم أي قيمة.</span>";
-        host.appendChild(emptyPlan);
-        return;
-      }
-      plans.forEach(function (plan) {
-        const button = doc.createElement("button");
-        button.type = "button";
-        button.className = "vvip-plan-card";
-        button.dataset.planId = String(plan.id);
-        const amount = formatMoney(Number(plan.priceMinor), String(plan.currency), doc.documentElement.lang || "ar");
-        const planLabel = doc.createElement("span");
-        planLabel.textContent = cleanText(plan.label, 80);
-        const planAmount = doc.createElement("strong");
-        planAmount.textContent = amount;
-        const planDescription = doc.createElement("small");
-        planDescription.textContent = cleanText(plan.description || "خدمة ظهور معتمدة لهذا السوق", 160);
-        button.append(planLabel, planAmount, planDescription);
-        button.addEventListener("click", function () {
-          state.selectedPlan = plan;
-          host.querySelectorAll(".vvip-plan-card").forEach(function (item) { item.classList.toggle("is-selected", item === button); });
-          next.disabled = false;
-        });
-        host.appendChild(button);
-      });
-    }
-
-    async function saveDraft(form) {
+    async function saveAndSubmit(form) {
       const progress = form.querySelector("[data-production-progress]");
-      if (!state.repository || typeof state.repository.createDraftWithMedia !== "function") throw uiError("RUNTIME_BOOT_FAILED");
-      progress.textContent = "جاري فحص الصور وحفظ مسودتك الآمنة…";
+      if (!state.repository || typeof state.repository.createDraftWithMedia !== "function" || typeof state.repository.submitForReview !== "function") {
+        throw uiError("RUNTIME_BOOT_FAILED");
+      }
+      progress.textContent = "جاري فحص الصور وحفظ الإعلان…";
       const files = validateFiles(form.elements.images.files);
       const processed = [];
       for (let index = 0; index < files.length; index += 1) {
@@ -571,19 +507,10 @@
       }
       const result = await state.repository.createDraftWithMedia(listingInput(form), processed);
       state.draftListingId = result.listing_id;
-      progress.textContent = "تم حفظ المسودة. اختر الآن خدمة الظهور المناسبة.";
-      renderPlans();
-      setCreateStep("plan");
-    }
-
-    async function preparePublication(form) {
-      const progress = form.querySelector("[data-production-progress]");
-      if (!state.draftListingId || !state.selectedPlan) throw uiError("ENTITLEMENT_REQUIRED");
-      if (!state.repository || typeof state.repository.prepareForPublication !== "function") throw uiError("PUBLICATION_TRANSPORT_UNAVAILABLE");
-      progress.textContent = "جاري التحقق من الاستحقاق والدفع…";
-      return state.repository.prepareForPublication(state.draftListingId, {
-        planId: state.selectedPlan.id
-      });
+      progress.textContent = "جاري إرسال الإعلان للمراجعة…";
+      await state.repository.submitForReview(state.draftListingId);
+      progress.textContent = "تم حفظ الإعلان وإرساله للمراجعة.";
+      return result;
     }
 
     function ensureModal() {
@@ -599,7 +526,6 @@
       const form = node.querySelector("form");
       if (form) form.reset();
       state.draftListingId = null;
-      state.selectedPlan = null;
       const progress = node.querySelector("[data-production-progress]");
       if (progress) progress.textContent = "";
       setCreateStep("content");
@@ -702,39 +628,18 @@
       const next = event.target.closest("[data-create-next]");
       if (next && modal) {
         const form = modal.querySelector("form");
-        const target = next.dataset.createNext;
-        if (target === "preview") {
-          if (renderPreview(form)) setCreateStep("preview");
-          return;
-        }
-        if (target === "payment") {
-          if (!state.selectedPlan) { report(uiError("ENTITLEMENT_REQUIRED")); return; }
-          const summary = modal.querySelector("[data-vvip-payment-summary]");
-          if (summary) summary.textContent = "سيتم توجيهك لمزود الدفع المعتمد لخطة " + cleanText(state.selectedPlan.label, 80) + ". لا يعتبر الإعلان منشورًا قبل تأكيد الدفع من الخادم.";
-          setCreateStep("payment");
-          return;
-        }
+        if (next.dataset.createNext === "preview" && renderPreview(form)) setCreateStep("preview");
+        return;
       }
 
       const back = event.target.closest("[data-create-back]");
       if (back) { setCreateStep(back.dataset.createBack); return; }
 
-      const save = event.target.closest("[data-save-draft]");
-      if (save && modal) {
-        save.disabled = true;
-        saveDraft(modal.querySelector("form")).catch(function (error) {
-          const progress = modal.querySelector("[data-production-progress]");
-          if (progress) progress.textContent = messageFor(error);
-          report(error);
-        }).finally(function () { save.disabled = false; });
-        return;
-      }
-
-      const publish = event.target.closest("[data-publish-listing]");
-      if (publish && modal) {
-        publish.disabled = true;
-        preparePublication(modal.querySelector("form")).then(function () {
-          showToast("تم تأكيد الاستحقاق والنشر من الخادم.", false);
+      const submit = event.target.closest("[data-save-draft]");
+      if (submit && modal) {
+        submit.disabled = true;
+        saveAndSubmit(modal.querySelector("form")).then(function () {
+          showToast("تم حفظ الإعلان وإرساله للمراجعة.", false);
           resetCreateFlow(modal);
           closeCreate();
           return refresh();
@@ -742,7 +647,7 @@
           const progress = modal.querySelector("[data-production-progress]");
           if (progress) progress.textContent = messageFor(error);
           report(error);
-        }).finally(function () { publish.disabled = false; });
+        }).finally(function () { submit.disabled = false; });
         return;
       }
 
