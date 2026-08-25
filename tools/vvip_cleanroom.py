@@ -760,7 +760,11 @@ def duplicate_disposition(paths: Sequence[str]) -> tuple[str, str]:
 def find_exact_duplicates(root: Path, files: Sequence[FileEntry]) -> list[dict[str, object]]:
     size_groups: dict[int, list[FileEntry]] = defaultdict(list)
     for entry in files:
-        if entry.size > 0 and entry.relative_path not in {str(REPORT_JSON), str(REPORT_MARKDOWN)}:
+        if (
+            entry.size > 0
+            and entry.relative_path not in {str(REPORT_JSON), str(REPORT_MARKDOWN)}
+            and not is_local_environment_path(entry.relative_path)
+        ):
             size_groups[entry.size].append(entry)
     candidates = [entry for entries in size_groups.values() if len(entries) > 1 for entry in entries]
     hashes: dict[str, str] = {}
