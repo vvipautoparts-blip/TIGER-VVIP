@@ -39,3 +39,4 @@ jobs:
           tests/tsn26-sovereign-quorum.test.cjs
           tests/tsn26-treasury-reconciliation.test.cjs
           tests/tsn26-payout-authorization.test.cjs
+          tests/tsn26-verified-exposure.test.cjs
