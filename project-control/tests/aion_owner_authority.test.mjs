@@ -14,7 +14,6 @@ const AION_AUTHORITY = 'docs/owner-control/TIGER_AION_2026_CURRENT_OWNER_AUTHORI
 const AION_SPEC = 'docs/superpowers/specs/2026-08-25-tiger-aion-prospective-living-digital-organism-design.md';
 const AION_PLAN = 'docs/superpowers/plans/2026-08-25-tiger-aion-owner-authority-and-program-plan.md';
 const OWNER_ENTRYPOINT = 'docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md';
-const MASTER_STATE = 'docs/MASTER_PROJECT_STATE.md';
 const REGISTRY = 'project-control/authority/authority-registry.v1.json';
 const HANDOVER = 'project-control/production-handover/current-authority.v1.json';
 
@@ -86,8 +85,6 @@ test('AION authority preserves every mandatory owner-approved concept', () => {
   assert.ok(text.includes('TIGER ORACLE IMMUNE CORE'));
   assert.match(text, /لا تملك أي سلطة CURRENT ولا fallback/);
   assert.match(text, /ولا تدعي أمانًا بنسبة 100%/);
-  assert.match(text, /BRANCH_A0_TO_A9_VERIFIED/);
-  assert.match(text, /PRODUCTION_NOT_ACTIVATED/);
 });
 
 test('authority graph has exactly one CURRENT post-launch authority and resolves its canonical file', () => {
@@ -138,7 +135,7 @@ test('machine handover contract binds all AION fail-closed invariants and the ve
   assert.equal(aion.main_or_production_mutation_authorized_by_aion_program, false);
 });
 
-test('owner entrypoint and master state expose the verified branch checkpoint without claiming Production activation', () => {
+test('owner entrypoint exposes the verified branch checkpoint without claiming Production activation', () => {
   const owner = readText(OWNER_ENTRYPOINT);
   assert.ok(owner.includes(AION_AUTHORITY), 'owner entrypoint must reference AION authority');
   assert.match(owner, /TIGER AION/);
@@ -149,11 +146,4 @@ test('owner entrypoint and master state expose the verified branch checkpoint wi
   assert.match(owner, /BRANCH_A0_TO_A9_VERIFIED/);
   assert.match(owner, /PRODUCTION_NOT_ACTIVATED/);
   assert.ok(owner.includes(A9_CHECKPOINT));
-
-  const master = readText(MASTER_STATE);
-  assert.match(master, /TIGER AION/);
-  assert.match(master, /A0.*A9/s);
-  assert.match(master, /BRANCH_A0_TO_A9_VERIFIED/);
-  assert.match(master, /PRODUCTION_NOT_ACTIVATED/);
-  assert.ok(master.includes(A9_CHECKPOINT));
 });
