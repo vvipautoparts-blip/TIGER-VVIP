@@ -6,6 +6,11 @@
 
 # Dependency and tool output
 node_modules/
+.venv/
+venv/
+.virtualenv/
+.tox/
+.nox/
 __pycache__/
 *.py[cod]
 .pytest_cache/

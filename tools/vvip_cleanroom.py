@@ -122,6 +122,13 @@ CACHE_DIRECTORY_NAMES = {
 }
 BUILD_DIRECTORY_NAMES = {"build", "coverage", "dist", "out", "test-results"}
 DEPENDENCY_DIRECTORY_NAMES = {"bower_components", "node_modules", "vendor"}
+LOCAL_ENVIRONMENT_ROOTS = frozenset({
+    ".venv",
+    "venv",
+    ".virtualenv",
+    ".tox",
+    ".nox",
+})
 TEMP_SUFFIXES = {".bak", ".backup", ".orig", ".pyc", ".rej", ".swo", ".swp", ".temp", ".tmp"}
 LOG_NAMES = {"npm-debug.log", "pnpm-debug.log", "yarn-error.log"}
 PROTECTED_ROOTS = {".agents", ".codex", ".git", "reports", "tools"}
@@ -332,10 +339,17 @@ def git_status_entries(root: Path) -> list[dict[str, str]]:
     )
 
 
+def is_local_environment_path(relative_path: str) -> bool:
+    parts = PurePosixPath(relative_path).parts
+    return bool(parts and parts[0].casefold() in LOCAL_ENVIRONMENT_ROOTS)
+
+
 def is_protected_path(relative_path: str) -> bool:
     path = PurePosixPath(relative_path)
     if not path.parts:
         return True
+    if is_local_environment_path(relative_path):
+        return False
     lower_parts = {part.casefold() for part in path.parts}
     generated_directory_names = {
         *(item.casefold() for item in CACHE_DIRECTORY_NAMES),
@@ -371,6 +385,8 @@ def garbage_reason(relative_path: str, *, tracked: bool, ignored: bool, is_dir: 
     name = path.name
     lower_name = name.casefold()
     parts = {part.casefold() for part in path.parts}
+    if is_local_environment_path(relative_path):
+        return "dependency output"
     if is_protected_path(relative_path):
         return None
     if path.parts and path.parts[0] in {"approved", "backups"}:
