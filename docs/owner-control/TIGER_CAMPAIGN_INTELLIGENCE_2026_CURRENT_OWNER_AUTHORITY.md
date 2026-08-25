@@ -1,9 +1,9 @@
 # VVIP TIGER — Campaign Intelligence 2026 — CURRENT OWNER AUTHORITY
 
-**Status:** `CURRENT_ONLY — BINDING OWNER AUTHORITY`  
-**Effective date:** `2026-08-18`  
-**Owner:** Platform Owner  
-**Scope:** advertising campaigns, verified distribution, campaign payment UX, delivery accounting, campaign controls, owner campaign command view  
+**Status:** `CURRENT_ONLY — BINDING OWNER AUTHORITY`
+**Effective date:** `2026-08-18`
+**Owner:** Platform Owner
+**Scope:** advertising campaigns, verified distribution, campaign payment UX, delivery accounting, campaign controls, owner campaign command view
 **Machine contract:** `project-control/advertising/campaign-intelligence-current-authority.v1.json`
 
 ## 1. Single current advertising product
