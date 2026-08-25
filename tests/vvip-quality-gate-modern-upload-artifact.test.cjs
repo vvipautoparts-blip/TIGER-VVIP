@@ -28,7 +28,9 @@ test("VVIP Quality Gate uses current immutable upload-artifact while preserving 
   const uploadBlock = workflow.match(/- name: Upload quality gate diagnostics[\s\S]*?(?=\n\s*- name:|$)/)?.[0] ?? "";
   assert.match(uploadBlock, /if:\s*always\(\)/);
   assert.match(uploadBlock, /name:\s*vvip-quality-gate-\$\{\{ env\.SOURCE_SHA \}\}/);
-  assert.match(uploadBlock, /path:\s*\/tmp\/vvip-quality-gate\.log/);
+  assert.match(uploadBlock, /path:\s*\|/);
+  assert.match(uploadBlock, /^\s*\/tmp\/vvip-quality-gate\.log\s*$/m);
+  assert.match(uploadBlock, /^\s*\/tmp\/vvip-cleanroom-evidence\s*$/m);
   assert.match(uploadBlock, /if-no-files-found:\s*error/);
   assert.match(uploadBlock, /retention-days:\s*14/);
 });
