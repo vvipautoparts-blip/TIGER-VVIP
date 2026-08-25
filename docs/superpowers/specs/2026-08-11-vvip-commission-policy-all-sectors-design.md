@@ -1,14 +1,28 @@
 # VVIP TIGER All-Sector Commission & Role Policy Design
 
-**Status:** OWNER APPROVED — 2026-08-11
+**Authority status:** `HISTORICAL_EVIDENCE_ONLY` — transaction/deal commission portions are **SUPERSEDED by Issue #312**.
+
+**Historical status:** OWNER APPROVED — 2026-08-11. This status records the decision that existed on that date; it is not current runtime authority for transaction-value commissions.
+
+## Current authority boundary
+
+`NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION`
+
+Transaction-value commission for advertised goods, services, or user-to-user/user-to-provider deals is retired. The current binding commercial boundary is:
+
+**DISCOVERY → RELEVANCE → EXPLANATION → CONTACT HANDOFF → TIGER STOPS**
+
+TIGER does not create or close the parties' deal, collect buyer/seller payment, run escrow between the parties, fulfill the advertised good/service, or take a percentage of that deal. Financial infrastructure is allowed only for TIGER's own platform-owned advertising and approved platform advertising services, including their credits/packages, adjustments/refunds, taxes/fees, treasury/accounting, and provider settlement for those platform-owned flows.
+
+The remainder of this file is retained as historical evidence and dependency context. Its transaction-commission percentages, redistribution rules, payout-engine requirements, and sector-wide transaction-commission instructions must not drive new runtime implementation. Non-conflicting identity-binding or historical role-cleanup material may be reused only when it is independently consistent with the active owner authorities and current repository contracts.
 
 ## Purpose
 
-This specification freezes the owner-approved commission redistribution, institutional role cleanup, and trusted worker-identity binding across every current and future sector. The rules are central and global; they must not be copied manually per sector.
+This specification historically froze the then-owner-approved commission redistribution, institutional role cleanup, and trusted worker-identity binding across every current and future sector. The historical rules were central and global; they must not be treated as current transaction-commission authority.
 
 ## Roles removed from the commission path
 
-The following roles/keys are removed from transaction commission distribution:
+The following roles/keys were removed from transaction commission distribution under the historical design:
 
 - `SECONDARY_MARKETER`: 4.30% / 430 units;
 - `SUPERVISOR`: 3.12% / 312 units;
@@ -18,27 +32,27 @@ Total removed share: **10.93% / 1093 units**.
 
 ## Redistribution
 
-The removed 10.93% is redistributed completely among exactly three destinations:
+Historical design only: the removed 10.93% was redistributed completely among exactly three destinations:
 
 - `SECTOR_MANAGER`;
 - `COUNTRY_EXECUTIVE_COMMISSIONER`;
 - `MARKETING`.
 
-Conceptual equal addition per destination is `10.93 / 3 = 3.643333...%`.
+Conceptual equal addition per destination was `10.93 / 3 = 3.643333...%`.
 
-Nominal resulting shares are:
+Nominal historical resulting shares were:
 
 - `SECTOR_MANAGER`: 4.30% + 3.643333...% = 7.943333...%;
 - `COUNTRY_EXECUTIVE_COMMISSIONER`: 5.47% + 3.643333...% = 9.113333...%;
 - `MARKETING`: 7.37% + 3.643333...% = 11.013333...%.
 
-Display values may be rounded to 7.94%, 9.11% and 11.01%, but the payout engine must never calculate by multiplying rounded display percentages.
+These values are historical evidence only and are not payout instructions for advertised-goods/services transactions.
 
 ## Exact money rule
 
-No monetary unit may be lost, duplicated or left suspended due to decimal rounding.
+The following rules describe the historical transaction-commission design and have no current runtime authority for advertised-goods/services deals.
 
-For every payout amount:
+For every historical payout amount the design required:
 
 1. calculate using integer minor units or an exact fixed-point/rational representation;
 2. allocate the exact distributable amount to the approved destinations;
@@ -46,21 +60,21 @@ For every payout amount:
 4. assert that the sum of destination allocations equals the exact source distributable amount;
 5. persist the allocation basis and rounding adjustment in audit evidence where the financial model stores payout detail.
 
-The engine must not use binary floating-point money arithmetic as the source of truth.
+The historical engine design did not use binary floating-point money arithmetic as the source of truth.
 
 ## Remaining marketer rule
 
-`PRIMARY_MARKETER` remains unchanged at 4.30% / 430 units unless a separate owner decision changes it.
+Historical design only: `PRIMARY_MARKETER` remained unchanged at 4.30% / 430 units unless a separate owner decision changed it. This is not current transaction-value commission authority.
 
 ## All-sector scope
 
-This policy applies identically to every current sector and every future sector. A sector must inherit the central policy rather than define a private copy of commission percentages.
+The historical policy applied identically to every current sector and every future sector. Issue #312 supersedes that transaction-commission scope. No sector may use this historical document to reactivate a commission or percentage tied to the value of an advertised-goods/services deal.
 
 No sector may retain the cancelled roles as hidden commission recipients.
 
 ## Trusted identity binding for every worker role
 
-Every person who receives a new operational/staff role in VVIP TIGER must have a trusted identity reference attached to the assignment. This applies to every surviving role and every sector.
+Every person who receives a new operational/staff role in VVIP TIGER must have a trusted identity reference attached to the assignment. This applies to every surviving role and every sector where the active role architecture still recognizes the assignment.
 
 The role-assignment surface must ask for exactly one of:
 
@@ -87,11 +101,11 @@ If the repository's canonical account identifier has a different presentation la
 
 ## Institutional role cleanup
 
-The owner decision is broader than removing three percentages.
+The historical owner decision was broader than removing three percentages. Role cleanup that remains non-conflicting may continue only under current active role/authorization authorities; nothing in this section restores transaction-value commission authority.
 
 ### `AREA_MANAGER`
 
-Where `area_manager` is an actual platform role, it is to be retired as a current operational/financial level. Cleanup must include, where present:
+Where `area_manager` is an actual platform role and active current authority retires it, cleanup includes, where present:
 
 - role catalogs and constants;
 - authority rank/hierarchy;
@@ -108,15 +122,15 @@ Historical records must not be destructively rewritten merely to erase the old n
 
 ### `SUPERVISOR`
 
-Any active commission, order-visibility or assignment authority tied to the retired transaction supervisor role must be removed or migrated. Legacy RLS/policies using `supervisor` must be audited and replaced safely rather than simply hidden in UI.
+Any active commission, order-visibility or assignment authority tied to the retired transaction supervisor role must not be inferred from this historical document. Legacy RLS/policies using `supervisor` must be audited against current authority and replaced safely rather than simply hidden in UI.
 
 ### `SECONDARY_MARKETER`
 
-Any active secondary-marketer recipient, referral slot, assignment column, payout branch, UI selector, report column, notification route or API key must be removed from current behavior. Historical financial/audit records remain readable as historical facts.
+No active secondary-marketer recipient, referral slot, payout branch, or other transaction-value commission path may be recreated from this historical design. Historical financial/audit records remain readable as historical facts.
 
 ## Alias and semantic-equivalent audit
 
-The implementation must search not only the exact requested keys but also semantic equivalents, including casing, snake/camel variants and Arabic labels such as:
+The implementation must search not only the exact historical keys but also semantic equivalents, including casing, snake/camel variants and Arabic labels such as:
 
 - مدير المنطقة;
 - مشرف;
@@ -125,25 +139,27 @@ The implementation must search not only the exact requested keys but also semant
 - supervisor;
 - area manager.
 
-An equivalent role may not survive merely because it has a different identifier.
+An equivalent transaction-commission role may not survive merely because it has a different identifier.
 
 ## Required central destinations
 
-If the current repository uses a different canonical identifier for a requested destination, implementation must map it explicitly rather than inventing a second authority system.
+The historical commission destinations above are not current payout destinations for advertised-goods/services transactions. If a similarly named role exists for a non-brokerage operational purpose, implementation must reconcile it with the repository's actual current authority model rather than infer financial rights from this file.
 
-In particular, `COUNTRY_EXECUTIVE_COMMISSIONER` must be reconciled with the repository's actual country-level authority model before production activation. No unsupported production role is to be fabricated silently.
+In particular, `COUNTRY_EXECUTIVE_COMMISSIONER` must not be fabricated as a production transaction-payout role from this historical design.
 
 ## Database and migration behavior
 
 Any database change must be forward-only and fail closed.
 
-Before dropping/retiring a role or constraint, the migration must account for existing assignments safely. It must not orphan users, payouts, audit references or foreign keys.
+Before dropping/retiring a role or constraint, the migration must account for existing assignments safely. It must not orphan users, historical payout/audit references or foreign keys.
 
-Production data mutation is not authorized by this design document alone. Repository migration preparation, tests and local/staging rehearsal may proceed; applying a Production migration remains a separate protected gate.
+Production data mutation is not authorized by this historical design document. Repository migration preparation, tests and local/rehearsal evidence may proceed; applying a Production migration remains a separate protected gate.
 
-## Payout engine contract
+## Historical payout engine contract
 
-There must be one canonical commission-policy source of truth consumed by all sectors. The payout engine must reject:
+The transaction-value payout engine described by this design is retired for advertised-goods/services transactions. No current runtime may use this file as a canonical commission-policy source.
+
+Historical requirements included rejecting:
 
 - unknown recipients;
 - retired recipients in new transactions;
@@ -153,41 +169,34 @@ There must be one canonical commission-policy source of truth consumed by all se
 - duplicate recipient allocation where uniqueness is required;
 - silent rounding loss.
 
+These bullets are retained only to explain historical behavior and aid safe retirement/audit.
+
 ## UI / reporting contract
 
-Current-operation screens must not offer or display retired roles as selectable/current recipients. Every current role-assignment form must collect the trusted identity reference described above. Historical reports may show retired roles only when clearly identified as historical/legacy data.
+Current-operation screens must not offer historical transaction-commission recipients or percentages as active deal-payment behavior. Every current role-assignment form must follow the active authorization/identity contracts. Historical reports may show retired roles only when clearly identified as historical/legacy data.
 
-Displayed percentages are presentation values; financial calculations use exact policy values and minor units.
+Any historical percentage display is evidence, not an instruction to calculate or pay a transaction-value commission.
 
 ## Testing and evidence
 
-Implementation requires tests covering at minimum:
+Current implementation evidence must prove, at minimum:
 
-- exact retired-role absence from new payout calculation;
-- semantic aliases do not reintroduce retired roles;
-- the redistribution reaches exactly the three approved destinations;
-- `PRIMARY_MARKETER` remains 4.30%;
-- the policy applies to every sector through one central source;
-- future/unknown sector inherits the same policy if otherwise valid;
-- exact-sum invariant for many payout sizes including values that produce remainders;
-- deterministic remainder allocation;
-- retired role cannot be newly assigned through active role APIs/UI;
-- every new role assignment requires `ACCOUNT_ID` or `CLERK_USER_ID`;
-- malformed and unsupported identity references are rejected;
-- trusted identity/account mismatch fails before Production activation;
-- semantic persistence retains the normalized binding;
-- legacy historical rows remain readable and unchanged;
+- transaction-value commission runtime for advertised goods/services remains retired and fail closed;
+- semantic aliases cannot reintroduce retired brokerage roles or payout paths;
+- historical rows remain readable and unchanged where retention is required;
 - RLS/authorization tests remain fail closed;
-- same-head quality/security checks pass.
+- same-head quality/security checks pass;
+- platform-owned advertising finance remains separated from organic relevance/fit and from buyer/seller/provider deal settlement;
+- no old percentage or payout instruction in this historical file can become active authority.
 
-## Zero-loss acceptance rule
+Historical tests that asserted redistribution or transaction-payout behavior are not current acceptance criteria unless rewritten for an explicitly allowed platform-owned advertising flow.
 
-No implementation is accepted if any active code path, database policy, role assignment path, payout path, report, dashboard or sector-local configuration can still create a new `SECONDARY_MARKETER`, `SUPERVISOR` or `AREA_MANAGER` financial/operational role contrary to this decision.
+## Zero-brokerage acceptance rule
 
-No new operational role assignment is accepted without a verified trusted identity/account binding.
+No implementation is accepted if any active code path, database policy, role assignment path, payout path, report, dashboard or sector-local configuration can use this historical design to create transaction-value commission, buyer/seller payout, escrow, settlement, or percentage-of-deal behavior for advertised goods/services.
 
-No implementation is accepted if any financial allocation fails exact reconciliation.
+For user-to-user/user-to-provider commerce, TIGER finds, explains, and hands off contact; the parties handle negotiation, agreement, payment, delivery/service, and completion outside TIGER.
 
 ## Safety boundaries
 
-This design does not authorize direct Production database mutation, real money movement, payout execution, payment-provider changes, secret changes, DNS changes, Clerk configuration changes, country activation or owner seeding. Implementation proceeds through isolated branch/PR, TDD, local/rehearsal evidence and protected gates.
+This historical design does not authorize direct Production database mutation, real-money movement, payout execution, payment-provider changes, secret changes, DNS changes, Clerk configuration changes, country activation or owner seeding. Implementation proceeds through isolated branch/PR, TDD, local/rehearsal evidence and protected gates.

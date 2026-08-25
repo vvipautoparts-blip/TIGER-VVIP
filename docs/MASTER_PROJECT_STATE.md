@@ -2,13 +2,16 @@
 
 > **GitHub/current refs are implementation truth. This file is the current execution-state authority.**
 > Binding owner decisions: `docs/owner-control/OWNER_BINDING_DECISIONS_2026-08-12.md`
+> Current discovery/commerce authority: Issue #312 + `docs/architecture/OWNER_AUTHORITY_REGISTRY.md`
 > Prior state preserved: `docs/state-archive/MASTER_PROJECT_STATE_PRE_20260812.md`
 
-**Checkpoint:** 2026-08-12
+**Checkpoint:** 2026-08-12 with 2026-08-22 commerce-authority correction
 **Repository:** `vvipautoparts-blip/TIGER-VVIP`
 **Checkpoint product/runtime base before PR #192 documentation merge:** `756dc5f7f2769e6405c98f156ba9a2484df25352`
 
 > PR #192 carries this ledger. Merging PR #192 necessarily creates a newer `main` SHA. Therefore the SHA above is the exact product/runtime base incorporated into this checkpoint, **not** a claim that it remains the post-#192 `main`. Every continuation must resolve current `main` from GitHub before using this ledger.
+
+> **Issue #312 correction:** For external user-to-user/user-to-provider advertised goods/services, current architecture is discovery → relevance → explanation → contact handoff, then TIGER stops. Historical transaction-value commission policy below is `HISTORICAL_EVIDENCE_ONLY`, `SUPERSEDED`, with `NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION`. Active finance is `KEEP_PLATFORM_FINANCE` only for platform-owned advertising, ad credits/packages, approved platform-owned services and their own refunds/adjustments/taxes/treasury/accounting. No current state in this ledger authorizes external-deal order creation, checkout, payment, payout, escrow, negotiation, settlement, fulfillment or commission.
 
 ## 1. Continuation protocol
 
@@ -21,8 +24,9 @@ Source precedence:
 1. repository bytes/current refs;
 2. exact-head CI/security evidence;
 3. current PR/commit metadata;
-4. this state ledger;
-5. historical chat/prose.
+4. Issue #312 / `docs/architecture/OWNER_AUTHORITY_REGISTRY.md` for discovery-commerce authority;
+5. this state ledger;
+6. historical chat/prose.
 
 Do not reuse stale authorization, fabricate human approval, bypass protected reviews, infer Production mutation/deployment, or treat a design document as runtime evidence.
 
@@ -38,7 +42,7 @@ The following material slices are already merged into the checkpoint base:
 
 - PR #190 — guest-first public marketplace with step-up authentication for protected actions.
 - PR #193 — complete removal/prohibition of commercial-register/business-registration product/data surface, with regression guard coverage.
-- PR #191 — central all-sector commission policy, retired-role cleanup, and trusted role identity binding.
+- PR #191 — historical central all-sector commission policy, retired-role cleanup, and trusted role identity binding. Its role/identity hardening remains relevant; its transaction-value commission semantics are superseded by Issue #312 and retained only as historical evidence.
 - PR #189 — VVIP TIGER experience convergence, content-first creation, seven-sector surface, modern card/FAB UX, guest-safe runtime behavior, step-up protected actions, and fail-closed publication/payment preparation.
 
 PR #187 was closed as superseded documentation after newer verified state evidence and the owner-state ledger replaced its old post-PR186 checkpoint purpose.
@@ -67,6 +71,8 @@ Protected checks on that reconciled head were GREEN:
 Human protected review was obtained from a reviewer with write access. PR #191 then merged through the protected repository gate as merge commit:
 
 `f3c94c1cdf9482c09731d122def8748c94164128`
+
+Its historical commission design is no longer current business authority after Issue #312; exact historical values remain preserved for audit/provenance only.
 
 ### PR #189
 
@@ -118,7 +124,7 @@ Repository implementation includes the approved experience-convergence direction
 - ordinary publication does not use a blanket human-review paperwork gate;
 - unavailable payment/publication transport fails closed instead of claiming false success.
 
-A selected visibility plan is not evidence of payment entitlement. Browser-supplied receipts are not sufficient to publish. Real paid-publication transport remains a separate trusted server/Production implementation and activation gate.
+A selected visibility plan is not evidence of payment entitlement. Browser-supplied receipts are not sufficient to publish. Real paid-publication transport remains a separate trusted server/Production implementation and activation gate for platform-owned advertising/services only.
 
 ## 6. Commercial register — abolished from active product/data surface
 
@@ -130,9 +136,26 @@ Historical provenance may remain only when explicitly non-operative/superseded.
 
 The active prohibition/regression guard is merged through PR #193.
 
-## 7. Finance / commission / worker identity state
+## 7. Finance / historical commission / worker identity state
 
-One central policy applies to all current and future sectors unless a later owner decision explicitly changes it.
+### Current finance authority
+
+`KEEP_PLATFORM_FINANCE` applies only to TIGER-owned monetization and obligations: advertising, ad credits/packages, boosts/listing visibility, approved platform-owned services, and their own refunds/adjustments/taxes/treasury/accounting/provider settlement. Paid delivery remains separate from organic relevance.
+
+For external user-to-user/user-to-provider advertised goods/services, the current platform boundary is discovery → relevance → explanation → contact handoff. TIGER does not create the external deal order, run checkout, take buyer/seller payment, hold escrow, negotiate, close, fulfill, settle, or take a percentage of deal value.
+
+### Historical commission evidence
+
+**Classification:** `HISTORICAL_EVIDENCE_ONLY` / `SUPERSEDED_BY_ISSUE_312`
+**Current effect:** `NO_RUNTIME_AUTHORITY_FOR_TRANSACTION_VALUE_COMMISSION`
+
+The historical PR #191 commission values are retained for provenance only:
+
+- historical `PRIMARY_MARKETER`: 4.30%;
+- historical removed total share: 10.93%;
+- historical redistribution to `SECTOR_MANAGER`, `COUNTRY_EXECUTIVE_COMMISSIONER`, and `MARKETING`.
+
+Those values cannot authorize current/future transaction-value commission, payout, brokerage, or percentage-of-external-deal behavior. Exact arithmetic/reconciliation concepts may be reused only for independently allowed platform-owned finance.
 
 Retired from new active operational/financial assignment paths:
 
@@ -142,20 +165,11 @@ Retired from new active operational/financial assignment paths:
 
 Geographic `area` remains a valid location/scope concept. Historical retired-role facts remain readable and are not rewritten as if they never existed.
 
-Commission policy:
-
-- `PRIMARY_MARKETER` remains 4.30%;
-- removed total share is 10.93%;
-- removed share is redistributed completely/equally in exact arithmetic to `SECTOR_MANAGER`, `COUNTRY_EXECUTIVE_COMMISSIONER`, and `MARKETING`;
-- display percentages are not the source of truth;
-- deterministic minor-unit allocation/reconciliation is required;
-- no unexplained residual or silent redirection is permitted.
-
 Every new operational/staff role assignment requires exactly one trusted identity reference: `ACCOUNT_ID` or `CLERK_USER_ID`.
 
 The browser may submit a reference but cannot prove the mapping. Trusted server resolution must verify the identity/account relationship for the intended subject before persistence/activation. Missing, malformed, unresolved, ambiguous, or mismatched identity fails closed.
 
-Repository implementation of this policy is merged through PR #191. This does **not** authorize a Production DB migration, real payout, or real-money movement.
+No part of the historical commission evidence authorizes a Production DB migration, real payout, real-money movement, or external-deal financial execution.
 
 ## 8. TIGER PULSE state
 
@@ -168,13 +182,14 @@ Binding boundaries:
 - paid influence cannot buy truth or bypass relevance/eligibility/risk/legal gates;
 - billable exposure requires trusted server evidence, de-duplication, policy versioning, identity/account linkage, audit, and financial reconciliation;
 - browser-side `is_billable=true` or equivalent is never financial authority;
-- Pulse/financial kill switches must not take down ordinary public browsing/search.
+- Pulse/financial kill switches must not take down ordinary public browsing/search;
+- Pulse finance is platform-owned advertising/service finance only, never external buyer/seller transaction execution.
 
 Detailed engineering reference:
 
 `docs/owner-control/TIGER_PULSE_ENGINEERING_EXECUTION_REFERENCE.md`
 
-That document is an approved engineering reference, not proof that real-money Pulse execution is live.
+That document is an approved engineering reference, not proof that real-money Pulse execution is live and not authority for external-deal payment execution.
 
 ## 9. Security / privacy constitution
 
@@ -194,9 +209,9 @@ The 12,000,000-user figure is an engineering scale target/model, not a verified 
 
 No release may claim support for 12 million users without reproducible representative infrastructure evidence including throughput, error rate, p50/p95/p99 latency, saturation/limits, recovery behavior, and workload mix.
 
-Before real-money activation, financial acceptance must include at least 5,000,000 varied simulated movements covering concurrency, retries, duplicates, timeout, insufficient balance, reservation/capture/release/refund, disputes, policy/role change, exposure de-duplication, dependency failure, and reconciliation.
+Before real-money activation for platform-owned advertising/services, financial acceptance must include at least 5,000,000 varied simulated movements covering concurrency, retries, duplicates, timeout, insufficient balance, reservation/capture/release/refund, disputes, policy/role change, exposure de-duplication, dependency failure, and reconciliation.
 
-Acceptance requires no unexplained money creation/loss, no duplicate replay charge/commission, balanced journals where applicable, authorized recipients only, and deterministic reconciliation.
+Acceptance requires no unexplained money creation/loss, no duplicate replay charge, balanced journals where applicable, authorized recipients only, and deterministic reconciliation. Historical duplicate-commission checks may remain as regression evidence but do not imply an active commission system.
 
 ## 11. Production / deployment truth boundary
 
@@ -225,9 +240,10 @@ PR #192 is the repository-backed owner-reference/current-state carrier.
 
 Canonical files:
 
-- `docs/owner-control/OWNER_BINDING_DECISIONS_2026-08-12.md` — binding owner decision source;
-- `docs/owner-control/VVIP_TIGER_OWNER_MASTER_DECISIONS_2026-08-12.md` — detailed permanent owner reference;
-- `project-control/owner/VVIP_TIGER_OWNER_DECISIONS_2026-08-12.json` — machine-readable owner-decision contract;
+- `docs/architecture/OWNER_AUTHORITY_REGISTRY.md` — current precedence for Issue #312 discovery/commerce authority;
+- `docs/owner-control/OWNER_BINDING_DECISIONS_2026-08-12.md` — binding owner decisions except where later explicitly superseded;
+- `docs/owner-control/VVIP_TIGER_OWNER_MASTER_DECISIONS_2026-08-12.md` — detailed permanent owner reference except where later explicitly superseded;
+- `project-control/owner/VVIP_TIGER_OWNER_DECISIONS_2026-08-12.json` — machine-readable owner-decision contract with local supersession markers;
 - `docs/MASTER_PROJECT_STATE.md` — current execution-state authority;
 - `docs/state-archive/MASTER_PROJECT_STATE_PRE_20260812.md` — preserved prior state.
 
@@ -248,8 +264,9 @@ PR #187 is already proven superseded and closed. Older AI, TigerPay, identity, c
 1. Resolve live `main` from GitHub after PR #192 merge; never assume the checkpoint-base SHA is still current.
 2. Continue legacy/open-PR reconciliation one evidence-backed chain at a time.
 3. Keep Production/country/real-money/provider mutations separately gated and explicitly evidenced.
-4. Return to deferred real-browser/manual evidence such as the PR36 real-image upload path only as a distinct manual-evidence task; do not mislabel its historical automated PASS as manual completion.
-5. Checkpoint this ledger again only after a material repository/Production state transition.
+4. Preserve Issue #312 discovery-only / zero-brokerage precedence in every new code/doc/data contract.
+5. Return to deferred real-browser/manual evidence such as the PR36 real-image upload path only as a distinct manual-evidence task; do not mislabel its historical automated PASS as manual completion.
+6. Checkpoint this ledger again only after a material repository/Production state transition.
 
 ## 15. Human-gate handling
 

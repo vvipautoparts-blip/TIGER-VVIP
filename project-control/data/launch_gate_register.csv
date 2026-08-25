@@ -7,7 +7,7 @@ GATE-05,Data Isolation,RLS and Storage policies pass A/B user tests,Automated po
 GATE-06,Marketplace Core,Create-review-publish-search-detail lifecycle passes E2E,E2E report and video evidence,Product/QA,not_started,
 GATE-07,Messaging Privacy,Only conversation parties can access messages and attachments,RLS/API tests,Security/QA,not_started,
 GATE-08,Country Readiness,"Each enabled country has legal, language, currency and prohibited-category approval",Country matrix approvals,Legal,not_started,
-GATE-09,Payment Integrity,"Hosted checkout, signed webhooks, idempotency and ledger reconciliation pass",Payment sandbox report,Finance/QA,not_started,
+GATE-09,Payment Integrity,"KEEP_PLATFORM_FINANCE under Issue #312: Hosted checkout, signed webhooks, idempotency and ledger reconciliation pass only for platform-owned advertising / platform advertising services; external-deal checkout/payment is prohibited",Platform advertising payment sandbox report,Finance/QA,not_started,
 GATE-10,Performance,Core Web Vitals and API/search SLOs pass at required load tiers,Load and RUM report,SRE,not_started,
 GATE-11,Weak Network,Core journeys work on constrained network profile with retry and low-data mode,Device/network test evidence,UX/QA,not_started,
 GATE-12,Accessibility,Critical journeys meet WCAG AA acceptance checks,Automated + manual audit,Accessibility Lead,not_started,

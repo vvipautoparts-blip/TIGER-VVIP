@@ -6,6 +6,11 @@
 
 # Dependency and tool output
 node_modules/
+.venv/
+venv/
+.virtualenv/
+.tox/
+.nox/
 __pycache__/
 *.py[cod]
 .pytest_cache/
@@ -26,6 +31,10 @@ out/
 supabase/.temp/
 /tmp/
 /.firebase/hosting.*.cache
+
+# Volatile cleanroom evidence
+/reports/vvip-cleanroom-report.json
+/reports/VVIP_CLEANROOM_REPORT.md
 
 # Local secrets and runtime environment
 .env

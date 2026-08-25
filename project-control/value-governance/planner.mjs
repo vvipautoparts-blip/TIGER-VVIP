@@ -245,3 +245,6 @@ export function buildNonExecutableCleanupPlan(decision) {
     planHash: hashCanonical(semanticPlan)
   });
 }
+
+export { buildCleanupTransactionManifest } from "./transaction-manifest.mjs";
+export { buildSecretSafeQuarantineManifest } from "./quarantine-manifest.mjs";

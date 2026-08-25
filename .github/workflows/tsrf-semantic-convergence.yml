@@ -9,6 +9,9 @@ on:
 permissions:
   contents: read
 
+env:
+  SOURCE_SHA: ${{ github.sha }}
+
 jobs:
   contract:
     runs-on: ubuntu-latest
@@ -16,6 +19,17 @@ jobs:
     steps:
       - name: Checkout exact head
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+
+      - name: Verify exact source SHA
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          echo "EXPECTED_SOURCE_SHA=$SOURCE_SHA"
+          echo "ACTUAL_SOURCE_SHA=$actual_sha"
+          test "$actual_sha" = "$SOURCE_SHA"
 
       - name: Set up Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
@@ -35,6 +49,17 @@ jobs:
     steps:
       - name: Checkout exact head
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+
+      - name: Verify exact source SHA
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          echo "EXPECTED_SOURCE_SHA=$SOURCE_SHA"
+          echo "ACTUAL_SOURCE_SHA=$actual_sha"
+          test "$actual_sha" = "$SOURCE_SHA"
 
       - name: Set up Deno
         uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed
@@ -51,6 +76,17 @@ jobs:
     steps:
       - name: Checkout exact head
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+
+      - name: Verify exact source SHA
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          echo "EXPECTED_SOURCE_SHA=$SOURCE_SHA"
+          echo "ACTUAL_SOURCE_SHA=$actual_sha"
+          test "$actual_sha" = "$SOURCE_SHA"
 
       - name: Set up Supabase CLI
         uses: supabase/setup-cli@ab058987d8d6c725971f6cf9d0b5c98467e30bd1
@@ -111,7 +147,17 @@ jobs:
       - name: Checkout exact head
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
         with:
+          ref: ${{ env.SOURCE_SHA }}
           fetch-depth: 0
+
+      - name: Verify exact source SHA
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          echo "EXPECTED_SOURCE_SHA=$SOURCE_SHA"
+          echo "ACTUAL_SOURCE_SHA=$actual_sha"
+          test "$actual_sha" = "$SOURCE_SHA"
 
       - name: Set up Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38

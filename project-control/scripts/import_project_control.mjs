@@ -3,17 +3,34 @@
  * Run on a trusted machine/server only. Never expose DATABASE_URL in a browser.
  * Usage:
  *   npm i postgres
- *   DATABASE_URL=postgresql://... node scripts/import_project_control.mjs
+ *   PROJECT_CONTROL_IMPORT_TARGET=development DATABASE_URL=postgresql://... node project-control/scripts/import_project_control.mjs
+ * For an approved remote development database, set PROJECT_CONTROL_IMPORT_ALLOWED_HOSTS
+ * to the exact hostname. Wildcards are denied by the preflight guard.
  */
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import postgres from 'postgres';
+import { validateProjectControlImport } from './project_control_import_guard.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..');
+const repoRoot = path.resolve(root, '..');
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) throw new Error('Missing DATABASE_URL');
+
+const registryText = await fs.readFile(
+  path.join(repoRoot, 'docs', 'architecture', 'OWNER_AUTHORITY_REGISTRY.md'),
+  'utf8'
+);
+
+validateProjectControlImport({
+  target: process.env.PROJECT_CONTROL_IMPORT_TARGET,
+  databaseUrl,
+  allowedHosts: process.env.PROJECT_CONTROL_IMPORT_ALLOWED_HOSTS ?? '',
+  registryText,
+});
+
 const sql = postgres(databaseUrl, { ssl: 'require', max: 1 });
 const read = async (name) => JSON.parse(await fs.readFile(path.join(root, 'data', name), 'utf8'));
 const phases = await read('phases.json');

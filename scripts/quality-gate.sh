@@ -7,6 +7,7 @@ TEMP_ROOT="$(mktemp -d /tmp/vvip-quality-gate.XXXXXX)"
 WORK="$TEMP_ROOT/TIGER-VVIP"
 FAIL=0
 PYTHON=""
+CLEANROOM_EVIDENCE_ROOT="/tmp/vvip-cleanroom-evidence"
 
 cleanup_temp() {
     python3 - "$TEMP_ROOT" <<'PY'
@@ -77,27 +78,9 @@ run_cleanroom_verify() {
     local rc=0
     local unexpected=0
 
-    "$PYTHON" tools/vvip_cleanroom.py --verify || rc=$?
-
-    while IFS= read -r line; do
-        [ -z "$line" ] && continue
-
-        path="${line:3}"
-
-        case "$path" in
-            reports/VVIP_CLEANROOM_REPORT.md|reports/vvip-cleanroom-report.json)
-                echo "ALLOWED_GENERATED_REPORT=$path"
-                ;;
-            *)
-                echo "UNEXPECTED_CLEANROOM_CHANGE=$line"
-                unexpected=1
-                ;;
-        esac
-    done < <(git status --porcelain=v1 -uall)
-
-    git restore --worktree -- \
-        reports/VVIP_CLEANROOM_REPORT.md \
-        reports/vvip-cleanroom-report.json 2>/dev/null || true
+    "$PYTHON" tools/vvip_cleanroom.py \
+        --verify \
+        --report-dir "$CLEANROOM_EVIDENCE_ROOT" || rc=$?
 
     if [ -n "$(git status --porcelain=v1 -uall)" ]; then
         echo "CLEANROOM_FINAL_WORKTREE=DIRTY"
@@ -142,6 +125,9 @@ cd "$ORIGINAL_ROOT"
 
 SOURCE_BRANCH="$(git branch --show-current)"
 SOURCE_HEAD="$(git rev-parse HEAD)"
+
+rm -rf "$CLEANROOM_EVIDENCE_ROOT"
+mkdir -m 700 -p "$CLEANROOM_EVIDENCE_ROOT"
 
 echo "============================================================"
 echo "VVIP TIGER ISOLATED QUALITY GATE"
@@ -318,6 +304,17 @@ if [ -f project-control/value-governance/cli.mjs ]; then
         node project-control/value-governance/cli.mjs --check
 else
     echo "GATE_continuous_value_governance=SKIP"
+fi
+
+if [ -f project-control/value-governance/zero-residue-cli.mjs ]; then
+    run_clean_gate \
+        "zero_residue" \
+        node project-control/value-governance/zero-residue-cli.mjs \
+            --check \
+            --source-commit-sha "$SOURCE_HEAD" \
+            --report-json "$CLEANROOM_EVIDENCE_ROOT/zero-residue-proof.json"
+else
+    echo "GATE_zero_residue=SKIP"
 fi
 
 if [ -f project-control/scripts/validate_v13_1_authority.mjs ]; then

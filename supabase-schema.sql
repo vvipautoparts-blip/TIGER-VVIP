@@ -286,10 +286,11 @@ CREATE POLICY "Users manage own sessions" ON public.user_sessions
   FOR ALL USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
+-- Legacy otp_codes is retained only as historical bootstrap compatibility.
+-- Direct browser/client access is intentionally fail-closed; current phone OTP
+-- runtime uses the isolated server-side challenge flow instead.
 DROP POLICY IF EXISTS "Users can manage otp by phone" ON public.otp_codes;
-CREATE POLICY "Users can manage otp by phone" ON public.otp_codes
-  FOR ALL USING (true)
-  WITH CHECK (true);
+REVOKE ALL PRIVILEGES ON TABLE public.otp_codes FROM public, anon, authenticated;
 
 -- Seed admin profile placeholder (replace user UUID after creating auth user)
 -- INSERT INTO public.profiles (id, full_name, phone, account_type, account_category, role, is_approved, subscription)
@@ -375,8 +376,7 @@ BEGIN
     WHERE conname = 'vehicle_catalog_unique_vehicle'
   ) THEN
     ALTER TABLE public.vehicle_catalog
-      ADD CONSTRAINT vehicle_catalog_unique_vehicle
-      UNIQUE (brand, model, year, body_type, category);
+      ADD CONSTRAINT vehicle_catalog_unique_vehicle UNIQUE (brand, model, year, body_type, category);
   END IF;
 END $$;
 
@@ -894,3 +894,41 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.lookup_profile_by_phone(text) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.lookup_profile_by_email(text) TO anon, authenticated;
+
+-- Issue #312 zero-brokerage convergence for fresh bootstrap.
+-- Legacy order/commission rows remain readable for audit where existing SELECT
+-- policies permit, but all new mutation paths fail closed.
+DROP POLICY IF EXISTS "Users can insert own orders" ON public.orders;
+DROP POLICY IF EXISTS "Users can update own orders" ON public.orders;
+DROP POLICY IF EXISTS "Users can insert own commissions" ON public.commissions;
+DROP POLICY IF EXISTS "Users can update own commissions" ON public.commissions;
+
+REVOKE INSERT, UPDATE, DELETE ON TABLE public.orders FROM public, anon, authenticated;
+REVOKE INSERT, UPDATE, DELETE ON TABLE public.commissions FROM public, anon, authenticated;
+
+CREATE OR REPLACE FUNCTION public.vvip_reject_legacy_brokerage_write()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SET search_path = pg_catalog
+AS $$
+BEGIN
+  RAISE EXCEPTION USING
+    ERRCODE = '42501',
+    MESSAGE = 'LEGACY_BROKERAGE_WRITE_RETIRED';
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.vvip_reject_legacy_brokerage_write()
+FROM public, anon, authenticated;
+
+DROP TRIGGER IF EXISTS vvip_zero_brokerage_write_lock ON public.orders;
+CREATE TRIGGER vvip_zero_brokerage_write_lock
+BEFORE INSERT OR UPDATE OR DELETE ON public.orders
+FOR EACH STATEMENT
+EXECUTE FUNCTION public.vvip_reject_legacy_brokerage_write();
+
+DROP TRIGGER IF EXISTS vvip_zero_brokerage_write_lock ON public.commissions;
+CREATE TRIGGER vvip_zero_brokerage_write_lock
+BEFORE INSERT OR UPDATE OR DELETE ON public.commissions
+FOR EACH STATEMENT
+EXECUTE FUNCTION public.vvip_reject_legacy_brokerage_write();
