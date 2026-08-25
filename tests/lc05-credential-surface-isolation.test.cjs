@@ -8,6 +8,7 @@ const test = require('node:test');
 const migrationPath = path.join(__dirname, '..', 'supabase', 'migrations', '20260808135000_lc05_credential_surface_isolation.sql');
 const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'lc05-credential-surface-isolation-rehearsal.yml');
 const CHECKOUT_V7_0_1_SHA = '3d3c42e5aac5ba805825da76410c181273ba90b1';
+const SETUP_NODE_V7_0_0_SHA = '820762786026740c76f36085b0efc47a31fe5020';
 
 function sql() {
   return fs.readFileSync(migrationPath, 'utf8');
@@ -70,4 +71,17 @@ test('LC05 workflow uses current immutable checkout without persisting repositor
   assert.match(checkoutBlock, /persist-credentials:\s*false/);
   assert.match(text, /permissions:\s*\n\s*contents:\s*read/);
   assert.match(text, /test "\$\(git rev-parse HEAD\)" = "\$SOURCE_SHA"/);
+});
+
+test('LC05 workflow uses current immutable setup-node without automatic package-manager caching', () => {
+  const text = workflow();
+  assert.match(
+    text,
+    new RegExp(`actions/setup-node@${SETUP_NODE_V7_0_0_SHA}`),
+    'LC05 must pin actions/setup-node v7.0.0 by immutable SHA'
+  );
+
+  const setupNodeBlock = text.match(/- uses: actions\/setup-node@[0-9a-f]{40}[\s\S]*?(?=\n\s*- (?:name:|uses:)|$)/)?.[0] ?? '';
+  assert.match(setupNodeBlock, /node-version:\s*["']22["']/);
+  assert.match(setupNodeBlock, /package-manager-cache:\s*false/);
 });
