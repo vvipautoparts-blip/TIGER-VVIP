@@ -37,7 +37,7 @@ ART-0035,,docx,VVIP_TIGER_Centralization_Execution_Report_AR.docx,docs/VVIP_TIGE
 ART-0036,,md,2026-07-20-global-platform-control-plane-implementation.md,docs/superpowers/plans/2026-07-20-global-platform-control-plane-implementation.md,2.1.0,3c37b6b10e38437283dd265ce17867b7199ccb060f55dc6d46d18abf7435706c,,generated_verified
 ART-0037,,md,2026-07-20-global-platform-control-plane-design.md,docs/superpowers/specs/2026-07-20-global-platform-control-plane-design.md,2.1.0,ddb35fb1e823152bd21c52a8cddbe1926eb718327cc8fc5b030a7c954c185ddf,,generated_verified
 ART-0038,,json,project_task.schema.json,schemas/project_task.schema.json,2.1.0,6a2f4f91d0e1250bfc31c847a62b33e324d9c1c1497a1ef197659851fce4e364,,generated_verified
-ART-0039,,mjs,import_project_control.mjs,scripts/import_project_control.mjs,2.1.0,92a94950e528154c6d634c1e7e29c1d8c65dc007aa69294b33d5011abca5887b,,generated_verified
+ART-0039,,mjs,import_project_control.mjs,scripts/import_project_control.mjs,2.1.0,8e357665452cd38963a1afbfb913e896db4de7c6b006af29a0e64e70480976d0,,generated_verified
 ART-0040,,mjs,validate_project_control.mjs,scripts/validate_project_control.mjs,2.1.0,65576f7748a5ee8c019585baef69372446056548c08b4329b0e3a868a6880a85,,generated_verified
 ART-0041,,docx,VVIP_TIGER_Global_Execution_Plan_AR.docx,sources/VVIP_TIGER_Global_Execution_Plan_AR.docx,2.1.0,edd11e409f4ae90075ff641dddd8b3fc6ff1319e13b43aea297c02a9db1dae2f,,generated_verified
 ART-0042,,json,VVIP_TIGER_Global_Execution_Plan_AR.json,sources/VVIP_TIGER_Global_Execution_Plan_AR.json,2.1.0,a34174dd68ad48640b5e351960779043d028cc058fcdc4470d0c4ae60fdcceb7,,generated_verified
