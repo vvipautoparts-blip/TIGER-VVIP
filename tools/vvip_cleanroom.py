@@ -29,6 +29,8 @@ from urllib.parse import unquote
 
 REPORT_JSON = PurePosixPath("reports/vvip-cleanroom-report.json")
 REPORT_MARKDOWN = PurePosixPath("reports/VVIP_CLEANROOM_REPORT.md")
+REPORT_JSON_NAME = "vvip-cleanroom-report.json"
+REPORT_MARKDOWN_NAME = "VVIP_CLEANROOM_REPORT.md"
 TOOL_PATH = PurePosixPath("tools/vvip_cleanroom.py")
 REPORT_PATHS = {str(REPORT_JSON), str(REPORT_MARKDOWN)}
 REPORT_SCHEMA_VERSION = 1
@@ -1133,13 +1135,9 @@ def write_if_changed(path: Path, content: str) -> bool:
     return True
 
 
-def _prepare_report_paths(root: Path) -> None:
-    report_directory = root / REPORT_JSON.parent
-    report_directory.mkdir(parents=True, exist_ok=True)
-    for relative in (REPORT_JSON, REPORT_MARKDOWN):
-        path = root / relative
-        if not path.exists():
-            path.touch()
+def resolve_report_paths(root: Path, report_dir: Path | None) -> tuple[Path, Path]:
+    directory = (root / "reports") if report_dir is None else report_dir.resolve()
+    return directory / REPORT_JSON_NAME, directory / REPORT_MARKDOWN_NAME
 
 
 def _remove_path(root: Path, relative_path: str, *, tracked: bool) -> bool:
@@ -1227,17 +1225,24 @@ def apply_cleanup(root: Path) -> int:
     return changes
 
 
-def execute(root: Path, mode: str, *, enforce_scope: bool = True) -> ExecutionResult:
+def execute(
+    root: Path,
+    mode: str,
+    *,
+    enforce_scope: bool = True,
+    report_dir: Path | None = None,
+) -> ExecutionResult:
     if mode not in {"audit", "apply", "verify"}:
         raise ValueError(f"unsupported mode: {mode}")
     root = root.resolve()
-    _prepare_report_paths(root)
+    json_path, markdown_path = resolve_report_paths(root, report_dir)
+    json_path.parent.mkdir(parents=True, exist_ok=True)
     cleanup_changes = apply_cleanup(root) if mode == "apply" else 0
     report = build_report(root, enforce_scope=enforce_scope)
     json_content = json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
     markdown_content = render_markdown(report)
-    write_if_changed(root / REPORT_JSON, json_content)
-    write_if_changed(root / REPORT_MARKDOWN, markdown_content)
+    write_if_changed(json_path, json_content)
+    write_if_changed(markdown_path, markdown_content)
     return ExecutionResult(accepted=bool(report["accepted"]), cleanup_changes=cleanup_changes, report=report)
 
 
@@ -1247,6 +1252,12 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     modes.add_argument("--audit", action="store_true", help="scan and report without cleanup")
     modes.add_argument("--apply", action="store_true", help="remove high-confidence generated garbage, then report")
     modes.add_argument("--verify", action="store_true", help="verify every cleanroom acceptance gate")
+    parser.add_argument(
+        "--report-dir",
+        type=Path,
+        default=None,
+        help="write volatile cleanroom evidence to this directory",
+    )
     return parser.parse_args(argv)
 
 
@@ -1255,14 +1266,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     mode = "audit" if args.audit else "apply" if args.apply else "verify"
     root = Path(__file__).resolve().parents[1]
     try:
-        result = execute(root, mode)
+        result = execute(root, mode, report_dir=args.report_dir)
     except (OSError, RuntimeError, ValueError) as error:
         print(f"cleanroom error: {type(error).__name__}", file=sys.stderr)
         return 2
+    json_path, markdown_path = resolve_report_paths(root, args.report_dir)
     print(f"cleanroom result: {'PASS' if result.accepted else 'FAIL'}")
     print(f"cleanup changes: {result.cleanup_changes}")
-    print(f"json report: {REPORT_JSON}")
-    print(f"markdown report: {REPORT_MARKDOWN}")
+    print(f"json report: {json_path}")
+    print(f"markdown report: {markdown_path}")
     return 0 if result.accepted else 1
 
 

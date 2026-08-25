@@ -32,6 +32,10 @@ supabase/.temp/
 /tmp/
 /.firebase/hosting.*.cache
 
+# Volatile cleanroom evidence
+/reports/vvip-cleanroom-report.json
+/reports/VVIP_CLEANROOM_REPORT.md
+
 # Local secrets and runtime environment
 .env
 .env.*
