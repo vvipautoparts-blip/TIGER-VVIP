@@ -59,3 +59,6 @@ jobs:
 
       - name: Run fail-closed repository analysis
         run: node project-control/value-governance/cli.mjs --check
+
+      - name: Verify zero residue read-only
+        run: node project-control/value-governance/zero-residue-cli.mjs --check
