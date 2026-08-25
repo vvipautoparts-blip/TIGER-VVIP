@@ -86,6 +86,7 @@ test("public Profile applies server-confirmed follow, mute, snooze, and rank con
     readModel: { normalizeProfileSurface: (value) => value },
     renderPost: () => element("article"),
     auth: { async requireAuth(intent, resume) { authCalls.push(intent); return resume(); } },
+    now: () => Date.parse("2026-08-25T11:00:00.000Z"),
   });
 
   assert.equal((await controller.load(PROFILE_ID)).ok, true);
