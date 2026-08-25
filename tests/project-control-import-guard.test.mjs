@@ -10,8 +10,8 @@ const registryText = fs.readFileSync(path.join(root, 'docs/architecture/OWNER_AU
 
 const { validateProjectControlImport } = await import('../project-control/scripts/project_control_import_guard.mjs');
 
-const localUrl = 'postgresql://user:secret@127.0.0.1:5432/tiger_dev';
-const remoteUrl = 'postgresql://user:secret@db.example.internal:5432/tiger_dev';
+const localUrl = 'postgresql://127.0.0.1:5432/tiger_dev';
+const remoteUrl = 'postgresql://db.example.internal:5432/tiger_dev';
 
 test('project-control import preflight is fail-closed for target, host, and authority', () => {
   assert.throws(
