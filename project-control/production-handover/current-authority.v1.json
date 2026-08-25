@@ -71,9 +71,14 @@
       "L6": "FORBIDDEN_UNRESTRICTED_PRODUCTION_MUTATION"
     },
     "implementation_stages": ["A0", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9"],
-    "current_stage": "A0_AUTHORITY_AND_CONTRACT",
-    "runtime_implementation_claim": "NOT_YET_VERIFIED",
-    "main_or_production_mutation_authorized_by_a0": false
+    "verified_stages": ["A0", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9"],
+    "current_stage": "A9_CRYPTO_AND_ATTESTED_HIGH_SECURITY_CELLS",
+    "runtime_implementation_claim": "BRANCH_A0_TO_A9_VERIFIED_PRODUCTION_NOT_ACTIVATED",
+    "branch_verification_scope": "PR_BRANCH_ONLY",
+    "production_activation_status": "NOT_AUTHORIZED",
+    "a9_verified_checkpoint_sha": "ca76f5e1d8dcf60521b0d25545ed0c1c12d015ec",
+    "main_or_production_mutation_authorized_by_a0": false,
+    "main_or_production_mutation_authorized_by_aion_program": false
   },
   "historical_evidence_authoritative": false,
   "baseline_sha": "1c39076c15e351de601f822275e556caeef43a34",
