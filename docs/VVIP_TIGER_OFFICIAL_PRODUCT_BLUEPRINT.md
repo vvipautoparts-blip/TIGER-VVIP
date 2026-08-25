@@ -1,6 +1,6 @@
 # VVIP TIGER — Official Product Blueprint
 
-**Status:** `CURRENT_ONLY`  
+**Status:** `CURRENT_ONLY`
 **Purpose:** stable top-level product constitution. Domain details live only in their current binding authority and machine contract; this file does not duplicate commercial catalogs or historical decisions.
 
 ## 1. Source-of-truth rule
