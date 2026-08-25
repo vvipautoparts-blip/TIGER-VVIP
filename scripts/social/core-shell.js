@@ -30,6 +30,11 @@
     });
   }
 
+  function refreshSynapse() {
+    const controller = window.TIGERSynapseLivingSurfaceCurrent;
+    if (controller && typeof controller.refresh === 'function') controller.refresh();
+  }
+
   function showDestination(destination) {
     if (!SOCIAL_DESTINATIONS.has(destination)) return false;
 
@@ -47,6 +52,7 @@
       setHidden(`[data-social-module-placeholder="${destination}"]`, false);
     }
 
+    refreshSynapse();
     return true;
   }
 
@@ -191,6 +197,7 @@
         }
       }
     });
+    refreshSynapse();
   }
 
   function installFeedEnhancer() {
@@ -328,6 +335,7 @@
     if (destination === 'profile') void openProfile(null);
     else showDestination(destination);
     installFeedEnhancer();
+    refreshSynapse();
   });
 
   window.TIGERSocialShell = Object.freeze({ showDestination, openProfile });
