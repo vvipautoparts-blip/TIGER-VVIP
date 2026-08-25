@@ -173,22 +173,6 @@
     return result ? result.data : null;
   }
 
-  function normalizePublicationIntent(listingId, options) {
-    const id = text(listingId, 64);
-    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) {
-      throw marketplaceError("LISTING_ID_INVALID");
-    }
-    const source = options && typeof options === "object" ? options : {};
-    const planId = text(source.planId || source.plan_id, 80);
-    if (!planId) throw marketplaceError("VISIBILITY_PLAN_REQUIRED");
-    const entitlementReceipt = text(source.entitlementReceipt || source.entitlement_receipt, 512);
-    return Object.freeze({
-      listingId: id,
-      planId: planId,
-      entitlementReceipt: entitlementReceipt
-    });
-  }
-
   function createMarketplaceRepository(options) {
     const client = options && options.client;
     const clerk = options && options.clerk;
@@ -429,16 +413,6 @@
       });
     }
 
-    function prepareForPublication(listingId, options) {
-      const intent = normalizePublicationIntent(listingId, options);
-      return protectedOperation({ name: "PREPARE_PUBLICATION", listingId: intent.listingId }, async function () {
-        // Publication remains intentionally fail-closed until a trusted server/edge
-        // transport verifies payment/visibility entitlement and performs the state
-        // transition. The browser cannot mint or substitute that trusted receipt.
-        throw marketplaceError("PUBLICATION_TRANSPORT_UNAVAILABLE");
-      });
-    }
-
     async function submitForReview(listingId) {
       actorId(clerk);
       const result = await client
@@ -502,7 +476,6 @@
       createDraft,
       uploadMedia,
       createDraftWithMedia,
-      prepareForPublication,
       submitForReview,
       createAndSubmit,
       toggleFavorite,
