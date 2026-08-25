@@ -41,6 +41,22 @@ test('database settlement contract independently enforces commercial percentages
   assert.match(text, /one_seller_or_direct_purchase/i);
 });
 
+test('settlement insert requires a matching captured payment proof', () => {
+  const text = sql();
+  assert.match(text, /validate_settlement_proofs/i);
+  assert.match(text, /from tsn26_finance\.payment_events/i);
+  assert.match(text, /event_type = 'CAPTURED'/i);
+  assert.match(text, /amount_tmu = new\.collected_tmu/i);
+});
+
+test('attributed settlement must match locked claim role and package', () => {
+  const text = sql();
+  assert.match(text, /from tsn26_finance\.sale_claims/i);
+  assert.match(text, /seller_role = new\.winning_role/i);
+  assert.match(text, /offer_id = new\.package_id/i);
+  assert.match(text, /status = 'LOCKED'/i);
+});
+
 test('financial truth tables reject update and delete through append-only trigger', () => {
   const text = sql();
   assert.match(text, /tsn26_finance\.deny_financial_mutation/i);
