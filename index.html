@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="styles/tiger-one/tokens.css">
   <link rel="stylesheet" href="styles/tiger-one/type.css">
   <link rel="stylesheet" href="styles/tiger-social/core-shell.css">
+  <link rel="stylesheet" href="styles/tiger-synapse/living-surface.css">
 
   <script defer crossorigin="anonymous" src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/ui@1/dist/ui.browser.js"></script>
   <script defer crossorigin="anonymous" data-clerk-publishable-key="pk_test_YWNjdXJhdGUtbXVsZS0yOC5jbGVyay5hY2NvdW50cy5kZXYk" src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"></script>
@@ -42,6 +43,9 @@
   <script defer src="scripts/fusion/progressive-composer.js"></script>
   <script defer src="scripts/fusion/account-surface.js"></script>
   <script defer src="scripts/fusion/single-surface-controller.js"></script>
+  <script defer src="scripts/synapse/intent-domain.js"></script>
+  <script defer src="scripts/synapse/intent-runtime-adapters.js"></script>
+  <script defer src="scripts/synapse/living-surface-controller.js"></script>
   <script defer src="scripts/social/runtime-adapters.js"></script>
   <script defer src="scripts/social/feed-read-model.js"></script>
   <script defer src="scripts/social/messaging-read-model.js"></script>
@@ -102,6 +106,23 @@
     <section data-tiger-one-pulse aria-label="مساحة الحملات الممولة" hidden></section>
 
     <section class="tiger-social-home" data-tiger-social-feed aria-label="آخر الأخبار والمنشورات" aria-hidden="false">
+      <section class="synapse-living-surface" aria-label="TIGER SYNAPSE">
+        <form class="synapse-intent-card" data-synapse-intent-entry>
+          <div><span class="eyebrow">TIGER SYNAPSE</span><h2>ماذا تحتاج الآن؟</h2></div>
+          <p>ابدأ محليًا. لا تُرسل النية إلى شبكة المطابقة إلا بعد تأكيدك الصريح.</p>
+          <div class="synapse-intent-card__row">
+            <label class="visually-hidden" for="synapse-intent-input">اكتب ما تحتاجه</label>
+            <input id="synapse-intent-input" data-synapse-intent-input maxlength="500" autocomplete="off" placeholder="مثال: أبحث عن سيارة كهربائية أو خدمة متخصصة">
+            <button type="submit">جهّز النية</button>
+          </div>
+          <p data-synapse-intent-status role="status" aria-live="polite"></p>
+        </form>
+        <section class="synapse-constellation-card" aria-labelledby="synapse-constellation-title">
+          <h2 id="synapse-constellation-title">Match Constellation</h2>
+          <div class="synapse-match-constellation" data-synapse-match-constellation aria-live="polite"></div>
+        </section>
+      </section>
+
       <div class="social-post-composer" data-social-post-composer>
         <span class="social-post-avatar" aria-hidden="true">V</span>
         <button class="social-post-trigger" type="button" data-social-post-trigger aria-haspopup="dialog">بماذا تفكر؟</button>
@@ -117,7 +138,6 @@
         <article class="social-story-card" aria-label="قصة عضو VVIP TIGER"><span class="social-story-card__avatar" aria-hidden="true">V</span><span>VVIP</span></article>
         <article class="social-story-card" aria-label="قصة عضو VVIP TIGER"><span class="social-story-card__avatar" aria-hidden="true">T</span><span>TIGER</span></article>
       </section>
-
       <section class="social-feed-items" data-social-feed-items aria-live="polite" aria-busy="true">
         <p class="social-feed-state" data-social-feed-state="loading" role="status">جارٍ تحميل آخر الأخبار…</p>
       </section>
@@ -223,6 +243,7 @@
       </header>
 
       <div class="social-profile__counts" data-social-profile-counts aria-label="إحصاءات الملف"></div>
+      <div class="synapse-profile-summary" data-synapse-profile-intent-summary role="status" aria-live="polite">لا توجد نية نشطة معروضة.</div>
       <p class="social-profile__status" data-social-profile-status role="status" aria-live="polite">جارٍ تحميل الملف الشخصي…</p>
       <p class="social-profile__unavailable" data-social-profile-unavailable role="status" hidden>هذا الملف غير متاح.</p>
 
@@ -258,6 +279,11 @@
         <div class="section-heading"><div><span class="eyebrow">VVIP TIGER MARKETPLACE</span><h1 id="marketplace-title">المنشورات والإعلانات التجارية</h1></div><p data-results-count></p></div>
         <div class="sector-filters" data-tiger-one-context-rail data-vvip-sector-filters role="group" aria-label="تصفية حسب القطاع"></div>
         <div class="search-rescue" data-search-rescue role="status" aria-live="polite" hidden></div>
+        <section class="synapse-marketplace-rescue" data-synapse-marketplace-rescue aria-label="تحويل البحث إلى نية محلية">
+          <p>إذا لم تجد نتيجة مناسبة، يمكنك تجهيز نيتك محليًا دون نشرها تلقائيًا.</p>
+          <button type="button" data-synapse-marketplace-rescue-trigger>جهّز النية من هذا البحث</button>
+          <p data-synapse-marketplace-rescue-status role="status" aria-live="polite"></p>
+        </section>
         <div class="listing-grid" id="marketplace-listings" data-vvip-marketplace-feed aria-live="polite" aria-busy="true"><article class="listing-skeleton" aria-hidden="true"></article><article class="listing-skeleton" aria-hidden="true"></article></div>
         <div class="empty-state" data-empty-state role="status" hidden><p>لا توجد نتائج متاحة وفق السوق والسياسة الحالية.</p></div>
       </section>
