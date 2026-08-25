@@ -14,6 +14,7 @@ const AION_AUTHORITY = 'docs/owner-control/TIGER_AION_2026_CURRENT_OWNER_AUTHORI
 const AION_SPEC = 'docs/superpowers/specs/2026-08-25-tiger-aion-prospective-living-digital-organism-design.md';
 const AION_PLAN = 'docs/superpowers/plans/2026-08-25-tiger-aion-owner-authority-and-program-plan.md';
 const OWNER_ENTRYPOINT = 'docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md';
+const MASTER_STATE = 'docs/MASTER_PROJECT_STATE.md';
 const REGISTRY = 'project-control/authority/authority-registry.v1.json';
 const HANDOVER = 'project-control/production-handover/current-authority.v1.json';
 
@@ -65,6 +66,9 @@ const mandatoryContractCapabilities = [
   'TIGER_CONSTITUTION',
 ];
 
+const verifiedStages = ['A0', 'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9'];
+const A9_CHECKPOINT = 'ca76f5e1d8dcf60521b0d25545ed0c1c12d015ec';
+
 test('AION authority, spec, and plan exist without placeholders', () => {
   for (const file of [AION_AUTHORITY, AION_SPEC, AION_PLAN]) {
     assert.ok(fs.existsSync(path.join(root, file)), `${file} must exist`);
@@ -82,6 +86,8 @@ test('AION authority preserves every mandatory owner-approved concept', () => {
   assert.ok(text.includes('TIGER ORACLE IMMUNE CORE'));
   assert.match(text, /لا تملك أي سلطة CURRENT ولا fallback/);
   assert.match(text, /ولا تدعي أمانًا بنسبة 100%/);
+  assert.match(text, /BRANCH_A0_TO_A9_VERIFIED/);
+  assert.match(text, /PRODUCTION_NOT_ACTIVATED/);
 });
 
 test('authority graph has exactly one CURRENT post-launch authority and resolves its canonical file', () => {
@@ -95,7 +101,7 @@ test('authority graph has exactly one CURRENT post-launch authority and resolves
   assert.deepEqual(current[0].protected_boundaries, ['main', 'production', 'owner-constitution', 'unrestricted-agent-mutation']);
 });
 
-test('machine handover contract binds all AION fail-closed invariants', () => {
+test('machine handover contract binds all AION fail-closed invariants and the verified A0-A9 branch state', () => {
   const contract = readJson(HANDOVER);
   const aion = contract.post_launch_autonomy;
   assert.equal(aion.mode, 'CURRENT_ONLY');
@@ -122,17 +128,32 @@ test('machine handover contract binds all AION fail-closed invariants', () => {
   assert.equal(aion.fail_closed_invariants.destructive_cleanup_requires_quarantine_and_evidence, true);
   assert.equal(aion.fail_closed_invariants.backup_green_requires_fresh_restore_proof, true);
   assert.equal(aion.autonomy_levels.L6, 'FORBIDDEN_UNRESTRICTED_PRODUCTION_MUTATION');
-  assert.equal(aion.current_stage, 'A0_AUTHORITY_AND_CONTRACT');
-  assert.equal(aion.runtime_implementation_claim, 'NOT_YET_VERIFIED');
-  assert.equal(aion.main_or_production_mutation_authorized_by_a0, false);
+  assert.deepEqual(aion.implementation_stages, verifiedStages);
+  assert.deepEqual(aion.verified_stages, verifiedStages);
+  assert.equal(aion.current_stage, 'A9_CRYPTO_AND_ATTESTED_HIGH_SECURITY_CELLS');
+  assert.equal(aion.runtime_implementation_claim, 'BRANCH_A0_TO_A9_VERIFIED_PRODUCTION_NOT_ACTIVATED');
+  assert.equal(aion.branch_verification_scope, 'PR_BRANCH_ONLY');
+  assert.equal(aion.production_activation_status, 'NOT_AUTHORIZED');
+  assert.equal(aion.a9_verified_checkpoint_sha, A9_CHECKPOINT);
+  assert.equal(aion.main_or_production_mutation_authorized_by_aion_program, false);
 });
 
-test('owner entrypoint names AION as the current post-launch authority and denies legacy fallback', () => {
-  const text = readText(OWNER_ENTRYPOINT);
-  assert.ok(text.includes(AION_AUTHORITY), 'owner entrypoint must reference AION authority');
-  assert.match(text, /TIGER AION/);
-  assert.match(text, /post-launch-autonomy|ما بعد الإطلاق/i);
-  assert.ok(text.includes('TIGER AEGIS NEXUS'));
-  assert.ok(text.includes('TIGER ORACLE IMMUNE CORE'));
-  assert.match(text, /HISTORICAL_ONLY|غير مخول|لا.*fallback/s);
+test('owner entrypoint and master state expose the verified branch checkpoint without claiming Production activation', () => {
+  const owner = readText(OWNER_ENTRYPOINT);
+  assert.ok(owner.includes(AION_AUTHORITY), 'owner entrypoint must reference AION authority');
+  assert.match(owner, /TIGER AION/);
+  assert.match(owner, /post-launch-autonomy|ما بعد الإطلاق/i);
+  assert.ok(owner.includes('TIGER AEGIS NEXUS'));
+  assert.ok(owner.includes('TIGER ORACLE IMMUNE CORE'));
+  assert.match(owner, /HISTORICAL_ONLY|غير مخول|لا.*fallback/s);
+  assert.match(owner, /BRANCH_A0_TO_A9_VERIFIED/);
+  assert.match(owner, /PRODUCTION_NOT_ACTIVATED/);
+  assert.ok(owner.includes(A9_CHECKPOINT));
+
+  const master = readText(MASTER_STATE);
+  assert.match(master, /TIGER AION/);
+  assert.match(master, /A0.*A9/s);
+  assert.match(master, /BRANCH_A0_TO_A9_VERIFIED/);
+  assert.match(master, /PRODUCTION_NOT_ACTIVATED/);
+  assert.ok(master.includes(A9_CHECKPOINT));
 });
