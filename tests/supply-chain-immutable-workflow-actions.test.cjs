@@ -1,65 +1,53 @@
-const fs = require('fs')
-const path = require('path')
-const assert = require('assert')
-const test = require('node:test')
+'use strict';
 
-const repoRoot = path.resolve(__dirname, '..')
-const workflowsDir = path.join(repoRoot, '.github', 'workflows')
-const immutableFullSha = /^[0-9a-f]{40}$/
-const requiredUploadArtifactSha = '043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const test = require('node:test');
 
-const collectYamlFiles = (dir) => {
-  if (!fs.existsSync(dir)) return []
-  return fs
-    .readdirSync(dir, { withFileTypes: true })
-    .flatMap((entry) => {
-      const absolutePath = path.join(dir, entry.name)
-      if (entry.isDirectory()) return collectYamlFiles(absolutePath)
-      return /\.ya?ml$/i.test(entry.name) ? [absolutePath] : []
-    })
-    .sort()
+const WORKFLOW_DIR = path.join(__dirname, '..', '.github', 'workflows');
+const IMMUTABLE_GITHUB_ACTION = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.\/-]+@[0-9a-f]{40}$/;
+const REQUIRED_UPLOAD_ARTIFACT_ACTION = 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a';
+
+function workflowFiles() {
+  return fs.readdirSync(WORKFLOW_DIR, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && /\.ya?ml$/i.test(entry.name))
+    .map((entry) => entry.name)
+    .sort();
 }
 
-test('all external workflow actions are pinned to immutable full-length SHAs', () => {
-  const violations = []
+function externalUses(text) {
+  return text
+    .split(/\r?\n/)
+    .map((line) => line.match(/^\s*-?\s*uses:\s*([^\s#]+)(?:\s+#.*)?$/)?.[1] || null)
+    .filter(Boolean)
+    .filter((value) => !value.startsWith('./'));
+}
 
-  for (const filePath of collectYamlFiles(workflowsDir)) {
-    const relativePath = path.relative(repoRoot, filePath).replace(/\\/g, '/')
-    const lines = fs.readFileSync(filePath, 'utf8').split(/\r?\n/)
+test('every current workflow pins every external GitHub Action to an immutable full commit SHA', () => {
+  const files = workflowFiles();
+  assert.ok(files.length > 0, 'workflow inventory must not be empty');
 
-    lines.forEach((line, index) => {
-      const match = line.match(/^\s*(?:-\s+)?uses:\s*([^\s#]+)(?:\s*(?:#.*)?)?$/)
-      if (!match) return
-
-      const usesTarget = match[1]
-      if (usesTarget.startsWith('./') || usesTarget.startsWith('docker://')) return
-
-      const atIndex = usesTarget.lastIndexOf('@')
-      if (atIndex <= 0 || atIndex === usesTarget.length - 1) {
-        violations.push(`${relativePath}:${index + 1} missing immutable ref: ${line.trim()}`)
-        return
+  const failures = [];
+  let externalActionCount = 0;
+  for (const file of files) {
+    const relativePath = `.github/workflows/${file}`;
+    const text = fs.readFileSync(path.join(WORKFLOW_DIR, file), 'utf8');
+    for (const action of externalUses(text)) {
+      externalActionCount += 1;
+      if (!IMMUTABLE_GITHUB_ACTION.test(action)) {
+        failures.push(`${relativePath}: ${action}`);
       }
-
-      const ref = usesTarget.slice(atIndex + 1).trim()
-      if (!immutableFullSha.test(ref)) {
-        violations.push(
-          `${relativePath}:${index + 1} expected 40-char lowercase SHA, got "${ref}"`,
-        )
+      if (action.startsWith('actions/upload-artifact@') && action !== REQUIRED_UPLOAD_ARTIFACT_ACTION) {
+        failures.push(`${relativePath}: expected ${REQUIRED_UPLOAD_ARTIFACT_ACTION}, got ${action}`);
       }
-
-      if (usesTarget.startsWith('actions/upload-artifact@') && ref !== requiredUploadArtifactSha) {
-        violations.push(
-          `${relativePath}:${index + 1} actions/upload-artifact must be pinned to ${requiredUploadArtifactSha}`,
-        )
-      }
-    })
+    }
   }
 
+  assert.ok(externalActionCount > 0, 'expected at least one external workflow action');
   assert.deepEqual(
-    violations,
+    failures,
     [],
-    violations.length
-      ? `Found non-immutable GitHub Action pins:\n${violations.join('\n')}`
-      : undefined,
-  )
-})
+    `mutable external workflow action references:\n${failures.join('\n')}`,
+  );
+});
