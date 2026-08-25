@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 const MAX_ID_LENGTH = 256;
 const MAX_LINEAGE_ITEMS = 128;
 const MAX_OBJECTIVE_SECONDS = 31_536_000;
+const SHA256_PATTERN = /^[a-f0-9]{64}$/;
 
 export class AionRecoveryError extends Error {
   constructor(code, message) {
@@ -64,8 +65,15 @@ function seal(value) {
 }
 
 function requireDigest(value, field) {
-  if (typeof value !== 'string' || !/^[a-f0-9]{64}$/.test(value)) {
+  if (typeof value !== 'string' || !SHA256_PATTERN.test(value)) {
     fail('AION_RECOVERY_INVALID', `${field} must be a sha256 digest`);
+  }
+  return value;
+}
+
+function requireRestoreDigest(value, field) {
+  if (typeof value !== 'string' || !SHA256_PATTERN.test(value)) {
+    fail('AION_RESTORE_PROOF_INVALID', `${field} must be a sha256 digest`);
   }
   return value;
 }
@@ -78,12 +86,24 @@ function requireSource(source) {
   });
 }
 
+function verifySealedDigest(record, code, label) {
+  const contentDigest = record?.content_digest;
+  if (typeof contentDigest !== 'string' || !SHA256_PATTERN.test(contentDigest)) {
+    fail(code, `${label} content digest is invalid`);
+  }
+  const { content_digest: ignored, ...payload } = record;
+  if (digest(payload) !== contentDigest) {
+    fail(code, `${label} content digest does not match its payload`);
+  }
+}
+
 function ensureCheckpoint(checkpoint) {
   if (!isPlainObject(checkpoint) || checkpoint.schema_version !== 'TIGER-AION-RECOVERY-CHECKPOINT-1') {
     fail('AION_RECOVERY_INVALID', 'invalid recovery checkpoint');
   }
   requireString(checkpoint.checkpoint_id, 'checkpoint.checkpoint_id');
-  requireDigest(checkpoint.content_digest, 'checkpoint.content_digest');
+  requireDigest(checkpoint.image_digest, 'checkpoint.image_digest');
+  verifySealedDigest(checkpoint, 'AION_RECOVERY_INTEGRITY_INVALID', 'recovery checkpoint');
 }
 
 function ensureRestoreProof(proof) {
@@ -91,7 +111,8 @@ function ensureRestoreProof(proof) {
     fail('AION_RESTORE_PROOF_INVALID', 'invalid restore proof');
   }
   requireString(proof.proof_id, 'restore_proof.proof_id');
-  requireDigest(proof.content_digest, 'restore_proof.content_digest');
+  requireRestoreDigest(proof.restored_image_digest, 'restore_proof.restored_image_digest');
+  verifySealedDigest(proof, 'AION_RECOVERY_INTEGRITY_INVALID', 'restore proof');
 }
 
 export function createRecoveryCheckpoint(input) {
@@ -152,6 +173,7 @@ export function createRestoreProof(input) {
     critical_journeys_verified: true,
     expected_state_match: true,
     twin_destroyed: true,
+    restored_image_digest: requireRestoreDigest(input.restored_image_digest, 'restored_image_digest'),
     measured_rto_seconds: requireObjective(input.measured_rto_seconds, 'measured_rto_seconds'),
     measured_rpo_seconds: requireObjective(input.measured_rpo_seconds, 'measured_rpo_seconds'),
   };
@@ -176,8 +198,11 @@ export function certifyRecoverability({ checkpoint, restore_proof: restoreProof,
   if (nowMs < createdAtMs || observedAtMs < createdAtMs || observedAtMs > nowMs) {
     fail('AION_RECOVERY_INVALID', 'restore proof is outside the checkpoint certification window');
   }
-  if (restoreProof.checkpoint_id !== checkpoint.checkpoint_id) {
-    fail('AION_RECOVERY_LINEAGE_MISMATCH', 'restore proof does not belong to the supplied checkpoint');
+  if (
+    restoreProof.checkpoint_id !== checkpoint.checkpoint_id
+    || restoreProof.restored_image_digest !== checkpoint.image_digest
+  ) {
+    fail('AION_RECOVERY_LINEAGE_MISMATCH', 'restore proof does not match the supplied checkpoint lineage');
   }
 
   const rtoMet = restoreProof.measured_rto_seconds <= checkpoint.rto_seconds;
@@ -194,6 +219,7 @@ export function certifyRecoverability({ checkpoint, restore_proof: restoreProof,
     recoverable: true,
     rto_met: true,
     rpo_met: true,
+    restored_image_digest: restoreProof.restored_image_digest,
     checkpoint_digest: checkpoint.content_digest,
     restore_proof_digest: restoreProof.content_digest,
   });

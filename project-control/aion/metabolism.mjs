@@ -23,8 +23,10 @@ export const LIFECYCLE_STATES = Object.freeze([
 ]);
 
 const STAGES = new Set(DELETION_CHAIN);
+const CLASSIFICATIONS = new Set(['healthy', 'degrading', 'dormant', 'orphaned']);
 const MAX_ID_LENGTH = 256;
 const MAX_EVENTS = 128;
+const SHA256_PATTERN = /^[a-f0-9]{64}$/;
 
 export class AionMetabolismError extends Error {
   constructor(code, message) {
@@ -78,14 +80,26 @@ function seal(value) {
   return Object.freeze({ ...value, content_digest: digest(value) });
 }
 
+function verifyLedgerDigest(ledger) {
+  if (typeof ledger.content_digest !== 'string' || !SHA256_PATTERN.test(ledger.content_digest)) {
+    fail('AION_METABOLISM_INTEGRITY_INVALID', 'lifecycle ledger content digest is invalid');
+  }
+  const { content_digest: ignored, ...payload } = ledger;
+  if (digest(payload) !== ledger.content_digest) {
+    fail('AION_METABOLISM_INTEGRITY_INVALID', 'lifecycle ledger content digest does not match its payload');
+  }
+}
+
 function ensureLedger(ledger) {
   if (!isPlainObject(ledger) || ledger.schema_version !== 'TIGER-AION-LIFECYCLE-LEDGER-1') {
     fail('AION_METABOLISM_INVALID', 'invalid lifecycle ledger');
   }
   requireString(ledger.asset_id, 'ledger.asset_id');
+  requireString(ledger.owner, 'ledger.owner');
   if (!Array.isArray(ledger.events) || ledger.events.length > MAX_EVENTS) {
     fail('AION_METABOLISM_INVALID', 'ledger events are outside allowed bounds');
   }
+  verifyLedgerDigest(ledger);
 }
 
 function requireApproval(authorization) {
@@ -97,6 +111,13 @@ function requireApproval(authorization) {
     fail('AION_DESTRUCTIVE_ACTION_UNAUTHORIZED', 'destructive action has not been approved');
   }
   return Object.freeze({ authority, decision: 'APPROVED' });
+}
+
+function requireClassification(classification) {
+  if (!CLASSIFICATIONS.has(classification)) {
+    fail('AION_METABOLISM_INVALID', 'CLASSIFY requires healthy, degrading, dormant, or orphaned');
+  }
+  return classification;
 }
 
 export function createLifecycleLedger(input) {
@@ -136,16 +157,16 @@ export function recordLifecycleStage(ledger, input) {
     evidence_ref: requireString(input.evidence_ref, 'evidence_ref'),
   };
 
+  if (input.stage === 'CLASSIFY') event.classification = requireClassification(input.classification);
   if (input.stage === 'APPROVE') event.authorization = requireApproval(input.authorization);
   if (input.stage === 'REHEARSE' && input.rollback_plan_ref !== undefined) {
     event.rollback_plan_ref = requireString(input.rollback_plan_ref, 'rollback_plan_ref');
   }
 
-  const lifecycleState = input.stage === 'QUARANTINE'
-    ? 'quarantined'
-    : input.stage === 'SEAL'
-      ? 'retired'
-      : ledger.lifecycle_state;
+  let lifecycleState = ledger.lifecycle_state;
+  if (input.stage === 'CLASSIFY') lifecycleState = event.classification;
+  if (input.stage === 'QUARANTINE') lifecycleState = 'quarantined';
+  if (input.stage === 'SEAL') lifecycleState = 'retired';
 
   return seal({
     schema_version: ledger.schema_version,
