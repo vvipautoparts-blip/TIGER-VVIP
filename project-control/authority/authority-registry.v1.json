@@ -52,6 +52,16 @@
       "protected_boundaries": ["main", "production", "stable-identifiers"]
     },
     {
+      "authority_id": "authority.post-launch-autonomy.v1",
+      "domain": "post-launch-autonomy",
+      "version": 1,
+      "status": "CURRENT_ONLY",
+      "owner_decision_ref": "docs/owner-control/TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md",
+      "canonical_path": "docs/owner-control/TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md",
+      "supersedes": [],
+      "protected_boundaries": ["main", "production", "owner-constitution", "unrestricted-agent-mutation"]
+    },
+    {
       "authority_id": "authority.production-handover.v1",
       "domain": "production-handover",
       "version": 1,
