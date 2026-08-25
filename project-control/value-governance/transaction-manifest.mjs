@@ -221,6 +221,81 @@ function validateAnalysisReport(report) {
   return plans;
 }
 
+function validateTransactionOperation(operation) {
+  assertExactKeys(operation, [
+    "assetId",
+    "targetPath",
+    "intent",
+    "expectedContentHash",
+    "cleanupPlanHash",
+    "rollback"
+  ]);
+  assertExactKeys(operation.rollback, ["required", "method"]);
+
+  if (!validateAssetId(operation.assetId)
+    || !isSafeRepositoryPath(operation.targetPath)
+    || operation.intent !== "PREPARE_REMOVAL"
+    || !validateSha256(operation.expectedContentHash)
+    || !validateSha256(operation.cleanupPlanHash)
+    || operation.rollback.required !== true
+    || operation.rollback.method !== "CONTENT_ADDRESSED_RESTORE") {
+    fail();
+  }
+  return operation;
+}
+
+export function validateCleanupTransactionManifest(manifest) {
+  assertExactKeys(manifest, [
+    "contract",
+    "source",
+    "policyVersion",
+    "analysisPlanHash",
+    "preconditions",
+    "operations",
+    "executable",
+    "manifestHash"
+  ]);
+  assertExactKeys(manifest.contract, ["name", "version"]);
+  assertExactKeys(manifest.source, ["commitSha", "treeSha"]);
+
+  if (manifest.contract.name !== TRANSACTION_MANIFEST_CONTRACT.name
+    || manifest.contract.version !== TRANSACTION_MANIFEST_CONTRACT.version
+    || manifest.policyVersion !== POLICY_VERSION
+    || !validateSha256(manifest.analysisPlanHash)
+    || !validateSha256(manifest.manifestHash)
+    || manifest.executable !== false
+    || !equalStringArray(manifest.preconditions, MANIFEST_PRECONDITIONS)
+    || !Array.isArray(manifest.operations)
+    || manifest.operations.length === 0
+    || manifest.operations.length > 10_000) {
+    fail();
+  }
+
+  validateGitObjectId(manifest.source.commitSha);
+  validateGitObjectId(manifest.source.treeSha);
+
+  const operations = manifest.operations.map((operation) => validateTransactionOperation(operation));
+  const assetIds = operations.map((operation) => operation.assetId);
+  const targetPaths = operations.map((operation) => operation.targetPath);
+  if (new Set(assetIds).size !== assetIds.length
+    || new Set(targetPaths).size !== targetPaths.length) {
+    fail();
+  }
+
+  const semanticManifest = {
+    contract: manifest.contract,
+    source: manifest.source,
+    policyVersion: manifest.policyVersion,
+    analysisPlanHash: manifest.analysisPlanHash,
+    preconditions: manifest.preconditions,
+    operations: manifest.operations,
+    executable: manifest.executable
+  };
+  if (hashCanonical(semanticManifest) !== manifest.manifestHash) fail();
+
+  return manifest;
+}
+
 export function buildCleanupTransactionManifest({
   analysisReport,
   sourceCommitSha,
