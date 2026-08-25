@@ -41,11 +41,23 @@ jobs:
   vvip-quality-gate:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      SOURCE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
     steps:
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
         with:
           fetch-depth: 0
+          ref: ${{ env.SOURCE_SHA }}
+
+      - name: Verify exact source SHA
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          echo "EXPECTED_SOURCE_SHA=$SOURCE_SHA"
+          echo "ACTUAL_SOURCE_SHA=$actual_sha"
+          test "$actual_sha" = "$SOURCE_SHA"
 
       - name: Set up Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
@@ -76,7 +88,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
-          name: vvip-quality-gate-${{ github.sha }}
+          name: vvip-quality-gate-${{ env.SOURCE_SHA }}
           path: /tmp/vvip-quality-gate.log
           if-no-files-found: error
           retention-days: 14
