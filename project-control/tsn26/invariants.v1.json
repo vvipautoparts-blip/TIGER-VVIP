@@ -1,0 +1,26 @@
+{
+  "schema_version": "TIGER_TSN26_INVARIANTS_V1",
+  "reference": "TSN-26",
+  "fail_closed": true,
+  "invariants": [
+    {"id":"FIN-001","rule":"settlement_must_balance","severity":"BLOCK_RELEASE"},
+    {"id":"FIN-002","rule":"max_one_paid_sales_actor","severity":"BLOCK_RELEASE"},
+    {"id":"FIN-003","rule":"floating_point_money_forbidden","severity":"BLOCK_RELEASE"},
+    {"id":"FIN-004","rule":"payout_requires_verified_destination","severity":"BLOCK_RELEASE"},
+    {"id":"FIN-005","rule":"top_level_allocation_must_equal_100_percent","severity":"BLOCK_RELEASE"},
+    {"id":"FIN-006","rule":"operations_must_equal_43_percent","severity":"BLOCK_RELEASE"},
+    {"id":"FIN-007","rule":"legacy_49_percent_operations_forbidden","severity":"BLOCK_RELEASE"},
+    {"id":"FIN-008","rule":"direct_purchase_discount_applies_before_settlement","severity":"BLOCK_RELEASE"},
+    {"id":"AUD-001","rule":"financial_history_append_only","severity":"BLOCK_RELEASE"},
+    {"id":"AUD-002","rule":"corrections_use_reversal_not_mutation","severity":"BLOCK_RELEASE"},
+    {"id":"PAY-001","rule":"payment_replay_cannot_duplicate_settlement","severity":"BLOCK_RELEASE"},
+    {"id":"PAY-002","rule":"external_payout_runs_on_14_day_epoch_policy","severity":"BLOCK_RELEASE"},
+    {"id":"AUTH-001","rule":"root_financial_policy_changes_require_sovereign_quorum","severity":"BLOCK_RELEASE"},
+    {"id":"ATTR-001","rule":"sale_claim_locked_before_financial_commit","severity":"BLOCK_RELEASE"},
+    {"id":"EXP-001","rule":"unverified_exposure_cannot_consume_paid_quota","severity":"BLOCK_RELEASE"},
+    {"id":"AI-001","rule":"ai_cannot_determine_financial_beneficiary_or_alter_ledger","severity":"BLOCK_RELEASE"},
+    {"id":"LEG-001","rule":"no_parallel_legacy_financial_engine","severity":"BLOCK_RELEASE"},
+    {"id":"LEG-002","rule":"no_legacy_financial_fallback_route","severity":"BLOCK_RELEASE"},
+    {"id":"LEG-003","rule":"historical_financial_evidence_must_be_preserved_or_migrated_not_silently_deleted","severity":"BLOCK_RELEASE"}
+  ]
+}
