@@ -1,45 +1,31 @@
-# P08 WAIT Parallel Product & Launch Readiness Package
+# VVIP TIGER — Product & Launch Readiness Materials
 
 ## Purpose
 
-This package is a parallel, non-official execution track created while waiting for Supabase Support ticket `SU-424152`.
-It is documentation-only and does not include backend, migration, deployment, or production work.
+This directory contains readiness checklists, UAT material, operating procedures and execution evidence. It is **not** an independent product, commercial, pricing or advertising authority.
 
-## In Scope
+If any file in this directory conflicts with a current binding authority, the binding authority wins and the conflicting readiness text must be corrected or removed before release.
 
-- Product readiness documentation for owner review.
-- Launch readiness planning for controlled Jordan-first rollout.
-- Role, policy, taxonomy, moderation, Tiger Care, and UAT requirement definition.
-- Decision logs and requirement traceability.
-
-## Out of Scope
-
-- Any SQL, migration, Supabase CLI, or backend authorization implementation.
-- Any Clerk API action.
-- Any frontend production runtime file modification.
-- Any production deployment or store submission.
-- Any phase-status promotion.
-
-## Official Phase State (Must Stay Unchanged)
-
-- `P08: INCOMPLETE`
-- `P09: NOT STARTED`
-
-## Source Of Truth Priority
+## Binding references
 
 1. [Official Product Blueprint](../VVIP_TIGER_OFFICIAL_PRODUCT_BLUEPRINT.md)
-2. [VVIP TIGER Memory Map](../VVIP_TIGER_MEMORY_MAP.md)
-3. [Implementation Checklist](../../IMPLEMENTATION_CHECKLIST.md)
-4. Merged UX evidence (`UX-R01`, `UX-R02`, `UX-R03`)
-5. Merged P08 security-design and Steel Shield documents
+2. [Current Advertising / QVI Owner Authority](../owner-control/TIGER_CAMPAIGN_INTELLIGENCE_2026_CURRENT_OWNER_AUTHORITY.md)
+3. [Current Implementation Checklist](../../IMPLEMENTATION_CHECKLIST.md)
 
-When a conflict appears:
+## Allowed use
 
-- Do not invent a final resolution.
-- Record it in [OPEN_DECISIONS_REGISTER.md](./OPEN_DECISIONS_REGISTER.md).
-- Follow the latest explicit owner decision.
+These files may define or record:
 
-## Package Contents
+- product-readiness checks;
+- controlled launch preparation;
+- role/policy/UAT acceptance criteria;
+- moderation and Tiger Care procedures;
+- operational training;
+- test and release evidence.
+
+They must not create a second pricing catalog, publication entitlement, payment authority, product constitution or current commercial source of truth.
+
+## Package contents
 
 - [PRODUCT_SCOPE_FREEZE.md](./PRODUCT_SCOPE_FREEZE.md)
 - [ROLES_PERMISSIONS_ACCEPTANCE_MATRIX.md](./ROLES_PERMISSIONS_ACCEPTANCE_MATRIX.md)
@@ -57,16 +43,6 @@ When a conflict appears:
 - [READINESS_TRACEABILITY_MATRIX.md](./READINESS_TRACEABILITY_MATRIX.md)
 - [P08_WAIT_READINESS_REPORT.md](./P08_WAIT_READINESS_REPORT.md)
 
-## How A New Developer Should Use This Package
+## Release rule
 
-1. Read this file first.
-2. Read [PRODUCT_SCOPE_FREEZE.md](./PRODUCT_SCOPE_FREEZE.md) to understand what is locked for launch.
-3. Read [OPEN_DECISIONS_REGISTER.md](./OPEN_DECISIONS_REGISTER.md) before proposing any change.
-4. Read [READINESS_TRACEABILITY_MATRIX.md](./READINESS_TRACEABILITY_MATRIX.md) to map each requirement to its official source.
-5. Treat this package as review and planning material only.
-
-## Boundaries Reminder
-
-This package does not claim production readiness.
-This package does not claim backend authorization exists.
-This package does not change official phase status.
+Readiness material is acceptable only when it agrees with the current product/runtime authority and the exact release SHA. No readiness document may be used to revive a removed commercial or paid-publication model.
