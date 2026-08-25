@@ -247,3 +247,4 @@ export function buildNonExecutableCleanupPlan(decision) {
 }
 
 export { buildCleanupTransactionManifest } from "./transaction-manifest.mjs";
+export { buildSecretSafeQuarantineManifest } from "./quarantine-manifest.mjs";
