@@ -306,6 +306,16 @@ else
     echo "GATE_continuous_value_governance=SKIP"
 fi
 
+if [ -f project-control/value-governance/zero-residue-cli.mjs ]; then
+    run_clean_gate \
+        "zero_residue" \
+        node project-control/value-governance/zero-residue-cli.mjs \
+            --check \
+            --report-json "$CLEANROOM_EVIDENCE_ROOT/zero-residue-proof.json"
+else
+    echo "GATE_zero_residue=SKIP"
+fi
+
 if [ -f project-control/scripts/validate_v13_1_authority.mjs ]; then
     run_clean_gate \
         "v13_1_authority_integrity" \
