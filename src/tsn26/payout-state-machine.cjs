@@ -176,6 +176,41 @@ function extendPayoutDeadline(profile, { extensionUntil, grantedBy, grantedAt, r
   });
 }
 
+function reactivateSuspendedPayoutProfile(profile, { newDeadlineAt, grantedBy, grantedAt, reason }) {
+  if (!profile || typeof profile !== 'object') throw new Error('TSN26_PAYOUT_PROFILE_REQUIRED');
+  if (profile.state !== STATES.FINANCIAL_PRIVILEGE_SUSPENDED) {
+    throw new Error('TSN26_REACTIVATION_REQUIRES_SUSPENDED_STATE');
+  }
+  nonEmpty(grantedBy, 'TSN26_REACTIVATION_ACTOR_REQUIRED');
+  nonEmpty(reason, 'TSN26_REACTIVATION_REASON_REQUIRED');
+  const granted = iso(grantedAt, 'TSN26_INVALID_REACTIVATION_GRANTED_AT');
+  const deadline = iso(newDeadlineAt, 'TSN26_INVALID_REACTIVATION_DEADLINE');
+  if (deadline.ms <= granted.ms) {
+    throw new Error('TSN26_REACTIVATION_DEADLINE_MUST_BE_FUTURE');
+  }
+  const last = profile.history.at(-1);
+  if (last && granted.ms < Date.parse(last.at)) {
+    throw new Error('TSN26_PAYOUT_EVENT_TIME_REGRESSION');
+  }
+
+  const state = deriveState(profile.identityValidated, profile.payoutDestinationVerified);
+  return freezeProfile({
+    ...profile,
+    deadlineAt: deadline.value,
+    state,
+    history: [
+      ...profile.history,
+      {
+        event: 'PAYOUT_PROFILE_REACTIVATED',
+        at: granted.value,
+        actorUid: grantedBy,
+        reason,
+        newDeadlineAt: deadline.value,
+      },
+    ],
+  });
+}
+
 function assertExternalPayoutEligible(profile, { at }) {
   const checked = applyDeadline(profile, { at });
   if (
@@ -196,5 +231,6 @@ module.exports = {
   transitionPayoutProfile,
   applyDeadline,
   extendPayoutDeadline,
+  reactivateSuspendedPayoutProfile,
   assertExternalPayoutEligible,
 };
