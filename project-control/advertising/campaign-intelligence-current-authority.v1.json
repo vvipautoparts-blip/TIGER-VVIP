@@ -1,0 +1,124 @@
+{
+  "schema_version": "1.0.0",
+  "authority_id": "VVIP-TIGER-CAMPAIGN-INTELLIGENCE-2026-08-18",
+  "status": "CURRENT_ONLY",
+  "effective_date": "2026-08-18",
+  "owner_reference": "docs/owner-control/TIGER_CAMPAIGN_INTELLIGENCE_2026_CURRENT_OWNER_AUTHORITY.md",
+  "governance": {
+    "parallel_commercial_authority_allowed": false,
+    "current_tree_has_single_advertising_authority": true
+  },
+  "product": {
+    "sellable_type": "distribution-credit",
+    "measurement_family": "qualified-verified-impression",
+    "ordinary_publication_requires_paid_advertising": false,
+    "platform_is_goods_or_services_transaction_party": false,
+    "general_purpose_user_money_wallet": false
+  },
+  "surface": {
+    "principle": "SIMPLE_SURFACE_PRIVATE_CORE_MINIMUM_TRUTH",
+    "ordinary_flow": [
+      "GOAL",
+      "BUDGET_TRUSTED_QUOTE",
+      "REVIEW_PAYMENT",
+      "VERIFIED_ACTIVATION"
+    ],
+    "ordinary_primary_action": "PROMOTE_LISTING",
+    "show_internal_pricing_math": false,
+    "show_internal_margin": false,
+    "show_internal_operational_cost": false,
+    "show_internal_fraud_thresholds": false
+  },
+  "trusted_quote": {
+    "authority": "SERVER_ONLY",
+    "required_public_fields": [
+      "quoteId",
+      "productType",
+      "marketCountry",
+      "currency",
+      "priceMinor",
+      "committedImpressions",
+      "pricingVersion",
+      "lifecyclePolicyId",
+      "deliveryPolicyId"
+    ],
+    "optional_public_fields": ["expiresAt"],
+    "fail_closed_on_missing_or_inconsistent_facts": true
+  },
+  "delivery": {
+    "baseline_minimum_visible_fraction": 0.5,
+    "baseline_minimum_continuous_visible_ms": 2000,
+    "foreground_required": true,
+    "policy_eligibility_required": true,
+    "bot_and_invalid_traffic_excluded": true,
+    "duplicate_suppression_required": true,
+    "server_reservation_and_reconciliation_required": true,
+    "client_telemetry_financial_authority": false
+  },
+  "payment_activation": {
+    "scope": "ADVERTISING_AND_VERIFIED_EXPOSURE_ONLY",
+    "browser_success_is_authority": false,
+    "required_states": {
+      "payment": "CONFIRMED",
+      "ledger": "POSTED",
+      "campaign": "ACTIVE"
+    },
+    "provider_authenticity_required": true,
+    "idempotency_required": true,
+    "replay_protection_required": true,
+    "append_only_evidence_required": true,
+    "refund_support_required": true,
+    "chargeback_support_required": true,
+    "reconciliation_required": true
+  },
+  "revenue_recognition": {
+    "flow": [
+      "USER_PAYMENT",
+      "PAID_UNEARNED_CAMPAIGN_BALANCE",
+      "ELIGIBLE_VERIFIED_DELIVERY_CONSUMPTION",
+      "RECOGNIZED_REVENUE"
+    ],
+    "payment_receipt_equals_earned_revenue": false
+  },
+  "country_contract": {
+    "required": true,
+    "default_state": "FAIL_CLOSED",
+    "hardcoded_global_provider_allowed": false,
+    "hardcoded_global_payment_method_allowed": false,
+    "hardcoded_global_price_allowed": false,
+    "hardcoded_global_impression_quantity_allowed": false,
+    "only_active_verified_payment_methods_visible": true,
+    "jordan_real_money_activation": false
+  },
+  "campaign_passport": {
+    "required_internal_bindings": [
+      "campaignId",
+      "listingId",
+      "actorOrAccountRef",
+      "marketCountry",
+      "quoteId",
+      "pricingVersion",
+      "lifecyclePolicyId",
+      "deliveryPolicyId",
+      "committedDistribution",
+      "paymentId",
+      "ledgerReference",
+      "activationState"
+    ]
+  },
+  "fairness": {
+    "payment_buys_verified_distribution_only": true,
+    "payment_buys_verification_or_trust": false,
+    "payment_buys_visual_size": false,
+    "payment_bypasses_eligibility": false,
+    "guaranteed_sale_or_engagement": false
+  },
+  "release_boundary": {
+    "repository_implementation_authorized": true,
+    "real_money_production_activation_authorized": false,
+    "provider_secret_mutation_authorized": false,
+    "country_activation_authorized": false,
+    "production_database_mutation_authorized": false,
+    "gate_bypass_authorized": false
+  }
+}
