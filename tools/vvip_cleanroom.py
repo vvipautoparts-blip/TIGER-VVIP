@@ -1237,6 +1237,10 @@ def execute(
     root = root.resolve()
     json_path, markdown_path = resolve_report_paths(root, report_dir)
     json_path.parent.mkdir(parents=True, exist_ok=True)
+    if report_dir is None:
+        for path in (json_path, markdown_path):
+            if not path.exists():
+                path.touch()
     cleanup_changes = apply_cleanup(root) if mode == "apply" else 0
     report = build_report(root, enforce_scope=enforce_scope)
     json_content = json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
