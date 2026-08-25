@@ -1,91 +1,69 @@
-# VVIP TIGER Official Product Blueprint
+# VVIP TIGER — Official Product Blueprint
 
-## Official Documentation Hierarchy / هرمية التوثيق الرسمية
+**Status:** `CURRENT_ONLY`  
+**Purpose:** stable top-level product constitution. Domain details live only in their current binding authority and machine contract; this file does not duplicate commercial catalogs or historical decisions.
 
-- This file is the highest product reference and the official product constitution.
-- The Memory Map is the approved map of memory and decisions.
-- The Implementation Checklist is the phased execution plan.
-- In case of conflict, priority is: Official Product Blueprint, then Memory Map, then Implementation Checklist.
-- Any future change must be documented clearly.
+## 1. Source-of-truth rule
 
-References:
-- [Official Product Blueprint](./VVIP_TIGER_OFFICIAL_PRODUCT_BLUEPRINT.md)
-- [Memory Map](./VVIP_TIGER_MEMORY_MAP.md)
-- [Implementation Checklist](../IMPLEMENTATION_CHECKLIST.md)
+The current repository tree is governed by one current authority per responsibility.
 
-## Purpose
+- This blueprint defines stable platform boundaries.
+- `IMPLEMENTATION_CHECKLIST.md` is execution tracking only, not product authority.
+- Advertising and campaign economics are governed only by [`TIGER_CAMPAIGN_INTELLIGENCE_2026_CURRENT_OWNER_AUTHORITY.md`](./owner-control/TIGER_CAMPAIGN_INTELLIGENCE_2026_CURRENT_OWNER_AUTHORITY.md) and its machine contract.
+- A document, test, runtime path or configuration that conflicts with a current binding authority must be corrected or removed; it must not operate as a parallel source of truth.
 
-This document defines the official product blueprint for VVIP TIGER and fixes the platform direction before production-scale implementation.
+## 2. Product boundary
 
-## Product Identity
+VVIP TIGER is a premium global discovery, social, advertising and direct-contact platform.
 
-- VVIP TIGER is Jordan-first, Arab-first, premium, and highly organized.
-- The experience should be inspired by familiar social product patterns, especially Facebook-style clarity, without copying Facebook brand identity.
-- The product should feel formal, trusted, polished, and commercially useful.
+The platform may help users discover and contact each other, but it does not become the buyer, seller, broker, escrow agent, transaction guarantor or settlement intermediary for external goods/services transactions.
 
-## Platform Boundaries
+Platform payments are limited to approved VVIP TIGER services such as advertising/verified distribution under the active country contract.
 
-- No groups.
-- No group chat.
-- No broadcast model.
-- Sharing and invitations are one-to-one only.
-- Each session supports up to 20 invitations.
+## 3. Publishing and advertising separation
 
-## Core Technical Decisions
+Ordinary eligible social posting and marketplace publication are not conditioned on purchasing advertising.
 
-- Clerk is the only authentication system.
-- Supabase is the platform database, storage, and operational data layer.
-- User linkage across systems must happen through `clerk_user_id`.
-- No `service_role` or secret keys may appear in the frontend.
-- Any future AI capability must run through backend-only paths such as Backend services or Edge Functions, never through frontend-exposed keys.
-- A delayed but mandatory security review is required before production.
+The governing flow is:
 
-## Core Sectors
+```text
+Create content
+-> Preview / validate
+-> Publish or submit through the applicable ordinary content workflow
+-> Optional promotion after eligible content exists
+```
 
-- Auto parts and services.
-- Materials and supplies.
-- Real estate.
+Advertising is a separate optional service. Its single current sellable value is Verified Distribution Credit under the current QVI authority.
 
-## Sector Governance
+## 4. Country contracts
 
-- Abdulrahman manages materials.
-- Moataz manages auto parts and services with market experts.
-- The user and Areen manage real estate.
+Country-specific payment methods, pricing, taxes, legal wording, lifecycle, refunds/chargebacks and capacity are versioned and fail closed until approved and verified.
 
-## Posting Rules
+No global hard-coded provider, payment method, fixed advertising price or fixed distribution quantity is authoritative.
 
-- Each account can publish 4 posts per week.
-- Each listing supports 7 images only.
-- Video is fully cancelled.
-- Listing lifetime is 120 days.
+## 5. Identity and data authority
 
-## Search And Discovery
+- Clerk is the identity/authentication authority.
+- Supabase is the application data/RLS layer unless a later current binding infrastructure decision explicitly changes that responsibility.
+- Browser-supplied identity or financial state is never sufficient authority for a protected operation.
+- Secrets, privileged credentials and unrestricted financial mutation authority must not be exposed to browsers or AI contexts.
 
-- Search must support name.
-- Search must support price.
-- Search must support location/region.
-- Search must support sector.
-- Search must support category.
-- Region and location are core discovery fields, not optional metadata.
+## 6. Financial integrity
 
-## Business Structure Roadmap
+Financial state is server-authoritative, idempotent, auditable and reconciled.
 
-- Separate companies and commercial registration should be introduced as an organized future phase.
-- Merchant contract flows are a future phase and require legal review before activation.
-- Payments, verification, and receipts are future phases and require secure backend implementation plus financial and legal review.
-- Commissions, campaigns, call center operations, and sales operations are future organized phases.
+Payment receipt is not automatically earned advertising revenue. Unearned campaign balance remains a liability until eligible verified distribution is consumed according to the active policy.
 
-## Tiger Care
+AI may detect, explain, forecast and recommend. It may not independently create financial authority, move real money, erase ledger evidence or bypass approval gates.
 
-- Tiger Care is a core unit for support, tickets, reports, and requests to communicate with management.
-- Management phone numbers must never be shown to users.
-- Official Tiger Care message: "تم استلام طلبك، وسيتم التواصل معك خلال 24 ساعة."
+## 7. Security and release integrity
 
-## Delivery Discipline
+Sensitive operations are least-privilege, fail-closed and auditable. Production activation requires the applicable security, financial, provider, country, CI and release gates on the exact reviewed source/artifact.
 
-- Implementation must happen in clear phases.
-- Backup before sensitive work is required.
-- `git status` must be checked before execution.
-- Work must happen on a proper branch.
-- Changes must be committed in an orderly way.
-- No chaotic implementation process is acceptable.
+No document may fabricate Production deployment, payment activation, delivery evidence or CI success.
+
+## 8. Current-only documentation discipline
+
+The current tree must not contain competing product/commercial authorities for the same responsibility. Execution evidence may exist only as evidence and must not be presented as a current product authority.
+
+When an authority changes, the active runtime, tests, configuration and current documentation are converged to the new authority rather than leaving a fallback commercial model in parallel.
