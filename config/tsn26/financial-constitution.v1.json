@@ -1,0 +1,32 @@
+{
+  "id": "TFC-2026.08.001",
+  "schemaVersion": 1,
+  "status": "ACTIVE",
+  "effectiveFrom": "2026-08-26T00:00:00.000Z",
+  "currencyBase": "JOD",
+  "microUnitsPerJod": 1000000,
+  "directPurchaseDiscountBps": 700,
+  "directPurchaseDiscountTiming": "BEFORE_ALLOCATION",
+  "allocationsBps": {
+    "owner": 500,
+    "partner1": 500,
+    "partner2": 500,
+    "partner3": 500,
+    "operations": 4300,
+    "fiscalRegulatoryReserve": 1600,
+    "salesPool": 2100
+  },
+  "operationsBps": {
+    "risk": 800,
+    "maintenance": 800,
+    "development": 800,
+    "technicalSupport": 800,
+    "advertising": 800,
+    "csr": 300
+  },
+  "salesSlotsBps": {
+    "GENERAL_MANAGER": 700,
+    "SECTOR_MANAGER": 700,
+    "MARKETER": 700
+  }
+}
