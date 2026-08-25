@@ -137,7 +137,7 @@ export function recordLifecycleStage(ledger, input) {
   };
 
   if (input.stage === 'APPROVE') event.authorization = requireApproval(input.authorization);
-  if (input.stage === 'REHEARSE') {
+  if (input.stage === 'REHEARSE' && input.rollback_plan_ref !== undefined) {
     event.rollback_plan_ref = requireString(input.rollback_plan_ref, 'rollback_plan_ref');
   }
 
