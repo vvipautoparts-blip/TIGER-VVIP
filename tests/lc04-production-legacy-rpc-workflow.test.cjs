@@ -50,7 +50,7 @@ test('LC04 workflow emits exact migration digest evidence before database rehear
   const workflow = text();
   assert.match(workflow, /Emit exact LC04 migration SHA-256/);
   assert.match(workflow, /sha256sum supabase\/migrations\/20260808134000_lc04_production_legacy_rpc_hardening\.sql/);
-  assert.match(workflow, /actions\/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f/);
+  assert.match(workflow, /actions\/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a/);
   assert.match(workflow, /lc04-migration-sha256-/);
   assert.match(workflow, /if-no-files-found:\s*error/);
 });
