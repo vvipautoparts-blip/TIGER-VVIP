@@ -5,10 +5,13 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const SQL_PATH = path.resolve(__dirname, '../supabase/migrations/20260826_tsn26_sovereign_financial_core.sql');
+const SQL_PATHS = [
+  path.resolve(__dirname, '../supabase/migrations/20260826_tsn26_sovereign_financial_core.sql'),
+  path.resolve(__dirname, '../supabase/migrations/20260826_tsn26_settlement_proof_guard.sql'),
+];
 
 function sql() {
-  return fs.readFileSync(SQL_PATH, 'utf8');
+  return SQL_PATHS.map((file) => fs.readFileSync(file, 'utf8')).join('\n');
 }
 
 test('TSN-26 finance schema is isolated and deny-by-default', () => {
