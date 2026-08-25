@@ -20,3 +20,12 @@ commits = ["fb0a0a023f7445c143ca88e16cf638174fb2c7fc"]
 paths = ['''^tests/tiger-gate5-network-chaos\.test\.mjs$''']
 regexTarget = "line"
 regexes = ['''idempotencyKey:\s*'idem-chaos-001'''']
+
+[[allowlists]]
+description = "Known synthetic AION hostile JWT fixture introduced by the RED contract test"
+targetRules = ["jwt"]
+condition = "AND"
+commits = ["1927798abf4916f512d34d09abdf3b1af69d7f8f"]
+paths = ['''^project-control/tests/aion_sensory_proof_graph\.test\.mjs$''']
+regexTarget = "line"
+regexes = ['''eyJhbGciOiJIUzI1NiJ9\.eyJzdWIiOiJ1c2VyLTEifQ\.signature012345678901234''']

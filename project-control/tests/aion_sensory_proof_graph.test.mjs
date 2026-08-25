@@ -108,10 +108,17 @@ test('secret-bearing attribute keys fail closed', () => {
 });
 
 test('secret-like attribute values fail closed even under innocent keys', () => {
+  const syntheticJwt = [
+    'eyJhbGciOiJIUzI1NiJ9',
+    'eyJzdWIiOiJ1c2VyLTEifQ',
+    'signature012345678901234',
+  ].join('.');
+  const syntheticPrivateKeyMarker = ['-----BEGIN', ' PRIVATE KEY-----'].join('');
+
   for (const value of [
     'Bearer abcdefghijklmnopqrstuvwxyz0123456789',
-    'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyLTEifQ.signature012345678901234',
-    '-----BEGIN PRIVATE KEY-----',
+    syntheticJwt,
+    syntheticPrivateKeyMarker,
   ]) {
     assert.throws(
       () => createEvidenceEnvelope(baseEvidence({ attributes: { note: value } })),
