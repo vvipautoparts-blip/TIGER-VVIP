@@ -137,6 +137,9 @@ function normalizeAssumptions(assumptions) {
   const normalized = assumptions.map((assumption, index) => {
     if (!isPlainObject(assumption)) fail('AION_TWIN_INVALID', `assumptions[${index}] must be a plain object`);
     const id = requireString(assumption.id, `assumptions[${index}].id`);
+    if (keyLooksSecret(id)) {
+      fail('AION_TWIN_SECRET_MATERIAL_REJECTED', `assumptions[${index}].id names a secret-bearing class`);
+    }
     if (seen.has(id)) fail('AION_TWIN_INVALID', `duplicate assumption id: ${id}`);
     seen.add(id);
     return Object.freeze({ id, value: requireScalar(assumption.value, `assumptions[${index}].value`) });
