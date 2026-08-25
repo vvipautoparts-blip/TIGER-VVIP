@@ -37,6 +37,7 @@ const baseRestoreProof = (overrides = {}) => ({
   critical_journeys_verified: true,
   expected_state_match: true,
   twin_destroyed: true,
+  restored_image_digest: 'a'.repeat(64),
   measured_rto_seconds: 480,
   measured_rpo_seconds: 120,
   ...overrides,
@@ -107,6 +108,52 @@ test('recoverability certification enforces checkpoint lineage and RTO/RPO targe
   );
 });
 
+test('recoverability rejects stale digests and restored-image lineage mismatches', () => {
+  const checkpoint = createRecoveryCheckpoint(baseCheckpoint());
+  const proof = createRestoreProof(baseRestoreProof());
+  const tamperedCheckpoint = { ...checkpoint, rto_seconds: 10_000 };
+  assert.throws(
+    () => certifyRecoverability({
+      checkpoint: tamperedCheckpoint,
+      restore_proof: proof,
+      now_ms: Date.parse('2026-08-25T14:15:00.000Z'),
+    }),
+    (error) => error?.code === 'AION_RECOVERY_INTEGRITY_INVALID',
+  );
+
+  const mismatchedImageProof = createRestoreProof(baseRestoreProof({ restored_image_digest: 'b'.repeat(64) }));
+  assert.throws(
+    () => certifyRecoverability({
+      checkpoint,
+      restore_proof: mismatchedImageProof,
+      now_ms: Date.parse('2026-08-25T14:15:00.000Z'),
+    }),
+    (error) => error?.code === 'AION_RECOVERY_LINEAGE_MISMATCH',
+  );
+});
+
+test('lifecycle classification records degrading, dormant, and orphaned states without deleting anything', () => {
+  let ledger = createLifecycleLedger({
+    asset_id: 'module:classification-target',
+    owner: 'TIGER_PLATFORM',
+    created_at: '2026-08-25T14:00:00.000Z',
+  });
+  ledger = recordLifecycleStage(ledger, {
+    stage: 'DETECT',
+    occurred_at: '2026-08-25T14:01:00.000Z',
+    evidence_ref: 'evidence:detect-classification-target',
+  });
+  ledger = recordLifecycleStage(ledger, {
+    stage: 'CLASSIFY',
+    occurred_at: '2026-08-25T14:02:00.000Z',
+    evidence_ref: 'evidence:classify-classification-target',
+    classification: 'dormant',
+  });
+  assert.equal(ledger.lifecycle_state, 'dormant');
+  assert.equal(Object.hasOwn(ledger, 'delete'), false);
+  assert.equal(Object.hasOwn(ledger, 'execute'), false);
+});
+
 test('destruction without the exact approval and rehearsal chain is rejected', () => {
   let ledger = createLifecycleLedger({
     asset_id: 'module:legacy-widget',
@@ -118,6 +165,7 @@ test('destruction without the exact approval and rehearsal chain is rejected', (
       stage,
       occurred_at: '2026-08-25T14:20:00.000Z',
       evidence_ref: `evidence:${stage.toLowerCase()}`,
+      ...(stage === 'CLASSIFY' ? { classification: 'dormant' } : {}),
     });
   }
   assert.throws(
@@ -141,6 +189,7 @@ test('authorized disposal requires Detect→Classify→Explain→Approve→Quara
       stage,
       occurred_at: `2026-08-25T14:${String(10 + index).padStart(2, '0')}:00.000Z`,
       evidence_ref: `evidence:${stage.toLowerCase()}`,
+      ...(stage === 'CLASSIFY' ? { classification: 'dormant' } : {}),
       ...(stage === 'APPROVE' ? { authorization: { authority: 'OWNER_GOVERNED_POLICY', decision: 'APPROVED' } } : {}),
       ...(stage === 'REHEARSE' ? { rollback_plan_ref: 'rollback:widget-v1' } : {}),
     });
@@ -151,6 +200,12 @@ test('authorized disposal requires Detect→Classify→Explain→Approve→Quara
   assert.equal(certificate.asset_id, 'module:dormant-widget');
   assert.equal(certificate.lifecycle_state, 'disposed');
   assert.match(certificate.content_digest, /^[a-f0-9]{64}$/);
+
+  const tamperedLedger = { ...ledger, owner: 'UNTRUSTED_ACTOR' };
+  assert.throws(
+    () => issueDisposalCertificate(tamperedLedger),
+    (error) => error?.code === 'AION_METABOLISM_INTEGRITY_INVALID',
+  );
 });
 
 test('entropy scoring is diagnostic only and keeps structural entropy separate from business value', () => {
