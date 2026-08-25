@@ -1,0 +1,37 @@
+name: TSN-26 Legacy Financial Guard
+
+on:
+  pull_request:
+  push:
+    branches:
+      - feat/tsn26-sovereign-nexus-20260826
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  no-legacy-financial-residue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Enforce TSN-26 purge invariant
+        run: node scripts/tsn26/system/legacy-financial-guard.cjs
+      - name: Run TSN-26 sovereign finance tests
+        run: >-
+          node --test
+          tests/tsn26-financial-constitution.test.cjs
+          tests/tsn26-financial-constitution-manifest.test.cjs
+          tests/tsn26-invariant-registry.test.cjs
+          tests/tsn26-sovereign-sale-claim.test.cjs
+          tests/tsn26-settlement-orchestrator.test.cjs
+          tests/tsn26-payment-idempotency.test.cjs
+          tests/tsn26-payout-state-machine.test.cjs
+          tests/tsn26-payout-reactivation.test.cjs
+          tests/tsn26-settlement-lifecycle.test.cjs
+          tests/tsn26-legacy-financial-guard.test.cjs
