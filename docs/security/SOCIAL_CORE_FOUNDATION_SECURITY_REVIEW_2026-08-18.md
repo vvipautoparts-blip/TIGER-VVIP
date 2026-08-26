@@ -1,12 +1,19 @@
 # Social Core Foundation Security Review — 2026-08-18
 
 **Migration:** `supabase/migrations/20260818125000_social_core_foundation.sql`
-**Reviewed SHA-256:** `fa6169a934e6a128849ae9557a30245dcd4e310975cfcb3246d0a8e9f0d057a8`
+**Reviewed SHA-256:** `d7f15478df2ff3e244632042cf28d867eb3cea8a562050f68834d793905d2151`
+**Review refreshed:** 2026-08-19
 **Scope:** repository review only; this document does not authorize applying the migration to Staging or Production.
 
 ## Result
 
-The Steel Shield scan reported **0 CRITICAL** findings and **24 HIGH review-required findings**. The HIGH findings are accepted for this exact migration only for the reasons below. Any byte change invalidates this review and must produce a new content-addressed review.
+The Steel Shield scan reported **0 CRITICAL** findings and **25 HIGH review-required findings**. The HIGH findings are accepted for this exact migration only for the reasons below. Any byte change invalidates this review and must produce a new content-addressed review.
+
+## Binding text contract
+
+`public.vvip_social_text_normalize(text)` trims only the explicit edge-whitespace set U+0009–U+000D, U+0020, U+00A0, U+1680, U+2000–U+200A, U+2028, U+2029, U+202F, U+205F, U+3000, and U+FEFF. It performs no NFC/NFKC rewrite. PostgreSQL `char_length` therefore enforces the 5,000 limit in Unicode code points, including astral characters as one code point. The browser contract mirrors the same edge set and count.
+
+The helper is immutable, strict, data-independent, and exposes no table access. Its one exact `EXECUTE` grant to `authenticated` is required because authenticated post writes evaluate the constraint and write trigger; it is the one additional HIGH grant finding.
 
 ## Identity boundary
 
@@ -66,7 +73,7 @@ There is no DML grant to `anon`.
 - `only_me` therefore remains owner-only;
 - insert/update/delete are owner-scoped to the current Clerk actor;
 - author and creation scope cannot be reassigned by a browser update;
-- body size is bounded to 5,000 characters.
+- post bodies are normalized by the binding text helper before storage, whitespace-only values are rejected, and size is bounded to 5,000 Unicode code points.
 
 ## Legacy feed isolation
 

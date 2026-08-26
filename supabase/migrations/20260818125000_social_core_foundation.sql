@@ -8,6 +8,33 @@
 
 begin;
 
+-- Binding Social Core text contract. Trim only this explicit Unicode edge
+-- whitespace set and count PostgreSQL characters (Unicode code points). The
+-- browser mirrors the same set and Array.from() count. No normalization form
+-- rewrite is performed, preserving user-authored spelling.
+create function public.vvip_social_text_normalize(p_value text)
+returns text
+language sql
+immutable
+strict
+parallel safe
+set search_path = pg_catalog
+as $function$
+    select pg_catalog.regexp_replace(
+        pg_catalog.regexp_replace(
+            p_value,
+            U&'^[\0009-\000D\0020\00A0\1680\2000-\200A\2028\2029\202F\205F\3000\FEFF]+',
+            ''
+        ),
+        U&'[\0009-\000D\0020\00A0\1680\2000-\200A\2028\2029\202F\205F\3000\FEFF]+$',
+        ''
+    );
+$function$;
+
+revoke all on function public.vvip_social_text_normalize(text)
+    from public, anon, authenticated;
+grant execute on function public.vvip_social_text_normalize(text) to authenticated;
+
 create table public.vvip_social_relationships (
     relationship_id uuid primary key default gen_random_uuid(),
     requester_subject text not null default public.vvip_marketplace_actor_id(),
@@ -38,7 +65,10 @@ create table public.vvip_social_posts (
     created_at timestamptz not null default statement_timestamp(),
     updated_at timestamptz not null default statement_timestamp(),
     check (author_subject like 'user\_%' escape '\'),
-    check (length(body) <= 5000 and length(btrim(body)) > 0)
+    check (
+        char_length(public.vvip_social_text_normalize(body)) between 1 and 5000
+        and body = public.vvip_social_text_normalize(body)
+    )
 );
 
 create index vvip_social_posts_feed_idx
@@ -140,8 +170,8 @@ begin
         return OLD;
     end if;
 
-    NEW.body := btrim(NEW.body);
-    if NEW.body = '' then
+    NEW.body := public.vvip_social_text_normalize(NEW.body);
+    if NEW.body is null or not (char_length(NEW.body) between 1 and 5000) then
         raise exception 'SOCIAL_POST_BODY_REQUIRED';
     end if;
     NEW.updated_at := statement_timestamp();

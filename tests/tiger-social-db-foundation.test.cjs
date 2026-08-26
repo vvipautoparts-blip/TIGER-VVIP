@@ -46,7 +46,11 @@ test('post visibility is bounded to public friends and only_me with owner-scoped
 
   assert.match(text, /audience text not null default 'public'/i);
   assert.match(text, /audience in \('public', 'friends', 'only_me'\)/i);
-  assert.match(text, /length\(body\) <= 5000/i);
+  assert.match(text, /create function public\.vvip_social_text_normalize\(p_value text\)/i);
+  assert.match(text, /char_length\(public\.vvip_social_text_normalize\(body\)\) between 1 and 5000/i);
+  assert.match(text, /body = public\.vvip_social_text_normalize\(body\)/i);
+  assert.match(text, /NEW\.body := public\.vvip_social_text_normalize\(NEW\.body\)/i);
+  assert.match(text, /\\0009-\\000D[\s\S]*\\00A0[\s\S]*\\3000[\s\S]*\\FEFF/i);
   assert.match(text, /author_subject = \(select public\.vvip_marketplace_actor_id\(\)\)/i);
   assert.match(text, /audience = 'public'/i);
   assert.match(text, /audience = 'friends'/i);

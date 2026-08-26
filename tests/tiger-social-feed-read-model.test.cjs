@@ -53,6 +53,13 @@ test("rejects malformed or authority-expanding post rows fail closed", () => {
   }
 });
 
+test("feed row normalization mirrors Unicode code-point text bounds", () => {
+  assert.equal(normalizeFeedPost(frozenPost({ body: "\n\t 　" })).ok, false);
+  assert.equal(normalizeFeedPost(frozenPost({ body: " padded " })).ok, false);
+  assert.equal(normalizeFeedPost(frozenPost({ body: "😀".repeat(5000) })).ok, true);
+  assert.equal(normalizeFeedPost(frozenPost({ body: "😀".repeat(5001) })).ok, false);
+});
+
 test("feed load delegates visibility to trusted persistence and preserves newest-first order", async () => {
   const calls = [];
   const runtime = {
@@ -89,6 +96,7 @@ test("feed load returns an explicit empty snapshot", async () => {
     ok: true,
     items: [],
     empty: true,
+    rejectedCount: 0,
   });
 });
 
@@ -116,20 +124,44 @@ test("feed read fails closed when runtime is missing, persistence fails, or payl
   });
 });
 
-test("one malformed row blocks the whole snapshot instead of silently widening trust", async () => {
+test("malformed feed rows are isolated and reported without exceeding the requested bound", async () => {
   const feed = createSocialFeedReadModel({
     runtime: {
       posts: {
         readFeed: async () => ({
           ok: true,
-          value: [frozenPost(), frozenPost({ author_subject: "legacy-user" })],
+          value: [
+            frozenPost({ post_id: "post_good_1" }),
+            frozenPost({ post_id: "post_bad", author_subject: "legacy-user" }),
+            frozenPost({ post_id: "post_good_2" }),
+            frozenPost({ post_id: "post_overflow" }),
+          ],
         }),
       },
     },
   });
 
-  assert.deepEqual(await feed.load(), {
-    ok: false,
-    code: "SOCIAL_FEED_INVALID_ROW",
+  assert.deepEqual(await feed.load({ limit: 3 }), {
+    ok: true,
+    items: [
+      {
+        id: "post_good_1",
+        authorSubject: "user_alice",
+        body: "Hello TIGER",
+        audience: "friends",
+        createdAt: "2026-08-18T09:00:00.000Z",
+        updatedAt: "2026-08-18T09:00:00.000Z",
+      },
+      {
+        id: "post_good_2",
+        authorSubject: "user_alice",
+        body: "Hello TIGER",
+        audience: "friends",
+        createdAt: "2026-08-18T09:00:00.000Z",
+        updatedAt: "2026-08-18T09:00:00.000Z",
+      },
+    ],
+    empty: false,
+    rejectedCount: 2,
   });
 });

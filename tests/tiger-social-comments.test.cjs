@@ -32,7 +32,9 @@ test("Social Comments migration exposes bounded RPCs with no direct browser tabl
   assert.match(sql, /security definer set search_path = pg_catalog/i);
   assert.match(sql, /public\.vvip_social_can_view_post/i);
   assert.match(sql, /parent\.parent_comment_id is null/i);
-  assert.match(sql, /char_length\(btrim\(p_body\)\) between 1 and 2000/i);
+  assert.match(sql, /public\.vvip_social_text_normalize\(p_body\)/i);
+  assert.match(sql, /least\(greatest\(coalesce\(p_limit, 20\), 1\), 20\)/i);
+  assert.match(sql, /'next_cursor'/i);
   assert.match(sql, /parent\.post_id\s*(?:<>|!=)\s*p_post_id/i);
   assert.match(sql, /target\.author_subject\s*(?:<>|!=)\s*v_actor/i);
   assert.doesNotMatch(sql, /auth\.uid\s*\(/i);
@@ -59,6 +61,14 @@ test("Social Comments runtime uses only bounded RPCs and never chooses author id
 
   return Promise.all([
     comments.list("11111111-1111-4111-8111-111111111111"),
+    comments.list("11111111-1111-4111-8111-111111111111", {
+      parentCommentId: "22222222-2222-4222-8222-222222222222",
+      cursor: {
+        createdAt: "2026-08-18T12:00:00.000Z",
+        commentId: "33333333-3333-4333-8333-333333333333",
+      },
+      limit: 999,
+    }),
     comments.create("11111111-1111-4111-8111-111111111111", { body: "تعليق" }),
     comments.create("11111111-1111-4111-8111-111111111111", {
       body: "رد",
@@ -70,7 +80,23 @@ test("Social Comments runtime uses only bounded RPCs and never chooses author id
     assert.deepEqual(calls, [
       {
         name: "vvip_social_comment_list",
-        payload: { p_post_id: "11111111-1111-4111-8111-111111111111" },
+        payload: {
+          p_post_id: "11111111-1111-4111-8111-111111111111",
+          p_parent_comment_id: null,
+          p_cursor_created_at: null,
+          p_cursor_comment_id: null,
+          p_limit: 20,
+        },
+      },
+      {
+        name: "vvip_social_comment_list",
+        payload: {
+          p_post_id: "11111111-1111-4111-8111-111111111111",
+          p_parent_comment_id: "22222222-2222-4222-8222-222222222222",
+          p_cursor_created_at: "2026-08-18T12:00:00.000Z",
+          p_cursor_comment_id: "33333333-3333-4333-8333-333333333333",
+          p_limit: 20,
+        },
       },
       {
         name: "vvip_social_comment_create",
@@ -148,7 +174,16 @@ test("Social Comments runtime rejects invalid IDs and bodies before RPC executio
     ok: false,
     code: "SOCIAL_INVALID_COMMENT_ID",
   });
-  assert.equal(calls, 0);
+  assert.equal((await comments.create("11111111-1111-4111-8111-111111111111", {
+    body: "\n\t 　",
+  })).ok, false);
+  assert.equal((await comments.create("11111111-1111-4111-8111-111111111111", {
+    body: "😀".repeat(2000),
+  })).ok, true);
+  assert.equal((await comments.create("11111111-1111-4111-8111-111111111111", {
+    body: "😀".repeat(2001),
+  })).ok, false);
+  assert.equal(calls, 1);
 });
 
 test("Home Feed mounts an interactive comments controller and publishes it in the exact public artifact", () => {

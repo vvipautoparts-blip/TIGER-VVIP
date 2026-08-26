@@ -18,6 +18,11 @@ test("Social DB rehearsal is exact-head and local-only", () => {
 });
 
 test("Social DB rehearsal applies foundation reaction and comment proofs and always stops local stack", () => {
+  assert.match(workflow, /scripts\/social\/text-contract\.js/);
+  assert.match(workflow, /scripts\/social\/runtime-adapters\.js/);
+  assert.match(workflow, /scripts\/social\/feed-controller\.js/);
+  assert.match(workflow, /node --test tests\/tiger-social-comments\.test\.cjs/);
+  assert.match(workflow, /node --test tests\/tiger-social-feed-controller\.test\.cjs/);
   assert.match(workflow, /tests\/sql\/tiger-social-core-foundation\.sql/);
   assert.match(workflow, /tests\/sql\/tiger-social-reactions\.sql/);
   assert.match(workflow, /tests\/sql\/tiger-social-comments\.sql/);
@@ -37,6 +42,8 @@ test("foundation behavior proof covers friend visibility and isolation from a th
   assert.match(foundationBehavior, /BOB_CAN_READ_FRIEND_POST/);
   assert.match(foundationBehavior, /CHARLIE_CANNOT_READ_FRIEND_POST/);
   assert.match(foundationBehavior, /ONLY_ME_IS_OWNER_ONLY/);
+  assert.match(foundationBehavior, /POST_UNICODE_WHITESPACE_REJECTED/);
+  assert.match(foundationBehavior, /POST_ASTRAL_BOUNDARY=PASS/);
   assert.match(foundationBehavior, /rollback;/i);
 });
 
@@ -61,6 +68,11 @@ test("comment behavior proof covers RPC-only access visibility reply depth and o
   assert.match(commentBehavior, /COMMENT_UPDATE_OWNER_ONLY=PASS/);
   assert.match(commentBehavior, /COMMENT_REMOVE_OWNER_ONLY=PASS/);
   assert.match(commentBehavior, /COMMENT_HIDDEN_POST_DENIED=PASS/);
+  assert.match(commentBehavior, /COMMENT_UNICODE_WHITESPACE_REJECTED=PASS/);
+  assert.match(commentBehavior, /COMMENT_ASTRAL_BOUNDARY=PASS/);
+  assert.match(commentBehavior, /COMMENT_PARENT_PAGE_BOUND=PASS/);
+  assert.match(commentBehavior, /COMMENT_REPLY_PAGE_BOUND=PASS/);
+  assert.match(commentBehavior, /COMMENT_NEXT_CURSOR=PASS/);
   assert.match(commentBehavior, /TIGER_SOCIAL_COMMENTS_DB_BEHAVIOR=PASS/);
   assert.match(commentBehavior, /rollback;/i);
 });

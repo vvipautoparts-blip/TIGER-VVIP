@@ -1,6 +1,10 @@
 (() => {
   'use strict';
 
+  const textContract = typeof module !== 'undefined' && module.exports
+    ? require('./text-contract.js')
+    : (typeof globalThis !== 'undefined' ? globalThis.TIGERSocialTextContract : null);
+
   const AUDIENCES = Object.freeze(['public', 'friends', 'only_me']);
   const MAX_BODY_LENGTH = 5000;
   const MAX_MEDIA = 10;
@@ -52,8 +56,14 @@
       return fail('invalid_post_body');
     }
 
-    const body = input.body.trim();
-    if (body.length > MAX_BODY_LENGTH) {
+    if (!textContract
+      || typeof textContract.trimEdgeWhitespace !== 'function'
+      || typeof textContract.codePointLength !== 'function') {
+      return fail('invalid_post_body');
+    }
+
+    const body = textContract.trimEdgeWhitespace(input.body);
+    if (textContract.codePointLength(body) > MAX_BODY_LENGTH) {
       return fail('post_body_too_large');
     }
 

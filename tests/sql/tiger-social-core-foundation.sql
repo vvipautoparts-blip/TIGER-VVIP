@@ -12,6 +12,43 @@ values
   ('social-friends-proof', 'friends'),
   ('social-only-me-proof', 'only_me');
 
+do $proof$
+declare
+  v_rejected boolean := false;
+begin
+  begin
+    insert into public.vvip_social_posts (body, audience)
+    values (E'\n\t' || U&'\00A0\3000', 'public');
+  exception when others then
+    v_rejected := true;
+  end;
+  if not v_rejected then
+    raise exception 'TEST_EXPECTED_POST_UNICODE_WHITESPACE_REJECTION';
+  end if;
+end;
+$proof$;
+\echo POST_UNICODE_WHITESPACE_REJECTED=PASS
+
+insert into public.vvip_social_posts (body, audience)
+values (repeat(U&'\D83D\DE00', 5000), 'only_me');
+
+do $proof$
+declare
+  v_rejected boolean := false;
+begin
+  begin
+    insert into public.vvip_social_posts (body, audience)
+    values (repeat(U&'\D83D\DE00', 5001), 'only_me');
+  exception when others then
+    v_rejected := true;
+  end;
+  if not v_rejected then
+    raise exception 'TEST_EXPECTED_POST_ASTRAL_LIMIT_REJECTION';
+  end if;
+end;
+$proof$;
+\echo POST_ASTRAL_BOUNDARY=PASS
+
 insert into public.vvip_social_relationships (addressee_subject)
 values ('user_bob');
 

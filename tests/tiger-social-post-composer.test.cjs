@@ -38,6 +38,12 @@ test("normalizes only the three Social Core audiences and a bounded non-empty bo
   assert.equal(normalizeComposerDraft({ body: "hello", audience: "everyone" }).ok, false);
 });
 
+test("composer mirrors the server Unicode whitespace and code-point contract", () => {
+  assert.equal(normalizeComposerDraft({ body: "\n\t 　", audience: "public" }).ok, false);
+  assert.equal(normalizeComposerDraft({ body: "😀".repeat(5000), audience: "public" }).ok, true);
+  assert.equal(normalizeComposerDraft({ body: "😀".repeat(5001), audience: "public" }).ok, false);
+});
+
 test("auth intent allowlist accepts only the non-sensitive CREATE_SOCIAL_POST descriptor", () => {
   assert.deepEqual(auth.normalizeIntentDescriptor({ name: "CREATE_SOCIAL_POST" }), { name: "CREATE_SOCIAL_POST" });
   assert.throws(
@@ -146,6 +152,7 @@ test("composer source and public surface keep post body out of auth persistence"
   assert.doesNotMatch(source, /sessionStorage|localStorage/);
   assert.match(source, /CREATE_SOCIAL_POST/);
   assert.match(html, /data-social-post-audience/);
+  assert.doesNotMatch(html, /data-social-post-draft[^>]*maxlength=/i);
   assert.match(html, /scripts\/social\/post-composer\.js/);
   assert.match(builder, /scripts\/social\/post-composer\.js/);
 });

@@ -30,6 +30,27 @@ test('text post intent is normalized but never minted as a published post client
   });
 });
 
+test('post intent mirrors the binding Unicode code-point boundary', () => {
+  assert.equal(buildPostIntent({
+    authorId: 'user_123',
+    body: '\n\t 　',
+    audience: 'public',
+    media: [],
+  }).error, 'empty_post');
+  assert.equal(buildPostIntent({
+    authorId: 'user_123',
+    body: '😀'.repeat(5000),
+    audience: 'public',
+    media: [],
+  }).ok, true);
+  assert.equal(buildPostIntent({
+    authorId: 'user_123',
+    body: '😀'.repeat(5001),
+    audience: 'public',
+    media: [],
+  }).error, 'post_body_too_large');
+});
+
 test('image references are accepted only as bounded finalized references', () => {
   assert.deepEqual(buildPostIntent({
     authorId: 'user_123',

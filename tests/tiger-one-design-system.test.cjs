@@ -28,6 +28,7 @@ test('TIGER ONE optical typography exposes bilingual semantic roles', () => {
   assert.match(type, /--t1-type-title-m:/);
   assert.match(type, /--t1-type-body-m:/);
   assert.match(type, /--t1-type-label-m:/);
+  assert.match(type, /--t1-type-label-s:/);
   assert.match(type, /--t1-type-metric-m:/);
   assert.match(type, /font-family:/);
   assert.match(type, /font-variant-numeric:\s*tabular-nums/);

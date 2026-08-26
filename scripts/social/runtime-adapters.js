@@ -1,7 +1,10 @@
 (function (root, factory) {
   "use strict";
 
-  const api = factory();
+  const textContract = root && root.TIGERSocialTextContract
+    ? root.TIGERSocialTextContract
+    : (typeof module === "object" && module.exports ? require("./text-contract.js") : null);
+  const api = factory(textContract);
 
   if (typeof module === "object" && module.exports) {
     module.exports = api;
@@ -10,7 +13,7 @@
   if (root && typeof root === "object") {
     root.TIGERSocialRuntime = api;
   }
-})(typeof globalThis !== "undefined" ? globalThis : this, function () {
+})(typeof globalThis !== "undefined" ? globalThis : this, function (textContract) {
   "use strict";
 
   const SOCIAL_POSTS_TABLE = "vvip_social_posts";
@@ -27,6 +30,7 @@
   ]);
   const POST_SELECT = "post_id,author_subject,body,audience,created_at,updated_at";
   const RELATIONSHIP_SELECT = "relationship_id,requester_subject,addressee_subject,relationship_state,created_at,updated_at";
+  const COMMENT_PAGE_LIMIT = 20;
 
   function frozenFailure(code) {
     return Object.freeze({ ok: false, code });
@@ -65,14 +69,10 @@
   }
 
   function normalizeCommentBody(value) {
-    if (typeof value !== "string") {
+    if (!textContract || typeof textContract.normalizeText !== "function") {
       return { ok: false, code: "SOCIAL_INVALID_COMMENT_BODY" };
     }
-    const body = value.trim();
-    if (!body || body.length > 2000) {
-      return { ok: false, code: "SOCIAL_INVALID_COMMENT_BODY" };
-    }
-    return { ok: true, value: body };
+    return textContract.normalizeText(value, 2000, "SOCIAL_INVALID_COMMENT_BODY");
   }
 
   function normalizePost(input) {
@@ -80,14 +80,12 @@
       return { ok: false, code: "SOCIAL_INVALID_POST" };
     }
 
-    if (typeof input.body !== "string") {
+    if (!textContract || typeof textContract.normalizeText !== "function") {
       return { ok: false, code: "SOCIAL_INVALID_POST_BODY" };
     }
 
-    const body = input.body.trim();
-    if (!body || body.length > 5000) {
-      return { ok: false, code: "SOCIAL_INVALID_POST_BODY" };
-    }
+    const body = textContract.normalizeText(input.body, 5000, "SOCIAL_INVALID_POST_BODY");
+    if (!body.ok) return body;
 
     if (!validAudience(input.audience)) {
       return { ok: false, code: "SOCIAL_INVALID_POST_AUDIENCE" };
@@ -95,7 +93,44 @@
 
     return {
       ok: true,
-      payload: Object.freeze({ body, audience: input.audience }),
+      payload: Object.freeze({ body: body.value, audience: input.audience }),
+    };
+  }
+
+  function normalizeCommentPageOptions(options) {
+    if (options !== undefined && (!options || typeof options !== "object" || Array.isArray(options))) {
+      return { ok: false, code: "SOCIAL_INVALID_COMMENT_PAGE" };
+    }
+
+    const parentCommentId = options && Object.hasOwn(options, "parentCommentId")
+      ? options.parentCommentId
+      : null;
+    if (parentCommentId !== null && !validPostUuid(parentCommentId)) {
+      return { ok: false, code: "SOCIAL_INVALID_COMMENT_ID" };
+    }
+
+    const requestedLimit = options && Object.hasOwn(options, "limit") ? options.limit : COMMENT_PAGE_LIMIT;
+    if (!Number.isInteger(requestedLimit)) {
+      return { ok: false, code: "SOCIAL_INVALID_COMMENT_PAGE" };
+    }
+    const limit = Math.min(COMMENT_PAGE_LIMIT, Math.max(1, requestedLimit));
+
+    const cursor = options && Object.hasOwn(options, "cursor") ? options.cursor : null;
+    if (cursor === null || cursor === undefined) {
+      return { ok: true, parentCommentId, cursorCreatedAt: null, cursorCommentId: null, limit };
+    }
+    if (!cursor || typeof cursor !== "object" || Array.isArray(cursor)
+      || typeof cursor.createdAt !== "string" || !Number.isFinite(Date.parse(cursor.createdAt))
+      || !validPostUuid(cursor.commentId)) {
+      return { ok: false, code: "SOCIAL_INVALID_COMMENT_CURSOR" };
+    }
+
+    return {
+      ok: true,
+      parentCommentId,
+      cursorCreatedAt: cursor.createdAt,
+      cursorCommentId: cursor.commentId,
+      limit,
     };
   }
 
@@ -270,13 +305,21 @@
     });
 
     const comments = Object.freeze({
-      list: async function (postId) {
+      list: async function (postId, options) {
         if (!validPostUuid(postId)) {
           return frozenFailure("SOCIAL_INVALID_POST_ID");
         }
+        const page = normalizeCommentPageOptions(options);
+        if (!page.ok) return frozenFailure(page.code);
         if (!hasRpcClient(client)) return unavailable();
         return execute(
-          () => client.rpc("vvip_social_comment_list", { p_post_id: postId }),
+          () => client.rpc("vvip_social_comment_list", {
+            p_post_id: postId,
+            p_parent_comment_id: page.parentCommentId,
+            p_cursor_created_at: page.cursorCreatedAt,
+            p_cursor_comment_id: page.cursorCommentId,
+            p_limit: page.limit,
+          }),
           true
         );
       },

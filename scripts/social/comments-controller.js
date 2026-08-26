@@ -1,7 +1,10 @@
 (function (root, factory) {
   "use strict";
 
-  const api = factory();
+  const textContract = root && root.TIGERSocialTextContract
+    ? root.TIGERSocialTextContract
+    : (typeof module === "object" && module.exports ? require("./text-contract.js") : null);
+  const api = factory(textContract);
 
   if (typeof module === "object" && module.exports) {
     module.exports = api;
@@ -10,8 +13,11 @@
   if (root && typeof root === "object") {
     root.TIGERSocialComments = api;
   }
-})(typeof globalThis !== "undefined" ? globalThis : this, function () {
+})(typeof globalThis !== "undefined" ? globalThis : this, function (textContract) {
   "use strict";
+
+  const COMMENT_PAGE_LIMIT = 20;
+  const COMMENT_LOAD_CONCURRENCY = 2;
 
   function frozen(value) {
     return Object.freeze(value);
@@ -27,52 +33,67 @@
     return typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
   }
 
-  function validBody(value) {
-    return typeof value === "string" && value.trim().length >= 1 && value.trim().length <= 2000;
+  function validTimestamp(value) {
+    return typeof value === "string" && value.length <= 64 && Number.isFinite(Date.parse(value));
   }
 
-  function normalizeRow(value, postId) {
+  function normalizeBody(value) {
+    if (!textContract || typeof textContract.normalizeText !== "function") return null;
+    const result = textContract.normalizeText(value, 2000, "SOCIAL_INVALID_COMMENT_BODY");
+    return result.ok && result.value === value ? result.value : null;
+  }
+
+  function normalizeRow(value, postId, parentCommentId) {
     if (!value || typeof value !== "object" || Array.isArray(value)) return null;
     if (!validId(value.comment_id) || value.post_id !== postId) return null;
-    if (value.parent_comment_id !== null && !validId(value.parent_comment_id)) return null;
-    if (!validBody(value.body)) return null;
-    if (typeof value.created_at !== "string" || typeof value.updated_at !== "string") return null;
+    if (value.parent_comment_id !== parentCommentId) return null;
+    const body = normalizeBody(value.body);
+    if (body === null) return null;
+    if (!validTimestamp(value.created_at) || !validTimestamp(value.updated_at)) return null;
     if (typeof value.viewer_can_edit !== "boolean") return null;
 
     return frozen({
       commentId: value.comment_id,
       postId: value.post_id,
       parentCommentId: value.parent_comment_id,
-      body: value.body,
+      body,
       createdAt: value.created_at,
       updatedAt: value.updated_at,
       viewerCanEdit: value.viewer_can_edit,
     });
   }
 
-  function normalizeSnapshot(result, postId) {
+  function normalizeCursor(value) {
+    if (value === null) return null;
+    if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+    if (!validTimestamp(value.created_at) || !validId(value.comment_id)) return undefined;
+    return frozen({ createdAt: value.created_at, commentId: value.comment_id });
+  }
+
+  function normalizePage(result, postId, parentCommentId) {
     const value = result && result.ok === true ? result.value : null;
     if (!value || typeof value !== "object" || Array.isArray(value)) return null;
-    if (value.ok !== true || value.post_id !== postId || !Array.isArray(value.items)) return null;
-    if (!Number.isInteger(value.total) || value.total !== value.items.length || value.total < 0) return null;
+    if (value.ok !== true || value.post_id !== postId || value.parent_comment_id !== parentCommentId) return null;
+    if (!Array.isArray(value.items) || value.items.length > COMMENT_PAGE_LIMIT) return null;
+    if (!Number.isInteger(value.page_count) || value.page_count !== value.items.length) return null;
+
+    const nextCursor = normalizeCursor(value.next_cursor);
+    if (nextCursor === undefined) return null;
 
     const items = [];
     const ids = new Set();
+    let rejectedCount = 0;
     for (const rawItem of value.items) {
-      const item = normalizeRow(rawItem, postId);
-      if (!item || ids.has(item.commentId)) return null;
+      const item = normalizeRow(rawItem, postId, parentCommentId);
+      if (!item || ids.has(item.commentId)) {
+        rejectedCount += 1;
+        continue;
+      }
       ids.add(item.commentId);
       items.push(item);
     }
 
-    const byId = new Map(items.map((item) => [item.commentId, item]));
-    for (const item of items) {
-      if (item.parentCommentId === null) continue;
-      const parent = byId.get(item.parentCommentId);
-      if (!parent || parent.parentCommentId !== null) return null;
-    }
-
-    return frozen({ total: items.length, items: frozen(items) });
+    return frozen({ items: frozen(items), rejectedCount, nextCursor });
   }
 
   function statusNode(documentObject, state, message) {
@@ -99,6 +120,9 @@
     const postId = options && options.postId;
     const comments = options && options.comments;
     const documentObject = options && options.document;
+    const scheduleRead = options && typeof options.scheduleRead === "function"
+      ? options.scheduleRead
+      : function (task) { return Promise.resolve().then(task); };
 
     if (!host || typeof host.replaceChildren !== "function") {
       throw new TypeError("SOCIAL_COMMENTS_HOST_REQUIRED");
@@ -123,7 +147,13 @@
     let draft = null;
     let submit = null;
     let state = null;
+    let refreshButton = null;
     let mode = frozen({ type: "create", commentId: null });
+    let parentItems = [];
+    let parentNextCursor = null;
+    let rejectedCount = 0;
+    const repliesByParent = new Map();
+    const replyNextCursor = new Map();
 
     function setState(nextState, message) {
       if (!state) return;
@@ -131,29 +161,41 @@
       state.textContent = message;
     }
 
+    function applyModeState() {
+      if (!submit) return;
+      if (mode.type === "reply") {
+        submit.textContent = "نشر الرد";
+        setState("reply", "أنت ترد على تعليق.");
+      } else if (mode.type === "edit") {
+        submit.textContent = "حفظ التعديل";
+        setState("edit", "أنت تعدّل تعليقك.");
+      } else {
+        submit.textContent = "نشر التعليق";
+        setState("ready", "");
+      }
+    }
+
     function resetMode() {
       mode = frozen({ type: "create", commentId: null });
       if (draft) draft.value = "";
-      if (submit) submit.textContent = "نشر التعليق";
-      setState("ready", "");
+      if (refreshButton) refreshButton.hidden = true;
+      applyModeState();
     }
 
     function chooseReply(commentId) {
       mode = frozen({ type: "reply", commentId });
-      if (submit) submit.textContent = "نشر الرد";
-      setState("reply", "أنت ترد على تعليق.");
+      applyModeState();
       if (draft && typeof draft.focus === "function") draft.focus();
     }
 
     function chooseEdit(item) {
       mode = frozen({ type: "edit", commentId: item.commentId });
       if (draft) draft.value = item.body;
-      if (submit) submit.textContent = "حفظ التعديل";
-      setState("edit", "أنت تعدّل تعليقك.");
+      applyModeState();
       if (draft && typeof draft.focus === "function") draft.focus();
     }
 
-    function commentNode(item, repliesByParent) {
+    function commentNode(item) {
       const article = documentObject.createElement("article");
       article.className = item.parentCommentId
         ? "social-comment social-comment--reply"
@@ -183,7 +225,14 @@
       if (item.parentCommentId === null) {
         const reply = actionButton(documentObject, "reply", item.commentId, "رد");
         reply.addEventListener("click", function () { chooseReply(item.commentId); });
-        actions.append(reply);
+
+        const showReplies = documentObject.createElement("button");
+        showReplies.type = "button";
+        showReplies.className = "social-comment__action social-comment__action--replies";
+        showReplies.setAttribute("data-social-comment-load-replies", item.commentId);
+        showReplies.textContent = "عرض الردود";
+        showReplies.addEventListener("click", function () { void loadReplies(item.commentId); });
+        actions.append(reply, showReplies);
       }
 
       if (item.viewerCanEdit) {
@@ -202,14 +251,24 @@
         const replyList = documentObject.createElement("div");
         replyList.className = "social-comment__replies";
         replyList.setAttribute("data-social-comment-replies", item.commentId);
-        for (const reply of replies) replyList.append(commentNode(reply, new Map()));
+        for (const reply of replies) replyList.append(commentNode(reply));
         article.append(replyList);
+      }
+
+      if (replyNextCursor.get(item.commentId)) {
+        const moreReplies = documentObject.createElement("button");
+        moreReplies.type = "button";
+        moreReplies.className = "social-comment__action social-comments__more";
+        moreReplies.setAttribute("data-social-comment-more-replies", item.commentId);
+        moreReplies.textContent = "عرض المزيد من الردود";
+        moreReplies.addEventListener("click", function () { void loadReplies(item.commentId, true); });
+        article.append(moreReplies);
       }
 
       return article;
     }
 
-    function composerNode() {
+    function composerNode(initialValue) {
       const form = documentObject.createElement("form");
       form.className = "social-comments__composer";
       form.setAttribute("data-social-comment-composer", "");
@@ -221,15 +280,23 @@
       draft = documentObject.createElement("textarea");
       draft.className = "social-comments__draft";
       draft.setAttribute("data-social-comment-draft", "");
-      draft.setAttribute("maxlength", "2000");
       draft.setAttribute("rows", "2");
       draft.setAttribute("placeholder", "اكتب تعليقًا…");
+      draft.value = initialValue;
       label.append(draft);
 
       const controls = documentObject.createElement("div");
       controls.className = "social-comments__composer-controls";
 
       state = statusNode(documentObject, "ready", "");
+
+      refreshButton = documentObject.createElement("button");
+      refreshButton.type = "button";
+      refreshButton.className = "social-comments__cancel social-comments__refresh";
+      refreshButton.setAttribute("data-social-comment-refresh", "");
+      refreshButton.textContent = "إعادة تحميل التعليقات";
+      refreshButton.hidden = true;
+      refreshButton.addEventListener("click", function () { void retryRefresh(); });
 
       const cancel = documentObject.createElement("button");
       cancel.type = "button";
@@ -244,7 +311,7 @@
       submit.setAttribute("data-social-comment-submit", "");
       submit.textContent = "نشر التعليق";
 
-      controls.append(state, cancel, submit);
+      controls.append(state, refreshButton, cancel, submit);
       form.append(label, controls);
       form.addEventListener("submit", function (event) {
         if (event && typeof event.preventDefault === "function") event.preventDefault();
@@ -259,38 +326,48 @@
         }
         void create(body);
       });
+      applyModeState();
       return form;
     }
 
-    function render(snapshot) {
+    function renderCollection() {
       hasConfirmed = true;
       host.setAttribute("aria-busy", "false");
-      host.dataset.socialCommentsCount = String(snapshot.total);
+      const previousDraft = draft ? draft.value : "";
 
       const list = documentObject.createElement("div");
       list.className = "social-comments__list";
       list.setAttribute("data-social-comments-list", "");
 
-      const repliesByParent = new Map();
-      const topLevel = [];
-      for (const item of snapshot.items) {
-        if (item.parentCommentId === null) {
-          topLevel.push(item);
-          continue;
-        }
-        const replies = repliesByParent.get(item.parentCommentId) || [];
-        replies.push(item);
-        repliesByParent.set(item.parentCommentId, replies);
+      if (rejectedCount > 0) {
+        list.append(statusNode(
+          documentObject,
+          "malformed",
+          "تعذر عرض " + rejectedCount + " من عناصر التعليقات غير الصالحة."
+        ));
       }
 
-      if (topLevel.length === 0) {
+      if (parentItems.length === 0) {
         list.append(statusNode(documentObject, "empty", "لا توجد تعليقات بعد. كن أول من يعلّق."));
       } else {
-        for (const item of topLevel) list.append(commentNode(item, repliesByParent));
+        for (const item of parentItems) list.append(commentNode(item));
       }
 
-      host.replaceChildren(list, composerNode());
-      return frozen({ ok: true, count: snapshot.total, empty: snapshot.total === 0 });
+      if (parentNextCursor) {
+        const more = documentObject.createElement("button");
+        more.type = "button";
+        more.className = "social-comment__action social-comments__more";
+        more.setAttribute("data-social-comments-more", "");
+        more.textContent = "عرض المزيد من التعليقات";
+        more.addEventListener("click", function () { void loadMore(); });
+        list.append(more);
+      }
+
+      host.dataset.socialCommentsMalformed = String(rejectedCount);
+      host.dataset.socialCommentsCount = String(
+        parentItems.length + Array.from(repliesByParent.values()).reduce((sum, items) => sum + items.length, 0)
+      );
+      host.replaceChildren(list, composerNode(previousDraft));
     }
 
     function renderLoadFailure() {
@@ -303,6 +380,34 @@
       return frozen({ ok: false, code: "SOCIAL_COMMENTS_FAILED" });
     }
 
+    function uniqueAppend(current, incoming) {
+      const seen = new Set(current.map((item) => item.commentId));
+      const merged = current.slice();
+      let duplicates = 0;
+      for (const item of incoming) {
+        if (seen.has(item.commentId)) {
+          duplicates += 1;
+          continue;
+        }
+        seen.add(item.commentId);
+        merged.push(item);
+      }
+      return { items: merged, duplicates };
+    }
+
+    async function fetchPage(parentCommentId, cursor) {
+      const result = await scheduleRead(function () {
+        if (destroyed) return frozen({ ok: false, code: "SOCIAL_COMMENTS_DESTROYED" });
+        return comments.list(postId, {
+          parentCommentId,
+          cursor,
+          limit: COMMENT_PAGE_LIMIT,
+        });
+      });
+      if (destroyed) return null;
+      return normalizePage(result, postId, parentCommentId);
+    }
+
     async function load() {
       if (destroyed) return frozen({ ok: false, code: "SOCIAL_COMMENTS_DESTROYED" });
       host.setAttribute("aria-busy", "true");
@@ -313,11 +418,67 @@
       }
 
       try {
-        const result = await comments.list(postId);
+        const page = await fetchPage(null, null);
         if (destroyed) return frozen({ ok: false, code: "SOCIAL_COMMENTS_DESTROYED" });
-        const snapshot = normalizeSnapshot(result, postId);
-        if (!snapshot) return renderLoadFailure();
-        return render(snapshot);
+        if (!page) return renderLoadFailure();
+        parentItems = page.items.slice();
+        parentNextCursor = page.nextCursor;
+        rejectedCount = page.rejectedCount;
+        repliesByParent.clear();
+        replyNextCursor.clear();
+        renderCollection();
+        return frozen({
+          ok: true,
+          count: parentItems.length,
+          empty: parentItems.length === 0,
+          rejectedCount,
+          nextCursor: parentNextCursor,
+        });
+      } catch (_) {
+        return renderLoadFailure();
+      }
+    }
+
+    async function loadMore() {
+      if (!parentNextCursor) {
+        return frozen({ ok: true, count: parentItems.length, rejectedCount, nextCursor: null });
+      }
+      host.setAttribute("aria-busy", "true");
+      try {
+        const page = await fetchPage(null, parentNextCursor);
+        if (destroyed) return frozen({ ok: false, code: "SOCIAL_COMMENTS_DESTROYED" });
+        if (!page) return renderLoadFailure();
+        const merged = uniqueAppend(parentItems, page.items);
+        parentItems = merged.items;
+        parentNextCursor = page.nextCursor;
+        rejectedCount += page.rejectedCount + merged.duplicates;
+        renderCollection();
+        return frozen({ ok: true, count: parentItems.length, rejectedCount, nextCursor: parentNextCursor });
+      } catch (_) {
+        return renderLoadFailure();
+      }
+    }
+
+    async function loadReplies(parentCommentId, appendPage) {
+      if (!validId(parentCommentId)) return frozen({ ok: false, code: "SOCIAL_INVALID_COMMENT_ID" });
+      const cursor = appendPage ? (replyNextCursor.get(parentCommentId) || null) : null;
+      host.setAttribute("aria-busy", "true");
+      try {
+        const page = await fetchPage(parentCommentId, cursor);
+        if (destroyed) return frozen({ ok: false, code: "SOCIAL_COMMENTS_DESTROYED" });
+        if (!page) return renderLoadFailure();
+        const current = appendPage ? (repliesByParent.get(parentCommentId) || []) : [];
+        const merged = uniqueAppend(current, page.items);
+        repliesByParent.set(parentCommentId, merged.items);
+        replyNextCursor.set(parentCommentId, page.nextCursor);
+        rejectedCount += page.rejectedCount + merged.duplicates;
+        renderCollection();
+        return frozen({
+          ok: true,
+          count: merged.items.length,
+          rejectedCount: page.rejectedCount + merged.duplicates,
+          nextCursor: page.nextCursor,
+        });
       } catch (_) {
         return renderLoadFailure();
       }
@@ -327,6 +488,13 @@
       host.setAttribute("aria-busy", "false");
       setState("error", "تعذر حفظ التغيير الآن. حاول مرة أخرى.");
       return frozen({ ok: false, code: "SOCIAL_COMMENTS_FAILED" });
+    }
+
+    function renderRefreshPending() {
+      if (!state) host.replaceChildren(composerNode(""));
+      setState("refresh-pending", "تم الحفظ. تعذر تحديث التعليقات؛ أعد التحميل فقط.");
+      if (refreshButton) refreshButton.hidden = false;
+      return frozen({ ok: true, code: "SOCIAL_COMMENT_SAVED_REFRESH_PENDING" });
     }
 
     async function applyMutation(operation, affectedControl) {
@@ -339,14 +507,22 @@
       setState("pending", "جارٍ الحفظ…");
 
       try {
-        const result = await operation();
+        let result;
+        try {
+          result = await operation();
+        } catch (_) {
+          return renderMutationFailure();
+        }
         if (destroyed) return frozen({ ok: false, code: "SOCIAL_COMMENTS_DESTROYED" });
-        if (!result || result.ok !== true) return renderMutationFailure();
+        if (!result || result.ok !== true || !result.value || result.value.ok !== true) {
+          return renderMutationFailure();
+        }
+
+        resetMode();
         const refreshed = await load();
-        if (refreshed.ok) resetMode();
+        if (destroyed) return frozen({ ok: false, code: "SOCIAL_COMMENTS_DESTROYED" });
+        if (!refreshed.ok) return renderRefreshPending();
         return refreshed;
-      } catch (_) {
-        return renderMutationFailure();
       } finally {
         pending = false;
         if (!destroyed) host.setAttribute("aria-busy", "false");
@@ -355,27 +531,24 @@
     }
 
     function create(body) {
-      return applyMutation(function () {
-        return comments.create(postId, { body });
-      });
+      return applyMutation(function () { return comments.create(postId, { body }); });
     }
 
     function reply(parentCommentId, body) {
-      return applyMutation(function () {
-        return comments.create(postId, { body, parentCommentId });
-      });
+      return applyMutation(function () { return comments.create(postId, { body, parentCommentId }); });
     }
 
     function update(commentId, body) {
-      return applyMutation(function () {
-        return comments.update(commentId, body);
-      });
+      return applyMutation(function () { return comments.update(commentId, body); });
     }
 
     function remove(commentId, affectedControl) {
-      return applyMutation(function () {
-        return comments.remove(commentId);
-      }, affectedControl);
+      return applyMutation(function () { return comments.remove(commentId); }, affectedControl);
+    }
+
+    function retryRefresh() {
+      if (refreshButton) refreshButton.hidden = true;
+      return load();
     }
 
     function focusDraft() {
@@ -390,15 +563,48 @@
       draft = null;
       submit = null;
       state = null;
+      refreshButton = null;
+      parentItems = [];
+      repliesByParent.clear();
+      replyNextCursor.clear();
       host.removeAttribute("aria-busy");
       host.replaceChildren();
       return frozen({ destroyed: true });
     }
 
-    return frozen({ load, create, reply, update, remove, focusDraft, destroy });
+    return frozen({ load, loadMore, loadReplies, retryRefresh, create, reply, update, remove, focusDraft, destroy });
   }
 
-  function mountCommentHost(rootObject, comments, host) {
+  function createLoadScheduler(limit) {
+    const maximum = Number.isInteger(limit) && limit > 0 ? limit : COMMENT_LOAD_CONCURRENCY;
+    const queue = [];
+    let active = 0;
+
+    function pump() {
+      while (active < maximum && queue.length > 0) {
+        const entry = queue.shift();
+        active += 1;
+        Promise.resolve()
+          .then(entry.task)
+          .then(entry.resolve, entry.reject)
+          .finally(function () {
+            active -= 1;
+            pump();
+          });
+      }
+    }
+
+    return function schedule(task) {
+      return new Promise(function (resolve, reject) {
+        queue.push({ task, resolve, reject });
+        pump();
+      });
+    };
+  }
+
+  const scheduleCommentLoad = createLoadScheduler(COMMENT_LOAD_CONCURRENCY);
+
+  function mountCommentHost(rootObject, comments, host, schedule) {
     if (!host || host.dataset.socialCommentsMounted === "true") return null;
     const postId = host.getAttribute("data-social-post-id");
     if (!validId(postId)) return null;
@@ -409,6 +615,7 @@
       postId,
       comments,
       document: rootObject.document,
+      scheduleRead: schedule,
     });
 
     let loadPromise = null;
@@ -453,30 +660,13 @@
 
     const hosts = Array.from(documentObject.querySelectorAll("[data-social-comments-host]"));
     const mounts = hosts
-      .map((host) => mountCommentHost(runtimeRoot, runtime.comments, host))
+      .map((host) => mountCommentHost(runtimeRoot, runtime.comments, host, scheduleCommentLoad))
       .filter(Boolean);
 
-    if (typeof runtimeRoot.IntersectionObserver !== "function") {
-      mounts.forEach((mount) => { void mount.ensureLoaded(); });
-      return frozen({ mounted: mounts.length });
-    }
-
-    const byHost = new Map(mounts.map((mount) => [mount.host, mount]));
-    const observer = new runtimeRoot.IntersectionObserver(function (entries) {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        const mount = byHost.get(entry.target);
-        if (mount) void mount.ensureLoaded();
-        observer.unobserve(entry.target);
-      }
-    }, { rootMargin: "160px 0px" });
-
-    mounts.forEach((mount) => observer.observe(mount.host));
+    // Deliberately no IntersectionObserver or mount-time load: comments are fetched
+    // only after the user activates a post's comment control.
     return frozen({ mounted: mounts.length });
   }
 
-  return frozen({
-    createSocialCommentsController,
-    mountCurrentSocialComments,
-  });
+  return frozen({ createSocialCommentsController, mountCurrentSocialComments });
 });

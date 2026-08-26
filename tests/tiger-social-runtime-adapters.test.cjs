@@ -110,6 +110,22 @@ test("create post sends only user content and audience; database owns author ide
   assert.equal(Object.hasOwn(insert.payload, "authorId"), false);
 });
 
+test("post text uses Unicode code-point limits and rejects the binding whitespace set", async () => {
+  const recorder = createRecorder((state) => ({
+    data: { post_id: "p1", body: state.payload.body, audience: state.payload.audience },
+    error: null,
+  }));
+  const social = createSocialRuntimeAdapters({ client: recorder.client });
+
+  assert.equal((await social.posts.create({ body: " \n\t　", audience: "public" })).ok, false);
+  assert.equal((await social.posts.create({ body: "😀".repeat(5000), audience: "public" })).ok, true);
+  assert.equal((await social.posts.create({ body: "😀".repeat(5001), audience: "public" })).ok, false);
+
+  const inserts = recorder.calls.filter((call) => call.type === "insert");
+  assert.equal(inserts.length, 1);
+  assert.equal(Array.from(inserts[0].payload.body).length, 5000);
+});
+
 test("friend request sends only addressee; database owns requester and pending default", async () => {
   const recorder = createRecorder(() => ({
     data: { relationship_id: "r1", addressee_subject: "user_bob", relationship_state: "pending" },

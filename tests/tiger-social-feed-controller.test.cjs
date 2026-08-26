@@ -126,6 +126,27 @@ test("controller renders trusted posts using text nodes and semantic post metada
   assert.match(JSON.stringify(host.children[1]), /Second post/);
 });
 
+test("controller reports isolated malformed feed rows without hiding safe posts", async () => {
+  const host = fakeElement("section");
+  const controller = createSocialFeedController({
+    host,
+    document: fakeDocument(),
+    readModel: {
+      load: async () => ({
+        ok: true,
+        empty: false,
+        rejectedCount: 2,
+        items: [post()],
+      }),
+    },
+  });
+
+  const result = await controller.load();
+  assert.deepEqual(result, { ok: true, count: 1, empty: false, rejectedCount: 2 });
+  assert.equal(host.dataset.socialFeedMalformed, "2");
+  assert.equal(host.children.length, 1);
+});
+
 test("feed controller source never uses innerHTML for user content", () => {
   const source = fs.readFileSync("scripts/social/feed-controller.js", "utf8");
   assert.doesNotMatch(source, /\.innerHTML\s*=/);

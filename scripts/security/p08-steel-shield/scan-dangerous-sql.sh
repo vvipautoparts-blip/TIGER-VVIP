@@ -79,7 +79,7 @@ declare -A reviewed_migration_hashes=(
   # Social Core foundation: reviewed against the 2026-08-18 Clerk actor, FORCE-RLS,
   # post audience, relationship-transition, and legacy-feed isolation contracts.
   # The approval is content-addressed; any byte drift re-enters review automatically.
-  ["supabase/migrations/20260818125000_social_core_foundation.sql"]="fa6169a934e6a128849ae9557a30245dcd4e310975cfcb3246d0a8e9f0d057a8"
+  ["supabase/migrations/20260818125000_social_core_foundation.sql"]="d7f15478df2ff3e244632042cf28d867eb3cea8a562050f68834d793905d2151"
 
   # Social Reactions: reviewed with CRITICAL=0 after mutation predicates were made
   # scanner-visible. The remaining findings are expected new-table NOT NULL integrity,
@@ -88,10 +88,11 @@ declare -A reviewed_migration_hashes=(
   ["supabase/migrations/20260818133000_social_reactions.sql"]="174b688fee994e329824230f48e031bb59de9f0c4049f322791f363dc88354ea"
 
   # Social Comments: reviewed with CRITICAL=0 after UPDATE/DELETE predicates were
-  # made scanner-visible. Findings are five new-table NOT NULL integrity rules and
-  # four exact authenticated EXECUTE grants. Browser table CRUD remains revoked;
-  # actor, visibility, one-level reply, and ownership checks stay server-side.
-  ["supabase/migrations/20260818143000_social_comments.sql"]="3bb5c018cb0508c91f5ead0a38f044f2293d35066e43bf796c59148305e720e7"
+  # made scanner-visible. Findings are five new-table NOT NULL integrity rules,
+  # two lexical `is not null` pagination predicates, and four exact authenticated
+  # EXECUTE grants. Browser table CRUD remains revoked; actor, visibility, bounded
+  # keyset pages, one-level reply, and ownership checks stay server-side.
+  ["supabase/migrations/20260818143000_social_comments.sql"]="ed40f4e4ed67ad5dee8c87181f90602cf8878593f55b05d041e3e7a1201ce5fb"
 )
 
 reviewed_baseline_path() {

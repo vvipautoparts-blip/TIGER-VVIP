@@ -22,7 +22,7 @@
 - Only one reply level is allowed: a reply may reference a top-level comment on the same post; replies to replies fail closed.
 - Post visibility is rechecked through `public.vvip_social_can_view_post()` on list and create.
 - Update/remove require current actor ownership and do not trust client-rendered ownership controls.
-- Body is trimmed, non-empty, and at most 2,000 Unicode code units at both adapter and database boundaries.
+- Body uses the binding explicit Unicode edge-whitespace set, remains non-empty, and is at most 2,000 Unicode code points at both adapter and database boundaries.
 - UI uses `textContent`/DOM nodes only; no user content enters `innerHTML`.
 - Offline/runtime failure never appears as successful creation, update, or removal.
 - `comments-controller.js` enters the Web Artifact only through the exact-file allowlist.
@@ -121,13 +121,14 @@ Add assertions equivalent to:
 
 ```js
 for (const signature of [
-  /vvip_social_comment_list\s*\(p_post_id uuid\)/i,
+  /vvip_social_comment_list\s*\(p_post_id uuid, p_parent_comment_id uuid default null, p_cursor_created_at timestamptz default null, p_cursor_comment_id uuid default null, p_limit integer default 20\)/i,
   /vvip_social_comment_create\s*\(p_post_id uuid, p_body text, p_parent_comment_id uuid default null\)/i,
   /vvip_social_comment_update\s*\(p_comment_id uuid, p_body text\)/i,
   /vvip_social_comment_remove\s*\(p_comment_id uuid\)/i,
 ]) assert.match(sql, signature);
 
-assert.match(sql, /char_length\(btrim\(p_body\)\) between 1 and 2000/i);
+assert.match(sql, /public\.vvip_social_text_normalize\(p_body\)/i);
+assert.match(sql, /least\(greatest\(coalesce\(p_limit, 20\), 1\), 20\)/i);
 assert.match(sql, /parent\.post_id = p_post_id/i);
 assert.match(sql, /parent\.parent_comment_id is null/i);
 assert.match(sql, /target\.author_subject = v_actor/i);
@@ -229,7 +230,7 @@ git commit -m "test(social): freeze secure comments and replies contract"
 - Test: `tests/sql/tiger-social-comments.sql`
 
 **Interfaces:**
-- `public.vvip_social_comment_list(p_post_id uuid) -> jsonb`
+- `public.vvip_social_comment_list(p_post_id uuid, p_parent_comment_id uuid default null, p_cursor_created_at timestamptz default null, p_cursor_comment_id uuid default null, p_limit integer default 20) -> jsonb`
 - `public.vvip_social_comment_create(p_post_id uuid, p_body text, p_parent_comment_id uuid default null) -> jsonb`
 - `public.vvip_social_comment_update(p_comment_id uuid, p_body text) -> jsonb`
 - `public.vvip_social_comment_remove(p_comment_id uuid) -> jsonb`
@@ -244,7 +245,10 @@ create table public.vvip_social_comments (
   post_id uuid not null references public.vvip_social_posts (post_id) on delete cascade,
   parent_comment_id uuid references public.vvip_social_comments (comment_id) on delete cascade,
   author_subject text not null,
-  body text not null check (char_length(btrim(body)) between 1 and 2000),
+  body text not null check (
+    char_length(public.vvip_social_text_normalize(body)) between 1 and 2000
+    and body = public.vvip_social_text_normalize(body)
+  ),
   created_at timestamptz not null default statement_timestamp(),
   updated_at timestamptz not null default statement_timestamp(),
   check (parent_comment_id is null or parent_comment_id <> comment_id)
@@ -299,15 +303,15 @@ if parent.post_id <> p_post_id then
 end if;
 ```
 
-Return only bounded comment fields and `ok`; do not return authorization internals or raw policy/risk facts.
+Return only bounded comment fields and `ok`; do not return authorization internals or raw policy/risk facts. The list RPC serves either top-level comments or one parent's replies, clamps the requested page to `1..20`, uses `(created_at, comment_id)` keyset pagination, and returns `next_cursor` only when another page exists.
 
 - [ ] **Step 4: Grant only RPC execution**
 
 Apply explicit function grants:
 
 ```sql
-revoke all on function public.vvip_social_comment_list(uuid) from public, anon;
-grant execute on function public.vvip_social_comment_list(uuid) to authenticated;
+revoke all on function public.vvip_social_comment_list(uuid, uuid, timestamptz, uuid, integer) from public, anon;
+grant execute on function public.vvip_social_comment_list(uuid, uuid, timestamptz, uuid, integer) to authenticated;
 ```
 
 Repeat for the three exact remaining signatures. Do not grant direct table privileges.
@@ -388,7 +392,7 @@ git commit -m "feat(social): add secure comments persistence"
 - Test: `tests/tiger-social-comments.test.cjs`
 
 **Interfaces:**
-- `runtime.comments.list(postId)`
+- `runtime.comments.list(postId, { parentCommentId?, cursor?, limit? })`
 - `runtime.comments.create(postId, { body, parentCommentId? })`
 - `runtime.comments.update(commentId, body)`
 - `runtime.comments.remove(commentId)`
@@ -400,10 +404,11 @@ Implement:
 
 ```js
 function normalizeCommentBody(value) {
-  if (typeof value !== "string") return { ok: false, code: "SOCIAL_INVALID_COMMENT_BODY" };
-  const body = value.trim();
-  if (!body || body.length > 2000) return { ok: false, code: "SOCIAL_INVALID_COMMENT_BODY" };
-  return { ok: true, value: body };
+  return bindingSocialTextContract.normalizeText(
+    value,
+    2000,
+    "SOCIAL_INVALID_COMMENT_BODY"
+  );
 }
 
 function validCommentUuid(value) {
@@ -416,7 +421,13 @@ function validCommentUuid(value) {
 The valid payloads are exactly:
 
 ```js
-client.rpc("vvip_social_comment_list", { p_post_id: postId });
+client.rpc("vvip_social_comment_list", {
+  p_post_id: postId,
+  p_parent_comment_id: parentCommentId || null,
+  p_cursor_created_at: cursor ? cursor.createdAt : null,
+  p_cursor_comment_id: cursor ? cursor.commentId : null,
+  p_limit: clampedLimit,
+});
 client.rpc("vvip_social_comment_create", {
   p_post_id: postId,
   p_body: normalizedBody,
@@ -460,7 +471,7 @@ git commit -m "feat(social): add bounded comments runtime adapter"
 - Test: `tests/tiger-social-comments.test.cjs`
 
 **Interfaces:**
-- `createSocialCommentsController({ host, postId, comments, document }) -> { load, create, reply, update, remove, destroy }`
+- `createSocialCommentsController({ host, postId, comments, document }) -> { load, loadMore, loadReplies, retryRefresh, create, reply, update, remove, destroy }`
 - `mountCurrentSocialComments(rootObject) -> frozen result`
 - Browser global: `globalThis.TIGERSocialComments`.
 
@@ -496,7 +507,7 @@ Every body and author-facing label is assigned via `textContent`. No `innerHTML`
 
 - [ ] **Step 3: Make mutations server-confirmed and single-flight**
 
-Before each mutation, disable only the affected control and expose `pending`. On `{ ok: true }`, reload the trusted list or apply the returned bounded row. On `{ ok: false }` or thrown error, preserve the previous trusted list, restore controls, retain draft text when appropriate, and show a bounded Arabic error. Repeated click/submit while the same action is pending performs no second RPC.
+Before each mutation, disable only the affected control and expose `pending`. On `{ ok: true }`, clear the create draft because persistence is confirmed, then reload the trusted list. A failed reload reports `saved / refresh-pending` and offers a separate refresh retry; it must not report mutation failure or retain a duplicate-create draft. On `{ ok: false }` or a thrown mutation error, preserve the previous trusted list, restore controls, retain draft text when appropriate, and show a bounded Arabic error. Repeated click/submit while the same action is pending performs no second RPC.
 
 - [ ] **Step 4: Mount comments after trusted feed rendering**
 
@@ -510,6 +521,8 @@ if (result.ok && commentsApi && typeof commentsApi.mountCurrentSocialComments ==
 ```
 
 Load `scripts/social/comments-controller.js` in `index.html` after `runtime-adapters.js` and before `feed-controller.js`.
+
+Mounting creates no comment read. Only explicit user activation starts a list RPC, and the browser scheduler permits at most two concurrent comment loads. Top-level pages and reply pages remain separately bounded; this is client fanout control, not a substitute for the deferred remote abuse/rate-limit gate.
 
 - [ ] **Step 5: Add resilient bilingual/RTL-safe presentation**
 

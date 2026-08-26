@@ -1,7 +1,10 @@
 (function (root, factory) {
   "use strict";
 
-  const api = factory();
+  const textContract = root && root.TIGERSocialTextContract
+    ? root.TIGERSocialTextContract
+    : (typeof module === "object" && module.exports ? require("./text-contract.js") : null);
+  const api = factory(textContract);
 
   if (typeof module === "object" && module.exports) {
     module.exports = api;
@@ -13,7 +16,7 @@
       api.installCurrentSocialPostComposer(root);
     }
   }
-})(typeof globalThis !== "undefined" ? globalThis : this, function () {
+})(typeof globalThis !== "undefined" ? globalThis : this, function (textContract) {
   "use strict";
 
   const AUDIENCES = new Set(["public", "friends", "only_me"]);
@@ -31,21 +34,19 @@
     if (!input || typeof input !== "object" || Array.isArray(input)) {
       return failure("SOCIAL_POST_INVALID_DRAFT");
     }
-    if (typeof input.body !== "string") {
+    if (!textContract || typeof textContract.normalizeText !== "function") {
       return failure("SOCIAL_POST_INVALID_BODY");
     }
 
-    const body = input.body.trim();
-    if (!body || body.length > MAX_BODY_LENGTH) {
-      return failure("SOCIAL_POST_INVALID_BODY");
-    }
+    const body = textContract.normalizeText(input.body, MAX_BODY_LENGTH, "SOCIAL_POST_INVALID_BODY");
+    if (!body.ok) return failure(body.code);
     if (!AUDIENCES.has(input.audience)) {
       return failure("SOCIAL_POST_INVALID_AUDIENCE");
     }
 
     return frozen({
       ok: true,
-      value: frozen({ body, audience: input.audience }),
+      value: frozen({ body: body.value, audience: input.audience }),
     });
   }
 

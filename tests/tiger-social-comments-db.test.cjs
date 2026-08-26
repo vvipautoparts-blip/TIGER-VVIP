@@ -15,7 +15,7 @@ test("Social Comments stores bounded one-level replies with useful lookup indexe
   const sql = migration();
 
   assert.match(sql, /create table public\.vvip_social_comments/i);
-  assert.match(sql, /body text not null check \(char_length\(btrim\(body\)\) between 1 and 2000\)/i);
+  assert.match(sql, /body text not null check \([\s\S]*char_length\(public\.vvip_social_text_normalize\(body\)\) between 1 and 2000[\s\S]*body = public\.vvip_social_text_normalize\(body\)[\s\S]*\)/i);
   assert.match(sql, /parent_comment_id uuid references public\.vvip_social_comments\s*\(comment_id\)\s*on delete cascade/i);
   assert.match(sql, /vvip_social_comments_post_idx[\s\S]*\(post_id, created_at, comment_id\)/i);
   assert.match(sql, /vvip_social_comments_parent_idx[\s\S]*\(parent_comment_id, created_at, comment_id\)/i);
@@ -30,7 +30,7 @@ test("Social Comments exposes exact authenticated RPCs and no direct browser tab
   assert.match(sql, /revoke all privileges on table public\.vvip_social_comments from public, anon, authenticated/i);
 
   for (const signature of [
-    "vvip_social_comment_list\\(p_post_id uuid\\)",
+    "vvip_social_comment_list\\(p_post_id uuid, p_parent_comment_id uuid default null, p_cursor_created_at timestamptz default null, p_cursor_comment_id uuid default null, p_limit integer default 20\\)",
     "vvip_social_comment_create\\(p_post_id uuid, p_body text, p_parent_comment_id uuid default null\\)",
     "vvip_social_comment_update\\(p_comment_id uuid, p_body text\\)",
     "vvip_social_comment_remove\\(p_comment_id uuid\\)",
@@ -38,11 +38,22 @@ test("Social Comments exposes exact authenticated RPCs and no direct browser tab
     assert.match(sql, new RegExp(`create function public\\.${signature}`, "i"));
   }
 
-  assert.match(sql, /grant execute on function public\.vvip_social_comment_list\(uuid\) to authenticated/i);
+  assert.match(sql, /grant execute on function public\.vvip_social_comment_list\(uuid, uuid, timestamptz, uuid, integer\) to authenticated/i);
   assert.match(sql, /grant execute on function public\.vvip_social_comment_create\(uuid, text, uuid\) to authenticated/i);
   assert.match(sql, /grant execute on function public\.vvip_social_comment_update\(uuid, text\) to authenticated/i);
   assert.match(sql, /grant execute on function public\.vvip_social_comment_remove\(uuid\) to authenticated/i);
   assert.doesNotMatch(sql, /grant\s+(select|insert|update|delete).*vvip_social_comments.*authenticated/i);
+});
+
+test("Social Comments list is server-clamped and keyset paginated for parents or one parent's replies", () => {
+  const sql = migration();
+
+  assert.match(sql, /least\(greatest\(coalesce\(p_limit, 20\), 1\), 20\)/i);
+  assert.match(sql, /parent_comment_id is not distinct from p_parent_comment_id/i);
+  assert.match(sql, /\(comment\.created_at, comment\.comment_id\) > \(p_cursor_created_at, p_cursor_comment_id\)/i);
+  assert.match(sql, /limit v_limit \+ 1/i);
+  assert.match(sql, /'next_cursor'/i);
+  assert.match(sql, /'page_count'/i);
 });
 
 test("Social Comments derives actor and visibility on the server and denies nested or cross-post replies", () => {

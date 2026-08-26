@@ -167,6 +167,10 @@
         }
 
         host.setAttribute("aria-busy", "false");
+        const rejectedCount = Number.isInteger(snapshot.rejectedCount) && snapshot.rejectedCount > 0
+          ? snapshot.rejectedCount
+          : 0;
+        host.dataset.socialFeedMalformed = String(rejectedCount);
 
         if (snapshot.empty || snapshot.items.length === 0) {
           host.replaceChildren(statusNode(
@@ -174,12 +178,12 @@
             "empty",
             "لا توجد منشورات متاحة لك حتى الآن."
           ));
-          return frozen({ ok: true, count: 0, empty: true });
+          return frozen({ ok: true, count: 0, empty: true, rejectedCount });
         }
 
         const nodes = snapshot.items.map((item) => postNode(documentObject, item));
         host.replaceChildren(...nodes);
-        return frozen({ ok: true, count: nodes.length, empty: false });
+        return frozen({ ok: true, count: nodes.length, empty: false, rejectedCount });
       },
     });
   }

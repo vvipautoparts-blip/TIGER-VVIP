@@ -18,7 +18,7 @@ select (
 \endif
 
 select (
-  has_function_privilege('authenticated', 'public.vvip_social_comment_list(uuid)', 'EXECUTE')
+  has_function_privilege('authenticated', 'public.vvip_social_comment_list(uuid,uuid,timestamptz,uuid,integer)', 'EXECUTE')
   and has_function_privilege('authenticated', 'public.vvip_social_comment_create(uuid,text,uuid)', 'EXECUTE')
   and has_function_privilege('authenticated', 'public.vvip_social_comment_update(uuid,text)', 'EXECUTE')
   and has_function_privilege('authenticated', 'public.vvip_social_comment_remove(uuid)', 'EXECUTE')
@@ -135,6 +135,54 @@ $proof$;
 
 do $proof$
 declare
+  v_post uuid := (select value from social_comment_test_context where key = 'public_post');
+  v_rejected boolean := false;
+begin
+  begin
+    perform public.vvip_social_comment_create(v_post, E'\n\t' || U&'\00A0\3000', null);
+  exception when others then
+    v_rejected := true;
+  end;
+  if not v_rejected then
+    raise exception 'TEST_EXPECTED_COMMENT_UNICODE_WHITESPACE_REJECTION';
+  end if;
+end;
+$proof$;
+\echo COMMENT_UNICODE_WHITESPACE_REJECTED=PASS
+
+select (
+  public.vvip_social_comment_create(
+    :'public_post_id'::uuid,
+    repeat(U&'\D83D\DE00', 2000),
+    null
+  )->>'ok' = 'true'
+) as comment_astral_max_accepted
+\gset
+\if :comment_astral_max_accepted
+\else
+  \echo COMMENT_ASTRAL_BOUNDARY=FAIL
+  \quit 1
+\endif
+
+do $proof$
+declare
+  v_post uuid := (select value from social_comment_test_context where key = 'public_post');
+  v_rejected boolean := false;
+begin
+  begin
+    perform public.vvip_social_comment_create(v_post, repeat(U&'\D83D\DE00', 2001), null);
+  exception when others then
+    v_rejected := true;
+  end;
+  if not v_rejected then
+    raise exception 'TEST_EXPECTED_COMMENT_ASTRAL_LIMIT_REJECTION';
+  end if;
+end;
+$proof$;
+\echo COMMENT_ASTRAL_BOUNDARY=PASS
+
+do $proof$
+declare
   v_other_post uuid := (select value from social_comment_test_context where key = 'other_public_post');
   v_parent uuid := (select value from social_comment_test_context where key = 'bob_comment');
 begin
@@ -166,7 +214,13 @@ set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"user_charlie"}', true);
 
 select (
-  public.vvip_social_comment_list(:'public_post_id'::uuid)->>'total' = '2'
+  public.vvip_social_comment_list(
+    :'public_post_id'::uuid,
+    null,
+    null,
+    null,
+    20
+  )->>'page_count' = '2'
 ) as public_comment_list_visible
 \gset
 \if :public_comment_list_visible
@@ -223,6 +277,92 @@ begin
 end;
 $proof$;
 \echo COMMENT_HIDDEN_POST_DENIED=PASS
+
+reset role;
+
+insert into public.vvip_social_comments (post_id, parent_comment_id, author_subject, body)
+select
+  (select value from social_comment_test_context where key = 'public_post'),
+  null,
+  'user_bob',
+  'bounded-parent-' || series::text
+from generate_series(1, 21) series;
+
+insert into public.vvip_social_comments (post_id, parent_comment_id, author_subject, body)
+select
+  (select value from social_comment_test_context where key = 'public_post'),
+  (select value from social_comment_test_context where key = 'bob_comment'),
+  'user_bob',
+  'bounded-reply-' || series::text
+from generate_series(1, 21) series;
+
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"user_charlie"}', true);
+
+select public.vvip_social_comment_list(
+  :'public_post_id'::uuid,
+  null,
+  null,
+  null,
+  999
+) as parent_page_one
+\gset
+
+select (
+  :'parent_page_one'::jsonb->>'page_count' = '20'
+  and jsonb_array_length(:'parent_page_one'::jsonb->'items') = 20
+  and :'parent_page_one'::jsonb->'next_cursor' <> 'null'::jsonb
+) as parent_page_bounded
+\gset
+\if :parent_page_bounded
+  \echo COMMENT_PARENT_PAGE_BOUND=PASS
+\else
+  \echo COMMENT_PARENT_PAGE_BOUND=FAIL
+  \quit 1
+\endif
+
+select public.vvip_social_comment_list(
+  :'public_post_id'::uuid,
+  null,
+  (:'parent_page_one'::jsonb->'next_cursor'->>'created_at')::timestamptz,
+  (:'parent_page_one'::jsonb->'next_cursor'->>'comment_id')::uuid,
+  999
+) as parent_page_two
+\gset
+
+select (
+  :'parent_page_two'::jsonb->>'page_count' = '3'
+  and :'parent_page_two'::jsonb->'next_cursor' = 'null'::jsonb
+) as parent_next_cursor_valid
+\gset
+\if :parent_next_cursor_valid
+  \echo COMMENT_NEXT_CURSOR=PASS
+\else
+  \echo COMMENT_NEXT_CURSOR=FAIL
+  \quit 1
+\endif
+
+select public.vvip_social_comment_list(
+  :'public_post_id'::uuid,
+  :'bob_comment_id'::uuid,
+  null,
+  null,
+  999
+) as reply_page_one
+\gset
+
+select (
+  :'reply_page_one'::jsonb->>'page_count' = '20'
+  and jsonb_array_length(:'reply_page_one'::jsonb->'items') = 20
+  and :'reply_page_one'::jsonb->'next_cursor' <> 'null'::jsonb
+) as reply_page_bounded
+\gset
+\if :reply_page_bounded
+  \echo COMMENT_REPLY_PAGE_BOUND=PASS
+\else
+  \echo COMMENT_REPLY_PAGE_BOUND=FAIL
+  \quit 1
+\endif
 
 reset role;
 set local role authenticated;

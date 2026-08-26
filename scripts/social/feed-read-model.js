@@ -1,7 +1,10 @@
 (function (root, factory) {
   "use strict";
 
-  const api = factory();
+  const textContract = root && root.TIGERSocialTextContract
+    ? root.TIGERSocialTextContract
+    : (typeof module === "object" && module.exports ? require("./text-contract.js") : null);
+  const api = factory(textContract);
 
   if (typeof module === "object" && module.exports) {
     module.exports = api;
@@ -10,7 +13,7 @@
   if (root && typeof root === "object") {
     root.TIGERSocialFeed = api;
   }
-})(typeof globalThis !== "undefined" ? globalThis : this, function () {
+})(typeof globalThis !== "undefined" ? globalThis : this, function (textContract) {
   "use strict";
 
   const SOCIAL_AUDIENCES = new Set(["public", "friends", "only_me"]);
@@ -46,14 +49,13 @@
       return failure("SOCIAL_FEED_INVALID_AUTHOR");
     }
 
-    if (typeof input.body !== "string") {
+    if (!textContract || typeof textContract.normalizeText !== "function") {
       return failure("SOCIAL_FEED_INVALID_BODY");
     }
 
-    const body = input.body.trim();
-    if (!body || body.length > 5000) {
-      return failure("SOCIAL_FEED_INVALID_BODY");
-    }
+    const body = textContract.normalizeText(input.body, 5000, "SOCIAL_FEED_INVALID_BODY");
+    if (!body.ok) return failure(body.code);
+    if (body.value !== input.body) return failure("SOCIAL_FEED_INVALID_BODY");
 
     if (!SOCIAL_AUDIENCES.has(input.audience)) {
       return failure("SOCIAL_FEED_INVALID_AUDIENCE");
@@ -72,7 +74,7 @@
       value: Object.freeze({
         id: input.post_id,
         authorSubject: input.author_subject,
-        body,
+        body: body.value,
         audience: input.audience,
         createdAt: input.created_at,
         updatedAt: input.updated_at,
@@ -114,9 +116,15 @@
         }
 
         const items = [];
-        for (const row of response.value) {
+        let rejectedCount = 0;
+        const boundedRows = response.value.slice(0, limit);
+        rejectedCount += Math.max(0, response.value.length - boundedRows.length);
+        for (const row of boundedRows) {
           const normalized = normalizeFeedPost(row);
-          if (!normalized.ok) return failure("SOCIAL_FEED_INVALID_ROW");
+          if (!normalized.ok) {
+            rejectedCount += 1;
+            continue;
+          }
           items.push(normalized.value);
         }
 
@@ -125,6 +133,7 @@
           ok: true,
           items: frozenItems,
           empty: frozenItems.length === 0,
+          rejectedCount,
         });
       },
     });

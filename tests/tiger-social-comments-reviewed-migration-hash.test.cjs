@@ -12,7 +12,7 @@ const migrationRel = "supabase/migrations/20260818143000_social_comments.sql";
 const migration = path.join(root, migrationRel);
 const review = path.join(root, "docs/security/TIGER_SOCIAL_COMMENTS_MIGRATION_SECURITY_REVIEW.md");
 const scanner = path.join(root, "scripts/security/p08-steel-shield/scan-dangerous-sql.sh");
-const expected = "3bb5c018cb0508c91f5ead0a38f044f2293d35066e43bf796c59148305e720e7";
+const expected = "ed40f4e4ed67ad5dee8c87181f90602cf8878593f55b05d041e3e7a1201ce5fb";
 
 test("Social Comments reviewed migration bytes match the content-addressed review", () => {
   const actual = crypto.createHash("sha256").update(fs.readFileSync(migration)).digest("hex");
@@ -21,8 +21,8 @@ test("Social Comments reviewed migration bytes match the content-addressed revie
   const reviewText = fs.readFileSync(review, "utf8");
   assert.match(reviewText, new RegExp(expected));
   assert.match(reviewText, /CRITICAL=0/);
-  assert.match(reviewText, /HIGH=9/);
-  assert.match(reviewText, /NOT_NULL_RISK = 5/);
+  assert.match(reviewText, /HIGH=11/);
+  assert.match(reviewText, /NOT_NULL_RISK = 7/);
   assert.match(reviewText, /BROAD_GRANT_TO_AUTHENTICATED = 4/);
 });
 

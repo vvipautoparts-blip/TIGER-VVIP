@@ -10,7 +10,10 @@ create table public.vvip_social_comments (
     post_id uuid not null references public.vvip_social_posts (post_id) on delete cascade,
     parent_comment_id uuid references public.vvip_social_comments (comment_id) on delete cascade,
     author_subject text not null check (author_subject like 'user\_%' escape '\'),
-    body text not null check (char_length(btrim(body)) between 1 and 2000),
+    body text not null check (
+        char_length(public.vvip_social_text_normalize(body)) between 1 and 2000
+        and body = public.vvip_social_text_normalize(body)
+    ),
     created_at timestamptz not null default statement_timestamp(),
     updated_at timestamptz not null default statement_timestamp(),
     check (parent_comment_id is null or parent_comment_id <> comment_id)
@@ -28,15 +31,20 @@ alter table public.vvip_social_comments force row level security;
 
 revoke all privileges on table public.vvip_social_comments from public, anon, authenticated;
 
-create function public.vvip_social_comment_list(p_post_id uuid)
+create function public.vvip_social_comment_list(p_post_id uuid, p_parent_comment_id uuid default null, p_cursor_created_at timestamptz default null, p_cursor_comment_id uuid default null, p_limit integer default 20)
 returns jsonb
 language plpgsql
 security definer set search_path = pg_catalog
 as $function$
 declare
     v_actor text := public.vvip_marketplace_actor_id();
+    v_limit integer := least(greatest(coalesce(p_limit, 20), 1), 20);
     v_items jsonb := '[]'::jsonb;
-    v_total integer := 0;
+    v_page_count integer := 0;
+    v_has_more boolean := false;
+    v_next_created_at timestamptz;
+    v_next_comment_id uuid;
+    parent public.vvip_social_comments%rowtype;
 begin
     if v_actor is null or v_actor not like 'user\_%' escape '\' then
         raise exception 'SOCIAL_AUTH_REQUIRED';
@@ -48,6 +56,27 @@ begin
 
     if not public.vvip_social_can_view_post(p_post_id, v_actor) then
         raise exception 'SOCIAL_COMMENT_POST_NOT_VISIBLE';
+    end if;
+
+    if (p_cursor_created_at is null) <> (p_cursor_comment_id is null) then
+        raise exception 'SOCIAL_COMMENT_CURSOR_INVALID';
+    end if;
+
+    if p_parent_comment_id is not null then
+        select comment.*
+        into parent
+        from public.vvip_social_comments comment
+        where comment.comment_id = p_parent_comment_id;
+
+        if not found then
+            raise exception 'SOCIAL_COMMENT_PARENT_NOT_FOUND';
+        end if;
+        if parent.post_id <> p_post_id then
+            raise exception 'SOCIAL_COMMENT_PARENT_POST_MISMATCH';
+        end if;
+        if parent.parent_comment_id is not null then
+            raise exception 'SOCIAL_COMMENT_REPLY_DEPTH_DENIED';
+        end if;
     end if;
 
     select
@@ -62,26 +91,72 @@ begin
                     'updated_at', comment.updated_at,
                     'viewer_can_edit', comment.author_subject = v_actor
                 )
-                order by
-                    coalesce(parent.created_at, comment.created_at),
-                    case when comment.parent_comment_id is null then 0 else 1 end,
-                    comment.created_at,
-                    comment.comment_id
+                order by comment.created_at, comment.comment_id
             ),
             '[]'::jsonb
         ),
         count(*)::integer
-    into v_items, v_total
-    from public.vvip_social_comments comment
-    left join public.vvip_social_comments parent
-      on parent.comment_id = comment.parent_comment_id
-    where comment.post_id = p_post_id;
+    into v_items, v_page_count
+    from (
+        select candidate.*
+        from public.vvip_social_comments candidate
+        where candidate.post_id = p_post_id
+          and candidate.parent_comment_id is not distinct from p_parent_comment_id
+          and (
+              p_cursor_created_at is null
+              or (candidate.created_at, candidate.comment_id) > (p_cursor_created_at, p_cursor_comment_id)
+          )
+        order by candidate.created_at, candidate.comment_id
+        limit v_limit
+    ) comment;
+
+    select count(*) > v_limit
+    into v_has_more
+    from (
+        select comment.comment_id
+        from public.vvip_social_comments comment
+        where comment.post_id = p_post_id
+          and comment.parent_comment_id is not distinct from p_parent_comment_id
+          and (
+              p_cursor_created_at is null
+              or (comment.created_at, comment.comment_id) > (p_cursor_created_at, p_cursor_comment_id)
+          )
+        order by comment.created_at, comment.comment_id
+        limit v_limit + 1
+    ) bounded_page;
+
+    if v_has_more then
+        select page.created_at, page.comment_id
+        into v_next_created_at, v_next_comment_id
+        from (
+            select comment.created_at, comment.comment_id
+            from public.vvip_social_comments comment
+            where comment.post_id = p_post_id
+              and comment.parent_comment_id is not distinct from p_parent_comment_id
+              and (
+                  p_cursor_created_at is null
+                  or (comment.created_at, comment.comment_id) > (p_cursor_created_at, p_cursor_comment_id)
+              )
+            order by comment.created_at, comment.comment_id
+            limit v_limit
+        ) page
+        order by page.created_at desc, page.comment_id desc
+        limit 1;
+    end if;
 
     return jsonb_build_object(
         'ok', true,
         'post_id', p_post_id,
-        'total', v_total,
-        'items', v_items
+        'parent_comment_id', p_parent_comment_id,
+        'page_count', v_page_count,
+        'items', v_items,
+        'next_cursor', case
+            when v_has_more then jsonb_build_object(
+                'created_at', v_next_created_at,
+                'comment_id', v_next_comment_id
+            )
+            else 'null'::jsonb
+        end
     );
 end;
 $function$;
@@ -93,6 +168,7 @@ security definer set search_path = pg_catalog
 as $function$
 declare
     v_actor text := public.vvip_marketplace_actor_id();
+    v_body text := public.vvip_social_text_normalize(p_body);
     parent public.vvip_social_comments%rowtype;
     target public.vvip_social_comments%rowtype;
 begin
@@ -104,7 +180,7 @@ begin
         raise exception 'SOCIAL_COMMENT_POST_REQUIRED';
     end if;
 
-    if p_body is null or not (char_length(btrim(p_body)) between 1 and 2000) then
+    if v_body is null or not (char_length(v_body) between 1 and 2000) then
         raise exception 'SOCIAL_COMMENT_BODY_INVALID';
     end if;
 
@@ -144,7 +220,7 @@ begin
         p_post_id,
         p_parent_comment_id,
         v_actor,
-        btrim(p_body)
+        v_body
     )
     returning * into target;
 
@@ -170,6 +246,7 @@ security definer set search_path = pg_catalog
 as $function$
 declare
     v_actor text := public.vvip_marketplace_actor_id();
+    v_body text := public.vvip_social_text_normalize(p_body);
     target public.vvip_social_comments%rowtype;
 begin
     if v_actor is null or v_actor not like 'user\_%' escape '\' then
@@ -180,7 +257,7 @@ begin
         raise exception 'SOCIAL_COMMENT_NOT_FOUND';
     end if;
 
-    if p_body is null or not (char_length(btrim(p_body)) between 1 and 2000) then
+    if v_body is null or not (char_length(v_body) between 1 and 2000) then
         raise exception 'SOCIAL_COMMENT_BODY_INVALID';
     end if;
 
@@ -201,7 +278,7 @@ begin
         raise exception 'SOCIAL_COMMENT_POST_NOT_VISIBLE';
     end if;
 
-    update public.vvip_social_comments comment set body = btrim(p_body), updated_at = statement_timestamp() where comment.comment_id = p_comment_id
+    update public.vvip_social_comments comment set body = v_body, updated_at = statement_timestamp() where comment.comment_id = p_comment_id
       and comment.author_subject = v_actor
     returning * into target;
 
@@ -261,12 +338,12 @@ begin
 end;
 $function$;
 
-revoke all on function public.vvip_social_comment_list(uuid) from public, anon, authenticated;
+revoke all on function public.vvip_social_comment_list(uuid, uuid, timestamptz, uuid, integer) from public, anon, authenticated;
 revoke all on function public.vvip_social_comment_create(uuid, text, uuid) from public, anon, authenticated;
 revoke all on function public.vvip_social_comment_update(uuid, text) from public, anon, authenticated;
 revoke all on function public.vvip_social_comment_remove(uuid) from public, anon, authenticated;
 
-grant execute on function public.vvip_social_comment_list(uuid) to authenticated;
+grant execute on function public.vvip_social_comment_list(uuid, uuid, timestamptz, uuid, integer) to authenticated;
 grant execute on function public.vvip_social_comment_create(uuid, text, uuid) to authenticated;
 grant execute on function public.vvip_social_comment_update(uuid, text) to authenticated;
 grant execute on function public.vvip_social_comment_remove(uuid) to authenticated;
