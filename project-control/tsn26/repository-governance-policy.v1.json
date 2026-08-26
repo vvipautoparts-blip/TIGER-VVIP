@@ -1,0 +1,27 @@
+{
+  "policy_id": "TRGP-2026.08.001",
+  "schema_version": "TIGER_REPOSITORY_GOVERNANCE_POLICY_V1",
+  "reference": "TSN-26",
+  "fail_closed": true,
+  "repository": "vvipautoparts-blip/TIGER-VVIP",
+  "target_branch": "main",
+  "require_target_protected": true,
+  "require_active_ruleset": true,
+  "require_default_branch_scope": true,
+  "forbid_bypass_actors": true,
+  "require_deletion_protection": true,
+  "require_non_fast_forward_protection": true,
+  "minimum_approving_reviews": 1,
+  "require_extra_approval_for_unattributed_changes": true,
+  "require_strict_status_checks": true,
+  "required_status_checks": [
+    "VVIP Quality Gate",
+    "TSN-26 Legacy Financial Guard",
+    "TSN-26 Financial DB Rehearsal",
+    "CodeQL",
+    "Dependency Review",
+    "Project Control Integrity",
+    "Zero-Residue Full History",
+    "V14 Release Candidate"
+  ]
+}
