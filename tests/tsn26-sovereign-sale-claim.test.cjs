@@ -34,12 +34,22 @@ test('claim is cryptographically locked and verifiable before settlement', () =>
   assert.equal(verifyLockedClaim(locked, { publicKey, now: '2026-08-26T00:30:00.000Z' }), true);
 });
 
-test('tampering after signature invalidates the claim', () => {
+test('tampering after signature invalidates the claim at an integrity boundary', () => {
   const { publicKey, privateKey } = crypto.generateKeyPairSync('ed25519');
   const locked = signAndLockClaim(baseClaim(), { privateKey, keyId: 'seller-key-1' });
   const tampered = { ...locked, sellerUid: 'attacker' };
   assert.throws(
     () => verifyLockedClaim(tampered, { publicKey, now: '2026-08-26T00:30:00.000Z' }),
+    /TSN26_CLAIM_(?:PAYLOAD_HASH|SIGNATURE)_INVALID/,
+  );
+});
+
+test('signature corruption is independently rejected', () => {
+  const { publicKey, privateKey } = crypto.generateKeyPairSync('ed25519');
+  const locked = signAndLockClaim(baseClaim(), { privateKey, keyId: 'seller-key-1' });
+  const corrupted = { ...locked, signature: 'AA' };
+  assert.throws(
+    () => verifyLockedClaim(corrupted, { publicKey, now: '2026-08-26T00:30:00.000Z' }),
     /TSN26_CLAIM_SIGNATURE_INVALID/,
   );
 });
