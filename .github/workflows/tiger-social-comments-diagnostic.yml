@@ -1,0 +1,91 @@
+name: TIGER Social Comments Diagnostic
+
+on:
+  push:
+    paths:
+      - ".github/workflows/tiger-social-comments-diagnostic.yml"
+      - "tests/sql/tiger-social-comments.sql"
+      - "supabase/migrations/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SOURCE_SHA: ${{ github.sha }}
+
+concurrency:
+  group: tiger-social-comments-diagnostic-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  comments-diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: "22"
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@ab058987d8d6c725971f6cf9d0b5c98467e30bd1
+        with:
+          version: 2.109.0
+
+      - name: Verify exact source and local-only boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          if env | grep -E '^(SUPABASE_ACCESS_TOKEN|SUPABASE_DB_PASSWORD|SUPABASE_PROJECT_REF)=' >/dev/null; then
+            echo 'TIGER_SOCIAL_COMMENTS_DIAGNOSTIC=BLOCKED_REMOTE_CREDENTIAL_ENV'
+            exit 1
+          fi
+
+      - name: Start isolated local Supabase stack
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase start
+
+      - name: Rebuild database from repository migrations
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase db reset --local
+
+      - name: Capture exact Comments proof output
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/tiger-social-comments"
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 \
+            -p 54322 \
+            -U postgres \
+            -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/tiger-social-comments.sql \
+            2>&1 | tee "$RUNNER_TEMP/tiger-social-comments/comments.log"
+
+      - name: Upload Comments diagnostic log
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: tiger-social-comments-diagnostic-${{ env.SOURCE_SHA }}
+          path: ${{ runner.temp }}/tiger-social-comments/comments.log
+          if-no-files-found: warn
+          retention-days: 1
+
+      - name: Stop isolated local stack
+        if: ${{ always() }}
+        shell: bash
+        run: supabase stop --no-backup || true
