@@ -5,6 +5,7 @@ on:
     paths:
       - 'project-control/**'
       - 'docs/global/**'
+      - 'docs/owner-control/**'
       - 'docs/superpowers/**'
       - 'supabase/migrations/**'
       - '.github/workflows/project-control-integrity.yml'
@@ -15,6 +16,7 @@ on:
     paths:
       - 'project-control/**'
       - 'docs/global/**'
+      - 'docs/owner-control/**'
       - 'docs/superpowers/**'
       - 'supabase/migrations/**'
       - '.github/workflows/project-control-integrity.yml'
@@ -32,7 +34,7 @@ jobs:
         with:
           node-version: '22'
       - name: Run project-control tests
-        run: node --test project-control/tests/project_control_integrity.test.mjs
+        run: node --test project-control/tests/*.test.mjs
       - name: Validate canonical sources and counts
         run: node project-control/scripts/validate_project_control.mjs
       - name: Check patch whitespace
@@ -43,7 +45,7 @@ jobs:
           set -euo pipefail
           if grep -RInE \
             '(sk_live_[A-Za-z0-9_]{16,}|sb_secret_[A-Za-z0-9_-]{16,}|postgres(ql)?://[^[:space:]]+:[^[:space:]]+@|eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,})' \
-            project-control docs/global supabase/migrations; then
+            project-control docs/global docs/owner-control supabase/migrations; then
             echo "Secret-like production material detected."
             exit 1
           fi

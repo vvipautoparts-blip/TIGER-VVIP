@@ -149,6 +149,22 @@ class PublicReleaseTests(unittest.TestCase):
                 manifest["forbiddenFindings"],
             )
 
+    def test_candidate_includes_only_exact_comments_controller_path(self):
+        with tempfile.TemporaryDirectory() as temp:
+            source = Path(temp) / "src"
+            output = Path(temp) / "out"
+            source.mkdir()
+            self.fixture(source)
+            social = source / "scripts" / "social"
+            social.mkdir(parents=True, exist_ok=True)
+            (social / "comments-controller.js").write_text("window.TIGERSocialComments = {};\n", encoding="utf-8")
+            (social / "comments-controller.debug.js").write_text("private debug", encoding="utf-8")
+
+            module.build(source, output, mode="candidate", source_sha="comments-exact-file")
+
+            self.assertTrue((output / "scripts" / "social" / "comments-controller.js").is_file())
+            self.assertFalse((output / "scripts" / "social" / "comments-controller.debug.js").exists())
+
     def test_production_requires_real_public_configuration(self):
         with tempfile.TemporaryDirectory() as temp:
             source = Path(temp) / "src"
@@ -185,6 +201,21 @@ class PublicReleaseTests(unittest.TestCase):
                 with self.assertRaisesRegex(RuntimeError, "LOCAL_DRAFT_ONLY_PUBLISHER"):
                     module.build(source, output, mode="production", source_sha="abc")
 
+    def test_production_rejects_retired_github_pages_url(self):
+        with tempfile.TemporaryDirectory() as temp:
+            source = Path(temp) / "src"
+            output = Path(temp) / "out"
+            source.mkdir()
+            self.fixture(source)
+            retired_url = "https://vvipautoparts-blip." "github.io/TIGER-VVIP/"
+            (source / "index.html").write_text(
+                f'<html><body><a href="{retired_url}">old preview</a></body></html>',
+                encoding="utf-8",
+            )
+            with mock.patch.dict(os.environ, self.production_env(), clear=False):
+                with self.assertRaisesRegex(RuntimeError, "RETIRED_GITHUB_PAGES_URL"):
+                    module.build(source, output, mode="production", source_sha="abc")
+
     def test_production_build_succeeds_with_clean_sources(self):
         with tempfile.TemporaryDirectory() as temp:
             source = Path(temp) / "src"
@@ -213,6 +244,8 @@ class PublicReleaseTests(unittest.TestCase):
             )
             self.assert_local_html_refs_exist(self, output)
             self.assertTrue((output / "sw-vvip-static.js").is_file())
+            self.assertFalse((output / "project-control").exists())
+            self.assertFalse((output / "docs").exists())
             webmanifest = json.loads((output / "manifest.webmanifest").read_text(encoding="utf-8"))
             start_url = str(webmanifest.get("start_url") or "").split("#", 1)[0].split("?", 1)[0]
             start_path = start_url.removeprefix("./") or "index.html"

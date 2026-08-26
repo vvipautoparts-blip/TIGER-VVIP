@@ -1,0 +1,798 @@
+(function (root, factory) {
+  "use strict";
+
+  const api = factory();
+
+  if (typeof module === "object" && module.exports) {
+    module.exports = api;
+  }
+
+  if (root && typeof root === "object") {
+    root.TIGERSocialProfileController = api;
+    if (root.document && typeof root.addEventListener === "function") {
+      api.installCurrentSocialProfile(root);
+    }
+  }
+})(typeof globalThis !== "undefined" ? globalThis : this, function () {
+  "use strict";
+
+  const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  const CURSOR_PATTERN = /^[A-Za-z0-9_-]{8,2048}$/;
+  const EDIT_INTENT = Object.freeze({ name: "SOCIAL_PROFILE_EDIT" });
+  const FOLLOW_INTENT = Object.freeze({ name: "SOCIAL_PROFILE_FOLLOW" });
+  const UNFOLLOW_INTENT = Object.freeze({ name: "SOCIAL_PROFILE_UNFOLLOW" });
+  const FEED_PREFERENCE_INTENT = Object.freeze({ name: "SOCIAL_FEED_PREFERENCE" });
+  const FEED_PREFERENCE_ACTIONS = new Set([
+    "mute", "unmute", "snooze_24h", "snooze_7d", "unsnooze",
+    "prefer", "deprioritize", "normal",
+  ]);
+  const FEED_RANK_MODES = new Set(["normal", "prefer", "deprioritize"]);
+
+  function frozen(value) {
+    return Object.freeze(value);
+  }
+
+  function failure(code) {
+    return frozen({ ok: false, code });
+  }
+
+  function validProfileId(value) {
+    return typeof value === "string" && UUID_PATTERN.test(value);
+  }
+
+  function optionalText(value) {
+    if (typeof value !== "string") return null;
+    const text = value.trim();
+    return text || null;
+  }
+
+  function statusText(node, message) {
+    if (node) node.textContent = message;
+  }
+
+  function textNode(documentObject, tagName, className, text) {
+    const node = documentObject.createElement(tagName);
+    node.className = className;
+    node.textContent = text;
+    return node;
+  }
+
+  function createProfileController(options) {
+    const documentObject = options && options.document;
+    const runtime = options && options.runtime;
+    const readModel = options && options.readModel;
+    const shell = options && options.shell;
+    const heading = options && options.heading;
+    const avatar = options && options.avatar;
+    const details = options && options.details;
+    const counts = options && options.counts;
+    const timeline = options && options.timeline;
+    const unavailable = options && options.unavailable;
+    const status = options && options.status;
+    const editButton = options && options.editButton;
+    const editForm = options && options.editForm;
+    const displayName = options && options.displayName;
+    const avatarUrl = options && options.avatarUrl;
+    const businessName = options && options.businessName;
+    const location = options && options.location;
+    const specialization = options && options.specialization;
+    const businessDescription = options && options.businessDescription;
+    const saveButton = options && options.saveButton;
+    const messageButton = options && options.messageButton;
+    const blockButton = options && options.blockButton;
+    const unblockButton = options && options.unblockButton;
+    const reportButton = options && options.reportButton;
+    const followButton = options && options.followButton;
+    const unfollowButton = options && options.unfollowButton;
+    const muteButton = options && options.muteButton;
+    const unmuteButton = options && options.unmuteButton;
+    const snoozeButton = options && options.snoozeButton;
+    const unsnoozeButton = options && options.unsnoozeButton;
+    const rankSelect = options && options.rankSelect;
+    const auth = options && options.auth;
+    const onProfileNavigate = options && options.onProfileNavigate;
+    const onMessage = options && options.onMessage;
+    const onReport = options && options.onReport;
+    const confirmBlock = options && typeof options.confirmBlock === "function"
+      ? options.confirmBlock
+      : function () { return false; };
+    const onPostsRendered = options && options.onPostsRendered;
+    const renderPost = options && options.renderPost;
+    const now = options && typeof options.now === "function" ? options.now : Date.now;
+
+    if (!documentObject || typeof documentObject.createElement !== "function") {
+      throw new TypeError("SOCIAL_PROFILE_DOCUMENT_REQUIRED");
+    }
+    if (!runtime || !runtime.profiles
+        || typeof runtime.profiles.get !== "function"
+        || typeof runtime.profiles.listPosts !== "function"
+        || typeof runtime.profiles.save !== "function") {
+      throw new TypeError("SOCIAL_PROFILE_RUNTIME_REQUIRED");
+    }
+    if (!readModel || typeof readModel.normalizeProfileSurface !== "function") {
+      throw new TypeError("SOCIAL_PROFILE_READ_MODEL_REQUIRED");
+    }
+    if (!shell || !heading || !details || !counts || !timeline || !status) {
+      throw new TypeError("SOCIAL_PROFILE_NODES_REQUIRED");
+    }
+    if (typeof renderPost !== "function") {
+      throw new TypeError("SOCIAL_PROFILE_POST_RENDERER_REQUIRED");
+    }
+
+    let generation = 0;
+    let currentProfile = null;
+    let requestedProfileId = null;
+    let nextCursor = null;
+    let renderedPostIds = new Set();
+    let blockedProfileId = null;
+    let currentControls = null;
+
+    function clearSurface(view) {
+      shell.dataset.socialProfileView = view;
+      heading.textContent = "";
+      details.replaceChildren();
+      counts.replaceChildren();
+      timeline.replaceChildren();
+      if (avatar) {
+        avatar.replaceChildren?.();
+        avatar.textContent = "V";
+      }
+      if (editButton) editButton.hidden = true;
+      if (editForm) editForm.hidden = true;
+      if (messageButton) messageButton.hidden = true;
+      if (blockButton) blockButton.hidden = true;
+      if (unblockButton) unblockButton.hidden = true;
+      if (reportButton) reportButton.hidden = true;
+      if (followButton) followButton.hidden = true;
+      if (unfollowButton) unfollowButton.hidden = true;
+      if (muteButton) muteButton.hidden = true;
+      if (unmuteButton) unmuteButton.hidden = true;
+      if (snoozeButton) snoozeButton.hidden = true;
+      if (unsnoozeButton) unsnoozeButton.hidden = true;
+      if (rankSelect) rankSelect.hidden = true;
+      if (unavailable) unavailable.hidden = view !== "unavailable";
+      currentProfile = null;
+      blockedProfileId = null;
+      currentControls = null;
+      nextCursor = null;
+      renderedPostIds = new Set();
+    }
+
+    function populateEditor(profile) {
+      if (displayName) displayName.value = profile.display_name;
+      if (avatarUrl) avatarUrl.value = profile.avatar_url || "";
+      if (businessName) businessName.value = profile.business_name || "";
+      if (location) location.value = profile.location || "";
+      if (specialization) specialization.value = profile.specialization || "";
+      if (businessDescription) businessDescription.value = profile.business_description || "";
+    }
+
+    function renderProfile(profile) {
+      currentProfile = profile;
+      shell.dataset.socialProfileView = profile.viewer_is_owner ? "own" : "public";
+      heading.textContent = profile.display_name;
+      statusText(status, "");
+      if (unavailable) unavailable.hidden = true;
+
+      if (avatar) {
+        avatar.replaceChildren?.();
+        if (profile.avatar_url) {
+          const image = documentObject.createElement("img");
+          image.src = profile.avatar_url;
+          image.alt = "";
+          image.loading = "lazy";
+          image.referrerPolicy = "no-referrer";
+          avatar.append(image);
+        } else {
+          avatar.textContent = profile.display_name.trim().slice(0, 1).toUpperCase() || "V";
+        }
+      }
+
+      const presentation = [
+        ["social-profile__business", profile.business_name],
+        ["social-profile__location", profile.location],
+        ["social-profile__specialization", profile.specialization],
+        ["social-profile__description", profile.business_description],
+      ];
+      details.replaceChildren(...presentation
+        .filter((entry) => entry[1])
+        .map((entry) => textNode(documentObject, "p", entry[0], entry[1])));
+
+      const countEntries = [
+        [profile.posts_count, "منشور"],
+        [profile.friends_count, "صديق"],
+        [profile.followers_count, "متابع"],
+        [profile.following_count, "يتابع"],
+      ];
+      counts.replaceChildren(...countEntries.map((entry) => {
+        const node = documentObject.createElement("div");
+        node.className = "social-profile-count";
+        node.append(
+          textNode(documentObject, "strong", "social-profile-count__value", String(entry[0])),
+          textNode(documentObject, "span", "social-profile-count__label", entry[1])
+        );
+        return node;
+      }));
+
+      if (editButton) editButton.hidden = !profile.viewer_is_owner;
+      if (editForm) editForm.hidden = true;
+      if (messageButton) messageButton.hidden = profile.viewer_is_owner || !profile.can_message;
+      if (blockButton) {
+        blockButton.hidden = profile.viewer_is_owner;
+        if (!profile.viewer_is_owner) blockButton.setAttribute("data-social-profile-id", profile.profile_id);
+      }
+      if (unblockButton) unblockButton.hidden = true;
+      if (reportButton) {
+        reportButton.hidden = profile.viewer_is_owner;
+        if (!profile.viewer_is_owner) reportButton.setAttribute("data-social-profile-id", profile.profile_id);
+      }
+      if (profile.viewer_is_owner) populateEditor(profile);
+    }
+
+    function normalizeControls(value, profileId) {
+      if (!value || typeof value !== "object" || Array.isArray(value)
+          || Object.keys(value).some((key) => ![
+            "ok", "profile_id", "following", "muted", "snoozed_until", "rank_mode",
+          ].includes(key))
+          || value.ok !== true || value.profile_id !== profileId
+          || typeof value.following !== "boolean" || typeof value.muted !== "boolean"
+          || (value.snoozed_until !== null
+            && (typeof value.snoozed_until !== "string" || !Number.isFinite(Date.parse(value.snoozed_until))))
+          || !FEED_RANK_MODES.has(value.rank_mode)) {
+        return null;
+      }
+      return frozen({
+        profileId,
+        following: value.following,
+        muted: value.muted,
+        snoozedUntil: value.snoozed_until,
+        rankMode: value.rank_mode,
+      });
+    }
+
+    function renderControls(controls) {
+      currentControls = controls;
+      const snoozed = controls.snoozedUntil !== null
+        && Date.parse(controls.snoozedUntil) > now();
+      if (followButton) followButton.hidden = controls.following;
+      if (unfollowButton) unfollowButton.hidden = !controls.following;
+      if (muteButton) muteButton.hidden = controls.muted;
+      if (unmuteButton) unmuteButton.hidden = !controls.muted;
+      if (snoozeButton) snoozeButton.hidden = snoozed;
+      if (unsnoozeButton) unsnoozeButton.hidden = !snoozed;
+      if (rankSelect) {
+        rankSelect.hidden = false;
+        rankSelect.value = controls.rankMode;
+      }
+    }
+
+    async function loadControls(profileId, expectedGeneration) {
+      if (!runtime.follows || typeof runtime.follows.controls !== "function") return false;
+      let response;
+      try {
+        response = await runtime.follows.controls(profileId);
+      } catch (_) {
+        response = null;
+      }
+      if (expectedGeneration !== generation) return false;
+      const controls = response && response.ok === true
+        ? normalizeControls(response.value, profileId)
+        : null;
+      if (!controls) return false;
+      renderControls(controls);
+      return true;
+    }
+
+    function renderTimelineState(message, state) {
+      const node = textNode(documentObject, "p", "social-feed-state", message);
+      node.setAttribute("data-social-feed-state", state);
+      node.setAttribute("role", "status");
+      timeline.replaceChildren(node);
+    }
+
+    function appendPage(rows, reset) {
+      const nodes = [];
+      for (const row of rows) {
+        if (!row || typeof row !== "object" || typeof row.post_id !== "string") return false;
+        if (renderedPostIds.has(row.post_id)) continue;
+        const node = renderPost(row, function (profileId) {
+          if (validProfileId(profileId) && typeof onProfileNavigate === "function") {
+            onProfileNavigate(profileId);
+          }
+        });
+        if (!node) return false;
+        renderedPostIds.add(row.post_id);
+        nodes.push(node);
+      }
+
+      const existing = reset ? [] : Array.from(timeline.children || []).filter((node) => (
+        !node.getAttribute || node.getAttribute("data-social-profile-load-more") === null
+      ));
+      const combined = existing.concat(nodes);
+      if (nextCursor) {
+        const more = documentObject.createElement("button");
+        more.type = "button";
+        more.className = "social-feed-load-more";
+        more.setAttribute("data-social-profile-load-more", "");
+        more.textContent = "تحميل المزيد";
+        more.addEventListener("click", function () { void loadNext(); });
+        combined.push(more);
+      }
+      timeline.replaceChildren(...combined);
+      if (typeof onPostsRendered === "function") onPostsRendered(nodes);
+      return true;
+    }
+
+    async function readTimeline(profileId, cursor, reset, expectedGeneration) {
+      let response;
+      try {
+        response = await runtime.profiles.listPosts(profileId, { cursor, limit: 20 });
+      } catch (_) {
+        response = null;
+      }
+      if (expectedGeneration !== generation) return failure("SOCIAL_PROFILE_LOAD_SUPERSEDED");
+      const value = response && response.ok === true ? response.value : null;
+      if (!value || value.ok !== true || !Array.isArray(value.items)) {
+        renderTimelineState("تعذر تحميل منشورات الملف الآن.", "error");
+        return failure("SOCIAL_PROFILE_TIMELINE_FAILED");
+      }
+      const cursorValue = value.next_cursor === null || value.next_cursor === undefined
+        ? null
+        : value.next_cursor;
+      if (cursorValue !== null && (typeof cursorValue !== "string" || !CURSOR_PATTERN.test(cursorValue))) {
+        renderTimelineState("تعذر تحميل منشورات الملف الآن.", "error");
+        return failure("SOCIAL_PROFILE_TIMELINE_INVALID");
+      }
+      nextCursor = cursorValue;
+      if (value.items.length === 0 && reset && !nextCursor) {
+        renderTimelineState("لا توجد منشورات متاحة في هذا الملف.", "empty");
+        return frozen({ ok: true, count: 0, empty: true });
+      }
+      if (!appendPage(value.items, reset)) {
+        renderTimelineState("تعذر تحميل منشورات الملف الآن.", "error");
+        return failure("SOCIAL_PROFILE_TIMELINE_INVALID");
+      }
+      return frozen({ ok: true, count: value.items.length, hasMore: Boolean(nextCursor) });
+    }
+
+    async function load(profileId) {
+      if (profileId !== null && profileId !== undefined && !validProfileId(profileId)) {
+        return failure("SOCIAL_INVALID_PROFILE_ID");
+      }
+      generation += 1;
+      const loadGeneration = generation;
+      requestedProfileId = profileId === null || profileId === undefined ? null : profileId;
+      clearSurface("loading");
+      statusText(status, "جارٍ تحميل الملف الشخصي…");
+
+      let response;
+      try {
+        response = await runtime.profiles.get(requestedProfileId === null ? undefined : requestedProfileId);
+      } catch (_) {
+        response = null;
+      }
+      if (loadGeneration !== generation) return failure("SOCIAL_PROFILE_LOAD_SUPERSEDED");
+
+      const surface = response && response.ok === true
+        ? readModel.normalizeProfileSurface(response.value)
+        : null;
+      if (!surface) {
+        clearSurface("error");
+        statusText(status, "تعذر تحميل الملف الشخصي الآن.");
+        return failure("SOCIAL_PROFILE_LOAD_FAILED");
+      }
+      if (surface.status === "profile_unavailable") {
+        clearSurface("unavailable");
+        statusText(status, "هذا الملف غير متاح.");
+        if (requestedProfileId && runtime.safety
+            && typeof runtime.safety.blockState === "function") {
+          let blockState = null;
+          try {
+            blockState = await runtime.safety.blockState(requestedProfileId);
+          } catch (_) {
+            blockState = null;
+          }
+          if (loadGeneration !== generation) return failure("SOCIAL_PROFILE_LOAD_SUPERSEDED");
+          const blockValue = blockState && blockState.ok === true ? blockState.value : null;
+          if (blockValue && blockValue.ok === true && blockValue.blocked_by_viewer === true) {
+            blockedProfileId = requestedProfileId;
+            if (unblockButton) {
+              unblockButton.hidden = false;
+              unblockButton.setAttribute("data-social-profile-id", requestedProfileId);
+            }
+          }
+        }
+        return frozen({ ok: true, status: "profile_unavailable" });
+      }
+
+      renderProfile(surface.profile);
+      if (!surface.profile.viewer_is_owner) {
+        await loadControls(surface.profile.profile_id, loadGeneration);
+        if (loadGeneration !== generation) return failure("SOCIAL_PROFILE_LOAD_SUPERSEDED");
+      }
+      renderTimelineState("جارٍ تحميل المنشورات…", "loading");
+      const timelineResult = await readTimeline(surface.profile.profile_id, null, true, loadGeneration);
+      if (!timelineResult.ok) return timelineResult;
+      return frozen({ ok: true, status: "profile_loaded", profileId: surface.profile.profile_id });
+    }
+
+    async function loadNext() {
+      if (!currentProfile || !nextCursor) return frozen({ ok: true, count: 0, hasMore: false });
+      return readTimeline(currentProfile.profile_id, nextCursor, false, generation);
+    }
+
+    async function save() {
+      if (!currentProfile || !currentProfile.viewer_is_owner) {
+        return failure("SOCIAL_PROFILE_OWNER_REQUIRED");
+      }
+      if (!auth || typeof auth.requireAuth !== "function") {
+        return failure("SOCIAL_PROFILE_AUTH_REQUIRED");
+      }
+
+      const draft = {
+        displayName: optionalText(displayName && displayName.value),
+        avatarUrl: optionalText(avatarUrl && avatarUrl.value),
+        businessName: optionalText(businessName && businessName.value),
+        location: optionalText(location && location.value),
+        specialization: optionalText(specialization && specialization.value),
+        businessDescription: optionalText(businessDescription && businessDescription.value),
+      };
+      if (!draft.displayName) {
+        statusText(status, "الاسم مطلوب.");
+        return failure("SOCIAL_INVALID_PROFILE_DRAFT");
+      }
+
+      let result = null;
+      let granted = false;
+      if (saveButton) saveButton.disabled = true;
+      statusText(status, "جارٍ حفظ الملف…");
+      try {
+        granted = await auth.requireAuth(EDIT_INTENT, async function () {
+          result = await runtime.profiles.save(draft);
+          return result;
+        });
+      } catch (_) {
+        result = null;
+      }
+      if (saveButton) saveButton.disabled = false;
+      if (!granted || !result || result.ok !== true) {
+        statusText(status, "تعذر حفظ الملف. بقيت تعديلاتك ويمكنك المحاولة مرة أخرى.");
+        return failure("SOCIAL_PROFILE_SAVE_FAILED");
+      }
+      statusText(status, "تم حفظ الملف.");
+      return load(requestedProfileId);
+    }
+
+    async function message() {
+      if (!currentProfile || currentProfile.viewer_is_owner || !currentProfile.can_message
+          || typeof onMessage !== "function") {
+        return failure("SOCIAL_PROFILE_MESSAGE_UNAVAILABLE");
+      }
+      return onMessage(currentProfile.profile_id);
+    }
+
+    async function runSafetyMutation(intentName, profileId, operation) {
+      if (!validProfileId(profileId) || !auth || typeof auth.requireAuth !== "function") {
+        return failure("SOCIAL_PROFILE_SAFETY_UNAVAILABLE");
+      }
+      let result = null;
+      let granted = false;
+      statusText(status, "جارٍ تطبيق إعداد الأمان…");
+      try {
+        granted = await auth.requireAuth(frozen({ name: intentName }), async function () {
+          result = await operation();
+          return result;
+        });
+      } catch (_) {
+        result = null;
+      }
+      if (!granted || !result || result.ok !== true) {
+        statusText(status, "تعذر تطبيق إعداد الأمان الآن.");
+        return failure("SOCIAL_PROFILE_SAFETY_FAILED");
+      }
+      const loaded = await load(profileId);
+      if (!loaded || loaded.ok !== true) return loaded || failure("SOCIAL_PROFILE_SAFETY_FAILED");
+      return frozen({ ok: true, code: intentName + "_APPLIED" });
+    }
+
+    async function block() {
+      if (!currentProfile || currentProfile.viewer_is_owner || !runtime.safety
+          || typeof runtime.safety.block !== "function") {
+        return failure("SOCIAL_PROFILE_BLOCK_UNAVAILABLE");
+      }
+      const profileId = currentProfile.profile_id;
+      let confirmed = false;
+      try {
+        confirmed = await confirmBlock(profileId);
+      } catch (_) {
+        confirmed = false;
+      }
+      if (!confirmed) return failure("SOCIAL_PROFILE_BLOCK_CANCELLED");
+      return runSafetyMutation(
+        "SOCIAL_PROFILE_BLOCK",
+        profileId,
+        function () { return runtime.safety.block(profileId); }
+      );
+    }
+
+    async function unblock() {
+      if (!blockedProfileId || !runtime.safety || typeof runtime.safety.unblock !== "function") {
+        return failure("SOCIAL_PROFILE_UNBLOCK_UNAVAILABLE");
+      }
+      const profileId = blockedProfileId;
+      return runSafetyMutation(
+        "SOCIAL_PROFILE_UNBLOCK",
+        profileId,
+        function () { return runtime.safety.unblock(profileId); }
+      );
+    }
+
+    function report() {
+      if (!currentProfile || currentProfile.viewer_is_owner || typeof onReport !== "function") return false;
+      return onReport("profile", currentProfile.profile_id) === true;
+    }
+
+    async function runRelationshipMutation(intent, operation) {
+      if (!currentProfile || currentProfile.viewer_is_owner || !currentControls
+          || !auth || typeof auth.requireAuth !== "function") {
+        return failure("SOCIAL_PROFILE_RELATIONSHIP_UNAVAILABLE");
+      }
+      const profileId = currentProfile.profile_id;
+      let result = null;
+      let granted = false;
+      statusText(status, "جارٍ حفظ تفضيل العلاقة…");
+      try {
+        granted = await auth.requireAuth(intent, async function () {
+          result = await operation(profileId);
+          return result;
+        });
+      } catch (_) {
+        result = null;
+      }
+      if (!granted || !result || result.ok !== true
+          || !result.value || result.value.ok !== true) {
+        statusText(status, "تعذر حفظ تفضيل العلاقة الآن.");
+        return failure("SOCIAL_PROFILE_RELATIONSHIP_FAILED");
+      }
+      return load(profileId);
+    }
+
+    function follow() {
+      if (!runtime.follows || typeof runtime.follows.follow !== "function") {
+        return Promise.resolve(failure("SOCIAL_PROFILE_FOLLOW_UNAVAILABLE"));
+      }
+      return runRelationshipMutation(FOLLOW_INTENT, function (profileId) {
+        return runtime.follows.follow(profileId);
+      });
+    }
+
+    function unfollow() {
+      if (!runtime.follows || typeof runtime.follows.unfollow !== "function") {
+        return Promise.resolve(failure("SOCIAL_PROFILE_UNFOLLOW_UNAVAILABLE"));
+      }
+      return runRelationshipMutation(UNFOLLOW_INTENT, function (profileId) {
+        return runtime.follows.unfollow(profileId);
+      });
+    }
+
+    function setFeedPreference(action) {
+      if (!FEED_PREFERENCE_ACTIONS.has(action)
+          || !runtime.feedPreferences || typeof runtime.feedPreferences.set !== "function") {
+        return Promise.resolve(failure("SOCIAL_FEED_PREFERENCE_UNAVAILABLE"));
+      }
+      return runRelationshipMutation(FEED_PREFERENCE_INTENT, function (profileId) {
+        return runtime.feedPreferences.set(profileId, { action });
+      });
+    }
+
+    function openEditor() {
+      if (!currentProfile || !currentProfile.viewer_is_owner || !editForm) return false;
+      editForm.hidden = false;
+      if (displayName && typeof displayName.focus === "function") displayName.focus();
+      return true;
+    }
+
+    return frozen({
+      load,
+      loadNext,
+      save,
+      message,
+      block,
+      unblock,
+      report,
+      follow,
+      unfollow,
+      setFeedPreference,
+      openEditor,
+    });
+  }
+
+  function mountCurrentSocialProfile(rootObject) {
+    const runtimeRoot = rootObject || (typeof globalThis !== "undefined" ? globalThis : null);
+    const documentObject = runtimeRoot && runtimeRoot.document;
+    const runtimeApi = runtimeRoot && runtimeRoot.TIGERSocialRuntime;
+    const profileModel = runtimeRoot && runtimeRoot.TIGERSocialProfile;
+    const feedModel = runtimeRoot && runtimeRoot.TIGERSocialFeed;
+    const feedController = runtimeRoot && runtimeRoot.TIGERSocialFeedController;
+    if (!documentObject || !runtimeApi || !profileModel || !feedModel || !feedController
+        || typeof runtimeApi.createCurrentSocialRuntime !== "function"
+        || typeof feedModel.normalizeFeedPost !== "function"
+        || typeof feedController.createSocialPostNode !== "function") {
+      return null;
+    }
+
+    const query = (selector) => documentObject.querySelector(selector);
+    const controller = createProfileController({
+      document: documentObject,
+      runtime: runtimeApi.createCurrentSocialRuntime(runtimeRoot),
+      readModel: profileModel,
+      shell: query("[data-social-profile]"),
+      heading: query("[data-social-profile-name]"),
+      avatar: query("[data-social-profile-avatar]"),
+      details: query("[data-social-profile-details]"),
+      counts: query("[data-social-profile-counts]"),
+      timeline: query("[data-social-profile-timeline]"),
+      unavailable: query("[data-social-profile-unavailable]"),
+      status: query("[data-social-profile-status]"),
+      editButton: query("[data-social-profile-edit]"),
+      editForm: query("[data-social-profile-edit-form]"),
+      displayName: query("[data-social-profile-display-name]"),
+      avatarUrl: query("[data-social-profile-avatar-url]"),
+      businessName: query("[data-social-profile-business-name]"),
+      location: query("[data-social-profile-location]"),
+      specialization: query("[data-social-profile-specialization]"),
+      businessDescription: query("[data-social-profile-description]"),
+      saveButton: query("[data-social-profile-save]"),
+      messageButton: query("[data-social-profile-message]"),
+      blockButton: query("[data-social-profile-block]"),
+      unblockButton: query("[data-social-profile-unblock]"),
+      reportButton: query("[data-social-profile-report]"),
+      followButton: query("[data-social-profile-follow]"),
+      unfollowButton: query("[data-social-profile-unfollow]"),
+      muteButton: query("[data-social-profile-mute]"),
+      unmuteButton: query("[data-social-profile-unmute]"),
+      snoozeButton: query("[data-social-profile-snooze]"),
+      unsnoozeButton: query("[data-social-profile-unsnooze]"),
+      rankSelect: query("[data-social-profile-feed-rank]"),
+      auth: runtimeRoot.VVIP_AUTH,
+      confirmBlock: function () {
+        return typeof runtimeRoot.confirm === "function"
+          ? runtimeRoot.confirm("سيؤدي الحظر إلى إزالة الصداقة وإخفاء المحتوى والرسائل بينكما. هل تريد المتابعة؟")
+          : false;
+      },
+      renderPost: function (row) {
+        const normalized = feedModel.normalizeFeedPost(row);
+        return normalized && normalized.ok === true
+          ? feedController.createSocialPostNode(documentObject, normalized.value)
+          : null;
+      },
+      onProfileNavigate: function (profileId) {
+        if (runtimeRoot.TIGERSocialShell && typeof runtimeRoot.TIGERSocialShell.openProfile === "function") {
+          runtimeRoot.TIGERSocialShell.openProfile(profileId);
+        }
+      },
+      onMessage: async function (profileId) {
+        const messaging = runtimeRoot.TIGERSocialMessagingCurrent;
+        if (!messaging || typeof messaging.startConversation !== "function") {
+          return failure("SOCIAL_PROFILE_MESSAGE_UNAVAILABLE");
+        }
+        const result = await messaging.startConversation(profileId);
+        if (result && result.ok && runtimeRoot.TIGERSocialShell) {
+          runtimeRoot.TIGERSocialShell.showDestination("messages");
+        }
+        return result;
+      },
+      onReport: function (kind, profileId) {
+        const safety = runtimeRoot.TIGERSocialSafetyCurrent;
+        return Boolean(safety && typeof safety.openReport === "function"
+          && safety.openReport(kind, profileId));
+      },
+      onPostsRendered: function () {
+        const reactions = runtimeRoot.TIGERSocialReactions;
+        const comments = runtimeRoot.TIGERSocialComments;
+        if (reactions && typeof reactions.mountCurrentSocialReactions === "function") {
+          reactions.mountCurrentSocialReactions(runtimeRoot);
+        }
+        if (comments && typeof comments.mountCurrentSocialComments === "function") {
+          comments.mountCurrentSocialComments(runtimeRoot);
+        }
+        if (typeof runtimeRoot.CustomEvent === "function") {
+          documentObject.dispatchEvent(new runtimeRoot.CustomEvent("vvip:social-posts-rendered"));
+        }
+      },
+    });
+
+    query("[data-social-profile-edit]")?.addEventListener("click", function () {
+      controller.openEditor();
+    });
+    query("[data-social-profile-edit-form]")?.addEventListener("submit", function (event) {
+      event.preventDefault();
+      void controller.save();
+    });
+    query("[data-social-profile-message]")?.addEventListener("click", function () {
+      void controller.message();
+    });
+    query("[data-social-profile-block]")?.addEventListener("click", function () {
+      void controller.block();
+    });
+    query("[data-social-profile-unblock]")?.addEventListener("click", function () {
+      void controller.unblock();
+    });
+    query("[data-social-profile-report]")?.addEventListener("click", function () {
+      controller.report();
+    });
+    query("[data-social-profile-follow]")?.addEventListener("click", function () {
+      void controller.follow();
+    });
+    query("[data-social-profile-unfollow]")?.addEventListener("click", function () {
+      void controller.unfollow();
+    });
+    query("[data-social-profile-mute]")?.addEventListener("click", function () {
+      void controller.setFeedPreference("mute");
+    });
+    query("[data-social-profile-unmute]")?.addEventListener("click", function () {
+      void controller.setFeedPreference("unmute");
+    });
+    query("[data-social-profile-snooze]")?.addEventListener("click", function () {
+      void controller.setFeedPreference("snooze_24h");
+    });
+    query("[data-social-profile-unsnooze]")?.addEventListener("click", function () {
+      void controller.setFeedPreference("unsnooze");
+    });
+    query("[data-social-profile-feed-rank]")?.addEventListener("change", function (event) {
+      const value = event && event.target ? event.target.value : "";
+      void controller.setFeedPreference(value);
+    });
+    runtimeRoot.TIGERSocialProfileCurrent = controller;
+    return controller;
+  }
+
+  function installCurrentSocialProfile(rootObject) {
+    const runtimeRoot = rootObject || (typeof globalThis !== "undefined" ? globalThis : null);
+    const documentObject = runtimeRoot && runtimeRoot.document;
+    if (!documentObject || typeof runtimeRoot.addEventListener !== "function") {
+      return frozen({ installed: false });
+    }
+
+    let resolveReady;
+    const readyController = new Promise((resolve) => { resolveReady = resolve; });
+    runtimeRoot.TIGERSocialProfileReady = readyController;
+    let started = false;
+    const mount = function () {
+      let controller = null;
+      try {
+        controller = mountCurrentSocialProfile(runtimeRoot);
+      } catch (_) {
+        statusText(documentObject.querySelector("[data-social-profile-status]"), "تعذر تجهيز الملف الشخصي الآن.");
+      }
+      resolveReady(controller);
+      return controller;
+    };
+    const start = function () {
+      if (started) return;
+      started = true;
+      const ready = runtimeRoot.VVIPRuntimeReady;
+      if (ready && typeof ready.then === "function") {
+        ready.then(mount).catch(function () { resolveReady(null); });
+      } else if (runtimeRoot.VVIP_SUPABASE) {
+        mount();
+      } else {
+        runtimeRoot.addEventListener("vvip:runtime-ready", mount, { once: true });
+        runtimeRoot.addEventListener("vvip:runtime-error", function () { resolveReady(null); }, { once: true });
+      }
+    };
+
+    if (documentObject.readyState === "loading") {
+      runtimeRoot.addEventListener("DOMContentLoaded", start, { once: true });
+    } else {
+      start();
+    }
+    return frozen({ installed: true, start, ready: readyController });
+  }
+
+  return frozen({
+    createProfileController,
+    mountCurrentSocialProfile,
+    installCurrentSocialProfile,
+  });
+});

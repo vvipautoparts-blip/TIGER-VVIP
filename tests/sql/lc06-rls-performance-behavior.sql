@@ -113,8 +113,9 @@ begin
 end
 $lc06_media_policy_overlap$;
 
--- Listing base-table reads keep the LC06 role split. Public discovery is layered
--- through the later security-invoker vvip_marketplace_public_feed projection.
+-- The later NO_VISITOR_MODE hardening supersedes LC06's historical anon/member
+-- role split. Final-state reads keep exactly one authenticated policy and no anon
+-- listing-read policy; the security-invoker projection remains enforced.
 do $lc06_listing_read_roles$
 declare
   anon_count integer;
@@ -137,8 +138,8 @@ begin
     and roles = array['authenticated']::name[]
     and policyname = 'vvip_marketplace_authenticated_read';
 
-  if anon_count <> 1 or auth_count <> 1 then
-    raise exception 'LC06_LISTING_READ_POLICY_ROLE_SPLIT_INVALID:anon=%,auth=%', anon_count, auth_count;
+  if anon_count <> 0 or auth_count <> 1 then
+    raise exception 'LC06_LISTING_READ_POLICY_NO_VISITOR_INVALID:anon=%,auth=%', anon_count, auth_count;
   end if;
 
   select coalesce(c.reloptions @> array['security_invoker=true']::text[], false)

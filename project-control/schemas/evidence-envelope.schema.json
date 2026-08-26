@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vvip-tiger.example/schemas/evidence-envelope.schema.json",
+  "title": "TIGER VERITY Evidence Envelope V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "gate_id", "evidence_class", "subject", "observed_at", "facts", "envelope_digest"],
+  "properties": {
+    "schema_version": { "const": "TIGER_VERITY_EVIDENCE_V1" },
+    "gate_id": { "type": "string", "pattern": "^P(?:0[1-9]|1[0-9]|20)$" },
+    "evidence_class": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]{1,63}$" },
+    "subject": { "type": "string", "pattern": "^(?:sha256:[0-9a-f]{64}|[A-Z][A-Z0-9_:-]{1,127})$" },
+    "observed_at": { "type": "string", "format": "date-time" },
+    "facts": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 64,
+      "propertyNames": { "pattern": "^[a-z][a-z0-9_]{0,63}$" },
+      "additionalProperties": {
+        "oneOf": [
+          { "enum": ["PASS", "BLOCKED", "FAIL", "UNKNOWN", "SKIPPED", "TRUE", "NOT_APPLICABLE"] },
+          { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+        ]
+      }
+    },
+    "proof_capsule_digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "envelope_digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  }
+}

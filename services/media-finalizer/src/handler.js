@@ -4,8 +4,9 @@ const sharp = require('sharp');
 const { createHash, timingSafeEqual } = require('node:crypto');
 const policy = require('./policy.js');
 
-const SOURCE_BUCKET = 'listing-media';
-const CANONICAL_BUCKET = 'listing-media-canonical';
+const LISTING_SOURCE_BUCKET = 'listing-media';
+const LISTING_CANONICAL_BUCKET = 'listing-media-canonical';
+const PROOF_SOURCE_BUCKET = 'proof-capture-staging';
 const DEFAULT_TIMEOUT_SECONDS = 8;
 const VERIFIER_ID = process.env.VVIP_MEDIA_VERIFIER_ID || 'aws-lambda-sharp-v1';
 
@@ -73,8 +74,8 @@ function storageClient(baseUrl, serviceKey) {
   };
 }
 
-async function rpc(baseUrl, serviceKey, name, body) {
-  const response = await fetch(`${baseUrl}/rest/v1/rpc/vvip_marketplace_${name}`, {
+async function rpcNamed(baseUrl, serviceKey, name, body) {
+  const response = await fetch(`${baseUrl}/rest/v1/rpc/${encodeURIComponent(name)}`, {
     method: 'POST',
     headers: {
       ...headers(serviceKey, 'application/json'),
@@ -86,10 +87,24 @@ async function rpc(baseUrl, serviceKey, name, body) {
   let data = null;
   try { data = text ? JSON.parse(text) : null; } catch (_) { data = null; }
   if (!response.ok) {
-    const code = data && typeof data.message === 'string' ? data.message : `MEDIA_RPC_${name.toUpperCase()}_FAILED`;
+    const code = data && typeof data.message === 'string' ? data.message : 'MEDIA_RPC_FAILED';
     throw Object.assign(new Error(code), { code });
   }
   return Array.isArray(data) ? data[0] : data;
+}
+
+function marketplaceRpc(baseUrl, serviceKey, name, body) {
+  return rpcNamed(baseUrl, serviceKey, `vvip_marketplace_${name}`, body);
+}
+
+function proofRpc(baseUrl, serviceKey, operation, body) {
+  const names = Object.freeze({
+    claim_proof_capture: 'vvip_synapse_proof_capture_claim',
+    complete_proof_capture: 'vvip_synapse_proof_capture_finalize'
+  });
+  const name = names[operation];
+  if (!name) throw Object.assign(new Error('PROOF_CAPTURE_RPC_INVALID'), { code: 'PROOF_CAPTURE_RPC_INVALID' });
+  return rpcNamed(baseUrl, serviceKey, name, body);
 }
 
 function requestMethod(event) {
@@ -102,13 +117,25 @@ function parseRequest(event) {
   }
   let body;
   try { body = JSON.parse(event.body || '{}'); } catch (_) { throw Object.assign(new Error('REQUEST_JSON_INVALID'), { code: 'REQUEST_JSON_INVALID', statusCode: 400 }); }
-  const mediaId = String(body.mediaId || '').trim();
   const token = String(body.finalizationToken || '').trim();
   const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  if (!uuid.test(mediaId) || !/^[0-9a-f]{64}$/.test(token)) {
+  if (!/^[0-9a-f]{64}$/.test(token)) {
     throw Object.assign(new Error('FINALIZATION_REQUEST_INVALID'), { code: 'FINALIZATION_REQUEST_INVALID', statusCode: 400 });
   }
-  return Object.freeze({ mediaId, token });
+
+  const captureReceiptId = String(body.captureReceiptId || '').trim();
+  if (captureReceiptId) {
+    if (!uuid.test(captureReceiptId)) {
+      throw Object.assign(new Error('PROOF_CAPTURE_REQUEST_INVALID'), { code: 'PROOF_CAPTURE_REQUEST_INVALID', statusCode: 400 });
+    }
+    return Object.freeze({ kind: 'proof', captureReceiptId, token });
+  }
+
+  const mediaId = String(body.mediaId || '').trim();
+  if (!uuid.test(mediaId)) {
+    throw Object.assign(new Error('FINALIZATION_REQUEST_INVALID'), { code: 'FINALIZATION_REQUEST_INVALID', statusCode: 400 });
+  }
+  return Object.freeze({ kind: 'listing', mediaId, token });
 }
 
 function allowedOrigin(event) {
@@ -170,6 +197,35 @@ async function canonicalize(source, mime, timeoutSeconds) {
   return output;
 }
 
+async function finalizeProofCapture(baseUrl, serviceKey, storage, request, timeoutSeconds) {
+  const tokenDigest = createHash('sha256').update(request.token, 'utf8').digest('hex');
+  const claim = await proofRpc(baseUrl, serviceKey, 'claim_proof_capture', {
+    p_receipt_id: request.captureReceiptId,
+    p_token_digest: tokenDigest
+  });
+  if (!claim || claim.ok !== true || !claim.source_storage_path) {
+    throw Object.assign(new Error('PROOF_CAPTURE_CLAIM_INVALID'), { code: 'PROOF_CAPTURE_CLAIM_INVALID' });
+  }
+
+  const sourceObject = await storage.from(PROOF_SOURCE_BUCKET).download(claim.source_storage_path);
+  const detectedMime = policy.detectStrictMime(sourceObject.body);
+  const canonical = await canonicalize(sourceObject.body, detectedMime, timeoutSeconds);
+  const canonicalSha256 = createHash('sha256').update(canonical.data).digest('hex');
+
+  const completed = await proofRpc(baseUrl, serviceKey, 'complete_proof_capture', {
+    p_receipt_id: request.captureReceiptId,
+    p_token_digest: tokenDigest,
+    p_canonical_digest: canonicalSha256,
+    p_verifier_id: VERIFIER_ID
+  });
+  if (!completed || completed.ok !== true || completed.status !== 'FINALIZED') {
+    throw Object.assign(new Error('PROOF_CAPTURE_COMPLETE_INVALID'), { code: 'PROOF_CAPTURE_COMPLETE_INVALID' });
+  }
+
+  await storage.from(PROOF_SOURCE_BUCKET).remove(claim.source_storage_path).catch(() => undefined);
+  return Object.freeze({ captureReceiptId: request.captureReceiptId, canonicalSha256 });
+}
+
 async function handler(event) {
   const origin = allowedOrigin(event);
   if (!origin) return response(403, { ok: false, code: 'ORIGIN_NOT_ALLOWED' }, null);
@@ -186,13 +242,23 @@ async function handler(event) {
     const storage = storageClient(baseUrl, serviceKey);
     const timeoutSeconds = Math.max(1, Math.min(20, Number(process.env.VVIP_MEDIA_PROCESSING_TIMEOUT_SECONDS) || DEFAULT_TIMEOUT_SECONDS));
 
-    job = await rpc(baseUrl, serviceKey, 'claim_media_finalization', {
+    if (request.kind === 'proof') {
+      const proof = await finalizeProofCapture(baseUrl, serviceKey, storage, request, timeoutSeconds);
+      return response(200, {
+        ok: true,
+        captureReceiptId: proof.captureReceiptId,
+        state: 'FINALIZED',
+        canonicalSha256: proof.canonicalSha256
+      }, origin);
+    }
+
+    job = await marketplaceRpc(baseUrl, serviceKey, 'claim_media_finalization', {
       target_media: request.mediaId,
       finalization_token: request.token
     });
     if (!job || !job.job_id || !job.source_storage_path) throw Object.assign(new Error('MEDIA_FINALIZATION_CLAIM_INVALID'), { code: 'MEDIA_FINALIZATION_CLAIM_INVALID' });
 
-    const sourceObject = await storage.from('listing-media').download(job.source_storage_path);
+    const sourceObject = await storage.from(LISTING_SOURCE_BUCKET).download(job.source_storage_path);
     const expectedMime = String(job.expected_mime_type || '').toLowerCase();
     if (sourceObject.contentType && !constantTimeEqual(sourceObject.contentType, expectedMime)) {
       throw Object.assign(new Error('MEDIA_STORAGE_MIME_MISMATCH'), { code: 'MEDIA_STORAGE_MIME_MISMATCH' });
@@ -206,8 +272,8 @@ async function handler(event) {
     const canonicalSha256 = createHash('sha256').update(canonical.data).digest('hex');
     const canonicalPath = policy.canonicalPath(job.listing_id, job.media_id, canonicalSha256, expectedMime);
 
-    await storage.from('listing-media-canonical').upload(canonicalPath, canonical.data, expectedMime);
-    const completed = await rpc(baseUrl, serviceKey, 'complete_media_finalization', {
+    await storage.from(LISTING_CANONICAL_BUCKET).upload(canonicalPath, canonical.data, expectedMime);
+    const completed = await marketplaceRpc(baseUrl, serviceKey, 'complete_media_finalization', {
       target_job: job.job_id,
       finalization_token: request.token,
       source_digest: sourceSha256,
@@ -220,7 +286,7 @@ async function handler(event) {
       verifier_id: VERIFIER_ID
     });
 
-    storage.from('listing-media').remove(job.source_storage_path).catch(() => undefined);
+    storage.from(LISTING_SOURCE_BUCKET).remove(job.source_storage_path).catch(() => undefined);
     return response(200, {
       ok: true,
       mediaId: job.media_id,
@@ -228,11 +294,11 @@ async function handler(event) {
       canonicalSha256
     }, origin);
   } catch (error) {
-    if (job && job.job_id && request) {
+    if (job && job.job_id && request && request.kind === 'listing') {
       try {
         const baseUrl = env('SUPABASE_URL');
         const serviceKey = env('SUPABASE_SERVICE_ROLE_KEY');
-        await rpc(baseUrl, serviceKey, 'fail_media_finalization', {
+        await marketplaceRpc(baseUrl, serviceKey, 'fail_media_finalization', {
           target_job: job.job_id,
           finalization_token: request.token,
           failure_code: policy.safeFailureCode(error)
@@ -248,3 +314,4 @@ exports.handler = handler;
 exports.canonicalize = canonicalize;
 exports.storageClient = storageClient;
 exports.requestMethod = requestMethod;
+exports.finalizeProofCapture = finalizeProofCapture;

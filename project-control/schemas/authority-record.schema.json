@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tiger.invalid/schemas/authority-record.v1.json",
+  "title": "TIGER Authority Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "authority_id",
+    "domain",
+    "version",
+    "status",
+    "owner_decision_ref",
+    "canonical_path",
+    "supersedes",
+    "protected_boundaries"
+  ],
+  "properties": {
+    "authority_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9.-]*$" },
+    "domain": { "type": "string", "pattern": "^[a-z0-9][a-z0-9.-]*$" },
+    "version": { "type": "integer", "minimum": 0 },
+    "status": {
+      "type": "string",
+      "enum": ["CURRENT_ONLY", "BOUNDED_MIGRATION", "HISTORICAL_ONLY"]
+    },
+    "owner_decision_ref": { "type": "string", "minLength": 1 },
+    "canonical_path": { "type": "string", "minLength": 1 },
+    "supersedes": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9.-]*$" },
+      "uniqueItems": true
+    },
+    "protected_boundaries": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    }
+  }
+}

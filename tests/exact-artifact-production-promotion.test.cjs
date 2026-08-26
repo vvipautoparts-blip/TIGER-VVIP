@@ -79,6 +79,16 @@ test('builder seals deterministic inner bundle, SBOM, materials, digest, and att
   assert.match(builder, /vvip-production-release-/);
 });
 
+test('builder emits an actions-attest compatible CycloneDX 1.7 SBOM and verifies its predicate', () => {
+  const builder = readRequired(BUILDER_PATH, 'Production Release Artifact Builder workflow');
+
+  assert.match(builder, /scripts\/release\/production-sbom\.cjs/);
+  assert.match(builder, /createProductionFileInventorySbom/);
+  assert.match(builder, /tests\/production-release-sbom\.test\.cjs/);
+  assert.match(builder, /--predicate-type\s+https:\/\/cyclonedx\.org\/bom/);
+  assert.match(builder, /PRODUCTION_SBOM_ATTESTATION=PASS/);
+});
+
 test('Production promotion consumes artifact identity and contains zero application rebuilds', () => {
   const pages = readRequired(PAGES_PATH, 'Production promotion workflow');
 

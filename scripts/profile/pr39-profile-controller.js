@@ -7,26 +7,17 @@
   function createViewState(subject) {
     return {
       subject: subject,
-      forcedVisitor: false,
-      activeMode: subject.isOwner ? contract.OWNER_MODE : contract.VISITOR_MODE
+      activeMode: subject.mode
     };
   }
 
-  function setVisitorPreview(state, enabled) {
-    state.forcedVisitor = !!enabled;
-    if (!state.subject.isOwner) {
-      state.activeMode = contract.VISITOR_MODE;
-      return state.activeMode;
-    }
-    state.activeMode = enabled ? contract.VISITOR_MODE : contract.OWNER_MODE;
-    return state.activeMode;
-  }
-
-  function createMenuModel(subject, forcedVisitor) {
-    const ownerVisible = !!(subject.isOwner && !forcedVisitor);
+  function createMenuModel(subject) {
+    const ownerVisible = subject && subject.mode === contract.OWNER_VIEW;
+    const memberVisible = subject && subject.mode === contract.AUTHORIZED_MEMBER_VIEW;
     return {
-      ownerVisible: ownerVisible,
-      items: contract.createOwnerMenuItems(ownerVisible)
+      ownerVisible: !!ownerVisible,
+      memberVisible: !!memberVisible,
+      items: subject && subject.mode !== contract.AUTH_REQUIRED ? contract.createOwnerMenuItems(!!ownerVisible) : []
     };
   }
 
@@ -115,7 +106,7 @@
     }
 
     const params = new URLSearchParams(window.location.search);
-    const subjectUserId = String(params.get("subject") || (sessionUser && sessionUser.id) || "visitor-subject");
+    const subjectUserId = String(params.get("subject") || (sessionUser && sessionUser.id) || "");
 
     const draft = pr38Summary && pr38Summary.readDraftFromStorage ? pr38Summary.readDraftFromStorage(window.localStorage) : null;
 
@@ -125,7 +116,7 @@
       profileSource: {
         displayName: "مستخدم VVIP",
         publicUsername: "",
-        publicBio: "نبذة عامة ستظهر بعد التفعيل الرسمي.",
+        publicBio: "نبذة العضو ستظهر بعد التفعيل الرسمي.",
         publicLocation: "",
         accountType: "",
         publishingPermission: "none",
@@ -135,59 +126,44 @@
     });
   }
 
-  function bootstrapPublicProfile() {
-    const root = document.querySelector("[data-pr39-public-profile]");
+  function bootstrapMemberProfile() {
+    const root = document.querySelector("[data-pr39-member-profile]");
     if (!root || !contract) return;
 
     const subject = buildSubjectFromRuntime();
-    const state = createViewState(subject);
+    if (subject.mode === contract.AUTH_REQUIRED) {
+      window.location.replace("index.html");
+      return;
+    }
 
+    const state = createViewState(subject);
     const accountType = draftAccountTypeInfo();
     setText(root.querySelector("[data-pr39-name]"), subject.displayName);
     setText(root.querySelector("[data-pr39-username]"), subject.publicUsername ? "@" + subject.publicUsername : "@");
     setText(root.querySelector("[data-pr39-bio]"), subject.publicBio);
-    setText(root.querySelector("[data-pr39-location]"), subject.publicLocation || "الموقع العام غير متاح حاليًا.");
+    setText(root.querySelector("[data-pr39-location]"), subject.publicLocation || "الموقع المسموح بعرضه غير متاح حاليًا.");
     setText(root.querySelector("[data-pr39-account-type]"), accountType.name);
     setText(root.querySelector("[data-pr39-account-type-status]"), accountType.isDraft ? "اختيار غير مفعّل رسميًا بعد." : "موثق رسميًا.");
     setText(root.querySelector("[data-pr39-permission]"), subject.publishingPermission === "none" ? "النشر غير مفعّل." : subject.publishingPermission);
 
     const ownerTools = root.querySelector("[data-pr39-owner-tools]");
-    const visitorTools = root.querySelector("[data-pr39-visitor-tools]");
+    const memberTools = root.querySelector("[data-pr39-member-tools]");
     const messageButton = root.querySelector("[data-pr39-message]");
     show(messageButton, subject.canMessage);
 
     const applyMode = function () {
-      const ownerVisible = state.activeMode === contract.OWNER_MODE;
+      const ownerVisible = state.activeMode === contract.OWNER_VIEW;
+      const memberVisible = state.activeMode === contract.AUTHORIZED_MEMBER_VIEW;
       show(ownerTools, ownerVisible);
-      show(visitorTools, !ownerVisible);
+      show(memberTools, memberVisible);
       root.querySelectorAll("[data-pr39-owner-nav]").forEach(function (node) {
         show(node, ownerVisible);
       });
-      const backOwner = root.querySelector("[data-pr39-back-owner]");
-      if (backOwner) {
-        show(backOwner, subject.isOwner && !ownerVisible);
-      }
       root.setAttribute("data-mode", state.activeMode);
-      const menu = createMenuModel(subject, !ownerVisible);
+      const menu = createMenuModel(subject);
       setText(root.querySelector("[data-pr39-menu-summary]"), menu.items.join(" | "));
       syncMenuItems(root, menu.items);
     };
-
-    const viewAsVisitorButton = root.querySelector("[data-pr39-view-as-visitor]");
-    if (viewAsVisitorButton) {
-      viewAsVisitorButton.addEventListener("click", function () {
-        setVisitorPreview(state, true);
-        applyMode();
-      });
-    }
-
-    const backToOwnerButton = root.querySelector("[data-pr39-back-owner]");
-    if (backToOwnerButton) {
-      backToOwnerButton.addEventListener("click", function () {
-        setVisitorPreview(state, false);
-        applyMode();
-      });
-    }
 
     const copyButton = root.querySelector("[data-pr39-copy-link]");
     if (copyButton) {
@@ -210,18 +186,12 @@
         const item = event.target.closest("[data-pr39-menu-item]");
         if (!item) return;
         const action = item.getAttribute("data-pr39-menu-item");
-        if (action === "viewAsVisitor") {
-          setVisitorPreview(state, true);
-          applyMode();
-          return;
-        }
         if (action === "settings") {
           window.location.href = "account-settings-p05.html";
           return;
         }
         if (action === "tigerCare") {
           if (status) status.textContent = "تم استلام طلبك، وسيتم التواصل معك خلال 24 ساعة.";
-          return;
         }
       });
     }
@@ -240,14 +210,14 @@
   }
 
   if (document && typeof document.addEventListener === "function") {
-    document.addEventListener("DOMContentLoaded", bootstrapPublicProfile);
+    document.addEventListener("DOMContentLoaded", bootstrapMemberProfile);
   }
 
   window.VVIP_PR39_PROFILE_CONTROLLER = Object.freeze({
     createViewState: createViewState,
-    setVisitorPreview: setVisitorPreview,
     createMenuModel: createMenuModel,
     logoutSessionOnly: logoutSessionOnly,
-    syncMenuItems: syncMenuItems
+    syncMenuItems: syncMenuItems,
+    buildSubjectFromRuntime: buildSubjectFromRuntime
   });
 }(window, document));

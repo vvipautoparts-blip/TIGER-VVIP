@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "supabase/migrations/20260808003000_lc03_supabase_security_hardening.sql"
+      - "supabase/migrations/20260821133000_social_edge_keyset_convergence.sql"
       - "tests/lc03-supabase-security-hardening.test.cjs"
       - "tests/quality-gate-shell-contract.test.cjs"
       - "tests/tsrf-evidence-hardening.test.cjs"
@@ -18,6 +19,7 @@ on:
     paths:
       - "supabase/migrations/20260808003000_lc03-supabase-security-hardening.sql"
       - "supabase/migrations/20260808003000_lc03_supabase_security_hardening.sql"
+      - "supabase/migrations/20260821133000_social_edge_keyset_convergence.sql"
       - "tests/lc03-supabase-security-hardening.test.cjs"
       - "tests/quality-gate-shell-contract.test.cjs"
       - "tests/tsrf-evidence-hardening.test.cjs"

@@ -21,7 +21,7 @@ REQUIRED_FILES = [
 	ROOT / "scripts/profile/pr39-profile-editor.js",
 	ROOT / "scripts/profile/pr39-account-management.js",
 	ROOT / "scripts/profile/pr39-profile-preview.js",
-	ROOT / "tests/pr39-p05-profile-account-management.test.py",
+	ROOT / "tests/test_pr39_p05_profile_account_management.py",
 	ROOT / "tests/pr39-p05-profile-account-management.runtime.test.cjs",
 	ROOT / "docs/change-control/20260715-pr39-p05-profile-account-management.json",
 ]
@@ -93,7 +93,7 @@ def test_pr39_static_contract() -> None:
 	assert "focus-visible" in css
 	assert "prefers-reduced-motion" in css
 	fixture_paths = [
-		"tests/pr39-p05-profile-account-management.test.py",
+		"tests/test_pr39_p05_profile_account_management.py",
 		"tests/pr39-p05-profile-account-management.runtime.test.cjs",
 	]
 	tracked = set(
@@ -114,9 +114,19 @@ def test_pr39_static_contract() -> None:
 	)
 	assert ignored.returncode == 1, "tracked PR39 regression fixtures must not be ignored"
 
-	assert "OWNER_MODE" in contract_js
-	assert "VISITOR_MODE" in contract_js
-	assert "safe fallback".lower() in controller_js.lower() or "visitor" in controller_js.lower()
+	assert "OWNER_MODE" not in contract_js
+	assert "VISITOR_MODE" not in contract_js
+	assert "AUTH_REQUIRED" in contract_js
+	assert "AUTHORIZED_MEMBER_VIEW" in contract_js
+	assert "OWNER_VIEW" in contract_js
+	assert "setVisitorPreview" not in controller_js
+	assert "viewAsVisitor" not in controller_js
+	assert "forcedVisitor" not in controller_js
+	assert "visitor-subject" not in controller_js
+	assert 'window.location.replace("index.html")' in controller_js
+	assert "data-pr39-view-as-visitor" not in public_html
+	assert "data-pr39-visitor-tools" not in public_html
+	assert "عرض كزائر" not in public_html
 
 	assert "public-profile-p05.html" in private_html
 	assert "edit-profile-p05.html" in private_html
@@ -136,8 +146,6 @@ def test_pr39_static_contract() -> None:
 
 	assert settings_html.count("data-pr39-deactivation") == 1
 	assert settings_html.count("data-pr39-deletion") == 1
-	assert settings_html.count("data-pr39-deactivation") >= 1
-	assert settings_html.count("data-pr39-deletion") >= 1
 	assert settings_html.count("data-step") >= 10, "multi-step flows should include enough guided steps"
 	assert "data-confirm-phrase" in settings_html, "deletion flow must require typed confirmation phrase"
 	assert "حذف حسابي" in settings_html, "deletion phrase contract missing"
@@ -184,8 +192,6 @@ def test_pr39_static_contract() -> None:
 	assert manifest.get("destructive_account_actions") is False
 
 	for key in [
-		"owner_mode_contract",
-		"visitor_mode_contract",
 		"public_fields",
 		"private_fields",
 		"tests",
