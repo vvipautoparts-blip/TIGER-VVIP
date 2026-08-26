@@ -20,8 +20,10 @@ declare
   v_rejected boolean := false;
 begin
   begin
-    insert into public.vvip_social_posts (body, audience)
-    values (E'\n\t' || U&'\00A0\3000', 'public');
+    perform public.vvip_social_post_create(
+      E'\n\t' || U&'\00A0\3000',
+      'public'
+    );
   exception when others then
     v_rejected := true;
   end;
@@ -32,16 +34,20 @@ end;
 $proof$;
 \echo POST_UNICODE_WHITESPACE_REJECTED=PASS
 
-insert into public.vvip_social_posts (body, audience)
-values (repeat(U&'\D83D\DE00', 5000), 'only_me');
+select public.vvip_social_post_create(
+  repeat(U&'\D83D\DE00', 5000),
+  'only_me'
+);
 
 do $proof$
 declare
   v_rejected boolean := false;
 begin
   begin
-    insert into public.vvip_social_posts (body, audience)
-    values (repeat(U&'\D83D\DE00', 5001), 'only_me');
+    perform public.vvip_social_post_create(
+      repeat(U&'\D83D\DE00', 5001),
+      'only_me'
+    );
   exception when others then
     v_rejected := true;
   end;
