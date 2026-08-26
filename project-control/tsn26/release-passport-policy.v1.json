@@ -11,6 +11,7 @@
   "signature_transparency_required": true,
   "sbom_required": true,
   "provenance_required": true,
+  "proofs_must_bind_source_sha": true,
   "required_proofs": {
     "quality_gate": { "max_age_seconds": 3600 },
     "codeql": { "max_age_seconds": 3600 },
@@ -25,6 +26,8 @@
     "legacy_rpc": { "max_age_seconds": 3600 },
     "credential_isolation": { "max_age_seconds": 3600 },
     "otp_rehearsal": { "max_age_seconds": 3600 },
+    "constitution_signing": { "max_age_seconds": 3600 },
+    "supply_chain_verification": { "max_age_seconds": 3600 },
     "recovery": { "max_age_seconds": 604800 }
   }
 }
