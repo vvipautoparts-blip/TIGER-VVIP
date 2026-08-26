@@ -9,6 +9,7 @@ const ROOT = path.resolve(__dirname, "..");
 const CONTROLLER = path.join(ROOT, "scripts/synapse/proof-of-now-controller.js");
 const EDGE = path.join(ROOT, "supabase/functions/tiger-proof-of-now/index.ts");
 const PREPARER = path.join(ROOT, "supabase/functions/tiger-proof-capture-prepare/index.ts");
+const CONFIG = path.join(ROOT, "supabase/config.toml");
 const MIGRATION = path.join(ROOT, "supabase/migrations/20260826120000_synapse_proof_of_now.sql");
 const MEDIA_FINALIZER = path.join(ROOT, "services/media-finalizer/src/handler.js");
 const REHEARSAL = path.join(ROOT, ".github/workflows/tiger-synapse-s4-proof-rehearsal.yml");
@@ -39,6 +40,25 @@ test("S4 consume accepts only an opaque server capture receipt, never a client-a
   assert.match(edge, /capture_receipt_id/i, "EDGE_CAPTURE_RECEIPT_REQUIRED");
   assert.match(edge, /p_capture_receipt_id/i, "EDGE_MUST_CONSUME_BY_RECEIPT_ID");
   assert.doesNotMatch(edge, /p_capture_digest\s*:/i, "EDGE_MUST_NOT_FORWARD_CLIENT_CAPTURE_DIGEST");
+});
+
+test("S4 external identity verification is reachable because platform JWT verification is disabled only for the two proof functions", () => {
+  const config = readRequired(CONFIG, "SUPABASE_CONFIG_MISSING");
+  const edge = readRequired(EDGE, "PROOF_EDGE_FUNCTION_MISSING");
+  const preparer = readRequired(PREPARER, "PROOF_CAPTURE_PREPARER_MISSING");
+
+  for (const functionName of ["tiger-proof-of-now", "tiger-proof-capture-prepare"]) {
+    const escaped = functionName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    assert.match(
+      config,
+      new RegExp(`\\[functions\\.${escaped}\\]\\s*\\nverify_jwt\\s*=\\s*false`, "i"),
+      `PROOF_EXTERNAL_AUTH_CONFIG_MISSING:${functionName}`,
+    );
+  }
+  for (const source of [edge, preparer]) {
+    assert.match(source, /authorization/i, "PROOF_HANDLER_BEARER_BOUNDARY_MISSING");
+    assert.match(source, /verifyIdentity|IDENTITY_VERIFIER/i, "PROOF_HANDLER_EXTERNAL_IDENTITY_MISSING");
+  }
 });
 
 test("S4 capture preparation is server-authorized and uses private signed upload capability only", () => {
