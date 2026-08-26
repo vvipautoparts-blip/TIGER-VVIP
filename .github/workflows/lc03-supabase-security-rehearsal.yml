@@ -242,7 +242,7 @@ jobs:
           test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
           test -z "$(git status --porcelain=v1 -uall)"
       - name: Upload exact-SHA local DB proof capsule
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: tsrf-db-rebuild-proof-${{ env.SOURCE_SHA }}
           path: ${{ runner.temp }}/tsrf-local-evidence

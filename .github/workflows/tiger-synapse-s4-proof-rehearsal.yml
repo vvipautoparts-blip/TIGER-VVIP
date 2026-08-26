@@ -239,7 +239,7 @@ jobs:
           cat /tmp/tiger-s4-proof-evidence/evidence.env
 
       - name: Upload exact-head evidence
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: tiger-s4-proof-evidence-${{ env.SOURCE_SHA }}
           path: /tmp/tiger-s4-proof-evidence/evidence.env
