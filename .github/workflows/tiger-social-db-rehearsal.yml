@@ -18,6 +18,8 @@ on:
       - "supabase/migrations/20260824133000_social_follow_preferences_surface.sql"
       - "supabase/migrations/20260824140000_social_search_discovery_surface.sql"
       - "supabase/migrations/20260824143000_social_account_lifecycle_surface.sql"
+      - "supabase/migrations/20260826120000_synapse_proof_of_now.sql"
+      - "supabase/functions/tiger-proof-of-now/index.ts"
       - "index.html"
       - "auth-clerk-index.js"
       - "scripts/social/text-contract.js"
@@ -41,6 +43,7 @@ on:
       - "scripts/social/comments-controller.js"
       - "scripts/synapse/intent-domain.js"
       - "scripts/synapse/intent-runtime-adapters.js"
+      - "scripts/synapse/proof-of-now-controller.js"
       - "docs/security/SOCIAL_CORE_FOUNDATION_SECURITY_REVIEW_2026-08-18.md"
       - "docs/security/TIGER_SOCIAL_REACTIONS_MIGRATION_SECURITY_REVIEW.md"
       - "docs/security/TIGER_SOCIAL_COMMENTS_MIGRATION_SECURITY_REVIEW.md"
@@ -64,6 +67,7 @@ on:
       - "tests/tiger-social-share-save-closure.test.cjs"
       - "tests/tiger-social-reposts-reviewed-migration-hash.test.cjs"
       - "tests/tiger-synapse-intent-reviewed-migration-hash.test.cjs"
+      - "tests/tiger-synapse-proof-of-now.test.cjs"
       - "tests/tiger-p0-messaging-convergence.test.cjs"
       - "tests/tiger-p0-messaging-read-model.test.cjs"
       - "tests/tiger-p0-messaging-db-rehearsal.test.cjs"
@@ -110,6 +114,10 @@ on:
       - "tests/sql/tiger-social-comments.sql"
       - "tests/sql/tiger-social-share-save.sql"
       - "tests/sql/tiger-synapse-intent.sql"
+      - "tests/sql/tiger-synapse-proof-of-now.sql"
+      - "tests/sql/tiger-synapse-proof-of-now-concurrency-setup.sql"
+      - "tests/sql/tiger-synapse-proof-of-now-concurrency-consume.sql"
+      - "tests/sql/tiger-synapse-proof-of-now-concurrency-verify.sql"
       - "tests/sql/tiger-p0-messaging-convergence.sql"
       - "tests/sql/tiger-p0-messaging-surface.sql"
       - "tests/sql/tiger-p0-profile-surface.sql"
@@ -136,6 +144,8 @@ on:
       - "supabase/migrations/20260824133000_social_follow_preferences_surface.sql"
       - "supabase/migrations/20260824140000_social_search_discovery_surface.sql"
       - "supabase/migrations/20260824143000_social_account_lifecycle_surface.sql"
+      - "supabase/migrations/20260826120000_synapse_proof_of_now.sql"
+      - "supabase/functions/tiger-proof-of-now/index.ts"
       - "index.html"
       - "auth-clerk-index.js"
       - "scripts/social/text-contract.js"
@@ -159,6 +169,7 @@ on:
       - "scripts/social/comments-controller.js"
       - "scripts/synapse/intent-domain.js"
       - "scripts/synapse/intent-runtime-adapters.js"
+      - "scripts/synapse/proof-of-now-controller.js"
       - "docs/security/SOCIAL_CORE_FOUNDATION_SECURITY_REVIEW_2026-08-18.md"
       - "docs/security/TIGER_SOCIAL_REACTIONS_MIGRATION_SECURITY_REVIEW.md"
       - "docs/security/TIGER_SOCIAL_COMMENTS_MIGRATION_SECURITY_REVIEW.md"
@@ -182,6 +193,7 @@ on:
       - "tests/tiger-social-share-save-closure.test.cjs"
       - "tests/tiger-social-reposts-reviewed-migration-hash.test.cjs"
       - "tests/tiger-synapse-intent-reviewed-migration-hash.test.cjs"
+      - "tests/tiger-synapse-proof-of-now.test.cjs"
       - "tests/tiger-p0-messaging-convergence.test.cjs"
       - "tests/tiger-p0-messaging-read-model.test.cjs"
       - "tests/tiger-p0-messaging-db-rehearsal.test.cjs"
@@ -228,6 +240,10 @@ on:
       - "tests/sql/tiger-social-comments.sql"
       - "tests/sql/tiger-social-share-save.sql"
       - "tests/sql/tiger-synapse-intent.sql"
+      - "tests/sql/tiger-synapse-proof-of-now.sql"
+      - "tests/sql/tiger-synapse-proof-of-now-concurrency-setup.sql"
+      - "tests/sql/tiger-synapse-proof-of-now-concurrency-consume.sql"
+      - "tests/sql/tiger-synapse-proof-of-now-concurrency-verify.sql"
       - "tests/sql/tiger-p0-messaging-convergence.sql"
       - "tests/sql/tiger-p0-messaging-surface.sql"
       - "tests/sql/tiger-p0-profile-surface.sql"
@@ -290,6 +306,7 @@ jobs:
           node --test tests/tiger-social-share-save-closure.test.cjs
           node --test tests/tiger-social-reposts-reviewed-migration-hash.test.cjs
           node --test tests/tiger-synapse-intent-reviewed-migration-hash.test.cjs
+          node --test tests/tiger-synapse-proof-of-now.test.cjs
           node --test tests/tiger-social-db-rehearsal-workflow.test.cjs
           node --test tests/tiger-social-runtime-adapters.test.cjs
           node --test tests/tiger-social-post-domain.test.cjs
@@ -410,6 +427,136 @@ jobs:
             -d postgres \
             -v ON_ERROR_STOP=1 \
             -f tests/sql/tiger-synapse-intent.sql
+
+      - name: Prove SYNAPSE S4 Proof-of-Now replay and authorization behavior
+        shell: bash
+        run: |
+          set -euo pipefail
+          proof_log="$(mktemp)"
+          trap 'rm -f "$proof_log"' EXIT
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 \
+            -p 54322 \
+            -U postgres \
+            -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/tiger-synapse-proof-of-now.sql | tee "$proof_log"
+          grep -Fx 'TIGER_SYNAPSE_PROOF_OF_NOW_DB_BEHAVIOR=PASS' "$proof_log"
+          if grep -Eq '^PROOF_.*=FAIL$' "$proof_log"; then
+            echo 'TIGER_SYNAPSE_PROOF_OF_NOW_DB_BEHAVIOR=FAIL_MARKER_DETECTED'
+            exit 1
+          fi
+
+      - name: Prove SYNAPSE S4 Proof-of-Now concurrent single-use behavior
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          race_a="$(mktemp)"
+          race_b="$(mktemp)"
+          blocker_log="$(mktemp)"
+          trap 'rm -f "$race_a" "$race_b" "$blocker_log"' EXIT
+
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 \
+            -p 54322 \
+            -U postgres \
+            -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/tiger-synapse-proof-of-now-concurrency-setup.sql
+
+          (
+            PGOPTIONS='-c statement_timeout=15000' PGPASSWORD=postgres psql \
+              -h 127.0.0.1 \
+              -p 54322 \
+              -U postgres \
+              -d postgres \
+              -v ON_ERROR_STOP=1 <<'SQL'
+\set ON_ERROR_STOP on
+begin;
+select 1
+from public.vvip_synapse_proof_challenges
+where challenge_id = '55555555-5555-4555-8555-555555555551'::uuid
+for update;
+select pg_advisory_lock(8675309);
+select pg_sleep(3);
+select pg_advisory_unlock(8675309);
+commit;
+SQL
+          ) >"$blocker_log" 2>&1 &
+          blocker_pid=$!
+
+          blocker_ready=0
+          for _attempt in $(seq 1 50); do
+            state="$(PGPASSWORD=postgres psql -qAt \
+              -h 127.0.0.1 \
+              -p 54322 \
+              -U postgres \
+              -d postgres \
+              -v ON_ERROR_STOP=1 \
+              -c "select case when pg_try_advisory_lock(8675309) then 'FREE' else 'HELD' end")"
+            if [[ "$state" == "HELD" ]]; then
+              blocker_ready=1
+              break
+            fi
+            sleep 0.1
+          done
+
+          if [[ "$blocker_ready" -ne 1 ]]; then
+            echo 'PROOF_CONCURRENT_BARRIER_READY=FAIL'
+            cat "$blocker_log"
+            kill "$blocker_pid" 2>/dev/null || true
+            exit 1
+          fi
+          echo 'PROOF_CONCURRENT_BARRIER_READY=PASS'
+
+          PGOPTIONS='-c statement_timeout=15000 -c lock_timeout=10000' PGPASSWORD=postgres psql -qAt \
+            -h 127.0.0.1 -p 54322 -U postgres -d postgres -v ON_ERROR_STOP=1 \
+            -f tests/sql/tiger-synapse-proof-of-now-concurrency-consume.sql >"$race_a" 2>&1 &
+          race_a_pid=$!
+
+          PGOPTIONS='-c statement_timeout=15000 -c lock_timeout=10000' PGPASSWORD=postgres psql -qAt \
+            -h 127.0.0.1 -p 54322 -U postgres -d postgres -v ON_ERROR_STOP=1 \
+            -f tests/sql/tiger-synapse-proof-of-now-concurrency-consume.sql >"$race_b" 2>&1 &
+          race_b_pid=$!
+
+          set +e
+          wait "$race_a_pid"; race_a_exit=$?
+          wait "$race_b_pid"; race_b_exit=$?
+          wait "$blocker_pid"; blocker_exit=$?
+          set -e
+
+          if [[ "$race_a_exit" -ne 0 || "$race_b_exit" -ne 0 || "$blocker_exit" -ne 0 ]]; then
+            echo 'PROOF_CONCURRENT_SESSION_EXECUTION=FAIL'
+            cat "$race_a" "$race_b" "$blocker_log"
+            exit 1
+          fi
+          echo 'PROOF_CONCURRENT_SESSION_EXECUTION=PASS'
+
+          accepted_count="$(cat "$race_a" "$race_b" | grep -c '^ACCEPTED$' || true)"
+          replay_count="$(cat "$race_a" "$race_b" | grep -c '^REPLAY$' || true)"
+
+          if [[ "$accepted_count" -ne 1 ]]; then
+            echo 'PROOF_CONCURRENT_ACCEPTED_EXACTLY_ONE=FAIL'
+            cat "$race_a" "$race_b"
+            exit 1
+          fi
+          echo 'PROOF_CONCURRENT_ACCEPTED_EXACTLY_ONE=PASS'
+
+          if [[ "$replay_count" -ne 1 ]]; then
+            echo 'PROOF_CONCURRENT_REPLAY_EXACTLY_ONE=FAIL'
+            cat "$race_a" "$race_b"
+            exit 1
+          fi
+          echo 'PROOF_CONCURRENT_REPLAY_EXACTLY_ONE=PASS'
+
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 \
+            -p 54322 \
+            -U postgres \
+            -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/tiger-synapse-proof-of-now-concurrency-verify.sql
 
       - name: Prove P0 Messaging durable and privacy behavior
         shell: bash
