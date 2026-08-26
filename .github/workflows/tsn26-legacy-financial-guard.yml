@@ -39,6 +39,7 @@ jobs:
           tests/tsn26-recovery-proof.test.cjs
           tests/tsn26-release-passport.test.cjs
           tests/tsn26-repository-governance.test.cjs
+          tests/tsn26-supply-chain-proof.test.cjs
           tests/tsn26-invariant-registry.test.cjs
           tests/tsn26-invariants-and-purge.test.cjs
           tests/tsn26-sovereign-sale-claim.test.cjs
