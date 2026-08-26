@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "gate": 249,
+  "verify_jwt": true,
+  "promotion_order": [
+    "otp_challenge_substrate",
+    "legacy_credential_table_isolation",
+    "legacy_otp_sequence_isolation",
+    "edge_runtime"
+  ],
+  "artifacts": [
+    {
+      "role": "otp_challenge_substrate",
+      "path": "supabase/migrations/20260808133000_phone_otp_challenges.sql",
+      "git_blob_sha": "a468a38d8b2853d0efc69f23a8e0286b920a301c"
+    },
+    {
+      "role": "legacy_credential_table_isolation",
+      "path": "supabase/migrations/20260808135000_lc05_credential_surface_isolation.sql",
+      "git_blob_sha": "6349f641805a93e87f149de4346aa138446bf55a"
+    },
+    {
+      "role": "legacy_otp_sequence_isolation",
+      "path": "supabase/migrations/20260812070600_lc07_legacy_otp_sequence_isolation.sql",
+      "git_blob_sha": "774c829a76886ddf748f7e4a5092a1aa6e3f7f49"
+    },
+    {
+      "role": "edge_runtime",
+      "path": "supabase/functions/phone-verification/index.ts",
+      "git_blob_sha": "f970ad099f057f517731396258d63b8b154b023d"
+    }
+  ],
+  "required_owner_configuration": [
+    "OTP_ALLOWED_ORIGINS",
+    "OTP_HMAC_SECRET",
+    "WHATSAPP_ACCESS_TOKEN",
+    "WHATSAPP_PHONE_NUMBER_ID",
+    "WHATSAPP_TEMPLATE_NAME"
+  ],
+  "optional_configuration": [
+    "WHATSAPP_TEMPLATE_LANG"
+  ],
+  "platform_provided_configuration": [
+    "SUPABASE_URL",
+    "SUPABASE_SERVICE_ROLE_KEY"
+  ],
+  "evidence_rules": {
+    "record_secret_values": false,
+    "record_phone_numbers": false,
+    "record_otp_values": false,
+    "database_before_edge": true,
+    "require_exact_head_ci": true,
+    "require_post_deploy_fetchback": true,
+    "require_edge_logs_review": true
+  }
+}
