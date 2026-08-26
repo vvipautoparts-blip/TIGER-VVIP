@@ -141,6 +141,16 @@ test("S4 local DB rehearsal proves authorization, replay, expiry, digest privacy
     assert.match(proof, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
 
+  const plpgsqlBlocks = proof.match(/\$proof\$[\s\S]*?\$proof\$/gi) || [];
+  assert.ok(plpgsqlBlocks.length > 0, "PROOF_PLSQL_BLOCK_MISSING");
+  for (const block of plpgsqlBlocks) {
+    assert.doesNotMatch(
+      block,
+      /:'?[A-Za-z_][A-Za-z0-9_]*/,
+      "PROOF_PSQL_VARIABLE_INSIDE_DOLLAR_QUOTED_BLOCK",
+    );
+  }
+
   assert.match(workflow, /supabase\/migrations\/20260826120000_synapse_proof_of_now\.sql/);
   assert.match(workflow, /tests\/sql\/tiger-synapse-proof-of-now\.sql/);
   assert.match(workflow, /Prove SYNAPSE S4 Proof-of-Now replay and authorization behavior/i);
