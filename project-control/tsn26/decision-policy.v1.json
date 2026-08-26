@@ -1,0 +1,50 @@
+{
+  "policy_id": "TDP-2026.08.001",
+  "schema_version": "TIGER_DECISION_POLICY_V1",
+  "reference": "TSN-26",
+  "effective_from": "2026-08-26T00:00:00.000Z",
+  "fail_closed": true,
+  "decision_ttl_seconds": 300,
+  "require_evidence_for_allow": true,
+  "globally_forbidden_subject_types": [
+    "AI_AGENT"
+  ],
+  "actions": {
+    "FINANCIAL_ACTION": {
+      "allowed_subject_types": ["HUMAN", "DETERMINISTIC_SERVICE"],
+      "required_capabilities": ["FINANCIAL_EXECUTE"],
+      "required_context_true": ["financial_invariants_green"],
+      "obligations": ["APPEND_AUDIT_EVENT", "PRESERVE_EVIDENCE", "EMIT_BUSINESS_TRACE"]
+    },
+    "ROOT_ACTION": {
+      "allowed_subject_types": ["HUMAN"],
+      "required_capabilities": ["ROOT_EXECUTE"],
+      "required_context_true": ["quorum_verified"],
+      "obligations": ["APPEND_AUDIT_EVENT", "PRESERVE_EVIDENCE", "EMIT_BUSINESS_TRACE"]
+    },
+    "PAYOUT": {
+      "allowed_subject_types": ["HUMAN", "DETERMINISTIC_SERVICE"],
+      "required_capabilities": ["PAYOUT_EXECUTE"],
+      "required_context_true": ["payout_authorization_verified", "treasury_reconciliation_green"],
+      "obligations": ["APPEND_AUDIT_EVENT", "PRESERVE_EVIDENCE", "EMIT_BUSINESS_TRACE"]
+    },
+    "CONSTITUTION_ACTIVATE": {
+      "allowed_subject_types": ["HUMAN"],
+      "required_capabilities": ["CONSTITUTION_ACTIVATE"],
+      "required_context_true": ["constitution_signature_verified", "quality_gate_green", "financial_db_rehearsal_green"],
+      "obligations": ["APPEND_AUDIT_EVENT", "PRESERVE_EVIDENCE", "EMIT_BUSINESS_TRACE", "PIN_CONSTITUTION_DIGEST"]
+    },
+    "KEY_ROTATE": {
+      "allowed_subject_types": ["HUMAN"],
+      "required_capabilities": ["KEY_ROTATE"],
+      "required_context_true": ["quorum_verified", "rotation_plan_verified"],
+      "obligations": ["APPEND_AUDIT_EVENT", "PRESERVE_EVIDENCE", "EMIT_BUSINESS_TRACE", "PRESERVE_OLD_KEY_AUDIT_REF"]
+    },
+    "COUNTRY_GO_LIVE": {
+      "allowed_subject_types": ["HUMAN"],
+      "required_capabilities": ["COUNTRY_ACTIVATE"],
+      "required_context_true": ["legal_gate", "financial_gate", "security_gate", "payment_gate", "privacy_gate"],
+      "obligations": ["APPEND_AUDIT_EVENT", "PRESERVE_EVIDENCE", "EMIT_BUSINESS_TRACE", "PIN_COUNTRY_POLICY_VERSION"]
+    }
+  }
+}
