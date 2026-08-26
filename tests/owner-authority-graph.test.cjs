@@ -152,3 +152,27 @@ test("repository registry is machine-readable and public release excludes author
   assert.doesNotMatch(releaseBuilder, /authority-registry\.v1\.json/);
   assert.doesNotMatch(releaseBuilder, /TIGER_OWNER_CURRENT_REFERENCE_AR\.md/);
 });
+
+test("TSN-26 is the single current sovereign-finance authority", () => {
+  const registry = JSON.parse(fs.readFileSync(path.join(root, "project-control/authority/authority-registry.v1.json"), "utf8"));
+  const currentFinance = registry.records.filter((item) => item.domain === "sovereign-finance" && item.status === "CURRENT_ONLY");
+  assert.equal(currentFinance.length, 1);
+  assert.deepEqual(currentFinance[0], {
+    authority_id: "authority.sovereign-finance.tsn26.v1",
+    domain: "sovereign-finance",
+    version: 1,
+    status: "CURRENT_ONLY",
+    owner_decision_ref: "config/tsn26/financial-constitution.v1.json",
+    canonical_path: "config/tsn26/financial-constitution.v1.json",
+    supersedes: [],
+    protected_boundaries: [
+      "financial-constitution",
+      "sales-attribution",
+      "settlement",
+      "payout",
+      "treasury",
+      "exposure",
+      "legacy-finance-fallback"
+    ]
+  });
+});
