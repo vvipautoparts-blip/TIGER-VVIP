@@ -31,6 +31,7 @@ jobs:
           tests/tsn26-financial-constitution-manifest.test.cjs
           tests/tsn26-financial-constitution-compiler.test.cjs
           tests/tsn26-constitution-signing-envelope.test.cjs
+          tests/tsn26-policy-decision.test.cjs
           tests/tsn26-invariant-registry.test.cjs
           tests/tsn26-invariants-and-purge.test.cjs
           tests/tsn26-sovereign-sale-claim.test.cjs
