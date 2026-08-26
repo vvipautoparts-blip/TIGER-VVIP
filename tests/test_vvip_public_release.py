@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import contextlib
 import importlib.util
+import io
 import json
 import os
 import re
@@ -175,6 +177,83 @@ class PublicReleaseTests(unittest.TestCase):
             with mock.patch.dict(os.environ, missing_env, clear=False):
                 with self.assertRaises(RuntimeError):
                     module.build(source, output, mode="production", source_sha="abc")
+
+    def test_production_rejects_noncanonical_or_nonpublic_media_finalizer_urls(self):
+        invalid_urls = (
+            "",
+            "http://media.example.com/finalize",
+            "https://user@media.example.com/finalize",
+            "https://media.example.com/finalize?upload=1",
+            "https://media.example.com/finalize#fragment",
+            "https://media.example.com:8443/finalize",
+            "https://127.0.0.1/finalize",
+            "https://localhost/finalize",
+            "https://media/finalize",
+            "https://media.local/finalize",
+            "https://MEDIA.example.com/finalize",
+            "https://media.example.com/a/../finalize",
+            "https://media.example.com//finalize",
+            "https://media.example.com/%66inalize",
+            "https://media.example.com\\finalize",
+            " https://media.example.com/finalize",
+        )
+        for index, value in enumerate(invalid_urls):
+            with self.subTest(value=value):
+                with tempfile.TemporaryDirectory() as temp:
+                    source = Path(temp) / "src"
+                    output = Path(temp) / f"out-{index}"
+                    source.mkdir()
+                    self.fixture(source)
+                    environment = self.production_env()
+                    environment["TIGER_MEDIA_FINALIZER_URL"] = value
+                    with mock.patch.dict(os.environ, environment, clear=False):
+                        with self.assertRaisesRegex(
+                            RuntimeError,
+                            "production media finalizer URL must be canonical public https",
+                        ):
+                            module.build(source, output, mode="production", source_sha="a" * 40)
+
+    def test_production_accepts_canonical_media_finalizer_url_with_default_tls_port(self):
+        for value in (
+            "https://media.example.com/finalize",
+            "https://media.example.com:443/finalize",
+        ):
+            with self.subTest(value=value):
+                with tempfile.TemporaryDirectory() as temp:
+                    source = Path(temp) / "src"
+                    output = Path(temp) / "out"
+                    source.mkdir()
+                    self.fixture(source)
+                    environment = self.production_env()
+                    environment["TIGER_MEDIA_FINALIZER_URL"] = value
+                    with mock.patch.dict(os.environ, environment, clear=False):
+                        manifest = module.build(
+                            source,
+                            output,
+                            mode="production",
+                            source_sha="a" * 40,
+                        )
+                    self.assertTrue(manifest["releaseEligible"])
+                    runtime = (output / "runtime-config.js").read_text(encoding="utf-8")
+                    self.assertIn(json.dumps(value), runtime)
+
+    def test_configuration_only_validation_creates_no_public_bytes(self):
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp) / "must-not-exist"
+            stdout = io.StringIO()
+            with mock.patch.dict(os.environ, self.production_env(), clear=False):
+                with contextlib.redirect_stdout(stdout):
+                    status = module.main(
+                        [
+                            "--mode", "production",
+                            "--source-sha", "a" * 40,
+                            "--output", str(output),
+                            "--validate-config-only",
+                        ]
+                    )
+            self.assertEqual(status, 0)
+            self.assertEqual(stdout.getvalue(), "VVIP_PUBLIC_RELEASE_CONFIG=PASS\n")
+            self.assertFalse(output.exists())
 
     def test_production_rejects_fixture_markers(self):
         with tempfile.TemporaryDirectory() as temp:
