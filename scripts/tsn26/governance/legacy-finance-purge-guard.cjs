@@ -4,17 +4,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
-const ACTIVE_ROOTS = Object.freeze([
-  'apps/',
-  'packages/',
-  'scripts/',
-  'src/',
-  'server/',
-  'api/',
-  'prisma/schema.prisma',
-  'supabase/functions/',
-]);
-
+// Runtime/current-authority source is defined by tracked source-like bytes, not by a
+// short allowlist of directories. This prevents a legacy financial path from hiding in
+// root HTML, workers, services, tools, CI, CSS, or machine-control configuration.
 const EXCLUDED_PREFIXES = Object.freeze([
   'scripts/tsn26/',
   'docs/',
@@ -27,7 +19,9 @@ const EXCLUDED_PREFIXES = Object.freeze([
 ]);
 
 const SOURCE_EXTENSIONS = new Set([
-  '.js', '.cjs', '.mjs', '.ts', '.tsx', '.jsx', '.json', '.sql', '.prisma', '.py', '.sh',
+  '.js', '.cjs', '.mjs', '.ts', '.tsx', '.jsx',
+  '.json', '.sql', '.prisma', '.py', '.sh',
+  '.html', '.css', '.toml', '.yml', '.yaml',
 ]);
 
 const FORBIDDEN_LEGACY_PATTERNS = Object.freeze([
@@ -41,6 +35,8 @@ const FORBIDDEN_LEGACY_PATTERNS = Object.freeze([
   { id: 'LEGACY_HIERARCHICAL_TOKEN_MATRIX', regex: /\bH(?:IERARCHICAL)?[_ -]?TID\b/gi },
   { id: 'LEGACY_FINANCE_FALLBACK', regex: /\b(?:legacy|old)[_-]?(?:finance|financial|commission)[_-]?(?:fallback|engine|route|handler)\b/gi },
   { id: 'LEGACY_HIERARCHICAL_COMMISSION', regex: /\b(?:upstream|downstream|hierarchical)[_-]?commission\b/gi },
+  { id: 'LEGACY_DIRECT_DISTRIBUTION', regex: /\b(?:DIRECT[_ -]?DISTRIBUTION|DIRECT[_ -]?DISTRIBUTION[_ -]?POOL)\b/gi },
+  { id: 'LEGACY_PLATFORM_TREASURY', regex: /\b(?:PLATFORM[_ -]?TREASURY|PLATFORM[_ -]?TREASURY[_ -]?POOL)\b/gi },
 ]);
 
 function normalize(relativePath) {
@@ -50,9 +46,7 @@ function normalize(relativePath) {
 function isActiveSource(relativePath) {
   const file = normalize(relativePath);
   if (EXCLUDED_PREFIXES.some((prefix) => file.startsWith(prefix))) return false;
-  const inActiveRoot = ACTIVE_ROOTS.some((root) => root.endsWith('/') ? file.startsWith(root) : file === root);
-  if (!inActiveRoot) return false;
-  return SOURCE_EXTENSIONS.has(path.extname(file));
+  return SOURCE_EXTENSIONS.has(path.extname(file).toLowerCase());
 }
 
 function trackedFiles(root) {
@@ -133,9 +127,10 @@ if (require.main === module) {
 }
 
 module.exports = Object.freeze({
-  ACTIVE_ROOTS,
   EXCLUDED_PREFIXES,
+  SOURCE_EXTENSIONS,
   FORBIDDEN_LEGACY_PATTERNS,
+  isActiveSource,
   scanActiveLegacyFinance,
   assertNoActiveLegacyFinance,
 });
