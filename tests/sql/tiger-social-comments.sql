@@ -265,7 +265,7 @@ declare
   v_post uuid := (select value from social_comment_test_context where key = 'only_me_post');
 begin
   begin
-    perform public.vvip_social_comment_list(v_post);
+    perform public.vvip_social_comment_list(v_post, null, null, null, 20);
     raise exception 'TEST_EXPECTED_HIDDEN_POST_DENIAL';
   exception when others then
     if sqlerrm <> 'SOCIAL_COMMENT_POST_NOT_VISIBLE' then
