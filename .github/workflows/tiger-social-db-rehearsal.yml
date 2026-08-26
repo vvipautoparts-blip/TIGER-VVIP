@@ -472,17 +472,17 @@ jobs:
               -U postgres \
               -d postgres \
               -v ON_ERROR_STOP=1 <<'SQL'
-\set ON_ERROR_STOP on
-begin;
-select 1
-from public.vvip_synapse_proof_challenges
-where challenge_id = '55555555-5555-4555-8555-555555555551'::uuid
-for update;
-select pg_advisory_lock(8675309);
-select pg_sleep(3);
-select pg_advisory_unlock(8675309);
-commit;
-SQL
+          \set ON_ERROR_STOP on
+          begin;
+          select 1
+          from public.vvip_synapse_proof_challenges
+          where challenge_id = '55555555-5555-4555-8555-555555555551'::uuid
+          for update;
+          select pg_advisory_lock(8675309);
+          select pg_sleep(3);
+          select pg_advisory_unlock(8675309);
+          commit;
+          SQL
           ) >"$blocker_log" 2>&1 &
           blocker_pid=$!
 
