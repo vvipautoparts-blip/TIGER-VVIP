@@ -23,10 +23,14 @@ test('critical financial invariants are fail-closed and mandatory', () => {
   }
 });
 
-test('root authority, audit, payment replay, exposure and AI boundaries are registered', () => {
-  for (const id of ['AUTH-001', 'AUD-001', 'PAY-001', 'EXP-001', 'AI-001', 'LEGACY-001']) {
+test('root authority, audit, payment replay, exposure, AI and release boundaries are registered', () => {
+  for (const id of ['AUTH-001', 'AUD-001', 'PAY-001', 'EXP-001', 'AI-001', 'REL-001', 'LEGACY-001']) {
     assert.ok(getInvariant(id));
   }
+  const release = getInvariant('REL-001');
+  assert.equal(release.domain, 'RELEASE');
+  assert.equal(release.enforcement, 'FAIL_CLOSED');
+  assert.match(release.rule, /exact.*source.*commit|source.*commit.*exact/i);
 });
 
 test('legacy financial fallback is explicitly forbidden', () => {
