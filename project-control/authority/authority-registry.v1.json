@@ -96,7 +96,7 @@
         "payout",
         "treasury",
         "exposure",
-        "legacy-finance-fallback"
+        "superseded-finance-reentry"
       ]
     },
     {
