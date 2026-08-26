@@ -31,6 +31,11 @@ from (
 ) created
 \gset
 
+-- psql does not interpolate variables inside dollar-quoted PL/pgSQL bodies.
+-- Copy the generated UUID into a transaction-local custom setting so the DO block
+-- reads the same fixture value without embedding a client-side :variable token.
+select set_config('tiger.rehearsal.intent_id', :'intent_id', true);
+
 -- Issue one challenge through the service-only Proof-of-Now authority.
 reset role;
 set local role service_role;
@@ -58,13 +63,14 @@ select (
 do $proof$
 declare
   v_rejected boolean := false;
+  v_intent_id uuid := current_setting('tiger.rehearsal.intent_id')::uuid;
 begin
   begin
     perform public.vvip_synapse_proof_issue(
       '44444444-4444-4444-8444-444444444442'::uuid,
       'user_bob',
       'intent_offer',
-      :'intent_id'::uuid,
+      v_intent_id,
       'listing_freshness',
       'SYNAPSE-S4',
       repeat('b', 64),
