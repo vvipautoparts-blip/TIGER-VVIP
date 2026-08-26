@@ -8,6 +8,7 @@ const path = require("node:path");
 const ROOT = path.resolve(__dirname, "..");
 const CONTROLLER = path.join(ROOT, "scripts/synapse/proof-of-now-controller.js");
 const EDGE = path.join(ROOT, "supabase/functions/tiger-proof-of-now/index.ts");
+const PREPARER = path.join(ROOT, "supabase/functions/tiger-proof-capture-prepare/index.ts");
 const MIGRATION = path.join(ROOT, "supabase/migrations/20260826120000_synapse_proof_of_now.sql");
 const MEDIA_FINALIZER = path.join(ROOT, "services/media-finalizer/src/handler.js");
 
@@ -40,6 +41,17 @@ test("S4 consume accepts only an opaque server capture receipt, never a client-a
   assert.match(edge, /capture_receipt_id/i, "EDGE_CAPTURE_RECEIPT_REQUIRED");
   assert.match(edge, /p_capture_receipt_id/i, "EDGE_MUST_CONSUME_BY_RECEIPT_ID");
   assert.doesNotMatch(edge, /p_capture_digest\s*:/i, "EDGE_MUST_NOT_FORWARD_CLIENT_CAPTURE_DIGEST");
+});
+
+test("S4 capture preparation is server-authorized and uses private signed upload capability only", () => {
+  const source = readRequired(PREPARER, "PROOF_CAPTURE_PREPARER_MISSING");
+  assert.match(source, /verifyIdentity|IDENTITY_VERIFIER/i, "PROOF_CAPTURE_PREPARER_IDENTITY_MISSING");
+  assert.match(source, /vvip_synapse_proof_capture_prepare/i, "PROOF_CAPTURE_PREPARE_RPC_MISSING");
+  assert.match(source, /createSignedUploadUrl/i, "PROOF_CAPTURE_SIGNED_UPLOAD_MISSING");
+  assert.match(source, /proof-capture-staging/i, "PROOF_CAPTURE_PRIVATE_BUCKET_MISSING");
+  assert.match(source, /crypto\.getRandomValues|crypto\.randomUUID/i, "PROOF_CAPTURE_RANDOM_CAPABILITY_MISSING");
+  assert.match(source, /Cache-Control[^\n]*no-store/i, "PROOF_CAPTURE_NO_STORE_MISSING");
+  assert.doesNotMatch(source, /capture_digest|canonical_digest/i, "PREPARER_MUST_NOT_ACCEPT_OR_MINT_CAPTURE_DIGEST");
 });
 
 test("S4 database binds a service-only capture receipt to the exact challenge lineage before atomic consume", () => {
