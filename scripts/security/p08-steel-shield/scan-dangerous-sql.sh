@@ -212,6 +212,15 @@ declare -A reviewed_migration_hashes=(
   # FORCE RLS, expiry/revision invariants, and the expected lexical findings
   # on new-table NOT NULL rules, the scoped update, and exact RPC grants.
   ["supabase/migrations/20260818150000_synapse_intent_foundation.sql"]="c854a7ebf64d6710a9eb9351044108a10b97a5c35f5afc330288232fc7df5072"
+
+  # SYNAPSE S4 Proof-of-Now + server-bound Capture Receipt: reviewed after TDD RED,
+  # exact-byte privilege review, and Steel Shield CRITICAL=0 on the bytes below.
+  # The 36 lexical NOT_NULL findings are table-integrity constraints or bounded lifecycle
+  # predicates. The four multiline UPDATE findings are receipt/challenge state transitions,
+  # each bounded by identity/capability identifiers, lifecycle state, and server-observed
+  # expiry. All five SECURITY DEFINER functions use an empty search_path; raw table access
+  # and public/anon/authenticated RPC execution remain revoked. Any byte drift re-enters review.
+  ["supabase/migrations/20260826120000_synapse_proof_of_now.sql"]="681d66cfd47615e9fbd8622c01bd300af1aff5768c7af346195e0ccdbfb838f8"
 )
 
 reviewed_baseline_path() {

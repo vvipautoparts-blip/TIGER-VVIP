@@ -14,25 +14,32 @@ function mediaError(code) {
   return error;
 }
 
-function assertStrictContainer(input, declaredMime) {
-  if (!ALLOWED_MIME_TYPES.has(declaredMime)) throw mediaError('MEDIA_FORMAT_NOT_ALLOWED');
+function assertSourceBounds(input) {
   if (!Buffer.isBuffer(input) || input.length < 4 || input.length > MAX_SOURCE_BYTES) {
     throw mediaError('MEDIA_SOURCE_SIZE_INVALID');
   }
+}
 
-  if (declaredMime === 'image/jpeg') {
-    if (input[0] !== 0xff || input[1] !== 0xd8) throw mediaError('JPEG_SOI_MISSING');
+function detectStrictMime(input) {
+  assertSourceBounds(input);
+  if (input[0] === 0xff && input[1] === 0xd8) {
     if (input[input.length - 2] !== 0xff || input[input.length - 1] !== 0xd9) {
       throw mediaError('JPEG_EOI_MISSING_OR_TRAILING_BYTES');
     }
-    return 'jpeg';
+    return 'image/jpeg';
   }
+  if (input.length >= 12 && input.toString('ascii', 0, 4) === 'RIFF' && input.toString('ascii', 8, 12) === 'WEBP') {
+    if (input.readUInt32LE(4) + 8 !== input.length) throw mediaError('WEBP_RIFF_LENGTH_MISMATCH');
+    return 'image/webp';
+  }
+  throw mediaError('MEDIA_FORMAT_NOT_ALLOWED');
+}
 
-  if (input.length < 12 || input.toString('ascii', 0, 4) !== 'RIFF' || input.toString('ascii', 8, 12) !== 'WEBP') {
-    throw mediaError('WEBP_SIGNATURE_INVALID');
-  }
-  if (input.readUInt32LE(4) + 8 !== input.length) throw mediaError('WEBP_RIFF_LENGTH_MISMATCH');
-  return 'webp';
+function assertStrictContainer(input, declaredMime) {
+  if (!ALLOWED_MIME_TYPES.has(declaredMime)) throw mediaError('MEDIA_FORMAT_NOT_ALLOWED');
+  const detectedMime = detectStrictMime(input);
+  if (detectedMime !== declaredMime) throw mediaError('MEDIA_DECLARED_TYPE_MISMATCH');
+  return declaredMime === 'image/jpeg' ? 'jpeg' : 'webp';
 }
 
 function assertDecodedMetadata(metadata, declaredMime) {
@@ -70,6 +77,7 @@ module.exports = Object.freeze({
   MAX_SOURCE_BYTES,
   MAX_PIXELS,
   ALLOWED_MIME_TYPES,
+  detectStrictMime,
   assertStrictContainer,
   assertDecodedMetadata,
   canonicalExtension,

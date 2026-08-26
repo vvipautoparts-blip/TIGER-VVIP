@@ -1,0 +1,260 @@
+name: TIGER SYNAPSE S4 Proof Rehearsal
+
+on:
+  push:
+    paths:
+      - "supabase/migrations/20260826120000_synapse_proof_of_now.sql"
+      - "supabase/functions/tiger-proof-of-now/index.ts"
+      - "supabase/functions/tiger-proof-capture-prepare/index.ts"
+      - "scripts/synapse/proof-of-now-controller.js"
+      - "services/media-finalizer/src/handler.js"
+      - "services/media-finalizer/src/policy.js"
+      - "tests/tiger-synapse-proof-of-now.test.cjs"
+      - "tests/tiger-synapse-proof-capture-origin.test.cjs"
+      - "tests/sql/tiger-synapse-proof-of-now.sql"
+      - "tests/sql/tiger-synapse-proof-of-now-concurrency-setup.sql"
+      - "tests/sql/tiger-synapse-proof-of-now-concurrency-consume.sql"
+      - "tests/sql/tiger-synapse-proof-of-now-concurrency-verify.sql"
+      - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
+      - ".github/workflows/tiger-synapse-s4-proof-rehearsal.yml"
+  pull_request:
+    paths:
+      - "supabase/migrations/20260826120000_synapse_proof_of_now.sql"
+      - "supabase/functions/tiger-proof-of-now/index.ts"
+      - "supabase/functions/tiger-proof-capture-prepare/index.ts"
+      - "scripts/synapse/proof-of-now-controller.js"
+      - "services/media-finalizer/src/handler.js"
+      - "services/media-finalizer/src/policy.js"
+      - "tests/tiger-synapse-proof-of-now.test.cjs"
+      - "tests/tiger-synapse-proof-capture-origin.test.cjs"
+      - "tests/sql/tiger-synapse-proof-of-now.sql"
+      - "tests/sql/tiger-synapse-proof-of-now-concurrency-setup.sql"
+      - "tests/sql/tiger-synapse-proof-of-now-concurrency-consume.sql"
+      - "tests/sql/tiger-synapse-proof-of-now-concurrency-verify.sql"
+      - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
+      - ".github/workflows/tiger-synapse-s4-proof-rehearsal.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+concurrency:
+  group: tiger-synapse-s4-proof-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  s4-proof-rehearsal:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: "22"
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@ab058987d8d6c725971f6cf9d0b5c98467e30bd1
+        with:
+          version: 2.109.0
+
+      - name: Verify exact source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          echo "S4_SOURCE_SHA=$SOURCE_SHA"
+          echo "S4_SOURCE_TREE=$(git rev-parse 'HEAD^{tree}')"
+
+      - name: Run S4 static security contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tests/tiger-synapse-proof-of-now.test.cjs
+          node --test tests/tiger-synapse-proof-capture-origin.test.cjs
+          node --check scripts/synapse/proof-of-now-controller.js
+          node --check services/media-finalizer/src/policy.js
+          node --check services/media-finalizer/src/handler.js
+
+      - name: Assert local-only safety contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f supabase/config.toml
+          if env | grep -E '^(SUPABASE_ACCESS_TOKEN|SUPABASE_DB_PASSWORD|SUPABASE_PROJECT_REF)=' >/dev/null; then
+            echo 'TIGER_SYNAPSЕ_S4_PROOF_REHEARSAL=BLOCKED_REMOTE_CREDENTIAL_ENV'
+            echo 'BLOCKED_REMOTE_CREDENTIAL_ENV'
+            exit 1
+          fi
+          echo 'TIGER_SYNAPSE_S4_PROOF_REHEARSAL=LOCAL_ONLY_PASS'
+
+      - name: Start isolated local Supabase stack
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase --version
+          supabase start
+
+      - name: Rebuild database from repository migrations
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase db reset --local
+          echo 'TIGER_SYNAPSЕ_S4_DB_RESET=PASS'
+
+      - name: Prove S4 receipt origin, replay, expiry, and authorization behavior
+        shell: bash
+        run: |
+          set -euo pipefail
+          proof_log="$(mktemp)"
+          trap 'rm -f "$proof_log"' EXIT
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/tiger-synapse-proof-of-now.sql | tee "$proof_log"
+          grep -Fx 'TIGER_SYNAPSE_PROOF_OF_NOW_DB_BEHAVIOR=PASS' "$proof_log"
+          if grep -Eq '^PROOF_.*=FAIL$' "$proof_log"; then
+            echo 'TIGER_SYNAPSE_PROOF_OF_NOW_DB_BEHAVIOR=FAIL_MARKER_DETECTED'
+            exit 1
+          fi
+
+      - name: Prove S4 atomic single-use under two-session contention
+        shell: bash
+        run: |
+          set -euo pipefail
+          race_a="$(mktemp)"
+          race_b="$(mktemp)"
+          blocker_log="$(mktemp)"
+          trap 'rm -f "$race_a" "$race_b" "$blocker_log"' EXIT
+
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/tiger-synapse-proof-of-now-concurrency-setup.sql
+
+          (
+            PGOPTIONS='-c statement_timeout=15000' PGPASSWORD=postgres psql \
+              -h 127.0.0.1 -p 54322 -U postgres -d postgres -v ON_ERROR_STOP=1 <<'SQL'
+          \set ON_ERROR_STOP on
+          begin;
+          select 1
+          from public.vvip_synapse_proof_challenges
+          where challenge_id = '55555555-5555-4555-8555-555555555551'::uuid
+          for update;
+          select pg_advisory_lock(8675309);
+          select pg_sleep(3);
+          select pg_advisory_unlock(8675309);
+          commit;
+          SQL
+          ) >"$blocker_log" 2>&1 &
+          blocker_pid=$!
+
+          blocker_ready=0
+          for _attempt in $(seq 1 50); do
+            state="$(PGPASSWORD=postgres psql -qAt \
+              -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+              -v ON_ERROR_STOP=1 \
+              -c "select case when pg_try_advisory_lock(8675309) then 'FREE' else 'HELD' end")"
+            if [[ "$state" == "HELD" ]]; then
+              blocker_ready=1
+              break
+            fi
+            sleep 0.1
+          done
+
+          if [[ "$blocker_ready" -ne 1 ]]; then
+            echo 'PROOF_CONCURRENT_BARRIER_READY=FAIL'
+            cat "$blocker_log"
+            kill "$blocker_pid" 2>/dev/null || true
+            exit 1
+          fi
+          echo 'PROOF_CONCURRENT_BARRIER_READY=PASS'
+
+          PGOPTIONS='-c statement_timeout=15000 -c lock_timeout=10000' PGPASSWORD=postgres psql -qAt \
+            -h 127.0.0.1 -p 54322 -U postgres -d postgres -v ON_ERROR_STOP=1 \
+            -f tests/sql/tiger-synapse-proof-of-now-concurrency-consume.sql >"$race_a" 2>&1 &
+          race_a_pid=$!
+
+          PGOPTIONS='-c statement_timeout=15000 -c lock_timeout=10000' PGPASSWORD=postgres psql -qAt \
+            -h 127.0.0.1 -p 54322 -U postgres -d postgres -v ON_ERROR_STOP=1 \
+            -f tests/sql/tiger-synapse-proof-of-now-concurrency-consume.sql >"$race_b" 2>&1 &
+          race_b_pid=$!
+
+          set +e
+          wait "$race_a_pid"; race_a_exit=$?
+          wait "$race_b_pid"; race_b_exit=$?
+          wait "$blocker_pid"; blocker_exit=$?
+          set -e
+
+          if [[ "$race_a_exit" -ne 0 || "$race_b_exit" -ne 0 || "$blocker_exit" -ne 0 ]]; then
+            echo 'PROOF_CONCURRENT_SESSION_EXECUTION=FAIL'
+            cat "$race_a" "$race_b" "$blocker_log"
+            exit 1
+          fi
+          echo 'PROOF_CONCURRENT_SESSION_EXECUTION=PASS'
+
+          accepted_count="$(cat "$race_a" "$race_b" | grep -c '^ACCEPTED$' || true)"
+          replay_count="$(cat "$race_a" "$race_b" | grep -c '^REPLAY$' || true)"
+          test "$accepted_count" -eq 1 || { echo 'PROOF_CONCURRENT_ACCEPTED_EXACTLY_ONE=FAIL'; cat "$race_a" "$race_b"; exit 1; }
+          echo 'PROOF_CONCURRENT_ACCEPTED_EXACTLY_ONE=PASS'
+          test "$replay_count" -eq 1 || { echo 'PROOF_CONCURRENT_REPLAY_EXACTLY_ONE=FAIL'; cat "$race_a" "$race_b"; exit 1; }
+          echo 'PROOF_CONCURRENT_REPLAY_EXACTLY_ONE=PASS'
+
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/tiger-synapse-proof-of-now-concurrency-verify.sql
+
+      - name: Build exact-head evidence manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/tiger-s4-proof-evidence
+          source_tree="$(git rev-parse 'HEAD^{tree}')"
+          node_version="$(node --version)"
+          supabase_version="$(supabase --version | head -n1)"
+          migration_sha256="$(sha256sum supabase/migrations/20260826120000_synapse_proof_of_now.sql | awk '{print $1}')"
+          behavior_sha256="$(sha256sum tests/sql/tiger-synapse-proof-of-now.sql | awk '{print $1}')"
+          race_sha256="$(cat tests/sql/tiger-synapse-proof-of-now-concurrency-setup.sql tests/sql/tiger-synapse-proof-of-now-concurrency-consume.sql tests/sql/tiger-synapse-proof-of-now-concurrency-verify.sql | sha256sum | awk '{print $1}')"
+          printf '%s\n' \
+            "SOURCE_SHA=$SOURCE_SHA" \
+            "SOURCE_TREE=$source_tree" \
+            "NODE_VERSION=$node_version" \
+            "SUPABASE_VERSION=$supabase_version" \
+            "MIGRATION_SHA256=$migration_sha256" \
+            "BEHAVIOR_SHA256=$behavior_sha256" \
+            "RACE_SUITE_SHA256=$race_sha256" \
+            "S4_RECEIPT_ORIGIN=PASS" \
+            "S4_TWO_SESSION_SINGLE_USE=PASS" \
+            > /tmp/tiger-s4-proof-evidence/evidence.env
+          cat /tmp/tiger-s4-proof-evidence/evidence.env
+
+      - name: Upload exact-head evidence
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: tiger-s4-proof-evidence-${{ env.SOURCE_SHA }}
+          path: /tmp/tiger-s4-proof-evidence/evidence.env
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Verify source remained immutable
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          echo 'TIGER_SYNAPSE_S4_EXACT_HEAD=PASS'
+
+      - name: Stop isolated local stack
+        if: always()
+        shell: bash
+        run: supabase stop --no-backup || true
