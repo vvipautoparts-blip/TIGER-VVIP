@@ -12,6 +12,9 @@ const EDGE_FUNCTION = path.join(ROOT, "supabase/functions/tiger-proof-of-now/ind
 const MIGRATION_RELATIVE = "supabase/migrations/20260826120000_synapse_proof_of_now.sql";
 const MIGRATION = path.join(ROOT, MIGRATION_RELATIVE);
 const STEEL_SHIELD = path.join(ROOT, "scripts/security/p08-steel-shield/scan-dangerous-sql.sh");
+const BEHAVIOR_SQL_RELATIVE = "tests/sql/tiger-synapse-proof-of-now.sql";
+const BEHAVIOR_SQL = path.join(ROOT, BEHAVIOR_SQL_RELATIVE);
+const DB_REHEARSAL = path.join(ROOT, ".github/workflows/tiger-social-db-rehearsal.yml");
 
 function readRequired(file, code) {
   assert.equal(fs.existsSync(file), true, code);
@@ -111,4 +114,28 @@ test("S4 migration review is byte-exact and automatically invalidated by SQL dri
     true,
     `PROOF_MIGRATION_REVIEW_HASH_MISSING:${digest}`,
   );
+});
+
+test("S4 local DB rehearsal proves authorization, replay, expiry, digest privacy, and single-use evidence", () => {
+  const proof = readRequired(BEHAVIOR_SQL, "PROOF_BEHAVIOR_SQL_MISSING");
+  const workflow = readRequired(DB_REHEARSAL, "SOCIAL_DB_REHEARSAL_WORKFLOW_MISSING");
+
+  for (const marker of [
+    "PROOF_VALID_CONSUME=PASS",
+    "PROOF_WRONG_ACTOR_DENIED=PASS",
+    "PROOF_WRONG_NONCE_REJECTED=PASS",
+    "PROOF_EXPIRED_REJECTED=PASS",
+    "PROOF_REPLAY_REJECTED=PASS",
+    "PROOF_RAW_NONCE_ABSENT=PASS",
+    "PROOF_AUTHENTICATED_DIRECT_ACCESS_DENIED=PASS",
+    "PROOF_EVIDENCE_BINDING=PASS",
+    "PROOF_DOUBLE_CONSUME_AT_MOST_ONE=PASS",
+    "TIGER_SYNAPSE_PROOF_OF_NOW_DB_BEHAVIOR=PASS",
+  ]) {
+    assert.match(proof, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+
+  assert.match(workflow, /supabase\/migrations\/20260826120000_synapse_proof_of_now\.sql/);
+  assert.match(workflow, /tests\/sql\/tiger-synapse-proof-of-now\.sql/);
+  assert.match(workflow, /Prove SYNAPSE S4 Proof-of-Now replay and authorization behavior/i);
 });
