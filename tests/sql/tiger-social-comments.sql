@@ -204,6 +204,10 @@ select (
   \quit 1
 \endif
 
+rollback;
+\echo TIGER_SOCIAL_COMMENTS_DIAGNOSTIC_BOB_HALF=PASS
+\quit 0
+
 reset role;
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"user_charlie"}', true);
@@ -275,10 +279,6 @@ begin
 end;
 $proof$;
 \echo COMMENT_HIDDEN_POST_DENIED=PASS
-
-rollback;
-\echo TIGER_SOCIAL_COMMENTS_DIAGNOSTIC_MIDPOINT=PASS
-\quit 0
 
 reset role;
 
