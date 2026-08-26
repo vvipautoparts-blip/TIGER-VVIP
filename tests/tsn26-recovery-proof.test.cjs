@@ -50,6 +50,7 @@ test('backup existence without restore is never a recovery proof', () => {
 
 test('restore proof fails on stale evidence, failed invariant, RPO/RTO breach, or production mutation', () => {
   const stale = validProof();
+  stale.restored_at = '2026-08-10T05:45:00.000Z';
   stale.completed_at = '2026-08-10T05:55:00.000Z';
   assert.ok(verifyRecoveryProof(stale, { policy, now: NOW }).failures.includes('RECOVERY_PROOF_STALE'));
 
