@@ -32,6 +32,8 @@ function trusted(extra = {}) {
     producer_identity: 'github-actions:quality-gate',
     runner_identity: 'github-hosted:ubuntu',
     workflow_identity: '.github/workflows/vvip-quality-gate.yml',
+    expected_source_sha: SOURCE,
+    expected_source_tree: TREE,
     source_sha: SOURCE,
     source_tree: TREE,
     environment: 'CI',
@@ -70,11 +72,20 @@ test('V1 stale and future evidence are BLOCKED', () => {
 });
 
 test('V1 forged producer fields in payload fail closed before compilation', () => {
-  assert.throws(() => createEvidenceEnvelope({
-    gate_id: 'P01', evidence_class: 'SOURCE_IDENTITY', subject: SUBJECT,
-    observed_at: '2026-08-25T17:59:00.000Z', facts: { exact_source: 'PASS' },
-    producer_identity: 'forged',
-  }), /trusted/i);
+  for (const trustedField of [
+    'producer_identity',
+    'runner_identity',
+    'workflow_identity',
+    'source_sha',
+    'source_tree',
+    'environment',
+  ]) {
+    assert.throws(() => createEvidenceEnvelope({
+      gate_id: 'P01', evidence_class: 'SOURCE_IDENTITY', subject: SUBJECT,
+      observed_at: '2026-08-25T17:59:00.000Z', facts: { exact_source: 'PASS' },
+      [trustedField]: 'forged',
+    }), /trusted/i);
+  }
 });
 
 test('V1 wrong source, subject, or environment are BLOCKED', () => {
@@ -93,10 +104,60 @@ test('V1 unsatisfied prerequisites are BLOCKED', () => {
   assert.equal(compileGateResult({ definition: def, evidence: [ev], trustedContext: trusted(), prerequisiteResults: { P01: 'BLOCKED' } }).result, 'BLOCKED');
 });
 
+test('V1 prerequisite PASS must be a digest-valid compiler result bound to the same source', () => {
+  const prerequisite = compileGateResult({
+    definition: definition(),
+    evidence: [envelope()],
+    trustedContext: trusted(),
+    prerequisiteResults: {},
+  });
+  const def = definition({ id: 'P02', prerequisites: ['P01'] });
+  const ev = envelope({ gate_id: 'P02' });
+
+  assert.equal(compileGateResult({
+    definition: def,
+    evidence: [ev],
+    trustedContext: trusted(),
+    prerequisiteResults: { P01: 'PASS' },
+  }).result, 'BLOCKED');
+  assert.equal(compileGateResult({
+    definition: def,
+    evidence: [ev],
+    trustedContext: trusted(),
+    prerequisiteResults: { P01: prerequisite },
+  }).result, 'PASS');
+  assert.equal(compileGateResult({
+    definition: def,
+    evidence: [ev],
+    trustedContext: trusted({ source_sha: '4'.repeat(40), expected_source_sha: '4'.repeat(40) }),
+    prerequisiteResults: { P01: prerequisite },
+  }).result, 'BLOCKED');
+});
+
 test('V1 unknown, SKIPPED, or non-passing required facts cannot become PASS', () => {
   for (const value of ['UNKNOWN', 'SKIPPED', 'BLOCKED']) {
     const ev = envelope({ facts: { exact_source: value, exact_tree: 'PASS' } });
     assert.equal(compileGateResult({ definition: definition(), evidence: [ev], trustedContext: trusted(), prerequisiteResults: {} }).result, 'BLOCKED');
+  }
+});
+
+test('V1 negative auxiliary facts cannot be hidden behind passing required facts', () => {
+  for (const value of ['FAIL', 'BLOCKED', 'UNKNOWN', 'SKIPPED']) {
+    const ev = envelope({
+      facts: {
+        exact_source: 'PASS',
+        exact_tree: 'PASS',
+        auxiliary_check: value,
+      },
+    });
+    const compiled = compileGateResult({
+      definition: definition(),
+      evidence: [ev],
+      trustedContext: trusted(),
+      prerequisiteResults: {},
+    });
+    assert.equal(compiled.result, 'BLOCKED');
+    assert.ok(compiled.reason_codes.includes('EVIDENCE_NEGATIVE_FACT'));
   }
 });
 

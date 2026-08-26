@@ -4,6 +4,7 @@ const {
   EvidenceError,
   CAPSULE_FIELDS,
   canonicalJson,
+  sha256Hex,
   assertSha40,
   assertSha256,
   assertIsoUtc,
@@ -12,6 +13,7 @@ const {
   deepFreeze,
 } = require('./contracts.cjs');
 const { computeReleaseDigest } = require('./release-dna.cjs');
+const { createEvidenceEnvelope } = require('./evidence-envelope.cjs');
 
 const TRUSTED_FIELDS = new Set(['workflow_run_id', 'runner_identity']);
 const PROOF_FIELDS = new Set(CAPSULE_FIELDS.filter((field) => !TRUSTED_FIELDS.has(field)));
@@ -222,7 +224,32 @@ function serializeProofCapsule(capsule) {
   return `${canonicalJson(capsule)}\n`;
 }
 
+function createGateEvidenceEnvelope({ capsule, gateId, evidenceClass, subject }) {
+  if (!isPlainObject(capsule) || capsule.capsule_version !== 'TSRF_PROOF_CAPSULE_V1') {
+    fail('EVIDENCE_CAPSULE_INVALID', 'A validated Proof Capsule is required.');
+  }
+  if (!['PASS', 'BLOCKED'].includes(capsule.result) || !isPlainObject(capsule.validation_results)) {
+    fail('EVIDENCE_CAPSULE_INVALID', 'Proof Capsule result is invalid.');
+  }
+  assertSha40('source_sha', capsule.source_sha);
+  assertSha40('source_tree', capsule.source_tree);
+  assertIsoUtc('generated_at', capsule.generated_at);
+
+  return createEvidenceEnvelope({
+    gate_id: gateId,
+    evidence_class: evidenceClass,
+    subject,
+    observed_at: capsule.generated_at,
+    facts: {
+      ...capsule.validation_results,
+      capsule_result: capsule.result,
+    },
+    proof_capsule_digest: sha256Hex(canonicalJson(capsule)),
+  });
+}
+
 module.exports = {
+  createGateEvidenceEnvelope,
   createProofCapsule,
   serializeProofCapsule,
 };

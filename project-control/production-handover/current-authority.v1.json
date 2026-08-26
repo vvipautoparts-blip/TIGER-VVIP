@@ -10,6 +10,15 @@
     "validator": "project-control/scripts/validate_authority_graph.mjs",
     "fail_closed": true
   },
+  "typed_gate_evidence": {
+    "registry": "project-control/production-handover/gates.v1.json",
+    "gate_definition_schema": "project-control/schemas/gate-definition.schema.json",
+    "evidence_envelope_schema": "project-control/schemas/evidence-envelope.schema.json",
+    "compiler": "scripts/tsrf/evidence/gate-compiler.cjs",
+    "proof_capsule_bridge": "scripts/tsrf/evidence/proof-capsule.cjs",
+    "trusted_context_only": ["producer_identity", "runner_identity", "workflow_identity", "expected_source_sha", "expected_source_tree", "source_sha", "source_tree", "environment", "now_ms"],
+    "fail_closed": true
+  },
   "post_launch_autonomy": {
     "authority_id": "authority.post-launch-autonomy.v1",
     "domain": "post-launch-autonomy",

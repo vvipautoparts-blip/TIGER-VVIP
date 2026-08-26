@@ -5,6 +5,7 @@ const test = require('node:test');
 
 const { computeReleaseDigest } = require('../scripts/tsrf/evidence/release-dna.cjs');
 const {
+  createGateEvidenceEnvelope,
   createProofCapsule,
   serializeProofCapsule,
 } = require('../scripts/tsrf/evidence/proof-capsule.cjs');
@@ -198,4 +199,23 @@ test('canonical serializer is deterministic and newline terminated', () => {
   assert.equal(serialized.endsWith('\n'), true);
   assert.equal(serialized, serializeProofCapsule(capsule));
   assert.deepEqual(JSON.parse(serialized), capsule);
+});
+
+test('validated proof capsules extend into typed gate evidence without copying trusted source identity', () => {
+  const capsule = create();
+  const envelope = createGateEvidenceEnvelope({
+    capsule,
+    gateId: 'P08',
+    evidenceClass: 'DATABASE_CONVERGENCE',
+    subject: 'sha256:' + SHA64_1,
+  });
+
+  assert.equal(envelope.gate_id, 'P08');
+  assert.equal(envelope.evidence_class, 'DATABASE_CONVERGENCE');
+  assert.equal(envelope.observed_at, capsule.generated_at);
+  assert.equal(envelope.facts.capsule_result, 'PASS');
+  assert.equal(envelope.facts.contract, 'PASS');
+  assert.equal(Object.hasOwn(envelope, 'source_sha'), false);
+  assert.equal(Object.hasOwn(envelope, 'source_tree'), false);
+  assert.match(envelope.proof_capsule_digest, /^[0-9a-f]{64}$/);
 });
