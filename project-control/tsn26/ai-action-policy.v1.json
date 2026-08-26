@@ -1,0 +1,51 @@
+{
+  "policy_id": "TAAP-2026.08.001",
+  "schema_version": "TIGER_AI_ACTION_POLICY_V1",
+  "reference": "TSN-26",
+  "effective_from": "2026-08-26T00:00:00.000Z",
+  "fail_closed": true,
+  "money_authority_for_ai": false,
+  "root_authority_for_ai": false,
+  "require_evidence_for_allow": true,
+  "max_intent_ttl_seconds": 900,
+  "forbidden_credential_keys": [
+    "password",
+    "secret",
+    "api_key",
+    "access_token",
+    "refresh_token",
+    "private_key",
+    "cvv",
+    "pan"
+  ],
+  "action_classes": {
+    "READ": {
+      "required_capability": "AI_READ",
+      "allowed_actions": ["READ_REPORT", "READ_POLICY", "READ_METRICS", "READ_EXPOSURE_FORECAST"],
+      "execution_authority": "READ_ONLY",
+      "intent_required": false
+    },
+    "RECOMMEND": {
+      "required_capability": "AI_RECOMMEND",
+      "allowed_actions": ["RECOMMEND_RISK_REVIEW", "RECOMMEND_EXPOSURE_OPTIMIZATION", "RECOMMEND_SUPPORT_ACTION"],
+      "execution_authority": "ADVISORY_ONLY",
+      "intent_required": false
+    },
+    "LOW_RISK_ACTION": {
+      "required_capability": "AI_LOW_RISK_ACTION",
+      "allowed_actions": ["QUEUE_NON_FINANCIAL_NOTIFICATION", "REFRESH_RECOMMENDATION_CACHE"],
+      "execution_authority": "BOUNDED_LOW_RISK",
+      "intent_required": true
+    },
+    "FINANCIAL_ACTION": {
+      "always_deny": true,
+      "deny_reason": "AI_MONEY_AUTHORITY_FORBIDDEN",
+      "execution_authority": "NONE"
+    },
+    "ROOT_ACTION": {
+      "always_deny": true,
+      "deny_reason": "AI_ROOT_AUTHORITY_FORBIDDEN",
+      "execution_authority": "NONE"
+    }
+  }
+}
