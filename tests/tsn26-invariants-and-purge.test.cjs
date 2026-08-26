@@ -22,7 +22,7 @@ test('TSN-26 invariant registry is fail-closed and has unique sovereign rules', 
     'FIN-001', 'FIN-002', 'FIN-003', 'FIN-007', 'FIN-009',
     'AUD-001', 'PAY-001', 'AUTH-001', 'CRYPTO-001', 'POL-001',
     'ATTR-001', 'EXP-001', 'CTY-001', 'AI-001', 'AI-002',
-    'OBS-001', 'RPT-001', 'RES-001', 'LEG-001', 'LEG-002', 'LEG-003',
+    'OBS-001', 'RPT-001', 'RES-001', 'REL-001', 'LEG-001', 'LEG-002', 'LEG-003',
   ]) {
     assert.ok(ids.includes(required), `missing invariant ${required}`);
   }
