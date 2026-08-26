@@ -80,7 +80,7 @@ create function public.vvip_synapse_proof_issue(
 )
 returns jsonb
 language plpgsql
-security definer set search_path = pg_catalog
+security definer set search_path = ''
 as $function$
 declare
     v_allowed boolean := false;
@@ -178,7 +178,7 @@ create function public.vvip_synapse_proof_consume(
 )
 returns jsonb
 language plpgsql
-security definer set search_path = pg_catalog
+security definer set search_path = ''
 as $function$
 declare
     v_challenge public.vvip_synapse_proof_challenges%rowtype;
