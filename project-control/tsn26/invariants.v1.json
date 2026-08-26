@@ -26,6 +26,7 @@
     {"id":"AI-002","rule":"ai_low_risk_action_requires_bounded_verified_intent_without_credentials","severity":"BLOCK_RELEASE"},
     {"id":"OBS-001","rule":"observability_and_business_trace_are_never_financial_authority","severity":"BLOCK_RELEASE"},
     {"id":"RPT-001","rule":"missing_failed_or_stale_proof_cannot_be_reported_green","severity":"BLOCK_RELEASE"},
+    {"id":"RES-001","rule":"backup_is_not_trusted_without_recent_isolated_restore_and_validation_proof","severity":"BLOCK_RELEASE"},
     {"id":"LEG-001","rule":"no_parallel_legacy_financial_engine","severity":"BLOCK_RELEASE"},
     {"id":"LEG-002","rule":"no_legacy_financial_fallback_route","severity":"BLOCK_RELEASE"},
     {"id":"LEG-003","rule":"historical_financial_evidence_must_be_preserved_or_migrated_not_silently_deleted","severity":"BLOCK_RELEASE"}
