@@ -24,13 +24,19 @@ test('critical financial invariants are fail-closed and mandatory', () => {
 });
 
 test('root authority, audit, payment replay, exposure, AI and release boundaries are registered', () => {
-  for (const id of ['AUTH-001', 'AUD-001', 'PAY-001', 'EXP-001', 'AI-001', 'REL-001', 'LEGACY-001']) {
+  for (const id of ['AUTH-001', 'AUD-001', 'PAY-001', 'EXP-001', 'AI-001', 'REL-001', 'REL-002', 'LEGACY-001']) {
     assert.ok(getInvariant(id));
   }
-  const release = getInvariant('REL-001');
-  assert.equal(release.domain, 'RELEASE');
-  assert.equal(release.enforcement, 'FAIL_CLOSED');
-  assert.match(release.rule, /exact.*source.*commit|source.*commit.*exact/i);
+  const exactSource = getInvariant('REL-001');
+  assert.equal(exactSource.domain, 'RELEASE');
+  assert.equal(exactSource.enforcement, 'FAIL_CLOSED');
+  assert.match(exactSource.rule, /exact.*source.*commit|source.*commit.*exact/i);
+
+  const targetAncestry = getInvariant('REL-002');
+  assert.equal(targetAncestry.domain, 'RELEASE');
+  assert.equal(targetAncestry.enforcement, 'FAIL_CLOSED');
+  assert.match(targetAncestry.rule, /target-base ancestry|target.*ancestry/i);
+  assert.match(targetAncestry.rule, /repository-governance proof/i);
 });
 
 test('legacy financial fallback is explicitly forbidden', () => {
