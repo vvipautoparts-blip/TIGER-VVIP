@@ -237,12 +237,12 @@ reset role;
 set local role postgres;
 select (
   count(*) = 1
-  and min(actor_subject) = 'user_alice'
-  and min(object_type) = 'intent_offer'
-  and min(object_id) = :'intent_id'::uuid
-  and min(purpose) = 'listing_freshness'
-  and min(policy_version) = 'SYNAPSE-S4'
-  and min(capture_digest) = repeat('c', 64)
+  and bool_and(actor_subject = 'user_alice')
+  and bool_and(object_type = 'intent_offer')
+  and bool_and(object_id = :'intent_id'::uuid)
+  and bool_and(purpose = 'listing_freshness')
+  and bool_and(policy_version = 'SYNAPSE-S4')
+  and bool_and(capture_digest = repeat('c', 64))
 ) as evidence_bound
 from public.vvip_synapse_proof_evidence
 where challenge_id = '44444444-4444-4444-8444-444444444441'::uuid
