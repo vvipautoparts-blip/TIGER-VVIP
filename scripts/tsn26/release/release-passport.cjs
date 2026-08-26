@@ -23,6 +23,7 @@ function validatePolicy(policy) {
   if (policy.reference !== 'TSN-26' || policy.fail_closed !== true) throw new Error('release passport policy must be TSN-26 fail-closed');
   if (policy.promotion_target_branch !== 'main') throw new Error('release passport promotion target must be main');
   if (policy.production_activation_allowed !== false) throw new Error('release passport may not authorize production activation');
+  if (policy.proofs_must_bind_source_sha !== true) throw new Error('release passport proofs must bind exact source sha');
   if (!policy.required_proofs || typeof policy.required_proofs !== 'object' || Array.isArray(policy.required_proofs)) throw new Error('release passport required proofs are missing');
   return policy;
 }
@@ -123,7 +124,7 @@ function assessSupplyChain(raw, policy, failures) {
   return normalized;
 }
 
-function assessProofs(raw, policy, now, failures) {
+function assessProofs(raw, policy, expectedSourceSha, now, failures) {
   const proofs = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
   const normalized = {};
 
@@ -132,17 +133,23 @@ function assessProofs(raw, policy, now, failures) {
     const proof = proofs[name];
     if (!proof || typeof proof !== 'object' || Array.isArray(proof)) {
       failures.push(`PROOF_MISSING:${name}`);
-      normalized[name] = { status: 'MISSING', ref: null, as_of: null, digest: null };
+      normalized[name] = { status: 'MISSING', ref: null, as_of: null, digest: null, source_sha: null };
       continue;
     }
 
     const status = text(proof.status);
     const ref = text(proof.ref);
     const digest = text(proof.digest).toLowerCase();
+    const sourceSha = text(proof.source_sha).toLowerCase();
+    const sourceShaValid = SHA_RE.test(sourceSha);
     const asOf = new Date(proof.as_of);
+
     if (status !== 'PASS') failures.push(`PROOF_FAILED:${name}`);
     if (!ref) failures.push(`PROOF_REF_INVALID:${name}`);
     if (!DIGEST_RE.test(digest)) failures.push(`PROOF_DIGEST_INVALID:${name}`);
+    if (!sourceShaValid) failures.push(`PROOF_SOURCE_SHA_INVALID:${name}`);
+    else if (expectedSourceSha && sourceSha !== expectedSourceSha) failures.push(`PROOF_SOURCE_SHA_MISMATCH:${name}`);
+
     if (!Number.isFinite(asOf.getTime())) {
       failures.push(`PROOF_TIME_INVALID:${name}`);
     } else {
@@ -156,6 +163,7 @@ function assessProofs(raw, policy, now, failures) {
       ref: ref || null,
       as_of: Number.isFinite(asOf.getTime()) ? asOf.toISOString() : null,
       digest: DIGEST_RE.test(digest) ? digest : null,
+      source_sha: sourceShaValid ? sourceSha : null,
     };
   }
   return normalized;
@@ -173,7 +181,7 @@ function generateReleasePassport(input, { policy: rawPolicy, now = new Date() } 
   const source = assessSource(sourceInput.source, policy, failures);
   const constitution = assessConstitution(sourceInput.constitution, policy, failures);
   const supplyChain = assessSupplyChain(sourceInput.supply_chain, policy, failures);
-  const proofs = assessProofs(sourceInput.proofs, policy, now, failures);
+  const proofs = assessProofs(sourceInput.proofs, policy, source.value.commit_sha, now, failures);
 
   const uniqueFailures = [...new Set(failures)].sort();
   const ready = uniqueFailures.length === 0;
@@ -183,6 +191,7 @@ function generateReleasePassport(input, { policy: rawPolicy, now = new Date() } 
     reference: 'TSN-26',
     generated_at: generatedAt ? generatedAt.toISOString() : null,
     target_branch: policy.promotion_target_branch,
+    proof_source_binding: 'EXACT_COMMIT',
     source: source.value,
     source_identity_exact: source.exact,
     constitution,
