@@ -1,0 +1,75 @@
+{
+  "policy_id": "TCP-2026.08.001",
+  "schema_version": "TIGER_CRYPTO_POLICY_V1",
+  "reference": "TSN-26",
+  "effective_from": "2026-08-26T00:00:00.000Z",
+  "fail_closed": true,
+  "repository_private_key_allowed": false,
+  "production_key_authority": "TRUSTED_HSM_OR_KMS",
+  "required_constitution_quorum": [
+    "OWNER",
+    "SECURITY_COSIGNER"
+  ],
+  "constitution_signature_max_age_seconds": 3600,
+  "purposes": {
+    "CONSTITUTION_DIGEST": {
+      "profile": "SHA256",
+      "status": "CURRENT"
+    },
+    "CONSTITUTION_SIGNATURE": {
+      "allowed_profiles": [
+        "ED25519",
+        "ES256"
+      ],
+      "transition_profiles": [
+        "ML_DSA_65"
+      ]
+    },
+    "SALE_CLAIM_SIGNATURE": {
+      "allowed_profiles": [
+        "ED25519",
+        "ES256"
+      ]
+    },
+    "OWNER_QUORUM_SIGNATURE": {
+      "allowed_profiles": [
+        "ED25519",
+        "ES256"
+      ]
+    },
+    "SERVICE_IDENTITY": {
+      "profile": "ROTATABLE_WORKLOAD_IDENTITY",
+      "status": "CURRENT"
+    },
+    "TLS": {
+      "profile": "PLATFORM_APPROVED_TLS_1_3",
+      "status": "CURRENT"
+    }
+  },
+  "signature_profiles": {
+    "ED25519": {
+      "status": "CURRENT",
+      "standard_family": "EdDSA",
+      "production_activation_allowed": true,
+      "production_key_storage": "HSM_OR_KMS"
+    },
+    "ES256": {
+      "status": "CURRENT",
+      "standard_family": "ECDSA_P256_SHA256",
+      "production_activation_allowed": true,
+      "production_key_storage": "HSM_OR_KMS"
+    },
+    "ML_DSA_65": {
+      "status": "TRANSITION_TEST_ONLY",
+      "standard_family": "NIST_FIPS_204_ML_DSA",
+      "production_activation_allowed": false,
+      "purpose": "PQC_MIGRATION_REHEARSAL"
+    }
+  },
+  "migration_policy": {
+    "crypto_inventory_required": true,
+    "algorithm_rotation_without_financial_schema_change": true,
+    "pqc_readiness_required": true,
+    "quantum_proof_claim_forbidden": true
+  }
+}
