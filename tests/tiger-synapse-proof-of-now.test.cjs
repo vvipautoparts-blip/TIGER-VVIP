@@ -14,6 +14,12 @@ const MIGRATION = path.join(ROOT, MIGRATION_RELATIVE);
 const STEEL_SHIELD = path.join(ROOT, "scripts/security/p08-steel-shield/scan-dangerous-sql.sh");
 const BEHAVIOR_SQL_RELATIVE = "tests/sql/tiger-synapse-proof-of-now.sql";
 const BEHAVIOR_SQL = path.join(ROOT, BEHAVIOR_SQL_RELATIVE);
+const CONCURRENCY_SETUP_RELATIVE = "tests/sql/tiger-synapse-proof-of-now-concurrency-setup.sql";
+const CONCURRENCY_SETUP = path.join(ROOT, CONCURRENCY_SETUP_RELATIVE);
+const CONCURRENCY_CONSUME_RELATIVE = "tests/sql/tiger-synapse-proof-of-now-concurrency-consume.sql";
+const CONCURRENCY_CONSUME = path.join(ROOT, CONCURRENCY_CONSUME_RELATIVE);
+const CONCURRENCY_VERIFY_RELATIVE = "tests/sql/tiger-synapse-proof-of-now-concurrency-verify.sql";
+const CONCURRENCY_VERIFY = path.join(ROOT, CONCURRENCY_VERIFY_RELATIVE);
 const DB_REHEARSAL = path.join(ROOT, ".github/workflows/tiger-social-db-rehearsal.yml");
 
 function readRequired(file, code) {
@@ -138,4 +144,32 @@ test("S4 local DB rehearsal proves authorization, replay, expiry, digest privacy
   assert.match(workflow, /supabase\/migrations\/20260826120000_synapse_proof_of_now\.sql/);
   assert.match(workflow, /tests\/sql\/tiger-synapse-proof-of-now\.sql/);
   assert.match(workflow, /Prove SYNAPSE S4 Proof-of-Now replay and authorization behavior/i);
+});
+
+test("S4 local DB rehearsal proves atomic single-use under two-session contention", () => {
+  const setup = readRequired(CONCURRENCY_SETUP, "PROOF_CONCURRENCY_SETUP_SQL_MISSING");
+  const consume = readRequired(CONCURRENCY_CONSUME, "PROOF_CONCURRENCY_CONSUME_SQL_MISSING");
+  const verify = readRequired(CONCURRENCY_VERIFY, "PROOF_CONCURRENCY_VERIFY_SQL_MISSING");
+  const workflow = readRequired(DB_REHEARSAL, "SOCIAL_DB_REHEARSAL_WORKFLOW_MISSING");
+
+  assert.match(setup, /PROOF_CONCURRENCY_FIXTURE_READY=PASS/);
+  assert.match(setup, /vvip_synapse_proof_issue/i);
+  assert.match(consume, /vvip_synapse_proof_consume/i);
+  assert.match(consume, /service_role/i);
+  assert.match(verify, /PROOF_CONCURRENT_EVIDENCE_EXACTLY_ONE=PASS/);
+  assert.match(verify, /PROOF_CONCURRENT_EVIDENCE_BINDING=PASS/);
+  assert.match(verify, /TIGER_SYNAPSE_PROOF_OF_NOW_CONCURRENCY=PASS/);
+
+  for (const relative of [
+    CONCURRENCY_SETUP_RELATIVE,
+    CONCURRENCY_CONSUME_RELATIVE,
+    CONCURRENCY_VERIFY_RELATIVE,
+  ]) {
+    assert.match(workflow, new RegExp(relative.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+
+  assert.match(workflow, /Prove SYNAPSE S4 Proof-of-Now concurrent single-use behavior/i);
+  assert.match(workflow, /PROOF_CONCURRENT_ACCEPTED_EXACTLY_ONE=PASS/);
+  assert.match(workflow, /PROOF_CONCURRENT_REPLAY_EXACTLY_ONE=PASS/);
+  assert.match(workflow, /pg_advisory_lock|for\s+update/i);
 });
