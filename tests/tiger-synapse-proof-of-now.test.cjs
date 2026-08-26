@@ -2,13 +2,16 @@
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 
 const ROOT = path.resolve(__dirname, "..");
 const CONTROLLER = path.join(ROOT, "scripts/synapse/proof-of-now-controller.js");
 const EDGE_FUNCTION = path.join(ROOT, "supabase/functions/tiger-proof-of-now/index.ts");
-const MIGRATION = path.join(ROOT, "supabase/migrations/20260826120000_synapse_proof_of_now.sql");
+const MIGRATION_RELATIVE = "supabase/migrations/20260826120000_synapse_proof_of_now.sql";
+const MIGRATION = path.join(ROOT, MIGRATION_RELATIVE);
+const STEEL_SHIELD = path.join(ROOT, "scripts/security/p08-steel-shield/scan-dangerous-sql.sh");
 
 function readRequired(file, code) {
   assert.equal(fs.existsSync(file), true, code);
@@ -89,5 +92,23 @@ test("S4 database contract is service-only, digest-bound, expiring, and atomical
   assert.match(sql, /consumed_at\s+is\s+null/i);
   assert.match(sql, /expires_at\s*>\s*statement_timestamp\(\)/i);
   assert.match(sql, /update[\s\S]+returning/i);
+  assert.equal(
+    (sql.match(/security\s+definer\s+set\s+search_path\s*=\s*''/gi) || []).length,
+    2,
+    "PROOF_DEFINER_SEARCH_PATH_MUST_BE_EMPTY",
+  );
   assert.doesNotMatch(sql, /grant\s+(?:select|insert|update|delete|all)[^;]+authenticated/i);
+});
+
+test("S4 migration review is byte-exact and automatically invalidated by SQL drift", () => {
+  const sql = readRequired(MIGRATION, "PROOF_MIGRATION_MISSING");
+  const shield = readRequired(STEEL_SHIELD, "STEEL_SHIELD_MISSING");
+  const digest = crypto.createHash("sha256").update(sql, "utf8").digest("hex");
+  const approval = `[\"${MIGRATION_RELATIVE}\"]=\"${digest}\"`;
+
+  assert.equal(
+    shield.includes(approval),
+    true,
+    `PROOF_MIGRATION_REVIEW_HASH_MISSING:${digest}`,
+  );
 });
