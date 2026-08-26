@@ -27,6 +27,7 @@
     {"id":"OBS-001","rule":"observability_and_business_trace_are_never_financial_authority","severity":"BLOCK_RELEASE"},
     {"id":"RPT-001","rule":"missing_failed_or_stale_proof_cannot_be_reported_green","severity":"BLOCK_RELEASE"},
     {"id":"RES-001","rule":"backup_is_not_trusted_without_recent_isolated_restore_and_validation_proof","severity":"BLOCK_RELEASE"},
+    {"id":"SUP-001","rule":"release_artifact_requires_exact_source_bound_slsa_provenance_sbom_and_sigstore_transparency_proof","severity":"BLOCK_RELEASE"},
     {"id":"REL-001","rule":"release_promotion_requires_exact_same_source_sha_fresh_supply_chain_and_sovereign_proofs","severity":"BLOCK_RELEASE"},
     {"id":"REL-002","rule":"controlled_promotion_requires_current_target_base_ancestry_and_repository_governance_proof","severity":"BLOCK_RELEASE"},
     {"id":"LEG-001","rule":"no_parallel_legacy_financial_engine","severity":"BLOCK_RELEASE"},
