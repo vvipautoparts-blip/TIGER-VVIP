@@ -1,0 +1,225 @@
+{
+  "schema_version": "TIGER_VERITY_GATES_V1",
+  "gates": [
+    {
+      "id": "P01",
+      "name": "Exact source identity and repository topology",
+      "evidence_class": "SOURCE_IDENTITY",
+      "environment": "CI",
+      "subject": "CURRENT_SOURCE",
+      "max_age_ms": 300000,
+      "prerequisites": [],
+      "required_facts": ["exact_source", "exact_tree", "pr_identity"],
+      "fail_closed": true
+    },
+    {
+      "id": "P02",
+      "name": "Runtime stack and authority inventory",
+      "evidence_class": "RUNTIME_AUTHORITY_INVENTORY",
+      "environment": "CI",
+      "subject": "CURRENT_REPOSITORY",
+      "max_age_ms": 900000,
+      "prerequisites": ["P01"],
+      "required_facts": ["frontend_inventory", "database_authority", "media_authority", "ci_authority"],
+      "fail_closed": true
+    },
+    {
+      "id": "P03",
+      "name": "Dead code dependency and duplicate surface analysis",
+      "evidence_class": "CLEANROOM_ANALYSIS",
+      "environment": "CI",
+      "subject": "CURRENT_REPOSITORY",
+      "max_age_ms": 900000,
+      "prerequisites": ["P01", "P02"],
+      "required_facts": ["cleanroom_inventory", "dependency_analysis", "reference_graph"],
+      "fail_closed": true
+    },
+    {
+      "id": "P04",
+      "name": "Runtime authority convergence",
+      "evidence_class": "RUNTIME_CONVERGENCE",
+      "environment": "CI",
+      "subject": "CURRENT_WEB_ARTIFACT",
+      "max_age_ms": 900000,
+      "prerequisites": ["P02", "P03"],
+      "required_facts": ["entrypoint_graph", "artifact_allowlist", "legacy_denylist"],
+      "fail_closed": true
+    },
+    {
+      "id": "P05",
+      "name": "Environment and configuration convergence",
+      "evidence_class": "CONFIGURATION_CONVERGENCE",
+      "environment": "CI",
+      "subject": "CURRENT_REPOSITORY",
+      "max_age_ms": 900000,
+      "prerequisites": ["P01"],
+      "required_facts": ["environment_contract", "environment_scan", "configuration_scan"],
+      "fail_closed": true
+    },
+    {
+      "id": "P06",
+      "name": "Current-tree credential and secret scan",
+      "evidence_class": "CURRENT_TREE_SECRET_SCAN",
+      "environment": "CI",
+      "subject": "CURRENT_REPOSITORY",
+      "max_age_ms": 900000,
+      "prerequisites": ["P01"],
+      "required_facts": ["cleanroom_secret_scan", "ci_secret_scan", "evidence_secret_safety"],
+      "fail_closed": true
+    },
+    {
+      "id": "P07",
+      "name": "Full Git-history secret and oversized-object scan",
+      "evidence_class": "HISTORY_SECRET_SCAN",
+      "environment": "CI",
+      "subject": "CURRENT_REPOSITORY_HISTORY",
+      "max_age_ms": 86400000,
+      "prerequisites": ["P06"],
+      "required_facts": ["history_scan", "finding_classification", "rotation_precondition"],
+      "fail_closed": true
+    },
+    {
+      "id": "P08",
+      "name": "Database schema migration and RLS convergence",
+      "evidence_class": "DATABASE_CONVERGENCE",
+      "environment": "CI",
+      "subject": "CURRENT_MIGRATION_BUNDLE",
+      "max_age_ms": 1800000,
+      "prerequisites": ["P01"],
+      "required_facts": ["unique_versions", "clean_rebuild", "security_rehearsal", "schema_authority"],
+      "fail_closed": true
+    },
+    {
+      "id": "P09",
+      "name": "Database retention deletion and seed sanitation",
+      "evidence_class": "DATA_RETENTION",
+      "environment": "CI",
+      "subject": "CURRENT_DATABASE_POLICY",
+      "max_age_ms": 86400000,
+      "prerequisites": ["P08"],
+      "required_facts": ["retention_allowlist", "backup_proof", "test_data_classifier", "deletion_dry_run"],
+      "fail_closed": true
+    },
+    {
+      "id": "P10",
+      "name": "Storage orphan metadata and upload sanitation",
+      "evidence_class": "STORAGE_RECONCILIATION",
+      "environment": "CI",
+      "subject": "CURRENT_STORAGE_POLICY",
+      "max_age_ms": 86400000,
+      "prerequisites": ["P09"],
+      "required_facts": ["object_row_reconciliation", "orphan_report", "media_privacy_policy"],
+      "fail_closed": true
+    },
+    {
+      "id": "P11",
+      "name": "Container build cache and staging residue control",
+      "evidence_class": "CONTAINER_RESIDUE_CONTROL",
+      "environment": "CI",
+      "subject": "CURRENT_CONTAINER_STATE",
+      "max_age_ms": 86400000,
+      "prerequisites": ["P01"],
+      "required_facts": ["container_inventory", "scoped_prune_plan", "production_protection"],
+      "fail_closed": true
+    },
+    {
+      "id": "P12",
+      "name": "Scheduled jobs workers queues and background authority inventory",
+      "evidence_class": "BACKGROUND_AUTHORITY",
+      "environment": "CI",
+      "subject": "CURRENT_BACKGROUND_AUTHORITY",
+      "max_age_ms": 86400000,
+      "prerequisites": ["P02"],
+      "required_facts": ["worker_inventory", "schedule_inventory", "owner_mapping", "legacy_disablement"],
+      "fail_closed": true
+    },
+    {
+      "id": "P13",
+      "name": "Third-party webhook sandbox key and endpoint reconciliation",
+      "evidence_class": "THIRD_PARTY_RECONCILIATION",
+      "environment": "STAGING",
+      "subject": "CURRENT_THIRD_PARTY_STATE",
+      "max_age_ms": 3600000,
+      "prerequisites": ["P05", "P06"],
+      "required_facts": ["provider_inventory", "environment_classification", "revocation_plan"],
+      "fail_closed": true
+    },
+    {
+      "id": "P14",
+      "name": "DNS TLS domain and subdomain takeover prevention",
+      "evidence_class": "DNS_TLS_RECONCILIATION",
+      "environment": "STAGING",
+      "subject": "CURRENT_DOMAIN_STATE",
+      "max_age_ms": 3600000,
+      "prerequisites": ["P13"],
+      "required_facts": ["dns_inventory", "target_ownership", "dangling_record_scan", "tls_ownership"],
+      "fail_closed": true
+    },
+    {
+      "id": "P15",
+      "name": "Identity SSH service-account and privileged access rotation",
+      "evidence_class": "PRIVILEGED_ACCESS_REVIEW",
+      "environment": "STAGING",
+      "subject": "CURRENT_PRIVILEGED_ACCESS",
+      "max_age_ms": 3600000,
+      "prerequisites": ["P06"],
+      "required_facts": ["principal_inventory", "least_privilege_review", "revocation_evidence"],
+      "fail_closed": true
+    },
+    {
+      "id": "P16",
+      "name": "Telemetry logging error tracking and analytics baseline convergence",
+      "evidence_class": "TELEMETRY_CONVERGENCE",
+      "environment": "STAGING",
+      "subject": "CURRENT_TELEMETRY_STATE",
+      "max_age_ms": 3600000,
+      "prerequisites": ["P05"],
+      "required_facts": ["log_policy", "debug_scan", "test_event_isolation", "retention_policy"],
+      "fail_closed": true
+    },
+    {
+      "id": "P17",
+      "name": "CI workflow artifact cache and release evidence convergence",
+      "evidence_class": "RELEASE_EVIDENCE",
+      "environment": "CI",
+      "subject": "CURRENT_RELEASE_EVIDENCE",
+      "max_age_ms": 1800000,
+      "prerequisites": ["P01", "P06"],
+      "required_facts": ["workflow_inventory", "artifact_retention", "sealed_release_evidence"],
+      "fail_closed": true
+    },
+    {
+      "id": "P18",
+      "name": "Branch tag pull-request and repository governance convergence",
+      "evidence_class": "REPOSITORY_GOVERNANCE",
+      "environment": "CI",
+      "subject": "CURRENT_REPOSITORY_GOVERNANCE",
+      "max_age_ms": 1800000,
+      "prerequisites": ["P01"],
+      "required_facts": ["open_stack_classification", "branch_proof", "tag_classification", "protected_branch_preservation"],
+      "fail_closed": true
+    },
+    {
+      "id": "P19",
+      "name": "Single current owner authority convergence",
+      "evidence_class": "OWNER_AUTHORITY_CONVERGENCE",
+      "environment": "CI",
+      "subject": "CURRENT_OWNER_AUTHORITY",
+      "max_age_ms": 1800000,
+      "prerequisites": ["P02", "P18"],
+      "required_facts": ["single_human_authority", "machine_contract_sync", "historical_non_authority"],
+      "fail_closed": true
+    },
+    {
+      "id": "P20",
+      "name": "AWS exact-SHA sealed production handover and runtime proof",
+      "evidence_class": "PRODUCTION_HANDOVER",
+      "environment": "PRODUCTION",
+      "subject": "CURRENT_PRODUCTION_RELEASE",
+      "max_age_ms": 900000,
+      "prerequisites": ["P04", "P08", "P14", "P15", "P16", "P17", "P19"],
+      "required_facts": ["sealed_exact_sha_artifact", "sbom", "provenance", "runtime_smoke"],
+      "fail_closed": true
+    }
+  ]
+}
