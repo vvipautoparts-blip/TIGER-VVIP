@@ -39,7 +39,7 @@ test('Production Release Artifact Builder is manual-only, exact-main bound, and 
   assert.match(builder, /--mode\s+production/);
   assert.match(builder, /--output\s+["']?\$RUNNER_TEMP\/vvip-production-public["']?/);
   assert.equal(
-    (builder.match(/^\s*python\s+tools\/vvip_public_release\.py\b/gm) || []).length,
+    (builder.match(/--output\s+"\$RUNNER_TEMP\/vvip-production-public"/g) || []).length,
     1,
     'Production public bytes must be built exactly once',
   );
@@ -47,6 +47,25 @@ test('Production Release Artifact Builder is manual-only, exact-main bound, and 
   assert.doesNotMatch(builder, /deploy-pages|upload-pages-artifact/i);
   assert.doesNotMatch(builder, /pages:\s*write/);
   assertImmutableActions(builder, 'builder');
+});
+
+test('builder sources the media finalizer only from the protected environment and validates before build work', () => {
+  const builder = readRequired(BUILDER_PATH, 'Production Release Artifact Builder workflow');
+  const job = builder.slice(builder.indexOf('\n  build_seal_attest:'));
+
+  assert.match(job, /environment:\s*\n\s{6}name:\s*production-build/);
+  assert.match(job, /TIGER_MEDIA_FINALIZER_URL:\s*\$\{\{\s*vars\.TIGER_MEDIA_FINALIZER_URL\s*\}\}/);
+  assert.doesNotMatch(job, /TIGER_MEDIA_FINALIZER_URL:\s*\$\{\{\s*(?:secrets|inputs)\./);
+  assert.doesNotMatch(job, /TIGER_MEDIA_FINALIZER_URL:\s*https:\/\//);
+
+  const validationIndex = job.indexOf('Validate protected Production configuration');
+  const installIndex = job.indexOf('Install pinned verification dependencies');
+  const buildIndex = job.indexOf('Build Production public bytes exactly once');
+  assert.ok(validationIndex > 0, 'configuration validation step must exist');
+  assert.ok(validationIndex < installIndex, 'configuration must fail closed before dependency installation');
+  assert.ok(installIndex < buildIndex, 'public-byte build remains after verification');
+  assert.equal((job.match(/--validate-config-only/g) || []).length, 1);
+  assert.equal((job.match(/--output\s+"\$RUNNER_TEMP\/vvip-production-public"/g) || []).length, 1);
 });
 
 test('builder grants only the current minimum write authority needed for GitHub attestations', () => {
