@@ -112,33 +112,33 @@ function transitionSettlement(item, input) {
       assertAllowedState(item, [STATES.VESTED]);
       if (at.ms < Date.parse(item.maturesAt)) throw new Error('TSN26_SETTLEMENT_NOT_MATURE');
       return append(item, STATES.PAYABLE, base);
-    case 'SCHEDULE_PAYOUT': { 
+    case 'SCHEDULE_PAYOUT': {
       assertAllowedState(item, [STATES.PAYABLE]);
       const payoutId = nonEmpty(input?.payoutId, 'TSN26_PAYOUT_ID_REQUIRED');
       return append(item, STATES.SCHEDULED, { ...base, payoutId }, { payoutId });
     }
-    case 'MARK_PAID': { 
+    case 'MARK_PAID': {
       assertAllowedState(item, [STATES.SCHEDULED]);
       const providerReference = nonEmpty(input?.providerReference, 'TSN26_PROVIDER_REFERENCE_REQUIRED');
       return append(item, STATES.PAID, { ...base, providerReference }, { providerReference });
     }
-    case 'HOLD': { 
+    case 'HOLD': {
       assertAllowedState(item, [STATES.PENDING, STATES.VALIDATED, STATES.VESTED, STATES.PAYABLE]);
       const reason = nonEmpty(input?.reason, 'TSN26_HOLD_REASON_REQUIRED');
       return append(item, STATES.HELD, { ...base, reason });
     }
-    case 'COMPLIANCE_REVIEW': { 
+    case 'COMPLIANCE_REVIEW': {
       assertAllowedState(item, [STATES.PENDING, STATES.VALIDATED, STATES.VESTED, STATES.PAYABLE, STATES.HELD]);
       const reason = nonEmpty(input?.reason, 'TSN26_COMPLIANCE_REASON_REQUIRED');
       return append(item, STATES.COMPLIANCE_REVIEW, { ...base, reason });
     }
-    case 'REVERSE': { 
+    case 'REVERSE': {
       assertAllowedState(item, [STATES.PENDING, STATES.VALIDATED, STATES.VESTED, STATES.PAYABLE, STATES.SCHEDULED, STATES.HELD, STATES.COMPLIANCE_REVIEW]);
       const reason = nonEmpty(input?.reason, 'TSN26_REVERSAL_REASON_REQUIRED');
       const reversalId = nonEmpty(input?.reversalId, 'TSN26_REVERSAL_ID_REQUIRED');
       return append(item, STATES.REVERSED, { ...base, reason, reversalId });
     }
-    case 'CLAWBACK': { 
+    case 'CLAWBACK': {
       assertAllowedState(item, [STATES.PAID]);
       const reason = nonEmpty(input?.reason, 'TSN26_CLAWBACK_REASON_REQUIRED');
       const clawbackId = nonEmpty(input?.clawbackId, 'TSN26_CLAWBACK_ID_REQUIRED');
