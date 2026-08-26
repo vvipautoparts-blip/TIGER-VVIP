@@ -210,6 +210,14 @@ declare -A reviewed_migration_hashes=(
   # FORCE RLS, expiry/revision invariants, and the expected lexical findings
   # on new-table NOT NULL rules, the scoped update, and exact RPC grants.
   ["supabase/migrations/20260818150000_synapse_intent_foundation.sql"]="c854a7ebf64d6710a9eb9351044108a10b97a5c35f5afc330288232fc7df5072"
+
+  # TSN-26 sovereign finance: both migrations were reviewed after the scanner
+  # reported CRITICAL=0. The core remains service-role-only, FORCE-RLS and append-only;
+  # the proof guard requires matching captured payment evidence and a locked sale claim
+  # for attributed settlement. These exact hashes are the approval boundary; byte drift
+  # automatically returns either migration to full Steel Shield review.
+  ["supabase/migrations/20260826043000_tsn26_sovereign_financial_core.sql"]="ac427e622c2ff3b0d6a14634ab6d9928c4ac8a99825b43eb75506663ec750d40"
+  ["supabase/migrations/20260826043500_tsn26_settlement_proof_guard.sql"]="2a268a0bb626b810da6505398f8b7205171dbd20a04a9a50541f4939df5c47a4"
 )
 
 reviewed_baseline_path() {
