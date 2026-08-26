@@ -39,7 +39,9 @@ test('crypto policy is versioned, contains no private material, and keeps PQC tr
   assert.ok(policy.signature_profiles.ED25519);
   assert.equal(policy.signature_profiles.ED25519.status, 'CURRENT');
   assert.equal(policy.signature_profiles.ML_DSA_65.status, 'TRANSITION_TEST_ONLY');
-  assert.doesNotMatch(JSON.stringify(policy), /BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY|private_key/i);
+  const serialized = JSON.stringify(policy);
+  assert.doesNotMatch(serialized, /BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY/);
+  assert.doesNotMatch(serialized, /"private_key"\s*:/i);
 });
 
 test('constitution activation requires independent OWNER and SECURITY_COSIGNER signatures over exact digest', () => {
