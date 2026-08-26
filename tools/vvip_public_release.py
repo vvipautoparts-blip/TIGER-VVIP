@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Build a minimal, auditable public artifact for TIGER VVIP.
+"""Build the exact, auditable public artifact for TIGER VVIP.
 
-The builder never copies the repository root wholesale. It follows a fixed public
-entry set plus explicitly approved asset prefixes, writes runtime configuration,
-and fails closed in production when test/demo markers are present.
+The builder copies only explicitly approved files. No directory or prefix is
+implicitly public. Runtime configuration is generated at build time and
+production fails closed when configuration or artifact markers are unsafe.
 """
 from __future__ import annotations
 
@@ -31,16 +31,86 @@ PUBLIC_ROOT_FILES = (
     "styles.css",
 )
 
-PUBLIC_PREFIXES = (
-    "styles/",
-    "icons/",
-    "scripts/runtime/",
+PUBLIC_STYLE_FILES = (
+    "styles/vvip-pr29-home-marketplace.css",
+    "styles/vvip-pr36-media.css",
+    "styles/vvip-visual-trust-layer.css",
+    "styles/fusion/f02-single-surface.css",
+    "styles/fusion/progressive-composer.css",
+    "styles/tiger-one/tokens.css",
+    "styles/tiger-one/type.css",
+    "styles/tiger-social/core-shell.css",
+    "styles/tiger-synapse/living-surface.css",
+)
+
+PUBLIC_ICON_FILES = (
+    "icons/icon-192.png",
+    "icons/icon-512.png",
+    "icons/icon-192.svg",
+    "icons/icon-512.svg",
+)
+
+PUBLIC_RUNTIME_FILES = (
+    "scripts/runtime/vvip-runtime-loader.js",
+    "scripts/runtime/vvip-marketplace-repository.js",
+    "scripts/runtime/vvip-static-delivery.js",
 )
 
 PUBLIC_SCRIPT_FILES = (
     "scripts/vvip-pr30-resilience.js",
-    "scripts/vvip-production-marketplace.js",
     "scripts/vvip-safe-ux-guard.js",
+    "scripts/fusion/runtime-adapters.js",
+    "scripts/fusion/marketplace-context.js",
+    "scripts/fusion/f02-feed.js",
+    "scripts/fusion/f03-capability-menu.js",
+    "scripts/fusion/f04-search-fabric.js",
+    "scripts/fusion/progressive-composer.js",
+    "scripts/fusion/account-surface.js",
+    "scripts/fusion/single-surface-controller.js",
+    "scripts/synapse/intent-domain.js",
+    "scripts/synapse/intent-runtime-adapters.js",
+    "scripts/synapse/living-surface-controller.js",
+    "scripts/social/runtime-adapters.js",
+    "scripts/social/feed-read-model.js",
+    "scripts/social/messaging-read-model.js",
+    "scripts/social/profile-read-model.js",
+    "scripts/social/reactions-controller.js",
+    "scripts/social/comments-controller.js",
+    "scripts/social/safety-controller.js",
+    "scripts/social/feed-controller.js",
+    "scripts/social/search-controller.js",
+    "scripts/social/account-lifecycle-controller.js",
+    "scripts/social/post-composer.js",
+    "scripts/social/friends-controller.js",
+    "scripts/social/messaging-controller.js",
+    "scripts/social/profile-controller.js",
+    "scripts/social/core-shell.js",
+)
+
+PUBLIC_MEDIA_FILES = (
+    "scripts/media/pr36-signature.js",
+    "scripts/media/pr36-policy.js",
+    "scripts/media/pr36-geometry.js",
+    "scripts/media/pr36-canvas-adapter.js",
+    "scripts/media/pr36-worker-adapter.js",
+    "scripts/media/pr36-scheduler.js",
+    "scripts/media/pr36-session.js",
+    "scripts/media/pr36-media-worker.js",
+    "scripts/media/f05-heif-preflight.js",
+    "scripts/media/f05-pr36-media-bridge.js",
+    "scripts/media/f05-heif-adapter.js",
+    "scripts/media/f05-heif-worker-client.js",
+    "scripts/media/f05-heif-policy.js",
+    "scripts/media/f05-heif-worker-core.js",
+    "scripts/media/f05-derivative-privacy.js",
+    "scripts/media/f05-worker-resilience.js",
+    "scripts/media/pr36-controller.js",
+)
+
+PUBLIC_WORKER_FILES = (
+    "workers/media/f05-heif-decoder.v1.js",
+    "workers/media/f05-heif-decoder.v1.wasm",
+    "workers/media/f05-heif-worker.js",
 )
 
 DENIED_SEGMENTS = {
@@ -59,6 +129,8 @@ FORBIDDEN_PRODUCTION_MARKERS = {
     "LOCAL_ONLY_MEDIA": "لن يتم رفع الصور",
     "PUBLISH_NOT_IMPLEMENTED": "النشر الحقيقي قيد التجهيز",
     "FUTURE_PUBLISH_ONLY": "النشر الحقيقي سيتم تفعيله لاحقًا",
+    "LOCAL_DRAFT_ONLY_PUBLISHER": "LOCAL_DRAFT_ONLY",
+    "RETIRED_GITHUB_PAGES_URL": "vvipautoparts-blip." "github.io/TIGER-VVIP",
 }
 
 INDEX_REMOVE_SCRIPTS = (
@@ -69,21 +141,14 @@ INDEX_REMOVE_SCRIPTS = (
     "scripts/vvip-pr31-create-listing-shell.js",
     "scripts/vvip-pr33-publish-readiness.js",
     "scripts/runtime/vvip-my-listings.js",
-    "scripts/media/pr36-signature.js",
-    "scripts/media/pr36-policy.js",
-    "scripts/media/pr36-geometry.js",
-    "scripts/media/pr36-canvas-adapter.js",
-    "scripts/media/pr36-worker-adapter.js",
-    "scripts/media/pr36-scheduler.js",
-    "scripts/media/pr36-session.js",
-    "scripts/media/pr36-controller.js",
+    "scripts/vvip-production-marketplace.js",
 )
 
 INDEX_REMOVE_STYLES = (
     "styles/vvip-pr31-create-listing-shell.css",
     "styles/vvip-pr32-draft-preview.css",
     "styles/vvip-pr33-publish-readiness.css",
-    "styles/vvip-pr36-media.css",
+    "styles/vvip-production-marketplace.css",
 )
 
 ACCOUNT_ROUTE_PATTERN = re.compile(
@@ -103,12 +168,16 @@ def _safe_relative(path: str) -> str:
     return normalized.as_posix()
 
 
-def _is_public(path: str) -> bool:
-    try:
-        safe = _safe_relative(path)
-    except ValueError:
-        return False
-    return safe in PUBLIC_ROOT_FILES or safe in PUBLIC_SCRIPT_FILES or safe.startswith(PUBLIC_PREFIXES)
+def _approved_exact_files() -> tuple[str, ...]:
+    return (
+        PUBLIC_ROOT_FILES
+        + PUBLIC_STYLE_FILES
+        + PUBLIC_ICON_FILES
+        + PUBLIC_RUNTIME_FILES
+        + PUBLIC_SCRIPT_FILES
+        + PUBLIC_MEDIA_FILES
+        + PUBLIC_WORKER_FILES
+    )
 
 
 def _copy(source: Path, output: Path, relative: str) -> None:
@@ -158,15 +227,11 @@ def _transform_index(text: str) -> str:
     text = _close_account_routes(text)
 
     injection = """
-  <link rel="stylesheet" href="styles/vvip-production-marketplace.css">
   <script defer src="runtime-config.js"></script>
   <script defer src="scripts/runtime/vvip-runtime-loader.js"></script>
   <script defer src="scripts/runtime/vvip-marketplace-repository.js"></script>
-  <script defer src="scripts/runtime/vvip-marketplace-rollback.js"></script>
   <script defer src="auth-clerk-index.js"></script>
   <script defer src="scripts/vvip-pr30-resilience.js"></script>
-  <script defer src="scripts/runtime/vvip-my-listings.js"></script>
-  <script defer src="scripts/vvip-production-marketplace.js"></script>
 """.rstrip()
     text = text.replace("</head>", f"{injection}\n</head>")
     return text
@@ -195,6 +260,7 @@ def _runtime_config(environment: str, source_sha: str) -> tuple[str, list[str]]:
         "supabaseUrl": os.environ.get("TIGER_SUPABASE_URL", ""),
         "supabasePublishableKey": os.environ.get("TIGER_SUPABASE_PUBLISHABLE_KEY", ""),
         "defaultCountryCode": os.environ.get("TIGER_DEFAULT_COUNTRY_CODE", "").upper(),
+        "mediaFinalizerUrl": os.environ.get("TIGER_MEDIA_FINALIZER_URL", "").strip(),
     }
     errors: list[str] = []
     if environment == "production":
@@ -215,6 +281,9 @@ def _runtime_config(environment: str, source_sha: str) -> tuple[str, list[str]]:
         country = config["defaultCountryCode"]
         if country and not re.fullmatch(r"[A-Z]{2}", country):
             errors.append("default country code must be ISO alpha-2")
+        finalizer_url = config["mediaFinalizerUrl"]
+        if not re.fullmatch(r"https://[A-Za-z0-9.-]+(?::[0-9]{1,5})?(?:/[A-Za-z0-9._~!$&'()*+,;=:@%/-]*)?", finalizer_url):
+            errors.append("production media finalizer URL must be an https URL without query or fragment")
     serialized = json.dumps(config, ensure_ascii=False, separators=(",", ":"))
     return f"window.__VVIP_RUNTIME_CONFIG__ = Object.freeze({serialized});\n", errors
 
@@ -263,17 +332,8 @@ def build(source: Path, output: Path, *, mode: str, source_sha: str, include_cna
         shutil.rmtree(output)
     output.mkdir(parents=True)
 
-    for relative in PUBLIC_ROOT_FILES + PUBLIC_SCRIPT_FILES:
+    for relative in _approved_exact_files():
         _copy(source, output, relative)
-    for prefix in PUBLIC_PREFIXES:
-        root = source / prefix.rstrip("/")
-        if not root.exists():
-            continue
-        for path in root.rglob("*"):
-            if path.is_file():
-                relative = path.relative_to(source).as_posix()
-                if _is_public(relative):
-                    _copy(source, output, relative)
     if include_cname:
         _copy(source, output, "CNAME")
 

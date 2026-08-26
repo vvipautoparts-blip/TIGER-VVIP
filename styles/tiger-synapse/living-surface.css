@@ -1,0 +1,92 @@
+.synapse-living-surface {
+  direction: rtl;
+  inline-size: min(100%, 72rem);
+  max-inline-size: 72rem;
+  margin-inline: auto;
+}
+
+.synapse-intent-card,
+.synapse-constellation-card,
+.synapse-profile-summary,
+.synapse-marketplace-rescue {
+  max-inline-size: 100%;
+  border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  border-radius: 1rem;
+  padding: 1rem;
+  background: var(--surface, #fff);
+}
+
+.synapse-intent-card {
+  display: grid;
+  gap: .75rem;
+  margin-block: .75rem 1rem;
+}
+
+.synapse-intent-card__row {
+  display: flex;
+  gap: .6rem;
+  align-items: stretch;
+}
+
+.synapse-intent-card input {
+  min-inline-size: 0;
+  flex: 1 1 auto;
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  border-radius: .8rem;
+  padding: .8rem 1rem;
+  font: inherit;
+}
+
+.synapse-intent-card button,
+.synapse-marketplace-rescue button,
+.synapse-social-intent-action {
+  min-block-size: 2.75rem;
+  border-radius: .8rem;
+  border: 1px solid color-mix(in srgb, currentColor 16%, transparent);
+  padding-inline: 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.synapse-intent-card :focus-visible,
+.synapse-marketplace-rescue :focus-visible,
+.synapse-social-intent-action:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 3px;
+}
+
+.synapse-match-constellation {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: .75rem;
+  margin-block: .75rem 1rem;
+}
+
+.synapse-marketplace-rescue {
+  margin-block: .75rem;
+}
+
+.synapse-profile-summary {
+  margin-block: .75rem;
+}
+
+[data-synapse-state="offline"] {
+  border-inline-start: .3rem solid currentColor;
+  opacity: .86;
+}
+
+[data-synapse-state="error"],
+[data-synapse-state="blocked"] {
+  font-weight: 700;
+}
+
+@media (max-width: 42rem) {
+  .synapse-intent-card__row {
+    flex-direction: column;
+  }
+
+  .synapse-intent-card button,
+  .synapse-marketplace-rescue button {
+    inline-size: 100%;
+  }
+}

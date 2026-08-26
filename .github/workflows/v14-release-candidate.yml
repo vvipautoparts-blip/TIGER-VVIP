@@ -11,6 +11,9 @@ on:
 
 permissions:
   contents: read
+  id-token: write
+  attestations: write
+  artifact-metadata: write
 
 jobs:
   candidate:
@@ -59,10 +62,41 @@ jobs:
             --output "$RUNNER_TEMP/vvip-candidate" \
             --mode candidate \
             --source-sha "$SOURCE_SHA"
+      - name: Generate deterministic CycloneDX 1.7 SBOM
+        run: |
+          python tools/tsn26_candidate_sbom.py \
+            --root "$RUNNER_TEMP/vvip-candidate" \
+            --source-sha "$SOURCE_SHA" \
+            --output "$RUNNER_TEMP/vvip-candidate.cdx.json"
+      - name: Package deterministic candidate artifact
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          tar --sort=name \
+            --mtime='UTC 1970-01-01' \
+            --owner=0 --group=0 --numeric-owner \
+            -C "$RUNNER_TEMP/vvip-candidate" -cf "$RUNNER_TEMP/vvip-candidate.tar" .
+          gzip -n -9 "$RUNNER_TEMP/vvip-candidate.tar"
+          sha256sum "$RUNNER_TEMP/vvip-candidate.tar.gz" | tee "$RUNNER_TEMP/vvip-candidate.sha256"
+          sha256sum "$RUNNER_TEMP/vvip-candidate.cdx.json" | tee "$RUNNER_TEMP/vvip-candidate.cdx.sha256"
+      - name: Attest candidate SLSA provenance
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d
+        with:
+          subject-path: ${{ runner.temp }}/vvip-candidate.tar.gz
+      - name: Attest candidate CycloneDX SBOM
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d
+        with:
+          subject-path: ${{ runner.temp }}/vvip-candidate.tar.gz
+          sbom-path: ${{ runner.temp }}/vvip-candidate.cdx.json
       - name: Upload candidate evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: v14-release-candidate-${{ env.SOURCE_SHA }}
-          path: ${{ runner.temp }}/vvip-candidate
+          path: |
+            ${{ runner.temp }}/vvip-candidate
+            ${{ runner.temp }}/vvip-candidate.tar.gz
+            ${{ runner.temp }}/vvip-candidate.sha256
+            ${{ runner.temp }}/vvip-candidate.cdx.json
+            ${{ runner.temp }}/vvip-candidate.cdx.sha256
           if-no-files-found: error
           retention-days: 14

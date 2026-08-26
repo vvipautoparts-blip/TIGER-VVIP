@@ -1,0 +1,28 @@
+{
+  "policy_id": "TTRP-2026.08.001",
+  "schema_version": "TIGER_TRUTH_REPORT_POLICY_V1",
+  "reference": "TSN-26",
+  "fail_closed": true,
+  "required_proofs": {
+    "financial": { "max_age_seconds": 300 },
+    "reconciliation": { "max_age_seconds": 300 },
+    "payout": { "max_age_seconds": 300 },
+    "attribution": { "max_age_seconds": 300 },
+    "supply_chain": { "max_age_seconds": 3600 },
+    "backup_restore": { "max_age_seconds": 604800 },
+    "security_key_health": { "max_age_seconds": 300 },
+    "global_operations": { "max_age_seconds": 300 },
+    "exposure_health": { "max_age_seconds": 300 },
+    "compliance_health": { "max_age_seconds": 3600 }
+  },
+  "signals": {
+    "Money Integrity": ["financial", "reconciliation", "payout", "attribution"],
+    "Security Posture": ["supply_chain", "backup_restore", "security_key_health"],
+    "Global Operations": ["global_operations"],
+    "Exposure Health": ["exposure_health"],
+    "Compliance Health": ["compliance_health"]
+  },
+  "liquidity_coverage_green_bps": 10000,
+  "unreconciled_green_tmu": "0",
+  "unexplained_variance_green_tmu": "0"
+}

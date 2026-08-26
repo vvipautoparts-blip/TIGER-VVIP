@@ -1,0 +1,30 @@
+name: TSN-26 Repository Governance Proof
+
+on:
+  pull_request:
+  push:
+    branches:
+      - feat/tsn26-sovereign-nexus-20260826
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  repository-governance-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact candidate source
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22'
+      - name: Prove live main repository governance
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          TSN26_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node scripts/tsn26/release/live-repository-governance-proof.cjs

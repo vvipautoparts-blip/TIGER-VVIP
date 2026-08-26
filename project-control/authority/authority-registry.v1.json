@@ -1,0 +1,113 @@
+{
+  "schema_version": "TIGER-AUTHORITY-REGISTRY-1",
+  "records": [
+    {
+      "authority_id": "authority.advertising.v1",
+      "domain": "advertising",
+      "version": 1,
+      "status": "CURRENT_ONLY",
+      "owner_decision_ref": "docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md",
+      "canonical_path": "docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md",
+      "supersedes": [],
+      "protected_boundaries": ["main", "production", "party-to-party-payment"]
+    },
+    {
+      "authority_id": "authority.owner-entrypoint.legacy",
+      "domain": "owner-entrypoint",
+      "version": 0,
+      "status": "HISTORICAL_ONLY",
+      "owner_decision_ref": "docs/state-archive/MASTER_PROJECT_STATE_PRE_20260812.md",
+      "canonical_path": "docs/state-archive/MASTER_PROJECT_STATE_PRE_20260812.md",
+      "supersedes": [],
+      "protected_boundaries": ["current-platform"]
+    },
+    {
+      "authority_id": "authority.owner-entrypoint.v1",
+      "domain": "owner-entrypoint",
+      "version": 1,
+      "status": "CURRENT_ONLY",
+      "owner_decision_ref": "docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md",
+      "canonical_path": "docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md",
+      "supersedes": ["authority.owner-entrypoint.legacy"],
+      "protected_boundaries": ["main", "production", "public-artifact"]
+    },
+    {
+      "authority_id": "authority.platform.legacy",
+      "domain": "platform",
+      "version": 0,
+      "status": "HISTORICAL_ONLY",
+      "owner_decision_ref": "docs/state-archive/MASTER_PROJECT_STATE_PRE_20260812.md",
+      "canonical_path": "docs/state-archive/MASTER_PROJECT_STATE_PRE_20260812.md",
+      "supersedes": [],
+      "protected_boundaries": ["current-platform"]
+    },
+    {
+      "authority_id": "authority.platform.v1",
+      "domain": "platform",
+      "version": 1,
+      "status": "CURRENT_ONLY",
+      "owner_decision_ref": "docs/owner-control/TIGER_ONE_2026_CURRENT_OWNER_AUTHORITY.md",
+      "canonical_path": "docs/owner-control/TIGER_ONE_2026_CURRENT_OWNER_AUTHORITY.md",
+      "supersedes": ["authority.platform.legacy"],
+      "protected_boundaries": ["main", "production", "stable-identifiers"]
+    },
+    {
+      "authority_id": "authority.post-launch-autonomy.v1",
+      "domain": "post-launch-autonomy",
+      "version": 1,
+      "status": "CURRENT_ONLY",
+      "owner_decision_ref": "docs/owner-control/TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md",
+      "canonical_path": "docs/owner-control/TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md",
+      "supersedes": [],
+      "protected_boundaries": ["main", "production", "owner-constitution", "unrestricted-agent-mutation"]
+    },
+    {
+      "authority_id": "authority.production-handover.v1",
+      "domain": "production-handover",
+      "version": 1,
+      "status": "CURRENT_ONLY",
+      "owner_decision_ref": "project-control/production-handover/current-authority.v1.json",
+      "canonical_path": "project-control/production-handover/current-authority.v1.json",
+      "supersedes": [],
+      "protected_boundaries": ["main", "production", "exact-sha"]
+    },
+    {
+      "authority_id": "authority.product.v1",
+      "domain": "product",
+      "version": 1,
+      "status": "CURRENT_ONLY",
+      "owner_decision_ref": "docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md",
+      "canonical_path": "docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md",
+      "supersedes": [],
+      "protected_boundaries": ["social-first", "no-intermediation"]
+    },
+    {
+      "authority_id": "authority.sovereign-finance.tsn26.v1",
+      "domain": "sovereign-finance",
+      "version": 1,
+      "status": "CURRENT_ONLY",
+      "owner_decision_ref": "config/tsn26/financial-constitution.v1.json",
+      "canonical_path": "config/tsn26/financial-constitution.v1.json",
+      "supersedes": [],
+      "protected_boundaries": [
+        "financial-constitution",
+        "sales-attribution",
+        "settlement",
+        "payout",
+        "treasury",
+        "exposure",
+        "superseded-finance-reentry"
+      ]
+    },
+    {
+      "authority_id": "authority.synapse-verity.v1",
+      "domain": "synapse-verity",
+      "version": 1,
+      "status": "CURRENT_ONLY",
+      "owner_decision_ref": "docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md",
+      "canonical_path": "docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md",
+      "supersedes": [],
+      "protected_boundaries": ["fail-closed", "deterministic-fallback"]
+    }
+  ]
+}

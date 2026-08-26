@@ -1,0 +1,21 @@
+{
+  "policy_id": "TSCP-2026.08.001",
+  "schema_version": "TIGER_SUPPLY_CHAIN_POLICY_V1",
+  "reference": "TSN-26",
+  "fail_closed": true,
+  "repository": "vvipautoparts-blip/TIGER-VVIP",
+  "slsa_version": "1.2",
+  "slsa_predicate_type": "https://slsa.dev/provenance/v1",
+  "allowed_sbom": [
+    { "format": "CycloneDX", "spec_version": "1.7" },
+    { "format": "SPDX", "spec_version": "3.0" }
+  ],
+  "sigstore": {
+    "certificate_identity_required": true,
+    "trusted_root_required": true,
+    "transparency_inclusion_required": true,
+    "transparency_log": "REKOR"
+  },
+  "artifact_source_binding_required": true,
+  "attestation_references_required": true
+}

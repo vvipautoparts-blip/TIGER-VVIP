@@ -49,7 +49,7 @@ test('protected repository actions preserve PR190 guest-first step-up authentica
   assert.match(repositoryJs, /name:\s*["']CREATE_LISTING["']/);
   assert.match(repositoryJs, /name:\s*["']TOGGLE_FAVORITE["']/);
   assert.match(repositoryJs, /name:\s*["']OPEN_ACCOUNT["']/);
-  assert.match(repositoryJs, /name:\s*["']PREPARE_PUBLICATION["']/);
+  assert.match(repositoryJs, /name:\s*["']REQUEST_PUBLICATION["']/);
   assert.match(repositoryJs, /listingId\s*:/);
 });
 

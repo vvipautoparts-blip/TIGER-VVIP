@@ -1,0 +1,373 @@
+.app-shell {
+  --brand-primary: #1877f2;
+  --brand-primary-hover: #166fe5;
+  --surface-primary: #ffffff;
+  --surface-muted: #f0f2f5;
+  --surface-soft: #f5f6f7;
+  --text-primary: #050505;
+  --text-secondary: #65676b;
+  --border-subtle: #dadde1;
+  --status-success: #31a24c;
+  --focus-ring: rgba(24, 119, 242, 0.34);
+  --fusion-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  min-height: 100vh;
+  color: var(--text-primary);
+  background: var(--surface-muted);
+}
+
+.app-shell .app-header {
+  min-height: 56px;
+  padding: 8px max(12px, env(safe-area-inset-left)) 8px max(12px, env(safe-area-inset-right));
+  border-bottom-color: var(--border-subtle);
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.app-shell .brand-icon,
+.app-shell .brand-mark,
+.app-shell .button--primary {
+  background: var(--brand-primary);
+}
+
+.app-shell .button--primary:hover {
+  background: var(--brand-primary-hover);
+}
+
+.app-shell :is(button, a, input):focus-visible {
+  outline-color: var(--focus-ring);
+}
+
+.fusion-discovery,
+.fusion-composer,
+.app-shell .marketplace,
+.app-shell .vvip-draft-preview--home {
+  width: min(720px, calc(100% - 24px));
+  max-width: 720px;
+  margin-inline: auto;
+}
+
+.fusion-discovery {
+  padding: 14px 0 8px;
+}
+
+.fusion-discovery .search-box {
+  width: 100%;
+  min-height: 48px;
+  border-color: var(--border-subtle);
+  background: var(--surface-primary);
+}
+
+.fusion-discovery .search-box:focus-within {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.1);
+}
+
+.fusion-composer {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  margin-top: 6px;
+  margin-bottom: 10px;
+  padding: 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  background: var(--surface-primary);
+  box-shadow: var(--fusion-shadow);
+}
+
+.fusion-composer__avatar,
+.fusion-card-avatar {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--brand-primary);
+  font-weight: 800;
+}
+
+.fusion-composer__trigger {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--text-secondary);
+  background: var(--surface-muted);
+  cursor: pointer;
+  text-align: start;
+  font-weight: 600;
+}
+
+.fusion-composer__trigger:hover {
+  color: var(--text-primary);
+  background: #e4e6eb;
+}
+
+.app-shell .marketplace {
+  padding: 4px 0 76px;
+}
+
+.app-shell .section-heading {
+  padding-inline: 2px;
+}
+
+.app-shell .section-heading h2 {
+  font-size: 1.22rem;
+}
+
+.app-shell .sector-filters {
+  padding: 8px 0 12px;
+}
+
+.app-shell .filter {
+  min-height: 40px;
+  border-radius: 999px;
+  background: var(--surface-primary);
+}
+
+.app-shell .filter.is-active {
+  border-color: var(--brand-primary);
+  background: var(--brand-primary);
+}
+
+.app-shell .listing-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+
+.app-shell .listing-card {
+  overflow: hidden;
+  border-color: var(--border-subtle);
+  border-radius: 12px;
+  background: var(--surface-primary);
+  box-shadow: var(--fusion-shadow);
+}
+
+.fusion-card-header {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 44px;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 12px 8px;
+}
+
+.fusion-card-identity {
+  min-width: 0;
+}
+
+.fusion-card-identity strong,
+.fusion-card-identity small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fusion-card-identity strong {
+  font-size: 0.9rem;
+}
+
+.fusion-card-identity small {
+  margin-top: 2px;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+}
+
+.fusion-icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: var(--text-secondary);
+  background: transparent;
+  cursor: pointer;
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.fusion-icon-button:hover {
+  color: var(--text-primary);
+  background: var(--surface-muted);
+}
+
+.app-shell .listing-visual {
+  border-radius: 0;
+}
+
+.fusion-title-button {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+  text-align: start;
+}
+
+.fusion-title-button:hover h3 {
+  text-decoration: underline;
+}
+
+.fusion-demo-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin: 0 0 8px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  color: #744d00;
+  background: #fff3cd;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.app-shell .fusion-card-actions,
+.app-shell .sheet-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid #eef0f2;
+}
+
+.app-shell .fusion-card-actions .button,
+.app-shell .sheet-actions .button {
+  min-height: 44px;
+  padding: 8px 6px;
+  border: 0;
+  color: var(--text-secondary);
+  background: transparent;
+  font-size: 0.78rem;
+}
+
+.app-shell .fusion-card-actions .button:hover,
+.app-shell .sheet-actions .button:hover,
+.app-shell .fusion-card-actions .button.is-saved {
+  color: var(--text-primary);
+  background: var(--surface-muted);
+}
+
+.fusion-capability-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  display: grid;
+  align-items: start;
+  justify-items: end;
+  padding: 64px 12px 12px;
+}
+
+.fusion-capability-layer[hidden] {
+  display: none;
+}
+
+.fusion-capability-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.fusion-capability-panel {
+  position: relative;
+  width: min(360px, calc(100vw - 24px));
+  padding: 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  background: var(--surface-primary);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.18);
+}
+
+.fusion-capability-panel h2 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+
+.fusion-capability-panel p {
+  margin: 0 0 10px;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  line-height: 1.7;
+}
+
+.fusion-account-panel > section {
+  padding-block: 10px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.fusion-account-panel > section:first-of-type {
+  border-top: 0;
+}
+
+.fusion-account-panel h3 {
+  margin: 0 0 6px;
+  font-size: 0.86rem;
+}
+
+[data-social-account-lifecycle-actions],
+[data-fusion-account-actions] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fusion-capability-entry {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 8px;
+  color: var(--text-primary);
+  background: var(--surface-soft);
+  font-weight: 700;
+}
+
+.app-shell.is-data-saver .listing-card,
+.app-shell.is-data-saver .fusion-composer {
+  box-shadow: none;
+}
+
+.app-shell.is-data-saver .listing-visual {
+  background-image: none;
+}
+
+@media (max-width: 640px) {
+  .fusion-discovery,
+  .fusion-composer,
+  .app-shell .marketplace,
+  .app-shell .vvip-draft-preview--home {
+    width: calc(100% - 12px);
+  }
+
+  .app-shell .app-header {
+    padding-inline: 8px;
+  }
+
+  .app-shell .header-actions .button--quiet {
+    display: none;
+  }
+
+  .fusion-composer {
+    border-radius: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-shell *,
+  .app-shell *::before,
+  .app-shell *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

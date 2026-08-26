@@ -16,6 +16,8 @@ const REQUIRED_FILES = [
   "docs/owner-control/p07/P07_MIGRATION_ORDERING_PLAN_REVIEW_ONLY.md",
   "docs/owner-control/p07/P07_ROLLBACK_PLAN_REVIEW_ONLY.md",
   "docs/owner-control/p07/P07_EVIDENCE_MANIFEST.md",
+  "docs/owner-control/p07/P07_SUPERSESSION_NOTICE.md",
+  "docs/owner-control/OWNER_BINDING_DECISIONS_2026-08-15.md",
   "docs/change-control/20260716-pr72-p07-complete-database-architecture.json"
 ];
 
@@ -42,7 +44,6 @@ function validateEvidenceDependencies(manifest) {
   const deps = manifest.supporting_dependencies || manifest.supporting_dependency;
   const list = Array.isArray(deps) ? deps : (deps ? [deps] : []);
   assert(list.length >= 2, "supporting dependencies must include PR73 and PR74");
-
   const pr73 = list.find((d) => Number(d.pr) === 73);
   const pr74 = list.find((d) => Number(d.pr) === 74);
   assert(pr73, "missing PR73 supporting dependency");
@@ -53,15 +54,12 @@ function validateEvidenceDependencies(manifest) {
   assert(String(pr74.purpose || "").trim().length > 10, "PR74 purpose must be explicit");
 }
 
-function validateOwnerDecisionCoverage(coverage) {
+function validateHistoricalCoverage(coverage) {
   assert(Array.isArray(coverage.owner_decision_contracts), "coverage must include owner_decision_contracts array");
   const contracts = coverage.owner_decision_contracts;
-  const required = [
+  const requiredStillUsefulEvidence = [
     "mandatory price > 0",
     "mandatory location",
-    "120-day listing lifetime",
-    "4 posts/week/account",
-    "4-month free trial",
     "photos only",
     "maximum 7 photos",
     "fixed 4:3 processed derivative",
@@ -77,19 +75,22 @@ function validateOwnerDecisionCoverage(coverage) {
     "enforceable single-cover design",
     "one base trial per profile"
   ];
-  for (const name of required) {
+  for (const name of requiredStillUsefulEvidence) {
     const row = contracts.find((x) => String(x.contract || "").toLowerCase() === name.toLowerCase());
-    assert(row, `missing owner decision coverage contract: ${name}`);
-    assert(Array.isArray(row.artifacts) && row.artifacts.length > 0, `owner contract '${name}' missing artifacts`);
-    assert(String(row.section || "").trim().length > 0, `owner contract '${name}' missing exact section`);
-    assert(Array.isArray(row.tests) && row.tests.length > 0, `owner contract '${name}' missing executable tests`);
+    assert(row, `missing historical architecture evidence contract: ${name}`);
+    assert(Array.isArray(row.artifacts) && row.artifacts.length > 0, `historical contract '${name}' missing artifacts`);
+    assert(String(row.section || "").trim().length > 0, `historical contract '${name}' missing exact section`);
+    assert(Array.isArray(row.tests) && row.tests.length > 0, `historical contract '${name}' missing executable evidence references`);
   }
 }
 
 (function main() {
-  for (const rel of REQUIRED_FILES) {
-    assert(fs.existsSync(path.join(ROOT, rel)), `missing required file: ${rel}`);
-  }
+  for (const rel of REQUIRED_FILES) assert(fs.existsSync(path.join(ROOT, rel)), `missing required file: ${rel}`);
+
+  const supersession = read("docs/owner-control/p07/P07_SUPERSESSION_NOTICE.md");
+  assert(supersession.includes("SUPERSEDED / HISTORICAL ONLY"), "P07 must be explicitly historical");
+  assert(supersession.includes("FIXED_LISTING_LIFETIME_CANCELLED"), "P07 must record the cancelled fixed-lifetime contract");
+  assert(supersession.includes("OWNER_BINDING_DECISIONS_2026-08-15.md"), "P07 supersession must point to the latest owner authority");
 
   const architecture = read("docs/owner-control/p07/P07_COMPLETE_DATABASE_ARCHITECTURE_REVIEW.md");
   const requiredChecklist = [
@@ -100,18 +101,12 @@ function validateOwnerDecisionCoverage(coverage) {
     "36. Evidence Manifest",
     "37. Coverage tests"
   ];
-
-  for (const item of requiredChecklist) {
-    assert(architecture.includes(item), `missing architecture coverage item: ${item}`);
-  }
+  for (const item of requiredChecklist) assert(architecture.includes(item), `missing architecture coverage item: ${item}`);
 
   const dataDictionary = JSON.parse(read("docs/owner-control/p07/P07_DATA_DICTIONARY.json"));
   assert(Array.isArray(dataDictionary.entities), "data dictionary must define entities array");
-  assert(dataDictionary.entities.length >= 17, "data dictionary must include full entity set");
-
-  const listings = dataDictionary.entities.find((e) => String(e.name || "") === "listings");
-  assert(listings, "listings entity must exist");
-  assert((listings.lifecycle_states || []).includes("expired"), "listings lifecycle must include expired state");
+  assert(dataDictionary.entities.length >= 17, "historical data dictionary must preserve its full entity evidence set");
+  assert(dataDictionary.entities.some((e) => String(e.name || "") === "listings"), "historical listings entity must remain auditable");
 
   const manifest = read("docs/owner-control/p07/P07_EVIDENCE_MANIFEST.md");
   assert(manifest.includes("NO PRODUCTION CHANGE"), "manifest must include no-production-change pledge");
@@ -144,11 +139,10 @@ function validateOwnerDecisionCoverage(coverage) {
   assert(!rls.includes(LEGACY_IDENTITY_MAP_TOKEN), "RLS matrix must not include legacy identity-map table in final identity model");
 
   const coverage = JSON.parse(read("docs/owner-control/p07/P07_COVERAGE_MATRIX.json"));
-  validateOwnerDecisionCoverage(coverage);
+  validateHistoricalCoverage(coverage);
 
-  // Negative checks required by owner review.
   expectFailure(() => validateEvidenceDependencies({ supporting_dependencies: [{ pr: 73, status: "merged_and_post_merge_verified", purpose: "only one dependency" }] }), "PR74");
-  expectFailure(() => validateOwnerDecisionCoverage({ owner_decision_contracts: [] }), "mandatory price > 0");
+  expectFailure(() => validateHistoricalCoverage({ owner_decision_contracts: [] }), "mandatory price > 0");
   expectFailure(() => {
     const bad = `${LEGACY_IDENTITY_MAP_TOKEN} required`;
     assert(!bad.includes(LEGACY_IDENTITY_MAP_TOKEN), "architecture review must not depend on legacy identity-map table");
@@ -162,5 +156,5 @@ function validateOwnerDecisionCoverage(coverage) {
     assert(!badRls.includes("read/write"), "audit_logs must not be broad read/write");
   }, "audit_logs must not be broad read/write");
 
-  console.log("PR72 P07 DATABASE ARCHITECTURE REVIEW TEST PASS");
+  console.log("P07 HISTORICAL DATABASE ARCHITECTURE EVIDENCE TEST PASS");
 }());

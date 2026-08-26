@@ -1,19 +1,25 @@
 name: Documentation Sovereign Knowledge Plane
 
 on:
-  push:
-    branches:
-      - feat/documentation-sovereign-knowledge-plane-20260808
-    paths:
-      - "project-control/documentation/**"
-      - "docs/governance/VVIP_TIGER_DOCUMENTATION_SOVEREIGN_STANDARD.md"
-      - "tests/documentation-sovereign-knowledge-plane.test.cjs"
-      - ".github/workflows/documentation-sovereign-knowledge-plane.yml"
   pull_request:
     paths:
       - "project-control/documentation/**"
+      - "project-control/production-handover/**"
+      - "docs/MASTER_PROJECT_STATE.md"
       - "docs/governance/VVIP_TIGER_DOCUMENTATION_SOVEREIGN_STANDARD.md"
       - "tests/documentation-sovereign-knowledge-plane.test.cjs"
+      - "tests/zero-residue-production-handover.test.cjs"
+      - ".github/workflows/documentation-sovereign-knowledge-plane.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "project-control/documentation/**"
+      - "project-control/production-handover/**"
+      - "docs/MASTER_PROJECT_STATE.md"
+      - "docs/governance/VVIP_TIGER_DOCUMENTATION_SOVEREIGN_STANDARD.md"
+      - "tests/documentation-sovereign-knowledge-plane.test.cjs"
+      - "tests/zero-residue-production-handover.test.cjs"
       - ".github/workflows/documentation-sovereign-knowledge-plane.yml"
   workflow_dispatch:
 
@@ -31,8 +37,11 @@ jobs:
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
         with:
           node-version: "22"
-      - name: Validate sovereign documentation ledger
-        run: node --test tests/documentation-sovereign-knowledge-plane.test.cjs
+      - name: Validate sovereign documentation ledger and current handover authority
+        run: |
+          node --test \
+            tests/documentation-sovereign-knowledge-plane.test.cjs \
+            tests/zero-residue-production-handover.test.cjs
       - name: Verify repository remains clean
         shell: bash
         run: test -z "$(git status --porcelain=v1 -uall)"

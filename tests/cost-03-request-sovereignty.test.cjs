@@ -69,7 +69,7 @@ function createFakeClient() {
 
     async function execute() {
       state.dbExecutions += 1;
-      const isPublic = meta.selection.includes("media:vvip_marketplace_listing_media");
+      const isPublic = table === "vvip_marketplace_public_feed";
 
       if (!isPublic) {
         state.mineExecutions += 1;
@@ -112,11 +112,8 @@ function createFakeClient() {
           whatsapp_enabled: false,
           published_at: "2026-08-08T00:00:00Z",
           media: [{
-            media_id: "media-" + execution,
-            storage_path: "public/" + execution + "/cover.webp",
-            mime_type: "image/webp",
-            width: 800,
-            height: 600,
+            canonical_storage_path: "public/" + execution + "/cover.webp",
+            finalization_state: "CANONICAL",
             position: 0,
             is_cover: true,
             alt_text: "cover"
@@ -135,7 +132,7 @@ function createFakeClient() {
     },
     storage: {
       from(bucket) {
-        assert.equal(bucket, "listing-media");
+        assert.equal(bucket, "listing-media-canonical");
         return {
           async createSignedUrls(paths, expiresIn) {
             state.signedUrlCalls += 1;
@@ -266,7 +263,7 @@ test("public cache key follows normalized query semantics", async () => {
   });
 
   assert.equal(fake.state.publicExecutions, 1, "equivalent filters must share one canonical key");
-  assert.deepEqual(fake.state.publicRequests[0].filters, [["status", "ACTIVE"], ["active_market_country", "US"]]);
+  assert.deepEqual(fake.state.publicRequests[0].filters, [["active_market_country", "US"]]);
   assert.deepEqual(fake.state.publicRequests[0].search, [["title", "%foobar%"]]);
   assert.equal(fake.state.publicRequests[0].limit, 30);
 });

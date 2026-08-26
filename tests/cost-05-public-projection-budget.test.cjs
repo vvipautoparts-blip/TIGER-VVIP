@@ -17,7 +17,8 @@ const EXPECTED_PUBLIC_FEED_SELECT = [
   "location_label",
   "contact_phone",
   "whatsapp_enabled",
-  "media:vvip_marketplace_listing_media(storage_path,position,is_cover,alt_text)"
+  "published_at",
+  "media"
 ].join(",");
 
 function createFakeClient() {
@@ -60,7 +61,7 @@ function createFakeClient() {
   };
 }
 
-test("COST-05 exports the exact approved public feed projection budget", () => {
+test("COST-05 exports the exact approved sovereign public feed projection budget", () => {
   assert.equal(marketplace.PUBLIC_FEED_SELECT, EXPECTED_PUBLIC_FEED_SELECT);
 });
 
@@ -83,11 +84,10 @@ test("public listing query uses the approved projection and keeps server-side pu
 });
 
 test("public projection excludes unused and private payload fields", () => {
-  const projection = String(marketplace.PUBLIC_FEED_SELECT || "");
+  const fields = String(marketplace.PUBLIC_FEED_SELECT || "").split(",");
   const forbidden = [
     "*",
     "specifications",
-    "published_at",
     "media_id",
     "mime_type",
     "width",
@@ -98,21 +98,24 @@ test("public projection excludes unused and private payload fields", () => {
     "created_at",
     "updated_at",
     "clerk_user_id",
-    "email"
+    "email",
+    "canonical_sha256",
+    "source_sha256",
+    "canonical_verifier"
   ];
 
   for (const field of forbidden) {
     assert.equal(
-      projection.includes(field),
+      fields.includes(field),
       false,
       `public projection must exclude ${field}`
     );
   }
 });
 
-test("public projection retains every field consumed by current production marketplace rendering", () => {
-  const projection = String(marketplace.PUBLIC_FEED_SELECT || "");
-  const requiredListingFields = [
+test("public projection retains every top-level field required by the sovereign feed transport", () => {
+  const fields = String(marketplace.PUBLIC_FEED_SELECT || "").split(",");
+  const requiredFields = [
     "listing_id",
     "active_market_country",
     "sector",
@@ -122,18 +125,14 @@ test("public projection retains every field consumed by current production marke
     "currency_code",
     "location_label",
     "contact_phone",
-    "whatsapp_enabled"
-  ];
-  const requiredMediaFields = [
-    "storage_path",
-    "position",
-    "is_cover",
-    "alt_text"
+    "whatsapp_enabled",
+    "published_at",
+    "media"
   ];
 
-  for (const field of requiredListingFields.concat(requiredMediaFields)) {
+  for (const field of requiredFields) {
     assert.equal(
-      projection.includes(field),
+      fields.includes(field),
       true,
       `public projection must retain ${field}`
     );

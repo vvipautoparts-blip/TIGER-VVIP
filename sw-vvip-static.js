@@ -13,7 +13,7 @@
   "use strict";
 
   const CACHE_PREFIX = "vvip-static-";
-  const CACHE_NAME = "vvip-static-v1";
+  const CACHE_NAME = "vvip-static-v2";
   const MAX_AGE_MS = 60 * 60 * 1000;
   const CACHED_AT_HEADER = "x-vvip-static-cached-at";
   const ALLOWED_PREFIXES = Object.freeze([
@@ -31,8 +31,10 @@
     ".webp",
     ".jpg",
     ".jpeg",
-    ".woff2"
+    ".woff2",
+    ".wasm"
   ]);
+  const F05_WASM_PATH = /^\/workers\/media\/f05-heif-decoder\.[A-Za-z0-9._-]+\.wasm$/;
 
   function normalizeScopePath(scopePath) {
     const value = typeof scopePath === "string" && scopePath.trim()
@@ -78,7 +80,9 @@
       return false;
     }
 
-    return ALLOWED_EXTENSIONS.has(extensionOf(localPath));
+    const extension = extensionOf(localPath);
+    if (extension === ".wasm") return F05_WASM_PATH.test(localPath);
+    return ALLOWED_EXTENSIONS.has(extension);
   }
 
   function cacheControlOf(responseLike) {

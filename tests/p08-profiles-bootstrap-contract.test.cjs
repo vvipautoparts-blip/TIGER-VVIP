@@ -127,14 +127,14 @@ test('profiles bootstrap preserves the proven transitional identity contract', (
   assert.doesNotMatch(insertColumns[1], /\bid\b/i, 'profiles.id must retain its UUID default');
 });
 
-test('profiles migrations end with Clerk-scoped RLS and no open policy', () => {
+test('public.profiles migrations end with Clerk-scoped RLS and no open policy', () => {
   const bootstrap = stripLineComments(
     readMigration('20260706_public_profiles_bootstrap.sql'),
   );
   const profileMigrations = migrationFiles
     .filter((name) => /profile/i.test(name))
-    .map(readMigration)
-    .map(stripLineComments)
+    .map((name) => stripLineComments(readMigration(name)))
+    .filter((sql) => /\bpublic\.profiles\b/i.test(sql))
     .join('\n');
 
   assert.doesNotMatch(bootstrap, /\bgrant\b|\bcreate\s+policy\b/i);

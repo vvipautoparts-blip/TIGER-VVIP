@@ -48,22 +48,29 @@
 
 ## Code Map
 
-- [index.html](./index.html): canonical unified marketplace and authentication entry page.
-- [styles/vvip-pr29-home-marketplace.css](./styles/vvip-pr29-home-marketplace.css): canonical home visual system and responsive styling.
+- [index.html](./index.html): canonical unified Social Home, Marketplace, and authentication entry page.
+- [styles/tiger-social/core-shell.css](./styles/tiger-social/core-shell.css): active Social Home shell and mobile presentation.
+- [styles/tiger-one/tokens.css](./styles/tiger-one/tokens.css) and [styles/tiger-one/type.css](./styles/tiger-one/type.css): active TIGER ONE visual tokens.
+- [styles/vvip-pr29-home-marketplace.css](./styles/vvip-pr29-home-marketplace.css): retained Marketplace compatibility styling; it is not the current Social Home authority.
 - [auth-clerk-index.js](./auth-clerk-index.js): Clerk authentication gate for the unified home.
+- [scripts/social/core-shell.js](./scripts/social/core-shell.js): Social Home navigation and controller composition.
+- [scripts/social/feed-controller.js](./scripts/social/feed-controller.js): trusted Social feed presentation.
+- [scripts/social/post-composer.js](./scripts/social/post-composer.js): authenticated social post composer.
+- [scripts/social/friends-controller.js](./scripts/social/friends-controller.js): friendship presentation and actions.
+- [scripts/social/reactions-controller.js](./scripts/social/reactions-controller.js): server-confirmed reaction presentation and actions.
 - [scripts/runtime/vvip-runtime-loader.js](./scripts/runtime/vvip-runtime-loader.js): external Clerk session + Supabase data-layer runtime bridge.
-- [scripts/vvip-pr29-home-marketplace.js](./scripts/vvip-pr29-home-marketplace.js): unified marketplace feed and interaction runtime.
-- [private-profile-p03.html](./private-profile-p03.html): canonical private account center; compatibility routes redirect here.
+- [scripts/runtime/vvip-marketplace-repository.js](./scripts/runtime/vvip-marketplace-repository.js): canonical marketplace data repository.
+- [private-profile-p03.html](./private-profile-p03.html): legacy preview/account compatibility surface only; it is not the current Social Home authority.
 - [scripts/vvip-p03-profile.js](./scripts/vvip-p03-profile.js): private account-center interactions.
 - [scripts/vvip-p03-profile-identity.js](./scripts/vvip-p03-profile-identity.js): authenticated profile resolver bridge.
 - [reset-password.html](./reset-password.html): legacy URL compatibility redirect to external-provider recovery only.
-- [sw.js](./sw.js) and [manifest.webmanifest](./manifest.webmanifest): legacy PWA behavior; COST-02 static delivery is separately implemented by `sw-vvip-static.js`.
+- [sw-vvip-static.js](./sw-vvip-static.js) and [manifest.webmanifest](./manifest.webmanifest): canonical static-delivery PWA surface. `sw.js` is retired and must not return.
 
 ## Project Conventions
 
 - Keep the app static and page-based unless a separately approved architecture changes that boundary.
 - Preserve bilingual content patterns and RTL behavior for Arabic views.
-- Match the active visual language in [styles/vvip-pr29-home-marketplace.css](./styles/vvip-pr29-home-marketplace.css).
+- Match the active Social visual language in [styles/tiger-social/core-shell.css](./styles/tiger-social/core-shell.css) and the TIGER ONE tokens; preserve Marketplace compatibility where required.
 - When changing auth or registration, trace both DOM changes in [index.html](./index.html) and behavior in [auth-clerk-index.js](./auth-clerk-index.js) plus the runtime loader.
 - Sensitive identity/data changes must fail closed and remain subject/RLS controlled.
 

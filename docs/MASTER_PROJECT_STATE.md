@@ -1,260 +1,285 @@
-# VVIP TIGER — MASTER PROJECT STATE
+# VVIP TIGER — مرجع المالك الحالي
+
+> **هذه الوثيقة هي المرجع البشري الوحيد للحالة الحالية للمشروع.**
+> الحقيقة التنفيذية النهائية هي ملفات GitHub الحالية + الـexact SHA/tree + أدلة CI المطابقة لنفس الـSHA.
+> أي وثيقة أخرى أو تقرير أو Ledger أو محادثة أو Archive هو **Evidence فقط** ولا يملك سلطة تغيير هذه الوثيقة أو الـruntime.
+> مدخل المالك الدائم للعودة إلى هذه الحقيقة هو `docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md`، وهو فهرس توجيهي لا سلطة موازية.
+
+## 0. مؤشر التنفيذ الحالي على فرع Social Core
+
+- **العمل الحالي:** PR #271 على الفرع `feat/tiger-one-living-surface-impl-20260818`، فوق فرع المواصفة وليس فوق `main` مباشرة.
+- **S1 exact implementation checkpoint:** `794de87b2055b9dddf8dfbdbc366d83ba122b1b0`؛ شجرتها `cae245647b50e2cc9c88fc08427cf560add16219`؛ `VVIP Quality Gate #2096 = PASS` و`TIGER Social DB Rehearsal #497 = PASS` على نفس الـSHA؛ LC03 #760 وLC04 #555 وLC05 #528 وLC06 #526 = PASS.
+- **حالة S1 الحالية:** `VERIFIED` على checkpoint أعلاه؛ `main` وProduction لم يتغيرا.
+- **S2 exact implementation checkpoint:** `cf78f57721c008e866160ee2c55b883d7daabb59`؛ شجرتها `c826496c3e5be9c1b64c6c97230ccb559654613e`؛ `VVIP Quality Gate #2098 = PASS` و`TIGER Social DB Rehearsal #499 = PASS` على نفس الـSHA؛ LC03 #762 وLC04 #557 وLC05 #530 وLC06 #528 = PASS.
+- **حالة S2 الحالية:** `VERIFIED` على checkpoint أعلاه؛ `main` وProduction لم يتغيرا.
+- **V0 exact implementation checkpoint:** `4bc6252bbc217b4a65a0bdd54c8756b4b5a4ffee`؛ شجرتها `d42f0a8176d368e6de8e873dd795356108da7942`؛ `VVIP Quality Gate #2071 = PASS` و`TIGER Social DB Rehearsal #465 = PASS` على نفس الـSHA.
+- **حالة S0 الحالية:** `VERIFIED` على checkpoint أعلاه؛ `main` وProduction لم يتغيرا.
+- **حالة S0 (دالة fail-closed):** تكون `VERIFIED` **إذا وفقط إذا** نجح كل من `VVIP Quality Gate` و`TIGER Social DB Rehearsal` على رأس PR الحالي نفسه وشجرته نفسها؛ وفي غير ذلك تكون `IN_PROGRESS` أو `BLOCKED`. رأس PR الحالي وشجرته وقرار الحالة يُستمدّون حصراً من GitHub exact-head CI attestations خارج هذه الوثيقة، ولا يُستنتج `VERIFIED` من هذه الوثيقة أو من SHA تاريخي.
+- **نقطة دليل تنفيذ Social Core من Task 7:** `9f2dce40b352f67d80c81b60515442c860c58048`؛ **شجرتها:** `85ca87aa64714b3cac3a73ac0beefeb7e9df26fd`. هذه نقطة evidence تاريخية وليست رأس PR الحالي ولا قرار التحقق النهائي للوثائق.
+- **دليل الاختبارات المركزة للتعليقات/الردود:** `109/109 PASS`، بلا fail أو skipped أو todo.
+- **TIGER Social DB Rehearsal التاريخي:** `PASS` على نقطة Task 7 نفسها (التشغيل البعيد #103).
+- **VVIP Quality Gate التاريخي:** `PASS` على نقطة Task 7 نفسها (التشغيل البعيد #1474)؛ والتحقق المحلي المعزول الكامل `VVIP_QUALITY_GATE=PASS`. لا يغني أيٌّ من ذلك عن attestations الرأس الحالي.
+- **هوية المنتج الحالية:** `SOCIAL_NETWORK_FIRST` مع انتشار سوقي `GLOBAL_FIRST`؛ Marketplace وPulse وحدتان داخل المنتج.
+- **سلطة المنتج الحالية:** `docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md`.
+- **سلطة الإعلان المدفوع الحالية:** `docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md`؛ النشر العادي المتوافق مجاني.
+- **حالة فرع Sales DNA المنفصل:** تمت مراجعته ولم يُدمج في PR #271. صياغته العامة لكل "عملية بيع" ونقص قيد خدمة الإعلان التي تملكها TIGER يتعارضان مع دور المنصة، كما أن Quality Gate لذلك الفرع ليس أخضر؛ يبقى خارج `CURRENT` حتى إعادة تصميمه لخدمات إعلان TIGER فقط وإغلاق فجوات النزاهة والاختبارات.
+- **الواجهة الحالية:** TIGER Social Home مع Header مضغوط، تبويبات اجتماعية، Composer، عرض Stories، ومنشورات وتفاعلات اجتماعية مألوفة مع هوية TIGER مستقلة.
+- **الرؤية الابتكارية المعتمدة:** **TIGER SYNAPSE v2** — Temporal Intent Operating System يوحّد النية اللحظية، المطابقة القابلة للتفسير، إثبات الحاضر، الكشف المتبادل، والتواصل المباشر داخل Living Surface واحدة.
+- **نسيج السلطة والإثبات المعتمد:** **TIGER VERITY FABRIC** — Authority Graph + Hermetic Build Core + Release DNA/Proof Root + Typed P01–P20 Evidence + Fresh Runtime Witnesses.
+- **مرجع SYNAPSE الحالي:** `docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md`.
+- **حالة SYNAPSE:** `APPROVED / S2 VERIFIED / S3+ NOT IMPLEMENTED`؛ Intent Foundation وDeterministic Match Fabric صارا مؤكدين عبر lifecycle وprivacy modes وexpiry وRPC/RLS وpolicy-before-ranking وsignal decay وdiversity وgolden fixtures؛ تكامل Living Surface والتنفيذات اللاحقة ما زالت غير منفذة.
+- **حالة VERITY FABRIC:** `APPROVED / V0+S1+S2 VERIFIED / S3+ NOT IMPLEMENTED`؛ أصبح OWNER Authority Graph machine-enforced، وأضيفت طبقتا Intent Foundation وDeterministic Match Fabric بأدلتهما المستقلة؛ ما بعد S2 يحتاج أدلته المستقلة.
+- **قرار المالك المثبت:** اعتمد المالك النسخة المكتوبة لخيار C بتاريخ 2026-08-18؛ أصبحت SYNAPSE v2 + VERITY FABRIC سلطة `CURRENT_ONLY` في نطاقها، والتنفيذ المثبت حاليًا هو V0 Authority Graph وS1 Intent Foundation وS2 Deterministic Match Fabric.
+- **خطة البرنامج الحالية:** `docs/superpowers/plans/2026-08-18-tiger-synapse-v2-verity-fabric-program-execution.md`.
+- **V0 Owner Authority Graph:** `VERIFIED` — exactly one current authority per covered domain، graph digest deterministic، cycles/resurrection/missing paths fail closed، وAuthority records خارج Web Artifact.
+- **مؤشر التنفيذ الحالي / الشريحة التالية:** `S3 Living Surface integration` — Home intent entry وMatch Constellation وMarketplace rescue وsocial-to-intent عبر سلطة Intent واحدة.
+- **قاعدة المالك النهائية:** أحدث قرار `CURRENT_ONLY` يلغي سلطة كل قديم متعارض ويخرجه من المنصة الحالية والحزمة العامة ومسارات التنفيذ؛ الأثر الضروري يبقى `HISTORICAL_ONLY` خارج المنصة بلا أي سلطة.
+- **سلطة المعاينة:** لا يُعتمد أي فيديو أو رابط نشر تاريخي أو رابط Pages سابق بوصفه معاينة لهذا العمل.
+- **شرط الرابط الصحيح:** Preview مستقل مبني من exact head الخاص بـPR #271، يعمل على الهاتف، ولا يغيّر `main` أو Production.
+- **الحقيقة السلبية:** عدم وجود رابط Preview صحيح أفضل من نشر رابط قديم أو غير مطابق؛ لا يجوز اختلاق الجاهزية أو إعادة استخدام رابط متقاعد.
+
+## 1. هوية المشروع والسلطة
+
+- **المنصة:** VVIP TIGER.
+- **المستودع:** `vvipautoparts-blip/TIGER-VVIP`.
+- **مدخل المالك الدائم:** `docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md`.
+- **مرجع المالك البشري:** `docs/MASTER_PROJECT_STATE.md` فقط.
+- **العقد الآلي المطابق:** `project-control/production-handover/current-authority.v1.json`.
+- **وضع المرجعية:** `CURRENT_ONLY`.
+- **التاريخ والأرشيف:** أدلة غير تنفيذية وغير مخولة باتخاذ قرار تشغيل.
+- **قاعدة القرار:** لا يوجد اعتماد على اسم فرع أو وصف PR وحده؛ الاعتماد يكون على exact commit SHA + exact tree + أدلة تحقق من نفس المصدر.
+
+## 2. وظيفة المنصة وحدودها
+
+VVIP TIGER شبكة اجتماعية عالمية تتضمن وحدات للإعلان والاكتشاف والربط المباشر. في Marketplace والخدمات، دور المنصة هو عرض الإعلانات والبحث واكتشاف العروض وتقريب البائع من المشتري ومقدم الخدمة من المستفيد، ثم إتاحة التواصل المباشر بين الأطراف.
+
+يتواصل الأطراف ويتفقون ويتعاملون مباشرة وعلى مسؤوليتهم. المنصة ليست وسيطًا أو سمسارًا أو وكيلًا أو ممثلًا أو كفيلًا أو ضامنًا أو حافظةً للأموال أو طرفًا في الصفقة، ولا تتولى الاتفاق أو السعر أو دفع الصفقة أو تسويتها أو عمولتها أو التوصيل أو الشحن أو التسليم أو نقل الملكية أو الضمان أو تنفيذ الخدمة أو النزاعات أو التعويض.
+
+مصدر الدخل التشغيلي المعتمد حاليًا هو خدمات الإعلان والظهور التي تملكها TIGER نفسها، ومنها Pulse وفق سلطة 3/10/20 JOD. لا يدخل مبلغ صفقة البائع والمشتري أو مقدم الخدمة والمستفيد في نظام TIGER المالي. بنية الأسواق والتسجيل عالمية وليست مرتبطة بدولة واحدة.
+
+## 3. الـStack التقني المعتمد
+
+### الواجهة العامة
+
+- HTML.
+- CSS.
+- JavaScript.
+- TypeScript في المسارات التي تحتاج typing/typed actions.
+- لا يوجد `package.json` جذري يمثل التطبيق كله؛ المشروع Hybrid ولا تُفرض عليه أداة dependency واحدة على جميع الأسطح.
+
+### البيانات والـBackend
+
+- **Database:** Supabase/PostgreSQL.
+- **سلطة Schema/Migrations الوحيدة:** `supabase/migrations/`.
+- **Supabase Edge Functions:** `supabase/functions/`.
+- SQL الخاص باختبارات rehearsal/security يسمح به داخل `tests/sql/` فقط ولا يمثل migration authority.
+- لا يسمح بوجود SQL تنفيذي في جذر المستودع.
+
+### Media Finalization
+
+- **المسار:** `services/media-finalizer/`.
+- **Runtime:** Node.js 24 داخل AWS Lambda container.
+- **Image engine:** `sharp` وفق dependency authority الخاصة بالخدمة.
+- الخدمة هي Server-Side Final Gate للوسائط ولا تستبدل HEIC client-local decode.
+
+### CI/CD
+
+- **السلطة:** GitHub Actions.
+- **Quality Gate:** `scripts/quality-gate.sh`.
+- **Repository Cleanroom:** `tools/vvip_cleanroom.py`.
+- **Production artifact builder:** `tools/vvip_public_release.py`.
+- الـworkflows تعمل بعقود fail-closed ولا تعتمد على قائمة أسماء feature branches كسلطة دائمة.
+
+## 4. معمارية الـRuntime العامة
+
+- Public runtime يستخدم أقل عدد ممكن من entrypoints والسلطات.
+- `tools/vvip_public_release.py` يبني artifact عبر **Exact Allowlist**؛ لا يوجد نشر لجذر المستودع.
+- أي ملف غير موجود صراحة في الـallowlist لا يدخل Production artifact.
+- `scripts/runtime/vvip-static-delivery.js` هو سلطة تسجيل Service Worker.
+- Service Worker المعتمد هو `sw-vvip-static.js` فقط.
+- لا يسمح بوجود Firebase/Replit/auto-push binding كمسار نشر أو تشغيل موازٍ.
+- لا يسمح بعودة wrapper/rollback/fallback يخلق authority ثانية حول الـruntime السيادي.
 
-> **GitHub/current refs are implementation truth. This file is the current execution-state authority.**
-> Binding owner decisions: `docs/owner-control/OWNER_BINDING_DECISIONS_2026-08-12.md`
-> Prior state preserved: `docs/state-archive/MASTER_PROJECT_STATE_PRE_20260812.md`
+## 5. قاعدة البيانات والأمان
 
-**Checkpoint:** 2026-08-12
-**Repository:** `vvipautoparts-blip/TIGER-VVIP`
-**Checkpoint product/runtime base before PR #192 documentation merge:** `756dc5f7f2769e6405c98f156ba9a2484df25352`
+- كل تغيير دائم في Schema يمر عبر `supabase/migrations/`.
+- Migration versions يجب أن تكون unique عالميًا داخل المسار.
+- Local rebuild من migrations هو دليل إلزامي قبل الاعتماد.
+- RLS/privileges/security reconciliation تخضع لاختبارات أمنية وإعادة بناء محلية من المصدر.
+- Client environment غير موثوق ولا تمنح صلاحية لمجرد نجاح التحقق في الواجهة.
+- أي حذف Production data يتطلب classification + retention allowlist + backup proof + dry-run evidence.
+- لا يسمح بأمر حذف شامل مبني فقط على `deleted_at` دون سياسة احتفاظ لكل جدول.
+- صيانة PostgreSQL تعتمد على evidence للحجم والـbloat؛ العمليات التي تقفل الجداول لا تنفذ كإجراء تنظيف افتراضي.
 
-> PR #192 carries this ledger. Merging PR #192 necessarily creates a newer `main` SHA. Therefore the SHA above is the exact product/runtime base incorporated into this checkpoint, **not** a claim that it remains the post-#192 `main`. Every continuation must resolve current `main` from GitHub before using this ledger.
+## 6. HEIC والخصوصية والوسائط
 
-## 1. Continuation protocol
+- ملف HEIC الأصلي يبقى محليًا على جهاز المستخدم أثناء decode/transform المعتمد.
+- HEIC decode يعمل داخل WASM/Worker وليس كـserver fallback.
+- Worker يملك timeout/termination وcrash/OOM recovery.
+- Color handling يطبّع الإخراج إلى sRGB وفق pipeline المعتمد.
+- Metadata الحساسة مثل EXIF/XMP لا يسمح بتسريبها إلى النسخة النهائية.
+- السيرفر يعيد التحقق من magic bytes/MIME/structure/dimensions/metadata/polyglot properties.
+- السيرفر يعيد كتابة JPEG/WebP موثوق أو يرفض الملف fail-closed.
+- لا يعتبر اسم الملف أو امتداده أو `Content-Type` القادم من Client مصدر ثقة.
 
-Required operating sequence:
+## 7. Security Supply Chain
 
-`READ -> VERIFY -> PLAN -> EXECUTE -> VERIFY -> CHECKPOINT`
+- Current-tree secrets تُفحص داخل Cleanroom/CI.
+- Full Git history يملك Gate مستقل: `.github/workflows/zero-residue-full-history.yml`.
+- Full-history scanner يستخدم Gitleaks بإصدار مثبت وchecksum مثبت.
+- التقرير Redacted ولا يطبع قيمة السر كدليل تشغيلي.
+- وجود Secret تاريخي حقيقي يعني: `REVOKE/ROTATE -> VERIFY -> HISTORY REMEDIATION`.
+- `git-filter-repo` أو أي history rewrite لا ينفذ تلقائيًا ولا يسبق إبطال credential المتأثر.
+- Oversized historical Git objects تدخل نفس Gate وتحتاج معالجة موثقة إذا تجاوزت الحد المعتمد.
 
-Source precedence:
+## 8. البيئة والتكوين
 
-1. repository bytes/current refs;
-2. exact-head CI/security evidence;
-3. current PR/commit metadata;
-4. this state ledger;
-5. historical chat/prose.
+`/.env.example` هو النموذج الوحيد للقيم المطلوبة ولا يحتوي أسرارًا حقيقية.
+
+المتغيرات العامة الحالية:
+
+- `TIGER_ENVIRONMENT`
+- `TIGER_CLERK_PUBLISHABLE_KEY`
+- `TIGER_SUPABASE_URL`
+- `TIGER_SUPABASE_PUBLISHABLE_KEY`
+- `TIGER_DEFAULT_COUNTRY_CODE`
+- `TIGER_MEDIA_FINALIZER_URL`
+
+القيم السرية لا تدخل Git ولا Production artifact العام. القيم الخاصة ببيئة Production تأتي من secret/config authority الخاصة ببيئة التشغيل.
 
-Do not reuse stale authorization, fabricate human approval, bypass protected reviews, infer Production mutation/deployment, or treat a design document as runtime evidence.
+## 9. Docker وموارد البناء
 
-## 2. Repository checkpoint cursor
+- لا يوجد `docker system prune -a --volumes -f` كإجراء Production افتراضي.
+- أي prune يقتصر على Runner/بيئة disposable مثبتة الهوية.
+- Shared أو Production volumes محمية من blanket prune.
+- build/cache cleanup لا يملك صلاحية حذف persistent application data.
+- Media Finalizer image يبنى من Dockerfile الخاص بالخدمة ويخضع لفحص artifact/dependency/runtime قبل النشر.
+
+## 10. Third-Party وDNS والهوية
+
+Repository inspection لا يساوي Live Provider inspection. لذلك الحالات التالية تحتاج **LIVE_PROVIDER_EVIDENCE** قبل الإغلاق:
 
-At the moment this checkpoint was prepared, the exact `main` product/runtime base was:
+- AWS resources/configuration.
+- DNS records وsubdomain ownership.
+- TLS/certificate bindings.
+- Clerk/identity principals.
+- Email provider.
+- Messaging provider.
+- Analytics provider.
+- Error tracking provider.
+- External webhooks.
+- SSH/service-account/privileged credentials.
+
+أي حذف DNS أو webhook أو credential يحتاج ownership proof وdependency proof قبل التنفيذ.
+
+## 11. Telemetry وLogging
 
-`756dc5f7f2769e6405c98f156ba9a2484df25352`
+- Production logging لا يسمح بطباعة أسرار أو tokens أو PII بلا ضرورة تشغيلية وقانونية.
+- Debug output المباشر يدخل static/runtime scan قبل release.
+- Test analytics/error events تعزل عن Production baseline.
+- Logs retention وanalytics retention يحددان من مزود الخدمة واحتياجات الأمن والامتثال.
+- مستوى logging لا يخفض بشكل أعمى إلى `ERROR` فقط إذا كان ذلك يزيل security/operational observability المطلوبة.
 
-PR #192 is a documentation/governance carrier layered on top of that base. After PR #192 merges, the actual `main` must be read from GitHub and will be newer than `756dc5f7...`.
+## 12. Production Artifact
 
-The following material slices are already merged into the checkpoint base:
+الـProduction artifact لا يساوي repository checkout.
 
-- PR #190 — guest-first public marketplace with step-up authentication for protected actions.
-- PR #193 — complete removal/prohibition of commercial-register/business-registration product/data surface, with regression guard coverage.
-- PR #191 — central all-sector commission policy, retired-role cleanup, and trusted role identity binding.
-- PR #189 — VVIP TIGER experience convergence, content-first creation, seven-sector surface, modern card/FAB UX, guest-safe runtime behavior, step-up protected actions, and fail-closed publication/payment preparation.
+المسار المعتمد:
 
-PR #187 was closed as superseded documentation after newer verified state evidence and the owner-state ledger replaced its old post-PR186 checkpoint purpose.
+`EXACT SOURCE SHA/TREE -> QUALITY/SECURITY GATES -> EXACT-ALLOWLIST BUILD -> SBOM -> PROVENANCE/ATTESTATION -> SEALED ARTIFACT -> AWS DEPLOY -> RUNTIME EVIDENCE`
 
-## 3. Exact pre-merge verification evidence
+شروط artifact:
 
-### PR #193
+- build once من exact source.
+- لا إعادة بناء غير موثقة بين الاختبار والنشر.
+- manifest/checksums قابلة للتحقق.
+- CycloneDX SBOM.
+- provenance attestation.
+- forbidden-production-marker scan.
+- لا docs/tests/sql/tools/project-control داخل public artifact.
 
-Repository contract removal for commercial register/business registration was strengthened and verified before merge. The final reviewed head passed the required protected quality/security workflows before PR #193 merged into `main`.
+## 13. AWS Production
 
-### PR #191
+AWS هو Production provider المعتمد.
 
-Final reviewed head before merge:
+AWS لا يستقبل نسخًا يدوية من ملفات المستودع. التسليم يكون للـsealed artifact الناتج من release authority فقط.
 
-`ce12f529b0b02e4f86bc3aee2635775cc81c7d52`
+أي AWS deployment يحتاج:
 
-Protected checks on that reconciled head were GREEN:
+- exact artifact identity.
+- environment/config validation.
+- least-privilege runtime identity.
+- network/TLS/DNS validation.
+- health/readiness checks.
+- production smoke evidence.
+- observability evidence.
+- rollback/recovery plan على مستوى Release، من دون إعادة legacy runtime authority.
 
-- VVIP Quality Gate;
-- V14 Release Candidate;
-- CodeQL;
-- TIGER CleanGuard;
-- Dependency Review;
-- Project Control Integrity.
+لا تعتبر المنصة `Global Launch Ready` لمجرد نجاح build أو CI جزئي.
 
-Human protected review was obtained from a reviewer with write access. PR #191 then merged through the protected repository gate as merge commit:
+## 14. بروتوكول Zero-Residue — 20 بوابة
 
-`f3c94c1cdf9482c09731d122def8748c94164128`
+العقد الآلي الكامل موجود في `project-control/production-handover/current-authority.v1.json`، وترتيبه ملزم:
 
-### PR #189
+1. **P01:** exact source identity وrepository topology.
+2. **P02:** runtime stack وauthority inventory.
+3. **P03:** dead code/dependency/duplicate analysis.
+4. **P04:** routes/APIs/middleware/workers/runtime authority convergence.
+5. **P05:** environment/config convergence.
+6. **P06:** current-tree secret scan.
+7. **P07:** full Git-history secrets وoversized objects.
+8. **P08:** DB schema/migrations/RLS convergence.
+9. **P09:** DB retention/test-data/seed sanitation.
+10. **P10:** storage orphan/media sanitation.
+11. **P11:** container/build-cache/local-staging residue control.
+12. **P12:** cron/workers/queues/background authority inventory.
+13. **P13:** third-party/webhook/sandbox reconciliation.
+14. **P14:** DNS/TLS/subdomain-takeover prevention.
+15. **P15:** identity/SSH/service-account privileged-access rotation review.
+16. **P16:** telemetry/logging/error-tracking/analytics convergence.
+17. **P17:** CI/workflow/artifact/cache/release evidence convergence.
+18. **P18:** branches/tags/PR/repository governance convergence.
+19. **P19:** single current owner authority convergence.
+20. **P20:** AWS exact-SHA sealed handover + fresh runtime proof.
 
-Final reconciled head before merge:
+كل بوابة `fail_closed=true`. غياب الدليل يعني أن البوابة غير مكتملة، وليس نجاحًا ضمنيًا.
 
-`c9ff14bfaceac3ee5a22a4a93f53b2481b54e42d`
+## 15. العمليات المدمرة
 
-This head was built as a real two-parent merge over the post-#191 `main`, without force-push history rewriting. Direct comparison against then-current `main` proved exactly nine intended UX/Marketplace files differed.
+العمليات التالية `default_enabled=false`:
 
-All six required protected workflows passed on this exact head:
+- Production database deletion.
+- Git history rewrite.
+- DNS deletion.
+- Credential revocation.
+- Docker volume prune.
+- Branch deletion.
+- Tag deletion.
 
-- VVIP Quality Gate run #754 — PASS;
-- V14 Release Candidate run #212 — PASS;
-- CodeQL run #641 — PASS;
-- TIGER CleanGuard run #276 — PASS;
-- Dependency Review run #560 — PASS;
-- Project Control Integrity run #713 — PASS.
+لا تتحول أي منها إلى Enabled إلا بدليل صريح يثبت النطاق والمالك والاعتماد والنسخة الاحتياطية/الاحتفاظ عند الحاجة.
 
-All five Copilot review threads on the UX/publication flow were resolved after code/test fixes. Human protected approval remained present. PR #189 then merged successfully as checkpoint-base commit:
+## 16. Git وPR Governance
 
-`756dc5f7f2769e6405c98f156ba9a2484df25352`
+- `main` لا يستقبل تغييرات مباشرة تتجاوز الحوكمة.
+- PR #261 يمثل طبقة sovereign runtime authority convergence الحالية في الـstack.
+- PR #262 يمثل طبقة Zero-Residue Production Handover التابعة لها.
+- #262 لا يندمج مباشرة إلى `main`؛ يحافظ على ترتيب الـstack.
+- PR #271 يمثل طبقة Social Core الحالية في stack مستقل؛ لا يُقاس بفيديو أو رابط نشر سابق ولا يُقدّم كجاهز قبل GREEN exact-head evidence.
+- branch/tag deletion لا يحدث لمجرد العمر أو الاسم؛ يحتاج merged/stale proof وعدم وجود PR/runtime/release dependency.
+- لا يسمح auto-push أو background Git mutation غير خاضع للمراجعة.
 
-## 4. Authentication invariant
+## 17. حالة الإطلاق الحالية
 
-The repository must preserve PR #190 behavior:
+**الحالة:** `PRE-PRODUCTION / ZERO-RESIDUE HANDOVER IN PROGRESS`.
 
-- public Marketplace browsing is guest-first;
-- authentication failure must not hide public Marketplace content;
-- Clerk remains the external identity authority;
-- Supabase remains the application data/RLS layer;
-- protected operations use step-up authentication and bounded intent resume;
-- browser identifiers are not trusted as authority by themselves.
+**Global Launch Ready:** `NO` حتى تملك P01–P20 أدلة مكتملة ومطابقة للـexact release SHA/artifact، وتنجح AWS runtime verification الفعلية.
 
-Current #189 Marketplace behavior was explicitly reconciled against this invariant. Public reads remain guest-safe, while create listing, favorite/account actions, and publication preparation use protected/step-up paths where applicable.
+هذه العبارة Fail-Closed: لا يحولها أي وصف بشري إلى `YES`. التحويل يعتمد على الأدلة التنفيذية فقط.
 
-## 5. Product / UX state in the checkpoint base
+## 18. تعليمات المالك للمواصلة
 
-Repository implementation includes the approved experience-convergence direction:
+أي مهندس أو Agent أو مزود يستلم المشروع يعمل بهذا الترتيب فقط:
 
-- premium VVIP TIGER celestial/royal-blue identity;
-- low-clutter card-based Marketplace surface;
-- seven approved sectors;
-- content-first listing creation;
-- preview before visibility/payment selection;
-- visibility/pricing selection only after listing content is complete;
-- modern card contact/save/share actions;
-- floating create action;
-- mobile-responsive behavior and reduced-motion support;
-- ordinary publication does not use a blanket human-review paperwork gate;
-- unavailable payment/publication transport fails closed instead of claiming false success.
+`RESOLVE CURRENT REFS -> READ THIS FILE -> READ MACHINE CONTRACT -> VERIFY EXACT SHA/TREE -> RUN REQUIRED GATES -> CHANGE ONE AUTHORITY PATH -> VERIFY -> PRODUCE EVIDENCE -> UPDATE THIS CURRENT REFERENCE ONLY WHEN THE CURRENT CONTRACT CHANGES`
 
-A selected visibility plan is not evidence of payment entitlement. Browser-supplied receipts are not sufficient to publish. Real paid-publication transport remains a separate trusted server/Production implementation and activation gate.
-
-## 6. Commercial register — abolished from active product/data surface
-
-Binding decision: VVIP TIGER must not request, collect, reserve, infer, require, display, validate, store, transmit, analyze, report, or create a future placeholder specifically for commercial register/business registration as a platform field.
-
-This prohibition covers active registration/onboarding, profile/account flows, listing/post creation, TIGER PULSE, payment/boosting, admin/operations controls, schema/API/validation, analytics/report/filter fields, hidden/reserved product fields, and tests/fixtures that present it as an active requirement.
-
-Historical provenance may remain only when explicitly non-operative/superseded.
-
-The active prohibition/regression guard is merged through PR #193.
-
-## 7. Finance / commission / worker identity state
-
-One central policy applies to all current and future sectors unless a later owner decision explicitly changes it.
-
-Retired from new active operational/financial assignment paths:
-
-- `SECONDARY_MARKETER`;
-- `SUPERVISOR`;
-- `AREA_MANAGER`.
-
-Geographic `area` remains a valid location/scope concept. Historical retired-role facts remain readable and are not rewritten as if they never existed.
-
-Commission policy:
-
-- `PRIMARY_MARKETER` remains 4.30%;
-- removed total share is 10.93%;
-- removed share is redistributed completely/equally in exact arithmetic to `SECTOR_MANAGER`, `COUNTRY_EXECUTIVE_COMMISSIONER`, and `MARKETING`;
-- display percentages are not the source of truth;
-- deterministic minor-unit allocation/reconciliation is required;
-- no unexplained residual or silent redirection is permitted.
-
-Every new operational/staff role assignment requires exactly one trusted identity reference: `ACCOUNT_ID` or `CLERK_USER_ID`.
-
-The browser may submit a reference but cannot prove the mapping. Trusted server resolution must verify the identity/account relationship for the intended subject before persistence/activation. Missing, malformed, unresolved, ambiguous, or mismatched identity fails closed.
-
-Repository implementation of this policy is merged through PR #191. This does **not** authorize a Production DB migration, real payout, or real-money movement.
-
-## 8. TIGER PULSE state
-
-TIGER PULSE remains an owner-approved engineering direction and optional contextual intelligence/visibility layer.
-
-Binding boundaries:
-
-- ordinary Marketplace/search must remain available without Pulse;
-- Pulse is not a mandatory publication gate;
-- paid influence cannot buy truth or bypass relevance/eligibility/risk/legal gates;
-- billable exposure requires trusted server evidence, de-duplication, policy versioning, identity/account linkage, audit, and financial reconciliation;
-- browser-side `is_billable=true` or equivalent is never financial authority;
-- Pulse/financial kill switches must not take down ordinary public browsing/search.
-
-Detailed engineering reference:
-
-`docs/owner-control/TIGER_PULSE_ENGINEERING_EXECUTION_REFERENCE.md`
-
-That document is an approved engineering reference, not proof that real-money Pulse execution is live.
-
-## 9. Security / privacy constitution
-
-Core owner direction remains:
-
-> **Simple Surface — Private Core — Minimum Truth**
-
-Required properties include minimum screen, minimum data, minimum authority, minimum truth exposure, server-side projection/masking rather than CSS-only hiding, RLS plus server authorization where applicable, bounded capabilities/scopes for sensitive actions, no secrets/service-role credentials in public browser bundles, and purpose-bounded AI projections/capabilities.
-
-Native sensitive views use supported capture/capture-state protections without false universal screenshot/camera immunity claims. No repository status may be described as mathematically 100%/1000% unhackable.
-
-Security objective: no ordinary single compromise should yield unrestricted ownership of platform, all private data, all financial authority, and owner-level control.
-
-## 10. Scale and financial acceptance targets
-
-The 12,000,000-user figure is an engineering scale target/model, not a verified capacity claim. Registered population, DAU, concurrency, requests/second, chat/websocket concurrency, jobs, database throughput, and provider limits are separate dimensions and must be measured separately.
-
-No release may claim support for 12 million users without reproducible representative infrastructure evidence including throughput, error rate, p50/p95/p99 latency, saturation/limits, recovery behavior, and workload mix.
-
-Before real-money activation, financial acceptance must include at least 5,000,000 varied simulated movements covering concurrency, retries, duplicates, timeout, insufficient balance, reservation/capture/release/refund, disputes, policy/role change, exposure de-duplication, dependency failure, and reconciliation.
-
-Acceptance requires no unexplained money creation/loss, no duplicate replay charge/commission, balanced journals where applicable, authorized recipients only, and deterministic reconciliation.
-
-## 11. Production / deployment truth boundary
-
-Repository implementation status and Production runtime status are separate truths.
-
-This checkpoint does **not** claim or authorize a new Production deployment of PR #193, #191, #189, or #192.
-
-Historical verified Production runtime evidence remains preserved in the state archive and merged PR #188. Any newer Production deployment/runtime claim must be established from fresh exact-SHA deployment, live runtime, Clerk/Supabase dependency, smoke, and protected-environment evidence.
-
-The following remain separate protected operations unless fresh repository/environment authority proves otherwise:
-
-- Production DB mutation/migration apply;
-- real-money activation or payout;
-- country activation;
-- owner seeding;
-- provider-secret changes;
-- Clerk Production configuration changes;
-- DNS/custom-domain mutation;
-- protected Production deployment.
-
-Do not infer authorization for any of these from ordinary feature implementation/merge approval.
-
-## 12. Owner/state documentation — PR #192
-
-PR #192 is the repository-backed owner-reference/current-state carrier.
-
-Canonical files:
-
-- `docs/owner-control/OWNER_BINDING_DECISIONS_2026-08-12.md` — binding owner decision source;
-- `docs/owner-control/VVIP_TIGER_OWNER_MASTER_DECISIONS_2026-08-12.md` — detailed permanent owner reference;
-- `project-control/owner/VVIP_TIGER_OWNER_DECISIONS_2026-08-12.json` — machine-readable owner-decision contract;
-- `docs/MASTER_PROJECT_STATE.md` — current execution-state authority;
-- `docs/state-archive/MASTER_PROJECT_STATE_PRE_20260812.md` — preserved prior state.
-
-There must be only one active `MASTER_PROJECT_STATE.md` source. The prior duplicate root-level state file was removed from PR #192 before finalization.
-
-Owner Control UI must eventually consume protected server-side projections of owner/state records. Raw restricted governance material must not become an unauthenticated public artifact merely because it exists in the repository.
-
-## 13. Legacy/open PR backlog handling
-
-Do not mass-close old PRs by age or naming alone.
-
-Each older PR must be classified by current-main comparison and unique-content evidence before closure. Close only when it is proven merged, duplicated, superseded, or intentionally abandoned with no unique required implementation/evidence lost.
-
-PR #187 is already proven superseded and closed. Older AI, TigerPay, identity, cost, security, staging-evidence, and related stacked PRs require individual evidence-based reconciliation; their open state does not automatically mean they should be merged or deleted.
-
-## 14. Immediate continuation after this checkpoint
-
-1. Resolve live `main` from GitHub after PR #192 merge; never assume the checkpoint-base SHA is still current.
-2. Continue legacy/open-PR reconciliation one evidence-backed chain at a time.
-3. Keep Production/country/real-money/provider mutations separately gated and explicitly evidenced.
-4. Return to deferred real-browser/manual evidence such as the PR36 real-image upload path only as a distinct manual-evidence task; do not mislabel its historical automated PASS as manual completion.
-5. Checkpoint this ledger again only after a material repository/Production state transition.
-
-## 15. Human-gate handling
-
-When a protected human-only step is reached:
-
-`HUMAN_GATE_PENDING`
-
-Record the gate precisely and continue independent safe repository work where possible. Never bypass or fabricate a protected reviewer, owner approval, Production environment approval, or external provider action.
+لا تُنشأ وثيقة حالة منافسة. لا يُعاد اعتماد مسار تشغيل موازٍ. لا تستخدم وثائق Evidence لتجاوز source code أو CI أو live-provider evidence.
