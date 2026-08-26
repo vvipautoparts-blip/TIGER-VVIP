@@ -6,8 +6,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const SQL_PATHS = [
-  path.resolve(__dirname, '../supabase/migrations/20260826_tsn26_sovereign_financial_core.sql'),
-  path.resolve(__dirname, '../supabase/migrations/20260826_tsn26_settlement_proof_guard.sql'),
+  path.resolve(__dirname, '../supabase/migrations/20260826043000_tsn26_sovereign_financial_core.sql'),
+  path.resolve(__dirname, '../supabase/migrations/20260826043500_tsn26_settlement_proof_guard.sql'),
 ];
 
 function sql() {
