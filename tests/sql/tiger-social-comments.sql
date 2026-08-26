@@ -386,28 +386,29 @@ reset role;
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"user_bob001"}', true);
 
-do $proof$
-declare
-  v_actor text := public.vvip_marketplace_actor_id();
-  v_active boolean := public.vvip_social_actor_active();
-  v_profile_state text;
-  v_claims text := current_setting('request.jwt.claims', true);
-begin
-  select p.profile_state
-  into v_profile_state
-  from public.vvip_social_profile_projection p
-  where p.subject = 'user_bob001';
+select
+  public.vvip_marketplace_actor_id() as final_bob_actor,
+  public.vvip_social_actor_active() as final_bob_active,
+  public.vvip_get_my_social_profile() as final_bob_profile
+\gset
 
-  raise notice 'FINAL_BOB_CONTEXT actor=% active=% profile_state=% claims=%',
-    v_actor, v_active, v_profile_state, v_claims;
+\echo FINAL_BOB_ACTOR=:final_bob_actor
+\echo FINAL_BOB_ACTIVE=:final_bob_active
+\echo FINAL_BOB_PROFILE=:final_bob_profile
 
-  if v_actor is distinct from 'user_bob001'
-     or v_profile_state is distinct from 'active' then
-    raise exception 'FINAL_BOB_CONTEXT_INVALID actor=% active=% profile_state=% claims=%',
-      v_actor, v_active, v_profile_state, v_claims;
-  end if;
-end;
-$proof$;
+select (
+  :'final_bob_actor' = 'user_bob001'
+  and :'final_bob_active'::boolean
+  and :'final_bob_profile'::jsonb->>'status' = 'profile_loaded'
+  and :'final_bob_profile'::jsonb->'profile'->>'profile_state' = 'active'
+) as final_bob_context_valid
+\gset
+\if :final_bob_context_valid
+  \echo FINAL_BOB_CONTEXT=PASS
+\else
+  \echo FINAL_BOB_CONTEXT=FAIL
+  \quit 1
+\endif
 
 select public.vvip_social_comment_remove(:'bob_reply_id'::uuid) as bob_remove_result
 \gset
