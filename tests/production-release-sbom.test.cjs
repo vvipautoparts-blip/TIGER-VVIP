@@ -29,10 +29,10 @@ test('Production SBOM is deterministic actions-attest compatible CycloneDX 1.7',
   assert.equal(first.$schema, 'https://cyclonedx.org/schema/bom-1.7.schema.json');
   assert.equal(first.bomFormat, 'CycloneDX');
   assert.equal(first.specVersion, '1.7');
-  assert.equal(first.serialNumber, 'urn:uuid:7a3f24c1-b95c-5abb-90b5-7135865fabdf');
+  assert.equal(first.serialNumber, 'urn:uuid:224d0ab4-2c8a-82c1-bda7-ee567c18e811');
   assert.match(
     first.serialNumber,
-    /^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+    /^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-8[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
   );
   assert.equal(first.version, 1);
   assert.equal(first.metadata.component.type, 'application');
@@ -40,6 +40,13 @@ test('Production SBOM is deterministic actions-attest compatible CycloneDX 1.7',
   assert.equal(first.metadata.component.version, SOURCE_SHA);
   assert.deepEqual(first.components.map(({ name }) => name), ['a-first.css', 'z-last.js']);
   assert.deepEqual(first.components[0].hashes, [{ alg: 'SHA-256', content: 'e'.repeat(64) }]);
+});
+
+test('Production SBOM serial identity uses SHA-256 UUIDv8 and no SHA-1', () => {
+  const source = fs.readFileSync(MODULE_PATH, 'utf8');
+
+  assert.match(source, /createHash\(['"]sha256['"]\)/);
+  assert.doesNotMatch(source, /createHash\(['"]sha1['"]\)/);
 });
 
 test('Production SBOM identity is bound to both exact source SHA and tree', () => {

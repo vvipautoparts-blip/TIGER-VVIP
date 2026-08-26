@@ -10,16 +10,16 @@ function fail(code) {
   throw new Error(code);
 }
 
-function deterministicUuidV5(name) {
-  // RFC 4122 UUIDv5 requires SHA-1 for namespace hashing. Artifact integrity
-  // remains SHA-256 based; this digest is used only to derive a stable UUID.
+function deterministicUuidV8Sha256(name) {
+  // RFC 9562 requires modern name-based hashes such as SHA-256 to use UUIDv8.
+  // Keep the namespace/name binding while eliminating SHA-1 from release evidence.
   const bytes = crypto
-    .createHash('sha1')
+    .createHash('sha256')
     .update(UUID_DNS_NAMESPACE)
     .update(Buffer.from(name, 'utf8'))
     .digest()
     .subarray(0, 16);
-  bytes[6] = (bytes[6] & 0x0f) | 0x50;
+  bytes[6] = (bytes[6] & 0x0f) | 0x80;
   bytes[8] = (bytes[8] & 0x3f) | 0x80;
   const hex = bytes.toString('hex');
   return [
@@ -50,7 +50,7 @@ function createProductionFileInventorySbom({ sourceSha, sourceTree, files } = {}
         hashes: [{ alg: 'SHA-256', content: digest }],
       };
     });
-  const serialUuid = deterministicUuidV5(
+  const serialUuid = deterministicUuidV8Sha256(
     `VVIP-TIGER-PRODUCTION-SBOM:${sourceSha}:${sourceTree}`,
   );
 
