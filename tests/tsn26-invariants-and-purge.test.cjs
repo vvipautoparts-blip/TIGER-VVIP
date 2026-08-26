@@ -6,6 +6,8 @@ const path = require('node:path');
 
 const registry = require('../project-control/tsn26/invariants.v1.json');
 const {
+  FORBIDDEN_LEGACY_PATTERNS,
+  isActiveSource,
   scanActiveLegacyFinance,
   assertNoActiveLegacyFinance,
 } = require('../scripts/tsn26/governance/legacy-finance-purge-guard.cjs');
@@ -20,6 +22,40 @@ test('TSN-26 invariant registry is fail-closed and has unique sovereign rules', 
     assert.ok(ids.includes(required), `missing invariant ${required}`);
   }
   assert.ok(registry.invariants.every((item) => item.severity === 'BLOCK_RELEASE'));
+});
+
+test('purge guard covers every active executable/configuration surface, not only src and scripts', () => {
+  for (const file of [
+    'index.html',
+    'auth-clerk-index.js',
+    'styles/tiger-social/core-shell.css',
+    'services/media-finalizer/src/handler.js',
+    'workers/media/f05-heif-worker.js',
+    'tools/vvip_public_release.py',
+    'project-control/production-handover/current-authority.v1.json',
+    '.github/workflows/vvip-quality-gate.yml',
+    'config/tsn26/financial-constitution.v1.json',
+  ]) {
+    assert.equal(isActiveSource(file), true, `expected active purge coverage for ${file}`);
+  }
+
+  for (const file of [
+    'docs/historical-note.md',
+    'reports/old-finance.json',
+    'archive/legacy-finance.js',
+    'tests/legacy-fixture.cjs',
+    'supabase/migrations/20200101000000_historical.sql',
+    'prisma/migrations/20200101000000_historical/migration.sql',
+    'scripts/tsn26/governance/legacy-finance-purge-guard.cjs',
+  ]) {
+    assert.equal(isActiveSource(file), false, `expected historical/policy exclusion for ${file}`);
+  }
+});
+
+test('purge guard explicitly blocks superseded treasury split vocabulary', () => {
+  const ids = new Set(FORBIDDEN_LEGACY_PATTERNS.map((entry) => entry.id));
+  assert.ok(ids.has('LEGACY_DIRECT_DISTRIBUTION'));
+  assert.ok(ids.has('LEGACY_PLATFORM_TREASURY'));
 });
 
 test('active repository has no forbidden parallel legacy financial implementation', () => {
