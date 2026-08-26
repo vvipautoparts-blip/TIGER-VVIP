@@ -25,7 +25,13 @@ const LEGACY_ROLE_IDENTIFIERS = Object.freeze([
   'SUPPORT_MARKETER',
 ]);
 
-const SELF_RELATIVE = 'scripts/tsn26/system/legacy-financial-guard.cjs';
+// Policy-definition files necessarily contain the forbidden identifiers as data.
+// Keep this list exact: runtime TSN-26 code remains fully scanned fail-closed.
+const POLICY_DEFINITION_PATHS = new Set([
+  'scripts/tsn26/system/legacy-financial-guard.cjs',
+  'scripts/tsn26/governance/legacy-finance-purge-guard.cjs',
+]);
+
 const TEXT_EXTENSIONS = new Set(['.js', '.cjs', '.mjs', '.ts', '.tsx', '.jsx', '.json', '.sql', '.toml', '.yml', '.yaml']);
 
 function walkTextFiles(rootDir, relativeDir, output) {
@@ -40,7 +46,7 @@ function walkTextFiles(rootDir, relativeDir, output) {
       continue;
     }
     if (!entry.isFile() || !TEXT_EXTENSIONS.has(path.extname(entry.name).toLowerCase())) continue;
-    if (relativePath === SELF_RELATIVE) continue;
+    if (POLICY_DEFINITION_PATHS.has(relativePath)) continue;
     output.push(relativePath);
   }
 }
@@ -91,6 +97,7 @@ module.exports = {
   RUNTIME_ROOTS,
   FORBIDDEN_PARALLEL_PATHS,
   LEGACY_ROLE_IDENTIFIERS,
+  POLICY_DEFINITION_PATHS,
   scanLegacyFinancialResidue,
   assertNoLegacyFinancialResidue,
 };
