@@ -36,6 +36,7 @@ jobs:
           tests/tsn26-country-economic-gate.test.cjs
           tests/tsn26-ai-action-firewall.test.cjs
           tests/tsn26-truth-report.test.cjs
+          tests/tsn26-recovery-proof.test.cjs
           tests/tsn26-invariant-registry.test.cjs
           tests/tsn26-invariants-and-purge.test.cjs
           tests/tsn26-sovereign-sale-claim.test.cjs
