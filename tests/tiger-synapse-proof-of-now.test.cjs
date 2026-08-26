@@ -37,12 +37,7 @@ test("S4 psql harness guard distinguishes client variables from PostgreSQL casts
 
 test("S4 client contract is actor-blind, metadata-minimal, bounded, and truthful", () => {
   readRequired(CONTROLLER, "PROOF_CONTROLLER_MISSING");
-  const {
-    PROOF_STATES,
-    buildIssueRequest,
-    buildConsumeRequest,
-    proofStateCopy,
-  } = require(CONTROLLER);
+  const { PROOF_STATES, buildIssueRequest, buildConsumeRequest, proofStateCopy } = require(CONTROLLER);
 
   const issue = buildIssueRequest({
     objectType: "listing",
@@ -62,6 +57,7 @@ test("S4 client contract is actor-blind, metadata-minimal, bounded, and truthful
   const consume = buildConsumeRequest({
     challengeId: "22222222-2222-4222-8222-222222222222",
     nonce: "a".repeat(64),
+    captureReceiptId: "33333333-3333-4333-8333-333333333333",
     captureDigest: "b".repeat(64),
     filename: "secret-home-address.jpg",
     mime: "image/jpeg",
@@ -69,12 +65,10 @@ test("S4 client contract is actor-blind, metadata-minimal, bounded, and truthful
     ownershipClaim: "I own it",
     clientTimestamp: "2026-08-26T12:00:00Z",
   });
-  assert.deepEqual(Object.keys(consume).sort(), ["action", "capture_digest", "challenge_id", "nonce"]);
+  assert.deepEqual(Object.keys(consume).sort(), ["action", "capture_receipt_id", "challenge_id", "nonce"]);
+  assert.equal(Object.hasOwn(consume, "capture_digest"), false);
 
-  assert.deepEqual(
-    Object.values(PROOF_STATES).sort(),
-    ["expired", "failed", "fresh", "not_verified"].sort(),
-  );
+  assert.deepEqual(Object.values(PROOF_STATES).sort(), ["expired", "failed", "fresh", "not_verified"].sort());
   for (const state of Object.values(PROOF_STATES)) {
     const copy = proofStateCopy(state, "en");
     assert.equal(typeof copy, "string");
@@ -83,25 +77,26 @@ test("S4 client contract is actor-blind, metadata-minimal, bounded, and truthful
   }
 });
 
-test("S4 Edge Function binds identity server-side and never trusts caller actor or sensitive capture metadata", () => {
+test("S4 Edge Function binds identity server-side and consumes only a receipt id", () => {
   const source = readRequired(EDGE_FUNCTION, "PROOF_EDGE_FUNCTION_MISSING");
-
   assert.match(source, /Authorization/i);
   assert.match(source, /verifyIdentity|auth\.getUser|IDENTITY_VERIFIER/i);
   assert.match(source, /crypto\.getRandomValues|crypto\.randomUUID/);
   assert.match(source, /SHA-256/);
   assert.match(source, /Cache-Control[^\n]*no-store/i);
+  assert.match(source, /p_capture_receipt_id/i);
+  assert.doesNotMatch(source, /p_capture_digest\s*:/i);
   assert.doesNotMatch(source, /body\.(?:actor|actorSubject|actor_subject)/);
   assert.doesNotMatch(source, /body\.(?:coordinates|preciseLocation|clientTimestamp|filename|ownershipClaim)/);
 });
 
-test("S4 database contract is service-only, digest-bound, expiring, and atomically single-use", () => {
+test("S4 database contract is service-only, receipt-bound, expiring, and atomically single-use", () => {
   const sql = readRequired(MIGRATION, "PROOF_MIGRATION_MISSING");
-
   assert.match(sql, /vvip_synapse_proof_challenges/i);
+  assert.match(sql, /vvip_synapse_proof_capture_receipts/i);
   assert.match(sql, /vvip_synapse_proof_evidence/i);
   assert.match(sql, /nonce_digest/i);
-  assert.match(sql, /capture_digest/i);
+  assert.match(sql, /canonical_digest/i);
   assert.match(sql, /expires_at/i);
   assert.match(sql, /consumed_at/i);
   assert.match(sql, /revoke\s+all[\s\S]+authenticated/i);
@@ -111,7 +106,7 @@ test("S4 database contract is service-only, digest-bound, expiring, and atomical
   assert.match(sql, /update[\s\S]+returning/i);
   assert.equal(
     (sql.match(/security\s+definer\s+set\s+search_path\s*=\s*''/gi) || []).length,
-    2,
+    5,
     "PROOF_DEFINER_SEARCH_PATH_MUST_BE_EMPTY",
   );
   assert.doesNotMatch(sql, /grant\s+(?:select|insert|update|delete|all)[^;]+authenticated/i);
@@ -122,28 +117,28 @@ test("S4 migration review is byte-exact and automatically invalidated by SQL dri
   const shield = readRequired(STEEL_SHIELD, "STEEL_SHIELD_MISSING");
   const digest = crypto.createHash("sha256").update(sql, "utf8").digest("hex");
   const approval = `[\"${MIGRATION_RELATIVE}\"]=\"${digest}\"`;
-
-  assert.equal(
-    shield.includes(approval),
-    true,
-    `PROOF_MIGRATION_REVIEW_HASH_MISSING:${digest}`,
-  );
+  assert.equal(shield.includes(approval), true, `PROOF_MIGRATION_REVIEW_HASH_MISSING:${digest}`);
 });
 
-test("S4 local DB rehearsal proves authorization, replay, expiry, digest privacy, and single-use evidence", () => {
+test("S4 local DB rehearsal proves authorization, capture origin, replay, expiry, privacy, and single-use", () => {
   const proof = readRequired(BEHAVIOR_SQL, "PROOF_BEHAVIOR_SQL_MISSING");
   const workflow = readRequired(DB_REHEARSAL, "SOCIAL_DB_REHEARSAL_WORKFLOW_MISSING");
 
   for (const marker of [
+    "PROOF_RECEIPT_PREPARED=PASS",
+    "PROOF_RECEIPT_FINALIZED=PASS",
+    "PROOF_UNFINALIZED_RECEIPT_REJECTED=PASS",
     "PROOF_VALID_CONSUME=PASS",
     "PROOF_WRONG_ACTOR_DENIED=PASS",
     "PROOF_WRONG_NONCE_REJECTED=PASS",
     "PROOF_EXPIRED_REJECTED=PASS",
     "PROOF_REPLAY_REJECTED=PASS",
     "PROOF_RAW_NONCE_ABSENT=PASS",
+    "PROOF_RAW_CAPABILITY_ABSENT=PASS",
     "PROOF_AUTHENTICATED_DIRECT_ACCESS_DENIED=PASS",
     "PROOF_EVIDENCE_BINDING=PASS",
     "PROOF_DOUBLE_CONSUME_AT_MOST_ONE=PASS",
+    "PROOF_RECEIPT_CONSUMED=PASS",
     "TIGER_SYNAPSE_PROOF_OF_NOW_DB_BEHAVIOR=PASS",
   ]) {
     assert.match(proof, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
@@ -152,22 +147,10 @@ test("S4 local DB rehearsal proves authorization, replay, expiry, digest privacy
   const plpgsqlBlocks = proof.match(/\$proof\$[\s\S]*?\$proof\$/gi) || [];
   assert.ok(plpgsqlBlocks.length > 0, "PROOF_PLSQL_BLOCK_MISSING");
   for (const block of plpgsqlBlocks) {
-    assert.doesNotMatch(
-      block,
-      PSQL_VARIABLE_TOKEN,
-      "PROOF_PSQL_VARIABLE_INSIDE_DOLLAR_QUOTED_BLOCK",
-    );
+    assert.doesNotMatch(block, PSQL_VARIABLE_TOKEN, "PROOF_PSQL_VARIABLE_INSIDE_DOLLAR_QUOTED_BLOCK");
   }
-  assert.match(
-    proof,
-    /set_config\('tiger\.rehearsal\.intent_id',\s*:'intent_id',\s*true\)/i,
-    "PROOF_PSQL_FIXTURE_GUC_WRITE_MISSING",
-  );
-  assert.match(
-    proof,
-    /current_setting\('tiger\.rehearsal\.intent_id'\)::uuid/i,
-    "PROOF_PSQL_FIXTURE_GUC_READ_MISSING",
-  );
+  assert.match(proof, /set_config\('tiger\.rehearsal\.intent_id',\s*:'intent_id',\s*true\)/i, "PROOF_PSQL_FIXTURE_GUC_WRITE_MISSING");
+  assert.match(proof, /current_setting\('tiger\.rehearsal\.intent_id'\)::uuid/i, "PROOF_PSQL_FIXTURE_GUC_READ_MISSING");
 
   assert.match(workflow, /supabase\/migrations\/20260826120000_synapse_proof_of_now\.sql/);
   assert.match(workflow, /tests\/sql\/tiger-synapse-proof-of-now\.sql/);
@@ -181,21 +164,18 @@ test("S4 local DB rehearsal proves atomic single-use under two-session contentio
   const workflow = readRequired(DB_REHEARSAL, "SOCIAL_DB_REHEARSAL_WORKFLOW_MISSING");
 
   assert.match(setup, /PROOF_CONCURRENCY_FIXTURE_READY=PASS/);
-  assert.match(setup, /vvip_synapse_proof_issue/i);
+  assert.match(setup, /PROOF_CONCURRENCY_RECEIPT_FINALIZED=PASS/);
+  assert.match(setup, /vvip_synapse_proof_capture_finalize/i);
   assert.match(consume, /vvip_synapse_proof_consume/i);
-  assert.match(consume, /service_role/i);
+  assert.match(consume, /77777777-7777-4777-8777-777777777771/);
+  assert.match(verify, /PROOF_CONCURRENT_RECEIPT_CONSUMED=PASS/);
   assert.match(verify, /PROOF_CONCURRENT_EVIDENCE_EXACTLY_ONE=PASS/);
   assert.match(verify, /PROOF_CONCURRENT_EVIDENCE_BINDING=PASS/);
   assert.match(verify, /TIGER_SYNAPSE_PROOF_OF_NOW_CONCURRENCY=PASS/);
 
-  for (const relative of [
-    CONCURRENCY_SETUP_RELATIVE,
-    CONCURRENCY_CONSUME_RELATIVE,
-    CONCURRENCY_VERIFY_RELATIVE,
-  ]) {
+  for (const relative of [CONCURRENCY_SETUP_RELATIVE, CONCURRENCY_CONSUME_RELATIVE, CONCURRENCY_VERIFY_RELATIVE]) {
     assert.match(workflow, new RegExp(relative.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
-
   assert.match(workflow, /Prove SYNAPSE S4 Proof-of-Now concurrent single-use behavior/i);
   assert.match(workflow, /PROOF_CONCURRENT_ACCEPTED_EXACTLY_ONE=PASS/);
   assert.match(workflow, /PROOF_CONCURRENT_REPLAY_EXACTLY_ONE=PASS/);
