@@ -10,7 +10,7 @@ const TOKEN_PATTERN = /^[a-z][a-z0-9_]{0,63}$/;
 const POLICY_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,95}$/;
 const OBJECT_TYPES = new Set(["listing", "intent_offer"]);
 const ISSUE_KEYS = new Set(["action", "object_type", "object_id", "purpose", "policy_version"]);
-const CONSUME_KEYS = new Set(["action", "challenge_id", "nonce", "capture_digest"]);
+const CONSUME_KEYS = new Set(["action", "challenge_id", "nonce", "capture_receipt_id"]);
 
 type VerifiedIdentity = {
   authenticated: true;
@@ -29,7 +29,7 @@ type ConsumeRequest = {
   action: "consume";
   challenge_id: string;
   nonce: string;
-  capture_digest: string;
+  capture_receipt_id: string;
 };
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -166,15 +166,15 @@ function validateConsume(value: Record<string, unknown>): { ok: true; value: Con
 
   const challengeId = typeof value.challenge_id === "string" ? value.challenge_id.trim().toLowerCase() : "";
   const nonce = typeof value.nonce === "string" ? value.nonce.trim().toLowerCase() : "";
-  const captureDigest = typeof value.capture_digest === "string" ? value.capture_digest.trim().toLowerCase() : "";
+  const captureReceiptId = typeof value.capture_receipt_id === "string" ? value.capture_receipt_id.trim().toLowerCase() : "";
 
   if (!UUID_PATTERN.test(challengeId)) return { ok: false, code: "CHALLENGE_ID_INVALID" };
   if (!HEX_64_PATTERN.test(nonce)) return { ok: false, code: "NONCE_INVALID" };
-  if (!HEX_64_PATTERN.test(captureDigest)) return { ok: false, code: "CAPTURE_DIGEST_INVALID" };
+  if (!UUID_PATTERN.test(captureReceiptId)) return { ok: false, code: "CAPTURE_RECEIPT_ID_INVALID" };
 
   return {
     ok: true,
-    value: { action: "consume", challenge_id: challengeId, nonce, capture_digest: captureDigest },
+    value: { action: "consume", challenge_id: challengeId, nonce, capture_receipt_id: captureReceiptId },
   };
 }
 
@@ -282,7 +282,7 @@ serve(async (request) => {
         p_challenge_id: validated.value.challenge_id,
         p_actor_subject: identity.subject,
         p_nonce_digest: nonceDigest,
-        p_capture_digest: validated.value.capture_digest,
+        p_capture_receipt_id: validated.value.capture_receipt_id,
       });
       if (error || !isPlainObject(data)) {
         const failure = dbFailureCode(error);
@@ -297,6 +297,7 @@ serve(async (request) => {
           evidence: {
             evidence_id: data.evidence_id,
             challenge_id: data.challenge_id,
+            receipt_id: data.receipt_id,
             object_type: data.object_type,
             object_id: data.object_id,
             purpose: data.purpose,
