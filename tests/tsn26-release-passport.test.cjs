@@ -6,6 +6,7 @@ const policy = require('../project-control/tsn26/release-passport-policy.v1.json
 const { generateReleasePassport } = require('../scripts/tsn26/release/release-passport.cjs');
 
 const NOW = new Date('2026-08-26T06:10:00.000Z');
+const SOURCE_SHA = '1'.repeat(40);
 
 function proof(name, ageSeconds = 30) {
   return {
@@ -13,6 +14,7 @@ function proof(name, ageSeconds = 30) {
     ref: `proof://${name}/1`,
     as_of: new Date(NOW.getTime() - ageSeconds * 1000).toISOString(),
     digest: `sha256:${'a'.repeat(64)}`,
+    source_sha: SOURCE_SHA,
   };
 }
 
@@ -22,7 +24,7 @@ function validInput() {
     source: {
       repository: 'vvipautoparts-blip/TIGER-VVIP',
       branch: 'feat/tsn26-sovereign-nexus-20260826',
-      commit_sha: '1'.repeat(40),
+      commit_sha: SOURCE_SHA,
       tree_sha: '2'.repeat(40),
       base_branch: 'main',
       base_sha: '3'.repeat(40),
@@ -59,7 +61,7 @@ test('release passport is content addressed and can recommend promotion only wit
   assert.match(passport.passport_digest, /^sha256:[0-9a-f]{64}$/);
 });
 
-test('missing or stale evidence blocks promotion fail closed', () => {
+test('missing, stale, or cross-head evidence blocks promotion fail closed', () => {
   const missing = validInput();
   delete missing.proofs.financial_db;
   const missingResult = generateReleasePassport(missing, { policy, now: NOW });
@@ -71,6 +73,12 @@ test('missing or stale evidence blocks promotion fail closed', () => {
   const staleResult = generateReleasePassport(stale, { policy, now: NOW });
   assert.equal(staleResult.promotion_allowed, false);
   assert.ok(staleResult.failures.includes('PROOF_STALE:recovery'));
+
+  const crossHead = validInput();
+  crossHead.proofs.quality_gate.source_sha = '9'.repeat(40);
+  const crossHeadResult = generateReleasePassport(crossHead, { policy, now: NOW });
+  assert.equal(crossHeadResult.promotion_allowed, false);
+  assert.ok(crossHeadResult.failures.includes('PROOF_SOURCE_SHA_MISMATCH:quality_gate'));
 });
 
 test('source, constitution and supply-chain identities must be exact and immutable-looking', () => {
