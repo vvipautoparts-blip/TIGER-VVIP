@@ -1,0 +1,113 @@
+name: TSN-26 Financial DB Rehearsal
+
+on:
+  pull_request:
+    paths:
+      - "config/tsn26/**"
+      - "scripts/tsn26/**"
+      - "src/tsn26/**"
+      - "supabase/migrations/20260826043000_tsn26_sovereign_financial_core.sql"
+      - "supabase/migrations/20260826043500_tsn26_settlement_proof_guard.sql"
+      - "tests/tsn26-financial-schema-contract.test.cjs"
+      - "tests/sql/tsn26-sovereign-finance.sql"
+      - ".github/workflows/tsn26-financial-db-rehearsal.yml"
+  push:
+    branches:
+      - feat/tsn26-sovereign-nexus-20260826
+      - main
+    paths:
+      - "config/tsn26/**"
+      - "scripts/tsn26/**"
+      - "src/tsn26/**"
+      - "supabase/migrations/20260826043000_tsn26_sovereign_financial_core.sql"
+      - "supabase/migrations/20260826043500_tsn26_settlement_proof_guard.sql"
+      - "tests/tsn26-financial-schema-contract.test.cjs"
+      - "tests/sql/tsn26-sovereign-finance.sql"
+      - ".github/workflows/tsn26-financial-db-rehearsal.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+concurrency:
+  group: tsn26-financial-db-rehearsal-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sovereign-financial-db:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: "22"
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@ab058987d8d6c725971f6cf9d0b5c98467e30bd1
+        with:
+          version: 2.109.0
+
+      - name: Verify exact source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+
+      - name: Run TSN-26 static financial DB contract
+        run: node --test tests/tsn26-financial-schema-contract.test.cjs
+
+      - name: Assert local-only database safety
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f supabase/config.toml
+          if env | grep -E '^(SUPABASE_ACCESS_TOKEN|SUPABASE_DB_PASSWORD|SUPABASE_PROJECT_REF)=' >/dev/null; then
+            echo 'TIGER_TSN26_DB_REHEARSAL=BLOCKED_REMOTE_CREDENTIAL_ENV'
+            exit 1
+          fi
+          echo 'TIGER_TSN26_DB_REHEARSAL=LOCAL_ONLY_PASS'
+
+      - name: Start isolated local Supabase stack
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase --version
+          supabase start
+
+      - name: Rebuild database from exact repository migrations
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase db reset --local
+          echo 'TIGER_TSN26_DB_RESET=PASS'
+
+      - name: Prove TSN-26 financial database behavior and purge state
+        shell: bash
+        run: |
+          set -euo pipefail
+          proof_log="$(mktemp)"
+          trap 'rm -f "$proof_log"' EXIT
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 \
+            -p 54322 \
+            -U postgres \
+            -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/tsn26-sovereign-finance.sql | tee "$proof_log"
+          grep -F 'TIGER_TSN26_FINANCIAL_DB_BEHAVIOR=PASS' "$proof_log"
+
+      - name: Stop isolated local Supabase stack
+        if: always()
+        shell: bash
+        run: supabase stop --no-backup || true
