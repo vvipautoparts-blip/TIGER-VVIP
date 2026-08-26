@@ -61,7 +61,7 @@ test('release passport is content addressed and can recommend promotion only wit
   assert.match(passport.passport_digest, /^sha256:[0-9a-f]{64}$/);
 });
 
-test('missing, stale, or cross-head evidence blocks promotion fail closed', () => {
+test('missing, stale, invalid-source, or cross-head evidence blocks promotion fail closed', () => {
   const missing = validInput();
   delete missing.proofs.financial_db;
   const missingResult = generateReleasePassport(missing, { policy, now: NOW });
@@ -73,6 +73,18 @@ test('missing, stale, or cross-head evidence blocks promotion fail closed', () =
   const staleResult = generateReleasePassport(stale, { policy, now: NOW });
   assert.equal(staleResult.promotion_allowed, false);
   assert.ok(staleResult.failures.includes('PROOF_STALE:recovery'));
+
+  const missingSource = validInput();
+  delete missingSource.proofs.codeql.source_sha;
+  const missingSourceResult = generateReleasePassport(missingSource, { policy, now: NOW });
+  assert.equal(missingSourceResult.promotion_allowed, false);
+  assert.ok(missingSourceResult.failures.includes('PROOF_SOURCE_SHA_INVALID:codeql'));
+
+  const invalidSource = validInput();
+  invalidSource.proofs.project_control.source_sha = 'not-a-sha';
+  const invalidSourceResult = generateReleasePassport(invalidSource, { policy, now: NOW });
+  assert.equal(invalidSourceResult.promotion_allowed, false);
+  assert.ok(invalidSourceResult.failures.includes('PROOF_SOURCE_SHA_INVALID:project_control'));
 
   const crossHead = validInput();
   crossHead.proofs.quality_gate.source_sha = '9'.repeat(40);
