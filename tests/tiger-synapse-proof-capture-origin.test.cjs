@@ -11,6 +11,7 @@ const EDGE = path.join(ROOT, "supabase/functions/tiger-proof-of-now/index.ts");
 const PREPARER = path.join(ROOT, "supabase/functions/tiger-proof-capture-prepare/index.ts");
 const MIGRATION = path.join(ROOT, "supabase/migrations/20260826120000_synapse_proof_of_now.sql");
 const MEDIA_FINALIZER = path.join(ROOT, "services/media-finalizer/src/handler.js");
+const REHEARSAL = path.join(ROOT, ".github/workflows/tiger-synapse-s4-proof-rehearsal.yml");
 
 function readRequired(file, code) {
   assert.equal(fs.existsSync(file), true, code);
@@ -31,10 +32,7 @@ test("S4 consume accepts only an opaque server capture receipt, never a client-a
     clientTimestamp: "2026-08-26T12:00:00Z",
   });
 
-  assert.deepEqual(
-    Object.keys(request).sort(),
-    ["action", "capture_receipt_id", "challenge_id", "nonce"],
-  );
+  assert.deepEqual(Object.keys(request).sort(), ["action", "capture_receipt_id", "challenge_id", "nonce"]);
   assert.equal(Object.hasOwn(request, "capture_digest"), false, "CLIENT_CAPTURE_DIGEST_MUST_NOT_BE_AUTHORITATIVE");
 
   const edge = readRequired(EDGE, "PROOF_EDGE_FUNCTION_MISSING");
@@ -59,18 +57,8 @@ test("S4 database binds a service-only capture receipt to the exact challenge li
 
   assert.match(sql, /vvip_synapse_proof_capture_receipts/i, "PROOF_CAPTURE_RECEIPT_TABLE_MISSING");
   for (const field of [
-    "receipt_id",
-    "challenge_id",
-    "actor_subject",
-    "object_type",
-    "object_id",
-    "purpose",
-    "policy_version",
-    "canonical_digest",
-    "verifier_id",
-    "finalized_at",
-    "expires_at",
-    "consumed_at",
+    "receipt_id", "challenge_id", "actor_subject", "object_type", "object_id", "purpose",
+    "policy_version", "canonical_digest", "verifier_id", "finalized_at", "expires_at", "consumed_at",
   ]) {
     assert.match(sql, new RegExp(`\\b${field}\\b`, "i"), `PROOF_CAPTURE_RECEIPT_FIELD_MISSING:${field}`);
   }
@@ -87,11 +75,22 @@ test("S4 database binds a service-only capture receipt to the exact challenge li
 
 test("S4 proof capture is finalized only through the hardened media pipeline and yields a server receipt", () => {
   const media = readRequired(MEDIA_FINALIZER, "MEDIA_FINALIZER_MISSING");
-
   assert.match(media, /canonicalize\(/, "PROOF_CAPTURE_MUST_REUSE_CANONICALIZER");
   assert.match(media, /claim_proof_capture/i, "PROOF_CAPTURE_CLAIM_BOUNDARY_MISSING");
   assert.match(media, /complete_proof_capture/i, "PROOF_CAPTURE_COMPLETE_BOUNDARY_MISSING");
   assert.match(media, /captureReceiptId|capture_receipt_id/i, "PROOF_CAPTURE_RECEIPT_OUTPUT_MISSING");
   assert.match(media, /canonicalSha256|canonical_digest/i, "PROOF_CAPTURE_CANONICAL_DIGEST_MISSING");
   assert.doesNotMatch(media, /clientTimestamp|preciseLocation|ownershipClaim/i, "PROOF_CAPTURE_MUST_NOT_ACCEPT_SENSITIVE_CLIENT_CLAIMS");
+});
+
+test("S4 has a dedicated deterministic local-only rehearsal instead of relying only on the broad social workflow", () => {
+  const workflow = readRequired(REHEARSAL, "PROOF_S4_REHEARSAL_MISSING");
+  assert.match(workflow, /runs-on:\s*ubuntu-24\.04/i, "PROOF_S4_RUNNER_MUST_BE_STABLE");
+  assert.match(workflow, /workflow_dispatch:/i, "PROOF_S4_MANUAL_REPLAY_MISSING");
+  assert.match(workflow, /SOURCE_SHA:\s*\$\{\{\s*github\.event\.pull_request\.head\.sha\s*\|\|\s*github\.sha\s*\}\}/i, "PROOF_S4_EXACT_SOURCE_MISSING");
+  assert.match(workflow, /cancel-in-progress:\s*false/i, "PROOF_S4_EVIDENCE_MUST_NOT_BE_CANCELLED");
+  assert.match(workflow, /tests\/tiger-synapse-proof-capture-origin\.test\.cjs/i, "PROOF_S4_CAPTURE_ORIGIN_TEST_NOT_WIRED");
+  assert.match(workflow, /tests\/sql\/tiger-synapse-proof-of-now\.sql/i, "PROOF_S4_BEHAVIOR_NOT_WIRED");
+  assert.match(workflow, /tests\/sql\/tiger-synapse-proof-of-now-concurrency-consume\.sql/i, "PROOF_S4_RACE_NOT_WIRED");
+  assert.match(workflow, /BLOCKED_REMOTE_CREDENTIAL_ENV/i, "PROOF_S4_LOCAL_ONLY_GUARD_MISSING");
 });
