@@ -34,6 +34,8 @@ function trusted(extra = {}) {
     workflow_identity: '.github/workflows/vvip-quality-gate.yml',
     source_sha: SOURCE,
     source_tree: TREE,
+    expected_source_sha: SOURCE,
+    expected_source_tree: TREE,
     environment: 'CI',
     now_ms: NOW,
     ...extra,
