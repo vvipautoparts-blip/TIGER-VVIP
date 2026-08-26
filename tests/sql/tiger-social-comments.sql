@@ -276,6 +276,10 @@ end;
 $proof$;
 \echo COMMENT_HIDDEN_POST_DENIED=PASS
 
+rollback;
+\echo TIGER_SOCIAL_COMMENTS_DIAGNOSTIC_MIDPOINT=PASS
+\quit 0
+
 reset role;
 
 insert into public.vvip_social_comments (post_id, parent_comment_id, author_subject, body)
