@@ -82,6 +82,24 @@
       "protected_boundaries": ["social-first", "no-intermediation"]
     },
     {
+      "authority_id": "authority.sovereign-finance.tsn26.v1",
+      "domain": "sovereign-finance",
+      "version": 1,
+      "status": "CURRENT_ONLY",
+      "owner_decision_ref": "config/tsn26/financial-constitution.v1.json",
+      "canonical_path": "config/tsn26/financial-constitution.v1.json",
+      "supersedes": [],
+      "protected_boundaries": [
+        "financial-constitution",
+        "sales-attribution",
+        "settlement",
+        "payout",
+        "treasury",
+        "exposure",
+        "legacy-finance-fallback"
+      ]
+    },
+    {
       "authority_id": "authority.synapse-verity.v1",
       "domain": "synapse-verity",
       "version": 1,
