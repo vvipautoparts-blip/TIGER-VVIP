@@ -15,13 +15,15 @@
   "require_extra_approval_for_unattributed_changes": true,
   "require_strict_status_checks": true,
   "required_status_checks": [
-    "VVIP Quality Gate",
-    "TSN-26 Legacy Financial Guard",
-    "TSN-26 Financial DB Rehearsal",
+    "vvip-quality-gate",
+    "no-legacy-financial-residue",
+    "sovereign-financial-db",
     "CodeQL",
     "Dependency Review",
-    "Project Control Integrity",
-    "Zero-Residue Full History",
-    "V14 Release Candidate"
+    "integrity",
+    "full-history",
+    "candidate",
+    "cleanguard-analysis",
+    "repository-governance-proof"
   ]
 }
