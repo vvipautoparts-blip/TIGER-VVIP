@@ -50,12 +50,19 @@ function buildIssueRequest(input = {}) {
   });
 }
 
+function buildPrepareCaptureRequest(input = {}) {
+  return Object.freeze({
+    action: "prepare_capture",
+    challenge_id: normalizeUuid(input.challengeId, "PROOF_CHALLENGE_ID_INVALID"),
+  });
+}
+
 function buildConsumeRequest(input = {}) {
   return Object.freeze({
     action: "consume",
     challenge_id: normalizeUuid(input.challengeId, "PROOF_CHALLENGE_ID_INVALID"),
     nonce: normalizeHex64(input.nonce, "PROOF_NONCE_INVALID"),
-    capture_digest: normalizeHex64(input.captureDigest, "PROOF_CAPTURE_DIGEST_INVALID"),
+    capture_receipt_id: normalizeUuid(input.captureReceiptId, "PROOF_CAPTURE_RECEIPT_ID_INVALID"),
   });
 }
 
@@ -83,6 +90,7 @@ function proofStateCopy(state, locale = "en") {
 module.exports = Object.freeze({
   PROOF_STATES,
   buildIssueRequest,
+  buildPrepareCaptureRequest,
   buildConsumeRequest,
   proofStateCopy,
 });
