@@ -21,11 +21,19 @@ const CONCURRENCY_CONSUME = path.join(ROOT, CONCURRENCY_CONSUME_RELATIVE);
 const CONCURRENCY_VERIFY_RELATIVE = "tests/sql/tiger-synapse-proof-of-now-concurrency-verify.sql";
 const CONCURRENCY_VERIFY = path.join(ROOT, CONCURRENCY_VERIFY_RELATIVE);
 const DB_REHEARSAL = path.join(ROOT, ".github/workflows/tiger-social-db-rehearsal.yml");
+const PSQL_VARIABLE_TOKEN = /(?<!:):(?:'[A-Za-z_][A-Za-z0-9_]*'|[A-Za-z_][A-Za-z0-9_]*)/;
 
 function readRequired(file, code) {
   assert.equal(fs.existsSync(file), true, code);
   return fs.readFileSync(file, "utf8");
 }
+
+test("S4 psql harness guard distinguishes client variables from PostgreSQL casts", () => {
+  assert.match(":intent_id", PSQL_VARIABLE_TOKEN);
+  assert.match(":'intent_id'", PSQL_VARIABLE_TOKEN);
+  assert.doesNotMatch("::uuid", PSQL_VARIABLE_TOKEN);
+  assert.doesNotMatch("value::uuid", PSQL_VARIABLE_TOKEN);
+});
 
 test("S4 client contract is actor-blind, metadata-minimal, bounded, and truthful", () => {
   readRequired(CONTROLLER, "PROOF_CONTROLLER_MISSING");
@@ -146,7 +154,7 @@ test("S4 local DB rehearsal proves authorization, replay, expiry, digest privacy
   for (const block of plpgsqlBlocks) {
     assert.doesNotMatch(
       block,
-      /(?<!:):(?:'[A-Za-z_][A-Za-z0-9_]*'|[A-Za-z_][A-Za-z0-9_]*)/,
+      PSQL_VARIABLE_TOKEN,
       "PROOF_PSQL_VARIABLE_INSIDE_DOLLAR_QUOTED_BLOCK",
     );
   }
