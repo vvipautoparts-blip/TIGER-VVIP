@@ -18,6 +18,8 @@
 
   const COMMENT_PAGE_LIMIT = 20;
   const COMMENT_LOAD_CONCURRENCY = 2;
+  const DEFAULT_RATE_LIMIT_MS = 5000;
+  const MAX_RATE_LIMIT_MS = 60000;
 
   function frozen(value) {
     return Object.freeze(value);
@@ -123,6 +125,7 @@
     const scheduleRead = options && typeof options.scheduleRead === "function"
       ? options.scheduleRead
       : function (task) { return Promise.resolve().then(task); };
+    const now = options && typeof options.now === "function" ? options.now : Date.now;
 
     if (!host || typeof host.replaceChildren !== "function") {
       throw new TypeError("SOCIAL_COMMENTS_HOST_REQUIRED");
@@ -144,6 +147,7 @@
     let hasConfirmed = false;
     let pending = false;
     let destroyed = false;
+    let mutationCooldownUntil = 0;
     let draft = null;
     let submit = null;
     let state = null;
@@ -585,8 +589,31 @@
       return frozen({ ok: true, code: "SOCIAL_COMMENT_SAVED_REFRESH_PENDING" });
     }
 
+    function normalizeRateLimitMs(result) {
+      const requested = result && Number.isFinite(result.retryAfterMs) && result.retryAfterMs > 0
+        ? result.retryAfterMs
+        : DEFAULT_RATE_LIMIT_MS;
+      return Math.min(MAX_RATE_LIMIT_MS, Math.ceil(requested));
+    }
+
+    function renderRateLimited(retryAfterMs) {
+      host.setAttribute("aria-busy", "false");
+      setState("rate-limited", "تم إيقاف المحاولة مؤقتًا. حاول مرة أخرى بعد قليل.");
+      return frozen({
+        ok: false,
+        code: "SOCIAL_COMMENTS_RATE_LIMITED",
+        retryAfterMs,
+      });
+    }
+
+    function activeCooldownFailure() {
+      const remaining = Math.max(1, Math.ceil(mutationCooldownUntil - now()));
+      return renderRateLimited(remaining);
+    }
+
     async function applyMutation(operation, affectedControl) {
       if (destroyed) return frozen({ ok: false, code: "SOCIAL_COMMENTS_DESTROYED" });
+      if (now() < mutationCooldownUntil) return activeCooldownFailure();
       if (pending) return frozen({ ok: false, code: "SOCIAL_COMMENT_PENDING" });
       pending = true;
       host.setAttribute("aria-busy", "true");
@@ -602,6 +629,11 @@
           return renderMutationFailure();
         }
         if (destroyed) return frozen({ ok: false, code: "SOCIAL_COMMENTS_DESTROYED" });
+        if (result && result.ok === false && result.code === "SOCIAL_RATE_LIMITED") {
+          const retryAfterMs = normalizeRateLimitMs(result);
+          mutationCooldownUntil = now() + retryAfterMs;
+          return renderRateLimited(retryAfterMs);
+        }
         if (!result || result.ok !== true || !result.value || result.value.ok !== true) {
           return renderMutationFailure();
         }
@@ -650,6 +682,7 @@
       readEpoch += 1;
       readFlights.clear();
       pending = false;
+      mutationCooldownUntil = 0;
       draft = null;
       submit = null;
       state = null;

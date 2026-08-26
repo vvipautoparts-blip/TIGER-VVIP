@@ -428,6 +428,63 @@ test("overlapping reads for the same reply scope share one in-flight request", a
   assert.match(textOf(host), /رد واحد/);
 });
 
+test("rate-limited comment mutations enter a bounded cooldown without automatic durable retries", async () => {
+  const { createSocialCommentsController } = controllerApi();
+  const host = fakeElement("section");
+  let nowMs = 10_000;
+  let createCalls = 0;
+  const comments = {
+    list: async () => list([row()]),
+    create: async () => {
+      createCalls += 1;
+      return {
+        ok: false,
+        code: "SOCIAL_RATE_LIMITED",
+        retryAfterMs: 5000,
+        providerDetail: "secret-provider-rate-limit-detail",
+      };
+    },
+    update: async () => ({ ok: false, code: "unused" }),
+    remove: async () => ({ ok: false, code: "unused" }),
+  };
+  const controller = createSocialCommentsController({
+    host,
+    postId: POST_ID,
+    comments,
+    document: fakeDocument(),
+    now: () => nowMs,
+  });
+  await controller.load();
+
+  const first = await controller.create("محاولة أولى");
+  assert.deepEqual(first, {
+    ok: false,
+    code: "SOCIAL_COMMENTS_RATE_LIMITED",
+    retryAfterMs: 5000,
+  });
+  assert.equal(createCalls, 1);
+  assert.match(textOf(host), /تعليق مؤكد/);
+  assert.doesNotMatch(JSON.stringify(host), /secret|provider|rate-limit-detail/i);
+
+  const blocked = await controller.create("محاولة أثناء التهدئة");
+  assert.deepEqual(blocked, {
+    ok: false,
+    code: "SOCIAL_COMMENTS_RATE_LIMITED",
+    retryAfterMs: 5000,
+  });
+  assert.equal(createCalls, 1, "cooldown must block a second durable mutation call");
+
+  nowMs += 5000;
+  const afterExpiry = await controller.create("محاولة صريحة بعد انتهاء التهدئة");
+  assert.deepEqual(afterExpiry, {
+    ok: false,
+    code: "SOCIAL_COMMENTS_RATE_LIMITED",
+    retryAfterMs: 5000,
+  });
+  assert.equal(createCalls, 2, "only a new explicit action after cooldown may call the adapter again");
+  assert.match(textOf(host), /تعليق مؤكد/);
+});
+
 test("reply update and remove methods call only the bounded adapter and refresh trusted state", async () => {
   const { createSocialCommentsController } = controllerApi();
   const host = fakeElement("section");

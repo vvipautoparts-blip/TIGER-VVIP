@@ -1,0 +1,31 @@
+title = "TIGER Gitleaks policy"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Known non-secret historical idempotency fixture in the distribution-journal test"
+targetRules = ["generic-api-key"]
+condition = "AND"
+commits = ["413faabb778ea7ef466bfa026eed8fb640710c02"]
+paths = ['''^tests/vvip-distribution-journal\.test\.cjs$''']
+regexTarget = "line"
+regexes = ['''idempotencyKey:\s*"idem_distribution_001"''']
+
+[[allowlists]]
+description = "Known non-secret historical Gate 5 idempotency fixture"
+targetRules = ["generic-api-key"]
+condition = "AND"
+commits = ["fb0a0a023f7445c143ca88e16cf638174fb2c7fc"]
+paths = ['''^tests/tiger-gate5-network-chaos\.test\.mjs$''']
+regexTarget = "line"
+regexes = ['''idempotencyKey:\s*'idem-chaos-001'''']
+
+[[allowlists]]
+description = "Known synthetic AION hostile JWT fixture introduced by the RED contract test"
+targetRules = ["jwt"]
+condition = "AND"
+commits = ["1927798abf4916f512d34d09abdf3b1af69d7f8f"]
+paths = ['''^project-control/tests/aion_sensory_proof_graph\.test\.mjs$''']
+regexTarget = "line"
+regexes = ['''eyJhbGciOiJIUzI1NiJ9\.eyJzdWIiOiJ1c2VyLTEifQ\.signature012345678901234''']

@@ -40,6 +40,7 @@ PUBLIC_STYLE_FILES = (
     "styles/tiger-one/tokens.css",
     "styles/tiger-one/type.css",
     "styles/tiger-social/core-shell.css",
+    "styles/tiger-synapse/living-surface.css",
 )
 
 PUBLIC_ICON_FILES = (
@@ -67,13 +68,23 @@ PUBLIC_SCRIPT_FILES = (
     "scripts/fusion/account-surface.js",
     "scripts/fusion/single-surface-controller.js",
     "scripts/social/text-contract.js",
+    "scripts/synapse/intent-domain.js",
+    "scripts/synapse/intent-runtime-adapters.js",
+    "scripts/synapse/living-surface-controller.js",
     "scripts/social/runtime-adapters.js",
     "scripts/social/feed-read-model.js",
+    "scripts/social/messaging-read-model.js",
+    "scripts/social/profile-read-model.js",
     "scripts/social/reactions-controller.js",
     "scripts/social/comments-controller.js",
+    "scripts/social/safety-controller.js",
     "scripts/social/feed-controller.js",
+    "scripts/social/search-controller.js",
+    "scripts/social/account-lifecycle-controller.js",
     "scripts/social/post-composer.js",
     "scripts/social/friends-controller.js",
+    "scripts/social/messaging-controller.js",
+    "scripts/social/profile-controller.js",
     "scripts/social/core-shell.js",
 )
 

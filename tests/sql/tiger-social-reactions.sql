@@ -32,38 +32,36 @@ select (
   \quit 1
 \endif
 
--- Alice creates three posts and sends Bob a friend request.
+-- Alice is an active profile actor, creates posts through the safe post RPC, then sends Bob a request.
 set local role authenticated;
-select set_config('request.jwt.claims', '{"sub":"user_alice"}', true);
+select set_config('request.jwt.claims', '{"sub":"user_alice01"}', true);
+select public.vvip_upsert_my_social_profile(
+  'Alice Reaction Proof', null, null, 'Amman', null, 'Reaction rehearsal actor'
+);
 
-insert into public.vvip_social_posts (body, audience)
-values ('reaction-public-proof', 'public')
-returning post_id as public_post_id
+select (public.vvip_social_post_create('reaction-public-proof', 'public')->>'post_id')::uuid as public_post_id
 \gset
-
-insert into public.vvip_social_posts (body, audience)
-values ('reaction-friends-proof', 'friends')
-returning post_id as friends_post_id
+select (public.vvip_social_post_create('reaction-friends-proof', 'friends')->>'post_id')::uuid as friends_post_id
 \gset
-
-insert into public.vvip_social_posts (body, audience)
-values ('reaction-only-me-proof', 'only_me')
-returning post_id as only_me_post_id
+select (public.vvip_social_post_create('reaction-only-me-proof', 'only_me')->>'post_id')::uuid as only_me_post_id
 \gset
 
 insert into public.vvip_social_relationships (addressee_subject)
-values ('user_bob');
+values ('user_bob001');
 
 reset role;
 
--- Bob accepts the friendship and can react to visible public/friends posts.
+-- Bob becomes active, accepts the friendship and can react to visible public/friends posts.
 set local role authenticated;
-select set_config('request.jwt.claims', '{"sub":"user_bob"}', true);
+select set_config('request.jwt.claims', '{"sub":"user_bob001"}', true);
+select public.vvip_upsert_my_social_profile(
+  'Bob Reaction Proof', null, null, 'Amman', null, 'Reaction rehearsal actor'
+);
 
 update public.vvip_social_relationships
 set relationship_state = 'friends'
-where requester_subject = 'user_alice'
-  and addressee_subject = 'user_bob'
+where requester_subject = 'user_alice01'
+  and addressee_subject = 'user_bob001'
   and relationship_state = 'pending';
 
 select (
@@ -130,9 +128,9 @@ reset role;
 
 -- Visibility helper proves the RPC authorization boundary without granting it to browsers.
 select (
-  public.vvip_social_can_view_post(:'public_post_id'::uuid, 'user_bob')
-  and public.vvip_social_can_view_post(:'friends_post_id'::uuid, 'user_bob')
-  and not public.vvip_social_can_view_post(:'only_me_post_id'::uuid, 'user_bob')
+  public.vvip_social_can_view_post(:'public_post_id'::uuid, 'user_bob001')
+  and public.vvip_social_can_view_post(:'friends_post_id'::uuid, 'user_bob001')
+  and not public.vvip_social_can_view_post(:'only_me_post_id'::uuid, 'user_bob001')
   and public.vvip_social_can_view_post(:'public_post_id'::uuid, 'user_charlie')
   and not public.vvip_social_can_view_post(:'friends_post_id'::uuid, 'user_charlie')
 ) as reaction_visibility_boundary
@@ -146,15 +144,15 @@ select (
 
 -- Removing friendship immediately removes friends-only reaction eligibility.
 set local role authenticated;
-select set_config('request.jwt.claims', '{"sub":"user_bob"}', true);
+select set_config('request.jwt.claims', '{"sub":"user_bob001"}', true);
 delete from public.vvip_social_relationships
-where requester_subject = 'user_alice'
-  and addressee_subject = 'user_bob'
+where requester_subject = 'user_alice01'
+  and addressee_subject = 'user_bob001'
   and relationship_state = 'friends';
 reset role;
 
 select (
-  not public.vvip_social_can_view_post(:'friends_post_id'::uuid, 'user_bob')
+  not public.vvip_social_can_view_post(:'friends_post_id'::uuid, 'user_bob001')
 ) as friend_reaction_eligibility_revoked
 \gset
 \if :friend_reaction_eligibility_revoked

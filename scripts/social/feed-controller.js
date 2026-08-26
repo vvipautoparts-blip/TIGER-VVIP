@@ -16,6 +16,8 @@
 })(typeof globalThis !== "undefined" ? globalThis : this, function () {
   "use strict";
 
+  const RETRY_DELAYS_MS = Object.freeze([250, 500]);
+
   function frozen(value) {
     return Object.freeze(value);
   }
@@ -25,6 +27,7 @@
     node.className = "social-feed-state";
     node.setAttribute("data-social-feed-state", state);
     node.setAttribute("role", "status");
+    node.setAttribute("aria-live", "polite");
     node.textContent = message;
     return node;
   }
@@ -50,6 +53,9 @@
     article.setAttribute("data-social-post-id", item.id);
     article.setAttribute("data-social-post-audience", item.audience);
 
+    const authorLabelId = `social-post-author-${item.id}`;
+    article.setAttribute("aria-labelledby", authorLabelId);
+
     const header = documentObject.createElement("header");
     header.className = "social-feed-post__header";
 
@@ -61,9 +67,17 @@
     const identity = documentObject.createElement("div");
     identity.className = "social-feed-post__identity";
 
-    const author = documentObject.createElement("strong");
+    const author = documentObject.createElement(
+      item.authorAvailable && item.authorProfileId ? "button" : "strong"
+    );
     author.className = "social-feed-post__author";
-    author.textContent = "عضو VVIP TIGER";
+    author.setAttribute("id", authorLabelId);
+    author.textContent = item.authorDisplayName;
+    if (item.authorAvailable && item.authorProfileId) {
+      author.type = "button";
+      author.setAttribute("data-social-profile-id", item.authorProfileId);
+      author.setAttribute("aria-label", `عرض ملف ${item.authorDisplayName}`);
+    }
 
     const details = documentObject.createElement("div");
     details.className = "social-feed-post__details";
@@ -112,7 +126,10 @@
     share.setAttribute("data-social-share-trigger", "");
     share.disabled = true;
 
-    secondaryActions.append(comment, share);
+    const report = iconButton(documentObject, "الإبلاغ عن المنشور", "social-post-action social-post-action--report", "إبلاغ");
+    report.setAttribute("data-social-report-post", "");
+
+    secondaryActions.append(comment, share, report);
     actions.append(reactions, secondaryActions);
 
     const comments = documentObject.createElement("section");
@@ -129,6 +146,18 @@
     const host = options && options.host;
     const readModel = options && options.readModel;
     const documentObject = options && options.document;
+    const sleep = options && typeof options.sleep === "function"
+      ? options.sleep
+      : (delayMs) => new Promise((resolve) => setTimeout(resolve, delayMs));
+    const isOnline = options && typeof options.isOnline === "function"
+      ? options.isOnline
+      : function () { return true; };
+    const onItemsAppended = options && typeof options.onItemsAppended === "function"
+      ? options.onItemsAppended
+      : null;
+    const onPageSettled = options && typeof options.onPageSettled === "function"
+      ? options.onPageSettled
+      : null;
 
     if (!host || typeof host.replaceChildren !== "function") {
       throw new TypeError("SOCIAL_FEED_HOST_REQUIRED");
@@ -138,6 +167,29 @@
     }
     if (!documentObject || typeof documentObject.createElement !== "function") {
       throw new TypeError("SOCIAL_FEED_DOCUMENT_REQUIRED");
+    }
+
+    let baseLoadOptions;
+    let nextCursor = null;
+    let renderedNodes = [];
+    let renderedPostIds = new Set();
+    let loadMoreButton = null;
+    let inFlightNext = null;
+    let rejectedTotal = 0;
+
+    function baseOptions(loadOptions) {
+      if (!loadOptions || typeof loadOptions !== "object" || Array.isArray(loadOptions)) {
+        return undefined;
+      }
+      const result = {};
+      for (const [key, value] of Object.entries(loadOptions)) {
+        if (key !== "cursor") result[key] = value;
+      }
+      return result;
+    }
+
+    function nextOptions(cursor) {
+      return Object.assign({}, baseLoadOptions || {}, { cursor });
     }
 
     function renderFailure() {
@@ -150,41 +202,226 @@
       return frozen({ ok: false, code: "SOCIAL_FEED_RENDER_FAILED" });
     }
 
-    return frozen({
-      load: async function (loadOptions) {
-        host.setAttribute("aria-busy", "true");
-        host.replaceChildren(statusNode(documentObject, "loading", "جارٍ تحميل آخر الأخبار…"));
+    function offlineFailure() {
+      return frozen({
+        ok: false,
+        code: "SOCIAL_FEED_OFFLINE",
+        reconnectRequired: true,
+      });
+    }
 
+    function renderOffline() {
+      host.setAttribute("aria-busy", "false");
+      host.replaceChildren(statusNode(
+        documentObject,
+        "offline",
+        "لا يوجد اتصال الآن. ستُحدّث آخر الأخبار عند عودة الاتصال."
+      ));
+      return offlineFailure();
+    }
+
+    function renderLoadMore() {
+      if (!nextCursor) return null;
+      const button = iconButton(
+        documentObject,
+        "تحميل المزيد من آخر الأخبار",
+        "social-feed-load-more",
+        "تحميل المزيد"
+      );
+      button.setAttribute("data-social-feed-load-more", "");
+      button.addEventListener("click", function () {
+        void loadNextInternal(true);
+      });
+      return button;
+    }
+
+    function renderPostsAndTail() {
+      loadMoreButton = renderLoadMore();
+      if (loadMoreButton) {
+        host.replaceChildren(...renderedNodes, loadMoreButton);
+      } else {
+        host.replaceChildren(...renderedNodes);
+      }
+    }
+
+    function normalizePageFailure(snapshot) {
+      if (!snapshot || snapshot.ok !== false || typeof snapshot.code !== "string") {
+        return frozen({ ok: false, code: "SOCIAL_FEED_PAGE_FAILED" });
+      }
+      const failure = { ok: false, code: snapshot.code };
+      if (Number.isFinite(snapshot.retryAfterMs)) {
+        failure.retryAfterMs = snapshot.retryAfterMs;
+      }
+      if (snapshot.code === "SOCIAL_FEED_STALE_CURSOR"
+          || snapshot.code === "SOCIAL_FEED_SESSION_STALE"
+          || snapshot.code === "SOCIAL_FEED_OFFLINE") {
+        failure.reconnectRequired = true;
+      }
+      return frozen(failure);
+    }
+
+    async function readWithRetry(request) {
+      let attempt = 0;
+      while (true) {
+        if (!isOnline()) return offlineFailure();
         let snapshot;
         try {
-          snapshot = await readModel.load(loadOptions);
+          snapshot = await readModel.load(request);
         } catch (_) {
-          return renderFailure();
+          return frozen({ ok: false, code: "SOCIAL_FEED_PAGE_FAILED" });
         }
+
+        if (snapshot && snapshot.ok === true) return snapshot;
+        if (!snapshot || snapshot.code !== "SOCIAL_FEED_RETRYABLE" || attempt >= RETRY_DELAYS_MS.length) {
+          return normalizePageFailure(snapshot);
+        }
+
+        await sleep(RETRY_DELAYS_MS[attempt]);
+        attempt += 1;
+      }
+    }
+
+    function renderPageRecovery(snapshot) {
+      host.setAttribute("aria-busy", "false");
+      const failure = normalizePageFailure(snapshot);
+      if (loadMoreButton) {
+        loadMoreButton.textContent = "إعادة المحاولة";
+        loadMoreButton.setAttribute("aria-label", "إعادة محاولة تحميل المزيد من آخر الأخبار");
+        loadMoreButton.setAttribute("data-social-feed-page-state", failure.code);
+      }
+      return failure;
+    }
+
+    async function loadNextInternal(keyboardRequested) {
+      if (inFlightNext) return inFlightNext;
+      if (!nextCursor) {
+        return frozen({ ok: true, count: 0, hasMore: false });
+      }
+
+      const cursor = nextCursor;
+      const focusAfterTerminalSuccess = keyboardRequested === true;
+      inFlightNext = (async function () {
+        host.setAttribute("aria-busy", "true");
+        const snapshot = await readWithRetry(nextOptions(cursor));
 
         if (!snapshot || snapshot.ok !== true || !Array.isArray(snapshot.items)) {
-          return renderFailure();
+          return renderPageRecovery(snapshot);
         }
 
+        const newNodes = [];
+        for (const item of snapshot.items) {
+          if (renderedPostIds.has(item.id)) continue;
+          renderedPostIds.add(item.id);
+          const node = postNode(documentObject, item);
+          renderedNodes.push(node);
+          newNodes.push(node);
+        }
+
+        nextCursor = typeof snapshot.nextCursor === "string" && snapshot.nextCursor
+          ? snapshot.nextCursor
+          : null;
+        renderPostsAndTail();
         host.setAttribute("aria-busy", "false");
         const rejectedCount = Number.isInteger(snapshot.rejectedCount) && snapshot.rejectedCount > 0
           ? snapshot.rejectedCount
           : 0;
-        host.dataset.socialFeedMalformed = String(rejectedCount);
+        rejectedTotal += rejectedCount;
+        host.dataset.socialFeedMalformed = String(rejectedTotal);
 
-        if (snapshot.empty || snapshot.items.length === 0) {
-          host.replaceChildren(statusNode(
-            documentObject,
-            "empty",
-            "لا توجد منشورات متاحة لك حتى الآن."
-          ));
-          return frozen({ ok: true, count: 0, empty: true, rejectedCount });
+        if (newNodes.length > 0 && onItemsAppended) {
+          onItemsAppended(Object.freeze([...newNodes]));
+        }
+        if (onPageSettled) onPageSettled();
+
+        if (focusAfterTerminalSuccess && !nextCursor && newNodes.length > 0) {
+          const firstNewNode = newNodes[0];
+          firstNewNode.setAttribute("tabindex", "-1");
+          if (typeof firstNewNode.focus === "function") firstNewNode.focus();
         }
 
-        const nodes = snapshot.items.map((item) => postNode(documentObject, item));
-        host.replaceChildren(...nodes);
-        return frozen({ ok: true, count: nodes.length, empty: false, rejectedCount });
-      },
+        return frozen({
+          ok: true,
+          count: newNodes.length,
+          hasMore: Boolean(nextCursor),
+          rejectedCount: rejectedTotal,
+        });
+      })();
+
+      try {
+        return await inFlightNext;
+      } finally {
+        inFlightNext = null;
+      }
+    }
+
+    async function load(loadOptions) {
+      baseLoadOptions = baseOptions(loadOptions);
+      nextCursor = null;
+      renderedNodes = [];
+      renderedPostIds = new Set();
+      loadMoreButton = null;
+      rejectedTotal = 0;
+
+      host.setAttribute("aria-busy", "true");
+      host.replaceChildren(statusNode(documentObject, "loading", "جارٍ تحميل آخر الأخبار…"));
+
+      const snapshot = await readWithRetry(loadOptions);
+
+      if (!snapshot || snapshot.ok !== true || !Array.isArray(snapshot.items)) {
+        if (snapshot && snapshot.code === "SOCIAL_FEED_OFFLINE") return renderOffline();
+        return renderFailure();
+      }
+
+      nextCursor = typeof snapshot.nextCursor === "string" && snapshot.nextCursor
+        ? snapshot.nextCursor
+        : null;
+
+      for (const item of snapshot.items) {
+        if (renderedPostIds.has(item.id)) continue;
+        renderedPostIds.add(item.id);
+        renderedNodes.push(postNode(documentObject, item));
+      }
+
+      host.setAttribute("aria-busy", "false");
+      rejectedTotal = Number.isInteger(snapshot.rejectedCount) && snapshot.rejectedCount > 0
+        ? snapshot.rejectedCount
+        : 0;
+      host.dataset.socialFeedMalformed = String(rejectedTotal);
+
+      if (renderedNodes.length === 0 && !nextCursor) {
+        host.replaceChildren(statusNode(
+          documentObject,
+          "empty",
+          "لا توجد منشورات متاحة لك حتى الآن."
+        ));
+        return frozen({ ok: true, count: 0, empty: true, rejectedCount: rejectedTotal });
+      }
+
+      renderPostsAndTail();
+      return frozen({
+        ok: true,
+        count: renderedNodes.length,
+        empty: false,
+        hasMore: Boolean(nextCursor),
+        rejectedCount: rejectedTotal,
+      });
+    }
+
+    async function reconnect() {
+      return load(baseLoadOptions);
+    }
+
+    function markOffline() {
+      if (renderedNodes.length === 0) return renderOffline();
+      return renderPageRecovery(offlineFailure());
+    }
+
+    return frozen({
+      load,
+      loadNext: function () { return loadNextInternal(false); },
+      reconnect,
+      markOffline,
+      getLoadMoreTarget: function () { return loadMoreButton; },
     });
   }
 
@@ -224,18 +461,110 @@
     }
 
     const runtime = runtimeApi.createCurrentSocialRuntime(runtimeRoot);
-    const readModel = feedApi.createSocialFeedReadModel({ runtime });
-    const controller = createSocialFeedController({ host, readModel, document: documentObject });
-    const result = await controller.load();
-
+    const readModel = feedApi.createSocialFeedReadModel({
+      runtime,
+      loadPreferences: async function () {
+        if (!runtime.feedPreferences || typeof runtime.feedPreferences.list !== "function") {
+          return frozen({ ok: false, code: "SOCIAL_FEED_PREFERENCES_UNAVAILABLE" });
+        }
+        return runtime.feedPreferences.list();
+      },
+    });
     const reactionsApi = runtimeRoot && runtimeRoot.TIGERSocialReactions;
-    if (result.ok && reactionsApi && typeof reactionsApi.mountCurrentSocialReactions === "function") {
-      reactionsApi.mountCurrentSocialReactions(runtimeRoot);
-    }
     const commentsApi = runtimeRoot && runtimeRoot.TIGERSocialComments;
-    if (result.ok && commentsApi && typeof commentsApi.mountCurrentSocialComments === "function") {
-      commentsApi.mountCurrentSocialComments(runtimeRoot);
+    let observer = null;
+    let observedTarget = null;
+    let reconnectInFlight = null;
+    let controller;
+
+    function mountPostEnhancers() {
+      if (reactionsApi && typeof reactionsApi.mountCurrentSocialReactions === "function") {
+        reactionsApi.mountCurrentSocialReactions(runtimeRoot);
+      }
+      if (commentsApi && typeof commentsApi.mountCurrentSocialComments === "function") {
+        commentsApi.mountCurrentSocialComments(runtimeRoot);
+      }
     }
+
+    function observeCurrentTail() {
+      if (!observer || !controller) return;
+      const target = controller.getLoadMoreTarget();
+      if (!target || target === observedTarget) return;
+      if (observedTarget && typeof observer.unobserve === "function") {
+        observer.unobserve(observedTarget);
+      }
+      observedTarget = target;
+      observer.observe(target);
+    }
+
+    controller = createSocialFeedController({
+      host,
+      readModel,
+      document: documentObject,
+      isOnline: function () {
+        return !runtimeRoot.navigator || runtimeRoot.navigator.onLine !== false;
+      },
+      onItemsAppended: function () {
+        mountPostEnhancers();
+      },
+      onPageSettled: function () {
+        observeCurrentTail();
+      },
+    });
+
+    if (typeof runtimeRoot.IntersectionObserver === "function") {
+      observer = new runtimeRoot.IntersectionObserver(function (entries) {
+        for (const entry of entries || []) {
+          if (!entry || entry.isIntersecting !== true || entry.target !== observedTarget) continue;
+          const target = observedTarget;
+          observedTarget = null;
+          if (target && typeof observer.unobserve === "function") observer.unobserve(target);
+          void controller.loadNext();
+          break;
+        }
+      }, { rootMargin: "320px 0px" });
+    }
+
+    const previousCleanup = runtimeRoot.TIGERSocialFeedCurrentCleanup;
+    if (typeof previousCleanup === "function") previousCleanup();
+    runtimeRoot.TIGERSocialFeedCurrent = controller;
+
+    const onOffline = function () {
+      controller.markOffline();
+    };
+    const onOnline = function () {
+      if (runtimeRoot.navigator && runtimeRoot.navigator.onLine === false) return;
+      if (reconnectInFlight) return;
+      reconnectInFlight = Promise.resolve(controller.reconnect())
+        .then(function (reconnected) {
+          if (reconnected && reconnected.ok === true) {
+            mountPostEnhancers();
+            observeCurrentTail();
+          }
+          return reconnected;
+        })
+        .catch(function () { return frozen({ ok: false, code: "SOCIAL_FEED_RECONNECT_FAILED" }); })
+        .finally(function () { reconnectInFlight = null; });
+    };
+
+    if (typeof runtimeRoot.addEventListener === "function") {
+      runtimeRoot.addEventListener("offline", onOffline);
+      runtimeRoot.addEventListener("online", onOnline);
+    }
+    runtimeRoot.TIGERSocialFeedCurrentCleanup = function () {
+      if (typeof runtimeRoot.removeEventListener === "function") {
+        runtimeRoot.removeEventListener("offline", onOffline);
+        runtimeRoot.removeEventListener("online", onOnline);
+      }
+      if (observer && typeof observer.disconnect === "function") observer.disconnect();
+    };
+
+    const result = await controller.load();
+    if (!result.ok) return result;
+
+    mountPostEnhancers();
+    observeCurrentTail();
+
     return result;
   }
 
@@ -282,6 +611,7 @@
   }
 
   return frozen({
+    createSocialPostNode: postNode,
     createSocialFeedController,
     mountCurrentSocialFeed,
     installCurrentSocialFeed,

@@ -1,102 +1,180 @@
 # مرجع مالك TIGER الحالي والنهائي
 
-**الحالة:** `CURRENT OWNER ENTRYPOINT / NOT A SECOND AUTHORITY`
+**الحالة:** `CURRENT OWNER ENTRYPOINT / CURRENT_ONLY ROUTER`
 
 **تاريخ التثبيت:** 2026-08-18
 
-**الغرض:** هذه هي الصفحة الأولى التي يعود إليها مالك VVIP TIGER في أي وقت لمعرفة أين توجد الحقيقة الحالية، وما الذي أُلغي، وما الذي يمنع ادعاء الجاهزية.
+**آخر تحديث للسلطة:** 2026-08-25
 
-**قاعدة الظهور:** مرجع حوكمة خاص بالمالك من حيث الوظيفة، ويُمنع نسخه إلى Public Release أو عرضه داخل واجهة المنصة. ليس مخزن أسرار ولا يحتوي كلمات مرور أو مفاتيح أو بيانات اعتماد.
+**الغرض:** هذه هي الصفحة الأولى التي يعود إليها مالك VVIP TIGER لمعرفة الحقيقة الحالية، آخر اعتماد، ما أُلغي، وما الذي يمنع ادعاء الجاهزية.
+
+**قاعدة الظهور:** مرجع حوكمة خاص بالمالك من حيث الوظيفة، ويُمنع نسخه إلى Public Release أو عرضه داخل واجهة المنصة. لا يحتوي أسرارًا أو كلمات مرور أو مفاتيح أو بيانات اعتماد.
 
 ## 1. قاعدة المالك النهائية
 
-قرار المالك الملزم هو:
+> **الجديد الذي يعتمده المالك بوصفه `CURRENT_ONLY` هو السلطة النهائية في نطاقه. إذا تعارض معه أي قرار أو وثيقة أو كود أو اختبار أو إعداد أو مسار قديم، تُلغى سلطة القديم نهائيًا ويُزال من المنصة الحالية والحزمة العامة ومسارات التنفيذ. لا fallback ولا resurrection لقديم متعارض.**
 
-> **الجديد الذي يعتمده المالك بوصفه `CURRENT_ONLY` هو السلطة النهائية في نطاقه. إذا تعارض معه أي قرار أو وثيقة أو كود أو اختبار أو إعداد أو مسار قديم، تُلغى سلطة القديم نهائيًا ويُزال من المنصة الحالية والحزمة العامة ومسارات التنفيذ. يُعتمد الجديد وحده، ولا يجوز إعادة القديم باسم التوافق أو الرجوع أو السرعة.**
+تُطبق القاعدة كما يلي:
 
-تُطبق القاعدة آليًا وعمليًا كما يلي:
+1. أحدث قرار صريح `CURRENT_ONLY` يتقدم على أي سلطة أقدم في المجال نفسه.
+2. كل قديم متعارض يصنف `RETIRED_FROM_CURRENT_PLATFORM / HISTORICAL_ONLY`.
+3. يُفصل القديم المتعارض عن runtime والواجهة والتنقل والحزمة العامة والاختبارات الحالية والإعدادات والخطط والوثائق النشطة.
+4. لا يسمح Feature Flag أو compatibility layer أو rollback path بإعادة سلطة قديمة متعارضة.
+5. يبقى الأثر التاريخي الضروري داخل Git/Archive للتدقيق فقط، بلا سلطة تنفيذية.
+6. حذف Git history عملية مدمرة مستقلة لا تتم إلا لسبب أمني مثبت وبإجراءات التدوير/النسخ/الموافقة المناسبة.
+7. الحماية الأمنية أو القانونية الأشد غير المتعارضة تبقى إلى أن يستبدلها قرار صريح وآمن.
 
-1. أحدث قرار صريح للمالك مسجل بوضع `CURRENT_ONLY` يتقدم على كل سلطة أقدم في المجال نفسه.
-2. كل قديم متعارض يصنف فورًا `RETIRED_FROM_CURRENT_PLATFORM / HISTORICAL_ONLY`.
-3. يُفصل القديم المتعارض عن الـruntime والواجهة والتنقل والحزمة العامة والاختبارات الحالية والإعدادات وخطط التنفيذ والنسخ المولدة والوثائق النشطة.
-4. لا يجوز لمسار توافق أو Feature Flag أو Rollback أو تعليق كود أن يعيد سلطة قديمة متعارضة.
-5. يبقى الأثر الضروري داخل Git أو Archive للتدقيق والأمن وإثبات القرارات فقط؛ لا يُنشر داخل المنصة، ولا يظهر للمستخدم، ولا يملك أي سلطة تنفيذية.
-6. الحذف الفيزيائي من تاريخ Git عملية مدمرة منفصلة، ولا يتم إلا عند وجود سبب أمني مثبت، ونسخة احتياطية، وتدوير أسرار عند الحاجة، وموافقة العملية المدمرة المختصة.
-7. إذا كان القديم لا يتعارض ويقدم حماية أمنية أو قانونية أشد، تبقى الحماية سارية إلى أن يستبدلها قرار مالك صريح وآمن.
+## 2. آخر اعتماد للمالك — TIGER AION ∞
 
-## 2. السلطة الحالية التي يبدأ منها المالك
+**أحدث اعتماد في نطاق ما بعد الإطلاق:**
 
-هذا الملف هو **مدخل المالك** وليس نسخة ثانية من الحقيقة. ترتيب الرجوع الملزم هو:
+`docs/owner-control/TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md`
+
+**المجال الآلي:** `post-launch-autonomy`
+
+**حالة السلطة/runtime:** `CURRENT_ONLY / OWNER_APPROVED / IMPLEMENTATION_REQUIRED`
+
+**حالة برنامج AION على فرع PR #271:** `BRANCH_A0_TO_A9_VERIFIED / PRODUCTION_NOT_ACTIVATED`
+
+**نقطة تحقق A9:** `ca76f5e1d8dcf60521b0d25545ed0c1c12d015ec` — أُغلقت عليها جميع بوابات GitHub العشر المطلوبة بنجاح على الـSHA نفسه.
+
+حالة السلطة/runtime أعلاه لا تتعارض مع اكتمال عقود A0→A9 على الفرع: التحقق الحالي يثبت **control-plane/branch implementation** فقط، ولا يعني تفعيل AION في Production، ولا يمنح runtime autonomy، ولا يصرح بأي تغيير في `main` أو Production.
+
+TIGER AION ∞ هو المرجع الوحيد لما بعد الإطلاق: التشغيل والاستقرار والنمو والأمن والاستعادة ومكافحة spam/fraud/abuse والقياس والتحديثات والدعم والامتثال حسب الدولة والتنظيف المستمر.
+
+AION يثبت المعمارية التالية كاملة بلا حذف أي نقطة:
+
+- **Self-Futuring**؛
+- **Prospective Memory**؛
+- **TIGER DREAM CYCLE**؛
+- **Twin Swarm**؛
+- **Synthetic Society**؛
+- **Jurisdiction Genome**؛
+- **Digital Metabolism**؛
+- **Digital Entropy Score**؛
+- **Always-Recovering Twin**؛
+- **Immune Memory / Digital Antibodies**؛
+- **Red Swarm vs Blue Swarm** في بيئات معزولة؛
+- **Capability Cells** للوكلاء؛
+- **Agent Immune System**؛
+- **Adaptive Autonomy Credit**؛
+- **Dual Brain**: probabilistic proposal + deterministic authority؛
+- **Proof-Carrying Action / Action Passport**؛
+- **Software/Release DNA** و`No Provenance → No Production`؛
+- **OpenTelemetry-first sensory plane** مع metrics/logs/traces/profiles/eBPF/runtime/network/database/RUM/business/fraud/cost signals؛
+- **Progressive Immune Delivery**؛
+- **Crypto Genome / Crypto Agility / PQC readiness** دون تشفير خاص؛
+- **TIGER Constitution** فوق جميع الوكلاء.
+
+الحلقة السيادية:
+
+`PERCEIVE → IMAGINE → BRANCH → ATTACK → EXPERIENCE → PROVE → CHOOSE → ACT → VERIFY → REMEMBER`
+
+القواعد الملزمة:
+
+- `No Evidence → No Action`.
+- `No Policy → No Action`.
+- `No Provenance → No Production`.
+- `No Recovery Path → No high-risk autonomous action`.
+- لا unrestricted autonomous Production mutation.
+- لا سياسة قانونية منشأة بالذكاء الاصطناعي تدخل Production دون اعتماد بشري قانوني.
+- لا Backup = GREEN دون restore proof حديث.
+- لا حذف ذاتي مدمر بلا quarantine/evidence/recovery gates.
+
+### إلغاء التصورات السابقة في هذا النطاق
+
+الأسماء/التصورات التالية **غير مخولة وHISTORICAL_ONLY من حيث السلطة، ولا fallback إليها**:
+
+- `TIGER AEGIS NEXUS`؛
+- `TIGER ORACLE IMMUNE CORE`؛
+- أي `LEGACY_POST_LAUNCH_CHECKLIST_MODEL` يفصل Monitoring/Backup/Fraud/Support/Legal/Cleanup كسلطات مستقلة متنافسة.
+
+يمكن الاستفادة من فكرة تقنية قديمة فقط إذا كانت مدمجة داخل AION ولا تعارض دستوره وعقده الحالي؛ لا تستعيد الاسم أو السلطة القديمة.
+
+## 3. ترتيب الرجوع الحالي للمالك
+
+هذا الملف هو مدخل القرار، وليس نسخة تنفيذية ثانية. ترتيب الرجوع الملزم:
 
 1. `docs/MASTER_PROJECT_STATE.md` — حالة المشروع البشرية الحالية ومؤشر التنفيذ.
-2. `docs/owner-control/TIGER_ONE_2026_CURRENT_OWNER_AUTHORITY.md` — قاعدة سلطة المالك والإلغاء.
-3. `docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md` — هوية المنتج الاجتماعية الحالية ووضع Marketplace كوحدة داخلها.
-4. `docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة الإعلان المدفوع وخدمة الظهور التي تملكها المنصة.
-5. `docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md` — معمارية TIGER SYNAPSE v2 + TIGER VERITY FABRIC.
-6. `project-control/production-handover/current-authority.v1.json` — عقد التسليم الآلي وبوابات P01–P20.
-7. Git exact commit SHA + exact tree SHA + أدلة CI المطابقة لهما — حقيقة التنفيذ النهائية.
+2. `docs/owner-control/TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md` — السلطة CURRENT_ONLY لما بعد الإطلاق.
+3. `docs/superpowers/specs/2026-08-25-tiger-aion-prospective-living-digital-organism-design.md` — التصميم التنفيذي لـAION.
+4. `docs/superpowers/plans/2026-08-25-tiger-aion-owner-authority-and-program-plan.md` — برنامج A0→A9.
+5. `docs/owner-control/TIGER_ONE_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة المنصة والإلغاء العام.
+6. `docs/owner-control/TIGER_9D_TEMPORARY_OPERATING_CODENAME_2026_CURRENT_OWNER_AUTHORITY.md` — اسم التشغيل المؤقت وحدوده.
+7. `docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md` — هوية المنتج الاجتماعية الحالية.
+8. `docs/owner-control/TIGER_FACEBOOK_1_TO_1_FAMILIARITY_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة UI/UX الحالية في نطاقها ما لم تستبدل بقرار أحدث.
+9. `docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` — الإعلان المدفوع والظهور المملوك للمنصة.
+10. `docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md` — SYNAPSE v2 + VERITY FABRIC.
+11. `project-control/authority/authority-registry.v1.json` — Authority Graph الحالي.
+12. `project-control/production-handover/current-authority.v1.json` — عقد التسليم الآلي وبوابات P01–P20 + عقد AION.
+13. Git exact commit SHA + exact tree SHA + أدلة CI المطابقة — حقيقة التنفيذ النهائية.
 
-إذا اختلف هذا المدخل المختصر مع حالة تنفيذ أحدث موثقة في المرجع الأول أو مع bytes المستودع وأدلة exact-head، تُصحح هذه الصفحة ولا تتحول إلى سلطة موازية.
+إذا اختلفت وثيقة بشرية مع bytes المستودع وأدلة exact-head، لا يُختلق نجاح؛ تُصحح الوثيقة وتبقى الحالة fail-closed.
 
-## 3. هوية المنتج النهائية الحالية
+## 4. هوية المنتج الحالية غير المتعارضة
 
-- **المنصة:** VVIP TIGER.
+- **اسم التشغيل المؤقت:** TIGER 9D؛ لا يحول تلقائيًا إلى معرّف تقني دائم.
+- **المنصة/المعرّفات التقنية:** VVIP TIGER و`TIGER-VVIP` حتى قرار إعادة تسمية مستقل وآمن.
 - **سطح المنتج:** TIGER ONE Living Surface.
-- **هوية المنتج الأساسية:** شبكة اجتماعية أولًا، وMarketplace وPulse وحدتان داخل المنتج وليستا هوية المنتج كلها.
-- **نظام الابتكار:** TIGER SYNAPSE v2 — Temporal Intent Operating System.
-- **نسيج الثقة والإصدار:** TIGER VERITY FABRIC.
-- **مصدر الدخل المعتمد حاليًا:** خدمات الإعلان والظهور المدفوع التي تملكها المنصة، ومنها Pulse وفق 3/10/20 JOD؛ النشر العادي المتوافق مجاني.
-- **دور المنصة:** الإعلان والاكتشاف والعرض والمطابقة القابلة للتفسير وتقريب المسافة، ثم إتاحة التواصل المباشر بين البائع والمشتري أو مقدم الخدمة والمستفيد.
-- **مسؤولية الصفقة:** يتواصل الطرفان ويتفقان ويتعاملان مباشرة وعلى مسؤوليتهما؛ TIGER لا يمثل أيًا منهما.
-- **ما ليست عليه المنصة:** ليست وسيطًا أو سمسارًا أو وكيلًا أو كفيلًا أو ضامنًا، وليست طرفًا في الصفقة، ولا تحفظ أموالها أو تحصل عمولة منها أو تنفذ دفعها أو تسويتها أو توصيلها أو نقل ملكيتها أو ضمانها أو تعويضها أو الفصل في نزاعاتها.
-
-## 4. قاعدة الجاهزية والمعاينة
-
-- التصميم المعتمد ليس دليل تنفيذ.
-- الكود الموجود ليس `VERIFIED` دون فحوص حديثة من exact source state نفسه.
-- أي Quality Gate في حالة RED يمنع وصف الرأس بأنه جاهز.
-- لا يعتمد فيديو قديم أو GitHub Pages قديم أو Preview متقاعد.
-- رابط المعاينة الصحيح يجب أن يكون معزولًا، قابلًا للفتح من الهاتف، ومبنيًا من exact head المطلوب دون تغيير `main` أو Production.
-- إذا لم يوجد رابط مطابق، فالحقيقة الصحيحة هي: `NO VALID PREVIEW YET`.
+- **هوية المنتج:** `SOCIAL_NETWORK_FIRST`؛ Marketplace وPulse وحدتان داخله.
+- **UI/UX الحالي في نطاقه:** `Facebook 1:1 Familiarity + TIGER Identity` ما دام غير مستبدل بقرار أحدث.
+- **نظام النية:** TIGER SYNAPSE v2.
+- **نسيج الحقيقة والإثبات:** TIGER VERITY FABRIC.
+- **ما بعد الإطلاق:** TIGER AION ∞.
+- **مصدر الدخل الحالي:** خدمات الإعلان والظهور المملوكة لـTIGER، ومنها Pulse وفق السلطة الحالية.
+- **حد الصفقة:** الأطراف تتواصل وتتفق وتدفع/تسلم مباشرة وعلى مسؤوليتها؛ TIGER ليست وسيطًا أو سمسارًا أو وكيلًا أو ضامنًا أو حافظة أموال أو طرف تسوية في صفقة Marketplace.
 
 ## 5. قاعدة عدم ازدواج السلطة
 
-لكل مجال قرار حالي واحد فقط. يُمنع وجود:
+لكل domain سلطة CURRENT واحدة فقط. يمنع وجود:
 
-- واجهتين نهائيتين متعارضتين؛
-- محركي نية حاليين؛
-- نموذجَي Composer حاليين؛
-- سلطتي هوية أو RLS؛
-- مساري نشر أو حزم يعتبر كل منهما نفسه نهائيًا؛
-- وثيقتين تحملان قرارات متعارضة بوضع CURRENT.
+- سلطتي Post-Launch متوازيتين؛
+- AION وAEGIS/ORACLE كخيارات fallback؛
+- محركي نية current؛
+- سلطتي identity/RLS؛
+- مساري release يعتبر كل منهما نهائيًا؛
+- وثيقتين متعارضتين تحملان CURRENT لنفس المجال.
 
-المحول المؤقت مسموح فقط إذا كان محدودًا، قابلًا للرصد، وله شرط إزالة واضح. لا يصبح سلطة منتج ثانية.
+Authority Graph يجب أن يفشل مغلقًا عند duplicate current authority أو resurrection أو missing canonical path.
 
-## 6. قاعدة الإثبات
+## 6. قاعدة الإثبات والجاهزية
 
-لا تحتوي الوثيقة السيادية داخل المصدر على SHA ذاتي يفترض أنه يربط الالتزام الذي يحتويها؛ لأن تعديل القيمة يغيّر الالتزام. الربط الصحيح يُولد من CI كدليل خارجي يضم:
+- `APPROVED` لا يعني `IMPLEMENTED`.
+- `IMPLEMENTED` لا يعني `VERIFIED`.
+- برنامج AION على فرع PR #271 وصل إلى `BRANCH_A0_TO_A9_VERIFIED` عند checkpoint `ca76f5e1d8dcf60521b0d25545ed0c1c12d015ec`.
+- هذا التحقق هو **PR branch/control-plane verification فقط**؛ الحالة التشغيلية هي `PRODUCTION_NOT_ACTIVATED`، ولا يمنح runtime autonomy ولا إذنًا بتغيير `main` أو Production.
+- لا يوصف exact head بأنه GREEN إلا بنتائج CI الحديثة على SHA نفسه.
+- لا يعتمد Preview أو فيديو أو Pages متقاعد.
+- أي Quality Gate RED يمنع وصف الرأس بأنه جاهز.
+- أدلة AWS/DNS/TLS/identity الحية مؤقتة وتحتاج freshness.
 
-- exact commit SHA؛
-- exact tree SHA؛
-- digests الوثائق السيادية؛
-- digests حزم الويب والحاوية والمخطط؛
-- نسخة سياسة البوابات؛
-- نتيجة الأدلة وتوقيع/هوية المنتج الموثوق.
+## 7. حدود AION الدستورية
 
-أدلة AWS وDNS وTLS والهوية الحية مؤقتة ولها مدة صلاحية. لا تتحول إلى حقائق دائمة لمجرد نجاحها مرة واحدة.
+AION لا يستطيع تغيير هذه الحدود بنفسه:
 
-## 7. طريقة العودة للمشروع في أي وقت
+- Owner `CURRENT_ONLY` authority؛
+- privacy/data/deletion boundaries؛
+- no-intermediation boundary؛
+- financial/advertising boundaries؛
+- identity/RLS invariants؛
+- main/Production/branch-protection boundaries؛
+- provenance and exact-source requirements؛
+- destructive-operation safeguards؛
+- human legal approval boundary؛
+- `L6 UNRESTRICTED_PRODUCTION_MUTATION = FORBIDDEN`.
 
-عند العودة إلى المشروع:
+## 8. طريقة العودة للمشروع
 
-1. افتح هذه الصفحة.
-2. اقرأ القسم الحالي في `docs/MASTER_PROJECT_STATE.md`.
-3. تحقق من الفرع والـPR وexact commit/tree الفعليين.
-4. اقرأ نتائج CI لنفس SHA، لا لالتزام أقدم.
-5. صنف الحالة بواحدة من: `APPROVED`, `IMPLEMENTED`, `VERIFIED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, `STALE`.
-6. ابدأ من أول بوابة غير ناجحة، ولا تعِد بناء ما هو مثبت وصحيح.
-7. لا تنقل أي قديم متعارض إلى المنصة الحالية.
+1. افتح هذا المرجع.
+2. اقرأ `docs/MASTER_PROJECT_STATE.md` للحالة الفعلية.
+3. اقرأ سلطة المجال المطلوب، وفي Post-Launch اقرأ AION فقط.
+4. تحقق من PR/branch/exact SHA/tree.
+5. اقرأ CI لنفس exact head.
+6. استخدم فقط: `APPROVED`, `IMPLEMENTED`, `VERIFIED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, `STALE`.
+7. ابدأ من أول بوابة غير ناجحة.
+8. لا تعيد أي قديم متعارض للمنصة الحالية.
+9. لا تحول Proposal أو Simulation إلى Production fact بلا proof.
 
-## 8. العبارة المختصرة الملزمة
+## 9. العبارة المختصرة الملزمة
 
-> **مرجع واحد، سلطة حالية واحدة، مصدر دقيق واحد، ودليل مطابق واحد. الجديد المعتمد يحكم؛ القديم المتعارض يخرج نهائيًا من المنصة الحالية ويبقى — عند الضرورة فقط — أثرًا تاريخيًا بلا سلطة.**
+> **مرجع مالك واحد، Authority Graph واحد، وسلطة CURRENT واحدة لكل domain. في ما بعد الإطلاق: TIGER AION ∞ فقط. برنامج A0→A9 موثق كـ`BRANCH_A0_TO_A9_VERIFIED` مع `PRODUCTION_NOT_ACTIVATED` حتى وجود تفويض وأدلة تشغيل مستقلة. تتخيل TIGER مستقبلها، تختبره في Twin Swarm وSynthetic Society، تحمل كل عملية حساسة Action Passport، تستعيد نفسها فعليًا، تنظف entropy باستمرار، وتقيّد الذكاء الاصطناعي بدستور وإثبات وصلاحيات. AEGIS وORACLE وأي Post-Launch قديم متعارض بلا سلطة وبلا fallback.**

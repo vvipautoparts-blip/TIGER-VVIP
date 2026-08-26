@@ -296,6 +296,27 @@
   line-height: 1.7;
 }
 
+.fusion-account-panel > section {
+  padding-block: 10px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.fusion-account-panel > section:first-of-type {
+  border-top: 0;
+}
+
+.fusion-account-panel h3 {
+  margin: 0 0 6px;
+  font-size: 0.86rem;
+}
+
+[data-social-account-lifecycle-actions],
+[data-fusion-account-actions] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .fusion-capability-entry {
   display: flex;
   width: 100%;

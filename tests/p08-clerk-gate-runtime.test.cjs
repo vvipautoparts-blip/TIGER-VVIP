@@ -33,18 +33,31 @@ test("auth gate consumes VVIPRuntimeReady and mounts the runtime Clerk", () => {
   assert.match(authRuntime, /clerk\.mountSignIn\s*\(/);
 });
 
-test("auth gate keeps localhost preview and return paths fail-closed", () => {
+test("auth gate removes localhost preview bypass and keeps return paths fail-closed", () => {
+  assert.equal(auth.localPreviewAllowed, undefined);
+  assert.doesNotMatch(authRuntime, /localPreviewAllowed/);
+  assert.doesNotMatch(authRuntime, /continueWithoutSignIn/);
+
   assert.equal(
-    auth.localPreviewAllowed({ hostname: "localhost", search: "?preview=home" }),
-    true
+    auth.safeReturnPath(
+      { search: "?return_to=index.html" },
+      { environment: "production" }
+    ),
+    "index.html"
   );
   assert.equal(
-    auth.localPreviewAllowed({ hostname: "example.com", search: "?preview=home" }),
-    false
-  );
-  assert.equal(
-    auth.safeReturnPath({ search: "?return_to=private-profile-p03.html" }),
+    auth.safeReturnPath(
+      { search: "?return_to=private-profile-p03.html" },
+      { environment: "preview" }
+    ),
     "private-profile-p03.html"
+  );
+  assert.equal(
+    auth.safeReturnPath(
+      { search: "?return_to=private-profile-p03.html" },
+      { environment: "production" }
+    ),
+    ""
   );
   assert.equal(
     auth.safeReturnPath({ search: "?return_to=https://evil.example" }),
