@@ -20,14 +20,17 @@ jobs:
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
         with:
           node-version: '22'
-      - name: Enforce TSN-26 purge invariant
+      - name: Enforce TSN-26 system purge invariant
         run: node scripts/tsn26/system/legacy-financial-guard.cjs
+      - name: Enforce TSN-26 active-surface purge invariant
+        run: node scripts/tsn26/governance/legacy-finance-purge-guard.cjs
       - name: Run TSN-26 sovereign finance tests
         run: >-
           node --test
           tests/tsn26-financial-constitution.test.cjs
           tests/tsn26-financial-constitution-manifest.test.cjs
           tests/tsn26-invariant-registry.test.cjs
+          tests/tsn26-invariants-and-purge.test.cjs
           tests/tsn26-sovereign-sale-claim.test.cjs
           tests/tsn26-settlement-orchestrator.test.cjs
           tests/tsn26-payment-idempotency.test.cjs
