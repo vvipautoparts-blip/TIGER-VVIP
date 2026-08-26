@@ -24,7 +24,7 @@ jobs:
       RELEASE_SHA: ${{ inputs.release_sha }}
     steps:
       - name: Checkout current main for authority verification
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f544a08e6b0 # v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           ref: main
           fetch-depth: 1
@@ -69,7 +69,7 @@ jobs:
       TIGER_DEFAULT_COUNTRY_CODE: ${{ vars.TIGER_DEFAULT_COUNTRY_CODE }}
     steps:
       - name: Checkout exact approved release SHA
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f544a08e6b0 # v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           ref: ${{ inputs.release_sha }}
           fetch-depth: 0
@@ -94,12 +94,12 @@ jobs:
           echo "SOURCE_TREE=$actual_tree"
 
       - name: Set up Node.js
-        uses: actions/setup-node@1e60f620b9541d04c50fe4240f6b88442fc18c18 # v6
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: '22'
 
       - name: Set up Python
-        uses: actions/setup-python@a079284f6907d469567d7000a6d0159d034d90b0 # v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
 
