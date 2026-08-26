@@ -133,7 +133,7 @@ test("create post sends only user content and audience through the safe RPC", as
 
 test("post text uses Unicode code-point limits and rejects the binding whitespace set", async () => {
   const recorder = createRecorder((state) => ({
-    data: { post_id: "p1", body: state.payload.body, audience: state.payload.audience },
+    data: { post_id: "p1", body: state.params.p_body, audience: state.params.p_audience },
     error: null,
   }));
   const social = createSocialRuntimeAdapters({ client: recorder.client });
@@ -142,9 +142,9 @@ test("post text uses Unicode code-point limits and rejects the binding whitespac
   assert.equal((await social.posts.create({ body: "😀".repeat(5000), audience: "public" })).ok, true);
   assert.equal((await social.posts.create({ body: "😀".repeat(5001), audience: "public" })).ok, false);
 
-  const inserts = recorder.calls.filter((call) => call.type === "insert");
-  assert.equal(inserts.length, 1);
-  assert.equal(Array.from(inserts[0].payload.body).length, 5000);
+  const creates = recorder.calls.filter((call) => call.type === "rpc" && call.name === "vvip_social_post_create");
+  assert.equal(creates.length, 1);
+  assert.equal(Array.from(creates[0].params.p_body).length, 5000);
 });
 
 test("friend request sends only addressee; database owns requester and pending default", async () => {
