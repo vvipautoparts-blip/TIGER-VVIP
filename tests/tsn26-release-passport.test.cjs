@@ -7,6 +7,7 @@ const { generateReleasePassport } = require('../scripts/tsn26/release/release-pa
 
 const NOW = new Date('2026-08-26T06:10:00.000Z');
 const SOURCE_SHA = '1'.repeat(40);
+const BASE_SHA = '3'.repeat(40);
 
 function proof(name, ageSeconds = 30) {
   return {
@@ -27,7 +28,11 @@ function validInput() {
       commit_sha: SOURCE_SHA,
       tree_sha: '2'.repeat(40),
       base_branch: 'main',
-      base_sha: '3'.repeat(40),
+      base_sha: BASE_SHA,
+      merge_base_sha: BASE_SHA,
+      compare_status: 'ahead',
+      ahead_by: 12,
+      behind_by: 0,
     },
     constitution: {
       id: 'TFC-2026.08.001',
@@ -56,6 +61,8 @@ test('release passport is content addressed and can recommend promotion only wit
   assert.equal(passport.production_activation_allowed, false);
   assert.equal(passport.target_branch, 'main');
   assert.equal(passport.source_identity_exact, true);
+  assert.equal(passport.source.behind_by, 0);
+  assert.equal(passport.source.merge_base_sha, passport.source.base_sha);
   assert.equal(passport.supply_chain.slsa_version, '1.2');
   assert.match(passport.passport_id, /^TRP-[0-9a-f]{16}$/);
   assert.match(passport.passport_digest, /^sha256:[0-9a-f]{64}$/);
@@ -91,6 +98,33 @@ test('missing, stale, invalid-source, or cross-head evidence blocks promotion fa
   const crossHeadResult = generateReleasePassport(crossHead, { policy, now: NOW });
   assert.equal(crossHeadResult.promotion_allowed, false);
   assert.ok(crossHeadResult.failures.includes('PROOF_SOURCE_SHA_MISMATCH:quality_gate'));
+});
+
+test('stale, diverged, or malformed target ancestry blocks controlled promotion', () => {
+  const behind = validInput();
+  behind.source.behind_by = 1;
+  const behindResult = generateReleasePassport(behind, { policy, now: NOW });
+  assert.equal(behindResult.promotion_allowed, false);
+  assert.ok(behindResult.failures.includes('SOURCE_BEHIND_TARGET'));
+
+  const diverged = validInput();
+  diverged.source.compare_status = 'diverged';
+  diverged.source.behind_by = 4;
+  diverged.source.merge_base_sha = '9'.repeat(40);
+  const divergedResult = generateReleasePassport(diverged, { policy, now: NOW });
+  assert.equal(divergedResult.promotion_allowed, false);
+  assert.ok(divergedResult.failures.includes('SOURCE_COMPARE_STATUS_BLOCKED:diverged'));
+  assert.ok(divergedResult.failures.includes('SOURCE_BASE_ANCESTRY_MISMATCH'));
+
+  const malformed = validInput();
+  malformed.source.behind_by = -1;
+  malformed.source.ahead_by = 1.5;
+  malformed.source.merge_base_sha = 'bad';
+  const malformedResult = generateReleasePassport(malformed, { policy, now: NOW });
+  assert.equal(malformedResult.promotion_allowed, false);
+  assert.ok(malformedResult.failures.includes('SOURCE_BEHIND_BY_INVALID'));
+  assert.ok(malformedResult.failures.includes('SOURCE_AHEAD_BY_INVALID'));
+  assert.ok(malformedResult.failures.includes('SOURCE_MERGE_BASE_SHA_INVALID'));
 });
 
 test('source, constitution and supply-chain identities must be exact and immutable-looking', () => {
