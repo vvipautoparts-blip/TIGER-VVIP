@@ -146,7 +146,7 @@ test("S4 local DB rehearsal proves authorization, replay, expiry, digest privacy
   for (const block of plpgsqlBlocks) {
     assert.doesNotMatch(
       block,
-      /:'?[A-Za-z_][A-Za-z0-9_]*/,
+      /(?<!:):(?:'[A-Za-z_][A-Za-z0-9_]*'|[A-Za-z_][A-Za-z0-9_]*)/,
       "PROOF_PSQL_VARIABLE_INSIDE_DOLLAR_QUOTED_BLOCK",
     );
   }
