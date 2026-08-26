@@ -71,6 +71,11 @@ const INVARIANTS = Object.freeze({
     'RELEASE',
     'Controlled release promotion requires fresh sovereign and supply-chain proofs bound to the exact same source commit SHA.',
   ),
+  releaseCurrentTargetAncestry: invariant(
+    'REL-002',
+    'RELEASE',
+    'Controlled promotion requires current target-base ancestry and a verified repository-governance proof before merge authority can be considered.',
+  ),
   noLegacyFinancialFallback: invariant(
     'LEGACY-001',
     'LEGACY',
@@ -104,7 +109,7 @@ function assertInvariantRegistryIntegrity() {
   }
   for (const required of [
     'FIN-001', 'FIN-002', 'FIN-003', 'FIN-004', 'FIN-005', 'FIN-006',
-    'AUTH-001', 'AUD-001', 'PAY-001', 'EXP-001', 'AI-001', 'REL-001', 'LEGACY-001',
+    'AUTH-001', 'AUD-001', 'PAY-001', 'EXP-001', 'AI-001', 'REL-001', 'REL-002', 'LEGACY-001',
   ]) {
     getInvariant(required);
   }
