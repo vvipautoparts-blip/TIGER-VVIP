@@ -6,7 +6,9 @@ on:
       - feat/lc04-production-legacy-rpc-hardening-20260808
     paths:
       - "supabase/migrations/20260808134000_lc04_production_legacy_rpc_hardening.sql"
+      - "supabase/migrations/20260817060000_retire_lc04_legacy_profile_helper_graph.sql"
       - "tests/lc04-production-legacy-rpc-hardening.test.cjs"
+      - "tests/lc04-final-legacy-retirement.test.cjs"
       - "tests/lc04-production-legacy-rpc-workflow.test.cjs"
       - "tests/lc04-reviewed-migration-hash-contract.test.cjs"
       - "tests/sql/lc04-production-legacy-rpc-behavior.sql"
@@ -17,7 +19,9 @@ on:
   pull_request:
     paths:
       - "supabase/migrations/20260808134000_lc04_production_legacy_rpc_hardening.sql"
+      - "supabase/migrations/20260817060000_retire_lc04_legacy_profile_helper_graph.sql"
       - "tests/lc04-production-legacy-rpc-hardening.test.cjs"
+      - "tests/lc04-final-legacy-retirement.test.cjs"
       - "tests/lc04-production-legacy-rpc-workflow.test.cjs"
       - "tests/lc04-reviewed-migration-hash-contract.test.cjs"
       - "tests/sql/lc04-production-legacy-rpc-behavior.sql"
@@ -72,24 +76,29 @@ jobs:
         run: |
           node --test \
             tests/lc04-production-legacy-rpc-hardening.test.cjs \
+            tests/lc04-final-legacy-retirement.test.cjs \
             tests/lc04-production-legacy-rpc-workflow.test.cjs \
             tests/lc04-reviewed-migration-hash-contract.test.cjs
 
-      - name: Emit exact LC04 migration SHA-256
+      - name: Emit exact LC04 migration SHA-256 evidence
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/lc04-digest"
-          hash="$(sha256sum supabase/migrations/20260808134000_lc04_production_legacy_rpc_hardening.sql | awk '{print $1}')"
-          test "${#hash}" -eq 64
-          printf '%s\n' "$hash" > "$RUNNER_TEMP/lc04-digest/migration.sha256"
-          echo "LC04_MIGRATION_SHA256=$hash"
+          legacy_hash="$(sha256sum supabase/migrations/20260808134000_lc04_production_legacy_rpc_hardening.sql | awk '{print $1}')"
+          final_hash="$(sha256sum supabase/migrations/20260817060000_retire_lc04_legacy_profile_helper_graph.sql | awk '{print $1}')"
+          test "${#legacy_hash}" -eq 64
+          test "${#final_hash}" -eq 64
+          printf '%s\n' "$legacy_hash" > "$RUNNER_TEMP/lc04-digest/historical-migration.sha256"
+          printf '%s\n' "$final_hash" > "$RUNNER_TEMP/lc04-digest/final-retirement.sha256"
+          echo "LC04_HISTORICAL_MIGRATION_SHA256=$legacy_hash"
+          echo "LC04_FINAL_RETIREMENT_SHA256=$final_hash"
 
-      - name: Upload LC04 migration digest
+      - name: Upload LC04 migration digest evidence
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: lc04-migration-sha256-${{ env.SOURCE_SHA }}
-          path: ${{ runner.temp }}/lc04-digest/migration.sha256
+          path: ${{ runner.temp }}/lc04-digest/*.sha256
           if-no-files-found: error
           retention-days: 14
 
@@ -118,7 +127,7 @@ jobs:
             -v ON_ERROR_STOP=1 \
             -f tests/sql/lc04-production-legacy-rpc-behavior.sql
 
-      - name: Rehearse observed Production legacy helper drift
+      - name: Seed simulated terminal Production legacy residue
         shell: bash
         run: |
           set -euo pipefail
@@ -129,13 +138,26 @@ jobs:
             -d postgres \
             -v ON_ERROR_STOP=1 \
             -f tests/sql/lc04-production-legacy-drift-fixture.sql
-          PGPASSWORD=postgres psql \
-            -h 127.0.0.1 \
-            -p 54322 \
-            -U postgres \
-            -d postgres \
-            -v ON_ERROR_STOP=1 \
-            -f supabase/migrations/20260808134000_lc04_production_legacy_rpc_hardening.sql
+
+      - name: Apply final LC04 residue retirement twice
+        shell: bash
+        run: |
+          set -euo pipefail
+          for pass in 1 2; do
+            echo "LC04_FINAL_RETIREMENT_PASS=$pass"
+            PGPASSWORD=postgres psql \
+              -h 127.0.0.1 \
+              -p 54322 \
+              -U postgres \
+              -d postgres \
+              -v ON_ERROR_STOP=1 \
+              -f supabase/migrations/20260817060000_retire_lc04_legacy_profile_helper_graph.sql
+          done
+
+      - name: Verify terminal LC04 residue convergence
+        shell: bash
+        run: |
+          set -euo pipefail
           PGPASSWORD=postgres psql \
             -h 127.0.0.1 \
             -p 54322 \

@@ -32,7 +32,7 @@ function createClient(rows, options) {
     from() { return queryBuilder(); },
     storage: {
       from(bucket) {
-        assert.equal(bucket, "listing-media");
+        assert.equal(bucket, "listing-media-canonical");
         return {
           async createSignedUrls(paths, expiresIn) {
             state.signedPathBatches.push(paths.slice());
@@ -67,11 +67,8 @@ function repository(fake) {
 
 function media(pathname, position, isCover, extra) {
   return Object.assign({
-    media_id: pathname ? pathname.replace(/\W/g, "_") : "missing",
-    storage_path: pathname,
-    mime_type: "image/webp",
-    width: 1600,
-    height: 1200,
+    canonical_storage_path: pathname,
+    finalization_state: pathname ? "CANONICAL" : "PENDING_FINALIZATION",
     position,
     is_cover: isCover,
     alt_text: pathname || "missing path"
@@ -113,7 +110,7 @@ function sampleRows() {
   ];
 }
 
-test("COST-04 signs at most one display-critical path per listing and deduplicates the batch", async () => {
+test("COST-04 signs at most one canonical display-critical path per listing and deduplicates the batch", async () => {
   const fake = createClient(sampleRows());
   const repo = repository(fake);
 
@@ -126,7 +123,7 @@ test("COST-04 signs at most one display-critical path per listing and deduplicat
   ]);
 });
 
-test("explicit cover wins over lower-position non-cover media", async () => {
+test("explicit canonical cover wins over lower-position non-cover media", async () => {
   const fake = createClient(sampleRows());
   const rows = await repository(fake).listPublic({});
   const listing = rows.find((item) => item.listing_id === "listing-a");
@@ -136,19 +133,19 @@ test("explicit cover wins over lower-position non-cover media", async () => {
   assert.equal(listing.media[2].url, "");
 });
 
-test("lowest-position media is selected when no valid explicit cover path exists", async () => {
+test("lowest-position canonical media is selected when no valid explicit cover path exists", async () => {
   const fake = createClient(sampleRows());
   const rows = await repository(fake).listPublic({});
   const listing = rows.find((item) => item.listing_id === "listing-b");
 
-  assert.equal(listing.media[0].storage_path, "b/position-5.webp");
+  assert.equal(listing.media[0].canonical_storage_path, "b/position-5.webp");
   assert.equal(listing.media[0].url, "");
-  assert.equal(listing.media[1].storage_path, "b/position-0.webp");
+  assert.equal(listing.media[1].canonical_storage_path, "b/position-0.webp");
   assert.match(listing.media[1].url, /^https:\/\/signed\.example\//);
   assert.equal(listing.media[2].url, "");
 });
 
-test("all media metadata and original ordering are preserved while non-selected URLs remain empty", async () => {
+test("canonical media metadata and ordering are preserved while non-selected URLs remain empty", async () => {
   const source = sampleRows();
   const fake = createClient(source);
   const rows = await repository(fake).listPublic({});
@@ -156,13 +153,13 @@ test("all media metadata and original ordering are preserved while non-selected 
   for (let index = 0; index < source.length; index += 1) {
     assert.equal(rows[index].media.length, source[index].media.length);
     assert.deepEqual(
-      rows[index].media.map((item) => item.storage_path),
-      source[index].media.map((item) => item.storage_path)
+      rows[index].media.map((item) => item.canonical_storage_path),
+      source[index].media.map((item) => item.canonical_storage_path)
     );
     for (let mediaIndex = 0; mediaIndex < source[index].media.length; mediaIndex += 1) {
       const output = rows[index].media[mediaIndex];
       const input = source[index].media[mediaIndex];
-      assert.equal(output.media_id, input.media_id);
+      assert.equal(output.finalization_state, input.finalization_state);
       assert.equal(output.position, input.position);
       assert.equal(output.is_cover, input.is_cover);
       assert.ok(Object.prototype.hasOwnProperty.call(output, "url"));
@@ -170,10 +167,10 @@ test("all media metadata and original ordering are preserved while non-selected 
   }
 
   const signed = rows.flatMap((listing) => listing.media).filter((item) => item.url);
-  assert.equal(signed.length, 3, "three listings have selected media, including a deduplicated shared path");
+  assert.equal(signed.length, 3, "three listings have selected canonical media, including a deduplicated shared path");
 });
 
-test("listings without usable storage paths do not trigger Storage signing", async () => {
+test("listings without usable canonical paths do not trigger Storage signing", async () => {
   const fake = createClient([
     { listing_id: "no-media", media: [] },
     { listing_id: "no-path", media: [media("", 0, true), media(null, 1, false)] }
@@ -187,7 +184,7 @@ test("listings without usable storage paths do not trigger Storage signing", asy
   assert.equal(rows[1].media[1].url, "");
 });
 
-test("Storage signing failure remains fail closed", async () => {
+test("canonical Storage signing failure remains fail closed", async () => {
   const fake = createClient(sampleRows(), { signingError: true });
 
   await assert.rejects(

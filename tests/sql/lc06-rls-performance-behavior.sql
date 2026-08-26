@@ -31,13 +31,22 @@ begin
 end
 $lc06_actor_clerk$;
 
--- The transitional duplicate profile table is server-only after the official RPC migration.
-do $lc06_clerk_profile_server_only$
+-- Canonical Clerk profile storage is server-only. The former public.profiles
+-- compatibility authority is retired later in the ledger and must stay absent.
+do $lc06_profile_authority_final$
 declare
   policy_count integer;
   browser_grant_count integer;
   force_rls boolean;
 begin
+  if to_regclass('public.vvip_clerk_profiles') is null then
+    raise exception 'LC06_CLERK_PROFILE_AUTHORITY_MISSING';
+  end if;
+
+  if to_regclass('public.profiles') is not null then
+    raise exception 'LC06_RETIRED_PUBLIC_PROFILES_RETURNED';
+  end if;
+
   select count(*) into policy_count
   from pg_policies
   where schemaname = 'public'
@@ -67,7 +76,7 @@ begin
     raise exception 'LC06_CLERK_PROFILE_FORCE_RLS_REQUIRED';
   end if;
 end
-$lc06_clerk_profile_server_only$;
+$lc06_profile_authority_final$;
 
 -- The media table must not have an ALL owner policy because ALL overlaps SELECT.
 do $lc06_media_policy_overlap$
@@ -104,11 +113,14 @@ begin
 end
 $lc06_media_policy_overlap$;
 
--- Listing reads are intentionally public for ACTIVE listings, but roles must not overlap.
+-- The later NO_VISITOR_MODE hardening supersedes LC06's historical anon/member
+-- role split. Final-state reads keep exactly one authenticated policy and no anon
+-- listing-read policy; the security-invoker projection remains enforced.
 do $lc06_listing_read_roles$
 declare
   anon_count integer;
   auth_count integer;
+  public_feed_security_invoker boolean;
 begin
   select count(*) into anon_count
   from pg_policies
@@ -126,13 +138,26 @@ begin
     and roles = array['authenticated']::name[]
     and policyname = 'vvip_marketplace_authenticated_read';
 
-  if anon_count <> 1 or auth_count <> 1 then
-    raise exception 'LC06_LISTING_READ_POLICY_ROLE_SPLIT_INVALID:anon=%,auth=%', anon_count, auth_count;
+  if anon_count <> 0 or auth_count <> 1 then
+    raise exception 'LC06_LISTING_READ_POLICY_NO_VISITOR_INVALID:anon=%,auth=%', anon_count, auth_count;
+  end if;
+
+  select coalesce(c.reloptions @> array['security_invoker=true']::text[], false)
+  into public_feed_security_invoker
+  from pg_class c
+  join pg_namespace n on n.oid = c.relnamespace
+  where n.nspname = 'public'
+    and c.relname = 'vvip_marketplace_public_feed'
+    and c.relkind = 'v';
+
+  if public_feed_security_invoker is distinct from true then
+    raise exception 'LC06_PUBLIC_FEED_SECURITY_INVOKER_REQUIRED';
   end if;
 end
 $lc06_listing_read_roles$;
 
--- Every advisor-reported modern FK has a covering index after LC06.
+-- Every advisor-reported FK that still belongs to a live relation has a covering
+-- index. The historical public.profiles index disappears with its retired table.
 do $lc06_fk_indexes$
 declare
   missing text[] := array[]::text[];
@@ -140,7 +165,6 @@ declare
 begin
   foreach idx in array array[
     'public.ai_audit_events_approval_id_idx',
-    'public.profiles_superior_id_idx',
     'public.vvip_authority_assignments_role_id_idx',
     'public.vvip_marketplace_favorites_listing_id_idx'
   ] loop
@@ -150,7 +174,11 @@ begin
   end loop;
 
   if cardinality(missing) <> 0 then
-    raise exception 'LC06_MISSING_FK_INDEXES:%', array_to_string(missing, ',');
+    raise exception 'LC06_MISSING_LIVE_FK_INDEXES:%', array_to_string(missing, ',');
+  end if;
+
+  if to_regclass('public.profiles_superior_id_idx') is not null then
+    raise exception 'LC06_RETIRED_PROFILE_INDEX_RETURNED';
   end if;
 end
 $lc06_fk_indexes$;

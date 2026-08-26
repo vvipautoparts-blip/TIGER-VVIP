@@ -117,6 +117,8 @@ jobs:
           set -Eeuo pipefail
           python -m unittest -v tests/test_vvip_public_release.py
           node --test \
+            tests/exact-artifact-production-promotion.test.cjs \
+            tests/production-release-sbom.test.cjs \
             tests/release-workflow-hardening.test.cjs \
             tests/pages-production-artifact-isolation.test.cjs \
             tests/svef-release-bundle-modern.test.cjs \
@@ -147,6 +149,9 @@ jobs:
           node - <<'NODE'
           const fs = require('node:fs');
           const path = require('node:path');
+          const {
+            createProductionFileInventorySbom,
+          } = require('./scripts/release/production-sbom.cjs');
           const { canonicalJson, sha256Hex } = require('./scripts/tsrf/evidence/contracts.cjs');
           const {
             createProductionReleaseBundleManifest,
@@ -163,6 +168,7 @@ jobs:
             '.github/workflows/production-release-artifact.yml',
             'requirements-dev.txt',
             'scripts/quality-gate.sh',
+            'scripts/release/production-sbom.cjs',
             'scripts/tsrf/evidence/contracts.cjs',
             'scripts/tsrf/svef/release-bundle.cjs',
             'tools/vvip_public_release.py',
@@ -206,31 +212,11 @@ jobs:
             throw new Error('PRODUCTION_RELEASE_MANIFEST_NOT_ELIGIBLE');
           }
 
-          const components = Object.entries(releaseManifest.files)
-            .sort(([a], [b]) => a.localeCompare(b))
-            .map(([name, digest]) => ({
-              type: 'file',
-              name,
-              hashes: [{ alg: 'SHA-256', content: digest }],
-            }));
-          const sbom = {
-            bomFormat: 'CycloneDX',
-            specVersion: '1.6',
-            version: 1,
-            metadata: {
-              component: {
-                type: 'application',
-                name: 'VVIP-TIGER',
-                version: sourceSha,
-              },
-              properties: [
-                { name: 'vvip:source_sha', value: sourceSha },
-                { name: 'vvip:source_tree', value: sourceTree },
-                { name: 'vvip:generator', value: 'VVIP_PRODUCTION_FILE_INVENTORY_V1' },
-              ],
-            },
-            components,
-          };
+          const sbom = createProductionFileInventorySbom({
+            sourceSha,
+            sourceTree,
+            files: releaseManifest.files,
+          });
           const sbomBytes = Buffer.from(`${canonicalJson(sbom)}\n`);
           fs.writeFileSync(path.join(evidenceDir, 'sbom.cdx.json'), sbomBytes, { mode: 0o600 });
 
@@ -310,7 +296,7 @@ jobs:
           subject-path: ${{ steps.seal.outputs.archive }}
           sbom-path: ${{ runner.temp }}/vvip-production-evidence/sbom.cdx.json
 
-      - name: Verify signed provenance identity before preserving artifact
+      - name: Verify signed provenance and SBOM identities before preserving artifact
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -323,6 +309,14 @@ jobs:
             --source-digest "$RELEASE_SHA" \
             --deny-self-hosted-runners >/dev/null
           echo 'PRODUCTION_PROVENANCE=PASS'
+          gh attestation verify \
+            "${{ steps.seal.outputs.archive }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/production-release-artifact.yml" \
+            --source-digest "$RELEASE_SHA" \
+            --predicate-type https://cyclonedx.org/bom \
+            --deny-self-hosted-runners >/dev/null
+          echo 'PRODUCTION_SBOM_ATTESTATION=PASS'
 
       - name: Re-check current main immediately before artifact upload
         shell: bash

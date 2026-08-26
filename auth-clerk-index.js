@@ -17,9 +17,24 @@
     "private-profile-p03.html", "/private-profile-p03.html", "./private-profile-p03.html"
   ]);
   const INTENT_STORAGE_KEY = "vvip.auth.intent.v1";
-  const SIMPLE_INTENTS = new Set(["CREATE_LISTING", "OPEN_ACCOUNT"]);
+  const SIMPLE_INTENTS = new Set([
+    "CREATE_LISTING",
+    "OPEN_ACCOUNT",
+    "CREATE_SOCIAL_POST",
+    "OPEN_SOCIAL_FRIENDS",
+    "SOCIAL_FRIEND_ACTION",
+    "SOCIAL_MESSAGE_ACTION",
+    "SOCIAL_PROFILE_EDIT",
+    "SOCIAL_PROFILE_BLOCK",
+    "SOCIAL_PROFILE_UNBLOCK",
+    "SOCIAL_REPORT_SUBMIT",
+    "SOCIAL_PROFILE_FOLLOW",
+    "SOCIAL_PROFILE_UNFOLLOW",
+    "SOCIAL_FEED_PREFERENCE"
+  ]);
   const LISTING_INTENTS = new Set(["TOGGLE_FAVORITE", "CONTACT_SELLER_INTERNAL"]);
   const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  const CLERK_USER_PATTERN = /^user_[A-Za-z0-9_-]{6,128}$/;
 
   let activeClerk = null;
   let listenerRegistered = false;
@@ -34,11 +49,16 @@
     return error;
   }
 
-  function localPreviewAllowed(locationLike) {
-    const location = locationLike || root.location;
-    const preview = new URLSearchParams(location.search).get("preview");
-    const local = ["localhost", "127.0.0.1", "::1", "[::1]", "0.0.0.0"].includes(location.hostname);
-    return local && preview === "home";
+  function hasActiveSession(clerk) {
+    return Boolean(
+      clerk
+      && clerk.isSignedIn === true
+      && clerk.user
+      && typeof clerk.user.id === "string"
+      && CLERK_USER_PATTERN.test(clerk.user.id)
+      && clerk.session
+      && typeof clerk.session.getToken === "function"
+    );
   }
 
   function safeReturnPath(locationLike, runtimeConfigLike) {
@@ -52,7 +72,29 @@
   }
 
   function showHome() {
+    if (root.VVIPFusionSurface && typeof root.VVIPFusionSurface.showHome === "function") {
+      root.VVIPFusionSurface.showHome();
+      return;
+    }
     if (root.VVIP_PR29 && typeof root.VVIP_PR29.showHome === "function") root.VVIP_PR29.showHome();
+  }
+
+  function hideHome() {
+    if (root.VVIPFusionSurface && typeof root.VVIPFusionSurface.hideHome === "function") {
+      root.VVIPFusionSurface.hideHome();
+      return;
+    }
+
+    const home = root.document && typeof root.document.querySelector === "function"
+      ? root.document.querySelector("[data-vvip-fusion-authoritative]")
+      : null;
+    if (home) {
+      home.hidden = true;
+      if (typeof home.setAttribute === "function") home.setAttribute("aria-hidden", "true");
+      return;
+    }
+
+    if (root.VVIP_PR29 && typeof root.VVIP_PR29.hideHome === "function") root.VVIP_PR29.hideHome();
   }
 
   function gateElement() {
@@ -68,6 +110,7 @@
   }
 
   function showGate() {
+    hideHome();
     const gate = gateElement();
     if (gate) {
       gate.hidden = false;
@@ -183,10 +226,15 @@
 
   async function completeSignedIn() {
     if (resumeInFlight) return;
+    if (!hasActiveSession(activeClerk)) {
+      if (activeClerk) lockSignedOut(activeClerk);
+      return;
+    }
     resumeInFlight = true;
     try {
-      hideGate();
       clearAuthError();
+      showHome();
+      hideGate();
       const stored = consumeStoredIntent();
       const resume = pendingResume;
       const descriptor = pendingIntent || stored;
@@ -211,11 +259,25 @@
     }
   }
 
+  function lockSignedOut(clerk) {
+    clearAuthError();
+    showGate();
+    mountClerk(clerk);
+  }
+
   function registerListener(clerk) {
     if (listenerRegistered || !clerk || typeof clerk.addListener !== "function") return;
     listenerRegistered = true;
     clerk.addListener(function () {
-      if (clerk.isSignedIn) completeSignedIn().catch(recover);
+      if (hasActiveSession(clerk)) {
+        completeSignedIn().catch(recover);
+        return;
+      }
+      try {
+        lockSignedOut(clerk);
+      } catch (_) {
+        recover();
+      }
     });
   }
 
@@ -251,19 +313,21 @@
   }
 
   async function start() {
-    showHome();
-    hideGate();
     clearAuthError();
-    if (localPreviewAllowed()) return;
+    showGate();
 
     const clerk = await resolveClerk();
-    if (clerk.isSignedIn) await completeSignedIn();
+    if (hasActiveSession(clerk)) {
+      await completeSignedIn();
+      return;
+    }
+    mountClerk(clerk);
   }
 
   async function requireAuth(descriptor, resume) {
     const normalized = normalizeIntentDescriptor(descriptor);
     const clerk = await resolveClerk();
-    if (clerk.isSignedIn) {
+    if (hasActiveSession(clerk)) {
       clearStoredIntent();
       if (typeof resume === "function") await Promise.resolve(resume());
       return true;
@@ -278,30 +342,20 @@
     return false;
   }
 
-  function continueWithoutSignIn() {
-    pendingIntent = null;
-    pendingResume = null;
-    clearStoredIntent();
-    clearAuthError();
-    hideGate();
-    showHome();
-  }
-
   function recover() {
     console.warn("VVIP_CLERK_GATE_RECOVERY");
-    showHome();
+    showGate();
     showAuthError();
   }
 
   return Object.freeze({
     start,
     requireAuth,
-    continueWithoutSignIn,
     normalizeIntentDescriptor,
     consumeStoredIntent,
     recover,
-    localPreviewAllowed,
     safeReturnPath,
-    authError
+    authError,
+    hasActiveSession
   });
 });

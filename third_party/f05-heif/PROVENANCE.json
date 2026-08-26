@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "F05_HEIF_PROVENANCE_V1",
+  "subject": {
+    "name": "f05-heif-decoder.v1",
+    "sourceHeadSha": "3dd90cc10e27cc6ee6d9b361ead553783b3db33a",
+    "artifacts": {
+      "js": {"path":"workers/media/f05-heif-decoder.v1.js","sha256":"c7df4459e108265b88706cf9345e1f6a936b545a2573462effc8caaf36cad92a"},
+      "wasm": {"path":"workers/media/f05-heif-decoder.v1.wasm","sha256":"37371c91a21267de724838fe62476c6e57b422b3a9ebf954bbcca0b99aa99d78"}
+    }
+  },
+  "materials": {
+    "libheif": {"version":"1.23.1","tagCommit":"2c4bbb54c2738d4a5efbbe3e5fa1d5d76bb88eb0","sha256":"0de0327f60fcd47de90d5654c6fe152232738d60d84fe084ec3e0f35e03b166a"},
+    "libde265": {"version":"1.1.1","tagCommit":"4dd701fffac01632ffd5cabc5ef10deb56accba1","sha256":"fd48a927e94ed74fc7ce8829d222b9d8599fcbfe8b6448ba66705babc56ab219"},
+    "emscripten": {"version":"6.0.6","emsdkCommit":"9981799f744be74ac67b1c1813ff172f63be0630"}
+  },
+  "builder": {
+    "entryPoint": "scripts/media/build-f05-heif-wasm.sh",
+    "networkInputs": "pinned release archives with SHA-256 verification",
+    "dynamicPluginLoading": false,
+    "unsafeEval": false,
+    "multithreading": false
+  },
+  "policy": {
+    "hevcDecoderOnly": true,
+    "initialMemoryBytes": 67108864,
+    "maximumMemoryBytes": 402653184,
+    "originalHeicServerConversion": false
+  }
+}
