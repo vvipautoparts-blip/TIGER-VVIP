@@ -1,0 +1,21 @@
+{
+  "policy_id": "TRP-2026.08.001",
+  "schema_version": "TIGER_RECOVERY_POLICY_V1",
+  "reference": "TSN-26",
+  "fail_closed": true,
+  "required_environment": "ISOLATED_REHEARSAL",
+  "production_mutation_allowed": false,
+  "proof_max_age_seconds": 604800,
+  "financial_core_targets": {
+    "max_rpo_seconds": 60,
+    "max_rto_seconds": 900
+  },
+  "required_checks": [
+    "ledger_balance",
+    "sale_claim_integrity",
+    "policy_digest",
+    "key_reference_recovery",
+    "audit_chain",
+    "report_reproducibility"
+  ]
+}
