@@ -386,27 +386,17 @@ reset role;
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"user_bob001"}', true);
 
-select
-  public.vvip_marketplace_actor_id() as final_bob_actor,
-  public.vvip_social_actor_active() as final_bob_active,
-  public.vvip_get_my_social_profile() as final_bob_profile
-\gset
-
-\echo FINAL_BOB_ACTOR=:final_bob_actor
-\echo FINAL_BOB_ACTIVE=:final_bob_active
-\echo FINAL_BOB_PROFILE=:final_bob_profile
-
 select (
-  :'final_bob_actor' = 'user_bob001'
-  and :'final_bob_active'::boolean
-  and :'final_bob_profile'::jsonb->>'status' = 'profile_loaded'
-  and :'final_bob_profile'::jsonb->'profile'->>'profile_state' = 'active'
-) as final_bob_context_valid
+  public.vvip_marketplace_actor_id() = 'user_bob001'
+  and public.vvip_social_actor_active()
+  and public.vvip_get_my_social_profile()->>'status' = 'profile_loaded'
+  and public.vvip_get_my_social_profile()->'profile'->>'profile_state' = 'active'
+) as comment_owner_lifecycle_context
 \gset
-\if :final_bob_context_valid
-  \echo FINAL_BOB_CONTEXT=PASS
+\if :comment_owner_lifecycle_context
+  \echo COMMENT_OWNER_LIFECYCLE_CONTEXT=PASS
 \else
-  \echo FINAL_BOB_CONTEXT=FAIL
+  \echo COMMENT_OWNER_LIFECYCLE_CONTEXT=FAIL
   \quit 1
 \endif
 
