@@ -172,7 +172,7 @@ test("TSN-26 is the single current sovereign-finance authority", () => {
       "payout",
       "treasury",
       "exposure",
-      "legacy-finance-fallback"
+      "superseded-finance-reentry"
     ]
   });
 });
