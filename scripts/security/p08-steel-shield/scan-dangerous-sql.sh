@@ -213,13 +213,14 @@ declare -A reviewed_migration_hashes=(
   # on new-table NOT NULL rules, the scoped update, and exact RPC grants.
   ["supabase/migrations/20260818150000_synapse_intent_foundation.sql"]="c854a7ebf64d6710a9eb9351044108a10b97a5c35f5afc330288232fc7df5072"
 
-  # SYNAPSE S4 Proof-of-Now: reviewed after TDD RED, exact-byte privilege review,
-  # and SECURITY DEFINER hardening to an empty search_path with schema-qualified relations.
-  # Expected lexical HIGHs are new-table NOT NULL integrity and one multiline atomic UPDATE;
-  # the UPDATE is bounded by challenge id + verified actor + nonce digest + unconsumed state
-  # + server-observed expiry. Raw table access and public/anon/authenticated RPC execution
-  # remain revoked. Any byte drift re-enters Steel Shield automatically.
-  ["supabase/migrations/20260826120000_synapse_proof_of_now.sql"]="8095e894c2c00257a753d700b0525884ce5850f59d74b4b106c89fe86c2974cb"
+  # SYNAPSE S4 Proof-of-Now + server-bound Capture Receipt: reviewed after TDD RED,
+  # exact-byte privilege review, and Steel Shield CRITICAL=0 on the bytes below.
+  # The 36 lexical NOT_NULL findings are table-integrity constraints or bounded lifecycle
+  # predicates. The four multiline UPDATE findings are receipt/challenge state transitions,
+  # each bounded by identity/capability identifiers, lifecycle state, and server-observed
+  # expiry. All five SECURITY DEFINER functions use an empty search_path; raw table access
+  # and public/anon/authenticated RPC execution remain revoked. Any byte drift re-enters review.
+  ["supabase/migrations/20260826120000_synapse_proof_of_now.sql"]="681d66cfd47615e9fbd8622c01bd300af1aff5768c7af346195e0ccdbfb838f8"
 )
 
 reviewed_baseline_path() {
