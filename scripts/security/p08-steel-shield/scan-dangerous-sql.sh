@@ -90,9 +90,10 @@ declare -A reviewed_migration_hashes=(
   # Social Comments: reviewed with CRITICAL=0 after UPDATE/DELETE predicates were
   # made scanner-visible. Findings are five new-table NOT NULL integrity rules,
   # two lexical `is not null` pagination predicates, and four exact authenticated
-  # EXECUTE grants. Browser table CRUD remains revoked; actor, visibility, bounded
-  # keyset pages, one-level reply, and ownership checks stay server-side.
-  ["supabase/migrations/20260818143000_social_comments.sql"]="ed40f4e4ed67ad5dee8c87181f90602cf8878593f55b05d041e3e7a1201ce5fb"
+  # EXECUTE grants. Browser table CRUD remains revoked; actor, visibility, one-query
+  # materialized keyset pages, scoped indexes, one-level reply, and ownership checks
+  # stay server-side.
+  ["supabase/migrations/20260818143000_social_comments.sql"]="6db6647e9435224498b69d178398ca6f7a4e24dcac3864c5b53bcc6eedb5f906"
 )
 
 reviewed_baseline_path() {

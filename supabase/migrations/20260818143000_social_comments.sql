@@ -20,7 +20,7 @@ create table public.vvip_social_comments (
 );
 
 create index vvip_social_comments_post_idx
-    on public.vvip_social_comments (post_id, created_at, comment_id);
+    on public.vvip_social_comments (post_id, parent_comment_id, created_at, comment_id);
 create index vvip_social_comments_parent_idx
     on public.vvip_social_comments (parent_comment_id, created_at, comment_id);
 create index vvip_social_comments_author_idx
@@ -79,70 +79,64 @@ begin
         end if;
     end if;
 
-    select
-        coalesce(
-            jsonb_agg(
-                jsonb_build_object(
-                    'comment_id', comment.comment_id,
-                    'post_id', comment.post_id,
-                    'parent_comment_id', comment.parent_comment_id,
-                    'body', comment.body,
-                    'created_at', comment.created_at,
-                    'updated_at', comment.updated_at,
-                    'viewer_can_edit', comment.author_subject = v_actor
-                )
-                order by comment.created_at, comment.comment_id
-            ),
-            '[]'::jsonb
-        ),
-        count(*)::integer
-    into v_items, v_page_count
-    from (
-        select candidate.*
-        from public.vvip_social_comments candidate
-        where candidate.post_id = p_post_id
-          and candidate.parent_comment_id is not distinct from p_parent_comment_id
-          and (
-              p_cursor_created_at is null
-              or (candidate.created_at, candidate.comment_id) > (p_cursor_created_at, p_cursor_comment_id)
-          )
-        order by candidate.created_at, candidate.comment_id
-        limit v_limit
-    ) comment;
-
-    select count(*) > v_limit
-    into v_has_more
-    from (
-        select comment.comment_id
+    with candidate_page as materialized (
+        select comment.*
         from public.vvip_social_comments comment
         where comment.post_id = p_post_id
           and comment.parent_comment_id is not distinct from p_parent_comment_id
           and (
               p_cursor_created_at is null
               or (comment.created_at, comment.comment_id) > (p_cursor_created_at, p_cursor_comment_id)
-          )
+        )
         order by comment.created_at, comment.comment_id
         limit v_limit + 1
-    ) bounded_page;
-
-    if v_has_more then
+    ),
+    visible_page as materialized (
+        select candidate.*
+        from candidate_page candidate
+        order by candidate.created_at, candidate.comment_id
+        limit v_limit
+    ),
+    page_snapshot as (
+        select
+            coalesce(
+                jsonb_agg(
+                    jsonb_build_object(
+                        'comment_id', comment.comment_id,
+                        'post_id', comment.post_id,
+                        'parent_comment_id', comment.parent_comment_id,
+                        'body', comment.body,
+                        'created_at', comment.created_at,
+                        'updated_at', comment.updated_at,
+                        'viewer_can_edit', comment.author_subject = v_actor
+                    )
+                    order by comment.created_at, comment.comment_id
+                ),
+                '[]'::jsonb
+            ) as items,
+            count(*)::integer as page_count
+        from visible_page comment
+    ),
+    page_state as (
+        select count(*) > v_limit as has_more
+        from candidate_page
+    ),
+    page_cursor as (
         select page.created_at, page.comment_id
-        into v_next_created_at, v_next_comment_id
-        from (
-            select comment.created_at, comment.comment_id
-            from public.vvip_social_comments comment
-            where comment.post_id = p_post_id
-              and comment.parent_comment_id is not distinct from p_parent_comment_id
-              and (
-                  p_cursor_created_at is null
-                  or (comment.created_at, comment.comment_id) > (p_cursor_created_at, p_cursor_comment_id)
-              )
-            order by comment.created_at, comment.comment_id
-            limit v_limit
-        ) page
+        from visible_page page
         order by page.created_at desc, page.comment_id desc
-        limit 1;
-    end if;
+        limit 1
+    )
+    select
+        snapshot.items,
+        snapshot.page_count,
+        state.has_more,
+        case when state.has_more then cursor.created_at else null end,
+        case when state.has_more then cursor.comment_id else null end
+    into v_items, v_page_count, v_has_more, v_next_created_at, v_next_comment_id
+    from page_snapshot snapshot
+    cross join page_state state
+    left join page_cursor cursor on true;
 
     return jsonb_build_object(
         'ok', true,

@@ -17,7 +17,7 @@ test("Social Comments stores bounded one-level replies with useful lookup indexe
   assert.match(sql, /create table public\.vvip_social_comments/i);
   assert.match(sql, /body text not null check \([\s\S]*char_length\(public\.vvip_social_text_normalize\(body\)\) between 1 and 2000[\s\S]*body = public\.vvip_social_text_normalize\(body\)[\s\S]*\)/i);
   assert.match(sql, /parent_comment_id uuid references public\.vvip_social_comments\s*\(comment_id\)\s*on delete cascade/i);
-  assert.match(sql, /vvip_social_comments_post_idx[\s\S]*\(post_id, created_at, comment_id\)/i);
+  assert.match(sql, /vvip_social_comments_post_idx[\s\S]*\(post_id, parent_comment_id, created_at, comment_id\)/i);
   assert.match(sql, /vvip_social_comments_parent_idx[\s\S]*\(parent_comment_id, created_at, comment_id\)/i);
   assert.match(sql, /vvip_social_comments_author_idx[\s\S]*\(author_subject, updated_at desc\)/i);
 });
@@ -54,6 +54,20 @@ test("Social Comments list is server-clamped and keyset paginated for parents or
   assert.match(sql, /limit v_limit \+ 1/i);
   assert.match(sql, /'next_cursor'/i);
   assert.match(sql, /'page_count'/i);
+});
+
+test("Social Comments derives each page and cursor from one materialized candidate snapshot", () => {
+  const sql = migration();
+  const match = sql.match(/create function public\.vvip_social_comment_list[\s\S]*?as \$function\$([\s\S]*?)\$function\$;/i);
+  assert.ok(match, "expected to inspect the list RPC body");
+  const body = match[1];
+
+  assert.match(body, /with candidate_page as materialized\s*\(/i);
+  assert.match(body, /limit v_limit \+ 1/i);
+  assert.match(body, /into v_items, v_page_count, v_has_more, v_next_created_at, v_next_comment_id/i);
+  assert.equal((body.match(/into v_items/gi) || []).length, 1);
+  assert.doesNotMatch(body, /select count\(\*\) > v_limit\s+into v_has_more/i);
+  assert.doesNotMatch(body, /if v_has_more then\s+select page\.created_at/i);
 });
 
 test("Social Comments derives actor and visibility on the server and denies nested or cross-post replies", () => {

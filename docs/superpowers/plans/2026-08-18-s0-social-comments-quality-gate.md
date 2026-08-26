@@ -303,7 +303,7 @@ if parent.post_id <> p_post_id then
 end if;
 ```
 
-Return only bounded comment fields and `ok`; do not return authorization internals or raw policy/risk facts. The list RPC serves either top-level comments or one parent's replies, clamps the requested page to `1..20`, uses `(created_at, comment_id)` keyset pagination, and returns `next_cursor` only when another page exists.
+Return only bounded comment fields and `ok`; do not return authorization internals or raw policy/risk facts. The list RPC serves either top-level comments or one parent's replies, clamps the requested page to `1..20`, and uses `(created_at, comment_id)` keyset pagination. One materialized `LIMIT v_limit + 1` candidate query must derive the bounded items, page count, `has_more`, and structured `next_cursor` from the same SQL statement. Index the scan by `(post_id, parent_comment_id, created_at, comment_id)` so top-level reads do not scan a reply-heavy post.
 
 - [ ] **Step 4: Grant only RPC execution**
 
@@ -522,7 +522,7 @@ if (result.ok && commentsApi && typeof commentsApi.mountCurrentSocialComments ==
 
 Load `scripts/social/comments-controller.js` in `index.html` after `runtime-adapters.js` and before `feed-controller.js`.
 
-Mounting creates no comment read. Only explicit user activation starts a list RPC, and the browser scheduler permits at most two concurrent comment loads. Top-level pages and reply pages remain separately bounded; this is client fanout control, not a substitute for the deferred remote abuse/rate-limit gate.
+Mounting creates no comment read. Only explicit user activation starts a list RPC, and the browser scheduler permits at most two concurrent comment loads. Top-level pages and reply pages remain separately bounded. Collection replacements advance a read generation, delayed responses from older generations or destroyed controllers are ignored, and overlapping requests for the same page scope share one in-flight read. This is client fanout/stale-state control, not a substitute for the deferred remote abuse/rate-limit gate.
 
 - [ ] **Step 5: Add resilient bilingual/RTL-safe presentation**
 

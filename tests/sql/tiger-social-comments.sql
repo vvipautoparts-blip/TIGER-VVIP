@@ -342,6 +342,26 @@ select (
   \quit 1
 \endif
 
+select (
+  :'parent_page_one'::jsonb->'items'->19->>'created_at'
+    = :'parent_page_one'::jsonb->'next_cursor'->>'created_at'
+  and :'parent_page_one'::jsonb->'items'->19->>'comment_id'
+    = :'parent_page_one'::jsonb->'next_cursor'->>'comment_id'
+  and not exists (
+    select 1
+    from jsonb_array_elements(:'parent_page_one'::jsonb->'items') page_one(item)
+    join jsonb_array_elements(:'parent_page_two'::jsonb->'items') page_two(item)
+      on page_one.item->>'comment_id' = page_two.item->>'comment_id'
+  )
+) as atomic_page_snapshot
+\gset
+\if :atomic_page_snapshot
+  \echo COMMENT_ATOMIC_PAGE_SNAPSHOT=PASS
+\else
+  \echo COMMENT_ATOMIC_PAGE_SNAPSHOT=FAIL
+  \quit 1
+\endif
+
 select public.vvip_social_comment_list(
   :'public_post_id'::uuid,
   :'bob_comment_id'::uuid,

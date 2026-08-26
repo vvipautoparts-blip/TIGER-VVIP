@@ -152,8 +152,10 @@
     let parentItems = [];
     let parentNextCursor = null;
     let rejectedCount = 0;
+    let readEpoch = 0;
     const repliesByParent = new Map();
     const replyNextCursor = new Map();
+    const readFlights = new Map();
 
     function setState(nextState, message) {
       if (!state) return;
@@ -395,21 +397,60 @@
       return { items: merged, duplicates };
     }
 
-    async function fetchPage(parentCommentId, cursor) {
+    function destroyedResult() {
+      return frozen({ ok: false, code: "SOCIAL_COMMENTS_DESTROYED" });
+    }
+
+    function supersededResult() {
+      return frozen({ ok: false, code: "SOCIAL_COMMENTS_READ_SUPERSEDED" });
+    }
+
+    function inactiveReadResult(epoch) {
+      if (destroyed) return destroyedResult();
+      if (epoch !== readEpoch) return supersededResult();
+      return null;
+    }
+
+    function beginReadGeneration() {
+      readEpoch += 1;
+      readFlights.clear();
+      return readEpoch;
+    }
+
+    function runReadFlight(scope, epoch, kind, task) {
+      const existing = readFlights.get(scope);
+      if (existing && existing.epoch === epoch) return existing.promise;
+
+      let operation;
+      try {
+        operation = Promise.resolve(task());
+      } catch (error) {
+        operation = Promise.reject(error);
+      }
+
+      let tracked;
+      tracked = operation.finally(function () {
+        const current = readFlights.get(scope);
+        if (current && current.promise === tracked) readFlights.delete(scope);
+      });
+      readFlights.set(scope, { epoch, kind, promise: tracked });
+      return tracked;
+    }
+
+    async function fetchPage(parentCommentId, cursor, epoch) {
       const result = await scheduleRead(function () {
-        if (destroyed) return frozen({ ok: false, code: "SOCIAL_COMMENTS_DESTROYED" });
+        if (destroyed || epoch !== readEpoch) return null;
         return comments.list(postId, {
           parentCommentId,
           cursor,
           limit: COMMENT_PAGE_LIMIT,
         });
       });
-      if (destroyed) return null;
+      if (destroyed || epoch !== readEpoch) return null;
       return normalizePage(result, postId, parentCommentId);
     }
 
-    async function load() {
-      if (destroyed) return frozen({ ok: false, code: "SOCIAL_COMMENTS_DESTROYED" });
+    async function loadAtEpoch(epoch) {
       host.setAttribute("aria-busy", "true");
       if (!hasConfirmed) {
         host.replaceChildren(statusNode(documentObject, "loading", "جارٍ تحميل التعليقات…"));
@@ -418,8 +459,9 @@
       }
 
       try {
-        const page = await fetchPage(null, null);
-        if (destroyed) return frozen({ ok: false, code: "SOCIAL_COMMENTS_DESTROYED" });
+        const page = await fetchPage(null, null, epoch);
+        const inactive = inactiveReadResult(epoch);
+        if (inactive) return inactive;
         if (!page) return renderLoadFailure();
         parentItems = page.items.slice();
         parentNextCursor = page.nextCursor;
@@ -435,18 +477,38 @@
           nextCursor: parentNextCursor,
         });
       } catch (_) {
+        const inactive = inactiveReadResult(epoch);
+        if (inactive) return inactive;
         return renderLoadFailure();
       }
     }
 
-    async function loadMore() {
-      if (!parentNextCursor) {
-        return frozen({ ok: true, count: parentItems.length, rejectedCount, nextCursor: null });
+    function loadCollection(forceRefresh) {
+      if (destroyed) return Promise.resolve(destroyedResult());
+      const existing = readFlights.get("parents");
+      if (!forceRefresh
+        && existing
+        && existing.epoch === readEpoch
+        && existing.kind === "replace") {
+        return existing.promise;
       }
+
+      const epoch = beginReadGeneration();
+      return runReadFlight("parents", epoch, "replace", function () {
+        return loadAtEpoch(epoch);
+      });
+    }
+
+    function load() {
+      return loadCollection(false);
+    }
+
+    async function loadMoreAtEpoch(epoch, cursor) {
       host.setAttribute("aria-busy", "true");
       try {
-        const page = await fetchPage(null, parentNextCursor);
-        if (destroyed) return frozen({ ok: false, code: "SOCIAL_COMMENTS_DESTROYED" });
+        const page = await fetchPage(null, cursor, epoch);
+        const inactive = inactiveReadResult(epoch);
+        if (inactive) return inactive;
         if (!page) return renderLoadFailure();
         const merged = uniqueAppend(parentItems, page.items);
         parentItems = merged.items;
@@ -455,17 +517,29 @@
         renderCollection();
         return frozen({ ok: true, count: parentItems.length, rejectedCount, nextCursor: parentNextCursor });
       } catch (_) {
+        const inactive = inactiveReadResult(epoch);
+        if (inactive) return inactive;
         return renderLoadFailure();
       }
     }
 
-    async function loadReplies(parentCommentId, appendPage) {
-      if (!validId(parentCommentId)) return frozen({ ok: false, code: "SOCIAL_INVALID_COMMENT_ID" });
-      const cursor = appendPage ? (replyNextCursor.get(parentCommentId) || null) : null;
+    function loadMore() {
+      if (!parentNextCursor) {
+        return Promise.resolve(frozen({ ok: true, count: parentItems.length, rejectedCount, nextCursor: null }));
+      }
+      const epoch = readEpoch;
+      const cursor = parentNextCursor;
+      return runReadFlight("parents", epoch, "append", function () {
+        return loadMoreAtEpoch(epoch, cursor);
+      });
+    }
+
+    async function loadRepliesAtEpoch(parentCommentId, appendPage, cursor, epoch) {
       host.setAttribute("aria-busy", "true");
       try {
-        const page = await fetchPage(parentCommentId, cursor);
-        if (destroyed) return frozen({ ok: false, code: "SOCIAL_COMMENTS_DESTROYED" });
+        const page = await fetchPage(parentCommentId, cursor, epoch);
+        const inactive = inactiveReadResult(epoch);
+        if (inactive) return inactive;
         if (!page) return renderLoadFailure();
         const current = appendPage ? (repliesByParent.get(parentCommentId) || []) : [];
         const merged = uniqueAppend(current, page.items);
@@ -480,8 +554,22 @@
           nextCursor: page.nextCursor,
         });
       } catch (_) {
+        const inactive = inactiveReadResult(epoch);
+        if (inactive) return inactive;
         return renderLoadFailure();
       }
+    }
+
+    function loadReplies(parentCommentId, appendPage) {
+      if (!validId(parentCommentId)) {
+        return Promise.resolve(frozen({ ok: false, code: "SOCIAL_INVALID_COMMENT_ID" }));
+      }
+      const epoch = readEpoch;
+      const cursor = appendPage ? (replyNextCursor.get(parentCommentId) || null) : null;
+      const scope = "replies:" + parentCommentId;
+      return runReadFlight(scope, epoch, appendPage ? "append" : "replace", function () {
+        return loadRepliesAtEpoch(parentCommentId, appendPage, cursor, epoch);
+      });
     }
 
     function renderMutationFailure() {
@@ -519,7 +607,7 @@
         }
 
         resetMode();
-        const refreshed = await load();
+        const refreshed = await loadCollection(true);
         if (destroyed) return frozen({ ok: false, code: "SOCIAL_COMMENTS_DESTROYED" });
         if (!refreshed.ok) return renderRefreshPending();
         return refreshed;
@@ -548,7 +636,7 @@
 
     function retryRefresh() {
       if (refreshButton) refreshButton.hidden = true;
-      return load();
+      return loadCollection(true);
     }
 
     function focusDraft() {
@@ -559,6 +647,8 @@
     function destroy() {
       if (destroyed) return frozen({ destroyed: true });
       destroyed = true;
+      readEpoch += 1;
+      readFlights.clear();
       pending = false;
       draft = null;
       submit = null;

@@ -20,9 +20,12 @@ test("Social DB rehearsal is exact-head and local-only", () => {
 test("Social DB rehearsal applies foundation reaction and comment proofs and always stops local stack", () => {
   assert.match(workflow, /scripts\/social\/text-contract\.js/);
   assert.match(workflow, /scripts\/social\/runtime-adapters\.js/);
+  assert.match(workflow, /scripts\/social\/post-domain\.js/);
   assert.match(workflow, /scripts\/social\/feed-controller\.js/);
   assert.match(workflow, /node --test tests\/tiger-social-comments\.test\.cjs/);
   assert.match(workflow, /node --test tests\/tiger-social-feed-controller\.test\.cjs/);
+  assert.match(workflow, /node --test tests\/tiger-social-post-domain\.test\.cjs/);
+  assert.match(workflow, /node --test tests\/tiger-social-runtime-publication\.test\.cjs/);
   assert.match(workflow, /tests\/sql\/tiger-social-core-foundation\.sql/);
   assert.match(workflow, /tests\/sql\/tiger-social-reactions\.sql/);
   assert.match(workflow, /tests\/sql\/tiger-social-comments\.sql/);
@@ -73,6 +76,7 @@ test("comment behavior proof covers RPC-only access visibility reply depth and o
   assert.match(commentBehavior, /COMMENT_PARENT_PAGE_BOUND=PASS/);
   assert.match(commentBehavior, /COMMENT_REPLY_PAGE_BOUND=PASS/);
   assert.match(commentBehavior, /COMMENT_NEXT_CURSOR=PASS/);
+  assert.match(commentBehavior, /COMMENT_ATOMIC_PAGE_SNAPSHOT=PASS/);
   assert.match(commentBehavior, /TIGER_SOCIAL_COMMENTS_DB_BEHAVIOR=PASS/);
   assert.match(commentBehavior, /rollback;/i);
 });

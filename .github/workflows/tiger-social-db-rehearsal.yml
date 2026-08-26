@@ -7,6 +7,7 @@ on:
       - "supabase/migrations/20260818133000_social_reactions.sql"
       - "supabase/migrations/20260818143000_social_comments.sql"
       - "scripts/social/text-contract.js"
+      - "scripts/social/post-domain.js"
       - "scripts/social/runtime-adapters.js"
       - "scripts/social/feed-read-model.js"
       - "scripts/social/feed-controller.js"
@@ -22,6 +23,8 @@ on:
       - "tests/tiger-social-comments-db.test.cjs"
       - "tests/tiger-social-comments-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-runtime-adapters.test.cjs"
+      - "tests/tiger-social-post-domain.test.cjs"
+      - "tests/tiger-social-runtime-publication.test.cjs"
       - "tests/tiger-social-comments.test.cjs"
       - "tests/tiger-social-feed-read-model.test.cjs"
       - "tests/tiger-social-feed-controller.test.cjs"
@@ -39,6 +42,7 @@ on:
       - "supabase/migrations/20260818133000_social_reactions.sql"
       - "supabase/migrations/20260818143000_social_comments.sql"
       - "scripts/social/text-contract.js"
+      - "scripts/social/post-domain.js"
       - "scripts/social/runtime-adapters.js"
       - "scripts/social/feed-read-model.js"
       - "scripts/social/feed-controller.js"
@@ -54,6 +58,8 @@ on:
       - "tests/tiger-social-comments-db.test.cjs"
       - "tests/tiger-social-comments-reviewed-migration-hash.test.cjs"
       - "tests/tiger-social-runtime-adapters.test.cjs"
+      - "tests/tiger-social-post-domain.test.cjs"
+      - "tests/tiger-social-runtime-publication.test.cjs"
       - "tests/tiger-social-comments.test.cjs"
       - "tests/tiger-social-feed-read-model.test.cjs"
       - "tests/tiger-social-feed-controller.test.cjs"
@@ -115,6 +121,8 @@ jobs:
           node --test tests/tiger-social-comments-reviewed-migration-hash.test.cjs
           node --test tests/tiger-social-db-rehearsal-workflow.test.cjs
           node --test tests/tiger-social-runtime-adapters.test.cjs
+          node --test tests/tiger-social-post-domain.test.cjs
+          node --test tests/tiger-social-runtime-publication.test.cjs
           node --test tests/tiger-social-comments.test.cjs
           node --test tests/tiger-social-feed-read-model.test.cjs
           node --test tests/tiger-social-feed-controller.test.cjs

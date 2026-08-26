@@ -8,6 +8,13 @@ const controllerPath = "scripts/social/comments-controller.js";
 const POST_ID = "11111111-1111-4111-8111-111111111111";
 const COMMENT_ID = "22222222-2222-4222-8222-222222222222";
 const REPLY_ID = "33333333-3333-4333-8333-333333333333";
+const FRESH_ID = "44444444-4444-4444-8444-444444444444";
+const STALE_ID = "55555555-5555-4555-8555-555555555555";
+const STALE_REPLY_ID = "66666666-6666-4666-8666-666666666666";
+const NEXT_CURSOR = Object.freeze({
+  created_at: "2026-08-18T12:00:00.000Z",
+  comment_id: COMMENT_ID,
+});
 
 function controllerApi() {
   assert.equal(fs.existsSync(controllerPath), true, "comments controller must exist before behavior tests can pass");
@@ -60,6 +67,12 @@ function flatten(node) {
 
 function textOf(node) {
   return flatten(node).map((item) => item.textContent || "").join(" ");
+}
+
+function deferred() {
+  let resolve;
+  const promise = new Promise((complete) => { resolve = complete; });
+  return { promise, resolve };
 }
 
 function row(overrides) {
@@ -259,6 +272,160 @@ test("malformed comment rows are isolated and reported within the bounded page",
   assert.equal(host.dataset.socialCommentsMalformed, "1");
   assert.match(textOf(host), /تعذر عرض 1/);
   assert.match(textOf(host), /تعليق مؤكد/);
+});
+
+test("a delayed parent page cannot overwrite a mutation-confirmed refresh", async () => {
+  const { createSocialCommentsController } = controllerApi();
+  const host = fakeElement("section");
+  const stalePage = deferred();
+  let listCalls = 0;
+  const comments = {
+    list: async () => {
+      listCalls += 1;
+      if (listCalls === 1) return list([row()], { nextCursor: NEXT_CURSOR });
+      if (listCalls === 2) return stalePage.promise;
+      return list([row(), row({ comment_id: FRESH_ID, body: "تعليق حديث مؤكد" })]);
+    },
+    create: async () => ({ ok: true, value: { ok: true } }),
+    update: async () => ({ ok: false }),
+    remove: async () => ({ ok: false }),
+  };
+  const controller = createSocialCommentsController({ host, postId: POST_ID, comments, document: fakeDocument() });
+  await controller.load();
+
+  const delayed = controller.loadMore();
+  await new Promise((resolve) => setImmediate(resolve));
+  const saved = await controller.create("تعليق حديث مؤكد");
+  assert.equal(saved.ok, true);
+  assert.match(textOf(host), /تعليق حديث مؤكد/);
+
+  stalePage.resolve(list([row({ comment_id: STALE_ID, body: "صفحة أبوية قديمة" })]));
+  assert.deepEqual(await delayed, { ok: false, code: "SOCIAL_COMMENTS_READ_SUPERSEDED" });
+  assert.doesNotMatch(textOf(host), /صفحة أبوية قديمة/);
+  assert.match(textOf(host), /تعليق حديث مؤكد/);
+});
+
+test("a delayed reply page cannot repopulate replies after a fresh mutation load", async () => {
+  const { createSocialCommentsController } = controllerApi();
+  const host = fakeElement("section");
+  const staleReplies = deferred();
+  let listCalls = 0;
+  const comments = {
+    list: async (_postId, options) => {
+      listCalls += 1;
+      if (listCalls === 1) return list([row()]);
+      if (listCalls === 2) return staleReplies.promise;
+      return list([row(), row({ comment_id: FRESH_ID, body: "حالة حديثة" })]);
+    },
+    create: async () => ({ ok: true, value: { ok: true } }),
+    update: async () => ({ ok: false }),
+    remove: async () => ({ ok: false }),
+  };
+  const controller = createSocialCommentsController({ host, postId: POST_ID, comments, document: fakeDocument() });
+  await controller.load();
+
+  const delayed = controller.loadReplies(COMMENT_ID);
+  await new Promise((resolve) => setImmediate(resolve));
+  await controller.create("حالة حديثة");
+
+  staleReplies.resolve(list([
+    row({
+      comment_id: STALE_REPLY_ID,
+      parent_comment_id: COMMENT_ID,
+      body: "رد قديم",
+    }),
+  ], { parentCommentId: COMMENT_ID }));
+  assert.deepEqual(await delayed, { ok: false, code: "SOCIAL_COMMENTS_READ_SUPERSEDED" });
+  assert.doesNotMatch(textOf(host), /رد قديم/);
+  assert.match(textOf(host), /حالة حديثة/);
+});
+
+test("an explicit retry supersedes an older unresolved full load", async () => {
+  const { createSocialCommentsController } = controllerApi();
+  const host = fakeElement("section");
+  const oldLoad = deferred();
+  let listCalls = 0;
+  const comments = {
+    list: async () => {
+      listCalls += 1;
+      if (listCalls === 1) return oldLoad.promise;
+      return list([row({ body: "تحميل حديث" })]);
+    },
+    create: async () => ({ ok: false }),
+    update: async () => ({ ok: false }),
+    remove: async () => ({ ok: false }),
+  };
+  const controller = createSocialCommentsController({ host, postId: POST_ID, comments, document: fakeDocument() });
+
+  const delayed = controller.load();
+  await new Promise((resolve) => setImmediate(resolve));
+  const refreshed = await controller.retryRefresh();
+  assert.equal(refreshed.ok, true);
+  assert.match(textOf(host), /تحميل حديث/);
+
+  oldLoad.resolve(list([row({ comment_id: STALE_ID, body: "تحميل قديم" })]));
+  assert.deepEqual(await delayed, { ok: false, code: "SOCIAL_COMMENTS_READ_SUPERSEDED" });
+  assert.doesNotMatch(textOf(host), /تحميل قديم/);
+  assert.match(textOf(host), /تحميل حديث/);
+});
+
+test("overlapping parent page requests share one in-flight read", async () => {
+  const { createSocialCommentsController } = controllerApi();
+  const host = fakeElement("section");
+  const page = deferred();
+  let listCalls = 0;
+  const comments = {
+    list: async () => {
+      listCalls += 1;
+      return listCalls === 1 ? list([row()], { nextCursor: NEXT_CURSOR }) : page.promise;
+    },
+    create: async () => ({ ok: false }),
+    update: async () => ({ ok: false }),
+    remove: async () => ({ ok: false }),
+  };
+  const controller = createSocialCommentsController({ host, postId: POST_ID, comments, document: fakeDocument() });
+  await controller.load();
+
+  const first = controller.loadMore();
+  const second = controller.loadMore();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(listCalls, 2);
+
+  page.resolve(list([row({ comment_id: FRESH_ID, body: "صفحة واحدة" })]));
+  const results = await Promise.all([first, second]);
+  assert.deepEqual(results[0], results[1]);
+  assert.equal(host.dataset.socialCommentsMalformed, "0");
+  assert.match(textOf(host), /صفحة واحدة/);
+});
+
+test("overlapping reads for the same reply scope share one in-flight request", async () => {
+  const { createSocialCommentsController } = controllerApi();
+  const host = fakeElement("section");
+  const page = deferred();
+  let listCalls = 0;
+  const comments = {
+    list: async () => {
+      listCalls += 1;
+      return listCalls === 1 ? list([row()]) : page.promise;
+    },
+    create: async () => ({ ok: false }),
+    update: async () => ({ ok: false }),
+    remove: async () => ({ ok: false }),
+  };
+  const controller = createSocialCommentsController({ host, postId: POST_ID, comments, document: fakeDocument() });
+  await controller.load();
+
+  const first = controller.loadReplies(COMMENT_ID);
+  const second = controller.loadReplies(COMMENT_ID);
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(listCalls, 2);
+
+  page.resolve(list([
+    row({ comment_id: REPLY_ID, parent_comment_id: COMMENT_ID, body: "رد واحد" }),
+  ], { parentCommentId: COMMENT_ID }));
+  const results = await Promise.all([first, second]);
+  assert.deepEqual(results[0], results[1]);
+  assert.match(textOf(host), /رد واحد/);
 });
 
 test("reply update and remove methods call only the bounded adapter and refresh trusted state", async () => {
