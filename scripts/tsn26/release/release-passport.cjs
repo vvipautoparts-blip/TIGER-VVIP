@@ -6,6 +6,7 @@ const { canonicalJson } = require('../financial/constitution-compiler.cjs');
 const PASSPORT_VERSION = 'TIGER_SOVEREIGN_RELEASE_PASSPORT_V1';
 const SHA_RE = /^[0-9a-f]{40}$/;
 const DIGEST_RE = /^sha256:[0-9a-f]{64}$/;
+const PROMOTABLE_COMPARE_STATUSES = new Set(['ahead', 'identical']);
 
 function freezeDeep(value) {
   if (!value || typeof value !== 'object' || Object.isFrozen(value)) return value;
@@ -24,7 +25,9 @@ function validatePolicy(policy) {
   if (policy.promotion_target_branch !== 'main') throw new Error('release passport promotion target must be main');
   if (policy.production_activation_allowed !== false) throw new Error('release passport may not authorize production activation');
   if (policy.proofs_must_bind_source_sha !== true) throw new Error('release passport proofs must bind exact source sha');
+  if (policy.require_current_base_ancestry !== true) throw new Error('release passport must require current target-base ancestry');
   if (!policy.required_proofs || typeof policy.required_proofs !== 'object' || Array.isArray(policy.required_proofs)) throw new Error('release passport required proofs are missing');
+  if (!Object.hasOwn(policy.required_proofs, 'repository_governance')) throw new Error('release passport repository governance proof is required');
   return policy;
 }
 
@@ -50,6 +53,14 @@ function normalizeSha(value, label, failures) {
   return SHA_RE.test(normalized) ? normalized : null;
 }
 
+function normalizeCounter(value, label, failures) {
+  if (!Number.isSafeInteger(value) || value < 0) {
+    failures.push(`${label}_INVALID`);
+    return null;
+  }
+  return value;
+}
+
 function normalizeInstant(value, label, failures) {
   const date = new Date(value);
   if (!Number.isFinite(date.getTime())) {
@@ -64,6 +75,7 @@ function assessSource(raw, policy, failures) {
   const repository = text(source.repository);
   const branch = text(source.branch);
   const baseBranch = text(source.base_branch);
+  const compareStatus = text(source.compare_status).toLowerCase();
   const localFailuresBefore = failures.length;
 
   if (repository !== policy.expected_repository) failures.push('SOURCE_REPOSITORY_MISMATCH');
@@ -74,6 +86,22 @@ function assessSource(raw, policy, failures) {
   const commitSha = normalizeSha(source.commit_sha, 'SOURCE_COMMIT', failures);
   const treeSha = normalizeSha(source.tree_sha, 'SOURCE_TREE', failures);
   const baseSha = normalizeSha(source.base_sha, 'SOURCE_BASE', failures);
+  const mergeBaseSha = normalizeSha(source.merge_base_sha, 'SOURCE_MERGE_BASE', failures);
+  const aheadBy = normalizeCounter(source.ahead_by, 'SOURCE_AHEAD_BY', failures);
+  const behindBy = normalizeCounter(source.behind_by, 'SOURCE_BEHIND_BY', failures);
+
+  if (!PROMOTABLE_COMPARE_STATUSES.has(compareStatus)) {
+    failures.push(`SOURCE_COMPARE_STATUS_BLOCKED:${compareStatus || 'missing'}`);
+  }
+  if (behindBy !== null && behindBy > 0) failures.push('SOURCE_BEHIND_TARGET');
+  if (baseSha && mergeBaseSha && baseSha !== mergeBaseSha) failures.push('SOURCE_BASE_ANCESTRY_MISMATCH');
+
+  if (compareStatus === 'ahead' && aheadBy !== null && aheadBy === 0) {
+    failures.push('SOURCE_COMPARE_COUNTS_INCONSISTENT');
+  }
+  if (compareStatus === 'identical' && ((aheadBy !== null && aheadBy !== 0) || (behindBy !== null && behindBy !== 0))) {
+    failures.push('SOURCE_COMPARE_COUNTS_INCONSISTENT');
+  }
 
   return {
     value: {
@@ -83,6 +111,10 @@ function assessSource(raw, policy, failures) {
       tree_sha: treeSha,
       base_branch: baseBranch || null,
       base_sha: baseSha,
+      merge_base_sha: mergeBaseSha,
+      compare_status: compareStatus || null,
+      ahead_by: aheadBy,
+      behind_by: behindBy,
     },
     exact: failures.length === localFailuresBefore,
   };
@@ -192,6 +224,7 @@ function generateReleasePassport(input, { policy: rawPolicy, now = new Date() } 
     generated_at: generatedAt ? generatedAt.toISOString() : null,
     target_branch: policy.promotion_target_branch,
     proof_source_binding: 'EXACT_COMMIT',
+    target_base_binding: 'EXACT_CURRENT_ANCESTRY',
     source: source.value,
     source_identity_exact: source.exact,
     constitution,
