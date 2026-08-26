@@ -150,6 +150,16 @@ test("S4 local DB rehearsal proves authorization, replay, expiry, digest privacy
       "PROOF_PSQL_VARIABLE_INSIDE_DOLLAR_QUOTED_BLOCK",
     );
   }
+  assert.match(
+    proof,
+    /set_config\('tiger\.rehearsal\.intent_id',\s*:'intent_id',\s*true\)/i,
+    "PROOF_PSQL_FIXTURE_GUC_WRITE_MISSING",
+  );
+  assert.match(
+    proof,
+    /current_setting\('tiger\.rehearsal\.intent_id'\)::uuid/i,
+    "PROOF_PSQL_FIXTURE_GUC_READ_MISSING",
+  );
 
   assert.match(workflow, /supabase\/migrations\/20260826120000_synapse_proof_of_now\.sql/);
   assert.match(workflow, /tests\/sql\/tiger-synapse-proof-of-now\.sql/);
