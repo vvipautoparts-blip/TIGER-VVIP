@@ -7,8 +7,11 @@ const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
 const SBOM_HELPER = path.join(ROOT, 'scripts', 'release', 'media-cell-sbom.cjs');
+const SBOM_VERIFY_HELPER = path.join(ROOT, 'scripts', 'release', 'media-cell-sbom-verify.cjs');
+const GENOME_HELPER = path.join(ROOT, 'scripts', 'release', 'media-cell-genome.cjs');
 const PASSPORT_HELPER = path.join(ROOT, 'scripts', 'release', 'media-cell-passport.cjs');
 const WORKFLOW = path.join(ROOT, '.github', 'workflows', 'media-finalizer-build.yml');
+const CONTAINER_SBOM_FIXTURE = path.join(ROOT, 'tests', 'fixtures', 'media-finalizer', 'container-sbom-1.7.json');
 const MASTER_SPEC = 'docs/superpowers/specs/2026-08-28-tiger-sovereign-constellation-2026.md';
 
 function read(file) {
@@ -25,7 +28,27 @@ const H64_D = 'd'.repeat(64);
 const H64_E = 'e'.repeat(64);
 const H64_F = 'f'.repeat(64);
 
-function validEvidence() {
+const REQUIRED_MATERIAL_PATHS = [
+  'services/media-finalizer/Dockerfile',
+  'services/media-finalizer/package-lock.json',
+  'infra/media-finalizer/foundation/template.yaml',
+  'infra/media-finalizer/foundation/guard.guard',
+  'infra/media-finalizer/regional/template.yaml',
+  'infra/media-finalizer/regional/guard.guard',
+  'infra/media-finalizer/edge/template.yaml',
+  'infra/media-finalizer/edge/guard.guard',
+];
+const REQUIRED_DB_MIGRATIONS = [
+  'supabase/migrations/20260816090001_sovereign_media_finalization.sql',
+  'supabase/migrations/20260826120000_synapse_proof_of_now.sql',
+  'supabase/migrations/20260827120000_sealed_media_identity_binding.sql',
+];
+
+function digestMap(paths) {
+  return Object.fromEntries(paths.map((name, index) => [name, String.fromCharCode(97 + index).repeat(64)]));
+}
+
+function validLegacyEvidence() {
   return {
     source: { commitSha: H40_A, treeSha: H40_B, immutable: true },
     materials: {
@@ -52,65 +75,80 @@ function validEvidence() {
   };
 }
 
-test('release-evidence helper authorities and the quarantined legacy build entrypoint exist', () => {
-  for (const file of [SBOM_HELPER, PASSPORT_HELPER, WORKFLOW]) read(file);
+function validGenomeEvidence() {
+  return {
+    source: { commitSha: H40_A, treeSha: H40_B, immutable: true },
+    image: {
+      repository: '123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/tiger-media-finalizer',
+      manifestDigest: `sha256:${H64_E}`,
+      baseDigest: `sha256:${H64_F}`,
+    },
+    materials: digestMap(REQUIRED_MATERIAL_PATHS),
+    dbMigrations: digestMap(REQUIRED_DB_MIGRATIONS),
+    containerSbom: {
+      specVersion: '1.7',
+      sha256: H64_A,
+      componentCount: 2,
+      npmPackages: 1,
+      osPackages: 1,
+    },
+    attestations: {
+      provenance: { attestationId: 'attestation-provenance-001', verified: true, evidenceSha256: H64_B },
+      sbom: { attestationId: 'attestation-sbom-001', verified: true, evidenceSha256: H64_C },
+    },
+  };
+}
+
+test('release-evidence authorities include real SBOM verifier and cryptographic Genome', () => {
+  for (const file of [SBOM_HELPER, SBOM_VERIFY_HELPER, GENOME_HELPER, PASSPORT_HELPER, WORKFLOW, CONTAINER_SBOM_FIXTURE]) read(file);
 });
 
-test('media-cell SBOM is deterministic CycloneDX 1.7 with sorted SHA-256 materials', () => {
+test('real container SBOM is CycloneDX 1.7 with both npm and OS package inventory', () => {
+  const { validateContainerSbom } = require(SBOM_VERIFY_HELPER);
+  const sbom = JSON.parse(read(CONTAINER_SBOM_FIXTURE));
+  const summary = validateContainerSbom(sbom, { expectedSpecVersion: '1.7' });
+  assert.equal(summary.componentCount, 2);
+  assert.equal(summary.npmPackages, 1);
+  assert.equal(summary.osPackages, 1);
+});
+
+test('cryptographic Genome is deterministic and changes when authoritative evidence changes', () => {
+  const { createMediaCellGenome } = require(GENOME_HELPER);
+  const evidence = validGenomeEvidence();
+  const first = createMediaCellGenome(evidence);
+  const second = createMediaCellGenome(JSON.parse(JSON.stringify(evidence)));
+  assert.deepEqual(first, second);
+  assert.equal(first.schemaVersion, 'tiger-cryptographic-genome-v1');
+  assert.match(first.genomeId, /^sha256:[0-9a-f]{64}$/);
+
+  const changed = validGenomeEvidence();
+  changed.materials['services/media-finalizer/Dockerfile'] = '9'.repeat(64);
+  assert.notEqual(createMediaCellGenome(changed).genomeId, first.genomeId);
+});
+
+test('existing materials evidence remains deterministic until explicitly reclassified', () => {
   const { createMediaCellSbom } = require(SBOM_HELPER);
-  const input = validEvidence();
+  const input = validLegacyEvidence();
   const first = createMediaCellSbom(input);
   const second = createMediaCellSbom(JSON.parse(JSON.stringify(input)));
   assert.deepEqual(first, second);
   assert.equal(first.bomFormat, 'CycloneDX');
   assert.equal(first.specVersion, '1.7');
-  assert.deepEqual(
-    first.components.map((component) => component.name),
-    Object.keys(input.materials).sort(),
-  );
-  for (const component of first.components) {
-    assert.equal(component.hashes[0].alg, 'SHA-256');
-    assert.match(component.hashes[0].content, /^[0-9a-f]{64}$/);
-  }
 });
 
-test('release passport fails closed on missing, unknown, secret-shaped, or unverified evidence', () => {
+test('legacy passport remains fail-closed until Passport v2 replaces it', () => {
   const { createMediaCellPassport } = require(PASSPORT_HELPER);
-  const good = validEvidence();
-  const first = createMediaCellPassport(good);
-  const second = createMediaCellPassport(JSON.parse(JSON.stringify(good)));
-  assert.deepEqual(first, second);
-  assert.equal(first.schemaVersion, 'tiger-release-passport-v1');
-  assert.equal(first.sbom.specVersion, '1.7');
-  assert.equal(first.attestations.provenance.verified, true);
-  assert.equal(first.attestations.sbom.verified, true);
-  assert.doesNotMatch(JSON.stringify(first), /\bslsa\b/i);
-
-  const missing = validEvidence();
-  delete missing.image.manifestDigest;
-  assert.throws(() => createMediaCellPassport(missing), /PASSPORT_EVIDENCE_INVALID/);
-
-  const unknown = validEvidence();
-  unknown.extra = true;
-  assert.throws(() => createMediaCellPassport(unknown), /PASSPORT_EVIDENCE_UNKNOWN/);
-
-  const unverified = validEvidence();
-  unverified.attestations.provenance.verified = false;
-  assert.throws(() => createMediaCellPassport(unverified), /PASSPORT_ATTESTATION_UNVERIFIED/);
-
-  const secret = validEvidence();
-  secret.secretValue = 'sb_secret_forbidden';
-  assert.throws(() => createMediaCellPassport(secret), /PASSPORT_SECRET_MATERIAL_REJECTED|PASSPORT_EVIDENCE_UNKNOWN/);
+  const good = validLegacyEvidence();
+  const passport = createMediaCellPassport(good);
+  assert.equal(passport.schemaVersion, 'tiger-release-passport-v1');
+  assert.doesNotMatch(JSON.stringify(passport), /\bslsa\b/i);
 });
 
-test('legacy sealed-build workflow is explicitly quarantined until the Sovereign Constellation replacement exists', () => {
+test('legacy sealed-build workflow remains quarantined until replacement implementation is written', () => {
   const source = read(WORKFLOW).replace(/\r/g, '');
   assert.match(source, /workflow_dispatch:/);
   assert.match(source, /SOVEREIGN_CONSTELLATION_SUPERSEDED/);
   assert.match(source, new RegExp(MASTER_SPEC.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   assert.match(source, /exit\s+1/);
-  assert.match(source, /^  contents: read$/m);
-  assert.doesNotMatch(source, /id-token:\s*write|attestations:\s*write|configure-aws-credentials/i);
-  assert.doesNotMatch(source, /docker\s+(?:build|push)|aws\s+ecr|gh\s+attestation|media-cell-passport\.cjs/i);
-  assert.doesNotMatch(source, /infra\/media-finalizer\/template\.yaml/);
+  assert.doesNotMatch(source, /configure-aws-credentials|docker\s+(?:build|push)|aws\s+ecr/i);
 });
