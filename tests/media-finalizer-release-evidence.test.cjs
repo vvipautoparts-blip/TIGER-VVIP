@@ -49,33 +49,6 @@ function digestMap(paths) {
   return Object.fromEntries(paths.map((name, index) => [name, hex[index % hex.length].repeat(64)]));
 }
 
-function validLegacyEvidence() {
-  return {
-    source: { commitSha: H40_A, treeSha: H40_B, immutable: true },
-    materials: {
-      'services/media-finalizer/package-lock.json': H64_A,
-      'services/media-finalizer/Dockerfile': H64_B,
-      'infra/media-finalizer/template.yaml': H64_C,
-      'infra/media-finalizer/guard/media-finalizer.guard': H64_D,
-    },
-    image: {
-      repository: '123456789012.dkr.ecr.us-east-1.amazonaws.com/tiger-media-finalizer',
-      manifestDigest: `sha256:${H64_E}`,
-      baseDigest: `sha256:${H64_F}`,
-    },
-    sbom: {
-      specVersion: '1.7',
-      sha256: H64_A,
-      path: 'artifacts/media-cell/media-finalizer.cdx.json',
-    },
-    scan: { status: 'COMPLETE', findingsSha256: H64_B },
-    attestations: {
-      provenance: { verified: true, evidenceSha256: H64_C },
-      sbom: { verified: true, evidenceSha256: H64_D },
-    },
-  };
-}
-
 function validGenomeEvidence() {
   return {
     source: { commitSha: H40_A, treeSha: H40_B, immutable: true },
@@ -109,6 +82,19 @@ function validMaterialsEvidence() {
   };
 }
 
+function validPassportEvidence() {
+  const { createMediaCellGenome } = require(GENOME_HELPER);
+  return {
+    genome: createMediaCellGenome(validGenomeEvidence()),
+    vulnerabilityGate: {
+      scanType: 'ENHANCED',
+      frequency: 'CONTINUOUS_SCAN',
+      critical: 0,
+      high: 0,
+    },
+  };
+}
+
 test('release-evidence authorities include real SBOM verifier and cryptographic Genome', () => {
   for (const file of [SBOM_HELPER, SBOM_VERIFY_HELPER, GENOME_HELPER, PASSPORT_HELPER, WORKFLOW, CONTAINER_SBOM_FIXTURE]) read(file);
 });
@@ -136,25 +122,15 @@ test('cryptographic Genome is deterministic and changes when authoritative evide
 
 test('cryptographic Genome rejects unknown, secret, incomplete, wrong-region, and unverified evidence', () => {
   const { createMediaCellGenome } = require(GENOME_HELPER);
-
-  const unknown = validGenomeEvidence();
-  unknown.extra = true;
+  const unknown = validGenomeEvidence(); unknown.extra = true;
   assert.throws(() => createMediaCellGenome(unknown), /GENOME_EVIDENCE_UNKNOWN/);
-
-  const secret = validGenomeEvidence();
-  secret.secretValue = 'sb_secret_forbidden';
+  const secret = validGenomeEvidence(); secret.secretValue = 'sb_secret_forbidden';
   assert.throws(() => createMediaCellGenome(secret), /GENOME_SECRET_MATERIAL_REJECTED/);
-
-  const incomplete = validGenomeEvidence();
-  delete incomplete.materials['infra/media-finalizer/edge/guard.guard'];
+  const incomplete = validGenomeEvidence(); delete incomplete.materials['infra/media-finalizer/edge/guard.guard'];
   assert.throws(() => createMediaCellGenome(incomplete), /GENOME_MATERIALS_INVALID/);
-
-  const wrongRegion = validGenomeEvidence();
-  wrongRegion.image.repository = '123456789012.dkr.ecr.us-east-1.amazonaws.com/tiger-media-finalizer';
+  const wrongRegion = validGenomeEvidence(); wrongRegion.image.repository = '123456789012.dkr.ecr.us-east-1.amazonaws.com/tiger-media-finalizer';
   assert.throws(() => createMediaCellGenome(wrongRegion), /GENOME_IMAGE_REPOSITORY_INVALID/);
-
-  const unverified = validGenomeEvidence();
-  unverified.attestations.sbom.verified = false;
+  const unverified = validGenomeEvidence(); unverified.attestations.sbom.verified = false;
   assert.throws(() => createMediaCellGenome(unverified), /GENOME_ATTESTATION_UNVERIFIED/);
 });
 
@@ -172,12 +148,37 @@ test('materials evidence is deterministic CycloneDX 1.7 and cannot masquerade as
   assert.doesNotMatch(JSON.stringify(first), /TIGER_MEDIA_CELL_SBOM_V1/);
 });
 
-test('legacy passport remains fail-closed until Passport v2 replaces it', () => {
+test('release passport v2 is deterministic and bound to the cryptographic Genome', () => {
   const { createMediaCellPassport } = require(PASSPORT_HELPER);
-  const good = validLegacyEvidence();
-  const passport = createMediaCellPassport(good);
-  assert.equal(passport.schemaVersion, 'tiger-release-passport-v1');
-  assert.doesNotMatch(JSON.stringify(passport), /\bslsa\b/i);
+  const evidence = validPassportEvidence();
+  const first = createMediaCellPassport(evidence);
+  const second = createMediaCellPassport(JSON.parse(JSON.stringify(evidence)));
+  assert.deepEqual(first, second);
+  assert.equal(first.schemaVersion, 'tiger-release-passport-v2');
+  assert.equal(first.genomeId, evidence.genome.genomeId);
+  assert.equal(first.containerSbom.specVersion, '1.7');
+  assert.deepEqual(first.vulnerabilityGate, { scanType: 'ENHANCED', frequency: 'CONTINUOUS_SCAN', critical: 0, high: 0 });
+  assert.equal(first.attestations.provenance.verified, true);
+  assert.equal(first.attestations.sbom.verified, true);
+  assert.doesNotMatch(JSON.stringify(first), /\bslsa\b/i);
+});
+
+test('release passport v2 fails closed on scan, Genome, secret, unknown, or attestation drift', () => {
+  const { createMediaCellPassport } = require(PASSPORT_HELPER);
+  const high = validPassportEvidence(); high.vulnerabilityGate.high = 1;
+  assert.throws(() => createMediaCellPassport(high), /PASSPORT_VULNERABILITY_GATE_REJECTED/);
+  const basic = validPassportEvidence(); basic.vulnerabilityGate.scanType = 'BASIC';
+  assert.throws(() => createMediaCellPassport(basic), /PASSPORT_VULNERABILITY_GATE_REJECTED/);
+  const scanOnPush = validPassportEvidence(); scanOnPush.vulnerabilityGate.frequency = 'SCAN_ON_PUSH';
+  assert.throws(() => createMediaCellPassport(scanOnPush), /PASSPORT_VULNERABILITY_GATE_REJECTED/);
+  const mismatch = validPassportEvidence(); mismatch.genome.genomeId = `sha256:${'9'.repeat(64)}`;
+  assert.throws(() => createMediaCellPassport(mismatch), /PASSPORT_GENOME_MISMATCH/);
+  const unverified = validPassportEvidence(); unverified.genome.attestations.sbom.verified = false;
+  assert.throws(() => createMediaCellPassport(unverified), /PASSPORT_ATTESTATION_UNVERIFIED/);
+  const unknown = validPassportEvidence(); unknown.extra = true;
+  assert.throws(() => createMediaCellPassport(unknown), /PASSPORT_EVIDENCE_UNKNOWN/);
+  const secret = validPassportEvidence(); secret.secretValue = 'sb_secret_forbidden';
+  assert.throws(() => createMediaCellPassport(secret), /PASSPORT_SECRET_MATERIAL_REJECTED/);
 });
 
 test('legacy sealed-build workflow remains quarantined until replacement implementation is written', () => {
