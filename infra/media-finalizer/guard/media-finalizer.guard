@@ -103,15 +103,15 @@ rule origin_request_policy_is_explicit when %origin_request_policies !empty {
     }
 }
 
-let rate_rules = %web_acls.Properties.Rules[*][ Statement.RateBasedStatement exists ]
-let managed_rules = %web_acls.Properties.Rules[*][ Statement.ManagedRuleGroupStatement exists ]
-
 rule waf_has_rate_and_managed_rules when %web_acls !empty {
-    %rate_rules !empty
-    %managed_rules !empty
-    %managed_rules {
-        Statement.ManagedRuleGroupStatement.VendorName == 'AWS'
-        Statement.ManagedRuleGroupStatement.Name == 'AWSManagedRulesCommonRuleSet'
+    %web_acls {
+        some Properties.Rules[*] {
+            Statement.RateBasedStatement exists
+        }
+        some Properties.Rules[*] {
+            Statement.ManagedRuleGroupStatement.VendorName == 'AWS'
+            Statement.ManagedRuleGroupStatement.Name == 'AWSManagedRulesCommonRuleSet'
+        }
     }
 }
 
@@ -122,27 +122,24 @@ rule logs_have_explicit_retention when %log_groups !empty {
     }
 }
 
-let secret_read_statements = %runtime_roles.Properties.Policies[*].PolicyDocument.Statement[*][
-    some Action[*] == 'secretsmanager:GetSecretValue'
-]
-
 rule runtime_reads_only_the_configured_secret when %runtime_roles !empty {
-    %secret_read_statements !empty
-    %secret_read_statements {
-        Effect == 'Allow'
-        Resource.Ref == 'SupabaseSecretArn'
+    %runtime_roles {
+        some Properties.Policies[*].PolicyDocument.Statement[*] {
+            Effect == 'Allow'
+            some Action[*] == 'secretsmanager:GetSecretValue'
+            Resource.Ref == 'SupabaseSecretArn'
+        }
     }
 }
 
-let dlq_send_statements = %runtime_roles.Properties.Policies[*].PolicyDocument.Statement[*][
-    some Action[*] == 'sqs:SendMessage'
-]
-
 rule runtime_has_bounded_dlq_send_authority when %runtime_roles !empty {
-    %dlq_send_statements !empty
-    %dlq_send_statements {
-        Effect == 'Allow'
-        Resource exists
+    %runtime_roles {
+        some Properties.Policies[*].PolicyDocument.Statement[*] {
+            Effect == 'Allow'
+            some Action[*] == 'sqs:SendMessage'
+            Resource.'Fn::GetAtt'[0] == 'MediaFinalizerDeadLetterQueue'
+            Resource.'Fn::GetAtt'[1] == 'Arn'
+        }
     }
 }
 
