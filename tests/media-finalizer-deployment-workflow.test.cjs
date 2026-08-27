@@ -60,7 +60,8 @@ test('deploy workflow validates IaC before a reviewed change set, canaries throu
   const workflow = readRequired(WORKFLOW_PATH);
 
   assert.match(workflow, /cfn-lint==1\.55\.1/);
-  assert.match(workflow, /cloudformation-guard\/releases\/download\/v3\.2\.0/);
+  assert.match(workflow, /cloudformation-guard\/releases\/download\/3\.2\.0\/cfn-guard-v3-x86_64-linux-latest\.tar\.gz/);
+  assert.doesNotMatch(workflow, /cloudformation-guard\/releases\/download\/v3\.2\.0/);
   assert.match(workflow, /c78f7a1a6c2674f7edbf0ebdc0590126487a14b103e434aea31205a4d1034d21/);
   const lint = indexOfOrFail(workflow, /cfn-lint\s+infra\/media-finalizer\/template\.yaml/, 'cfn-lint');
   const guard = indexOfOrFail(workflow, /cfn-guard\s+validate[\s\S]*?media-finalizer\.guard/, 'cfn-guard validate');
