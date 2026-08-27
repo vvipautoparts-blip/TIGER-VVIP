@@ -33,6 +33,26 @@ test('Seoul foundation owns ECR/KMS/build OIDC authority only', () => {
   assert.match(yaml, /repository_id/);
   assert.match(yaml, /environment/);
   assert.match(yaml, /media-build/);
+  assert.match(yaml, /DeletionPolicy:\s*Retain/);
+  assert.match(yaml, /UpdateReplacePolicy:\s*Retain/);
+  assert.match(yaml, /kms:GenerateDataKey/);
+  assert.match(yaml, /kms:Decrypt/);
+  assert.match(yaml, /ecr:GetAuthorizationToken/);
+  for (const action of [
+    'ecr:BatchCheckLayerAvailability',
+    'ecr:GetDownloadUrlForLayer',
+    'ecr:BatchGetImage',
+    'ecr:InitiateLayerUpload',
+    'ecr:UploadLayerPart',
+    'ecr:CompleteLayerUpload',
+    'ecr:PutImage',
+    'ecr:DescribeImages',
+    'ecr:DescribeImageScanFindings',
+    'ecr:DescribeRepositories',
+  ]) assert.match(yaml, new RegExp(action.replace(':', '\\:')));
+  assert.doesNotMatch(yaml, /Action:\s*['"]?\*['"]?/);
+  assert.doesNotMatch(yaml, /AdministratorAccess/);
+  assert.doesNotMatch(yaml, /AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY/);
   assert.doesNotMatch(yaml, /AWS::Lambda::Function/);
   assert.doesNotMatch(yaml, /AWS::CloudFront::Distribution/);
   assert.doesNotMatch(yaml, /AWS::WAFv2::WebACL/);
