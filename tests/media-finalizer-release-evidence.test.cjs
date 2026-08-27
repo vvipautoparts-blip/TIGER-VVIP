@@ -12,7 +12,6 @@ const GENOME_HELPER = path.join(ROOT, 'scripts', 'release', 'media-cell-genome.c
 const PASSPORT_HELPER = path.join(ROOT, 'scripts', 'release', 'media-cell-passport.cjs');
 const WORKFLOW = path.join(ROOT, '.github', 'workflows', 'media-finalizer-build.yml');
 const CONTAINER_SBOM_FIXTURE = path.join(ROOT, 'tests', 'fixtures', 'media-finalizer', 'container-sbom-1.7.json');
-const MASTER_SPEC = 'docs/superpowers/specs/2026-08-28-tiger-sovereign-constellation-2026.md';
 
 function read(file) {
   assert.equal(fs.existsSync(file), true, `REQUIRED_FILE_MISSING:${path.relative(ROOT, file)}`);
@@ -24,7 +23,6 @@ const H40_B = 'b'.repeat(40);
 const H64_A = 'a'.repeat(64);
 const H64_B = 'b'.repeat(64);
 const H64_C = 'c'.repeat(64);
-const H64_D = 'd'.repeat(64);
 const H64_E = 'e'.repeat(64);
 const H64_F = 'f'.repeat(64);
 
@@ -75,11 +73,7 @@ function validGenomeEvidence() {
 
 function validMaterialsEvidence() {
   const genome = validGenomeEvidence();
-  return {
-    source: genome.source,
-    materials: genome.materials,
-    image: genome.image,
-  };
+  return { source: genome.source, materials: genome.materials, image: genome.image };
 }
 
 function validPassportEvidence() {
@@ -181,11 +175,51 @@ test('release passport v2 fails closed on scan, Genome, secret, unknown, or atte
   assert.throws(() => createMediaCellPassport(secret), /PASSPORT_SECRET_MATERIAL_REJECTED/);
 });
 
-test('legacy sealed-build workflow remains quarantined until replacement implementation is written', () => {
+test('sovereign sealed-build workflow is Seoul-only, build-once, real-SBOM, attested, and deployment-free', () => {
   const source = read(WORKFLOW).replace(/\r/g, '');
-  assert.match(source, /workflow_dispatch:/);
-  assert.match(source, /SOVEREIGN_CONSTELLATION_SUPERSEDED/);
-  assert.match(source, new RegExp(MASTER_SPEC.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-  assert.match(source, /exit\s+1/);
-  assert.doesNotMatch(source, /configure-aws-credentials|docker\s+(?:build|push)|aws\s+ecr/i);
+  assert.match(source, /workflow_dispatch:\s*\n\s*inputs:\s*\n\s*source_sha:/);
+  assert.match(source, /^  contents: read$/m);
+  assert.match(source, /^  id-token: write$/m);
+  assert.match(source, /^  attestations: write$/m);
+  assert.match(source, /environment:\s*media-build/);
+  assert.match(source, /AWS_REGION:\s*\$\{\{ vars\.TIGER_AWS_REGION \}\}/);
+  assert.match(source, /ECR_REPOSITORY:\s*\$\{\{ vars\.TIGER_MEDIA_ECR_REPOSITORY \}\}/);
+  assert.match(source, /BUILD_ROLE_ARN:\s*\$\{\{ vars\.TIGER_MEDIA_BUILD_ROLE_ARN \}\}/);
+  assert.match(source, /test "\$AWS_REGION" = "ap-northeast-2"/);
+  assert.match(source, /allowed-account-ids:\s*["']?211579682376["']?/);
+  assert.match(source, /actions\/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1/);
+  assert.match(source, /actions\/setup-node@820762786026740c76f36085b0efc47a31fe5020/);
+  assert.match(source, /aws-actions\/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c/);
+  assert.match(source, /actions\/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6/);
+  assert.match(source, /actions\/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a/);
+  assert.match(source, /node-version:\s*["']24["']/);
+  assert.match(source, /npm --prefix services\/media-finalizer ci/);
+  assert.match(source, /npm --prefix services\/media-finalizer audit[^\n]*--audit-level=high/);
+  assert.equal((source.match(/\bdocker build\b/g) || []).length, 1);
+  assert.equal((source.match(/\bdocker push\b/g) || []).length, 1);
+  assert.match(source, /aws ecr get-registry-scanning-configuration/);
+  assert.match(source, /ENHANCED/);
+  assert.match(source, /CONTINUOUS_SCAN/);
+  assert.match(source, /aws ecr describe-image-scan-findings/);
+  assert.match(source, /CRITICAL/);
+  assert.match(source, /HIGH/);
+  assert.match(source, /syft_1\.51\.0_linux_amd64\.tar\.gz/);
+  assert.match(source, /2a2e837a2c8d59ec9af5472ee22d3b04ee463c4e44476ecf993fd1e5ab6ebc7f/);
+  assert.match(source, /cyclonedx-linux-x64/);
+  assert.match(source, /f89876326620f5fc78a9b27cc1af57d6ed13d019aab87490e1246a44a910babb/);
+  assert.match(source, /cyclonedx-json@1\.6/);
+  assert.match(source, /cyclonedx convert[\s\S]*--output-version v1_7/);
+  assert.match(source, /cyclonedx validate[\s\S]*--input-version v1_7[\s\S]*--fail-on-errors/);
+  assert.match(source, /media-cell-sbom-verify\.cjs/);
+  assert.match(source, /media-cell-sbom\.cjs/);
+  assert.match(source, /media-cell-genome\.cjs/);
+  assert.match(source, /media-cell-passport\.cjs/);
+  assert.match(source, /gh attestation verify "oci:\/\/\$IMAGE_REPOSITORY@\$IMAGE_DIGEST"/);
+  assert.match(source, /--predicate-type https:\/\/cyclonedx\.org\/bom/);
+  assert.match(source, /tiger-release-passport-v2|release-passport\.json/);
+  for (const material of REQUIRED_MATERIAL_PATHS) assert.match(source, new RegExp(material.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  for (const migration of REQUIRED_DB_MIGRATIONS) assert.match(source, new RegExp(migration.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  assert.doesNotMatch(source, /SOVEREIGN_CONSTELLATION_SUPERSEDED/);
+  assert.doesNotMatch(source, /AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY/);
+  assert.doesNotMatch(source, /aws\s+(?:cloudformation|lambda|cloudfront|wafv2|iam|secretsmanager)\s+/i);
 });
