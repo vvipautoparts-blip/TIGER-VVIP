@@ -63,8 +63,7 @@ test('Seoul foundation owns ECR/KMS/build OIDC authority only', () => {
 test('foundation Guard requires scanning proof read authority and forbids mutation authority', () => {
   const guard = read(files.foundationGuard);
   assert.match(guard, /ecr:GetRegistryScanningConfiguration/);
-  assert.match(guard, /ecr:PutRegistryScanningConfiguration/);
-  assert.match(guard, /not\s+.*PutRegistryScanningConfiguration|PutRegistryScanningConfiguration.*empty/s);
+  assert.match(guard, /Properties\.Policies\[\*\]\.PolicyDocument\.Statement\[\*\]\.Action\[\*\]\s*!=\s*'ecr:PutRegistryScanningConfiguration'/);
 });
 
 test('Seoul regional runtime excludes edge and ECR ownership', () => {
