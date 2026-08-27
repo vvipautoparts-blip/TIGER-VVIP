@@ -4,12 +4,16 @@ on:
   push:
     paths:
       - "infra/media-finalizer/**"
+      - "tests/media-finalizer-infrastructure.test.cjs"
       - "tests/media-finalizer-infra-rehearsal-workflow.test.cjs"
+      - "tests/tiger-sovereign-constellation-infrastructure.test.cjs"
       - ".github/workflows/media-finalizer-infra-rehearsal.yml"
   pull_request:
     paths:
       - "infra/media-finalizer/**"
+      - "tests/media-finalizer-infrastructure.test.cjs"
       - "tests/media-finalizer-infra-rehearsal-workflow.test.cjs"
+      - "tests/tiger-sovereign-constellation-infrastructure.test.cjs"
       - ".github/workflows/media-finalizer-infra-rehearsal.yml"
   workflow_dispatch:
 
@@ -48,11 +52,14 @@ jobs:
           echo "MEDIA_INFRA_SOURCE_SHA=$SOURCE_SHA"
           echo "MEDIA_INFRA_SOURCE_TREE=$(git rev-parse 'HEAD^{tree}')"
 
-      - name: Prove workflow contract
+      - name: Prove repository infrastructure contracts
         shell: bash
         run: |
           set -euo pipefail
-          node --test tests/media-finalizer-infra-rehearsal-workflow.test.cjs
+          node --test \
+            tests/media-finalizer-infrastructure.test.cjs \
+            tests/media-finalizer-infra-rehearsal-workflow.test.cjs \
+            tests/tiger-sovereign-constellation-infrastructure.test.cjs
 
       - name: Install pinned CloudFormation validators
         shell: bash
@@ -71,34 +78,46 @@ jobs:
           cfn-lint --version
           cfn-guard --version
 
-      - name: Validate CloudFormation and independent Guard policy
+      - name: Validate split CloudFormation and independent Guard policies
         shell: bash
         run: |
           set -euo pipefail
-          cfn-lint infra/media-finalizer/template.yaml
-          cfn-guard validate --data infra/media-finalizer/template.yaml --rules infra/media-finalizer/guard/media-finalizer.guard
+          cfn-lint infra/media-finalizer/foundation/template.yaml
+          cfn-guard validate --data infra/media-finalizer/foundation/template.yaml --rules infra/media-finalizer/foundation/guard.guard
+          cfn-lint infra/media-finalizer/regional/template.yaml
+          cfn-guard validate --data infra/media-finalizer/regional/template.yaml --rules infra/media-finalizer/regional/guard.guard
+          cfn-lint infra/media-finalizer/edge/template.yaml
+          cfn-guard validate --data infra/media-finalizer/edge/template.yaml --rules infra/media-finalizer/edge/guard.guard
           echo 'TIGER_MEDIA_INFRA_REHEARSAL=PASS'
 
-      - name: Build exact-head IaC evidence
+      - name: Build exact-head split IaC evidence
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p /tmp/tiger-media-infra
           source_tree="$(git rev-parse 'HEAD^{tree}')"
-          template_sha="$(sha256sum infra/media-finalizer/template.yaml | awk '{print $1}')"
-          guard_sha="$(sha256sum infra/media-finalizer/guard/media-finalizer.guard | awk '{print $1}')"
+          foundation_template_sha="$(sha256sum infra/media-finalizer/foundation/template.yaml | awk '{print $1}')"
+          foundation_guard_sha="$(sha256sum infra/media-finalizer/foundation/guard.guard | awk '{print $1}')"
+          regional_template_sha="$(sha256sum infra/media-finalizer/regional/template.yaml | awk '{print $1}')"
+          regional_guard_sha="$(sha256sum infra/media-finalizer/regional/guard.guard | awk '{print $1}')"
+          edge_template_sha="$(sha256sum infra/media-finalizer/edge/template.yaml | awk '{print $1}')"
+          edge_guard_sha="$(sha256sum infra/media-finalizer/edge/guard.guard | awk '{print $1}')"
           printf '%s\n' \
             "SOURCE_SHA=$SOURCE_SHA" \
             "SOURCE_TREE=$source_tree" \
-            "TEMPLATE_SHA256=$template_sha" \
-            "GUARD_SHA256=$guard_sha" \
+            "FOUNDATION_TEMPLATE_SHA256=$foundation_template_sha" \
+            "FOUNDATION_GUARD_SHA256=$foundation_guard_sha" \
+            "REGIONAL_TEMPLATE_SHA256=$regional_template_sha" \
+            "REGIONAL_GUARD_SHA256=$regional_guard_sha" \
+            "EDGE_TEMPLATE_SHA256=$edge_template_sha" \
+            "EDGE_GUARD_SHA256=$edge_guard_sha" \
             "CFN_LINT_VERSION=$(cfn-lint --version | head -n1)" \
             "CFN_GUARD_VERSION=$(cfn-guard --version | head -n1)" \
             "TIGER_MEDIA_INFRA_REHEARSAL=PASS" \
             > /tmp/tiger-media-infra/evidence.env
           cat /tmp/tiger-media-infra/evidence.env
 
-      - name: Upload exact-head IaC evidence
+      - name: Upload exact-head split IaC evidence
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: tiger-media-finalizer-infra-${{ env.SOURCE_SHA }}

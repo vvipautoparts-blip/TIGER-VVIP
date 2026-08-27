@@ -1,0 +1,328 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  TIGER Sovereign Constellation 2026 Seoul regional Media Finalizer runtime.
+  Deploy only in ap-northeast-2. Owns Lambda runtime, IAM, Function URL, DLQ,
+  logs, alarms, and the exact CloudFront invocation binding. No ECR or edge resources.
+
+Parameters:
+  FunctionName:
+    Type: String
+    Default: tiger-media-finalizer
+    MinLength: 3
+    MaxLength: 64
+    AllowedPattern: '^[A-Za-z0-9-_]+$'
+
+  ImageUri:
+    Type: String
+    Description: Immutable ECR image URI addressed by OCI sha256 digest.
+    AllowedPattern: '^[0-9]{12}\.dkr\.ecr\.ap-northeast-2\.amazonaws\.com\/[a-z0-9._\/-]+@sha256:[0-9a-f]{64}$'
+
+  ReleaseSha:
+    Type: String
+    Description: Exact protected main Git commit SHA represented by this Lambda version.
+    AllowedPattern: '^[0-9a-f]{40}$'
+
+  StableAliasVersion:
+    Type: String
+    Default: ''
+    Description: >-
+      Existing published numeric stable version to preserve during later candidate staging.
+      Empty is permitted only for the first Dark Bootstrap CREATE and points live at the
+      newly published version without fabricating a prior baseline.
+    AllowedPattern: '^(|[1-9][0-9]*)$'
+
+  SupabaseSecretArn:
+    Type: String
+    Description: ARN of the dedicated Secrets Manager record; never the secret value.
+    AllowedPattern: '^arn:aws[a-zA-Z-]*:secretsmanager:ap-northeast-2:[0-9]{12}:secret:[A-Za-z0-9/_+=.@-]+$'
+
+  ClerkIssuer:
+    Type: String
+    MinLength: 9
+    MaxLength: 512
+    AllowedPattern: '^https:\/\/[^\s]+$'
+
+  ClerkAudience:
+    Type: String
+    MinLength: 1
+    MaxLength: 256
+
+  ClerkJwksUrl:
+    Type: String
+    MinLength: 9
+    MaxLength: 512
+    AllowedPattern: '^https:\/\/[^\s]+$'
+
+  ClerkAuthorizedParties:
+    Type: CommaDelimitedList
+    Description: Comma-separated exact Clerk authorized-party values.
+
+  AllowedOrigins:
+    Type: CommaDelimitedList
+    Description: Exact HTTPS browser origins allowed by the Lambda defense-in-depth CORS check.
+
+  CloudFrontDistributionArn:
+    Type: String
+    Default: ''
+    Description: >-
+      Exact Global Edge CloudFront distribution ARN. Leave empty during the first regional
+      Dark Bootstrap CREATE; set only after the reviewed edge stack exists.
+    AllowedPattern: '^(|arn:aws[a-zA-Z-]*:cloudfront::[0-9]{12}:distribution\/[A-Z0-9]+)$'
+
+Conditions:
+  UseRequestedStableVersion:
+    Fn::Not:
+      - Fn::Equals:
+          - Ref: StableAliasVersion
+          - ''
+  HasCloudFrontAuthority:
+    Fn::Not:
+      - Fn::Equals:
+          - Ref: CloudFrontDistributionArn
+          - ''
+
+Resources:
+  MediaFinalizerLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName:
+        Fn::Sub: '/aws/lambda/${FunctionName}'
+      RetentionInDays: 30
+
+  MediaFinalizerDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      SqsManagedSseEnabled: true
+      MessageRetentionPeriod: 1209600
+
+  MediaFinalizerRuntimeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: Least-privilege runtime identity for the Seoul Media Finalizer Lambda.
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: media-finalizer-logs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  Fn::Sub: '${MediaFinalizerLogGroup.Arn}:*'
+        - PolicyName: media-finalizer-dedicated-secret-read
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource:
+                  Ref: SupabaseSecretArn
+        - PolicyName: media-finalizer-dlq
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:SendMessage
+                Resource:
+                  Fn::GetAtt:
+                    - MediaFinalizerDeadLetterQueue
+                    - Arn
+
+  MediaFinalizerFunction:
+    Type: AWS::Lambda::Function
+    DependsOn:
+      - MediaFinalizerLogGroup
+    Properties:
+      FunctionName:
+        Ref: FunctionName
+      PackageType: Image
+      Code:
+        ImageUri:
+          Ref: ImageUri
+      Role:
+        Fn::GetAtt:
+          - MediaFinalizerRuntimeRole
+          - Arn
+      Architectures:
+        - x86_64
+      MemorySize: 2048
+      Timeout: 30
+      ReservedConcurrentExecutions: 8
+      DeadLetterConfig:
+        TargetArn:
+          Fn::GetAtt:
+            - MediaFinalizerDeadLetterQueue
+            - Arn
+      Environment:
+        Variables:
+          TIGER_MEDIA_SUPABASE_SECRET_ID:
+            Ref: SupabaseSecretArn
+          TIGER_CLERK_ISSUER:
+            Ref: ClerkIssuer
+          TIGER_CLERK_AUDIENCE:
+            Ref: ClerkAudience
+          TIGER_CLERK_JWKS_URL:
+            Ref: ClerkJwksUrl
+          TIGER_CLERK_AUTHORIZED_PARTIES:
+            Fn::Join:
+              - ','
+              - Ref: ClerkAuthorizedParties
+          VVIP_MEDIA_ALLOWED_ORIGINS:
+            Fn::Join:
+              - ','
+              - Ref: AllowedOrigins
+          VVIP_MEDIA_PROCESSING_TIMEOUT_SECONDS: '8'
+          VVIP_MEDIA_VERIFIER_ID: aws-lambda-sharp-v1
+
+  MediaFinalizerVersion:
+    Type: AWS::Lambda::Version
+    Properties:
+      FunctionName:
+        Ref: MediaFinalizerFunction
+      Description:
+        Fn::Sub: 'TIGER sealed media release ${ReleaseSha}'
+
+  MediaFinalizerLiveAlias:
+    Type: AWS::Lambda::Alias
+    Properties:
+      Name: live
+      FunctionName:
+        Ref: MediaFinalizerFunction
+      FunctionVersion:
+        Fn::If:
+          - UseRequestedStableVersion
+          - Ref: StableAliasVersion
+          - Fn::GetAtt:
+              - MediaFinalizerVersion
+              - Version
+
+  MediaFinalizerFunctionUrl:
+    Type: AWS::Lambda::Url
+    DependsOn:
+      - MediaFinalizerLiveAlias
+    Properties:
+      TargetFunctionArn:
+        Fn::GetAtt:
+          - MediaFinalizerFunction
+          - Arn
+      Qualifier: live
+      AuthType: AWS_IAM
+      InvokeMode: BUFFERED
+      Cors:
+        AllowCredentials: false
+        AllowHeaders:
+          - content-type
+          - x-tiger-session
+          - x-amz-content-sha256
+        AllowMethods:
+          - POST
+        AllowOrigins:
+          Ref: AllowedOrigins
+        MaxAge: 600
+
+  MediaFinalizerCloudFrontInvokeUrlPermission:
+    Type: AWS::Lambda::Permission
+    Condition: HasCloudFrontAuthority
+    Properties:
+      Action: lambda:InvokeFunctionUrl
+      FunctionName:
+        Ref: MediaFinalizerLiveAlias
+      FunctionUrlAuthType: AWS_IAM
+      Principal: cloudfront.amazonaws.com
+      SourceArn:
+        Ref: CloudFrontDistributionArn
+
+  MediaFinalizerCloudFrontInvokeFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Condition: HasCloudFrontAuthority
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: MediaFinalizerLiveAlias
+      InvokedViaFunctionUrl: true
+      Principal: cloudfront.amazonaws.com
+      SourceArn:
+        Ref: CloudFrontDistributionArn
+
+  MediaFinalizerErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Media Finalizer Lambda emitted one or more errors in five minutes.
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value:
+            Ref: FunctionName
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      DatapointsToAlarm: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+
+  MediaFinalizerThrottleAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Media Finalizer Lambda was throttled in five minutes.
+      Namespace: AWS/Lambda
+      MetricName: Throttles
+      Dimensions:
+        - Name: FunctionName
+          Value:
+            Ref: FunctionName
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      DatapointsToAlarm: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+
+Outputs:
+  FunctionArn:
+    Value:
+      Fn::GetAtt:
+        - MediaFinalizerFunction
+        - Arn
+  PublishedVersion:
+    Value:
+      Fn::GetAtt:
+        - MediaFinalizerVersion
+        - Version
+  LiveAliasArn:
+    Value:
+      Ref: MediaFinalizerLiveAlias
+  FunctionUrlOriginHostname:
+    Description: IAM-only regional origin hostname for the reviewed Global Edge stack.
+    Value:
+      Fn::Select:
+        - 2
+        - Fn::Split:
+            - '/'
+            - Fn::GetAtt:
+                - MediaFinalizerFunctionUrl
+                - FunctionUrl
+  ErrorAlarmName:
+    Value:
+      Ref: MediaFinalizerErrorAlarm
+  ThrottleAlarmName:
+    Value:
+      Ref: MediaFinalizerThrottleAlarm

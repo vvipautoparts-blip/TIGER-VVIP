@@ -13,7 +13,7 @@ function readWorkflow() {
   return fs.readFileSync(WORKFLOW, 'utf8').replace(/\r/g, '');
 }
 
-test('media IaC has an exact-head pull-request rehearsal that runs real cfn-lint and CloudFormation Guard', () => {
+test('media IaC has an exact-head pull-request rehearsal that validates every Sovereign Constellation authority independently', () => {
   const workflow = readWorkflow();
 
   assert.match(workflow, /^name: TIGER Media Finalizer Infra Rehearsal$/m);
@@ -29,9 +29,19 @@ test('media IaC has an exact-head pull-request rehearsal that runs real cfn-lint
   assert.match(workflow, /cloudformation-guard\/releases\/download\/3\.2\.0\/cfn-guard-v3-x86_64-linux-latest\.tar\.gz/);
   assert.doesNotMatch(workflow, /cloudformation-guard\/releases\/download\/v3\.2\.0/);
   assert.match(workflow, /c78f7a1a6c2674f7edbf0ebdc0590126487a14b103e434aea31205a4d1034d21/);
-  assert.match(workflow, /cfn-lint\s+infra\/media-finalizer\/template\.yaml/);
-  assert.match(workflow, /cfn-guard\s+validate\s+--data\s+infra\/media-finalizer\/template\.yaml\s+--rules\s+infra\/media-finalizer\/guard\/media-finalizer\.guard/);
 
+  for (const authority of ['foundation', 'regional', 'edge']) {
+    assert.match(workflow, new RegExp(`cfn-lint\\s+infra/media-finalizer/${authority}/template\\.yaml`));
+    assert.match(
+      workflow,
+      new RegExp(`cfn-guard\\s+validate\\s+--data\\s+infra/media-finalizer/${authority}/template\\.yaml\\s+--rules\\s+infra/media-finalizer/${authority}/guard\\.guard`),
+    );
+    assert.match(workflow, new RegExp(`${authority.toUpperCase()}_TEMPLATE_SHA256=`));
+    assert.match(workflow, new RegExp(`${authority.toUpperCase()}_GUARD_SHA256=`));
+  }
+
+  assert.doesNotMatch(workflow, /cfn-lint\s+infra\/media-finalizer\/template\.yaml/);
+  assert.doesNotMatch(workflow, /--data\s+infra\/media-finalizer\/template\.yaml/);
   assert.match(workflow, /actions\/upload-artifact@[0-9a-f]{40}/);
   assert.match(workflow, /TIGER_MEDIA_INFRA_REHEARSAL=PASS/);
   assert.doesNotMatch(workflow, /configure-aws-credentials|id-token:\s*write|aws\s+cloudformation\s+(?:deploy|execute-change-set|create-change-set)/i);
