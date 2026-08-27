@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tiger-vvip.example/schemas/tiger-release-passport-v1.schema.json",
+  "title": "TIGER Cryptographic Release Passport V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "releaseId", "createdAt", "source", "container", "sbom", "attestations", "infrastructure", "verification"],
+  "properties": {
+    "schema": { "const": "TIGER_CRYPTOGRAPHIC_RELEASE_PASSPORT_V1" },
+    "releaseId": { "type": "string", "pattern": "^[A-Za-z0-9._:-]{8,160}$" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["repository", "commitSha", "treeSha"],
+      "properties": {
+        "repository": { "const": "vvipautoparts-blip/TIGER-VVIP" },
+        "commitSha": { "$ref": "#/$defs/gitSha" },
+        "treeSha": { "$ref": "#/$defs/gitSha" }
+      }
+    },
+    "container": {
+      "type": "object", "additionalProperties": false,
+      "required": ["imageUri", "digest"],
+      "properties": {
+        "imageUri": { "type": "string", "pattern": "@sha256:[0-9a-f]{64}$" },
+        "digest": { "$ref": "#/$defs/sha256Prefixed" },
+        "baseImageDigest": { "$ref": "#/$defs/sha256Prefixed" }
+      }
+    },
+    "sbom": {
+      "type": "object", "additionalProperties": false,
+      "required": ["format", "specVersion", "sha256"],
+      "properties": {
+        "format": { "const": "CycloneDX" },
+        "specVersion": { "const": "1.7" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "attestations": {
+      "type": "array", "minItems": 2, "uniqueItems": true,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["predicateType", "subjectDigest", "verified"],
+        "properties": {
+          "predicateType": { "type": "string", "minLength": 1, "maxLength": 300 },
+          "subjectDigest": { "$ref": "#/$defs/sha256Prefixed" },
+          "verified": { "const": true }
+        }
+      }
+    },
+    "infrastructure": {
+      "type": "object", "additionalProperties": false,
+      "required": ["region", "bootstrapTemplateSha256", "runtimeTemplateSha256", "changeSetId"],
+      "properties": {
+        "region": { "const": "us-east-1" },
+        "bootstrapTemplateSha256": { "$ref": "#/$defs/sha256" },
+        "runtimeTemplateSha256": { "$ref": "#/$defs/sha256" },
+        "changeSetId": { "type": "string", "minLength": 20, "maxLength": 2048 },
+        "stackId": { "type": "string", "minLength": 20, "maxLength": 2048 },
+        "cloudFrontDistributionId": { "type": "string", "pattern": "^[A-Z0-9]{8,32}$" },
+        "lambdaVersion": { "type": "string", "pattern": "^[1-9][0-9]*$" }
+      }
+    },
+    "verification": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "tests", "productionRunReused"],
+      "properties": {
+        "status": { "const": "PASS" },
+        "tests": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1, "maxLength": 240 } },
+        "productionRunReused": { "const": false },
+        "smokeTestSha256": { "$ref": "#/$defs/sha256" }
+      }
+    }
+  },
+  "$defs": {
+    "gitSha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "sha256Prefixed": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+  }
+}
