@@ -1,0 +1,344 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  TIGER Sovereign Constellation 2026 Global Edge authority. Deploy only in
+  us-east-1. Owns the CloudFront viewer certificate, Lambda-origin OAC,
+  zero-cache edge policies, CLOUDFRONT WAF, and CloudFront distribution.
+  It never owns the Seoul Lambda runtime or ECR repository.
+
+Parameters:
+  ProductionDomainName:
+    Type: String
+    Description: Exact TIGER production hostname for the Media Finalizer Global Orbit.
+    AllowedPattern: '^(?=.{4,253}$)(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}$'
+
+  HostedZoneId:
+    Type: String
+    Description: Route53 public hosted zone ID used only for ACM DNS validation.
+    AllowedPattern: '^[A-Z0-9]+$'
+
+  RegionalFunctionUrlHostname:
+    Type: String
+    Description: IAM-only Seoul Lambda Function URL hostname without scheme or path.
+    AllowedPattern: '^[a-z0-9-]+\.lambda-url\.ap-northeast-2\.on\.aws$'
+
+  RateLimitPerFiveMinutes:
+    Type: Number
+    Default: 300
+    MinValue: 100
+    MaxValue: 20000000
+
+Resources:
+  MediaFinalizerViewerCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName:
+        Ref: ProductionDomainName
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName:
+            Ref: ProductionDomainName
+          HostedZoneId:
+            Ref: HostedZoneId
+      Tags:
+        - Key: tiger:authority
+          Value: global-edge
+
+  MediaFinalizerOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Description: SigV4-only CloudFront authority for the Seoul Lambda Function URL origin.
+        Name:
+          Fn::Sub: '${AWS::StackName}-media-finalizer-oac'
+        OriginAccessControlOriginType: lambda
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  MediaFinalizerCachePolicy:
+    Type: AWS::CloudFront::CachePolicy
+    Properties:
+      CachePolicyConfig:
+        Name:
+          Fn::Sub: '${AWS::StackName}-media-finalizer-no-cache'
+        Comment: Authenticated Media Finalizer responses are never cached.
+        DefaultTTL: 0
+        MaxTTL: 0
+        MinTTL: 0
+        ParametersInCacheKeyAndForwardedToOrigin:
+          EnableAcceptEncodingBrotli: false
+          EnableAcceptEncodingGzip: false
+          CookiesConfig:
+            CookieBehavior: none
+          HeadersConfig:
+            HeaderBehavior: none
+          QueryStringsConfig:
+            QueryStringBehavior: none
+
+  MediaFinalizerOriginRequestPolicy:
+    Type: AWS::CloudFront::OriginRequestPolicy
+    Properties:
+      OriginRequestPolicyConfig:
+        Name:
+          Fn::Sub: '${AWS::StackName}-media-finalizer-origin-request'
+        Comment: Forward only the authenticated finalizer and CORS preflight contract.
+        CookiesConfig:
+          CookieBehavior: none
+        QueryStringsConfig:
+          QueryStringBehavior: none
+        HeadersConfig:
+          HeaderBehavior: whitelist
+          Headers:
+            - Content-Type
+            - X-Tiger-Session
+            - x-amz-content-sha256
+            - Origin
+            - Access-Control-Request-Method
+            - Access-Control-Request-Headers
+
+  MediaFinalizerResponseHeadersPolicy:
+    Type: AWS::CloudFront::ResponseHeadersPolicy
+    Properties:
+      ResponseHeadersPolicyConfig:
+        Name:
+          Fn::Sub: '${AWS::StackName}-media-finalizer-security-headers'
+        Comment: Browser security headers for the TIGER Media Finalizer Global Orbit.
+        SecurityHeadersConfig:
+          ContentTypeOptions:
+            Override: true
+          FrameOptions:
+            FrameOption: DENY
+            Override: true
+          ReferrerPolicy:
+            ReferrerPolicy: no-referrer
+            Override: true
+          StrictTransportSecurity:
+            AccessControlMaxAgeSec: 31536000
+            IncludeSubdomains: true
+            Preload: true
+            Override: true
+
+  MediaFinalizerWebAcl:
+    Type: AWS::WAFv2::WebACL
+    Properties:
+      Name:
+        Fn::Sub: '${AWS::StackName}-media-finalizer-edge'
+      Scope: CLOUDFRONT
+      DefaultAction:
+        Allow: {}
+      VisibilityConfig:
+        CloudWatchMetricsEnabled: true
+        MetricName:
+          Fn::Sub: '${AWS::StackName}-media-finalizer-webacl'
+        SampledRequestsEnabled: false
+      Rules:
+        - Name: BlockUnexpectedMethods
+          Priority: 0
+          Action:
+            Block: {}
+          Statement:
+            NotStatement:
+              Statement:
+                OrStatement:
+                  Statements:
+                    - ByteMatchStatement:
+                        FieldToMatch:
+                          Method: {}
+                        PositionalConstraint: EXACTLY
+                        SearchString: POST
+                        TextTransformations:
+                          - Priority: 0
+                            Type: NONE
+                    - ByteMatchStatement:
+                        FieldToMatch:
+                          Method: {}
+                        PositionalConstraint: EXACTLY
+                        SearchString: OPTIONS
+                        TextTransformations:
+                          - Priority: 0
+                            Type: NONE
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName:
+              Fn::Sub: '${AWS::StackName}-blocked-methods'
+            SampledRequestsEnabled: false
+
+        - Name: BlockOversizedBody
+          Priority: 5
+          Action:
+            Block: {}
+          Statement:
+            SizeConstraintStatement:
+              ComparisonOperator: GT
+              FieldToMatch:
+                Body:
+                  OversizeHandling: MATCH
+              Size: 16384
+              TextTransformations:
+                - Priority: 0
+                  Type: NONE
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName:
+              Fn::Sub: '${AWS::StackName}-oversized-body'
+            SampledRequestsEnabled: false
+
+        - Name: BlockUnexpectedPostContentType
+          Priority: 7
+          Action:
+            Block: {}
+          Statement:
+            AndStatement:
+              Statements:
+                - ByteMatchStatement:
+                    FieldToMatch:
+                      Method: {}
+                    PositionalConstraint: EXACTLY
+                    SearchString: POST
+                    TextTransformations:
+                      - Priority: 0
+                        Type: NONE
+                - NotStatement:
+                    Statement:
+                      ByteMatchStatement:
+                        FieldToMatch:
+                          SingleHeader:
+                            Name: content-type
+                        PositionalConstraint: STARTS_WITH
+                        SearchString: application/json
+                        TextTransformations:
+                          - Priority: 0
+                            Type: LOWERCASE
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName:
+              Fn::Sub: '${AWS::StackName}-blocked-content-type'
+            SampledRequestsEnabled: false
+
+        - Name: RateLimitByIp
+          Priority: 10
+          Action:
+            Block: {}
+          Statement:
+            RateBasedStatement:
+              AggregateKeyType: IP
+              Limit:
+                Ref: RateLimitPerFiveMinutes
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName:
+              Fn::Sub: '${AWS::StackName}-rate-limit'
+            SampledRequestsEnabled: false
+
+        - Name: AwsManagedCommon
+          Priority: 20
+          OverrideAction:
+            None: {}
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesCommonRuleSet
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName:
+              Fn::Sub: '${AWS::StackName}-managed-common'
+            SampledRequestsEnabled: false
+
+        - Name: AwsManagedKnownBadInputs
+          Priority: 30
+          OverrideAction:
+            None: {}
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesKnownBadInputsRuleSet
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName:
+              Fn::Sub: '${AWS::StackName}-known-bad-inputs'
+            SampledRequestsEnabled: false
+
+        - Name: AwsManagedIpReputation
+          Priority: 40
+          OverrideAction:
+            None: {}
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesAmazonIpReputationList
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName:
+              Fn::Sub: '${AWS::StackName}-ip-reputation'
+            SampledRequestsEnabled: false
+
+  MediaFinalizerDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Aliases:
+          - Ref: ProductionDomainName
+        Comment: TIGER Sovereign Constellation 2026 Media Finalizer Global Orbit.
+        Enabled: true
+        HttpVersion: http2and3
+        IPV6Enabled: true
+        PriceClass: PriceClass_All
+        WebACLId:
+          Fn::GetAtt:
+            - MediaFinalizerWebAcl
+            - Arn
+        Origins:
+          - Id: SeoulLambdaFunctionUrlOrigin
+            DomainName:
+              Ref: RegionalFunctionUrlHostname
+            OriginAccessControlId:
+              Fn::GetAtt:
+                - MediaFinalizerOriginAccessControl
+                - Id
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+                - TLSv1.2
+        DefaultCacheBehavior:
+          TargetOriginId: SeoulLambdaFunctionUrlOrigin
+          ViewerProtocolPolicy: https-only
+          Compress: false
+          AllowedMethods: [GET, HEAD, POST, OPTIONS, PUT, PATCH, DELETE]
+          CachedMethods:
+            - GET
+            - HEAD
+          CachePolicyId:
+            Ref: MediaFinalizerCachePolicy
+          OriginRequestPolicyId:
+            Ref: MediaFinalizerOriginRequestPolicy
+          ResponseHeadersPolicyId:
+            Ref: MediaFinalizerResponseHeadersPolicy
+        ViewerCertificate:
+          AcmCertificateArn:
+            Ref: MediaFinalizerViewerCertificate
+          MinimumProtocolVersion: TLSv1.2_2025
+          SslSupportMethod: sni-only
+
+Outputs:
+  ViewerCertificateArn:
+    Value:
+      Ref: MediaFinalizerViewerCertificate
+  DistributionId:
+    Value:
+      Ref: MediaFinalizerDistribution
+  DistributionArn:
+    Value:
+      Fn::Sub: 'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${MediaFinalizerDistribution}'
+  DistributionDomainName:
+    Value:
+      Fn::GetAtt:
+        - MediaFinalizerDistribution
+        - DomainName
+  MediaFinalizerUrl:
+    Description: Eligible for TIGER_MEDIA_FINALIZER_URL only after complete Dark Bootstrap evidence.
+    Value:
+      Fn::Sub: 'https://${ProductionDomainName}'
+  WebAclArn:
+    Value:
+      Fn::GetAtt:
+        - MediaFinalizerWebAcl
+        - Arn
