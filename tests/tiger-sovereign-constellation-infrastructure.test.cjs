@@ -1,0 +1,69 @@
+'use strict';
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+
+const ROOT = path.resolve(__dirname, '..');
+const files = {
+  foundation: 'infra/media-finalizer/foundation/template.yaml',
+  foundationGuard: 'infra/media-finalizer/foundation/guard.guard',
+  regional: 'infra/media-finalizer/regional/template.yaml',
+  regionalGuard: 'infra/media-finalizer/regional/guard.guard',
+  edge: 'infra/media-finalizer/edge/template.yaml',
+  edgeGuard: 'infra/media-finalizer/edge/guard.guard',
+};
+const read = (relative) => fs.readFileSync(path.join(ROOT, relative), 'utf8').replace(/\r/g, '');
+
+test('Sovereign Constellation infrastructure authorities are physically split', () => {
+  for (const relative of Object.values(files)) {
+    assert.equal(fs.existsSync(path.join(ROOT, relative)), true, `MISSING_AUTHORITY:${relative}`);
+  }
+});
+
+test('Seoul foundation owns ECR/KMS/build OIDC authority only', () => {
+  const yaml = read(files.foundation);
+  assert.match(yaml, /AWS::KMS::Key/);
+  assert.match(yaml, /AWS::ECR::Repository/);
+  assert.match(yaml, /EncryptionType:\s*KMS/);
+  assert.match(yaml, /ImageTagMutability:\s*IMMUTABLE/);
+  assert.match(yaml, /TIGER-VVIP-GitHub-MediaBuild/);
+  assert.match(yaml, /token\.actions\.githubusercontent\.com/);
+  assert.match(yaml, /repository_owner_id/);
+  assert.match(yaml, /repository_id/);
+  assert.match(yaml, /environment/);
+  assert.match(yaml, /media-build/);
+  assert.doesNotMatch(yaml, /AWS::Lambda::Function/);
+  assert.doesNotMatch(yaml, /AWS::CloudFront::Distribution/);
+  assert.doesNotMatch(yaml, /AWS::WAFv2::WebACL/);
+});
+
+test('Seoul regional runtime excludes edge and ECR ownership', () => {
+  const yaml = read(files.regional);
+  assert.match(yaml, /AWS::Lambda::Function/);
+  assert.match(yaml, /AWS::Lambda::Url/);
+  assert.match(yaml, /AuthType:\s*AWS_IAM/);
+  assert.match(yaml, /AWS::SQS::Queue/);
+  assert.match(yaml, /AWS::CloudWatch::Alarm/);
+  assert.match(yaml, /CloudFrontDistributionArn/);
+  assert.doesNotMatch(yaml, /AWS::ECR::Repository/);
+  assert.doesNotMatch(yaml, /AWS::CloudFront::Distribution/);
+  assert.doesNotMatch(yaml, /AWS::WAFv2::WebACL/);
+  assert.doesNotMatch(yaml, /AWS::CertificateManager::Certificate/);
+});
+
+test('global edge owns custom TLS, CloudFront, OAC and CLOUDFRONT WAF only', () => {
+  const yaml = read(files.edge);
+  assert.match(yaml, /AWS::CertificateManager::Certificate/);
+  assert.match(yaml, /AWS::CloudFront::Distribution/);
+  assert.match(yaml, /AWS::CloudFront::OriginAccessControl/);
+  assert.match(yaml, /AWS::WAFv2::WebACL/);
+  assert.match(yaml, /Scope:\s*CLOUDFRONT/);
+  assert.match(yaml, /HttpVersion:\s*http2and3/);
+  assert.match(yaml, /IPV6Enabled:\s*true/);
+  assert.match(yaml, /PriceClass:\s*PriceClass_All/);
+  assert.match(yaml, /TLSv1\.2_2025/);
+  assert.doesNotMatch(yaml, /CloudFrontDefaultCertificate:\s*true/);
+  assert.doesNotMatch(yaml, /AWS::Lambda::Function/);
+  assert.doesNotMatch(yaml, /AWS::ECR::Repository/);
+});
