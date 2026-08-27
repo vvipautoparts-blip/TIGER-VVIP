@@ -1,0 +1,28 @@
+{
+  "$schema": "https://cyclonedx.org/schema/bom-1.7.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.7",
+  "serialNumber": "urn:uuid:11111111-2222-8333-8444-555555555555",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "container",
+      "name": "TIGER-media-finalizer",
+      "version": "fixture"
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "sharp",
+      "version": "0.35.4",
+      "purl": "pkg:npm/sharp@0.35.4"
+    },
+    {
+      "type": "library",
+      "name": "glibc",
+      "version": "2.34",
+      "purl": "pkg:rpm/glibc@2.34"
+    }
+  ]
+}
