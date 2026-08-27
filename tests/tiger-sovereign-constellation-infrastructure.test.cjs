@@ -67,7 +67,7 @@ test('Seoul regional runtime excludes edge and ECR ownership', () => {
   assert.match(yaml, /AWS::CloudWatch::Alarm/);
   assert.match(yaml, /CloudFrontDistributionArn/);
   assert.match(yaml, /ImageUri/);
-  assert.match(yaml, /sha256:\[0-9a-f\]\\\{64\\\}/);
+  assert.match(yaml, /sha256:\[0-9a-f\]\{64\}/);
   assert.match(yaml, /MemorySize:\s*2048/);
   assert.match(yaml, /Timeout:\s*30/);
   assert.match(yaml, /ReservedConcurrentExecutions:\s*8/);
