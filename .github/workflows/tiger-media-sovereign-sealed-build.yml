@@ -1,0 +1,387 @@
+name: TIGER Media Sovereign Sealed Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact protected main commit SHA to seal
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tiger-media-sovereign-sealed-build-${{ inputs.source_sha }}
+  cancel-in-progress: false
+
+jobs:
+  sealed-build:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    environment: media-build
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    env:
+      AWS_REGION: ap-northeast-2
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      TIGER_MEDIA_AWS_ACCOUNT_ID: ${{ vars.TIGER_MEDIA_AWS_ACCOUNT_ID }}
+      TIGER_MEDIA_BUILD_ROLE_ARN: ${{ vars.TIGER_MEDIA_BUILD_ROLE_ARN }}
+      ECR_REPOSITORY: ${{ vars.TIGER_MEDIA_ECR_REPOSITORY }}
+      ECR_URI: ${{ vars.TIGER_MEDIA_ECR_URI }}
+
+    steps:
+      - name: Checkout exact requested source
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ inputs.source_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: services/media-finalizer/package-lock.json
+
+      - name: Prove protected-main source and build authority inputs
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo 'SOURCE_SHA_INVALID' >&2; exit 1; }
+          git fetch --no-tags origin main
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          git merge-base --is-ancestor "$SOURCE_SHA" origin/main
+          SOURCE_TREE="$(git rev-parse 'HEAD^{tree}')"
+          [[ "$SOURCE_TREE" =~ ^[0-9a-f]{40}$ ]] || { echo 'SOURCE_TREE_INVALID' >&2; exit 1; }
+          test -z "$(git status --porcelain=v1 -uall)"
+
+          [[ "$TIGER_MEDIA_AWS_ACCOUNT_ID" =~ ^[0-9]{12}$ ]] || { echo 'MEDIA_ACCOUNT_ID_MISSING_OR_INVALID' >&2; exit 1; }
+          test "$TIGER_MEDIA_BUILD_ROLE_ARN" = "arn:aws:iam::${TIGER_MEDIA_AWS_ACCOUNT_ID}:role/TIGER-VVIP-GitHub-MediaBuild"
+          test "$ECR_REPOSITORY" = 'tiger-media-finalizer'
+          test "$ECR_URI" = "${TIGER_MEDIA_AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}"
+
+          BASE_IMAGE_DIGEST="$(sed -nE 's/^FROM[[:space:]]+[^@]+@(sha256:[0-9a-f]{64})$/\1/p' services/media-finalizer/Dockerfile)"
+          [[ "$BASE_IMAGE_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]] || { echo 'BASE_IMAGE_DIGEST_NOT_PINNED' >&2; exit 1; }
+
+          mkdir -p /tmp/tiger-media
+          printf '%s\n' \
+            "SOURCE_SHA=$SOURCE_SHA" \
+            "SOURCE_TREE=$SOURCE_TREE" \
+            "BASE_IMAGE_DIGEST=$BASE_IMAGE_DIGEST" \
+            "AWS_REGION=$AWS_REGION" \
+            > /tmp/tiger-media/source-evidence.env
+          printf '%s\n' "SOURCE_TREE=$SOURCE_TREE" >> "$GITHUB_ENV"
+          printf '%s\n' "BASE_IMAGE_DIGEST=$BASE_IMAGE_DIGEST" >> "$GITHUB_ENV"
+
+      - name: Install exact Media Finalizer dependencies
+        working-directory: services/media-finalizer
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          npm ci --omit=dev --ignore-scripts=false --no-audit --no-fund
+          npm audit --omit=dev --audit-level=high
+          npm ls --omit=dev --all
+
+      - name: Prove exact-source repository contracts before build
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          node --test \
+            tests/media-finalizer-*.test.cjs \
+            tests/tiger-sovereign-sealed-build.test.cjs \
+            tests/tiger-sovereign-constellation-workflow-quarantine.test.cjs \
+            tests/fusion-server-media-finalization-contract.test.cjs \
+            tests/tiger-synapse-proof-capture-origin.test.cjs
+          node --check services/media-finalizer/src/handler.js
+          test -z "$(git status --porcelain=v1 -uall)"
+
+      - name: Assume exact Seoul MediaBuildRole with OIDC
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c
+        with:
+          role-to-assume: ${{ vars.TIGER_MEDIA_BUILD_ROLE_ARN }}
+          aws-region: ap-northeast-2
+          audience: sts.amazonaws.com
+          allowed-account-ids: ${{ vars.TIGER_MEDIA_AWS_ACCOUNT_ID }}
+          role-duration-seconds: 1800
+          role-session-name: TIGER-MediaBuild-${{ github.run_id }}
+          unset-current-credentials: true
+          mask-aws-account-id: true
+          action-timeout-s: 90
+
+      - name: Prove exact AWS caller and immutable repository authority
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          read -r account arn < <(aws sts get-caller-identity --query '[Account,Arn]' --output text --no-cli-pager)
+          test "$account" = "$TIGER_MEDIA_AWS_ACCOUNT_ID"
+          case "$arn" in
+            arn:aws:sts::${TIGER_MEDIA_AWS_ACCOUNT_ID}:assumed-role/TIGER-VVIP-GitHub-MediaBuild/*) ;;
+            *) echo 'UNEXPECTED_MEDIA_BUILD_CALLER' >&2; exit 1 ;;
+          esac
+
+          read -r mutability encryption < <(
+            aws ecr describe-repositories \
+              --repository-names "$ECR_REPOSITORY" \
+              --region "$AWS_REGION" \
+              --query 'repositories[0].[imageTagMutability,encryptionConfiguration.encryptionType]' \
+              --output text \
+              --no-cli-pager
+          )
+          test "$mutability" = 'IMMUTABLE'
+          test "$encryption" = 'KMS'
+
+      - name: Login to exact Seoul ECR registry
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          aws ecr get-login-password --region "$AWS_REGION" \
+            | docker login \
+                --username AWS \
+                --password-stdin "${TIGER_MEDIA_AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+
+      - name: Build once and push once
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          IMAGE_TAG="sha-${SOURCE_SHA}"
+          IMAGE_TAGGED_URI="${ECR_URI}:${IMAGE_TAG}"
+          docker build --pull=false --file services/media-finalizer/Dockerfile --tag "$IMAGE_TAGGED_URI" services/media-finalizer
+          docker push "$IMAGE_TAGGED_URI"
+
+          MANIFEST_DIGEST="$(
+            aws ecr describe-images \
+              --repository-name "$ECR_REPOSITORY" \
+              --image-ids imageTag="$IMAGE_TAG" \
+              --region "$AWS_REGION" \
+              --query 'imageDetails[0].imageDigest' \
+              --output text \
+              --no-cli-pager
+          )"
+          [[ "$MANIFEST_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]] || { echo 'IMMUTABLE_MANIFEST_DIGEST_INVALID' >&2; exit 1; }
+          IMAGE_URI="${ECR_URI}@${MANIFEST_DIGEST}"
+          printf '%s\n' "MANIFEST_DIGEST=$MANIFEST_DIGEST" "IMAGE_URI=$IMAGE_URI" >> "$GITHUB_ENV"
+          printf '%s\n' "MANIFEST_DIGEST=$MANIFEST_DIGEST" "IMAGE_URI=$IMAGE_URI" >> /tmp/tiger-media/source-evidence.env
+
+      - name: Install pinned Syft 1.51.0
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          SYFT_ARCHIVE='syft_1.51.0_linux_amd64.tar.gz'
+          SYFT_URL="https://github.com/anchore/syft/releases/download/v1.51.0/${SYFT_ARCHIVE}"
+          curl --fail --silent --show-error --location "$SYFT_URL" --output "/tmp/${SYFT_ARCHIVE}"
+          echo '2a2e837a2c8d59ec9af5472ee22d3b04ee463c4e44476ecf993fd1e5ab6ebc7f  /tmp/syft_1.51.0_linux_amd64.tar.gz' | sha256sum -c -
+          rm -rf /tmp/syft-install && mkdir -p /tmp/syft-install
+          tar -xzf "/tmp/${SYFT_ARCHIVE}" -C /tmp/syft-install syft
+          sudo install -m 0755 /tmp/syft-install/syft /usr/local/bin/syft
+          syft version
+
+      - name: Generate and bind real CycloneDX 1.7 container SBOM
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          syft "registry:${IMAGE_URI}" -o cyclonedx-json=/tmp/tiger-media/raw-media-finalizer.cdx.json
+          node scripts/release/media-cell-sbom.cjs \
+            /tmp/tiger-media/raw-media-finalizer.cdx.json \
+            "$MANIFEST_DIGEST" \
+            /tmp/tiger-media/media-finalizer.cdx.json
+          rm -f /tmp/tiger-media/raw-media-finalizer.cdx.json
+          test -s /tmp/tiger-media/media-finalizer.cdx.json
+
+      - name: Wait for scan and normalize vulnerability evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          scan_raw=/tmp/tiger-media/scan-raw.json
+          complete=0
+          for attempt in $(seq 1 20); do
+            if aws ecr describe-image-scan-findings \
+              --repository-name "$ECR_REPOSITORY" \
+              --image-id imageDigest="$MANIFEST_DIGEST" \
+              --region "$AWS_REGION" \
+              --output json \
+              --no-cli-pager > "$scan_raw"; then
+              status="$(node -e "const x=require(process.argv[1]); process.stdout.write(String(x.imageScanStatus?.status||''));" "$scan_raw")"
+              if [ "$status" = 'COMPLETE' ]; then
+                complete=1
+                break
+              fi
+              case "$status" in
+                FAILED|UNSUPPORTED_IMAGE|SCAN_ELIGIBILITY_EXPIRED|FINDINGS_UNAVAILABLE)
+                  echo "ECR_SCAN_TERMINAL_FAILURE=$status" >&2
+                  exit 1
+                  ;;
+              esac
+            fi
+            sleep 15
+          done
+          test "$complete" = '1' || { echo 'ECR_SCAN_NOT_COMPLETE' >&2; exit 1; }
+
+          node - "$scan_raw" /tmp/tiger-media/scan-evidence.json <<'NODE'
+          const crypto = require('node:crypto');
+          const fs = require('node:fs');
+          const [sourceFile, outputFile] = process.argv.slice(2);
+          const raw = JSON.parse(fs.readFileSync(sourceFile, 'utf8'));
+          const counts = raw.imageScanFindings?.findingSeverityCounts || {};
+          const normalized = {
+            status: 'COMPLETE',
+            critical: Number(counts.CRITICAL || 0),
+            high: Number(counts.HIGH || 0),
+            medium: Number(counts.MEDIUM || 0),
+            low: Number(counts.LOW || 0),
+            findingsSha256: crypto.createHash('sha256').update(JSON.stringify(raw)).digest('hex'),
+          };
+          fs.writeFileSync(outputFile, `${JSON.stringify(normalized)}\n`, { mode: 0o600 });
+          NODE
+          rm -f "$scan_raw"
+
+          node scripts/release/media-cell-supply-gate.cjs \
+            /tmp/tiger-media/media-finalizer.cdx.json \
+            /tmp/tiger-media/scan-evidence.json \
+            "$MANIFEST_DIGEST" \
+            /tmp/tiger-media/supply-gate.json
+
+      - name: Generate exact OCI provenance attestation
+        id: provenance
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373
+        with:
+          subject-name: ${{ env.ECR_URI }}
+          subject-digest: ${{ env.MANIFEST_DIGEST }}
+          push-to-registry: false
+
+      - name: Generate exact OCI CycloneDX SBOM attestation
+        id: sbom-attestation
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d
+        with:
+          subject-name: ${{ env.ECR_URI }}
+          subject-digest: ${{ env.MANIFEST_DIGEST }}
+          sbom-path: /tmp/tiger-media/media-finalizer.cdx.json
+          push-to-registry: false
+
+      - name: Verify provenance and SBOM attestations cryptographically
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          gh attestation verify "oci://${IMAGE_URI}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --format json \
+            > /tmp/tiger-media/provenance-verification.json
+          gh attestation verify "oci://${IMAGE_URI}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --predicate-type 'https://cyclonedx.org/bom' \
+            --format json \
+            > /tmp/tiger-media/sbom-verification.json
+          test -s /tmp/tiger-media/provenance-verification.json
+          test -s /tmp/tiger-media/sbom-verification.json
+
+          provenance_sha="$(sha256sum /tmp/tiger-media/provenance-verification.json | awk '{print $1}')"
+          sbom_attestation_sha="$(sha256sum /tmp/tiger-media/sbom-verification.json | awk '{print $1}')"
+          node - "$provenance_sha" "$sbom_attestation_sha" /tmp/tiger-media/attestation-evidence.json <<'NODE'
+          const fs = require('node:fs');
+          const [provenanceSha, sbomSha, outputFile] = process.argv.slice(2);
+          const output = {
+            provenance: { verified: true, evidenceSha256: provenanceSha },
+            sbom: { verified: true, evidenceSha256: sbomSha },
+          };
+          fs.writeFileSync(outputFile, `${JSON.stringify(output)}\n`, { mode: 0o600 });
+          NODE
+          rm -f /tmp/tiger-media/provenance-verification.json /tmp/tiger-media/sbom-verification.json
+
+      - name: Build Cryptographic Genome and Release Passport 2.0
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          migration_set_sha="$(
+            {
+              sha256sum supabase/migrations/20260816090001_sovereign_media_finalization.sql
+              sha256sum supabase/migrations/20260827120000_sealed_media_identity_binding.sql
+            } | LC_ALL=C sort -k2 | sha256sum | awk '{print $1}'
+          )"
+          sbom_sha="$(sha256sum /tmp/tiger-media/media-finalizer.cdx.json | awk '{print $1}')"
+          component_count="$(node -e "const x=require('/tmp/tiger-media/media-finalizer.cdx.json'); process.stdout.write(String(x.components.length));")"
+
+          export FOUNDATION_TEMPLATE_SHA="$(sha256sum infra/media-finalizer/foundation/template.yaml | awk '{print $1}')"
+          export FOUNDATION_GUARD_SHA="$(sha256sum infra/media-finalizer/foundation/guard.guard | awk '{print $1}')"
+          export REGIONAL_TEMPLATE_SHA="$(sha256sum infra/media-finalizer/regional/template.yaml | awk '{print $1}')"
+          export REGIONAL_GUARD_SHA="$(sha256sum infra/media-finalizer/regional/guard.guard | awk '{print $1}')"
+          export EDGE_TEMPLATE_SHA="$(sha256sum infra/media-finalizer/edge/template.yaml | awk '{print $1}')"
+          export EDGE_GUARD_SHA="$(sha256sum infra/media-finalizer/edge/guard.guard | awk '{print $1}')"
+          export DOCKERFILE_SHA="$(sha256sum services/media-finalizer/Dockerfile | awk '{print $1}')"
+          export LOCK_SHA="$(sha256sum services/media-finalizer/package-lock.json | awk '{print $1}')"
+          export MIGRATION_SET_SHA="$migration_set_sha"
+          export SBOM_SHA="$sbom_sha"
+          export COMPONENT_COUNT="$component_count"
+
+          node - /tmp/tiger-media/release-evidence.json <<'NODE'
+          const fs = require('node:fs');
+          const scan = JSON.parse(fs.readFileSync('/tmp/tiger-media/scan-evidence.json', 'utf8'));
+          const attestations = JSON.parse(fs.readFileSync('/tmp/tiger-media/attestation-evidence.json', 'utf8'));
+          const evidence = {
+            source: { commitSha: process.env.SOURCE_SHA, treeSha: process.env.SOURCE_TREE, immutable: true },
+            materials: {
+              'services/media-finalizer/Dockerfile': process.env.DOCKERFILE_SHA,
+              'services/media-finalizer/package-lock.json': process.env.LOCK_SHA,
+              'infra/media-finalizer/foundation/template.yaml': process.env.FOUNDATION_TEMPLATE_SHA,
+              'infra/media-finalizer/foundation/guard.guard': process.env.FOUNDATION_GUARD_SHA,
+              'infra/media-finalizer/regional/template.yaml': process.env.REGIONAL_TEMPLATE_SHA,
+              'infra/media-finalizer/regional/guard.guard': process.env.REGIONAL_GUARD_SHA,
+              'infra/media-finalizer/edge/template.yaml': process.env.EDGE_TEMPLATE_SHA,
+              'infra/media-finalizer/edge/guard.guard': process.env.EDGE_GUARD_SHA,
+            },
+            image: {
+              repository: process.env.ECR_URI,
+              manifestDigest: process.env.MANIFEST_DIGEST,
+              baseDigest: process.env.BASE_IMAGE_DIGEST,
+            },
+            database: { migrationSetSha256: process.env.MIGRATION_SET_SHA },
+            sbom: {
+              specVersion: '1.7',
+              sha256: process.env.SBOM_SHA,
+              subjectDigest: process.env.MANIFEST_DIGEST,
+              path: 'artifacts/media-cell/media-finalizer.cdx.json',
+              componentCount: Number(process.env.COMPONENT_COUNT),
+            },
+            scan,
+            attestations,
+          };
+          fs.writeFileSync(process.argv[2], `${JSON.stringify(evidence)}\n`, { mode: 0o600 });
+          NODE
+
+          node scripts/release/media-cell-genome.cjs \
+            /tmp/tiger-media/release-evidence.json \
+            /tmp/tiger-media/cryptographic-genome.json
+          node scripts/release/media-cell-passport.cjs \
+            /tmp/tiger-media/release-evidence.json \
+            /tmp/tiger-media/release-passport-v2.json
+          rm -f /tmp/tiger-media/release-evidence.json /tmp/tiger-media/supply-gate.json
+
+      - name: Upload bounded sealed-build evidence
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: tiger-media-sovereign-sealed-build-${{ env.SOURCE_SHA }}
+          path: |
+            /tmp/tiger-media/media-finalizer.cdx.json
+            /tmp/tiger-media/cryptographic-genome.json
+            /tmp/tiger-media/release-passport-v2.json
+            /tmp/tiger-media/scan-evidence.json
+            /tmp/tiger-media/attestation-evidence.json
+            /tmp/tiger-media/source-evidence.env
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Prove sealed-build-only boundary and source immutability
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test "$(git rev-parse 'HEAD^{tree}')" = "$SOURCE_TREE"
+          test -z "$(git status --porcelain=v1 -uall)"
+          echo 'TIGER_MEDIA_SEALED_BUILD=PASS'
+          echo 'TIGER_MEDIA_RUNTIME_DEPLOYED=NO'
+          echo 'TIGER_MEDIA_DARK_BOOTSTRAP=NOT_STARTED'
