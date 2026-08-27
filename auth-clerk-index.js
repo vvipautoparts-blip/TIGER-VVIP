@@ -35,6 +35,7 @@
   const LISTING_INTENTS = new Set(["TOGGLE_FAVORITE", "CONTACT_SELLER_INTERNAL"]);
   const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   const CLERK_USER_PATTERN = /^user_[A-Za-z0-9_-]{6,128}$/;
+  const SESSION_TOKEN_MAX_LENGTH = 16 * 1024;
 
   let activeClerk = null;
   let listenerRegistered = false;
@@ -290,6 +291,26 @@
     return clerk;
   }
 
+  async function getSessionToken() {
+    const clerk = await resolveClerk();
+    if (!hasActiveSession(clerk)) throw authError("AUTH_REQUIRED");
+    let token;
+    try {
+      token = await clerk.session.getToken();
+    } catch (_) {
+      throw authError("AUTH_SESSION_TOKEN_UNAVAILABLE");
+    }
+    if (
+      typeof token !== "string"
+      || token.length < 16
+      || token.length > SESSION_TOKEN_MAX_LENGTH
+      || /\s/.test(token)
+    ) {
+      throw authError("AUTH_SESSION_TOKEN_UNAVAILABLE");
+    }
+    return token;
+  }
+
   function redirectUrl() {
     const redirectPath = safeReturnPath() || "index.html";
     return new URL(redirectPath, root.location.href).href;
@@ -351,6 +372,7 @@
   return Object.freeze({
     start,
     requireAuth,
+    getSessionToken,
     normalizeIntentDescriptor,
     consumeStoredIntent,
     recover,

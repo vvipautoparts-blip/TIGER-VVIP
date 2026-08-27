@@ -184,8 +184,9 @@
     const clerk = options && options.clerk;
     const config = (options && options.config) || {};
     const now = options && typeof options.now === "function" ? options.now : Date.now;
+    const cryptoApi = (options && options.crypto) || root.crypto;
     const ids = (options && options.randomUUID) || function () {
-      if (root.crypto && typeof root.crypto.randomUUID === "function") return root.crypto.randomUUID();
+      if (cryptoApi && typeof cryptoApi.randomUUID === "function") return cryptoApi.randomUUID();
       throw marketplaceError("UUID_GENERATOR_UNAVAILABLE");
     };
     if (!client || typeof client.from !== "function" || !client.storage) throw marketplaceError("SUPABASE_CLIENT_REQUIRED");
@@ -205,6 +206,66 @@
       return fn.bind ? fn.bind(root) : fn;
     }
 
+    function requestAuth() {
+      const auth = (options && options.auth) || root.VVIP_AUTH;
+      if (!auth || typeof auth.getSessionToken !== "function") throw marketplaceError("AUTH_SESSION_TOKEN_REQUIRED");
+      return auth;
+    }
+
+    function requestCrypto() {
+      if (!cryptoApi || !cryptoApi.subtle || typeof cryptoApi.subtle.digest !== "function") {
+        throw marketplaceError("MEDIA_FINALIZER_CRYPTO_REQUIRED");
+      }
+      return cryptoApi;
+    }
+
+    function encodeUtf8(value) {
+      const Encoder = (options && options.TextEncoder) || root.TextEncoder;
+      if (typeof Encoder !== "function") throw marketplaceError("MEDIA_FINALIZER_CRYPTO_REQUIRED");
+      return new Encoder().encode(value);
+    }
+
+    function digestHex(arrayBuffer) {
+      const bytes = new Uint8Array(arrayBuffer);
+      let result = "";
+      for (const byte of bytes) result += byte.toString(16).padStart(2, "0");
+      if (!/^[0-9a-f]{64}$/.test(result)) throw marketplaceError("MEDIA_FINALIZER_CRYPTO_FAILED");
+      return result;
+    }
+
+    async function authenticatedFinalizerHeaders(body) {
+      let sessionToken;
+      try {
+        sessionToken = await requestAuth().getSessionToken();
+      } catch (error) {
+        throw marketplaceError("AUTH_SESSION_TOKEN_REQUIRED", error);
+      }
+      if (
+        typeof sessionToken !== "string"
+        || sessionToken.length < 16
+        || sessionToken.length > 16 * 1024
+        || /\s/.test(sessionToken)
+      ) {
+        throw marketplaceError("AUTH_SESSION_TOKEN_REQUIRED");
+      }
+
+      let digest;
+      try {
+        const bytes = encodeUtf8(body);
+        digest = digestHex(await requestCrypto().subtle.digest("SHA-256", bytes));
+      } catch (error) {
+        if (error && error.code) throw error;
+        throw marketplaceError("MEDIA_FINALIZER_CRYPTO_FAILED", error);
+      }
+
+      return {
+        "content-type": "application/json",
+        "accept": "application/json",
+        "X-Tiger-Session": sessionToken,
+        "x-amz-content-sha256": digest
+      };
+    }
+
     async function finalizeMediaRow(mediaId) {
       const endpoint = mediaFinalizerUrl();
       if (typeof client.rpc !== "function") throw marketplaceError("SUPABASE_RPC_REQUIRED");
@@ -213,13 +274,15 @@
       const grant = Array.isArray(grantData) ? grantData[0] : grantData;
       if (!grant || grant.media_id !== mediaId || !/^[0-9a-f]{64}$/.test(String(grant.finalization_token || ""))) throw marketplaceError("MEDIA_FINALIZATION_GRANT_INVALID");
 
+      const body = JSON.stringify({ mediaId: mediaId, finalizationToken: grant.finalization_token });
+      const headers = await authenticatedFinalizerHeaders(body);
       const response = await requestFetch()(endpoint, {
         method: "POST",
-        headers: { "content-type": "application/json", "accept": "application/json" },
+        headers: headers,
         credentials: "omit",
         cache: "no-store",
         referrerPolicy: "no-referrer",
-        body: JSON.stringify({ mediaId: mediaId, finalizationToken: grant.finalization_token })
+        body: body
       });
       let payload = null;
       try { payload = response && await response.json(); } catch (_) { payload = null; }

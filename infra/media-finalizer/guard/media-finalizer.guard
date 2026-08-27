@@ -1,0 +1,142 @@
+# TIGER Sealed Media Cell 2026 — independent CloudFormation Guard policy.
+# This policy intentionally validates the raw expanded-intrinsic CloudFormation document.
+
+let ecr_repositories = Resources.*[ Type == 'AWS::ECR::Repository' ]
+let lambda_functions = Resources.*[ Type == 'AWS::Lambda::Function' ]
+let lambda_versions = Resources.*[ Type == 'AWS::Lambda::Version' ]
+let lambda_aliases = Resources.*[ Type == 'AWS::Lambda::Alias' ]
+let lambda_urls = Resources.*[ Type == 'AWS::Lambda::Url' ]
+let origin_access_controls = Resources.*[ Type == 'AWS::CloudFront::OriginAccessControl' ]
+let cache_policies = Resources.*[ Type == 'AWS::CloudFront::CachePolicy' ]
+let origin_request_policies = Resources.*[ Type == 'AWS::CloudFront::OriginRequestPolicy' ]
+let web_acls = Resources.*[ Type == 'AWS::WAFv2::WebACL' ]
+let log_groups = Resources.*[ Type == 'AWS::Logs::LogGroup' ]
+let runtime_roles = Resources.*[ Type == 'AWS::IAM::Role' ]
+let lambda_permissions = Resources.*[ Type == 'AWS::Lambda::Permission' ]
+
+rule required_security_resources {
+    %ecr_repositories !empty
+    %lambda_functions !empty
+    %lambda_versions !empty
+    %lambda_aliases !empty
+    %lambda_urls !empty
+    %origin_access_controls !empty
+    %cache_policies !empty
+    %origin_request_policies !empty
+    %web_acls !empty
+    %log_groups !empty
+    %runtime_roles !empty
+    %lambda_permissions !empty
+}
+
+rule ecr_is_immutable_and_scanned when %ecr_repositories !empty {
+    %ecr_repositories {
+        Properties.ImageTagMutability == 'IMMUTABLE'
+        Properties.ImageScanningConfiguration.ScanOnPush == true
+    }
+}
+
+rule lambda_is_digest_image_runtime when %lambda_functions !empty {
+    %lambda_functions {
+        Properties.PackageType == 'Image'
+        Properties.Code.ImageUri exists
+        Properties.ReservedConcurrentExecutions > 0
+    }
+}
+
+rule lambda_release_is_published_and_aliased when %lambda_versions !empty && %lambda_aliases !empty {
+    %lambda_versions {
+        Properties.FunctionName exists
+        Properties.Description exists
+    }
+    %lambda_aliases {
+        Properties.Name == 'live'
+        Properties.FunctionName exists
+        Properties.FunctionVersion exists
+    }
+}
+
+rule function_url_is_iam_only when %lambda_urls !empty {
+    %lambda_urls {
+        Properties.AuthType == 'AWS_IAM'
+        Properties.InvokeMode == 'BUFFERED'
+        Properties.Qualifier == 'live'
+    }
+}
+
+rule cloudfront_oac_signs_lambda_origin when %origin_access_controls !empty {
+    %origin_access_controls {
+        Properties.OriginAccessControlConfig.OriginAccessControlOriginType == 'lambda'
+        Properties.OriginAccessControlConfig.SigningBehavior == 'always'
+        Properties.OriginAccessControlConfig.SigningProtocol == 'sigv4'
+    }
+}
+
+rule finalizer_cache_is_disabled when %cache_policies !empty {
+    %cache_policies {
+        Properties.CachePolicyConfig.DefaultTTL == 0
+        Properties.CachePolicyConfig.MaxTTL == 0
+        Properties.CachePolicyConfig.MinTTL == 0
+    }
+}
+
+rule origin_request_policy_is_explicit when %origin_request_policies !empty {
+    %origin_request_policies {
+        Properties.OriginRequestPolicyConfig.HeadersConfig.HeaderBehavior == 'whitelist'
+        some Properties.OriginRequestPolicyConfig.HeadersConfig.Headers[*] == 'X-Tiger-Session'
+        some Properties.OriginRequestPolicyConfig.HeadersConfig.Headers[*] == 'x-amz-content-sha256'
+        some Properties.OriginRequestPolicyConfig.HeadersConfig.Headers[*] == 'Content-Type'
+    }
+}
+
+let rate_rules = %web_acls.Properties.Rules[*][ Statement.RateBasedStatement exists ]
+let managed_rules = %web_acls.Properties.Rules[*][ Statement.ManagedRuleGroupStatement exists ]
+
+rule waf_has_rate_and_managed_rules when %web_acls !empty {
+    %rate_rules !empty
+    %managed_rules !empty
+    %managed_rules {
+        Statement.ManagedRuleGroupStatement.VendorName == 'AWS'
+        Statement.ManagedRuleGroupStatement.Name == 'AWSManagedRulesCommonRuleSet'
+    }
+}
+
+rule logs_have_explicit_retention when %log_groups !empty {
+    %log_groups {
+        Properties.RetentionInDays exists
+        Properties.RetentionInDays > 0
+    }
+}
+
+let secret_read_statements = %runtime_roles.Properties.Policies[*].PolicyDocument.Statement[*][
+    some Action[*] == 'secretsmanager:GetSecretValue'
+]
+
+rule runtime_reads_only_the_configured_secret when %runtime_roles !empty {
+    %secret_read_statements !empty
+    %secret_read_statements {
+        Effect == 'Allow'
+        Resource.Ref == 'SupabaseSecretArn'
+    }
+}
+
+rule no_public_lambda_permission when %lambda_permissions !empty {
+    %lambda_permissions {
+        Properties.Principal == 'cloudfront.amazonaws.com'
+        Properties.SourceArn exists
+    }
+}
+
+let function_url_permissions = %lambda_permissions[ Properties.Action == 'lambda:InvokeFunctionUrl' ]
+let function_invoke_permissions = %lambda_permissions[ Properties.Action == 'lambda:InvokeFunction' ]
+
+rule cloudfront_has_both_function_url_permissions {
+    %function_url_permissions !empty
+    %function_invoke_permissions !empty
+    %function_url_permissions {
+        Properties.FunctionUrlAuthType == 'AWS_IAM'
+    }
+    %function_invoke_permissions {
+        Properties.InvokedViaFunctionUrl == true
+    }
+}

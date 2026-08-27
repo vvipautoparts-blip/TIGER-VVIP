@@ -172,6 +172,14 @@ test("createDraftWithMedia finalizes each locally-identified derivative through 
   const repository = repo.createMarketplaceRepository({
     client,
     clerk: { user: { id: "user_owner" } },
+    auth: {
+      getSessionToken: async () => "signed-session-token-for-test"
+    },
+    crypto: {
+      subtle: {
+        digest: async () => new Uint8Array(32).buffer
+      }
+    },
     config: { defaultCountryCode: "JO", mediaFinalizerUrl: "https://media.example.test/finalize" },
     randomUUID: () => MEDIA_ID,
     fetch: async (url, options) => {

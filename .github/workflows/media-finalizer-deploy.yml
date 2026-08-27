@@ -1,0 +1,349 @@
+name: TIGER Media Finalizer Protected Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact current main commit SHA represented by the sealed build
+        required: true
+        type: string
+      build_run_id:
+        description: Successful TIGER Media Finalizer Sealed Build workflow run id
+        required: true
+        type: string
+      image_digest:
+        description: Immutable OCI manifest digest sha256:...
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+  attestations: read
+  id-token: write
+
+concurrency:
+  group: tiger-media-finalizer-production
+  cancel-in-progress: false
+
+env:
+  SOURCE_SHA: ${{ inputs.source_sha }}
+  BUILD_RUN_ID: ${{ inputs.build_run_id }}
+  IMAGE_DIGEST: ${{ inputs.image_digest }}
+  AWS_REGION: ${{ vars.TIGER_AWS_REGION }}
+  STACK_NAME: ${{ vars.TIGER_MEDIA_STACK_NAME }}
+  FUNCTION_NAME: ${{ vars.TIGER_MEDIA_FUNCTION_NAME }}
+  CFN_SERVICE_ROLE_ARN: ${{ vars.TIGER_MEDIA_CFN_SERVICE_ROLE_ARN }}
+
+jobs:
+  protected-deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    environment: production
+    steps:
+      - name: Checkout exact release source
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 0
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: "24"
+
+      - name: Verify manual input is exact current main
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$IMAGE_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]]
+          [[ "$BUILD_RUN_ID" =~ ^[1-9][0-9]*$ ]]
+          git fetch --no-tags origin main
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test "$(git rev-parse origin/main)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+
+      - name: Download and verify sealed-build passport
+        id: passport
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          run_json="$(gh run view "$BUILD_RUN_ID" --json conclusion,event,workflowName)"
+          test "$(jq -r '.conclusion' <<<"$run_json")" = "success"
+          test "$(jq -r '.event' <<<"$run_json")" = "workflow_dispatch"
+          test "$(jq -r '.workflowName' <<<"$run_json")" = "TIGER Media Finalizer Sealed Build"
+          rm -rf /tmp/media-cell-build
+          mkdir -p /tmp/media-cell-build
+          gh run download "$BUILD_RUN_ID" --name "tiger-media-cell-$SOURCE_SHA" --dir /tmp/media-cell-build
+          mapfile -t passports < <(find /tmp/media-cell-build -type f -name release-passport.json -print)
+          test "${#passports[@]}" -eq 1
+          PASSPORT="${passports[0]}"
+          PASSPORT="$PASSPORT" node <<'NODE'
+          const fs = require('node:fs');
+          const passport = JSON.parse(fs.readFileSync(process.env.PASSPORT, 'utf8'));
+          const fail = (code) => { throw new Error(code); };
+          if (passport?.source?.commitSha !== process.env.SOURCE_SHA || passport?.source?.immutable !== true) fail('DEPLOY_SOURCE_PASSPORT_MISMATCH');
+          if (passport?.image?.manifestDigest !== process.env.IMAGE_DIGEST) fail('DEPLOY_IMAGE_DIGEST_MISMATCH');
+          if (!/^[0-9]{12}\.dkr\.ecr\.[a-z0-9-]+\.amazonaws\.com\/[a-z0-9._/-]+$/.test(String(passport?.image?.repository || ''))) fail('DEPLOY_IMAGE_REPOSITORY_INVALID');
+          if (passport?.scan?.status !== 'COMPLETE') fail('DEPLOY_SCAN_NOT_COMPLETE');
+          if (!passport?.attestations?.provenance?.verified || !passport?.attestations?.sbom?.verified) fail('DEPLOY_ATTESTATIONS_NOT_VERIFIED');
+          if (passport?.sbom?.specVersion !== '1.7') fail('DEPLOY_SBOM_VERSION_INVALID');
+          process.stdout.write(`${passport.image.repository}\n`);
+          NODE
+          image_repository="$(PASSPORT="$PASSPORT" node -p "JSON.parse(require('node:fs').readFileSync(process.env.PASSPORT,'utf8')).image.repository")"
+          echo "image_repository=$image_repository" >> "$GITHUB_OUTPUT"
+          echo "image_uri=$image_repository@$IMAGE_DIGEST" >> "$GITHUB_OUTPUT"
+
+      - name: Install pinned CloudFormation validators
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check --no-input 'cfn-lint==1.55.1'
+          guard_url="https://github.com/aws-cloudformation/cloudformation-guard/releases/download/v3.2.0/cfn-guard-v3-x86_64-linux-latest.tar.gz"
+          curl --fail --silent --show-error --location "$guard_url" --output /tmp/cfn-guard.tar.gz
+          echo "c78f7a1a6c2674f7edbf0ebdc0590126487a14b103e434aea31205a4d1034d21  /tmp/cfn-guard.tar.gz" | sha256sum -c -
+          rm -rf /tmp/cfn-guard && mkdir -p /tmp/cfn-guard
+          tar -xzf /tmp/cfn-guard.tar.gz -C /tmp/cfn-guard
+          guard_bin="$(find /tmp/cfn-guard -type f \( -name cfn-guard -o -name 'cfn-guard-v3-*' \) | head -n 1)"
+          test -n "$guard_bin"
+          chmod 0755 "$guard_bin"
+          sudo install -m 0755 "$guard_bin" /usr/local/bin/cfn-guard
+          cfn-lint --version
+          cfn-guard --version
+
+      - name: Validate template and Guard policy before any AWS change set
+        shell: bash
+        run: |
+          set -euo pipefail
+          cfn-lint infra/media-finalizer/template.yaml
+          cfn-guard validate --data infra/media-finalizer/template.yaml --rules infra/media-finalizer/guard/media-finalizer.guard
+
+      - name: Configure AWS through GitHub OIDC
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c
+        with:
+          role-to-assume: ${{ vars.TIGER_MEDIA_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          unset-current-credentials: true
+
+      - name: Verify bounded deployment authority and sealed image evidence
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          IMAGE_REPOSITORY: ${{ steps.passport.outputs.image_repository }}
+        run: |
+          set -euo pipefail
+          test -n "$AWS_REGION"
+          test -n "$STACK_NAME"
+          test -n "$FUNCTION_NAME"
+          [[ "$CFN_SERVICE_ROLE_ARN" =~ ^arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+$ ]]
+          service_role_name="${CFN_SERVICE_ROLE_ARN##*/}"
+          boundary="$(aws iam get-role --role-name "$service_role_name" --query 'Role.PermissionsBoundary.PermissionsBoundaryArn' --output text)"
+          test -n "$boundary"
+          test "$boundary" != "None"
+          account_id="$(aws sts get-caller-identity --query Account --output text)"
+          expected_prefix="$account_id.dkr.ecr.$AWS_REGION.amazonaws.com/"
+          case "$IMAGE_REPOSITORY" in "$expected_prefix"*) ;; *) exit 1 ;; esac
+          registry="${IMAGE_REPOSITORY%%/*}"
+          ecr_repository="${IMAGE_REPOSITORY#*/}"
+          aws ecr describe-images --repository-name "$ecr_repository" --image-ids "imageDigest=$IMAGE_DIGEST" >/dev/null
+          scan_json="$(aws ecr describe-image-scan-findings --repository-name "$ecr_repository" --image-id "imageDigest=$IMAGE_DIGEST" --query '{status:imageScanStatus.status,critical:imageScanFindings.findingSeverityCounts.CRITICAL,high:imageScanFindings.findingSeverityCounts.HIGH}' --output json)"
+          test "$(jq -r '.status' <<<"$scan_json")" = "COMPLETE"
+          test "$(jq -r '.critical // 0' <<<"$scan_json")" -eq 0
+          test "$(jq -r '.high // 0' <<<"$scan_json")" -eq 0
+          aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$registry"
+          gh attestation verify "oci://$IMAGE_REPOSITORY@$IMAGE_DIGEST" -R "$GITHUB_REPOSITORY" --format json > /tmp/media-provenance.json
+          gh attestation verify "oci://$IMAGE_REPOSITORY@$IMAGE_DIGEST" -R "$GITHUB_REPOSITORY" --predicate-type https://cyclonedx.org/bom --format json > /tmp/media-sbom-attestation.json
+          aws cloudformation describe-stacks --stack-name "$STACK_NAME" >/tmp/media-current-stack.json
+          prior_image_uri="$(jq -r '.Stacks[0].Parameters[] | select(.ParameterKey=="ImageUri") | .ParameterValue' /tmp/media-current-stack.json)"
+          prior_release_sha="$(jq -r '.Stacks[0].Parameters[] | select(.ParameterKey=="ReleaseSha") | .ParameterValue' /tmp/media-current-stack.json)"
+          prior_version="$(aws lambda get-alias --function-name "$FUNCTION_NAME" --name live --query FunctionVersion --output text)"
+          [[ "$prior_image_uri" =~ @sha256:[0-9a-f]{64}$ ]]
+          [[ "$prior_release_sha" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$prior_version" =~ ^[1-9][0-9]*$ ]]
+          echo "PRIOR_IMAGE_URI=$prior_image_uri" >> "$GITHUB_ENV"
+          echo "PRIOR_RELEASE_SHA=$prior_release_sha" >> "$GITHUB_ENV"
+          echo "PRIOR_VERSION=$prior_version" >> "$GITHUB_ENV"
+          echo "IMAGE_URI=$IMAGE_REPOSITORY@$IMAGE_DIGEST" >> "$GITHUB_ENV"
+
+      - name: Create and review candidate CloudFormation change set
+        id: candidate-change-set
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/deploy
+          CANDIDATE_CHANGE_SET="media-cell-candidate-${SOURCE_SHA:0:12}-${GITHUB_RUN_ID}"
+          echo "CANDIDATE_CHANGE_SET=$CANDIDATE_CHANGE_SET" >> "$GITHUB_ENV"
+          aws cloudformation create-change-set \
+            --stack-name "$STACK_NAME" \
+            --change-set-name "$CANDIDATE_CHANGE_SET" \
+            --change-set-type UPDATE \
+            --template-body file://infra/media-finalizer/template.yaml \
+            --role-arn "$CFN_SERVICE_ROLE_ARN" \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --parameters \
+              "ParameterKey=ImageUri,ParameterValue=$IMAGE_URI" \
+              "ParameterKey=ReleaseSha,ParameterValue=$SOURCE_SHA" \
+              "ParameterKey=StableAliasVersion,ParameterValue=$PRIOR_VERSION" \
+              ParameterKey=FunctionName,UsePreviousValue=true \
+              ParameterKey=SupabaseSecretArn,UsePreviousValue=true \
+              ParameterKey=ClerkIssuer,UsePreviousValue=true \
+              ParameterKey=ClerkAudience,UsePreviousValue=true \
+              ParameterKey=ClerkJwksUrl,UsePreviousValue=true \
+              ParameterKey=ClerkAuthorizedParties,UsePreviousValue=true \
+              ParameterKey=AllowedOrigins,UsePreviousValue=true \
+              ParameterKey=RateLimitPerFiveMinutes,UsePreviousValue=true
+          aws cloudformation wait change-set-create-complete --stack-name "$STACK_NAME" --change-set-name "$CANDIDATE_CHANGE_SET"
+          aws cloudformation describe-change-set \
+            --stack-name "$STACK_NAME" \
+            --change-set-name "$CANDIDATE_CHANGE_SET" \
+            --query '{status:Status,executionStatus:ExecutionStatus,changes:Changes[].ResourceChange.{action:Action,logicalResourceId:LogicalResourceId,resourceType:ResourceType,replacement:Replacement}}' \
+            --output json > artifacts/deploy/candidate-change-set.json
+          node -e "const x=require('./artifacts/deploy/candidate-change-set.json'); if(x.status!=='CREATE_COMPLETE'||!Array.isArray(x.changes)||x.changes.length===0) process.exit(1)"
+
+      - name: Execute candidate stack while live alias remains on prior version
+        shell: bash
+        run: |
+          set -euo pipefail
+          aws cloudformation execute-change-set --stack-name "$STACK_NAME" --change-set-name "$CANDIDATE_CHANGE_SET"
+          aws cloudformation wait stack-update-complete --stack-name "$STACK_NAME"
+          new_version="$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query 'Stacks[0].Outputs[?OutputKey==`PublishedVersion`].OutputValue' --output text)"
+          cloudfront_url="$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query 'Stacks[0].Outputs[?OutputKey==`MediaFinalizerUrl`].OutputValue' --output text)"
+          function_url="$(aws lambda get-function-url-config --function-name "$FUNCTION_NAME" --qualifier live --query FunctionUrl --output text)"
+          [[ "$new_version" =~ ^[1-9][0-9]*$ ]]
+          [[ "$cloudfront_url" =~ ^https://[^[:space:]]+$ ]]
+          [[ "$function_url" =~ ^https://[^[:space:]]+$ ]]
+          test "$new_version" != "$PRIOR_VERSION"
+          test "$(aws lambda get-alias --function-name "$FUNCTION_NAME" --name live --query FunctionVersion --output text)" = "$PRIOR_VERSION"
+          echo "NEW_VERSION=$new_version" >> "$GITHUB_ENV"
+          echo "CLOUDFRONT_URL=$cloudfront_url" >> "$GITHUB_ENV"
+          echo "FUNCTION_URL=$function_url" >> "$GITHUB_ENV"
+          touch /tmp/media-candidate-deployed
+
+      - name: Route bounded canary traffic through the stable alias
+        shell: bash
+        run: |
+          set -euo pipefail
+          aws lambda update-alias \
+            --function-name "$FUNCTION_NAME" \
+            --name live \
+            --function-version "$PRIOR_VERSION" \
+            --routing-config "{\"AdditionalVersionWeights\":{\"$NEW_VERSION\":0.10}}" >/dev/null
+          routed="$(aws lambda get-alias --function-name "$FUNCTION_NAME" --name live --query "RoutingConfig.AdditionalVersionWeights.\"$NEW_VERSION\"" --output text)"
+          test "$routed" != "None"
+
+      - name: Run fresh CloudFront runtime and abuse probes
+        shell: bash
+        env:
+          RUNTIME_PROBE_FIXTURE_JSON: ${{ secrets.TIGER_MEDIA_RUNTIME_PROBE_FIXTURE_JSON }}
+        run: |
+          set -euo pipefail
+          test -n "$RUNTIME_PROBE_FIXTURE_JSON"
+          umask 077
+          printf '%s' "$RUNTIME_PROBE_FIXTURE_JSON" > /tmp/media-finalizer-runtime-fixture.json
+          node scripts/security/media-finalizer-runtime-probes.mjs \
+            --cloudfront-url "$CLOUDFRONT_URL" \
+            --function-url "$FUNCTION_URL" \
+            --fixture-file /tmp/media-finalizer-runtime-fixture.json \
+            --output artifacts/deploy/runtime-probes.json
+          rm -f /tmp/media-finalizer-runtime-fixture.json
+
+      - name: Require named alarms green before promotion
+        shell: bash
+        run: |
+          set -euo pipefail
+          error_alarm="$(aws cloudformation describe-stack-resource --stack-name "$STACK_NAME" --logical-resource-id MediaFinalizerErrorAlarm --query StackResourceDetail.PhysicalResourceId --output text)"
+          throttle_alarm="$(aws cloudformation describe-stack-resource --stack-name "$STACK_NAME" --logical-resource-id MediaFinalizerThrottleAlarm --query StackResourceDetail.PhysicalResourceId --output text)"
+          aws cloudwatch describe-alarms --alarm-names "$error_alarm" "$throttle_alarm" \
+            --query '{alarms:MetricAlarms[].{name:AlarmName,state:StateValue}}' --output json > artifacts/deploy/alarm-states.json
+          node -e "const x=require('./artifacts/deploy/alarm-states.json'); if(!Array.isArray(x.alarms)||x.alarms.length!==2||x.alarms.some(a=>a.state!=='OK')) process.exit(1)"
+
+      - name: Promote verified version through a reviewed CloudFormation change set
+        shell: bash
+        run: |
+          set -euo pipefail
+          aws lambda update-alias \
+            --function-name "$FUNCTION_NAME" \
+            --name live \
+            --function-version "$PRIOR_VERSION" \
+            --routing-config '{"AdditionalVersionWeights":{}}' >/dev/null
+          PROMOTION_CHANGE_SET="media-cell-promote-${SOURCE_SHA:0:12}-${GITHUB_RUN_ID}"
+          aws cloudformation create-change-set \
+            --stack-name "$STACK_NAME" \
+            --change-set-name "$PROMOTION_CHANGE_SET" \
+            --change-set-type UPDATE \
+            --template-body file://infra/media-finalizer/template.yaml \
+            --role-arn "$CFN_SERVICE_ROLE_ARN" \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --parameters \
+              ParameterKey=ImageUri,UsePreviousValue=true \
+              ParameterKey=ReleaseSha,UsePreviousValue=true \
+              "ParameterKey=StableAliasVersion,ParameterValue=$NEW_VERSION" \
+              ParameterKey=FunctionName,UsePreviousValue=true \
+              ParameterKey=SupabaseSecretArn,UsePreviousValue=true \
+              ParameterKey=ClerkIssuer,UsePreviousValue=true \
+              ParameterKey=ClerkAudience,UsePreviousValue=true \
+              ParameterKey=ClerkJwksUrl,UsePreviousValue=true \
+              ParameterKey=ClerkAuthorizedParties,UsePreviousValue=true \
+              ParameterKey=AllowedOrigins,UsePreviousValue=true \
+              ParameterKey=RateLimitPerFiveMinutes,UsePreviousValue=true
+          aws cloudformation wait change-set-create-complete --stack-name "$STACK_NAME" --change-set-name "$PROMOTION_CHANGE_SET"
+          aws cloudformation describe-change-set --stack-name "$STACK_NAME" --change-set-name "$PROMOTION_CHANGE_SET" \
+            --query '{status:Status,executionStatus:ExecutionStatus,changes:Changes[].ResourceChange.{action:Action,logicalResourceId:LogicalResourceId,resourceType:ResourceType,replacement:Replacement}}' \
+            --output json > artifacts/deploy/promotion-change-set.json
+          node -e "const x=require('./artifacts/deploy/promotion-change-set.json'); if(x.status!=='CREATE_COMPLETE'||!Array.isArray(x.changes)||x.changes.length===0) process.exit(1)"
+          aws cloudformation execute-change-set --stack-name "$STACK_NAME" --change-set-name "$PROMOTION_CHANGE_SET"
+          aws cloudformation wait stack-update-complete --stack-name "$STACK_NAME"
+          test "$(aws lambda get-alias --function-name "$FUNCTION_NAME" --name live --query FunctionVersion --output text)" = "$NEW_VERSION"
+          aws lambda get-alias --function-name "$FUNCTION_NAME" --name live \
+            --query '{version:FunctionVersion,routing:RoutingConfig.AdditionalVersionWeights}' --output json > artifacts/deploy/promoted-alias.json
+          node -e "const x=require('./artifacts/deploy/promoted-alias.json'); if(x.version!==process.env.NEW_VERSION||Object.keys(x.routing||{}).length!==0) process.exit(1)"
+
+      - name: Roll back alias and stack on any canary or promotion failure
+        if: ${{ failure() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! -f /tmp/media-candidate-deployed ]]; then
+            exit 0
+          fi
+          aws lambda update-alias \
+            --function-name "$FUNCTION_NAME" \
+            --name live \
+            --function-version "$PRIOR_VERSION" \
+            --routing-config '{"AdditionalVersionWeights":{}}' >/dev/null || true
+          ROLLBACK_CHANGE_SET="media-cell-rollback-${GITHUB_RUN_ID}"
+          aws cloudformation create-change-set \
+            --stack-name "$STACK_NAME" \
+            --change-set-name "$ROLLBACK_CHANGE_SET" \
+            --change-set-type UPDATE \
+            --template-body file://infra/media-finalizer/template.yaml \
+            --role-arn "$CFN_SERVICE_ROLE_ARN" \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --parameters \
+              "ParameterKey=ImageUri,ParameterValue=$PRIOR_IMAGE_URI" \
+              "ParameterKey=ReleaseSha,ParameterValue=$PRIOR_RELEASE_SHA" \
+              "ParameterKey=StableAliasVersion,ParameterValue=$PRIOR_VERSION" \
+              ParameterKey=FunctionName,UsePreviousValue=true \
+              ParameterKey=SupabaseSecretArn,UsePreviousValue=true \
+              ParameterKey=ClerkIssuer,UsePreviousValue=true \
+              ParameterKey=ClerkAudience,UsePreviousValue=true \
+              ParameterKey=ClerkJwksUrl,UsePreviousValue=true \
+              ParameterKey=ClerkAuthorizedParties,UsePreviousValue=true \
+              ParameterKey=AllowedOrigins,UsePreviousValue=true \
+              ParameterKey=RateLimitPerFiveMinutes,UsePreviousValue=true
+          aws cloudformation wait change-set-create-complete --stack-name "$STACK_NAME" --change-set-name "$ROLLBACK_CHANGE_SET"
+          aws cloudformation execute-change-set --stack-name "$STACK_NAME" --change-set-name "$ROLLBACK_CHANGE_SET"
+          aws cloudformation wait stack-update-complete --stack-name "$STACK_NAME"
+          test "$(aws lambda get-alias --function-name "$FUNCTION_NAME" --name live --query FunctionVersion --output text)" = "$PRIOR_VERSION"
+
+      - name: Upload bounded deployment evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: tiger-media-deploy-${{ env.SOURCE_SHA }}-${{ github.run_id }}
+          path: artifacts/deploy
+          if-no-files-found: ignore
+          retention-days: 30

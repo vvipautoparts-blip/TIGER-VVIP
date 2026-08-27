@@ -8,6 +8,7 @@ const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..');
 const MIGRATION = path.join(ROOT, 'supabase/migrations/20260816090001_sovereign_media_finalization.sql');
 const HANDLER = path.join(ROOT, 'services/media-finalizer/src/handler.js');
+const CANONICALIZE = path.join(ROOT, 'services/media-finalizer/src/canonicalize.js');
 const POLICY = path.join(ROOT, 'services/media-finalizer/src/policy.js');
 const DOCKERFILE = path.join(ROOT, 'services/media-finalizer/Dockerfile');
 const PACKAGE = path.join(ROOT, 'services/media-finalizer/package.json');
@@ -66,40 +67,55 @@ test('finalizer policy accepts only strict JPEG/WebP containers and rejects HEIC
   assert.doesNotMatch(source, /image\/(?:hei[cf]|avif)/i);
 });
 
-test('AWS finalizer downloads source directly, normalizes sRGB, re-encodes with sharp and records only canonical evidence', () => {
+test('AWS finalizer orchestrates bounded trusted storage while the isolated canonicalizer normalizes and re-encodes media', () => {
   assert.equal(fs.existsSync(HANDLER), true, 'Lambda handler must exist');
-  const source = read(HANDLER);
+  assert.equal(fs.existsSync(CANONICALIZE), true, 'media canonicalizer must exist');
+  const handler = read(HANDLER);
+  const canonicalizer = read(CANONICALIZE);
+
   for (const token of [
-    "require('sharp')",
     'claim_media_finalization',
     'complete_media_finalization',
     "const LISTING_SOURCE_BUCKET = 'listing-media'",
     "const LISTING_CANONICAL_BUCKET = 'listing-media-canonical'",
     'storage.from(LISTING_SOURCE_BUCKET)',
     'storage.from(LISTING_CANONICAL_BUCKET)',
-    '.timeout({ seconds:',
-    '.rotate()',
-    ".toColourspace('srgb')",
     'canonicalSha256',
     'sourceSha256',
     'timingSafeEqual',
     "method === 'OPTIONS'",
     'access-control-allow-methods',
-    'access-control-allow-headers'
+    'access-control-allow-headers',
+    'MEDIA_FINALIZATION_OWNER_MISMATCH',
+    'owner_subject !== identity.subject'
   ]) {
-    assert.ok(source.includes(token), `missing finalizer implementation token: ${token}`);
+    assert.ok(handler.includes(token), `missing finalizer orchestration token: ${token}`);
   }
-  assert.doesNotMatch(source, /keepMetadata|keepExif|keepXmp|withMetadata|withExif|withXmp/);
-  assert.doesNotMatch(source, /heic|heif/i);
+
+  for (const token of [
+    "require('sharp')",
+    '.timeout({ seconds',
+    '.rotate()',
+    ".toColourspace('srgb')",
+    '.jpeg({',
+    '.webp({'
+  ]) {
+    assert.ok(canonicalizer.includes(token), `missing strict canonicalizer token: ${token}`);
+  }
+
+  assert.doesNotMatch(canonicalizer, /keepMetadata|keepExif|keepXmp|withMetadata|withExif|withXmp/);
+  assert.doesNotMatch(canonicalizer, /heic|heif/i);
+  assert.doesNotMatch(handler, /SUPABASE_SERVICE_ROLE_KEY|Authorization\s*:\s*`Bearer/i);
 });
 
-test('Lambda is containerized on current AL2023 Node runtime with exact sharp dependency', () => {
+test('Lambda is containerized on digest-pinned AL2023 Node 24 with exact reviewed runtime dependencies', () => {
   assert.equal(fs.existsSync(DOCKERFILE), true, 'Lambda Dockerfile must exist');
   assert.equal(fs.existsSync(PACKAGE), true, 'Lambda package manifest must exist');
   const docker = read(DOCKERFILE);
   const pkg = JSON.parse(read(PACKAGE));
-  assert.match(docker, /public\.ecr\.aws\/lambda\/nodejs:24/);
-  assert.equal(pkg.dependencies.sharp, '0.35.0');
+  assert.match(docker, /public\.ecr\.aws\/lambda\/nodejs:24@sha256:[0-9a-f]{64}/);
+  assert.equal(pkg.dependencies.sharp, '0.35.3');
+  assert.equal(pkg.dependencies['@aws-sdk/client-secrets-manager'], '3.1117.0');
   assert.equal(pkg.private, true);
 });
 
