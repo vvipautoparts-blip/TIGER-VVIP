@@ -45,7 +45,8 @@ const REQUIRED_DB_MIGRATIONS = [
 ];
 
 function digestMap(paths) {
-  return Object.fromEntries(paths.map((name, index) => [name, String.fromCharCode(97 + index).repeat(64)]));
+  const hex = 'abcdef0123456789';
+  return Object.fromEntries(paths.map((name, index) => [name, hex[index % hex.length].repeat(64)]));
 }
 
 function validLegacyEvidence() {
