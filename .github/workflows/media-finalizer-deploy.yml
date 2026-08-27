@@ -102,7 +102,7 @@ jobs:
         run: |
           set -euo pipefail
           python -m pip install --disable-pip-version-check --no-input 'cfn-lint==1.55.1'
-          guard_url="https://github.com/aws-cloudformation/cloudformation-guard/releases/download/v3.2.0/cfn-guard-v3-x86_64-linux-latest.tar.gz"
+          guard_url="https://github.com/aws-cloudformation/cloudformation-guard/releases/download/3.2.0/cfn-guard-v3-x86_64-linux-latest.tar.gz"
           curl --fail --silent --show-error --location "$guard_url" --output /tmp/cfn-guard.tar.gz
           echo "c78f7a1a6c2674f7edbf0ebdc0590126487a14b103e434aea31205a4d1034d21  /tmp/cfn-guard.tar.gz" | sha256sum -c -
           rm -rf /tmp/cfn-guard && mkdir -p /tmp/cfn-guard
