@@ -26,7 +26,8 @@ test('media IaC has an exact-head pull-request rehearsal that runs real cfn-lint
   assert.match(workflow, /git rev-parse HEAD/);
 
   assert.match(workflow, /cfn-lint==1\.55\.1/);
-  assert.match(workflow, /cloudformation-guard\/releases\/download\/v3\.2\.0/);
+  assert.match(workflow, /cloudformation-guard\/releases\/download\/3\.2\.0\/cfn-guard-v3-x86_64-linux-latest\.tar\.gz/);
+  assert.doesNotMatch(workflow, /cloudformation-guard\/releases\/download\/v3\.2\.0/);
   assert.match(workflow, /c78f7a1a6c2674f7edbf0ebdc0590126487a14b103e434aea31205a4d1034d21/);
   assert.match(workflow, /cfn-lint\s+infra\/media-finalizer\/template\.yaml/);
   assert.match(workflow, /cfn-guard\s+validate\s+--data\s+infra\/media-finalizer\/template\.yaml\s+--rules\s+infra\/media-finalizer\/guard\/media-finalizer\.guard/);
