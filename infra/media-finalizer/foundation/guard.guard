@@ -56,10 +56,20 @@ rule build_role_has_bounded_ecr_authority when %build_roles !empty {
             some Action[*] == 'ecr:GetAuthorizationToken'
         }
         some Properties.Policies[*].PolicyDocument.Statement[*] {
+            some Action[*] == 'ecr:GetRegistryScanningConfiguration'
+            Resource == '*'
+        }
+        some Properties.Policies[*].PolicyDocument.Statement[*] {
             some Action[*] == 'ecr:PutImage'
             some Action[*] == 'ecr:DescribeImageScanFindings'
             Resource.'Fn::GetAtt'[0] == 'MediaFinalizerRepository'
             Resource.'Fn::GetAtt'[1] == 'Arn'
         }
+    }
+}
+
+rule build_role_cannot_mutate_registry_scanning when %build_roles !empty {
+    %build_roles {
+        Properties.Policies[*].PolicyDocument.Statement[*].Action[*] != 'ecr:PutRegistryScanningConfiguration'
     }
 }
