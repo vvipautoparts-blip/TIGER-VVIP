@@ -126,6 +126,25 @@ Resources:
                   - secretsmanager:GetSecretValue
                 Resource:
                   Ref: SupabaseSecretArn
+        - PolicyName: media-finalizer-dlq
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:SendMessage
+                Resource:
+                  Fn::GetAtt:
+                    - MediaFinalizerDeadLetterQueue
+                    - Arn
+
+  MediaFinalizerDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      SqsManagedSseEnabled: true
+      MessageRetentionPeriod: 1209600
 
   MediaFinalizerFunction:
     Type: AWS::Lambda::Function
@@ -144,9 +163,14 @@ Resources:
           - Arn
       Architectures:
         - x86_64
-      MemorySize: 1536
+      MemorySize: 2048
       Timeout: 30
-      ReservedConcurrentExecutions: 20
+      ReservedConcurrentExecutions: 8
+      DeadLetterConfig:
+        TargetArn:
+          Fn::GetAtt:
+            - MediaFinalizerDeadLetterQueue
+            - Arn
       Environment:
         Variables:
           TIGER_MEDIA_SUPABASE_SECRET_ID:
