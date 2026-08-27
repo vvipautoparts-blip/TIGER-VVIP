@@ -134,6 +134,30 @@ test('cryptographic Genome is deterministic and changes when authoritative evide
   assert.notEqual(createMediaCellGenome(changed).genomeId, first.genomeId);
 });
 
+test('cryptographic Genome rejects unknown, secret, incomplete, wrong-region, and unverified evidence', () => {
+  const { createMediaCellGenome } = require(GENOME_HELPER);
+
+  const unknown = validGenomeEvidence();
+  unknown.extra = true;
+  assert.throws(() => createMediaCellGenome(unknown), /GENOME_EVIDENCE_UNKNOWN/);
+
+  const secret = validGenomeEvidence();
+  secret.secretValue = 'sb_secret_forbidden';
+  assert.throws(() => createMediaCellGenome(secret), /GENOME_SECRET_MATERIAL_REJECTED/);
+
+  const incomplete = validGenomeEvidence();
+  delete incomplete.materials['infra/media-finalizer/edge/guard.guard'];
+  assert.throws(() => createMediaCellGenome(incomplete), /GENOME_MATERIALS_INVALID/);
+
+  const wrongRegion = validGenomeEvidence();
+  wrongRegion.image.repository = '123456789012.dkr.ecr.us-east-1.amazonaws.com/tiger-media-finalizer';
+  assert.throws(() => createMediaCellGenome(wrongRegion), /GENOME_IMAGE_REPOSITORY_INVALID/);
+
+  const unverified = validGenomeEvidence();
+  unverified.attestations.sbom.verified = false;
+  assert.throws(() => createMediaCellGenome(unverified), /GENOME_ATTESTATION_UNVERIFIED/);
+});
+
 test('materials evidence is deterministic CycloneDX 1.7 and cannot masquerade as container inventory', () => {
   const { createMediaCellSbom } = require(SBOM_HELPER);
   const input = validMaterialsEvidence();
