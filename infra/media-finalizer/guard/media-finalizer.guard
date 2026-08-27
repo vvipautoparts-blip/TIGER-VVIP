@@ -6,6 +6,7 @@ let lambda_functions = Resources.*[ Type == 'AWS::Lambda::Function' ]
 let lambda_versions = Resources.*[ Type == 'AWS::Lambda::Version' ]
 let lambda_aliases = Resources.*[ Type == 'AWS::Lambda::Alias' ]
 let lambda_urls = Resources.*[ Type == 'AWS::Lambda::Url' ]
+let dead_letter_queues = Resources.*[ Type == 'AWS::SQS::Queue' ]
 let origin_access_controls = Resources.*[ Type == 'AWS::CloudFront::OriginAccessControl' ]
 let cache_policies = Resources.*[ Type == 'AWS::CloudFront::CachePolicy' ]
 let origin_request_policies = Resources.*[ Type == 'AWS::CloudFront::OriginRequestPolicy' ]
@@ -20,6 +21,7 @@ rule required_security_resources {
     %lambda_versions !empty
     %lambda_aliases !empty
     %lambda_urls !empty
+    %dead_letter_queues !empty
     %origin_access_controls !empty
     %cache_policies !empty
     %origin_request_policies !empty
@@ -40,7 +42,17 @@ rule lambda_is_digest_image_runtime when %lambda_functions !empty {
     %lambda_functions {
         Properties.PackageType == 'Image'
         Properties.Code.ImageUri exists
-        Properties.ReservedConcurrentExecutions > 0
+        Properties.MemorySize == 2048
+        Properties.Timeout == 30
+        Properties.ReservedConcurrentExecutions == 8
+        Properties.DeadLetterConfig.TargetArn exists
+    }
+}
+
+rule dlq_is_encrypted_and_retained when %dead_letter_queues !empty {
+    %dead_letter_queues {
+        Properties.SqsManagedSseEnabled == true
+        Properties.MessageRetentionPeriod == 1209600
     }
 }
 
@@ -117,6 +129,18 @@ rule runtime_reads_only_the_configured_secret when %runtime_roles !empty {
     %secret_read_statements {
         Effect == 'Allow'
         Resource.Ref == 'SupabaseSecretArn'
+    }
+}
+
+let dlq_send_statements = %runtime_roles.Properties.Policies[*].PolicyDocument.Statement[*][
+    some Action[*] == 'sqs:SendMessage'
+]
+
+rule runtime_has_bounded_dlq_send_authority when %runtime_roles !empty {
+    %dlq_send_statements !empty
+    %dlq_send_statements {
+        Effect == 'Allow'
+        Resource exists
     }
 }
 
