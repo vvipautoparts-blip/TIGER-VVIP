@@ -1,0 +1,95 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "TIGER Sealed Media Cell 2026 bootstrap: immutable ECR, secret shell, GitHub OIDC, bounded CloudFormation deployment authority.",
+  "Parameters": {
+    "GitHubRepository": {"Type": "String", "Default": "vvipautoparts-blip/TIGER-VVIP", "AllowedPattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"},
+    "BuildEnvironment": {"Type": "String", "Default": "production-build", "AllowedPattern": "^[A-Za-z0-9_.-]{1,64}$"},
+    "DeployEnvironment": {"Type": "String", "Default": "production-deploy", "AllowedPattern": "^[A-Za-z0-9_.-]{1,64}$"},
+    "CreateGitHubOidcProvider": {"Type": "String", "Default": "true", "AllowedValues": ["true", "false"]},
+    "ExistingGitHubOidcProviderArn": {"Type": "String", "Default": "", "AllowedPattern": "^$|^arn:aws[a-z-]*:iam::[0-9]{12}:oidc-provider/token\\.actions\\.githubusercontent\\.com$"}
+  },
+  "Conditions": {"CreateOidc": {"Fn::Equals": [{"Ref": "CreateGitHubOidcProvider"}, "true"]}},
+  "Resources": {
+    "MediaRepository": {
+      "Type": "AWS::ECR::Repository", "DeletionPolicy": "Retain", "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "RepositoryName": "tiger-vvip-media-finalizer", "ImageTagMutability": "IMMUTABLE", "ImageScanningConfiguration": {"ScanOnPush": true}, "EncryptionConfiguration": {"EncryptionType": "AES256"},
+        "LifecyclePolicy": {"LifecyclePolicyText": "{\"rules\": [{\"rulePriority\": 1, \"description\": \"Retain the newest 40 sealed media images\", \"selection\": {\"tagStatus\": \"any\", \"countType\": \"imageCountMoreThan\", \"countNumber\": 40}, \"action\": {\"type\": \"expire\"}}]}"},
+        "Tags": [{"Key": "tiger:cell", "Value": "sealed-media-2026"}, {"Key": "tiger:managed-by", "Value": "cloudformation"}]
+      }
+    },
+    "SupabaseServerSecret": {
+      "Type": "AWS::SecretsManager::Secret", "DeletionPolicy": "Retain", "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "Name": "TIGER/VVIP/media-finalizer/supabase-server", "Description": "Server-only Supabase sb_secret_* for TIGER Sealed Media Cell. Populate after bootstrap; never expose to browser or GitHub variables.",
+        "GenerateSecretString": {"SecretStringTemplate": "{\"state\":\"UNCONFIGURED\"}", "GenerateStringKey": "bootstrapNonce", "ExcludePunctuation": true, "PasswordLength": 32},
+        "Tags": [{"Key": "tiger:cell", "Value": "sealed-media-2026"}]
+      }
+    },
+    "RuntimePermissionsBoundary": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties": {
+        "ManagedPolicyName": "TIGER-VVIP-SealedMedia-RuntimeBoundary", "Description": "Maximum permission envelope for IAM roles created by the sealed-media runtime stack.",
+        "PolicyDocument": {"Version": "2012-10-17", "Statement": [
+          {"Sid": "RuntimeLogs", "Effect": "Allow", "Action": ["logs:CreateLogStream", "logs:PutLogEvents"], "Resource": {"Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/TIGER-VVIP-SealedMedia*:log-stream:*"}},
+          {"Sid": "ReadOnlyDesignatedSecret", "Effect": "Allow", "Action": ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"], "Resource": {"Ref": "SupabaseServerSecret"}},
+          {"Sid": "RuntimeXRay", "Effect": "Allow", "Action": ["xray:PutTraceSegments", "xray:PutTelemetryRecords"], "Resource": "*"}
+        ]}
+      }
+    },
+    "GitHubOidcProvider": {
+      "Type": "AWS::IAM::OIDCProvider", "Condition": "CreateOidc",
+      "Properties": {"Url": "https://token.actions.githubusercontent.com", "ClientIdList": ["sts.amazonaws.com"], "Tags": [{"Key": "tiger:cell", "Value": "sealed-media-2026"}]}
+    },
+    "CloudFormationServiceRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": "TIGER-VVIP-SealedMedia-CloudFormation",
+        "AssumeRolePolicyDocument": {"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Principal": {"Service": "cloudformation.amazonaws.com"}, "Action": "sts:AssumeRole"}]},
+        "Policies": [{"PolicyName": "SealedMediaRuntimeProvisioning", "PolicyDocument": {"Version": "2012-10-17", "Statement": [
+          {"Sid": "LambdaRuntime", "Effect": "Allow", "Action": ["lambda:CreateFunction", "lambda:DeleteFunction", "lambda:GetFunction", "lambda:GetFunctionConfiguration", "lambda:UpdateFunctionCode", "lambda:UpdateFunctionConfiguration", "lambda:PublishVersion", "lambda:CreateAlias", "lambda:UpdateAlias", "lambda:DeleteAlias", "lambda:GetAlias", "lambda:CreateFunctionUrlConfig", "lambda:UpdateFunctionUrlConfig", "lambda:DeleteFunctionUrlConfig", "lambda:GetFunctionUrlConfig", "lambda:AddPermission", "lambda:RemovePermission", "lambda:GetPolicy", "lambda:TagResource", "lambda:UntagResource", "lambda:ListTags"], "Resource": {"Fn::Sub": "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:TIGER-VVIP-SealedMedia*"}},
+          {"Sid": "CreateBoundedRuntimeRoles", "Effect": "Allow", "Action": "iam:CreateRole", "Resource": {"Fn::Sub": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/TIGER-VVIP-SealedMedia-*"}, "Condition": {"StringEquals": {"iam:PermissionsBoundary": {"Ref": "RuntimePermissionsBoundary"}}}},
+          {"Sid": "ManageBoundedRuntimeRoles", "Effect": "Allow", "Action": ["iam:DeleteRole", "iam:GetRole", "iam:PutRolePolicy", "iam:DeleteRolePolicy", "iam:GetRolePolicy", "iam:PassRole", "iam:TagRole", "iam:UntagRole"], "Resource": {"Fn::Sub": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/TIGER-VVIP-SealedMedia-*"}},
+          {"Sid": "CloudFrontWafControlPlane", "Effect": "Allow", "Action": ["cloudfront:CreateDistribution", "cloudfront:UpdateDistribution", "cloudfront:DeleteDistribution", "cloudfront:GetDistribution", "cloudfront:GetDistributionConfig", "cloudfront:TagResource", "cloudfront:UntagResource", "cloudfront:CreateOriginAccessControl", "cloudfront:UpdateOriginAccessControl", "cloudfront:DeleteOriginAccessControl", "cloudfront:GetOriginAccessControl", "cloudfront:CreateCachePolicy", "cloudfront:UpdateCachePolicy", "cloudfront:DeleteCachePolicy", "cloudfront:GetCachePolicy", "cloudfront:CreateOriginRequestPolicy", "cloudfront:UpdateOriginRequestPolicy", "cloudfront:DeleteOriginRequestPolicy", "cloudfront:GetOriginRequestPolicy", "wafv2:CreateWebACL", "wafv2:UpdateWebACL", "wafv2:DeleteWebACL", "wafv2:GetWebACL", "wafv2:AssociateWebACL", "wafv2:DisassociateWebACL", "wafv2:TagResource", "wafv2:UntagResource"], "Resource": "*"},
+          {"Sid": "Observability", "Effect": "Allow", "Action": ["logs:CreateLogGroup", "logs:DeleteLogGroup", "logs:PutRetentionPolicy", "logs:TagResource", "cloudwatch:PutMetricAlarm", "cloudwatch:DeleteAlarms", "cloudwatch:DescribeAlarms"], "Resource": "*"}
+        ]}}]
+      }
+    },
+    "GitHubBuildRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": "TIGER-VVIP-GitHub-SealedMediaBuild", "MaxSessionDuration": 3600,
+        "AssumeRolePolicyDocument": {"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Principal": {"Federated": {"Fn::If": ["CreateOidc", {"Ref": "GitHubOidcProvider"}, {"Ref": "ExistingGitHubOidcProviderArn"}]}}, "Action": "sts:AssumeRoleWithWebIdentity", "Condition": {"StringEquals": {"token.actions.githubusercontent.com:aud": "sts.amazonaws.com"}, "StringLike": {"token.actions.githubusercontent.com:sub": {"Fn::Sub": "repo:${GitHubRepository}:environment:${BuildEnvironment}"}}}}]},
+        "Policies": [{"PolicyName": "PushOnlyMediaRepository", "PolicyDocument": {"Version": "2012-10-17", "Statement": [
+          {"Effect": "Allow", "Action": "ecr:GetAuthorizationToken", "Resource": "*"},
+          {"Effect": "Allow", "Action": ["ecr:BatchCheckLayerAvailability", "ecr:CompleteLayerUpload", "ecr:InitiateLayerUpload", "ecr:PutImage", "ecr:UploadLayerPart", "ecr:BatchGetImage", "ecr:DescribeImages"], "Resource": {"Fn::GetAtt": ["MediaRepository", "Arn"]}}
+        ]}}]
+      }
+    },
+    "GitHubDeployRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": "TIGER-VVIP-GitHub-SealedMediaDeploy", "MaxSessionDuration": 3600,
+        "AssumeRolePolicyDocument": {"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Principal": {"Federated": {"Fn::If": ["CreateOidc", {"Ref": "GitHubOidcProvider"}, {"Ref": "ExistingGitHubOidcProviderArn"}]}}, "Action": "sts:AssumeRoleWithWebIdentity", "Condition": {"StringEquals": {"token.actions.githubusercontent.com:aud": "sts.amazonaws.com"}, "StringLike": {"token.actions.githubusercontent.com:sub": {"Fn::Sub": "repo:${GitHubRepository}:environment:${DeployEnvironment}"}}}}]},
+        "Policies": [{"PolicyName": "CloudFormationChangeSetsOnly", "PolicyDocument": {"Version": "2012-10-17", "Statement": [
+          {"Effect": "Allow", "Action": ["cloudformation:CreateChangeSet", "cloudformation:ExecuteChangeSet", "cloudformation:DeleteChangeSet", "cloudformation:DescribeChangeSet", "cloudformation:DescribeStacks", "cloudformation:DescribeStackEvents", "cloudformation:GetTemplateSummary"], "Resource": {"Fn::Sub": "arn:${AWS::Partition}:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/TIGER-SealedMedia-*/*"}},
+          {"Effect": "Allow", "Action": "iam:PassRole", "Resource": {"Fn::GetAtt": ["CloudFormationServiceRole", "Arn"]}, "Condition": {"StringEquals": {"iam:PassedToService": "cloudformation.amazonaws.com"}}}
+        ]}}]
+      }
+    }
+  },
+  "Outputs": {
+    "RepositoryUri": {"Value": {"Fn::GetAtt": ["MediaRepository", "RepositoryUri"]}},
+    "SupabaseSecretArn": {"Value": {"Ref": "SupabaseServerSecret"}},
+    "BuildRoleArn": {"Value": {"Fn::GetAtt": ["GitHubBuildRole", "Arn"]}},
+    "DeployRoleArn": {"Value": {"Fn::GetAtt": ["GitHubDeployRole", "Arn"]}},
+    "CloudFormationServiceRoleArn": {"Value": {"Fn::GetAtt": ["CloudFormationServiceRole", "Arn"]}},
+    "RuntimePermissionsBoundaryArn": {"Value": {"Ref": "RuntimePermissionsBoundary"}}
+  },
+  "Rules": {
+    "ExistingOidcRequiredWhenNotCreating": {
+      "RuleCondition": {"Fn::Equals": [{"Ref": "CreateGitHubOidcProvider"}, "false"]},
+      "Assertions": [{"Assert": {"Fn::Not": [{"Fn::Equals": [{"Ref": "ExistingGitHubOidcProviderArn"}, ""]}]}, "AssertDescription": "ExistingGitHubOidcProviderArn is required when CreateGitHubOidcProvider=false."}]
+    }
+  }
+}
