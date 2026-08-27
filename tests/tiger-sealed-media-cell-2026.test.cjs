@@ -56,7 +56,7 @@ test('sealed media JWT verifier enforces Clerk RS256 issuer audience azp time wi
   await assert.rejects(() => verifier.verify(wrongAudience), /JWT_AUDIENCE_INVALID/);
   const wrongParty = signJwt(privateKey, { alg: 'RS256', typ: 'JWT', kid: jwk.kid }, { ...baseClaims, azp: 'https://evil.example' });
   await assert.rejects(() => verifier.verify(wrongParty), /JWT_AUTHORIZED_PARTY_INVALID/);
-  const expired = signJwt(privateKey, { alg: 'RS256', typ: 'JWT', kid: jwk.kid }, { ...baseClaims, exp: now - 61 });
+  const expired = signJwt(privateKey, { alg: 'RS256', typ: 'JWT', kid: jwk.kid }, { ...baseClaims, iat: now - 120, nbf: now - 120, exp: now - 61 });
   await assert.rejects(() => verifier.verify(expired), /JWT_EXPIRED/);
   const impersonated = signJwt(privateKey, { alg: 'RS256', typ: 'JWT', kid: jwk.kid }, { ...baseClaims, act: { sub: 'admin_1' } });
   await assert.rejects(() => verifier.verify(impersonated), /JWT_IMPERSONATION_FORBIDDEN/);
