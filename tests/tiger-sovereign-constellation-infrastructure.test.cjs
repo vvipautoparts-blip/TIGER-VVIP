@@ -38,6 +38,8 @@ test('Seoul foundation owns ECR/KMS/build OIDC authority only', () => {
   assert.match(yaml, /kms:GenerateDataKey/);
   assert.match(yaml, /kms:Decrypt/);
   assert.match(yaml, /ecr:GetAuthorizationToken/);
+  assert.match(yaml, /ecr:GetRegistryScanningConfiguration/);
+  assert.doesNotMatch(yaml, /ecr:PutRegistryScanningConfiguration/);
   for (const action of [
     'ecr:BatchCheckLayerAvailability',
     'ecr:GetDownloadUrlForLayer',
@@ -56,6 +58,13 @@ test('Seoul foundation owns ECR/KMS/build OIDC authority only', () => {
   assert.doesNotMatch(yaml, /AWS::Lambda::Function/);
   assert.doesNotMatch(yaml, /AWS::CloudFront::Distribution/);
   assert.doesNotMatch(yaml, /AWS::WAFv2::WebACL/);
+});
+
+test('foundation Guard requires scanning proof read authority and forbids mutation authority', () => {
+  const guard = read(files.foundationGuard);
+  assert.match(guard, /ecr:GetRegistryScanningConfiguration/);
+  assert.match(guard, /ecr:PutRegistryScanningConfiguration/);
+  assert.match(guard, /not\s+.*PutRegistryScanningConfiguration|PutRegistryScanningConfiguration.*empty/s);
 });
 
 test('Seoul regional runtime excludes edge and ECR ownership', () => {
