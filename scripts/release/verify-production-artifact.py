@@ -31,6 +31,9 @@ from typing import Any
 SHA40_RE = re.compile(r"^[0-9a-f]{40}$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 GITHUB_DIGEST_RE = re.compile(r"^sha256:([0-9a-f]{64})$")
+CYCLONEDX_UUIDV8_RE = re.compile(
+    r"^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-8[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+)
 CHECKSUM_RE_TEMPLATE = r"^([0-9a-f]{{64}})  {filename}\n$"
 MAX_OUTER_BYTES = 512 * 1024 * 1024
 MAX_OUTER_ARCHIVE_MEMBER_BYTES = MAX_OUTER_BYTES
@@ -396,11 +399,21 @@ def _validate_materials(value: Any, release_sha: str, source_tree: str) -> list[
 
 
 def _validate_sbom(value: Any, release_sha: str, source_tree: str, declared_files: dict[str, str]) -> None:
-    if not isinstance(value, dict) or value.get("bomFormat") != "CycloneDX" or value.get("specVersion") != "1.6":
+    if (
+        not isinstance(value, dict)
+        or value.get("$schema") != "https://cyclonedx.org/schema/bom-1.7.schema.json"
+        or value.get("bomFormat") != "CycloneDX"
+        or value.get("specVersion") != "1.7"
+        or value.get("version") != 1
+        or not isinstance(value.get("serialNumber"), str)
+        or not CYCLONEDX_UUIDV8_RE.fullmatch(value["serialNumber"])
+    ):
         fail("VVIP_SBOM_INVALID", "CycloneDX SBOM header is invalid")
     metadata = value.get("metadata")
     if not isinstance(metadata, dict):
         fail("VVIP_SBOM_INVALID", "CycloneDX metadata is missing")
+    if metadata.get("lifecycles") != [{"phase": "build"}]:
+        fail("VVIP_SBOM_INVALID", "CycloneDX lifecycle is invalid")
     component = metadata.get("component")
     if not isinstance(component, dict) or component.get("name") != "VVIP-TIGER" or component.get("version") != release_sha:
         fail("VVIP_SBOM_INVALID", "CycloneDX component is not source bound")
