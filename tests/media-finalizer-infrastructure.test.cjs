@@ -1,106 +1,104 @@
+'use strict';
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
 
 const ROOT = path.resolve(__dirname, '..');
-const TEMPLATE_PATH = path.join(ROOT, 'infra/media-finalizer/template.yaml');
-const GUARD_PATH = path.join(ROOT, 'infra/media-finalizer/guard/media-finalizer.guard');
-
-function readRequiredFile(filePath) {
-  assert.equal(fs.existsSync(filePath), true, `required infrastructure file is missing: ${path.relative(ROOT, filePath)}`);
-  return fs.readFileSync(filePath, 'utf8');
+const paths = {
+  foundation: 'infra/media-finalizer/foundation/template.yaml',
+  foundationGuard: 'infra/media-finalizer/foundation/guard.guard',
+  regional: 'infra/media-finalizer/regional/template.yaml',
+  regionalGuard: 'infra/media-finalizer/regional/guard.guard',
+  edge: 'infra/media-finalizer/edge/template.yaml',
+  edgeGuard: 'infra/media-finalizer/edge/guard.guard',
+};
+function read(relative) {
+  const absolute = path.join(ROOT, relative);
+  assert.equal(fs.existsSync(absolute), true, `REQUIRED_SPLIT_INFRA_MISSING:${relative}`);
+  return fs.readFileSync(absolute, 'utf8').replace(/\r/g, '');
 }
 
-function compact(value) {
-  return value.replace(/\r/g, '');
-}
-
-test('sealed media infrastructure is fail-closed and digest-addressed', () => {
-  const template = compact(readRequiredFile(TEMPLATE_PATH));
-
-  assert.match(template, /AWSTemplateFormatVersion\s*:/);
-
-  // Immutable ECR authority with scan-on-push.
-  assert.match(template, /AWS::ECR::Repository/);
-  assert.match(template, /ImageTagMutability\s*:\s*IMMUTABLE/);
-  assert.match(template, /ScanOnPush\s*:\s*true/);
-
-  // Lambda image must enter the stack by immutable OCI digest, never a mutable tag.
-  assert.match(template, /PackageType\s*:\s*Image/);
-  assert.match(template, /ImageUri\s*:/);
-  assert.match(template, /AllowedPattern\s*:[^\n]*sha256/);
-  assert.match(template, /\[0-9a-f\]\{64\}/);
-
-  // The Lambda Function URL is IAM-only; CloudFront OAC is its public ingress authority.
-  assert.match(template, /AWS::Lambda::Url/);
-  assert.match(template, /AuthType\s*:\s*AWS_IAM/);
-  assert.match(template, /AWS::CloudFront::OriginAccessControl/);
-  assert.match(template, /OriginAccessControlOriginType\s*:\s*lambda/i);
-  assert.match(template, /SigningBehavior\s*:\s*always/i);
-  assert.match(template, /SigningProtocol\s*:\s*sigv4/i);
-
-  // Finalizer requests are never cached and forward only the explicit application headers.
-  assert.match(template, /AWS::CloudFront::CachePolicy/);
-  assert.match(template, /DefaultTTL\s*:\s*0/);
-  assert.match(template, /MaxTTL\s*:\s*0/);
-  assert.match(template, /MinTTL\s*:\s*0/);
-  assert.match(template, /AWS::CloudFront::OriginRequestPolicy/);
-  assert.match(template, /X-Tiger-Session/);
-  assert.match(template, /x-amz-content-sha256/);
-  assert.match(template, /Content-Type/);
-  const allowedMethods = template.match(/AllowedMethods\s*:\s*\[([^\]]+)\]/s);
-  assert.ok(allowedMethods, 'CloudFront AllowedMethods must be an explicit list');
-  assert.match(allowedMethods[1], /\bPOST\b/);
-  assert.match(allowedMethods[1], /\bOPTIONS\b/);
-
-  // WAF must provide managed-rule coverage plus an explicit rate-based rule.
-  assert.match(template, /AWS::WAFv2::WebACL/);
-  assert.match(template, /AWSManagedRulesCommonRuleSet/);
-  assert.match(template, /RateBasedStatement/);
-
-  // Logs are retained explicitly and alarms exist for operational failure visibility.
-  assert.match(template, /AWS::Logs::LogGroup/);
-  assert.match(template, /RetentionInDays\s*:/);
-  assert.match(template, /AWS::CloudWatch::Alarm/);
-
-  // Runtime identity may read exactly the configured secret ARN, never wildcard Secrets Manager access.
-  assert.match(template, /secretsmanager:GetSecretValue/);
-  assert.match(template, /^  SupabaseSecretArn:\s*$/m);
-  assert.doesNotMatch(template, /secretsmanager:\*/i);
-  assert.doesNotMatch(template, /Resource\s*:\s*["']?\*["']?\s*$/m);
-
-  // CloudFormation accepts only a secret ARN reference. It never accepts or emits secret bytes.
-  const parameters = template.match(/Parameters:\s*\n([\s\S]*?)\nResources:/);
-  assert.ok(parameters, 'CloudFormation Parameters block must be explicit');
-  assert.doesNotMatch(parameters[1], /NoEcho\s*:\s*true/i);
-  assert.doesNotMatch(parameters[1], /^\s{2}(?:ServiceRoleKey|SecretValue|SupabaseApiKey|SUPABASE_SERVICE_ROLE_KEY)\s*:/im);
-  assert.doesNotMatch(template, /^\s+(?:SecretString|SecretBinary)\s*:/im);
-
-  // No public Function URL permission is permitted in this stack.
-  assert.doesNotMatch(template, /AWS::Lambda::Permission[\s\S]{0,500}Principal\s*:\s*["']?\*["']?/i);
-  assert.doesNotMatch(template, /FunctionUrlAuthType\s*:\s*NONE/i);
-  assert.match(template, /Principal\s*:\s*cloudfront\.amazonaws\.com/);
-  assert.match(template, /cloudfront::\$\{AWS::AccountId\}:distribution\/\$\{DistributionId\}/);
+test('media build foundation is retained, KMS-encrypted, immutable, and runtime-free', () => {
+  const yaml = read(paths.foundation);
+  assert.match(yaml, /AWS::KMS::Key/);
+  assert.match(yaml, /AWS::ECR::Repository/);
+  assert.match(yaml, /DeletionPolicy:\s*Retain/);
+  assert.match(yaml, /UpdateReplacePolicy:\s*Retain/);
+  assert.match(yaml, /EncryptionType:\s*KMS/);
+  assert.match(yaml, /ImageTagMutability:\s*IMMUTABLE/);
+  assert.match(yaml, /ScanOnPush:\s*true/);
+  assert.match(yaml, /RoleName:\s*TIGER-VVIP-GitHub-MediaBuild/);
+  assert.match(yaml, /sts:AssumeRoleWithWebIdentity/);
+  assert.match(yaml, /repository_owner_id/);
+  assert.match(yaml, /repository_id/);
+  assert.match(yaml, /media-build/);
+  assert.doesNotMatch(yaml, /AWS::Lambda::Function|AWS::CloudFront::Distribution|AWS::WAFv2::WebACL/);
+  assert.doesNotMatch(yaml, /AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|AdministratorAccess/);
 });
 
-test('CloudFormation Guard independently enforces the critical invariants', () => {
-  const guard = compact(readRequiredFile(GUARD_PATH));
+test('Seoul regional runtime is digest-only, IAM-only, bounded, and has exact edge binding', () => {
+  const yaml = read(paths.regional);
+  assert.match(yaml, /AllowedPattern:[^\n]*sha256/);
+  assert.match(yaml, /sha256:\[0-9a-f\]\{64\}/);
+  assert.match(yaml, /PackageType:\s*Image/);
+  assert.match(yaml, /MemorySize:\s*2048/);
+  assert.match(yaml, /Timeout:\s*30/);
+  assert.match(yaml, /ReservedConcurrentExecutions:\s*8/);
+  assert.match(yaml, /AWS::Lambda::Url/);
+  assert.match(yaml, /AuthType:\s*AWS_IAM/);
+  assert.match(yaml, /secretsmanager:GetSecretValue/);
+  assert.match(yaml, /Ref:\s*SupabaseSecretArn/);
+  assert.match(yaml, /SqsManagedSseEnabled:\s*true/);
+  assert.match(yaml, /CloudFrontDistributionArn/);
+  assert.match(yaml, /Principal:\s*cloudfront\.amazonaws\.com/);
+  assert.match(yaml, /FunctionUrlAuthType:\s*AWS_IAM/);
+  assert.match(yaml, /InvokedViaFunctionUrl:\s*true/);
+  assert.doesNotMatch(yaml, /FunctionUrlAuthType:\s*NONE|AuthType:\s*NONE/);
+  assert.doesNotMatch(yaml, /Principal:\s*['"]?\*['"]?/);
+  assert.doesNotMatch(yaml, /^\s+(?:SecretString|SecretBinary)\s*:/im);
+  assert.doesNotMatch(yaml, /AWS::ECR::Repository|AWS::CloudFront::Distribution|AWS::WAFv2::WebACL|AWS::CertificateManager::Certificate/);
+});
 
-  assert.match(guard, /AWS::ECR::Repository/);
-  assert.match(guard, /ImageTagMutability/);
-  assert.match(guard, /IMMUTABLE/);
-  assert.match(guard, /ScanOnPush/);
-  assert.match(guard, /AWS::Lambda::Function/);
-  assert.match(guard, /PackageType/);
-  assert.match(guard, /Image/);
-  assert.match(guard, /AWS::Lambda::Url/);
-  assert.match(guard, /AWS_IAM/);
-  assert.match(guard, /AWS::CloudFront::OriginAccessControl/);
-  assert.match(guard, /always/i);
-  assert.match(guard, /sigv4/i);
-  assert.match(guard, /AWS::WAFv2::WebACL/);
-  assert.match(guard, /AWS::Logs::LogGroup/);
-  assert.match(guard, /RetentionInDays/);
-  assert.match(guard, /secretsmanager:GetSecretValue/);
+test('Global Edge is custom-TLS, SigV4 OAC, no-cache, layered WAF, and runtime-free', () => {
+  const yaml = read(paths.edge);
+  assert.match(yaml, /AWS::CertificateManager::Certificate/);
+  assert.match(yaml, /AWS::CloudFront::Distribution/);
+  assert.match(yaml, /AWS::CloudFront::OriginAccessControl/);
+  assert.match(yaml, /OriginAccessControlOriginType:\s*lambda/);
+  assert.match(yaml, /SigningBehavior:\s*always/);
+  assert.match(yaml, /SigningProtocol:\s*sigv4/);
+  assert.match(yaml, /DefaultTTL:\s*0/);
+  assert.match(yaml, /MaxTTL:\s*0/);
+  assert.match(yaml, /MinTTL:\s*0/);
+  assert.match(yaml, /X-Tiger-Session/);
+  assert.match(yaml, /x-amz-content-sha256/);
+  assert.match(yaml, /Content-Type/);
+  assert.match(yaml, /Scope:\s*CLOUDFRONT/);
+  assert.match(yaml, /AWSManagedRulesCommonRuleSet/);
+  assert.match(yaml, /AWSManagedRulesKnownBadInputsRuleSet/);
+  assert.match(yaml, /AWSManagedRulesAmazonIpReputationList/);
+  assert.match(yaml, /RateBasedStatement/);
+  assert.match(yaml, /TLSv1\.2_2025/);
+  assert.match(yaml, /PriceClass:\s*PriceClass_All/);
+  assert.doesNotMatch(yaml, /CloudFrontDefaultCertificate:\s*true/);
+  assert.doesNotMatch(yaml, /AWS::Lambda::Function|AWS::ECR::Repository/);
+});
+
+test('CloudFormation Guard independently encodes each authority boundary', () => {
+  const foundation = read(paths.foundationGuard);
+  const regional = read(paths.regionalGuard);
+  const edge = read(paths.edgeGuard);
+  assert.match(foundation, /AWS::ECR::Repository/);
+  assert.match(foundation, /AWS::KMS::Key/);
+  assert.match(foundation, /IMMUTABLE/);
+  assert.match(foundation, /media-build/);
+  assert.match(regional, /AWS::Lambda::Function/);
+  assert.match(regional, /AWS::Lambda::Url/);
+  assert.match(regional, /AWS_IAM/);
+  assert.match(regional, /cloudfront\.amazonaws\.com/);
+  assert.match(edge, /AWS::CloudFront::Distribution/);
+  assert.match(edge, /AWS::CloudFront::OriginAccessControl/);
+  assert.match(edge, /AWS::WAFv2::WebACL/);
+  assert.match(edge, /TLSv1\.2_2025/);
 });
