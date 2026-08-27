@@ -1,0 +1,541 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  TIGER Sealed Media Cell 2026 infrastructure contract. Deploy the CloudFront-scoped
+  WAF stack in us-east-1. No secret values are accepted by this template.
+
+Parameters:
+  FunctionName:
+    Type: String
+    Default: tiger-media-finalizer
+    MinLength: 3
+    MaxLength: 64
+    AllowedPattern: '^[A-Za-z0-9-_]+$'
+
+  ImageUri:
+    Type: String
+    Description: Immutable ECR image URI addressed by OCI sha256 digest.
+    AllowedPattern: '^[0-9]{12}\.dkr\.ecr\.[a-z0-9-]+\.amazonaws\.com\/[a-z0-9._\/-]+@sha256:[0-9a-f]{64}$'
+
+  ReleaseSha:
+    Type: String
+    Description: Exact Git commit SHA represented by this immutable Lambda version.
+    AllowedPattern: '^[0-9a-f]{40}$'
+
+  StableAliasVersion:
+    Type: String
+    Default: ''
+    Description: Existing published numeric version to keep live during staging; empty only for first bootstrap.
+    AllowedPattern: '^(|[1-9][0-9]*)$'
+
+  SupabaseSecretArn:
+    Type: String
+    Description: ARN of the dedicated Secrets Manager record; never the secret value.
+    AllowedPattern: '^arn:aws[a-zA-Z-]*:secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:[A-Za-z0-9/_+=.@-]+$'
+
+  ClerkIssuer:
+    Type: String
+    MinLength: 9
+    MaxLength: 512
+    AllowedPattern: '^https:\/\/[^\s]+$'
+
+  ClerkAudience:
+    Type: String
+    MinLength: 1
+    MaxLength: 256
+
+  ClerkJwksUrl:
+    Type: String
+    MinLength: 9
+    MaxLength: 512
+    AllowedPattern: '^https:\/\/[^\s]+$'
+
+  ClerkAuthorizedParties:
+    Type: CommaDelimitedList
+    Description: Comma-separated exact Clerk authorized-party values.
+
+  AllowedOrigins:
+    Type: CommaDelimitedList
+    Description: Exact HTTPS browser origins allowed by the Lambda defense-in-depth CORS check.
+
+  RateLimitPerFiveMinutes:
+    Type: Number
+    Default: 300
+    MinValue: 100
+    MaxValue: 20000000
+
+Conditions:
+  UseRequestedStableVersion:
+    Fn::Not:
+      - Fn::Equals:
+          - Ref: StableAliasVersion
+          - ''
+
+Resources:
+  MediaFinalizerRepository:
+    Type: AWS::ECR::Repository
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      ImageTagMutability: IMMUTABLE
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      EncryptionConfiguration:
+        EncryptionType: AES256
+      LifecyclePolicy:
+        LifecyclePolicyText: >-
+          {"rules":[{"rulePriority":1,"description":"Retain the newest 30 untagged build remnants only","selection":{"tagStatus":"untagged","countType":"imageCountMoreThan","countNumber":30},"action":{"type":"expire"}}]}
+
+  MediaFinalizerLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName:
+        Fn::Sub: '/aws/lambda/${FunctionName}'
+      RetentionInDays: 30
+
+  MediaFinalizerRuntimeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: media-finalizer-logs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  Fn::Sub: '${MediaFinalizerLogGroup.Arn}:*'
+        - PolicyName: media-finalizer-dedicated-secret-read
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource:
+                  Ref: SupabaseSecretArn
+        - PolicyName: media-finalizer-dlq
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:SendMessage
+                Resource:
+                  Fn::GetAtt:
+                    - MediaFinalizerDeadLetterQueue
+                    - Arn
+
+  MediaFinalizerDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      SqsManagedSseEnabled: true
+      MessageRetentionPeriod: 1209600
+
+  MediaFinalizerFunction:
+    Type: AWS::Lambda::Function
+    DependsOn:
+      - MediaFinalizerLogGroup
+    Properties:
+      FunctionName:
+        Ref: FunctionName
+      PackageType: Image
+      Code:
+        ImageUri:
+          Ref: ImageUri
+      Role:
+        Fn::GetAtt:
+          - MediaFinalizerRuntimeRole
+          - Arn
+      Architectures:
+        - x86_64
+      MemorySize: 2048
+      Timeout: 30
+      ReservedConcurrentExecutions: 8
+      DeadLetterConfig:
+        TargetArn:
+          Fn::GetAtt:
+            - MediaFinalizerDeadLetterQueue
+            - Arn
+      Environment:
+        Variables:
+          TIGER_MEDIA_SUPABASE_SECRET_ID:
+            Ref: SupabaseSecretArn
+          TIGER_CLERK_ISSUER:
+            Ref: ClerkIssuer
+          TIGER_CLERK_AUDIENCE:
+            Ref: ClerkAudience
+          TIGER_CLERK_JWKS_URL:
+            Ref: ClerkJwksUrl
+          TIGER_CLERK_AUTHORIZED_PARTIES:
+            Fn::Join:
+              - ','
+              - Ref: ClerkAuthorizedParties
+          VVIP_MEDIA_ALLOWED_ORIGINS:
+            Fn::Join:
+              - ','
+              - Ref: AllowedOrigins
+          VVIP_MEDIA_PROCESSING_TIMEOUT_SECONDS: '8'
+          VVIP_MEDIA_VERIFIER_ID: aws-lambda-sharp-v1
+
+  MediaFinalizerVersion:
+    Type: AWS::Lambda::Version
+    Properties:
+      FunctionName:
+        Ref: MediaFinalizerFunction
+      Description:
+        Fn::Sub: 'TIGER sealed media release ${ReleaseSha}'
+
+  MediaFinalizerLiveAlias:
+    Type: AWS::Lambda::Alias
+    Properties:
+      Name: live
+      FunctionName:
+        Ref: MediaFinalizerFunction
+      FunctionVersion:
+        Fn::If:
+          - UseRequestedStableVersion
+          - Ref: StableAliasVersion
+          - Fn::GetAtt:
+              - MediaFinalizerVersion
+              - Version
+
+  MediaFinalizerFunctionUrl:
+    Type: AWS::Lambda::Url
+    DependsOn:
+      - MediaFinalizerLiveAlias
+    Properties:
+      TargetFunctionArn:
+        Fn::GetAtt:
+          - MediaFinalizerFunction
+          - Arn
+      Qualifier: live
+      AuthType: AWS_IAM
+      InvokeMode: BUFFERED
+      Cors:
+        AllowCredentials: false
+        AllowHeaders:
+          - content-type
+          - x-tiger-session
+          - x-amz-content-sha256
+        AllowMethods:
+          - POST
+        AllowOrigins:
+          Ref: AllowedOrigins
+        MaxAge: 600
+
+  MediaFinalizerOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Description: SigV4-only authority from CloudFront to the Lambda Function URL.
+        Name:
+          Fn::Sub: '${AWS::StackName}-media-finalizer-oac'
+        OriginAccessControlOriginType: lambda
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  MediaFinalizerCachePolicy:
+    Type: AWS::CloudFront::CachePolicy
+    Properties:
+      CachePolicyConfig:
+        Name:
+          Fn::Sub: '${AWS::StackName}-media-finalizer-no-cache'
+        Comment: No media-finalizer response may be cached.
+        DefaultTTL: 0
+        MaxTTL: 0
+        MinTTL: 0
+        ParametersInCacheKeyAndForwardedToOrigin:
+          EnableAcceptEncodingBrotli: false
+          EnableAcceptEncodingGzip: false
+          CookiesConfig:
+            CookieBehavior: none
+          HeadersConfig:
+            HeaderBehavior: none
+          QueryStringsConfig:
+            QueryStringBehavior: none
+
+  MediaFinalizerOriginRequestPolicy:
+    Type: AWS::CloudFront::OriginRequestPolicy
+    Properties:
+      OriginRequestPolicyConfig:
+        Name:
+          Fn::Sub: '${AWS::StackName}-media-finalizer-origin-request'
+        Comment: Forward only the authenticated finalizer request contract and CORS preflight headers.
+        CookiesConfig:
+          CookieBehavior: none
+        QueryStringsConfig:
+          QueryStringBehavior: none
+        HeadersConfig:
+          HeaderBehavior: whitelist
+          Headers:
+            - Content-Type
+            - X-Tiger-Session
+            - x-amz-content-sha256
+            - Origin
+            - Access-Control-Request-Method
+            - Access-Control-Request-Headers
+
+  MediaFinalizerResponseHeadersPolicy:
+    Type: AWS::CloudFront::ResponseHeadersPolicy
+    Properties:
+      ResponseHeadersPolicyConfig:
+        Name:
+          Fn::Sub: '${AWS::StackName}-media-finalizer-security-headers'
+        Comment: Browser security headers for the finalizer edge.
+        SecurityHeadersConfig:
+          ContentTypeOptions:
+            Override: true
+          FrameOptions:
+            FrameOption: DENY
+            Override: true
+          ReferrerPolicy:
+            ReferrerPolicy: no-referrer
+            Override: true
+          StrictTransportSecurity:
+            AccessControlMaxAgeSec: 31536000
+            IncludeSubdomains: true
+            Preload: true
+            Override: true
+
+  MediaFinalizerWebAcl:
+    Type: AWS::WAFv2::WebACL
+    Properties:
+      Name:
+        Fn::Sub: '${AWS::StackName}-media-finalizer-edge'
+      Scope: CLOUDFRONT
+      DefaultAction:
+        Allow: {}
+      VisibilityConfig:
+        CloudWatchMetricsEnabled: true
+        MetricName:
+          Fn::Sub: '${AWS::StackName}-media-finalizer-webacl'
+        SampledRequestsEnabled: false
+      Rules:
+        - Name: BlockUnexpectedMethods
+          Priority: 0
+          Action:
+            Block: {}
+          Statement:
+            NotStatement:
+              Statement:
+                OrStatement:
+                  Statements:
+                    - ByteMatchStatement:
+                        FieldToMatch:
+                          Method: {}
+                        PositionalConstraint: EXACTLY
+                        SearchString: POST
+                        TextTransformations:
+                          - Priority: 0
+                            Type: NONE
+                    - ByteMatchStatement:
+                        FieldToMatch:
+                          Method: {}
+                        PositionalConstraint: EXACTLY
+                        SearchString: OPTIONS
+                        TextTransformations:
+                          - Priority: 0
+                            Type: NONE
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName:
+              Fn::Sub: '${AWS::StackName}-blocked-methods'
+            SampledRequestsEnabled: false
+        - Name: RateLimitByIp
+          Priority: 10
+          Action:
+            Block: {}
+          Statement:
+            RateBasedStatement:
+              AggregateKeyType: IP
+              Limit:
+                Ref: RateLimitPerFiveMinutes
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName:
+              Fn::Sub: '${AWS::StackName}-rate-limit'
+            SampledRequestsEnabled: false
+        - Name: AwsManagedCommon
+          Priority: 20
+          OverrideAction:
+            None: {}
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesCommonRuleSet
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName:
+              Fn::Sub: '${AWS::StackName}-managed-common'
+            SampledRequestsEnabled: false
+
+  MediaFinalizerDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Comment: TIGER Sealed Media Cell 2026 public ingress.
+        Enabled: true
+        HttpVersion: http2and3
+        IPV6Enabled: true
+        WebACLId:
+          Fn::GetAtt:
+            - MediaFinalizerWebAcl
+            - Arn
+        Origins:
+          - Id: LambdaFunctionUrlOrigin
+            DomainName:
+              Fn::Select:
+                - 2
+                - Fn::Split:
+                    - '/'
+                    - Fn::GetAtt:
+                        - MediaFinalizerFunctionUrl
+                        - FunctionUrl
+            OriginAccessControlId:
+              Fn::GetAtt:
+                - MediaFinalizerOriginAccessControl
+                - Id
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+                - TLSv1.2
+        DefaultCacheBehavior:
+          TargetOriginId: LambdaFunctionUrlOrigin
+          ViewerProtocolPolicy: https-only
+          Compress: false
+          AllowedMethods: [GET, HEAD, POST, OPTIONS, PUT, PATCH, DELETE]
+          CachedMethods:
+            - GET
+            - HEAD
+          CachePolicyId:
+            Ref: MediaFinalizerCachePolicy
+          OriginRequestPolicyId:
+            Ref: MediaFinalizerOriginRequestPolicy
+          ResponseHeadersPolicyId:
+            Ref: MediaFinalizerResponseHeadersPolicy
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: true
+        PriceClass: PriceClass_100
+
+  MediaFinalizerCloudFrontInvokeUrlPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunctionUrl
+      FunctionName:
+        Ref: MediaFinalizerLiveAlias
+      FunctionUrlAuthType: AWS_IAM
+      Principal: cloudfront.amazonaws.com
+      SourceArn:
+        Fn::Sub:
+          - 'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${DistributionId}'
+          - DistributionId:
+              Ref: MediaFinalizerDistribution
+
+  MediaFinalizerCloudFrontInvokeFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: MediaFinalizerLiveAlias
+      InvokedViaFunctionUrl: true
+      Principal: cloudfront.amazonaws.com
+      SourceArn:
+        Fn::Sub:
+          - 'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${DistributionId}'
+          - DistributionId:
+              Ref: MediaFinalizerDistribution
+
+  MediaFinalizerErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Media finalizer Lambda emitted one or more errors in five minutes.
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value:
+            Ref: FunctionName
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      DatapointsToAlarm: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+
+  MediaFinalizerThrottleAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Media finalizer Lambda was throttled in five minutes.
+      Namespace: AWS/Lambda
+      MetricName: Throttles
+      Dimensions:
+        - Name: FunctionName
+          Value:
+            Ref: FunctionName
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      DatapointsToAlarm: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+
+Outputs:
+  RepositoryUri:
+    Description: Immutable ECR repository authority for media finalizer images.
+    Value:
+      Fn::GetAtt:
+        - MediaFinalizerRepository
+        - RepositoryUri
+
+  FunctionArn:
+    Description: Lambda function ARN. The Function URL origin is intentionally not output.
+    Value:
+      Fn::GetAtt:
+        - MediaFinalizerFunction
+        - Arn
+
+  PublishedVersion:
+    Description: Newly published immutable Lambda version for this ReleaseSha.
+    Value:
+      Fn::GetAtt:
+        - MediaFinalizerVersion
+        - Version
+
+  LiveAliasArn:
+    Description: Stable Lambda alias used by the public Function URL.
+    Value:
+      Ref: MediaFinalizerLiveAlias
+
+  DistributionId:
+    Description: CloudFront distribution identifier.
+    Value:
+      Ref: MediaFinalizerDistribution
+
+  MediaFinalizerUrl:
+    Description: Public CloudFront endpoint to configure as TIGER_MEDIA_FINALIZER_URL only after verified deployment.
+    Value:
+      Fn::Sub: 'https://${MediaFinalizerDistribution.DomainName}'
+
+  WebAclArn:
+    Description: CloudFront-scoped WAF WebACL ARN.
+    Value:
+      Fn::GetAtt:
+        - MediaFinalizerWebAcl
+        - Arn

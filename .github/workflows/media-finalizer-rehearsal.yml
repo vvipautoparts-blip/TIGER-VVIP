@@ -1,0 +1,132 @@
+name: TIGER Media Finalizer Rehearsal
+
+on:
+  push:
+    paths:
+      - "services/media-finalizer/**"
+      - "tests/media-finalizer-*.test.cjs"
+      - "tests/fusion-server-media-finalization-contract.test.cjs"
+      - "tests/tiger-synapse-proof-capture-origin.test.cjs"
+      - ".github/workflows/media-finalizer-rehearsal.yml"
+  pull_request:
+    paths:
+      - "services/media-finalizer/**"
+      - "tests/media-finalizer-*.test.cjs"
+      - "tests/fusion-server-media-finalization-contract.test.cjs"
+      - "tests/tiger-synapse-proof-capture-origin.test.cjs"
+      - ".github/workflows/media-finalizer-rehearsal.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+concurrency:
+  group: tiger-media-finalizer-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  media-finalizer-rehearsal:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 0
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: services/media-finalizer/package-lock.json
+
+      - name: Verify exact source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          echo "MEDIA_SOURCE_SHA=$SOURCE_SHA"
+          echo "MEDIA_SOURCE_TREE=$(git rev-parse 'HEAD^{tree}')"
+
+      - name: Install exact production dependencies
+        working-directory: services/media-finalizer
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --omit=dev --ignore-scripts=false --no-audit --no-fund
+          npm audit --omit=dev --audit-level=high
+          npm ls --omit=dev --all
+
+      - name: Run media finalizer security suite on Node 24
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tests/media-finalizer-*.test.cjs tests/fusion-server-media-finalization-contract.test.cjs tests/tiger-synapse-proof-capture-origin.test.cjs
+          node --check services/media-finalizer/src/handler.js
+          node --check services/media-finalizer/src/canonicalize.js
+          node --check services/media-finalizer/src/identity.js
+          node --check services/media-finalizer/src/request.js
+          node --check services/media-finalizer/src/secret-provider.js
+          node --check services/media-finalizer/src/supabase-client.js
+
+      - name: Build exact hermetic Lambda image
+        shell: bash
+        run: |
+          set -euo pipefail
+          image="tiger-media-finalizer:${SOURCE_SHA}"
+          docker build --pull=false --tag "$image" services/media-finalizer
+          docker inspect "$image" > /tmp/media-finalizer-inspect.json
+          docker history --no-trunc "$image" > /tmp/media-finalizer-history.txt
+          docker inspect --format '{{json .Config.Cmd}}' "$image" | grep -F '["src/handler.handler"]'
+          docker run --rm --entrypoint node "$image" --version | grep -E '^v24\.'
+          if grep -Eqi '(SUPABASE_(SERVICE_ROLE_KEY)|AWS_(ACCESS_KEY_ID|SECRET_ACCESS_KEY)|PASSWORD=|TOKEN=)' /tmp/media-finalizer-history.txt; then
+            echo 'MEDIA_FINALIZER_IMAGE_HISTORY_SECRET_PATTERN=FAIL'
+            exit 1
+          fi
+          echo 'MEDIA_FINALIZER_IMAGE_HISTORY_SECRET_PATTERN=PASS'
+
+      - name: Build exact-head rehearsal evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/tiger-media-rehearsal
+          source_tree="$(git rev-parse 'HEAD^{tree}')"
+          package_sha="$(sha256sum services/media-finalizer/package.json | awk '{print $1}')"
+          lock_sha="$(sha256sum services/media-finalizer/package-lock.json | awk '{print $1}')"
+          dockerfile_sha="$(sha256sum services/media-finalizer/Dockerfile | awk '{print $1}')"
+          image_id="$(docker image inspect --format '{{.Id}}' "tiger-media-finalizer:${SOURCE_SHA}")"
+          printf '%s\n' \
+            "SOURCE_SHA=$SOURCE_SHA" \
+            "SOURCE_TREE=$source_tree" \
+            "NODE_VERSION=$(node --version)" \
+            "PACKAGE_SHA256=$package_sha" \
+            "LOCK_SHA256=$lock_sha" \
+            "DOCKERFILE_SHA256=$dockerfile_sha" \
+            "LOCAL_IMAGE_ID=$image_id" \
+            "MEDIA_FINALIZER_NODE24_REHEARSAL=PASS" \
+            > /tmp/tiger-media-rehearsal/evidence.env
+          cp /tmp/media-finalizer-inspect.json /tmp/tiger-media-rehearsal/image-inspect.json
+          cp /tmp/media-finalizer-history.txt /tmp/tiger-media-rehearsal/image-history.txt
+          cat /tmp/tiger-media-rehearsal/evidence.env
+
+      - name: Upload exact-head rehearsal evidence
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: tiger-media-finalizer-rehearsal-${{ env.SOURCE_SHA }}
+          path: /tmp/tiger-media-rehearsal
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Verify source remained immutable
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          echo 'TIGER_MEDIA_FINALIZER_EXACT_HEAD=PASS'

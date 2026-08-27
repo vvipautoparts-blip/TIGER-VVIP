@@ -1,0 +1,115 @@
+name: TIGER Media Finalizer Infra Rehearsal
+
+on:
+  push:
+    paths:
+      - "infra/media-finalizer/**"
+      - "tests/media-finalizer-infra-rehearsal-workflow.test.cjs"
+      - ".github/workflows/media-finalizer-infra-rehearsal.yml"
+  pull_request:
+    paths:
+      - "infra/media-finalizer/**"
+      - "tests/media-finalizer-infra-rehearsal-workflow.test.cjs"
+      - ".github/workflows/media-finalizer-infra-rehearsal.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+concurrency:
+  group: tiger-media-finalizer-infra-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  media-finalizer-infra-rehearsal:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 0
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: "24"
+
+      - name: Verify exact source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          echo "MEDIA_INFRA_SOURCE_SHA=$SOURCE_SHA"
+          echo "MEDIA_INFRA_SOURCE_TREE=$(git rev-parse 'HEAD^{tree}')"
+
+      - name: Prove workflow contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tests/media-finalizer-infra-rehearsal-workflow.test.cjs
+
+      - name: Install pinned CloudFormation validators
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check --no-input 'cfn-lint==1.55.1'
+          guard_url="https://github.com/aws-cloudformation/cloudformation-guard/releases/download/3.2.0/cfn-guard-v3-x86_64-linux-latest.tar.gz"
+          curl --fail --silent --show-error --location "$guard_url" --output /tmp/cfn-guard.tar.gz
+          echo "c78f7a1a6c2674f7edbf0ebdc0590126487a14b103e434aea31205a4d1034d21  /tmp/cfn-guard.tar.gz" | sha256sum -c -
+          rm -rf /tmp/cfn-guard && mkdir -p /tmp/cfn-guard
+          tar -xzf /tmp/cfn-guard.tar.gz -C /tmp/cfn-guard
+          guard_bin="$(find /tmp/cfn-guard -type f \( -name cfn-guard -o -name 'cfn-guard-v3-*' \) | head -n 1)"
+          test -n "$guard_bin"
+          chmod 0755 "$guard_bin"
+          sudo install -m 0755 "$guard_bin" /usr/local/bin/cfn-guard
+          cfn-lint --version
+          cfn-guard --version
+
+      - name: Validate CloudFormation and independent Guard policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          cfn-lint infra/media-finalizer/template.yaml
+          cfn-guard validate --data infra/media-finalizer/template.yaml --rules infra/media-finalizer/guard/media-finalizer.guard
+          echo 'TIGER_MEDIA_INFRA_REHEARSAL=PASS'
+
+      - name: Build exact-head IaC evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/tiger-media-infra
+          source_tree="$(git rev-parse 'HEAD^{tree}')"
+          template_sha="$(sha256sum infra/media-finalizer/template.yaml | awk '{print $1}')"
+          guard_sha="$(sha256sum infra/media-finalizer/guard/media-finalizer.guard | awk '{print $1}')"
+          printf '%s\n' \
+            "SOURCE_SHA=$SOURCE_SHA" \
+            "SOURCE_TREE=$source_tree" \
+            "TEMPLATE_SHA256=$template_sha" \
+            "GUARD_SHA256=$guard_sha" \
+            "CFN_LINT_VERSION=$(cfn-lint --version | head -n1)" \
+            "CFN_GUARD_VERSION=$(cfn-guard --version | head -n1)" \
+            "TIGER_MEDIA_INFRA_REHEARSAL=PASS" \
+            > /tmp/tiger-media-infra/evidence.env
+          cat /tmp/tiger-media-infra/evidence.env
+
+      - name: Upload exact-head IaC evidence
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: tiger-media-finalizer-infra-${{ env.SOURCE_SHA }}
+          path: /tmp/tiger-media-infra/evidence.env
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Verify source remained immutable
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          echo 'TIGER_MEDIA_INFRA_EXACT_HEAD=PASS'
