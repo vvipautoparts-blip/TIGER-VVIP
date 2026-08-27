@@ -56,7 +56,9 @@ rule dlq_is_encrypted_and_retained when %dead_letter_queues !empty {
     }
 }
 
-rule lambda_release_is_published_and_aliased when %lambda_versions !empty && %lambda_aliases !empty {
+rule lambda_release_is_published_and_aliased {
+    %lambda_versions !empty
+    %lambda_aliases !empty
     %lambda_versions {
         Properties.FunctionName exists
         Properties.Description exists
