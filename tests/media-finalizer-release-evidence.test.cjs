@@ -99,6 +99,15 @@ function validGenomeEvidence() {
   };
 }
 
+function validMaterialsEvidence() {
+  const genome = validGenomeEvidence();
+  return {
+    source: genome.source,
+    materials: genome.materials,
+    image: genome.image,
+  };
+}
+
 test('release-evidence authorities include real SBOM verifier and cryptographic Genome', () => {
   for (const file of [SBOM_HELPER, SBOM_VERIFY_HELPER, GENOME_HELPER, PASSPORT_HELPER, WORKFLOW, CONTAINER_SBOM_FIXTURE]) read(file);
 });
@@ -107,9 +116,7 @@ test('real container SBOM is CycloneDX 1.7 with both npm and OS package inventor
   const { validateContainerSbom } = require(SBOM_VERIFY_HELPER);
   const sbom = JSON.parse(read(CONTAINER_SBOM_FIXTURE));
   const summary = validateContainerSbom(sbom, { expectedSpecVersion: '1.7' });
-  assert.equal(summary.componentCount, 2);
-  assert.equal(summary.npmPackages, 1);
-  assert.equal(summary.osPackages, 1);
+  assert.deepEqual(summary, { componentCount: 2, npmPackages: 1, osPackages: 1 });
 });
 
 test('cryptographic Genome is deterministic and changes when authoritative evidence changes', () => {
@@ -126,14 +133,18 @@ test('cryptographic Genome is deterministic and changes when authoritative evide
   assert.notEqual(createMediaCellGenome(changed).genomeId, first.genomeId);
 });
 
-test('existing materials evidence remains deterministic until explicitly reclassified', () => {
+test('materials evidence is deterministic CycloneDX 1.7 and cannot masquerade as container inventory', () => {
   const { createMediaCellSbom } = require(SBOM_HELPER);
-  const input = validLegacyEvidence();
+  const input = validMaterialsEvidence();
   const first = createMediaCellSbom(input);
   const second = createMediaCellSbom(JSON.parse(JSON.stringify(input)));
   assert.deepEqual(first, second);
   assert.equal(first.bomFormat, 'CycloneDX');
   assert.equal(first.specVersion, '1.7');
+  assert.deepEqual(first.components.map((component) => component.name), [...REQUIRED_MATERIAL_PATHS].sort());
+  const generator = first.metadata.properties.find((property) => property.name === 'tiger:generator');
+  assert.equal(generator?.value, 'TIGER_MEDIA_CELL_MATERIALS_V1');
+  assert.doesNotMatch(JSON.stringify(first), /TIGER_MEDIA_CELL_SBOM_V1/);
 });
 
 test('legacy passport remains fail-closed until Passport v2 replaces it', () => {
