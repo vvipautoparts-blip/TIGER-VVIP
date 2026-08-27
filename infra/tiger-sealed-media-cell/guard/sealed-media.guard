@@ -1,0 +1,38 @@
+# TIGER Sealed Media Cell 2026 — CloudFormation Guard policy.
+# Run with cfn-guard v3 before creating a change set.
+
+let media_functions = Resources.*[ Type == 'AWS::Lambda::Function' ]
+let function_urls = Resources.*[ Type == 'AWS::Lambda::Url' ]
+let ecr_repositories = Resources.*[ Type == 'AWS::ECR::Repository' ]
+let oacs = Resources.*[ Type == 'AWS::CloudFront::OriginAccessControl' ]
+let distributions = Resources.*[ Type == 'AWS::CloudFront::Distribution' ]
+let web_acls = Resources.*[ Type == 'AWS::WAFv2::WebACL' ]
+
+rule image_parameter_requires_sha256 {
+  Parameters.ImageUri.AllowedPattern == /sha256/
+}
+
+rule media_image_uses_only_digest_parameter when %media_functions !empty {
+  %media_functions.Properties.PackageType == 'Image'
+  %media_functions.Properties.Code.ImageUri.Ref == 'ImageUri'
+}
+
+rule function_url_is_iam_only when %function_urls !empty {
+  %function_urls.Properties.AuthType == 'AWS_IAM'
+}
+
+rule ecr_is_immutable_and_scanned when %ecr_repositories !empty {
+  %ecr_repositories.Properties.ImageTagMutability == 'IMMUTABLE'
+  %ecr_repositories.Properties.ImageScanningConfiguration.ScanOnPush == true
+}
+
+rule lambda_oac_always_signs when %oacs !empty {
+  %oacs.Properties.OriginAccessControlConfig.OriginAccessControlOriginType == 'lambda'
+  %oacs.Properties.OriginAccessControlConfig.SigningBehavior == 'always'
+  %oacs.Properties.OriginAccessControlConfig.SigningProtocol == 'sigv4'
+}
+
+rule cloudfront_has_waf when %distributions !empty {
+  %distributions.Properties.DistributionConfig.WebACLId exists
+  %web_acls !empty
+}
