@@ -1,0 +1,174 @@
+'use strict';
+
+const crypto = require('node:crypto');
+const fs = require('node:fs');
+const path = require('node:path');
+
+const GIT_SHA_PATTERN = /^[0-9a-f]{40}$/;
+const SHA256_PATTERN = /^[0-9a-f]{64}$/;
+const OCI_SHA256_PATTERN = /^sha256:[0-9a-f]{64}$/;
+const SEOUL_ECR_PATTERN = /^[0-9]{12}\.dkr\.ecr\.ap-northeast-2\.amazonaws\.com\/[a-z0-9]+(?:[._/-][a-z0-9]+)*$/;
+const REQUIRED_MATERIALS = Object.freeze([
+  'services/media-finalizer/Dockerfile',
+  'services/media-finalizer/package-lock.json',
+  'infra/media-finalizer/foundation/template.yaml',
+  'infra/media-finalizer/foundation/guard.guard',
+  'infra/media-finalizer/regional/template.yaml',
+  'infra/media-finalizer/regional/guard.guard',
+  'infra/media-finalizer/edge/template.yaml',
+  'infra/media-finalizer/edge/guard.guard',
+]);
+const SECRET_KEY_PATTERN = /(?:secret|password|credential|access[_-]?key|service[_-]?role[_-]?key|private[_-]?key|authorization|jwt|capability|signed[_-]?url)/i;
+const SECRET_VALUE_PATTERNS = Object.freeze([
+  /sb_secret_[A-Za-z0-9._-]+/,
+  /AKIA[0-9A-Z]{16}/,
+  /-----BEGIN [A-Z ]*PRIVATE KEY-----/,
+  /gh[pousr]_[A-Za-z0-9_]{20,}/,
+  /Bearer\s+[A-Za-z0-9._~+\/-]+=*/i,
+]);
+
+function fail(code) {
+  throw new Error(code);
+}
+
+function canonicalize(value) {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonicalize(value[key])]));
+  }
+  return value;
+}
+
+function canonicalJson(value) {
+  return JSON.stringify(canonicalize(value));
+}
+
+function exactKeys(value, allowed, unknownCode = 'GENOME_EVIDENCE_UNKNOWN', invalidCode = 'GENOME_EVIDENCE_INVALID') {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) fail(invalidCode);
+  const actual = Object.keys(value).sort();
+  const expected = [...allowed].sort();
+  for (const key of actual) if (!expected.includes(key)) fail(unknownCode);
+  if (actual.length !== expected.length || expected.some((key) => !Object.hasOwn(value, key))) fail(invalidCode);
+}
+
+function hasSecretMaterial(value) {
+  if (Array.isArray(value)) return value.some(hasSecretMaterial);
+  if (value && typeof value === 'object') {
+    return Object.entries(value).some(([key, entry]) => SECRET_KEY_PATTERN.test(key) || hasSecretMaterial(entry));
+  }
+  return typeof value === 'string' && SECRET_VALUE_PATTERNS.some((pattern) => pattern.test(value));
+}
+
+function validCount(value) {
+  return Number.isInteger(value) && value >= 0;
+}
+
+function validateGenomeEvidence(evidence) {
+  if (hasSecretMaterial(evidence)) fail('GENOME_SECRET_MATERIAL_REJECTED');
+  exactKeys(evidence, ['source', 'materials', 'image', 'database', 'sbom', 'scan', 'attestations']);
+  exactKeys(evidence.source, ['commitSha', 'treeSha', 'immutable']);
+  exactKeys(evidence.materials, REQUIRED_MATERIALS);
+  exactKeys(evidence.image, ['repository', 'manifestDigest', 'baseDigest']);
+  exactKeys(evidence.database, ['migrationSetSha256']);
+  exactKeys(evidence.sbom, ['specVersion', 'sha256', 'subjectDigest', 'path', 'componentCount']);
+  exactKeys(evidence.scan, ['status', 'critical', 'high', 'medium', 'low', 'findingsSha256']);
+  exactKeys(evidence.attestations, ['provenance', 'sbom']);
+  exactKeys(evidence.attestations.provenance, ['verified', 'evidenceSha256']);
+  exactKeys(evidence.attestations.sbom, ['verified', 'evidenceSha256']);
+
+  if (!GIT_SHA_PATTERN.test(evidence.source.commitSha || '') || !GIT_SHA_PATTERN.test(evidence.source.treeSha || '') || evidence.source.immutable !== true) {
+    fail('GENOME_SOURCE_INVALID');
+  }
+  for (const name of REQUIRED_MATERIALS) {
+    if (!SHA256_PATTERN.test(evidence.materials[name] || '')) fail('GENOME_MATERIAL_DIGEST_INVALID');
+  }
+  if (!SEOUL_ECR_PATTERN.test(evidence.image.repository || '') || !OCI_SHA256_PATTERN.test(evidence.image.manifestDigest || '') || !OCI_SHA256_PATTERN.test(evidence.image.baseDigest || '')) {
+    fail('GENOME_IMAGE_INVALID');
+  }
+  if (!SHA256_PATTERN.test(evidence.database.migrationSetSha256 || '')) fail('GENOME_DATABASE_INVALID');
+  if (
+    evidence.sbom.specVersion !== '1.7' ||
+    !SHA256_PATTERN.test(evidence.sbom.sha256 || '') ||
+    !OCI_SHA256_PATTERN.test(evidence.sbom.subjectDigest || '') ||
+    evidence.sbom.subjectDigest !== evidence.image.manifestDigest ||
+    evidence.sbom.path !== 'artifacts/media-cell/media-finalizer.cdx.json' ||
+    !Number.isInteger(evidence.sbom.componentCount) ||
+    evidence.sbom.componentCount < 1
+  ) fail('GENOME_SBOM_INVALID');
+  if (
+    evidence.scan.status !== 'COMPLETE' ||
+    !validCount(evidence.scan.critical) ||
+    !validCount(evidence.scan.high) ||
+    !validCount(evidence.scan.medium) ||
+    !validCount(evidence.scan.low) ||
+    !SHA256_PATTERN.test(evidence.scan.findingsSha256 || '')
+  ) fail('GENOME_SCAN_INVALID');
+  for (const attestation of [evidence.attestations.provenance, evidence.attestations.sbom]) {
+    if (attestation.verified !== true) fail('GENOME_ATTESTATION_UNVERIFIED');
+    if (!SHA256_PATTERN.test(attestation.evidenceSha256 || '')) fail('GENOME_ATTESTATION_INVALID');
+  }
+}
+
+function createMediaCellGenome(evidence = {}) {
+  validateGenomeEvidence(evidence);
+  const authority = {
+    source: {
+      commitSha: evidence.source.commitSha,
+      treeSha: evidence.source.treeSha,
+    },
+    materials: Object.fromEntries(REQUIRED_MATERIALS.map((name) => [name, evidence.materials[name]])),
+    image: {
+      repository: evidence.image.repository,
+      manifestDigest: evidence.image.manifestDigest,
+      baseDigest: evidence.image.baseDigest,
+    },
+    database: {
+      migrationSetSha256: evidence.database.migrationSetSha256,
+    },
+    sbom: {
+      specVersion: '1.7',
+      sha256: evidence.sbom.sha256,
+      subjectDigest: evidence.sbom.subjectDigest,
+      componentCount: evidence.sbom.componentCount,
+    },
+    scan: {
+      findingsSha256: evidence.scan.findingsSha256,
+    },
+    attestations: {
+      provenance: {
+        verified: true,
+        evidenceSha256: evidence.attestations.provenance.evidenceSha256,
+      },
+      sbom: {
+        verified: true,
+        evidenceSha256: evidence.attestations.sbom.evidenceSha256,
+      },
+    },
+  };
+  const id = crypto.createHash('sha256').update(canonicalJson(authority)).digest('hex');
+  return canonicalize({
+    schemaVersion: 'tiger-cryptographic-genome-v1',
+    algorithm: 'sha256',
+    id,
+    ...authority,
+  });
+}
+
+function writeCanonicalJson(file, value) {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, `${canonicalJson(value)}\n`, { encoding: 'utf8', mode: 0o600 });
+}
+
+if (require.main === module) {
+  const [inputFile, outputFile] = process.argv.slice(2);
+  if (!inputFile || !outputFile) fail('USAGE:media-cell-genome.cjs <evidence.json> <genome.json>');
+  const evidence = JSON.parse(fs.readFileSync(inputFile, 'utf8'));
+  writeCanonicalJson(outputFile, createMediaCellGenome(evidence));
+}
+
+module.exports = Object.freeze({
+  REQUIRED_MATERIALS,
+  createMediaCellGenome,
+  canonicalJson,
+  validateGenomeEvidence,
+});
