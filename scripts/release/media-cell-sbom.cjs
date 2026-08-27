@@ -9,10 +9,14 @@ const SHA256_PATTERN = /^[0-9a-f]{64}$/;
 const OCI_SHA256_PATTERN = /^sha256:[0-9a-f]{64}$/;
 const UUID_DNS_NAMESPACE = Buffer.from('6ba7b8109dad11d180b400c04fd430c8', 'hex');
 const REQUIRED_MATERIALS = Object.freeze([
-  'infra/media-finalizer/guard/media-finalizer.guard',
-  'infra/media-finalizer/template.yaml',
   'services/media-finalizer/Dockerfile',
   'services/media-finalizer/package-lock.json',
+  'infra/media-finalizer/foundation/template.yaml',
+  'infra/media-finalizer/foundation/guard.guard',
+  'infra/media-finalizer/regional/template.yaml',
+  'infra/media-finalizer/regional/guard.guard',
+  'infra/media-finalizer/edge/template.yaml',
+  'infra/media-finalizer/edge/guard.guard',
 ]);
 
 function fail(code) {
@@ -56,22 +60,23 @@ function canonicalJson(value) {
 }
 
 function validateCoreEvidence(evidence) {
-  if (!evidence || typeof evidence !== 'object' || Array.isArray(evidence)) fail('MEDIA_CELL_SBOM_EVIDENCE_INVALID');
+  if (!evidence || typeof evidence !== 'object' || Array.isArray(evidence)) fail('MEDIA_CELL_MATERIALS_EVIDENCE_INVALID');
+  exactKeys(evidence, ['source', 'materials', 'image'], 'MEDIA_CELL_MATERIALS_EVIDENCE_INVALID');
   const { source, materials, image } = evidence;
-  exactKeys(source, ['commitSha', 'treeSha', 'immutable'], 'MEDIA_CELL_SBOM_SOURCE_INVALID');
+  exactKeys(source, ['commitSha', 'treeSha', 'immutable'], 'MEDIA_CELL_MATERIALS_SOURCE_INVALID');
   if (!GIT_SHA_PATTERN.test(source.commitSha || '') || !GIT_SHA_PATTERN.test(source.treeSha || '') || source.immutable !== true) {
-    fail('MEDIA_CELL_SBOM_SOURCE_INVALID');
+    fail('MEDIA_CELL_MATERIALS_SOURCE_INVALID');
   }
-  exactKeys(materials, REQUIRED_MATERIALS, 'MEDIA_CELL_SBOM_MATERIALS_INVALID');
+  exactKeys(materials, REQUIRED_MATERIALS, 'MEDIA_CELL_MATERIALS_INVALID');
   for (const name of REQUIRED_MATERIALS) {
-    if (!SHA256_PATTERN.test(materials[name] || '')) fail('MEDIA_CELL_SBOM_MATERIAL_DIGEST_INVALID');
+    if (!SHA256_PATTERN.test(materials[name] || '')) fail('MEDIA_CELL_MATERIAL_DIGEST_INVALID');
   }
-  if (!image || typeof image !== 'object' || Array.isArray(image)) fail('MEDIA_CELL_SBOM_IMAGE_INVALID');
+  exactKeys(image, ['repository', 'manifestDigest', 'baseDigest'], 'MEDIA_CELL_MATERIALS_IMAGE_INVALID');
   if (!OCI_SHA256_PATTERN.test(image.manifestDigest || '') || !OCI_SHA256_PATTERN.test(image.baseDigest || '')) {
-    fail('MEDIA_CELL_SBOM_IMAGE_DIGEST_INVALID');
+    fail('MEDIA_CELL_MATERIALS_IMAGE_DIGEST_INVALID');
   }
   if (typeof image.repository !== 'string' || image.repository.length < 3 || image.repository.includes('@')) {
-    fail('MEDIA_CELL_SBOM_IMAGE_REPOSITORY_INVALID');
+    fail('MEDIA_CELL_MATERIALS_IMAGE_REPOSITORY_INVALID');
   }
 }
 
@@ -86,7 +91,7 @@ function createMediaCellSbom(evidence = {}) {
       hashes: [{ alg: 'SHA-256', content: digest }],
     }));
   const serialUuid = deterministicUuidV8Sha256(
-    `TIGER-SEALED-MEDIA-CELL:${source.commitSha}:${source.treeSha}:${image.manifestDigest}`,
+    `TIGER-SEALED-MEDIA-MATERIALS:${source.commitSha}:${source.treeSha}:${image.manifestDigest}`,
   );
 
   return {
@@ -99,7 +104,7 @@ function createMediaCellSbom(evidence = {}) {
       lifecycles: [{ phase: 'build' }],
       component: {
         type: 'container',
-        name: 'TIGER-media-finalizer',
+        name: 'TIGER-media-finalizer-materials',
         version: source.commitSha,
       },
       properties: [
@@ -107,7 +112,8 @@ function createMediaCellSbom(evidence = {}) {
         { name: 'tiger:source_tree', value: source.treeSha },
         { name: 'tiger:oci_manifest_digest', value: image.manifestDigest },
         { name: 'tiger:base_image_digest', value: image.baseDigest },
-        { name: 'tiger:generator', value: 'TIGER_MEDIA_CELL_SBOM_V1' },
+        { name: 'tiger:generator', value: 'TIGER_MEDIA_CELL_MATERIALS_V1' },
+        { name: 'tiger:evidence_class', value: 'build-materials-not-container-inventory' },
       ],
     },
     components,
@@ -121,9 +127,9 @@ function writeCanonicalJson(file, value) {
 
 if (require.main === module) {
   const [inputFile, outputFile] = process.argv.slice(2);
-  if (!inputFile || !outputFile) fail('USAGE:media-cell-sbom.cjs <evidence.json> <sbom.json>');
+  if (!inputFile || !outputFile) fail('USAGE:media-cell-sbom.cjs <evidence.json> <materials.json>');
   const evidence = JSON.parse(fs.readFileSync(inputFile, 'utf8'));
   writeCanonicalJson(outputFile, createMediaCellSbom(evidence));
 }
 
-module.exports = Object.freeze({ createMediaCellSbom, canonicalJson });
+module.exports = Object.freeze({ createMediaCellSbom, canonicalJson, REQUIRED_MATERIALS });
