@@ -1,0 +1,118 @@
+# TIGER Sovereign Constellation 2026 — Seoul regional runtime Guard policy.
+
+let lambda_functions = Resources.*[ Type == 'AWS::Lambda::Function' ]
+let lambda_versions = Resources.*[ Type == 'AWS::Lambda::Version' ]
+let lambda_aliases = Resources.*[ Type == 'AWS::Lambda::Alias' ]
+let lambda_urls = Resources.*[ Type == 'AWS::Lambda::Url' ]
+let lambda_permissions = Resources.*[ Type == 'AWS::Lambda::Permission' ]
+let queues = Resources.*[ Type == 'AWS::SQS::Queue' ]
+let log_groups = Resources.*[ Type == 'AWS::Logs::LogGroup' ]
+let runtime_roles = Resources.*[ Type == 'AWS::IAM::Role' ]
+let alarms = Resources.*[ Type == 'AWS::CloudWatch::Alarm' ]
+let repositories = Resources.*[ Type == 'AWS::ECR::Repository' ]
+let distributions = Resources.*[ Type == 'AWS::CloudFront::Distribution' ]
+let web_acls = Resources.*[ Type == 'AWS::WAFv2::WebACL' ]
+let certificates = Resources.*[ Type == 'AWS::CertificateManager::Certificate' ]
+
+rule regional_has_runtime_authority {
+    %lambda_functions !empty
+    %lambda_versions !empty
+    %lambda_aliases !empty
+    %lambda_urls !empty
+    %queues !empty
+    %log_groups !empty
+    %runtime_roles !empty
+    %alarms !empty
+}
+
+rule regional_excludes_build_and_edge_authority {
+    %repositories empty
+    %distributions empty
+    %web_acls empty
+    %certificates empty
+}
+
+rule lambda_is_bounded_digest_image_runtime when %lambda_functions !empty {
+    %lambda_functions {
+        Properties.PackageType == 'Image'
+        Properties.Code.ImageUri exists
+        Properties.Architectures[0] == 'x86_64'
+        Properties.MemorySize == 2048
+        Properties.Timeout == 30
+        Properties.ReservedConcurrentExecutions == 8
+        Properties.DeadLetterConfig.TargetArn exists
+    }
+}
+
+rule dlq_is_encrypted_and_retained_contract when %queues !empty {
+    %queues {
+        Properties.SqsManagedSseEnabled == true
+        Properties.MessageRetentionPeriod == 1209600
+    }
+}
+
+rule release_is_published_and_live_aliased {
+    %lambda_versions !empty
+    %lambda_aliases !empty
+    %lambda_aliases {
+        Properties.Name == 'live'
+        Properties.FunctionVersion exists
+    }
+}
+
+rule function_url_is_iam_only when %lambda_urls !empty {
+    %lambda_urls {
+        Properties.AuthType == 'AWS_IAM'
+        Properties.InvokeMode == 'BUFFERED'
+        Properties.Qualifier == 'live'
+    }
+}
+
+rule runtime_reads_only_configured_secret when %runtime_roles !empty {
+    %runtime_roles {
+        some Properties.Policies[*].PolicyDocument.Statement[*] {
+            Effect == 'Allow'
+            some Action[*] == 'secretsmanager:GetSecretValue'
+            Resource.Ref == 'SupabaseSecretArn'
+        }
+    }
+}
+
+rule runtime_has_bounded_dlq_send when %runtime_roles !empty {
+    %runtime_roles {
+        some Properties.Policies[*].PolicyDocument.Statement[*] {
+            Effect == 'Allow'
+            some Action[*] == 'sqs:SendMessage'
+            Resource.'Fn::GetAtt'[0] == 'MediaFinalizerDeadLetterQueue'
+            Resource.'Fn::GetAtt'[1] == 'Arn'
+        }
+    }
+}
+
+rule logs_have_retention when %log_groups !empty {
+    %log_groups {
+        Properties.RetentionInDays exists
+        Properties.RetentionInDays > 0
+    }
+}
+
+rule cloudfront_permissions_are_exact when %lambda_permissions !empty {
+    %lambda_permissions {
+        Properties.Principal == 'cloudfront.amazonaws.com'
+        Properties.SourceArn.Ref == 'CloudFrontDistributionArn'
+    }
+}
+
+let function_url_permissions = %lambda_permissions[ Properties.Action == 'lambda:InvokeFunctionUrl' ]
+let function_invoke_permissions = %lambda_permissions[ Properties.Action == 'lambda:InvokeFunction' ]
+
+rule cloudfront_binding_has_both_iam_permissions when %lambda_permissions !empty {
+    %function_url_permissions !empty
+    %function_invoke_permissions !empty
+    %function_url_permissions {
+        Properties.FunctionUrlAuthType == 'AWS_IAM'
+    }
+    %function_invoke_permissions {
+        Properties.InvokedViaFunctionUrl == true
+    }
+}
