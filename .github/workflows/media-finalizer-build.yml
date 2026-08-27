@@ -12,7 +12,6 @@ permissions:
   contents: read
   id-token: write
   attestations: write
-  artifact-metadata: write
 
 env:
   SOURCE_SHA: ${{ inputs.source_sha }}
@@ -20,7 +19,6 @@ env:
   ECR_REPOSITORY: ${{ vars.TIGER_MEDIA_ECR_REPOSITORY }}
   BUILD_ROLE_ARN: ${{ vars.TIGER_MEDIA_BUILD_ROLE_ARN }}
   BASE_IMAGE_REF: public.ecr.aws/lambda/nodejs:24@sha256:f3c848893566f5efb8bf8c48798f0687a7196cf1808846cafbb4974706be3cdc
-  SYFT_VERSION: '1.51.0'
   SYFT_LINUX_AMD64_SHA256: 2a2e837a2c8d59ec9af5472ee22d3b04ee463c4e44476ecf993fd1e5ab6ebc7f
   CYCLONEDX_CLI_VERSION: '0.30.0'
   CYCLONEDX_LINUX_X64_SHA256: f89876326620f5fc78a9b27cc1af57d6ed13d019aab87490e1246a44a910babb
@@ -30,7 +28,6 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     environment: media-build
-
     steps:
       - name: Validate sealed-build authority inputs
         shell: bash
@@ -104,9 +101,9 @@ jobs:
           tool_dir="$RUNNER_TEMP/tiger-sealed-tools"
           mkdir -p "$tool_dir"
 
-          syft_archive="$RUNNER_TEMP/syft_${SYFT_VERSION}_linux_amd64.tar.gz"
+          syft_archive="$RUNNER_TEMP/syft_1.51.0_linux_amd64.tar.gz"
           curl --proto '=https' --tlsv1.2 --fail --silent --show-error --location \
-            "https://github.com/anchore/syft/releases/download/v${SYFT_VERSION}/syft_${SYFT_VERSION}_linux_amd64.tar.gz" \
+            "https://github.com/anchore/syft/releases/download/v1.51.0/syft_1.51.0_linux_amd64.tar.gz" \
             --output "$syft_archive"
           echo "$SYFT_LINUX_AMD64_SHA256  $syft_archive" | sha256sum --check --strict
           tar -xzf "$syft_archive" -C "$tool_dir" syft
@@ -141,10 +138,7 @@ jobs:
           test "$account_id" = "211579682376"
           registry="$account_id.dkr.ecr.$AWS_REGION.amazonaws.com"
 
-          aws ecr describe-repositories \
-            --repository-names "$ECR_REPOSITORY" \
-            --output json > "$RUNNER_TEMP/repository.json"
-
+          aws ecr describe-repositories --repository-names "$ECR_REPOSITORY" --output json > "$RUNNER_TEMP/repository.json"
           node <<'NODE'
           const fs = require('node:fs');
           const x = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + '/repository.json', 'utf8'));
@@ -154,7 +148,6 @@ jobs:
           if (repo.imageTagMutability !== 'IMMUTABLE') throw new Error('SEALED_ECR_TAG_MUTABILITY_INVALID');
           if (repo.encryptionConfiguration?.encryptionType !== 'KMS') throw new Error('SEALED_ECR_ENCRYPTION_INVALID');
           NODE
-
           repository_uri="$(node -p "require(process.env.RUNNER_TEMP + '/repository.json').repositories[0].repositoryUri")"
           test "$repository_uri" = "$registry/$ECR_REPOSITORY"
 
@@ -165,18 +158,18 @@ jobs:
           const cfg = input.scanningConfiguration;
           if (cfg?.scanType !== 'ENHANCED') throw new Error('SEALED_ECR_SCAN_TYPE_NOT_ENHANCED');
           const repository = process.env.ECR_REPOSITORY;
-          const escapeRegex = (value) => value.replace(/[.+?^${}()|[\]\\]/g, '\\$&');
-          const matches = (filter) => {
+          const rules = Array.isArray(cfg.rules) ? cfg.rules : [];
+          const escapeRegex = (v) => v.replace(/[.+?^${}()|[\]\\]/g, '\\$&');
+          const filterMatches = (filter) => {
             if (typeof filter !== 'string' || filter.length === 0) return false;
             if (!filter.includes('*')) return repository.includes(filter);
-            const pattern = '^' + filter.split('*').map(escapeRegex).join('.*') + '$';
-            return new RegExp(pattern).test(repository);
+            return new RegExp('^' + filter.split('*').map(escapeRegex).join('.*') + '$').test(repository);
           };
-          let matchedFilter = null;
-          for (const rule of cfg.rules || []) {
+          let matchedFilter = rules.length === 0 ? '<default-all-repositories>' : null;
+          for (const rule of rules) {
             if (rule.scanFrequency !== 'CONTINUOUS_SCAN') continue;
             for (const filter of rule.repositoryFilters || []) {
-              if (filter.filterType === 'WILDCARD' && matches(filter.filter)) {
+              if (filter.filterType === 'WILDCARD' && filterMatches(filter.filter)) {
                 matchedFilter = filter.filter;
                 break;
               }
@@ -191,10 +184,10 @@ jobs:
           );
           NODE
 
-          existing="$(aws ecr describe-images --repository-name "$ECR_REPOSITORY" --image-ids "imageTag=$SOURCE_SHA" --output json 2>&1)" && {
+          if existing="$(aws ecr describe-images --repository-name "$ECR_REPOSITORY" --image-ids "imageTag=$SOURCE_SHA" --output json 2>&1)"; then
             echo "::error title=SEALED_IMAGE_ALREADY_EXISTS::Immutable source tag already exists; refusing to rebuild the same release."
             exit 1
-          }
+          fi
           if ! grep -q 'ImageNotFoundException' <<< "$existing"; then
             printf '%s\n' "$existing" >&2
             exit 1
@@ -216,12 +209,10 @@ jobs:
           image_digest="$(aws ecr describe-images \
             --repository-name "$ECR_REPOSITORY" \
             --image-ids "imageTag=$SOURCE_SHA" \
-            --query 'imageDetails[0].imageDigest' \
-            --output text)"
+            --query 'imageDetails[0].imageDigest' --output text)"
           [[ "$image_digest" =~ ^sha256:[0-9a-f]{64}$ ]]
           echo "repository_uri=$REPOSITORY_URI" >> "$GITHUB_OUTPUT"
           echo "image_digest=$image_digest" >> "$GITHUB_OUTPUT"
-          echo "image_ref=$REPOSITORY_URI@$image_digest" >> "$GITHUB_OUTPUT"
 
       - name: Wait for Inspector findings and enforce CRITICAL HIGH zero gate
         id: scan
@@ -230,7 +221,6 @@ jobs:
           set -euo pipefail
           image_digest="${{ steps.image.outputs.image_digest }}"
           ready=false
-
           for attempt in $(seq 1 90); do
             if aws ecr describe-image-scan-findings \
               --repository-name "$ECR_REPOSITORY" \
@@ -242,57 +232,40 @@ jobs:
               completed_at="$(node -p "String(require(process.env.RUNNER_TEMP + '/scan-attempt.json').completedAt ?? '')")"
               case "$status" in
                 COMPLETE|ACTIVE)
-                  if [[ -n "$completed_at" && "$completed_at" != "null" ]]; then
-                    ready=true
-                    break
-                  fi
+                  if [[ -n "$completed_at" && "$completed_at" != "null" ]]; then ready=true; break; fi
                   ;;
                 FAILED|UNSUPPORTED_IMAGE|SCAN_ELIGIBILITY_EXPIRED|FINDINGS_UNAVAILABLE|LIMIT_EXCEEDED|IMAGE_ARCHIVED)
                   cat "$RUNNER_TEMP/scan-attempt.json" >&2
-                  echo "::error title=SEALED_ECR_SCAN_FAILED::Inspector/ECR scan entered terminal status $status"
                   exit 1
                   ;;
-                IN_PROGRESS|PENDING|'')
-                  ;;
-                *)
-                  echo "::error title=SEALED_ECR_SCAN_STATUS_UNKNOWN::Unexpected scan status $status"
-                  exit 1
-                  ;;
+                IN_PROGRESS|PENDING|'') ;;
+                *) echo "Unexpected ECR scan status: $status" >&2; exit 1 ;;
               esac
-            else
-              if ! grep -Eq 'ScanNotFoundException|ImageNotFoundException' "$RUNNER_TEMP/scan-attempt.err"; then
-                cat "$RUNNER_TEMP/scan-attempt.err" >&2
-                exit 1
-              fi
+            elif ! grep -Eq 'ScanNotFoundException|ImageNotFoundException' "$RUNNER_TEMP/scan-attempt.err"; then
+              cat "$RUNNER_TEMP/scan-attempt.err" >&2
+              exit 1
             fi
             sleep 10
           done
-
           test "$ready" = true
-
           node <<'NODE'
           const fs = require('node:fs');
           const x = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + '/scan-attempt.json', 'utf8'));
-          const counts = x.severityCounts || {};
+          const c = x.severityCounts || {};
           const summary = {
             status: x.status,
             completedAt: x.completedAt,
             scanType: 'ENHANCED',
             frequency: 'CONTINUOUS_SCAN',
-            critical: Number(counts.CRITICAL || 0),
-            high: Number(counts.HIGH || 0),
-            medium: Number(counts.MEDIUM || 0),
-            low: Number(counts.LOW || 0),
-            informational: Number(counts.INFORMATIONAL || 0),
-            undefined: Number(counts.UNDEFINED || 0),
+            critical: Number(c.CRITICAL || 0),
+            high: Number(c.HIGH || 0),
+            medium: Number(c.MEDIUM || 0),
+            low: Number(c.LOW || 0),
           };
           if (!Number.isSafeInteger(summary.critical) || !Number.isSafeInteger(summary.high)) throw new Error('SEALED_ECR_SCAN_COUNTS_INVALID');
           if (summary.critical !== 0 || summary.high !== 0) throw new Error('SEALED_ECR_VULNERABILITY_GATE_REJECTED');
           fs.writeFileSync('artifacts/media-cell/scan-summary.json', JSON.stringify(summary) + '\n', { mode: 0o600 });
           NODE
-
-          echo "critical=0" >> "$GITHUB_OUTPUT"
-          echo "high=0" >> "$GITHUB_OUTPUT"
 
       - name: Generate real OCI inventory and validate CycloneDX 1.7
         id: sbom
@@ -314,9 +287,7 @@ jobs:
             --input-format json \
             --input-version v1_7 \
             --fail-on-errors
-          node scripts/release/media-cell-sbom-verify.cjs \
-            artifacts/media-cell/container-sbom.cdx.json \
-            artifacts/media-cell/container-sbom-summary.json
+          node scripts/release/media-cell-sbom-verify.cjs artifacts/media-cell/container-sbom.cdx.json artifacts/media-cell/container-sbom-summary.json
           sbom_sha="$(sha256sum artifacts/media-cell/container-sbom.cdx.json | awk '{print $1}')"
           [[ "$sbom_sha" =~ ^[0-9a-f]{64}$ ]]
           echo "sbom_sha=$sbom_sha" >> "$GITHUB_OUTPUT"
@@ -352,17 +323,11 @@ jobs:
               'infra/media-finalizer/edge/template.yaml': process.env.EDGE_TEMPLATE_SHA,
               'infra/media-finalizer/edge/guard.guard': process.env.EDGE_GUARD_SHA,
             },
-            image: {
-              repository: process.env.IMAGE_REPOSITORY,
-              manifestDigest: process.env.IMAGE_DIGEST,
-              baseDigest: process.env.BASE_DIGEST,
-            },
+            image: { repository: process.env.IMAGE_REPOSITORY, manifestDigest: process.env.IMAGE_DIGEST, baseDigest: process.env.BASE_DIGEST },
           };
           fs.writeFileSync(process.env.RUNNER_TEMP + '/materials-input.json', JSON.stringify(evidence));
           NODE
-          node scripts/release/media-cell-sbom.cjs \
-            "$RUNNER_TEMP/materials-input.json" \
-            artifacts/media-cell/materials.cdx.json
+          node scripts/release/media-cell-sbom.cjs "$RUNNER_TEMP/materials-input.json" artifacts/media-cell/materials.cdx.json
 
       - name: Attest exact OCI provenance
         id: attest_provenance
@@ -395,25 +360,17 @@ jobs:
         run: |
           set -euo pipefail
           signer_workflow="github.com/$GITHUB_REPOSITORY/.github/workflows/media-finalizer-build.yml"
-          gh attestation verify "oci://$IMAGE_REPOSITORY@$IMAGE_DIGEST" \
-            -R "$GITHUB_REPOSITORY" \
-            --signer-workflow "$signer_workflow" \
-            --source-digest "$SOURCE_SHA" \
-            --source-ref refs/heads/main \
+          gh attestation verify "oci://$IMAGE_REPOSITORY@$IMAGE_DIGEST" -R "$GITHUB_REPOSITORY" \
+            --signer-workflow "$signer_workflow" --source-digest "$SOURCE_SHA" --source-ref refs/heads/main \
             --format json > artifacts/media-cell/provenance-verification.json
-          gh attestation verify "oci://$IMAGE_REPOSITORY@$IMAGE_DIGEST" \
-            -R "$GITHUB_REPOSITORY" \
-            --signer-workflow "$signer_workflow" \
-            --source-digest "$SOURCE_SHA" \
-            --source-ref refs/heads/main \
-            --predicate-type https://cyclonedx.org/bom \
-            --format json > artifacts/media-cell/sbom-verification.json
+          gh attestation verify "oci://$IMAGE_REPOSITORY@$IMAGE_DIGEST" -R "$GITHUB_REPOSITORY" \
+            --signer-workflow "$signer_workflow" --source-digest "$SOURCE_SHA" --source-ref refs/heads/main \
+            --predicate-type https://cyclonedx.org/bom --format json > artifacts/media-cell/sbom-verification.json
           node -e "for (const f of ['provenance-verification.json','sbom-verification.json']) { const x=require('./artifacts/media-cell/'+f); if (!Array.isArray(x) || x.length < 1) process.exit(1); }"
           echo "provenance_sha=$(sha256sum artifacts/media-cell/provenance-verification.json | awk '{print $1}')" >> "$GITHUB_OUTPUT"
           echo "sbom_attestation_sha=$(sha256sum artifacts/media-cell/sbom-verification.json | awk '{print $1}')" >> "$GITHUB_OUTPUT"
 
       - name: Create TIGER Cryptographic Genome
-        id: genome
         shell: bash
         env:
           SOURCE_TREE: ${{ steps.source.outputs.source_tree }}
@@ -440,14 +397,10 @@ jobs:
           set -euo pipefail
           node <<'NODE'
           const fs = require('node:fs');
-          const sbomSummary = JSON.parse(fs.readFileSync('artifacts/media-cell/container-sbom-summary.json', 'utf8'));
+          const s = JSON.parse(fs.readFileSync('artifacts/media-cell/container-sbom-summary.json', 'utf8'));
           const evidence = {
             source: { commitSha: process.env.SOURCE_SHA, treeSha: process.env.SOURCE_TREE, immutable: true },
-            image: {
-              repository: process.env.IMAGE_REPOSITORY,
-              manifestDigest: process.env.IMAGE_DIGEST,
-              baseDigest: process.env.BASE_DIGEST,
-            },
+            image: { repository: process.env.IMAGE_REPOSITORY, manifestDigest: process.env.IMAGE_DIGEST, baseDigest: process.env.BASE_DIGEST },
             materials: {
               'services/media-finalizer/Dockerfile': process.env.DOCKERFILE_SHA,
               'services/media-finalizer/package-lock.json': process.env.LOCK_SHA,
@@ -463,34 +416,16 @@ jobs:
               'supabase/migrations/20260826120000_synapse_proof_of_now.sql': process.env.DB_PROOF_SHA,
               'supabase/migrations/20260827120000_sealed_media_identity_binding.sql': process.env.DB_IDENTITY_SHA,
             },
-            containerSbom: {
-              specVersion: '1.7',
-              sha256: process.env.CONTAINER_SBOM_SHA,
-              componentCount: sbomSummary.componentCount,
-              npmPackages: sbomSummary.npmPackages,
-              osPackages: sbomSummary.osPackages,
-            },
+            containerSbom: { specVersion: '1.7', sha256: process.env.CONTAINER_SBOM_SHA, componentCount: s.componentCount, npmPackages: s.npmPackages, osPackages: s.osPackages },
             attestations: {
-              provenance: {
-                attestationId: process.env.PROVENANCE_ATTESTATION_ID,
-                verified: true,
-                evidenceSha256: process.env.PROVENANCE_EVIDENCE_SHA,
-              },
-              sbom: {
-                attestationId: process.env.SBOM_ATTESTATION_ID,
-                verified: true,
-                evidenceSha256: process.env.SBOM_ATTESTATION_EVIDENCE_SHA,
-              },
+              provenance: { attestationId: process.env.PROVENANCE_ATTESTATION_ID, verified: true, evidenceSha256: process.env.PROVENANCE_EVIDENCE_SHA },
+              sbom: { attestationId: process.env.SBOM_ATTESTATION_ID, verified: true, evidenceSha256: process.env.SBOM_ATTESTATION_EVIDENCE_SHA },
             },
           };
           fs.writeFileSync(process.env.RUNNER_TEMP + '/genome-input.json', JSON.stringify(evidence));
           NODE
-          node scripts/release/media-cell-genome.cjs \
-            "$RUNNER_TEMP/genome-input.json" \
-            artifacts/media-cell/cryptographic-genome.json
-          genome_id="$(node -p "require('./artifacts/media-cell/cryptographic-genome.json').genomeId")"
-          [[ "$genome_id" =~ ^sha256:[0-9a-f]{64}$ ]]
-          echo "genome_id=$genome_id" >> "$GITHUB_OUTPUT"
+          node scripts/release/media-cell-genome.cjs "$RUNNER_TEMP/genome-input.json" artifacts/media-cell/cryptographic-genome.json
+          node -e "const x=require('./artifacts/media-cell/cryptographic-genome.json'); if(!/^sha256:[0-9a-f]{64}$/.test(x.genomeId)) process.exit(1)"
 
       - name: Create Release Passport v2 only from verified Genome and scan evidence
         shell: bash
@@ -500,20 +435,12 @@ jobs:
           const fs = require('node:fs');
           const genome = JSON.parse(fs.readFileSync('artifacts/media-cell/cryptographic-genome.json', 'utf8'));
           const scan = JSON.parse(fs.readFileSync('artifacts/media-cell/scan-summary.json', 'utf8'));
-          const evidence = {
+          fs.writeFileSync(process.env.RUNNER_TEMP + '/passport-input.json', JSON.stringify({
             genome,
-            vulnerabilityGate: {
-              scanType: 'ENHANCED',
-              frequency: 'CONTINUOUS_SCAN',
-              critical: scan.critical,
-              high: scan.high,
-            },
-          };
-          fs.writeFileSync(process.env.RUNNER_TEMP + '/passport-input.json', JSON.stringify(evidence));
+            vulnerabilityGate: { scanType: 'ENHANCED', frequency: 'CONTINUOUS_SCAN', critical: scan.critical, high: scan.high },
+          }));
           NODE
-          node scripts/release/media-cell-passport.cjs \
-            "$RUNNER_TEMP/passport-input.json" \
-            artifacts/media-cell/release-passport.json
+          node scripts/release/media-cell-passport.cjs "$RUNNER_TEMP/passport-input.json" artifacts/media-cell/release-passport.json
           node -e "const x=require('./artifacts/media-cell/release-passport.json'); if(x.schemaVersion!=='tiger-release-passport-v2') process.exit(1)"
 
       - name: Verify protected source remained unchanged
