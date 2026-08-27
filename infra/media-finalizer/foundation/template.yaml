@@ -125,6 +125,15 @@ Resources:
                 Action:
                   - ecr:GetAuthorizationToken
                 Resource: '*'
+        - PolicyName: media-build-registry-scanning-read
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: ReadRegistryScanningAuthority
+                Effect: Allow
+                Action:
+                  - ecr:GetRegistryScanningConfiguration
+                Resource: '*'
         - PolicyName: media-build-exact-repository
           PolicyDocument:
             Version: '2012-10-17'
