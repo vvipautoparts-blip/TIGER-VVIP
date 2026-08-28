@@ -26,11 +26,13 @@ $legacy_expired_preflight$;
 alter table public.vvip_marketplace_listings
     drop column if exists expires_at;
 
--- Keep the historical superset check intact as migration evidence and add a
--- stricter current check. Their intersection forbids EXPIRED without replacing
--- a live constraint blindly or weakening any existing status restriction.
+-- The historical status constraint includes the superseded EXPIRED state.
+-- Remove that obsolete constraint outright and replace it with the sole current
+-- status contract. No compatibility constraint or hidden fallback is retained.
 alter table public.vvip_marketplace_listings
-    add constraint vvip_marketplace_listings_status_latest_only_check
+    drop constraint if exists vvip_marketplace_listings_status_check;
+alter table public.vvip_marketplace_listings
+    add constraint vvip_marketplace_listings_status_check
         check (status in (
             'DRAFT', 'PENDING_REVIEW', 'ACTIVE', 'PAUSED',
             'REJECTED', 'BLOCKED', 'ARCHIVED'
