@@ -4,7 +4,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { createMediaCellGenome, canonicalJson: genomeCanonicalJson } = require('./media-cell-genome.cjs');
 
-const SECRET_KEY_PATTERN = /(?:secret|password|credential|access[_-]?key|service[_-]?role[_-]?key|private[_-]?key|authorization|jwt|capability|signed[_-]?url)/i;
+const SHA256_PATTERN = /^[0-9a-f]{64}$/;
+const SECRET_KEY_PATTERN = /(?:secret|password|credential|access[_-]?key|service[_-]?role[_-]?key|private[_-]?key|authorization|jwt|session|capability|signed[_-]?url|raw[_-]?media|request[_-]?body)/i;
 const SECRET_VALUE_PATTERNS = Object.freeze([
   /sb_secret_[A-Za-z0-9._-]+/,
   /AKIA[0-9A-Z]{16}/,
@@ -37,28 +38,61 @@ function hasSecretMaterial(value) {
   return typeof value === 'string' && SECRET_VALUE_PATTERNS.some((pattern) => pattern.test(value));
 }
 
-function exactTopLevelKeys(evidence) {
-  const allowed = ['source', 'materials', 'image', 'database', 'sbom', 'scan', 'attestations'];
-  if (!evidence || typeof evidence !== 'object' || Array.isArray(evidence)) fail('PASSPORT_EVIDENCE_INVALID');
-  const actual = Object.keys(evidence).sort();
+function exactKeys(value, allowed, unknownCode, invalidCode) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) fail(invalidCode);
+  const actual = Object.keys(value).sort();
   const expected = [...allowed].sort();
-  for (const key of actual) if (!expected.includes(key)) fail('PASSPORT_EVIDENCE_UNKNOWN');
-  if (actual.length !== expected.length || expected.some((key) => !Object.hasOwn(evidence, key))) fail('PASSPORT_EVIDENCE_INVALID');
+  for (const key of actual) if (!expected.includes(key)) fail(unknownCode);
+  if (actual.length !== expected.length || expected.some((key) => !Object.hasOwn(value, key))) fail(invalidCode);
+}
+
+function validCount(value) {
+  return Number.isInteger(value) && value >= 0;
+}
+
+function validateScan(scan) {
+  exactKeys(
+    scan,
+    ['status', 'scanMode', 'critical', 'high', 'medium', 'low', 'unknown', 'findingsSha256'],
+    'PASSPORT_SCAN_UNKNOWN',
+    'PASSPORT_SCAN_INVALID',
+  );
+  if (scan.status !== 'COMPLETE' || scan.scanMode !== 'ENHANCED') fail('PASSPORT_SCAN_INVALID');
+  for (const severity of ['critical', 'high', 'medium', 'low', 'unknown']) {
+    if (!validCount(scan[severity])) fail('PASSPORT_SCAN_INVALID');
+  }
+  if (!SHA256_PATTERN.test(scan.findingsSha256 || '')) fail('PASSPORT_SCAN_INVALID');
+  if (scan.critical > 0 || scan.high > 0 || scan.medium > 0) fail('PASSPORT_SCAN_BLOCKED');
 }
 
 function createMediaCellPassport(evidence = {}) {
   if (hasSecretMaterial(evidence)) fail('PASSPORT_SECRET_MATERIAL_REJECTED');
-  exactTopLevelKeys(evidence);
+  exactKeys(
+    evidence,
+    ['source', 'materials', 'image', 'database', 'sbom', 'scan', 'attestations'],
+    'PASSPORT_EVIDENCE_UNKNOWN',
+    'PASSPORT_EVIDENCE_INVALID',
+  );
   if (evidence?.sbom?.subjectDigest !== evidence?.image?.manifestDigest) fail('PASSPORT_SBOM_SUBJECT_MISMATCH');
-  if (evidence?.scan?.critical > 0) fail('PASSPORT_CRITICAL_FINDINGS_BLOCK');
-  if (evidence?.scan?.high > 0) fail('PASSPORT_HIGH_FINDINGS_BLOCK');
+  validateScan(evidence.scan);
+
+  const genomeEvidence = {
+    source: evidence.source,
+    materials: evidence.materials,
+    image: evidence.image,
+    database: evidence.database,
+    sbom: evidence.sbom,
+    attestations: evidence.attestations,
+  };
 
   let genome;
   try {
-    genome = createMediaCellGenome(evidence);
+    genome = createMediaCellGenome(genomeEvidence);
   } catch (error) {
-    if (String(error?.message || '').includes('ATTESTATION_UNVERIFIED')) fail('PASSPORT_ATTESTATION_UNVERIFIED');
-    fail('PASSPORT_EVIDENCE_INVALID');
+    const message = String(error?.message || '');
+    if (message.includes('ATTESTATION_UNVERIFIED')) fail('PASSPORT_ATTESTATION_UNVERIFIED');
+    if (message.includes('SECRET_MATERIAL')) fail('PASSPORT_SECRET_MATERIAL_REJECTED');
+    throw error;
   }
 
   return canonicalize({
@@ -81,20 +115,23 @@ function createMediaCellPassport(evidence = {}) {
     },
     database: {
       migrationSetSha256: evidence.database.migrationSetSha256,
+      liveConvergence: 'NOT_EXECUTED_IN_SEALED_BUILD',
     },
     sbom: {
-      specVersion: '1.7',
+      specVersion: evidence.sbom.specVersion,
       sha256: evidence.sbom.sha256,
       subjectDigest: evidence.sbom.subjectDigest,
       path: evidence.sbom.path,
       componentCount: evidence.sbom.componentCount,
     },
     scan: {
-      status: 'COMPLETE',
+      status: evidence.scan.status,
+      scanMode: evidence.scan.scanMode,
       critical: evidence.scan.critical,
       high: evidence.scan.high,
       medium: evidence.scan.medium,
       low: evidence.scan.low,
+      unknown: evidence.scan.unknown,
       findingsSha256: evidence.scan.findingsSha256,
     },
     attestations: {
@@ -108,14 +145,14 @@ function createMediaCellPassport(evidence = {}) {
       },
     },
     deployment: {
-      mode: 'sealed-build-only',
-      runtimeRegion: 'ap-northeast-2',
-      edgeControlRegion: 'us-east-1',
-      regionalStack: null,
-      edgeStack: null,
-      lambdaVersion: null,
-      cloudFrontDistribution: null,
-      wafWebAcl: null,
+      mode: 'SEALED_BUILD_ONLY',
+      regionalDeployment: 'NOT_EXECUTED',
+      edgeDeployment: 'NOT_EXECUTED',
+      lambdaVersion: 'NOT_AVAILABLE',
+      cloudFrontDistribution: 'NOT_AVAILABLE',
+      wafWebAcl: 'NOT_AVAILABLE',
+      runtimeProbes: 'NOT_EXECUTED',
+      rollbackEvidence: 'NOT_APPLICABLE_NO_DEPLOYMENT',
     },
   });
 }
