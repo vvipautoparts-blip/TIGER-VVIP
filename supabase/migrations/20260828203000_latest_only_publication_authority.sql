@@ -26,10 +26,11 @@ $legacy_expired_preflight$;
 alter table public.vvip_marketplace_listings
     drop column if exists expires_at;
 
+-- Keep the historical superset check intact as migration evidence and add a
+-- stricter current check. Their intersection forbids EXPIRED without replacing
+-- a live constraint blindly or weakening any existing status restriction.
 alter table public.vvip_marketplace_listings
-    drop constraint if exists vvip_marketplace_listings_status_check;
-alter table public.vvip_marketplace_listings
-    add constraint vvip_marketplace_listings_status_check
+    add constraint vvip_marketplace_listings_status_latest_only_check
         check (status in (
             'DRAFT', 'PENDING_REVIEW', 'ACTIVE', 'PAUSED',
             'REJECTED', 'BLOCKED', 'ARCHIVED'
@@ -43,8 +44,7 @@ returns table (
     status text
 )
 language plpgsql
-security definer
-set search_path = pg_catalog, public, extensions
+security definer set search_path = pg_catalog, public, extensions
 as $function$
 declare
     actor text := public.vvip_marketplace_actor_id();
@@ -112,11 +112,7 @@ begin
         raise exception 'MEDIA_SERVER_FINALIZATION_REQUIRED';
     end if;
 
-    update public.vvip_marketplace_listings as listing
-    set status = 'PENDING_REVIEW',
-        rejection_reason = null,
-        updated_at = statement_timestamp()
-    where listing.listing_id = target_listing;
+    update public.vvip_marketplace_listings as listing set status = 'PENDING_REVIEW', rejection_reason = null, updated_at = statement_timestamp() where listing.listing_id = target_listing;
 
     return query
     select target_listing, 'PENDING_REVIEW'::text;
@@ -130,8 +126,7 @@ create or replace function public.vvip_marketplace_review_listing(
 )
 returns public.vvip_marketplace_listings
 language plpgsql
-security definer
-set search_path = pg_catalog, public
+security definer set search_path = pg_catalog, public
 as $function$
 declare
     reviewer text := public.vvip_marketplace_actor_id();
@@ -179,23 +174,7 @@ begin
         publish_time := statement_timestamp();
     end if;
 
-    update public.vvip_marketplace_listings as listing
-    set status = case decision
-            when 'APPROVE' then 'ACTIVE'
-            when 'REJECT' then 'REJECTED'
-            else 'BLOCKED'
-        end,
-        rejection_reason = case
-            when decision = 'APPROVE' then null
-            else left(decision_reason, 500)
-        end,
-        published_at = case
-            when decision = 'APPROVE' then coalesce(listing.published_at, publish_time)
-            else listing.published_at
-        end,
-        updated_at = statement_timestamp()
-    where listing.listing_id = target_listing
-    returning listing.* into result;
+    update public.vvip_marketplace_listings as listing set status = case decision when 'APPROVE' then 'ACTIVE' when 'REJECT' then 'REJECTED' else 'BLOCKED' end, rejection_reason = case when decision = 'APPROVE' then null else left(decision_reason, 500) end, published_at = case when decision = 'APPROVE' then coalesce(listing.published_at, publish_time) else listing.published_at end, updated_at = statement_timestamp() where listing.listing_id = target_listing returning listing.* into result;
 
     return result;
 end;
