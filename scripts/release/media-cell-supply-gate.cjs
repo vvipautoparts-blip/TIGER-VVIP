@@ -42,12 +42,15 @@ function validateScan(scan) {
   if (hasSecretMaterial(scan)) fail('SUPPLY_GATE_SECRET_MATERIAL_REJECTED');
   exactKeys(
     scan,
-    ['status', 'scanMode', 'critical', 'high', 'medium', 'low', 'unknown', 'findingsSha256'],
+    ['status', 'scanMode', 'scanCompletedAt', 'critical', 'high', 'medium', 'low', 'unknown', 'findingsSha256'],
     'SUPPLY_GATE_SCAN_UNKNOWN',
     'SUPPLY_GATE_SCAN_INVALID',
   );
-  if (scan.status !== 'COMPLETE') fail('SUPPLY_GATE_SCAN_INCOMPLETE');
+  if (scan.status !== 'COMPLETE' && scan.status !== 'ACTIVE') fail('SUPPLY_GATE_SCAN_INCOMPLETE');
   if (scan.scanMode !== 'ENHANCED') fail('SUPPLY_GATE_SCAN_MODE_INVALID');
+  if (typeof scan.scanCompletedAt !== 'string' || !scan.scanCompletedAt || Number.isNaN(Date.parse(scan.scanCompletedAt))) {
+    fail('SUPPLY_GATE_SCAN_COMPLETION_EVIDENCE_INVALID');
+  }
   for (const severity of ['critical', 'high', 'medium', 'low', 'unknown']) {
     if (!validCount(scan[severity])) fail('SUPPLY_GATE_SCAN_INVALID');
   }
