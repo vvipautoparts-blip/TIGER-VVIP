@@ -41,7 +41,7 @@ test('local rehearsal proves the complete sovereign media DB contract', () => {
   assert.match(sql, /vvip_marketplace_fail_media_finalization/);
   assert.match(sql, /listing-media-canonical/);
   assert.match(sql, /listing-media/);
-  assert.match(sql, /vvip_listing_media_canonical_read/);
+  assert.match(sql, /vvip_listing_media_canonical_member_read/);
 
   assert.match(workflow, /tests\/sql\/media-finalizer-db-contract\.sql/);
   assert.match(workflow, /TIGER_MEDIA_DB_CONTRACT=PASS/);
