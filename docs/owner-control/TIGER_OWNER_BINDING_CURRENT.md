@@ -1,6 +1,6 @@
 # TIGER OWNER BINDING CURRENT — LATEST ONLY
 
-**Status:** `CURRENT_ONLY / OWNER_BINDING / NO_FALLBACK`  
+**Status:** `CURRENT_ONLY / OWNER_BINDING / NO_FALLBACK / NO_IN_TREE_ARCHIVE`  
 **Effective owner decision:** 2026-08-28  
 **Scope:** the entire current VVIP TIGER platform: product, UI/UX, runtime, APIs, database current state, configuration, tests, CI/release gates, current documentation, launch criteria, cleanup and operational authority.
 
@@ -8,11 +8,13 @@
 
 The newest explicit owner-approved decision is the only operative truth inside its domain.
 
-If an older requirement, document, code path, test, configuration value, schema behavior, route, mock, feature flag, fallback, launch criterion or generated copy conflicts with the newest owner decision, the older item is immediately `SUPERSEDED / NON_OPERATIVE` and must be removed from every active surface.
+If an older requirement, document, code path, test, configuration value, schema behavior, route, mock, feature flag, fallback, launch criterion or generated copy conflicts with the newest owner decision, the older item is immediately `SUPERSEDED / NON_OPERATIVE` and must be removed from the current repository tree and every active platform surface.
 
-No active fallback or compatibility layer may resurrect a conflicting older owner rule.
+No active fallback, compatibility layer, hidden copy, trash folder, archive folder, renamed legacy copy, duplicate reference, test fixture or generated artifact may preserve a conflicting older owner rule inside the current platform tree.
 
-Historical evidence belongs only in Git history or a clearly non-operative audit archive. Historical material must never feed runtime, tests, current owner indexes, current configuration, release gates or generated product copy.
+**Immediate-disposal rule:** once supersession is proven, the old conflicting item is deleted from the working tree in the same cleanup change. It is not moved to another repository folder and no in-repository recycle bin is retained.
+
+Historical provenance is Git history only. Git history is not an active platform surface and must never feed runtime, tests, current owner indexes, current configuration, release gates or generated product copy. Rewriting Git history is a separate destructive repository-forensics operation and is not required for normal platform cleanup.
 
 ## 2. Product timing — no commercial/content lifetime
 
@@ -107,14 +109,17 @@ At minimum, current runtime/tests/config/current docs must reject:
 - timed activation-card control of organic content;
 - legacy 45/80/120 JOD current Pulse/product tiers;
 - marketplace transaction payment/intermediation;
-- duplicate current owner authorities in the same domain.
+- duplicate current owner authorities in the same domain;
+- any in-tree trash/archive/legacy copy created merely to preserve a superseded conflicting rule.
 
 ## 9. Migration and deletion safety
 
-Historical migration files are not rewritten to fake history. Deployed-schema retirement is performed by forward migrations after dependency analysis and exact-head tests.
+Historical migration files already used to build database state are not rewritten to fake history. Their obsolete effect is neutralized by forward migrations and current-schema verification.
 
-Destructive deletion remains governed by PHOENIX Proof-of-Reclamation and the AION disposal chain. This safety rule protects data/evidence; it does not authorize keeping a superseded rule active.
+For all other superseded conflicting current-tree material, the default is direct deletion from the current tree after Proof-of-Reclamation. No in-tree trash or archive copy is created.
+
+Destructive deletion remains governed by PHOENIX Proof-of-Reclamation and the AION disposal chain. This safety rule protects data/evidence; it does not authorize keeping a superseded rule active or hidden inside the platform tree.
 
 ## 10. Owner acceptance statement
 
-> **Keep only the newest approved owner truth in the active VVIP TIGER platform. Remove every conflicting older rule from runtime, UI, tests, configuration, current documentation, schema behavior and release gates. There is no product/content duration for posts, listings, publishing access, visibility cards or Pulse verified-impression balances. Ordinary publication is not payment-gated and has no fixed commercial/weekly posting quota. Pulse is separate paid visibility at 3/10/20 JOD. No old rule may return as fallback.**
+> **Keep only the newest approved owner truth in the active VVIP TIGER platform. When a newer approved rule supersedes an older conflicting rule, remove the older rule completely from the current tree and every active surface in the same cleanup change. Do not hide it, rename it, move it to an archive/trash folder, or keep it as fallback. Historical provenance is Git history only. There is no product/content duration for posts, listings, publishing access, visibility cards or Pulse verified-impression balances. Ordinary publication is not payment-gated and has no fixed commercial/weekly posting quota. Pulse is separate paid visibility at 3/10/20 JOD.**
