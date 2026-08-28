@@ -9,6 +9,7 @@ const marketplace = require('../scripts/runtime/vvip-marketplace-repository.js')
 const ROOT = path.resolve(__dirname, '..');
 const CURRENT_MIGRATION = path.join(ROOT, 'supabase/migrations/20260828203000_latest_only_publication_authority.sql');
 const REPOSITORY = path.join(ROOT, 'scripts/runtime/vvip-marketplace-repository.js');
+const MY_LISTINGS_RUNTIME = path.join(ROOT, 'scripts/runtime/vvip-my-listings.js');
 const LISTING_ID = '123e4567-e89b-12d3-a456-426614174000';
 
 function rpcClient(handler) {
@@ -62,6 +63,11 @@ test('review-submission transport propagates trusted server failure and never mi
   assert.doesNotMatch(source, /status\s*:\s*["']ACTIVE["']/);
   assert.doesNotMatch(source, /requestPublication|vvip_marketplace_request_publication|entitlementReceipt|entitlement_receipt/);
   assert.match(source, /function\s+submitForReview\b/);
+});
+
+test('current listing runtime contains no retired EXPIRED lifecycle state', () => {
+  const source = fs.readFileSync(MY_LISTINGS_RUNTIME, 'utf8');
+  assert.doesNotMatch(source, /\bEXPIRED\s*:/);
 });
 
 test('latest-only migration exposes one browser-to-review gate and removes only explicit superseded publication state', () => {
