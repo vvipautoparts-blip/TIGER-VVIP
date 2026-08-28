@@ -1,8 +1,22 @@
 # TIGER OWNER BINDING CURRENT — LATEST ONLY
 
-**Status:** `CURRENT_ONLY / OWNER_BINDING / NO_FALLBACK / NO_IN_TREE_ARCHIVE`  
+**Status:** `CURRENT_ONLY / OWNER_BINDING / FIRST_REFERENCE / NO_FALLBACK / NO_IN_TREE_ARCHIVE`  
 **Effective owner decision:** 2026-08-28  
 **Scope:** the entire current VVIP TIGER platform: product, UI/UX, runtime, APIs, database current state, configuration, tests, CI/release gates, current documentation, launch criteria, cleanup and operational authority.
+
+## 0. Mandatory first reference — before every action
+
+`TIGER_OWNER_BINDING_CURRENT.md` is the **first mandatory reference before any action, modification, cleanup, feature, refactor, migration, test change, UI change, policy change, release action, operational action, or architectural decision** in VVIP TIGER.
+
+The mandatory sequence is:
+
+`READ CURRENT OWNER AUTHORITY → IDENTIFY DOMAIN → COMPARE WITH EXISTING STATE → APPLY NEWEST APPROVED RULE → REMOVE CONFLICTING OLD RULE → TEST → REVIEW → MERGE`
+
+No implementation work may intentionally begin from an older specification when a newer approved owner rule exists.
+
+If a proposed action conflicts with this file or another newer `CURRENT_ONLY` authority, the action must stop until it is rewritten to match the newest authority. A conflicting older item is not a fallback and is not preserved inside the current tree.
+
+This preflight is required continuously: if a newer owner decision is issued while work is in progress, the in-progress work must be re-evaluated before continuing.
 
 ## 1. Constitution — newest approved decision wins
 
@@ -122,4 +136,4 @@ Destructive deletion remains governed by PHOENIX Proof-of-Reclamation and the AI
 
 ## 10. Owner acceptance statement
 
-> **Keep only the newest approved owner truth in the active VVIP TIGER platform. When a newer approved rule supersedes an older conflicting rule, remove the older rule completely from the current tree and every active surface in the same cleanup change. Do not hide it, rename it, move it to an archive/trash folder, or keep it as fallback. Historical provenance is Git history only. There is no product/content duration for posts, listings, publishing access, visibility cards or Pulse verified-impression balances. Ordinary publication is not payment-gated and has no fixed commercial/weekly posting quota. Pulse is separate paid visibility at 3/10/20 JOD.**
+> **This file is the first mandatory reference before every action or modification in VVIP TIGER. Keep only the newest approved owner truth in the active platform. When a newer approved rule supersedes an older conflicting rule, remove the older rule completely from the current tree and every active surface in the same cleanup change. Do not hide it, rename it, move it to an archive/trash folder, or keep it as fallback. Historical provenance is Git history only. There is no product/content duration for posts, listings, publishing access, visibility cards or Pulse verified-impression balances. Ordinary publication is not payment-gated and has no fixed commercial/weekly posting quota. Pulse is separate paid visibility at 3/10/20 JOD.**
