@@ -67,6 +67,7 @@ const mandatoryContractCapabilities = [
 
 const verifiedStages = ['A0', 'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9'];
 const A9_CHECKPOINT = 'ca76f5e1d8dcf60521b0d25545ed0c1c12d015ec';
+const RETIRED_ALIAS_PATTERN = /TIGER AEGIS NEXUS|TIGER ORACLE IMMUNE CORE|LEGACY_POST_LAUNCH_CHECKLIST_MODEL/;
 
 test('AION authority, spec, and plan exist without placeholders', () => {
   for (const file of [AION_AUTHORITY, AION_SPEC, AION_PLAN]) {
@@ -76,14 +77,12 @@ test('AION authority, spec, and plan exist without placeholders', () => {
   }
 });
 
-test('AION authority preserves every mandatory owner-approved concept', () => {
+test('AION authority preserves every mandatory owner-approved concept without retired aliases', () => {
   const text = readText(AION_AUTHORITY);
   for (const concept of mandatoryAuthorityConcepts) {
     assert.ok(text.includes(concept), `AION authority missing concept: ${concept}`);
   }
-  assert.ok(text.includes('TIGER AEGIS NEXUS'));
-  assert.ok(text.includes('TIGER ORACLE IMMUNE CORE'));
-  assert.match(text, /لا تملك أي سلطة CURRENT ولا fallback/);
+  assert.doesNotMatch(text, RETIRED_ALIAS_PATTERN);
   assert.match(text, /ولا تدعي أمانًا بنسبة 100%/);
 });
 
@@ -108,12 +107,9 @@ test('machine handover contract binds all AION fail-closed invariants and the ve
   assert.equal(aion.program_plan, AION_PLAN);
   assert.deepEqual(aion.core_loop, ['PERCEIVE', 'IMAGINE', 'BRANCH', 'ATTACK', 'EXPERIENCE', 'PROVE', 'CHOOSE', 'ACT', 'VERIFY', 'REMEMBER']);
   assert.deepEqual(aion.mandatory_capabilities, mandatoryContractCapabilities);
-  assert.deepEqual(aion.retired_non_authoritative_aliases, [
-    'TIGER AEGIS NEXUS',
-    'TIGER ORACLE IMMUNE CORE',
-    'LEGACY_POST_LAUNCH_CHECKLIST_MODEL',
-  ]);
-  assert.equal(aion.fallback_to_retired_aliases, false);
+  assert.equal(Object.prototype.hasOwnProperty.call(aion, 'retired_non_authoritative_aliases'), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(aion, 'fallback_to_retired_aliases'), false);
+  assert.doesNotMatch(JSON.stringify(aion), RETIRED_ALIAS_PATTERN);
   assert.equal(aion.fail_closed_invariants.no_evidence_no_action, true);
   assert.equal(aion.fail_closed_invariants.no_policy_no_action, true);
   assert.equal(aion.fail_closed_invariants.no_provenance_no_production, true);
@@ -135,14 +131,12 @@ test('machine handover contract binds all AION fail-closed invariants and the ve
   assert.equal(aion.main_or_production_mutation_authorized_by_aion_program, false);
 });
 
-test('owner entrypoint exposes the verified branch checkpoint without claiming Production activation', () => {
+test('owner entrypoint exposes current AION branch state without retired aliases or Production activation', () => {
   const owner = readText(OWNER_ENTRYPOINT);
   assert.ok(owner.includes(AION_AUTHORITY), 'owner entrypoint must reference AION authority');
   assert.match(owner, /TIGER AION/);
   assert.match(owner, /post-launch-autonomy|ما بعد الإطلاق/i);
-  assert.ok(owner.includes('TIGER AEGIS NEXUS'));
-  assert.ok(owner.includes('TIGER ORACLE IMMUNE CORE'));
-  assert.match(owner, /HISTORICAL_ONLY|غير مخول|لا.*fallback/s);
+  assert.doesNotMatch(owner, RETIRED_ALIAS_PATTERN);
   assert.match(owner, /BRANCH_A0_TO_A9_VERIFIED/);
   assert.match(owner, /PRODUCTION_NOT_ACTIVATED/);
   assert.ok(owner.includes(A9_CHECKPOINT));
