@@ -182,7 +182,7 @@ with required(policyname) as (
     ('vvip_listing_media_storage_owner_insert'),
     ('vvip_listing_media_storage_owner_delete'),
     ('vvip_listing_media_raw_owner_read'),
-    ('vvip_listing_media_canonical_read')
+    ('vvip_listing_media_canonical_member_read')
 )
 select pg_temp.tiger_assert(
   (select count(*) = 4
