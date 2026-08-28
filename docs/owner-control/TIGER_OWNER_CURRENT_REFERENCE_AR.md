@@ -72,7 +72,7 @@
 
 النطاق الآلي: `post-launch-autonomy`.
 
-`TIGER AEGIS NEXUS` و`TIGER ORACLE IMMUNE CORE` أسماء تاريخية `HISTORICAL_ONLY` وغير مخولة كسلطة Current، ولا يجوز استعمالهما كـfallback.
+لا توجد aliases تشغيلية بديلة أو fallback مخولة داخل هذا النطاق.
 
 حالة التنفيذ المثبتة على فرع AION هي:
 
