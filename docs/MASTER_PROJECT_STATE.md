@@ -37,6 +37,9 @@
 - **سلطة المعاينة:** لا يُعتمد أي فيديو أو رابط نشر تاريخي أو رابط Pages سابق بوصفه معاينة لهذا العمل.
 - **شرط الرابط الصحيح:** Preview مستقل مبني من exact head الخاص بـPR #271، يعمل على الهاتف، ولا يغيّر `main` أو Production.
 - **الحقيقة السلبية:** عدم وجود رابط Preview صحيح أفضل من نشر رابط قديم أو غير مطابق؛ لا يجوز اختلاق الجاهزية أو إعادة استخدام رابط متقاعد.
+- **سلطة التنظيف الحالية:** `TIGER PHOENIX CLEANROOM 2026` في مجال `cleanup-governance` عبر `docs/owner-control/TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md`؛ هي خطة التنظيف الواحدة عند أمر المالك العام `نظف`.
+- **تركيب PHOENIX مع AION:** PHOENIX يضيف Proof-of-Reclamation والمخزون/Shadow/Post-Verify/Passport؛ أي تخلص مدمر يبقى ملزمًا بسلسلة AION Digital Metabolism `DETECT → CLASSIFY → EXPLAIN → APPROVE → QUARANTINE → REHEARSE → VERIFY → DELETE → SEAL`. لا يوجد مسار حذف موازٍ.
+- **حالة PR #344:** Owner authority/design/plan convergence for PHOENIX؛ لا يصبح مرجع `main` منفذًا/مدمجًا إلا بعد exact-head CI والمراجعة المستقلة المطلوبة. الملاحظات الأمنية/المعمارية من المراجعة تُغلق على رأس جديد قبل الدمج.
 
 ## 1. هوية المشروع والسلطة
 
@@ -45,6 +48,7 @@
 - **مدخل المالك الدائم:** `docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md`.
 - **مرجع المالك البشري:** `docs/MASTER_PROJECT_STATE.md` فقط.
 - **العقد الآلي المطابق:** `project-control/production-handover/current-authority.v1.json`.
+- **سلطة التنظيف:** `docs/owner-control/TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md` في مجال `cleanup-governance`، مع عدم المساس بسلطة AION في `post-launch-autonomy`.
 - **وضع المرجعية:** `CURRENT_ONLY`.
 - **التاريخ والأرشيف:** أدلة غير تنفيذية وغير مخولة باتخاذ قرار تشغيل.
 - **قاعدة القرار:** لا يوجد اعتماد على اسم فرع أو وصف PR وحده؛ الاعتماد يكون على exact commit SHA + exact tree + أدلة تحقق من نفس المصدر.
@@ -147,13 +151,15 @@ VVIP TIGER شبكة اجتماعية عالمية تتضمن وحدات للإع
 
 القيم السرية لا تدخل Git ولا Production artifact العام. القيم الخاصة ببيئة Production تأتي من secret/config authority الخاصة ببيئة التشغيل.
 
-## 9. Docker وموارد البناء
+## 9. Docker وموارد البناء والتنظيف
 
+- `TIGER PHOENIX CLEANROOM 2026` هو مرجع `cleanup-governance` الحالي؛ لا تُعامل أوامر prune منفصلة كسلطة بديلة.
 - لا يوجد `docker system prune -a --volumes -f` كإجراء Production افتراضي.
-- أي prune يقتصر على Runner/بيئة disposable مثبتة الهوية.
+- أي prune/تخلص يقتصر على هدف itemized أثبت PoR ثم اجتاز بوابة AION عند العمل المدمر.
 - Shared أو Production volumes محمية من blanket prune.
 - build/cache cleanup لا يملك صلاحية حذف persistent application data.
 - Media Finalizer image يبنى من Dockerfile الخاص بالخدمة ويخضع لفحص artifact/dependency/runtime قبل النشر.
+- العمليات المحلية/في Codespace ذات النمو الكبير يجب أن تمر مستقبلاً عبر byte+inode headroom preflight وفق خطة PHOENIX؛ عدم تنفيذ هذه الأداة بعد لا يبرر ادعاء الحماية التشغيلية قبل اكتمالها.
 
 ## 10. Third-Party وDNS والهوية
 
@@ -244,6 +250,8 @@ AWS لا يستقبل نسخًا يدوية من ملفات المستودع. ا
 
 كل بوابة `fail_closed=true`. غياب الدليل يعني أن البوابة غير مكتملة، وليس نجاحًا ضمنيًا.
 
+PHOENIX لا يستبدل P01–P20؛ بل ينظم طلبات التنظيف ويجب أن يحافظ على هذه البوابات والأدلة. أي Remote Plane لا تستطيع الأدوات الحالية رصده يسجل `BLOCKED_CAPABILITY` ولا يجوز تحويل غيابه إلى PASS.
+
 ## 15. العمليات المدمرة
 
 العمليات التالية `default_enabled=false`:
@@ -258,6 +266,8 @@ AWS لا يستقبل نسخًا يدوية من ملفات المستودع. ا
 
 لا تتحول أي منها إلى Enabled إلا بدليل صريح يثبت النطاق والمالك والاعتماد والنسخة الاحتياطية/الاحتفاظ عند الحاجة.
 
+في PHOENIX: PoR يثبت الأهلية فقط؛ أي تخلص مدمر ملزم بسلسلة AION `DETECT → CLASSIFY → EXPLAIN → APPROVE → QUARANTINE → REHEARSE → VERIFY → DELETE → SEAL`. لا يسمح بإنشاء delete path آخر داخل PHOENIX.
+
 ## 16. Git وPR Governance
 
 - `main` لا يستقبل تغييرات مباشرة تتجاوز الحوكمة.
@@ -265,7 +275,9 @@ AWS لا يستقبل نسخًا يدوية من ملفات المستودع. ا
 - PR #262 يمثل طبقة Zero-Residue Production Handover التابعة لها.
 - #262 لا يندمج مباشرة إلى `main`؛ يحافظ على ترتيب الـstack.
 - PR #271 يمثل طبقة Social Core الحالية في stack مستقل؛ لا يُقاس بفيديو أو رابط نشر سابق ولا يُقدّم كجاهز قبل GREEN exact-head evidence.
+- PR #344 يمثل تقارب سلطة PHOENIX للتنظيف؛ يخضع للمراجعة المستقلة وexact-head CI، ولا يصرح بحذف Production/state أو تجاوز AION.
 - branch/tag deletion لا يحدث لمجرد العمر أو الاسم؛ يحتاج merged/stale proof وعدم وجود PR/runtime/release dependency.
+- PR closure لا تعني branch deletion؛ إغلاق PR تاريخي يعتمد ancestry/successor/authority/semantic replacement مع حفظ العمل الفريد.
 - لا يسمح auto-push أو background Git mutation غير خاضع للمراجعة.
 
 ## 17. حالة الإطلاق الحالية
@@ -280,6 +292,8 @@ AWS لا يستقبل نسخًا يدوية من ملفات المستودع. ا
 
 أي مهندس أو Agent أو مزود يستلم المشروع يعمل بهذا الترتيب فقط:
 
-`RESOLVE CURRENT REFS -> READ THIS FILE -> READ MACHINE CONTRACT -> VERIFY EXACT SHA/TREE -> RUN REQUIRED GATES -> CHANGE ONE AUTHORITY PATH -> VERIFY -> PRODUCE EVIDENCE -> UPDATE THIS CURRENT REFERENCE ONLY WHEN THE CURRENT CONTRACT CHANGES`
+`RESOLVE CURRENT REFS -> READ THIS FILE -> READ OWNER DOMAIN AUTHORITY -> READ MACHINE CONTRACT -> VERIFY EXACT SHA/TREE -> RUN REQUIRED GATES -> CHANGE ONE AUTHORITY PATH -> VERIFY -> PRODUCE EVIDENCE -> UPDATE THIS CURRENT REFERENCE ONLY WHEN THE CURRENT CONTRACT CHANGES`
+
+عند طلب تنظيف عام: اقرأ PHOENIX كسلطة `cleanup-governance`، ومرر أي تخلص مدمر عبر AION؛ لا تعتبر مساحة غير قابلة للرصد نظيفة، ولا تنشئ خطة تنظيف موازية.
 
 لا تُنشأ وثيقة حالة منافسة. لا يُعاد اعتماد مسار تشغيل موازٍ. لا تستخدم وثائق Evidence لتجاوز source code أو CI أو live-provider evidence.
