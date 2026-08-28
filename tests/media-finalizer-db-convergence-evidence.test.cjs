@@ -27,9 +27,19 @@ const INTENTIONAL_REQUEST_RPC_WARNING =
 const FIXED_MEDIA_TABLE_WARNING =
   'auth_allow_anonymous_sign_ins_public_vvip_marketplace_listing_media';
 const FIXED_STORAGE_WARNING = 'auth_allow_anonymous_sign_ins_storage_objects';
+
+function canonicalize(value) {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonicalize(value[key])]));
+  }
+  return value;
+}
+
+const advisorClassification = JSON.parse(fs.readFileSync(classificationPath, 'utf8'));
 const ADVISOR_SHA = crypto
   .createHash('sha256')
-  .update(fs.readFileSync(classificationPath))
+  .update(JSON.stringify(canonicalize(advisorClassification)))
   .digest('hex');
 
 function checks() {
