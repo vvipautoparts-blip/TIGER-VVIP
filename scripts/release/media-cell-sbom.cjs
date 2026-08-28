@@ -76,9 +76,11 @@ function bindRealContainerSbom(sbom, subject) {
   }
 
   const output = JSON.parse(JSON.stringify(sbom));
+  delete output.serialNumber;
   output.metadata = output.metadata && typeof output.metadata === 'object' && !Array.isArray(output.metadata)
     ? output.metadata
     : {};
+  delete output.metadata.timestamp;
   const managedNames = new Set([
     'tiger:oci_repository',
     'tiger:oci_manifest_digest',
