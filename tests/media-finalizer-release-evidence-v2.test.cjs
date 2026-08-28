@@ -16,6 +16,7 @@ const H40_B = 'b'.repeat(40);
 const H64 = (char) => char.repeat(64);
 const MANIFEST = `sha256:${H64('c')}`;
 const REPOSITORY = '211579682376.dkr.ecr.ap-northeast-2.amazonaws.com/tiger-media-finalizer';
+const SCAN_COMPLETED_AT = '2026-08-28T07:00:00.000Z';
 
 const REQUIRED_MATERIALS = [
   'services/media-finalizer/Dockerfile',
@@ -68,6 +69,7 @@ function passportEvidence() {
     scan: {
       status: 'COMPLETE',
       scanMode: 'ENHANCED',
+      scanCompletedAt: SCAN_COMPLETED_AT,
       critical: 0,
       high: 0,
       medium: 0,
@@ -157,6 +159,7 @@ test('Release Passport 2.0 binds Genome and explicit non-deployment states', () 
   });
   assert.equal(passport.scan.status, 'COMPLETE');
   assert.equal(passport.scan.scanMode, 'ENHANCED');
+  assert.equal(passport.scan.scanCompletedAt, SCAN_COMPLETED_AT);
   assert.equal(passport.scan.critical, 0);
   assert.equal(passport.scan.high, 0);
   assert.equal(passport.scan.medium, 0);
@@ -173,6 +176,15 @@ test('Release Passport 2.0 binds Genome and explicit non-deployment states', () 
     rollbackEvidence: 'NOT_APPLICABLE_NO_DEPLOYMENT',
   });
   assert.doesNotMatch(JSON.stringify(passport), /\bslsa\s*level\b/i);
+});
+
+test('Release Passport 2.0 preserves ACTIVE continuous-scan state with completed-scan evidence', () => {
+  const { createMediaCellPassport } = require(PASSPORT_HELPER);
+  const evidence = passportEvidence();
+  evidence.scan.status = 'ACTIVE';
+  const passport = createMediaCellPassport(evidence);
+  assert.equal(passport.scan.status, 'ACTIVE');
+  assert.equal(passport.scan.scanCompletedAt, SCAN_COMPLETED_AT);
 });
 
 test('Passport 2.0 fails closed on scan, subject, secret, and unknown evidence', () => {
@@ -193,6 +205,11 @@ test('Passport 2.0 fails closed on scan, subject, secret, and unknown evidence',
   const scanMode = passportEvidence();
   scanMode.scan.scanMode = 'BASIC';
   assert.throws(() => createMediaCellPassport(scanMode), /PASSPORT_SCAN_INVALID/);
+
+  const noCompletionEvidence = passportEvidence();
+  noCompletionEvidence.scan.status = 'ACTIVE';
+  noCompletionEvidence.scan.scanCompletedAt = '';
+  assert.throws(() => createMediaCellPassport(noCompletionEvidence), /PASSPORT_SCAN_INVALID/);
 
   const secret = passportEvidence();
   secret.authorizationHeader = 'not-a-token';
