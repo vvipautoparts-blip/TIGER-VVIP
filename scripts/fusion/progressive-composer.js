@@ -48,7 +48,7 @@
       <button class="fusion-composer-backdrop" type="button" data-fusion-composer-close aria-label="إغلاق إنشاء الإعلان"></button>
       <section class="fusion-composer-panel" role="dialog" aria-modal="true" aria-labelledby="fusion-composer-title" tabindex="-1">
         <header class="fusion-composer-panel__header">
-          <div><span class="eyebrow">VVIP TIGER</span><h2 id="fusion-composer-title">ماذا تريد أن تعرض؟</h2><p>أدخل الأساسيات فقط. التفعيل والظهور لا يتمان إلا بعد تأكيد الخادم.</p></div>
+          <div><span class="eyebrow">VVIP TIGER</span><h2 id="fusion-composer-title">ماذا تريد أن تعرض؟</h2><p>أكمل المحتوى والصور، راجع البيانات، ثم أرسلها للمراجعة. الظهور المدفوع خدمة مستقلة بعد أهلية المحتوى.</p></div>
           <button class="fusion-icon-button" type="button" data-fusion-composer-close aria-label="إغلاق">×</button>
         </header>
         <form class="fusion-progressive-form" data-fusion-progressive-form novalidate>
@@ -66,7 +66,7 @@
           <p class="fusion-composer-status" data-fusion-composer-status role="status" aria-live="polite"></p>
           <div class="fusion-composer-actions">
             <button type="button" data-fusion-save-draft>حفظ المسودة</button>
-            <button class="button button--primary" type="submit" data-fusion-publish-request>اختيار التفعيل والمتابعة</button>
+            <button class="button button--primary" type="submit" data-fusion-submit-review>إرسال للمراجعة</button>
           </div>
           <p class="fusion-composer-disclaimer">VVIP TIGER منصة عرض واكتشاف وتواصل مباشر، وليست طرفًا في البيع أو الدفع أو التوصيل.</p>
         </form>
@@ -97,22 +97,22 @@
     const messages = {
       FUSION_RUNTIME_UNAVAILABLE: 'الاتصال الآمن بالمنصة غير متاح الآن.',
       FUSION_MARKETPLACE_REPOSITORY_UNAVAILABLE: 'خدمة الإعلانات غير متاحة الآن.',
+      LISTING_FIELDS_REQUIRED: 'أكمل الحقول المطلوبة أولًا.',
       LISTING_PRICE_INVALID: 'أدخل سعرًا صحيحًا.',
       LISTING_PRICE_TYPE_INVALID: 'اختر نوع سعر صحيحًا.',
       LISTING_CURRENCY_INVALID: 'أدخل رمز عملة ISO من ثلاثة أحرف.',
       LISTING_COUNTRY_INVALID: 'السوق النشط غير محدد بشكل صحيح.',
-      ACTIVATION_PROVIDER_UNAVAILABLE: 'تم حفظ المسودة على الخادم، لكن التفعيل المدفوع غير متاح لهذا السوق بعد.',
-      ACTIVATION_RESULT_INVALID: 'لم يصل تأكيد تفعيل موثوق. لم يتم نشر الإعلان.',
-      PUBLICATION_REQUEST_FAILED: 'رفض الخادم طلب التفعيل أو الاستحقاق. بقي الإعلان كمسودة آمنة.',
-      ENTITLEMENT_RECEIPT_REQUIRED: 'لم يصل إيصال استحقاق موثوق. لم يتم نشر الإعلان.'
+      LISTING_CREATE_FAILED: 'تعذر حفظ المسودة الآن.',
+      LISTING_SUBMIT_FAILED: 'تعذر إرسال الإعلان للمراجعة الآن.',
+      MEDIA_SANITIZED_BLOB_UNAVAILABLE: 'تعذر تجهيز إحدى الصور بأمان.',
+      MEDIA_SANITIZED_BLOB_MISMATCH: 'فشل التحقق من إحدى الصور المعالجة.'
     };
     return messages[code] || 'تعذر إكمال العملية بأمان. لم يتم إعلان نجاح غير مؤكد.';
   }
 
   function mountMedia() {
     const host = layer && layer.querySelector('[data-fusion-composer-media]');
-    if (!host) return;
-    if (mediaController) return;
+    if (!host || mediaController) return;
     const mediaApi = root.VVIP_PR36_MEDIA;
     if (!mediaApi || typeof mediaApi.createBrowserSession !== 'function' || typeof mediaApi.mountMediaController !== 'function') {
       host.textContent = 'معالجة الصور غير متاحة بأمان على هذا الجهاز الآن.';
@@ -222,12 +222,15 @@
     if (serverDraft && serverDraft.listing_id) return serverDraft;
     if (!form.reportValidity()) throw composerError('LISTING_FIELDS_REQUIRED');
     const context = await marketplaceContext();
+    if (!context.repository || typeof context.repository.createDraftWithMedia !== 'function') {
+      throw composerError('FUSION_MARKETPLACE_REPOSITORY_UNAVAILABLE');
+    }
     const payload = formPayload(context.runtime);
     const images = await sanitizedMedia();
     setStatus('جاري حفظ المسودة الآمنة على الخادم…', false);
     serverDraft = await context.repository.createDraftWithMedia(payload, images);
     if (!serverDraft || !serverDraft.listing_id) throw composerError('LISTING_CREATE_FAILED');
-    setStatus('تم حفظ المسودة على الخادم. لم يتم نشرها بعد.', false);
+    setStatus('تم حفظ المسودة على الخادم. لم تظهر للعامة بعد.', false);
     root.dispatchEvent(new root.CustomEvent('vvip:fusion-server-draft-saved', { detail: { listingId: serverDraft.listing_id } }));
     return serverDraft;
   }
@@ -242,33 +245,17 @@
     }
   }
 
-  async function requestActivation(draft, context) {
-    const provider = root.VVIPActivationProvider;
-    if (!provider || typeof provider.authorize !== 'function') throw composerError('ACTIVATION_PROVIDER_UNAVAILABLE');
-    const result = await provider.authorize(Object.freeze({
-      listingId: draft.listing_id,
-      countryCode: draft.active_market_country || text(root.VVIP_ACTIVE_MARKET_COUNTRY || context.runtime.config.defaultCountryCode, 2).toUpperCase(),
-      sector: draft.sector || text(form.elements.sector && form.elements.sector.value, 80)
-    }));
-    const planId = text(result && (result.planId || result.plan_id), 80);
-    const entitlementReceipt = text(result && (result.entitlementReceipt || result.entitlement_receipt), 512);
-    if (!planId || !entitlementReceipt) throw composerError('ACTIVATION_RESULT_INVALID');
-    return Object.freeze({ planId: planId, entitlementReceipt: entitlementReceipt });
-  }
-
-  async function publishRequest() {
+  async function submitForReview() {
     const draft = await ensureServerDraft();
     const context = await marketplaceContext();
-    setStatus('جاري فتح التفعيل الآمن…', false);
-    const entitlement = await requestActivation(draft, context);
-    setStatus('جاري تأكيد الاستحقاق مع الخادم…', false);
-    const result = await context.repository.requestPublication(draft.listing_id, {
-      planId: entitlement.planId,
-      entitlementReceipt: entitlement.entitlementReceipt
-    });
-    if (!result || result.status !== 'PENDING_REVIEW') throw composerError('PUBLICATION_REQUEST_FAILED');
-    setStatus('تم استلام طلب التفعيل وأُرسل الإعلان للمراجعة. لم يتم اعتباره منشورًا بعد.', false);
-    root.dispatchEvent(new root.CustomEvent('vvip:fusion-publication-requested', { detail: { listingId: draft.listing_id, status: result.status } }));
+    if (!context.repository || typeof context.repository.submitForReview !== 'function') {
+      throw composerError('FUSION_MARKETPLACE_REPOSITORY_UNAVAILABLE');
+    }
+    setStatus('جاري إرسال الإعلان للمراجعة…', false);
+    const result = await context.repository.submitForReview(draft.listing_id);
+    if (!result || result.status !== 'PENDING_REVIEW') throw composerError('LISTING_SUBMIT_FAILED');
+    setStatus('تم إرسال الإعلان للمراجعة. سيظهر للعامة بعد الاعتماد فقط.', false);
+    root.dispatchEvent(new root.CustomEvent('vvip:fusion-review-submitted', { detail: { listingId: draft.listing_id, status: result.status } }));
     return result;
   }
 
@@ -325,12 +312,10 @@
         saveDraft().catch(function (error) { setStatus(messageFor(error), true); });
       }
     });
-    form.addEventListener('input', function () {
-      serverDraft = null;
-    });
+    form.addEventListener('input', function () { serverDraft = null; });
     form.addEventListener('submit', function (event) {
       event.preventDefault();
-      publishRequest().catch(function (error) { setStatus(messageFor(error), true); });
+      submitForReview().catch(function (error) { setStatus(messageFor(error), true); });
     });
     root.document.addEventListener('keydown', function (event) {
       if (event.key === 'Escape' && layer && !layer.hidden) close();
@@ -352,7 +337,7 @@
     open: protectedOpen,
     close: close,
     saveDraft: saveDraft,
-    publishRequest: publishRequest,
+    submitForReview: submitForReview,
     enabledSectors: enabledSectors
   });
 })(window);
