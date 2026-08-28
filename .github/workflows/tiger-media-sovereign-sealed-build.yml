@@ -388,25 +388,55 @@ jobs:
           test -s /tmp/tiger-media/provenance-verification.json
           test -s /tmp/tiger-media/sbom-attestation-verification.json
 
-          node - \
+          node scripts/release/media-cell-attestation-evidence.cjs \
             /tmp/tiger-media/provenance-verification.json \
+            /tmp/tiger-media/artifacts/media-cell/provenance-attestation-identity.json \
+            "$GITHUB_REPOSITORY" \
+            "$signer" \
+            "$SOURCE_SHA" \
+            'refs/heads/main' \
+            "$ECR_URI" \
+            "$MANIFEST_DIGEST" \
+            'https://slsa.dev/provenance/v1'
+          node scripts/release/media-cell-attestation-evidence.cjs \
             /tmp/tiger-media/sbom-attestation-verification.json \
+            /tmp/tiger-media/artifacts/media-cell/sbom-attestation-identity.json \
+            "$GITHUB_REPOSITORY" \
+            "$signer" \
+            "$SOURCE_SHA" \
+            'refs/heads/main' \
+            "$ECR_URI" \
+            "$MANIFEST_DIGEST" \
+            'https://cyclonedx.org/bom'
+
+          node - \
+            /tmp/tiger-media/artifacts/media-cell/provenance-attestation-identity.json \
+            /tmp/tiger-media/artifacts/media-cell/sbom-attestation-identity.json \
             /tmp/tiger-media/artifacts/media-cell/attestation-evidence.json <<'NODE'
-          const crypto = require('node:crypto');
           const fs = require('node:fs');
           const { canonicalJson } = require('./scripts/release/media-cell-sbom.cjs');
           const [provenanceFile, sbomFile, outputFile] = process.argv.slice(2);
-          const digest = (file) => {
-            const parsed = JSON.parse(fs.readFileSync(file, 'utf8'));
-            return crypto.createHash('sha256').update(canonicalJson(parsed)).digest('hex');
-          };
+          const provenance = JSON.parse(fs.readFileSync(provenanceFile, 'utf8'));
+          const sbom = JSON.parse(fs.readFileSync(sbomFile, 'utf8'));
           const output = {
-            provenance: { verified: true, evidenceSha256: digest(provenanceFile) },
-            sbom: { verified: true, evidenceSha256: digest(sbomFile) },
+            provenance: { verified: provenance.verified === true, evidenceSha256: provenance.evidenceSha256 },
+            sbom: { verified: sbom.verified === true, evidenceSha256: sbom.evidenceSha256 },
           };
           fs.writeFileSync(outputFile, `${canonicalJson(output)}\n`, { mode: 0o600 });
           NODE
           rm -f /tmp/tiger-media/provenance-verification.json /tmp/tiger-media/sbom-attestation-verification.json
+
+      - name: Revalidate protected main immediately before release evidence issuance
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch --no-tags --prune origin '+refs/heads/main:refs/remotes/origin/main'
+          FINAL_MAIN_SHA="$(git rev-parse refs/remotes/origin/main)"
+          test "$SOURCE_SHA" = "$FINAL_MAIN_SHA"
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test "$(git rev-parse 'HEAD^{tree}')" = "$SOURCE_TREE"
+          test -z "$(git status --porcelain=v1 -uall)"
+          printf '%s\n' "FINAL_MAIN_SHA=$FINAL_MAIN_SHA" >> "$GITHUB_ENV"
 
       - name: Generate deterministic migration set Genome and Release Passport 2.0
         shell: bash
@@ -439,7 +469,7 @@ jobs:
               repository: process.env.GITHUB_REPOSITORY,
               commitSha: process.env.SOURCE_SHA,
               treeSha: process.env.SOURCE_TREE,
-              mainSha: process.env.MAIN_SHA,
+              mainSha: process.env.FINAL_MAIN_SHA,
               immutable: true,
               eligibility: {
                 state: 'VERIFIED_CURRENT_PROTECTED_MAIN',
