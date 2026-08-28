@@ -28,7 +28,7 @@ git rev-parse HEAD
 
 Record the exact protected-main SHA. Do not continue if the worktree is dirty, local `main` differs from `origin/main`, or any later step uses a different source SHA.
 
-Repository promotion evidence must show **9/9** existing protected PR workflows GREEN on the exact merged source plus the specialized **TIGER Media Finalizer DB Rehearsal** GREEN. The DB rehearsal must prove a clean local `supabase db reset --local`, the complete catalog/RLS/Storage/RPC contract, owner binding, expiry, replay and service-role isolation. The local reset is rehearsal-only and must never target Production.
+Repository promotion evidence must show all **9/9** required protected PR workflows GREEN on the exact merged source, including the specialized **TIGER Media Finalizer DB Rehearsal**. The DB rehearsal must prove a clean local `supabase db reset --local`, the complete catalog/RLS/Storage/RPC contract, owner binding, expiry, replay and service-role isolation. The local reset is rehearsal-only and must never target Production.
 
 ## 2. Exact Production identity preflight
 
