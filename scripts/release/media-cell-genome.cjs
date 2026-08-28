@@ -18,7 +18,7 @@ const REQUIRED_MATERIALS = Object.freeze([
   'infra/media-finalizer/edge/template.yaml',
   'infra/media-finalizer/edge/guard.guard',
 ]);
-const SECRET_KEY_PATTERN = /(?:secret|password|credential|access[_-]?key|service[_-]?role[_-]?key|private[_-]?key|authorization|jwt|capability|signed[_-]?url)/i;
+const SECRET_KEY_PATTERN = /(?:secret|password|credential|access[_-]?key|service[_-]?role[_-]?key|private[_-]?key|authorization|jwt|session|capability|signed[_-]?url|raw[_-]?media|request[_-]?body)/i;
 const SECRET_VALUE_PATTERNS = Object.freeze([
   /sb_secret_[A-Za-z0-9._-]+/,
   /AKIA[0-9A-Z]{16}/,
@@ -59,19 +59,14 @@ function hasSecretMaterial(value) {
   return typeof value === 'string' && SECRET_VALUE_PATTERNS.some((pattern) => pattern.test(value));
 }
 
-function validCount(value) {
-  return Number.isInteger(value) && value >= 0;
-}
-
 function validateGenomeEvidence(evidence) {
   if (hasSecretMaterial(evidence)) fail('GENOME_SECRET_MATERIAL_REJECTED');
-  exactKeys(evidence, ['source', 'materials', 'image', 'database', 'sbom', 'scan', 'attestations']);
+  exactKeys(evidence, ['source', 'materials', 'image', 'database', 'sbom', 'attestations']);
   exactKeys(evidence.source, ['commitSha', 'treeSha', 'immutable']);
   exactKeys(evidence.materials, REQUIRED_MATERIALS);
   exactKeys(evidence.image, ['repository', 'manifestDigest', 'baseDigest']);
   exactKeys(evidence.database, ['migrationSetSha256']);
   exactKeys(evidence.sbom, ['specVersion', 'sha256', 'subjectDigest', 'path', 'componentCount']);
-  exactKeys(evidence.scan, ['status', 'critical', 'high', 'medium', 'low', 'findingsSha256']);
   exactKeys(evidence.attestations, ['provenance', 'sbom']);
   exactKeys(evidence.attestations.provenance, ['verified', 'evidenceSha256']);
   exactKeys(evidence.attestations.sbom, ['verified', 'evidenceSha256']);
@@ -86,23 +81,12 @@ function validateGenomeEvidence(evidence) {
     fail('GENOME_IMAGE_INVALID');
   }
   if (!SHA256_PATTERN.test(evidence.database.migrationSetSha256 || '')) fail('GENOME_DATABASE_INVALID');
-  if (
-    evidence.sbom.specVersion !== '1.7' ||
-    !SHA256_PATTERN.test(evidence.sbom.sha256 || '') ||
-    !OCI_SHA256_PATTERN.test(evidence.sbom.subjectDigest || '') ||
-    evidence.sbom.subjectDigest !== evidence.image.manifestDigest ||
-    evidence.sbom.path !== 'artifacts/media-cell/media-finalizer.cdx.json' ||
-    !Number.isInteger(evidence.sbom.componentCount) ||
-    evidence.sbom.componentCount < 1
-  ) fail('GENOME_SBOM_INVALID');
-  if (
-    evidence.scan.status !== 'COMPLETE' ||
-    !validCount(evidence.scan.critical) ||
-    !validCount(evidence.scan.high) ||
-    !validCount(evidence.scan.medium) ||
-    !validCount(evidence.scan.low) ||
-    !SHA256_PATTERN.test(evidence.scan.findingsSha256 || '')
-  ) fail('GENOME_SCAN_INVALID');
+  if (evidence.sbom.specVersion !== '1.7') fail('GENOME_SBOM_INVALID');
+  if (!SHA256_PATTERN.test(evidence.sbom.sha256 || '') || !OCI_SHA256_PATTERN.test(evidence.sbom.subjectDigest || '')) fail('GENOME_SBOM_INVALID');
+  if (evidence.sbom.subjectDigest !== evidence.image.manifestDigest) fail('GENOME_SBOM_SUBJECT_MISMATCH');
+  if (evidence.sbom.path !== 'artifacts/media-cell/oci-sbom.cdx.json') fail('GENOME_SBOM_INVALID');
+  if (!Number.isInteger(evidence.sbom.componentCount) || evidence.sbom.componentCount < 1) fail('GENOME_SBOM_INVALID');
+
   for (const attestation of [evidence.attestations.provenance, evidence.attestations.sbom]) {
     if (attestation.verified !== true) fail('GENOME_ATTESTATION_UNVERIFIED');
     if (!SHA256_PATTERN.test(attestation.evidenceSha256 || '')) fail('GENOME_ATTESTATION_INVALID');
@@ -112,6 +96,8 @@ function validateGenomeEvidence(evidence) {
 function createMediaCellGenome(evidence = {}) {
   validateGenomeEvidence(evidence);
   const authority = {
+    schemaVersion: 'tiger-cryptographic-genome-v1',
+    algorithm: 'sha256',
     source: {
       commitSha: evidence.source.commitSha,
       treeSha: evidence.source.treeSha,
@@ -129,10 +115,8 @@ function createMediaCellGenome(evidence = {}) {
       specVersion: '1.7',
       sha256: evidence.sbom.sha256,
       subjectDigest: evidence.sbom.subjectDigest,
+      path: evidence.sbom.path,
       componentCount: evidence.sbom.componentCount,
-    },
-    scan: {
-      findingsSha256: evidence.scan.findingsSha256,
     },
     attestations: {
       provenance: {
@@ -146,12 +130,7 @@ function createMediaCellGenome(evidence = {}) {
     },
   };
   const id = crypto.createHash('sha256').update(canonicalJson(authority)).digest('hex');
-  return canonicalize({
-    schemaVersion: 'tiger-cryptographic-genome-v1',
-    algorithm: 'sha256',
-    id,
-    ...authority,
-  });
+  return canonicalize({ ...authority, id });
 }
 
 function writeCanonicalJson(file, value) {
