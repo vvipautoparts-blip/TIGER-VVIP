@@ -15,6 +15,7 @@ const H40_A = 'a'.repeat(40);
 const H40_B = 'b'.repeat(40);
 const H64 = (char) => char.repeat(64);
 const MANIFEST = `sha256:${H64('c')}`;
+const SOURCE_REPOSITORY = 'vvipautoparts-blip/TIGER-VVIP';
 const REPOSITORY = '211579682376.dkr.ecr.ap-northeast-2.amazonaws.com/tiger-media-finalizer';
 const SCAN_COMPLETED_AT = '2026-08-28T07:00:00.000Z';
 
@@ -41,7 +42,18 @@ function materials() {
 
 function genomeEvidence() {
   return {
-    source: { commitSha: H40_A, treeSha: H40_B, immutable: true },
+    source: {
+      repository: SOURCE_REPOSITORY,
+      commitSha: H40_A,
+      treeSha: H40_B,
+      mainSha: H40_A,
+      immutable: true,
+      eligibility: {
+        state: 'VERIFIED_CURRENT_PROTECTED_MAIN',
+        dbConvergenceState: 'VERIFIED_LIVE',
+        dbConvergenceEvidenceSha256: H64('4'),
+      },
+    },
     materials: materials(),
     image: {
       repository: REPOSITORY,
@@ -76,6 +88,10 @@ function passportEvidence() {
       low: 1,
       unknown: 0,
       findingsSha256: H64('1'),
+    },
+    supplyGate: {
+      decision: 'PASS',
+      evidenceSha256: H64('5'),
     },
   };
 }
@@ -117,14 +133,22 @@ test('Cryptographic Genome is deterministic and changes with authoritative mater
   assert.deepEqual(first, second);
   assert.equal(first.schemaVersion, 'tiger-cryptographic-genome-v1');
   assert.equal(first.algorithm, 'sha256');
+  assert.equal(first.source.repository, SOURCE_REPOSITORY);
+  assert.equal(first.source.mainSha, first.source.commitSha);
+  assert.equal(first.source.eligibility.state, 'VERIFIED_CURRENT_PROTECTED_MAIN');
+  assert.equal(first.source.eligibility.dbConvergenceState, 'VERIFIED_LIVE');
   assert.match(first.id, /^[0-9a-f]{64}$/);
 
   const changed = genomeEvidence();
   changed.materials['services/media-finalizer/Dockerfile'] = H64('9');
   assert.notEqual(createMediaCellGenome(changed).id, first.id);
+
+  const changedPrerequisite = genomeEvidence();
+  changedPrerequisite.source.eligibility.dbConvergenceEvidenceSha256 = H64('6');
+  assert.notEqual(createMediaCellGenome(changedPrerequisite).id, first.id);
 });
 
-test('Genome rejects unknown, secret-shaped, mismatched, or unverified authoritative evidence', () => {
+test('Genome rejects unknown, secret-shaped, mismatched, unverified, or ineligible authoritative evidence', () => {
   const { createMediaCellGenome } = require(GENOME_HELPER);
 
   const unknown = genomeEvidence();
@@ -142,14 +166,22 @@ test('Genome rejects unknown, secret-shaped, mismatched, or unverified authorita
   const unverified = genomeEvidence();
   unverified.attestations.provenance.verified = false;
   assert.throws(() => createMediaCellGenome(unverified), /GENOME_ATTESTATION_UNVERIFIED/);
+
+  const wrongMain = genomeEvidence();
+  wrongMain.source.mainSha = '9'.repeat(40);
+  assert.throws(() => createMediaCellGenome(wrongMain), /GENOME_SOURCE_ELIGIBILITY_INVALID/);
 });
 
-test('Release Passport 2.0 binds Genome and explicit non-deployment states', () => {
+test('Release Passport 2.0 binds Genome, release eligibility, supply gate, and explicit non-deployment states', () => {
   assert.equal(fs.existsSync(PASSPORT_HELPER), true, 'REQUIRED_FILE_MISSING:scripts/release/media-cell-passport.cjs');
   const { createMediaCellPassport } = require(PASSPORT_HELPER);
   const passport = createMediaCellPassport(passportEvidence());
   assert.equal(passport.schemaVersion, 'tiger-release-passport-v2');
   assert.match(passport.genome.id, /^[0-9a-f]{64}$/);
+  assert.equal(passport.source.repository, SOURCE_REPOSITORY);
+  assert.equal(passport.source.mainSha, passport.source.commitSha);
+  assert.equal(passport.source.eligibility.state, 'VERIFIED_CURRENT_PROTECTED_MAIN');
+  assert.equal(passport.source.eligibility.dbConvergenceState, 'VERIFIED_LIVE');
   assert.equal(passport.image.repository, REPOSITORY);
   assert.equal(passport.sbom.specVersion, '1.7');
   assert.equal(passport.sbom.subjectDigest, passport.image.manifestDigest);
@@ -163,6 +195,7 @@ test('Release Passport 2.0 binds Genome and explicit non-deployment states', () 
   assert.equal(passport.scan.critical, 0);
   assert.equal(passport.scan.high, 0);
   assert.equal(passport.scan.medium, 0);
+  assert.deepEqual(passport.supplyGate, { decision: 'PASS', evidenceSha256: H64('5') });
   assert.equal(passport.attestations.provenance.verified, true);
   assert.equal(passport.attestations.sbom.verified, true);
   assert.deepEqual(passport.deployment, {
@@ -187,7 +220,7 @@ test('Release Passport 2.0 preserves ACTIVE continuous-scan state with completed
   assert.equal(passport.scan.scanCompletedAt, SCAN_COMPLETED_AT);
 });
 
-test('Passport 2.0 fails closed on scan, subject, secret, and unknown evidence', () => {
+test('Passport 2.0 fails closed on scan, supply gate, subject, secret, and unknown evidence', () => {
   const { createMediaCellPassport } = require(PASSPORT_HELPER);
 
   const mismatch = passportEvidence();
@@ -210,6 +243,10 @@ test('Passport 2.0 fails closed on scan, subject, secret, and unknown evidence',
   noCompletionEvidence.scan.status = 'ACTIVE';
   noCompletionEvidence.scan.scanCompletedAt = '';
   assert.throws(() => createMediaCellPassport(noCompletionEvidence), /PASSPORT_SCAN_INVALID/);
+
+  const failedSupplyGate = passportEvidence();
+  failedSupplyGate.supplyGate.decision = 'FAIL';
+  assert.throws(() => createMediaCellPassport(failedSupplyGate), /PASSPORT_SUPPLY_GATE_INVALID/);
 
   const secret = passportEvidence();
   secret.authorizationHeader = 'not-a-token';
