@@ -47,6 +47,7 @@ required_files = [
     "scripts/fusion/account-surface.js",
     "scripts/fusion/single-surface-controller.js",
     "scripts/runtime/vvip-marketplace-repository.js",
+    "scripts/runtime/vvip-my-listings.js",
     "styles/fusion/f02-single-surface.css",
     "styles/fusion/progressive-composer.css",
     "sw-vvip-static.js",
@@ -163,6 +164,10 @@ for retired in [
 if "PUBLICATION_TRANSPORT_UNAVAILABLE" in repository:
     raise SystemExit("[smoke][fail] retired publication transport stub restored")
 
+my_listings = Path("scripts/runtime/vvip-my-listings.js").read_text(encoding="utf-8")
+if re.search(r"\bEXPIRED\s*:", my_listings):
+    raise SystemExit("[smoke][fail] retired EXPIRED listing lifecycle state restored in current runtime")
+
 controller = Path("scripts/fusion/single-surface-controller.js").read_text(encoding="utf-8")
 adapters = Path("scripts/fusion/runtime-adapters.js").read_text(encoding="utf-8")
 feed = Path("scripts/fusion/f02-feed.js").read_text(encoding="utf-8")
@@ -190,6 +195,7 @@ active_runtime = [
     Path("scripts/fusion/account-surface.js"),
     Path("scripts/fusion/single-surface-controller.js"),
     Path("scripts/runtime/vvip-marketplace-repository.js"),
+    Path("scripts/runtime/vvip-my-listings.js"),
 ]
 native_dialog = re.compile(r"(?<![A-Za-z0-9_])(?:window\.)?(?:alert|confirm|prompt)\s*\(")
 for file in active_runtime:
@@ -218,9 +224,9 @@ for contract in [
         raise SystemExit(f"[smoke][fail] latest owner authority contract missing: {contract}")
 
 manifest = Path("config/fusion/current-authority.json").read_text(encoding="utf-8")
-for retired in ["LEGACY_FOUR_POSTS_WEEK", "LEGACY_120_DAY_LIFETIME", "LEGACY_PUBLISHING_CARDS", "LEGACY_TIMED_ACTIVATION_CARD"]:
-    if retired not in manifest:
-        raise SystemExit(f"[smoke][fail] authority manifest lost supersession marker: {retired}")
+for retired in ['"supersededDecisions"', '"LEGACY_']:
+    if retired in manifest:
+        raise SystemExit(f"[smoke][fail] current authority restored in-tree legacy registry material: {retired}")
 
 print("[smoke] authoritative current surface PASS")
 PY_FUSION
@@ -235,6 +241,7 @@ node --check scripts/fusion/progressive-composer.js
 node --check scripts/fusion/account-surface.js
 node --check scripts/fusion/single-surface-controller.js
 node --check scripts/runtime/vvip-marketplace-repository.js
+node --check scripts/runtime/vvip-my-listings.js
 node --check scripts/fusion/verify-current-authority.cjs
 node --check sw-vvip-static.js
 
