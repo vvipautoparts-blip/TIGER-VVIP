@@ -31,10 +31,11 @@ test('live verification is catalog-only and contains no mutation verbs', { skip:
   assert.match(executable, /\bselect\b/i);
 });
 
-test('live verification proves the exact migration and eight contract checks', { skip: !sqlExists }, () => {
+test('live verification proves the exact three-migration and eight-check contract', { skip: !sqlExists }, () => {
   for (const token of [
     '20260816090001',
     '20260827120000',
+    '20260828140000',
     'vvip_media_finalization_jobs',
     'vvip_marketplace_listing_media',
     'vvip_marketplace_request_media_finalization',
@@ -57,6 +58,30 @@ test('live verification proves the exact migration and eight contract checks', {
   }
 });
 
+test('live verifier never self-labels a database as Production authority', { skip: !sqlExists }, () => {
+  assert.doesNotMatch(sql, /zelcngyyvbomuzokvuxo/i, 'MEDIA_DB_LIVE_VERIFIER_HARDCODED_PROJECT_REF');
+  assert.doesNotMatch(sql, /ap-northeast-2/i, 'MEDIA_DB_LIVE_VERIFIER_HARDCODED_REGION');
+  assert.doesNotMatch(sql, /\bas\s+project_ref\b/i, 'MEDIA_DB_LIVE_VERIFIER_SELF_ASSERTED_PROJECT_REF');
+  assert.doesNotMatch(sql, /\bas\s+region\b/i, 'MEDIA_DB_LIVE_VERIFIER_SELF_ASSERTED_REGION');
+});
+
+test('live verifier requires every service-role job-table privilege independently', { skip: !sqlExists }, () => {
+  assert.doesNotMatch(sql, /'SELECT,INSERT,UPDATE,DELETE'/i, 'MEDIA_DB_LIVE_VERIFIER_ANY_OF_PRIVILEGE_BUG');
+  const privileges = [...sql.matchAll(
+    /has_table_privilege\(\s*'service_role'\s*,\s*'public\.vvip_media_finalization_jobs'\s*,\s*'(SELECT|INSERT|UPDATE|DELETE)'\s*\)/gi,
+  )].map((match) => match[1].toUpperCase());
+  assert.deepEqual(
+    [...new Set(privileges)].sort(),
+    ['DELETE', 'INSERT', 'SELECT', 'UPDATE'],
+    'MEDIA_DB_LIVE_VERIFIER_SERVICE_ROLE_PRIVILEGES_INCOMPLETE',
+  );
+});
+
+test('live verifier rejects the legacy anonymous canonical-storage policy', { skip: !sqlExists }, () => {
+  assert.match(sql, /policyname\s*=\s*'vvip_listing_media_canonical_read'/i, 'MEDIA_DB_LIVE_VERIFIER_LEGACY_STORAGE_POLICY_NOT_CHECKED');
+  assert.match(sql, /not\s+exists\s*\([\s\S]*vvip_listing_media_canonical_read/i, 'MEDIA_DB_LIVE_VERIFIER_LEGACY_STORAGE_POLICY_NOT_REJECTED');
+});
+
 test('live verification reads bounded metadata and not marketplace rows or storage objects', { skip: !sqlExists }, () => {
   const executable = stripSqlCommentsAndStrings(sql);
   assert.doesNotMatch(executable, /\bfrom\s+public\.vvip_marketplace_(?:listings|listing_media)\b/i);
@@ -69,5 +94,6 @@ test('live verification reads bounded metadata and not marketplace rows or stora
 test('live verification returns one bounded JSON contract object', { skip: !sqlExists }, () => {
   assert.match(sql, /jsonb_build_object\s*\(/i);
   assert.match(sql, /as\s+contract_checks\b/i);
+  assert.match(sql, /as\s+required_migrations\b/i);
   assert.doesNotMatch(sql, /now\s*\(|clock_timestamp\s*\(|current_timestamp\b/i);
 });
