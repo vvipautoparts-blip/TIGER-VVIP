@@ -18,15 +18,23 @@ function verify(manifest) {
   return require(validatorPath).verifyCurrentAuthority(manifest);
 }
 
-test('current authority is Latest-Only and binds the permanent owner reference', () => {
+test('current authority is Latest-Only and owner binding is the mandatory first reference', () => {
   const manifest = loadManifest();
   assert.equal(manifest.schemaVersion, 'VVIP_TIGER_FUSION_AUTHORITY_V2');
   assert.equal(manifest.primaryProductIdentity, 'SOCIAL_NETWORK_FIRST');
   assert.equal(manifest.currentReference, 'docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md');
+  assert.equal(manifest.firstReferenceRequired, true);
+  assert.equal(manifest.authorityPreflight, 'OWNER_BINDING_CURRENT_FIRST');
+  assert.equal(manifest.supersededMaterialDisposition, 'DELETE_FROM_CURRENT_TREE_NO_FALLBACK_NO_IN_TREE_ARCHIVE');
+  assert.equal(manifest.recheckOnNewOwnerDecision, true);
+  assert.equal(manifest.historicalEvidencePolicy, 'GIT_HISTORY_ONLY_FOR_SUPERSEDED_CONFLICTING_MATERIAL');
   assert.equal(fs.existsSync(bindingPath), true);
   const binding = fs.readFileSync(bindingPath, 'utf8');
-  assert.match(binding, /CURRENT_ONLY \/ OWNER_BINDING \/ NO_FALLBACK/);
+  assert.match(binding, /FIRST_REFERENCE/);
+  assert.match(binding, /Mandatory first reference/i);
+  assert.match(binding, /before any action, modification, cleanup, feature, refactor, migration/i);
   assert.match(binding, /newest explicit owner-approved decision/i);
+  assert.match(binding, /No active fallback, compatibility layer, hidden copy, trash folder, archive folder/i);
   assert.match(binding, /no owner-approved time lifetime/i);
   assert.match(binding, /no fixed commercial or weekly posting quota/i);
   assert.match(binding, /maximum of \*\*7 images\*\*/i);
@@ -35,6 +43,20 @@ test('current authority is Latest-Only and binds the permanent owner reference',
   assert.match(binding, /SURGE.*20 JOD/s);
   const result = verify(manifest);
   assert.equal(result.ok, true, result.errors.join('\n'));
+});
+
+test('validator rejects bypass of the mandatory first-reference preflight', () => {
+  for (const mutate of [
+    (manifest) => { manifest.firstReferenceRequired = false; },
+    (manifest) => { manifest.authorityPreflight = 'OPTIONAL'; },
+    (manifest) => { manifest.supersededMaterialDisposition = 'ARCHIVE_IN_TREE'; },
+    (manifest) => { manifest.recheckOnNewOwnerDecision = false; }
+  ]) {
+    const manifest = loadManifest();
+    mutate(manifest);
+    const result = verify(manifest);
+    assert.equal(result.ok, false);
+  }
 });
 
 test('current authority rejects fixed four-posts-per-week and any product lifetime', () => {
