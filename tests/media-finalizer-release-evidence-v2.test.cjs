@@ -33,7 +33,8 @@ const REQUIRED_MIGRATIONS = [
 ];
 
 function materials() {
-  return Object.fromEntries(REQUIRED_MATERIALS.map((name, index) => [name, H64(String.fromCharCode(97 + index))]));
+  const hexFixtureChars = ['a', 'b', 'c', 'd', 'e', 'f', '1', '2'];
+  return Object.fromEntries(REQUIRED_MATERIALS.map((name, index) => [name, H64(hexFixtureChars[index])]));
 }
 
 function genomeEvidence() {
