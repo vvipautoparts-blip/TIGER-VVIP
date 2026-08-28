@@ -161,6 +161,7 @@ jobs:
             return filters.some((filter) => {
               if (filter.filterType !== 'WILDCARD' || typeof filter.filter !== 'string') return false;
               if (filter.filter === '*') return true;
+              if (!filter.filter.includes('*')) return repository.includes(filter.filter);
               const escaped = filter.filter.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*');
               return new RegExp(`^${escaped}$`).test(repository);
             });
