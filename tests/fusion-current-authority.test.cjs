@@ -122,10 +122,9 @@ test('platform cannot become a party to marketplace transactions', () => {
   assert.ok(result.errors.includes('platformOwnedFinancialScope must be limited to platform-owned advertising services'));
 });
 
-test('all mandatory legacy decisions remain explicitly superseded', () => {
+test('current authority contains no in-tree registry of superseded decisions', () => {
   const manifest = loadManifest();
-  const decisions = new Map(manifest.supersededDecisions.map((entry) => [entry.id, entry.status]));
-  for (const id of require(validatorPath).REQUIRED_SUPERSEDED_IDS) {
-    assert.equal(decisions.get(id), 'SUPERSEDED', `${id} must stay SUPERSEDED`);
-  }
+  const validator = require(validatorPath);
+  assert.equal(Object.prototype.hasOwnProperty.call(manifest, 'supersededDecisions'), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(validator, 'REQUIRED_SUPERSEDED_IDS'), false);
 });
