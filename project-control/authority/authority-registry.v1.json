@@ -29,7 +29,22 @@
       "owner_decision_ref": "docs/owner-control/TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md",
       "canonical_path": "docs/owner-control/TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md",
       "supersedes": ["authority.cleanup-governance.legacy"],
-      "protected_boundaries": ["main", "production", "owner-authority", "migrations", "stateful-volumes", "canonical-evidence", "git-history"]
+      "protected_boundaries": [
+        "main",
+        "production",
+        "owner-authority",
+        "migrations",
+        "protected-release-identity",
+        "protected-provenance",
+        "security-sensitive-material",
+        "stateful-volumes",
+        "unique-non-volume-state",
+        "canonical-release-evidence",
+        "canonical-security-evidence",
+        "git-history",
+        "unique-pr-commits",
+        "aion-deletion-chain"
+      ]
     },
     {
       "authority_id": "authority.owner-entrypoint.legacy",
