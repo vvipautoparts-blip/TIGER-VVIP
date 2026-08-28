@@ -9,21 +9,7 @@
       "owner_decision_ref": "docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md",
       "canonical_path": "docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md",
       "supersedes": [],
-      "protected_boundaries": [
-        "mandatory-first-reference",
-        "entire-current-platform",
-        "runtime",
-        "ui",
-        "api",
-        "database-current-state",
-        "configuration",
-        "tests",
-        "ci-release-gates",
-        "current-documentation",
-        "launch-criteria",
-        "no-fallback",
-        "no-in-tree-archive"
-      ]
+      "protected_boundaries": ["mandatory-first-reference", "entire-current-platform", "runtime", "ui", "api", "database-current-state", "configuration", "tests", "ci-release-gates", "current-documentation", "launch-criteria", "no-fallback", "no-in-tree-archive"]
     },
     {
       "authority_id": "authority.owner-entrypoint.v1",
@@ -63,7 +49,17 @@
       "owner_decision_ref": "docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md",
       "canonical_path": "docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md",
       "supersedes": [],
-      "protected_boundaries": ["main", "production", "party-to-party-payment"]
+      "protected_boundaries": ["2-10-25-45-jod", "no-product-time-expiry", "ordinary-publication-separation", "one-sale-one-sales-winner"]
+    },
+    {
+      "authority_id": "authority.financial-distribution.v1",
+      "domain": "financial-distribution",
+      "version": 1,
+      "status": "CURRENT_ONLY",
+      "owner_decision_ref": "docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md",
+      "canonical_path": "docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md",
+      "supersedes": [],
+      "protected_boundaries": ["100-percent-allocation", "one-sale-one-winner", "7-percent-self-service-discount", "14-day-settlement", "12-hour-payout-destination-grace", "immutable-ledger"]
     },
     {
       "authority_id": "authority.cleanup-governance.v1",
@@ -73,22 +69,7 @@
       "owner_decision_ref": "docs/owner-control/TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md",
       "canonical_path": "docs/owner-control/TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md",
       "supersedes": [],
-      "protected_boundaries": [
-        "main",
-        "production",
-        "owner-authority",
-        "migrations",
-        "protected-release-identity",
-        "protected-provenance",
-        "security-sensitive-material",
-        "stateful-volumes",
-        "unique-non-volume-state",
-        "canonical-release-evidence",
-        "canonical-security-evidence",
-        "git-history",
-        "unique-pr-commits",
-        "aion-deletion-chain"
-      ]
+      "protected_boundaries": ["main", "production", "owner-authority", "migrations", "protected-release-identity", "protected-provenance", "security-sensitive-material", "stateful-volumes", "unique-non-volume-state", "canonical-release-evidence", "canonical-security-evidence", "git-history", "unique-pr-commits", "aion-deletion-chain"]
     },
     {
       "authority_id": "authority.post-launch-autonomy.v1",
