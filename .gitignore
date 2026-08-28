@@ -5,6 +5,13 @@
 
 # Dependency and tool output
 node_modules/
+.venv/
+.venv-*/
+venv/
+venv-*/
+.tox/
+.nox/
+.hypothesis/
 __pycache__/
 *.py[cod]
 .pytest_cache/
@@ -17,6 +24,11 @@ coverage/
 .coverage
 htmlcov/
 test-results/
+playwright-report/
+blob-report/
+.next/
+.turbo/
+.vite/
 dist/
 build/
 out/
