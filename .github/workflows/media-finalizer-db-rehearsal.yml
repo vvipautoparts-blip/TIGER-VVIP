@@ -5,20 +5,40 @@ on:
     paths:
       - "supabase/migrations/20260816090001_sovereign_media_finalization.sql"
       - "supabase/migrations/20260827120000_sealed_media_identity_binding.sql"
+      - "supabase/migrations/20260828140000_media_no_visitor_forward_repair.sql"
       - "tests/media-finalizer-identity-binding-migration.test.cjs"
+      - "tests/media-finalizer-no-visitor-forward-repair.test.cjs"
       - "tests/media-finalizer-db-convergence-contract.test.cjs"
+      - "tests/media-finalizer-db-convergence-evidence.test.cjs"
+      - "tests/media-finalizer-db-convergence-runbook.test.cjs"
+      - "tests/media-finalizer-live-verification-contract.test.cjs"
+      - "tests/media-finalizer-supabase-advisors.test.cjs"
       - "tests/sql/media-finalizer-identity-binding.sql"
       - "tests/sql/media-finalizer-db-contract.sql"
+      - "tests/sql/media-finalizer-live-verification.sql"
+      - "scripts/release/media-cell-db-convergence-evidence.cjs"
+      - "config/media-finalizer-supabase-advisor-classification.json"
+      - "docs/operations/TIGER_MEDIA_DB_CONVERGENCE_RUNBOOK.md"
       - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
       - ".github/workflows/media-finalizer-db-rehearsal.yml"
   pull_request:
     paths:
       - "supabase/migrations/20260816090001_sovereign_media_finalization.sql"
       - "supabase/migrations/20260827120000_sealed_media_identity_binding.sql"
+      - "supabase/migrations/20260828140000_media_no_visitor_forward_repair.sql"
       - "tests/media-finalizer-identity-binding-migration.test.cjs"
+      - "tests/media-finalizer-no-visitor-forward-repair.test.cjs"
       - "tests/media-finalizer-db-convergence-contract.test.cjs"
+      - "tests/media-finalizer-db-convergence-evidence.test.cjs"
+      - "tests/media-finalizer-db-convergence-runbook.test.cjs"
+      - "tests/media-finalizer-live-verification-contract.test.cjs"
+      - "tests/media-finalizer-supabase-advisors.test.cjs"
       - "tests/sql/media-finalizer-identity-binding.sql"
       - "tests/sql/media-finalizer-db-contract.sql"
+      - "tests/sql/media-finalizer-live-verification.sql"
+      - "scripts/release/media-cell-db-convergence-evidence.cjs"
+      - "config/media-finalizer-supabase-advisor-classification.json"
+      - "docs/operations/TIGER_MEDIA_DB_CONVERGENCE_RUNBOOK.md"
       - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
       - ".github/workflows/media-finalizer-db-rehearsal.yml"
   workflow_dispatch:
@@ -69,7 +89,12 @@ jobs:
           set -euo pipefail
           node --test \
             tests/media-finalizer-identity-binding-migration.test.cjs \
-            tests/media-finalizer-db-convergence-contract.test.cjs
+            tests/media-finalizer-no-visitor-forward-repair.test.cjs \
+            tests/media-finalizer-db-convergence-contract.test.cjs \
+            tests/media-finalizer-db-convergence-evidence.test.cjs \
+            tests/media-finalizer-db-convergence-runbook.test.cjs \
+            tests/media-finalizer-live-verification-contract.test.cjs \
+            tests/media-finalizer-supabase-advisors.test.cjs
           bash scripts/security/p08-steel-shield/scan-dangerous-sql.sh
 
       - name: Assert local-only safety contract
@@ -167,6 +192,7 @@ jobs:
           source_tree="$(git rev-parse 'HEAD^{tree}')"
           base_migration_sha256="$(sha256sum supabase/migrations/20260816090001_sovereign_media_finalization.sql | awk '{print $1}')"
           identity_migration_sha256="$(sha256sum supabase/migrations/20260827120000_sealed_media_identity_binding.sql | awk '{print $1}')"
+          repair_migration_sha256="$(sha256sum supabase/migrations/20260828140000_media_no_visitor_forward_repair.sql | awk '{print $1}')"
           contract_sha256="$(sha256sum tests/sql/media-finalizer-db-contract.sql | awk '{print $1}')"
           identity_proof_sha256="$(sha256sum tests/sql/media-finalizer-identity-binding.sql | awk '{print $1}')"
           printf '%s\n' \
@@ -176,6 +202,7 @@ jobs:
             "SUPABASE_VERSION=$(supabase --version | head -n1)" \
             "SOVEREIGN_MEDIA_MIGRATION_SHA256=$base_migration_sha256" \
             "IDENTITY_BINDING_MIGRATION_SHA256=$identity_migration_sha256" \
+            "MEDIA_NO_VISITOR_FORWARD_REPAIR_MIGRATION_SHA256=$repair_migration_sha256" \
             "MEDIA_DB_CONTRACT_SHA256=$contract_sha256" \
             "IDENTITY_BINDING_PROOF_SHA256=$identity_proof_sha256" \
             "TIGER_MEDIA_DB_CONTRACT=PASS" \
