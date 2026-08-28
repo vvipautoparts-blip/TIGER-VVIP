@@ -71,6 +71,8 @@ function evaluateSupplyGate(input = {}) {
   return Object.freeze({
     decision: 'PASS',
     scanMode: 'ENHANCED',
+    scanStatus: input.scan.status,
+    scanCompletedAt: input.scan.scanCompletedAt,
     sbomSha256: sbom.sha256,
     subjectDigest: sbom.subjectDigest,
     repository: sbom.repository,
