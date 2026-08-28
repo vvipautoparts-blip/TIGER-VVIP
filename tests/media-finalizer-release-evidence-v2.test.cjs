@@ -15,6 +15,7 @@ const H40_A = 'a'.repeat(40);
 const H40_B = 'b'.repeat(40);
 const H64 = (char) => char.repeat(64);
 const MANIFEST = `sha256:${H64('c')}`;
+const REPOSITORY = '211579682376.dkr.ecr.ap-northeast-2.amazonaws.com/tiger-media-finalizer';
 
 const REQUIRED_MATERIALS = [
   'services/media-finalizer/Dockerfile',
@@ -42,7 +43,7 @@ function genomeEvidence() {
     source: { commitSha: H40_A, treeSha: H40_B, immutable: true },
     materials: materials(),
     image: {
-      repository: '211579682376.dkr.ecr.ap-northeast-2.amazonaws.com/tiger-media-finalizer',
+      repository: REPOSITORY,
       manifestDigest: MANIFEST,
       baseDigest: `sha256:${H64('d')}`,
     },
@@ -147,7 +148,7 @@ test('Release Passport 2.0 binds Genome and explicit non-deployment states', () 
   const passport = createMediaCellPassport(passportEvidence());
   assert.equal(passport.schemaVersion, 'tiger-release-passport-v2');
   assert.match(passport.genome.id, /^[0-9a-f]{64}$/);
-  assert.equal(passport.image.repository.includes('.dkr.ecr.ap-northeast-2.amazonaws.com/'), true);
+  assert.equal(passport.image.repository, REPOSITORY);
   assert.equal(passport.sbom.specVersion, '1.7');
   assert.equal(passport.sbom.subjectDigest, passport.image.manifestDigest);
   assert.deepEqual(passport.database, {
