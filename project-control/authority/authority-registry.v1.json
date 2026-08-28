@@ -47,6 +47,28 @@
       ]
     },
     {
+      "authority_id": "authority.owner-constitution.v1",
+      "domain": "owner-constitution",
+      "version": 1,
+      "status": "CURRENT_ONLY",
+      "owner_decision_ref": "docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md",
+      "canonical_path": "docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md",
+      "supersedes": [],
+      "protected_boundaries": [
+        "entire-current-platform",
+        "runtime",
+        "ui",
+        "api",
+        "database-current-state",
+        "configuration",
+        "tests",
+        "ci-release-gates",
+        "current-documentation",
+        "launch-criteria",
+        "no-fallback"
+      ]
+    },
+    {
       "authority_id": "authority.owner-entrypoint.legacy",
       "domain": "owner-entrypoint",
       "version": 0,
