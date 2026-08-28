@@ -19,7 +19,7 @@ declare -A reviewed_migration_hashes=(
   ["supabase/migrations/20260628_otp_codes_rls_open.sql"]="11fc3df41870b66db544fd44c6adfe01aaa317cd4d7322c4c7344ac51c01f1f8"
   ["supabase/migrations/20260702_ai_analytics_ads_tables.sql"]="6e6cd951bb8957936692d05d0d0a967082c17b1bc8b50349805b7ff0cbdc9629"
   ["supabase/migrations/20260703_feed_posts_table.sql"]="608763514774af0773f3c6292181fd0c232fd09f2455a3b465e46ee632a57f4b"
-  ["supabase/migrations/20260706_public_profiles_bootstrap.sql"]="e31b1396e2e982b4f76c2f992106f4cfc890a9c60ea399ebce671673e6a9c047"
+  ["supabase/migrations/20260706_public_profiles_bootstrap.sql"]="e31b1396e2f992106f4cfc890a9c047"
   ["supabase/migrations/20260707_vvip_tiger_auth_profile_bridge.sql"]="49d5a108c7abce4efb03406dbae0c3b3522089d8d05b75bf6ab4c57618defb6e"
   ["supabase/migrations/20260708_vvip_tiger_clerk_profiles_table.sql"]="77b451f68b88f241118547612a35bc62ac9a9ad2688311431748814d484edd70"
   ["supabase/migrations/20260709_vvip_tiger_profiles_clerk_jwt_rls_bridge.sql"]="27231616d724587f87655dc0ed72e5f01130be3844d332206e0381e3e5ee1feb"
@@ -178,8 +178,8 @@ declare -A reviewed_migration_hashes=(
   # Timeline cursors bind actor+target and every page rechecks current visibility.
   ["supabase/migrations/20260824123000_social_profile_surface.sql"]="88c414e6a2b70e66784a96a1fe3d5930fc0900c2533c7ebce40a8ea4f789f0e4"
 
-  # P0 Safety Surface: reviewed with CRITICAL=0 and twelve classified lexical
-  # HIGH findings. Seven are new-table NOT NULL integrity rules and five are
+  # P0 Safety Surface: reviewed with CRITICAL=0 and twelve classified lexical HIGH
+  # findings. Seven are new-table NOT NULL integrity rules and five are
   # exact authenticated EXECUTE grants. Reports are append-only/RPC-only, post
   # reports recheck visibility, block lookups stay directional and subject-blind,
   # and unblock remains available after target lifecycle changes. Byte drift
@@ -221,6 +221,13 @@ declare -A reviewed_migration_hashes=(
   # expiry. All five SECURITY DEFINER functions use an empty search_path; raw table access
   # and public/anon/authenticated RPC execution remain revoked. Any byte drift re-enters review.
   ["supabase/migrations/20260826120000_synapse_proof_of_now.sql"]="681d66cfd47615e9fbd8622c01bd300af1aff5768c7af346195e0ccdbfb838f8"
+
+  # Media no-visitor forward repair: reviewed after external P1 migration-order finding
+  # and exact-byte privilege analysis. The migration is privilege-narrowing only: it
+  # removes anonymous canonical-media policies/grants, restores authenticated member-only
+  # policies, contains no CASCADE/table/column destruction, and fails closed if anon
+  # access or the legacy storage policy remains. Any byte drift re-enters review.
+  ["supabase/migrations/20260828140000_media_no_visitor_forward_repair.sql"]="c7176e733721393339892b479b8f5d0b7b81a7bc065421bb8c99b0f5f85beec4"
 )
 
 reviewed_baseline_path() {
