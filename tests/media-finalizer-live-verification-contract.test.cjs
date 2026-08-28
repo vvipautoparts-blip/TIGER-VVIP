@@ -43,7 +43,7 @@ test('live verification proves the exact migration and eight contract checks', {
     'vvip_marketplace_fail_media_finalization',
     'listing-media',
     'listing-media-canonical',
-    'vvip_listing_media_canonical_member_read',
+    'vvip_listing_media_canonical_read',
     'migrations',
     'jobTable',
     'canonicalColumns',
