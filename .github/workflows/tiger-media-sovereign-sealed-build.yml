@@ -41,6 +41,7 @@ jobs:
       DB_CONVERGENCE_STATE: ${{ inputs.db_convergence_state }}
       DB_CONVERGENCE_EVIDENCE_SHA256: ${{ inputs.db_convergence_evidence_sha256 }}
       TIGER_MEDIA_AWS_ACCOUNT_ID: ${{ vars.TIGER_MEDIA_AWS_ACCOUNT_ID }}
+      TIGER_MEDIA_ECR_KMS_KEY_ARN: ${{ vars.TIGER_MEDIA_ECR_KMS_KEY_ARN }}
 
     steps:
       - name: Checkout requested immutable source
@@ -133,17 +134,20 @@ jobs:
             *) echo 'UNEXPECTED_MEDIA_BUILD_CALLER' >&2; exit 1 ;;
           esac
 
-          read -r repository_uri mutability encryption < <(
+          [[ "$TIGER_MEDIA_ECR_KMS_KEY_ARN" =~ ^arn:aws:kms:ap-northeast-2:[0-9]{12}:key/[0-9a-fA-F-]+$ ]] \
+            || { echo 'MEDIA_ECR_KMS_KEY_ARN_MISSING_OR_INVALID' >&2; exit 1; }
+          read -r repository_uri mutability encryption kms_key < <(
             aws ecr describe-repositories \
               --repository-names "$ECR_REPOSITORY" \
               --region "$AWS_REGION" \
-              --query 'repositories[0].[repositoryUri,imageTagMutability,encryptionConfiguration.encryptionType]' \
+              --query 'repositories[0].[repositoryUri,imageTagMutability,encryptionConfiguration.encryptionType,encryptionConfiguration.kmsKey]' \
               --output text \
               --no-cli-pager
           )
           test "$repository_uri" = "$ECR_URI"
           test "$mutability" = 'IMMUTABLE'
           test "$encryption" = 'KMS'
+          test "$kms_key" = "$TIGER_MEDIA_ECR_KMS_KEY_ARN"
 
           aws ecr get-registry-scanning-configuration \
             --region "$AWS_REGION" \
@@ -337,8 +341,8 @@ jobs:
             /tmp/tiger-media/artifacts/media-cell/oci-sbom.cdx.json \
             /tmp/tiger-media/artifacts/media-cell/scan-evidence.json \
             "$MANIFEST_DIGEST" \
-            /tmp/tiger-media/supply-gate.json
-          node -e "const x=require('/tmp/tiger-media/supply-gate.json'); if(x.decision!=='PASS') process.exit(1)"
+            /tmp/tiger-media/artifacts/media-cell/supply-gate.json
+          node -e "const x=require('/tmp/tiger-media/artifacts/media-cell/supply-gate.json'); if(x.decision!=='PASS') process.exit(1)"
 
       - name: Create exact OCI provenance attestation
         id: provenance
@@ -365,6 +369,7 @@ jobs:
           set -Eeuo pipefail
           signer='github.com/vvipautoparts-blip/TIGER-VVIP/.github/workflows/tiger-media-sovereign-sealed-build.yml'
           gh attestation verify "oci://$IMAGE_URI" \
+            --bundle-from-oci \
             --repo "$GITHUB_REPOSITORY" \
             --signer-workflow "$signer" \
             --source-digest "$SOURCE_SHA" \
@@ -372,6 +377,7 @@ jobs:
             --format json \
             > /tmp/tiger-media/provenance-verification.json
           gh attestation verify "oci://$IMAGE_URI" \
+            --bundle-from-oci \
             --repo "$GITHUB_REPOSITORY" \
             --signer-workflow "$signer" \
             --source-digest "$SOURCE_SHA" \
@@ -408,11 +414,13 @@ jobs:
           set -Eeuo pipefail
           node scripts/release/media-cell-migration-set.cjs > /tmp/tiger-media/artifacts/media-cell/migration-set.json
           MIGRATION_SET_SHA="$(node -e "const x=require('/tmp/tiger-media/artifacts/media-cell/migration-set.json'); process.stdout.write(x.sha256)")"
-          SBOM_SHA="$(node -e "const x=require('/tmp/tiger-media/supply-gate.json'); process.stdout.write(x.sbomSha256)")"
-          COMPONENT_COUNT="$(node -e "const x=require('/tmp/tiger-media/supply-gate.json'); process.stdout.write(String(x.componentCount));")"
+          SBOM_SHA="$(node -e "const x=require('/tmp/tiger-media/artifacts/media-cell/supply-gate.json'); process.stdout.write(x.sbomSha256)")"
+          COMPONENT_COUNT="$(node -e "const x=require('/tmp/tiger-media/artifacts/media-cell/supply-gate.json'); process.stdout.write(String(x.componentCount));")"
+          SUPPLY_GATE_SHA="$(node -e "const crypto=require('node:crypto'); const {canonicalJson}=require('./scripts/release/media-cell-sbom.cjs'); const x=require('/tmp/tiger-media/artifacts/media-cell/supply-gate.json'); process.stdout.write(crypto.createHash('sha256').update(canonicalJson(x)).digest('hex'))")"
           printf '%s' "$SBOM_SHA" | grep -Eq '^[0-9a-f]{64}$'
+          printf '%s' "$SUPPLY_GATE_SHA" | grep -Eq '^[0-9a-f]{64}$'
 
-          export MIGRATION_SET_SHA SBOM_SHA COMPONENT_COUNT
+          export MIGRATION_SET_SHA SBOM_SHA COMPONENT_COUNT SUPPLY_GATE_SHA
           export DOCKERFILE_SHA="$(sha256sum services/media-finalizer/Dockerfile | awk '{print $1}')"
           export LOCK_SHA="$(sha256sum services/media-finalizer/package-lock.json | awk '{print $1}')"
           export FOUNDATION_TEMPLATE_SHA="$(sha256sum infra/media-finalizer/foundation/template.yaml | awk '{print $1}')"
@@ -427,7 +435,18 @@ jobs:
           const scan = JSON.parse(fs.readFileSync('/tmp/tiger-media/artifacts/media-cell/scan-evidence.json', 'utf8'));
           const attestations = JSON.parse(fs.readFileSync('/tmp/tiger-media/artifacts/media-cell/attestation-evidence.json', 'utf8'));
           const evidence = {
-            source: { commitSha: process.env.SOURCE_SHA, treeSha: process.env.SOURCE_TREE, immutable: true },
+            source: {
+              repository: process.env.GITHUB_REPOSITORY,
+              commitSha: process.env.SOURCE_SHA,
+              treeSha: process.env.SOURCE_TREE,
+              mainSha: process.env.MAIN_SHA,
+              immutable: true,
+              eligibility: {
+                state: 'VERIFIED_CURRENT_PROTECTED_MAIN',
+                dbConvergenceState: process.env.DB_CONVERGENCE_STATE,
+                dbConvergenceEvidenceSha256: process.env.DB_CONVERGENCE_EVIDENCE_SHA256,
+              },
+            },
             materials: {
               'services/media-finalizer/Dockerfile': process.env.DOCKERFILE_SHA,
               'services/media-finalizer/package-lock.json': process.env.LOCK_SHA,
@@ -452,6 +471,7 @@ jobs:
               componentCount: Number(process.env.COMPONENT_COUNT),
             },
             scan,
+            supplyGate: { decision: 'PASS', evidenceSha256: process.env.SUPPLY_GATE_SHA },
             attestations,
           };
           fs.writeFileSync(process.argv[2], `${JSON.stringify(evidence)}\n`, { mode: 0o600 });
@@ -462,6 +482,7 @@ jobs:
           const [inputFile, outputFile] = process.argv.slice(2);
           const value = JSON.parse(fs.readFileSync(inputFile, 'utf8'));
           delete value.scan;
+          delete value.supplyGate;
           fs.writeFileSync(outputFile, `${JSON.stringify(value)}\n`, { mode: 0o600 });
           NODE
 
@@ -471,11 +492,17 @@ jobs:
           node scripts/release/media-cell-passport.cjs \
             /tmp/tiger-media/release-evidence.json \
             /tmp/tiger-media/artifacts/media-cell/release-passport-v2.json
-          rm -f /tmp/tiger-media/release-evidence.json /tmp/tiger-media/genome-evidence.json /tmp/tiger-media/supply-gate.json
+          rm -f /tmp/tiger-media/release-evidence.json /tmp/tiger-media/genome-evidence.json
 
-          cat > /tmp/tiger-media/artifacts/media-cell/source-identity.json <<EOF
-          {"repository":"vvipautoparts-blip/TIGER-VVIP","commitSha":"$SOURCE_SHA","treeSha":"$SOURCE_TREE","mainSha":"$MAIN_SHA","dbConvergenceState":"$DB_CONVERGENCE_STATE","dbConvergenceEvidenceSha256":"$DB_CONVERGENCE_EVIDENCE_SHA256"}
-          EOF
+          node - \
+            /tmp/tiger-media/artifacts/media-cell/release-passport-v2.json \
+            /tmp/tiger-media/artifacts/media-cell/source-identity.json <<'NODE'
+          const fs = require('node:fs');
+          const { canonicalJson } = require('./scripts/release/media-cell-sbom.cjs');
+          const [passportFile, outputFile] = process.argv.slice(2);
+          const passport = JSON.parse(fs.readFileSync(passportFile, 'utf8'));
+          fs.writeFileSync(outputFile, `${canonicalJson(passport.source)}\n`, { mode: 0o600 });
+          NODE
 
       - name: Upload bounded sealed-build evidence only
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
