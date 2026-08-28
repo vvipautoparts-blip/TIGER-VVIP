@@ -21,14 +21,14 @@ test('marketplace exposes the seven approved sectors', () => {
   for (const sector of sevenSectors) assert.match(js, new RegExp(sector.replace('-', '\\-')));
 });
 
-test('create flow is content-first and reveals visibility/payment only after completion', () => {
+test('create flow is content-first then preview then trusted review submission', () => {
   assert.match(js, /data-vvip-create-flow/);
   assert.match(js, /data-vvip-content-step/);
   assert.match(js, /data-vvip-preview-step/);
-  assert.match(js, /data-vvip-plan-step/);
-  assert.match(js, /data-vvip-payment-step/);
-  assert.doesNotMatch(js, /سيُحفظ الإعلان ويُرسل للمراجعة\. لن يظهر للعامة قبل الاعتماد\./);
-  assert.doesNotMatch(js, /تم حفظ الإعلان وإرساله للمراجعة/);
+  assert.doesNotMatch(js, /data-vvip-plan-step/);
+  assert.doesNotMatch(js, /data-vvip-payment-step/);
+  assert.match(js, /submitForReview\(state\.draftListingId\)/);
+  assert.doesNotMatch(js, /requestPublication|entitlementReceipt/);
 });
 
 test('modern cards provide primary contact and lightweight secondary actions', () => {
@@ -49,8 +49,9 @@ test('protected repository actions preserve PR190 guest-first step-up authentica
   assert.match(repositoryJs, /name:\s*["']CREATE_LISTING["']/);
   assert.match(repositoryJs, /name:\s*["']TOGGLE_FAVORITE["']/);
   assert.match(repositoryJs, /name:\s*["']OPEN_ACCOUNT["']/);
-  assert.match(repositoryJs, /name:\s*["']REQUEST_PUBLICATION["']/);
+  assert.match(repositoryJs, /name:\s*["']SUBMIT_FOR_REVIEW["']/);
   assert.match(repositoryJs, /listingId\s*:/);
+  assert.doesNotMatch(repositoryJs, /name:\s*["']REQUEST_PUBLICATION["']/);
 });
 
 test('create modal remains safe before runtime readiness and toggles its body lock symmetrically', () => {
@@ -63,12 +64,9 @@ test('preview validation handles invalid media through the user-facing recovery 
   assert.match(js, /try\s*\{[\s\S]*validateFiles\(form\.elements\.images\.files\)[\s\S]*\}\s*catch\s*\(error\)\s*\{\s*report\(error\);\s*return false;\s*\}/);
 });
 
-test('visibility plan config text is rendered through textContent instead of innerHTML interpolation', () => {
+test('retired visibility-plan interpolation is absent from the ordinary publication surface', () => {
   assert.doesNotMatch(js, /button\.innerHTML\s*=/);
-  assert.match(js, /const planLabel\s*=\s*doc\.createElement\(["']span["']\)/);
-  assert.match(js, /planLabel\.textContent\s*=\s*cleanText\(plan\.label,\s*80\)/);
-  assert.match(js, /const planDescription\s*=\s*doc\.createElement\(["']small["']\)/);
-  assert.match(js, /planDescription\.textContent\s*=\s*cleanText\(plan\.description\s*\|\|/);
+  assert.doesNotMatch(js, /data-vvip-plan-step|planLabel|planDescription|visibility-standard/);
 });
 
 test('2026 interaction shell includes accessibility, motion preference and mobile responsiveness', () => {
