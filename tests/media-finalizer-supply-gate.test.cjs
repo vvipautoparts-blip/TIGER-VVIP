@@ -78,7 +78,7 @@ test('real container SBOM validator rejects wrong version, empty inventory, mism
     /MEDIA_CELL_SBOM_SUBJECT_MISMATCH/,
   );
   const secret = JSON.parse(JSON.stringify(bound));
-  secret.metadata.properties.push({ name: 'authorizationHeader', value: 'Bearer secret-value' });
+  secret.metadata.properties.push({ name: 'authorizationHeader', value: 'not-a-token' });
   assert.throws(() => validateRealContainerSbom(secret, SUBJECT), /MEDIA_CELL_SBOM_SECRET_MATERIAL_REJECTED/);
 });
 
@@ -132,7 +132,7 @@ test('supply gate rejects invalid counts, unknown evidence keys, and secret-shap
     /SUPPLY_GATE_SCAN_UNKNOWN/,
   );
   const secret = scan();
-  secret.secretValue = 'not-a-token';
+  secret.authorizationHeader = 'not-a-token';
   assert.throws(
     () => evaluateSupplyGate({ sbom, expectedManifestDigest: SUBJECT, scan: secret }),
     /SUPPLY_GATE_SECRET_MATERIAL_REJECTED|SUPPLY_GATE_SCAN_UNKNOWN/,
