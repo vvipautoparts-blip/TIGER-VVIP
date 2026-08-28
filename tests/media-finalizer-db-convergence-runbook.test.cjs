@@ -38,7 +38,7 @@ test('runbook requires exact protected main and local rehearsal before owner pro
   assert.match(text, /origin\/main/i);
   assert.match(text, /TIGER Media Finalizer DB Rehearsal/i);
   assert.match(text, /9\/9/i);
-  assert.match(text, /all\s+\*\*9\/9\*\*\s+required protected PR workflows GREEN,[^\n]*including[^\n]*TIGER Media Finalizer DB Rehearsal/i);
+  assert.match(text, /all\s+\*\*9\/9\*\*\s+required protected PR workflows GREEN[^\n]*including[^\n]*TIGER Media Finalizer DB Rehearsal/i);
   assert.doesNotMatch(text, /\*\*9\/9\*\*[^\n]*plus[^\n]*TIGER Media Finalizer DB Rehearsal/i);
   assert.match(text, /pending migration set[^\n]*exactly/i);
 });
