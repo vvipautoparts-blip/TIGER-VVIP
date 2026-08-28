@@ -34,6 +34,7 @@ test('local rehearsal proves the complete sovereign media DB contract', () => {
 
   assert.match(sql, /20260816090001/);
   assert.match(sql, /20260827120000/);
+  assert.match(sql, /20260828140000/);
   assert.match(sql, /vvip_media_finalization_jobs/);
   assert.match(sql, /vvip_marketplace_request_media_finalization/);
   assert.match(sql, /vvip_marketplace_claim_media_finalization/);
@@ -42,11 +43,28 @@ test('local rehearsal proves the complete sovereign media DB contract', () => {
   assert.match(sql, /listing-media-canonical/);
   assert.match(sql, /listing-media/);
   assert.match(sql, /vvip_listing_media_canonical_member_read/);
+  assert.match(sql, /vvip_listing_media_canonical_read/);
 
   assert.match(workflow, /tests\/sql\/media-finalizer-db-contract\.sql/);
   assert.match(workflow, /TIGER_MEDIA_DB_CONTRACT=PASS/);
   assert.match(workflow, /20260816090001_sovereign_media_finalization\.sql/);
   assert.match(workflow, /20260827120000_sealed_media_identity_binding\.sql/);
+  assert.match(workflow, /20260828140000_media_no_visitor_forward_repair\.sql/);
+  assert.match(workflow, /MEDIA_NO_VISITOR_FORWARD_REPAIR_MIGRATION_SHA256/);
+});
+
+test('local DB contract requires every service-role privilege and rejects the legacy anonymous storage policy', () => {
+  const sql = requiredFile(SQL, 'MEDIA_DB_CONTRACT_SQL_MISSING');
+  assert.doesNotMatch(sql, /'SELECT,INSERT,UPDATE,DELETE'/i, 'MEDIA_DB_LOCAL_ANY_OF_PRIVILEGE_BUG');
+  const privileges = [...sql.matchAll(
+    /has_table_privilege\(\s*'service_role'\s*,\s*'public\.vvip_media_finalization_jobs'\s*,\s*'(SELECT|INSERT|UPDATE|DELETE)'\s*\)/gi,
+  )].map((match) => match[1].toUpperCase());
+  assert.deepEqual(
+    [...new Set(privileges)].sort(),
+    ['DELETE', 'INSERT', 'SELECT', 'UPDATE'],
+    'MEDIA_DB_LOCAL_SERVICE_ROLE_PRIVILEGES_INCOMPLETE',
+  );
+  assert.match(sql, /not\s+exists\s*\([\s\S]*policyname\s*=\s*'vvip_listing_media_canonical_read'/i);
 });
 
 test('local contract proof stays local-only and never promotes Production', () => {
