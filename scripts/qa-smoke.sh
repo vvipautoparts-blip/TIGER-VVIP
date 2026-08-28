@@ -203,16 +203,18 @@ if 'CACHE_NAME = "vvip-static-v2"' not in worker:
 
 owner = Path("docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md").read_text(encoding="utf-8")
 for contract in [
-    "CURRENT_ONLY / OWNER_BINDING / NO_FALLBACK",
-    "no owner-approved time lifetime",
-    "no fixed commercial or weekly posting quota",
-    "maximum of **7 images**",
-    "SPARK",
-    "PULSE",
-    "SURGE",
-    "EVIDENCE_FIRST",
+    "CURRENT_ONLY / OWNER_BINDING / FIRST_REFERENCE / NO_FALLBACK / NO_IN_TREE_ARCHIVE",
+    "no owner-approved product-time lifetime",
+    "no fixed commercial/weekly posting quota",
+    "maximum remains 7 images",
+    "PULSE_2",
+    "PULSE_10",
+    "PULSE_25",
+    "PULSE_45",
+    "server-authoritative visibility allocation",
+    "not a party",
 ]:
-    if contract.lower() not in owner.lower() and contract != "EVIDENCE_FIRST":
+    if contract.lower() not in owner.lower():
         raise SystemExit(f"[smoke][fail] latest owner authority contract missing: {contract}")
 
 manifest = Path("config/fusion/current-authority.json").read_text(encoding="utf-8")
