@@ -7,9 +7,80 @@ const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
 const WORKFLOW = path.join(ROOT, '.github', 'workflows', 'tiger-media-sovereign-sealed-build.yml');
+const SBOM_HELPER = path.join(ROOT, 'scripts', 'release', 'media-cell-sbom.cjs');
+const GENOME_HELPER = path.join(ROOT, 'scripts', 'release', 'media-cell-genome.cjs');
+const H64 = (char) => char.repeat(64);
+const SOURCE_REPOSITORY = 'vvipautoparts-blip/TIGER-VVIP';
+const ECR_REPOSITORY = '211579682376.dkr.ecr.ap-northeast-2.amazonaws.com/tiger-media-finalizer';
+const MANIFEST = `sha256:${H64('c')}`;
 
 function readWorkflow() {
   return fs.readFileSync(WORKFLOW, 'utf8').replace(/\r/g, '');
+}
+
+function rawSbom(timestamp, serialNumber) {
+  return {
+    bomFormat: 'CycloneDX',
+    specVersion: '1.7',
+    serialNumber,
+    version: 1,
+    metadata: {
+      timestamp,
+      component: { type: 'container', name: 'TIGER-media-finalizer' },
+      properties: [],
+    },
+    components: [{ type: 'library', name: 'sharp', version: '0.35.3' }],
+  };
+}
+
+function materials() {
+  const names = [
+    'services/media-finalizer/Dockerfile',
+    'services/media-finalizer/package-lock.json',
+    'infra/media-finalizer/foundation/template.yaml',
+    'infra/media-finalizer/foundation/guard.guard',
+    'infra/media-finalizer/regional/template.yaml',
+    'infra/media-finalizer/regional/guard.guard',
+    'infra/media-finalizer/edge/template.yaml',
+    'infra/media-finalizer/edge/guard.guard',
+  ];
+  const chars = ['a', 'b', 'c', 'd', 'e', 'f', '1', '2'];
+  return Object.fromEntries(names.map((name, index) => [name, H64(chars[index])]));
+}
+
+function genomeEvidence() {
+  return {
+    source: {
+      repository: SOURCE_REPOSITORY,
+      commitSha: 'a'.repeat(40),
+      treeSha: 'b'.repeat(40),
+      mainSha: 'a'.repeat(40),
+      immutable: true,
+      eligibility: {
+        state: 'VERIFIED_CURRENT_PROTECTED_MAIN',
+        dbConvergenceState: 'VERIFIED_LIVE',
+        dbConvergenceEvidenceSha256: H64('4'),
+      },
+    },
+    materials: materials(),
+    image: {
+      repository: ECR_REPOSITORY,
+      manifestDigest: MANIFEST,
+      baseDigest: `sha256:${H64('d')}`,
+    },
+    database: { migrationSetSha256: H64('e') },
+    sbom: {
+      specVersion: '1.7',
+      sha256: H64('f'),
+      subjectDigest: MANIFEST,
+      path: 'artifacts/media-cell/oci-sbom.cdx.json',
+      componentCount: 1,
+    },
+    attestations: {
+      provenance: { verified: true, evidenceSha256: H64('2') },
+      sbom: { verified: true, evidenceSha256: H64('3') },
+    },
+  };
 }
 
 test('Release Passport reuses the canonical SBOM digest that passed the supply gate', () => {
@@ -38,6 +109,12 @@ test('Attestation verification evidence is recursively canonicalized before hash
     /canonicalJson|canonicalize/,
     'Attestation evidence must use recursive canonicalization',
   );
+});
+
+test('OCI-pushed provenance and SBOM attestations are verified from the OCI registry', () => {
+  const workflow = readWorkflow();
+  const flags = workflow.match(/--bundle-from-oci/g) || [];
+  assert.equal(flags.length, 2, 'Both OCI attestation verifications must fetch their bundles from ECR');
 });
 
 test('Immutable ECR image publishing is retry-safe without weakening immutable tags', () => {
@@ -92,5 +169,68 @@ test('Scan evidence hash binds the image subject and stable finding identities, 
     workflow,
     /createHash\('sha256'\)\.update\(canonical\).*canonicalCounts/s,
     'findingsSha256 must not be derived only from aggregate severity counters',
+  );
+});
+
+test('SBOM identity excludes volatile Syft serial number and generation timestamp', () => {
+  const { bindRealContainerSbom, validateRealContainerSbom } = require(SBOM_HELPER);
+  const first = bindRealContainerSbom(
+    rawSbom('2026-08-28T07:00:00Z', 'urn:uuid:11111111-1111-4111-8111-111111111111'),
+    { repository: ECR_REPOSITORY, manifestDigest: MANIFEST },
+  );
+  const second = bindRealContainerSbom(
+    rawSbom('2026-08-28T07:15:00Z', 'urn:uuid:22222222-2222-4222-8222-222222222222'),
+    { repository: ECR_REPOSITORY, manifestDigest: MANIFEST },
+  );
+  assert.equal(Object.hasOwn(first, 'serialNumber'), false, 'Volatile CycloneDX serialNumber must be normalized out');
+  assert.equal(Object.hasOwn(first.metadata, 'timestamp'), false, 'Volatile Syft metadata.timestamp must be normalized out');
+  assert.equal(
+    validateRealContainerSbom(first, MANIFEST).sha256,
+    validateRealContainerSbom(second, MANIFEST).sha256,
+    'Same OCI inventory must keep one deterministic SBOM identity across retries',
+  );
+});
+
+test('Genome binds repository, exact current-main eligibility, and DB convergence prerequisite evidence', () => {
+  const { createMediaCellGenome } = require(GENOME_HELPER);
+  const first = createMediaCellGenome(genomeEvidence());
+  assert.equal(first.source.repository, SOURCE_REPOSITORY);
+  assert.equal(first.source.mainSha, first.source.commitSha);
+  assert.equal(first.source.eligibility.state, 'VERIFIED_CURRENT_PROTECTED_MAIN');
+  assert.equal(first.source.eligibility.dbConvergenceState, 'VERIFIED_LIVE');
+
+  const changed = genomeEvidence();
+  changed.source.eligibility.dbConvergenceEvidenceSha256 = H64('5');
+  assert.notEqual(createMediaCellGenome(changed).id, first.id, 'DB prerequisite evidence must participate in Genome identity');
+
+  const wrongMain = genomeEvidence();
+  wrongMain.source.mainSha = '9'.repeat(40);
+  assert.throws(() => createMediaCellGenome(wrongMain), /GENOME_SOURCE_ELIGIBILITY_INVALID/);
+});
+
+test('Sealed Build verifies the exact customer-managed ECR KMS key ARN', () => {
+  const workflow = readWorkflow();
+  assert.match(
+    workflow,
+    /TIGER_MEDIA_ECR_KMS_KEY_ARN:\s*\$\{\{\s*vars\.TIGER_MEDIA_ECR_KMS_KEY_ARN\s*\}\}/,
+    'Protected media-build environment must provide the foundation RepositoryKmsKeyArn',
+  );
+  assert.match(workflow, /encryptionConfiguration\.kmsKey/, 'ECR repository inspection must read the actual KMS key identity');
+  assert.match(
+    workflow,
+    /test\s+"\$kms_key"\s*=\s*"\$TIGER_MEDIA_ECR_KMS_KEY_ARN"/,
+    'Actual ECR KMS key must exactly equal the protected expected foundation key ARN',
+  );
+});
+
+test('Release Passport binds the explicit PASS supply-gate decision and retains digest-addressed gate evidence', () => {
+  const workflow = readWorkflow();
+  assert.match(workflow, /artifacts\/media-cell\/supply-gate\.json/, 'Canonical supply-gate evidence must be retained for audit');
+  assert.match(workflow, /SUPPLY_GATE_SHA/, 'Passport evidence must include the canonical supply-gate evidence digest');
+  assert.match(workflow, /supplyGate/, 'Release evidence must bind the vulnerability gate decision');
+  assert.doesNotMatch(
+    workflow,
+    /rm\s+-f[^\n]*supply-gate\.json/,
+    'Canonical supply-gate evidence must not be deleted before evidence upload',
   );
 });
