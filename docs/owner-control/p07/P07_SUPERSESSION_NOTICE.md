@@ -1,19 +1,23 @@
 # P07 Supersession Notice
 
-**Status:** SUPERSEDED / HISTORICAL ONLY
-**Effective supersession:** 2026-08-15
-**Current authority:** `docs/owner-control/OWNER_BINDING_DECISIONS_2026-08-15.md`
+**Status:** SUPERSEDED / HISTORICAL ONLY  
+**Current authority:** `docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md`
 
-P07 is preserved as architecture/audit evidence. It is **not** a current product-policy source when it conflicts with a later owner decision.
+P07 is preserved only as architecture/audit evidence. It is **not** a current product-policy source.
 
-Machine-readable supersession token:
+Machine-readable supersession tokens:
 
-`FIXED_LISTING_LIFETIME_CANCELLED`
+- `FIXED_LISTING_LIFETIME_CANCELLED`
+- `FIXED_WEEKLY_POST_QUOTA_CANCELLED`
+- `TIMED_ACTIVATION_CARD_CANCELLED`
+- `PAID_PUBLICATION_GATE_CANCELLED`
 
-The former universal 120-day listing lifetime recorded in P07 is cancelled. P07 text, diagrams, data-dictionary expressions and coverage rows that describe that historical lifetime must never be used to restore a fixed listing age in runtime, schema migrations, UI copy, tests, CI or release decisions.
+Historical P07 wording about 120-day lifetime, weekly posting windows, publishing cards, activation duration, or paid publication entitlement must never feed Runtime, current schema behavior, UI copy, tests, CI, launch criteria, or current owner indexes.
 
-Current rule: organic listing availability is governed independently by current eligibility/status/archive/delete policy. Activation-card duration and TIGER PULSE/impression entitlement are separate paid-visibility concepts and must not be converted into a universal organic listing deletion timer.
+Current organic content availability is governed by status, owner action, moderation, legal/safety policy, and explicit archive/delete decisions—not a commercial/content timer.
 
-Other P07 security and data-integrity evidence remains useful where it does not conflict with later owner decisions, including Clerk identity boundaries, append-only audit intent, media sanitization/storage boundaries, canonical conversation pairing and executable cover-image integrity.
+Current Pulse value is verified eligible impressions under the current Pulse authority. It is separate from ordinary publication and has no product-time expiry.
 
-Do not edit historical artifacts merely to make them look current. New implementation and active tests must consume the latest owner authority and treat this directory as provenance unless a specific still-valid invariant is explicitly carried forward.
+Other P07 security and data-integrity evidence remains useful only where it does not conflict with the current owner authority, including Clerk identity boundaries, append-only audit intent, media sanitization/storage boundaries, canonical conversation pairing, and executable cover-image integrity.
+
+Do not restore historical product rules merely because they appear in P07 evidence. Git history is the provenance source; current implementation must consume `TIGER_OWNER_BINDING_CURRENT.md`.
