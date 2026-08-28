@@ -182,7 +182,7 @@ jobs:
         shell: bash
         run: |
           set -Eeuo pipefail
-          IMAGE_TAG="sha-${SOURCE_SHA}"
+          IMAGE_TAG="sha-${SOURCE_SHA}-run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}"
           IMAGE_TAGGED_URI="${ECR_URI}:${IMAGE_TAG}"
           docker build --pull=false --file services/media-finalizer/Dockerfile --tag "$IMAGE_TAGGED_URI" services/media-finalizer
           docker push "$IMAGE_TAGGED_URI"
@@ -235,7 +235,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           scan_raw=/tmp/tiger-media/scan-raw.json
-          complete=0
+          ready=0
           for attempt in $(seq 1 20); do
             if aws ecr describe-image-scan-findings \
               --repository-name "$ECR_REPOSITORY" \
@@ -245,8 +245,15 @@ jobs:
               --no-cli-pager > "$scan_raw"; then
               status="$(node -e "const x=require(process.argv[1]); process.stdout.write(String(x.imageScanStatus?.status||''));" "$scan_raw")"
               if [ "$status" = 'COMPLETE' ]; then
-                complete=1
+                ready=1
                 break
+              fi
+              if [ "$status" = 'ACTIVE' ]; then
+                scan_completed_at="$(node -e "const x=require(process.argv[1]); process.stdout.write(String(x.imageScanFindings?.imageScanCompletedAt||''));" "$scan_raw")"
+                if [ -n "$scan_completed_at" ]; then
+                  ready=1
+                  break
+                fi
               fi
               case "$status" in
                 FAILED|UNSUPPORTED_IMAGE|SCAN_ELIGIBILITY_EXPIRED|FINDINGS_UNAVAILABLE)
@@ -257,14 +264,26 @@ jobs:
             fi
             sleep 15
           done
-          test "$complete" = '1' || { echo 'ECR_SCAN_NOT_COMPLETE' >&2; exit 1; }
+          test "$ready" = '1' || { echo 'ECR_SCAN_NOT_READY' >&2; exit 1; }
 
-          node - "$scan_raw" /tmp/tiger-media/artifacts/media-cell/scan-evidence.json <<'NODE'
+          node - "$scan_raw" "$MANIFEST_DIGEST" "$ECR_REPOSITORY" /tmp/tiger-media/artifacts/media-cell/scan-evidence.json <<'NODE'
           const crypto = require('node:crypto');
           const fs = require('node:fs');
-          const [sourceFile, outputFile] = process.argv.slice(2);
+          const { canonicalJson } = require('./scripts/release/media-cell-sbom.cjs');
+          const [sourceFile, manifestDigest, repositoryName, outputFile] = process.argv.slice(2);
           const raw = JSON.parse(fs.readFileSync(sourceFile, 'utf8'));
-          const counts = raw.imageScanFindings?.findingSeverityCounts || {};
+          if (raw.nextToken) throw new Error('ECR_SCAN_FINDINGS_TRUNCATED');
+          if (raw.repositoryName !== repositoryName || raw.imageId?.imageDigest !== manifestDigest) {
+            throw new Error('ECR_SCAN_SUBJECT_MISMATCH');
+          }
+          const status = String(raw.imageScanStatus?.status || '');
+          if (status !== 'COMPLETE' && status !== 'ACTIVE') throw new Error('ECR_SCAN_NOT_READY');
+          const findings = raw.imageScanFindings || {};
+          const scanCompletedAt = String(findings.imageScanCompletedAt || '');
+          if (!scanCompletedAt || Number.isNaN(Date.parse(scanCompletedAt))) {
+            throw new Error('ECR_SCAN_COMPLETION_EVIDENCE_INVALID');
+          }
+          const counts = findings.findingSeverityCounts || {};
           const canonicalCounts = {
             CRITICAL: Number(counts.CRITICAL || 0),
             HIGH: Number(counts.HIGH || 0),
@@ -272,18 +291,45 @@ jobs:
             LOW: Number(counts.LOW || 0),
             UNDEFINED: Number(counts.UNDEFINED || 0),
           };
-          const canonical = JSON.stringify(canonicalCounts);
+          const enhancedFindings = Array.isArray(findings.enhancedFindings) ? findings.enhancedFindings : [];
+          const reportedFindingCount = Object.values(counts).reduce((sum, value) => sum + Number(value || 0), 0);
+          if (reportedFindingCount > 0 && enhancedFindings.length === 0) {
+            throw new Error('ECR_ENHANCED_FINDINGS_MISSING');
+          }
+          const projectedFindings = enhancedFindings.map((finding) => {
+            const vulnerability = finding.packageVulnerabilityDetails || {};
+            const vulnerablePackages = Array.isArray(vulnerability.vulnerablePackages)
+              ? vulnerability.vulnerablePackages.map((pkg) => ({
+                name: String(pkg.name || ''),
+                version: String(pkg.version || ''),
+                packageManager: String(pkg.packageManager || ''),
+              })).sort((left, right) => canonicalJson(left).localeCompare(canonicalJson(right)))
+              : [];
+            const projected = {
+              findingArn: String(finding.findingArn || ''),
+              vulnerabilityId: String(vulnerability.vulnerabilityId || ''),
+              severity: String(finding.severity || ''),
+              vulnerablePackages,
+            };
+            if (!projected.findingArn && !projected.vulnerabilityId) throw new Error('ECR_FINDING_IDENTITY_MISSING');
+            return projected;
+          }).sort((left, right) => canonicalJson(left).localeCompare(canonicalJson(right)));
+          const findingProjection = {
+            subject: { repositoryName, manifestDigest },
+            findings: projectedFindings,
+          };
           const normalized = {
-            status: 'COMPLETE',
+            status,
             scanMode: 'ENHANCED',
+            scanCompletedAt,
             critical: canonicalCounts.CRITICAL,
             high: canonicalCounts.HIGH,
             medium: canonicalCounts.MEDIUM,
             low: canonicalCounts.LOW,
             unknown: canonicalCounts.UNDEFINED,
-            findingsSha256: crypto.createHash('sha256').update(canonical).digest('hex'),
+            findingsSha256: crypto.createHash('sha256').update(canonicalJson(findingProjection)).digest('hex'),
           };
-          fs.writeFileSync(outputFile, `${JSON.stringify(normalized)}\n`, { mode: 0o600 });
+          fs.writeFileSync(outputFile, `${canonicalJson(normalized)}\n`, { mode: 0o600 });
           NODE
           rm -f "$scan_raw"
 
@@ -293,7 +339,6 @@ jobs:
             "$MANIFEST_DIGEST" \
             /tmp/tiger-media/supply-gate.json
           node -e "const x=require('/tmp/tiger-media/supply-gate.json'); if(x.decision!=='PASS') process.exit(1)"
-          rm -f /tmp/tiger-media/supply-gate.json
 
       - name: Create exact OCI provenance attestation
         id: provenance
@@ -343,17 +388,17 @@ jobs:
             /tmp/tiger-media/artifacts/media-cell/attestation-evidence.json <<'NODE'
           const crypto = require('node:crypto');
           const fs = require('node:fs');
+          const { canonicalJson } = require('./scripts/release/media-cell-sbom.cjs');
           const [provenanceFile, sbomFile, outputFile] = process.argv.slice(2);
-          const canonical = (value) => JSON.stringify(value, Object.keys(value).sort());
           const digest = (file) => {
             const parsed = JSON.parse(fs.readFileSync(file, 'utf8'));
-            return crypto.createHash('sha256').update(canonical(parsed)).digest('hex');
+            return crypto.createHash('sha256').update(canonicalJson(parsed)).digest('hex');
           };
           const output = {
             provenance: { verified: true, evidenceSha256: digest(provenanceFile) },
             sbom: { verified: true, evidenceSha256: digest(sbomFile) },
           };
-          fs.writeFileSync(outputFile, `${JSON.stringify(output)}\n`, { mode: 0o600 });
+          fs.writeFileSync(outputFile, `${canonicalJson(output)}\n`, { mode: 0o600 });
           NODE
           rm -f /tmp/tiger-media/provenance-verification.json /tmp/tiger-media/sbom-attestation-verification.json
 
@@ -363,8 +408,9 @@ jobs:
           set -Eeuo pipefail
           node scripts/release/media-cell-migration-set.cjs > /tmp/tiger-media/artifacts/media-cell/migration-set.json
           MIGRATION_SET_SHA="$(node -e "const x=require('/tmp/tiger-media/artifacts/media-cell/migration-set.json'); process.stdout.write(x.sha256)")"
-          SBOM_SHA="$(sha256sum /tmp/tiger-media/artifacts/media-cell/oci-sbom.cdx.json | awk '{print $1}')"
-          COMPONENT_COUNT="$(node -e "const x=require('/tmp/tiger-media/artifacts/media-cell/oci-sbom.cdx.json'); process.stdout.write(String(x.components.length));")"
+          SBOM_SHA="$(node -e "const x=require('/tmp/tiger-media/supply-gate.json'); process.stdout.write(x.sbomSha256)")"
+          COMPONENT_COUNT="$(node -e "const x=require('/tmp/tiger-media/supply-gate.json'); process.stdout.write(String(x.componentCount));")"
+          printf '%s' "$SBOM_SHA" | grep -Eq '^[0-9a-f]{64}$'
 
           export MIGRATION_SET_SHA SBOM_SHA COMPONENT_COUNT
           export DOCKERFILE_SHA="$(sha256sum services/media-finalizer/Dockerfile | awk '{print $1}')"
@@ -425,7 +471,7 @@ jobs:
           node scripts/release/media-cell-passport.cjs \
             /tmp/tiger-media/release-evidence.json \
             /tmp/tiger-media/artifacts/media-cell/release-passport-v2.json
-          rm -f /tmp/tiger-media/release-evidence.json /tmp/tiger-media/genome-evidence.json
+          rm -f /tmp/tiger-media/release-evidence.json /tmp/tiger-media/genome-evidence.json /tmp/tiger-media/supply-gate.json
 
           cat > /tmp/tiger-media/artifacts/media-cell/source-identity.json <<EOF
           {"repository":"vvipautoparts-blip/TIGER-VVIP","commitSha":"$SOURCE_SHA","treeSha":"$SOURCE_TREE","mainSha":"$MAIN_SHA","dbConvergenceState":"$DB_CONVERGENCE_STATE","dbConvergenceEvidenceSha256":"$DB_CONVERGENCE_EVIDENCE_SHA256"}
