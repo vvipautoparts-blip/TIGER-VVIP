@@ -2,138 +2,159 @@
 
 **Status:** `CURRENT_ONLY / OWNER_BINDING / FIRST_REFERENCE / NO_FALLBACK / NO_IN_TREE_ARCHIVE`  
 **Effective owner decision:** 2026-08-28  
-**Scope:** the entire current VVIP TIGER platform: product, UI/UX, runtime, APIs, database current state, configuration, tests, CI/release gates, current documentation, launch criteria, cleanup and operational authority.
+**Scope:** the entire current VVIP TIGER platform.
 
 ## 0. Mandatory first reference — before every action
 
-`TIGER_OWNER_BINDING_CURRENT.md` is the **first mandatory reference before any action, modification, cleanup, feature, refactor, migration, test change, UI change, policy change, release action, operational action, or architectural decision** in VVIP TIGER.
+This file is the **first mandatory reference before any action, modification, cleanup, feature, refactor, migration, test change, UI change, policy change, release action, operational action, or architectural decision**.
 
-The mandatory sequence is:
+Mandatory sequence:
 
-`READ CURRENT OWNER AUTHORITY → IDENTIFY DOMAIN → COMPARE WITH EXISTING STATE → APPLY NEWEST APPROVED RULE → REMOVE CONFLICTING OLD RULE → TEST → REVIEW → MERGE`
+`READ CURRENT OWNER AUTHORITY → IDENTIFY DOMAIN → COMPARE EXISTING STATE → APPLY NEWEST APPROVED RULE → DELETE CONFLICTING OLD RULE FROM CURRENT TREE → TEST → REVIEW → MERGE`
 
-No implementation work may intentionally begin from an older specification when a newer approved owner rule exists.
+If a newer owner decision arrives while work is in progress, the work must be re-evaluated before continuing.
 
-If a proposed action conflicts with this file or another newer `CURRENT_ONLY` authority, the action must stop until it is rewritten to match the newest authority. A conflicting older item is not a fallback and is not preserved inside the current tree.
-
-This preflight is required continuously: if a newer owner decision is issued while work is in progress, the in-progress work must be re-evaluated before continuing.
-
-## 1. Constitution — newest approved decision wins
+## 1. Latest-only constitution
 
 The newest explicit owner-approved decision is the only operative truth inside its domain.
 
-If an older requirement, document, code path, test, configuration value, schema behavior, route, mock, feature flag, fallback, launch criterion or generated copy conflicts with the newest owner decision, the older item is immediately `SUPERSEDED / NON_OPERATIVE` and must be removed from the current repository tree and every active platform surface.
+Any conflicting older requirement, document, code path, test, configuration value, schema behavior, route, mock, feature flag, fallback, launch criterion, generated copy, price, percentage, duration, role rule, or financial rule is immediately superseded and must be deleted from the current repository tree and every active platform surface.
 
-No active fallback, compatibility layer, hidden copy, trash folder, archive folder, renamed legacy copy, duplicate reference, test fixture or generated artifact may preserve a conflicting older owner rule inside the current platform tree.
+No hidden copy, trash folder, archive folder, renamed legacy file, fallback, compatibility layer, duplicate current reference, fixture, or generated artifact may preserve a conflicting old rule inside the current platform tree.
 
-**Immediate-disposal rule:** once supersession is proven, the old conflicting item is deleted from the working tree in the same cleanup change. It is not moved to another repository folder and no in-repository recycle bin is retained.
+Historical provenance is Git history only. Git history never feeds current runtime, tests, configuration, owner indexes, release gates, or product copy.
 
-Historical provenance is Git history only. Git history is not an active platform surface and must never feed runtime, tests, current owner indexes, current configuration, release gates or generated product copy. Rewriting Git history is a separate destructive repository-forensics operation and is not required for normal platform cleanup.
+## 2. No product/content duration
 
-## 2. Product timing — no commercial/content lifetime
+There is no owner-approved product-time lifetime for:
 
-There is **no owner-approved time lifetime for ordinary posts/listings, publishing access, visibility cards, Pulse grants or purchased visibility balances**.
+- ordinary posts/listings;
+- publishing access;
+- visibility cards/credits;
+- Pulse visibility allocations/balances.
 
-Therefore the current platform must not enforce or advertise any product rule such as:
+No 120-day, 40-day, 30-day, monthly, or equivalent commercial/content timer is current authority.
 
-- 120-day post/listing lifetime;
-- 40-day listing deletion;
-- 30-day publishing card;
-- monthly publishing subscription cycle;
-- activation-card duration controlling organic publication;
-- time expiry of purchased Pulse verified-impression value;
-- any equivalent days/months timer inherited from superseded product designs.
+Organic content availability follows current status, owner action, moderation, legal/safety policy, and explicit archive/delete decisions—not elapsed commercial time.
 
-Organic content remains available according to current status, owner action, moderation, legal/safety policy and explicit archive/delete decisions—not merely because a commercial/content timer elapsed.
-
-**Security/technical TTL exception:** short-lived OTPs, authentication/session tokens, signed URLs, anti-replay windows, caches, temporary quotes and similar security/technical expirations are permitted when they protect the system. They are not product/content lifetimes and must not be presented as such.
+Security/technical TTLs such as OTP, authentication/session tokens, signed URLs, anti-replay windows, caches, and temporary payment quotes remain permitted because they protect the system and are not product lifetimes.
 
 ## 3. Ordinary publication — one free path
 
-Ordinary compliant publication is not a paid product and has one current path:
+Current path:
 
 `Create/Complete → Preview → Submit for Review → Trusted Review → Publish`
 
-Current rules:
+Rules:
 
-- no publishing subscription;
-- no publishing card/catalog;
-- no purchased publishing slot;
-- no `planId` / `plan_id` prerequisite to ordinary review submission;
-- no `entitlementReceipt` / `entitlement_receipt` prerequisite to ordinary review submission;
-- no payment/checkout prerequisite to create or submit ordinary content;
-- no `requestPublication(...)` contract that binds ordinary publication to a paid visibility entitlement;
-- no fixed commercial or weekly posting quota is current authority;
-- anti-spam, anti-abuse and safety rate controls may exist as technical/policy protections but must not become a sold publishing quota;
-- the current ordinary Marketplace listing media allowance remains a maximum of **7 images** unless a newer explicit owner decision changes it.
+- ordinary publishing is not payment-gated;
+- no publishing subscription/card/catalog/paid slot;
+- no plan or entitlement receipt prerequisite;
+- no legacy paid `requestPublication(...)` path;
+- no fixed commercial/weekly posting quota is current authority;
+- anti-spam/anti-abuse controls may exist but cannot become a sold posting quota;
+- current ordinary Marketplace listing media maximum remains 7 images unless a newer owner decision changes it.
 
-## 4. Paid visibility — TIGER Pulse Ring only
+## 4. TIGER Pulse Ring — latest visibility model
 
-The current advertiser-paid product family is **TIGER PULSE RING**.
+Pulse is optional paid visibility for eligible content after ordinary publication eligibility.
 
-Current purchasable reference levels:
+The only current global reference purchase levels are:
 
-- `SPARK` — 3 JOD;
-- `PULSE` — 10 JOD;
-- `SURGE` — 20 JOD.
+| Level | Price |
+|---|---:|
+| `PULSE_2` | **2 JOD** |
+| `PULSE_10` | **10 JOD** |
+| `PULSE_25` | **25 JOD** |
+| `PULSE_45` | **45 JOD** |
 
-There is no fourth tier and no effective stacked tier above 20 JOD.
+Every level maps to its own server-authoritative visibility allocation. The user sees the selected price and resulting visibility information before payment.
 
-Purchased value is a server-quoted quantity of verified eligible impressions. It is not a publishing permission, publishing slot, organic-post lifetime, guaranteed rank or time-duration product.
+Pulse sells visibility quantity/strength, not days. Purchased Pulse value has no product-time expiry.
 
-Purchased Pulse verified-impression balance has no product-time expiry. It remains until consumed or otherwise lawfully voided/refunded under the current payment policy, or the underlying content becomes ineligible under safety/legal/policy rules.
+Current targeting may include one selected sector or all eligible sectors, plus supported geographic scope such as neighborhood, area, governorate, district/liwa, or country.
 
-## 5. Platform transaction boundary
+If there is no attributed GENERAL_MANAGER, SECTOR_MANAGER, or MARKETER sale claim, the user receives a visible **7% active-user self-service discount** before payment. If a valid sales claimant exists, this discount does not apply.
 
-VVIP TIGER connects parties; it is not a party to the underlying buyer/seller or service-provider/beneficiary transaction.
+Only one sales role may own one purchase claim; only that role may receive its 7% commission.
 
-The platform does not provide buyer/seller checkout, escrow, custody, settlement, delivery, warranty execution, transaction guarantee or marketplace transaction commission flow.
+Detailed Pulse authority:
 
-Platform-owned financial scope is limited to explicitly approved platform services such as advertising/visibility billing, applicable platform taxes/fees, platform accounting and reconciliation.
+`docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md`
 
-## 6. Product identity
+## 5. Current financial distribution — exact 100%
 
-The current primary product identity is `SOCIAL_NETWORK_FIRST`.
+All internal percentages are calculated from the amount actually captured from the user after any valid self-service discount.
 
-Marketplace is a module inside the social platform. Pulse is the paid-visibility service. Neither replaces Home/Social Core as the platform's primary identity.
+| Allocation | Percentage |
+|---|---:|
+| OWNER | **5%** |
+| PARTNER_1 | **5%** |
+| PARTNER_2 | **5%** |
+| PARTNER_3 | **5%** |
+| ACTUAL_OPERATIONS | **43%** |
+| TAX_RESERVE | **16%** |
+| SALES_ADMINISTRATION | **21%** |
+| **TOTAL** | **100%** |
+
+`ACTUAL_OPERATIONS 43% = 8% Risk + 8% Maintenance + 8% Development + 8% Technical Support + 8% Advertising + 3% CSR.`
+
+`SALES_ADMINISTRATION 21% = 7% GENERAL_MANAGER + 7% SECTOR_MANAGER + 7% MARKETER`, but **only the one role that actually owns the sale receives its 7%**. Non-winning/absent sales-role shares route to OWNER with explicit ledger reason codes.
+
+If the user purchases self-service with no sales claimant, the user first receives the 7% discount and no sales role receives commission; the 21% sales-administration allocation on the captured discounted amount routes to OWNER with absent-role reason codes.
+
+Partner or sales-role payout destination must be supplied through the dedicated account field. If no valid payout destination exists within 12 hours of role grant, payout eligibility is suspended and the affected allocation routes to OWNER unless the owner explicitly extends the grace period.
+
+Eligible commissions settle every 14 days. Settlement may reduce payable balance to zero, but immutable transaction/ledger history is never erased.
+
+Detailed authority:
+
+`docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md`
+
+## 6. Platform transaction boundary
+
+VVIP TIGER connects parties and is not a party to buyer/seller or service-provider/beneficiary transactions.
+
+The platform does not provide marketplace-party checkout, escrow, custody, settlement, delivery, warranty execution, transaction guarantee, or marketplace transaction commission flow.
+
+Platform-owned financial scope is limited to approved platform services such as paid visibility/advertising and its internal accounting.
 
 ## 7. Current operational authorities
 
-The current operational authorities remain:
+1. `TIGER_OWNER_BINDING_CURRENT.md` — mandatory first reference and latest-only constitution.
+2. `TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md` — social product authority.
+3. `TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` — paid visibility authority.
+4. `TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md` — current 100% financial distribution authority.
+5. `TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md` — cleanup governance.
+6. `TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md` — protected destructive-disposal gate.
+7. `TIGER_OWNER_CURRENT_REFERENCE_AR.md` — owner router.
+8. `project-control/authority/authority-registry.v1.json` — machine-readable authority graph.
+9. `config/fusion/current-authority.json` plus current finance configuration — machine-readable product truth.
+10. exact Git SHA/tree + matching CI evidence — implementation truth.
 
-- `TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md` — social product authority;
-- `TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` — paid visibility authority;
-- `TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md` — cleanup governance;
-- `TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md` — protected destructive-disposal/post-launch autonomy gate;
-- `TIGER_OWNER_CURRENT_REFERENCE_AR.md` — owner routing page;
-- `project-control/authority/authority-registry.v1.json` — machine-readable domain authority graph;
-- exact-head repository bytes + matching CI evidence — implementation truth.
+## 8. Global anti-legacy release rule
 
-## 8. Global anti-legacy rule
+Release is blocked if any active surface restores a superseded rule, including:
 
-The current platform is blocked from release when any active surface restores a superseded owner rule.
-
-At minimum, current runtime/tests/config/current docs must reject:
-
-- legacy fixed four-posts-per-week product quota;
-- universal 120-day content lifetime;
+- 4-posts/week commercial quota;
+- 120/40/30-day product/content lifetime;
 - publishing cards/subscriptions/paid slots;
 - payment-gated ordinary publication;
-- legacy publication entitlement/plan gate;
-- timed activation-card control of organic content;
-- legacy 45/80/120 JOD current Pulse/product tiers;
-- marketplace transaction payment/intermediation;
-- duplicate current owner authorities in the same domain;
-- any in-tree trash/archive/legacy copy created merely to preserve a superseded conflicting rule.
+- publication plan/entitlement gate;
+- timed activation card;
+- any current Pulse price set other than 2/10/25/45 JOD;
+- hierarchical multi-winner sales commission on one purchase;
+- any financial split conflicting with 5+5+5+5+43+16+21=100%;
+- marketplace-party transaction intermediation;
+- duplicate current authorities;
+- any in-tree archive/trash/legacy copy preserving a superseded conflicting rule.
 
 ## 9. Migration and deletion safety
 
-Historical migration files already used to build database state are not rewritten to fake history. Their obsolete effect is neutralized by forward migrations and current-schema verification.
+Already-applied historical database migrations are not rewritten to fake history. Their obsolete effects are neutralized by protected forward migrations and current-schema verification.
 
-For all other superseded conflicting current-tree material, the default is direct deletion from the current tree after Proof-of-Reclamation. No in-tree trash or archive copy is created.
-
-Destructive deletion remains governed by PHOENIX Proof-of-Reclamation and the AION disposal chain. This safety rule protects data/evidence; it does not authorize keeping a superseded rule active or hidden inside the platform tree.
+All other proven superseded conflicting current-tree material is directly deleted from the current tree after PHOENIX Proof-of-Reclamation. It is not moved into another repository folder.
 
 ## 10. Owner acceptance statement
 
-> **This file is the first mandatory reference before every action or modification in VVIP TIGER. Keep only the newest approved owner truth in the active platform. When a newer approved rule supersedes an older conflicting rule, remove the older rule completely from the current tree and every active surface in the same cleanup change. Do not hide it, rename it, move it to an archive/trash folder, or keep it as fallback. Historical provenance is Git history only. There is no product/content duration for posts, listings, publishing access, visibility cards or Pulse verified-impression balances. Ordinary publication is not payment-gated and has no fixed commercial/weekly posting quota. Pulse is separate paid visibility at 3/10/20 JOD.**
+> **This is the first reference before every action. Keep only the newest approved owner truth. Delete every conflicting older rule from the current platform tree with no fallback and no in-tree archive. Current Pulse prices are 2/10/25/45 JOD, each with its own visibility allocation and no product-time expiry. Ordinary publishing is free. Current Pulse revenue distribution is exactly OWNER 5%, PARTNER_1 5%, PARTNER_2 5%, PARTNER_3 5%, ACTUAL_OPERATIONS 43%, TAX_RESERVE 16%, SALES_ADMINISTRATION 21%. Only one sales role wins one sale commission. Self-service with no claimant receives a visible 7% discount.**
