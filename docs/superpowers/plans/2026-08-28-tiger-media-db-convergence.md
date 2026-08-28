@@ -1,8 +1,8 @@
 # TIGER Media DB Convergence — Implementation Plan
 
-**Date:** 2026-08-28  
-**Authority:** `docs/superpowers/specs/2026-08-28-tiger-sovereign-constellation-2026.md` §9 and `docs/ai/SUPABASE_SAFETY_POLICY.md`  
-**Starting main:** `21ba2b13a0dd2616eb2a51b9d83065d1ec1aac04` (merged PR #341)  
+**Date:** 2026-08-28
+**Authority:** `docs/superpowers/specs/2026-08-28-tiger-sovereign-constellation-2026.md` §9 and `docs/ai/SUPABASE_SAFETY_POLICY.md`
+**Starting main:** `21ba2b13a0dd2616eb2a51b9d83065d1ec1aac04` (merged PR #341)
 **Production project:** `zelcngyyvbomuzokvuxo` / Seoul `ap-northeast-2`
 
 ## Goal
