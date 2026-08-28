@@ -1,7 +1,7 @@
 # TIGER OWNER BINDING CURRENT — LATEST ONLY
 
-**Status:** `CURRENT_ONLY / OWNER_BINDING / FIRST_REFERENCE / NO_FALLBACK / NO_IN_TREE_ARCHIVE`  
-**Effective owner decision:** 2026-08-28  
+**Status:** `CURRENT_ONLY / OWNER_BINDING / FIRST_REFERENCE / NO_FALLBACK / NO_IN_TREE_ARCHIVE`
+**Effective owner decision:** 2026-08-28
 **Scope:** the entire current VVIP TIGER platform.
 
 ## 0. Mandatory first reference — before every action
