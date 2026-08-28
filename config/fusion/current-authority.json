@@ -72,25 +72,6 @@
     "temporary_purchase_quote"
   ],
   "historicalEvidencePolicy": "GIT_HISTORY_ONLY_FOR_SUPERSEDED_CONFLICTING_MATERIAL",
-  "supersededDecisions": [
-    {"id":"LEGACY_JORDAN_FIRST","status":"SUPERSEDED"},
-    {"id":"LEGACY_FIXED_THREE_SECTORS","status":"SUPERSEDED"},
-    {"id":"LEGACY_FOUR_POSTS_WEEK","status":"SUPERSEDED"},
-    {"id":"LEGACY_120_DAY_LIFETIME","status":"SUPERSEDED"},
-    {"id":"LEGACY_40_DAY_LISTING_DELETE","status":"SUPERSEDED"},
-    {"id":"LEGACY_PUBLISHING_CARDS","status":"SUPERSEDED"},
-    {"id":"LEGACY_PUBLISHING_SUBSCRIPTIONS","status":"SUPERSEDED"},
-    {"id":"LEGACY_PAID_PUBLISHING_SLOTS","status":"SUPERSEDED"},
-    {"id":"LEGACY_PUBLICATION_PLAN_ENTITLEMENT_GATE","status":"SUPERSEDED"},
-    {"id":"LEGACY_TIMED_ACTIVATION_CARD","status":"SUPERSEDED"},
-    {"id":"LEGACY_3_10_20_PULSE_TIERS","status":"SUPERSEDED"},
-    {"id":"LEGACY_45_80_120_CURRENT_TIERS","status":"SUPERSEDED"},
-    {"id":"LEGACY_TIGER_CARE","status":"SUPERSEDED"},
-    {"id":"LEGACY_BLUE_LOGIN","status":"SUPERSEDED"},
-    {"id":"LEGACY_SEPARATE_ADMIN_SURFACE","status":"SUPERSEDED"},
-    {"id":"LEGACY_MARKETPLACE_TRANSACTION_COMMISSION_PAYOUT","status":"SUPERSEDED"},
-    {"id":"LEGACY_TIGERPAY_MARKETPLACE_TRANSACTION_SETTLEMENT","status":"SUPERSEDED"}
-  ],
   "retainedFoundations": [
     "SOA",
     "RLS_DEFAULT_DENY",
