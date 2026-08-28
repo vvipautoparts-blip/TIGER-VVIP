@@ -1,6 +1,6 @@
 # مرجع مالك TIGER الحالي — CURRENT ONLY
 
-**الحالة:** `CURRENT OWNER ENTRYPOINT / CURRENT_ONLY / FIRST_REFERENCE / NO_FALLBACK / NO_IN_TREE_ARCHIVE`  
+**الحالة:** `CURRENT OWNER ENTRYPOINT / CURRENT_ONLY / FIRST_REFERENCE / NO_FALLBACK / NO_IN_TREE_ARCHIVE`
 **آخر اعتماد:** 2026-08-28
 
 هذه هي نقطة الدخول الحالية للمالك، والمرجع الأول الإلزامي قبل أي إجراء هو:
@@ -56,13 +56,32 @@
 3. `TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` — الظهور المدفوع 2/10/25/45 بلا مدة.
 4. `TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md` — التوزيع المالي 100%.
 5. `TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md` — حوكمة التنظيف.
-6. `TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md` — بوابة الحذف المدمر.
+6. `TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة `post-launch-autonomy` المستقبلية المحمية.
 7. `project-control/authority/authority-registry.v1.json` — Authority Graph الآلي.
 8. `config/fusion/current-authority.json` — عقد المنتج الآلي.
 9. `config/finance/current-distribution.json` — عقد التوزيع المالي الآلي.
 10. exact Git SHA/tree + matching CI evidence — حقيقة التنفيذ.
 
 أي ملف آخر يتعارض مع هذه السلطات لا يصبح مرجعًا؛ يُحذف من الشجرة الحالية بعد إثبات التعارض.
+
+## TIGER AION — سلطة ما بعد الإطلاق المحمية
+
+مرجع السلطة الحالي الكامل:
+
+`docs/owner-control/TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md`
+
+النطاق الآلي: `post-launch-autonomy`.
+
+`TIGER AEGIS NEXUS` و`TIGER ORACLE IMMUNE CORE` أسماء تاريخية `HISTORICAL_ONLY` وغير مخولة كسلطة Current، ولا يجوز استعمالهما كـfallback.
+
+حالة التنفيذ المثبتة على فرع AION هي:
+
+- `BRANCH_A0_TO_A9_VERIFIED`؛
+- `PRODUCTION_NOT_ACTIVATED`؛
+- AION لا يمنح أي تفويض لتغيير `main` أو Production من هذا المرجع؛
+- checkpoint المثبت: `ca76f5e1d8dcf60521b0d25545ed0c1c12d015ec`.
+
+هذه الإشارة تحفظ اتصال مرجع المالك بسلطة TIGER AION دون تحويل حالة الفرع إلى تصريح Production أو تجاوز بوابة الإطلاق العالمي.
 
 ## قاعدة التنظيف
 
