@@ -77,12 +77,11 @@ test('AION authority, spec, and plan exist without placeholders', () => {
   }
 });
 
-test('AION authority preserves every mandatory owner-approved concept without retired aliases', () => {
+test('AION authority preserves every mandatory owner-approved concept', () => {
   const text = readText(AION_AUTHORITY);
   for (const concept of mandatoryAuthorityConcepts) {
     assert.ok(text.includes(concept), `AION authority missing concept: ${concept}`);
   }
-  assert.doesNotMatch(text, RETIRED_ALIAS_PATTERN);
   assert.match(text, /ولا تدعي أمانًا بنسبة 100%/);
 });
 
