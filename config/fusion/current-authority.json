@@ -3,6 +3,10 @@
   "productIdentity": "GLOBAL_FIRST",
   "primaryProductIdentity": "SOCIAL_NETWORK_FIRST",
   "currentReference": "docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md",
+  "firstReferenceRequired": true,
+  "authorityPreflight": "OWNER_BINDING_CURRENT_FIRST",
+  "supersededMaterialDisposition": "DELETE_FROM_CURRENT_TREE_NO_FALLBACK_NO_IN_TREE_ARCHIVE",
+  "recheckOnNewOwnerDecision": true,
   "ownerOperationalIndex": "docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md",
   "tigerPulseOwnerReference": "docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md",
   "tigerSocialCoreOwnerReference": "docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md",
@@ -62,7 +66,7 @@
     "cache",
     "temporary_purchase_quote"
   ],
-  "historicalEvidencePolicy": "GIT_HISTORY_OR_NON_OPERATIVE_AUDIT_ONLY",
+  "historicalEvidencePolicy": "GIT_HISTORY_ONLY_FOR_SUPERSEDED_CONFLICTING_MATERIAL",
   "supersededDecisions": [
     {"id":"LEGACY_JORDAN_FIRST","status":"SUPERSEDED"},
     {"id":"LEGACY_FIXED_THREE_SECTORS","status":"SUPERSEDED"},
