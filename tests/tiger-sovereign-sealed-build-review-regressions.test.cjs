@@ -40,23 +40,29 @@ test('Attestation verification evidence is recursively canonicalized before hash
   );
 });
 
-test('Immutable ECR image publishing is retry-safe for the same source SHA', () => {
+test('Immutable ECR image publishing is retry-safe without weakening immutable tags', () => {
   const workflow = readWorkflow();
   const buildPushStart = workflow.indexOf('- name: Build once and push once');
   assert.notEqual(buildPushStart, -1, 'BUILD_PUSH_STEP_MISSING');
   const buildPushEnd = workflow.indexOf('\n      - name:', buildPushStart + 1);
   const step = workflow.slice(buildPushStart, buildPushEnd === -1 ? undefined : buildPushEnd);
-  assert.match(step, /describe-images/, 'Retry-safe publishing must inspect an existing immutable tag before push');
-  assert.match(step, /existing|EXISTING|already|ALREADY/, 'Retry-safe publishing must branch on existing tag state');
-  assert.match(step, /MANIFEST_DIGEST/, 'Existing tag recovery must resolve the immutable manifest digest');
+  const uniqueAttemptTag = /IMAGE_TAG=.*GITHUB_RUN_ID.*GITHUB_RUN_ATTEMPT|IMAGE_TAG=.*GITHUB_RUN_ATTEMPT.*GITHUB_RUN_ID/s.test(step);
+  const validatedExistingDigest = /describe-images/.test(step) && /existing|EXISTING|already|ALREADY/.test(step);
+  assert.equal(
+    uniqueAttemptTag || validatedExistingDigest,
+    true,
+    'Immutable publishing must use a unique per-attempt tag or safely validate/reuse an existing digest',
+  );
+  assert.match(step, /MANIFEST_DIGEST/, 'Publishing must resolve the immutable manifest digest');
 });
 
-test('Enhanced continuous scanning accepts ACTIVE only through explicit ready-state handling', () => {
+test('Enhanced continuous scanning accepts ACTIVE only with completed-findings evidence', () => {
   const workflow = readWorkflow();
+  assert.match(workflow, /ACTIVE/, 'CONTINUOUS_SCAN can report ACTIVE and must be handled explicitly');
   assert.match(
     workflow,
-    /ACTIVE/,
-    'CONTINUOUS_SCAN can report ACTIVE and must be handled explicitly',
+    /imageScanCompletedAt/,
+    'ACTIVE must be accepted only after evidence of at least one completed scan exists',
   );
   assert.doesNotMatch(
     workflow,
@@ -71,6 +77,11 @@ test('Scan evidence hash binds the image subject and stable finding identities, 
     workflow,
     /enhancedFindings|findings\s*\|\|\s*\[\]/,
     'Evidence projection must include actual scanner findings',
+  );
+  assert.match(
+    workflow,
+    /findingArn|vulnerabilityId|\bname\b/,
+    'Evidence projection must include stable finding identifiers',
   );
   assert.match(
     workflow,
