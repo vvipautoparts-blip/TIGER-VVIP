@@ -52,12 +52,6 @@
       "CRYPTO_GENOME",
       "TIGER_CONSTITUTION"
     ],
-    "retired_non_authoritative_aliases": [
-      "TIGER AEGIS NEXUS",
-      "TIGER ORACLE IMMUNE CORE",
-      "LEGACY_POST_LAUNCH_CHECKLIST_MODEL"
-    ],
-    "fallback_to_retired_aliases": false,
     "fail_closed_invariants": {
       "no_evidence_no_action": true,
       "no_policy_no_action": true,
