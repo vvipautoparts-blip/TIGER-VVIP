@@ -1,9 +1,9 @@
 with
 required_migrations(version) as (
-  values ('20260816090001'), ('20260827120000')
+  values ('20260816090001'), ('20260827120000'), ('20260828140000')
 ),
 migration_check as (
-  select count(*) = 2 as ok
+  select count(*) = 3 as ok
   from supabase_migrations.schema_migrations m
   join required_migrations r on r.version = m.version
 ),
@@ -21,7 +21,10 @@ job_table_check as (
     )
     and not has_table_privilege('anon', 'public.vvip_media_finalization_jobs', 'SELECT')
     and not has_table_privilege('authenticated', 'public.vvip_media_finalization_jobs', 'SELECT')
-    and has_table_privilege('service_role', 'public.vvip_media_finalization_jobs', 'SELECT,INSERT,UPDATE,DELETE') as ok
+    and has_table_privilege('service_role', 'public.vvip_media_finalization_jobs', 'SELECT')
+    and has_table_privilege('service_role', 'public.vvip_media_finalization_jobs', 'INSERT')
+    and has_table_privilege('service_role', 'public.vvip_media_finalization_jobs', 'UPDATE')
+    and has_table_privilege('service_role', 'public.vvip_media_finalization_jobs', 'DELETE') as ok
 ),
 required_canonical_columns(column_name) as (
   values
@@ -145,6 +148,13 @@ storage_check as (
       where schemaname = 'storage'
         and tablename = 'objects'
         and policyname = 'vvip_listing_media_storage_owner_update'
+    )
+    and not exists (
+      select 1
+      from pg_policies
+      where schemaname = 'storage'
+        and tablename = 'objects'
+        and policyname = 'vvip_listing_media_canonical_read'
     ) as ok
 ),
 required_token_columns(column_name) as (
@@ -195,9 +205,7 @@ checks as (
     (select ok from token_lease_check) as token_lease
 )
 select
-  'zelcngyyvbomuzokvuxo'::text as project_ref,
-  'ap-northeast-2'::text as region,
-  array['20260816090001','20260827120000']::text[] as required_migrations,
+  array['20260816090001','20260827120000','20260828140000']::text[] as required_migrations,
   jsonb_build_object(
     'migrations', case when migrations then 'PASS' else 'FAIL' end,
     'jobTable', case when job_table then 'PASS' else 'FAIL' end,
