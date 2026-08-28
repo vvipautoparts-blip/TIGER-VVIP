@@ -100,7 +100,7 @@ test("audit lifecycle is append-only and supports multiple reserve-review cycles
   assert.match(sql, /PUBLICATION_AUDIT_APPEND_ONLY/);
 });
 
-test("only authenticated receives canonical publication execute and old publication authorities are retired safely", () => {
+test("only authenticated receives historical canonical publication execute and old publication authorities are retired safely", () => {
   const grants = sql.match(/grant\s+execute\s+on\s+function\s+public\.vvip_marketplace_request_publication\s*\([^;]+?\)\s+to\s+authenticated\s*;/gi) || [];
   assert.equal(grants.length, 1);
   assert.match(sql, /revoke\s+all\s+on\s+function\s+public\.vvip_marketplace_request_publication\s*\([^;]+?\)\s+from\s+public\s*,\s*anon\s*;/i);
@@ -110,7 +110,8 @@ test("only authenticated receives canonical publication execute and old publicat
   assert.match(sql, /to_regprocedure\s*\(\s*'public\.vvip_marketplace_submit_listing\(uuid,uuid\)'\s*\)/i);
 });
 
-test("browser repository targets only the canonical publication RPC after convergence", () => {
-  assert.match(repository, /client\.rpc\(["']vvip_marketplace_request_publication["']/);
-  assert.doesNotMatch(repository, /client\.rpc\(["']vvip_marketplace_prepare_publication["']/);
+test("browser repository targets only the latest submit-for-review RPC", () => {
+  assert.match(repository, /client\.rpc\(["']vvip_marketplace_submit_for_review["']/);
+  assert.doesNotMatch(repository, /client\.rpc\(["']vvip_marketplace_(?:request|prepare)_publication["']/);
+  assert.doesNotMatch(repository, /\brequestPublication\b|\bprepareForPublication\b/);
 });
