@@ -1,7 +1,7 @@
 # TIGER PULSE RING 2026 — CURRENT OWNER AUTHORITY
 
-**Status:** `CURRENT_ONLY / OWNER_BINDING / NO_FALLBACK / NO_IN_TREE_ARCHIVE`  
-**Effective decision:** 2026-08-28  
+**Status:** `CURRENT_ONLY / OWNER_BINDING / NO_FALLBACK / NO_IN_TREE_ARCHIVE`
+**Effective decision:** 2026-08-28
 **Domain:** paid visibility only.
 
 ## 1. Current product rule
