@@ -3,11 +3,12 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
+const fs = require('node:fs');
+const path = require('node:path');
 
-const {
-  createMediaDbConvergenceEvidence,
-  canonicalJson,
-} = require('../scripts/release/media-cell-db-convergence-evidence.cjs');
+const MODULE = path.resolve(__dirname, '..', 'scripts', 'release', 'media-cell-db-convergence-evidence.cjs');
+const moduleExists = fs.existsSync(MODULE);
+const helper = moduleExists ? require(MODULE) : null;
 
 const PROJECT_REF = 'zelcngyyvbomuzokvuxo';
 const REGION = 'ap-northeast-2';
@@ -33,7 +34,12 @@ function validInput() {
   };
 }
 
-test('creates deterministic VERIFIED_LIVE evidence for the exact Seoul DB contract', () => {
+test('deterministic convergence evidence helper exists', () => {
+  assert.equal(moduleExists, true, 'MEDIA_DB_CONVERGENCE_EVIDENCE_MODULE_MISSING');
+});
+
+test('creates deterministic VERIFIED_LIVE evidence for the exact Seoul DB contract', { skip: !moduleExists }, () => {
+  const { createMediaDbConvergenceEvidence, canonicalJson } = helper;
   const first = createMediaDbConvergenceEvidence(validInput());
   const reordered = validInput();
   reordered.checks = {
@@ -66,13 +72,15 @@ test('creates deterministic VERIFIED_LIVE evidence for the exact Seoul DB contra
   );
 });
 
-test('fails closed when any required contract check is not PASS', () => {
+test('fails closed when any required contract check is not PASS', { skip: !moduleExists }, () => {
+  const { createMediaDbConvergenceEvidence } = helper;
   const input = validInput();
   input.checks.storage = 'FAIL';
   assert.throws(() => createMediaDbConvergenceEvidence(input), /MEDIA_DB_CONVERGENCE_CHECK_FAILED:storage/);
 });
 
-test('rejects a project, region, migration set, or advisor digest outside the authority', () => {
+test('rejects a project, region, migration set, or advisor digest outside the authority', { skip: !moduleExists }, () => {
+  const { createMediaDbConvergenceEvidence } = helper;
   const wrongProject = validInput();
   wrongProject.projectRef = 'aaaaaaaaaaaaaaaaaaaa';
   assert.throws(() => createMediaDbConvergenceEvidence(wrongProject), /MEDIA_DB_CONVERGENCE_PROJECT_INVALID/);
@@ -94,7 +102,8 @@ test('rejects a project, region, migration set, or advisor digest outside the au
   assert.throws(() => createMediaDbConvergenceEvidence(badAdvisorDigest), /MEDIA_DB_CONVERGENCE_ADVISOR_DIGEST_INVALID/);
 });
 
-test('rejects missing and unknown fields instead of silently widening evidence', () => {
+test('rejects missing and unknown fields instead of silently widening evidence', { skip: !moduleExists }, () => {
+  const { createMediaDbConvergenceEvidence } = helper;
   const missing = validInput();
   delete missing.checks.rls;
   assert.throws(() => createMediaDbConvergenceEvidence(missing), /MEDIA_DB_CONVERGENCE_CHECKS_INVALID/);
