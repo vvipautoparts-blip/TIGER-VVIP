@@ -33,12 +33,12 @@ const retiredProductPatterns = [
 ];
 
 test('current owner decision is the only active supersession contract', () => {
-  assert.match(owner, /CURRENT_ONLY \/ OWNER_BINDING \/ NO_FALLBACK/);
+  assert.match(owner, /CURRENT_ONLY \/ OWNER_BINDING \/ FIRST_REFERENCE \/ NO_FALLBACK \/ NO_IN_TREE_ARCHIVE/);
   assert.match(owner, /newest explicit owner-approved decision/i);
-  assert.match(owner, /no owner-approved time lifetime/i);
-  assert.match(owner, /no fixed commercial or weekly posting quota/i);
-  assert.match(owner, /maximum of \*\*7 images\*\*/i);
-  assert.match(owner, /verified eligible impressions/i);
+  assert.match(owner, /no owner-approved product-time lifetime/i);
+  assert.match(owner, /no fixed commercial\/weekly posting quota/i);
+  assert.match(owner, /maximum remains 7 images/i);
+  assert.match(owner, /server-authoritative visibility allocation/i);
   assert.match(owner, /not a party/i);
 });
 
