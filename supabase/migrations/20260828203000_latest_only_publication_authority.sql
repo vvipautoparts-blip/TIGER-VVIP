@@ -4,6 +4,37 @@
 
 begin;
 
+-- A legacy EXPIRED row may represent real user state. Do not guess whether it
+-- should become ACTIVE, ARCHIVED, or something else. Require explicit data
+-- reconciliation before removing that obsolete state from the current schema.
+do $legacy_expired_preflight$
+begin
+    if exists (
+        select 1
+        from public.vvip_marketplace_listings
+        where status = 'EXPIRED'
+        limit 1
+    ) then
+        raise exception 'LEGACY_EXPIRED_LISTINGS_REQUIRE_RECONCILIATION';
+    end if;
+end;
+$legacy_expired_preflight$;
+
+-- The former product-lifetime column is not current authority. No CASCADE is
+-- used: an unexpected live dependency must fail the migration rather than be
+-- silently removed.
+alter table public.vvip_marketplace_listings
+    drop column if exists expires_at;
+
+alter table public.vvip_marketplace_listings
+    drop constraint if exists vvip_marketplace_listings_status_check;
+alter table public.vvip_marketplace_listings
+    add constraint vvip_marketplace_listings_status_check
+        check (status in (
+            'DRAFT', 'PENDING_REVIEW', 'ACTIVE', 'PAUSED',
+            'REJECTED', 'BLOCKED', 'ARCHIVED'
+        ));
+
 create or replace function public.vvip_marketplace_submit_for_review(
     target_listing uuid
 )
@@ -92,13 +123,96 @@ begin
 end;
 $function$;
 
+create or replace function public.vvip_marketplace_review_listing(
+    target_listing uuid,
+    decision text,
+    decision_reason text default null
+)
+returns public.vvip_marketplace_listings
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $function$
+declare
+    reviewer text := public.vvip_marketplace_actor_id();
+    current_listing public.vvip_marketplace_listings%rowtype;
+    result public.vvip_marketplace_listings%rowtype;
+    publish_time timestamptz;
+begin
+    if reviewer is null then
+        raise exception 'MARKETPLACE_AUTH_REQUIRED';
+    end if;
+
+    select listing.* into current_listing
+    from public.vvip_marketplace_listings listing
+    where listing.listing_id = target_listing
+    for update;
+
+    if not found then
+        raise exception 'MARKETPLACE_LISTING_NOT_FOUND';
+    end if;
+    if not vvip_private.vvip_marketplace_actor_can_review(current_listing.active_market_country) then
+        raise exception 'MARKETPLACE_REVIEW_AUTHORITY_REQUIRED';
+    end if;
+    if current_listing.status <> 'PENDING_REVIEW' then
+        raise exception 'MARKETPLACE_REVIEW_STATE_INVALID';
+    end if;
+    if decision not in ('APPROVE', 'REJECT', 'BLOCK') then
+        raise exception 'MARKETPLACE_REVIEW_DECISION_INVALID';
+    end if;
+    if decision in ('REJECT', 'BLOCK') and nullif(btrim(decision_reason), '') is null then
+        raise exception 'MARKETPLACE_REVIEW_REASON_REQUIRED';
+    end if;
+
+    if decision = 'APPROVE' then
+        if not vvip_private.vvip_marketplace_country_is_active(current_listing.active_market_country) then
+            raise exception 'MARKETPLACE_COUNTRY_NOT_ACTIVE';
+        end if;
+        if not exists (
+            select 1
+            from public.vvip_marketplace_sectors sector
+            where sector.sector_key = current_listing.sector
+              and sector.is_enabled
+        ) then
+            raise exception 'MARKETPLACE_SECTOR_NOT_ACTIVE';
+        end if;
+        publish_time := statement_timestamp();
+    end if;
+
+    update public.vvip_marketplace_listings as listing
+    set status = case decision
+            when 'APPROVE' then 'ACTIVE'
+            when 'REJECT' then 'REJECTED'
+            else 'BLOCKED'
+        end,
+        rejection_reason = case
+            when decision = 'APPROVE' then null
+            else left(decision_reason, 500)
+        end,
+        published_at = case
+            when decision = 'APPROVE' then coalesce(listing.published_at, publish_time)
+            else listing.published_at
+        end,
+        updated_at = statement_timestamp()
+    where listing.listing_id = target_listing
+    returning listing.* into result;
+
+    return result;
+end;
+$function$;
+
 revoke all on function public.vvip_marketplace_submit_for_review(uuid)
 from public, anon, authenticated;
 grant execute on function public.vvip_marketplace_submit_for_review(uuid)
 to authenticated;
 
--- The historical paid-publication RPC must not remain callable after this
--- convergence migration. Pulse paid visibility remains a separate product.
+revoke all on function public.vvip_marketplace_review_listing(uuid, text, text)
+from public, anon, authenticated;
+grant execute on function public.vvip_marketplace_review_listing(uuid, text, text)
+to authenticated;
+
+-- Historical paid-publication RPC must not remain callable after convergence.
+-- Pulse paid visibility is a separate product and must have separate contracts.
 revoke all on function public.vvip_marketplace_request_publication(uuid, text, text)
 from public, anon, authenticated;
 drop function if exists public.vvip_marketplace_request_publication(uuid, text, text);
