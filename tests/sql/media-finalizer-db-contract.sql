@@ -13,9 +13,9 @@ $function$;
 
 -- Exact forward migration set required by the Sovereign Media Data Cell.
 select pg_temp.tiger_assert(
-  (select count(*) = 2
+  (select count(*) = 3
    from supabase_migrations.schema_migrations
-   where version in ('20260816090001', '20260827120000')),
+   where version in ('20260816090001', '20260827120000', '20260828140000')),
   'MEDIA_DB_REQUIRED_MIGRATIONS_MISSING'
 );
 \echo MEDIA_DB_MIGRATIONS=PASS
@@ -36,7 +36,10 @@ select pg_temp.tiger_assert(
 );
 select pg_temp.tiger_assert(not has_table_privilege('anon', 'public.vvip_media_finalization_jobs', 'SELECT'), 'MEDIA_DB_JOB_ANON_PRIVILEGE');
 select pg_temp.tiger_assert(not has_table_privilege('authenticated', 'public.vvip_media_finalization_jobs', 'SELECT'), 'MEDIA_DB_JOB_AUTH_PRIVILEGE');
-select pg_temp.tiger_assert(has_table_privilege('service_role', 'public.vvip_media_finalization_jobs', 'SELECT,INSERT,UPDATE,DELETE'), 'MEDIA_DB_JOB_SERVICE_PRIVILEGE_MISSING');
+select pg_temp.tiger_assert(has_table_privilege('service_role', 'public.vvip_media_finalization_jobs', 'SELECT'), 'MEDIA_DB_JOB_SERVICE_SELECT_MISSING');
+select pg_temp.tiger_assert(has_table_privilege('service_role', 'public.vvip_media_finalization_jobs', 'INSERT'), 'MEDIA_DB_JOB_SERVICE_INSERT_MISSING');
+select pg_temp.tiger_assert(has_table_privilege('service_role', 'public.vvip_media_finalization_jobs', 'UPDATE'), 'MEDIA_DB_JOB_SERVICE_UPDATE_MISSING');
+select pg_temp.tiger_assert(has_table_privilege('service_role', 'public.vvip_media_finalization_jobs', 'DELETE'), 'MEDIA_DB_JOB_SERVICE_DELETE_MISSING');
 \echo MEDIA_DB_JOB_TABLE=PASS
 
 -- Canonical server-owned evidence columns must all exist on the marketplace media row.
@@ -202,6 +205,16 @@ select pg_temp.tiger_assert(
       and policyname = 'vvip_listing_media_storage_owner_update'
   ),
   'MEDIA_DB_RAW_STORAGE_UPDATE_POLICY_PRESENT'
+);
+select pg_temp.tiger_assert(
+  not exists (
+    select 1
+    from pg_policies
+    where schemaname = 'storage'
+      and tablename = 'objects'
+      and policyname = 'vvip_listing_media_canonical_read'
+  ),
+  'MEDIA_DB_LEGACY_CANONICAL_READ_POLICY_PRESENT'
 );
 \echo MEDIA_DB_STORAGE=PASS
 
