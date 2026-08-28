@@ -11,6 +11,7 @@ const REQUIRED_SUPERSEDED_IDS = Object.freeze([
   'LEGACY_PAID_PUBLISHING_SLOTS',
   'LEGACY_PUBLICATION_PLAN_ENTITLEMENT_GATE',
   'LEGACY_TIMED_ACTIVATION_CARD',
+  'LEGACY_3_10_20_PULSE_TIERS',
   'LEGACY_45_80_120_CURRENT_TIERS',
   'LEGACY_TIGER_CARE',
   'LEGACY_BLUE_LOGIN',
@@ -30,6 +31,8 @@ const REQUIRED_DISPOSITION = 'DELETE_FROM_CURRENT_TREE_NO_FALLBACK_NO_IN_TREE_AR
 const REQUIRED_REFERENCE_FIELDS = Object.freeze({
   ownerOperationalIndex: 'docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md',
   tigerPulseOwnerReference: 'docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md',
+  tigerFinancialDistributionReference: 'docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md',
+  tigerFinancialDistributionConfig: 'config/finance/current-distribution.json',
   tigerSocialCoreOwnerReference: 'docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md',
   tigerPhoenixOwnerReference: 'docs/owner-control/TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md',
   tigerAionOwnerReference: 'docs/owner-control/TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md'
@@ -84,9 +87,7 @@ function verifyCurrentAuthority(manifest) {
     return { ok: false, errors: ['manifest must be an object'] };
   }
 
-  if (manifest.schemaVersion !== 'VVIP_TIGER_FUSION_AUTHORITY_V2') {
-    errors.push('schemaVersion must be VVIP_TIGER_FUSION_AUTHORITY_V2');
-  }
+  if (manifest.schemaVersion !== 'VVIP_TIGER_FUSION_AUTHORITY_V2') errors.push('schemaVersion must be VVIP_TIGER_FUSION_AUTHORITY_V2');
   if (manifest.productIdentity !== 'GLOBAL_FIRST') errors.push('productIdentity must be GLOBAL_FIRST');
   if (manifest.primaryProductIdentity !== 'SOCIAL_NETWORK_FIRST') errors.push('primaryProductIdentity must be SOCIAL_NETWORK_FIRST');
   if (manifest.currentReference !== FINAL_REFERENCE) errors.push('currentReference must point to TIGER_OWNER_BINDING_CURRENT.md');
@@ -109,10 +110,12 @@ function verifyCurrentAuthority(manifest) {
   if (publication.submitContract !== 'SUBMIT_FOR_REVIEW') errors.push('ordinary publication submit contract must be SUBMIT_FOR_REVIEW');
 
   const pulse = manifest.pulseRing || {};
-  if (JSON.stringify(pulse.tiersJod) !== JSON.stringify([3, 10, 20])) errors.push('Pulse tiers must be exactly 3/10/20 JOD');
-  if (pulse.purchasedValue !== 'VERIFIED_ELIGIBLE_IMPRESSIONS') errors.push('Pulse purchased value must be verified eligible impressions');
-  if (pulse.productTimeExpiry !== null) errors.push('Pulse verified-impression value must not have product-time expiry');
+  if (JSON.stringify(pulse.tiersJod) !== JSON.stringify([2, 10, 25, 45])) errors.push('Pulse tiers must be exactly 2/10/25/45 JOD');
+  if (pulse.purchasedValue !== 'SERVER_AUTHORITATIVE_VISIBILITY_ALLOCATION') errors.push('Pulse purchased value must be a server-authoritative visibility allocation');
+  if (pulse.productTimeExpiry !== null) errors.push('Pulse visibility value must not have product-time expiry');
   if (pulse.ordinaryPublicationPrerequisite !== false) errors.push('Pulse must not be an ordinary-publication prerequisite');
+  if (pulse.selfServiceDiscountPercent !== 7) errors.push('Pulse self-service discount must be 7 percent when no sales claimant exists');
+  if (pulse.oneSaleOneSalesWinner !== true) errors.push('Pulse sales attribution must enforce one sale / one sales winner');
 
   const marketplaceBoundary = manifest.ownerMarketplaceBoundary;
   if (!marketplaceBoundary || typeof marketplaceBoundary !== 'object' || Array.isArray(marketplaceBoundary)) {
