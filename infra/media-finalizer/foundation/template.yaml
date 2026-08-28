@@ -120,10 +120,11 @@ Resources:
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
-              - Sid: GetEcrAuthorizationToken
+              - Sid: GetEcrAuthorizationAndScanConfiguration
                 Effect: Allow
                 Action:
                   - ecr:GetAuthorizationToken
+                  - ecr:GetRegistryScanningConfiguration
                 Resource: '*'
         - PolicyName: media-build-exact-repository
           PolicyDocument:

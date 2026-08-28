@@ -8,6 +8,19 @@ Detailed authority: `docs/superpowers/specs/2026-08-28-tiger-sovereign-constella
 
 `TIGER SOVEREIGN CONSTELLATION 2026` is the single current architecture authority for the TIGER Sealed Media Cell global deployment path.
 
+## Current owner-approved execution slice
+
+Status: **APPROVED / IN_EXECUTION**
+
+- Foundation PR #339 is merged into protected `main`.
+- Current implementation branch: `feat/tiger-sovereign-sealed-build-20260828`.
+- Current slice, in the existing Master Spec order: **real container SBOM → Cryptographic Genome → Release Passport 2.0 → Sovereign Sealed Build**.
+- This is a continuation of the existing `TIGER SOVEREIGN CONSTELLATION 2026` plan, **not a new architecture and not a parallel fallback**.
+- The current slice may produce the immutable Seoul ECR build artifact and bounded supply-chain evidence only.
+- Production runtime mutation, live Supabase convergence, Dark Bootstrap, live Seoul regional deployment, live Global Edge deployment, canary activation, and Production endpoint convergence remain outside this slice.
+- Legacy Media build/deploy workflows remain `SUPERSEDED` and fail closed; they are not restored as fallback.
+- Exact-head repository evidence is required again after every implementation commit before review/merge eligibility.
+
 ### Canonical architecture
 
 - **Global Orbit:** CloudFront global ingress, HTTP/2 + HTTP/3, IPv6, custom TIGER domain, modern TLS, global price class.

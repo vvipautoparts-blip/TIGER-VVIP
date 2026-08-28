@@ -2,40 +2,43 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const { createMediaCellGenome, canonicalJson: genomeCanonicalJson } = require('./media-cell-genome.cjs');
 
-const GIT_SHA_PATTERN = /^[0-9a-f]{40}$/;
 const SHA256_PATTERN = /^[0-9a-f]{64}$/;
-const OCI_SHA256_PATTERN = /^sha256:[0-9a-f]{64}$/;
-const REQUIRED_MATERIALS = Object.freeze([
-  'infra/media-finalizer/guard/media-finalizer.guard',
-  'infra/media-finalizer/template.yaml',
-  'services/media-finalizer/Dockerfile',
-  'services/media-finalizer/package-lock.json',
-]);
-const SECRET_KEY_PATTERN = /(?:secret|password|credential|access[_-]?key|service[_-]?role[_-]?key|private[_-]?key)/i;
-const SECRET_VALUE_PATTERNS = [
+const SECRET_KEY_PATTERN = /(?:secret|password|credential|access[_-]?key|service[_-]?role[_-]?key|private[_-]?key|authorization|jwt|session|capability|signed[_-]?url|raw[_-]?media|request[_-]?body)/i;
+const SECRET_VALUE_PATTERNS = Object.freeze([
   /sb_secret_[A-Za-z0-9._-]+/,
   /AKIA[0-9A-Z]{16}/,
   /-----BEGIN [A-Z ]*PRIVATE KEY-----/,
   /gh[pousr]_[A-Za-z0-9_]{20,}/,
-];
+  /Bearer\s+[A-Za-z0-9._~+\/-]+=*/i,
+]);
 
 function fail(code) {
   throw new Error(code);
 }
 
-function hasSecretMaterial(value, keyPath = '') {
-  if (Array.isArray(value)) return value.some((entry, index) => hasSecretMaterial(entry, `${keyPath}[${index}]`));
+function canonicalize(value) {
+  if (Array.isArray(value)) return value.map(canonicalize);
   if (value && typeof value === 'object') {
-    return Object.entries(value).some(([key, entry]) => {
-      if (SECRET_KEY_PATTERN.test(key)) return true;
-      return hasSecretMaterial(entry, keyPath ? `${keyPath}.${key}` : key);
-    });
+    return Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonicalize(value[key])]));
+  }
+  return value;
+}
+
+function canonicalJson(value) {
+  return genomeCanonicalJson(value);
+}
+
+function hasSecretMaterial(value) {
+  if (Array.isArray(value)) return value.some(hasSecretMaterial);
+  if (value && typeof value === 'object') {
+    return Object.entries(value).some(([key, entry]) => SECRET_KEY_PATTERN.test(key) || hasSecretMaterial(entry));
   }
   return typeof value === 'string' && SECRET_VALUE_PATTERNS.some((pattern) => pattern.test(value));
 }
 
-function exactKeys(value, allowed, unknownCode = 'PASSPORT_EVIDENCE_UNKNOWN', invalidCode = 'PASSPORT_EVIDENCE_INVALID') {
+function exactKeys(value, allowed, unknownCode, invalidCode) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) fail(invalidCode);
   const actual = Object.keys(value).sort();
   const expected = [...allowed].sort();
@@ -43,82 +46,110 @@ function exactKeys(value, allowed, unknownCode = 'PASSPORT_EVIDENCE_UNKNOWN', in
   if (actual.length !== expected.length || expected.some((key) => !Object.hasOwn(value, key))) fail(invalidCode);
 }
 
-function canonicalize(value) {
-  if (Array.isArray(value)) return value.map(canonicalize);
-  if (value && typeof value === 'object') {
-    return Object.fromEntries(
-      Object.keys(value)
-        .sort()
-        .map((key) => [key, canonicalize(value[key])]),
-    );
-  }
-  return value;
+function validCount(value) {
+  return Number.isInteger(value) && value >= 0;
 }
 
-function canonicalJson(value) {
-  return JSON.stringify(canonicalize(value));
+function validateScan(scan) {
+  exactKeys(
+    scan,
+    ['status', 'scanMode', 'scanCompletedAt', 'critical', 'high', 'medium', 'low', 'unknown', 'findingsSha256'],
+    'PASSPORT_SCAN_UNKNOWN',
+    'PASSPORT_SCAN_INVALID',
+  );
+  if ((scan.status !== 'COMPLETE' && scan.status !== 'ACTIVE') || scan.scanMode !== 'ENHANCED') fail('PASSPORT_SCAN_INVALID');
+  if (typeof scan.scanCompletedAt !== 'string' || !scan.scanCompletedAt || Number.isNaN(Date.parse(scan.scanCompletedAt))) {
+    fail('PASSPORT_SCAN_INVALID');
+  }
+  for (const severity of ['critical', 'high', 'medium', 'low', 'unknown']) {
+    if (!validCount(scan[severity])) fail('PASSPORT_SCAN_INVALID');
+  }
+  if (!SHA256_PATTERN.test(scan.findingsSha256 || '')) fail('PASSPORT_SCAN_INVALID');
+  if (scan.critical > 0 || scan.high > 0 || scan.medium > 0) fail('PASSPORT_SCAN_BLOCKED');
 }
 
-function validateDigest(value, oci = false) {
-  return (oci ? OCI_SHA256_PATTERN : SHA256_PATTERN).test(value || '');
-}
-
-function validateEvidence(evidence) {
-  if (hasSecretMaterial(evidence)) fail('PASSPORT_SECRET_MATERIAL_REJECTED');
-  exactKeys(evidence, ['source', 'materials', 'image', 'sbom', 'scan', 'attestations']);
-  exactKeys(evidence.source, ['commitSha', 'treeSha', 'immutable']);
-  exactKeys(evidence.materials, REQUIRED_MATERIALS);
-  exactKeys(evidence.image, ['repository', 'manifestDigest', 'baseDigest']);
-  exactKeys(evidence.sbom, ['specVersion', 'sha256', 'path']);
-  exactKeys(evidence.scan, ['status', 'findingsSha256']);
-  exactKeys(evidence.attestations, ['provenance', 'sbom']);
-  exactKeys(evidence.attestations.provenance, ['verified', 'evidenceSha256']);
-  exactKeys(evidence.attestations.sbom, ['verified', 'evidenceSha256']);
-
-  if (!GIT_SHA_PATTERN.test(evidence.source.commitSha || '') || !GIT_SHA_PATTERN.test(evidence.source.treeSha || '') || evidence.source.immutable !== true) {
-    fail('PASSPORT_EVIDENCE_INVALID');
-  }
-  for (const name of REQUIRED_MATERIALS) if (!validateDigest(evidence.materials[name])) fail('PASSPORT_EVIDENCE_INVALID');
-  if (
-    typeof evidence.image.repository !== 'string' ||
-    evidence.image.repository.length < 3 ||
-    evidence.image.repository.includes('@') ||
-    !validateDigest(evidence.image.manifestDigest, true) ||
-    !validateDigest(evidence.image.baseDigest, true)
-  ) fail('PASSPORT_EVIDENCE_INVALID');
-  if (evidence.sbom.specVersion !== '1.7' || !validateDigest(evidence.sbom.sha256) || evidence.sbom.path !== 'artifacts/media-cell/media-finalizer.cdx.json') {
-    fail('PASSPORT_EVIDENCE_INVALID');
-  }
-  if (evidence.scan.status !== 'COMPLETE' || !validateDigest(evidence.scan.findingsSha256)) fail('PASSPORT_EVIDENCE_INVALID');
-  for (const attestation of [evidence.attestations.provenance, evidence.attestations.sbom]) {
-    if (attestation.verified !== true) fail('PASSPORT_ATTESTATION_UNVERIFIED');
-    if (!validateDigest(attestation.evidenceSha256)) fail('PASSPORT_EVIDENCE_INVALID');
+function validateSupplyGate(supplyGate) {
+  exactKeys(
+    supplyGate,
+    ['decision', 'evidenceSha256'],
+    'PASSPORT_SUPPLY_GATE_UNKNOWN',
+    'PASSPORT_SUPPLY_GATE_INVALID',
+  );
+  if (supplyGate.decision !== 'PASS' || !SHA256_PATTERN.test(supplyGate.evidenceSha256 || '')) {
+    fail('PASSPORT_SUPPLY_GATE_INVALID');
   }
 }
 
 function createMediaCellPassport(evidence = {}) {
-  validateEvidence(evidence);
-  return {
-    schemaVersion: 'tiger-release-passport-v1',
-    source: {
-      commitSha: evidence.source.commitSha,
-      treeSha: evidence.source.treeSha,
-      immutable: true,
+  if (hasSecretMaterial(evidence)) fail('PASSPORT_SECRET_MATERIAL_REJECTED');
+  exactKeys(
+    evidence,
+    ['source', 'materials', 'image', 'database', 'sbom', 'scan', 'attestations', 'supplyGate'],
+    'PASSPORT_EVIDENCE_UNKNOWN',
+    'PASSPORT_EVIDENCE_INVALID',
+  );
+  if (evidence?.sbom?.subjectDigest !== evidence?.image?.manifestDigest) fail('PASSPORT_SBOM_SUBJECT_MISMATCH');
+  validateScan(evidence.scan);
+  validateSupplyGate(evidence.supplyGate);
+
+  const genomeEvidence = {
+    source: evidence.source,
+    materials: evidence.materials,
+    image: evidence.image,
+    database: evidence.database,
+    sbom: evidence.sbom,
+    attestations: evidence.attestations,
+  };
+
+  let genome;
+  try {
+    genome = createMediaCellGenome(genomeEvidence);
+  } catch (error) {
+    const message = String(error?.message || '');
+    if (message.includes('ATTESTATION_UNVERIFIED')) fail('PASSPORT_ATTESTATION_UNVERIFIED');
+    if (message.includes('SECRET_MATERIAL')) fail('PASSPORT_SECRET_MATERIAL_REJECTED');
+    throw error;
+  }
+
+  return canonicalize({
+    schemaVersion: 'tiger-release-passport-v2',
+    genome: {
+      schemaVersion: genome.schemaVersion,
+      algorithm: genome.algorithm,
+      id: genome.id,
     },
-    materials: Object.fromEntries(REQUIRED_MATERIALS.map((name) => [name, evidence.materials[name]])),
+    source: genome.source,
+    materials: genome.materials,
     image: {
       repository: evidence.image.repository,
       manifestDigest: evidence.image.manifestDigest,
       baseDigest: evidence.image.baseDigest,
     },
+    database: {
+      migrationSetSha256: evidence.database.migrationSetSha256,
+      liveConvergence: 'NOT_EXECUTED_IN_SEALED_BUILD',
+    },
     sbom: {
-      specVersion: '1.7',
+      specVersion: evidence.sbom.specVersion,
       sha256: evidence.sbom.sha256,
+      subjectDigest: evidence.sbom.subjectDigest,
       path: evidence.sbom.path,
+      componentCount: evidence.sbom.componentCount,
     },
     scan: {
-      status: 'COMPLETE',
+      status: evidence.scan.status,
+      scanMode: evidence.scan.scanMode,
+      scanCompletedAt: evidence.scan.scanCompletedAt,
+      critical: evidence.scan.critical,
+      high: evidence.scan.high,
+      medium: evidence.scan.medium,
+      low: evidence.scan.low,
+      unknown: evidence.scan.unknown,
       findingsSha256: evidence.scan.findingsSha256,
+    },
+    supplyGate: {
+      decision: 'PASS',
+      evidenceSha256: evidence.supplyGate.evidenceSha256,
     },
     attestations: {
       provenance: {
@@ -130,7 +161,17 @@ function createMediaCellPassport(evidence = {}) {
         evidenceSha256: evidence.attestations.sbom.evidenceSha256,
       },
     },
-  };
+    deployment: {
+      mode: 'SEALED_BUILD_ONLY',
+      regionalDeployment: 'NOT_EXECUTED',
+      edgeDeployment: 'NOT_EXECUTED',
+      lambdaVersion: 'NOT_AVAILABLE',
+      cloudFrontDistribution: 'NOT_AVAILABLE',
+      wafWebAcl: 'NOT_AVAILABLE',
+      runtimeProbes: 'NOT_EXECUTED',
+      rollbackEvidence: 'NOT_APPLICABLE_NO_DEPLOYMENT',
+    },
+  });
 }
 
 function writeCanonicalJson(file, value) {

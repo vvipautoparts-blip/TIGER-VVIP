@@ -1,0 +1,554 @@
+name: TIGER Media Sovereign Sealed Build
+
+on:
+  workflow_call:
+    inputs:
+      release_sha:
+        description: Exact current protected main commit SHA to seal
+        required: true
+        type: string
+      db_convergence_state:
+        description: Live DB convergence gate state supplied by a future reviewed caller
+        required: true
+        type: string
+      db_convergence_evidence_sha256:
+        description: SHA-256 identity of the future live DB convergence evidence
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tiger-media-sovereign-sealed-build-${{ inputs.release_sha }}
+  cancel-in-progress: false
+
+jobs:
+  sealed-build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    environment: media-build
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    env:
+      AWS_REGION: ap-northeast-2
+      ECR_REPOSITORY: tiger-media-finalizer
+      RELEASE_SHA: ${{ inputs.release_sha }}
+      SOURCE_SHA: ${{ inputs.release_sha }}
+      DB_CONVERGENCE_STATE: ${{ inputs.db_convergence_state }}
+      DB_CONVERGENCE_EVIDENCE_SHA256: ${{ inputs.db_convergence_evidence_sha256 }}
+      TIGER_MEDIA_AWS_ACCOUNT_ID: ${{ vars.TIGER_MEDIA_AWS_ACCOUNT_ID }}
+      TIGER_MEDIA_ECR_KMS_KEY_ARN: ${{ vars.TIGER_MEDIA_ECR_KMS_KEY_ARN }}
+
+    steps:
+      - name: Checkout requested immutable source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ inputs.release_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: services/media-finalizer/package-lock.json
+
+      - name: Prove live DB prerequisite and exact protected main source
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test "$DB_CONVERGENCE_STATE" = "VERIFIED_LIVE"
+          printf '%s' "$DB_CONVERGENCE_EVIDENCE_SHA256" | grep -Eq '^[0-9a-f]{64}$'
+          printf '%s' "$SOURCE_SHA" | grep -Eq '^[0-9a-f]{40}$'
+          test "$GITHUB_REPOSITORY" = 'vvipautoparts-blip/TIGER-VVIP'
+
+          git fetch --no-tags --prune origin '+refs/heads/main:refs/remotes/origin/main'
+          MAIN_SHA="$(git rev-parse refs/remotes/origin/main)"
+          test "$SOURCE_SHA" = "$MAIN_SHA"
+          git checkout --detach "$SOURCE_SHA"
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          SOURCE_TREE="$(git rev-parse 'HEAD^{tree}')"
+          printf '%s' "$SOURCE_TREE" | grep -Eq '^[0-9a-f]{40}$'
+          test -z "$(git status --porcelain=v1 -uall)"
+
+          BASE_IMAGE_DIGEST="$(sed -nE 's/^FROM[[:space:]]+[^@]+@(sha256:[0-9a-f]{64})$/\1/p' services/media-finalizer/Dockerfile)"
+          printf '%s' "$BASE_IMAGE_DIGEST" | grep -Eq '^sha256:[0-9a-f]{64}$'
+          test -s services/media-finalizer/package-lock.json
+
+          [[ "$TIGER_MEDIA_AWS_ACCOUNT_ID" =~ ^[0-9]{12}$ ]] || { echo 'MEDIA_ACCOUNT_ID_MISSING_OR_INVALID' >&2; exit 1; }
+          ECR_URI="${TIGER_MEDIA_AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}"
+
+          printf '%s\n' \
+            "SOURCE_TREE=$SOURCE_TREE" \
+            "MAIN_SHA=$MAIN_SHA" \
+            "BASE_IMAGE_DIGEST=$BASE_IMAGE_DIGEST" \
+            "ECR_URI=$ECR_URI" \
+            >> "$GITHUB_ENV"
+
+      - name: Install and test exact source before AWS mutation
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          cd services/media-finalizer
+          npm ci --omit=dev --ignore-scripts=false --no-audit --no-fund
+          npm audit --omit=dev --audit-level=high
+          npm ls --omit=dev --all
+          cd ../..
+          node --test tests/media-finalizer-*.test.cjs \
+            tests/fusion-server-media-finalization-contract.test.cjs \
+            tests/tiger-synapse-proof-capture-origin.test.cjs
+          node --check services/media-finalizer/src/handler.js
+          node --check services/media-finalizer/src/canonicalize.js
+          node --check services/media-finalizer/src/identity.js
+          node --check services/media-finalizer/src/request.js
+          node --check services/media-finalizer/src/secret-provider.js
+          node --check services/media-finalizer/src/supabase-client.js
+          test -z "$(git status --porcelain=v1 -uall)"
+
+      - name: Assume exact Seoul MediaBuildRole with OIDC
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c
+        with:
+          role-to-assume: arn:aws:iam::${{ vars.TIGER_MEDIA_AWS_ACCOUNT_ID }}:role/TIGER-VVIP-GitHub-MediaBuild
+          aws-region: ap-northeast-2
+          audience: sts.amazonaws.com
+          allowed-account-ids: ${{ vars.TIGER_MEDIA_AWS_ACCOUNT_ID }}
+          role-duration-seconds: 1800
+          role-session-name: TIGER-MediaBuild-${{ github.run_id }}
+          unset-current-credentials: true
+          mask-aws-account-id: true
+          action-timeout-s: 90
+
+      - name: Prove exact AWS caller ECR authority and enhanced scanning
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          read -r account arn < <(aws sts get-caller-identity --query '[Account,Arn]' --output text --no-cli-pager)
+          test "$account" = "$TIGER_MEDIA_AWS_ACCOUNT_ID"
+          case "$arn" in
+            arn:aws:sts::${TIGER_MEDIA_AWS_ACCOUNT_ID}:assumed-role/TIGER-VVIP-GitHub-MediaBuild/*) ;;
+            *) echo 'UNEXPECTED_MEDIA_BUILD_CALLER' >&2; exit 1 ;;
+          esac
+
+          [[ "$TIGER_MEDIA_ECR_KMS_KEY_ARN" =~ ^arn:aws:kms:ap-northeast-2:[0-9]{12}:key/[0-9a-fA-F-]+$ ]] \
+            || { echo 'MEDIA_ECR_KMS_KEY_ARN_MISSING_OR_INVALID' >&2; exit 1; }
+          read -r repository_uri mutability encryption kms_key < <(
+            aws ecr describe-repositories \
+              --repository-names "$ECR_REPOSITORY" \
+              --region "$AWS_REGION" \
+              --query 'repositories[0].[repositoryUri,imageTagMutability,encryptionConfiguration.encryptionType,encryptionConfiguration.kmsKey]' \
+              --output text \
+              --no-cli-pager
+          )
+          test "$repository_uri" = "$ECR_URI"
+          test "$mutability" = 'IMMUTABLE'
+          test "$encryption" = 'KMS'
+          test "$kms_key" = "$TIGER_MEDIA_ECR_KMS_KEY_ARN"
+
+          aws ecr get-registry-scanning-configuration \
+            --region "$AWS_REGION" \
+            --output json \
+            --no-cli-pager > /tmp/tiger-registry-scanning.json
+          node - /tmp/tiger-registry-scanning.json "$ECR_REPOSITORY" <<'NODE'
+          const fs = require('node:fs');
+          const [file, repository] = process.argv.slice(2);
+          const value = JSON.parse(fs.readFileSync(file, 'utf8'));
+          if (value.scanType !== 'ENHANCED') throw new Error('ECR_SCAN_MODE_NOT_ENHANCED');
+          const rules = Array.isArray(value.rules) ? value.rules : [];
+          const applies = rules.some((rule) => {
+            if (rule.scanFrequency !== 'CONTINUOUS_SCAN' && rule.scanFrequency !== 'SCAN_ON_PUSH') return false;
+            const filters = Array.isArray(rule.repositoryFilters) ? rule.repositoryFilters : [];
+            return filters.some((filter) => {
+              if (filter.filterType !== 'WILDCARD' || typeof filter.filter !== 'string') return false;
+              if (filter.filter === '*') return true;
+              if (!filter.filter.includes('*')) return repository.includes(filter.filter);
+              const escaped = filter.filter.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*');
+              return new RegExp(`^${escaped}$`).test(repository);
+            });
+          });
+          if (!applies) throw new Error('ECR_ENHANCED_SCAN_RULE_NOT_APPLICABLE');
+          NODE
+          rm -f /tmp/tiger-registry-scanning.json
+
+      - name: Login to exact Seoul ECR registry
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          aws ecr get-login-password --region "$AWS_REGION" \
+            | docker login --username AWS --password-stdin "${TIGER_MEDIA_AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+
+      - name: Build once and push once
+        id: image
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          IMAGE_TAG="sha-${SOURCE_SHA}-run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}"
+          IMAGE_TAGGED_URI="${ECR_URI}:${IMAGE_TAG}"
+          docker build --pull=false --file services/media-finalizer/Dockerfile --tag "$IMAGE_TAGGED_URI" services/media-finalizer
+          docker push "$IMAGE_TAGGED_URI"
+
+          MANIFEST_DIGEST="$(
+            aws ecr describe-images \
+              --repository-name "$ECR_REPOSITORY" \
+              --image-ids imageTag="$IMAGE_TAG" \
+              --region "$AWS_REGION" \
+              --query 'imageDetails[0].imageDigest' \
+              --output text \
+              --no-cli-pager
+          )"
+          printf '%s' "$MANIFEST_DIGEST" | grep -Eq '^sha256:[0-9a-f]{64}$'
+          IMAGE_URI="${ECR_URI}@${MANIFEST_DIGEST}"
+          printf '%s\n' "MANIFEST_DIGEST=$MANIFEST_DIGEST" "IMAGE_URI=$IMAGE_URI" >> "$GITHUB_ENV"
+          printf 'ecr_uri=%s\n' "$ECR_URI" >> "$GITHUB_OUTPUT"
+          printf 'manifest_digest=%s\n' "$MANIFEST_DIGEST" >> "$GITHUB_OUTPUT"
+          printf 'image_uri=%s\n' "$IMAGE_URI" >> "$GITHUB_OUTPUT"
+
+      - name: Install pinned Syft 1.51.0
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          SYFT_ARCHIVE='syft_1.51.0_linux_amd64.tar.gz'
+          SYFT_URL="https://github.com/anchore/syft/releases/download/v1.51.0/${SYFT_ARCHIVE}"
+          curl --fail --silent --show-error --location "$SYFT_URL" --output "/tmp/${SYFT_ARCHIVE}"
+          echo '2a2e837a2c8d59ec9af5472ee22d3b04ee463c4e44476ecf993fd1e5ab6ebc7f  /tmp/syft_1.51.0_linux_amd64.tar.gz' | sha256sum -c -
+          rm -rf /tmp/syft-install && mkdir -p /tmp/syft-install
+          tar -xzf "/tmp/${SYFT_ARCHIVE}" -C /tmp/syft-install syft
+          sudo install -m 0755 /tmp/syft-install/syft /usr/local/bin/syft
+          syft version
+
+      - name: Generate bind and validate real CycloneDX 1.7 OCI SBOM
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          mkdir -p /tmp/tiger-media/artifacts/media-cell
+          syft "registry:${IMAGE_URI}" -o cyclonedx-json=/tmp/tiger-media/raw-oci-sbom.cdx.json
+          node scripts/release/media-cell-sbom.cjs \
+            /tmp/tiger-media/raw-oci-sbom.cdx.json \
+            "$ECR_URI" \
+            "$MANIFEST_DIGEST" \
+            /tmp/tiger-media/artifacts/media-cell/oci-sbom.cdx.json
+          rm -f /tmp/tiger-media/raw-oci-sbom.cdx.json
+          test -s /tmp/tiger-media/artifacts/media-cell/oci-sbom.cdx.json
+
+      - name: Wait for completed enhanced scan and enforce supply gate
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          scan_raw=/tmp/tiger-media/scan-raw.json
+          ready=0
+          for attempt in $(seq 1 20); do
+            if aws ecr describe-image-scan-findings \
+              --repository-name "$ECR_REPOSITORY" \
+              --image-id imageDigest="$MANIFEST_DIGEST" \
+              --region "$AWS_REGION" \
+              --output json \
+              --no-cli-pager > "$scan_raw"; then
+              status="$(node -e "const x=require(process.argv[1]); process.stdout.write(String(x.imageScanStatus?.status||''));" "$scan_raw")"
+              if [ "$status" = 'COMPLETE' ]; then
+                ready=1
+                break
+              fi
+              if [ "$status" = 'ACTIVE' ]; then
+                scan_completed_at="$(node -e "const x=require(process.argv[1]); process.stdout.write(String(x.imageScanFindings?.imageScanCompletedAt||''));" "$scan_raw")"
+                if [ -n "$scan_completed_at" ]; then
+                  ready=1
+                  break
+                fi
+              fi
+              case "$status" in
+                FAILED|UNSUPPORTED_IMAGE|SCAN_ELIGIBILITY_EXPIRED|FINDINGS_UNAVAILABLE)
+                  echo "ECR_SCAN_TERMINAL_FAILURE=$status" >&2
+                  exit 1
+                  ;;
+              esac
+            fi
+            sleep 15
+          done
+          test "$ready" = '1' || { echo 'ECR_SCAN_NOT_READY' >&2; exit 1; }
+
+          node - "$scan_raw" "$MANIFEST_DIGEST" "$ECR_REPOSITORY" /tmp/tiger-media/artifacts/media-cell/scan-evidence.json <<'NODE'
+          const crypto = require('node:crypto');
+          const fs = require('node:fs');
+          const { canonicalJson } = require('./scripts/release/media-cell-sbom.cjs');
+          const [sourceFile, manifestDigest, repositoryName, outputFile] = process.argv.slice(2);
+          const raw = JSON.parse(fs.readFileSync(sourceFile, 'utf8'));
+          if (raw.nextToken) throw new Error('ECR_SCAN_FINDINGS_TRUNCATED');
+          if (raw.repositoryName !== repositoryName || raw.imageId?.imageDigest !== manifestDigest) {
+            throw new Error('ECR_SCAN_SUBJECT_MISMATCH');
+          }
+          const status = String(raw.imageScanStatus?.status || '');
+          if (status !== 'COMPLETE' && status !== 'ACTIVE') throw new Error('ECR_SCAN_NOT_READY');
+          const findings = raw.imageScanFindings || {};
+          const scanCompletedAt = String(findings.imageScanCompletedAt || '');
+          if (!scanCompletedAt || Number.isNaN(Date.parse(scanCompletedAt))) {
+            throw new Error('ECR_SCAN_COMPLETION_EVIDENCE_INVALID');
+          }
+          const counts = findings.findingSeverityCounts || {};
+          const canonicalCounts = {
+            CRITICAL: Number(counts.CRITICAL || 0),
+            HIGH: Number(counts.HIGH || 0),
+            MEDIUM: Number(counts.MEDIUM || 0),
+            LOW: Number(counts.LOW || 0),
+            UNDEFINED: Number(counts.UNDEFINED || 0),
+          };
+          const enhancedFindings = Array.isArray(findings.enhancedFindings) ? findings.enhancedFindings : [];
+          const reportedFindingCount = Object.values(counts).reduce((sum, value) => sum + Number(value || 0), 0);
+          if (reportedFindingCount > 0 && enhancedFindings.length === 0) {
+            throw new Error('ECR_ENHANCED_FINDINGS_MISSING');
+          }
+          const projectedFindings = enhancedFindings.map((finding) => {
+            const vulnerability = finding.packageVulnerabilityDetails || {};
+            const vulnerablePackages = Array.isArray(vulnerability.vulnerablePackages)
+              ? vulnerability.vulnerablePackages.map((pkg) => ({
+                name: String(pkg.name || ''),
+                version: String(pkg.version || ''),
+                packageManager: String(pkg.packageManager || ''),
+              })).sort((left, right) => canonicalJson(left).localeCompare(canonicalJson(right)))
+              : [];
+            const projected = {
+              findingArn: String(finding.findingArn || ''),
+              vulnerabilityId: String(vulnerability.vulnerabilityId || ''),
+              severity: String(finding.severity || ''),
+              vulnerablePackages,
+            };
+            if (!projected.findingArn && !projected.vulnerabilityId) throw new Error('ECR_FINDING_IDENTITY_MISSING');
+            return projected;
+          }).sort((left, right) => canonicalJson(left).localeCompare(canonicalJson(right)));
+          const findingProjection = {
+            subject: { repositoryName, manifestDigest },
+            findings: projectedFindings,
+          };
+          const normalized = {
+            status,
+            scanMode: 'ENHANCED',
+            scanCompletedAt,
+            critical: canonicalCounts.CRITICAL,
+            high: canonicalCounts.HIGH,
+            medium: canonicalCounts.MEDIUM,
+            low: canonicalCounts.LOW,
+            unknown: canonicalCounts.UNDEFINED,
+            findingsSha256: crypto.createHash('sha256').update(canonicalJson(findingProjection)).digest('hex'),
+          };
+          fs.writeFileSync(outputFile, `${canonicalJson(normalized)}\n`, { mode: 0o600 });
+          NODE
+          rm -f "$scan_raw"
+
+          node scripts/release/media-cell-supply-gate.cjs \
+            /tmp/tiger-media/artifacts/media-cell/oci-sbom.cdx.json \
+            /tmp/tiger-media/artifacts/media-cell/scan-evidence.json \
+            "$MANIFEST_DIGEST" \
+            /tmp/tiger-media/artifacts/media-cell/supply-gate.json
+          node -e "const x=require('/tmp/tiger-media/artifacts/media-cell/supply-gate.json'); if(x.decision!=='PASS') process.exit(1)"
+
+      - name: Create exact OCI provenance attestation
+        id: provenance
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d
+        with:
+          subject-name: ${{ steps.image.outputs.ecr_uri }}
+          subject-digest: ${{ steps.image.outputs.manifest_digest }}
+          push-to-registry: true
+
+      - name: Create exact OCI CycloneDX SBOM attestation
+        id: sbom-attestation
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d
+        with:
+          subject-name: ${{ steps.image.outputs.ecr_uri }}
+          subject-digest: ${{ steps.image.outputs.manifest_digest }}
+          sbom-path: /tmp/tiger-media/artifacts/media-cell/oci-sbom.cdx.json
+          push-to-registry: true
+
+      - name: Verify provenance and SBOM attestations against exact signer identity
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          signer='github.com/vvipautoparts-blip/TIGER-VVIP/.github/workflows/tiger-media-sovereign-sealed-build.yml'
+          gh attestation verify "oci://$IMAGE_URI" \
+            --bundle-from-oci \
+            --repo "$GITHUB_REPOSITORY" \
+            --signer-workflow "$signer" \
+            --source-digest "$SOURCE_SHA" \
+            --source-ref 'refs/heads/main' \
+            --format json \
+            > /tmp/tiger-media/provenance-verification.json
+          gh attestation verify "oci://$IMAGE_URI" \
+            --bundle-from-oci \
+            --repo "$GITHUB_REPOSITORY" \
+            --signer-workflow "$signer" \
+            --source-digest "$SOURCE_SHA" \
+            --source-ref 'refs/heads/main' \
+            --predicate-type https://cyclonedx.org/bom \
+            --format json \
+            > /tmp/tiger-media/sbom-attestation-verification.json
+          test -s /tmp/tiger-media/provenance-verification.json
+          test -s /tmp/tiger-media/sbom-attestation-verification.json
+
+          node scripts/release/media-cell-attestation-evidence.cjs \
+            /tmp/tiger-media/provenance-verification.json \
+            /tmp/tiger-media/artifacts/media-cell/provenance-attestation-identity.json \
+            "$GITHUB_REPOSITORY" \
+            "$signer" \
+            "$SOURCE_SHA" \
+            'refs/heads/main' \
+            "$ECR_URI" \
+            "$MANIFEST_DIGEST" \
+            'https://slsa.dev/provenance/v1'
+          node scripts/release/media-cell-attestation-evidence.cjs \
+            /tmp/tiger-media/sbom-attestation-verification.json \
+            /tmp/tiger-media/artifacts/media-cell/sbom-attestation-identity.json \
+            "$GITHUB_REPOSITORY" \
+            "$signer" \
+            "$SOURCE_SHA" \
+            'refs/heads/main' \
+            "$ECR_URI" \
+            "$MANIFEST_DIGEST" \
+            'https://cyclonedx.org/bom'
+
+          node - \
+            /tmp/tiger-media/artifacts/media-cell/provenance-attestation-identity.json \
+            /tmp/tiger-media/artifacts/media-cell/sbom-attestation-identity.json \
+            /tmp/tiger-media/artifacts/media-cell/attestation-evidence.json <<'NODE'
+          const fs = require('node:fs');
+          const { canonicalJson } = require('./scripts/release/media-cell-sbom.cjs');
+          const [provenanceFile, sbomFile, outputFile] = process.argv.slice(2);
+          const provenance = JSON.parse(fs.readFileSync(provenanceFile, 'utf8'));
+          const sbom = JSON.parse(fs.readFileSync(sbomFile, 'utf8'));
+          const output = {
+            provenance: { verified: provenance.verified === true, evidenceSha256: provenance.evidenceSha256 },
+            sbom: { verified: sbom.verified === true, evidenceSha256: sbom.evidenceSha256 },
+          };
+          fs.writeFileSync(outputFile, `${canonicalJson(output)}\n`, { mode: 0o600 });
+          NODE
+          rm -f /tmp/tiger-media/provenance-verification.json /tmp/tiger-media/sbom-attestation-verification.json
+
+      - name: Revalidate protected main immediately before release evidence issuance
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git fetch --no-tags --prune origin '+refs/heads/main:refs/remotes/origin/main'
+          FINAL_MAIN_SHA="$(git rev-parse refs/remotes/origin/main)"
+          test "$SOURCE_SHA" = "$FINAL_MAIN_SHA"
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test "$(git rev-parse 'HEAD^{tree}')" = "$SOURCE_TREE"
+          test -z "$(git status --porcelain=v1 -uall)"
+          printf '%s\n' "FINAL_MAIN_SHA=$FINAL_MAIN_SHA" >> "$GITHUB_ENV"
+
+      - name: Generate deterministic migration set Genome and Release Passport 2.0
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          node scripts/release/media-cell-migration-set.cjs > /tmp/tiger-media/artifacts/media-cell/migration-set.json
+          MIGRATION_SET_SHA="$(node -e "const x=require('/tmp/tiger-media/artifacts/media-cell/migration-set.json'); process.stdout.write(x.sha256)")"
+          SBOM_SHA="$(node -e "const x=require('/tmp/tiger-media/artifacts/media-cell/supply-gate.json'); process.stdout.write(x.sbomSha256)")"
+          COMPONENT_COUNT="$(node -e "const x=require('/tmp/tiger-media/artifacts/media-cell/supply-gate.json'); process.stdout.write(String(x.componentCount));")"
+          SUPPLY_GATE_SHA="$(node -e "const crypto=require('node:crypto'); const {canonicalJson}=require('./scripts/release/media-cell-sbom.cjs'); const x=require('/tmp/tiger-media/artifacts/media-cell/supply-gate.json'); process.stdout.write(crypto.createHash('sha256').update(canonicalJson(x)).digest('hex'))")"
+          printf '%s' "$SBOM_SHA" | grep -Eq '^[0-9a-f]{64}$'
+          printf '%s' "$SUPPLY_GATE_SHA" | grep -Eq '^[0-9a-f]{64}$'
+
+          export MIGRATION_SET_SHA SBOM_SHA COMPONENT_COUNT SUPPLY_GATE_SHA
+          export DOCKERFILE_SHA="$(sha256sum services/media-finalizer/Dockerfile | awk '{print $1}')"
+          export LOCK_SHA="$(sha256sum services/media-finalizer/package-lock.json | awk '{print $1}')"
+          export FOUNDATION_TEMPLATE_SHA="$(sha256sum infra/media-finalizer/foundation/template.yaml | awk '{print $1}')"
+          export FOUNDATION_GUARD_SHA="$(sha256sum infra/media-finalizer/foundation/guard.guard | awk '{print $1}')"
+          export REGIONAL_TEMPLATE_SHA="$(sha256sum infra/media-finalizer/regional/template.yaml | awk '{print $1}')"
+          export REGIONAL_GUARD_SHA="$(sha256sum infra/media-finalizer/regional/guard.guard | awk '{print $1}')"
+          export EDGE_TEMPLATE_SHA="$(sha256sum infra/media-finalizer/edge/template.yaml | awk '{print $1}')"
+          export EDGE_GUARD_SHA="$(sha256sum infra/media-finalizer/edge/guard.guard | awk '{print $1}')"
+
+          node - /tmp/tiger-media/release-evidence.json <<'NODE'
+          const fs = require('node:fs');
+          const scan = JSON.parse(fs.readFileSync('/tmp/tiger-media/artifacts/media-cell/scan-evidence.json', 'utf8'));
+          const attestations = JSON.parse(fs.readFileSync('/tmp/tiger-media/artifacts/media-cell/attestation-evidence.json', 'utf8'));
+          const evidence = {
+            source: {
+              repository: process.env.GITHUB_REPOSITORY,
+              commitSha: process.env.SOURCE_SHA,
+              treeSha: process.env.SOURCE_TREE,
+              mainSha: process.env.FINAL_MAIN_SHA,
+              immutable: true,
+              eligibility: {
+                state: 'VERIFIED_CURRENT_PROTECTED_MAIN',
+                dbConvergenceState: process.env.DB_CONVERGENCE_STATE,
+                dbConvergenceEvidenceSha256: process.env.DB_CONVERGENCE_EVIDENCE_SHA256,
+              },
+            },
+            materials: {
+              'services/media-finalizer/Dockerfile': process.env.DOCKERFILE_SHA,
+              'services/media-finalizer/package-lock.json': process.env.LOCK_SHA,
+              'infra/media-finalizer/foundation/template.yaml': process.env.FOUNDATION_TEMPLATE_SHA,
+              'infra/media-finalizer/foundation/guard.guard': process.env.FOUNDATION_GUARD_SHA,
+              'infra/media-finalizer/regional/template.yaml': process.env.REGIONAL_TEMPLATE_SHA,
+              'infra/media-finalizer/regional/guard.guard': process.env.REGIONAL_GUARD_SHA,
+              'infra/media-finalizer/edge/template.yaml': process.env.EDGE_TEMPLATE_SHA,
+              'infra/media-finalizer/edge/guard.guard': process.env.EDGE_GUARD_SHA,
+            },
+            image: {
+              repository: process.env.ECR_URI,
+              manifestDigest: process.env.MANIFEST_DIGEST,
+              baseDigest: process.env.BASE_IMAGE_DIGEST,
+            },
+            database: { migrationSetSha256: process.env.MIGRATION_SET_SHA },
+            sbom: {
+              specVersion: '1.7',
+              sha256: process.env.SBOM_SHA,
+              subjectDigest: process.env.MANIFEST_DIGEST,
+              path: 'artifacts/media-cell/oci-sbom.cdx.json',
+              componentCount: Number(process.env.COMPONENT_COUNT),
+            },
+            scan,
+            supplyGate: { decision: 'PASS', evidenceSha256: process.env.SUPPLY_GATE_SHA },
+            attestations,
+          };
+          fs.writeFileSync(process.argv[2], `${JSON.stringify(evidence)}\n`, { mode: 0o600 });
+          NODE
+
+          node - /tmp/tiger-media/release-evidence.json /tmp/tiger-media/genome-evidence.json <<'NODE'
+          const fs = require('node:fs');
+          const [inputFile, outputFile] = process.argv.slice(2);
+          const value = JSON.parse(fs.readFileSync(inputFile, 'utf8'));
+          delete value.scan;
+          delete value.supplyGate;
+          fs.writeFileSync(outputFile, `${JSON.stringify(value)}\n`, { mode: 0o600 });
+          NODE
+
+          node scripts/release/media-cell-genome.cjs \
+            /tmp/tiger-media/genome-evidence.json \
+            /tmp/tiger-media/artifacts/media-cell/genome.json
+          node scripts/release/media-cell-passport.cjs \
+            /tmp/tiger-media/release-evidence.json \
+            /tmp/tiger-media/artifacts/media-cell/release-passport-v2.json
+          rm -f /tmp/tiger-media/release-evidence.json /tmp/tiger-media/genome-evidence.json
+
+          node - \
+            /tmp/tiger-media/artifacts/media-cell/release-passport-v2.json \
+            /tmp/tiger-media/artifacts/media-cell/source-identity.json <<'NODE'
+          const fs = require('node:fs');
+          const { canonicalJson } = require('./scripts/release/media-cell-sbom.cjs');
+          const [passportFile, outputFile] = process.argv.slice(2);
+          const passport = JSON.parse(fs.readFileSync(passportFile, 'utf8'));
+          fs.writeFileSync(outputFile, `${canonicalJson(passport.source)}\n`, { mode: 0o600 });
+          NODE
+
+      - name: Upload bounded sealed-build evidence only
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: tiger-media-sovereign-sealed-build-${{ inputs.release_sha }}
+          path: /tmp/tiger-media/artifacts/media-cell/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Prove sealed-build-only boundary and immutable source
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test "$(git rev-parse 'HEAD^{tree}')" = "$SOURCE_TREE"
+          test -z "$(git status --porcelain=v1 -uall)"
+          echo 'TIGER_MEDIA_SEALED_BUILD=PASS'
+          echo 'TIGER_MEDIA_RUNTIME_DEPLOYED=NO'
+          echo 'TIGER_MEDIA_DARK_BOOTSTRAP=NOT_STARTED'
