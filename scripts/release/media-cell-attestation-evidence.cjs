@@ -67,9 +67,10 @@ function createVerifiedAttestationEvidence(document, expected) {
   // `gh attestation verify` has already enforced repository, signer workflow,
   // source digest/ref, predicate and OCI subject through its fail-closed CLI
   // filters. Persist only those stable verified identities here. Certificate
-  // validity, transparency-log integration times and verifiedTimestamps are
-  // deliberately excluded because they are operational signing metadata and
-  // must never participate in the deterministic release Genome identity.
+  // validity, transparency-log integration times, verifiedTimestamps, and the
+  // number of duplicate matching attestations are deliberately excluded:
+  // they are operational retry/signing metadata and must never participate in
+  // the deterministic release Genome identity.
   const stable = Object.freeze({
     verified: true,
     subject: Object.freeze({
@@ -83,7 +84,6 @@ function createVerifiedAttestationEvidence(document, expected) {
       ref: expected.sourceRef,
     }),
     signer: Object.freeze({ workflow: expected.signerWorkflow }),
-    verificationCount: document.length,
   });
 
   return Object.freeze({
