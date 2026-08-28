@@ -24,6 +24,8 @@ const EXPECTED_PHASES = Object.freeze(
 );
 
 const FINAL_REFERENCE = 'docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md';
+const REQUIRED_PREFLIGHT = 'OWNER_BINDING_CURRENT_FIRST';
+const REQUIRED_DISPOSITION = 'DELETE_FROM_CURRENT_TREE_NO_FALLBACK_NO_IN_TREE_ARCHIVE';
 
 const REQUIRED_REFERENCE_FIELDS = Object.freeze({
   ownerOperationalIndex: 'docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md',
@@ -85,15 +87,13 @@ function verifyCurrentAuthority(manifest) {
   if (manifest.schemaVersion !== 'VVIP_TIGER_FUSION_AUTHORITY_V2') {
     errors.push('schemaVersion must be VVIP_TIGER_FUSION_AUTHORITY_V2');
   }
-  if (manifest.productIdentity !== 'GLOBAL_FIRST') {
-    errors.push('productIdentity must be GLOBAL_FIRST');
-  }
-  if (manifest.primaryProductIdentity !== 'SOCIAL_NETWORK_FIRST') {
-    errors.push('primaryProductIdentity must be SOCIAL_NETWORK_FIRST');
-  }
-  if (manifest.currentReference !== FINAL_REFERENCE) {
-    errors.push('currentReference must point to TIGER_OWNER_BINDING_CURRENT.md');
-  }
+  if (manifest.productIdentity !== 'GLOBAL_FIRST') errors.push('productIdentity must be GLOBAL_FIRST');
+  if (manifest.primaryProductIdentity !== 'SOCIAL_NETWORK_FIRST') errors.push('primaryProductIdentity must be SOCIAL_NETWORK_FIRST');
+  if (manifest.currentReference !== FINAL_REFERENCE) errors.push('currentReference must point to TIGER_OWNER_BINDING_CURRENT.md');
+  if (manifest.firstReferenceRequired !== true) errors.push('TIGER_OWNER_BINDING_CURRENT.md must be the mandatory first reference');
+  if (manifest.authorityPreflight !== REQUIRED_PREFLIGHT) errors.push(`authorityPreflight must equal ${REQUIRED_PREFLIGHT}`);
+  if (manifest.supersededMaterialDisposition !== REQUIRED_DISPOSITION) errors.push(`supersededMaterialDisposition must equal ${REQUIRED_DISPOSITION}`);
+  if (manifest.recheckOnNewOwnerDecision !== true) errors.push('in-progress work must be rechecked when a new owner decision is issued');
 
   for (const [field, expected] of Object.entries(REQUIRED_REFERENCE_FIELDS)) {
     if (manifest[field] !== expected) errors.push(`${field} must equal ${expected}`);
@@ -134,8 +134,8 @@ function verifyCurrentAuthority(manifest) {
     }
   }
 
-  if (manifest.historicalEvidencePolicy !== 'GIT_HISTORY_OR_NON_OPERATIVE_AUDIT_ONLY') {
-    errors.push('historical evidence must remain outside current authority');
+  if (manifest.historicalEvidencePolicy !== 'GIT_HISTORY_ONLY_FOR_SUPERSEDED_CONFLICTING_MATERIAL') {
+    errors.push('superseded conflicting material must not be archived inside the current tree');
   }
 
   const phases = Array.isArray(manifest.implementationPhases) ? manifest.implementationPhases : [];
@@ -176,6 +176,8 @@ module.exports = Object.freeze({
   REQUIRED_REFERENCE_FIELDS,
   EXPECTED_PHASES,
   FINAL_REFERENCE,
+  REQUIRED_PREFLIGHT,
+  REQUIRED_DISPOSITION,
   REQUIRED_MARKETPLACE_ROLES,
   REQUIRED_MARKETPLACE_CONNECTIONS,
   REQUIRED_FORBIDDEN_MARKETPLACE_INTERMEDIATION,
