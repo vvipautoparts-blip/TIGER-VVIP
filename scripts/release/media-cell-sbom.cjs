@@ -39,6 +39,11 @@ function hasSecretMaterial(value) {
   return typeof value === 'string' && SECRET_VALUE_PATTERNS.some((pattern) => pattern.test(value));
 }
 
+function hasSensitiveCycloneDxPropertyName(sbom) {
+  const properties = Array.isArray(sbom?.metadata?.properties) ? sbom.metadata.properties : [];
+  return properties.some((entry) => entry && typeof entry.name === 'string' && SECRET_KEY_PATTERN.test(entry.name));
+}
+
 function ensureObject(value, code) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) fail(code);
 }
@@ -56,7 +61,7 @@ function propertyMap(sbom) {
 
 function validateRawSbom(sbom) {
   ensureObject(sbom, 'MEDIA_CELL_SBOM_INVALID');
-  if (hasSecretMaterial(sbom)) fail('MEDIA_CELL_SBOM_SECRET_MATERIAL_REJECTED');
+  if (hasSecretMaterial(sbom) || hasSensitiveCycloneDxPropertyName(sbom)) fail('MEDIA_CELL_SBOM_SECRET_MATERIAL_REJECTED');
   if (sbom.bomFormat !== 'CycloneDX') fail('MEDIA_CELL_SBOM_FORMAT_INVALID');
   if (sbom.specVersion !== '1.7') fail('MEDIA_CELL_SBOM_SPEC_VERSION_INVALID');
   if (!Array.isArray(sbom.components) || sbom.components.length === 0) fail('MEDIA_CELL_SBOM_COMPONENTS_EMPTY');
