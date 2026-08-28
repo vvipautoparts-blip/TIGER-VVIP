@@ -53,11 +53,14 @@ function validCount(value) {
 function validateScan(scan) {
   exactKeys(
     scan,
-    ['status', 'scanMode', 'critical', 'high', 'medium', 'low', 'unknown', 'findingsSha256'],
+    ['status', 'scanMode', 'scanCompletedAt', 'critical', 'high', 'medium', 'low', 'unknown', 'findingsSha256'],
     'PASSPORT_SCAN_UNKNOWN',
     'PASSPORT_SCAN_INVALID',
   );
-  if (scan.status !== 'COMPLETE' || scan.scanMode !== 'ENHANCED') fail('PASSPORT_SCAN_INVALID');
+  if ((scan.status !== 'COMPLETE' && scan.status !== 'ACTIVE') || scan.scanMode !== 'ENHANCED') fail('PASSPORT_SCAN_INVALID');
+  if (typeof scan.scanCompletedAt !== 'string' || !scan.scanCompletedAt || Number.isNaN(Date.parse(scan.scanCompletedAt))) {
+    fail('PASSPORT_SCAN_INVALID');
+  }
   for (const severity of ['critical', 'high', 'medium', 'low', 'unknown']) {
     if (!validCount(scan[severity])) fail('PASSPORT_SCAN_INVALID');
   }
@@ -127,6 +130,7 @@ function createMediaCellPassport(evidence = {}) {
     scan: {
       status: evidence.scan.status,
       scanMode: evidence.scan.scanMode,
+      scanCompletedAt: evidence.scan.scanCompletedAt,
       critical: evidence.scan.critical,
       high: evidence.scan.high,
       medium: evidence.scan.medium,
