@@ -54,7 +54,7 @@ test('runbook keeps production mutation owner-only and explicitly forbids unsafe
     'remote DDL',
     'remote DML',
   ]) {
-    assert.match(text.toLowerCase(), new RegExp(forbidden.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `MEDIA_DB_RUNBOOK_FORBIDDEN_RULE_MISSING:${forbidden}`);
+    assert.match(text, new RegExp(forbidden.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), `MEDIA_DB_RUNBOOK_FORBIDDEN_RULE_MISSING:${forbidden}`);
   }
 });
 
