@@ -54,6 +54,8 @@ rule build_role_has_bounded_ecr_authority when %build_roles !empty {
     %build_roles {
         some Properties.Policies[*].PolicyDocument.Statement[*] {
             some Action[*] == 'ecr:GetAuthorizationToken'
+            some Action[*] == 'ecr:GetRegistryScanningConfiguration'
+            Resource == '*'
         }
         some Properties.Policies[*].PolicyDocument.Statement[*] {
             some Action[*] == 'ecr:PutImage'
