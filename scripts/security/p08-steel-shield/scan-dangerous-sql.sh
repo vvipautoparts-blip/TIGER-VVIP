@@ -19,7 +19,7 @@ declare -A reviewed_migration_hashes=(
   ["supabase/migrations/20260628_otp_codes_rls_open.sql"]="11fc3df41870b66db544fd44c6adfe01aaa317cd4d7322c4c7344ac51c01f1f8"
   ["supabase/migrations/20260702_ai_analytics_ads_tables.sql"]="6e6cd951bb8957936692d05d0d0a967082c17b1bc8b50349805b7ff0cbdc9629"
   ["supabase/migrations/20260703_feed_posts_table.sql"]="608763514774af0773f3c6292181fd0c232fd09f2455a3b465e46ee632a57f4b"
-  ["supabase/migrations/20260706_public_profiles_bootstrap.sql"]="e31b1396e2f992106f4cfc890a9c047"
+  ["supabase/migrations/20260706_public_profiles_bootstrap.sql"]="e31b1396e2e982b4f76c2f992106f4cfc890a9c60ea399ebce671673e6a9c047"
   ["supabase/migrations/20260707_vvip_tiger_auth_profile_bridge.sql"]="49d5a108c7abce4efb03406dbae0c3b3522089d8d05b75bf6ab4c57618defb6e"
   ["supabase/migrations/20260708_vvip_tiger_clerk_profiles_table.sql"]="77b451f68b88f241118547612a35bc62ac9a9ad2688311431748814d484edd70"
   ["supabase/migrations/20260709_vvip_tiger_profiles_clerk_jwt_rls_bridge.sql"]="27231616d724587f87655dc0ed72e5f01130be3844d332206e0381e3e5ee1feb"
@@ -78,7 +78,7 @@ declare -A reviewed_migration_hashes=(
 
   # Social Core foundation: reviewed against the 2026-08-18 Clerk actor, FORCE-RLS,
   # post audience, relationship-transition, and legacy-feed isolation contracts.
-  # The approval is content-addressed; any byte drift re-enters review automatically.
+  # The approval is content-addressed; any byte drift re-enters Steel Shield automatically.
   ["supabase/migrations/20260818125000_social_core_foundation.sql"]="d7f15478df2ff3e244632042cf28d867eb3cea8a562050f68834d793905d2151"
 
   # Social Reactions: reviewed with CRITICAL=0 after mutation predicates were made
@@ -178,8 +178,8 @@ declare -A reviewed_migration_hashes=(
   # Timeline cursors bind actor+target and every page rechecks current visibility.
   ["supabase/migrations/20260824123000_social_profile_surface.sql"]="88c414e6a2b70e66784a96a1fe3d5930fc0900c2533c7ebce40a8ea4f789f0e4"
 
-  # P0 Safety Surface: reviewed with CRITICAL=0 and twelve classified lexical HIGH
-  # findings. Seven are new-table NOT NULL integrity rules and five are
+  # P0 Safety Surface: reviewed with CRITICAL=0 and twelve classified lexical
+  # HIGH findings. Seven are new-table NOT NULL integrity rules and five are
   # exact authenticated EXECUTE grants. Reports are append-only/RPC-only, post
   # reports recheck visibility, block lookups stay directional and subject-blind,
   # and unblock remains available after target lifecycle changes. Byte drift
