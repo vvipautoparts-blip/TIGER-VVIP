@@ -1,7 +1,7 @@
 # TIGER FINANCIAL DISTRIBUTION — CURRENT OWNER AUTHORITY
 
-**Status:** `CURRENT_ONLY / OWNER_BINDING / NO_FALLBACK / NO_IN_TREE_ARCHIVE`  
-**Effective decision:** 2026-08-28  
+**Status:** `CURRENT_ONLY / OWNER_BINDING / NO_FALLBACK / NO_IN_TREE_ARCHIVE`
+**Effective decision:** 2026-08-28
 **Domain:** distribution of successfully captured TIGER Pulse visibility purchases.
 
 ## 1. Allocation basis
