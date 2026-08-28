@@ -2,7 +2,7 @@
   "schema_version": "VVIP-ZRPH-1",
   "platform": "VVIP TIGER",
   "mode": "CURRENT_ONLY",
-  "human_authority": "docs/MASTER_PROJECT_STATE.md",
+  "human_authority": "docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md",
   "machine_contract": "project-control/production-handover/current-authority.v1.json",
   "owner_authority_graph": {
     "registry": "project-control/authority/authority-registry.v1.json",
