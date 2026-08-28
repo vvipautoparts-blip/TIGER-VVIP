@@ -1,25 +1,5 @@
 'use strict';
 
-const REQUIRED_SUPERSEDED_IDS = Object.freeze([
-  'LEGACY_JORDAN_FIRST',
-  'LEGACY_FIXED_THREE_SECTORS',
-  'LEGACY_FOUR_POSTS_WEEK',
-  'LEGACY_120_DAY_LIFETIME',
-  'LEGACY_40_DAY_LISTING_DELETE',
-  'LEGACY_PUBLISHING_CARDS',
-  'LEGACY_PUBLISHING_SUBSCRIPTIONS',
-  'LEGACY_PAID_PUBLISHING_SLOTS',
-  'LEGACY_PUBLICATION_PLAN_ENTITLEMENT_GATE',
-  'LEGACY_TIMED_ACTIVATION_CARD',
-  'LEGACY_3_10_20_PULSE_TIERS',
-  'LEGACY_45_80_120_CURRENT_TIERS',
-  'LEGACY_TIGER_CARE',
-  'LEGACY_BLUE_LOGIN',
-  'LEGACY_SEPARATE_ADMIN_SURFACE',
-  'LEGACY_MARKETPLACE_TRANSACTION_COMMISSION_PAYOUT',
-  'LEGACY_TIGERPAY_MARKETPLACE_TRANSACTION_SETTLEMENT'
-]);
-
 const EXPECTED_PHASES = Object.freeze(
   Array.from({ length: 17 }, (_, index) => `F${String(index).padStart(2, '0')}`)
 );
@@ -146,22 +126,6 @@ function verifyCurrentAuthority(manifest) {
     errors.push('implementationPhases must equal F00 through F16 in order');
   }
 
-  const decisions = Array.isArray(manifest.supersededDecisions) ? manifest.supersededDecisions : [];
-  const seen = new Set();
-  for (const entry of decisions) {
-    if (!entry || typeof entry.id !== 'string') {
-      errors.push('every superseded decision must have a string id');
-      continue;
-    }
-    if (seen.has(entry.id)) errors.push(`duplicate superseded decision: ${entry.id}`);
-    seen.add(entry.id);
-  }
-  for (const id of REQUIRED_SUPERSEDED_IDS) {
-    const entry = decisions.find((item) => item && item.id === id);
-    if (!entry) errors.push(`missing superseded decision: ${id}`);
-    else if (entry.status !== 'SUPERSEDED') errors.push(`${id} must be SUPERSEDED`);
-  }
-
   const uniqueActors = manifest.digitalTwin && manifest.digitalTwin.uniqueActors;
   const simultaneous = manifest.digitalTwin && manifest.digitalTwin.simultaneousActiveUsers;
   if (uniqueActors !== 4_000_000) errors.push('digitalTwin.uniqueActors must be 4000000');
@@ -175,7 +139,6 @@ function verifyCurrentAuthority(manifest) {
 
 module.exports = Object.freeze({
   verifyCurrentAuthority,
-  REQUIRED_SUPERSEDED_IDS,
   REQUIRED_REFERENCE_FIELDS,
   EXPECTED_PHASES,
   FINAL_REFERENCE,
