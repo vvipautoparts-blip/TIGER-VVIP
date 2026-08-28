@@ -15,7 +15,8 @@ const activeRuntimeFiles = [
   'scripts/fusion/progressive-composer.js',
   'scripts/fusion/single-surface-controller.js',
   'scripts/fusion/runtime-adapters.js',
-  'scripts/runtime/vvip-marketplace-repository.js'
+  'scripts/runtime/vvip-marketplace-repository.js',
+  'scripts/runtime/vvip-my-listings.js'
 ];
 
 const retiredProductPatterns = [
@@ -29,7 +30,8 @@ const retiredProductPatterns = [
   /requestPublication\s*\(/,
   /vvip_marketplace_request_publication/,
   /entitlementReceipt/,
-  /entitlement_receipt/
+  /entitlement_receipt/,
+  /\bEXPIRED\s*:/
 ];
 
 test('current owner decision is the only active supersession contract', () => {
@@ -51,21 +53,11 @@ test('active runtime must not restore superseded product rules', () => {
   }
 });
 
-test('current authority manifest records the removed legacy decisions', () => {
-  const manifest = JSON.parse(read('config/fusion/current-authority.json'));
-  const retired = new Set(manifest.supersededDecisions.map((item) => item.id));
-  for (const id of [
-    'LEGACY_FOUR_POSTS_WEEK',
-    'LEGACY_120_DAY_LIFETIME',
-    'LEGACY_40_DAY_LISTING_DELETE',
-    'LEGACY_PUBLISHING_CARDS',
-    'LEGACY_PUBLISHING_SUBSCRIPTIONS',
-    'LEGACY_PAID_PUBLISHING_SLOTS',
-    'LEGACY_PUBLICATION_PLAN_ENTITLEMENT_GATE',
-    'LEGACY_TIMED_ACTIVATION_CARD'
-  ]) {
-    assert.equal(retired.has(id), true, `${id} must remain explicitly superseded`);
-  }
+test('current authority manifest contains no in-tree legacy decision registry', () => {
+  const source = read('config/fusion/current-authority.json');
+  const manifest = JSON.parse(source);
+  assert.equal(Object.prototype.hasOwnProperty.call(manifest, 'supersededDecisions'), false);
+  assert.doesNotMatch(source, /"LEGACY_/);
 });
 
 test('technical security TTLs are not treated as product lifetime', () => {
