@@ -101,12 +101,19 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          contract_log="$(mktemp)"
-          trap 'rm -f "$contract_log"' EXIT
+          contract_log="/tmp/tiger-media-db-contract.log"
+          rm -f "$contract_log"
+          set +e
           PGPASSWORD=postgres psql \
             -h 127.0.0.1 -p 54322 -U postgres -d postgres \
             -v ON_ERROR_STOP=1 \
-            -f tests/sql/media-finalizer-db-contract.sql | tee "$contract_log"
+            -f tests/sql/media-finalizer-db-contract.sql 2>&1 | tee "$contract_log"
+          psql_status=${PIPESTATUS[0]}
+          set -e
+          if [ "$psql_status" -ne 0 ]; then
+            echo 'TIGER_MEDIA_DB_CONTRACT=SQL_ASSERTION_FAILED'
+            exit "$psql_status"
+          fi
           grep -Fx 'MEDIA_DB_MIGRATIONS=PASS' "$contract_log"
           grep -Fx 'MEDIA_DB_JOB_TABLE=PASS' "$contract_log"
           grep -Fx 'MEDIA_DB_CANONICAL_COLUMNS=PASS' "$contract_log"
@@ -120,6 +127,15 @@ jobs:
             echo 'TIGER_MEDIA_DB_CONTRACT=FAIL_MARKER_DETECTED'
             exit 1
           fi
+
+      - name: Upload bounded DB contract failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: tiger-media-finalizer-db-contract-failure-${{ env.SOURCE_SHA }}
+          path: /tmp/tiger-media-db-contract.log
+          if-no-files-found: error
+          retention-days: 3
 
       - name: Prove trusted owner binding and replay protections
         shell: bash
