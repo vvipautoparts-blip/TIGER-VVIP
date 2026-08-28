@@ -129,7 +129,7 @@ test('Genome rejects unknown, secret-shaped, mismatched, or unverified authorita
   assert.throws(() => createMediaCellGenome(unknown), /GENOME_EVIDENCE_UNKNOWN/);
 
   const secret = genomeEvidence();
-  secret.secretValue = 'sb_secret_forbidden';
+  secret.authorizationHeader = 'not-a-token';
   assert.throws(() => createMediaCellGenome(secret), /GENOME_SECRET_MATERIAL_REJECTED|GENOME_EVIDENCE_UNKNOWN/);
 
   const mismatch = genomeEvidence();
@@ -194,7 +194,7 @@ test('Passport 2.0 fails closed on scan, subject, secret, and unknown evidence',
   assert.throws(() => createMediaCellPassport(scanMode), /PASSPORT_SCAN_INVALID/);
 
   const secret = passportEvidence();
-  secret.secretValue = 'sb_secret_forbidden';
+  secret.authorizationHeader = 'not-a-token';
   assert.throws(() => createMediaCellPassport(secret), /PASSPORT_SECRET_MATERIAL_REJECTED|PASSPORT_EVIDENCE_UNKNOWN/);
 
   const unknown = passportEvidence();
