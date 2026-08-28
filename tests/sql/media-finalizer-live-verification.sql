@@ -4,8 +4,8 @@ required_migrations(version) as (
 ),
 migration_check as (
   select count(*) = 2 as ok
-  from required_migrations r
-  join supabase_migrations.schema_migrations m on m.version = r.version
+  from supabase_migrations.schema_migrations m
+  join required_migrations r on r.version = m.version
 ),
 job_table_check as (
   select
