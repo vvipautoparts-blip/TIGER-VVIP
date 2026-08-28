@@ -12,6 +12,26 @@
       "protected_boundaries": ["main", "production", "party-to-party-payment"]
     },
     {
+      "authority_id": "authority.cleanup-governance.legacy",
+      "domain": "cleanup-governance",
+      "version": 0,
+      "status": "HISTORICAL_ONLY",
+      "owner_decision_ref": "docs/VVIP_TIGER_REPOSITORY_HOUSEKEEPING_AUDIT.md",
+      "canonical_path": "docs/VVIP_TIGER_REPOSITORY_HOUSEKEEPING_AUDIT.md",
+      "supersedes": [],
+      "protected_boundaries": ["repository-history"]
+    },
+    {
+      "authority_id": "authority.cleanup-governance.v1",
+      "domain": "cleanup-governance",
+      "version": 1,
+      "status": "CURRENT_ONLY",
+      "owner_decision_ref": "docs/owner-control/TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md",
+      "canonical_path": "docs/owner-control/TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md",
+      "supersedes": ["authority.cleanup-governance.legacy"],
+      "protected_boundaries": ["main", "production", "owner-authority", "migrations", "stateful-volumes", "canonical-evidence", "git-history"]
+    },
+    {
       "authority_id": "authority.owner-entrypoint.legacy",
       "domain": "owner-entrypoint",
       "version": 0,
