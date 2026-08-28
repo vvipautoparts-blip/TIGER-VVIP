@@ -68,16 +68,29 @@ function validateScan(scan) {
   if (scan.critical > 0 || scan.high > 0 || scan.medium > 0) fail('PASSPORT_SCAN_BLOCKED');
 }
 
+function validateSupplyGate(supplyGate) {
+  exactKeys(
+    supplyGate,
+    ['decision', 'evidenceSha256'],
+    'PASSPORT_SUPPLY_GATE_UNKNOWN',
+    'PASSPORT_SUPPLY_GATE_INVALID',
+  );
+  if (supplyGate.decision !== 'PASS' || !SHA256_PATTERN.test(supplyGate.evidenceSha256 || '')) {
+    fail('PASSPORT_SUPPLY_GATE_INVALID');
+  }
+}
+
 function createMediaCellPassport(evidence = {}) {
   if (hasSecretMaterial(evidence)) fail('PASSPORT_SECRET_MATERIAL_REJECTED');
   exactKeys(
     evidence,
-    ['source', 'materials', 'image', 'database', 'sbom', 'scan', 'attestations'],
+    ['source', 'materials', 'image', 'database', 'sbom', 'scan', 'attestations', 'supplyGate'],
     'PASSPORT_EVIDENCE_UNKNOWN',
     'PASSPORT_EVIDENCE_INVALID',
   );
   if (evidence?.sbom?.subjectDigest !== evidence?.image?.manifestDigest) fail('PASSPORT_SBOM_SUBJECT_MISMATCH');
   validateScan(evidence.scan);
+  validateSupplyGate(evidence.supplyGate);
 
   const genomeEvidence = {
     source: evidence.source,
@@ -105,11 +118,7 @@ function createMediaCellPassport(evidence = {}) {
       algorithm: genome.algorithm,
       id: genome.id,
     },
-    source: {
-      commitSha: evidence.source.commitSha,
-      treeSha: evidence.source.treeSha,
-      immutable: true,
-    },
+    source: genome.source,
     materials: genome.materials,
     image: {
       repository: evidence.image.repository,
@@ -137,6 +146,10 @@ function createMediaCellPassport(evidence = {}) {
       low: evidence.scan.low,
       unknown: evidence.scan.unknown,
       findingsSha256: evidence.scan.findingsSha256,
+    },
+    supplyGate: {
+      decision: 'PASS',
+      evidenceSha256: evidence.supplyGate.evidenceSha256,
     },
     attestations: {
       provenance: {
