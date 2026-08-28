@@ -13,7 +13,7 @@ function loadRunbook() {
   return fs.readFileSync(RUNBOOK, 'utf8').replace(/\r/g, '');
 }
 
-test('runbook pins the exact Seoul production authority and migration set', () => {
+test('runbook pins the exact Seoul production authority and repaired migration set', () => {
   const text = loadRunbook();
   for (const token of [
     'OWNER-ONLY MUTATION BOUNDARY',
@@ -21,6 +21,7 @@ test('runbook pins the exact Seoul production authority and migration set', () =
     'ap-northeast-2',
     '20260816090001',
     '20260827120000',
+    '20260828140000',
     'tests/sql/media-finalizer-live-verification.sql',
     'config/media-finalizer-supabase-advisor-classification.json',
     'scripts/release/media-cell-db-convergence-evidence.cjs',
@@ -29,6 +30,13 @@ test('runbook pins the exact Seoul production authority and migration set', () =
   ]) {
     assert.match(text, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `MEDIA_DB_RUNBOOK_TOKEN_MISSING:${token}`);
   }
+  assert.match(
+    text,
+    /20260816090001[\s\S]*20260827120000[\s\S]*20260828140000/i,
+    'MEDIA_DB_RUNBOOK_MIGRATION_ORDER_INVALID',
+  );
+  assert.match(text, /forward repair/i);
+  assert.match(text, /no[- ]visitor/i);
 });
 
 test('runbook requires exact protected main and local rehearsal before owner promotion', () => {
@@ -60,7 +68,19 @@ test('runbook keeps production mutation owner-only and explicitly forbids unsafe
   }
 });
 
-test('runbook closes the anonymous-auth advisor condition before VERIFIED_LIVE', () => {
+test('runbook binds live evidence to independently authenticated project metadata, not SQL self-labeling', () => {
+  const text = loadRunbook();
+  assert.match(text, /independently authenticated/i);
+  assert.match(text, /control[- ]plane/i);
+  assert.match(text, /projectRef/i);
+  assert.match(text, /region/i);
+  assert.match(text, /required_migrations/i);
+  assert.match(text, /contract_checks/i);
+  assert.match(text, /createMediaDbConvergenceEvidenceFromLive/i);
+  assert.match(text, /must not self-label/i);
+});
+
+test('runbook closes the anonymous-auth advisor condition before VERIFIED_LIVE and passes live observations to evidence', () => {
   const text = loadRunbook();
   assert.match(text, /Supabase Anonymous Sign-ins/i);
   assert.match(text, /disable/i);
@@ -68,6 +88,9 @@ test('runbook closes the anonymous-auth advisor condition before VERIFIED_LIVE',
   assert.match(text, /must be absent/i);
   assert.match(text, /authenticated_security_definer_function_executable/i);
   assert.match(text, /INTENTIONAL_AND_TESTED/i);
+  assert.match(text, /securityWarnings/i);
+  assert.match(text, /performanceWarnings/i);
+  assert.match(text, /live advisor/i);
 });
 
 test('post-apply verification is read-only, bounded, and fail-closed', () => {
