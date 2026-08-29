@@ -15,7 +15,9 @@ const REQUIRED_REFERENCE_FIELDS = Object.freeze({
   tigerFinancialDistributionConfig: 'config/finance/current-distribution.json',
   tigerSocialCoreOwnerReference: 'docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md',
   tigerPhoenixOwnerReference: 'docs/owner-control/TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md',
-  tigerAionOwnerReference: 'docs/owner-control/TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md'
+  tigerAionOwnerReference: 'docs/owner-control/TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md',
+  tigerSgfOwnerReference: 'docs/owner-control/TIGER_SOVEREIGN_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md',
+  tigerSgfConfig: 'config/sovereignty/sgf-v1.json'
 });
 
 const REQUIRED_MARKETPLACE_ROLES = Object.freeze([
