@@ -101,3 +101,23 @@ test('owner command validation rejects invalid UUIDs, modes, units, and short id
   await assert.rejects(runtime.pause({ allocationGroupId: GROUP_ID, idempotencyKey: 'short' }), { code: 'PULSE_IDEMPOTENCY_KEY_INVALID' });
   assert.equal(client.calls.length, 0);
 });
+
+test('ownedObjects returns only server-confirmed Pulse-eligible object ids for UI decoration', async () => {
+  const { createPulseRuntime } = await loadSubject();
+  const client = clientWith(async (name) => ({
+    data: name === 'vvip_nexus_owned_pulse_objects'
+      ? { ok: true, items: [{ postId: POST_ID }] }
+      : null,
+    error: null
+  }));
+  const runtime = createPulseRuntime(client);
+  const items = await runtime.ownedObjects();
+  assert.deepEqual(items, [POST_ID]);
+  assert.deepEqual(client.calls, [{ name: 'vvip_nexus_owned_pulse_objects', args: { p_limit: 200 } }]);
+});
+
+test('ownedObjects fails closed on malformed ownership projection', async () => {
+  const { createPulseRuntime } = await loadSubject();
+  const runtime = createPulseRuntime(clientWith(async () => ({ data: { ok: true, items: [{ postId: 'bad' }] }, error: null })));
+  await assert.rejects(runtime.ownedObjects(), { code: 'PULSE_OWNED_OBJECTS_INVALID' });
+});
