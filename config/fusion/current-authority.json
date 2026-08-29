@@ -14,8 +14,11 @@
   "tigerSocialCoreOwnerReference": "docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md",
   "tigerPhoenixOwnerReference": "docs/owner-control/TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md",
   "tigerAionOwnerReference": "docs/owner-control/TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md",
-  "tigerSgfOwnerReference": "docs/owner-control/TIGER_SOVEREIGN_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md",
-  "tigerSgfConfig": "config/sovereignty/sgf-v1.json",
+  "tigerSpgfOwnerReference": "docs/owner-control/TIGER_SOVEREIGN_PROOF_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md",
+  "tigerSpgfConfig": "config/sovereignty/spgf-v1.json",
+  "sovereignTrustModel": "PROOF_CAPSULE_REQUIRED_FAIL_CLOSED",
+  "sovereignFallbackPolicy": "DENY_NO_SOVEREIGN_FALLBACK",
+  "technologyMaturityPolicy": "STABLE_ONLY_FOR_SOVEREIGN_PRODUCTION",
   "ownerMarketplaceBoundary": {
     "mode": "ADVERTISING_DISCOVERY_DIRECT_CONTACT_ONLY",
     "platformIsMarketplaceTransactionParty": false,
@@ -60,7 +63,7 @@
     "productLevels": ["PULSE_2", "PULSE_10", "PULSE_25", "PULSE_45"],
     "globalPrice": null,
     "globalCurrency": null,
-    "pricingAuthority": "MARKET_PRICING_CONTRACT",
+    "pricingAuthority": "SIGNED_MARKET_PRICING_CONTRACT",
     "purchasedValue": "SERVER_AUTHORITATIVE_VISIBILITY_ALLOCATION",
     "productTimeExpiry": null,
     "ordinaryPublicationPrerequisite": false,
@@ -74,7 +77,10 @@
     "signed_url",
     "anti_replay_window",
     "cache",
-    "temporary_purchase_quote"
+    "temporary_purchase_quote",
+    "owner_execution_lease",
+    "proof_evidence_freshness",
+    "execution_seal"
   ],
   "historicalEvidencePolicy": "GIT_HISTORY_ONLY_FOR_SUPERSEDED_CONFLICTING_MATERIAL",
   "retainedFoundations": [
@@ -83,6 +89,8 @@
     "RELEASE_SUPPLY_CHAIN_SECURITY",
     "DOUBLE_ENTRY_LEDGER_FOR_PLATFORM_OWNED_FINANCE",
     "SOVEREIGN_MARKET_CAPABILITY_GATES",
+    "PROOF_FIRST_EXECUTION",
+    "CRYPTO_AGILITY",
     "APPEND_ONLY_AUDIT",
     "RECOVERY_FAILOVER_DISCIPLINE",
     "PR36_RESOURCE_SAFETY",
