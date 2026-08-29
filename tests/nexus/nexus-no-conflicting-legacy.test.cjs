@@ -66,6 +66,20 @@ test('superseded Marketplace wizard is deleted, not hidden or retained as a seco
   assert.match(index, /data-nexus-create-context="marketplace"[^>]*data-social-post-trigger|data-social-post-trigger[^>]*data-nexus-create-context="marketplace"/);
 });
 
+test('superseded client Pulse vault model is physically deleted with no fallback globals', () => {
+  for (const relative of [
+    'scripts/nexus/pulse-vault.js',
+    'tests/nexus/pulse-vault.test.cjs'
+  ]) {
+    assert.equal(fs.existsSync(path.join(root, relative)), false, `${relative} must stay physically deleted`);
+  }
+  const bootstrap = fs.readFileSync(path.join(root, 'scripts/nexus/bootstrap.js'), 'utf8');
+  const surface = fs.readFileSync(path.join(root, 'scripts/nexus/pulse-surface.js'), 'utf8');
+  for (const source of [bootstrap, surface]) {
+    assert.doesNotMatch(source, /TIGERPulseVaultCurrent|VVIPPulseVaultCurrent|TIGERNexusPulseVault|TIGERNexusPulseCommands|derivePulseVault/);
+  }
+});
+
 test('no current-tree archive trash or legacy directory preserves superseded product behavior', () => {
   const suspicious = [];
   function scanDirs(entry) {
