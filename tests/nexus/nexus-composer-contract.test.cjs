@@ -6,16 +6,22 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 
 const root = path.resolve(__dirname, '../..');
-const indexHtml = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const bootstrapPath = path.join(root, 'scripts/nexus/bootstrap.js');
 
-test('primary social composer uses the NEXUS sector-intent prompt', () => {
-  assert.match(indexHtml, /ماذا تعرض أو تحتاج؟/);
-  assert.doesNotMatch(indexHtml, />بماذا تفكر؟</);
+function readBootstrap() {
+  assert.equal(fs.existsSync(bootstrapPath), true, 'NEXUS bootstrap must exist');
+  return fs.readFileSync(bootstrapPath, 'utf8');
+}
+
+test('primary social composer converges to the NEXUS sector-intent prompt', () => {
+  const source = readBootstrap();
+  assert.match(source, /ماذا تعرض أو تحتاج؟/);
+  assert.match(source, /data-social-post-trigger/);
 });
 
-test('composer exposes sector and intent hooks without a second paid-post creation path', () => {
-  assert.match(indexHtml, /data-nexus-sector/);
-  assert.match(indexHtml, /data-nexus-intent/);
-  assert.match(indexHtml, /data-social-post-trigger/);
-  assert.doesNotMatch(indexHtml, /data-nexus-paid-post-create/);
+test('composer injects sector and intent hooks without a second paid-post creation path', () => {
+  const source = readBootstrap();
+  assert.match(source, /data-nexus-sector/);
+  assert.match(source, /data-nexus-intent/);
+  assert.doesNotMatch(source, /data-nexus-paid-post-create/);
 });
