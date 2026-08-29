@@ -1,0 +1,153 @@
+:root {
+  --nexus-surface: color-mix(in srgb, Canvas 94%, CanvasText 6%);
+  --nexus-surface-elevated: color-mix(in srgb, Canvas 98%, CanvasText 2%);
+  --nexus-border: color-mix(in srgb, CanvasText 18%, transparent);
+  --nexus-accent: #3157d5;
+  --nexus-accent-contrast: #ffffff;
+  --nexus-radius: 18px;
+  --nexus-focus: 0 0 0 3px color-mix(in srgb, var(--nexus-accent) 38%, transparent);
+}
+
+.nexus-composer-classification {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-block: 14px;
+}
+
+.nexus-composer-classification label {
+  display: grid;
+  gap: 7px;
+  font-weight: 700;
+}
+
+.nexus-composer-classification select {
+  inline-size: 100%;
+  min-block-size: 46px;
+  padding-inline: 12px;
+  border: 1px solid var(--nexus-border);
+  border-radius: 12px;
+  background: var(--nexus-surface-elevated);
+  color: inherit;
+  font: inherit;
+}
+
+.nexus-pulse-entry {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.nexus-vault-panel {
+  max-inline-size: 520px;
+}
+
+.nexus-vault-balance {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 8px;
+  padding: 18px;
+  border: 1px solid var(--nexus-border);
+  border-radius: var(--nexus-radius);
+  background: var(--nexus-surface);
+}
+
+.nexus-vault-balance__number {
+  font-size: clamp(1.7rem, 5vw, 2.6rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.nexus-vault-balance__label,
+.nexus-vault-balance__expiry {
+  opacity: .78;
+}
+
+.nexus-vault-balance__expiry {
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.nexus-vault-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-block: 14px;
+}
+
+.nexus-vault-metrics p {
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--nexus-border);
+  border-radius: 14px;
+  background: var(--nexus-surface-elevated);
+}
+
+.nexus-vault-modes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.nexus-vault-modes button,
+[data-nexus-vault-trigger] {
+  min-block-size: 44px;
+  border: 1px solid var(--nexus-border);
+  border-radius: 12px;
+  background: var(--nexus-surface-elevated);
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+}
+
+.nexus-vault-modes button[aria-pressed="true"] {
+  border-color: var(--nexus-accent);
+  background: var(--nexus-accent);
+  color: var(--nexus-accent-contrast);
+}
+
+.nexus-vault-modes button:disabled {
+  opacity: .52;
+  cursor: not-allowed;
+}
+
+.nexus-vault-empty {
+  margin: 0;
+  padding: 16px;
+  border: 1px dashed var(--nexus-border);
+  border-radius: 14px;
+}
+
+[data-nexus-sector]:focus-visible,
+[data-nexus-intent]:focus-visible,
+[data-nexus-vault-trigger]:focus-visible,
+.nexus-vault-modes button:focus-visible {
+  outline: none;
+  box-shadow: var(--nexus-focus);
+}
+
+@media (max-width: 600px) {
+  .nexus-composer-classification,
+  .nexus-vault-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .nexus-vault-balance {
+    grid-template-columns: 1fr;
+  }
+
+  .nexus-vault-modes {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nexus-vault-panel,
+  .nexus-vault-modes button,
+  [data-nexus-vault-trigger] {
+    scroll-behavior: auto;
+    transition: none !important;
+  }
+}
