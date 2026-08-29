@@ -72,11 +72,14 @@ test('current listing runtime contains no retired EXPIRED lifecycle state', () =
 
 test('latest-only migration exposes one browser-to-review gate and removes only explicit superseded publication state', () => {
   const sql = fs.readFileSync(CURRENT_MIGRATION, 'utf8');
+  const executableSql = sql
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/--.*$/gm, '');
 
   assert.match(sql, /^-- VVIP TIGER[\s\S]*\bbegin\s*;/i);
   assert.match(sql, /\bcommit\s*;\s*$/i);
   assert.match(sql, /LEGACY_EXPIRED_LISTINGS_REQUIRE_RECONCILIATION/);
-  assert.doesNotMatch(sql, /\bcascade\b|\btruncate\b|\bdrop\s+table\b/i);
+  assert.doesNotMatch(executableSql, /\bcascade\b|\btruncate\b|\bdrop\s+table\b/i);
 
   assert.match(sql, /create\s+or\s+replace\s+function\s+public\.vvip_marketplace_submit_for_review\s*\(\s*target_listing\s+uuid\s*\)/is);
   assert.match(sql, /security\s+definer\s+set\s+search_path\s*=\s*pg_catalog\s*,\s*public\s*,\s*extensions/i);
