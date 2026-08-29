@@ -16,8 +16,8 @@ const REQUIRED_REFERENCE_FIELDS = Object.freeze({
   tigerSocialCoreOwnerReference: 'docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md',
   tigerPhoenixOwnerReference: 'docs/owner-control/TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md',
   tigerAionOwnerReference: 'docs/owner-control/TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md',
-  tigerSgfOwnerReference: 'docs/owner-control/TIGER_SOVEREIGN_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md',
-  tigerSgfConfig: 'config/sovereignty/sgf-v1.json'
+  tigerSpgfOwnerReference: 'docs/owner-control/TIGER_SOVEREIGN_PROOF_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md',
+  tigerSpgfConfig: 'config/sovereignty/spgf-v1.json'
 });
 
 const REQUIRED_MARKETPLACE_ROLES = Object.freeze([
@@ -63,10 +63,10 @@ const REQUIRED_PULSE_LEVELS = Object.freeze([
 ]);
 
 function hasExactStringSet(actual, expected) {
-  return Array.isArray(actual) &&
-    actual.length === expected.length &&
-    new Set(actual).size === actual.length &&
-    expected.every((item) => actual.includes(item));
+  return Array.isArray(actual)
+    && actual.length === expected.length
+    && new Set(actual).size === actual.length
+    && expected.every((item) => actual.includes(item));
 }
 
 function verifyCurrentAuthority(manifest) {
@@ -89,6 +89,10 @@ function verifyCurrentAuthority(manifest) {
     if (manifest[field] !== expected) errors.push(`${field} must equal ${expected}`);
   }
 
+  if (manifest.sovereignTrustModel !== 'PROOF_CAPSULE_REQUIRED_FAIL_CLOSED') errors.push('sovereignTrustModel must be PROOF_CAPSULE_REQUIRED_FAIL_CLOSED');
+  if (manifest.sovereignFallbackPolicy !== 'DENY_NO_SOVEREIGN_FALLBACK') errors.push('sovereignFallbackPolicy must deny sovereign fallback');
+  if (manifest.technologyMaturityPolicy !== 'STABLE_ONLY_FOR_SOVEREIGN_PRODUCTION') errors.push('technologyMaturityPolicy must be STABLE_ONLY_FOR_SOVEREIGN_PRODUCTION');
+
   const publication = manifest.ordinaryPublication || {};
   if (publication.paidPublishingGate !== false) errors.push('ordinary publication must not be payment gated');
   if (publication.publishingSubscription !== false) errors.push('publishing subscriptions must remain disabled');
@@ -99,13 +103,13 @@ function verifyCurrentAuthority(manifest) {
   if (publication.submitContract !== 'SUBMIT_FOR_REVIEW') errors.push('ordinary publication submit contract must be SUBMIT_FOR_REVIEW');
 
   const pulse = manifest.pulseRing || {};
-  if (Object.prototype.hasOwnProperty.call(pulse, 'tiersJod')) errors.push('Pulse global tiersJod authority is forbidden by SGF');
+  if (Object.prototype.hasOwnProperty.call(pulse, 'tiersJod')) errors.push('Pulse global tiersJod authority is forbidden by SPGF');
   if (JSON.stringify(pulse.productLevels) !== JSON.stringify(REQUIRED_PULSE_LEVELS)) {
     errors.push('Pulse product levels must remain PULSE_2/PULSE_10/PULSE_25/PULSE_45');
   }
-  if (pulse.globalPrice !== null) errors.push('Pulse globalPrice must be null under SGF');
-  if (pulse.globalCurrency !== null) errors.push('Pulse globalCurrency must be null under SGF');
-  if (pulse.pricingAuthority !== 'MARKET_PRICING_CONTRACT') errors.push('Pulse pricingAuthority must be MARKET_PRICING_CONTRACT');
+  if (pulse.globalPrice !== null) errors.push('Pulse globalPrice must be null under SPGF');
+  if (pulse.globalCurrency !== null) errors.push('Pulse globalCurrency must be null under SPGF');
+  if (pulse.pricingAuthority !== 'SIGNED_MARKET_PRICING_CONTRACT') errors.push('Pulse pricingAuthority must be SIGNED_MARKET_PRICING_CONTRACT');
   if (pulse.purchasedValue !== 'SERVER_AUTHORITATIVE_VISIBILITY_ALLOCATION') errors.push('Pulse purchased value must be a server-authoritative visibility allocation');
   if (pulse.productTimeExpiry !== null) errors.push('Pulse visibility value must not have product-time expiry');
   if (pulse.ordinaryPublicationPrerequisite !== false) errors.push('Pulse must not be an ordinary-publication prerequisite');
