@@ -88,7 +88,9 @@ PUBLIC_SCRIPT_FILES = (
     "scripts/social/profile-controller.js",
     "scripts/social/core-shell.js",
     "scripts/nexus/living-sector-object.js",
-    "scripts/nexus/pulse-vault.js",
+    "scripts/nexus/pulse-runtime.js",
+    "scripts/nexus/opportunity-radar.js",
+    "scripts/nexus/pulse-surface.js",
     "scripts/nexus/social-runtime-guard.js",
     "scripts/nexus/bootstrap.js",
 )
