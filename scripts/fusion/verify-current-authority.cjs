@@ -55,6 +55,13 @@ const ALLOWED_PLATFORM_OWNED_FINANCIAL_SCOPE = Object.freeze([
   'platform_receipt_reconciliation'
 ]);
 
+const REQUIRED_PULSE_LEVELS = Object.freeze([
+  'PULSE_2',
+  'PULSE_10',
+  'PULSE_25',
+  'PULSE_45'
+]);
+
 function hasExactStringSet(actual, expected) {
   return Array.isArray(actual) &&
     actual.length === expected.length &&
@@ -92,7 +99,13 @@ function verifyCurrentAuthority(manifest) {
   if (publication.submitContract !== 'SUBMIT_FOR_REVIEW') errors.push('ordinary publication submit contract must be SUBMIT_FOR_REVIEW');
 
   const pulse = manifest.pulseRing || {};
-  if (JSON.stringify(pulse.tiersJod) !== JSON.stringify([2, 10, 25, 45])) errors.push('Pulse tiers must be exactly 2/10/25/45 JOD');
+  if (Object.prototype.hasOwnProperty.call(pulse, 'tiersJod')) errors.push('Pulse global tiersJod authority is forbidden by SGF');
+  if (JSON.stringify(pulse.productLevels) !== JSON.stringify(REQUIRED_PULSE_LEVELS)) {
+    errors.push('Pulse product levels must remain PULSE_2/PULSE_10/PULSE_25/PULSE_45');
+  }
+  if (pulse.globalPrice !== null) errors.push('Pulse globalPrice must be null under SGF');
+  if (pulse.globalCurrency !== null) errors.push('Pulse globalCurrency must be null under SGF');
+  if (pulse.pricingAuthority !== 'MARKET_PRICING_CONTRACT') errors.push('Pulse pricingAuthority must be MARKET_PRICING_CONTRACT');
   if (pulse.purchasedValue !== 'SERVER_AUTHORITATIVE_VISIBILITY_ALLOCATION') errors.push('Pulse purchased value must be a server-authoritative visibility allocation');
   if (pulse.productTimeExpiry !== null) errors.push('Pulse visibility value must not have product-time expiry');
   if (pulse.ordinaryPublicationPrerequisite !== false) errors.push('Pulse must not be an ordinary-publication prerequisite');
@@ -149,5 +162,6 @@ module.exports = Object.freeze({
   REQUIRED_MARKETPLACE_ROLES,
   REQUIRED_MARKETPLACE_CONNECTIONS,
   REQUIRED_FORBIDDEN_MARKETPLACE_INTERMEDIATION,
-  ALLOWED_PLATFORM_OWNED_FINANCIAL_SCOPE
+  ALLOWED_PLATFORM_OWNED_FINANCIAL_SCOPE,
+  REQUIRED_PULSE_LEVELS
 });
