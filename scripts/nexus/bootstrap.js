@@ -29,6 +29,17 @@ function option(documentObject, value, label) {
   return node;
 }
 
+function hydrateSectorOptions(root, sector) {
+  if (!sector) return false;
+  const current = typeof sector.value === "string" ? sector.value : "";
+  const documentObject = root.document;
+  const sectors = enabledSectors(root);
+  sector.replaceChildren(option(documentObject, "", "اختر القطاع"));
+  for (const entry of sectors) sector.append(option(documentObject, entry.key, entry.label));
+  if (current && sectors.some((entry) => entry.key === current)) sector.value = current;
+  return sectors.length > 0;
+}
+
 function ensureComposerFields(root) {
   const documentObject = root.document;
   const trigger = documentObject.querySelector("[data-social-post-trigger]");
@@ -47,7 +58,10 @@ function ensureComposerFields(root) {
     if (label) label.textContent = "التفاصيل";
   }
 
-  if (!sheet.querySelector("[data-nexus-sector]")) {
+  let sector = sheet.querySelector("[data-nexus-sector]");
+  let intent = sheet.querySelector("[data-nexus-intent]");
+
+  if (!sector || !intent) {
     const audienceLabel = sheet.querySelector('label[for="social-post-audience"]');
     const anchor = audienceLabel || draft;
     if (!anchor || !anchor.parentNode) return false;
@@ -56,32 +70,36 @@ function ensureComposerFields(root) {
     group.className = "nexus-composer-classification";
     group.setAttribute("data-nexus-classification", "");
 
-    const sectorLabel = documentObject.createElement("label");
-    sectorLabel.setAttribute("for", "nexus-sector");
-    sectorLabel.textContent = "القطاع";
-    const sector = documentObject.createElement("select");
-    sector.id = "nexus-sector";
-    sector.setAttribute("data-nexus-sector", "");
-    sector.required = true;
-    sector.append(option(documentObject, "", "اختر القطاع"));
-    for (const entry of enabledSectors(root)) sector.append(option(documentObject, entry.key, entry.label));
-    sectorLabel.append(sector);
+    if (!sector) {
+      const sectorLabel = documentObject.createElement("label");
+      sectorLabel.setAttribute("for", "nexus-sector");
+      sectorLabel.textContent = "القطاع";
+      sector = documentObject.createElement("select");
+      sector.id = "nexus-sector";
+      sector.setAttribute("data-nexus-sector", "");
+      sector.required = true;
+      sectorLabel.append(sector);
+      group.append(sectorLabel);
+    }
 
-    const intentLabel = documentObject.createElement("label");
-    intentLabel.setAttribute("for", "nexus-intent");
-    intentLabel.textContent = "ماذا تريد؟";
-    const intent = documentObject.createElement("select");
-    intent.id = "nexus-intent";
-    intent.setAttribute("data-nexus-intent", "");
-    intent.required = true;
-    intent.append(option(documentObject, "", "اختر الغرض"));
-    for (const entry of INTENTS) intent.append(option(documentObject, entry.value, entry.label));
-    intentLabel.append(intent);
+    if (!intent) {
+      const intentLabel = documentObject.createElement("label");
+      intentLabel.setAttribute("for", "nexus-intent");
+      intentLabel.textContent = "ماذا تريد؟";
+      intent = documentObject.createElement("select");
+      intent.id = "nexus-intent";
+      intent.setAttribute("data-nexus-intent", "");
+      intent.required = true;
+      intent.append(option(documentObject, "", "اختر الغرض"));
+      for (const entry of INTENTS) intent.append(option(documentObject, entry.value, entry.label));
+      intentLabel.append(intent);
+      group.append(intentLabel);
+    }
 
-    group.append(sectorLabel, intentLabel);
     anchor.parentNode.insertBefore(group, anchor);
   }
 
+  hydrateSectorOptions(root, sector);
   return true;
 }
 
@@ -176,9 +194,28 @@ function renderVault(root) {
   host.append(balance, metrics, modes);
 }
 
+function bindVaultCloseControls(layer) {
+  if (!layer || layer.getAttribute("data-nexus-vault-bound") === "true") return;
+  const closeLayer = () => {
+    layer.hidden = true;
+    layer.setAttribute("aria-hidden", "true");
+  };
+  for (const control of layer.querySelectorAll("[data-nexus-vault-close]")) {
+    control.addEventListener("click", closeLayer);
+  }
+  layer.setAttribute("data-nexus-vault-bound", "true");
+}
+
 function ensureVaultLayer(root) {
   if (vaultLayer && vaultLayer.isConnected) return vaultLayer;
   const documentObject = root.document;
+  const existing = documentObject.querySelector("[data-nexus-pulse-vault]");
+  if (existing) {
+    vaultLayer = existing;
+    bindVaultCloseControls(existing);
+    return existing;
+  }
+
   const layer = documentObject.createElement("div");
   layer.className = "fusion-capability-layer nexus-vault-layer";
   layer.setAttribute("data-nexus-pulse-vault", "");
@@ -223,12 +260,8 @@ function ensureVaultLayer(root) {
   layer.append(backdrop, panel);
   documentObject.body.append(layer);
 
-  const closeLayer = () => {
-    layer.hidden = true;
-    layer.setAttribute("aria-hidden", "true");
-  };
-  for (const control of layer.querySelectorAll("[data-nexus-vault-close]")) control.addEventListener("click", closeLayer);
   vaultLayer = layer;
+  bindVaultCloseControls(layer);
   return layer;
 }
 
