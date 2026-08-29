@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 
 const TRUSTED_CONTEXTS = new WeakSet();
 const TRUSTED_PLANS = new WeakMap();
+const TRUSTED_LEASES = new WeakSet();
 function stable(value){if(Array.isArray(value))return value.map(stable);if(value&&typeof value==='object')return Object.fromEntries(Object.keys(value).sort().map(k=>[k,stable(value[k])]));return value;}
 function hash(value){return crypto.createHash('sha256').update(JSON.stringify(stable(value))).digest('hex');}
 function targetDigest(obj){return obj?.sha256 ?? obj?.digest ?? obj?.content_digest ?? null;}
@@ -59,5 +60,9 @@ export function consumeShadowTarget(trustedPlanContext,currentObservation,target
   }
   if(targetDigest(exact)!==target.digest||exact.path!==target.path) return Object.freeze({state:'TARGET_DRIFT_BLOCKED'});
   const leaseBody={schema_version:'TIGER-PHOENIX-TRUSTED-TARGET-LEASE-1',target_id:target.id,target_path:target.path,target_digest:target.digest,shadow_plan_digest:trustedPlanContext.shadow_plan_digest,por_digest:target.por_digest,environment_identity:trustedPlanContext.environment_identity,issued_at:new Date(at).toISOString(),expires_at:trustedPlanContext.expires_at,requires_aion_disposal_gate:true};
-  return Object.freeze({...leaseBody,state:'TRUSTED_TARGET_LEASE',lease_digest:hash(leaseBody)});
+  const lease=Object.freeze({...leaseBody,state:'TRUSTED_TARGET_LEASE',lease_digest:hash(leaseBody)});
+  TRUSTED_LEASES.add(lease);
+  return lease;
 }
+
+export function isTrustedTargetLease(lease){ return TRUSTED_LEASES.has(lease); }
