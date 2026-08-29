@@ -1,16 +1,16 @@
 # TIGER PULSE RING 2026 — CURRENT OWNER AUTHORITY
 
 **Status:** `CURRENT_ONLY / OWNER_BINDING / NO_FALLBACK / NO_IN_TREE_ARCHIVE`
-**Effective decision:** 2026-08-28
+**Effective decision:** 2026-08-29
 **Domain:** paid visibility only.
 
 ## 1. Current product rule
 
 TIGER has one paid-visibility product family:
 
-> **TIGER PULSE RING — purchased visibility after an ordinary post/listing is eligible.**
+> **TIGER PULSE RING — purchased visibility after an ordinary eligible Living Sector Object is publishable under NEXUS.**
 
-Ordinary publishing is free and never requires Pulse, a publishing card, subscription, purchased slot, plan, entitlement receipt, or payment gate.
+Ordinary eligible sector publication is free and never requires Pulse, a publishing card, subscription, purchased slot, plan, entitlement receipt, or payment gate.
 
 ## 2. Global fixed purchase levels
 
@@ -23,7 +23,7 @@ The only current reference purchase levels are:
 | `PULSE_25` | **25 JOD** |
 | `PULSE_45` | **45 JOD** |
 
-These four amounts are the current global reference standard. Older 3/10/20, 10/35/80/120, 45/80/120, or other conflicting price sets are deleted from current authority and must not return as fallback.
+No other current Pulse purchase-level set is authorized. Any superseded conflicting price set is absent from current authority/runtime/configuration/tests/UI and may exist only in Git history as provenance.
 
 A lawful local payment rail may display an equivalent local-currency amount where required, but the TIGER reference level remains one of 2/10/25/45 JOD.
 
@@ -33,11 +33,11 @@ TIGER does not sell days, months, an expiry period, a publishing lifetime, guara
 
 Each 2/10/25/45 purchase level maps through the server-authoritative visibility engine to a distinct visibility allocation. Before payment the user must see the selected amount and the resulting visibility information, including the exact server quote available for that scope.
 
-The UI may describe delivery rhythm such as slow/good/fast when supported by the quote, but the authoritative value is the server-side visibility allocation and verified delivery evidence—not a timer.
+The UI may describe delivery rhythm when supported by the quote, but the authoritative value is the server-side visibility allocation and verified delivery evidence—not a timer.
 
 Purchased Pulse value has **no product-time expiry**. It remains available until consumed by eligible delivery, refunded/voided under current payment policy, or the underlying content becomes ineligible under safety/legal/policy controls.
 
-Technical/security expirations such as short-lived payment quotes, OTPs, sessions, signed URLs, replay windows, and caches are allowed and are not product-duration rules.
+Technical/security expirations such as short-lived payment quotes, OTPs, sessions, signed URLs, replay windows, delivery reservations, and caches are allowed and are not product-duration rules.
 
 ## 4. Targeting scope
 
@@ -54,18 +54,16 @@ Targeting must be server-validated against current sector and geographic registr
 
 ## 5. Organic publication separation
 
-Current ordinary publication contract:
-
-`Create/Complete → Preview → Submit for Review → Trusted Review → Publish`
+Current new publication is governed by `TIGER_NEXUS_2026_CURRENT_OWNER_AUTHORITY.md` and requires an activated sector plus an approved Living Sector Object intent.
 
 Pulse begins only after the content is eligible for paid visibility. Pulse never:
 
 - grants publication permission;
 - buys a publishing slot;
-- bypasses review;
+- bypasses review or policy eligibility;
 - creates a paid posting quota;
-- changes the organic content lifetime;
-- calls a legacy paid `requestPublication(...)` path.
+- changes organic content lifetime;
+- creates a second paid-post object or duplicate creation workflow.
 
 ## 6. Self-service incentive
 
@@ -99,7 +97,13 @@ The financial basis is the amount actually captured from the user after any vali
 
 Billable/consumable delivery requires server-verifiable eligible visibility evidence. Client telemetry alone is never authoritative for charging or consuming purchased visibility.
 
-Fast scroll, rejected automation/bots, invalid placements, suppressed duplicates, hidden/background surfaces, policy-ineligible content, and failed delivery reservations consume zero purchased visibility.
+Consumption follows the NEXUS verified-delivery sequence:
+
+`RESERVE → SERVE → VERIFY → CONSUME`
+
+Fast scroll, rejected automation/bots, invalid placements, suppressed duplicates, hidden/background surfaces, policy-ineligible content, failed delivery reservations, and other unqualified delivery consume zero purchased visibility.
+
+Current delivery modes are `NOW`, `SMART`, and `PRECISE`. They change delivery strategy only; they do not change purchased quantity or bypass eligibility.
 
 ## 10. Payment boundary
 
@@ -109,11 +113,11 @@ It does not create buyer/seller checkout, escrow, custody, delivery, settlement,
 
 Payment requires server-authoritative quote verification, provider-authoritative result, idempotency, replay protection, and immutable accounting/audit evidence.
 
-There is no general-purpose transferable user money wallet. Pulse balances are platform-service visibility credits/allocations.
+There is no general-purpose transferable user money wallet. Pulse balances are platform-service visibility allocations.
 
 ## 11. Superseded material disposal
 
-Conflicting publishing cards, subscriptions, paid publishing slots, timed activation cards, old price tiers, product-duration fields, and paid-publication entitlement gates must be removed from the current repository tree and active schema/runtime through protected forward migration where necessary.
+Conflicting publishing cards, subscriptions, paid publishing slots, timed activation cards, superseded price tiers, product-duration fields, duplicate paid-post creation paths, and paid-publication entitlement gates must be removed from the current repository tree and active schema/runtime through protected forward migration where necessary.
 
 They must not be moved to an in-tree archive, trash folder, hidden compatibility layer, test fixture, fallback, generated copy, current documentation, or launch gate.
 
@@ -121,4 +125,4 @@ Already-applied historical database migration files are not rewritten to fake hi
 
 ## 12. Owner acceptance statement
 
-> **The only current Pulse purchase levels are 2, 10, 25, and 45 JOD. Each amount buys a distinct server-authoritative visibility allocation, not days. There is no product-time expiry. Ordinary publication remains free. Pulse is optional paid visibility after eligibility. Self-service purchase without a sales claimant receives a visible 7% discount; an attributed sale does not. Only the one role that owns the sale receives the 7% sales commission. All financial allocation follows the current 100% distribution authority. No older conflicting price, duration, publishing-card, entitlement, subscription, or fallback authority remains inside the current platform tree.**
+> **The only current Pulse purchase levels are 2, 10, 25, and 45 JOD. Each amount buys a distinct server-authoritative visibility allocation, not days. There is no product-time expiry. Ordinary eligible NEXUS sector publication remains free. Pulse is optional paid visibility after eligibility and attaches to the same Living Sector Object rather than creating a second paid-post object. Self-service purchase without a sales claimant receives a visible 7% discount; an attributed sale does not. Only the one role that owns the sale receives the 7% sales commission. All financial allocation follows the current 100% distribution authority. No superseded conflicting price, duration, publishing-card, entitlement, subscription, duplicate creation, or fallback authority remains inside the current platform tree.**
