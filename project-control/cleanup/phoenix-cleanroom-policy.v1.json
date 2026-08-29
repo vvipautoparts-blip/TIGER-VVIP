@@ -1,0 +1,41 @@
+{
+  "schema_version": "TIGER-PHOENIX-CLEANROOM-POLICY-1",
+  "policy_id": "phoenix-cleanroom.2026-08-28.v1",
+  "domain": "cleanup-governance",
+  "status": "CURRENT_ONLY",
+  "owner_decision_path": "project-control/owner/TIGER_PHOENIX_CLEANROOM_2026_OWNER_DECISION.json",
+  "owner_decision_sha256": "6a90bd553b3931c174b49784399b2a19fb60a1bb0b759aa13638197ecce70b0c",
+  "aion": {
+    "runtime_contract": "project-control/aion/metabolism.mjs",
+    "required": true,
+    "may_bypass": false,
+    "deletion_chain": ["DETECT", "CLASSIFY", "EXPLAIN", "APPROVE", "QUARANTINE", "REHEARSE", "VERIFY", "DELETE", "SEAL"]
+  },
+  "classes": ["S0_SOVEREIGN", "S1_EVIDENCE", "S2_REBUILDABLE", "S3_EPHEMERAL", "S4_STATEFUL_LOCAL"],
+  "hard_locks": [
+    "CURRENT_ONLY_OWNER_AUTHORITY",
+    "CANONICAL_SOURCE_REQUIRED_BY_CURRENT_RUNTIME",
+    "REQUIRED_MIGRATIONS",
+    "PRODUCTION_CONFIGURATION",
+    "PROTECTED_RELEASE_IDENTITY",
+    "PROTECTED_RELEASE_PROVENANCE",
+    "SECURITY_SENSITIVE_MATERIAL",
+    "UNBACKED_STATEFUL_VOLUMES",
+    "UNBACKED_UNIQUE_NON_VOLUME_STATE",
+    "ACTIVE_CANONICAL_RELEASE_EVIDENCE",
+    "ACTIVE_CANONICAL_SECURITY_EVIDENCE",
+    "GIT_HISTORY_REWRITE",
+    "UNIQUE_PR_BRANCH_COMMITS"
+  ],
+  "unknown_default": "LOCK",
+  "rules": [
+    {"id":"owner-authority","match":{"authority":true},"class":"S0_SOVEREIGN"},
+    {"id":"required-migration","match":{"required_migration":true},"class":"S0_SOVEREIGN"},
+    {"id":"production-config","match":{"production_configuration":true},"class":"S0_SOVEREIGN"},
+    {"id":"security-sensitive","match":{"security_sensitive":true},"class":"S1_EVIDENCE"},
+    {"id":"active-evidence","match":{"active_evidence":true},"class":"S1_EVIDENCE"},
+    {"id":"rebuildable","match":{"rebuildable":true},"class":"S2_REBUILDABLE"},
+    {"id":"ephemeral","match":{"ephemeral":true},"class":"S3_EPHEMERAL"},
+    {"id":"stateful-local","match":{"stateful_local":true},"class":"S4_STATEFUL_LOCAL"}
+  ]
+}
