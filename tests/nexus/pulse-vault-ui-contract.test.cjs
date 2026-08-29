@@ -5,20 +5,14 @@ const path = require('node:path');
 const assert = require('node:assert/strict');
 const test = require('node:test');
 
-const root = path.resolve(__dirname, '../..');
-const bootstrapPath = path.join(root, 'scripts/nexus/bootstrap.js');
+const source = fs.readFileSync(path.resolve(__dirname, '../../scripts/nexus/pulse-surface.js'), 'utf8');
 
-function readBootstrap() {
-  assert.equal(fs.existsSync(bootstrapPath), true, 'NEXUS bootstrap must exist');
-  return fs.readFileSync(bootstrapPath, 'utf8');
-}
-
-test('Pulse Vault UI exposes non-expiring balance and NEXUS delivery modes', () => {
-  const source = readBootstrap();
+test('Pulse Vault UI exposes non-expiring server balance and NEXUS delivery modes', () => {
   assert.match(source, /data-nexus-pulse-vault/);
   assert.match(source, /لا تنتهي/);
   assert.match(source, /data-nexus-pulse-mode/);
   assert.match(source, /NOW/);
   assert.match(source, /SMART/);
   assert.match(source, /PRECISE/);
+  assert.match(source, /createPulseRuntime/);
 });
