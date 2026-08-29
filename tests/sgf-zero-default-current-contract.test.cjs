@@ -39,6 +39,8 @@ test('Fusion authority cannot restore global JOD or another global Pulse price',
   assert.equal(fusion.pulseRing.globalPrice, null);
   assert.equal(fusion.pulseRing.globalCurrency, null);
   assert.equal(fusion.pulseRing.pricingAuthority, 'MARKET_PRICING_CONTRACT');
+  assert.equal(fusion.retainedFoundations.includes('COUNTRY_ACTIVATION_GATES'), false);
+  assert.ok(fusion.retainedFoundations.includes('SOVEREIGN_MARKET_CAPABILITY_GATES'));
 
   const fusionText = read('config/fusion/current-authority.json');
   assert.doesNotMatch(fusionText, /"tiersJod"\s*:/);
