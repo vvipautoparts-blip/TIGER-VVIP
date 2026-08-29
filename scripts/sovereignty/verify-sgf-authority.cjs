@@ -20,11 +20,29 @@ const DEFAULT_FIELDS = Object.freeze([
   'market'
 ]);
 
+const COMPONENTS = Object.freeze({
+  explicitMarketContext: 'scripts/sovereignty/explicit-market-context.cjs',
+  capabilityLifecycle: 'scripts/sovereignty/market-capability-lifecycle.cjs',
+  sovereignCompiler: 'scripts/sovereignty/sovereign-compiler.cjs',
+  marketGenome: 'scripts/sovereignty/market-genome.cjs',
+  activationPassport: 'scripts/sovereignty/market-activation-passport.cjs',
+  executionSeal: 'scripts/sovereignty/genome-execution-seal.cjs',
+  killGrid: 'scripts/sovereignty/sovereign-kill-grid.cjs'
+});
+
 function exactArray(actual, expected) {
   return Array.isArray(actual) &&
     actual.length === expected.length &&
     new Set(actual).size === actual.length &&
     expected.every((item, index) => actual[index] === item);
+}
+
+function exactObject(actual, expected) {
+  if (!actual || typeof actual !== 'object' || Array.isArray(actual)) return false;
+  const actualKeys = Object.keys(actual);
+  const expectedKeys = Object.keys(expected);
+  return actualKeys.length === expectedKeys.length &&
+    expectedKeys.every((key) => actual[key] === expected[key]);
 }
 
 function verifySgfAuthority(manifest) {
@@ -60,6 +78,9 @@ function verifySgfAuthority(manifest) {
   if (manifest.runtimeMarketResolver !== 'scripts/sovereignty/explicit-market-context.cjs') {
     errors.push('runtimeMarketResolver must point to explicit-market-context.cjs');
   }
+  if (!exactObject(manifest.components, COMPONENTS)) {
+    errors.push('components must equal the canonical SGF component map');
+  }
   if (manifest.activationAuthority !== 'MARKET_CAPABILITY_PASSPORT') {
     errors.push('activationAuthority must be MARKET_CAPABILITY_PASSPORT');
   }
@@ -70,4 +91,4 @@ function verifySgfAuthority(manifest) {
   return { ok: errors.length === 0, errors };
 }
 
-module.exports = Object.freeze({ verifySgfAuthority, CAPABILITIES, DEFAULT_FIELDS });
+module.exports = Object.freeze({ verifySgfAuthority, CAPABILITIES, DEFAULT_FIELDS, COMPONENTS });
