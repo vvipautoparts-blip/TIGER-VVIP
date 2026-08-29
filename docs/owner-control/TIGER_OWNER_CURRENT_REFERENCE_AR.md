@@ -1,13 +1,31 @@
 # مرجع مالك TIGER الحالي — CURRENT ONLY
 
 **الحالة:** `CURRENT OWNER ENTRYPOINT / CURRENT_ONLY / FIRST_REFERENCE / NO_FALLBACK / NO_IN_TREE_ARCHIVE`
-**آخر اعتماد:** 2026-08-28
+**آخر اعتماد:** 2026-08-29
 
 هذه هي نقطة الدخول الحالية للمالك، والمرجع الأول الإلزامي قبل أي إجراء هو:
 
 `docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md`
 
 > **الأحدث الذي يعتمده المالك هو السلطة الوحيدة في نطاقه. كل قديم متعارض يُحذف من الشجرة الحالية ومن Runtime/UI/API/Config/Tests/CI/Current Docs/Launch Gates ولا يعود كـfallback أو archive داخل المشروع. الأثر التاريخي يبقى في Git history فقط.**
+
+## TIGER SOVEREIGN GENOME FABRIC 2026
+
+المرجع السيادي العالمي الحالي:
+
+`docs/owner-control/TIGER_SOVEREIGN_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md`
+
+القواعد الحاكمة:
+
+- `OWNER_ROOT` جذر سلطة عالمي واحد وليس حساب دولة.
+- **ZERO DEFAULT COUNTRY**.
+- **ZERO DEFAULT CURRENCY**.
+- لا مزود دفع أو كيان قانوني أو ملف ضريبي أو Market افتراضي.
+- الدولة ليست مفتاح تشغيل واحدًا؛ الـCapabilities هي وحدات التفعيل السيادي.
+- أي تفعيل مستقبلي يجب أن يكون Evidence-Bound ومربوطًا بالـMarket والـCapability والـRelease الصحيح.
+- **NO SOVEREIGN FALLBACK**: لا رجوع تلقائي إلى الأردن أو أمريكا أو السودان أو JOD/USD أو مزود آخر عند غياب السياسة.
+- مكان السيرفر/قاعدة البيانات/CDN أو IP أو لغة المستخدم لا يفعّل Market ولا يغير هوية `OWNER_ROOT`.
+- العمليات الحساسة للمالك تستهدف مصادقة مقاومة للتصيد وصلاحية تنفيذ قصيرة ومحددة بدل Super Admin دائم.
 
 ## قرارات المنتج الحالية
 
@@ -17,9 +35,9 @@
 - لا توجد quota تجارية/أسبوعية ثابتة حالية لعدد المنشورات.
 - الحد الحالي لإعلان Marketplace العادي: 7 صور.
 - لا توجد مدة منتج/محتوى للمنشور أو الإعلان أو رصيد/بطاقة الظهور.
-- TTLs التقنية الأمنية فقط مثل OTP/session/signed URL/anti-replay/cache/temporary quote تبقى لأنها حماية تقنية وليست مدة منتج.
-- الظهور المدفوع الحالي: `TIGER PULSE RING` بمستويات **2 / 10 / 25 / 45 JOD** فقط.
-- كل مبلغ له تخصيص ظهور server-authoritative مختلف، ويظهر للمستخدم قبل الدفع؛ الظهور لا يقاس بالأيام ولا ينتهي بمرور الزمن.
+- TTLs التقنية الأمنية فقط مثل OTP/session/signed URL/anti-replay/cache/temporary quote/owner execution lease تبقى لأنها حماية تقنية وليست مدة منتج.
+- الظهور المدفوع الحالي: `TIGER PULSE RING` بمستويات المنتج `PULSE_2 / PULSE_10 / PULSE_25 / PULSE_45`؛ السعر والعملة السياديان يحددهما Market Pricing Contract المصرح به، ولا توجد عملة عالمية افتراضية.
+- كل مستوى له تخصيص ظهور server-authoritative مختلف؛ الظهور لا يقاس بالأيام ولا ينتهي بمرور الزمن.
 - إذا لم يوجد GENERAL_MANAGER أو SECTOR_MANAGER أو MARKETER منسوب للبيع، يحصل المستخدم على خصم خدمة ذاتية **7%** ظاهر قبل الدفع.
 - إذا وجد بائع معتمد، لا يوجد خصم 7%، ويستحق العمولة **الشخص صاحب البيع فقط** من الأدوار الثلاثة.
 - VVIP TIGER ليس طرفًا في صفقة البائع/المشتري أو مزود الخدمة/المستفيد.
@@ -52,15 +70,17 @@
 ## السلطات الحالية فقط
 
 1. `TIGER_OWNER_BINDING_CURRENT.md` — المرجع الأول ودستور Latest-Only.
-2. `TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md` — Social Core.
-3. `TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` — الظهور المدفوع 2/10/25/45 بلا مدة.
-4. `TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md` — التوزيع المالي 100%.
-5. `TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md` — حوكمة التنظيف.
-6. `TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة `post-launch-autonomy` المستقبلية المحمية.
-7. `project-control/authority/authority-registry.v1.json` — Authority Graph الآلي.
-8. `config/fusion/current-authority.json` — عقد المنتج الآلي.
-9. `config/finance/current-distribution.json` — عقد التوزيع المالي الآلي.
-10. exact Git SHA/tree + matching CI evidence — حقيقة التنفيذ.
+2. `TIGER_SOVEREIGN_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md` — OWNER_ROOT العالمي وZero-Default وMarket/Capability sovereignty.
+3. `TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md` — Social Core.
+4. `TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` — الظهور المدفوع بلا مدة مع تسعير سيادي لكل Market.
+5. `TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md` — التوزيع المالي 100%.
+6. `TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md` — حوكمة التنظيف.
+7. `TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة `post-launch-autonomy` المستقبلية المحمية.
+8. `project-control/authority/authority-registry.v1.json` — Authority Graph الآلي.
+9. `config/fusion/current-authority.json` — عقد المنتج الآلي.
+10. `config/sovereignty/sgf-v1.json` — عقد السيادة الآلي Zero-Default.
+11. `config/finance/current-distribution.json` — عقد التوزيع المالي الآلي.
+12. exact Git SHA/tree + matching CI evidence — حقيقة التنفيذ.
 
 أي ملف آخر يتعارض مع هذه السلطات لا يصبح مرجعًا؛ يُحذف من الشجرة الحالية بعد إثبات التعارض.
 
@@ -74,14 +94,7 @@
 
 لا توجد aliases تشغيلية بديلة أو fallback مخولة داخل هذا النطاق.
 
-حالة التنفيذ المثبتة على فرع AION هي:
-
-- `BRANCH_A0_TO_A9_VERIFIED`؛
-- `PRODUCTION_NOT_ACTIVATED`؛
-- AION لا يمنح أي تفويض لتغيير `main` أو Production من هذا المرجع؛
-- checkpoint المثبت: `ca76f5e1d8dcf60521b0d25545ed0c1c12d015ec`.
-
-هذه الإشارة تحفظ اتصال مرجع المالك بسلطة TIGER AION دون تحويل حالة الفرع إلى تصريح Production أو تجاوز بوابة الإطلاق العالمي.
+هذه الإشارة لا تمنح أي تفويض لتغيير `main` أو Production ولا تتجاوز بوابة الإطلاق العالمي.
 
 ## قاعدة التنظيف
 
