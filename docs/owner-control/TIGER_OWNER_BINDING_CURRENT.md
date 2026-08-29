@@ -1,7 +1,7 @@
 # TIGER OWNER BINDING CURRENT — LATEST ONLY
 
 **Status:** `CURRENT_ONLY / OWNER_BINDING / FIRST_REFERENCE / NO_FALLBACK / NO_IN_TREE_ARCHIVE`
-**Effective owner decision:** 2026-08-28
+**Effective owner decision:** 2026-08-29
 **Scope:** the entire current VVIP TIGER platform.
 
 ## 0. Mandatory first reference — before every action
@@ -26,36 +26,36 @@ Historical provenance is Git history only. Git history never feeds current runti
 
 ## 2. No product/content duration
 
-There is no owner-approved product-time lifetime for:
+There is no owner-approved product-time lifetime for ordinary posts/listings, publishing access, visibility cards/credits, or Pulse visibility allocations/balances.
 
-- ordinary posts/listings;
-- publishing access;
-- visibility cards/credits;
-- Pulse visibility allocations/balances.
+No 120-day, 40-day, 30-day, monthly, or equivalent commercial/content timer is current authority. Organic content availability follows current status, owner action, moderation, legal/safety policy, and explicit archive/delete decisions—not elapsed commercial time.
 
-No 120-day, 40-day, 30-day, monthly, or equivalent commercial/content timer is current authority.
+Security/technical TTLs such as OTP, authentication/session tokens, signed URLs, anti-replay windows, caches, temporary payment quotes, and delivery reservations remain permitted because they protect the system and are not product lifetimes.
 
-Organic content availability follows current status, owner action, moderation, legal/safety policy, and explicit archive/delete decisions—not elapsed commercial time.
+## 3. TIGER NEXUS 2026 — current product experience and free publication path
 
-Security/technical TTLs such as OTP, authentication/session tokens, signed URLs, anti-replay windows, caches, and temporary payment quotes remain permitted because they protect the system and are not product lifetimes.
+The current primary experience authority is:
 
-## 3. Ordinary publication — one free path
+`docs/owner-control/TIGER_NEXUS_2026_CURRENT_OWNER_AUTHORITY.md`
 
-Current path:
+Current product rules:
+
+- `SOCIAL_NETWORK_FIRST` with Home as the social feed;
+- every **newly publishable Living Sector Object** binds to an activated TIGER sector;
+- current intent classes are exactly `OFFER / NEED / SERVICE / OPPORTUNITY` unless a later owner decision expands them;
+- canonical composer entry is **ماذا تعرض أو تحتاج؟**;
+- ordinary eligible sector publication is free and never Pulse/payment-gated;
+- `☰` is TIGER Command and `صلاحياتي` is server-validated, fail-closed capability state;
+- Marketplace remains a module inside the social product;
+- no generic new public-chatter publishing path may bypass the NEXUS sector/intent contract.
+
+Current ordinary publication lifecycle remains evidence-driven:
 
 `Create/Complete → Preview → Submit for Review → Trusted Review → Publish`
 
-Rules:
+No publishing subscription/card/catalog/paid slot, plan/entitlement receipt prerequisite, legacy paid `requestPublication(...)` path, or fixed commercial/weekly posting quota is current authority. Anti-spam/anti-abuse controls may exist but cannot become a sold posting quota. Current ordinary Marketplace listing media maximum remains 7 images unless a newer owner decision changes it.
 
-- ordinary publishing is not payment-gated;
-- no publishing subscription/card/catalog/paid slot;
-- no plan or entitlement receipt prerequisite;
-- no legacy paid `requestPublication(...)` path;
-- no fixed commercial/weekly posting quota is current authority;
-- anti-spam/anti-abuse controls may exist but cannot become a sold posting quota;
-- current ordinary Marketplace listing media maximum remains 7 images unless a newer owner decision changes it.
-
-## 4. TIGER Pulse Ring — latest visibility model
+## 4. TIGER Pulse Ring / Pulse Vault — latest visibility model
 
 Pulse is optional paid visibility for eligible content after ordinary publication eligibility.
 
@@ -70,13 +70,11 @@ The only current global reference purchase levels are:
 
 Every level maps to its own server-authoritative visibility allocation. The user sees the selected price and resulting visibility information before payment.
 
-Pulse sells visibility quantity/strength, not days. Purchased Pulse value has no product-time expiry.
+Pulse sells visibility quantity/strength, not days. Purchased Pulse value has no product-time expiry. Pulse Vault may hold unassigned visibility until the user selects an eligible Living Sector Object. Current delivery modes are `NOW / SMART / PRECISE`, with SMART as the default strategy. Consumption remains server-authoritative through `RESERVE → SERVE → VERIFY → CONSUME`, and unqualified delivery burns zero purchased visibility.
 
 Current targeting may include one selected sector or all eligible sectors, plus supported geographic scope such as neighborhood, area, governorate, district/liwa, or country.
 
-If there is no attributed GENERAL_MANAGER, SECTOR_MANAGER, or MARKETER sale claim, the user receives a visible **7% active-user self-service discount** before payment. If a valid sales claimant exists, this discount does not apply.
-
-Only one sales role may own one purchase claim; only that role may receive its 7% commission.
+If there is no attributed GENERAL_MANAGER, SECTOR_MANAGER, or MARKETER sale claim, the user receives a visible **7% active-user self-service discount** before payment. If a valid sales claimant exists, this discount does not apply. Only one sales role may own one purchase claim; only that role may receive its 7% commission.
 
 Detailed Pulse authority:
 
@@ -119,42 +117,36 @@ The platform does not provide marketplace-party checkout, escrow, custody, settl
 
 Platform-owned financial scope is limited to approved platform services such as paid visibility/advertising and its internal accounting.
 
-## 7. Current operational authorities
+## 7. Current 2026 security verification baseline
+
+The current engineering verification references are **OWASP ASVS 5.0.0**, **NIST SP 800-63-4**, **NIST SP 800-63B-4**, and **SLSA 1.2**. The sealed Production artifact path retains GitHub OIDC + Artifact Attestations/Sigstore + SBOM verification and exact-source checks.
+
+These are verification baselines, not unearned certification claims. Current machine authority records `NOT_ASSERTED_UNTIL_VERIFIED`, and security state fails closed. Adoption of a newer standard does not by itself authorize replacing the current identity provider or any protected runtime boundary.
+
+## 8. Current operational authorities
 
 1. `TIGER_OWNER_BINDING_CURRENT.md` — mandatory first reference and latest-only constitution.
-2. `TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md` — social product authority.
-3. `TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` — paid visibility authority.
-4. `TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md` — current 100% financial distribution authority.
-5. `TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md` — cleanup governance.
-6. `TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md` — protected destructive-disposal gate.
-7. `TIGER_OWNER_CURRENT_REFERENCE_AR.md` — owner router.
-8. `project-control/authority/authority-registry.v1.json` — machine-readable authority graph.
-9. `config/fusion/current-authority.json` plus current finance configuration — machine-readable product truth.
-10. exact Git SHA/tree + matching CI evidence — implementation truth.
+2. `TIGER_NEXUS_2026_CURRENT_OWNER_AUTHORITY.md` — current platform experience, sector publication, TIGER Command, Pulse Vault, and security baseline.
+3. `TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md` — social graph/privacy/safety authority where compatible with NEXUS publication semantics.
+4. `TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` — paid visibility authority.
+5. `TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md` — current 100% financial distribution authority.
+6. `TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md` — cleanup governance.
+7. `TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md` — protected destructive-disposal/post-launch autonomy gate.
+8. `TIGER_OWNER_CURRENT_REFERENCE_AR.md` — owner router.
+9. `project-control/authority/authority-registry.v1.json` — machine-readable authority graph.
+10. `config/fusion/current-authority.json` plus current finance configuration — machine-readable product truth.
+11. exact Git SHA/tree + matching CI evidence — implementation truth.
 
-## 8. Global anti-legacy release rule
+## 9. Global anti-legacy release rule
 
-Release is blocked if any active surface restores a superseded rule, including:
+Release is blocked if any active surface restores a superseded rule, including a 4-posts/week quota; 120/40/30-day product/content lifetime; publishing cards/subscriptions/paid slots; payment-gated ordinary publication; publication plan/entitlement gates; timed activation cards; any Pulse price set other than 2/10/25/45 JOD; hierarchical multi-winner sales commission on one purchase; any financial split conflicting with 5+5+5+5+43+16+21=100%; marketplace-party transaction intermediation; duplicate current authorities; generic public publishing that bypasses NEXUS sector/intent binding; or an in-tree archive/trash/legacy/compatibility copy preserving a superseded conflicting rule.
 
-- 4-posts/week commercial quota;
-- 120/40/30-day product/content lifetime;
-- publishing cards/subscriptions/paid slots;
-- payment-gated ordinary publication;
-- publication plan/entitlement gate;
-- timed activation card;
-- any current Pulse price set other than 2/10/25/45 JOD;
-- hierarchical multi-winner sales commission on one purchase;
-- any financial split conflicting with 5+5+5+5+43+16+21=100%;
-- marketplace-party transaction intermediation;
-- duplicate current authorities;
-- any in-tree archive/trash/legacy copy preserving a superseded conflicting rule.
-
-## 9. Migration and deletion safety
+## 10. Migration and deletion safety
 
 Already-applied historical database migrations are not rewritten to fake history. Their obsolete effects are neutralized by protected forward migrations and current-schema verification.
 
-All other proven superseded conflicting current-tree material is directly deleted from the current tree after PHOENIX Proof-of-Reclamation. It is not moved into another repository folder.
+All other proven superseded conflicting current-tree material is directly deleted from the current tree after replacement/proof checks. It is not moved into another repository folder. Git history alone preserves source provenance for those deleted conflicts.
 
-## 10. Owner acceptance statement
+## 11. Owner acceptance statement
 
-> **This is the first reference before every action. Keep only the newest approved owner truth. Delete every conflicting older rule from the current platform tree with no fallback and no in-tree archive. Current Pulse prices are 2/10/25/45 JOD, each with its own visibility allocation and no product-time expiry. Ordinary publishing is free. Current Pulse revenue distribution is exactly OWNER 5%, PARTNER_1 5%, PARTNER_2 5%, PARTNER_3 5%, ACTUAL_OPERATIONS 43%, TAX_RESERVE 16%, SALES_ADMINISTRATION 21%. Only one sales role wins one sale commission. Self-service with no claimant receives a visible 7% discount.**
+> **This is the first reference before every action. Keep only the newest approved owner truth. TIGER NEXUS 2026 is the current platform experience: sector-specialized social publishing through Living Sector Objects, TIGER Command, validated صلاحياتي, Pulse Vault 2/10/25/45 JOD with no product-time expiry, and fail-closed 2026 security verification. Delete every conflicting older rule from the current platform tree with no fallback, archive, trash, or legacy compatibility. Ordinary eligible publication is free. Current Pulse revenue distribution remains exactly OWNER 5%, PARTNER_1 5%, PARTNER_2 5%, PARTNER_3 5%, ACTUAL_OPERATIONS 43%, TAX_RESERVE 16%, SALES_ADMINISTRATION 21%. Only one sales role wins one sale commission. Self-service with no claimant receives a visible 7% discount.**
