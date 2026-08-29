@@ -117,37 +117,41 @@ class PublicReleaseTests(unittest.TestCase):
             self.assertIn("data-account-route", index)
             self.assertIn("runtime-config.js", index)
             self.assertIn("vvip-marketplace-repository.js", index)
-            self.assertTrue((output / "scripts" / "fusion" / "progressive-composer.js").is_file())
+            self.assertTrue((output / "scripts" / "nexus" / "bootstrap.js").is_file())
+            self.assertTrue((output / "scripts" / "social" / "post-composer.js").is_file())
+            self.assertFalse((output / "scripts" / "fusion" / "progressive-composer.js").exists())
             self.assertTrue((output / "sw-vvip-static.js").is_file())
             self.assertTrue((output / "scripts" / "vvip-safe-ux-guard.js").is_file())
             self.assertEqual(manifest["sourceSha"], "abc")
 
-    def test_candidate_copies_only_approved_fusion_scripts_and_blocks_local_only_publish(self):
+    def test_candidate_copies_only_approved_scripts_and_scans_current_nexus_publisher(self):
         with tempfile.TemporaryDirectory() as temp:
             source = Path(temp) / "src"
             output = Path(temp) / "out"
             source.mkdir()
             self.fixture(source)
-            fusion = source / "scripts" / "fusion"
-            fusion.mkdir(exist_ok=True)
-            approved = [path for path in module.PUBLIC_SCRIPT_FILES if path.startswith("scripts/fusion/")]
+            approved = list(module.PUBLIC_SCRIPT_FILES)
             for relative in approved:
                 path = source / relative
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text("window.VVIPFusion = {};\n", encoding="utf-8")
-            (source / "scripts" / "fusion" / "progressive-composer.js").write_text(
-                'window.VVIPFusionPublishMode = "LOCAL_DRAFT_ONLY";\n', encoding="utf-8"
+
+            current_publisher = source / "scripts" / "social" / "post-composer.js"
+            current_publisher.write_text(
+                'window.TIGERNexusPublishMode = "LOCAL_DRAFT_ONLY";\n', encoding="utf-8"
             )
             (source / "scripts" / "fusion" / "private-debug.js").write_text("private", encoding="utf-8")
+            (source / "scripts" / "fusion" / "progressive-composer.js").write_text("retired", encoding="utf-8")
 
-            manifest = module.build(source, output, mode="candidate", source_sha="fusion-candidate")
+            manifest = module.build(source, output, mode="candidate", source_sha="nexus-candidate")
 
             for relative in approved:
                 self.assertTrue((output / relative).is_file(), relative)
             self.assertFalse((output / "scripts" / "fusion" / "private-debug.js").exists())
+            self.assertFalse((output / "scripts" / "fusion" / "progressive-composer.js").exists())
             self.assertFalse(manifest["releaseEligible"])
             self.assertIn(
-                {"code": "LOCAL_DRAFT_ONLY_PUBLISHER", "path": "scripts/fusion/progressive-composer.js"},
+                {"code": "LOCAL_DRAFT_ONLY_PUBLISHER", "path": "scripts/social/post-composer.js"},
                 manifest["forbiddenFindings"],
             )
 
@@ -265,16 +269,15 @@ class PublicReleaseTests(unittest.TestCase):
                 with self.assertRaisesRegex(RuntimeError, "STATIC_LISTING_FIXTURES"):
                     module.build(source, output, mode="production", source_sha="abc")
 
-    def test_production_rejects_local_draft_only_publisher(self):
+    def test_production_rejects_local_draft_only_nexus_publisher(self):
         with tempfile.TemporaryDirectory() as temp:
             source = Path(temp) / "src"
             output = Path(temp) / "out"
             source.mkdir()
             self.fixture(source)
-            fusion = source / "scripts" / "fusion"
-            fusion.mkdir(exist_ok=True)
-            (fusion / "progressive-composer.js").write_text(
-                'window.VVIPFusionPublishMode = "LOCAL_DRAFT_ONLY";\n', encoding="utf-8"
+            current_publisher = source / "scripts" / "social" / "post-composer.js"
+            current_publisher.write_text(
+                'window.TIGERNexusPublishMode = "LOCAL_DRAFT_ONLY";\n', encoding="utf-8"
             )
             with mock.patch.dict(os.environ, self.production_env(), clear=False):
                 with self.assertRaisesRegex(RuntimeError, "LOCAL_DRAFT_ONLY_PUBLISHER"):
@@ -306,7 +309,9 @@ class PublicReleaseTests(unittest.TestCase):
             self.assertTrue(manifest["releaseEligible"])
             self.assertIn("runtime-config.js", manifest["files"])
             self.assertIn("sw-vvip-static.js", manifest["files"])
-            self.assertIn("scripts/fusion/progressive-composer.js", manifest["files"])
+            self.assertIn("scripts/nexus/bootstrap.js", manifest["files"])
+            self.assertIn("scripts/social/post-composer.js", manifest["files"])
+            self.assertNotIn("scripts/fusion/progressive-composer.js", manifest["files"])
             self.assertIn("scripts/vvip-safe-ux-guard.js", manifest["files"])
             self.assertFalse((output / "CNAME").exists())
             self.assert_local_html_refs_exist(self, output)
@@ -317,10 +322,11 @@ class PublicReleaseTests(unittest.TestCase):
             output = Path(temp) / "out"
             manifest = module.build(source, output, mode="candidate", source_sha="closure-test")
             self.assertTrue(manifest["releaseEligible"])
-            self.assertNotIn(
-                {"code": "LOCAL_DRAFT_ONLY_PUBLISHER", "path": "scripts/fusion/progressive-composer.js"},
-                manifest["forbiddenFindings"],
+            self.assertFalse(
+                any(item["code"] == "LOCAL_DRAFT_ONLY_PUBLISHER" for item in manifest["forbiddenFindings"])
             )
+            self.assertNotIn("scripts/fusion/progressive-composer.js", manifest["files"])
+            self.assertIn("scripts/nexus/bootstrap.js", manifest["files"])
             self.assert_local_html_refs_exist(self, output)
             self.assertTrue((output / "sw-vvip-static.js").is_file())
             self.assertFalse((output / "project-control").exists())
