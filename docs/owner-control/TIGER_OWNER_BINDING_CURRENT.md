@@ -24,25 +24,29 @@ No hidden copy, trash folder, archive folder, renamed legacy file, fallback, com
 
 Historical provenance is Git history only. Git history never feeds current runtime, tests, configuration, owner indexes, release gates, or product copy.
 
-## 2. TIGER SOVEREIGN GENOME FABRIC 2026 — sovereign root authority
+## 2. TIGER SOVEREIGN PROOF-GENOME FABRIC 2026 — supreme sovereign/proof authority
 
-Current sovereign-market authority:
+Current supreme sovereign/security/release authority:
 
-`docs/owner-control/TIGER_SOVEREIGN_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md`
+`docs/owner-control/TIGER_SOVEREIGN_PROOF_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md`
 
 Binding constitutional rules:
 
 - `OWNER_ROOT` is one global logical Root of Authority, not a country account;
 - **ZERO DEFAULT COUNTRY**;
 - **ZERO DEFAULT CURRENCY**;
-- zero default payment provider, legal entity, tax profile, and market;
-- country/market activation is capability-specific and evidence-bound;
-- missing, invalid, expired, conflicting, or revoked sovereign state is `DENY / FAIL_CLOSED`;
-- **NO SOVEREIGN FALLBACK** to Jordan, United States, Sudan, JOD, USD, another market, or another provider;
-- infrastructure geography, locale, IP, CDN/database region, or provider location cannot activate a market or bind `OWNER_ROOT` to a jurisdiction;
-- sensitive owner authority targets phishing-resistant authentication and short-lived purpose-bound execution leases rather than permanent standing root privilege.
+- zero default payment provider, legal entity, tax profile, data region, and market;
+- activation is `MARKET + CAPABILITY`, evidence-bound, policy-bound, and exact-release-bound;
+- sensitive execution is Proof-First and converges on a verifiable Sovereign Proof Capsule rather than scattered implicit flags;
+- missing, invalid, expired, stale, conflicting, unverified, or revoked critical evidence is `DENY / FAIL_CLOSED`;
+- **NO SOVEREIGN FALLBACK** to Jordan, United States, Sudan, JOD, USD, another market, provider, identity, release, or stale proof;
+- infrastructure geography, locale, IP, CDN/database region, device region, or provider location cannot activate a market or bind `OWNER_ROOT` to a jurisdiction;
+- sensitive owner authority uses phishing-resistant/hardware-backed authentication targets and short-lived purpose-bound execution leases rather than permanent standing root privilege;
+- cryptographic truth is evidence-generated and crypto-agile; no custom cryptography or custom PQC;
+- only stable/final technology may become a sovereign Production dependency; Preview/Draft/Experimental technology remains non-authoritative;
+- prior competing sovereign/security/release architecture authority is deleted from the current tree, not archived and not preserved as fallback.
 
-SGF supersedes every older country/currency rule wherever it implies a global/default sovereign country, currency, or provider. Unrelated current product, finance, social, cleanup, and marketplace-boundary rules remain in force unless separately superseded.
+SPGF fully supersedes the previous top-level sovereign architecture decision. Former technical modules may remain only when explicitly subordinate to SPGF and must not operate as parallel owner authority. Unrelated current product, finance, social, cleanup, and marketplace-boundary rules remain in force unless separately superseded.
 
 ## 3. No product/content duration
 
@@ -57,7 +61,7 @@ No 120-day, 40-day, 30-day, monthly, or equivalent commercial/content timer is c
 
 Organic content availability follows current status, owner action, moderation, legal/safety policy, and explicit archive/delete decisions—not elapsed commercial time.
 
-Security/technical TTLs such as OTP, authentication/session tokens, signed URLs, anti-replay windows, caches, temporary payment quotes, owner execution leases, and execution seals remain permitted because they protect the system and are not product lifetimes.
+Security/technical TTLs such as OTP, authentication/session tokens, signed URLs, anti-replay windows, caches, temporary payment quotes, owner execution leases, proof/evidence freshness windows, and execution seals remain permitted because they protect the system and are not product lifetimes.
 
 ## 4. Ordinary publication — one free path
 
@@ -86,7 +90,7 @@ The current product-level identifiers are:
 - `PULSE_25`
 - `PULSE_45`
 
-During the SGF Foundation convergence, the older global JOD price authority is superseded by SGF. Actual sovereign amount/currency must ultimately come from an authorized market pricing contract; no global/default currency may be inferred.
+Under SPGF there is no global sovereign JOD price authority. Actual sovereign amount/currency comes only from an authorized signed Market Pricing Contract; no global/default currency may be inferred.
 
 Every level maps to its own server-authoritative visibility allocation. Pulse sells visibility quantity/strength, not days. Purchased Pulse value has no product-time expiry.
 
@@ -140,7 +144,7 @@ Platform-owned financial scope is limited to approved platform services such as 
 ## 8. Current operational authorities
 
 1. `TIGER_OWNER_BINDING_CURRENT.md` — mandatory first reference and latest-only constitution.
-2. `TIGER_SOVEREIGN_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md` — global OWNER_ROOT, zero-default sovereign market/capability authority.
+2. `TIGER_SOVEREIGN_PROOF_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md` — sole supreme sovereign/proof/security/release architecture.
 3. `TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md` — social product authority.
 4. `TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` — paid visibility authority.
 5. `TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md` — current 100% financial distribution authority.
@@ -148,8 +152,8 @@ Platform-owned financial scope is limited to approved platform services such as 
 7. `TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md` — protected destructive-disposal gate.
 8. `TIGER_OWNER_CURRENT_REFERENCE_AR.md` — owner router.
 9. `project-control/authority/authority-registry.v1.json` — machine-readable authority graph.
-10. `config/fusion/current-authority.json` plus `config/sovereignty/sgf-v1.json` and current finance configuration — machine-readable product/sovereignty truth.
-11. exact Git SHA/tree + matching CI evidence — implementation truth.
+10. `config/fusion/current-authority.json` plus `config/sovereignty/spgf-v1.json` and current finance configuration — machine-readable product/sovereignty/proof truth.
+11. exact Git SHA/tree + matching executed CI/evidence — implementation truth.
 
 ## 9. Global anti-legacy release rule
 
@@ -161,7 +165,8 @@ Release is blocked if any active surface restores a superseded rule, including:
 - payment-gated ordinary publication;
 - publication plan/entitlement gate;
 - timed activation card;
-- global/default `JO`, `JOD`, country, currency, legal entity, tax profile, payment provider, or market fallback;
+- global/default `JO`, `JOD`, country, currency, legal entity, tax profile, data region, payment provider, or market fallback;
+- previous top-level sovereign architecture authority or any parallel/fallback authority competing with SPGF;
 - hierarchical multi-winner sales commission on one purchase;
 - any financial split conflicting with 5+5+5+5+43+16+21=100%;
 - marketplace-party transaction intermediation;
@@ -172,8 +177,8 @@ Release is blocked if any active surface restores a superseded rule, including:
 
 Already-applied historical database migrations are not rewritten to fake history. Their obsolete effects are neutralized by protected forward migrations and current-schema verification.
 
-All other proven superseded conflicting current-tree material is directly deleted from the current tree after PHOENIX Proof-of-Reclamation. It is not moved into another repository folder.
+All other proven superseded conflicting current-tree material is directly deleted from the current tree after applicable safety proof. It is not moved into another repository folder.
 
 ## 11. Owner acceptance statement
 
-> **This is the first reference before every action. Keep only the newest approved owner truth. TIGER SOVEREIGN GENOME FABRIC 2026 is the current sovereign-market authority: one global OWNER_ROOT, ZERO DEFAULT COUNTRY, ZERO DEFAULT CURRENCY, zero default payment provider/legal entity/tax profile/market, evidence-bound capability activation, and NO SOVEREIGN FALLBACK. Ordinary publishing remains free. Pulse remains optional paid visibility with product-level identities and no product-time expiry; sovereign price/currency are market-contract concerns. Current financial distribution remains OWNER 5%, PARTNER_1 5%, PARTNER_2 5%, PARTNER_3 5%, ACTUAL_OPERATIONS 43%, TAX_RESERVE 16%, SALES_ADMINISTRATION 21%. Only one sales role wins one sale commission. Self-service with no claimant receives a visible 7% discount.**
+> **This is the first reference before every action. Keep only the newest approved owner truth. TIGER SOVEREIGN PROOF-GENOME FABRIC 2026 is the sole supreme sovereign/proof/security/release architecture: one global OWNER_ROOT, ZERO DEFAULT COUNTRY, ZERO DEFAULT CURRENCY, zero default payment provider/legal entity/tax profile/data region/market, Proof-First evidence-bound capability activation, exact-release binding, crypto agility, and NO SOVEREIGN FALLBACK. Previous competing sovereign architecture authority is deleted from the current tree, not archived and not preserved as fallback. Ordinary publishing remains free. Pulse remains optional paid visibility with product-level identities and no product-time expiry; sovereign price/currency are signed market-contract concerns. Current financial distribution remains OWNER 5%, PARTNER_1 5%, PARTNER_2 5%, PARTNER_3 5%, ACTUAL_OPERATIONS 43%, TAX_RESERVE 16%, SALES_ADMINISTRATION 21%. Only one sales role wins one sale commission. Self-service with no claimant receives a visible 7% discount.**
