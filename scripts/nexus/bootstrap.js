@@ -52,28 +52,30 @@ function normalizeServerRegistry(data) {
   return Object.freeze(normalized);
 }
 
+function commitServerRegistry(root, registry) {
+  const safe = Array.isArray(registry) ? registry.slice(0, 100) : [];
+  root.VVIP_FUSION_SECTOR_REGISTRY = Object.freeze(safe);
+  return root.VVIP_FUSION_SECTOR_REGISTRY;
+}
+
 async function hydrateServerSectorRegistry(root) {
-  const current = enabledSectors(root);
-  if (current.length > 0) return Object.freeze(current);
   if (sectorRegistryPromise) return sectorRegistryPromise;
 
   sectorRegistryPromise = (async () => {
     const client = await runtimeClient(root);
-    if (!client) return Object.freeze([]);
+    if (!client) return commitServerRegistry(root, []);
 
     let response;
     try {
       response = await client.rpc("vvip_nexus_sector_registry");
     } catch (_) {
-      return Object.freeze([]);
+      return commitServerRegistry(root, []);
     }
 
-    if (!response || response.error) return Object.freeze([]);
+    if (!response || response.error) return commitServerRegistry(root, []);
     const registry = normalizeServerRegistry(response.data);
-    if (!registry) return Object.freeze([]);
-
-    root.VVIP_FUSION_SECTOR_REGISTRY = Object.freeze(registry.slice());
-    return root.VVIP_FUSION_SECTOR_REGISTRY;
+    if (!registry) return commitServerRegistry(root, []);
+    return commitServerRegistry(root, registry);
   })();
 
   try {
