@@ -29,7 +29,8 @@ const COMPONENTS = Object.freeze({
   executionSeal: 'scripts/sovereignty/genome-execution-seal.cjs',
   ownerExecutionLease: 'scripts/sovereignty/owner-execution-lease.cjs',
   signedPolicyBundle: 'scripts/sovereignty/signed-policy-bundle.cjs',
-  killGrid: 'scripts/sovereignty/sovereign-kill-grid.cjs'
+  killGrid: 'scripts/sovereignty/sovereign-kill-grid.cjs',
+  cryptoInventoryVerifier: 'scripts/security/verify-crypto-inventory.cjs'
 });
 
 function exactArray(actual, expected) {
@@ -79,6 +80,9 @@ function verifySgfAuthority(manifest) {
   }
   if (manifest.runtimeMarketResolver !== 'scripts/sovereignty/explicit-market-context.cjs') {
     errors.push('runtimeMarketResolver must point to explicit-market-context.cjs');
+  }
+  if (manifest.cryptoInventory !== 'config/security/crypto-inventory.v1.json') {
+    errors.push('cryptoInventory must point to config/security/crypto-inventory.v1.json');
   }
   if (!exactObject(manifest.components, COMPONENTS)) {
     errors.push('components must equal the canonical SGF component map');
