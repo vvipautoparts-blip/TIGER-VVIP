@@ -128,17 +128,17 @@ test("requires authenticated Clerk identity before repository mutation", async (
   await assert.rejects(() => repository.createDraft({}), { code: "AUTH_REQUIRED" });
 });
 
-test("repository exposes one publication request and no browser-side review bypass", () => {
+test("repository exposes one review-submission command and no paid publication bypass", () => {
   const client = { from() { return {}; }, storage: {} };
   const repository = repo.createMarketplaceRepository({
     client,
     clerk: { user: { id: "user_owner" } },
     config: { defaultCountryCode: "JO" }
   });
-  assert.equal(repository.submitForReview, undefined);
+  assert.equal(typeof repository.submitForReview, "function");
   assert.equal(repository.createAndSubmit, undefined);
   assert.equal(repository.prepareForPublication, undefined);
-  assert.equal(typeof repository.requestPublication, "function");
+  assert.equal(repository.requestPublication, undefined);
 });
 
 test("createDraftWithMedia fails closed before finalization when HTTPS endpoint is absent", async () => {

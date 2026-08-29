@@ -1,0 +1,18 @@
+{
+  "schema_version": "TIGER-PHOENIX-STORAGE-PRESSURE-1",
+  "status": "CURRENT_ONLY",
+  "safety_factor": 1.25,
+  "minimums": {
+    "free_bytes": 536870912,
+    "free_bytes_ratio": 0.08,
+    "free_inodes": 20000,
+    "free_inodes_ratio": 0.05
+  },
+  "operations": {
+    "quality_gate": {"category": "workspace_clone_and_tests", "headroom_bytes": 1073741824, "headroom_inodes": 50000},
+    "dependency_install": {"category": "dependency_install", "headroom_bytes": 805306368, "headroom_inodes": 80000},
+    "docker_build": {"category": "container_build", "headroom_bytes": 2147483648, "headroom_inodes": 50000},
+    "supabase_start": {"category": "local_service_stack", "headroom_bytes": 2147483648, "headroom_inodes": 50000},
+    "heavy_rehearsal": {"category": "rehearsal", "headroom_bytes": 1073741824, "headroom_inodes": 30000}
+  }
+}

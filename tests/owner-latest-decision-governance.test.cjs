@@ -7,43 +7,64 @@ const path = require('node:path');
 
 const root = path.resolve(__dirname, '..');
 const read = (relativePath) => fs.readFileSync(path.join(root, relativePath), 'utf8');
+const owner = read('docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md');
 
-const latestOwner = read('docs/owner-control/OWNER_BINDING_DECISIONS_2026-08-15.md');
-const legacyActiveTests = [
-  'tests/pr72-p07-database-architecture.review.test.cjs',
-  'tests/pr72-p07-erd-dictionary-integrity.runtime.test.cjs'
+const activeRuntimeFiles = [
+  'index.html',
+  'scripts/vvip-production-marketplace.js',
+  'scripts/fusion/progressive-composer.js',
+  'scripts/fusion/single-surface-controller.js',
+  'scripts/fusion/runtime-adapters.js',
+  'scripts/runtime/vvip-marketplace-repository.js',
+  'scripts/runtime/vvip-my-listings.js'
 ];
 
-const retired120DayContract = /120[- ]day listing lifetime|120[- ]day expiry|120\\s\*day|120\\s\*days|published_at.*120\s*day/i;
+const retiredProductPatterns = [
+  /4\s*(?:posts?|منشورات?)\s*(?:per|\/)?\s*(?:week|أسبوع)/i,
+  /120[- ]day listing lifetime/i,
+  /120\s*يوم(?:ًا|ا)?/i,
+  /40\s*يوم(?:ًا|ا)?/i,
+  /publishing[_ -]?card/i,
+  /publishing[_ -]?subscription/i,
+  /paid[_ -]?publishing[_ -]?slot/i,
+  /requestPublication\s*\(/,
+  /vvip_marketplace_request_publication/,
+  /entitlementReceipt/,
+  /entitlement_receipt/,
+  /\bEXPIRED\s*:/
+];
 
-test('latest owner decision is the canonical supersession contract', () => {
-  assert.match(latestOwner, /LATEST/i);
-  assert.match(latestOwner, /newest explicit owner decision is authoritative/i);
-  assert.match(latestOwner, /120-day listing lifetime.*CANCELLED/i);
-  assert.match(latestOwner, /maximum 7 images/i);
-  assert.match(latestOwner, /activation card is a.*visibility entitlement/i);
-  assert.match(latestOwner, /not a party/i);
-  assert.match(latestOwner, /OpenSooq-style search/i);
-  assert.match(latestOwner, /FUSION 2026/i);
+test('current owner decision is the only active supersession contract', () => {
+  assert.match(owner, /CURRENT_ONLY \/ OWNER_BINDING \/ FIRST_REFERENCE \/ NO_FALLBACK \/ NO_IN_TREE_ARCHIVE/);
+  assert.match(owner, /newest explicit owner-approved decision/i);
+  assert.match(owner, /no owner-approved product-time lifetime/i);
+  assert.match(owner, /no fixed commercial\/weekly posting quota/i);
+  assert.match(owner, /maximum remains 7 images/i);
+  assert.match(owner, /server-authoritative visibility allocation/i);
+  assert.match(owner, /not a party/i);
 });
 
-test('active tests must not enforce the retired universal 120-day listing lifetime', () => {
-  for (const relativePath of legacyActiveTests) {
+test('active runtime must not restore superseded product rules', () => {
+  for (const relativePath of activeRuntimeFiles) {
     const source = read(relativePath);
-    assert.doesNotMatch(
-      source,
-      retired120DayContract,
-      `${relativePath} still enforces the superseded universal 120-day listing lifetime`
-    );
+    for (const pattern of retiredProductPatterns) {
+      assert.doesNotMatch(source, pattern, `${relativePath} restores superseded owner information: ${pattern}`);
+    }
   }
 });
 
-test('authoritative FUSION entrypoint does not expose a fixed 120-day lifetime', () => {
-  const activeSurface = [
-    read('index.html'),
-    read('scripts/fusion/single-surface-controller.js'),
-    read('scripts/fusion/runtime-adapters.js')
-  ].join('\n');
+test('current authority manifest contains no in-tree legacy decision registry', () => {
+  const source = read('config/fusion/current-authority.json');
+  const manifest = JSON.parse(source);
+  assert.equal(Object.prototype.hasOwnProperty.call(manifest, 'supersededDecisions'), false);
+  assert.doesNotMatch(source, /"LEGACY_/);
+});
 
-  assert.doesNotMatch(activeSurface, /120[- ]day|120\s+days|120\s+يوم/i);
+test('technical security TTLs are not treated as product lifetime', () => {
+  const manifest = JSON.parse(read('config/fusion/current-authority.json'));
+  assert.ok(manifest.technicalExpiryException.includes('otp'));
+  assert.ok(manifest.technicalExpiryException.includes('authentication_session'));
+  assert.ok(manifest.technicalExpiryException.includes('signed_url'));
+  assert.equal(manifest.ordinaryPublication.productLifetime, null);
+  assert.equal(manifest.pulseRing.productTimeExpiry, null);
 });

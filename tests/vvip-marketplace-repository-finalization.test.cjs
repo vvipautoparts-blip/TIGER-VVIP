@@ -34,10 +34,9 @@ test("public feed signs only canonical media from the canonical private bucket",
   assert.doesNotMatch(source, /storage\.from\(["']listing-media["']\)\.createSignedUrls\(/);
 });
 
-test("repository exposes one browser publication command and no legacy alias", () => {
-  assert.match(source, /function\s+requestPublication\s*\(/);
-  assert.match(source, /client\.rpc\(["']vvip_marketplace_request_publication["']/);
-  assert.doesNotMatch(source, /client\.rpc\(["']vvip_marketplace_prepare_publication["']/);
-  assert.doesNotMatch(source, /\bprepareForPublication\b/);
-  assert.doesNotMatch(source, /\bsubmitForReview\b|\bcreateAndSubmit\b/);
+test("repository exposes one browser review-submission command and no paid publication alias", () => {
+  assert.match(source, /function\s+submitForReview\s*\(/);
+  assert.match(source, /client\.rpc\(["']vvip_marketplace_submit_for_review["']/);
+  assert.doesNotMatch(source, /client\.rpc\(["']vvip_marketplace_(?:request|prepare)_publication["']/);
+  assert.doesNotMatch(source, /\brequestPublication\b|\bprepareForPublication\b|\bcreateAndSubmit\b/);
 });

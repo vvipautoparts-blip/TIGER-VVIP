@@ -1,0 +1,2 @@
+import {createRemotePlaneAdapter} from './capability.mjs';
+export function createGitHubActionsCacheAdapter(client){return createRemotePlaneAdapter({plane:'github_actions_cache',client,listAction:'listCaches',deleteAction:'deleteCache',normalize:x=>Object.freeze({id:`cache:${x.id}`,remote_id:x.id,key:x.key??null,ref:x.ref??null,size_bytes:x.size_in_bytes??null,created_at:x.created_at??null,last_accessed_at:x.last_accessed_at??null})});}

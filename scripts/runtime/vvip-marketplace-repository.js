@@ -166,17 +166,12 @@
     return result ? result.data : null;
   }
 
-  function normalizePublicationIntent(listingId, options) {
+  function normalizeListingId(listingId) {
     const id = text(listingId, 64);
     if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) {
       throw marketplaceError("LISTING_ID_INVALID");
     }
-    const source = options && typeof options === "object" ? options : {};
-    const planId = text(source.planId || source.plan_id, 80);
-    if (!planId) throw marketplaceError("VISIBILITY_PLAN_REQUIRED");
-    const entitlementReceipt = text(source.entitlementReceipt || source.entitlement_receipt, 512);
-    if (!entitlementReceipt) throw marketplaceError("ENTITLEMENT_RECEIPT_REQUIRED");
-    return Object.freeze({ listingId: id, planId, entitlementReceipt });
+    return id;
   }
 
   function createMarketplaceRepository(options) {
@@ -241,10 +236,10 @@
         throw marketplaceError("AUTH_SESSION_TOKEN_REQUIRED", error);
       }
       if (
-        typeof sessionToken !== "string"
-        || sessionToken.length < 16
-        || sessionToken.length > 16 * 1024
-        || /\s/.test(sessionToken)
+        typeof sessionToken !== "string" ||
+        sessionToken.length < 16 ||
+        sessionToken.length > 16 * 1024 ||
+        /\s/.test(sessionToken)
       ) {
         throw marketplaceError("AUTH_SESSION_TOKEN_REQUIRED");
       }
@@ -487,16 +482,14 @@
       });
     }
 
-    function requestPublication(listingId, options) {
-      const intent = normalizePublicationIntent(listingId, options);
-      return protectedOperation({ name: "REQUEST_PUBLICATION", listingId: intent.listingId }, async function () {
+    function submitForReview(listingId) {
+      const id = normalizeListingId(listingId);
+      return protectedOperation({ name: "SUBMIT_FOR_REVIEW", listingId: id }, async function () {
         if (typeof client.rpc !== "function") throw marketplaceError("SUPABASE_RPC_REQUIRED");
-        const result = await client.rpc("vvip_marketplace_request_publication", {
-          target_listing: intent.listingId,
-          target_plan_id: intent.planId,
-          entitlement_receipt: intent.entitlementReceipt
+        const result = await client.rpc("vvip_marketplace_submit_for_review", {
+          target_listing: id
         });
-        const data = assertClientResult(result, "PUBLICATION_REQUEST_FAILED");
+        const data = assertClientResult(result, "LISTING_SUBMIT_FAILED");
         invalidatePublicReads();
         return Array.isArray(data) ? data[0] : data;
       });
@@ -534,7 +527,7 @@
       createDraft,
       uploadMedia,
       createDraftWithMedia,
-      requestPublication,
+      submitForReview,
       toggleFavorite,
       reviewListing
     });

@@ -1,217 +1,96 @@
-# مرجع مالك TIGER الحالي والنهائي
+# مرجع مالك TIGER الحالي — CURRENT ONLY
 
-**الحالة:** `CURRENT OWNER ENTRYPOINT / CURRENT_ONLY ROUTER`
+**الحالة:** `CURRENT OWNER ENTRYPOINT / CURRENT_ONLY / FIRST_REFERENCE / NO_FALLBACK / NO_IN_TREE_ARCHIVE`
+**آخر اعتماد:** 2026-08-28
 
-**تاريخ التثبيت:** 2026-08-18
+هذه هي نقطة الدخول الحالية للمالك، والمرجع الأول الإلزامي قبل أي إجراء هو:
 
-**آخر تحديث للسلطة:** 2026-08-28
+`docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md`
 
-**الغرض:** هذه هي الصفحة الأولى التي يعود إليها مالك VVIP TIGER لمعرفة الحقيقة الحالية، آخر اعتماد، ما أُلغي، وما الذي يمنع ادعاء الجاهزية.
+> **الأحدث الذي يعتمده المالك هو السلطة الوحيدة في نطاقه. كل قديم متعارض يُحذف من الشجرة الحالية ومن Runtime/UI/API/Config/Tests/CI/Current Docs/Launch Gates ولا يعود كـfallback أو archive داخل المشروع. الأثر التاريخي يبقى في Git history فقط.**
 
-**قاعدة الظهور:** مرجع حوكمة خاص بالمالك من حيث الوظيفة، ويُمنع نسخه إلى Public Release أو عرضه داخل واجهة المنصة. لا يحتوي أسرارًا أو كلمات مرور أو مفاتيح أو بيانات اعتماد.
+## قرارات المنتج الحالية
 
-## 1. قاعدة المالك النهائية
+- هوية المنتج الأساسية: `SOCIAL_NETWORK_FIRST`.
+- Marketplace وحدة داخل المنصة الاجتماعية.
+- النشر العادي مجاني وغير مربوط ببطاقة أو اشتراك أو خانة مدفوعة أو plan أو entitlement.
+- لا توجد quota تجارية/أسبوعية ثابتة حالية لعدد المنشورات.
+- الحد الحالي لإعلان Marketplace العادي: 7 صور.
+- لا توجد مدة منتج/محتوى للمنشور أو الإعلان أو رصيد/بطاقة الظهور.
+- TTLs التقنية الأمنية فقط مثل OTP/session/signed URL/anti-replay/cache/temporary quote تبقى لأنها حماية تقنية وليست مدة منتج.
+- الظهور المدفوع الحالي: `TIGER PULSE RING` بمستويات **2 / 10 / 25 / 45 JOD** فقط.
+- كل مبلغ له تخصيص ظهور server-authoritative مختلف، ويظهر للمستخدم قبل الدفع؛ الظهور لا يقاس بالأيام ولا ينتهي بمرور الزمن.
+- إذا لم يوجد GENERAL_MANAGER أو SECTOR_MANAGER أو MARKETER منسوب للبيع، يحصل المستخدم على خصم خدمة ذاتية **7%** ظاهر قبل الدفع.
+- إذا وجد بائع معتمد، لا يوجد خصم 7%، ويستحق العمولة **الشخص صاحب البيع فقط** من الأدوار الثلاثة.
+- VVIP TIGER ليس طرفًا في صفقة البائع/المشتري أو مزود الخدمة/المستفيد.
 
-> **الجديد الذي يعتمده المالك بوصفه `CURRENT_ONLY` هو السلطة النهائية في نطاقه. إذا تعارض معه أي قرار أو وثيقة أو كود أو اختبار أو إعداد أو مسار قديم، تُلغى سلطة القديم نهائيًا ويُزال من المنصة الحالية والحزمة العامة ومسارات التنفيذ. لا fallback ولا resurrection لقديم متعارض.**
+## التوزيع المالي الحالي — 100%
 
-تُطبق القاعدة كما يلي:
+من القيمة التي تم تحصيلها فعليًا من المستخدم بعد الخصم الصحيح إن وجد:
 
-1. أحدث قرار صريح `CURRENT_ONLY` يتقدم على أي سلطة أقدم في المجال نفسه.
-2. كل قديم متعارض يصنف `RETIRED_FROM_CURRENT_PLATFORM / HISTORICAL_ONLY`.
-3. يُفصل القديم المتعارض عن runtime والواجهة والتنقل والحزمة العامة والاختبارات الحالية والإعدادات والخطط والوثائق النشطة.
-4. لا يسمح Feature Flag أو compatibility layer أو rollback path بإعادة سلطة قديمة متعارضة.
-5. يبقى الأثر التاريخي الضروري داخل Git/Archive للتدقيق فقط، بلا سلطة تنفيذية.
-6. حذف Git history عملية مدمرة مستقلة لا تتم إلا لسبب أمني مثبت وبإجراءات التدوير/النسخ/الموافقة المناسبة.
-7. الحماية الأمنية أو القانونية الأشد غير المتعارضة تبقى إلى أن يستبدلها قرار صريح وآمن.
+- OWNER: **5%**
+- PARTNER_1: **5%**
+- PARTNER_2: **5%**
+- PARTNER_3: **5%**
+- ACTUAL_OPERATIONS: **43%**
+- TAX_RESERVE: **16%**
+- SALES_ADMINISTRATION: **21%**
+- TOTAL: **100%**
 
-## 2. سلطة ما بعد الإطلاق — TIGER AION ∞
+تفصيل ACTUAL_OPERATIONS 43%:
 
-**المرجع:** `docs/owner-control/TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md`
+`8% مخاطر + 8% صيانة + 8% تطوير + 8% دعم فني + 8% إعلانات + 3% CSR`.
 
-**المجال الآلي:** `post-launch-autonomy`
+تفصيل SALES_ADMINISTRATION 21%:
 
-**حالة السلطة/runtime:** `CURRENT_ONLY / OWNER_APPROVED / IMPLEMENTATION_REQUIRED`
+`7% GENERAL_MANAGER + 7% SECTOR_MANAGER + 7% MARKETER`، لكن في كل عملية شراء **فائز واحد فقط** يأخذ 7%، والباقي يرحل للمالك مع reason codes واضحة.
 
-**حالة برنامج AION على فرع PR #271:** `BRANCH_A0_TO_A9_VERIFIED / PRODUCTION_NOT_ACTIVATED`
+عند الشراء الذاتي بلا بائع: خصم المستخدم 7% أولًا، لا عمولة لأي دور مبيعات، و21% من القيمة المحصلة بعد الخصم ترحل للمالك مع توثيق غياب الأدوار.
 
-**نقطة تحقق A9:** `ca76f5e1d8dcf60521b0d25545ed0c1c12d015ec` — أُغلقت عليها جميع بوابات GitHub العشر المطلوبة بنجاح على الـSHA نفسه.
+التسوية للعمولات المؤهلة كل 14 يومًا، ووجهة الصرف مطلوبة خلال 12 ساعة من منح الدور إلا إذا مدد المالك المهلة. تصفير الرصيد بعد التسوية لا يعني حذف سجل الحركات؛ الـledger يبقى غير قابل للمحو.
 
-حالة السلطة/runtime أعلاه لا تعني تفعيل AION في Production، ولا تمنح runtime autonomy، ولا تصرح بأي تغيير في `main` أو Production.
+## السلطات الحالية فقط
 
-TIGER AION ∞ هو المرجع الوحيد لما بعد الإطلاق: التشغيل والاستقرار والنمو والأمن والاستعادة ومكافحة spam/fraud/abuse والقياس والتحديثات والدعم والامتثال حسب الدولة والتنظيف المستمر.
+1. `TIGER_OWNER_BINDING_CURRENT.md` — المرجع الأول ودستور Latest-Only.
+2. `TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md` — Social Core.
+3. `TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` — الظهور المدفوع 2/10/25/45 بلا مدة.
+4. `TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md` — التوزيع المالي 100%.
+5. `TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md` — حوكمة التنظيف.
+6. `TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة `post-launch-autonomy` المستقبلية المحمية.
+7. `project-control/authority/authority-registry.v1.json` — Authority Graph الآلي.
+8. `config/fusion/current-authority.json` — عقد المنتج الآلي.
+9. `config/finance/current-distribution.json` — عقد التوزيع المالي الآلي.
+10. exact Git SHA/tree + matching CI evidence — حقيقة التنفيذ.
 
-AION يثبت المعمارية التالية كاملة بلا حذف أي نقطة:
+أي ملف آخر يتعارض مع هذه السلطات لا يصبح مرجعًا؛ يُحذف من الشجرة الحالية بعد إثبات التعارض.
 
-- **Self-Futuring**؛
-- **Prospective Memory**؛
-- **TIGER DREAM CYCLE**؛
-- **Twin Swarm**؛
-- **Synthetic Society**؛
-- **Jurisdiction Genome**؛
-- **Digital Metabolism**؛
-- **Digital Entropy Score**؛
-- **Always-Recovering Twin**؛
-- **Immune Memory / Digital Antibodies**؛
-- **Red Swarm vs Blue Swarm** في بيئات معزولة؛
-- **Capability Cells** للوكلاء؛
-- **Agent Immune System**؛
-- **Adaptive Autonomy Credit**؛
-- **Dual Brain**: probabilistic proposal + deterministic authority؛
-- **Proof-Carrying Action / Action Passport**؛
-- **Software/Release DNA** و`No Provenance → No Production`؛
-- **OpenTelemetry-first sensory plane**؛
-- **Progressive Immune Delivery**؛
-- **Crypto Genome / Crypto Agility / PQC readiness** دون تشفير خاص؛
-- **TIGER Constitution** فوق جميع الوكلاء.
+## TIGER AION — سلطة ما بعد الإطلاق المحمية
 
-الحلقة السيادية:
+مرجع السلطة الحالي الكامل:
 
-`PERCEIVE → IMAGINE → BRANCH → ATTACK → EXPERIENCE → PROVE → CHOOSE → ACT → VERIFY → REMEMBER`
+`docs/owner-control/TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md`
 
-القواعد الملزمة:
+النطاق الآلي: `post-launch-autonomy`.
 
-- `No Evidence → No Action`.
-- `No Policy → No Action`.
-- `No Provenance → No Production`.
-- `No Recovery Path → No high-risk autonomous action`.
-- لا unrestricted autonomous Production mutation.
-- لا سياسة قانونية منشأة بالذكاء الاصطناعي تدخل Production دون اعتماد بشري قانوني.
-- لا Backup = GREEN دون restore proof حديث.
-- لا حذف ذاتي مدمر بلا quarantine/evidence/recovery gates.
+لا توجد aliases تشغيلية بديلة أو fallback مخولة داخل هذا النطاق.
 
-### إلغاء التصورات السابقة في هذا النطاق
+حالة التنفيذ المثبتة على فرع AION هي:
 
-الأسماء/التصورات التالية **غير مخولة وHISTORICAL_ONLY من حيث السلطة، ولا fallback إليها**:
+- `BRANCH_A0_TO_A9_VERIFIED`؛
+- `PRODUCTION_NOT_ACTIVATED`؛
+- AION لا يمنح أي تفويض لتغيير `main` أو Production من هذا المرجع؛
+- checkpoint المثبت: `ca76f5e1d8dcf60521b0d25545ed0c1c12d015ec`.
 
-- `TIGER AEGIS NEXUS`؛
-- `TIGER ORACLE IMMUNE CORE`؛
-- أي `LEGACY_POST_LAUNCH_CHECKLIST_MODEL` يفصل Monitoring/Backup/Fraud/Support/Legal/Cleanup كسلطات مستقلة متنافسة.
+هذه الإشارة تحفظ اتصال مرجع المالك بسلطة TIGER AION دون تحويل حالة الفرع إلى تصريح Production أو تجاوز بوابة الإطلاق العالمي.
 
-يمكن الاستفادة من فكرة تقنية قديمة فقط إذا كانت مدمجة داخل AION ولا تعارض دستوره وعقده الحالي؛ لا تستعيد الاسم أو السلطة القديمة.
+## قاعدة التنظيف
 
-## 3. سلطة التنظيف الحالية — TIGER PHOENIX CLEANROOM 2026
+أمر `نظف / cleanup` يعني PHOENIX CLEANROOM كاملًا.
 
-**المرجع:** `docs/owner-control/TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md`
+`NO PROOF OF RECLAMATION → NO DESTRUCTIVE DISPOSAL`، لكن هذه الحماية لا تبرر إبقاء معلومة قديمة متعارضة داخل المنصة.
 
-**المجال الآلي:** `cleanup-governance`
+## مسار التنفيذ
 
-**الحالة:** `CURRENT_ONLY / OWNER_APPROVED / INTEGRATED_CLEANUP_AUTHORITY`
+`OWNER CURRENT AUTHORITY → RED CONTRACT → IMPLEMENT → DELETE SUPERSEDED CURRENT-TREE MATERIAL → GREEN EXACT-HEAD CI → REVIEW → PROTECTED MERGE → VERIFICATION`
 
-PHOENIX هو خطة التنظيف الواحدة عند أمر المالك العام `نظف / cleanup`. يشمل Repository وPRs/branches وCodespace وDocker/BuildKit وSupabase local وActions artifacts/cache وCodespaces/prebuilds والبيئة المحلية عندما تكون في النطاق.
-
-الاختراع الواحد هو **Proof-of-Reclamation (PoR)**. PoR لا يحذف؛ بل يثبت أن الهدف مؤهل للدخول إلى بوابة التخلص.
-
-PHOENIX لا ينافس AION ولا يلغيه. عند الوصول إلى أي حذف/تخلص مدمر، تبقى سلسلة AION الحالية إلزامية:
-
-`DETECT → CLASSIFY → EXPLAIN → APPROVE → QUARANTINE → REHEARSE → VERIFY → DELETE → SEAL`
-
-وبالتالي:
-
-- `cleanup-governance = PHOENIX CURRENT_ONLY`؛
-- `post-launch-autonomy = AION CURRENT_ONLY`؛
-- لا يوجد مسارا حذف متوازيان؛
-- `NO PROOF OF RECLAMATION → NO ENTRY TO DESTRUCTIVE DISPOSAL`؛
-- `NO AION DELETION CHAIN → NO DESTRUCTIVE DISPOSAL`؛
-- أي مساحة بعيدة لا تسمح الأدوات الحالية برؤيتها تسجل `BLOCKED_CAPABILITY` ولا يجوز ادعاء تنظيف كامل لها.
-
-**المواصفة:** `docs/superpowers/specs/2026-08-28-tiger-phoenix-cleanroom-integrated-cleanup-design.md`
-
-**خطة التنفيذ:** `docs/superpowers/plans/2026-08-28-tiger-phoenix-cleanroom-integrated-cleanup.md`
-
-## 4. ترتيب الرجوع الحالي للمالك
-
-هذا الملف هو مدخل القرار، وليس نسخة تنفيذية ثانية. ترتيب الرجوع الملزم:
-
-1. `docs/MASTER_PROJECT_STATE.md` — حالة المشروع البشرية الحالية ومؤشر التنفيذ.
-2. `docs/owner-control/TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة `post-launch-autonomy` الحالية.
-3. `docs/owner-control/TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة `cleanup-governance` الحالية.
-4. `docs/superpowers/specs/2026-08-25-tiger-aion-prospective-living-digital-organism-design.md` — تصميم AION.
-5. `docs/superpowers/plans/2026-08-25-tiger-aion-owner-authority-and-program-plan.md` — برنامج A0→A9.
-6. `docs/superpowers/specs/2026-08-28-tiger-phoenix-cleanroom-integrated-cleanup-design.md` — تصميم PHOENIX.
-7. `docs/superpowers/plans/2026-08-28-tiger-phoenix-cleanroom-integrated-cleanup.md` — تنفيذ PHOENIX.
-8. `docs/owner-control/TIGER_ONE_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة المنصة والإلغاء العام.
-9. `docs/owner-control/TIGER_9D_TEMPORARY_OPERATING_CODENAME_2026_CURRENT_OWNER_AUTHORITY.md` — اسم التشغيل المؤقت وحدوده.
-10. `docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md` — هوية المنتج الاجتماعية الحالية.
-11. `docs/owner-control/TIGER_FACEBOOK_1_TO_1_FAMILIARITY_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة UI/UX الحالية في نطاقها ما لم تستبدل بقرار أحدث.
-12. `docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` — الإعلان المدفوع والظهور المملوك للمنصة.
-13. `docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md` — SYNAPSE v2 + VERITY FABRIC.
-14. `project-control/authority/authority-registry.v1.json` — Authority Graph الحالي.
-15. `project-control/production-handover/current-authority.v1.json` — عقد التسليم الآلي وبوابات P01–P20 + عقد AION.
-16. Git exact commit SHA + exact tree SHA + أدلة CI المطابقة — حقيقة التنفيذ النهائية.
-
-إذا اختلفت وثيقة بشرية مع bytes المستودع وأدلة exact-head، لا يُختلق نجاح؛ تُصحح الوثيقة وتبقى الحالة fail-closed.
-
-## 5. هوية المنتج الحالية غير المتعارضة
-
-- **اسم التشغيل المؤقت:** TIGER 9D؛ لا يحول تلقائيًا إلى معرّف تقني دائم.
-- **المنصة/المعرّفات التقنية:** VVIP TIGER و`TIGER-VVIP` حتى قرار إعادة تسمية مستقل وآمن.
-- **سطح المنتج:** TIGER ONE Living Surface.
-- **هوية المنتج:** `SOCIAL_NETWORK_FIRST`؛ Marketplace وPulse وحدتان داخله.
-- **UI/UX الحالي في نطاقه:** `Facebook 1:1 Familiarity + TIGER Identity` ما دام غير مستبدل بقرار أحدث.
-- **نظام النية:** TIGER SYNAPSE v2.
-- **نسيج الحقيقة والإثبات:** TIGER VERITY FABRIC.
-- **ما بعد الإطلاق:** TIGER AION ∞.
-- **التنظيف والحفاظ على المساحة:** TIGER PHOENIX CLEANROOM 2026 + PoR + AION disposal gate.
-- **مصدر الدخل الحالي:** خدمات الإعلان والظهور المملوكة لـTIGER، ومنها Pulse وفق السلطة الحالية.
-- **حد الصفقة:** الأطراف تتواصل وتتفق وتدفع/تسلم مباشرة وعلى مسؤوليتها؛ TIGER ليست وسيطًا أو سمسارًا أو وكيلًا أو ضامنًا أو حافظة أموال أو طرف تسوية في صفقة Marketplace.
-
-## 6. قاعدة عدم ازدواج السلطة
-
-لكل domain سلطة CURRENT واحدة فقط. يمنع وجود:
-
-- سلطتي Post-Launch متوازيتين؛
-- سلطتي Cleanup Governance متوازيتين؛
-- PHOENIX كمسار حذف موازٍ لـAION؛
-- AION وAEGIS/ORACLE كخيارات fallback؛
-- محركي نية current؛
-- سلطتي identity/RLS؛
-- مساري release يعتبر كل منهما نهائيًا؛
-- وثيقتين متعارضتين تحملان CURRENT لنفس المجال.
-
-Authority Graph يجب أن يفشل مغلقًا عند duplicate current authority أو resurrection أو missing canonical path.
-
-## 7. قاعدة الإثبات والجاهزية
-
-- `APPROVED` لا يعني `IMPLEMENTED`.
-- `IMPLEMENTED` لا يعني `VERIFIED`.
-- برنامج AION على فرع PR #271 وصل إلى `BRANCH_A0_TO_A9_VERIFIED` عند checkpoint `ca76f5e1d8dcf60521b0d25545ed0c1c12d015ec`.
-- هذا التحقق هو **PR branch/control-plane verification فقط**؛ الحالة التشغيلية هي `PRODUCTION_NOT_ACTIVATED`.
-- اعتماد PHOENIX كسلطة تنظيف لا يعني أن كل أدواته البرمجية منفذة؛ PR #344 يثبت السلطة/التصميم والخطة ويظل خاضعًا لـexact-head CI والمراجعة المستقلة قبل الدمج.
-- لا يوصف exact head بأنه GREEN إلا بنتائج CI الحديثة على SHA نفسه.
-- لا يعتمد Preview أو فيديو أو Pages متقاعد.
-- أي Quality Gate RED يمنع وصف الرأس بأنه جاهز.
-- أدلة AWS/DNS/TLS/identity الحية مؤقتة وتحتاج freshness.
-
-## 8. حدود AION وPHOENIX الدستورية
-
-لا يستطيع AION أو PHOENIX تغيير هذه الحدود ذاتيًا:
-
-- Owner `CURRENT_ONLY` authority؛
-- privacy/data/deletion boundaries؛
-- no-intermediation boundary؛
-- financial/advertising boundaries؛
-- identity/RLS invariants؛
-- main/Production/branch-protection boundaries؛
-- provenance and exact-source requirements؛
-- destructive-operation safeguards؛
-- human legal approval boundary؛
-- `L6 UNRESTRICTED_PRODUCTION_MUTATION = FORBIDDEN`.
-
-PHOENIX تحديدًا لا يستطيع تجاوز AION في التخلص المدمر ولا تحويل `BLOCKED_CAPABILITY` إلى نجاح.
-
-## 9. طريقة العودة للمشروع
-
-1. افتح هذا المرجع.
-2. اقرأ `docs/MASTER_PROJECT_STATE.md` للحالة الفعلية.
-3. اقرأ سلطة المجال المطلوب: في Post-Launch اقرأ AION، وفي Cleanup اقرأ PHOENIX مع بوابة AION للتخلص المدمر.
-4. تحقق من PR/branch/exact SHA/tree.
-5. اقرأ CI لنفس exact head.
-6. استخدم فقط: `APPROVED`, `IMPLEMENTED`, `VERIFIED`, `IN_PROGRESS`, `BLOCKED`, `DEFERRED`, `STALE`.
-7. ابدأ من أول بوابة غير ناجحة.
-8. لا تعيد أي قديم متعارض للمنصة الحالية.
-9. لا تحول Proposal أو Simulation إلى Production fact بلا proof.
-10. في أمر `نظف` غير المحدد، طبّق PHOENIX `FULL_SCOPE_SAFE`، وأبلغ صراحة عن أي مساحة `BLOCKED_CAPABILITY`.
-
-## 10. العبارة المختصرة الملزمة
-
-> **مرجع مالك واحد، Authority Graph واحد، وسلطة CURRENT واحدة لكل domain. AION هو سلطة ما بعد الإطلاق وبوابة التخلص المدمر؛ PHOENIX هو سلطة التنظيف الواحدة ويضيف Proof-of-Reclamation دون إنشاء مسار حذف ثانٍ. لا PoR = لا دخول للتخلص، ولا AION deletion chain = لا حذف مدمر. AEGIS وORACLE وأي نموذج تنظيف/ما بعد إطلاق قديم متعارض بلا سلطة وبلا fallback.**
+لا كتابة مباشرة على `main` ولا تجاوز للبوابات الأمنية/القانونية/الإنتاجية.

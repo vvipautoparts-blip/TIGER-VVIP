@@ -228,6 +228,14 @@ declare -A reviewed_migration_hashes=(
   # policies, contains no CASCADE/table/column destruction, and fails closed if anon
   # access or the legacy storage policy remains. Any byte drift re-enters review.
   ["supabase/migrations/20260828140000_media_no_visitor_forward_repair.sql"]="c7176e733721393339892b479b8f5d0b7b81a7bc065421bb8c99b0f5f85beec4"
+
+  # Latest-only ordinary publication authority: exact bytes reviewed after the RED
+  # contract convergence. EXPIRED rows fail closed before schema retirement; the old
+  # status constraint is replaced transactionally with no CASCADE; both SECURITY DEFINER
+  # functions pin explicit search_path values; both listing UPDATE statements carry
+  # bounded target_listing WHERE predicates; and the paid publication RPC is revoked and
+  # dropped by exact signature. Any byte drift re-enters Steel Shield automatically.
+  ["supabase/migrations/20260828203000_latest_only_publication_authority.sql"]="03db6683ec2ecca0d4b702a8d43aff2abcfa3009bebb0dcbcc0a581bfb841cca"
 )
 
 reviewed_baseline_path() {

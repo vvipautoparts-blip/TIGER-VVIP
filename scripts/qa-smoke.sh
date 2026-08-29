@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT_DIR"
 
-echo "[smoke] validating authoritative FUSION surface"
+echo "[smoke] validating authoritative current surface"
 
 python3 <<'PY_FUSION'
 from html.parser import HTMLParser
@@ -12,7 +12,6 @@ from pathlib import Path
 from urllib.parse import urlsplit
 import re
 
-ROOT = Path(".").resolve()
 INDEX = Path("index.html")
 if not INDEX.is_file():
     raise SystemExit("[smoke][fail] authoritative index.html is missing")
@@ -33,7 +32,7 @@ required_markers = [
 ]
 for marker in required_markers:
     if marker not in html:
-        raise SystemExit(f"[smoke][fail] authoritative FUSION marker missing: {marker}")
+        raise SystemExit(f"[smoke][fail] authoritative surface marker missing: {marker}")
 
 required_files = [
     "auth-clerk-index.js",
@@ -48,17 +47,17 @@ required_files = [
     "scripts/fusion/account-surface.js",
     "scripts/fusion/single-surface-controller.js",
     "scripts/runtime/vvip-marketplace-repository.js",
+    "scripts/runtime/vvip-my-listings.js",
     "styles/fusion/f02-single-surface.css",
     "styles/fusion/progressive-composer.css",
     "sw-vvip-static.js",
     "scripts/runtime/vvip-static-delivery.js",
-    "supabase/migrations/20260816090000_fusion_publication_entitlement.sql",
-    "supabase/migrations/20260816170000_sovereign_publication_authority_convergence.sql",
-    "docs/owner-control/OWNER_BINDING_DECISIONS_2026-08-15.md",
+    "docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md",
+    "config/fusion/current-authority.json",
 ]
 for relative in required_files:
     if not Path(relative).is_file():
-        raise SystemExit(f"[smoke][fail] required authoritative file missing: {relative}")
+        raise SystemExit(f"[smoke][fail] required current file missing: {relative}")
 
 retired_index_assets = [
     "styles/vvip-pr31-create-listing-shell.css",
@@ -120,17 +119,14 @@ composer_contracts = [
     "requireAuth",
     "VVIPFusionMarketplaceContext",
     "createDraftWithMedia",
-    "requestPublication",
-    "VVIPActivationProvider",
-    "entitlementReceipt",
+    "submitForReview",
     "data-fusion-progressive-form",
     "data-fusion-save-draft",
-    "data-fusion-publish-request",
     "ليست طرفًا في البيع أو الدفع أو التوصيل",
 ]
 for contract in composer_contracts:
     if contract not in composer:
-        raise SystemExit(f"[smoke][fail] progressive composer contract missing: {contract}")
+        raise SystemExit(f"[smoke][fail] progressive composer current contract missing: {contract}")
 
 for retired in [
     "LOCAL_DRAFT_ONLY",
@@ -138,22 +134,39 @@ for retired in [
     "localStorage.getItem",
     "vvip.fusion.composer.draft",
     "prepareForPublication",
+    "requestPublication",
+    "VVIPActivationProvider",
+    "entitlementReceipt",
+    "data-fusion-publish-request",
 ]:
     if retired in composer:
-        raise SystemExit(f"[smoke][fail] retired local or publication authority restored: {retired}")
+        raise SystemExit(f"[smoke][fail] superseded publication authority restored in composer: {retired}")
 
 if "readAsDataURL" in composer or "data:image" in composer:
     raise SystemExit("[smoke][fail] progressive composer attempts to persist raw image data")
 
 repository = Path("scripts/runtime/vvip-marketplace-repository.js").read_text(encoding="utf-8")
-for contract in ["vvip_marketplace_request_publication", "PUBLICATION_REQUEST_FAILED", "ENTITLEMENT_RECEIPT_REQUIRED"]:
+for contract in ["vvip_marketplace_submit_for_review", "LISTING_SUBMIT_FAILED", "submitForReview"]:
     if contract not in repository:
-        raise SystemExit(f"[smoke][fail] trusted publication repository contract missing: {contract}")
-for retired in ["vvip_marketplace_prepare_publication", "PUBLICATION_PREPARE_FAILED", "prepareForPublication"]:
+        raise SystemExit(f"[smoke][fail] trusted review-submission repository contract missing: {contract}")
+for retired in [
+    "vvip_marketplace_prepare_publication",
+    "PUBLICATION_PREPARE_FAILED",
+    "prepareForPublication",
+    "vvip_marketplace_request_publication",
+    "requestPublication",
+    "ENTITLEMENT_RECEIPT_REQUIRED",
+    "entitlementReceipt",
+    "entitlement_receipt",
+]:
     if retired in repository:
-        raise SystemExit(f"[smoke][fail] superseded publication authority restored: {retired}")
+        raise SystemExit(f"[smoke][fail] superseded publication authority restored in repository: {retired}")
 if "PUBLICATION_TRANSPORT_UNAVAILABLE" in repository:
     raise SystemExit("[smoke][fail] retired publication transport stub restored")
+
+my_listings = Path("scripts/runtime/vvip-my-listings.js").read_text(encoding="utf-8")
+if re.search(r"\bEXPIRED\s*:", my_listings):
+    raise SystemExit("[smoke][fail] retired EXPIRED listing lifecycle state restored in current runtime")
 
 controller = Path("scripts/fusion/single-surface-controller.js").read_text(encoding="utf-8")
 adapters = Path("scripts/fusion/runtime-adapters.js").read_text(encoding="utf-8")
@@ -182,6 +195,7 @@ active_runtime = [
     Path("scripts/fusion/account-surface.js"),
     Path("scripts/fusion/single-surface-controller.js"),
     Path("scripts/runtime/vvip-marketplace-repository.js"),
+    Path("scripts/runtime/vvip-my-listings.js"),
 ]
 native_dialog = re.compile(r"(?<![A-Za-z0-9_])(?:window\.)?(?:alert|confirm|prompt)\s*\(")
 for file in active_runtime:
@@ -193,12 +207,28 @@ worker = Path("sw-vvip-static.js").read_text(encoding="utf-8")
 if 'CACHE_NAME = "vvip-static-v2"' not in worker:
     raise SystemExit("[smoke][fail] current bounded static cache version is not v2")
 
-owner = Path("docs/owner-control/OWNER_BINDING_DECISIONS_2026-08-15.md").read_text(encoding="utf-8")
-for contract in ["FUSION 2026", "maximum 7 images", "CANCELLED", "OpenSooq-style search", "Latest-decision-wins", "GLOBAL_LAUNCH_ELIGIBLE = TRUE"]:
+owner = Path("docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md").read_text(encoding="utf-8")
+for contract in [
+    "CURRENT_ONLY / OWNER_BINDING / FIRST_REFERENCE / NO_FALLBACK / NO_IN_TREE_ARCHIVE",
+    "no owner-approved product-time lifetime",
+    "no fixed commercial/weekly posting quota",
+    "maximum remains 7 images",
+    "PULSE_2",
+    "PULSE_10",
+    "PULSE_25",
+    "PULSE_45",
+    "server-authoritative visibility allocation",
+    "not a party",
+]:
     if contract.lower() not in owner.lower():
         raise SystemExit(f"[smoke][fail] latest owner authority contract missing: {contract}")
 
-print("[smoke] authoritative FUSION surface PASS")
+manifest = Path("config/fusion/current-authority.json").read_text(encoding="utf-8")
+for retired in ['"supersededDecisions"', '"LEGACY_']:
+    if retired in manifest:
+        raise SystemExit(f"[smoke][fail] current authority restored in-tree legacy registry material: {retired}")
+
+print("[smoke] authoritative current surface PASS")
 PY_FUSION
 
 echo "[smoke] validating shell scripts and JavaScript parse cleanly"
@@ -211,6 +241,8 @@ node --check scripts/fusion/progressive-composer.js
 node --check scripts/fusion/account-surface.js
 node --check scripts/fusion/single-surface-controller.js
 node --check scripts/runtime/vvip-marketplace-repository.js
+node --check scripts/runtime/vvip-my-listings.js
+node --check scripts/fusion/verify-current-authority.cjs
 node --check sw-vvip-static.js
 
 echo "VVIP_FUSION_SMOKE=PASS"

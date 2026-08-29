@@ -1,0 +1,2 @@
+import {createRemotePlaneAdapter} from './capability.mjs';
+export function createGitHubPrebuildsAdapter(client){return createRemotePlaneAdapter({plane:'codespace_prebuilds',client,listAction:'listPrebuilds',deleteAction:'deletePrebuild',normalize:x=>Object.freeze({id:`prebuild:${x.id}`,remote_id:x.id,state:x.state??null,created_at:x.created_at??null,updated_at:x.updated_at??null,git_ref:x.git_ref??null})});}

@@ -3,6 +3,10 @@ set -Eeuo pipefail
 
 ROOT="$(git rev-parse --show-toplevel)"
 ORIGINAL_ROOT="$ROOT"
+
+echo "===== PHOENIX HEADROOM PREFLIGHT ====="
+bash scripts/cleanup/phoenix-headroom.sh quality_gate
+
 TEMP_ROOT="$(mktemp -d /tmp/vvip-quality-gate.XXXXXX)"
 WORK="$TEMP_ROOT/TIGER-VVIP"
 FAIL=0

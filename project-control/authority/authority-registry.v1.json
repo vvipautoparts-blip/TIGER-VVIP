@@ -2,59 +2,14 @@
   "schema_version": "TIGER-AUTHORITY-REGISTRY-1",
   "records": [
     {
-      "authority_id": "authority.advertising.v1",
-      "domain": "advertising",
+      "authority_id": "authority.owner-constitution.v1",
+      "domain": "owner-constitution",
       "version": 1,
       "status": "CURRENT_ONLY",
-      "owner_decision_ref": "docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md",
-      "canonical_path": "docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md",
+      "owner_decision_ref": "docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md",
+      "canonical_path": "docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md",
       "supersedes": [],
-      "protected_boundaries": ["main", "production", "party-to-party-payment"]
-    },
-    {
-      "authority_id": "authority.cleanup-governance.legacy",
-      "domain": "cleanup-governance",
-      "version": 0,
-      "status": "HISTORICAL_ONLY",
-      "owner_decision_ref": "docs/VVIP_TIGER_REPOSITORY_HOUSEKEEPING_AUDIT.md",
-      "canonical_path": "docs/VVIP_TIGER_REPOSITORY_HOUSEKEEPING_AUDIT.md",
-      "supersedes": [],
-      "protected_boundaries": ["repository-history"]
-    },
-    {
-      "authority_id": "authority.cleanup-governance.v1",
-      "domain": "cleanup-governance",
-      "version": 1,
-      "status": "CURRENT_ONLY",
-      "owner_decision_ref": "docs/owner-control/TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md",
-      "canonical_path": "docs/owner-control/TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md",
-      "supersedes": ["authority.cleanup-governance.legacy"],
-      "protected_boundaries": [
-        "main",
-        "production",
-        "owner-authority",
-        "migrations",
-        "protected-release-identity",
-        "protected-provenance",
-        "security-sensitive-material",
-        "stateful-volumes",
-        "unique-non-volume-state",
-        "canonical-release-evidence",
-        "canonical-security-evidence",
-        "git-history",
-        "unique-pr-commits",
-        "aion-deletion-chain"
-      ]
-    },
-    {
-      "authority_id": "authority.owner-entrypoint.legacy",
-      "domain": "owner-entrypoint",
-      "version": 0,
-      "status": "HISTORICAL_ONLY",
-      "owner_decision_ref": "docs/state-archive/MASTER_PROJECT_STATE_PRE_20260812.md",
-      "canonical_path": "docs/state-archive/MASTER_PROJECT_STATE_PRE_20260812.md",
-      "supersedes": [],
-      "protected_boundaries": ["current-platform"]
+      "protected_boundaries": ["mandatory-first-reference", "entire-current-platform", "runtime", "ui", "api", "database-current-state", "configuration", "tests", "ci-release-gates", "current-documentation", "launch-criteria", "no-fallback", "no-in-tree-archive"]
     },
     {
       "authority_id": "authority.owner-entrypoint.v1",
@@ -63,18 +18,18 @@
       "status": "CURRENT_ONLY",
       "owner_decision_ref": "docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md",
       "canonical_path": "docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md",
-      "supersedes": ["authority.owner-entrypoint.legacy"],
+      "supersedes": [],
       "protected_boundaries": ["main", "production", "public-artifact"]
     },
     {
-      "authority_id": "authority.platform.legacy",
-      "domain": "platform",
-      "version": 0,
-      "status": "HISTORICAL_ONLY",
-      "owner_decision_ref": "docs/state-archive/MASTER_PROJECT_STATE_PRE_20260812.md",
-      "canonical_path": "docs/state-archive/MASTER_PROJECT_STATE_PRE_20260812.md",
+      "authority_id": "authority.product.v1",
+      "domain": "product",
+      "version": 1,
+      "status": "CURRENT_ONLY",
+      "owner_decision_ref": "docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md",
+      "canonical_path": "docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md",
       "supersedes": [],
-      "protected_boundaries": ["current-platform"]
+      "protected_boundaries": ["social-first", "no-intermediation"]
     },
     {
       "authority_id": "authority.platform.v1",
@@ -83,8 +38,38 @@
       "status": "CURRENT_ONLY",
       "owner_decision_ref": "docs/owner-control/TIGER_ONE_2026_CURRENT_OWNER_AUTHORITY.md",
       "canonical_path": "docs/owner-control/TIGER_ONE_2026_CURRENT_OWNER_AUTHORITY.md",
-      "supersedes": ["authority.platform.legacy"],
+      "supersedes": [],
       "protected_boundaries": ["main", "production", "stable-identifiers"]
+    },
+    {
+      "authority_id": "authority.advertising.v1",
+      "domain": "advertising",
+      "version": 1,
+      "status": "CURRENT_ONLY",
+      "owner_decision_ref": "docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md",
+      "canonical_path": "docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md",
+      "supersedes": [],
+      "protected_boundaries": ["2-10-25-45-jod", "no-product-time-expiry", "ordinary-publication-separation", "one-sale-one-sales-winner"]
+    },
+    {
+      "authority_id": "authority.financial-distribution.v1",
+      "domain": "financial-distribution",
+      "version": 1,
+      "status": "CURRENT_ONLY",
+      "owner_decision_ref": "docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md",
+      "canonical_path": "docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md",
+      "supersedes": [],
+      "protected_boundaries": ["100-percent-allocation", "one-sale-one-winner", "7-percent-self-service-discount", "14-day-settlement", "12-hour-payout-destination-grace", "immutable-ledger"]
+    },
+    {
+      "authority_id": "authority.cleanup-governance.v1",
+      "domain": "cleanup-governance",
+      "version": 1,
+      "status": "CURRENT_ONLY",
+      "owner_decision_ref": "docs/owner-control/TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md",
+      "canonical_path": "docs/owner-control/TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md",
+      "supersedes": [],
+      "protected_boundaries": ["main", "production", "owner-authority", "migrations", "protected-release-identity", "protected-provenance", "security-sensitive-material", "stateful-volumes", "unique-non-volume-state", "canonical-release-evidence", "canonical-security-evidence", "git-history", "unique-pr-commits", "aion-deletion-chain"]
     },
     {
       "authority_id": "authority.post-launch-autonomy.v1",
@@ -107,16 +92,6 @@
       "protected_boundaries": ["main", "production", "exact-sha"]
     },
     {
-      "authority_id": "authority.product.v1",
-      "domain": "product",
-      "version": 1,
-      "status": "CURRENT_ONLY",
-      "owner_decision_ref": "docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md",
-      "canonical_path": "docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md",
-      "supersedes": [],
-      "protected_boundaries": ["social-first", "no-intermediation"]
-    },
-    {
       "authority_id": "authority.synapse-verity.v1",
       "domain": "synapse-verity",
       "version": 1,
@@ -124,7 +99,7 @@
       "owner_decision_ref": "docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md",
       "canonical_path": "docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md",
       "supersedes": [],
-      "protected_boundaries": ["fail-closed", "deterministic-fallback"]
+      "protected_boundaries": ["fail-closed", "deterministic-safety-fallback"]
     }
   ]
 }
