@@ -27,6 +27,8 @@ const COMPONENTS = Object.freeze({
   marketGenome: 'scripts/sovereignty/market-genome.cjs',
   activationPassport: 'scripts/sovereignty/market-activation-passport.cjs',
   executionSeal: 'scripts/sovereignty/genome-execution-seal.cjs',
+  ownerExecutionLease: 'scripts/sovereignty/owner-execution-lease.cjs',
+  signedPolicyBundle: 'scripts/sovereignty/signed-policy-bundle.cjs',
   killGrid: 'scripts/sovereignty/sovereign-kill-grid.cjs'
 });
 
