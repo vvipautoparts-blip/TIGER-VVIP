@@ -14,18 +14,25 @@ function tupleBody(source, name) {
   return match[1];
 }
 
-test("production runtime exposes one current review-submission authority", () => {
+test("production runtime exposes one current NEXUS creation authority", () => {
   const repository = read("scripts/runtime/vvip-marketplace-repository.js");
-  const composer = read("scripts/fusion/progressive-composer.js");
+  const socialRuntime = read("scripts/social/runtime-adapters.js");
+  const socialComposer = read("scripts/social/post-composer.js");
+
+  assert.match(socialRuntime, /vvip_social_post_create/);
+  assert.match(socialRuntime, /p_sector_key/);
+  assert.match(socialRuntime, /p_intent_class/);
+  assert.match(socialComposer, /CREATE_SOCIAL_POST/);
+  assert.match(socialComposer, /sectorId/);
+  assert.match(socialComposer, /intent/);
+  assert.equal(fs.existsSync(path.join(ROOT, "scripts/fusion/progressive-composer.js")), false);
 
   assert.match(repository, /function submitForReview\s*\(/);
   assert.match(repository, /vvip_marketplace_submit_for_review/);
   assert.doesNotMatch(repository, /\brequestPublication\b|\bprepareForPublication\b|\bcreateAndSubmit\b/);
-  assert.match(composer, /\.submitForReview\s*\(/);
-  assert.doesNotMatch(composer, /\.(?:requestPublication|prepareForPublication)\s*\(/);
 });
 
-test("production artifact is an exact allowlist with no prefix or rollback authority", () => {
+test("production artifact is an exact NEXUS allowlist with no prefix or rollback authority", () => {
   const release = read("tools/vvip_public_release.py");
 
   assert.doesNotMatch(release, /\bPUBLIC_PREFIXES\b/);
@@ -37,12 +44,16 @@ test("production artifact is an exact allowlist with no prefix or rollback autho
   const scripts = tupleBody(release, "PUBLIC_SCRIPT_FILES");
 
   assert.match(styles, /styles\/fusion\/f02-single-surface\.css/);
-  assert.match(styles, /styles\/fusion\/progressive-composer\.css/);
+  assert.match(styles, /styles\/nexus\/nexus\.css/);
+  assert.doesNotMatch(styles, /styles\/fusion\/progressive-composer\.css/);
   assert.match(icons, /icons\/icon-192\.png/);
   assert.match(icons, /icons\/icon-512\.png/);
   assert.match(runtime, /scripts\/runtime\/vvip-runtime-loader\.js/);
   assert.match(runtime, /scripts\/runtime\/vvip-marketplace-repository\.js/);
   assert.match(runtime, /scripts\/runtime\/vvip-static-delivery\.js/);
+  assert.match(scripts, /scripts\/social\/post-composer\.js/);
+  assert.match(scripts, /scripts\/nexus\/bootstrap\.js/);
+  assert.doesNotMatch(scripts, /scripts\/fusion\/progressive-composer\.js/);
   assert.doesNotMatch(runtime + scripts, /vvip-marketplace-rollback\.js/);
   assert.doesNotMatch(runtime + scripts, /vvip-my-listings\.js/);
 
