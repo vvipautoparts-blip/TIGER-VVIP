@@ -15,8 +15,9 @@ const requiredPublicFiles = [
   'scripts/nexus/bootstrap.js',
 ];
 
-test('sealed public release explicitly includes every NEXUS runtime dependency', () => {
+test('sealed public release explicitly includes every real NEXUS runtime dependency', () => {
   for (const relative of requiredPublicFiles) {
+    assert.equal(fs.existsSync(relative), true, `${relative} must exist in the current tree`);
     assert.match(builder, new RegExp(relative.replaceAll('/', '\\/').replaceAll('.', '\\.')),
       `${relative} must be explicitly allowlisted in the public artifact`);
   }
