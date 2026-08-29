@@ -7,19 +7,80 @@ const INTENTS = Object.freeze([
   Object.freeze({ value: "OPPORTUNITY", label: "فرصة" })
 ]);
 
+const SECTOR_KEY = /^[a-z0-9][a-z0-9._-]{0,127}$/;
 let installed = false;
 let vaultLayer = null;
 let vaultSnapshot = null;
+let sectorRegistryPromise = null;
 
 function enabledSectors(root) {
   const source = root.VVIP_FUSION_SECTOR_REGISTRY;
   if (!Array.isArray(source)) return [];
   return source
     .filter((entry) => entry && typeof entry === "object" && entry.enabled === true
-      && typeof entry.key === "string" && entry.key.trim()
-      && typeof entry.label === "string" && entry.label.trim())
+      && typeof entry.key === "string" && SECTOR_KEY.test(entry.key.trim())
+      && typeof entry.label === "string" && entry.label.trim().length > 0 && entry.label.trim().length <= 120)
     .slice(0, 100)
-    .map((entry) => Object.freeze({ key: entry.key.trim(), label: entry.label.trim() }));
+    .map((entry) => Object.freeze({ key: entry.key.trim(), label: entry.label.trim(), enabled: true }));
+}
+
+async function runtimeClient(root) {
+  if (root.VVIP_SUPABASE && typeof root.VVIP_SUPABASE.rpc === "function") return root.VVIP_SUPABASE;
+  const ready = root.VVIPRuntimeReady;
+  if (!ready || typeof ready.then !== "function") return null;
+  try {
+    const runtime = await ready;
+    const client = runtime && runtime.supabase;
+    return client && typeof client.rpc === "function" ? client : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function normalizeServerRegistry(data) {
+  if (!Array.isArray(data) || data.length > 100) return null;
+  const normalized = [];
+  const seen = new Set();
+  for (const row of data) {
+    if (!row || typeof row !== "object" || Array.isArray(row)) return null;
+    const key = typeof row.key === "string" ? row.key.trim() : "";
+    const label = typeof row.label === "string" ? row.label.trim() : "";
+    if (!SECTOR_KEY.test(key) || !label || label.length > 120 || row.enabled !== true || seen.has(key)) return null;
+    seen.add(key);
+    normalized.push(Object.freeze({ key, label, enabled: true }));
+  }
+  return Object.freeze(normalized);
+}
+
+async function hydrateServerSectorRegistry(root) {
+  const current = enabledSectors(root);
+  if (current.length > 0) return Object.freeze(current);
+  if (sectorRegistryPromise) return sectorRegistryPromise;
+
+  sectorRegistryPromise = (async () => {
+    const client = await runtimeClient(root);
+    if (!client) return Object.freeze([]);
+
+    let response;
+    try {
+      response = await client.rpc("vvip_nexus_sector_registry");
+    } catch (_) {
+      return Object.freeze([]);
+    }
+
+    if (!response || response.error) return Object.freeze([]);
+    const registry = normalizeServerRegistry(response.data);
+    if (!registry) return Object.freeze([]);
+
+    root.VVIP_FUSION_SECTOR_REGISTRY = Object.freeze(registry.slice());
+    return root.VVIP_FUSION_SECTOR_REGISTRY;
+  })();
+
+  try {
+    return await sectorRegistryPromise;
+  } finally {
+    sectorRegistryPromise = null;
+  }
 }
 
 function option(documentObject, value, label) {
@@ -296,6 +357,9 @@ export function installNexus(root = window) {
   ensureComposerFields(root);
   ensureVaultLayer(root);
   bindVault(root);
+  void hydrateServerSectorRegistry(root).then(() => {
+    ensureComposerFields(root);
+  });
   return Object.freeze({ installed: true });
 }
 
