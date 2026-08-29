@@ -30,12 +30,20 @@ test('current authority is Latest-Only and owner binding is the mandatory first 
   assert.equal(manifest.historicalEvidencePolicy, 'GIT_HISTORY_ONLY_FOR_SUPERSEDED_CONFLICTING_MATERIAL');
   assert.equal(manifest.tigerFinancialDistributionReference, 'docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md');
   assert.equal(manifest.tigerFinancialDistributionConfig, 'config/finance/current-distribution.json');
+  assert.equal(
+    manifest.tigerSgfOwnerReference,
+    'docs/owner-control/TIGER_SOVEREIGN_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md'
+  );
+  assert.equal(manifest.tigerSgfConfig, 'config/sovereignty/sgf-v1.json');
   assert.equal(fs.existsSync(bindingPath), true);
   const binding = fs.readFileSync(bindingPath, 'utf8');
   assert.match(binding, /FIRST_REFERENCE/);
   assert.match(binding, /before any action, modification, cleanup, feature, refactor, migration/i);
   assert.match(binding, /newest explicit owner-approved decision/i);
   assert.match(binding, /No hidden copy, trash folder, archive folder/i);
+  assert.match(binding, /TIGER SOVEREIGN GENOME FABRIC 2026/i);
+  assert.match(binding, /ZERO DEFAULT COUNTRY/i);
+  assert.match(binding, /NO SOVEREIGN FALLBACK/i);
   assert.match(binding, /PULSE_2/);
   assert.match(binding, /PULSE_10/);
   assert.match(binding, /PULSE_25/);
