@@ -22,6 +22,16 @@
       "protected_boundaries": ["main", "production", "public-artifact"]
     },
     {
+      "authority_id": "authority.sovereign-genome-fabric.v1",
+      "domain": "sovereign-market-control",
+      "version": 1,
+      "status": "CURRENT_ONLY",
+      "owner_decision_ref": "docs/owner-control/TIGER_SOVEREIGN_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md",
+      "canonical_path": "docs/owner-control/TIGER_SOVEREIGN_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md",
+      "supersedes": [],
+      "protected_boundaries": ["owner-root-global", "zero-default-country", "zero-default-currency", "zero-default-payment-provider", "market-capability-authority", "fail-closed", "no-sovereign-fallback", "exact-release-binding"]
+    },
+    {
       "authority_id": "authority.product.v1",
       "domain": "product",
       "version": 1,
