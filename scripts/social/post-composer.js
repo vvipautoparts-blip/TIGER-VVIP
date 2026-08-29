@@ -20,6 +20,8 @@
   "use strict";
 
   const AUDIENCES = new Set(["public", "friends", "only_me"]);
+  const NEXUS_INTENTS = new Set(["OFFER", "NEED", "SERVICE", "OPPORTUNITY"]);
+  const SECTOR_ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
   const MAX_BODY_LENGTH = 5000;
 
   function frozen(value) {
@@ -28,6 +30,18 @@
 
   function failure(code) {
     return frozen({ ok: false, code });
+  }
+
+  function normalizeSectorId(value) {
+    if (typeof value !== "string") return null;
+    const normalized = value.trim();
+    return SECTOR_ID.test(normalized) ? normalized : null;
+  }
+
+  function normalizeIntent(value) {
+    if (typeof value !== "string") return null;
+    const normalized = value.trim().toUpperCase();
+    return NEXUS_INTENTS.has(normalized) ? normalized : null;
   }
 
   function normalizeComposerDraft(input) {
@@ -44,15 +58,23 @@
       return failure("SOCIAL_POST_INVALID_AUDIENCE");
     }
 
+    const sectorId = normalizeSectorId(input.sectorId);
+    if (!sectorId) return failure("NEXUS_SECTOR_REQUIRED");
+    const intent = normalizeIntent(input.intent);
+    if (!intent) return failure("NEXUS_INTENT_REQUIRED");
+
     return frozen({
       ok: true,
-      value: frozen({ body: body.value, audience: input.audience }),
+      value: frozen({ body: body.value, audience: input.audience, sectorId, intent }),
     });
   }
 
   function createSocialPostComposer(options) {
     const draftInput = options && options.draftInput;
     const audienceInput = options && options.audienceInput;
+    const sectorInput = options && options.sectorInput;
+    const intentInput = options && options.intentInput;
+    const classificationResolver = options && options.classificationResolver;
     const submitButton = options && options.submitButton;
     const statusHost = options && options.statusHost;
     const postSheet = options && options.sheet;
@@ -77,10 +99,24 @@
       }
     }
 
+    function classification() {
+      if (typeof classificationResolver === "function") {
+        const value = classificationResolver();
+        return value && typeof value === "object" ? value : {};
+      }
+      return {
+        sectorId: sectorInput && sectorInput.value,
+        intent: intentInput && intentInput.value,
+      };
+    }
+
     function currentDraft() {
+      const nexus = classification();
       return normalizeComposerDraft({
         body: draftInput.value,
         audience: audienceInput.value,
+        sectorId: nexus.sectorId,
+        intent: nexus.intent,
       });
     }
 
@@ -92,7 +128,7 @@
 
     async function publish(draft) {
       submitButton.disabled = true;
-      setStatus("جارٍ نشر المنشور…", "publishing");
+      setStatus("جارٍ نشر العرض أو الطلب…", "publishing");
 
       let response;
       try {
@@ -102,14 +138,18 @@
       }
 
       if (!response || response.ok !== true) {
-        setStatus("تعذر نشر المنشور الآن. حاول مرة أخرى.", "error");
+        setStatus("تعذر النشر الآن. حاول مرة أخرى.", "error");
         sync();
         return failure("SOCIAL_POST_PUBLISH_FAILED");
       }
 
       draftInput.value = "";
+      const currentSector = sectorInput || null;
+      const currentIntent = intentInput || null;
+      if (currentSector) currentSector.value = "";
+      if (currentIntent) currentIntent.value = "";
       sync();
-      setStatus("تم نشر المنشور.", "success");
+      setStatus("تم النشر داخل القطاع.", "success");
       postSheet.hidden = true;
       if (typeof postSheet.setAttribute === "function") {
         postSheet.setAttribute("aria-hidden", "true");
@@ -129,7 +169,13 @@
     async function submit() {
       const normalized = currentDraft();
       if (!normalized.ok) {
-        setStatus("اكتب منشورًا صالحًا واختر الجمهور.", "invalid");
+        if (normalized.code === "NEXUS_SECTOR_REQUIRED") {
+          setStatus("اختر القطاع قبل النشر.", "invalid");
+        } else if (normalized.code === "NEXUS_INTENT_REQUIRED") {
+          setStatus("حدد هل تعرض أو تحتاج أو تقدم خدمة أو فرصة.", "invalid");
+        } else {
+          setStatus("أكمل تفاصيل العرض أو الطلب والجمهور.", "invalid");
+        }
         sync();
         return failure(normalized.code);
       }
@@ -150,7 +196,7 @@
       }
 
       if (!granted) {
-        setStatus("سجّل الدخول لإكمال نشر المنشور.", "auth-required");
+        setStatus("سجّل الدخول لإكمال النشر.", "auth-required");
         return failure("SOCIAL_POST_AUTH_REQUIRED");
       }
 
@@ -166,7 +212,7 @@
       ? documentObject.querySelector("[data-social-post-status]")
       : null;
     if (statusHost) {
-      statusHost.textContent = "تعذر تجهيز نشر المنشور الآن.";
+      statusHost.textContent = "تعذر تجهيز النشر القطاعي الآن.";
       if (typeof statusHost.setAttribute === "function") {
         statusHost.setAttribute("data-social-post-status", "error");
       }
@@ -188,6 +234,7 @@
     const postSheet = documentObject.querySelector("[data-social-post-sheet]");
     const runtimeApi = runtimeRoot.TIGERSocialRuntime;
     const auth = runtimeRoot.VVIP_AUTH;
+    const wrapRuntime = runtimeRoot.TIGERNexusSocialRuntimeWrap;
 
     if (!draftInput || !audienceInput || !submitButton || !statusHost || !postSheet) {
       return renderInstallFailure(runtimeRoot);
@@ -195,17 +242,29 @@
     if (!runtimeApi || typeof runtimeApi.createCurrentSocialRuntime !== "function") {
       return renderInstallFailure(runtimeRoot);
     }
+    if (typeof wrapRuntime !== "function") {
+      return renderInstallFailure(runtimeRoot);
+    }
     if (!auth || typeof auth.requireAuth !== "function") {
       return renderInstallFailure(runtimeRoot);
     }
 
+    const baseRuntime = runtimeApi.createCurrentSocialRuntime(runtimeRoot);
     const controller = createSocialPostComposer({
       draftInput,
       audienceInput,
       submitButton,
       statusHost,
       sheet: postSheet,
-      runtime: runtimeApi.createCurrentSocialRuntime(runtimeRoot),
+      classificationResolver: function () {
+        const sector = documentObject.querySelector("[data-nexus-sector]");
+        const intent = documentObject.querySelector("[data-nexus-intent]");
+        return {
+          sectorId: sector && sector.value,
+          intent: intent && intent.value,
+        };
+      },
+      runtime: wrapRuntime(baseRuntime, runtimeRoot.VVIP_SUPABASE),
       auth,
       onPublished: async function () {
         const feed = runtimeRoot.TIGERSocialFeedController;
@@ -222,6 +281,15 @@
     if (typeof audienceInput.addEventListener === "function") {
       audienceInput.addEventListener("change", sync);
     }
+    if (typeof documentObject.addEventListener === "function") {
+      documentObject.addEventListener("change", function (event) {
+        const target = event && event.target;
+        if (target && typeof target.matches === "function"
+            && target.matches("[data-nexus-sector], [data-nexus-intent]")) {
+          sync();
+        }
+      });
+    }
     if (typeof submitButton.addEventListener === "function") {
       submitButton.addEventListener("click", function (event) {
         if (event && typeof event.preventDefault === "function") event.preventDefault();
@@ -231,6 +299,19 @@
 
     controller.sync();
     return frozen({ ok: true, controller });
+  }
+
+  async function prepareNexusRuntime(runtimeRoot) {
+    const [bootstrap, runtimeGuard] = await Promise.all([
+      import("../nexus/bootstrap.js"),
+      import("../nexus/social-runtime-guard.js")
+    ]);
+    if (!bootstrap || typeof bootstrap.installNexus !== "function"
+        || !runtimeGuard || typeof runtimeGuard.wrapNexusSocialRuntime !== "function") {
+      throw new Error("NEXUS_RUNTIME_CONTRACT_MISSING");
+    }
+    bootstrap.installNexus(runtimeRoot);
+    runtimeRoot.TIGERNexusSocialRuntimeWrap = runtimeGuard.wrapNexusSocialRuntime;
   }
 
   function installCurrentSocialPostComposer(rootObject) {
@@ -245,21 +326,26 @@
       if (started) return;
       started = true;
 
+      const mountAfterNexus = async function () {
+        await prepareNexusRuntime(runtimeRoot);
+        return mountCurrentSocialPostComposer(runtimeRoot);
+      };
+
       const ready = runtimeRoot.VVIPRuntimeReady;
       if (ready && typeof ready.then === "function") {
         ready
-          .then(function () { return mountCurrentSocialPostComposer(runtimeRoot); })
+          .then(mountAfterNexus)
           .catch(function () { return renderInstallFailure(runtimeRoot); });
         return;
       }
 
       if (runtimeRoot.VVIP_SUPABASE && runtimeRoot.VVIP_AUTH) {
-        mountCurrentSocialPostComposer(runtimeRoot);
+        void mountAfterNexus().catch(function () { return renderInstallFailure(runtimeRoot); });
         return;
       }
 
       runtimeRoot.addEventListener("vvip:runtime-ready", function () {
-        mountCurrentSocialPostComposer(runtimeRoot);
+        void mountAfterNexus().catch(function () { return renderInstallFailure(runtimeRoot); });
       }, { once: true });
       runtimeRoot.addEventListener("vvip:runtime-error", function () {
         renderInstallFailure(runtimeRoot);
