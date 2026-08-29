@@ -11,7 +11,7 @@ async function loadSubject() {
   return import(moduleUrl);
 }
 
-test('accepts only current Pulse reference levels and no product-time expiry', async () => {
+test('accepts only current Pulse reference levels and conserves visibility balance with no product-time expiry', async () => {
   const { derivePulseVault } = await loadSubject();
   const result = derivePulseVault({ level: 'PULSE_25', total: 1000, consumed: 250, allocated: 500, mode: 'SMART' });
   assert.deepEqual(result, {
@@ -21,11 +21,12 @@ test('accepts only current Pulse reference levels and no product-time expiry', a
     total: 1000,
     consumed: 250,
     allocated: 500,
-    available: 500,
+    available: 250,
     remaining: 750,
     mode: 'SMART',
     expiresAt: null
   });
+  assert.equal(result.consumed + result.allocated + result.available, result.total);
 });
 
 test('rejects superseded levels and invalid delivery modes', async () => {
@@ -34,8 +35,9 @@ test('rejects superseded levels and invalid delivery modes', async () => {
   assert.equal(derivePulseVault({ level: 'PULSE_10', total: 100, consumed: 0, allocated: 0, mode: 'FAST' }).code, 'PULSE_MODE_INVALID');
 });
 
-test('rejects negative or over-consumed balances', async () => {
+test('rejects negative, over-consumed, or over-allocated balances', async () => {
   const { derivePulseVault } = await loadSubject();
   assert.equal(derivePulseVault({ level: 'PULSE_2', total: 100, consumed: 101, allocated: 0, mode: 'NOW' }).code, 'PULSE_BALANCE_INVALID');
   assert.equal(derivePulseVault({ level: 'PULSE_2', total: -1, consumed: 0, allocated: 0, mode: 'NOW' }).code, 'PULSE_BALANCE_INVALID');
+  assert.equal(derivePulseVault({ level: 'PULSE_2', total: 100, consumed: 60, allocated: 41, mode: 'NOW' }).code, 'PULSE_BALANCE_INVALID');
 });
