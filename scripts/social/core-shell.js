@@ -13,6 +13,20 @@
   const SOCIAL_AUDIENCES = new Set(['public', 'friends', 'only_me']);
   const POST_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+  async function installNexusSurface() {
+    try {
+      const nexus = await import('../nexus/bootstrap.js');
+      if (!nexus || typeof nexus.installNexus !== 'function') return false;
+      nexus.installNexus(window);
+      return true;
+    } catch (error) {
+      if (window.console && typeof window.console.error === 'function') {
+        window.console.error('TIGER_NEXUS_BOOT_FAILED', error);
+      }
+      return false;
+    }
+  }
+
   function setCurrentNav(destination) {
     document.querySelectorAll('[data-social-nav]').forEach((control) => {
       if (control.dataset.socialNav === destination) {
@@ -331,6 +345,7 @@
   });
 
   window.addEventListener('DOMContentLoaded', () => {
+    void installNexusSurface();
     const destination = destinationFromHash() || 'home';
     if (destination === 'profile') void openProfile(null);
     else showDestination(destination);
