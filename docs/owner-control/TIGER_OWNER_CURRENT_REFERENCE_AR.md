@@ -9,23 +9,27 @@
 
 > **الأحدث الذي يعتمده المالك هو السلطة الوحيدة في نطاقه. كل قديم متعارض يُحذف من الشجرة الحالية ومن Runtime/UI/API/Config/Tests/CI/Current Docs/Launch Gates ولا يعود كـfallback أو archive داخل المشروع. الأثر التاريخي يبقى في Git history فقط.**
 
-## TIGER SOVEREIGN GENOME FABRIC 2026
+## TIGER SOVEREIGN PROOF-GENOME FABRIC 2026 — المرجعية العليا الوحيدة
 
-المرجع السيادي العالمي الحالي:
+المرجع السيادي/الأمني/الإصداري الأعلى الحالي:
 
-`docs/owner-control/TIGER_SOVEREIGN_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md`
+`docs/owner-control/TIGER_SOVEREIGN_PROOF_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md`
 
 القواعد الحاكمة:
 
 - `OWNER_ROOT` جذر سلطة عالمي واحد وليس حساب دولة.
 - **ZERO DEFAULT COUNTRY**.
 - **ZERO DEFAULT CURRENCY**.
-- لا مزود دفع أو كيان قانوني أو ملف ضريبي أو Market افتراضي.
-- الدولة ليست مفتاح تشغيل واحدًا؛ الـCapabilities هي وحدات التفعيل السيادي.
-- أي تفعيل مستقبلي يجب أن يكون Evidence-Bound ومربوطًا بالـMarket والـCapability والـRelease الصحيح.
-- **NO SOVEREIGN FALLBACK**: لا رجوع تلقائي إلى الأردن أو أمريكا أو السودان أو JOD/USD أو مزود آخر عند غياب السياسة.
-- مكان السيرفر/قاعدة البيانات/CDN أو IP أو لغة المستخدم لا يفعّل Market ولا يغير هوية `OWNER_ROOT`.
-- العمليات الحساسة للمالك تستهدف مصادقة مقاومة للتصيد وصلاحية تنفيذ قصيرة ومحددة بدل Super Admin دائم.
+- لا مزود دفع أو كيان قانوني أو ملف ضريبي أو Data Region أو Market افتراضي.
+- `MARKET + CAPABILITY` هي وحدة التفعيل؛ الدولة ليست مفتاح تشغيل واحدًا.
+- التفعيل والتنفيذ الحساسان Proof-First: Evidence حديثة، Policy موقعة، Genome صحيح، Exact Release، وسلطة مالك صالحة حسب العملية.
+- أي حقيقة Critical مفقودة أو منتهية أو stale أو غير قابلة للتحقق أو متعارضة أو revoked => `DENY / FAIL_CLOSED`.
+- **NO SOVEREIGN FALLBACK**: لا رجوع تلقائي إلى الأردن/أمريكا/السودان أو JOD/USD أو مزود/Market/Release/Proof آخر.
+- السيرفر/قاعدة البيانات/CDN/IP/لغة المستخدم/رقم الهاتف لا يفعّل Market ولا يغير هوية `OWNER_ROOT`.
+- العمليات الحساسة للمالك تستهدف مصادقة مقاومة للتصيد ومدعومة بمفتاح/عتاد مناسب وصلاحية تنفيذ قصيرة ومحددة، لا Super Admin دائم.
+- الحقيقة التشفيرية تصبح Evidence-generated عبر Crypto Digital Twin/CBOM، ولا Custom Cryptography ولا Custom PQC.
+- Preview/Draft/Experimental ليست مرجع Production سياديًا؛ Technology Maturity Firewall يمنع ذلك.
+- القرار الجديد **يلغي المرجعية المعمارية السيادية السابقة إلغاءً تامًا من Current Tree**؛ لا Archive ولا Legacy ولا fallback. أي مكوّن تقني سابق يبقى فقط كجزء فرعي داخل SPGF وليس كمرجع موازٍ.
 
 ## قرارات المنتج الحالية
 
@@ -35,8 +39,8 @@
 - لا توجد quota تجارية/أسبوعية ثابتة حالية لعدد المنشورات.
 - الحد الحالي لإعلان Marketplace العادي: 7 صور.
 - لا توجد مدة منتج/محتوى للمنشور أو الإعلان أو رصيد/بطاقة الظهور.
-- TTLs التقنية الأمنية فقط مثل OTP/session/signed URL/anti-replay/cache/temporary quote/owner execution lease تبقى لأنها حماية تقنية وليست مدة منتج.
-- الظهور المدفوع الحالي: `TIGER PULSE RING` بمستويات المنتج `PULSE_2 / PULSE_10 / PULSE_25 / PULSE_45`؛ السعر والعملة السياديان يحددهما Market Pricing Contract المصرح به، ولا توجد عملة عالمية افتراضية.
+- TTLs التقنية الأمنية فقط مثل OTP/session/signed URL/anti-replay/cache/temporary quote/owner execution lease/evidence freshness/execution seal تبقى لأنها حماية تقنية وليست مدة منتج.
+- الظهور المدفوع الحالي: `TIGER PULSE RING` بمستويات المنتج `PULSE_2 / PULSE_10 / PULSE_25 / PULSE_45`؛ السعر والعملة السياديان يحددهما **Signed Market Pricing Contract** المصرح به، ولا توجد عملة عالمية افتراضية.
 - كل مستوى له تخصيص ظهور server-authoritative مختلف؛ الظهور لا يقاس بالأيام ولا ينتهي بمرور الزمن.
 - إذا لم يوجد GENERAL_MANAGER أو SECTOR_MANAGER أو MARKETER منسوب للبيع، يحصل المستخدم على خصم خدمة ذاتية **7%** ظاهر قبل الدفع.
 - إذا وجد بائع معتمد، لا يوجد خصم 7%، ويستحق العمولة **الشخص صاحب البيع فقط** من الأدوار الثلاثة.
@@ -70,7 +74,7 @@
 ## السلطات الحالية فقط
 
 1. `TIGER_OWNER_BINDING_CURRENT.md` — المرجع الأول ودستور Latest-Only.
-2. `TIGER_SOVEREIGN_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md` — OWNER_ROOT العالمي وZero-Default وMarket/Capability sovereignty.
+2. `TIGER_SOVEREIGN_PROOF_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md` — المرجعية العليا الوحيدة للسيادة/الإثبات/الأمن/الإصدار.
 3. `TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md` — Social Core.
 4. `TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` — الظهور المدفوع بلا مدة مع تسعير سيادي لكل Market.
 5. `TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md` — التوزيع المالي 100%.
@@ -78,9 +82,9 @@
 7. `TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة `post-launch-autonomy` المستقبلية المحمية.
 8. `project-control/authority/authority-registry.v1.json` — Authority Graph الآلي.
 9. `config/fusion/current-authority.json` — عقد المنتج الآلي.
-10. `config/sovereignty/sgf-v1.json` — عقد السيادة الآلي Zero-Default.
+10. `config/sovereignty/spgf-v1.json` — عقد SPGF الآلي الأعلى.
 11. `config/finance/current-distribution.json` — عقد التوزيع المالي الآلي.
-12. exact Git SHA/tree + matching CI evidence — حقيقة التنفيذ.
+12. exact Git SHA/tree + matching executed CI/proof evidence — حقيقة التنفيذ.
 
 أي ملف آخر يتعارض مع هذه السلطات لا يصبح مرجعًا؛ يُحذف من الشجرة الحالية بعد إثبات التعارض.
 
@@ -104,6 +108,6 @@
 
 ## مسار التنفيذ
 
-`OWNER CURRENT AUTHORITY → RED CONTRACT → IMPLEMENT → DELETE SUPERSEDED CURRENT-TREE MATERIAL → GREEN EXACT-HEAD CI → REVIEW → PROTECTED MERGE → VERIFICATION`
+`OWNER CURRENT AUTHORITY → RED CONTRACT → IMPLEMENT → DELETE SUPERSEDED CURRENT-TREE MATERIAL → GREEN EXACT-HEAD CI/EVIDENCE → REVIEW → PROTECTED MERGE → VERIFICATION`
 
 لا كتابة مباشرة على `main` ولا تجاوز للبوابات الأمنية/القانونية/الإنتاجية.
