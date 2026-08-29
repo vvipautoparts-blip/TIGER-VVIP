@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "TIGER_SPGF_V1",
+  "ownerRoot": {
+    "id": "OWNER_ROOT",
+    "country": null,
+    "currency": null,
+    "market": null,
+    "standingRuntimePrivilege": false
+  },
+  "defaults": {
+    "country": null,
+    "currency": null,
+    "paymentProvider": null,
+    "legalEntity": null,
+    "taxProfile": null,
+    "dataRegion": null,
+    "market": null
+  },
+  "capabilityRegistry": [
+    "SOCIAL",
+    "DISCOVERY",
+    "MESSAGING",
+    "ADS_DELIVERY",
+    "ADS_BILLING",
+    "PULSE",
+    "AI_RECOMMENDATION",
+    "DATA_EXPORT"
+  ],
+  "markets": [],
+  "marketSelectionPolicy": "EXPLICIT_ONLY",
+  "publicReadMarketPolicy": "OPTIONAL_EXPLICIT_OR_GLOBAL",
+  "trustModel": "PROOF_CAPSULE_REQUIRED_FAIL_CLOSED",
+  "activationAuthority": "MARKET_CAPABILITY_PASSPORT",
+  "pricingAuthority": "SIGNED_MARKET_PRICING_CONTRACT",
+  "releaseAuthority": "EXACT_RELEASE_BIRTH_CERTIFICATE",
+  "fallbackPolicy": "DENY_NO_SOVEREIGN_FALLBACK",
+  "technologyMaturityPolicy": "STABLE_ONLY_FOR_SOVEREIGN_PRODUCTION",
+  "cryptoPolicy": {
+    "noCustomCryptography": true,
+    "noCustomPqc": true,
+    "cryptoAgilityRequired": true,
+    "inventory": "config/security/crypto-inventory.v1.json"
+  },
+  "canonicalComponents": {
+    "marketResolver": "scripts/sovereignty/explicit-market-context.cjs",
+    "capabilityLifecycle": "scripts/sovereignty/market-capability-lifecycle.cjs",
+    "marketGenome": "scripts/sovereignty/market-genome.cjs",
+    "sovereignCompiler": "scripts/sovereignty/sovereign-compiler.cjs",
+    "marketPassport": "scripts/sovereignty/market-activation-passport.cjs",
+    "ownerExecutionLease": "scripts/sovereignty/owner-execution-lease.cjs",
+    "executionSeal": "scripts/sovereignty/genome-execution-seal.cjs",
+    "signedPolicyBundle": "scripts/sovereignty/signed-policy-bundle.cjs",
+    "killGrid": "scripts/sovereignty/sovereign-kill-grid.cjs",
+    "cryptoInventoryVerifier": "scripts/security/verify-crypto-inventory.cjs",
+    "evidenceGraph": "scripts/sovereignty/sovereign-evidence-graph.cjs",
+    "ciEvidenceClassifier": "scripts/release/ci-evidence-classifier.cjs",
+    "cryptoDigitalTwin": "scripts/security/crypto-digital-twin.cjs",
+    "releaseBirthCertificate": "scripts/release/release-birth-certificate.cjs",
+    "technologyMaturityFirewall": "scripts/security/technology-maturity-firewall.cjs",
+    "witnessQuorum": "scripts/release/witness-quorum.cjs",
+    "proofCapsuleVerifier": "scripts/sovereignty/sovereign-proof-capsule.cjs"
+  },
+  "governance": {
+    "predecessorPullRequest": 346,
+    "predecessorBypassAllowed": false,
+    "productionMutationAuthorized": false,
+    "countryActivationAuthorized": false,
+    "paymentProviderActivationAuthorized": false
+  }
+}
