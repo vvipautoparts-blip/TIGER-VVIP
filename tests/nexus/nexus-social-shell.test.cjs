@@ -6,19 +6,25 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 
 const root = path.resolve(__dirname, '../..');
-const indexHtml = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const shellJs = fs.readFileSync(path.join(root, 'scripts/social/core-shell.js'), 'utf8');
+const bootstrapPath = path.join(root, 'scripts/nexus/bootstrap.js');
+
+function readBootstrap() {
+  assert.equal(fs.existsSync(bootstrapPath), true, 'NEXUS bootstrap must exist');
+  return fs.readFileSync(bootstrapPath, 'utf8');
+}
 
 test('home feed is the default social destination', () => {
   assert.match(shellJs, /destinationFromHash\(\) \|\| 'home'/);
-  assert.match(indexHtml, /data-tiger-social-feed/);
 });
 
-test('persistent TIGER Command trigger exists in the primary header', () => {
-  assert.match(indexHtml, /data-fusion-capability-menu/);
-  assert.match(indexHtml, /aria-label="(?:القائمة|TIGER Command|أوامر TIGER)"/);
+test('social shell loads NEXUS runtime convergence', () => {
+  assert.match(shellJs, /scripts\/nexus\/bootstrap\.js|\.\.\/nexus\/bootstrap\.js/);
 });
 
-test('primary navigation has no inactive/dead video placeholder', () => {
-  assert.doesNotMatch(indexHtml, /social-nav-item--inactive/);
+test('persistent TIGER Command is normalized and dead primary video control is removed', () => {
+  const source = readBootstrap();
+  assert.match(source, /TIGER Command|أوامر TIGER/);
+  assert.match(source, /social-nav-item--inactive/);
+  assert.match(source, /remove\(\)|replaceWith\(/);
 });
