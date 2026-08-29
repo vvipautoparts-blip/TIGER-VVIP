@@ -29,17 +29,17 @@
       "owner_decision_ref": "docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md",
       "canonical_path": "docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md",
       "supersedes": [],
-      "protected_boundaries": ["social-first", "no-intermediation"]
+      "protected_boundaries": ["social-first", "social-graph", "privacy", "safety", "no-intermediation", "nexus-publication-delegation"]
     },
     {
       "authority_id": "authority.platform.v1",
       "domain": "platform",
-      "version": 1,
+      "version": 2,
       "status": "CURRENT_ONLY",
-      "owner_decision_ref": "docs/owner-control/TIGER_ONE_2026_CURRENT_OWNER_AUTHORITY.md",
-      "canonical_path": "docs/owner-control/TIGER_ONE_2026_CURRENT_OWNER_AUTHORITY.md",
-      "supersedes": [],
-      "protected_boundaries": ["main", "production", "stable-identifiers"]
+      "owner_decision_ref": "docs/owner-control/TIGER_NEXUS_2026_CURRENT_OWNER_AUTHORITY.md",
+      "canonical_path": "docs/owner-control/TIGER_NEXUS_2026_CURRENT_OWNER_AUTHORITY.md",
+      "supersedes": ["TIGER_ONE_2026"],
+      "protected_boundaries": ["social-first", "activated-sectors-only", "living-sector-object", "tiger-command", "pulse-vault", "fail-closed", "no-fallback", "no-in-tree-legacy"]
     },
     {
       "authority_id": "authority.advertising.v1",
