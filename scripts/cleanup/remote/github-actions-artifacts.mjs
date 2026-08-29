@@ -1,0 +1,2 @@
+import {createRemotePlaneAdapter} from './capability.mjs';
+export function createGitHubActionsArtifactsAdapter(client){return createRemotePlaneAdapter({plane:'github_actions_artifacts',client,listAction:'listArtifacts',deleteAction:'deleteArtifact',normalize:x=>Object.freeze({id:`artifact:${x.id}`,remote_id:x.id,name:x.name??null,size_bytes:x.size_in_bytes??null,created_at:x.created_at??null,expires_at:x.expires_at??null,retention_metadata:x.retention_days??null})});}
