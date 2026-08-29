@@ -6,22 +6,20 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 
 const root = path.resolve(__dirname, '../..');
-const bootstrapPath = path.join(root, 'scripts/nexus/bootstrap.js');
+const bootstrap = fs.readFileSync(path.join(root, 'scripts/nexus/bootstrap.js'), 'utf8');
+const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 
-function readBootstrap() {
-  assert.equal(fs.existsSync(bootstrapPath), true, 'NEXUS bootstrap must exist');
-  return fs.readFileSync(bootstrapPath, 'utf8');
-}
-
-test('primary social composer converges to the NEXUS sector-intent prompt', () => {
-  const source = readBootstrap();
-  assert.match(source, /ماذا تعرض أو تحتاج؟/);
-  assert.match(source, /data-social-post-trigger/);
+test('primary social composer is the only NEXUS creation entry', () => {
+  assert.match(index, /ماذا تعرض أو تحتاج؟/);
+  assert.equal((index.match(/data-social-post-trigger/g) || []).length, 1);
 });
 
-test('composer injects sector and intent hooks without a second paid-post creation path', () => {
-  const source = readBootstrap();
-  assert.match(source, /data-nexus-sector/);
-  assert.match(source, /data-nexus-intent/);
-  assert.doesNotMatch(source, /data-nexus-paid-post-create/);
+test('sector and intent hooks are canonical static DOM, not injected compatibility UI', () => {
+  assert.match(index, /data-nexus-sector/);
+  assert.match(index, /data-nexus-intent/);
+  assert.match(bootstrap, /function bindCanonicalComposer\s*\(/);
+  assert.match(bootstrap, /NEXUS_CANONICAL_DOM_REQUIRED/);
+  assert.doesNotMatch(bootstrap, /createElement\(['"]select['"]\)/);
+  assert.doesNotMatch(bootstrap, /insertBefore\(/);
+  assert.doesNotMatch(index, /data-nexus-paid-post-create/);
 });
