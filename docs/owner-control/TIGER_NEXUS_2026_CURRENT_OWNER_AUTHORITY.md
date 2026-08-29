@@ -1,12 +1,12 @@
 # TIGER NEXUS™ 2026 — CURRENT OWNER AUTHORITY
 
-**Status:** `CURRENT_ONLY / OWNER_BINDING / NO_FALLBACK / NO_IN_TREE_ARCHIVE`
+**Status:** `CURRENT_ONLY / OWNER_BINDING / NO_FALLBACK / NO_PARALLEL_PRODUCT / NO_IN_TREE_ARCHIVE`
 **Effective decision:** 2026-08-29
 **Domain:** primary social experience, sector-specialized publication, contextual capabilities, Pulse Vault interaction, and current security verification baseline.
 
 ## 1. Product identity
 
-VVIP TIGER is one global sector-specialized social network. The primary surface is the social feed. Marketplace/sector discovery is a module inside that social product, not the default home and not a separate product identity.
+VVIP TIGER is one global sector-specialized social network. The primary surface is the social feed. Sector discovery is a module inside that social product, not the default home and not a separate product identity.
 
 TIGER may use familiar social interaction patterns so users understand it immediately, while keeping its own branding, copy, component geometry, information architecture, and product concepts.
 
@@ -27,13 +27,17 @@ A Living Sector Object is created once and may participate in feed, profile, sea
 
 The current product must not require a duplicate paid-post object merely to promote an already eligible object.
 
+There is no parallel Marketplace product, parallel composer, parallel listing-creation wizard, parallel draft/preview/publish product path, or parallel account surface. Sector discovery displays the same Living Sector Objects created by the one canonical NEXUS composer.
+
 ## 4. Canonical creation entry
 
-The primary composer copy is:
+The primary and only product creation entry is:
 
 > **ماذا تعرض أو تحتاج؟**
 
 Creation is progressive. The user starts with media, speech when available, or text; TIGER asks only for missing sector/policy-required information. An exam-like all-fields-first experience is not current authority.
+
+The canonical sector and intent controls are part of the current DOM contract. If required canonical DOM is absent or untrusted, the runtime fails closed. It must not inject a compatibility composer or construct a second creation UI.
 
 ## 5. TIGER Command and صلاحياتي
 
@@ -108,14 +112,16 @@ Security modernization must prefer proven controls already present in TIGER—RL
 
 ## 11. Latest-only deletion rule
 
-This NEXUS authority supersedes conflicting older current-tree product behavior in its scope.
+This NEXUS authority supersedes any conflicting current-tree product behavior in its scope.
 
-Conflicting old material is **deleted**, not hidden, renamed, moved to `legacy/`, `archive/`, `trash/`, retained behind fallback, duplicated as compatibility, or preserved in current docs/tests/generated artifacts.
+Conflicting material is **deleted**, not hidden, renamed, moved to `legacy/`, `archive/`, `trash/`, retained behind fallback, duplicated as compatibility, or preserved as a parallel product in current docs/tests/generated artifacts.
 
 Removal applies where conflicting material exists in Runtime, UI/routes, API/RPC contracts, active schema/config, tests/fixtures, CI/launch gates, current documentation, and generated/current artifacts.
+
+A cleanup shim that searches for and removes conflicting DOM/runtime at execution time is also not acceptable preservation. The conflicting path must be absent from the current source tree and canonical DOM in the first place.
 
 Already-applied immutable migration history is not rewritten to fake history. Obsolete database effects are neutralized by forward migration. **Git history is the sole provenance mechanism for deleted conflicting source material.**
 
 ## 12. Acceptance statement
 
-> **TIGER NEXUS 2026 is the current primary product experience: social-first, globally sector-specialized, one Living Sector Object per publishable purpose, `ماذا تعرض أو تحتاج؟` as the canonical composer, persistent TIGER Command with validated `صلاحياتي`, and Pulse Vault visibility at 2/10/25/45 JOD with no product-time expiry. Current delivery modes are NOW/SMART/PRECISE and verified-delivery ZERO-BURN remains authoritative. Security verification is fail-closed against OWASP ASVS 5.0.0, NIST SP 800-63-4 / 800-63B-4, SLSA 1.2 and the existing signed GitHub Artifact Attestation path, without claiming conformance until evidence exists. Any older current-tree behavior that conflicts with this authority is deleted with no archive, trash, legacy, compatibility, or fallback preservation; Git history alone preserves provenance.**
+> **TIGER NEXUS 2026 is the only current product experience: social-first, globally sector-specialized, one Living Sector Object per publishable purpose, one canonical `ماذا تعرض أو تحتاج؟` creation entry, persistent TIGER Command with validated `صلاحياتي`, and Pulse Vault visibility at 2/10/25/45 JOD with no product-time expiry. Sector discovery is a view of the same Living Objects and is not a parallel product or creation path. Current delivery modes are NOW/SMART/PRECISE and verified-delivery ZERO-BURN remains authoritative. Security verification is fail-closed against OWASP ASVS 5.0.0, NIST SP 800-63-4 / 800-63B-4, SLSA 1.2 and the existing signed GitHub Artifact Attestation path, without claiming conformance until evidence exists. Any current-tree behavior that conflicts with this authority is physically deleted with no archive, trash, compatibility, parallel product, or fallback preservation; Git history alone preserves provenance.**
