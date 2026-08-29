@@ -48,22 +48,35 @@ test('current runtime and current authority tree contain no superseded NEXUS con
   assert.deepEqual(hits, []);
 });
 
-test('superseded Marketplace wizard is deleted, not hidden or retained as a second creation path', () => {
-  const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+test('superseded Marketplace creation and publication surfaces are physically deleted', () => {
   const removed = [
     'scripts/fusion/progressive-composer.js',
     'styles/fusion/progressive-composer.css',
     'tests/fusion-progressive-composer.test.cjs',
-    'tests/fusion-composer-integration.test.cjs'
+    'tests/fusion-composer-integration.test.cjs',
+    'scripts/vvip-pr31-create-listing-shell.js',
+    'styles/vvip-pr31-create-listing-shell.css',
+    'scripts/vvip-pr32-draft-preview.js',
+    'styles/vvip-pr32-draft-preview.css',
+    'scripts/vvip-pr33-publish-readiness.js',
+    'styles/vvip-pr33-publish-readiness.css',
+    'scripts/runtime/vvip-my-listings.js'
   ];
   for (const relative of removed) {
     assert.equal(fs.existsSync(path.join(root, relative)), false, `${relative} must stay physically deleted`);
   }
+});
+
+test('current index exposes one NEXUS creation entry and no parallel Marketplace product identity', () => {
+  const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
   assert.doesNotMatch(index, /data-marketplace-listing-trigger/);
   assert.doesNotMatch(index, /data-fusion-composer-trigger/);
-  assert.doesNotMatch(index, /scripts\/fusion\/progressive-composer\.js/);
-  assert.doesNotMatch(index, /styles\/fusion\/progressive-composer\.css/);
-  assert.match(index, /data-nexus-create-context="marketplace"[^>]*data-social-post-trigger|data-social-post-trigger[^>]*data-nexus-create-context="marketplace"/);
+  assert.doesNotMatch(index, /data-nexus-create-context=["']marketplace["']/i);
+  assert.doesNotMatch(index, /nexus-marketplace-create/i);
+  assert.doesNotMatch(index, /VVIP\s+TIGER\s+MARKETPLACE/i);
+  assert.doesNotMatch(index, /المنشورات والإعلانات التجارية/);
+  const createTriggers = index.match(/data-social-post-trigger/g) || [];
+  assert.equal(createTriggers.length, 1, 'NEXUS must expose one creation trigger only');
 });
 
 test('superseded client Pulse vault model is physically deleted with no fallback globals', () => {
