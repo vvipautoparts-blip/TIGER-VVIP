@@ -85,6 +85,15 @@ test('TIGER ONE delegates sovereign monetization to SGF instead of fixing JOD gl
   assert.doesNotMatch(tigerOne, /45\/120 JOD/i);
 });
 
+test('Current Social execution map does not restore a global JOD Pulse authority', () => {
+  const matrix = read('docs/owner-control/TIGER_SOCIAL_FUNCTIONAL_PARITY_MATRIX.md');
+
+  assert.match(matrix, /Market Pricing Contract/);
+  assert.match(matrix, /PULSE_2/);
+  assert.doesNotMatch(matrix, /Pulse Ring 3\/10\/20 JOD authority/i);
+  assert.doesNotMatch(matrix, /global(?:ly)?[^\n]{0,80}JOD/i);
+});
+
 test('Authority registry protects SGF boundaries and no longer protects JOD as a global advertising boundary', () => {
   const registry = readJson('project-control/authority/authority-registry.v1.json');
   const sgf = registry.records.find((record) => record.authority_id === 'authority.sovereign-genome-fabric.v1');
