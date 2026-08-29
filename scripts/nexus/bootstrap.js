@@ -1,11 +1,5 @@
 import { installPulseSurface } from './pulse-surface.js';
 
-const INTENTS = Object.freeze([
-  Object.freeze({ value: 'OFFER', label: 'أعرض' }),
-  Object.freeze({ value: 'NEED', label: 'أبحث / أحتاج' }),
-  Object.freeze({ value: 'SERVICE', label: 'أقدم خدمة' }),
-  Object.freeze({ value: 'OPPORTUNITY', label: 'فرصة' }),
-]);
 const SECTOR_KEY = /^[a-z0-9][a-z0-9._-]{0,127}$/;
 let sectorRegistryPromise = null;
 
@@ -87,63 +81,42 @@ function hydrateSectorOptions(root, sector) {
   return sectors.length > 0;
 }
 
-function ensureComposerFields(root) {
+function bindCanonicalComposer(root) {
   const documentObject = root.document;
   const trigger = documentObject.querySelector('[data-social-post-trigger]');
-  if (trigger) trigger.textContent = 'ماذا تعرض أو تحتاج؟';
   const sheet = documentObject.querySelector('[data-social-post-sheet]');
-  if (!sheet) return false;
-  const title = sheet.querySelector('#social-post-title');
-  if (title) title.textContent = 'عرض أو طلب قطاعي';
-  const draft = sheet.querySelector('[data-social-post-draft]');
-  if (draft) draft.placeholder = 'صف ما تعرضه أو تحتاجه باختصار…';
+  if (!trigger || !sheet) return false;
 
-  let sector = sheet.querySelector('[data-nexus-sector]');
-  let intent = sheet.querySelector('[data-nexus-intent]');
-  if (!sector || !intent) {
-    const anchor = sheet.querySelector('label[for="social-post-audience"]') || draft;
-    if (!anchor || !anchor.parentNode) return false;
-    const group = documentObject.createElement('div');
-    group.className = 'nexus-composer-classification';
-    group.setAttribute('data-nexus-classification', '');
-    if (!sector) {
-      const label = documentObject.createElement('label');
-      label.textContent = 'القطاع';
-      sector = documentObject.createElement('select');
-      sector.setAttribute('data-nexus-sector', '');
-      sector.required = true;
-      label.append(sector);
-      group.append(label);
-    }
-    if (!intent) {
-      const label = documentObject.createElement('label');
-      label.textContent = 'ماذا تريد؟';
-      intent = documentObject.createElement('select');
-      intent.setAttribute('data-nexus-intent', '');
-      intent.required = true;
-      intent.append(option(documentObject, '', 'اختر الغرض'));
-      for (const entry of INTENTS) intent.append(option(documentObject, entry.value, entry.label));
-      label.append(intent);
-      group.append(label);
-    }
-    anchor.parentNode.insertBefore(group, anchor);
-  }
-  hydrateSectorOptions(root, sector);
-  return true;
+  const title = sheet.querySelector('#social-post-title');
+  const draft = sheet.querySelector('[data-social-post-draft]');
+  const sector = sheet.querySelector('[data-nexus-sector]');
+  const intent = sheet.querySelector('[data-nexus-intent]');
+  if (!title || !draft || !sector || !intent) return false;
+
+  trigger.textContent = 'ماذا تعرض أو تحتاج؟';
+  title.textContent = 'عرض أو طلب قطاعي';
+  draft.placeholder = 'صف ما تعرضه أو تحتاجه باختصار…';
+  return hydrateSectorOptions(root, sector);
 }
 
-function normalizeCommand(root) {
+function bindCommand(root) {
   const trigger = root.document.querySelector('[data-fusion-capability-menu]');
-  if (trigger) trigger.setAttribute('aria-label', 'TIGER Command');
-  for (const dead of root.document.querySelectorAll('.social-nav-item--inactive')) dead.remove();
+  if (!trigger) return false;
+  trigger.setAttribute('aria-label', 'TIGER Command');
+  return true;
 }
 
 export function installNexus(root = window) {
   if (!root || !root.document) return Object.freeze({ installed: false });
   if (root.TIGERNexusBootstrapCurrent) return root.TIGERNexusBootstrapCurrent;
-  normalizeCommand(root);
-  ensureComposerFields(root);
-  void hydrateServerSectorRegistry(root).then(() => ensureComposerFields(root));
+
+  const composerBound = bindCanonicalComposer(root);
+  const commandBound = bindCommand(root);
+  if (!composerBound || !commandBound) {
+    return Object.freeze({ installed: false, code: 'NEXUS_CANONICAL_DOM_REQUIRED' });
+  }
+
+  void hydrateServerSectorRegistry(root).then(() => bindCanonicalComposer(root));
   void installPulseSurface(root);
   const current = Object.freeze({ installed: true });
   root.TIGERNexusBootstrapCurrent = current;
