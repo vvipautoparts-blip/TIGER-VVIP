@@ -15,7 +15,6 @@
   <link rel="stylesheet" href="styles/tiger-one/tokens.css">
   <link rel="stylesheet" href="styles/tiger-one/type.css">
   <link rel="stylesheet" href="styles/tiger-social/core-shell.css">
-  <link rel="stylesheet" href="styles/tiger-synapse/living-surface.css">
   <link rel="stylesheet" href="styles/nexus/nexus.css">
 
   <script defer crossorigin="anonymous" src="https://accurate-mule-28.clerk.accounts.dev/npm/@clerk/ui@1/dist/ui.browser.js"></script>
@@ -36,16 +35,10 @@
   <script defer src="scripts/media/f05-heif-worker-client.js"></script>
   <script defer src="scripts/media/pr36-controller.js"></script>
 
-  <script defer src="scripts/fusion/runtime-adapters.js"></script>
-  <script defer src="scripts/fusion/marketplace-context.js"></script>
-  <script defer src="scripts/fusion/f02-feed.js"></script>
   <script type="module" src="scripts/fusion/f03-capability-menu.js"></script>
   <script defer src="scripts/fusion/account-surface.js"></script>
   <script defer src="scripts/fusion/single-surface-controller.js"></script>
   <script defer src="scripts/social/text-contract.js"></script>
-  <script defer src="scripts/synapse/intent-domain.js"></script>
-  <script defer src="scripts/synapse/intent-runtime-adapters.js"></script>
-  <script defer src="scripts/synapse/living-surface-controller.js"></script>
   <script defer src="scripts/social/runtime-adapters.js"></script>
   <script defer src="scripts/social/feed-read-model.js"></script>
   <script defer src="scripts/social/messaging-read-model.js"></script>
@@ -60,6 +53,7 @@
   <script defer src="scripts/social/friends-controller.js"></script>
   <script defer src="scripts/social/messaging-controller.js"></script>
   <script defer src="scripts/social/profile-controller.js"></script>
+  <script defer src="scripts/nexus/sector-discovery.js"></script>
   <script defer src="scripts/social/core-shell.js"></script>
 </head>
 <body data-vvip-fusion-app>
@@ -97,7 +91,7 @@
     <nav class="social-primary-nav social-mobile-tabs" data-social-mobile-tabs aria-label="التنقل الاجتماعي الرئيسي">
       <button class="social-nav-item" type="button" data-social-nav="home" aria-current="page" aria-label="الرئيسية"><span aria-hidden="true">⌂</span><span class="visually-hidden">الرئيسية</span></button>
       <button class="social-nav-item" type="button" data-social-nav="friends" aria-label="الأصدقاء"><span aria-hidden="true">👥</span><span class="visually-hidden">الأصدقاء</span></button>
-      <button class="social-nav-item" type="button" data-social-nav="marketplace" aria-label="اكتشاف القطاعات"><span aria-hidden="true">▣</span><span class="visually-hidden">اكتشاف القطاعات</span></button>
+      <button class="social-nav-item" type="button" data-social-nav="sectors" aria-label="اكتشاف القطاعات"><span aria-hidden="true">▣</span><span class="visually-hidden">اكتشاف القطاعات</span></button>
       <button class="social-nav-item" type="button" data-social-nav="notifications" aria-label="الإشعارات"><span aria-hidden="true">🔔</span><span class="visually-hidden">الإشعارات</span></button>
       <button class="social-nav-item" type="button" data-social-nav="profile" aria-label="الملف الشخصي"><span aria-hidden="true">●</span><span class="visually-hidden">الملف الشخصي</span></button>
     </nav>
@@ -105,23 +99,6 @@
     <section data-tiger-one-pulse aria-label="مساحة الظهور الموثق" hidden></section>
 
     <section class="tiger-social-home" data-tiger-social-feed aria-label="آخر الأخبار والمنشورات" aria-hidden="false">
-      <section class="synapse-living-surface" aria-label="TIGER SYNAPSE">
-        <form class="synapse-intent-card" data-synapse-intent-entry>
-          <div><span class="eyebrow">TIGER SYNAPSE</span><h2>ماذا تحتاج الآن؟</h2></div>
-          <p>ابدأ محليًا. لا تُرسل النية إلى شبكة المطابقة إلا بعد تأكيدك الصريح.</p>
-          <div class="synapse-intent-card__row">
-            <label class="visually-hidden" for="synapse-intent-input">اكتب ما تحتاجه</label>
-            <input id="synapse-intent-input" data-synapse-intent-input maxlength="500" autocomplete="off" placeholder="مثال: أبحث عن سيارة كهربائية أو خدمة متخصصة">
-            <button type="submit" data-synapse-intent-submit>جهّز النية</button>
-          </div>
-          <p data-synapse-intent-status role="status" aria-live="polite"></p>
-        </form>
-        <section class="synapse-constellation-card" aria-labelledby="synapse-constellation-title">
-          <h2 id="synapse-constellation-title">Match Constellation</h2>
-          <div class="synapse-match-constellation" data-synapse-match-constellation aria-live="polite"></div>
-        </section>
-      </section>
-
       <div class="social-post-composer" data-social-post-composer>
         <span class="social-post-avatar" aria-hidden="true">V</span>
         <button class="social-post-trigger" type="button" data-social-post-trigger aria-haspopup="dialog">ماذا تعرض أو تحتاج؟</button>
@@ -179,7 +156,6 @@
         </div>
       </header>
       <div class="social-profile__counts" data-social-profile-counts aria-label="إحصاءات الملف"></div>
-      <div class="synapse-profile-summary" data-synapse-profile-intent-summary role="status" aria-live="polite">لا توجد نية نشطة معروضة.</div>
       <p class="social-profile__status" data-social-profile-status role="status" aria-live="polite">جارٍ تحميل الملف الشخصي…</p>
       <p class="social-profile__unavailable" data-social-profile-unavailable role="status" hidden>هذا الملف غير متاح.</p>
       <form class="social-profile__edit" data-social-profile-edit-form hidden>
@@ -197,18 +173,16 @@
 
     <section class="tiger-social-home social-module-placeholder" data-social-module-placeholder="notifications" aria-label="الإشعارات" aria-hidden="true" hidden><h2>الإشعارات</h2><p>الإشعارات الاجتماعية ستظهر هنا بعد ربط خدمة الأحداث والتسليم.</p></section>
 
-    <section data-social-marketplace-surface aria-label="اكتشاف القطاعات" aria-hidden="true" hidden>
-      <div class="marketplace-module-heading"><span class="eyebrow">TIGER NEXUS</span><h2>اكتشاف القطاعات</h2></div>
-      <section class="fusion-discovery" id="search" aria-label="البحث في الفرص الحية">
-        <label class="search-box" aria-label="البحث في فرص TIGER NEXUS"><span aria-hidden="true">⌕</span><span class="visually-hidden">البحث في فرص TIGER NEXUS</span><input type="search" data-listing-search placeholder="ابحث عن عرض، طلب، خدمة أو فرصة..." autocomplete="off" aria-controls="marketplace-listings"></label>
+    <section class="tiger-social-home nexus-sector-discovery" data-nexus-sector-discovery aria-label="اكتشاف القطاعات" aria-hidden="true" hidden>
+      <header class="marketplace-module-heading"><span class="eyebrow">TIGER NEXUS</span><h2>اكتشاف القطاعات</h2></header>
+      <section class="fusion-discovery" aria-label="البحث في الفرص الحية">
+        <label class="search-box" aria-label="البحث في فرص TIGER NEXUS"><span aria-hidden="true">⌕</span><span class="visually-hidden">البحث في فرص TIGER NEXUS</span><input type="search" data-nexus-sector-search placeholder="ابحث عن عرض، طلب، خدمة أو فرصة..." autocomplete="off" aria-controls="nexus-sector-objects"></label>
       </section>
-      <section class="marketplace" id="marketplace" aria-labelledby="marketplace-title">
-        <div class="section-heading"><div><span class="eyebrow">ONE FEED • ONE OBJECT • ONE PULSE</span><h1 id="marketplace-title">الفرص الحية في القطاعات</h1></div><p data-results-count></p></div>
-        <div class="sector-filters" data-tiger-one-context-rail data-vvip-sector-filters role="group" aria-label="تصفية حسب القطاع"></div>
-        <div class="search-rescue" data-search-rescue role="status" aria-live="polite" hidden></div>
-        <section class="synapse-marketplace-rescue" data-synapse-marketplace-rescue aria-label="تحويل البحث إلى نية محلية"><p>إذا لم تجد فرصة مناسبة، يمكنك تجهيز نيتك محليًا دون نشرها تلقائيًا.</p><button type="button" data-synapse-marketplace-rescue-trigger>جهّز النية من هذا البحث</button><p data-synapse-marketplace-rescue-status role="status" aria-live="polite"></p></section>
-        <div class="listing-grid" id="marketplace-listings" data-vvip-marketplace-feed aria-live="polite" aria-busy="true"><article class="listing-skeleton" aria-hidden="true"></article><article class="listing-skeleton" aria-hidden="true"></article></div>
-        <div class="empty-state" data-empty-state role="status" hidden><p>لا توجد فرص متاحة وفق القطاع والسياسة الحالية.</p></div>
+      <section class="marketplace" aria-labelledby="nexus-sectors-title">
+        <div class="section-heading"><div><span class="eyebrow">ONE FEED • ONE OBJECT • ONE PULSE</span><h1 id="nexus-sectors-title">الفرص الحية في القطاعات</h1></div><p data-nexus-sector-results-count></p></div>
+        <div class="sector-filters" data-tiger-one-context-rail data-nexus-sector-filters role="group" aria-label="تصفية حسب القطاع"></div>
+        <div class="listing-grid" id="nexus-sector-objects" data-nexus-sector-discovery-feed aria-live="polite" aria-busy="true"><article class="listing-skeleton" aria-hidden="true"></article><article class="listing-skeleton" aria-hidden="true"></article></div>
+        <div class="empty-state" data-nexus-sector-empty role="status" hidden><p>لا توجد فرص متاحة وفق القطاع والسياسة الحالية.</p></div>
       </section>
     </section>
   </main>
@@ -216,12 +190,10 @@
   <nav class="market-bottom-nav" aria-label="التنقل الرئيسي">
     <a href="#home" data-social-nav="home" aria-current="page">الرئيسية</a>
     <button type="button" data-social-nav="friends">الأصدقاء</button>
-    <button type="button" data-social-nav="marketplace">القطاعات</button>
+    <button type="button" data-social-nav="sectors">القطاعات</button>
     <button type="button" data-social-nav="messages">الرسائل</button>
     <button type="button" data-social-nav="notifications">الإشعارات</button>
   </nav>
-
-  <div class="sheet-layer" data-vvip-listing-detail-sheet aria-hidden="true" hidden><button class="sheet-backdrop" type="button" data-sheet-close aria-label="إغلاق التفاصيل"></button><section class="detail-sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" tabindex="-1"><button class="sheet-close" type="button" data-sheet-close aria-label="إغلاق">×</button><div data-sheet-content></div></section></div>
 
   <div class="fusion-capability-layer" data-fusion-capability-sheet aria-hidden="true" hidden><button class="fusion-capability-backdrop" type="button" data-fusion-capability-close aria-label="إغلاق قائمة الصلاحيات"></button><section class="fusion-capability-panel" role="dialog" aria-modal="true" aria-labelledby="fusion-capability-title" tabindex="-1"><h2 id="fusion-capability-title">صلاحياتي</h2><p>تظهر هنا الصلاحيات التي أكدها الخادم لهذه الجلسة فقط.</p><div data-fusion-capability-entries></div></section></div>
 
