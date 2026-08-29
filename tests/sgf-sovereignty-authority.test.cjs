@@ -72,6 +72,7 @@ test('SGF validator rejects every sovereign default and owner-root binding', () 
     (x) => { x.marketSelectionPolicy = 'DEFAULT_COUNTRY'; },
     (x) => { x.publicReadMarketPolicy = 'DEFAULT_COUNTRY'; },
     (x) => { x.runtimeMarketResolver = 'scripts/runtime/default-country.js'; },
+    (x) => { x.components.marketGenome = 'scripts/legacy/default-country-genome.js'; },
     (x) => { x.fallbackPolicy = 'FALLBACK_TO_JO'; }
   ];
 
@@ -104,5 +105,22 @@ test('SGF machine truth binds explicit runtime market selection', () => {
   assert.equal(sgf.marketSelectionPolicy, 'EXPLICIT_ONLY');
   assert.equal(sgf.publicReadMarketPolicy, 'OPTIONAL_EXPLICIT_OR_GLOBAL');
   assert.equal(sgf.runtimeMarketResolver, 'scripts/sovereignty/explicit-market-context.cjs');
+  assert.equal(verifySgf(sgf).ok, true);
+});
+
+test('SGF machine truth binds the canonical sovereignty components', () => {
+  const sgf = loadJson(sgfPath);
+  assert.deepEqual(sgf.components, {
+    explicitMarketContext: 'scripts/sovereignty/explicit-market-context.cjs',
+    capabilityLifecycle: 'scripts/sovereignty/market-capability-lifecycle.cjs',
+    sovereignCompiler: 'scripts/sovereignty/sovereign-compiler.cjs',
+    marketGenome: 'scripts/sovereignty/market-genome.cjs',
+    activationPassport: 'scripts/sovereignty/market-activation-passport.cjs',
+    executionSeal: 'scripts/sovereignty/genome-execution-seal.cjs',
+    killGrid: 'scripts/sovereignty/sovereign-kill-grid.cjs'
+  });
+  for (const relative of Object.values(sgf.components)) {
+    assert.equal(fs.existsSync(path.join(root, relative)), true, relative);
+  }
   assert.equal(verifySgf(sgf).ok, true);
 });
