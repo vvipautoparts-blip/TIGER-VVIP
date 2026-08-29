@@ -75,6 +75,16 @@ test('Owner and advertising authority positively declare market-sovereign pricin
   assert.match(sgf, /GLOBAL_DEFAULT_PAYMENT_PROVIDER = NONE/);
 });
 
+test('TIGER ONE delegates sovereign monetization to SGF instead of fixing JOD globally', () => {
+  const tigerOne = read('docs/owner-control/TIGER_ONE_2026_CURRENT_OWNER_AUTHORITY.md');
+
+  assert.match(tigerOne, /TIGER_SOVEREIGN_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY\.md/);
+  assert.match(tigerOne, /Market Pricing Contract/);
+  assert.doesNotMatch(tigerOne, /3\/10\/20 JOD/i);
+  assert.doesNotMatch(tigerOne, /20 JOD (?:charge )?cap/i);
+  assert.doesNotMatch(tigerOne, /45\/120 JOD/i);
+});
+
 test('Authority registry protects SGF boundaries and no longer protects JOD as a global advertising boundary', () => {
   const registry = readJson('project-control/authority/authority-registry.v1.json');
   const sgf = registry.records.find((record) => record.authority_id === 'authority.sovereign-genome-fabric.v1');
