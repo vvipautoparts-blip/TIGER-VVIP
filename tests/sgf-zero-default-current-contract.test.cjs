@@ -94,6 +94,11 @@ test('Current Social execution map does not restore a global JOD Pulse authority
   assert.doesNotMatch(matrix, /global(?:ly)?[^\n]{0,80}JOD/i);
 });
 
+test('superseded JOD Pulse design input is absent from the current tree', () => {
+  const superseded = path.join(root, 'docs/superpowers/specs/2026-08-18-tiger-pulse-ring-attention-allocation-engine-design.md');
+  assert.equal(fs.existsSync(superseded), false);
+});
+
 test('Authority registry protects SGF boundaries and no longer protects JOD as a global advertising boundary', () => {
   const registry = readJson('project-control/authority/authority-registry.v1.json');
   const sgf = registry.records.find((record) => record.authority_id === 'authority.sovereign-genome-fabric.v1');
