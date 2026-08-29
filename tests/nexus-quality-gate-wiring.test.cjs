@@ -1,12 +1,26 @@
 'use strict';
 
 const fs = require('node:fs');
+const path = require('node:path');
+const { spawnSync } = require('node:child_process');
 const assert = require('node:assert/strict');
 const test = require('node:test');
 
-const gate = fs.readFileSync('scripts/quality-gate.sh', 'utf8');
+test('root quality-gate suite executes every nested NEXUS contract', () => {
+  const nexusDir = path.resolve('tests/nexus');
+  const files = fs.readdirSync(nexusDir)
+    .filter((name) => name.endsWith('.test.cjs'))
+    .sort()
+    .map((name) => path.join('tests/nexus', name));
 
-test('quality gate explicitly runs nested NEXUS contracts', () => {
-  assert.match(gate, /tests\/nexus\/\*\.test\.cjs|find\s+tests\/nexus[\s\S]*\.test\.cjs/);
-  assert.match(gate, /node_nexus_contracts/);
+  assert.ok(files.length > 0, 'NEXUS contract suite must not be empty');
+  const result = spawnSync(process.execPath, ['--test', ...files], {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+    env: { ...process.env, TIGER_NEXUS_NESTED_GATE: '1' },
+  });
+
+  if (result.stdout) process.stdout.write(result.stdout);
+  if (result.stderr) process.stderr.write(result.stderr);
+  assert.equal(result.status, 0, 'nested NEXUS contracts must pass');
 });
