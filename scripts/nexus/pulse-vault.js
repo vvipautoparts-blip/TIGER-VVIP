@@ -41,6 +41,9 @@ export function derivePulseVault(snapshot) {
     return denial("PULSE_BALANCE_INVALID");
   }
 
+  const remaining = total - consumed;
+  const available = remaining - allocated;
+
   return Object.freeze({
     ok: true,
     code: "OK",
@@ -48,8 +51,8 @@ export function derivePulseVault(snapshot) {
     total,
     consumed,
     allocated,
-    available: total - allocated,
-    remaining: total - consumed,
+    available,
+    remaining,
     mode: snapshot.mode,
     expiresAt: null
   });
