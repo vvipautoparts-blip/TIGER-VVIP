@@ -26,6 +26,9 @@
     "DATA_EXPORT"
   ],
   "markets": [],
+  "marketSelectionPolicy": "EXPLICIT_ONLY",
+  "publicReadMarketPolicy": "OPTIONAL_EXPLICIT_OR_GLOBAL",
+  "runtimeMarketResolver": "scripts/sovereignty/explicit-market-context.cjs",
   "activationAuthority": "MARKET_CAPABILITY_PASSPORT",
   "fallbackPolicy": "DENY_NO_SOVEREIGN_FALLBACK"
 }
