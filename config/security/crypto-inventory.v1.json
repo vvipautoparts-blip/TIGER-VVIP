@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "TIGER_CRYPTO_INVENTORY_V1",
+  "policy": {
+    "noCustomCryptography": true,
+    "cryptoAgilityRequired": true,
+    "pqcPolicy": "NIST_STANDARDS_ONLY_NO_CUSTOM_PQC"
+  },
+  "pqcReferenceStandards": [
+    "FIPS_203_ML_KEM",
+    "FIPS_204_ML_DSA",
+    "FIPS_205_SLH_DSA"
+  ],
+  "globalLaunchCryptoGate": "BLOCK_UNTIL_INVENTORY_EVIDENCED",
+  "items": [
+    { "surface": "TLS_TRANSPORT", "status": "DISCOVERY_REQUIRED", "algorithm": null, "provider": null, "keyLocation": null, "migrationStatus": "NOT_ASSESSED" },
+    { "surface": "OIDC_JWT", "status": "DISCOVERY_REQUIRED", "algorithm": null, "provider": null, "keyLocation": null, "migrationStatus": "NOT_ASSESSED" },
+    { "surface": "OWNER_AUTHORITY_SIGNING", "status": "DISCOVERY_REQUIRED", "algorithm": null, "provider": null, "keyLocation": null, "migrationStatus": "NOT_ASSESSED" },
+    { "surface": "POLICY_BUNDLE_SIGNING", "status": "DISCOVERY_REQUIRED", "algorithm": null, "provider": null, "keyLocation": null, "migrationStatus": "NOT_ASSESSED" },
+    { "surface": "ARTIFACT_PROVENANCE_SIGNING", "status": "DISCOVERY_REQUIRED", "algorithm": null, "provider": null, "keyLocation": null, "migrationStatus": "NOT_ASSESSED" },
+    { "surface": "WORKLOAD_IDENTITY", "status": "DISCOVERY_REQUIRED", "algorithm": null, "provider": null, "keyLocation": null, "migrationStatus": "NOT_ASSESSED" },
+    { "surface": "DATABASE_ENCRYPTION", "status": "DISCOVERY_REQUIRED", "algorithm": null, "provider": null, "keyLocation": null, "migrationStatus": "NOT_ASSESSED" },
+    { "surface": "OBJECT_STORAGE_ENCRYPTION", "status": "DISCOVERY_REQUIRED", "algorithm": null, "provider": null, "keyLocation": null, "migrationStatus": "NOT_ASSESSED" },
+    { "surface": "BACKUP_ENCRYPTION", "status": "DISCOVERY_REQUIRED", "algorithm": null, "provider": null, "keyLocation": null, "migrationStatus": "NOT_ASSESSED" },
+    { "surface": "KMS_HSM", "status": "DISCOVERY_REQUIRED", "algorithm": null, "provider": null, "keyLocation": null, "migrationStatus": "NOT_ASSESSED" },
+    { "surface": "EXECUTION_SEALS", "status": "DISCOVERY_REQUIRED", "algorithm": null, "provider": null, "keyLocation": null, "migrationStatus": "NOT_ASSESSED" }
+  ]
+}
