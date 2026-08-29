@@ -3,7 +3,7 @@
 **Status:** CURRENT EXECUTION MAP  
 **Effective date:** 2026-08-29  
 **Product authority:** `TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md`  
-**Sovereign pricing authority:** `TIGER_SOVEREIGN_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md` + `TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md`
+**Sovereign pricing/proof authority:** `TIGER_SOVEREIGN_PROOF_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md` + `TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md`
 
 ## Purpose
 
@@ -50,9 +50,9 @@ The target is functional/behavioral familiarity. It does not authorize copying M
 | Groups | communities, roles, membership, group feed | `FUTURE` | Not part of first implementation wave | Add after Social Graph + Feed maturity |
 | Stories | temporary social publishing | `FUTURE` | Not authorized as first-wave requirement | Product decision after feed/media completion |
 | Events | event creation/attendance/discovery | `FUTURE` | No current requirement | Evaluate after core parity |
-| Marketplace | familiar classifieds/commerce discovery module | `CURRENT` / `LEGACY_REUSE` | Strong existing FUSION/Marketplace/search/media work | Reposition inside Social shell; preserve Pulse + SGF authority |
-| Marketplace Listing Composer | commercial listing creation | `CURRENT` / `LEGACY_REUSE` | Existing FUSION composer/publication path; SGF runtime convergence is required to remove country/currency defaults | Keep distinct from normal Post Composer and fail closed without explicit market authority |
-| Paid Visibility | optional promoted Marketplace visibility | `CURRENT AUTHORITY` | `PULSE_2 / PULSE_10 / PULSE_25 / PULSE_45`; amount/currency only from an SGF-authorized **Market Pricing Contract** | Do not mix with ordinary Social Post publishing; no global currency fallback |
+| Marketplace | familiar classifieds/commerce discovery module | `CURRENT` / `LEGACY_REUSE` | Strong existing FUSION/Marketplace/search/media work | Reposition inside Social shell; preserve Pulse + SPGF authority |
+| Marketplace Listing Composer | commercial listing creation | `CURRENT` / `LEGACY_REUSE` | Existing FUSION composer/publication path; SPGF runtime convergence is required to remove country/currency defaults | Keep distinct from normal Post Composer and fail closed without explicit market authority |
+| Paid Visibility | optional promoted Marketplace visibility | `CURRENT AUTHORITY` | `PULSE_2 / PULSE_10 / PULSE_25 / PULSE_45`; amount/currency only from an SPGF-authorized **Signed Market Pricing Contract** | Do not mix with ordinary Social Post publishing; no global currency fallback |
 | Moderation / Admin | protected review, blocking, policy enforcement | `LEGACY_REUSE` | Existing authority/RLS/SCG/SOA/security controls | Extend object scopes to Social entities |
 | Security / Identity | fail-closed Clerk actor, RLS, OIDC release trust | `CURRENT` | Existing hardened platform authority | Reuse unchanged unless explicit ADR approves migration |
 | Observability | social request/feed/post/message telemetry | `PARTIAL` | platform telemetry/security foundations exist | Adopt OpenTelemetry contract during managed migration |
@@ -97,8 +97,8 @@ No new user-facing feature becomes a priority merely because it is technological
 
 Every proposal must first map to one row above or receive an explicit OWNER decision creating a new row. Infrastructure work must identify which product requirement or measured operational risk it serves.
 
-SGF is not a visual feature. It is a sovereignty/security constraint on markets, pricing, payments, data, and activation. Product surfaces must consume it without inventing local defaults.
+SPGF is not a visual feature. It is the supreme sovereignty/proof/security/release constraint on markets, pricing, payments, data, evidence, and activation. Product surfaces must consume it without inventing local defaults or parallel trust paths.
 
 ## Completion rule
 
-“99.9% Facebook-like” may not be claimed from visual similarity or a feature checklist alone. A domain reaches parity only after its applicable procedures, state transitions, privacy/safety behavior, empty/loading/error/offline behavior, accessibility, mobile behavior, trusted backend enforcement, and applicable SGF sovereign constraints are verified.
+“99.9% Facebook-like” may not be claimed from visual similarity or a feature checklist alone. A domain reaches parity only after its applicable procedures, state transitions, privacy/safety behavior, empty/loading/error/offline behavior, accessibility, mobile behavior, trusted backend enforcement, and applicable SPGF sovereign/proof constraints are verified.
