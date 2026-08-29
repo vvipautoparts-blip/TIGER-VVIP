@@ -23,5 +23,6 @@ test('NEXUS bootstrap loads the sector registry from authenticated runtime and f
   assert.match(bootstrap, /VVIPRuntimeReady/);
   assert.match(bootstrap, /root\.VVIP_FUSION_SECTOR_REGISTRY\s*=\s*Object\.freeze/);
   assert.match(bootstrap, /ensureComposerFields\(root\)/);
+  assert.doesNotMatch(bootstrap, /const current = enabledSectors\(root\);\s*if \(current\.length > 0\) return/s);
   assert.doesNotMatch(bootstrap, /general|legacy|unknown/i);
 });
