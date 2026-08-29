@@ -1,0 +1,7 @@
+{
+  "schema_version": "TIGER-PHOENIX-HEAVY-ENTRYPOINTS-1",
+  "status": "CURRENT_ONLY",
+  "entrypoints": [
+    {"path": "scripts/quality-gate.sh", "operation": "quality_gate", "required_gate": true}
+  ]
+}
