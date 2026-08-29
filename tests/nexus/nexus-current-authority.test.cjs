@@ -7,15 +7,11 @@ const test = require('node:test');
 
 const root = path.resolve(__dirname, '../..');
 const ownerRefPath = path.join(root, 'docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md');
+const nexusAuthorityPath = path.join(root, 'docs/owner-control/TIGER_NEXUS_2026_CURRENT_OWNER_AUTHORITY.md');
 const authorityConfigPath = path.join(root, 'config/fusion/current-authority.json');
 
-function readText(filePath) {
-  return fs.readFileSync(filePath, 'utf8');
-}
-
-function readJson(filePath) {
-  return JSON.parse(readText(filePath));
-}
+function readText(filePath) { return fs.readFileSync(filePath, 'utf8'); }
+function readJson(filePath) { return JSON.parse(readText(filePath)); }
 
 test('current owner reference declares TIGER NEXUS 2026 as social-first sector-specialized authority', () => {
   const text = readText(ownerRefPath);
@@ -23,6 +19,15 @@ test('current owner reference declares TIGER NEXUS 2026 as social-first sector-s
   assert.match(text, /SOCIAL_NETWORK_FIRST/);
   assert.match(text, /قطاع|sector/i);
   assert.match(text, /ماذا تعرض أو تحتاج/);
+});
+
+test('NEXUS owner authority forbids parallel products and compatibility fallbacks', () => {
+  const text = readText(nexusAuthorityPath);
+  assert.match(text, /NO_PARALLEL_PRODUCT/);
+  assert.match(text, /one canonical|واحد|only product creation entry/i);
+  assert.match(text, /parallel Marketplace product/i);
+  assert.match(text, /compatibility composer/i);
+  assert.match(text, /Git history/i);
 });
 
 test('current authority machine config declares non-expiring Pulse Vault and NEXUS delivery modes', () => {
