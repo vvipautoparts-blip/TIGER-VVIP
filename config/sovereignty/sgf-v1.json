@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "TIGER_SGF_V1",
+  "ownerRoot": {
+    "id": "OWNER_ROOT",
+    "country": null,
+    "currency": null,
+    "market": null,
+    "standingRuntimePrivilege": false
+  },
+  "defaults": {
+    "country": null,
+    "currency": null,
+    "paymentProvider": null,
+    "legalEntity": null,
+    "taxProfile": null,
+    "market": null
+  },
+  "capabilityRegistry": [
+    "SOCIAL",
+    "DISCOVERY",
+    "MESSAGING",
+    "ADS_DELIVERY",
+    "ADS_BILLING",
+    "PULSE",
+    "AI_RECOMMENDATION",
+    "DATA_EXPORT"
+  ],
+  "markets": [],
+  "activationAuthority": "MARKET_CAPABILITY_PASSPORT",
+  "fallbackPolicy": "DENY_NO_SOVEREIGN_FALLBACK"
+}
