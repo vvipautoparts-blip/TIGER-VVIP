@@ -1,58 +1,48 @@
 # TIGER ONE 2026 — CURRENT OWNER AUTHORITY & SUPERSESSION RULE
 
-**Status:** CURRENT_ONLY — BINDING OWNER AUTHORITY
+**Status:** `CURRENT_ONLY / BINDING_OWNER_AUTHORITY`  
+**Effective date:** 2026-08-29
 
-**Effective date:** 2026-08-18
-
-**Owner entrypoint:** `docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md`
-
-**Current product identity authority:** `docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md`
-
+**Owner entrypoint:** `docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md`  
+**Current product identity authority:** `docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md`  
+**Current sovereign market authority:** `docs/owner-control/TIGER_SOVEREIGN_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md`  
 **Current monetization authority:** `docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md`
 
 **Applies to:** VVIP TIGER product identity, social graph, feed, publishing, reactions, comments, sharing, messaging, notifications, product design, interaction architecture, information architecture, visual system, user journeys, campaign surfaces, Pulse visibility/payment experience, profile/contact experience, temporal intent, matching, evidence, disclosure, communication, authority graphs, release artifacts, rollback, responsive behavior, accessibility presentation, and any implementation derived from those domains.
 
 ## 1. Binding owner rule
 
-The OWNER has approved TIGER ONE 2026 as the current direction.
+The OWNER has approved TIGER ONE 2026 as the current platform/product direction.
 
-Whenever an earlier decision, specification, implementation instruction, visual rule, route pattern, copy pattern, layout, workflow, component contract, or test expectation conflicts with the current TIGER ONE 2026 authority, the **current TIGER ONE 2026 rule wins**.
+Whenever an earlier decision, specification, implementation instruction, visual rule, route pattern, copy pattern, layout, workflow, component contract, or test expectation conflicts with the latest current owner authority, the latest current owner authority wins.
 
 The conflicting earlier rule is immediately classified:
 
-`SUPERSEDED / HISTORICAL ONLY`
+`SUPERSEDED / HISTORICAL ONLY / RETIRED_FROM_CURRENT_PLATFORM`
 
-Its operational platform status is:
-
-`RETIRED_FROM_CURRENT_PLATFORM`
-
-It must no longer be treated as CURRENT authority.
+It must not remain active through Runtime, UI, API, configuration, tests, CI, current documentation, launch criteria, fallback, compatibility paths, generated artifacts, or owner indexes.
 
 ### 1.1 TIGER SYNAPSE v2 and VERITY FABRIC extension authority
 
-The OWNER has approved **TIGER SYNAPSE v2** as the current product-innovation direction that extends TIGER ONE into a Temporal Intent Operating System, and **TIGER VERITY FABRIC** as its trust, authority, evidence, release, and rollback framework.
+The OWNER has approved **TIGER SYNAPSE v2** as a product-innovation direction extending TIGER ONE into a Temporal Intent Operating System, and **TIGER VERITY FABRIC** as its trust, authority, evidence, release, and rollback framework.
 
-The binding product architecture for that extension is:
+The binding design for that extension remains:
 
 `docs/superpowers/specs/2026-08-18-tiger-synapse-temporal-intent-system-design.md`
 
-Its status is:
+Its implementation state must be reported from exact repository/runtime evidence, not from design text alone.
 
-`APPROVED / NOT IMPLEMENTED`
-
-TIGER SYNAPSE extends TIGER ONE; it does not replace the protected security, privacy, financial-integrity, legal, platform-role, release, or exact-source verification boundaries in this authority. The current Social Core runtime remains the implementation truth until each SYNAPSE slice is implemented and verified against its exact source state.
-
-When a SYNAPSE or VERITY slice is migrated, any earlier intent, matching, evidence, disclosure, interaction, release, or governance authority that conflicts with the approved specification becomes `SUPERSEDED / RETIRED_FROM_CURRENT_PLATFORM / HISTORICAL_ONLY` for that migrated domain. An unimplemented design, mockup, historical video, or retired Preview link must never be represented as current runtime readiness.
+TIGER SYNAPSE extends TIGER ONE; it does not replace stricter compatible security, privacy, financial-integrity, legal, SGF sovereign-market, platform-role, release, or exact-source verification boundaries.
 
 ### 1.2 Owner finality directive
 
-The latest explicit OWNER decision recorded as `CURRENT_ONLY` is final for its domain. Conflicting older authority must be removed or disconnected from the current platform, runtime, public artifact, active routes, active tests, active configuration, current plans, and generated current documentation. No compatibility path, feature flag, rollback, comment, or archived document may reactivate it.
+The latest explicit OWNER decision recorded as `CURRENT_ONLY` is final for its domain. Conflicting older authority must be removed or disconnected from the current platform, runtime, public artifact, active routes, active tests, active configuration, current plans, and generated current documentation.
 
-Necessary historical bytes may remain only as non-runtime audit, security, provenance, or decision evidence outside the public platform. Physical history rewriting is a separately governed destructive operation and is not required to retire product authority.
+Necessary historical facts remain in Git history or immutable historical evidence where required. Historical evidence never regains current authority merely because it still exists in history.
 
 ## 2. What supersession means operationally
 
-A superseded rule must be excluded from all of the following when the affected area is migrated:
+A superseded rule must be excluded from:
 
 - Production/current runtime behavior;
 - current public artifacts and navigation;
@@ -65,7 +55,7 @@ A superseded rule must be excluded from all of the following when the affected a
 - current generated copy/configuration;
 - active product documentation.
 
-Historical files may remain only for audit, rollback reasoning, provenance, security investigation, or decision history. They remain outside the public platform and active authority indexes. Historical retention does **not** grant runtime or design authority.
+Already-applied immutable database history is corrected forward rather than rewritten to fake history.
 
 ## 3. Conflict resolution
 
@@ -75,71 +65,101 @@ Examples:
 
 - legacy large authenticated Home hero vs TIGER ONE compact living Home → legacy hero is superseded;
 - fixed three-sector UI authority vs Dynamic Sector Registry → fixed authority is superseded;
-- numbered `1/2/3/4` listing wizard vs Progressive Composer + Publish Passport → numbered default wizard is superseded;
-- separate admin/owner skin vs one Living Surface with capability-gated controls → separate final-state skin is superseded;
+- numbered default listing wizard vs Progressive Composer + current publication authority → old numbered-default authority is superseded;
+- separate final owner/admin skin vs one Living Surface with capability-gated controls → separate final-state skin is superseded;
 - generic Cairo-only typography authority vs TIGER Optical Type System → Cairo-only product identity is superseded;
 - oversized generic button system vs semantic action hierarchy → old button grammar is superseded;
 - banner-like campaign placement vs TIGER Pulse experience → old conflicting campaign presentation is superseded;
-- paid publishing subscription/cards vs free compliant publishing + Pulse Ring verified visibility → publishing-subscription authority is superseded;
-- any 45/120 JOD Pulse tier vs the 3/10/20 JOD Pulse Ring cap → high-price Pulse authority is superseded.
+- paid publishing subscription/cards vs free compliant publishing + Pulse verified visibility → publishing-subscription authority is superseded;
+- any globally fixed sovereign Pulse amount/currency vs SGF Market Pricing Contract → the globally fixed sovereign amount/currency is superseded.
 
-If an older document contains both compatible and conflicting clauses, only the conflicting clauses are superseded unless the newer authority explicitly retires the entire document.
+If an older document contains compatible and conflicting clauses, only the conflicting clauses are superseded unless the latest owner authority retires the whole document.
 
 ## 4. Authority hierarchy
 
-For the domains covered by this decision, precedence is:
+For domains covered by TIGER ONE, precedence is:
 
-1. latest explicit OWNER decision recorded as CURRENT_ONLY;
+1. latest explicit OWNER decision recorded as `CURRENT_ONLY`;
 2. latest OWNER-approved current domain specification;
-3. current FUSION owner constitution where compatible;
+3. current owner constitution and SGF where applicable;
 4. current implementation plan derived from the above;
-5. current code/tests that conform to the above;
+5. current code/tests conforming to the above;
 6. historical/superseded material — evidence only, no authority.
 
-For monetization, paid visibility, publishing-access monetization, Pulse pricing/delivery/payment, and impression accounting, `TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` is the current domain authority.
+For global owner identity, market/country activation, currency sovereignty, legal/tax/payment/data-residency policy, capability activation, and sovereign fallback rules:
 
-For primary product identity, Home, Social Core navigation, social publishing, social graph, reactions, comments, sharing, messaging, notifications, privacy/safety, and Marketplace placement inside the product, `TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md` is the current domain authority.
+`TIGER_SOVEREIGN_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md`
 
-A lower layer may never resurrect a superseded rule.
+is the current authority.
+
+For monetization, paid visibility, publishing-access monetization, Pulse product semantics/delivery/payment experience, and impression accounting:
+
+`TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md`
+
+is the current authority, with sovereign amount/currency supplied only through an authorized **Market Pricing Contract** under SGF.
+
+For primary product identity, Home, Social Core navigation, social publishing, social graph, reactions, comments, sharing, messaging, notifications, privacy/safety, and Marketplace placement inside the product:
+
+`TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md`
+
+is the current domain authority.
+
+A lower layer may never resurrect a superseded sovereign default or monetization rule.
 
 ## 5. Safety-preserving replacement rule
 
-TIGER ONE 2026 does not silently weaken security, privacy, financial integrity, legal compliance, authorization, RLS, SOA/SCG, Clerk, F05/Media Fortress, immutable-release, ledger, or platform-role boundaries.
+TIGER ONE 2026 does not silently weaken security, privacy, financial integrity, legal compliance, authorization, RLS, SOA/SCG, Clerk, F05/Media Fortress, immutable-release, ledger, SGF sovereign controls, or platform-role boundaries.
 
 If a new OWNER decision explicitly replaces one of those domain rules, the replacement must be written explicitly in the corresponding current authority and receive the required domain review. Until then, the stricter compatible protection remains in force.
 
-This prevents an aesthetic, UX, or monetization migration from accidentally removing a security or legal invariant.
-
 ## 6. Platform-role invariant remains current
 
-VVIP TIGER is a social-network-first platform. Its Marketplace and Pulse modules provide advertising, discovery, commercial presentation, paid verified visibility, distance reduction, and direct contact. The buyer and seller or service provider and beneficiary then communicate and transact directly on their own responsibility. The platform is not their broker, agent, representative, intermediary, guarantor, funds custodian, or transaction counterparty, and it does not silently introduce marketplace checkout, escrow, delivery, payment, settlement, transaction commission/payout, warranty execution, compensation, or platform-run transaction dispute resolution.
+VVIP TIGER is a social-network-first platform. Its Marketplace and Pulse modules provide advertising, discovery, commercial presentation, paid verified visibility, distance reduction, and direct contact.
 
-Platform-owned billing is limited by the latest current monetization authority. Under TIGER Pulse Ring, ordinary publishing is not a paid subscription product; platform billing is for approved Pulse visibility/advertising services and any later separately approved platform-owned service that does not conflict with the current 20 JOD charge cap.
+The buyer and seller or service provider and beneficiary communicate and transact directly on their own responsibility. TIGER is not their broker, agent, representative, intermediary, guarantor, funds custodian, or transaction counterparty, and it does not silently introduce marketplace checkout, escrow, delivery, payment, settlement, transaction commission/payout, warranty execution, compensation, or platform-run transaction dispute resolution.
 
-## 7. Migration rule
+Platform-owned billing is limited by the latest current monetization and SGF market authority. Ordinary publishing is not a paid subscription product; platform billing is for approved Pulse visibility/advertising services and any later separately owner-approved platform-owned service.
 
-Supersession is not satisfied by adding new CSS over old behavior.
+There is no global/default billing currency or global/default payment provider. A billable market operation requires its authorized SGF market/capability/payment/pricing evidence.
+
+## 7. Pulse sovereignty rule
+
+The global product-level identifiers are:
+
+- `PULSE_2`
+- `PULSE_10`
+- `PULSE_25`
+- `PULSE_45`
+
+These identifiers do not encode a global price or currency.
+
+Actual price/currency must come from an authorized **Market Pricing Contract**. Missing market price/currency/payment authority fails closed and never falls back to a country, currency, or provider.
+
+Pulse remains optional paid visibility after ordinary publication eligibility and has no product-time expiry.
+
+## 8. Migration rule
+
+Supersession is not satisfied by placing new text or CSS over old behavior.
 
 For each migrated area the implementation must:
 
 1. identify the old authority;
-2. identify the new current authority;
-3. remove or disconnect the conflicting runtime path;
-4. remove conflicting current tests/configuration;
-5. preserve only necessary historical evidence;
-6. prove no dual-authority path remains;
-7. pass exact-head verification before the area is considered converged.
+2. identify the latest current authority;
+3. add a RED anti-regression contract;
+4. remove or disconnect the conflicting runtime/current-authority path;
+5. remove conflicting current tests/configuration;
+6. preserve only necessary immutable/historical evidence;
+7. prove no dual-authority path remains;
+8. pass exact-head verification before convergence is claimed.
 
-## 8. No duplicate authority
+## 9. No duplicate authority
 
 There must be one current authority per decision domain.
 
-The project must not keep two contradictory “active” specs, two active design systems, two active composer models, two active campaign UX models, or two active monetization models and choose between them at runtime.
+The project must not keep two contradictory active specs, two active design systems, two active composer models, two active campaign UX models, two sovereign pricing defaults, or two monetization models and choose between them at runtime.
 
-Migration adapters may exist temporarily only when explicitly bounded, observable, and scheduled for retirement. They are not equal product authorities.
+Migration adapters may exist temporarily only when explicitly bounded, observable, fail-closed, and scheduled for retirement. They are not equal product authorities.
 
-## 9. Owner acceptance statement
+## 10. Owner acceptance statement
 
-The binding owner instruction is:
-
-> **If the latest OWNER-approved `CURRENT_ONLY` decision conflicts with prior product, UI, UX, IA, design, intent, evidence, release, or governance authority, adopt the latest decision, permanently retire the conflicting prior authority from the current platform, and retain only necessary non-runtime historical evidence. Do not let old authority re-enter through code, tests, documentation, configuration, compatibility, rollback, public artifacts, or launch criteria. VVIP TIGER is social-network-first; Marketplace remains a module. For monetization and paid visibility, TIGER Pulse Ring is the current authority: free compliant publishing, only 3/10/20 JOD Pulse purchases, no fourth tier, no time-expiring Pulse fuel, and no publishing-subscription model.**
+> **If the latest OWNER-approved `CURRENT_ONLY` decision conflicts with prior product, UI, UX, IA, design, intent, evidence, release, governance, country, currency, or monetization authority, adopt the latest decision and retire the conflicting prior authority from the current platform. VVIP TIGER remains social-network-first and Marketplace remains a module. SGF governs global OWNER_ROOT and sovereign markets with ZERO DEFAULT COUNTRY, ZERO DEFAULT CURRENCY, zero default payment provider, capability-based activation, evidence binding, and NO SOVEREIGN FALLBACK. TIGER Pulse Ring remains optional paid visibility with PULSE_2/PULSE_10/PULSE_25/PULSE_45 product identifiers and no product-time expiry; actual sovereign amount/currency exist only through an authorized Market Pricing Contract. No globally fixed JOD authority may re-enter through code, tests, documentation, configuration, fallback, rollback, or launch criteria.**
