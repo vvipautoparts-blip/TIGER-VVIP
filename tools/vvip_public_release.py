@@ -43,6 +43,7 @@ PUBLIC_STYLE_FILES = (
     "styles/tiger-one/type.css",
     "styles/tiger-social/core-shell.css",
     "styles/tiger-synapse/living-surface.css",
+    "styles/nexus/nexus.css",
 )
 
 PUBLIC_ICON_FILES = (
@@ -88,6 +89,10 @@ PUBLIC_SCRIPT_FILES = (
     "scripts/social/messaging-controller.js",
     "scripts/social/profile-controller.js",
     "scripts/social/core-shell.js",
+    "scripts/nexus/living-sector-object.js",
+    "scripts/nexus/pulse-vault.js",
+    "scripts/nexus/social-runtime-guard.js",
+    "scripts/nexus/bootstrap.js",
 )
 
 PUBLIC_MEDIA_FILES = (
