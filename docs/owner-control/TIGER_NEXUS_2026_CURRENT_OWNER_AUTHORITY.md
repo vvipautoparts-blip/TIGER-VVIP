@@ -1,0 +1,103 @@
+# TIGER NEXUS™ 2026 — CURRENT OWNER AUTHORITY
+
+**Status:** `CURRENT_ONLY / OWNER_BINDING / NO_FALLBACK / NO_IN_TREE_ARCHIVE`
+**Effective decision:** 2026-08-29
+**Domain:** primary social experience, sector-specialized publication, contextual capabilities, and Pulse Vault interaction.
+
+## 1. Product identity
+
+VVIP TIGER is one global sector-specialized social network. The primary surface is the social feed. Marketplace/sector discovery is a module inside that social product, not the default home and not a separate product identity.
+
+TIGER may use familiar social interaction patterns so users understand it immediately, while keeping its own branding, copy, component geometry, information architecture, and product concepts.
+
+## 2. Sector-only publishable purpose
+
+TIGER does not provide a general-purpose public chatter feed. Every newly publishable **Living Sector Object** must bind to an activated TIGER sector and one current approved intent:
+
+- `OFFER`;
+- `NEED`;
+- `SERVICE`;
+- `OPPORTUNITY`.
+
+Ordinary eligible sector publication remains free. Pulse is optional paid visibility and never a publication gate.
+
+## 3. ONE FEED / ONE OBJECT / ONE PULSE
+
+A Living Sector Object is created once and may participate in feed, profile, search, sector discovery, saved items, messaging context, related discovery, and optional Pulse delivery.
+
+The current product must not require a duplicate paid-post object merely to promote an already eligible object.
+
+## 4. Canonical creation entry
+
+The primary composer copy is:
+
+> **ماذا تعرض أو تحتاج؟**
+
+Creation is progressive. The user starts with media, speech when available, or text; TIGER asks only for missing sector/policy-required information. An exam-like all-fields-first experience is not current authority.
+
+## 5. TIGER Command and صلاحياتي
+
+The persistent `☰` control is the universal **TIGER Command** entry.
+
+Ordinary account functions and contextual privileged functions coexist in the same product.
+
+> **Same World — Different Authority.**
+
+`صلاحياتي` is a first-class capability passport derived only from validated server-authoritative capability state. It exposes human-readable authority class, scope, status, and allowed actions. Null or unvalidated capability state exposes no privileged action.
+
+Frontend visibility never grants authority; server/RLS/capability enforcement remains binding.
+
+## 6. Pulse Vault
+
+Current Pulse reference purchase levels remain exactly:
+
+- `PULSE_2` — 2 JOD;
+- `PULSE_10` — 10 JOD;
+- `PULSE_25` — 25 JOD;
+- `PULSE_45` — 45 JOD.
+
+Purchased visibility is a server-authoritative platform-service allocation and has **no product-time expiry**.
+
+NEXUS exposes it through **Pulse Vault**. Visibility may remain unassigned until the authorized user chooses an eligible Living Sector Object and activates/allocates it under current server policy.
+
+Pulse is not cash, a transferable wallet, buyer/seller settlement, escrow, or marketplace proceeds.
+
+## 7. Delivery modes
+
+Current NEXUS delivery modes are exactly:
+
+- `NOW`;
+- `SMART` — default;
+- `PRECISE`.
+
+They change delivery strategy only. They never change purchased quantity or bypass sector, relevance, quality, trust, geography, inventory, legal, safety, or policy eligibility.
+
+## 8. Verified delivery / ZERO-BURN
+
+Consumption remains server-authoritative:
+
+`RESERVE → SERVE → VERIFY → CONSUME`
+
+Fast scroll, hidden/background exposure, rejected automation/bots, invalid placements, suppressed duplicates/replays, failed reservations, and ineligible content consume zero purchased visibility.
+
+Attention/engagement may improve future opportunity selection but does not silently multiply billing units.
+
+## 9. Non-expiry and pause
+
+No day/month/product timer expires Pulse because the user waited before using it or paused an allocation. Unconsumed visibility remains available subject only to current lawful refund/void/policy-ineligibility rules.
+
+Technical TTLs for quotes, sessions, OTP, signed URLs, anti-replay, reservations, and caches are security/concurrency mechanisms, not product expiry.
+
+## 10. Latest-only deletion rule
+
+This NEXUS authority supersedes conflicting older current-tree product behavior in its scope.
+
+Conflicting old material is **deleted**, not hidden, renamed, moved to `legacy/`, `archive/`, `trash/`, retained behind fallback, duplicated as compatibility, or preserved in current docs/tests/generated artifacts.
+
+Removal applies where conflicting material exists in Runtime, UI/routes, API/RPC contracts, active schema/config, tests/fixtures, CI/launch gates, current documentation, and generated/current artifacts.
+
+Already-applied immutable migration history is not rewritten to fake history. Obsolete database effects are neutralized by forward migration. **Git history is the sole provenance mechanism for deleted conflicting source material.**
+
+## 11. Acceptance statement
+
+> **TIGER NEXUS 2026 is the current primary product experience: social-first, globally sector-specialized, one Living Sector Object per publishable purpose, `ماذا تعرض أو تحتاج؟` as the canonical composer, persistent TIGER Command with validated `صلاحياتي`, and Pulse Vault visibility at 2/10/25/45 JOD with no product-time expiry. Current delivery modes are NOW/SMART/PRECISE and verified-delivery ZERO-BURN remains authoritative. Any older current-tree behavior that conflicts with this authority is deleted with no archive, trash, legacy, compatibility, or fallback preservation; Git history alone preserves provenance.**
