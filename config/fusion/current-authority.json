@@ -57,7 +57,10 @@
     "submitContract": "SUBMIT_FOR_REVIEW"
   },
   "pulseRing": {
-    "tiersJod": [2, 10, 25, 45],
+    "productLevels": ["PULSE_2", "PULSE_10", "PULSE_25", "PULSE_45"],
+    "globalPrice": null,
+    "globalCurrency": null,
+    "pricingAuthority": "MARKET_PRICING_CONTRACT",
     "purchasedValue": "SERVER_AUTHORITATIVE_VISIBILITY_ALLOCATION",
     "productTimeExpiry": null,
     "ordinaryPublicationPrerequisite": false,
