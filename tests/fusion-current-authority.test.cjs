@@ -31,17 +31,23 @@ test('current authority is Latest-Only and owner binding is the mandatory first 
   assert.equal(manifest.tigerFinancialDistributionReference, 'docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md');
   assert.equal(manifest.tigerFinancialDistributionConfig, 'config/finance/current-distribution.json');
   assert.equal(
-    manifest.tigerSgfOwnerReference,
-    'docs/owner-control/TIGER_SOVEREIGN_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md'
+    manifest.tigerSpgfOwnerReference,
+    'docs/owner-control/TIGER_SOVEREIGN_PROOF_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md'
   );
-  assert.equal(manifest.tigerSgfConfig, 'config/sovereignty/sgf-v1.json');
+  assert.equal(manifest.tigerSpgfConfig, 'config/sovereignty/spgf-v1.json');
+  assert.equal(Object.prototype.hasOwnProperty.call(manifest, 'tigerSgfOwnerReference'), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(manifest, 'tigerSgfConfig'), false);
+  assert.equal(manifest.sovereignTrustModel, 'PROOF_CAPSULE_REQUIRED_FAIL_CLOSED');
+  assert.equal(manifest.sovereignFallbackPolicy, 'DENY_NO_SOVEREIGN_FALLBACK');
+  assert.equal(manifest.technologyMaturityPolicy, 'STABLE_ONLY_FOR_SOVEREIGN_PRODUCTION');
   assert.equal(fs.existsSync(bindingPath), true);
   const binding = fs.readFileSync(bindingPath, 'utf8');
   assert.match(binding, /FIRST_REFERENCE/);
   assert.match(binding, /before any action, modification, cleanup, feature, refactor, migration/i);
   assert.match(binding, /newest explicit owner-approved decision/i);
   assert.match(binding, /No hidden copy, trash folder, archive folder/i);
-  assert.match(binding, /TIGER SOVEREIGN GENOME FABRIC 2026/i);
+  assert.match(binding, /TIGER SOVEREIGN PROOF-GENOME FABRIC 2026/i);
+  assert.doesNotMatch(binding, /TIGER SOVEREIGN GENOME FABRIC 2026 — sovereign root authority/i);
   assert.match(binding, /ZERO DEFAULT COUNTRY/i);
   assert.match(binding, /NO SOVEREIGN FALLBACK/i);
   assert.match(binding, /PULSE_2/);
@@ -61,7 +67,9 @@ test('validator rejects bypass of the mandatory first-reference preflight', () =
     (manifest) => { manifest.firstReferenceRequired = false; },
     (manifest) => { manifest.authorityPreflight = 'OPTIONAL'; },
     (manifest) => { manifest.supersededMaterialDisposition = 'ARCHIVE_IN_TREE'; },
-    (manifest) => { manifest.recheckOnNewOwnerDecision = false; }
+    (manifest) => { manifest.recheckOnNewOwnerDecision = false; },
+    (manifest) => { manifest.sovereignTrustModel = 'CONFIG_IS_TRUTH'; },
+    (manifest) => { manifest.technologyMaturityPolicy = 'ALLOW_PREVIEW_PRODUCTION'; }
   ]) {
     const manifest = loadManifest();
     mutate(manifest);
@@ -98,7 +106,7 @@ test('current authority rejects publishing cards, subscriptions and paid publica
   }
 });
 
-test('Pulse product semantics are global but sovereign pricing is market-specific', () => {
+test('Pulse product semantics are global but sovereign pricing is signed-market-specific', () => {
   const manifest = loadManifest();
   assert.equal(Object.prototype.hasOwnProperty.call(manifest.pulseRing, 'tiersJod'), false);
   assert.deepEqual(manifest.pulseRing.productLevels, [
@@ -109,7 +117,7 @@ test('Pulse product semantics are global but sovereign pricing is market-specifi
   ]);
   assert.equal(manifest.pulseRing.globalPrice, null);
   assert.equal(manifest.pulseRing.globalCurrency, null);
-  assert.equal(manifest.pulseRing.pricingAuthority, 'MARKET_PRICING_CONTRACT');
+  assert.equal(manifest.pulseRing.pricingAuthority, 'SIGNED_MARKET_PRICING_CONTRACT');
   assert.equal(manifest.pulseRing.purchasedValue, 'SERVER_AUTHORITATIVE_VISIBILITY_ALLOCATION');
   assert.equal(manifest.pulseRing.productTimeExpiry, null);
   assert.equal(manifest.pulseRing.ordinaryPublicationPrerequisite, false);
@@ -120,19 +128,19 @@ test('Pulse product semantics are global but sovereign pricing is market-specifi
   legacy.pulseRing.tiersJod = [2, 10, 25, 45];
   let result = verify(legacy);
   assert.equal(result.ok, false);
-  assert.ok(result.errors.includes('Pulse global tiersJod authority is forbidden by SGF'));
+  assert.ok(result.errors.includes('Pulse global tiersJod authority is forbidden by SPGF'));
 
   const price = loadManifest();
   price.pulseRing.globalPrice = 10;
   result = verify(price);
   assert.equal(result.ok, false);
-  assert.ok(result.errors.includes('Pulse globalPrice must be null under SGF'));
+  assert.ok(result.errors.includes('Pulse globalPrice must be null under SPGF'));
 
   const currency = loadManifest();
   currency.pulseRing.globalCurrency = 'JOD';
   result = verify(currency);
   assert.equal(result.ok, false);
-  assert.ok(result.errors.includes('Pulse globalCurrency must be null under SGF'));
+  assert.ok(result.errors.includes('Pulse globalCurrency must be null under SPGF'));
 
   const expired = loadManifest();
   expired.pulseRing.productTimeExpiry = '30 days';
