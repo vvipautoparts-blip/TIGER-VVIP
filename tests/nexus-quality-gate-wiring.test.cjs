@@ -14,10 +14,14 @@ test('root quality-gate suite executes every nested NEXUS contract', () => {
     .map((name) => path.join('tests/nexus', name));
 
   assert.ok(files.length > 0, 'NEXUS contract suite must not be empty');
+  const nestedEnv = Object.fromEntries(
+    Object.entries({ ...process.env, TIGER_NEXUS_NESTED_GATE: '1' })
+      .filter(([key]) => key !== 'NODE_TEST_CONTEXT')
+  );
   const result = spawnSync(process.execPath, ['--test', ...files], {
     cwd: process.cwd(),
     encoding: 'utf8',
-    env: { ...process.env, TIGER_NEXUS_NESTED_GATE: '1' },
+    env: nestedEnv,
   });
 
   if (result.stdout) process.stdout.write(result.stdout);
