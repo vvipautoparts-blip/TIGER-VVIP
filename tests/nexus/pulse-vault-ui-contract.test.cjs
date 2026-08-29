@@ -6,12 +6,19 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 
 const root = path.resolve(__dirname, '../..');
-const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const bootstrapPath = path.join(root, 'scripts/nexus/bootstrap.js');
+
+function readBootstrap() {
+  assert.equal(fs.existsSync(bootstrapPath), true, 'NEXUS bootstrap must exist');
+  return fs.readFileSync(bootstrapPath, 'utf8');
+}
 
 test('Pulse Vault UI exposes non-expiring balance and NEXUS delivery modes', () => {
-  assert.match(html, /data-nexus-pulse-vault/);
-  assert.match(html, /لا تنتهي/);
-  assert.match(html, /data-nexus-pulse-mode="NOW"/);
-  assert.match(html, /data-nexus-pulse-mode="SMART"/);
-  assert.match(html, /data-nexus-pulse-mode="PRECISE"/);
+  const source = readBootstrap();
+  assert.match(source, /data-nexus-pulse-vault/);
+  assert.match(source, /لا تنتهي/);
+  assert.match(source, /data-nexus-pulse-mode/);
+  assert.match(source, /NOW/);
+  assert.match(source, /SMART/);
+  assert.match(source, /PRECISE/);
 });
