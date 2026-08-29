@@ -22,14 +22,14 @@
       "protected_boundaries": ["main", "production", "public-artifact"]
     },
     {
-      "authority_id": "authority.sovereign-genome-fabric.v1",
-      "domain": "sovereign-market-control",
+      "authority_id": "authority.sovereign-proof-genome-fabric.v1",
+      "domain": "sovereign-proof-security-release-control",
       "version": 1,
       "status": "CURRENT_ONLY",
-      "owner_decision_ref": "docs/owner-control/TIGER_SOVEREIGN_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md",
-      "canonical_path": "docs/owner-control/TIGER_SOVEREIGN_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md",
-      "supersedes": [],
-      "protected_boundaries": ["owner-root-global", "zero-default-country", "zero-default-currency", "zero-default-payment-provider", "market-capability-authority", "fail-closed", "no-sovereign-fallback", "exact-release-binding"]
+      "owner_decision_ref": "docs/owner-control/TIGER_SOVEREIGN_PROOF_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md",
+      "canonical_path": "docs/owner-control/TIGER_SOVEREIGN_PROOF_GENOME_FABRIC_2026_CURRENT_OWNER_AUTHORITY.md",
+      "supersedes": ["authority.sovereign-genome-fabric.v1"],
+      "protected_boundaries": ["owner-root-global", "zero-default-country", "zero-default-currency", "zero-default-payment-provider", "zero-default-legal-entity", "zero-default-tax-profile", "zero-default-data-region", "market-capability-authority", "proof-first", "sovereign-proof-capsule", "evidence-freshness", "crypto-agility", "technology-maturity-firewall", "fail-closed", "no-sovereign-fallback", "exact-release-binding", "no-parallel-sovereign-authority"]
     },
     {
       "authority_id": "authority.product.v1",
