@@ -6,17 +6,20 @@ function read(path) {
   return fs.readFileSync(path, 'utf8');
 }
 
-const repository = read('scripts/runtime/vvip-marketplace-repository.js');
-const composer = read('scripts/fusion/progressive-composer.js');
+const socialRuntime = read('scripts/social/runtime-adapters.js');
+const socialComposer = read('scripts/social/post-composer.js');
 const releaseBuilder = read('tools/vvip_public_release.py');
 const pagesWorkflow = read('.github/workflows/pages.yml');
 
-test('browser exposes exactly one current review-submission command', () => {
-  assert.match(repository, /function submitForReview\(/);
-  assert.match(repository, /vvip_marketplace_submit_for_review/);
-  assert.doesNotMatch(repository, /\brequestPublication\b|\bcreateAndSubmit\b|\bprepareForPublication\b/);
-  assert.match(composer, /\.submitForReview\(/);
-  assert.doesNotMatch(composer, /\.(?:requestPublication|prepareForPublication)\(/);
+test('browser exposes one current NEXUS Living Sector Object creation contract', () => {
+  assert.match(socialRuntime, /vvip_social_post_create/);
+  assert.match(socialRuntime, /p_sector_key/);
+  assert.match(socialRuntime, /p_intent_class/);
+  assert.match(socialComposer, /CREATE_SOCIAL_POST/);
+  assert.match(socialComposer, /sectorId/);
+  assert.match(socialComposer, /intent/);
+  assert.equal(fs.existsSync('scripts/fusion/progressive-composer.js'), false);
+  assert.equal(fs.existsSync('styles/fusion/progressive-composer.css'), false);
 });
 
 test('production artifact is exact-allowlist only and has no rollback runtime', () => {
