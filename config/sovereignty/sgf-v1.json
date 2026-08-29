@@ -29,6 +29,15 @@
   "marketSelectionPolicy": "EXPLICIT_ONLY",
   "publicReadMarketPolicy": "OPTIONAL_EXPLICIT_OR_GLOBAL",
   "runtimeMarketResolver": "scripts/sovereignty/explicit-market-context.cjs",
+  "components": {
+    "explicitMarketContext": "scripts/sovereignty/explicit-market-context.cjs",
+    "capabilityLifecycle": "scripts/sovereignty/market-capability-lifecycle.cjs",
+    "sovereignCompiler": "scripts/sovereignty/sovereign-compiler.cjs",
+    "marketGenome": "scripts/sovereignty/market-genome.cjs",
+    "activationPassport": "scripts/sovereignty/market-activation-passport.cjs",
+    "executionSeal": "scripts/sovereignty/genome-execution-seal.cjs",
+    "killGrid": "scripts/sovereignty/sovereign-kill-grid.cjs"
+  },
   "activationAuthority": "MARKET_CAPABILITY_PASSPORT",
   "fallbackPolicy": "DENY_NO_SOVEREIGN_FALLBACK"
 }
