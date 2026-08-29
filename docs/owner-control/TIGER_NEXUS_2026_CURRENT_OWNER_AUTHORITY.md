@@ -2,7 +2,7 @@
 
 **Status:** `CURRENT_ONLY / OWNER_BINDING / NO_FALLBACK / NO_IN_TREE_ARCHIVE`
 **Effective decision:** 2026-08-29
-**Domain:** primary social experience, sector-specialized publication, contextual capabilities, and Pulse Vault interaction.
+**Domain:** primary social experience, sector-specialized publication, contextual capabilities, Pulse Vault interaction, and current security verification baseline.
 
 ## 1. Product identity
 
@@ -88,7 +88,25 @@ No day/month/product timer expires Pulse because the user waited before using it
 
 Technical TTLs for quotes, sessions, OTP, signed URLs, anti-replay, reservations, and caches are security/concurrency mechanisms, not product expiry.
 
-## 10. Latest-only deletion rule
+## 10. 2026 security verification baseline
+
+NEXUS uses current external security standards as **verification references and engineering baselines**, not as marketing certification claims:
+
+- **OWASP ASVS 5.0.0** for web-application security verification requirements;
+- **NIST SP 800-63-4** for digital-identity guidance;
+- **NIST SP 800-63B-4** for authentication and authenticator-management guidance;
+- **SLSA 1.2** as the current software-supply-chain specification reference;
+- **GitHub Artifact Attestations / Sigstore** for signed build provenance where the sealed release workflow already implements and verifies it.
+
+The security operating rule is `FAIL_CLOSED`. A missing, malformed, stale, or unverified authority/security state must not become permission.
+
+These references **do not mean TIGER claims formal ASVS, NIST, or SLSA conformance before the corresponding verification evidence exists**. The machine authority therefore records `NOT_ASSERTED_UNTIL_VERIFIED`.
+
+No identity-provider replacement is authorized by adopting these baselines. The current trusted identity path stays in force until a separately approved ADR, migration plan, rollback plan, security review, and exact-head verification authorize a change.
+
+Security modernization must prefer proven controls already present in TIGER—RLS default-deny, server-authoritative authorization, OIDC-based release trust, signed artifact provenance, SBOM evidence, immutable/append-only audit boundaries, secret-leak scanning, and exact-source release verification—over adding fashionable infrastructure without a threat-model or measurable security gain.
+
+## 11. Latest-only deletion rule
 
 This NEXUS authority supersedes conflicting older current-tree product behavior in its scope.
 
@@ -98,6 +116,6 @@ Removal applies where conflicting material exists in Runtime, UI/routes, API/RPC
 
 Already-applied immutable migration history is not rewritten to fake history. Obsolete database effects are neutralized by forward migration. **Git history is the sole provenance mechanism for deleted conflicting source material.**
 
-## 11. Acceptance statement
+## 12. Acceptance statement
 
-> **TIGER NEXUS 2026 is the current primary product experience: social-first, globally sector-specialized, one Living Sector Object per publishable purpose, `ماذا تعرض أو تحتاج؟` as the canonical composer, persistent TIGER Command with validated `صلاحياتي`, and Pulse Vault visibility at 2/10/25/45 JOD with no product-time expiry. Current delivery modes are NOW/SMART/PRECISE and verified-delivery ZERO-BURN remains authoritative. Any older current-tree behavior that conflicts with this authority is deleted with no archive, trash, legacy, compatibility, or fallback preservation; Git history alone preserves provenance.**
+> **TIGER NEXUS 2026 is the current primary product experience: social-first, globally sector-specialized, one Living Sector Object per publishable purpose, `ماذا تعرض أو تحتاج؟` as the canonical composer, persistent TIGER Command with validated `صلاحياتي`, and Pulse Vault visibility at 2/10/25/45 JOD with no product-time expiry. Current delivery modes are NOW/SMART/PRECISE and verified-delivery ZERO-BURN remains authoritative. Security verification is fail-closed against OWASP ASVS 5.0.0, NIST SP 800-63-4 / 800-63B-4, SLSA 1.2 and the existing signed GitHub Artifact Attestation path, without claiming conformance until evidence exists. Any older current-tree behavior that conflicts with this authority is deleted with no archive, trash, legacy, compatibility, or fallback preservation; Git history alone preserves provenance.**
