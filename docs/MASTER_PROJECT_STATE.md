@@ -31,7 +31,7 @@ The machine-readable handover authority is:
 - The PHOENIX implementation lane is closed; no cleanup work is active in the current continuation lane.
 - Active continuation branch: `fix/post-345-publication-contract-20260829`, based on the merged `main` commit above.
 - Current engineering focus: repair the post-merge ordinary-publication SQL safety contract without changing the approved runtime or performing Production, Staging, provider, or database mutation.
-- Code checkpoint: `9ec726522ef304fcd8a1b1b6999e4a2232b42179`; the destructive-SQL guard now ignores comments while continuing to reject executable `CASCADE`, `TRUNCATE`, and `DROP TABLE` statements.
+- Code checkpoint: `067dc609e2c40c82646129ce8c55a6fd2a74e7f3`; the destructive-SQL guard now ignores comments while continuing to reject executable `CASCADE`, `TRUNCATE`, and `DROP TABLE` statements.
 - Ordinary publication path: `Create → Preview → Submit for Review → Trusted Review → Publish`.
 - Ordinary publication is free and is not gated by cards, subscriptions, paid publishing slots, timers, plans, or entitlement receipts.
 - Pulse is a separate paid-visibility product and is not an ordinary-publication prerequisite.
