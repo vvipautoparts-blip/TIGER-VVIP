@@ -75,6 +75,7 @@ test('SGF validator rejects every sovereign default and owner-root binding', () 
     (x) => { x.components.marketGenome = 'scripts/legacy/default-country-genome.js'; },
     (x) => { x.components.ownerExecutionLease = 'scripts/legacy/permanent-root.js'; },
     (x) => { x.components.signedPolicyBundle = 'scripts/legacy/unsigned-policy.js'; },
+    (x) => { x.components.cryptoInventoryVerifier = 'scripts/security/skip-crypto-inventory.cjs'; },
     (x) => { x.fallbackPolicy = 'FALLBACK_TO_JO'; }
   ];
 
@@ -121,7 +122,8 @@ test('SGF machine truth binds the canonical sovereignty components', () => {
     executionSeal: 'scripts/sovereignty/genome-execution-seal.cjs',
     ownerExecutionLease: 'scripts/sovereignty/owner-execution-lease.cjs',
     signedPolicyBundle: 'scripts/sovereignty/signed-policy-bundle.cjs',
-    killGrid: 'scripts/sovereignty/sovereign-kill-grid.cjs'
+    killGrid: 'scripts/sovereignty/sovereign-kill-grid.cjs',
+    cryptoInventoryVerifier: 'scripts/security/verify-crypto-inventory.cjs'
   });
   for (const relative of Object.values(sgf.components)) {
     assert.equal(fs.existsSync(path.join(root, relative)), true, relative);
