@@ -11,12 +11,15 @@ const owner = read('docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md');
 
 const activeRuntimeFiles = [
   'index.html',
-  'scripts/vvip-production-marketplace.js',
-  'scripts/fusion/progressive-composer.js',
   'scripts/fusion/single-surface-controller.js',
   'scripts/fusion/runtime-adapters.js',
-  'scripts/runtime/vvip-marketplace-repository.js',
-  'scripts/runtime/vvip-my-listings.js'
+  'scripts/social/runtime-adapters.js',
+  'scripts/social/post-composer.js',
+  'scripts/social/core-shell.js',
+  'scripts/nexus/living-sector-object.js',
+  'scripts/nexus/pulse-vault.js',
+  'scripts/nexus/bootstrap.js',
+  'scripts/runtime/vvip-marketplace-repository.js'
 ];
 
 const retiredProductPatterns = [
@@ -31,26 +34,34 @@ const retiredProductPatterns = [
   /vvip_marketplace_request_publication/,
   /entitlementReceipt/,
   /entitlement_receipt/,
-  /\bEXPIRED\s*:/
+  /\bEXPIRED\s*:/,
+  /data-marketplace-listing-trigger/,
+  /data-fusion-composer-trigger/,
+  /progressive-composer/
 ];
 
 test('current owner decision is the only active supersession contract', () => {
   assert.match(owner, /CURRENT_ONLY \/ OWNER_BINDING \/ FIRST_REFERENCE \/ NO_FALLBACK \/ NO_IN_TREE_ARCHIVE/);
   assert.match(owner, /newest explicit owner-approved decision/i);
-  assert.match(owner, /no owner-approved product-time lifetime/i);
-  assert.match(owner, /no fixed commercial\/weekly posting quota/i);
-  assert.match(owner, /maximum remains 7 images/i);
-  assert.match(owner, /server-authoritative visibility allocation/i);
+  assert.match(owner, /TIGER NEXUS 2026/);
+  assert.match(owner, /Living Sector Object/);
+  assert.match(owner, /OFFER \/ NEED \/ SERVICE \/ OPPORTUNITY/);
+  assert.match(owner, /PULSE_2/);
+  assert.match(owner, /PULSE_10/);
+  assert.match(owner, /PULSE_25/);
+  assert.match(owner, /PULSE_45/);
   assert.match(owner, /not a party/i);
 });
 
-test('active runtime must not restore superseded product rules', () => {
+test('active runtime must not restore superseded product rules or a second creation path', () => {
   for (const relativePath of activeRuntimeFiles) {
     const source = read(relativePath);
     for (const pattern of retiredProductPatterns) {
       assert.doesNotMatch(source, pattern, `${relativePath} restores superseded owner information: ${pattern}`);
     }
   }
+  assert.equal(fs.existsSync(path.join(root, 'scripts/fusion/progressive-composer.js')), false);
+  assert.equal(fs.existsSync(path.join(root, 'styles/fusion/progressive-composer.css')), false);
 });
 
 test('current authority manifest contains no in-tree legacy decision registry', () => {
