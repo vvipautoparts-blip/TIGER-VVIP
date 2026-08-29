@@ -97,6 +97,22 @@ export function createPulseRuntime(client) {
   if (!client || typeof client.rpc !== 'function') throw pulseError('PULSE_CLIENT_REQUIRED');
 
   return Object.freeze({
+    async ownedObjects() {
+      const data = await rpc(client, 'vvip_nexus_owned_pulse_objects', { p_limit: 200 }, true);
+      if (!data || typeof data !== 'object' || Array.isArray(data) || data.ok !== true || !Array.isArray(data.items) || data.items.length > 200) {
+        throw pulseError('PULSE_OWNED_OBJECTS_INVALID');
+      }
+      const ids = [];
+      const seen = new Set();
+      for (const item of data.items) {
+        const postId = item && typeof item === 'object' ? item.postId : null;
+        if (!UUID.test(String(postId || '')) || seen.has(postId)) throw pulseError('PULSE_OWNED_OBJECTS_INVALID');
+        seen.add(postId);
+        ids.push(postId);
+      }
+      return Object.freeze(ids);
+    },
+
     async readVault() {
       const data = await rpc(client, 'vvip_pulse_vault_read', undefined, true);
       const normalized = normalizeVault(data);
