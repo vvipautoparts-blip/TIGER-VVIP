@@ -25,9 +25,7 @@
 
   function safeInvoke(dependency, target, method, args) {
     const fn = target && target[method];
-    if (typeof fn !== 'function') {
-      return unavailable(dependency);
-    }
+    if (typeof fn !== 'function') return unavailable(dependency);
 
     try {
       const value = Reflect.apply(fn, target, args);
@@ -48,9 +46,6 @@
     const listings = freeze({
       readEligible: function () {
         return safeInvoke('listings.readEligible', dependencies.listings, 'readEligible', Array.from(arguments));
-      },
-      openComposer: function () {
-        return safeInvoke('listings.openComposer', dependencies.listings, 'openComposer', Array.from(arguments));
       }
     });
 
@@ -77,19 +72,13 @@
       }
     });
 
-    const drafts = freeze({
-      readLocal: function () {
-        return safeInvoke('drafts.readLocal', dependencies.drafts, 'readLocal', Array.from(arguments));
-      }
-    });
-
     const network = freeze({
       snapshot: function () {
         return safeInvoke('network.snapshot', dependencies.network, 'snapshot', Array.from(arguments));
       }
     });
 
-    return freeze({ listings, search, media, capabilities, drafts, network });
+    return freeze({ listings, search, media, capabilities, network });
   }
 
   global.VVIPFusionRuntime = freeze({ createRuntimeAdapters });
