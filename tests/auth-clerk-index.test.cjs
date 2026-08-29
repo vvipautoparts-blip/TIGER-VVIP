@@ -2,7 +2,9 @@
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
 const auth = require("../auth-clerk-index.js");
+const source = fs.readFileSync(require.resolve("../auth-clerk-index.js"), "utf8");
 
 function createSessionStorage() {
   const values = new Map();
@@ -19,7 +21,6 @@ function installBrowserFixture(clerkOverrides) {
     document: global.document,
     runtimeReady: global.VVIPRuntimeReady,
     fusionSurface: global.VVIPFusionSurface,
-    pr29: global.VVIP_PR29,
     sessionStorage: global.sessionStorage,
     dispatchEvent: global.dispatchEvent,
     customEvent: global.CustomEvent
@@ -29,7 +30,6 @@ function installBrowserFixture(clerkOverrides) {
   let listener = null;
   let homeCalls = 0;
   let hideHomeCalls = 0;
-  let gateCalls = 0;
   const gate = {
     hidden: true,
     attrs: {},
@@ -62,10 +62,6 @@ function installBrowserFixture(clerkOverrides) {
     showHome() { homeCalls += 1; },
     hideHome() { hideHomeCalls += 1; }
   };
-  global.VVIP_PR29 = {
-    showHome() { homeCalls += 1; },
-    showGate() { gateCalls += 1; }
-  };
   global.CustomEvent = class CustomEvent {
     constructor(type, options) { this.type = type; this.detail = options && options.detail; }
   };
@@ -92,19 +88,22 @@ function installBrowserFixture(clerkOverrides) {
     getListener: () => listener,
     getHomeCalls: () => homeCalls,
     getHideHomeCalls: () => hideHomeCalls,
-    getGateCalls: () => gateCalls,
     restore() {
       global.location = original.location;
       global.document = original.document;
       global.VVIPRuntimeReady = original.runtimeReady;
       global.VVIPFusionSurface = original.fusionSurface;
-      global.VVIP_PR29 = original.pr29;
       global.sessionStorage = original.sessionStorage;
       global.dispatchEvent = original.dispatchEvent;
       global.CustomEvent = original.customEvent;
     }
   };
 }
+
+test("auth runtime contains no parallel create-listing or PR29 fallback", () => {
+  assert.doesNotMatch(source, /CREATE_LISTING/);
+  assert.doesNotMatch(source, /VVIP_PR29/);
+});
 
 test("does not expose a local preview authentication bypass", () => {
   assert.equal(auth.localPreviewAllowed, undefined);
@@ -124,15 +123,16 @@ test("production rejects return paths that are not shipped", () => {
 
 test("normalizes only allowlisted non-sensitive intent descriptors", () => {
   const listingId = "11111111-1111-4111-8111-111111111111";
-  assert.deepEqual(auth.normalizeIntentDescriptor({ name: "CREATE_LISTING" }), { name: "CREATE_LISTING" });
+  assert.deepEqual(auth.normalizeIntentDescriptor({ name: "CREATE_SOCIAL_POST" }), { name: "CREATE_SOCIAL_POST" });
   assert.deepEqual(auth.normalizeIntentDescriptor({ name: "OPEN_ACCOUNT" }), { name: "OPEN_ACCOUNT" });
   assert.deepEqual(
     auth.normalizeIntentDescriptor({ name: "TOGGLE_FAVORITE", listingId }),
     { name: "TOGGLE_FAVORITE", listingId }
   );
+  assert.throws(() => auth.normalizeIntentDescriptor({ name: "CREATE_LISTING" }), { code: "AUTH_INTENT_INVALID" });
   assert.throws(() => auth.normalizeIntentDescriptor({ name: "https://evil.example" }), { code: "AUTH_INTENT_INVALID" });
   assert.throws(() => auth.normalizeIntentDescriptor({ name: "TOGGLE_FAVORITE", listingId: "../../admin" }), { code: "AUTH_INTENT_INVALID" });
-  assert.throws(() => auth.normalizeIntentDescriptor({ name: "CREATE_LISTING", token: "secret" }), { code: "AUTH_INTENT_INVALID" });
+  assert.throws(() => auth.normalizeIntentDescriptor({ name: "CREATE_SOCIAL_POST", token: "secret" }), { code: "AUTH_INTENT_INVALID" });
 });
 
 test("unsigned start is fail-closed and mounts the authentication gate", async () => {
@@ -173,12 +173,12 @@ test("does not expose continue-without-sign-in escape hatch", () => {
   assert.equal(auth.continueWithoutSignIn, undefined);
 });
 
-test("signed-in listener reveals home and resumes an in-memory protected intent at most once", async () => {
+test("signed-in listener reveals home and resumes canonical creation intent at most once", async () => {
   const fixture = installBrowserFixture();
   try {
     await auth.start();
     let resumed = 0;
-    await auth.requireAuth({ name: "CREATE_LISTING" }, () => { resumed += 1; });
+    await auth.requireAuth({ name: "CREATE_SOCIAL_POST" }, () => { resumed += 1; });
     const listener = fixture.getListener();
     assert.equal(typeof listener, "function");
 
