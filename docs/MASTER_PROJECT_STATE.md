@@ -27,14 +27,18 @@ The machine-readable handover authority is:
 
 ## Active work
 
-- Active lane: PR #345 on `chore/phoenix-publication-root-purge-20260828`.
-- Base: canonical `main`.
+- PR #345 was merged into canonical `main` at commit `32c84604bd278ef18e113a6545496ec27e8545df` on 2026-08-29.
+- The PHOENIX implementation lane is closed; no cleanup work is active in the current continuation lane.
+- Active continuation branch: `fix/post-345-publication-contract-20260829`, based on the merged `main` commit above.
+- Current engineering focus: repair the post-merge ordinary-publication SQL safety contract without changing the approved runtime or performing Production, Staging, provider, or database mutation.
+- Code checkpoint: `067dc609e2c40c82646129ce8c55a6fd2a74e7f3`; the destructive-SQL guard now ignores comments while continuing to reject executable `CASCADE`, `TRUNCATE`, and `DROP TABLE` statements.
 - Ordinary publication path: `Create → Preview → Submit for Review → Trusted Review → Publish`.
 - Ordinary publication is free and is not gated by cards, subscriptions, paid publishing slots, timers, plans, or entitlement receipts.
 - Pulse is a separate paid-visibility product and is not an ordinary-publication prerequisite.
 - Superseded conflicting current-tree material is deleted directly. Git history is the historical record; no in-tree legacy archive/fallback is authoritative.
-- PHOENIX implementation work may continue across later plan tasks while GitHub Actions is unavailable before runner assignment. This is a sequencing exception only; it is not GREEN evidence.
-- No Production/Staging/provider/database mutation is authorized by this status file or by cleanup implementation work.
+- The full local Quality Gate passed on the corrected source tree. Exact-head GitHub Actions evidence is still required before merge.
+- GitHub Actions runs for both the final PR #345 head and merged `main` completed before runner assignment with no executed steps. This remains an infrastructure blocker, not GREEN evidence and not an observed code assertion failure.
+- No Production/Staging/provider/database mutation is authorized by this status file or by the current test-only correction.
 
 ## Verification truth
 
