@@ -37,3 +37,28 @@ export function proveReclamation(input={}){
   }
   return decision('INSUFFICIENT_EVIDENCE','UNKNOWN_CLASSIFICATION',input);
 }
+
+export function proveRepositoryRetirement(input={}){
+  const {candidate={},observationDigest,policyDigest,repositoryEvidence={}}=input;
+  if(!candidate?.id||!observationDigest||!policyDigest) return decision('INSUFFICIENT_EVIDENCE','MISSING_IDENTITY_OR_DIGEST',input);
+  if(candidate.git_history_rewrite===true||candidate.unique_pr_branch_commits===true) return decision('SOVEREIGN_LOCK','REPOSITORY_IDENTITY_PROTECTED',input);
+  if(candidate.protected_release_identity===true||candidate.protected_release_provenance===true||candidate.authoritative===true||candidate.current_runtime_required===true) return decision('SOVEREIGN_LOCK','REPOSITORY_CURRENT_AUTHORITY_PROTECTED',input);
+
+  const noLoss=repositoryEvidence.no_unique_work_loss===true;
+  if(repositoryEvidence.ancestry_proven===true&&noLoss){
+    return decision('RECLAIM_ELIGIBLE','REPOSITORY_RETIREMENT_PROVEN',input,{retirement_basis:'ANCESTRY'});
+  }
+  const successor=repositoryEvidence.explicit_successor;
+  if(successor?.verified===true&&typeof successor.ref==='string'&&successor.ref&&noLoss){
+    return decision('RECLAIM_ELIGIBLE','REPOSITORY_RETIREMENT_PROVEN',input,{retirement_basis:'EXPLICIT_SUCCESSOR',successor_ref:successor.ref});
+  }
+  const authority=repositoryEvidence.retirement_authority;
+  if(authority?.verified===true&&authority.current===true&&typeof authority.ref==='string'&&authority.ref&&noLoss){
+    return decision('RECLAIM_ELIGIBLE','REPOSITORY_RETIREMENT_PROVEN',input,{retirement_basis:'CURRENT_RETIREMENT_AUTHORITY',retirement_authority_ref:authority.ref});
+  }
+  const semantic=repositoryEvidence.semantic_replacement;
+  if(semantic?.verified===true&&semantic.no_unique_work_loss===true&&typeof semantic.ref==='string'&&semantic.ref){
+    return decision('RECLAIM_ELIGIBLE','REPOSITORY_RETIREMENT_PROVEN',input,{retirement_basis:'SEMANTIC_REPLACEMENT',successor_ref:semantic.ref});
+  }
+  return decision('MANUAL_REVIEW_REQUIRED','REPOSITORY_RETIREMENT_EVIDENCE_INSUFFICIENT',input,{age_days:Number.isFinite(repositoryEvidence.age_days)?repositoryEvidence.age_days:null});
+}
