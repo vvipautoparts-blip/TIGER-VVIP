@@ -11,7 +11,6 @@ const requiredPublicFiles = [
   'styles/nexus/nexus.css',
   'scripts/nexus/living-sector-object.js',
   'scripts/nexus/pulse-vault.js',
-  'scripts/nexus/sector-registry.js',
   'scripts/nexus/social-runtime-guard.js',
   'scripts/nexus/bootstrap.js',
 ];
