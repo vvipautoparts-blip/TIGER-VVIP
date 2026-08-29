@@ -1,7 +1,7 @@
 # VVIP TIGER — Current Project Status
 
 **Status:** `NON_AUTHORITATIVE_STATUS / CURRENT_WORK_ONLY`
-**Updated:** 2026-08-28
+**Updated:** 2026-08-29
 
 This file is a compact project-status surface only. It is **not** owner authority, a fallback, an archive, or a source of product/runtime truth.
 
@@ -17,21 +17,29 @@ The machine-readable handover authority is:
 
 `project-control/production-handover/current-authority.v1.json`
 
+## Current cleanup authority
+
+- `TIGER PHOENIX CLEANROOM 2026` is `cleanup-governance CURRENT_ONLY`.
+- Canonical cleanup authority: `docs/owner-control/TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md`.
+- PHOENIX owns observation, inventory, classification, Proof-of-Reclamation, trusted shadow planning, verification, cleanup passport and reporting.
+- `TIGER AION ∞` is **not superseded** in its `post-launch-autonomy` domain. Its Digital Metabolism chain remains the mandatory destructive-disposal gate.
+- Canonical safety rules remain: `NO PROOF OF RECLAMATION -> NO ENTRY TO DESTRUCTIVE DISPOSAL` and `NO AION DELETION CHAIN -> NO DESTRUCTIVE DISPOSAL`.
+
 ## Active work
 
-- Active cleanup lane: PR #345 on `chore/phoenix-publication-root-purge-20260828`.
+- Active lane: PR #345 on `chore/phoenix-publication-root-purge-20260828`.
 - Base: canonical `main`.
-- Stage: **Stage 1 — current publication/root-authority convergence**.
 - Ordinary publication path: `Create → Preview → Submit for Review → Trusted Review → Publish`.
 - Ordinary publication is free and is not gated by cards, subscriptions, paid publishing slots, timers, plans, or entitlement receipts.
 - Pulse is a separate paid-visibility product and is not an ordinary-publication prerequisite.
 - Superseded conflicting current-tree material is deleted directly. Git history is the historical record; no in-tree legacy archive/fallback is authoritative.
-- No Production/Staging/provider/database mutation is authorized by this status file or by Stage 1 cleanup work.
+- PHOENIX implementation work may continue across later plan tasks while GitHub Actions is unavailable before runner assignment. This is a sequencing exception only; it is not GREEN evidence.
+- No Production/Staging/provider/database mutation is authorized by this status file or by cleanup implementation work.
 
-## Current closure gate
+## Verification truth
 
-Stage 1 is not complete until the exact PR head receives **real runner-executed CI GREEN**, then passes review, protected merge to `main`, and exact merged-main GREEN verification.
+A GitHub Actions result with no assigned runner and no executed steps is an infrastructure-blocked verification, not a code-test failure and not GREEN evidence.
 
-Pre-run GitHub Actions failures with no assigned runner and no executed steps are neither code-test failures nor GREEN evidence.
+Implementation may proceed under the owner instruction to skip waiting on that blocked step. Any later readiness/merge claim must still state exactly which verification evidence exists and which CI evidence remains unavailable; no unavailable check may be represented as passed.
 
-Do not infer readiness, deployment authorization, or Production state from this file. Exact Git SHA/tree, matching CI evidence, the current owner constitution, and live-provider evidence where required remain authoritative.
+Do not infer deployment authorization or Production state from this file. Exact Git SHA/tree, matching verification evidence, the current owner constitution, and live-provider evidence where required remain authoritative.
