@@ -24,11 +24,14 @@ function assertFailure(result, code, dependency) {
   assert.equal(Object.isFrozen(result), true);
 }
 
-test('runtime adapter registry exposes one bounded factory and no legacy Supabase session authority', () => {
+test('runtime adapter registry exposes one bounded factory with no parallel composer or local-draft contract', () => {
   const { source, api } = loadRuntimeAdapters();
   assert.equal(typeof api?.createRuntimeAdapters, 'function');
   assert.doesNotMatch(source, /vvipSupabase\.auth\.getSession/);
   assert.doesNotMatch(source, /getSession\s*\(/);
+  assert.doesNotMatch(source, /openComposer/);
+  assert.doesNotMatch(source, /readLocal/);
+  assert.doesNotMatch(source, /\bdrafts\b/);
 });
 
 test('created runtime adapters and public adapter layers are frozen', () => {
@@ -36,9 +39,10 @@ test('created runtime adapters and public adapter layers are frozen', () => {
   const adapters = api.createRuntimeAdapters({});
 
   assert.equal(Object.isFrozen(adapters), true);
-  for (const name of ['listings', 'search', 'media', 'capabilities', 'drafts', 'network']) {
+  for (const name of ['listings', 'search', 'media', 'capabilities', 'network']) {
     assert.equal(Object.isFrozen(adapters[name]), true, `${name} adapter must be frozen`);
   }
+  assert.equal(adapters.drafts, undefined);
 });
 
 test('missing runtime dependencies fail closed without insecure fallback', () => {
@@ -46,11 +50,9 @@ test('missing runtime dependencies fail closed without insecure fallback', () =>
   const adapters = api.createRuntimeAdapters({});
 
   assertFailure(adapters.listings.readEligible({}), 'FUSION_DEPENDENCY_UNAVAILABLE', 'listings.readEligible');
-  assertFailure(adapters.listings.openComposer(), 'FUSION_DEPENDENCY_UNAVAILABLE', 'listings.openComposer');
   assertFailure(adapters.search.run('mercedes', [], {}), 'FUSION_DEPENDENCY_UNAVAILABLE', 'search.run');
   assertFailure(adapters.media.openSession({}), 'FUSION_DEPENDENCY_UNAVAILABLE', 'media.openSession');
   assertFailure(adapters.capabilities.getPresentationView(), 'FUSION_DEPENDENCY_UNAVAILABLE', 'capabilities.getPresentationView');
-  assertFailure(adapters.drafts.readLocal(), 'FUSION_DEPENDENCY_UNAVAILABLE', 'drafts.readLocal');
   assertFailure(adapters.network.snapshot(), 'FUSION_DEPENDENCY_UNAVAILABLE', 'network.snapshot');
 });
 
@@ -71,13 +73,11 @@ test('successful dependency values are returned through immutable result envelop
       readEligible(value) {
         assert.equal(value, query);
         return [{ id: 'listing-1' }];
-      },
-      openComposer() { return { opened: true }; }
+      }
     },
     search: { run(term) { return { term, ids: ['listing-1'] }; } },
     media: { openSession(options) { return { maxImages: options.maxImages }; } },
     capabilities: { getPresentationView() { return Object.freeze([]); } },
-    drafts: { readLocal() { return null; } },
     network: { snapshot() { return { online: true }; } }
   };
 
