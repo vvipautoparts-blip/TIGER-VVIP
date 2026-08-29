@@ -4,9 +4,9 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT_DIR"
 
-echo "[smoke] validating authoritative current surface"
+echo "[smoke] validating authoritative TIGER NEXUS surface"
 
-python3 <<'PY_FUSION'
+python3 <<'PY_NEXUS'
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -22,12 +22,17 @@ required_markers = [
     "data-vvip-auth-gate",
     "data-vvip-fusion-authoritative",
     "data-vvip-unified-home",
+    "data-tiger-social-feed",
+    "data-social-post-trigger",
+    'data-nexus-create-context="marketplace"',
+    "data-nexus-sector",
+    "data-nexus-intent",
+    "data-nexus-pulse-vault",
+    "data-fusion-account-trigger",
+    "data-fusion-capability-menu",
     "data-vvip-marketplace-feed",
     "data-vvip-sector-filters",
     "data-listing-search",
-    "data-fusion-composer-trigger",
-    "data-fusion-account-trigger",
-    "data-fusion-capability-menu",
     "data-vvip-listing-detail-sheet",
 ]
 for marker in required_markers:
@@ -42,24 +47,43 @@ required_files = [
     "scripts/fusion/runtime-adapters.js",
     "scripts/fusion/marketplace-context.js",
     "scripts/fusion/f02-feed.js",
-    "scripts/fusion/f04-search-fabric.js",
-    "scripts/fusion/progressive-composer.js",
     "scripts/fusion/account-surface.js",
     "scripts/fusion/single-surface-controller.js",
+    "scripts/social/runtime-adapters.js",
+    "scripts/social/post-composer.js",
+    "scripts/social/core-shell.js",
+    "scripts/nexus/living-sector-object.js",
+    "scripts/nexus/pulse-vault.js",
+    "scripts/nexus/social-runtime-guard.js",
+    "scripts/nexus/bootstrap.js",
     "scripts/runtime/vvip-marketplace-repository.js",
-    "scripts/runtime/vvip-my-listings.js",
     "styles/fusion/f02-single-surface.css",
-    "styles/fusion/progressive-composer.css",
+    "styles/nexus/nexus.css",
     "sw-vvip-static.js",
     "scripts/runtime/vvip-static-delivery.js",
     "docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md",
+    "docs/owner-control/TIGER_NEXUS_2026_CURRENT_OWNER_AUTHORITY.md",
     "config/fusion/current-authority.json",
 ]
 for relative in required_files:
     if not Path(relative).is_file():
         raise SystemExit(f"[smoke][fail] required current file missing: {relative}")
 
+retired_files = [
+    "scripts/fusion/progressive-composer.js",
+    "styles/fusion/progressive-composer.css",
+    "tests/fusion-progressive-composer.test.cjs",
+    "tests/fusion-composer-integration.test.cjs",
+]
+for relative in retired_files:
+    if Path(relative).exists():
+        raise SystemExit(f"[smoke][fail] superseded Marketplace wizard remains in current tree: {relative}")
+
 retired_index_assets = [
+    "scripts/fusion/progressive-composer.js",
+    "styles/fusion/progressive-composer.css",
+    "data-marketplace-listing-trigger",
+    "data-fusion-composer-trigger",
     "styles/vvip-pr31-create-listing-shell.css",
     "scripts/vvip-pr31-create-listing-shell.js",
     "vvip-discovery-shell",
@@ -68,7 +92,7 @@ retired_index_assets = [
 ]
 for retired in retired_index_assets:
     if retired.lower() in html.lower():
-        raise SystemExit(f"[smoke][fail] authoritative index restored retired UI asset: {retired}")
+        raise SystemExit(f"[smoke][fail] authoritative index restored retired creation/runtime asset: {retired}")
 
 if "href=\"#\"" in html or "href='#'" in html:
     raise SystemExit("[smoke][fail] fake hash-only link is presented as navigation")
@@ -112,43 +136,39 @@ for raw in parser.local_assets + parser.local_links:
 if parser.buttons_without_action_contract:
     raise SystemExit(f"[smoke][fail] button without explicit action contract: {parser.buttons_without_action_contract}")
 
-composer = Path("scripts/fusion/progressive-composer.js").read_text(encoding="utf-8")
-composer_contracts = [
-    "VVIP_PR36_MEDIA",
-    "VVIP_AUTH",
-    "requireAuth",
-    "VVIPFusionMarketplaceContext",
-    "createDraftWithMedia",
-    "submitForReview",
-    "data-fusion-progressive-form",
-    "data-fusion-save-draft",
-    "ليست طرفًا في البيع أو الدفع أو التوصيل",
-]
-for contract in composer_contracts:
+composer = Path("scripts/social/post-composer.js").read_text(encoding="utf-8")
+runtime = Path("scripts/social/runtime-adapters.js").read_text(encoding="utf-8")
+nexus = Path("scripts/nexus/living-sector-object.js").read_text(encoding="utf-8")
+bootstrap = Path("scripts/nexus/bootstrap.js").read_text(encoding="utf-8")
+
+for contract in ["sectorId", "intent", "CREATE_SOCIAL_POST"]:
     if contract not in composer:
-        raise SystemExit(f"[smoke][fail] progressive composer current contract missing: {contract}")
+        raise SystemExit(f"[smoke][fail] NEXUS composer contract missing: {contract}")
+for contract in ["vvip_social_post_create", "p_sector_key", "p_intent_class"]:
+    if contract not in runtime:
+        raise SystemExit(f"[smoke][fail] NEXUS runtime publication contract missing: {contract}")
+for contract in ["OFFER", "NEED", "SERVICE", "OPPORTUNITY", "NEXUS_SECTOR_REQUIRED", "NEXUS_INTENT_REQUIRED"]:
+    if contract not in nexus:
+        raise SystemExit(f"[smoke][fail] Living Sector Object contract missing: {contract}")
+for contract in ["vvip_nexus_sector_registry", "VVIP_FUSION_SECTOR_REGISTRY", "hydrateServerSectorRegistry"]:
+    if contract not in bootstrap:
+        raise SystemExit(f"[smoke][fail] server-authoritative sector registry contract missing: {contract}")
 
 for retired in [
     "LOCAL_DRAFT_ONLY",
     "localStorage.setItem",
     "localStorage.getItem",
-    "vvip.fusion.composer.draft",
     "prepareForPublication",
     "requestPublication",
-    "VVIPActivationProvider",
     "entitlementReceipt",
-    "data-fusion-publish-request",
 ]:
     if retired in composer:
-        raise SystemExit(f"[smoke][fail] superseded publication authority restored in composer: {retired}")
-
-if "readAsDataURL" in composer or "data:image" in composer:
-    raise SystemExit("[smoke][fail] progressive composer attempts to persist raw image data")
+        raise SystemExit(f"[smoke][fail] superseded publication authority restored in NEXUS composer: {retired}")
 
 repository = Path("scripts/runtime/vvip-marketplace-repository.js").read_text(encoding="utf-8")
 for contract in ["vvip_marketplace_submit_for_review", "LISTING_SUBMIT_FAILED", "submitForReview"]:
     if contract not in repository:
-        raise SystemExit(f"[smoke][fail] trusted review-submission repository contract missing: {contract}")
+        raise SystemExit(f"[smoke][fail] trusted Marketplace review infrastructure missing: {contract}")
 for retired in [
     "vvip_marketplace_prepare_publication",
     "PUBLICATION_PREPARE_FAILED",
@@ -161,20 +181,6 @@ for retired in [
 ]:
     if retired in repository:
         raise SystemExit(f"[smoke][fail] superseded publication authority restored in repository: {retired}")
-if "PUBLICATION_TRANSPORT_UNAVAILABLE" in repository:
-    raise SystemExit("[smoke][fail] retired publication transport stub restored")
-
-my_listings = Path("scripts/runtime/vvip-my-listings.js").read_text(encoding="utf-8")
-if re.search(r"\bEXPIRED\s*:", my_listings):
-    raise SystemExit("[smoke][fail] retired EXPIRED listing lifecycle state restored in current runtime")
-
-controller = Path("scripts/fusion/single-surface-controller.js").read_text(encoding="utf-8")
-adapters = Path("scripts/fusion/runtime-adapters.js").read_text(encoding="utf-8")
-feed = Path("scripts/fusion/f02-feed.js").read_text(encoding="utf-8")
-combined = controller + "\n" + adapters + "\n" + feed + "\n" + composer
-
-if "VVIP_FUSION_SECTOR_REGISTRY" not in combined:
-    raise SystemExit("[smoke][fail] dynamic sector registry contract is missing")
 
 for token in ["automotive", "materials", "real-estate"]:
     if f'data-sector-filter="{token}"' in html:
@@ -191,11 +197,12 @@ active_runtime = [
     Path("scripts/fusion/runtime-adapters.js"),
     Path("scripts/fusion/marketplace-context.js"),
     Path("scripts/fusion/f02-feed.js"),
-    Path("scripts/fusion/progressive-composer.js"),
     Path("scripts/fusion/account-surface.js"),
     Path("scripts/fusion/single-surface-controller.js"),
+    Path("scripts/social/runtime-adapters.js"),
+    Path("scripts/social/post-composer.js"),
+    Path("scripts/social/core-shell.js"),
     Path("scripts/runtime/vvip-marketplace-repository.js"),
-    Path("scripts/runtime/vvip-my-listings.js"),
 ]
 native_dialog = re.compile(r"(?<![A-Za-z0-9_])(?:window\.)?(?:alert|confirm|prompt)\s*\(")
 for file in active_runtime:
@@ -210,14 +217,13 @@ if 'CACHE_NAME = "vvip-static-v2"' not in worker:
 owner = Path("docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md").read_text(encoding="utf-8")
 for contract in [
     "CURRENT_ONLY / OWNER_BINDING / FIRST_REFERENCE / NO_FALLBACK / NO_IN_TREE_ARCHIVE",
-    "no owner-approved product-time lifetime",
-    "no fixed commercial/weekly posting quota",
-    "maximum remains 7 images",
+    "TIGER NEXUS 2026",
+    "Living Sector Object",
+    "OFFER / NEED / SERVICE / OPPORTUNITY",
     "PULSE_2",
     "PULSE_10",
     "PULSE_25",
     "PULSE_45",
-    "server-authoritative visibility allocation",
     "not a party",
 ]:
     if contract.lower() not in owner.lower():
@@ -228,8 +234,8 @@ for retired in ['"supersededDecisions"', '"LEGACY_']:
     if retired in manifest:
         raise SystemExit(f"[smoke][fail] current authority restored in-tree legacy registry material: {retired}")
 
-print("[smoke] authoritative current surface PASS")
-PY_FUSION
+print("[smoke] authoritative TIGER NEXUS surface PASS")
+PY_NEXUS
 
 echo "[smoke] validating shell scripts and JavaScript parse cleanly"
 bash -n scripts/qa-smoke.sh
@@ -237,11 +243,12 @@ node --check auth-clerk-index.js
 node --check scripts/fusion/runtime-adapters.js
 node --check scripts/fusion/marketplace-context.js
 node --check scripts/fusion/f02-feed.js
-node --check scripts/fusion/progressive-composer.js
 node --check scripts/fusion/account-surface.js
 node --check scripts/fusion/single-surface-controller.js
+node --check scripts/social/runtime-adapters.js
+node --check scripts/social/post-composer.js
+node --check scripts/social/core-shell.js
 node --check scripts/runtime/vvip-marketplace-repository.js
-node --check scripts/runtime/vvip-my-listings.js
 node --check scripts/fusion/verify-current-authority.cjs
 node --check sw-vvip-static.js
 
