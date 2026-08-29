@@ -98,20 +98,41 @@ test('current authority rejects publishing cards, subscriptions and paid publica
   }
 });
 
-test('Pulse is exactly 2/10/25/45 with no product-time expiry', () => {
+test('Pulse product semantics are global but sovereign pricing is market-specific', () => {
   const manifest = loadManifest();
-  assert.deepEqual(manifest.pulseRing.tiersJod, [2, 10, 25, 45]);
+  assert.equal(Object.prototype.hasOwnProperty.call(manifest.pulseRing, 'tiersJod'), false);
+  assert.deepEqual(manifest.pulseRing.productLevels, [
+    'PULSE_2',
+    'PULSE_10',
+    'PULSE_25',
+    'PULSE_45'
+  ]);
+  assert.equal(manifest.pulseRing.globalPrice, null);
+  assert.equal(manifest.pulseRing.globalCurrency, null);
+  assert.equal(manifest.pulseRing.pricingAuthority, 'MARKET_PRICING_CONTRACT');
   assert.equal(manifest.pulseRing.purchasedValue, 'SERVER_AUTHORITATIVE_VISIBILITY_ALLOCATION');
   assert.equal(manifest.pulseRing.productTimeExpiry, null);
   assert.equal(manifest.pulseRing.ordinaryPublicationPrerequisite, false);
   assert.equal(manifest.pulseRing.selfServiceDiscountPercent, 7);
   assert.equal(manifest.pulseRing.oneSaleOneSalesWinner, true);
 
-  const oldTiers = loadManifest();
-  oldTiers.pulseRing.tiersJod = [3, 10, 20];
-  let result = verify(oldTiers);
+  const legacy = loadManifest();
+  legacy.pulseRing.tiersJod = [2, 10, 25, 45];
+  let result = verify(legacy);
   assert.equal(result.ok, false);
-  assert.ok(result.errors.includes('Pulse tiers must be exactly 2/10/25/45 JOD'));
+  assert.ok(result.errors.includes('Pulse global tiersJod authority is forbidden by SGF'));
+
+  const price = loadManifest();
+  price.pulseRing.globalPrice = 10;
+  result = verify(price);
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.includes('Pulse globalPrice must be null under SGF'));
+
+  const currency = loadManifest();
+  currency.pulseRing.globalCurrency = 'JOD';
+  result = verify(currency);
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.includes('Pulse globalCurrency must be null under SGF'));
 
   const expired = loadManifest();
   expired.pulseRing.productTimeExpiry = '30 days';
