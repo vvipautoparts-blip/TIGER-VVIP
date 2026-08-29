@@ -48,6 +48,24 @@ test('current runtime and current authority tree contain no superseded NEXUS con
   assert.deepEqual(hits, []);
 });
 
+test('superseded Marketplace wizard is deleted, not hidden or retained as a second creation path', () => {
+  const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  const removed = [
+    'scripts/fusion/progressive-composer.js',
+    'styles/fusion/progressive-composer.css',
+    'tests/fusion-progressive-composer.test.cjs',
+    'tests/fusion-composer-integration.test.cjs'
+  ];
+  for (const relative of removed) {
+    assert.equal(fs.existsSync(path.join(root, relative)), false, `${relative} must stay physically deleted`);
+  }
+  assert.doesNotMatch(index, /data-marketplace-listing-trigger/);
+  assert.doesNotMatch(index, /data-fusion-composer-trigger/);
+  assert.doesNotMatch(index, /scripts\/fusion\/progressive-composer\.js/);
+  assert.doesNotMatch(index, /styles\/fusion\/progressive-composer\.css/);
+  assert.match(index, /data-nexus-create-context="marketplace"[^>]*data-social-post-trigger|data-social-post-trigger[^>]*data-nexus-create-context="marketplace"/);
+});
+
 test('no current-tree archive trash or legacy directory preserves superseded product behavior', () => {
   const suspicious = [];
   function scanDirs(entry) {
