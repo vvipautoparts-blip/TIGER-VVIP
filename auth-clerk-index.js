@@ -18,7 +18,6 @@
   ]);
   const INTENT_STORAGE_KEY = "vvip.auth.intent.v1";
   const SIMPLE_INTENTS = new Set([
-    "CREATE_LISTING",
     "OPEN_ACCOUNT",
     "CREATE_SOCIAL_POST",
     "OPEN_SOCIAL_FRIENDS",
@@ -72,30 +71,21 @@
     return "";
   }
 
+  function fusionSurface() {
+    const surface = root.VVIPFusionSurface;
+    return surface && typeof surface === "object" ? surface : null;
+  }
+
   function showHome() {
-    if (root.VVIPFusionSurface && typeof root.VVIPFusionSurface.showHome === "function") {
-      root.VVIPFusionSurface.showHome();
-      return;
-    }
-    if (root.VVIP_PR29 && typeof root.VVIP_PR29.showHome === "function") root.VVIP_PR29.showHome();
+    const surface = fusionSurface();
+    if (!surface || typeof surface.showHome !== "function") throw authError("NEXUS_SURFACE_UNAVAILABLE");
+    surface.showHome();
   }
 
   function hideHome() {
-    if (root.VVIPFusionSurface && typeof root.VVIPFusionSurface.hideHome === "function") {
-      root.VVIPFusionSurface.hideHome();
-      return;
-    }
-
-    const home = root.document && typeof root.document.querySelector === "function"
-      ? root.document.querySelector("[data-vvip-fusion-authoritative]")
-      : null;
-    if (home) {
-      home.hidden = true;
-      if (typeof home.setAttribute === "function") home.setAttribute("aria-hidden", "true");
-      return;
-    }
-
-    if (root.VVIP_PR29 && typeof root.VVIP_PR29.hideHome === "function") root.VVIP_PR29.hideHome();
+    const surface = fusionSurface();
+    if (!surface || typeof surface.hideHome !== "function") throw authError("NEXUS_SURFACE_UNAVAILABLE");
+    surface.hideHome();
   }
 
   function gateElement() {
@@ -113,12 +103,9 @@
   function showGate() {
     hideHome();
     const gate = gateElement();
-    if (gate) {
-      gate.hidden = false;
-      if (typeof gate.setAttribute === "function") gate.setAttribute("aria-hidden", "false");
-      return;
-    }
-    if (root.VVIP_PR29 && typeof root.VVIP_PR29.showGate === "function") root.VVIP_PR29.showGate();
+    if (!gate) throw authError("NEXUS_AUTH_GATE_UNAVAILABLE");
+    gate.hidden = false;
+    if (typeof gate.setAttribute === "function") gate.setAttribute("aria-hidden", "false");
   }
 
   function hideGate() {
@@ -365,7 +352,11 @@
 
   function recover() {
     console.warn("VVIP_CLERK_GATE_RECOVERY");
-    showGate();
+    try {
+      showGate();
+    } catch (_) {
+      // Fail closed: never reveal the protected surface when the canonical gate is unavailable.
+    }
     showAuthError();
   }
 
