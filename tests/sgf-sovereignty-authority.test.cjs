@@ -40,6 +40,9 @@ test('SGF owner root is global and every sovereign default is null', () => {
     market: null
   });
   assert.deepEqual(sgf.markets, []);
+  assert.equal(sgf.marketSelectionPolicy, 'EXPLICIT_ONLY');
+  assert.equal(sgf.publicReadMarketPolicy, 'OPTIONAL_EXPLICIT_OR_GLOBAL');
+  assert.equal(sgf.runtimeMarketResolver, 'scripts/sovereignty/explicit-market-context.cjs');
   assert.equal(sgf.activationAuthority, 'MARKET_CAPABILITY_PASSPORT');
   assert.equal(sgf.fallbackPolicy, 'DENY_NO_SOVEREIGN_FALLBACK');
 });
@@ -66,6 +69,9 @@ test('SGF validator rejects every sovereign default and owner-root binding', () 
     (x) => { x.defaults.legalEntity = 'JO_ENTITY'; },
     (x) => { x.defaults.taxProfile = 'JO_TAX'; },
     (x) => { x.defaults.market = 'JO'; },
+    (x) => { x.marketSelectionPolicy = 'DEFAULT_COUNTRY'; },
+    (x) => { x.publicReadMarketPolicy = 'DEFAULT_COUNTRY'; },
+    (x) => { x.runtimeMarketResolver = 'scripts/runtime/default-country.js'; },
     (x) => { x.fallbackPolicy = 'FALLBACK_TO_JO'; }
   ];
 
@@ -90,5 +96,13 @@ test('SGF capability registry is exact, duplicate-free and markets may be empty'
     'DATA_EXPORT'
   ]);
   assert.equal(new Set(sgf.capabilityRegistry).size, sgf.capabilityRegistry.length);
+  assert.equal(verifySgf(sgf).ok, true);
+});
+
+test('SGF machine truth binds explicit runtime market selection', () => {
+  const sgf = loadJson(sgfPath);
+  assert.equal(sgf.marketSelectionPolicy, 'EXPLICIT_ONLY');
+  assert.equal(sgf.publicReadMarketPolicy, 'OPTIONAL_EXPLICIT_OR_GLOBAL');
+  assert.equal(sgf.runtimeMarketResolver, 'scripts/sovereignty/explicit-market-context.cjs');
   assert.equal(verifySgf(sgf).ok, true);
 });
