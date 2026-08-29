@@ -51,6 +51,15 @@ function verifySgfAuthority(manifest) {
     errors.push('capabilityRegistry must equal the SGF V1 capability registry');
   }
   if (!Array.isArray(manifest.markets)) errors.push('markets must be an array');
+  if (manifest.marketSelectionPolicy !== 'EXPLICIT_ONLY') {
+    errors.push('marketSelectionPolicy must be EXPLICIT_ONLY');
+  }
+  if (manifest.publicReadMarketPolicy !== 'OPTIONAL_EXPLICIT_OR_GLOBAL') {
+    errors.push('publicReadMarketPolicy must be OPTIONAL_EXPLICIT_OR_GLOBAL');
+  }
+  if (manifest.runtimeMarketResolver !== 'scripts/sovereignty/explicit-market-context.cjs') {
+    errors.push('runtimeMarketResolver must point to explicit-market-context.cjs');
+  }
   if (manifest.activationAuthority !== 'MARKET_CAPABILITY_PASSPORT') {
     errors.push('activationAuthority must be MARKET_CAPABILITY_PASSPORT');
   }
