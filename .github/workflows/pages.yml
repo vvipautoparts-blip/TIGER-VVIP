@@ -157,6 +157,7 @@ jobs:
           workflow_path="$(jq -er '.path' "$metadata")"
           repository_id="$(jq -er '.repository.id | tostring' "$metadata")"
           head_repository_id="$(jq -er '.head_repository.id | tostring' "$metadata")"
+
           if [ "$actual_run_id" != "$RUN_ID" ]; then
             echo 'BUILDER_RUN_ID_MISMATCH' >&2
             exit 1
