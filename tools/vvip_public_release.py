@@ -34,7 +34,7 @@ PUBLIC_ROOT_FILES = (
 )
 
 PUBLIC_STYLE_FILES = (
-    "styles/vvip-pr29-home-marketplace.css",
+    "styles/tiger-social/base.css",
     "styles/vvip-pr36-media.css",
     "styles/fusion/f02-single-surface.css",
     "styles/tiger-one/tokens.css",
@@ -130,6 +130,9 @@ FORBIDDEN_PRODUCTION_MARKERS = {
     "FUTURE_PUBLISH_ONLY": "النشر الحقيقي سيتم تفعيله لاحقًا",
     "LOCAL_DRAFT_ONLY_PUBLISHER": "LOCAL_DRAFT_ONLY",
     "RETIRED_GITHUB_PAGES_URL": "vvipautoparts-blip." "github.io/TIGER-VVIP",
+    "THIRD_PARTY_PREVIEW_PROXY": "raw.githack.com",
+    "RETIRED_PRIVATE_PROFILE_ROUTE": "private-profile-p03.html",
+    "RETIRED_MARKETPLACE_STYLESHEET": "vvip-pr29-home-marketplace.css",
     "PARALLEL_MARKETPLACE_BRAND": "VVIP TIGER MARKETPLACE",
 }
 
