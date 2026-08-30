@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Build the exact, auditable public artifact for TIGER NEXUS 2026.
 
-Only the current NEXUS runtime graph is public. Superseded Marketplace,
-parallel composer, archive, legacy, fallback, and compatibility product
-surfaces are not copied or injected.
+Only the current NEXUS runtime graph is public. No superseded product path,
+parallel composer, archive, fallback, compatibility surface, or second runtime
+is copied or injected.
 """
 from __future__ import annotations
 
@@ -133,31 +133,12 @@ FORBIDDEN_PRODUCTION_MARKERS = {
     "PARALLEL_MARKETPLACE_BRAND": "VVIP TIGER MARKETPLACE",
 }
 
-INDEX_REMOVE_SCRIPTS = (
+# The source index intentionally contains preview Clerk/auth bootstrapping. The
+# sealed artifact replaces only those current entries; it does not understand
+# or preserve any superseded product route.
+INDEX_REPLACED_SCRIPTS = (
     "auth-clerk-index.js",
     "scripts/vvip-pr30-resilience.js",
-    "scripts/vvip-pr29-home-marketplace.js",
-    "scripts/vvip-pr32-draft-preview.js",
-    "scripts/vvip-pr31-create-listing-shell.js",
-    "scripts/vvip-pr33-publish-readiness.js",
-    "scripts/runtime/vvip-my-listings.js",
-    "scripts/vvip-production-marketplace.js",
-    "scripts/runtime/vvip-marketplace-repository.js",
-    "scripts/fusion/runtime-adapters.js",
-    "scripts/fusion/marketplace-context.js",
-    "scripts/fusion/f02-feed.js",
-)
-
-INDEX_REMOVE_STYLES = (
-    "styles/vvip-pr31-create-listing-shell.css",
-    "styles/vvip-pr32-draft-preview.css",
-    "styles/vvip-pr33-publish-readiness.css",
-    "styles/vvip-production-marketplace.css",
-)
-
-ACCOUNT_ROUTE_PATTERN = re.compile(
-    r'href=(["\'])private-profile-p03\.html\1(?P<attrs>[^>]*)',
-    flags=re.IGNORECASE,
 )
 
 
@@ -194,18 +175,6 @@ def _copy(source: Path, output: Path, relative: str) -> None:
     shutil.copy2(src, destination)
 
 
-def _close_account_routes(text: str) -> str:
-    def replace(match: re.Match[str]) -> str:
-        attrs = match.group("attrs")
-        attrs = re.sub(r"\s+data-safe-nav(?:=(?:[\"'][^\"']*[\"']|[^\s>]+))?", "", attrs, flags=re.IGNORECASE)
-        attrs = re.sub(r"\s+data-nav-target=(?:[\"']private-profile-p03\.html[\"']|private-profile-p03\.html)", "", attrs, flags=re.IGNORECASE)
-        if not re.search(r"\bdata-account-route\b", attrs, flags=re.IGNORECASE):
-            attrs += " data-account-route"
-        return f'href="#profile"{attrs}'
-
-    return ACCOUNT_ROUTE_PATTERN.sub(replace, text)
-
-
 def _transform_index(text: str) -> str:
     text = re.sub(
         r"\s*<script[^>]+(?:data-clerk-publishable-key|clerk\.accounts\.dev)[^>]*></script>",
@@ -213,22 +182,13 @@ def _transform_index(text: str) -> str:
         text,
         flags=re.IGNORECASE,
     )
-    for script in INDEX_REMOVE_SCRIPTS:
+    for script in INDEX_REPLACED_SCRIPTS:
         text = re.sub(
             rf"\s*<script[^>]+src=[\"']{re.escape(script)}[\"'][^>]*></script>",
             "",
             text,
             flags=re.IGNORECASE,
         )
-    for stylesheet in INDEX_REMOVE_STYLES:
-        text = re.sub(
-            rf"\s*<link[^>]+href=[\"']{re.escape(stylesheet)}[\"'][^>]*>",
-            "",
-            text,
-            flags=re.IGNORECASE,
-        )
-
-    text = _close_account_routes(text)
 
     injection = """
   <script defer src="runtime-config.js"></script>
@@ -236,8 +196,9 @@ def _transform_index(text: str) -> str:
   <script defer src="auth-clerk-index.js"></script>
   <script defer src="scripts/vvip-pr30-resilience.js"></script>
 """.rstrip()
-    text = text.replace("</head>", f"{injection}\n</head>")
-    return text
+    if "</head>" not in text:
+        raise RuntimeError("public index head is missing")
+    return text.replace("</head>", f"{injection}\n</head>")
 
 
 def _decode_clerk_frontend_api(publishable_key: str) -> str | None:
