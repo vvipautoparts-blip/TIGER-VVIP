@@ -317,7 +317,7 @@ jobs:
             scripts/nexus/bootstrap.js
             scripts/media/f05-heif-worker-client.js
             workers/media/f05-heif-decoder.v1.wasm
-            styles/vvip-pr29-home-marketplace.css
+            styles/tiger-social/base.css
             styles/vvip-pr36-media.css
             styles/fusion/f02-single-surface.css
             styles/tiger-social/core-shell.css
@@ -344,6 +344,7 @@ jobs:
           done
 
           forbidden_paths=(
+            private-profile-p03.html
             fusion-home-f02.html
             scripts/runtime/vvip-marketplace-rollback.js
             scripts/runtime/vvip-my-listings.js
@@ -355,6 +356,7 @@ jobs:
             scripts/fusion/f02-feed.js
             scripts/fusion/marketplace-context.js
             scripts/fusion/progressive-composer.js
+            styles/vvip-pr29-home-marketplace.css
             styles/vvip-production-marketplace.css
             styles/vvip-pr31-create-listing-shell.css
             styles/vvip-pr32-draft-preview.css
