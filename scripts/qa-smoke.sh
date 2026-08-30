@@ -77,6 +77,7 @@ required_files = [
     "scripts/nexus/pulse-runtime.js",
     "scripts/nexus/opportunity-radar.js",
     "scripts/nexus/pulse-surface.js",
+    "scripts/nexus/social-runtime-guard.js",
     "scripts/nexus/bootstrap.js",
     "styles/nexus/nexus.css",
     "sw-vvip-static.js",
@@ -135,7 +136,7 @@ if parser.buttons_without_action_contract:
     raise SystemExit(f"[smoke][fail] button without explicit action contract: {parser.buttons_without_action_contract}")
 
 composer = Path("scripts/social/post-composer.js").read_text(encoding="utf-8")
-runtime = Path("scripts/social/runtime-adapters.js").read_text(encoding="utf-8")
+runtime_guard = Path("scripts/nexus/social-runtime-guard.js").read_text(encoding="utf-8")
 sector_discovery = Path("scripts/nexus/sector-discovery.js").read_text(encoding="utf-8")
 bootstrap = Path("scripts/nexus/bootstrap.js").read_text(encoding="utf-8")
 auth = Path("auth-clerk-index.js").read_text(encoding="utf-8")
@@ -144,9 +145,12 @@ core_shell = Path("scripts/social/core-shell.js").read_text(encoding="utf-8")
 for contract in ["sectorId", "intent", "CREATE_SOCIAL_POST"]:
     if contract not in composer:
         raise SystemExit(f"[smoke][fail] canonical composer contract missing: {contract}")
+for contract in ["../nexus/social-runtime-guard.js", "wrapNexusSocialRuntime", "runtime: wrapRuntime"]:
+    if contract not in composer:
+        raise SystemExit(f"[smoke][fail] canonical composer is not wired through NEXUS social runtime guard: {contract}")
 for contract in ["vvip_social_post_create", "p_sector_key", "p_intent_class"]:
-    if contract not in runtime:
-        raise SystemExit(f"[smoke][fail] canonical publication RPC contract missing: {contract}")
+    if contract not in runtime_guard:
+        raise SystemExit(f"[smoke][fail] canonical NEXUS publication RPC contract missing: {contract}")
 for contract in ["TIGERSocialRuntime", "TIGERSocialFeed", "sectorKey", "intentClass"]:
     if contract not in sector_discovery:
         raise SystemExit(f"[smoke][fail] sector discovery is not bound to Living Objects: {contract}")
@@ -185,6 +189,7 @@ node --check scripts/social/feed-controller.js
 node --check scripts/social/post-composer.js
 node --check scripts/social/core-shell.js
 node --check scripts/nexus/sector-discovery.js
+node --check scripts/nexus/social-runtime-guard.js
 node --check sw-vvip-static.js
 
 echo "VVIP_FUSION_SMOKE=PASS"
