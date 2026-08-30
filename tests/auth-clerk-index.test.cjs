@@ -100,19 +100,24 @@ function installBrowserFixture(clerkOverrides) {
   };
 }
 
-test("auth runtime contains no parallel create-listing or PR29 fallback", () => {
+test("auth runtime contains no parallel create-listing, PR29 fallback, or retired preview route", () => {
   assert.doesNotMatch(source, /CREATE_LISTING/);
   assert.doesNotMatch(source, /VVIP_PR29/);
   assert.doesNotMatch(source, /TOGGLE_FAVORITE/);
   assert.doesNotMatch(source, /CONTACT_SELLER_INTERNAL/);
+  assert.doesNotMatch(source, /PREVIEW_ONLY_RETURN_PATHS/);
+  assert.doesNotMatch(source, /private-profile-p03\.html/);
 });
 
 test("does not expose a local preview authentication bypass", () => {
   assert.equal(auth.localPreviewAllowed, undefined);
 });
 
-test("allows only bounded internal return paths", () => {
-  assert.equal(auth.safeReturnPath({ search: "?return_to=private-profile-p03.html" }), "private-profile-p03.html");
+test("allows only the canonical current NEXUS return path", () => {
+  assert.equal(auth.safeReturnPath({ search: "?return_to=index.html" }), "index.html");
+  assert.equal(auth.safeReturnPath({ search: "?return_to=/index.html" }), "/index.html");
+  assert.equal(auth.safeReturnPath({ search: "?return_to=./index.html" }), "./index.html");
+  assert.equal(auth.safeReturnPath({ search: "?return_to=private-profile-p03.html" }), "");
   assert.equal(auth.safeReturnPath({ search: "?return_to=https://evil.example" }), "");
   assert.equal(auth.safeReturnPath({ search: "?return_to=../../admin" }), "");
 });
