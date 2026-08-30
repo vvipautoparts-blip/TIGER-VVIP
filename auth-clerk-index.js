@@ -256,8 +256,19 @@
   }
 
   async function resolveClerk() {
-    const runtime = await Promise.resolve(root.VVIPRuntimeReady);
-    const clerk = runtime && runtime.clerk;
+    const runtimeReady = root.VVIPRuntimeReady;
+    let clerk = null;
+
+    if (runtimeReady !== undefined && runtimeReady !== null) {
+      const runtime = await Promise.resolve(runtimeReady);
+      clerk = runtime && runtime.clerk;
+    } else if (!root.__VVIP_RUNTIME_CONFIG__) {
+      // Source/branch preview: index.html intentionally preloads Clerk directly.
+      // Sealed candidate/Production artifacts always define runtime config first and
+      // therefore remain bound to the canonical runtime loader with no fallback.
+      clerk = root.Clerk;
+    }
+
     if (!clerk) throw authError("CLERK_RUNTIME_UNAVAILABLE");
     resetForClerk(clerk);
     registerListener(clerk);
