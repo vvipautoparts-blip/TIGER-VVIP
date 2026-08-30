@@ -1,0 +1,19 @@
+name: TIGER Media Finalizer Protected Deploy SUPERSEDED
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quarantine:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: SOVEREIGN_CONSTELLATION_SUPERSEDED
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "::error title=SOVEREIGN_CONSTELLATION_SUPERSEDED::This legacy deployment authority is disabled. Follow docs/superpowers/specs/2026-08-28-tiger-sovereign-constellation-2026.md."
+          exit 1

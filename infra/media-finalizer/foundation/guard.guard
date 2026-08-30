@@ -1,0 +1,67 @@
+# TIGER Sovereign Constellation 2026 — Seoul media build foundation Guard policy.
+
+let repositories = Resources.*[ Type == 'AWS::ECR::Repository' ]
+let keys = Resources.*[ Type == 'AWS::KMS::Key' ]
+let build_roles = Resources.*[ Type == 'AWS::IAM::Role' ]
+let lambda_functions = Resources.*[ Type == 'AWS::Lambda::Function' ]
+let distributions = Resources.*[ Type == 'AWS::CloudFront::Distribution' ]
+let web_acls = Resources.*[ Type == 'AWS::WAFv2::WebACL' ]
+
+rule foundation_has_one_ecr_kms_and_build_role {
+    %repositories !empty
+    %keys !empty
+    %build_roles !empty
+}
+
+rule foundation_excludes_runtime_and_edge {
+    %lambda_functions empty
+    %distributions empty
+    %web_acls empty
+}
+
+rule ecr_is_immutable_kms_encrypted when %repositories !empty {
+    %repositories {
+        Properties.ImageTagMutability == 'IMMUTABLE'
+        Properties.ImageScanningConfiguration.ScanOnPush == true
+        Properties.EncryptionConfiguration.EncryptionType == 'KMS'
+        Properties.EncryptionConfiguration.KmsKey exists
+    }
+}
+
+rule kms_key_is_rotating_and_retained_contract when %keys !empty {
+    %keys {
+        Properties.EnableKeyRotation == true
+        Properties.KeyPolicy exists
+    }
+}
+
+rule build_role_is_exact_github_oidc when %build_roles !empty {
+    %build_roles {
+        Properties.RoleName == 'TIGER-VVIP-GitHub-MediaBuild'
+        Properties.AssumeRolePolicyDocument.Statement[0].Effect == 'Allow'
+        Properties.AssumeRolePolicyDocument.Statement[0].Action == 'sts:AssumeRoleWithWebIdentity'
+        Properties.AssumeRolePolicyDocument.Statement[0].Principal.Federated exists
+        Properties.AssumeRolePolicyDocument.Statement[0].Condition.StringEquals.'token.actions.githubusercontent.com:aud' == 'sts.amazonaws.com'
+        Properties.AssumeRolePolicyDocument.Statement[0].Condition.StringEquals.'token.actions.githubusercontent.com:repository_owner_id' == '294954557'
+        Properties.AssumeRolePolicyDocument.Statement[0].Condition.StringEquals.'token.actions.githubusercontent.com:repository_id' == '1273805565'
+        Properties.AssumeRolePolicyDocument.Statement[0].Condition.StringEquals.'token.actions.githubusercontent.com:environment' == 'media-build'
+        Properties.AssumeRolePolicyDocument.Statement[0].Condition.StringEquals.'token.actions.githubusercontent.com:ref' == 'refs/heads/main'
+        Properties.AssumeRolePolicyDocument.Statement[0].Condition.StringEquals.'token.actions.githubusercontent.com:sub' == 'repo:vvipautoparts-blip/TIGER-VVIP:environment:media-build'
+    }
+}
+
+rule build_role_has_bounded_ecr_authority when %build_roles !empty {
+    %build_roles {
+        some Properties.Policies[*].PolicyDocument.Statement[*] {
+            some Action[*] == 'ecr:GetAuthorizationToken'
+            some Action[*] == 'ecr:GetRegistryScanningConfiguration'
+            Resource == '*'
+        }
+        some Properties.Policies[*].PolicyDocument.Statement[*] {
+            some Action[*] == 'ecr:PutImage'
+            some Action[*] == 'ecr:DescribeImageScanFindings'
+            Resource.'Fn::GetAtt'[0] == 'MediaFinalizerRepository'
+            Resource.'Fn::GetAtt'[1] == 'Arn'
+        }
+    }
+}

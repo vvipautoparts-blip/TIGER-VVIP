@@ -14,6 +14,8 @@ const APPROVED_SECTORS = [
   "engineering-consulting"
 ];
 
+const LISTING_ID = "11111111-1111-4111-8111-111111111111";
+
 function validDraft(sector = "automotive") {
   return {
     sector,
@@ -53,7 +55,7 @@ function createClientSpy() {
               return {
                 async single() {
                   return {
-                    data: Object.assign({ listing_id: "11111111-1111-4111-8111-111111111111" }, payload),
+                    data: Object.assign({ listing_id: LISTING_ID }, payload),
                     error: null
                   };
                 }
@@ -107,7 +109,7 @@ test("draft creation is content-first and does not require a payment entitlement
   assert.equal(client.writes.some((write) => write.payload && write.payload.status === "PENDING_REVIEW"), false);
 });
 
-test("publication request requires an opaque entitlement receipt before trusted transport", () => {
+test("review submission requires no paid publication entitlement and uses only trusted transport", async () => {
   const client = createClientSpy();
   const repository = repo.createMarketplaceRepository({
     client,
@@ -115,21 +117,19 @@ test("publication request requires an opaque entitlement receipt before trusted 
     config: { defaultCountryCode: "JO" }
   });
 
-  assert.equal(typeof repository.requestPublication, "function");
+  assert.equal(typeof repository.submitForReview, "function");
+  assert.equal(repository.requestPublication, undefined);
   assert.equal(repository.prepareForPublication, undefined);
-  assert.throws(
-    () => repository.requestPublication("11111111-1111-4111-8111-111111111111", {
-      planId: "visibility-standard",
-      entitlementReceipt: null
-    }),
-    { code: "ENTITLEMENT_RECEIPT_REQUIRED" }
-  );
 
-  assert.equal(client.rpcCalls.length, 0);
+  await assert.rejects(() => repository.submitForReview(LISTING_ID), { code: "LISTING_SUBMIT_FAILED" });
+  assert.deepEqual(client.rpcCalls, [{
+    name: "vvip_marketplace_submit_for_review",
+    payload: { target_listing: LISTING_ID }
+  }]);
   assert.equal(client.writes.some((write) => write.payload && write.payload.status === "PENDING_REVIEW"), false);
 });
 
-test("publication request uses PR190 step-up auth and resumes the same trusted intent", async () => {
+test("review submission uses PR190 step-up auth and resumes the same trusted intent", async () => {
   const client = createClientSpy();
   const clerk = { user: null };
   let descriptor = null;
@@ -148,29 +148,19 @@ test("publication request uses PR190 step-up auth and resumes the same trusted i
     config: { defaultCountryCode: "JO" }
   });
 
-  await assert.rejects(
-    () => repository.requestPublication("11111111-1111-4111-8111-111111111111", {
-      planId: "visibility-standard",
-      entitlementReceipt: "server-verified-receipt-placeholder"
-    }),
-    { code: "PUBLICATION_REQUEST_FAILED" }
-  );
+  await assert.rejects(() => repository.submitForReview(LISTING_ID), { code: "LISTING_SUBMIT_FAILED" });
   assert.deepEqual(descriptor, {
-    name: "REQUEST_PUBLICATION",
-    listingId: "11111111-1111-4111-8111-111111111111"
+    name: "SUBMIT_FOR_REVIEW",
+    listingId: LISTING_ID
   });
   assert.deepEqual(client.rpcCalls, [{
-    name: "vvip_marketplace_request_publication",
-    payload: {
-      target_listing: "11111111-1111-4111-8111-111111111111",
-      target_plan_id: "visibility-standard",
-      entitlement_receipt: "server-verified-receipt-placeholder"
-    }
+    name: "vvip_marketplace_submit_for_review",
+    payload: { target_listing: LISTING_ID }
   }]);
   assert.equal(client.writes.some((write) => write.op === "update"), false);
 });
 
-test("trusted publication transport failure never falls back to browser status mutation", async () => {
+test("trusted review-submission transport failure never falls back to browser status mutation", async () => {
   const client = createClientSpy();
   const repository = repo.createMarketplaceRepository({
     client,
@@ -178,13 +168,7 @@ test("trusted publication transport failure never falls back to browser status m
     config: { defaultCountryCode: "JO" }
   });
 
-  await assert.rejects(
-    () => repository.requestPublication("11111111-1111-4111-8111-111111111111", {
-      planId: "visibility-standard",
-      entitlementReceipt: "server-verified-receipt-placeholder"
-    }),
-    { code: "PUBLICATION_REQUEST_FAILED" }
-  );
+  await assert.rejects(() => repository.submitForReview(LISTING_ID), { code: "LISTING_SUBMIT_FAILED" });
   assert.equal(client.rpcCalls.length, 1);
   assert.equal(client.writes.some((write) => write.op === "update"), false);
 });

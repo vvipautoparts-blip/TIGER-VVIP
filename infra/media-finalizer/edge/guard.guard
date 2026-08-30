@@ -1,0 +1,80 @@
+# TIGER Sovereign Constellation 2026 — us-east-1 Global Edge Guard policy.
+
+let certificates = Resources.*[ Type == 'AWS::CertificateManager::Certificate' ]
+let distributions = Resources.*[ Type == 'AWS::CloudFront::Distribution' ]
+let origin_access_controls = Resources.*[ Type == 'AWS::CloudFront::OriginAccessControl' ]
+let cache_policies = Resources.*[ Type == 'AWS::CloudFront::CachePolicy' ]
+let origin_request_policies = Resources.*[ Type == 'AWS::CloudFront::OriginRequestPolicy' ]
+let web_acls = Resources.*[ Type == 'AWS::WAFv2::WebACL' ]
+let lambda_functions = Resources.*[ Type == 'AWS::Lambda::Function' ]
+let repositories = Resources.*[ Type == 'AWS::ECR::Repository' ]
+
+rule edge_has_global_orbit_authority {
+    %certificates !empty
+    %distributions !empty
+    %origin_access_controls !empty
+    %cache_policies !empty
+    %origin_request_policies !empty
+    %web_acls !empty
+}
+
+rule edge_excludes_regional_runtime_and_build {
+    %lambda_functions empty
+    %repositories empty
+}
+
+rule cloudfront_uses_modern_global_viewer_contract when %distributions !empty {
+    %distributions {
+        Properties.DistributionConfig.HttpVersion == 'http2and3'
+        Properties.DistributionConfig.IPV6Enabled == true
+        Properties.DistributionConfig.PriceClass == 'PriceClass_All'
+        Properties.DistributionConfig.DefaultCacheBehavior.ViewerProtocolPolicy == 'https-only'
+        Properties.DistributionConfig.ViewerCertificate.MinimumProtocolVersion == 'TLSv1.2_2025'
+        Properties.DistributionConfig.ViewerCertificate.SslSupportMethod == 'sni-only'
+        Properties.DistributionConfig.ViewerCertificate.AcmCertificateArn exists
+        Properties.DistributionConfig.WebACLId exists
+    }
+}
+
+rule oac_signs_lambda_origin when %origin_access_controls !empty {
+    %origin_access_controls {
+        Properties.OriginAccessControlConfig.OriginAccessControlOriginType == 'lambda'
+        Properties.OriginAccessControlConfig.SigningBehavior == 'always'
+        Properties.OriginAccessControlConfig.SigningProtocol == 'sigv4'
+    }
+}
+
+rule finalizer_cache_is_disabled when %cache_policies !empty {
+    %cache_policies {
+        Properties.CachePolicyConfig.DefaultTTL == 0
+        Properties.CachePolicyConfig.MaxTTL == 0
+        Properties.CachePolicyConfig.MinTTL == 0
+    }
+}
+
+rule origin_request_policy_is_explicit when %origin_request_policies !empty {
+    %origin_request_policies {
+        Properties.OriginRequestPolicyConfig.HeadersConfig.HeaderBehavior == 'whitelist'
+        some Properties.OriginRequestPolicyConfig.HeadersConfig.Headers[*] == 'X-Tiger-Session'
+        some Properties.OriginRequestPolicyConfig.HeadersConfig.Headers[*] == 'x-amz-content-sha256'
+        some Properties.OriginRequestPolicyConfig.HeadersConfig.Headers[*] == 'Content-Type'
+    }
+}
+
+rule waf_is_cloudfront_scoped_and_layered when %web_acls !empty {
+    %web_acls {
+        Properties.Scope == 'CLOUDFRONT'
+        some Properties.Rules[*] {
+            Statement.RateBasedStatement exists
+        }
+        some Properties.Rules[*] {
+            Statement.ManagedRuleGroupStatement.Name == 'AWSManagedRulesCommonRuleSet'
+        }
+        some Properties.Rules[*] {
+            Statement.ManagedRuleGroupStatement.Name == 'AWSManagedRulesKnownBadInputsRuleSet'
+        }
+        some Properties.Rules[*] {
+            Statement.ManagedRuleGroupStatement.Name == 'AWSManagedRulesAmazonIpReputationList'
+        }
+    }
+}

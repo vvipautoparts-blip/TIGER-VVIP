@@ -1,0 +1,2 @@
+import {createRemotePlaneAdapter} from './capability.mjs';
+export function createGitHubCodespacesAdapter(client){return createRemotePlaneAdapter({plane:'codespaces',client,listAction:'listCodespaces',deleteAction:'deleteCodespace',normalize:x=>Object.freeze({id:`codespace:${x.name}`,remote_id:x.name,state:x.state??null,created_at:x.created_at??null,updated_at:x.updated_at??null,last_used_at:x.last_used_at??null,repository:x.repository?.full_name??x.repository??null})});}

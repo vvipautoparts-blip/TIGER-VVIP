@@ -11,7 +11,6 @@
     PENDING_REVIEW: "قيد المراجعة",
     ACTIVE: "نشط",
     PAUSED: "متوقف مؤقتًا",
-    EXPIRED: "منتهي",
     REJECTED: "مرفوض",
     BLOCKED: "محظور",
     ARCHIVED: "مؤرشف"

@@ -1,0 +1,66 @@
+{
+  "schema_version": "TIGER-OWNER-DECISION-1",
+  "decision_id": "owner.cleanup.phoenix-cleanroom.2026-08-28",
+  "effective_date": "2026-08-28",
+  "domain": "cleanup-governance",
+  "status": "CURRENT_ONLY",
+  "title": "TIGER PHOENIX CLEANROOM 2026",
+  "canonical_authority": "docs/owner-control/TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md",
+  "single_invention": {
+    "name": "Proof-of-Reclamation",
+    "rule": "NO PROOF OF RECLAMATION -> NO ENTRY TO DESTRUCTIVE DISPOSAL"
+  },
+  "aion_integration": {
+    "post_launch_authority": "docs/owner-control/TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md",
+    "runtime_contract": "project-control/aion/metabolism.mjs",
+    "required_deletion_chain": ["DETECT", "CLASSIFY", "EXPLAIN", "APPROVE", "QUARANTINE", "REHEARSE", "VERIFY", "DELETE", "SEAL"],
+    "rule": "NO_AION_DELETION_CHAIN_NO_DESTRUCTIVE_DISPOSAL",
+    "phoenix_may_bypass_aion": false
+  },
+  "default_owner_cleanup_semantics": {
+    "unscoped_cleanup_request": "FULL_SCOPE_SAFE",
+    "lifecycle": ["OBSERVE", "INVENTORY", "CLASSIFY", "PROVE", "SHADOW", "AION_DISPOSAL_GATE", "POST_VERIFY", "PASSPORT", "REPORT"],
+    "included_planes": ["repository", "pull_requests_and_branches", "codespace_filesystem", "docker_and_buildkit", "supabase_local", "github_actions_artifacts_and_logs", "github_actions_cache", "codespaces_and_prebuilds", "local_windows_wsl_docker_when_requested"],
+    "unobservable_plane_result": "BLOCKED_CAPABILITY",
+    "full_scope_may_ignore_unobserved_plane": false
+  },
+  "storage_classes": ["S0_SOVEREIGN", "S1_EVIDENCE", "S2_REBUILDABLE", "S3_EPHEMERAL", "S4_STATEFUL_LOCAL"],
+  "automatic_disposal_denied_for": [
+    "CURRENT_ONLY_OWNER_AUTHORITY",
+    "CANONICAL_SOURCE_REQUIRED_BY_CURRENT_RUNTIME",
+    "REQUIRED_MIGRATIONS",
+    "PRODUCTION_CONFIGURATION",
+    "PROTECTED_RELEASE_IDENTITY",
+    "PROTECTED_RELEASE_PROVENANCE",
+    "SECURITY_SENSITIVE_MATERIAL",
+    "UNBACKED_STATEFUL_VOLUMES",
+    "UNBACKED_UNIQUE_NON_VOLUME_STATE",
+    "ACTIVE_CANONICAL_RELEASE_EVIDENCE",
+    "ACTIVE_CANONICAL_SECURITY_EVIDENCE",
+    "GIT_HISTORY_REWRITE",
+    "UNIQUE_PR_BRANCH_COMMITS"
+  ],
+  "observation_and_shadow_requirements": {
+    "before_manifest_required": true,
+    "content_addressed_manifest_required": true,
+    "trusted_in_process_shadow_capsule_required": true,
+    "serialized_plan_is_execution_authority": false,
+    "target_reobservation_before_disposal_required": true,
+    "freshness_required": true,
+    "after_manifest_required": true,
+    "independent_before_after_diff_required": true,
+    "unexpected_disposals_must_equal": 0
+  },
+  "storage_pressure_policy": {
+    "free_bytes_guard_required": true,
+    "inode_guard_required": true,
+    "heavy_operation_preflight_required": true,
+    "thresholds_are_configurable_runtime_policy": true
+  },
+  "supersedes_as_current_cleanup_authority": ["docs/VVIP_TIGER_REPOSITORY_HOUSEKEEPING_AUDIT.md", "ad_hoc_cleanup_checklists", "broad_prune_as_default"],
+  "does_not_supersede": ["TIGER_AION_POST_LAUNCH_AUTHORITY", "AION_DIGITAL_METABOLISM_DELETION_CHAIN"],
+  "historical_policy": "Earlier housekeeping material may remain as HISTORICAL_ONLY evidence but has no parallel CURRENT cleanup-governance authority.",
+  "production_authorization": false,
+  "destructive_state_authorization": false,
+  "git_history_rewrite_authorization": false
+}

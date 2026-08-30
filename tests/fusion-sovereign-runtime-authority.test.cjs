@@ -14,16 +14,15 @@ function tupleBody(source, name) {
   return match[1];
 }
 
-test("production runtime exposes one sovereign publication authority", () => {
+test("production runtime exposes one current review-submission authority", () => {
   const repository = read("scripts/runtime/vvip-marketplace-repository.js");
   const composer = read("scripts/fusion/progressive-composer.js");
 
-  assert.match(repository, /function requestPublication\s*\(/);
-  assert.doesNotMatch(repository, /\bsubmitForReview\b/);
-  assert.doesNotMatch(repository, /\bcreateAndSubmit\b/);
-  assert.doesNotMatch(repository, /function prepareForPublication\s*\(/);
-  assert.match(composer, /\.requestPublication\s*\(/);
-  assert.doesNotMatch(composer, /\.prepareForPublication\s*\(/);
+  assert.match(repository, /function submitForReview\s*\(/);
+  assert.match(repository, /vvip_marketplace_submit_for_review/);
+  assert.doesNotMatch(repository, /\brequestPublication\b|\bprepareForPublication\b|\bcreateAndSubmit\b/);
+  assert.match(composer, /\.submitForReview\s*\(/);
+  assert.doesNotMatch(composer, /\.(?:requestPublication|prepareForPublication)\s*\(/);
 });
 
 test("production artifact is an exact allowlist with no prefix or rollback authority", () => {

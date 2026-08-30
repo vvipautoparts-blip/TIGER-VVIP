@@ -78,7 +78,7 @@ declare -A reviewed_migration_hashes=(
 
   # Social Core foundation: reviewed against the 2026-08-18 Clerk actor, FORCE-RLS,
   # post audience, relationship-transition, and legacy-feed isolation contracts.
-  # The approval is content-addressed; any byte drift re-enters review automatically.
+  # The approval is content-addressed; any byte drift re-enters Steel Shield automatically.
   ["supabase/migrations/20260818125000_social_core_foundation.sql"]="d7f15478df2ff3e244632042cf28d867eb3cea8a562050f68834d793905d2151"
 
   # Social Reactions: reviewed with CRITICAL=0 after mutation predicates were made
@@ -221,6 +221,21 @@ declare -A reviewed_migration_hashes=(
   # expiry. All five SECURITY DEFINER functions use an empty search_path; raw table access
   # and public/anon/authenticated RPC execution remain revoked. Any byte drift re-enters review.
   ["supabase/migrations/20260826120000_synapse_proof_of_now.sql"]="681d66cfd47615e9fbd8622c01bd300af1aff5768c7af346195e0ccdbfb838f8"
+
+  # Media no-visitor forward repair: reviewed after external P1 migration-order finding
+  # and exact-byte privilege analysis. The migration is privilege-narrowing only: it
+  # removes anonymous canonical-media policies/grants, restores authenticated member-only
+  # policies, contains no CASCADE/table/column destruction, and fails closed if anon
+  # access or the legacy storage policy remains. Any byte drift re-enters review.
+  ["supabase/migrations/20260828140000_media_no_visitor_forward_repair.sql"]="c7176e733721393339892b479b8f5d0b7b81a7bc065421bb8c99b0f5f85beec4"
+
+  # Latest-only ordinary publication authority: exact bytes reviewed after the RED
+  # contract convergence. EXPIRED rows fail closed before schema retirement; the old
+  # status constraint is replaced transactionally with no CASCADE; both SECURITY DEFINER
+  # functions pin explicit search_path values; both listing UPDATE statements carry
+  # bounded target_listing WHERE predicates; and the paid publication RPC is revoked and
+  # dropped by exact signature. Any byte drift re-enters Steel Shield automatically.
+  ["supabase/migrations/20260828203000_latest_only_publication_authority.sql"]="03db6683ec2ecca0d4b702a8d43aff2abcfa3009bebb0dcbcc0a581bfb841cca"
 )
 
 reviewed_baseline_path() {

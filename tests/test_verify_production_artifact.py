@@ -86,7 +86,7 @@ def patch_central_directory_file_size(payload: bytes, filename: str, declared_si
         offset = name_end + extra_len + comment_len
 
 
-def valid_inner_tar() -> bytes:
+def valid_inner_tar(*, sbom_version: str = "1.7") -> bytes:
     public_file = b"<!doctype html><title>VVIP TIGER</title>\n"
     release_manifest = {
         "schemaVersion": 1,
@@ -111,10 +111,13 @@ def valid_inner_tar() -> bytes:
     materials_bytes = canonical_file(materials)
 
     sbom = {
+        "$schema": f"https://cyclonedx.org/schema/bom-{sbom_version}.schema.json",
         "bomFormat": "CycloneDX",
-        "specVersion": "1.6",
+        "specVersion": sbom_version,
+        "serialNumber": "urn:uuid:224d0ab4-2c8a-82c1-bda7-ee567c18e811",
         "version": 1,
         "metadata": {
+            "lifecycles": [{"phase": "build"}],
             "component": {"type": "application", "name": "VVIP-TIGER", "version": SOURCE_SHA},
             "properties": [
                 {"name": "vvip:source_sha", "value": SOURCE_SHA},
@@ -294,6 +297,23 @@ class VerifyProductionArtifactTests(unittest.TestCase):
             self.assertEqual(result["public_file_count"], 1)
             self.assertEqual((output / "index.html").read_text(), "<!doctype html><title>VVIP TIGER</title>\n")
             self.assertTrue((output / "release-manifest.json").is_file())
+
+    def test_inner_rejects_legacy_cyclonedx_1_6_evidence(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            archive = root / ARCHIVE_NAME
+            archive.write_bytes(valid_inner_tar(sbom_version="1.6"))
+            output = root / "verified-public"
+
+            with self.assertRaises(verifier.VerificationError) as ctx:
+                verifier.verify_inner_bundle(
+                    inner_tar=archive,
+                    release_sha=SOURCE_SHA,
+                    output_public=output,
+                )
+
+            self.assertEqual(ctx.exception.code, "VVIP_SBOM_INVALID")
+            self.assertFalse(output.exists())
 
     def test_inner_fails_closed_on_mode_source_hash_and_undeclared_public_bytes(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -113,15 +113,29 @@ TEXT_SUFFIXES = {
 CACHE_DIRECTORY_NAMES = {
     ".cache",
     ".eslintcache",
+    ".hypothesis",
     ".mypy_cache",
     ".pytest_cache",
     ".ruff_cache",
     ".temp",
+    ".turbo",
+    ".vite",
     "__pycache__",
     "htmlcov",
 }
-BUILD_DIRECTORY_NAMES = {"build", "coverage", "dist", "out", "test-results"}
+BUILD_DIRECTORY_NAMES = {
+    ".next",
+    "blob-report",
+    "build",
+    "coverage",
+    "dist",
+    "out",
+    "playwright-report",
+    "test-results",
+}
 DEPENDENCY_DIRECTORY_NAMES = {"bower_components", "node_modules", "vendor"}
+VIRTUALENV_DIRECTORY_NAMES = {".nox", ".tox", ".venv", "venv"}
+VIRTUALENV_DIRECTORY_PREFIXES = (".venv-", "venv-")
 TEMP_SUFFIXES = {".bak", ".backup", ".orig", ".pyc", ".rej", ".swo", ".swp", ".temp", ".tmp"}
 LOG_NAMES = {"npm-debug.log", "pnpm-debug.log", "yarn-error.log"}
 PROTECTED_ROOTS = {".agents", ".codex", ".git", "reports", "tools"}
@@ -332,6 +346,15 @@ def git_status_entries(root: Path) -> list[dict[str, str]]:
     )
 
 
+def is_virtualenv_path(relative_path: str) -> bool:
+    """Return True for conventional local Python environment directories."""
+    for part in PurePosixPath(relative_path).parts:
+        lower = part.casefold()
+        if lower in VIRTUALENV_DIRECTORY_NAMES or lower.startswith(VIRTUALENV_DIRECTORY_PREFIXES):
+            return True
+    return False
+
+
 def is_protected_path(relative_path: str) -> bool:
     path = PurePosixPath(relative_path)
     if not path.parts:
@@ -342,7 +365,7 @@ def is_protected_path(relative_path: str) -> bool:
         *(item.casefold() for item in BUILD_DIRECTORY_NAMES),
         *(item.casefold() for item in DEPENDENCY_DIRECTORY_NAMES),
     }
-    if lower_parts & generated_directory_names or path.suffix.casefold() == ".pyc":
+    if is_virtualenv_path(relative_path) or lower_parts & generated_directory_names or path.suffix.casefold() == ".pyc":
         return False
     if path.parts[0] in PROTECTED_ROOTS:
         return True
@@ -371,6 +394,8 @@ def garbage_reason(relative_path: str, *, tracked: bool, ignored: bool, is_dir: 
     name = path.name
     lower_name = name.casefold()
     parts = {part.casefold() for part in path.parts}
+    if is_virtualenv_path(relative_path):
+        return "dependency environment output"
     if is_protected_path(relative_path):
         return None
     if path.parts and path.parts[0] in {"approved", "backups"}:
@@ -430,8 +455,10 @@ def classify_path(
     reason = garbage_reason(relative_path, tracked=tracked, ignored=ignored, is_dir=is_dir)
     if reason == "cache":
         categories.add("cache")
-    if reason == "dependency output":
+    if reason in {"dependency output", "dependency environment output"}:
         categories.add("dependency output")
+    if reason == "dependency environment output":
+        categories.add("virtual environment")
     if reason == "generated build/test output":
         categories.add("build output")
     if reason and "log" in reason:

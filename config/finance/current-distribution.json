@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "TIGER_FINANCIAL_DISTRIBUTION_V1",
+  "status": "CURRENT_ONLY",
+  "ownerAuthority": "docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md",
+  "allocationBasis": "ACTUAL_CAPTURED_AMOUNT_AFTER_VALID_SELF_SERVICE_DISCOUNT",
+  "mainDistributionPercent": {
+    "OWNER": 5,
+    "PARTNER_1": 5,
+    "PARTNER_2": 5,
+    "PARTNER_3": 5,
+    "ACTUAL_OPERATIONS": 43,
+    "TAX_RESERVE": 16,
+    "SALES_ADMINISTRATION": 21
+  },
+  "actualOperationsPercent": {
+    "RISK_RESERVE": 8,
+    "MAINTENANCE": 8,
+    "DEVELOPMENT": 8,
+    "TECHNICAL_SUPPORT": 8,
+    "ADVERTISING": 8,
+    "CSR": 3
+  },
+  "salesAdministrationPercent": {
+    "GENERAL_MANAGER": 7,
+    "SECTOR_MANAGER": 7,
+    "MARKETER": 7
+  },
+  "oneSaleOneWinner": true,
+  "nonWinningSalesSharesRouteTo": "OWNER",
+  "unassignedPartnerShareRoutesTo": "OWNER",
+  "selfService": {
+    "discountPercent": 7,
+    "appliesOnlyWhenNoSalesClaimant": true,
+    "salesCommissionPaid": false,
+    "salesAdministrationEnvelopeRoutesTo": "OWNER"
+  },
+  "payout": {
+    "settlementEveryDays": 14,
+    "payoutDestinationRequired": true,
+    "roleGrantGraceHours": 12,
+    "ownerMayExtendGrace": true,
+    "successfulSettlementZeroesPayableBalanceButPreservesLedger": true
+  },
+  "ledgerDimensions": [
+    "OWNER",
+    "PARTNERS",
+    "ACTUAL_OPERATIONS",
+    "TAX_RESERVE",
+    "SALES_ADMINISTRATION",
+    "ABSENT_SALES_ROLE",
+    "ACTIVE_USER_DISCOUNT",
+    "REFUND_REVERSAL"
+  ],
+  "financialInvariant": "MAIN_DISTRIBUTION_EQUALS_100_PERCENT",
+  "operationsInvariant": "ACTUAL_OPERATIONS_EQUALS_43_PERCENT",
+  "salesInvariant": "SALES_ADMINISTRATION_EQUALS_21_PERCENT",
+  "historyPolicy": "IMMUTABLE_LEDGER_NO_ERASURE"
+}

@@ -2,7 +2,7 @@
   "schema_version": "VVIP-ZRPH-1",
   "platform": "VVIP TIGER",
   "mode": "CURRENT_ONLY",
-  "human_authority": "docs/MASTER_PROJECT_STATE.md",
+  "human_authority": "docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md",
   "machine_contract": "project-control/production-handover/current-authority.v1.json",
   "owner_authority_graph": {
     "registry": "project-control/authority/authority-registry.v1.json",
@@ -52,12 +52,6 @@
       "CRYPTO_GENOME",
       "TIGER_CONSTITUTION"
     ],
-    "retired_non_authoritative_aliases": [
-      "TIGER AEGIS NEXUS",
-      "TIGER ORACLE IMMUNE CORE",
-      "LEGACY_POST_LAUNCH_CHECKLIST_MODEL"
-    ],
-    "fallback_to_retired_aliases": false,
     "fail_closed_invariants": {
       "no_evidence_no_action": true,
       "no_policy_no_action": true,

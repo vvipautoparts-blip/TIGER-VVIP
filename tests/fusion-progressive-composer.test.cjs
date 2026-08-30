@@ -9,17 +9,15 @@ const ROOT = path.resolve(__dirname, '..');
 const COMPOSER = path.join(ROOT, 'scripts/fusion/progressive-composer.js');
 const CONTEXT = path.join(ROOT, 'scripts/fusion/marketplace-context.js');
 
-test('FUSION composer uses trusted server draft/publication path and no local publication truth', () => {
+test('FUSION composer uses trusted server draft/review path and no local publication truth', () => {
   const source = fs.readFileSync(COMPOSER, 'utf8');
   assert.doesNotMatch(source, /LOCAL_DRAFT_ONLY/);
   assert.doesNotMatch(source, /localStorage\.(?:setItem|getItem)/);
   assert.doesNotMatch(source, /vvip\.fusion\.composer\.draft/i);
   assert.match(source, /VVIPFusionMarketplaceContext/);
   assert.match(source, /createDraftWithMedia/);
-  assert.match(source, /requestPublication/);
-  assert.doesNotMatch(source, /prepareForPublication/);
-  assert.match(source, /entitlementReceipt/);
-  assert.match(source, /planId/);
+  assert.match(source, /submitForReview/);
+  assert.doesNotMatch(source, /requestPublication|prepareForPublication|entitlementReceipt|planId/);
   assert.match(source, /mediaSession\.previewSnapshot/);
   assert.match(source, /mediaSession\.displaySnapshot/);
   assert.match(source, /fetch\(preview\.url\)/);

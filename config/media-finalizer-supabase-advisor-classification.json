@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "tiger-media-supabase-advisors-v1",
+  "projectRef": "zelcngyyvbomuzokvuxo",
+  "region": "ap-northeast-2",
+  "scope": "MEDIA_DB_CONVERGENCE",
+  "classifications": [
+    {
+      "id": "media-table-anonymous-auth-policy",
+      "lint": "auth_allow_anonymous_sign_ins",
+      "cacheKey": "auth_allow_anonymous_sign_ins_public_vvip_marketplace_listing_media",
+      "status": "FIXED",
+      "evidence": [
+        "docs/architecture/ADR-2026-08-08-federated-identity-sovereignty.md",
+        "supabase/migrations/20260821003000_no_visitor_mode_hardening.sql",
+        "tests/sql/media-finalizer-db-contract.sql"
+      ]
+    },
+    {
+      "id": "media-storage-anonymous-auth-policy",
+      "lint": "auth_allow_anonymous_sign_ins",
+      "cacheKey": "auth_allow_anonymous_sign_ins_storage_objects",
+      "status": "FIXED",
+      "evidence": [
+        "docs/architecture/ADR-2026-08-08-federated-identity-sovereignty.md",
+        "supabase/migrations/20260821003000_no_visitor_mode_hardening.sql",
+        "tests/sql/media-finalizer-db-contract.sql"
+      ]
+    },
+    {
+      "id": "media-request-security-definer",
+      "lint": "authenticated_security_definer_function_executable",
+      "cacheKey": "authenticated_security_definer_function_executable_public_vvip_marketplace_request_media_finalization_target_media uuid",
+      "status": "INTENTIONAL_AND_TESTED",
+      "evidence": [
+        "supabase/migrations/20260816090001_sovereign_media_finalization.sql",
+        "tests/sql/media-finalizer-db-contract.sql",
+        "tests/media-finalizer-db-convergence-contract.test.cjs"
+      ]
+    }
+  ]
+}

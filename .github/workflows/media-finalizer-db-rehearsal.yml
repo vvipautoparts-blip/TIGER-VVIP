@@ -1,0 +1,232 @@
+name: TIGER Media Finalizer DB Rehearsal
+
+on:
+  push:
+    paths:
+      - "supabase/migrations/20260816090001_sovereign_media_finalization.sql"
+      - "supabase/migrations/20260827120000_sealed_media_identity_binding.sql"
+      - "supabase/migrations/20260828140000_media_no_visitor_forward_repair.sql"
+      - "tests/media-finalizer-identity-binding-migration.test.cjs"
+      - "tests/media-finalizer-no-visitor-forward-repair.test.cjs"
+      - "tests/media-finalizer-db-convergence-contract.test.cjs"
+      - "tests/media-finalizer-db-convergence-evidence.test.cjs"
+      - "tests/media-finalizer-db-convergence-runbook.test.cjs"
+      - "tests/media-finalizer-live-verification-contract.test.cjs"
+      - "tests/media-finalizer-supabase-advisors.test.cjs"
+      - "tests/sql/media-finalizer-identity-binding.sql"
+      - "tests/sql/media-finalizer-db-contract.sql"
+      - "tests/sql/media-finalizer-live-verification.sql"
+      - "scripts/release/media-cell-db-convergence-evidence.cjs"
+      - "config/media-finalizer-supabase-advisor-classification.json"
+      - "docs/operations/TIGER_MEDIA_DB_CONVERGENCE_RUNBOOK.md"
+      - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
+      - ".github/workflows/media-finalizer-db-rehearsal.yml"
+  pull_request:
+    paths:
+      - "supabase/migrations/20260816090001_sovereign_media_finalization.sql"
+      - "supabase/migrations/20260827120000_sealed_media_identity_binding.sql"
+      - "supabase/migrations/20260828140000_media_no_visitor_forward_repair.sql"
+      - "tests/media-finalizer-identity-binding-migration.test.cjs"
+      - "tests/media-finalizer-no-visitor-forward-repair.test.cjs"
+      - "tests/media-finalizer-db-convergence-contract.test.cjs"
+      - "tests/media-finalizer-db-convergence-evidence.test.cjs"
+      - "tests/media-finalizer-db-convergence-runbook.test.cjs"
+      - "tests/media-finalizer-live-verification-contract.test.cjs"
+      - "tests/media-finalizer-supabase-advisors.test.cjs"
+      - "tests/sql/media-finalizer-identity-binding.sql"
+      - "tests/sql/media-finalizer-db-contract.sql"
+      - "tests/sql/media-finalizer-live-verification.sql"
+      - "scripts/release/media-cell-db-convergence-evidence.cjs"
+      - "config/media-finalizer-supabase-advisor-classification.json"
+      - "docs/operations/TIGER_MEDIA_DB_CONVERGENCE_RUNBOOK.md"
+      - "scripts/security/p08-steel-shield/scan-dangerous-sql.sh"
+      - ".github/workflows/media-finalizer-db-rehearsal.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+concurrency:
+  group: tiger-media-finalizer-db-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  media-finalizer-db-rehearsal:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Checkout exact source SHA
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 0
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: "24"
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@ab058987d8d6c725971f6cf9d0b5c98467e30bd1
+        with:
+          version: 2.109.0
+
+      - name: Verify exact source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          echo "MEDIA_DB_SOURCE_SHA=$SOURCE_SHA"
+          echo "MEDIA_DB_SOURCE_TREE=$(git rev-parse 'HEAD^{tree}')"
+
+      - name: Run static DB convergence contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test \
+            tests/media-finalizer-identity-binding-migration.test.cjs \
+            tests/media-finalizer-no-visitor-forward-repair.test.cjs \
+            tests/media-finalizer-db-convergence-contract.test.cjs \
+            tests/media-finalizer-db-convergence-evidence.test.cjs \
+            tests/media-finalizer-db-convergence-runbook.test.cjs \
+            tests/media-finalizer-live-verification-contract.test.cjs \
+            tests/media-finalizer-supabase-advisors.test.cjs
+          bash scripts/security/p08-steel-shield/scan-dangerous-sql.sh
+
+      - name: Assert local-only safety contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f supabase/config.toml
+          if env | grep -E '^(SUPABASE_ACCESS_TOKEN|SUPABASE_DB_PASSWORD|SUPABASE_PROJECT_REF)=' >/dev/null; then
+            echo 'TIGER_MEDIA_FINALIZER_DB_REHEARSAL=BLOCKED_REMOTE_CREDENTIAL_ENV'
+            exit 1
+          fi
+          echo 'TIGER_MEDIA_FINALIZER_DB_REHEARSAL=LOCAL_ONLY_PASS'
+
+      - name: Start isolated local Supabase stack
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase --version
+          supabase start
+
+      - name: Rebuild database from repository migrations
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase db reset --local
+          echo 'TIGER_MEDIA_FINALIZER_DB_RESET=PASS'
+
+      - name: Prove complete sovereign Media DB contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          contract_log="/tmp/tiger-media-db-contract.log"
+          rm -f "$contract_log"
+          set +e
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/media-finalizer-db-contract.sql 2>&1 | tee "$contract_log"
+          psql_status=${PIPESTATUS[0]}
+          set -e
+          if [ "$psql_status" -ne 0 ]; then
+            echo 'TIGER_MEDIA_DB_CONTRACT=SQL_ASSERTION_FAILED'
+            exit "$psql_status"
+          fi
+          grep -Fx 'MEDIA_DB_MIGRATIONS=PASS' "$contract_log"
+          grep -Fx 'MEDIA_DB_JOB_TABLE=PASS' "$contract_log"
+          grep -Fx 'MEDIA_DB_CANONICAL_COLUMNS=PASS' "$contract_log"
+          grep -Fx 'MEDIA_DB_REQUEST_RPC=PASS' "$contract_log"
+          grep -Fx 'MEDIA_DB_TRUSTED_RPCS=PASS' "$contract_log"
+          grep -Fx 'MEDIA_DB_RLS=PASS' "$contract_log"
+          grep -Fx 'MEDIA_DB_STORAGE=PASS' "$contract_log"
+          grep -Fx 'MEDIA_DB_TOKEN_LEASE=PASS' "$contract_log"
+          grep -Fx 'TIGER_MEDIA_DB_CONTRACT=PASS' "$contract_log"
+          if grep -Eq '^MEDIA_DB_.*=FAIL' "$contract_log"; then
+            echo 'TIGER_MEDIA_DB_CONTRACT=FAIL_MARKER_DETECTED'
+            exit 1
+          fi
+
+      - name: Upload bounded DB contract failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: tiger-media-finalizer-db-contract-failure-${{ env.SOURCE_SHA }}
+          path: /tmp/tiger-media-db-contract.log
+          if-no-files-found: error
+          retention-days: 3
+
+      - name: Prove trusted owner binding and replay protections
+        shell: bash
+        run: |
+          set -euo pipefail
+          proof_log="$(mktemp)"
+          trap 'rm -f "$proof_log"' EXIT
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f tests/sql/media-finalizer-identity-binding.sql | tee "$proof_log"
+          grep -Fx 'MEDIA_IDENTITY_CORRECT_OWNER=PASS' "$proof_log"
+          grep -Fx 'MEDIA_IDENTITY_BINDING_MISMATCH=PASS' "$proof_log"
+          grep -Fx 'MEDIA_IDENTITY_TOKEN_MISMATCH=PASS' "$proof_log"
+          grep -Fx 'MEDIA_IDENTITY_EXPIRED=PASS' "$proof_log"
+          grep -Fx 'MEDIA_IDENTITY_REPLAY=PASS' "$proof_log"
+          grep -Fx 'MEDIA_IDENTITY_SERVICE_ONLY=PASS' "$proof_log"
+          grep -Fx 'TIGER_MEDIA_IDENTITY_BINDING_DB_BEHAVIOR=PASS' "$proof_log"
+          if grep -Eq '^MEDIA_IDENTITY_.*=FAIL' "$proof_log"; then
+            echo 'TIGER_MEDIA_IDENTITY_BINDING_DB_BEHAVIOR=FAIL_MARKER_DETECTED'
+            exit 1
+          fi
+
+      - name: Build exact-head DB evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/tiger-media-db-evidence
+          source_tree="$(git rev-parse 'HEAD^{tree}')"
+          base_migration_sha256="$(sha256sum supabase/migrations/20260816090001_sovereign_media_finalization.sql | awk '{print $1}')"
+          identity_migration_sha256="$(sha256sum supabase/migrations/20260827120000_sealed_media_identity_binding.sql | awk '{print $1}')"
+          repair_migration_sha256="$(sha256sum supabase/migrations/20260828140000_media_no_visitor_forward_repair.sql | awk '{print $1}')"
+          contract_sha256="$(sha256sum tests/sql/media-finalizer-db-contract.sql | awk '{print $1}')"
+          identity_proof_sha256="$(sha256sum tests/sql/media-finalizer-identity-binding.sql | awk '{print $1}')"
+          printf '%s\n' \
+            "SOURCE_SHA=$SOURCE_SHA" \
+            "SOURCE_TREE=$source_tree" \
+            "NODE_VERSION=$(node --version)" \
+            "SUPABASE_VERSION=$(supabase --version | head -n1)" \
+            "SOVEREIGN_MEDIA_MIGRATION_SHA256=$base_migration_sha256" \
+            "IDENTITY_BINDING_MIGRATION_SHA256=$identity_migration_sha256" \
+            "MEDIA_NO_VISITOR_FORWARD_REPAIR_MIGRATION_SHA256=$repair_migration_sha256" \
+            "MEDIA_DB_CONTRACT_SHA256=$contract_sha256" \
+            "IDENTITY_BINDING_PROOF_SHA256=$identity_proof_sha256" \
+            "TIGER_MEDIA_DB_CONTRACT=PASS" \
+            "MEDIA_IDENTITY_BINDING_DB_BEHAVIOR=PASS" \
+            > /tmp/tiger-media-db-evidence/evidence.env
+          cat /tmp/tiger-media-db-evidence/evidence.env
+
+      - name: Upload exact-head DB evidence
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: tiger-media-finalizer-db-evidence-${{ env.SOURCE_SHA }}
+          path: /tmp/tiger-media-db-evidence/evidence.env
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Verify source remained immutable
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain=v1 -uall)"
+          echo 'TIGER_MEDIA_FINALIZER_DB_EXACT_HEAD=PASS'
+
+      - name: Stop isolated local stack
+        if: always()
+        shell: bash
+        run: supabase stop --no-backup || true

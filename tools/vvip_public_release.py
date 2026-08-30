@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import base64
 import hashlib
+import ipaddress
 import json
 import os
 import re
@@ -17,6 +18,7 @@ import shutil
 import sys
 from pathlib import Path, PurePosixPath
 from typing import Iterable
+from urllib.parse import urlsplit
 
 PUBLIC_ROOT_FILES = (
     "index.html",
@@ -253,6 +255,51 @@ def _decode_clerk_frontend_api(publishable_key: str) -> str | None:
     return decoded.lower()
 
 
+def _is_canonical_media_finalizer_url(value: str) -> bool:
+    if not value or value != value.strip():
+        return False
+    if "\\" in value or any(ord(character) < 0x20 or ord(character) == 0x7F for character in value):
+        return False
+    try:
+        parsed = urlsplit(value)
+        hostname = parsed.hostname
+        port = parsed.port
+    except ValueError:
+        return False
+    if (
+        parsed.scheme != "https"
+        or not hostname
+        or parsed.username is not None
+        or parsed.password is not None
+        or parsed.query
+        or parsed.fragment
+        or port not in (None, 443)
+    ):
+        return False
+    expected_netloc = hostname if port is None else f"{hostname}:443"
+    if parsed.netloc != expected_netloc:
+        return False
+    if hostname == "localhost" or hostname.endswith(".local") or "." not in hostname:
+        return False
+    try:
+        ipaddress.ip_address(hostname)
+    except ValueError:
+        pass
+    else:
+        return False
+    labels = hostname.split(".")
+    if any(
+        not re.fullmatch(r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?", label)
+        for label in labels
+    ):
+        return False
+    if "%" in parsed.path or "//" in parsed.path:
+        return False
+    if any(segment in {".", ".."} for segment in parsed.path.split("/")):
+        return False
+    return bool(re.fullmatch(r"(?:/[A-Za-z0-9._~!$&'()*+,;=:@/-]*)?", parsed.path))
+
+
 def _runtime_config(environment: str, source_sha: str) -> tuple[str, list[str]]:
     config = {
         "environment": environment,
@@ -261,7 +308,7 @@ def _runtime_config(environment: str, source_sha: str) -> tuple[str, list[str]]:
         "supabaseUrl": os.environ.get("TIGER_SUPABASE_URL", ""),
         "supabasePublishableKey": os.environ.get("TIGER_SUPABASE_PUBLISHABLE_KEY", ""),
         "defaultCountryCode": os.environ.get("TIGER_DEFAULT_COUNTRY_CODE", "").upper(),
-        "mediaFinalizerUrl": os.environ.get("TIGER_MEDIA_FINALIZER_URL", "").strip(),
+        "mediaFinalizerUrl": os.environ.get("TIGER_MEDIA_FINALIZER_URL", ""),
     }
     errors: list[str] = []
     if environment == "production":
@@ -283,8 +330,8 @@ def _runtime_config(environment: str, source_sha: str) -> tuple[str, list[str]]:
         if country and not re.fullmatch(r"[A-Z]{2}", country):
             errors.append("default country code must be ISO alpha-2")
         finalizer_url = config["mediaFinalizerUrl"]
-        if not re.fullmatch(r"https://[A-Za-z0-9.-]+(?::[0-9]{1,5})?(?:/[A-Za-z0-9._~!$&'()*+,;=:@%/-]*)?", finalizer_url):
-            errors.append("production media finalizer URL must be an https URL without query or fragment")
+        if not _is_canonical_media_finalizer_url(finalizer_url):
+            errors.append("production media finalizer URL must be canonical public https")
     serialized = json.dumps(config, ensure_ascii=False, separators=(",", ":"))
     return f"window.__VVIP_RUNTIME_CONFIG__ = Object.freeze({serialized});\n", errors
 
@@ -373,8 +420,15 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser.add_argument("--mode", choices=("candidate", "production"), default="candidate")
     parser.add_argument("--source-sha", default=os.environ.get("GITHUB_SHA", "unknown"))
     parser.add_argument("--include-cname", action="store_true")
+    parser.add_argument("--validate-config-only", action="store_true")
     args = parser.parse_args(argv)
     try:
+        if args.validate_config_only:
+            _, config_errors = _runtime_config(args.mode, args.source_sha)
+            if args.mode == "production" and config_errors:
+                raise RuntimeError("production release blocked: " + "; ".join(config_errors))
+            print("VVIP_PUBLIC_RELEASE_CONFIG=PASS")
+            return 0
         manifest = build(
             Path(args.source), Path(args.output), mode=args.mode,
             source_sha=args.source_sha, include_cname=args.include_cname,

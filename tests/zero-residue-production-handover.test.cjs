@@ -7,7 +7,7 @@ const test = require('node:test');
 
 const ROOT = path.resolve(__dirname, '..');
 const MANIFEST = path.join(ROOT, 'project-control', 'production-handover', 'current-authority.v1.json');
-const OWNER = path.join(ROOT, 'docs', 'MASTER_PROJECT_STATE.md');
+const OWNER = path.join(ROOT, 'docs', 'owner-control', 'TIGER_OWNER_BINDING_CURRENT.md');
 const ENV_EXAMPLE = path.join(ROOT, '.env.example');
 const GITIGNORE = path.join(ROOT, '.gitignore');
 const DOC_WORKFLOW = path.join(ROOT, '.github', 'workflows', 'documentation-sovereign-knowledge-plane.yml');
@@ -26,9 +26,11 @@ test('handover has exactly one current human owner authority and one machine con
   assert.equal(m.schema_version, 'VVIP-ZRPH-1');
   assert.equal(m.platform, 'VVIP TIGER');
   assert.equal(m.mode, 'CURRENT_ONLY');
-  assert.equal(m.human_authority, 'docs/MASTER_PROJECT_STATE.md');
+  assert.equal(m.human_authority, 'docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md');
   assert.equal(m.historical_evidence_authoritative, false);
   assert.ok(fs.existsSync(OWNER));
+  const ownerText = fs.readFileSync(OWNER, 'utf8');
+  assert.match(ownerText, /CURRENT_ONLY \/ OWNER_BINDING \/ FIRST_REFERENCE \/ NO_FALLBACK \/ NO_IN_TREE_ARCHIVE/);
 });
 
 test('20-pass protocol is complete, ordered, unique and fail-closed', () => {

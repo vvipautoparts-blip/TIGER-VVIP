@@ -67,6 +67,7 @@ jobs:
       TIGER_SUPABASE_URL: ${{ secrets.TIGER_SUPABASE_URL }}
       TIGER_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.TIGER_SUPABASE_PUBLISHABLE_KEY }}
       TIGER_DEFAULT_COUNTRY_CODE: ${{ vars.TIGER_DEFAULT_COUNTRY_CODE }}
+      TIGER_MEDIA_FINALIZER_URL: ${{ vars.TIGER_MEDIA_FINALIZER_URL }}
     steps:
       - name: Checkout exact approved release SHA
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -102,6 +103,15 @@ jobs:
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
+
+      - name: Validate protected Production configuration
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python tools/vvip_public_release.py \
+            --mode production \
+            --source-sha "$RELEASE_SHA" \
+            --validate-config-only
 
       - name: Install pinned verification dependencies
         shell: bash
