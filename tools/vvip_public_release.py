@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Build the exact, auditable public artifact for TIGER VVIP.
+"""Build the exact, auditable public artifact for TIGER NEXUS 2026.
 
-The builder copies only explicitly approved files. No directory or prefix is
-implicitly public. Runtime configuration is generated at build time and
-production fails closed when configuration or artifact markers are unsafe.
+Only the current NEXUS runtime graph is public. Superseded Marketplace,
+parallel composer, archive, legacy, fallback, and compatibility product
+surfaces are not copied or injected.
 """
 from __future__ import annotations
 
@@ -36,12 +36,10 @@ PUBLIC_ROOT_FILES = (
 PUBLIC_STYLE_FILES = (
     "styles/vvip-pr29-home-marketplace.css",
     "styles/vvip-pr36-media.css",
-    "styles/vvip-visual-trust-layer.css",
     "styles/fusion/f02-single-surface.css",
     "styles/tiger-one/tokens.css",
     "styles/tiger-one/type.css",
     "styles/tiger-social/core-shell.css",
-    "styles/tiger-synapse/living-surface.css",
     "styles/nexus/nexus.css",
 )
 
@@ -54,24 +52,16 @@ PUBLIC_ICON_FILES = (
 
 PUBLIC_RUNTIME_FILES = (
     "scripts/runtime/vvip-runtime-loader.js",
-    "scripts/runtime/vvip-marketplace-repository.js",
     "scripts/runtime/vvip-static-delivery.js",
 )
 
 PUBLIC_SCRIPT_FILES = (
     "scripts/vvip-pr30-resilience.js",
-    "scripts/vvip-safe-ux-guard.js",
-    "scripts/fusion/runtime-adapters.js",
-    "scripts/fusion/marketplace-context.js",
-    "scripts/fusion/f02-feed.js",
     "scripts/fusion/f03-capability-menu.js",
     "scripts/fusion/f04-search-fabric.js",
     "scripts/fusion/account-surface.js",
     "scripts/fusion/single-surface-controller.js",
     "scripts/social/text-contract.js",
-    "scripts/synapse/intent-domain.js",
-    "scripts/synapse/intent-runtime-adapters.js",
-    "scripts/synapse/living-surface-controller.js",
     "scripts/social/runtime-adapters.js",
     "scripts/social/feed-read-model.js",
     "scripts/social/messaging-read-model.js",
@@ -88,6 +78,7 @@ PUBLIC_SCRIPT_FILES = (
     "scripts/social/profile-controller.js",
     "scripts/social/core-shell.js",
     "scripts/nexus/living-sector-object.js",
+    "scripts/nexus/sector-discovery.js",
     "scripts/nexus/pulse-runtime.js",
     "scripts/nexus/opportunity-radar.js",
     "scripts/nexus/pulse-surface.js",
@@ -139,6 +130,7 @@ FORBIDDEN_PRODUCTION_MARKERS = {
     "FUTURE_PUBLISH_ONLY": "النشر الحقيقي سيتم تفعيله لاحقًا",
     "LOCAL_DRAFT_ONLY_PUBLISHER": "LOCAL_DRAFT_ONLY",
     "RETIRED_GITHUB_PAGES_URL": "vvipautoparts-blip." "github.io/TIGER-VVIP",
+    "PARALLEL_MARKETPLACE_BRAND": "VVIP TIGER MARKETPLACE",
 }
 
 INDEX_REMOVE_SCRIPTS = (
@@ -150,6 +142,10 @@ INDEX_REMOVE_SCRIPTS = (
     "scripts/vvip-pr33-publish-readiness.js",
     "scripts/runtime/vvip-my-listings.js",
     "scripts/vvip-production-marketplace.js",
+    "scripts/runtime/vvip-marketplace-repository.js",
+    "scripts/fusion/runtime-adapters.js",
+    "scripts/fusion/marketplace-context.js",
+    "scripts/fusion/f02-feed.js",
 )
 
 INDEX_REMOVE_STYLES = (
@@ -205,7 +201,7 @@ def _close_account_routes(text: str) -> str:
         attrs = re.sub(r"\s+data-nav-target=(?:[\"']private-profile-p03\.html[\"']|private-profile-p03\.html)", "", attrs, flags=re.IGNORECASE)
         if not re.search(r"\bdata-account-route\b", attrs, flags=re.IGNORECASE):
             attrs += " data-account-route"
-        return f'href="#marketplace"{attrs}'
+        return f'href="#profile"{attrs}'
 
     return ACCOUNT_ROUTE_PATTERN.sub(replace, text)
 
@@ -237,7 +233,6 @@ def _transform_index(text: str) -> str:
     injection = """
   <script defer src="runtime-config.js"></script>
   <script defer src="scripts/runtime/vvip-runtime-loader.js"></script>
-  <script defer src="scripts/runtime/vvip-marketplace-repository.js"></script>
   <script defer src="auth-clerk-index.js"></script>
   <script defer src="scripts/vvip-pr30-resilience.js"></script>
 """.rstrip()
@@ -400,7 +395,8 @@ def build(source: Path, output: Path, *, mode: str, source_sha: str, include_cna
 
     findings = _scan_markers(output)
     manifest = {
-        "schemaVersion": 1,
+        "schemaVersion": 2,
+        "product": "TIGER_NEXUS_2026",
         "mode": mode,
         "sourceSha": source_sha,
         "releaseEligible": not findings and not config_errors,
