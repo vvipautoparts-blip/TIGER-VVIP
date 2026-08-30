@@ -13,10 +13,12 @@ test('NEXUS exposes exactly one central creation trigger', () => {
 });
 
 test('sector discovery reuses Living Objects without a second creation surface', () => {
-  assert.match(index, /data-social-marketplace-surface/);
-  const discovery = index.match(/<section data-social-marketplace-surface[\s\S]*?<\/section>\s*<\/main>/);
-  assert.ok(discovery, 'sector discovery surface must exist');
+  assert.match(index, /data-nexus-sector-discovery/);
+  assert.match(index, /data-nexus-sector-discovery-feed/);
+  const discovery = index.match(/<section[^>]*data-nexus-sector-discovery[\s\S]*?<\/section>\s*<\/main>/);
+  assert.ok(discovery, 'NEXUS sector discovery surface must exist');
   assert.doesNotMatch(discovery[0], /data-social-post-trigger/);
+  assert.doesNotMatch(index, /data-social-marketplace-surface/);
   assert.doesNotMatch(index, /data-nexus-create-context=["']marketplace["']/i);
   assert.doesNotMatch(index, /nexus-marketplace-create/i);
   assert.doesNotMatch(index, /VVIP\s+TIGER\s+MARKETPLACE/i);
