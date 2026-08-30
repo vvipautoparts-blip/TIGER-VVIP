@@ -13,9 +13,6 @@
   const SAFE_RETURN_PATHS = new Set([
     "index.html", "/index.html", "./index.html"
   ]);
-  const PREVIEW_ONLY_RETURN_PATHS = new Set([
-    "private-profile-p03.html", "/private-profile-p03.html", "./private-profile-p03.html"
-  ]);
   const INTENT_STORAGE_KEY = "vvip.auth.intent.v1";
   const SIMPLE_INTENTS = new Set([
     "OPEN_ACCOUNT",
@@ -59,14 +56,10 @@
     );
   }
 
-  function safeReturnPath(locationLike, runtimeConfigLike) {
+  function safeReturnPath(locationLike) {
     const location = locationLike || root.location;
     const returnTo = new URLSearchParams(location.search).get("return_to");
-    if (SAFE_RETURN_PATHS.has(returnTo)) return returnTo;
-    const runtimeConfig = runtimeConfigLike || root.__VVIP_RUNTIME_CONFIG__ || null;
-    const production = Boolean(runtimeConfig && runtimeConfig.environment === "production");
-    if (!production && PREVIEW_ONLY_RETURN_PATHS.has(returnTo)) return returnTo;
-    return "";
+    return SAFE_RETURN_PATHS.has(returnTo) ? returnTo : "";
   }
 
   function fusionSurface() {
