@@ -103,6 +103,8 @@ function installBrowserFixture(clerkOverrides) {
 test("auth runtime contains no parallel create-listing or PR29 fallback", () => {
   assert.doesNotMatch(source, /CREATE_LISTING/);
   assert.doesNotMatch(source, /VVIP_PR29/);
+  assert.doesNotMatch(source, /TOGGLE_FAVORITE/);
+  assert.doesNotMatch(source, /CONTACT_SELLER_INTERNAL/);
 });
 
 test("does not expose a local preview authentication bypass", () => {
@@ -121,17 +123,14 @@ test("production rejects return paths that are not shipped", () => {
   assert.equal(auth.safeReturnPath({ search: "?return_to=index.html" }, production), "index.html");
 });
 
-test("normalizes only allowlisted non-sensitive intent descriptors", () => {
+test("normalizes only current allowlisted non-sensitive intent descriptors", () => {
   const listingId = "11111111-1111-4111-8111-111111111111";
   assert.deepEqual(auth.normalizeIntentDescriptor({ name: "CREATE_SOCIAL_POST" }), { name: "CREATE_SOCIAL_POST" });
   assert.deepEqual(auth.normalizeIntentDescriptor({ name: "OPEN_ACCOUNT" }), { name: "OPEN_ACCOUNT" });
-  assert.deepEqual(
-    auth.normalizeIntentDescriptor({ name: "TOGGLE_FAVORITE", listingId }),
-    { name: "TOGGLE_FAVORITE", listingId }
-  );
   assert.throws(() => auth.normalizeIntentDescriptor({ name: "CREATE_LISTING" }), { code: "AUTH_INTENT_INVALID" });
+  assert.throws(() => auth.normalizeIntentDescriptor({ name: "TOGGLE_FAVORITE", listingId }), { code: "AUTH_INTENT_INVALID" });
+  assert.throws(() => auth.normalizeIntentDescriptor({ name: "CONTACT_SELLER_INTERNAL", listingId }), { code: "AUTH_INTENT_INVALID" });
   assert.throws(() => auth.normalizeIntentDescriptor({ name: "https://evil.example" }), { code: "AUTH_INTENT_INVALID" });
-  assert.throws(() => auth.normalizeIntentDescriptor({ name: "TOGGLE_FAVORITE", listingId: "../../admin" }), { code: "AUTH_INTENT_INVALID" });
   assert.throws(() => auth.normalizeIntentDescriptor({ name: "CREATE_SOCIAL_POST", token: "secret" }), { code: "AUTH_INTENT_INVALID" });
 });
 
