@@ -13,7 +13,7 @@
   "use strict";
 
   const CACHE_PREFIX = "vvip-static-";
-  const CACHE_NAME = "vvip-static-nexus-v3";
+  const CACHE_NAME = "vvip-static-nexus-v4";
   const MAX_AGE_MS = 60 * 60 * 1000;
   const CACHED_AT_HEADER = "x-vvip-static-cached-at";
   const ALLOWED_PREFIXES = Object.freeze([
