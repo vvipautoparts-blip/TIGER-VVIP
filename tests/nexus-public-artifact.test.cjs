@@ -10,7 +10,10 @@ const indexHtml = fs.readFileSync('index.html', 'utf8');
 const requiredPublicFiles = [
   'styles/nexus/nexus.css',
   'scripts/nexus/living-sector-object.js',
-  'scripts/nexus/pulse-vault.js',
+  'scripts/nexus/sector-discovery.js',
+  'scripts/nexus/pulse-runtime.js',
+  'scripts/nexus/opportunity-radar.js',
+  'scripts/nexus/pulse-surface.js',
   'scripts/nexus/social-runtime-guard.js',
   'scripts/nexus/bootstrap.js',
 ];
@@ -21,6 +24,9 @@ test('sealed public release explicitly includes every real NEXUS runtime depende
     assert.match(builder, new RegExp(relative.replaceAll('/', '\\/').replaceAll('.', '\\.')),
       `${relative} must be explicitly allowlisted in the public artifact`);
   }
+  assert.equal(fs.existsSync('scripts/nexus/pulse-vault.js'), false,
+    'superseded client-only pulse-vault.js must not be resurrected');
+  assert.doesNotMatch(builder, /scripts\/nexus\/pulse-vault\.js/);
 });
 
 test('primary public HTML is natively NEXUS and contains no old dead social shell affordance', () => {
