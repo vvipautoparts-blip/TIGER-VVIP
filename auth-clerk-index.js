@@ -31,8 +31,6 @@
     "SOCIAL_PROFILE_UNFOLLOW",
     "SOCIAL_FEED_PREFERENCE"
   ]);
-  const LISTING_INTENTS = new Set(["TOGGLE_FAVORITE", "CONTACT_SELLER_INTERNAL"]);
-  const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   const CLERK_USER_PATTERN = /^user_[A-Za-z0-9_-]{6,128}$/;
   const SESSION_TOKEN_MAX_LENGTH = 16 * 1024;
 
@@ -140,11 +138,6 @@
     if (SIMPLE_INTENTS.has(name)) {
       if (keys.length !== 1 || keys[0] !== "name") throw authError("AUTH_INTENT_INVALID");
       return Object.freeze({ name });
-    }
-    if (LISTING_INTENTS.has(name)) {
-      if (keys.length !== 2 || keys[0] !== "listingId" || keys[1] !== "name") throw authError("AUTH_INTENT_INVALID");
-      if (typeof input.listingId !== "string" || !UUID_PATTERN.test(input.listingId)) throw authError("AUTH_INTENT_INVALID");
-      return Object.freeze({ name, listingId: input.listingId });
     }
     throw authError("AUTH_INTENT_INVALID");
   }
