@@ -35,13 +35,13 @@ jobs:
       GITHUB_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout current main verification code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f544a08e6b0 # v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           ref: main
           fetch-depth: 1
 
       - name: Set up Python verifier
-        uses: actions/setup-python@a079284f6907d469567d7000a6d0159d034d90b0 # v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
 
@@ -279,7 +279,7 @@ jobs:
         uses: actions/deploy-pages@ec56924218b2176fe6802ce5b3391b0d6127de51 # v4
 
       - name: Set up Python for live verification
-        uses: actions/setup-python@a079284f6907d469567d7000a6d0159d034d90b0 # v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
 
