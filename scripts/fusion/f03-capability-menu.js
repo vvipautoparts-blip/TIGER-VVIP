@@ -95,7 +95,7 @@ function renderOrdinaryCommands(root, host) {
   group.setAttribute("aria-label", "أوامر TIGER");
   group.append(
     createCommand(root, "ملفي", { "data-social-nav": "profile" }),
-    createCommand(root, "اكتشاف القطاعات", { "data-social-nav": "marketplace" }),
+    createCommand(root, "اكتشاف القطاعات", { "data-social-nav": "sectors" }),
     createCommand(root, "خزنة الظهور", { "data-nexus-vault-trigger": "" }),
     createCommand(root, "الحساب والإعدادات", { "data-fusion-account-trigger": "" })
   );
