@@ -48,7 +48,7 @@ test('current runtime and current authority tree contain no superseded NEXUS con
   assert.deepEqual(hits, []);
 });
 
-test('superseded Marketplace creation and publication surfaces are physically deleted', () => {
+test('superseded Marketplace creation publication and parallel runtime surfaces are physically deleted', () => {
   const removed = [
     'scripts/fusion/progressive-composer.js',
     'styles/fusion/progressive-composer.css',
@@ -60,10 +60,32 @@ test('superseded Marketplace creation and publication surfaces are physically de
     'styles/vvip-pr32-draft-preview.css',
     'scripts/vvip-pr33-publish-readiness.js',
     'styles/vvip-pr33-publish-readiness.css',
-    'scripts/runtime/vvip-my-listings.js'
+    'scripts/runtime/vvip-my-listings.js',
+    'scripts/fusion/f02-feed.js',
+    'scripts/fusion/runtime-adapters.js',
+    'scripts/fusion/marketplace-context.js',
+    'scripts/runtime/vvip-marketplace-repository.js',
+    'scripts/vvip-production-marketplace.js',
+    'styles/vvip-production-marketplace.css',
+    'scripts/fusion/synapse.js',
+    'styles/fusion/synapse.css'
   ];
   for (const relative of removed) {
     assert.equal(fs.existsSync(path.join(root, relative)), false, `${relative} must stay physically deleted`);
+  }
+});
+
+test('public release graph is NEXUS-only and cannot re-inject parallel Marketplace runtime', () => {
+  const release = fs.readFileSync(path.join(root, 'tools/vvip_public_release.py'), 'utf8');
+  assert.match(release, /scripts\/nexus\/sector-discovery\.js/);
+  for (const marker of [
+    'scripts/runtime/vvip-marketplace-repository.js',
+    'scripts/fusion/runtime-adapters.js',
+    'scripts/fusion/marketplace-context.js',
+    'scripts/fusion/f02-feed.js',
+    'href="#marketplace"'
+  ]) {
+    assert.equal(release.includes(marker), false, `${marker} must not exist in the sealed NEXUS release graph`);
   }
 });
 
