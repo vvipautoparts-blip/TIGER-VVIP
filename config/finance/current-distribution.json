@@ -24,13 +24,17 @@
   "statutoryTaxBoundary": {
     "status": "CURRENT_ONLY_FAIL_CLOSED",
     "authority": "docs/owner-control/TIGER_STATUTORY_TAX_BOUNDARY_CURRENT.md",
+    "pricePresentation": "TAX_INCLUSIVE_FINAL",
+    "displayedPriceIsFinalCharge": true,
+    "taxIncludedInDisplayedPrice": true,
+    "additionalTaxAtCapture": false,
+    "taxQuoteAppliesToFinalDisplayedPrice": true,
     "taxIsPlatformAllocation": false,
     "taxIsCommissionable": false,
     "taxIsPartnerShareable": false,
     "taxIsOperationsRevenue": false,
     "ownerDefinesLegalTaxRate": false,
     "countryActivationIndependentFromTaxRate": true,
-    "userPaysVerifiedStatutoryTaxInAdditionToPlatformPrice": true,
     "zeroTaxAddsNothing": true,
     "canonicalEnforcementModule": "project-control/finance/statutory-tax-boundary.cjs",
     "unverifiedTaxQuoteBehavior": "FAIL_CLOSED"
