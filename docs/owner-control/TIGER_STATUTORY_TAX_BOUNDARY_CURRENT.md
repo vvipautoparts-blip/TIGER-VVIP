@@ -2,30 +2,60 @@
 
 **Status:** `CURRENT_ONLY / OWNER_BINDING / FAIL_CLOSED`
 **Effective owner decision:** 2026-09-01
-**Domain:** statutory tax charged on TIGER-owned paid platform services.
+**Domain:** statutory tax contained in the final user-facing price of TIGER-owned paid platform services.
 
-## 1. Binding rule
+## 1. Binding rule — final price is tax-inclusive
 
-VVIP TIGER sets the platform service price. VVIP TIGER does **not** invent, set, absorb, redistribute, or treat a statutory tax rate as a TIGER financial allocation.
+The newest owner decision is:
 
-The legally applicable tax for the transaction is an external statutory charge determined by the applicable jurisdiction/rules and supplied to checkout through verified tax evidence/provider logic.
+> **The price shown to the user is the final price and already includes any verified statutory tax applicable to that transaction. TIGER separates the tax internally; it does not add another tax amount at capture.**
 
-The user-facing checkout is therefore:
+Canonical presentation:
 
-`PLATFORM SERVICE PRICE + VERIFIED STATUTORY TAX = USER TOTAL`
+`FINAL DISPLAYED PRICE = PLATFORM SERVICE REVENUE + INCLUDED VERIFIED STATUTORY TAX`
 
-Examples are mechanical only:
+and:
 
-- verified statutory tax `0%` -> add `0`;
-- verified statutory tax `12%` -> add the verified 12% tax amount;
-- verified statutory tax `16%` -> add the verified 16% tax amount;
-- verified statutory tax `20%` -> add the verified 20% tax amount.
+`USER CHARGE = FINAL DISPLAYED PRICE`
+
+Therefore:
+
+`ADDITIONAL TAX AT CAPTURE = 0`
+
+The user must not see one price and then receive a second TIGER-added statutory-tax surcharge at the final payment step.
+
+## 2. TIGER does not invent the legal tax
+
+VVIP TIGER controls its commercial pricing and presentation. It does **not** invent or arbitrarily define the statutory tax rate.
+
+The legally applicable tax for a transaction is determined by the applicable jurisdiction/rules and supplied through verified tax evidence/provider logic.
+
+The verified tax result must correspond to the **final displayed tax-inclusive price** for the transaction.
+
+Examples of the boundary:
+
+- verified included statutory tax `0` -> platform revenue equals the full final displayed price;
+- verified included statutory tax greater than `0` -> that verified amount is separated from the final displayed price;
+- the user's charged amount remains the same final displayed price in both cases;
+- no second tax amount is added at capture.
 
 There is no TIGER 16% tax ceiling, tax subsidy, tax shield, tax-gap subsidy, or automatic tax-rate override.
 
-## 2. Tax is outside platform distribution
+## 3. Internal separation formula
 
-Statutory tax is never platform distributable revenue.
+For every taxable TIGER-owned platform purchase:
+
+`PLATFORM SERVICE REVENUE = FINAL DISPLAYED PRICE - VERIFIED INCLUDED STATUTORY TAX`
+
+`STATUTORY TAX = VERIFIED INCLUDED STATUTORY TAX`
+
+`DISTRIBUTION BASIS = PLATFORM SERVICE REVENUE`
+
+The included statutory tax may never exceed the final displayed price. Any impossible or inconsistent quote fails closed.
+
+## 4. Tax is outside platform distribution
+
+Statutory tax is never TIGER distributable revenue.
 
 It is excluded from:
 
@@ -38,11 +68,15 @@ It is excluded from:
 - self-service commission allocation;
 - any replacement allocation for the cancelled former TAX_RESERVE.
 
-The platform distribution basis is the TIGER platform-service revenue amount **excluding statutory tax**.
-
 `TAX MONEY != COMMISSION MONEY`
 
-## 3. Former TAX_RESERVE 16% is not statutory tax
+## 5. Discounts and final price
+
+Any owner-approved commercial discount that applies to the purchase must be resolved **before the final tax-inclusive price/tax quote is sealed for payment**.
+
+The statutory-tax evidence used by the financial boundary must match that final displayed price. TIGER must not calculate commissions from a pre-discount amount while charging or taxing a different final amount.
+
+## 6. Former TAX_RESERVE 16% is not statutory tax
 
 The former internal `TAX_RESERVE = 16%` remains cancelled.
 
@@ -50,66 +84,77 @@ The unresolved 16 percentage points left in the internal platform distribution a
 
 Until a separate explicit owner decision reallocates those 16 percentage points, final platform distribution remains fail-closed exactly as required by current financial authority.
 
-## 4. Country activation is independent from tax rate
+## 7. Country activation is independent from tax rate
 
-Country opening, suspension, or closure is a TIGER commercial/operational owner-governance decision and is not automatically determined by whether the statutory tax is below, equal to, or above 16%.
-
-A jurisdiction having a 20% statutory tax does not by itself mean TIGER absorbs 4%, blocks the country, or changes commissions. If the country is commercially activated and the transaction is legally taxable at a verified 20%, the verified tax amount is added to the user checkout and remains outside TIGER revenue distribution.
+Country opening, suspension, or closure is a TIGER commercial/operational owner-governance decision and is not automatically determined by whether statutory tax is below, equal to, or above 16%.
 
 Owner country-activation authority must not be confused with legal tax-rate determination.
 
-## 5. Server-authoritative checkout boundary
+## 8. Server-authoritative enforcement
 
 The canonical enforcement module is:
 
 `project-control/finance/statutory-tax-boundary.cjs`
 
-The module accepts TIGER platform price and a verified statutory tax quote. It returns separated values for:
+It accepts:
 
+- the final displayed price in minor currency units;
+- a verified statutory-tax quote for that final price.
+
+It returns separated values for:
+
+- final displayed price;
+- user total;
 - platform revenue;
 - statutory tax;
-- user total;
-- distribution basis.
+- distribution basis;
+- tax jurisdiction/evidence;
+- `additionalTaxAtCaptureMinor = 0`;
+- `taxIncludedInDisplayedPrice = true`.
 
-The distribution basis is always platform revenue only and excludes statutory tax.
-
-## 6. Fail-closed tax evidence
-
-TIGER must not invent a statutory tax value when the required tax result is unavailable or unverified.
+## 9. Fail-closed tax evidence
 
 A tax quote used by the canonical boundary must be marked `VERIFIED` and contain at minimum:
 
-- tax amount in minor currency units;
+- included statutory-tax amount in minor currency units;
 - effective rate evidence where supplied by the tax engine;
 - jurisdiction identity/context;
 - source evidence identity.
 
-If required tax evidence is unverified, malformed, negative, or unavailable, the financial boundary fails closed instead of guessing a rate.
+If required tax evidence is unverified, malformed, negative, unavailable, or internally inconsistent, the financial boundary fails closed instead of guessing a rate or silently changing the user's final price.
 
-A zero verified tax amount is valid and adds nothing to the user price.
+A verified zero tax amount is valid.
 
-## 7. Human and digital financial firewall compatibility
+## 10. Human and digital financial firewall compatibility
 
 This authority does not change the Human–Digital Financial Firewall.
 
 All DIGITAL actors remain zero-financial-benefit actors. Statutory tax cannot create a commission, share, entitlement, wallet, payout destination, or sale-commission ownership for a DIGITAL actor.
 
-Human sales commission remains calculated only from the approved TIGER platform-revenue distribution basis, excluding statutory tax.
+Human sales commission is calculated only from the approved TIGER platform-revenue distribution basis **after included statutory tax has been separated**.
 
-## 8. Immutable audit separation
+## 11. Immutable audit separation
 
-Financial records must preserve separate fields/dimensions for platform revenue and statutory tax so that tax cannot be silently included in commissionable revenue.
+Each taxable platform purchase must remain auditable to at least:
 
-At minimum, each taxable platform purchase must be auditable to:
-
-- platform service amount;
-- statutory tax amount;
-- total charged to the user;
+- final displayed tax-inclusive price;
+- actual user charge;
+- platform service revenue;
+- included statutory-tax amount;
 - tax jurisdiction/context;
 - tax evidence/source identity;
 - distribution basis excluding statutory tax;
+- approved discounts where applicable;
 - refunds/reversals where applicable.
 
-## 9. Acceptance statement
+The ledger must prove that:
 
-> **VVIP TIGER sets its service price; the applicable jurisdiction determines statutory tax. A verified statutory tax amount is added to the user price as legally applicable. If verified tax is zero, nothing is added. Statutory tax is external to TIGER distribution and cannot enter owner, partner, operations, sales commission, or digital-role economics. Country activation is an independent owner-governance decision and is not automatically controlled by a 16% tax threshold. The former internal TAX_RESERVE 16% remains cancelled; the unresolved internal 16 percentage points are not tax and remain pending a separate owner allocation decision. Unverified tax fails closed rather than being guessed.**
+`FINAL DISPLAYED PRICE = PLATFORM SERVICE REVENUE + STATUTORY TAX`
+
+and:
+
+`USER CHARGE = FINAL DISPLAYED PRICE`
+
+## 12. Acceptance statement
+
+> **The TIGER price shown to the user is the final tax-inclusive price. Any legally applicable verified statutory tax is separated internally from that final price and is not added again at capture. Verified zero tax means the full final price is platform-service revenue; verified non-zero tax is carved out before internal distribution. Statutory tax never enters OWNER, PARTNER, ACTUAL_OPERATIONS, SALES_ADMINISTRATION, HUMAN commission, or DIGITAL economics. Country activation remains an independent owner-governance decision. The former internal TAX_RESERVE 16% remains cancelled; the unresolved internal 16 percentage points are not tax and remain pending a separate owner allocation decision. Unverified or inconsistent tax evidence fails closed.**
