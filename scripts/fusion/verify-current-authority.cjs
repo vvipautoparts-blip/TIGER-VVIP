@@ -112,6 +112,10 @@ function verifyCurrentAuthority(manifest) {
     errors.push('ownerMarketplaceBoundary must be an object');
   } else {
     if (marketplaceBoundary.mode !== 'ADVERTISING_DISCOVERY_DIRECT_CONTACT_ONLY') errors.push('ownerMarketplaceBoundary.mode must be ADVERTISING_DISCOVERY_DIRECT_CONTACT_ONLY');
+    if (marketplaceBoundary.marketplaceIntermediationRole !== 'NONE') errors.push('marketplace intermediation role must remain NONE');
+    if (marketplaceBoundary.platformOnlyReducesDistance !== true) errors.push('platform role must remain limited to reducing distance between marketplace parties');
+    if (marketplaceBoundary.transactionPartiesInteractDirectly !== true) errors.push('marketplace transaction parties must interact directly');
+    if (marketplaceBoundary.platformHasNoMarketplaceTransactionAuthority !== true) errors.push('platform must have no marketplace transaction authority');
     if (marketplaceBoundary.platformIsMarketplaceTransactionParty !== false) errors.push('platform must not be a party to marketplace transactions');
     if (marketplaceBoundary.marketplaceTransactionHandledDirectlyByParties !== true) errors.push('marketplace transactions must be handled directly by their parties');
     if (marketplaceBoundary.platformDoesNotBrokerOrRepresentParties !== true) errors.push('platform must not broker or represent marketplace parties');
