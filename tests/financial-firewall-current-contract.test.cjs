@@ -24,6 +24,21 @@ test('current finance config declares a fail-closed human/digital financial fire
   assert.equal(firewall.digitalSaleOwnershipAllowed, false);
 });
 
+test('current finance config binds one canonical firewall module and deterministic claim evidence contract', () => {
+  const firewall = distribution.humanDigitalFinancialFirewall;
+
+  assert.equal(
+    firewall.canonicalEnforcementModule,
+    'project-control/finance/human-digital-financial-firewall.cjs'
+  );
+  assert.equal(firewall.claimEvidence.purchaseOrQuoteIdentityRequired, true);
+  assert.equal(firewall.claimEvidence.assignmentVersionRequired, true);
+  assert.equal(firewall.claimEvidence.sourceEvidenceRequired, true);
+  assert.equal(firewall.claimEvidence.timestampRequired, true);
+  assert.equal(firewall.claimEvidence.deduplicationKeyRequired, true);
+  assert.equal(firewall.claimEvidence.integrityHashAlgorithm, 'SHA-256');
+});
+
 test('firewall addition cannot invent a beneficiary for the unresolved 16 percent', () => {
   assert.equal(distribution.pendingOwnerDecisionPercent, 16);
   assert.equal(distribution.distributionExecutionAuthorized, false);
