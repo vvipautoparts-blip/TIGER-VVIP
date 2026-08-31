@@ -48,3 +48,16 @@ test('validator fails closed if any marketplace intermediation is enabled', () =
     assert.equal(result.ok, false);
   }
 });
+
+test('public terms and owner binding explicitly say TIGER is not an intermediary, broker, or agent', () => {
+  const terms = fs.readFileSync(path.join(root, 'terms-of-service.html'), 'utf8');
+  const binding = fs.readFileSync(
+    path.join(root, 'docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md'),
+    'utf8'
+  );
+
+  assert.match(terms, /not an intermediary, broker, or agent/i);
+  assert.match(terms, /ليست وسيطًا ولا سمسارًا ولا وكيلًا/);
+  assert.match(binding, /marketplaceIntermediationRole\s*=\s*NONE/i);
+  assert.match(binding, /not an intermediary, broker, agent, or transaction representative/i);
+});
