@@ -1,7 +1,7 @@
 # مرجع مالك TIGER الحالي — CURRENT ONLY
 
 **الحالة:** `CURRENT OWNER ENTRYPOINT / CURRENT_ONLY / FIRST_REFERENCE / NO_FALLBACK / NO_IN_TREE_ARCHIVE`
-**آخر اعتماد:** 2026-08-29
+**آخر اعتماد:** 2026-08-31
 
 هذه هي نقطة الدخول الحالية للمالك، والمرجع الأول الإلزامي قبل أي إجراء هو:
 
@@ -24,7 +24,8 @@
 - الحد الحالي لإعلان Marketplace العادي: 7 صور.
 - لا توجد مدة منتج/محتوى للمنشور أو الإعلان أو رصيد/بطاقة الظهور.
 - TTLs التقنية الأمنية فقط مثل OTP/session/signed URL/anti-replay/cache/temporary quote/reservation تبقى لأنها حماية تقنية وليست مدة منتج.
-- الظهور المدفوع الحالي: `TIGER PULSE RING / PULSE VAULT` بمستويات **2 / 10 / 25 / 45 JOD** فقط.
+- الظهور المدفوع الحالي: `TIGER PULSE RING / PULSE VAULT` بمستويات **2 / 10 / 20 / 45 JOD** فقط.
+- القيمة 25 JOD القديمة ملغاة وليست مرجعًا حاليًا.
 - كل مبلغ له تخصيص ظهور server-authoritative مختلف ويظهر للمستخدم قبل الدفع؛ الظهور لا يقاس بالأيام ولا ينتهي بمرور الزمن أو بسبب الانتظار قبل الاستخدام.
 - Pulse Vault يسمح ببقاء الظهور غير المخصص حتى يختار المستخدم Living Sector Object مؤهلًا ويخصص/يفعّل الظهور وفق سياسة الخادم.
 - أوضاع توزيع NEXUS الحالية: `NOW / SMART / PRECISE`؛ تغير طريقة التوزيع فقط ولا تغير كمية الظهور المشتراة ولا تتجاوز الأهلية.
@@ -41,22 +42,30 @@
 
 ملفات migrations المطبقة تاريخيًا لا يعاد تحريرها لتزييف التاريخ؛ يتم تحييد أثرها القديم بـ forward migration عند الحاجة.
 
-## التوزيع المالي الحالي — 100%
+## التوزيع المالي الحالي — آخر قرار فقط
 
-من القيمة التي تم تحصيلها فعليًا من المستخدم بعد الخصم الصحيح إن وجد:
+`TAX_RESERVE_STATUS: CANCELLED`
+
+تم إلغاء `TAX_RESERVE / الضريبة 16%` من التوزيع الحالي. لا تُرحّل هذه الـ16% تلقائيًا إلى المالك أو التشغيل أو الشركاء أو المبيعات أو CSR أو أي بند آخر.
+
+النسب المثبتة حاليًا هي:
 
 - OWNER: **5%**
 - PARTNER_1: **5%**
 - PARTNER_2: **5%**
 - PARTNER_3: **5%**
 - ACTUAL_OPERATIONS: **43%**
-- TAX_RESERVE: **16%**
 - SALES_ADMINISTRATION: **21%**
-- TOTAL: **100%**
+- المجموع المعروف حاليًا: **84%**
+- النسبة المتبقية بعد إلغاء TAX_RESERVE: **16% بانتظار قرار مالك صريح لإعادة توزيعها**
+
+لا يجوز اختراع توزيع للـ16% ولا الادعاء أن التوزيع الحالي مكتمل 100% قبل قرار المالك.
 
 تفصيل ACTUAL_OPERATIONS 43%:
 
 `8% مخاطر + 8% صيانة + 8% تطوير + 8% دعم فني + 8% إعلانات + 3% CSR`.
+
+`CSR = 3%` داخل الـ43%، ولا توجد حصة مستقلة 1% في التوزيع المالي الحالي.
 
 تفصيل SALES_ADMINISTRATION 21%:
 
@@ -66,13 +75,15 @@
 
 التسوية للعمولات المؤهلة كل 14 يومًا، ووجهة الصرف مطلوبة خلال 12 ساعة من منح الدور إلا إذا مدد المالك المهلة. تصفير الرصيد بعد التسوية لا يعني حذف سجل الحركات؛ الـledger يبقى غير قابل للمحو.
 
+إلى أن يقرر المالك توزيع الـ16% الملغاة، تنفيذ التوزيع المالي النهائي يبقى `FAIL_CLOSED` ولا يتم اختراع مستفيد بديل.
+
 ## السلطات الحالية فقط
 
 1. `TIGER_OWNER_BINDING_CURRENT.md` — المرجع الأول ودستور Latest-Only.
 2. `TIGER_NEXUS_2026_CURRENT_OWNER_AUTHORITY.md` — تجربة المنتج الحالية: Social-first / Sector-only / Living Sector Object / TIGER Command / Pulse Vault.
 3. `TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md` — Social Core ما لم يتعارض مع NEXUS الأحدث في نطاق تجربة المنتج.
-4. `TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` — الظهور المدفوع 2/10/25/45 بلا مدة، ويقرأ الآن عبر Pulse Vault في تجربة NEXUS.
-5. `TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md` — التوزيع المالي 100%.
+4. `TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` — الظهور المدفوع 2/10/20/45 بلا مدة، ويقرأ عبر Pulse Vault في تجربة NEXUS.
+5. `TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md` — السلطة المالية الحالية مع إلغاء TAX_RESERVE وعدم اختراع توزيع بديل للـ16%.
 6. `TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md` — حوكمة التنظيف.
 7. `TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة `post-launch-autonomy` المستقبلية المحمية.
 8. `project-control/authority/authority-registry.v1.json` — Authority Graph الآلي.
