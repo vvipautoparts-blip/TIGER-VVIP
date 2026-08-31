@@ -6,7 +6,6 @@ const EXPECTED_MAIN = Object.freeze({
   PARTNER_2: 5,
   PARTNER_3: 5,
   ACTUAL_OPERATIONS: 43,
-  TAX_RESERVE: 16,
   SALES_ADMINISTRATION: 21
 });
 
@@ -43,13 +42,26 @@ function verifyCurrentDistribution(config) {
     return { ok: false, errors: ['finance config must be an object'] };
   }
 
-  if (config.schemaVersion !== 'TIGER_FINANCIAL_DISTRIBUTION_V1') errors.push('finance schemaVersion invalid');
+  if (config.schemaVersion !== 'TIGER_FINANCIAL_DISTRIBUTION_V2') errors.push('finance schemaVersion invalid');
   if (config.status !== 'CURRENT_ONLY') errors.push('finance status must be CURRENT_ONLY');
   if (config.ownerAuthority !== 'docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md') errors.push('finance owner authority path invalid');
   if (config.allocationBasis !== 'ACTUAL_CAPTURED_AMOUNT_AFTER_VALID_SELF_SERVICE_DISCOUNT') errors.push('finance allocation basis invalid');
 
-  if (!exactObject(config.mainDistributionPercent, EXPECTED_MAIN)) errors.push('main distribution must equal OWNER 5 + PARTNERS 15 + OPERATIONS 43 + TAX 16 + SALES 21');
-  if (sumValues(config.mainDistributionPercent) !== 100) errors.push('main distribution must total exactly 100 percent');
+  if (Object.prototype.hasOwnProperty.call(config.mainDistributionPercent || {}, 'TAX_RESERVE')) {
+    errors.push('TAX_RESERVE must remain cancelled from the current distribution');
+  }
+  if (!exactObject(config.mainDistributionPercent, EXPECTED_MAIN)) {
+    errors.push('known current distribution must equal OWNER 5 + PARTNERS 15 + OPERATIONS 43 + SALES 21');
+  }
+  if (sumValues(config.mainDistributionPercent) !== 84) errors.push('known current allocation must total exactly 84 percent');
+
+  const cancelled = config.cancelledAllocation || {};
+  if (cancelled.name !== 'TAX_RESERVE' || cancelled.formerPercent !== 16 || cancelled.status !== 'CANCELLED_BY_LATEST_OWNER_DECISION') {
+    errors.push('cancelled TAX_RESERVE record must preserve the latest owner decision');
+  }
+  if (config.pendingOwnerDecisionPercent !== 16) errors.push('cancelled 16 percent must remain pending explicit owner reallocation');
+  if (config.distributionState !== 'INCOMPLETE_PENDING_OWNER_REALLOCATION') errors.push('distribution state must remain incomplete pending owner reallocation');
+  if (config.distributionExecutionAuthorized !== false) errors.push('distribution execution must remain blocked until the owner reallocates the cancelled 16 percent');
 
   if (!exactObject(config.actualOperationsPercent, EXPECTED_OPERATIONS)) errors.push('operations distribution must equal 8+8+8+8+8+3');
   if (sumValues(config.actualOperationsPercent) !== 43) errors.push('operations distribution must total exactly 43 percent');
@@ -74,7 +86,11 @@ function verifyCurrentDistribution(config) {
   if (payout.ownerMayExtendGrace !== true) errors.push('owner must be able to extend payout grace');
   if (payout.successfulSettlementZeroesPayableBalanceButPreservesLedger !== true) errors.push('settlement must preserve immutable ledger history');
 
-  if (config.financialInvariant !== 'MAIN_DISTRIBUTION_EQUALS_100_PERCENT') errors.push('100 percent invariant missing');
+  const dimensions = Array.isArray(config.ledgerDimensions) ? config.ledgerDimensions : [];
+  if (dimensions.includes('TAX_RESERVE')) errors.push('TAX_RESERVE ledger dimension must be absent from current allocation');
+  if (!dimensions.includes('PENDING_OWNER_DECISION')) errors.push('pending owner decision ledger dimension missing');
+
+  if (config.financialInvariant !== 'NO_TAX_RESERVE_NO_INVENTED_REALLOCATION') errors.push('latest finance invariant missing');
   if (config.operationsInvariant !== 'ACTUAL_OPERATIONS_EQUALS_43_PERCENT') errors.push('43 percent operations invariant missing');
   if (config.salesInvariant !== 'SALES_ADMINISTRATION_EQUALS_21_PERCENT') errors.push('21 percent sales invariant missing');
   if (config.historyPolicy !== 'IMMUTABLE_LEDGER_NO_ERASURE') errors.push('immutable ledger history policy missing');
