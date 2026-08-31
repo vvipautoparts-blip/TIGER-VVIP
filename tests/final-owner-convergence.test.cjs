@@ -33,6 +33,7 @@ test('current deletion manifest exists and is bound to latest-only owner authori
   assert.match(manifest, /tests\/nexus\/pulse-vault\.test\.cjs/);
   assert.match(manifest, /tests\/nexus\/pulse-runtime\.test\.cjs/);
   assert.match(manifest, /P10_THREE_SECTOR_STRUCTURED_FIELDS\.md/);
+  assert.match(manifest, /OWNER_BINDING_DECISIONS_2026-08-12\.md/);
   assert.match(manifest, /Git history/i);
   assert.match(manifest, /no blind deletion/i);
 });
@@ -74,4 +75,13 @@ test('current tree cannot retain fixed three-sector owner-control artifact', () 
   );
   const config = JSON.parse(read('config/fusion/current-authority.json'));
   assert.equal(config.nexus.activatedSectorsOnly, true);
+});
+
+test('superseded owner-canonical binding cannot remain in current tree', () => {
+  assert.equal(
+    fs.existsSync(path.join(root, 'docs/owner-control/OWNER_BINDING_DECISIONS_2026-08-12.md')),
+    false
+  );
+  const binding = read('docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md');
+  assert.match(binding, /CURRENT_ONLY \/ OWNER_BINDING \/ FIRST_REFERENCE/);
 });
