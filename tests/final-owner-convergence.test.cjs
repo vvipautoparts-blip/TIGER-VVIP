@@ -34,6 +34,11 @@ test('current deletion manifest exists and is bound to latest-only owner authori
   assert.match(manifest, /tests\/nexus\/pulse-runtime\.test\.cjs/);
   assert.match(manifest, /P10_THREE_SECTOR_STRUCTURED_FIELDS\.md/);
   assert.match(manifest, /OWNER_BINDING_DECISIONS_2026-08-12\.md/);
+  assert.match(manifest, /VVIP_TIGER_OWNER_MASTER_DECISIONS_2026-08-12\.md/);
+  assert.match(manifest, /VVIP_TIGER_OWNER_MASTER_REFERENCE\.md/);
+  assert.match(manifest, /VVIP_TIGER_MASTER_EXECUTION_ROADMAP\.yaml/);
+  assert.match(manifest, /VVIP_TIGER_PHASE_TRACKER\.md/);
+  assert.match(manifest, /phase-status\.json/);
   assert.match(manifest, /Git history/i);
   assert.match(manifest, /no blind deletion/i);
 });
@@ -96,4 +101,26 @@ test('owner-control tree contains no competing BINDING OWNER-CANONICAL declarati
     if (/This Owner Binding Decisions file is the binding owner decision truth/i.test(source)) hits.push(name);
   }
   assert.deepEqual([...new Set(hits)], []);
+});
+
+test('superseded owner master control plane cannot compete with CURRENT_ONLY authority', () => {
+  const retired = [
+    'docs/owner-control/VVIP_TIGER_OWNER_MASTER_DECISIONS_2026-08-12.md',
+    'docs/owner-control/VVIP_TIGER_OWNER_MASTER_REFERENCE.md',
+    'docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md',
+    'docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml',
+    'docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP_COMPLETION.md',
+    'docs/owner-control/VVIP_TIGER_PHASE_TRACKER.md',
+    'docs/owner-control/phase-status.json',
+    'docs/change-control/20260710-master-execution-roadmap.json'
+  ];
+  for (const relative of retired) {
+    assert.equal(fs.existsSync(path.join(root, relative)), false, `${relative} must stay deleted`);
+  }
+
+  const readme = read('docs/owner-control/README.md');
+  assert.match(readme, /TIGER_OWNER_BINDING_CURRENT\.md/);
+  assert.match(readme, /CURRENT_ONLY/);
+  assert.doesNotMatch(readme, /VVIP_TIGER_OWNER_MASTER_REFERENCE\.md[\s\S]{0,160}المرجع الأعلى/);
+  assert.doesNotMatch(readme, /VVIP_TIGER_MASTER_EXECUTION_ROADMAP\.(?:yaml|md)[\s\S]{0,160}المرجع الرسمي/);
 });
