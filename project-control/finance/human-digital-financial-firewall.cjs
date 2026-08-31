@@ -36,6 +36,40 @@ function hasFinancialDestination(value) {
   return value !== undefined && value !== null && value !== '';
 }
 
+function isNonEmptyString(value) {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function hasValidAssignmentVersion(value) {
+  return (Number.isInteger(value) && value > 0) || isNonEmptyString(value);
+}
+
+function hasValidClaimedAt(value) {
+  return isNonEmptyString(value) && Number.isFinite(Date.parse(value));
+}
+
+function hasValidIntegrityHash(value) {
+  return typeof value === 'string' && /^[a-f0-9]{64}$/i.test(value);
+}
+
+function assertDeterministicClaimEvidence(claim) {
+  const hasPurchaseOrQuoteIdentity = isNonEmptyString(claim.purchaseId) || isNonEmptyString(claim.quoteId);
+  const valid =
+    hasPurchaseOrQuoteIdentity &&
+    hasValidAssignmentVersion(claim.assignmentVersion) &&
+    isNonEmptyString(claim.sourceEvidenceId) &&
+    hasValidClaimedAt(claim.claimedAt) &&
+    isNonEmptyString(claim.deduplicationKey) &&
+    hasValidIntegrityHash(claim.integrityHash);
+
+  if (!valid) {
+    fail(
+      'INVALID_SALE_CLAIM_EVIDENCE',
+      'Sale claim requires purchase/quote identity, assignment version, source evidence, timestamp, deduplication key, and SHA-256 integrity hash.'
+    );
+  }
+}
+
 function enforceFinancialActorPolicy(actor) {
   if (!actor || typeof actor !== 'object' || Array.isArray(actor)) {
     fail('INVALID_FINANCIAL_ACTOR', 'Financial actor must be an object.');
@@ -110,6 +144,8 @@ function validateSaleOwnershipClaims(claims) {
       'Sale claim must belong to one ACTIVE, ELIGIBLE HUMAN sales role with a user identity.'
     );
   }
+
+  assertDeterministicClaimEvidence(claim);
 
   return { ...claim };
 }
