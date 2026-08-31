@@ -81,6 +81,9 @@ function verifyGlobalLaunchPassport(passport, context = {}) {
   }
 
   const finance = context.finance || {};
+  if (gates.hybridMediaHeic && gates.hybridMediaHeic.status === 'PASS' && context.f05LaunchGatePass !== true) {
+    errors.push('HYBRID_MEDIA_PASS_REQUIRES_F05_EVIDENCE_PASS');
+  }
   if (gates.shadowLedgerZero && gates.shadowLedgerZero.status === 'PASS') {
     if (finance.distributionExecutionAuthorized !== true || finance.pendingOwnerDecisionPercent !== 0) {
       errors.push('SHADOW_LEDGER_PASS_REQUIRES_EXECUTABLE_FINANCIAL_DISTRIBUTION');
