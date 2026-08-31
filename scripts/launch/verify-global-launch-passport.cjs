@@ -11,6 +11,7 @@ const REQUIRED_GATES = Object.freeze([
   'arabic',
   'english',
   'search',
+  'boundedAi',
   'hybridMediaHeic',
   'accessibility',
   'restore',
@@ -81,6 +82,9 @@ function verifyGlobalLaunchPassport(passport, context = {}) {
   }
 
   const finance = context.finance || {};
+  if (gates.boundedAi && gates.boundedAi.status === 'PASS' && context.f09LaunchGatePass !== true) {
+    errors.push('BOUNDED_AI_PASS_REQUIRES_F09_EVIDENCE_PASS');
+  }
   if (gates.hybridMediaHeic && gates.hybridMediaHeic.status === 'PASS' && context.f05LaunchGatePass !== true) {
     errors.push('HYBRID_MEDIA_PASS_REQUIRES_F05_EVIDENCE_PASS');
   }
