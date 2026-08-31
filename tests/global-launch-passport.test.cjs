@@ -83,7 +83,8 @@ test('fully evidenced exact-release passport can become globally eligible', () =
   const passport = completePassport();
   const result = verifyGlobalLaunchPassport(passport, {
     currentHeadSha: passport.release.sha,
-    finance: { distributionExecutionAuthorized: true, pendingOwnerDecisionPercent: 0 }
+    finance: { distributionExecutionAuthorized: true, pendingOwnerDecisionPercent: 0 },
+    f05LaunchGatePass: true
   });
   assert.equal(result.ok, true, result.errors.join('\n'));
   assert.equal(result.globalLaunchEligible, true);
@@ -108,4 +109,16 @@ test('Fusion validator fails closed if the Launch Passport gate is weakened', ()
     const result = verifyCurrentAuthority(fusion);
     assert.equal(result.ok, false);
   }
+});
+
+test('hybrid media PASS requires subordinate F05 launch evidence PASS', () => {
+  const { verifyGlobalLaunchPassport } = require(verifierPath);
+  const passport = completePassport();
+  const result = verifyGlobalLaunchPassport(passport, {
+    currentHeadSha: passport.release.sha,
+    finance: { distributionExecutionAuthorized: true, pendingOwnerDecisionPercent: 0 },
+    f05LaunchGatePass: false
+  });
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.includes('HYBRID_MEDIA_PASS_REQUIRES_F05_EVIDENCE_PASS'));
 });
