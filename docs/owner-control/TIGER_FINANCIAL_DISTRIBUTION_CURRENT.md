@@ -1,7 +1,7 @@
 # TIGER FINANCIAL DISTRIBUTION — CURRENT OWNER AUTHORITY
 
 **Status:** `CURRENT_ONLY / OWNER_BINDING / NO_FALLBACK / NO_IN_TREE_ARCHIVE`
-**Effective decision:** 2026-08-28
+**Effective decision:** 2026-08-31
 **Domain:** distribution of successfully captured TIGER Pulse visibility purchases.
 
 ## 1. Allocation basis
@@ -12,7 +12,21 @@ A refunded, voided, reversed, or charged-back purchase reverses the related allo
 
 No allocation in this document applies to the underlying buyer/seller or service-provider/beneficiary transaction. It applies only to TIGER-owned paid visibility/service revenue.
 
-## 2. Main 100% distribution
+## 2. Latest owner decision — TAX_RESERVE cancelled
+
+`TAX_RESERVE_STATUS: CANCELLED`
+
+The former `TAX_RESERVE = 16%` allocation is **cancelled by the latest owner decision**.
+
+It is not a current beneficiary, ledger allocation, reserve envelope, statutory tax rate, or fallback allocation.
+
+The owner has **not yet assigned that cancelled 16% to any replacement allocation**. Therefore no person, role, account, operations bucket, sales bucket, partner bucket, owner bucket, CSR bucket, tax bucket, or other category may receive that 16% by inference.
+
+**No invented reallocation is permitted.**
+
+Until an explicit later owner decision reallocates the cancelled 16%, current financial distribution is intentionally incomplete and distribution execution remains fail-closed.
+
+## 3. Current known allocations — 84% only
 
 | Allocation | Percentage |
 |---|---:|
@@ -21,21 +35,23 @@ No allocation in this document applies to the underlying buyer/seller or service
 | `PARTNER_2` | **5%** |
 | `PARTNER_3` | **5%** |
 | `ACTUAL_OPERATIONS` | **43%** |
-| `TAX_RESERVE` | **16%** |
 | `SALES_ADMINISTRATION` | **21%** |
-| **TOTAL** | **100%** |
+| **KNOWN CURRENT TOTAL** | **84%** |
+| **PENDING EXPLICIT OWNER REALLOCATION** | **16%** |
 
-The allocation engine must fail closed if these percentages do not total exactly 100%.
+The 16% pending row is **not an allocation**. It records only the unresolved percentage left after cancellation of the former TAX_RESERVE.
 
-`TAX_RESERVE` is the owner-approved internal 16% tax-reserve envelope inside the purchase distribution. It must not be represented as a universal statutory tax rate where local law requires a different legal treatment; statutory settlement remains subject to the active country contract and law.
+No implementation may claim that the current owner distribution is a completed 100% allocation until the owner explicitly decides where the cancelled 16% goes.
 
-## 3. Owner account
+## 4. Owner account
 
 `OWNER = 5%` of the actual captured purchase basis.
 
-The platform maintains a separated owner ledger/account dimension. Missing or ineligible partner/sales-role allocations described below route to the owner ledger with the precise reason code and originating allocation.
+The platform maintains a separated owner ledger/account dimension. Missing or ineligible partner/sales-role allocations described below route to the owner ledger only where this authority explicitly says so.
 
-## 4. Partner accounts
+The cancelled 16% **does not route to OWNER** unless a later explicit owner decision says so.
+
+## 5. Partner accounts
 
 Each partner allocation is independent:
 
@@ -49,7 +65,7 @@ When a partner role is assigned, the assignee must provide a valid payout destin
 
 If a partner position is unassigned, its 5% allocation routes to the owner account with an `UNASSIGNED_PARTNER` reason code.
 
-## 5. Actual operations — 43%
+## 6. Actual operations — 43%
 
 `ACTUAL_OPERATIONS = 43%` of the actual captured purchase basis.
 
@@ -65,13 +81,9 @@ Its internal sub-ledgers are:
 | `CSR` | **3%** |
 | **TOTAL** | **43%** |
 
-These balances are internal platform operational allocations under owner/delegate control. The sub-allocation engine must fail closed if the operations total is not exactly 43%.
+`CSR = 3%` is inside ACTUAL_OPERATIONS 43%. There is **no separate 1% charity allocation** in the current financial model.
 
-## 6. Tax reserve — 16%
-
-`TAX_RESERVE = 16%` of the actual captured purchase basis.
-
-The platform maintains a separated tax-reserve ledger/account dimension. Movements must remain fully traceable. Legal tax reporting/settlement is handled under the active country/payment profile and applicable law without changing this owner-approved internal allocation unless a later explicit owner decision changes it.
+The sub-allocation engine must fail closed if the operations total is not exactly 43%.
 
 ## 7. Sales administration — 21%
 
@@ -123,7 +135,7 @@ Role authorization and payout destination must be independently auditable.
 
 ## 9. Settlement cadence — every 14 days
 
-Owner, partner, operations, tax-reserve, and sales-role accounting dimensions are reconciled continuously.
+Owner, partner, operations, and sales-role accounting dimensions are reconciled continuously.
 
 Eligible external commission payouts are settled every **14 days**.
 
@@ -156,12 +168,14 @@ At minimum, the platform exposes separate accounting dimensions for:
 - `OWNER`;
 - `PARTNERS`;
 - `ACTUAL_OPERATIONS`;
-- `TAX_RESERVE`;
 - `SALES_ADMINISTRATION`;
+- `PENDING_OWNER_DECISION` for the cancelled, not-yet-reallocated 16%;
 - `ABSENT_SALES_ROLE`;
 - `ACTIVE_USER_DISCOUNT`;
 - individual partner/role payable balances;
 - refunds/chargebacks/reversals.
+
+There is no current `TAX_RESERVE` allocation dimension.
 
 Every movement records purchase identity, gross reference amount, discount, actual captured amount, percentage, allocated amount, beneficiary or owner fallback, reason code, status, timestamps, and immutable audit linkage.
 
@@ -181,7 +195,9 @@ Required controls include:
 
 - immutable/double-entry or equivalently auditable financial ledger;
 - idempotent allocation and payout processing;
-- exact 100% allocation invariant;
+- no TAX_RESERVE restoration;
+- no invented reallocation of the pending 16%;
+- distribution execution blocked while the owner allocation is incomplete;
 - one-sale/one-winner invariant;
 - least-privilege role access;
 - verified payout destination changes;
@@ -192,10 +208,10 @@ Required controls include:
 
 ## 14. Supersession
 
-Any prior commission model, split, hierarchy, percentage, partner treatment, sales cascade, payment-timing rule, or conflicting financial fallback is removed from current authority when it conflicts with this document.
+Any prior commission model, split, hierarchy, percentage, partner treatment, sales cascade, payment-timing rule, TAX_RESERVE rule, separate 1% charity rule, or conflicting financial fallback is removed from current authority when it conflicts with this document.
 
 Conflicting old material must be deleted from the current repository tree and may not be moved to an in-tree archive/trash/legacy folder. Git history is the only provenance mechanism for removed source material.
 
 ## 15. Owner acceptance statement
 
-> **Every successfully captured Pulse purchase is allocated 100% as OWNER 5%, PARTNER_1 5%, PARTNER_2 5%, PARTNER_3 5%, ACTUAL_OPERATIONS 43%, TAX_RESERVE 16%, and SALES_ADMINISTRATION 21%. Operations is 8+8+8+8+8+3. Sales administration is 7+7+7 but only the one role that owns the sale receives its 7%; non-winning or absent sales shares route to the owner. A self-service buyer with no sales claimant receives a visible 7% discount before payment, and no sales role receives commission. Eligible commissions settle every 14 days; missing payout destination after 12 hours suspends payout eligibility unless the owner extends it. Ledger history is never erased.**
+> **Current known allocations are OWNER 5%, PARTNER_1 5%, PARTNER_2 5%, PARTNER_3 5%, ACTUAL_OPERATIONS 43%, and SALES_ADMINISTRATION 21%. ACTUAL_OPERATIONS remains 8+8+8+8+8+3 with CSR 3% inside the 43% and no separate 1% allocation. The former TAX_RESERVE 16% is cancelled. The owner has not yet assigned that 16% elsewhere, so no replacement is invented and distribution execution remains fail-closed until an explicit later owner decision reallocates it. Sales administration remains 7+7+7 but only the one role that owns the sale receives its 7%; self-service with no claimant receives a visible 7% discount. Eligible commissions settle every 14 days; missing payout destination after 12 hours suspends payout eligibility unless the owner extends it. Ledger history is never erased.**
