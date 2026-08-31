@@ -133,13 +133,17 @@ Detailed authority:
 
 `docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md`
 
-## 6. Platform transaction boundary
+## 6. Platform transaction boundary — zero marketplace intermediation
 
-VVIP TIGER connects parties and is **not a party** to buyer/seller or service-provider/beneficiary transactions.
+`marketplaceIntermediationRole = NONE`
 
-The platform does not provide marketplace-party checkout, escrow, custody, settlement, delivery, warranty execution, transaction guarantee, or marketplace transaction commission flow.
+VVIP TIGER only reduces distance between marketplace parties through advertising, discovery, and direct contact. Seller and buyer interact directly; service provider and beneficiary interact directly.
 
-Platform-owned financial scope is limited to approved platform services such as paid visibility/advertising and its internal accounting.
+VVIP TIGER is **not an intermediary, broker, agent, or transaction representative** for any buyer/seller or service-provider/beneficiary marketplace transaction and is **not a party** to that transaction.
+
+The platform has no authority to negotiate, conclude, collect, settle, guarantee, deliver, represent, or adjudicate a marketplace transaction on behalf of either party. It does not provide marketplace-party checkout, escrow, custody, settlement, delivery, warranty execution, transaction guarantee, brokerage/agency, marketplace dispute resolution, or marketplace transaction commission flow.
+
+Platform-owned financial scope is limited to approved VVIP TIGER services such as paid visibility/advertising, applicable platform-service tax handling, and the platform's own accounting. Payment for a VVIP TIGER service does not convert the platform into an intermediary or transaction party between users.
 
 ## 7. Current 2026 security verification baseline
 
@@ -174,4 +178,4 @@ All other proven superseded conflicting current-tree material is directly delete
 
 ## 11. Owner acceptance statement
 
-> **This is the first reference before every action. Keep only the newest approved owner truth. TIGER NEXUS 2026 is the current platform experience: sector-specialized social publishing through Living Sector Objects, TIGER Command, validated صلاحياتي, and Pulse Vault reference levels 2/10/20/45 JOD with no product-time expiry. Those reference prices contain a 16% pricing baseline: divide by 1.16 to recover the untaxed base, then apply the verified country tax, and display/charge the resulting country-specific final price. A 16% country returns the reference price; lower tax lowers the price; higher tax raises it. Ordinary eligible publication is free. Current known finance remains OWNER 5%, PARTNER_1 5%, PARTNER_2 5%, PARTNER_3 5%, ACTUAL_OPERATIONS 43%, SALES_ADMINISTRATION 21%; the former internal TAX_RESERVE 16% is cancelled and its unresolved internal 16% is not reassigned until an explicit later owner decision. CSR remains 3% inside ACTUAL_OPERATIONS and there is no separate 1% allocation. Only one ACTIVE, ELIGIBLE HUMAN sales role wins one sale commission. Every DIGITAL actor is permanently zero-financial-benefit: no commission, share, entitlement, payout destination, wallet, or sale-commission ownership. Self-service with no claimant receives the approved visible 7% discount before the country-specific payment quote is finalized.**
+> **This is the first reference before every action. Keep only the newest approved owner truth. TIGER NEXUS 2026 is the current platform experience: sector-specialized social publishing through Living Sector Objects, TIGER Command, validated صلاحياتي, and Pulse Vault reference levels 2/10/20/45 JOD with no product-time expiry. Those reference prices contain a 16% pricing baseline: divide by 1.16 to recover the untaxed base, then apply the verified country tax, and display/charge the resulting country-specific final price. A 16% country returns the reference price; lower tax lowers the price; higher tax raises it. Ordinary eligible publication is free. VVIP TIGER has zero marketplace intermediation: it only reduces distance and enables direct contact; it is not an intermediary, broker, agent, transaction representative, transaction party, payment counterparty, escrow, settlement provider, or dispute resolver between users. Current known finance remains OWNER 5%, PARTNER_1 5%, PARTNER_2 5%, PARTNER_3 5%, ACTUAL_OPERATIONS 43%, SALES_ADMINISTRATION 21%; the former internal TAX_RESERVE 16% is cancelled and its unresolved internal 16% is not reassigned until an explicit later owner decision. CSR remains 3% inside ACTUAL_OPERATIONS and there is no separate 1% allocation. Only one ACTIVE, ELIGIBLE HUMAN sales role wins one sale commission. Every DIGITAL actor is permanently zero-financial-benefit: no commission, share, entitlement, payout destination, wallet, or sale-commission ownership. Self-service with no claimant receives the approved visible 7% discount before the country-specific payment quote is finalized.**
