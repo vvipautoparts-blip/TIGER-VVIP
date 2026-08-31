@@ -46,6 +46,10 @@
   },
   "ownerMarketplaceBoundary": {
     "mode": "ADVERTISING_DISCOVERY_DIRECT_CONTACT_ONLY",
+    "marketplaceIntermediationRole": "NONE",
+    "platformOnlyReducesDistance": true,
+    "transactionPartiesInteractDirectly": true,
+    "platformHasNoMarketplaceTransactionAuthority": true,
     "platformIsMarketplaceTransactionParty": false,
     "marketplaceTransactionHandledDirectlyByParties": true,
     "platformDoesNotBrokerOrRepresentParties": true,
