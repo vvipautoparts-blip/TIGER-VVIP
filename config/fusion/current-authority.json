@@ -84,7 +84,7 @@
     "submitContract": "SUBMIT_FOR_REVIEW"
   },
   "pulseRing": {
-    "tiersJod": [2, 10, 25, 45],
+    "tiersJod": [2, 10, 20, 45],
     "purchasedValue": "SERVER_AUTHORITATIVE_VISIBILITY_ALLOCATION",
     "userSurface": "PULSE_VAULT",
     "productTimeExpiry": null,
