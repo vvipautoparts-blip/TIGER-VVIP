@@ -2,7 +2,7 @@
   "schemaVersion": "TIGER_FINANCIAL_DISTRIBUTION_V2",
   "status": "CURRENT_ONLY",
   "ownerAuthority": "docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md",
-  "allocationBasis": "ACTUAL_CAPTURED_AMOUNT_AFTER_VALID_SELF_SERVICE_DISCOUNT",
+  "allocationBasis": "PLATFORM_SERVICE_REVENUE_EXCLUDING_STATUTORY_TAX",
   "mainDistributionPercent": {
     "OWNER": 5,
     "PARTNER_1": 5,
@@ -14,11 +14,26 @@
   "cancelledAllocation": {
     "name": "TAX_RESERVE",
     "formerPercent": 16,
-    "status": "CANCELLED_BY_LATEST_OWNER_DECISION"
+    "status": "CANCELLED_BY_LATEST_OWNER_DECISION",
+    "notStatutoryTax": true
   },
   "pendingOwnerDecisionPercent": 16,
+  "pendingOwnerDecisionClassification": "UNALLOCATED_PLATFORM_REVENUE_NOT_STATUTORY_TAX",
   "distributionState": "INCOMPLETE_PENDING_OWNER_REALLOCATION",
   "distributionExecutionAuthorized": false,
+  "statutoryTaxBoundary": {
+    "status": "CURRENT_ONLY_FAIL_CLOSED",
+    "taxIsPlatformAllocation": false,
+    "taxIsCommissionable": false,
+    "taxIsPartnerShareable": false,
+    "taxIsOperationsRevenue": false,
+    "ownerDefinesLegalTaxRate": false,
+    "countryActivationIndependentFromTaxRate": true,
+    "userPaysVerifiedStatutoryTaxInAdditionToPlatformPrice": true,
+    "zeroTaxAddsNothing": true,
+    "canonicalEnforcementModule": "project-control/finance/statutory-tax-boundary.cjs",
+    "unverifiedTaxQuoteBehavior": "FAIL_CLOSED"
+  },
   "actualOperationsPercent": {
     "RISK_RESERVE": 8,
     "MAINTENANCE": 8,
@@ -93,11 +108,12 @@
     "ACTUAL_OPERATIONS",
     "SALES_ADMINISTRATION",
     "PENDING_OWNER_DECISION",
+    "STATUTORY_TAX_EXTERNAL",
     "ABSENT_SALES_ROLE",
     "ACTIVE_USER_DISCOUNT",
     "REFUND_REVERSAL"
   ],
-  "financialInvariant": "NO_TAX_RESERVE_NO_INVENTED_REALLOCATION",
+  "financialInvariant": "STATUTORY_TAX_OUTSIDE_PLATFORM_DISTRIBUTION_NO_INVENTED_REALLOCATION",
   "operationsInvariant": "ACTUAL_OPERATIONS_EQUALS_43_PERCENT",
   "salesInvariant": "SALES_ADMINISTRATION_EQUALS_21_PERCENT",
   "humanDigitalFinancialInvariant": "DIGITAL_ACTORS_ZERO_FINANCIAL_BENEFIT_HUMAN_ONE_SALE_ONE_WINNER",
