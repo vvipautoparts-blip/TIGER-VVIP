@@ -54,6 +54,8 @@ One Living Sector Object is created through the canonical NEXUS creation path an
 | `styles/vvip-pr32-draft-preview.css` | Styling existed only for the superseded PR32 parallel draft/preview path. | NEXUS/social current styles. |
 | `styles/vvip-pr33-publish-readiness.css` | Styling existed only for the superseded PR33 path. | NEXUS/social current styles. |
 | `styles/vvip-production-marketplace.css` | Styling existed only for the parallel Marketplace production surface. | NEXUS/social current styles. |
+| `scripts/nexus/pulse-vault.js` | Standalone client Pulse Vault read-model runtime was superseded by the server-authoritative NEXUS Pulse runtime; retaining it would create a second client authority path. | `scripts/nexus/pulse-runtime.js`, server RPCs, `tests/nexus/pulse-runtime.test.cjs`, and current Pulse authority. |
+| `tests/nexus/pulse-vault.test.cjs` | Test contract targeted the deleted standalone client Pulse Vault runtime and became invalid after convergence to the server-authoritative runtime. | `tests/nexus/pulse-runtime.test.cjs` plus `tests/nexus/pulse-vault-ui-contract.test.cjs`; root NEXUS umbrella now requires the current runtime test. |
 
 ## Regression guards
 
@@ -64,8 +66,9 @@ Current-tree deletion is protected by repository tests including:
 - `tests/nexus/nexus-current-authority.test.cjs`
 - `tests/owner-latest-decision-governance.test.cjs`
 - `tests/final-owner-convergence.test.cjs`
+- `tests/nexus-2026-contract.test.cjs`
 
-These guards are intended to block restoration of parallel current-product surfaces, stale authority values, retired Pulse prices/durations, paid ordinary-publication gates, or archive/trash/legacy preservation of conflicting behavior.
+These guards are intended to block restoration of parallel current-product surfaces, stale authority values, retired Pulse prices/durations, paid ordinary-publication gates, deleted standalone client Pulse authority, or archive/trash/legacy preservation of conflicting behavior.
 
 ## What this manifest does not authorize
 
