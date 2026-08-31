@@ -10,6 +10,7 @@ const REQUIRED_DISPOSITION = 'DELETE_FROM_CURRENT_TREE_NO_FALLBACK_NO_IN_TREE_AR
 const REQUIRED_PULSE_COUNTRY_PRICING_MODE = 'REMOVE_REFERENCE_16_THEN_APPLY_VERIFIED_COUNTRY_TAX';
 const REQUIRED_PULSE_TAX_AUTHORITY = 'docs/owner-control/TIGER_STATUTORY_TAX_BOUNDARY_CURRENT.md';
 const REQUIRED_PULSE_TAX_MODULE = 'project-control/finance/statutory-tax-boundary.cjs';
+const REQUIRED_GLOBAL_LAUNCH_PASSPORT = 'config/launch/global-launch-passport.json';
 
 const REQUIRED_REFERENCE_FIELDS = Object.freeze({
   ownerOperationalIndex: 'docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md',
@@ -81,6 +82,12 @@ function verifyCurrentAuthority(manifest) {
 
   for (const [field, expected] of Object.entries(REQUIRED_REFERENCE_FIELDS)) {
     if (manifest[field] !== expected) errors.push(`${field} must equal ${expected}`);
+  }
+  if (manifest.tigerGlobalLaunchPassportConfig !== REQUIRED_GLOBAL_LAUNCH_PASSPORT) {
+    errors.push(`tigerGlobalLaunchPassportConfig must equal ${REQUIRED_GLOBAL_LAUNCH_PASSPORT}`);
+  }
+  if (manifest.globalLaunchEligibilityRequiresAllPassportGates !== true) {
+    errors.push('global launch eligibility must require all Launch Passport gates');
   }
 
   const publication = manifest.ordinaryPublication || {};
@@ -161,6 +168,7 @@ module.exports = Object.freeze({
   REQUIRED_PULSE_COUNTRY_PRICING_MODE,
   REQUIRED_PULSE_TAX_AUTHORITY,
   REQUIRED_PULSE_TAX_MODULE,
+  REQUIRED_GLOBAL_LAUNCH_PASSPORT,
   REQUIRED_MARKETPLACE_ROLES,
   REQUIRED_MARKETPLACE_CONNECTIONS,
   REQUIRED_FORBIDDEN_MARKETPLACE_INTERMEDIATION,
