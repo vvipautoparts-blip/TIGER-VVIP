@@ -1,23 +1,53 @@
-# VVIP TIGER V2.0 STRICT ENGINEERING RULES
+# VVIP TIGER — CURRENT-ONLY ENGINEERING RULES
 
-1. ZERO PLACEHOLDERS & COMPLETENESS:
-   - Never write '// TODO', '// Implement later', or incomplete functions.
-   - Every Server Action, UI component, and DB migration must be 100% production-ready.
+## 1. Mandatory first reference
 
-2. SECURITY & RLS COMPLIANCE:
-   - All Supabase tables MUST enforce Row Level Security (RLS) by default.
-   - Never use service-role keys on the client-side.
-   - Validate all API and form inputs strictly using Zod schemas matching DB definitions.
+Before any analysis or proposed change, read:
 
-3. ARCHITECTURE & LOCALIZATION:
-   - Respect the Modular Monolith architecture.
-   - Enforce JOD dynamic currency baseline and respect the Country Capability Matrix configurations.
-   - Maintain strict isolation between Public and Private profiles (`profiles` vs `profile_private`).
+`docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md`
 
-4. ERROR HANDLING & API CONTRACTS:
-   - Return structured error responses for all Server Actions: { success: boolean, data?: T, error?: { code: string, message: string } }.
-   - Ensure Webhooks (Clerk, Payments) are idempotent and log to `payment_events` / `identity_events`.
+Then use the current domain authorities and machine contracts. The newest explicit owner-approved decision is the only current truth in its domain. Do not restore conflicting old values, paths, tests, fallbacks, archives, or legacy compatibility from older files or Git history.
 
-5. CODE QUALITY & STATE MACHINES:
-   - Enforce strict state transitions for listings (draft -> pending_review -> published -> etc.).
-   - Always update database types and clean TypeScript definitions alongside UI changes.
+## 2. Current protected lane
+
+- Current product: `TIGER NEXUS 2026`.
+- Current implementation lane: PR #349 / `feat/tiger-nexus-2026-20260829`.
+- Current invariant: `ONE FEED • ONE OBJECT • ONE PULSE`.
+- Ordinary eligible sector publication is free.
+- Pulse prices are exactly `2 / 10 / 20 / 45 JOD` with no product-time expiry.
+- `TAX_RESERVE 16%` is CANCELLED and must not be restored as an allocation.
+- No replacement for the pending 16% may be invented.
+- `CSR = 3%` is inside `ACTUAL_OPERATIONS = 43%`; no separate 1% allocation exists.
+
+## 3. Repository architecture
+
+- Preserve the current plain HTML/CSS/JavaScript static application architecture.
+- Do not assume TypeScript, Zod, Server Actions, framework components, or generated database types are current requirements unless an explicit newer owner decision and current repository evidence establish them.
+- Preserve bilingual Arabic/English and RTL/LTR behavior where applicable.
+- Preserve RLS, least privilege, federated identity, server-authoritative capability checks, idempotency, auditability, and fail-closed behavior.
+
+## 4. Current publication and Pulse contracts
+
+- New publishable content follows the NEXUS Living Sector Object contract: activated sector plus current approved intent.
+- Do not recreate a parallel Marketplace listing-creation/runtime product path.
+- Pulse is optional paid visibility for the same eligible Living Sector Object.
+- Pulse delivery remains server-authoritative through `RESERVE → SERVE → VERIFY → CONSUME`; unqualified delivery burns zero purchased visibility.
+
+## 5. Change discipline
+
+- Read the existing file before replacing or deleting it.
+- Prefer the smallest correct evidence-backed change.
+- Add or update a focused regression contract before behavior/governance correction when practical.
+- Do not rewrite applied migrations; obsolete effects require a separately authorized forward migration.
+- Preserve correct compatible material. Delete only proven stale/conflicting material with a current replacement and Git-history provenance.
+- Do not create `legacy/`, `archive/`, `trash/`, hidden fallback, or compatibility copies for conflicting current rules.
+
+## 6. Verification and release boundary
+
+Use `bash scripts/quality-gate.sh` for the full repository gate when the environment permits it.
+
+PR #349 remains Draft. Do not mark Ready for Review, merge, deploy, mutate Production/Staging, change provider/database state, or weaken gates until **all required protected checks on the exact current head actually execute on a runner and are GREEN** and the required review/protected-merge state is satisfied.
+
+A workflow that never receives a runner or executes no steps is blocked verification, not a code failure and not GREEN evidence.
+
+Never invent test outcomes, readiness, deployment state, prices, percentages, beneficiaries, APIs, schema, capacity, or owner decisions.
