@@ -32,6 +32,7 @@ test('current deletion manifest exists and is bound to latest-only owner authori
   assert.match(manifest, /scripts\/nexus\/pulse-runtime\.js/);
   assert.match(manifest, /tests\/nexus\/pulse-vault\.test\.cjs/);
   assert.match(manifest, /tests\/nexus\/pulse-runtime\.test\.cjs/);
+  assert.match(manifest, /P10_THREE_SECTOR_STRUCTURED_FIELDS\.md/);
   assert.match(manifest, /Git history/i);
   assert.match(manifest, /no blind deletion/i);
 });
@@ -64,4 +65,13 @@ test('current NEXUS implementation plan cannot resurrect deleted client Pulse Va
   assert.doesNotMatch(plan, /Create:\s*`tests\/nexus\/pulse-vault\.test\.cjs`/);
   assert.match(plan, /scripts\/nexus\/pulse-runtime\.js/);
   assert.match(plan, /tests\/nexus\/pulse-runtime\.test\.cjs/);
+});
+
+test('current tree cannot retain fixed three-sector owner-control artifact', () => {
+  assert.equal(
+    fs.existsSync(path.join(root, 'docs/owner-control/P10_THREE_SECTOR_STRUCTURED_FIELDS.md')),
+    false
+  );
+  const config = JSON.parse(read('config/fusion/current-authority.json'));
+  assert.equal(config.nexus.activatedSectorsOnly, true);
 });
