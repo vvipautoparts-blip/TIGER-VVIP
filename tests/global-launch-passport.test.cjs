@@ -84,7 +84,8 @@ test('fully evidenced exact-release passport can become globally eligible', () =
   const result = verifyGlobalLaunchPassport(passport, {
     currentHeadSha: passport.release.sha,
     finance: { distributionExecutionAuthorized: true, pendingOwnerDecisionPercent: 0 },
-    f05LaunchGatePass: true
+    f05LaunchGatePass: true,
+    f08LaunchGatePass: true
   });
   assert.equal(result.ok, true, result.errors.join('\n'));
   assert.equal(result.globalLaunchEligible, true);
@@ -121,4 +122,17 @@ test('hybrid media PASS requires subordinate F05 launch evidence PASS', () => {
   });
   assert.equal(result.ok, false);
   assert.ok(result.errors.includes('HYBRID_MEDIA_PASS_REQUIRES_F05_EVIDENCE_PASS'));
+});
+
+test('25K showcase PASS requires subordinate F08 launch evidence PASS', () => {
+  const { verifyGlobalLaunchPassport } = require(verifierPath);
+  const passport = completePassport();
+  const result = verifyGlobalLaunchPassport(passport, {
+    currentHeadSha: passport.release.sha,
+    finance: { distributionExecutionAuthorized: true, pendingOwnerDecisionPercent: 0 },
+    f05LaunchGatePass: true,
+    f08LaunchGatePass: false
+  });
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.includes('SHOWCASE_25K_PASS_REQUIRES_F08_EVIDENCE_PASS'));
 });
