@@ -1,7 +1,7 @@
 # TIGER FINANCIAL DISTRIBUTION — CURRENT OWNER AUTHORITY
 
 **Status:** `CURRENT_ONLY / OWNER_BINDING / NO_FALLBACK / NO_IN_TREE_ARCHIVE`
-**Effective decision:** 2026-08-31
+**Effective decision:** 2026-09-01
 **Domain:** distribution of successfully captured TIGER Pulse visibility purchases.
 
 ## 1. Allocation basis
@@ -120,6 +120,31 @@ If the user completes the Pulse purchase without an attributed GENERAL_MANAGER, 
 
 If a valid sales claimant exists, the self-service 7% discount does not apply.
 
+### Human–Digital Financial Firewall — zero financial benefit for every digital actor
+
+`DIGITAL_ACTOR_FINANCIAL_BENEFIT: PROHIBITED`
+
+Every platform-built or software-controlled role whose canonical actor type is `DIGITAL` is a non-financial execution/analysis/governance actor. This rule applies to current and future digital roles; it is not limited to a name blacklist.
+
+At minimum, current named examples include `DIGITAL_GROWTH_GOVERNOR`, `DIGITAL_GENERAL_MANAGER`, `DIGITAL_SECTOR_MANAGER`, `DIGITAL_FIELD_GOVERNOR`, `DIGITAL_SALES_GOVERNOR`, and `DIGITAL_FINANCE_GOVERNOR`.
+
+For every `DIGITAL` actor, the server-authoritative financial profile is forced to:
+
+- `financialBeneficiary = false`;
+- `commissionBps = 0`;
+- `shareBps = 0`;
+- `financialEntitlement = 0`;
+- `payoutDestination = null`;
+- wallet authority prohibited.
+
+Any attempt to assign a commission, share, financial entitlement, payout destination, wallet, or sale-commission ownership to a DIGITAL actor is rejected fail closed before a financial movement can be created.
+
+A `SALE_OWNERSHIP_CLAIM` eligible for the 7% winning sales-role commission must belong to exactly one `HUMAN` actor whose role is `GENERAL_MANAGER`, `SECTOR_MANAGER`, or `MARKETER`, whose role state is `ACTIVE`, and whose commission eligibility is `ELIGIBLE`. Unknown actor types, DIGITAL actors, inactive/ineligible roles, invalid sales roles, and ambiguous/multi-winner claims are rejected fail closed.
+
+Digital governance actors may analyze, recommend, validate, route, detect anomalies, or execute owner-authorized non-beneficiary automation within their granted capabilities, but they never become a financial beneficiary merely because they participate in the workflow. The owner remains the final authority for financial policy and unresolved allocation decisions.
+
+This firewall does not reallocate the cancelled 16%. The unresolved 16% remains `PENDING_OWNER_DECISION`, and final distribution execution remains blocked until a later explicit owner decision reallocates it.
+
 ## 8. Sales role activation and payout destination
 
 When GENERAL_MANAGER, SECTOR_MANAGER, or MARKETER is granted to a user by the owner or an authorized delegate, the platform must request the payout destination in the dedicated role/account field.
@@ -199,6 +224,7 @@ Required controls include:
 - no invented reallocation of the pending 16%;
 - distribution execution blocked while the owner allocation is incomplete;
 - one-sale/one-winner invariant;
+- all DIGITAL actors are zero-benefit non-financial beneficiaries and cannot own sales commission claims;
 - least-privilege role access;
 - verified payout destination changes;
 - replay/deduplication protection;
@@ -208,10 +234,10 @@ Required controls include:
 
 ## 14. Supersession
 
-Any prior commission model, split, hierarchy, percentage, partner treatment, sales cascade, payment-timing rule, TAX_RESERVE rule, separate 1% charity rule, or conflicting financial fallback is removed from current authority when it conflicts with this document.
+Any prior commission model, split, hierarchy, percentage, partner treatment, sales cascade, payment-timing rule, TAX_RESERVE rule, separate 1% charity rule, digital-role financial-beneficiary rule, or conflicting financial fallback is removed from current authority when it conflicts with this document.
 
 Conflicting old material must be deleted from the current repository tree and may not be moved to an in-tree archive/trash/legacy folder. Git history is the only provenance mechanism for removed source material.
 
 ## 15. Owner acceptance statement
 
-> **Current known allocations are OWNER 5%, PARTNER_1 5%, PARTNER_2 5%, PARTNER_3 5%, ACTUAL_OPERATIONS 43%, and SALES_ADMINISTRATION 21%. ACTUAL_OPERATIONS remains 8+8+8+8+8+3 with CSR 3% inside the 43% and no separate 1% allocation. The former TAX_RESERVE 16% is cancelled. The owner has not yet assigned that 16% elsewhere, so no replacement is invented and distribution execution remains fail-closed until an explicit later owner decision reallocates it. Sales administration remains 7+7+7 but only the one role that owns the sale receives its 7%; self-service with no claimant receives a visible 7% discount. Eligible commissions settle every 14 days; missing payout destination after 12 hours suspends payout eligibility unless the owner extends it. Ledger history is never erased.**
+> **Current known allocations are OWNER 5%, PARTNER_1 5%, PARTNER_2 5%, PARTNER_3 5%, ACTUAL_OPERATIONS 43%, and SALES_ADMINISTRATION 21%. ACTUAL_OPERATIONS remains 8+8+8+8+8+3 with CSR 3% inside the 43% and no separate 1% allocation. The former TAX_RESERVE 16% is cancelled. The owner has not yet assigned that 16% elsewhere, so no replacement is invented and distribution execution remains fail-closed until an explicit later owner decision reallocates it. Sales administration remains 7+7+7 but only one ACTIVE, ELIGIBLE HUMAN GENERAL_MANAGER, SECTOR_MANAGER, or MARKETER may own the sale and receive its 7%. Every DIGITAL actor, including the built-in growth/management/finance governors and any future digital role, is permanently a zero-financial-benefit actor with no commission, share, entitlement, payout destination, wallet, or sale-commission ownership. Self-service with no claimant receives a visible 7% discount. Eligible human commissions settle every 14 days; missing payout destination after 12 hours suspends payout eligibility unless the owner extends it. Ledger history is never erased.**
