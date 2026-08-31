@@ -1,7 +1,7 @@
 # TIGER OWNER BINDING CURRENT — LATEST ONLY
 
 **Status:** `CURRENT_ONLY / OWNER_BINDING / FIRST_REFERENCE / NO_FALLBACK / NO_IN_TREE_ARCHIVE`
-**Effective owner decision:** 2026-08-29
+**Effective owner decision:** 2026-08-31
 **Scope:** the entire current VVIP TIGER platform.
 
 ## 0. Mandatory first reference — before every action
@@ -16,7 +16,7 @@ If a newer owner decision arrives while work is in progress, the work must be re
 
 ## 1. Latest-only constitution
 
-The newest explicit owner-approved decision is the only operative truth inside its domain.
+The **newest explicit owner-approved decision** is the only operative truth inside its domain.
 
 Any conflicting older requirement, document, code path, test, configuration value, schema behavior, route, mock, feature flag, fallback, launch criterion, generated copy, price, percentage, duration, role rule, or financial rule is immediately superseded and must be deleted from the current repository tree and every active platform surface.
 
@@ -41,7 +41,7 @@ The current primary experience authority is:
 Current product rules:
 
 - `SOCIAL_NETWORK_FIRST` with Home as the social feed;
-- every **newly publishable Living Sector Object** binds to an activated TIGER sector;
+- every newly publishable **Living Sector Object** binds to an activated TIGER sector;
 - current intent classes are exactly `OFFER / NEED / SERVICE / OPPORTUNITY` unless a later owner decision expands them;
 - canonical composer entry is **ماذا تعرض أو تحتاج؟**;
 - ordinary eligible sector publication is free and never Pulse/payment-gated;
@@ -65,8 +65,10 @@ The only current global reference purchase levels are:
 |---|---:|
 | `PULSE_2` | **2 JOD** |
 | `PULSE_10` | **10 JOD** |
-| `PULSE_25` | **25 JOD** |
+| `PULSE_20` | **20 JOD** |
 | `PULSE_45` | **45 JOD** |
+
+`PULSE_25` is superseded and is not current authority.
 
 Every level maps to its own server-authoritative visibility allocation. The user sees the selected price and resulting visibility information before payment.
 
@@ -80,9 +82,15 @@ Detailed Pulse authority:
 
 `docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md`
 
-## 5. Current financial distribution — exact 100%
+## 5. Current financial authority — latest owner decision
 
-All internal percentages are calculated from the amount actually captured from the user after any valid self-service discount.
+`TAX_RESERVE_STATUS: CANCELLED`
+
+The former `TAX_RESERVE = 16%` allocation is cancelled and is not part of the current distribution.
+
+The owner has not assigned that cancelled 16% to another allocation. Therefore **no replacement percentage or beneficiary may be invented**.
+
+Current known allocations are:
 
 | Allocation | Percentage |
 |---|---:|
@@ -91,11 +99,17 @@ All internal percentages are calculated from the amount actually captured from t
 | PARTNER_2 | **5%** |
 | PARTNER_3 | **5%** |
 | ACTUAL_OPERATIONS | **43%** |
-| TAX_RESERVE | **16%** |
 | SALES_ADMINISTRATION | **21%** |
-| **TOTAL** | **100%** |
+| **KNOWN CURRENT TOTAL** | **84%** |
+| **PENDING EXPLICIT OWNER REALLOCATION** | **16%** |
+
+The pending 16% is not an allocation. It only records the unresolved amount left after cancellation of TAX_RESERVE.
+
+Until an explicit later owner decision reallocates that 16%, distribution execution remains fail-closed and no current document/config/runtime may claim a completed 100% owner distribution.
 
 `ACTUAL_OPERATIONS 43% = 8% Risk + 8% Maintenance + 8% Development + 8% Technical Support + 8% Advertising + 3% CSR.`
+
+`CSR = 3%` is inside ACTUAL_OPERATIONS 43%. There is no separate 1% charity allocation in the current financial model.
 
 `SALES_ADMINISTRATION 21% = 7% GENERAL_MANAGER + 7% SECTOR_MANAGER + 7% MARKETER`, but **only the one role that actually owns the sale receives its 7%**. Non-winning/absent sales-role shares route to OWNER with explicit ledger reason codes.
 
@@ -111,7 +125,7 @@ Detailed authority:
 
 ## 6. Platform transaction boundary
 
-VVIP TIGER connects parties and is not a party to buyer/seller or service-provider/beneficiary transactions.
+VVIP TIGER connects parties and is **not a party** to buyer/seller or service-provider/beneficiary transactions.
 
 The platform does not provide marketplace-party checkout, escrow, custody, settlement, delivery, warranty execution, transaction guarantee, or marketplace transaction commission flow.
 
@@ -129,7 +143,7 @@ These are verification baselines, not unearned certification claims. Current mac
 2. `TIGER_NEXUS_2026_CURRENT_OWNER_AUTHORITY.md` — current platform experience, sector publication, TIGER Command, Pulse Vault, and security baseline.
 3. `TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md` — social graph/privacy/safety authority where compatible with NEXUS publication semantics.
 4. `TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` — paid visibility authority.
-5. `TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md` — current 100% financial distribution authority.
+5. `TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md` — current financial authority, including cancelled TAX_RESERVE and pending explicit owner reallocation of 16%.
 6. `TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md` — cleanup governance.
 7. `TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md` — protected destructive-disposal/post-launch autonomy gate.
 8. `TIGER_OWNER_CURRENT_REFERENCE_AR.md` — owner router.
@@ -139,7 +153,7 @@ These are verification baselines, not unearned certification claims. Current mac
 
 ## 9. Global anti-legacy release rule
 
-Release is blocked if any active surface restores a superseded rule, including a 4-posts/week quota; 120/40/30-day product/content lifetime; publishing cards/subscriptions/paid slots; payment-gated ordinary publication; publication plan/entitlement gates; timed activation cards; any Pulse price set other than 2/10/25/45 JOD; hierarchical multi-winner sales commission on one purchase; any financial split conflicting with 5+5+5+5+43+16+21=100%; marketplace-party transaction intermediation; duplicate current authorities; generic public publishing that bypasses NEXUS sector/intent binding; or an in-tree archive/trash/legacy/compatibility copy preserving a superseded conflicting rule.
+Release is blocked if any active surface restores a superseded rule, including a 4-posts/week quota; 120/40/30-day product/content lifetime; publishing cards/subscriptions/paid slots; payment-gated ordinary publication; publication plan/entitlement gates; timed activation cards; any Pulse price set other than 2/10/20/45 JOD; `PULSE_25`; restored `TAX_RESERVE`; a separate 1% charity allocation; invented reassignment of the pending 16%; hierarchical multi-winner sales commission on one purchase; marketplace-party transaction intermediation; duplicate current authorities; generic public publishing that bypasses NEXUS sector/intent binding; or an in-tree archive/trash/legacy/compatibility copy preserving a superseded conflicting rule.
 
 ## 10. Migration and deletion safety
 
@@ -149,4 +163,4 @@ All other proven superseded conflicting current-tree material is directly delete
 
 ## 11. Owner acceptance statement
 
-> **This is the first reference before every action. Keep only the newest approved owner truth. TIGER NEXUS 2026 is the current platform experience: sector-specialized social publishing through Living Sector Objects, TIGER Command, validated صلاحياتي, Pulse Vault 2/10/25/45 JOD with no product-time expiry, and fail-closed 2026 security verification. Delete every conflicting older rule from the current platform tree with no fallback, archive, trash, or legacy compatibility. Ordinary eligible publication is free. Current Pulse revenue distribution remains exactly OWNER 5%, PARTNER_1 5%, PARTNER_2 5%, PARTNER_3 5%, ACTUAL_OPERATIONS 43%, TAX_RESERVE 16%, SALES_ADMINISTRATION 21%. Only one sales role wins one sale commission. Self-service with no claimant receives a visible 7% discount.**
+> **This is the first reference before every action. Keep only the newest approved owner truth. TIGER NEXUS 2026 is the current platform experience: sector-specialized social publishing through Living Sector Objects, TIGER Command, validated صلاحياتي, Pulse Vault 2/10/20/45 JOD with no product-time expiry, and fail-closed 2026 security verification. Delete every conflicting older rule from the current platform tree with no fallback, archive, trash, or legacy compatibility. Ordinary eligible publication is free. Current known finance remains OWNER 5%, PARTNER_1 5%, PARTNER_2 5%, PARTNER_3 5%, ACTUAL_OPERATIONS 43%, SALES_ADMINISTRATION 21%; TAX_RESERVE 16% is cancelled and the cancelled 16% is not reassigned until an explicit later owner decision. CSR remains 3% inside ACTUAL_OPERATIONS and there is no separate 1% allocation. Only one sales role wins one sale commission. Self-service with no claimant receives a visible 7% discount.**
