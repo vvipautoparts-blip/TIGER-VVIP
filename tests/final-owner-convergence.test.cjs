@@ -28,6 +28,10 @@ test('current deletion manifest exists and is bound to latest-only owner authori
   assert.match(manifest, /fusion-home-f02\.html/);
   assert.match(manifest, /scripts\/fusion\/f02-feed\.js/);
   assert.match(manifest, /scripts\/runtime\/vvip-marketplace-repository\.js/);
+  assert.match(manifest, /scripts\/nexus\/pulse-vault\.js/);
+  assert.match(manifest, /scripts\/nexus\/pulse-runtime\.js/);
+  assert.match(manifest, /tests\/nexus\/pulse-vault\.test\.cjs/);
+  assert.match(manifest, /tests\/nexus\/pulse-runtime\.test\.cjs/);
   assert.match(manifest, /Git history/i);
   assert.match(manifest, /no blind deletion/i);
 });
