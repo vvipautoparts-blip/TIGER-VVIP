@@ -124,3 +124,33 @@ test('superseded owner master control plane cannot compete with CURRENT_ONLY aut
   assert.doesNotMatch(readme, /VVIP_TIGER_OWNER_MASTER_REFERENCE\.md[\s\S]{0,160}المرجع الأعلى/);
   assert.doesNotMatch(readme, /VVIP_TIGER_MASTER_EXECUTION_ROADMAP\.(?:yaml|md)[\s\S]{0,160}المرجع الرسمي/);
 });
+
+test('latest owner Pulse and finance decisions cannot regress to superseded values', () => {
+  const fusion = JSON.parse(read('config/fusion/current-authority.json'));
+  const finance = JSON.parse(read('config/finance/current-distribution.json'));
+  const binding = read('docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md');
+  const pulse = read('docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md');
+  const financeAuthority = read('docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md');
+  const values = read('docs/owner-control/VVIP_TIGER_VALUES_AND_NAMES_CHARTER.md');
+  const registry = JSON.parse(read('project-control/authority/authority-registry.v1.json'));
+
+  assert.deepEqual(fusion.pulseRing.tiersJod, [2, 10, 20, 45]);
+  assert.match(binding, /PULSE_20/);
+  assert.match(pulse, /PULSE_20/);
+  assert.doesNotMatch(binding, /PULSE_25/);
+
+  assert.equal(Object.prototype.hasOwnProperty.call(finance.mainDistributionPercent, 'TAX_RESERVE'), false);
+  assert.equal(finance.pendingOwnerDecisionPercent, 16);
+  assert.equal(finance.distributionExecutionAuthorized, false);
+  assert.equal(finance.mainDistributionPercent.ACTUAL_OPERATIONS, 43);
+  assert.equal(finance.actualOperationsPercent.CSR, 3);
+  assert.match(financeAuthority, /TAX_RESERVE_STATUS:\s*CANCELLED/);
+  assert.match(financeAuthority, /no separate 1% charity allocation/i);
+  assert.doesNotMatch(values, /تخصيص\s+1%/);
+
+  const advertising = registry.records.find((record) => record.domain === 'advertising' && record.status === 'CURRENT_ONLY');
+  const financial = registry.records.find((record) => record.domain === 'financial-distribution' && record.status === 'CURRENT_ONLY');
+  assert.ok(advertising.protected_boundaries.includes('2-10-20-45-jod'));
+  assert.ok(financial.protected_boundaries.includes('tax-reserve-cancelled'));
+  assert.ok(financial.protected_boundaries.includes('no-invented-reallocation'));
+});
