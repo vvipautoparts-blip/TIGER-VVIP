@@ -2,6 +2,7 @@
 
 **Status:** OWNER APPROVED / IMPLEMENTATION AUTHORITY INPUT
 **Date:** 2026-08-29
+**Latest owner price reconciliation:** 2026-08-31
 **Branch:** `feat/tiger-nexus-2026-20260829`
 
 ## 0. Product definition
@@ -93,8 +94,10 @@ The current paid visibility family remains TIGER PULSE with the owner-authorized
 
 - `PULSE_2` — 2 JOD;
 - `PULSE_10` — 10 JOD;
-- `PULSE_25` — 25 JOD;
+- `PULSE_20` — 20 JOD;
 - `PULSE_45` — 45 JOD.
+
+No other price level is current authority.
 
 A purchase grants a server-authoritative quantity of verified eligible visibility. The exact quote is shown before payment.
 
