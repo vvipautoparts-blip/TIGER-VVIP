@@ -6,11 +6,11 @@
 
 ## 1. Distribution basis
 
-All TIGER internal percentages are calculated from **platform service revenue excluding statutory tax**.
+All TIGER internal percentages are calculated from **platform service revenue after included statutory tax has been separated from the final tax-inclusive user price**.
 
 `DISTRIBUTION_BASIS = PLATFORM_SERVICE_REVENUE_EXCLUDING_STATUTORY_TAX`
 
-Statutory tax is an external legal charge added to the user checkout only when applicable and verified. It is never distributable platform revenue and never commissionable revenue.
+The user-facing price is final and tax-inclusive. Statutory tax is not added again at capture.
 
 The binding statutory-tax authority is:
 
@@ -18,22 +18,23 @@ The binding statutory-tax authority is:
 
 A refund, reversal, void, or chargeback reverses the related platform allocations atomically while preserving immutable audit evidence.
 
-## 2. Current statutory-tax boundary
+## 2. Current statutory-tax boundary — final price includes tax
 
-VVIP TIGER sets the platform service price. TIGER does not invent the legal tax rate.
+VVIP TIGER does not invent the legal tax rate. The applicable jurisdiction/rules determine the statutory-tax result, and TIGER consumes verified tax evidence/provider logic.
 
-The checkout boundary is:
+The current boundary is:
 
-`PLATFORM SERVICE PRICE + VERIFIED STATUTORY TAX = USER TOTAL`
+`FINAL DISPLAYED PRICE = PLATFORM SERVICE REVENUE + INCLUDED VERIFIED STATUTORY TAX`
 
-Examples:
+`USER CHARGE = FINAL DISPLAYED PRICE`
 
-- verified tax 0% -> add 0;
-- verified tax 12% -> add the verified 12% tax amount;
-- verified tax 16% -> add the verified 16% tax amount;
-- verified tax 20% -> add the verified 20% tax amount.
+`ADDITIONAL TAX AT CAPTURE = 0`
 
-There is no TIGER 16% tax ceiling, no tax subsidy, and no use of internal commission/revenue allocations to absorb statutory tax.
+`PLATFORM SERVICE REVENUE = FINAL DISPLAYED PRICE - INCLUDED VERIFIED STATUTORY TAX`
+
+The verified tax quote must correspond to the final displayed price. If verified included tax is zero, the full final displayed price is platform service revenue. If included tax is non-zero, that verified tax amount is carved out internally before distribution.
+
+There is no TIGER 16% tax ceiling, no tax subsidy, no tax shield, and no use of internal commission/revenue allocations to absorb statutory tax.
 
 Country opening/closing is an owner-governance decision independent from the tax rate itself.
 
@@ -125,11 +126,13 @@ There is no hierarchical commission cascade.
 
 If there is no valid HUMAN sales claimant:
 
-1. the user receives the approved visible 7% self-service discount before the platform-service price is finalized;
-2. the resulting platform-service revenue, excluding statutory tax, is the distribution basis;
-3. no sales role receives commission;
-4. the 21% SALES_ADMINISTRATION envelope routes to OWNER with absent-role reason codes;
-5. the 7% discount is recorded separately.
+1. the user receives the approved visible 7% self-service discount before the final payment price is sealed;
+2. the tax engine/provider must produce verified included-tax evidence for that final discounted tax-inclusive price;
+3. included statutory tax is separated from the final displayed price;
+4. the resulting platform-service revenue excluding statutory tax is the distribution basis;
+5. no sales role receives commission;
+6. the 21% SALES_ADMINISTRATION envelope routes to OWNER with absent-role reason codes;
+7. the 7% discount is recorded separately.
 
 If a valid sales claimant exists, the self-service discount does not apply.
 
@@ -180,16 +183,25 @@ The canonical tax boundary is:
 
 It must preserve separate values for:
 
+- final displayed tax-inclusive price;
+- actual user charge;
 - platform revenue;
-- statutory tax;
-- user total;
-- distribution basis.
+- included statutory tax;
+- distribution basis;
+- tax jurisdiction/evidence;
+- additional tax at capture, which must be zero under the current presentation rule.
+
+Required identities:
+
+`userTotal = finalDisplayedPrice`
+
+`platformRevenue = finalDisplayedPrice - includedStatutoryTax`
 
 `distributionBasis = platformRevenue`
 
-`distributionBasis != userTotal when statutoryTax > 0`
+`additionalTaxAtCapture = 0`
 
-An unverified statutory-tax result fails closed. TIGER must not guess a legal tax rate.
+An unverified, negative, malformed, or internally inconsistent statutory-tax result fails closed. TIGER must not guess a legal tax rate or silently change the final displayed price.
 
 The former cancelled 16% internal allocation is not restored or reclassified as statutory tax.
 
@@ -211,7 +223,7 @@ Financial records must preserve separated accounting dimensions for at least:
 - ACTIVE_USER_DISCOUNT;
 - refunds/reversals.
 
-Every movement remains auditable to purchase identity, platform service amount, statutory tax amount where applicable, user total, distribution basis, percentage, allocation, beneficiary/fallback, reason code, status, timestamps, and immutable evidence linkage.
+Every movement remains auditable to purchase identity, final displayed price, actual user charge, platform service revenue, included statutory tax where applicable, distribution basis, percentage, allocation, beneficiary/fallback, reason code, status, timestamps, and immutable evidence linkage.
 
 ## 12. Security invariants
 
@@ -219,8 +231,11 @@ Financial execution is server-authoritative and fail closed.
 
 Required invariants include:
 
+- the displayed user price is final and tax-inclusive;
+- no second statutory-tax surcharge is added at capture;
 - statutory tax never enters platform distribution or commissions;
-- unverified tax is never guessed;
+- unverified or inconsistent tax is never guessed;
+- included tax cannot exceed the final displayed price;
 - no restored TAX_RESERVE;
 - no invented reassignment of the unresolved 16%;
 - final distribution remains blocked while current owner allocation totals only 84%;
@@ -235,4 +250,4 @@ Required invariants include:
 
 ## 13. Acceptance statement
 
-> **TIGER platform-service revenue is separated from statutory tax before any internal allocation. The user pays the verified statutory tax applicable to the transaction in addition to the platform service price; verified zero tax adds nothing. Statutory tax never enters OWNER, PARTNER, ACTUAL_OPERATIONS, SALES_ADMINISTRATION, HUMAN commission, or DIGITAL economics. Country activation is an independent owner-governance decision, not a 16% tax threshold. The former internal TAX_RESERVE 16% remains cancelled. The unresolved internal 16 percentage points are not tax and remain pending a separate explicit owner allocation decision, so final distribution remains fail-closed. Current known allocations remain OWNER 5%, three partners 5% each, ACTUAL_OPERATIONS 43%, and SALES_ADMINISTRATION 21%. One sale has at most one ACTIVE, ELIGIBLE HUMAN sales winner. Every DIGITAL actor remains permanently zero-financial-benefit.**
+> **The price shown to the user is the final tax-inclusive price and is the amount charged. Applicable verified statutory tax is separated internally from that price and is never added again at capture. TIGER distribution and commissions are calculated only from platform-service revenue remaining after included statutory tax is removed. Statutory tax never enters OWNER, PARTNER, ACTUAL_OPERATIONS, SALES_ADMINISTRATION, HUMAN commission, or DIGITAL economics. Country activation is an independent owner-governance decision, not a 16% tax threshold. The former internal TAX_RESERVE 16% remains cancelled. The unresolved internal 16 percentage points are not tax and remain pending a separate explicit owner allocation decision, so final distribution remains fail-closed. Current known allocations remain OWNER 5%, three partners 5% each, ACTUAL_OPERATIONS 43%, and SALES_ADMINISTRATION 21%. One sale has at most one ACTIVE, ELIGIBLE HUMAN sales winner. Every DIGITAL actor remains permanently zero-financial-benefit.**
