@@ -1,0 +1,9 @@
+'use strict';
+const test=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const path=require('node:path');
+const root=path.resolve(__dirname,'..');const catalogPath=path.join(root,'config/i18n/critical-journeys.json');
+function load(){return JSON.parse(fs.readFileSync(catalogPath,'utf8'));}
+test('critical catalog has exact Arabic and English locales with direction metadata',()=>{const c=load();assert.deepEqual(Object.keys(c.locales).sort(),['ar','en']);assert.equal(c.locales.ar.dir,'rtl');assert.equal(c.locales.en.dir,'ltr');});
+test('Arabic and English critical message keys have exact parity and no blanks',()=>{const c=load();const ar=Object.keys(c.locales.ar.messages).sort();const en=Object.keys(c.locales.en.messages).sort();assert.deepEqual(ar,en);assert.ok(ar.length>=20);for(const key of ar){assert.ok(c.locales.ar.messages[key].trim(),key);assert.ok(c.locales.en.messages[key].trim(),key);}});
+test('catalog protects no-intermediary and final-country-price concepts in both locales',()=>{const c=load();assert.match(c.locales.ar.messages.marketplaceBoundary,/وسيط/);assert.match(c.locales.en.messages.marketplaceBoundary,/intermediary/i);assert.match(c.locales.ar.messages.pulseFinalPrice,/النهائي/);assert.match(c.locales.en.messages.pulseFinalPrice,/final/i);});
+test('critical catalog contains no superseded product lifetime or old Pulse 25 copy',()=>{const text=JSON.stringify(load());assert.doesNotMatch(text,/PULSE_25|120\s*(?:day|days)|4\s*posts?\s*\/\s*week/i);});
+test('catalog reader fails closed on unsupported locale or key',()=>{const {createCriticalTranslator}=require('../scripts/i18n/critical-catalog.cjs');const t=createCriticalTranslator(load());assert.equal(t('ar','composerPrompt'),'ماذا تعرض أو تحتاج؟');assert.throws(()=>t('fr','composerPrompt'),/I18N_LOCALE_UNSUPPORTED/);assert.throws(()=>t('ar','missing'),/I18N_KEY_UNSUPPORTED/);});
