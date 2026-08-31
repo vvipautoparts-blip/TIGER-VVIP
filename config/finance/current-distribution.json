@@ -23,6 +23,7 @@
   "distributionExecutionAuthorized": false,
   "statutoryTaxBoundary": {
     "status": "CURRENT_ONLY_FAIL_CLOSED",
+    "authority": "docs/owner-control/TIGER_STATUTORY_TAX_BOUNDARY_CURRENT.md",
     "taxIsPlatformAllocation": false,
     "taxIsCommissionable": false,
     "taxIsPartnerShareable": false,
