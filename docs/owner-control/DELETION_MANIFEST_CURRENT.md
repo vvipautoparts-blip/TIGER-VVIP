@@ -36,6 +36,10 @@ Current invariant:
 
 One Living Sector Object is created through the canonical NEXUS creation path and may appear in feed, sector discovery, search, profile, messaging context, saved surfaces, and optional Pulse visibility without becoming a second Marketplace product object.
 
+Current Pulse levels are **2 / 10 / 20 / 45 JOD** only.
+
+Current known financial allocations are OWNER 5%, PARTNER_1 5%, PARTNER_2 5%, PARTNER_3 5%, ACTUAL_OPERATIONS 43%, and SALES_ADMINISTRATION 21% = **84% known**. The former TAX_RESERVE 16% allocation is cancelled; that 16% remains pending an explicit owner reallocation and is not assigned by inference. Financial distribution execution remains fail-closed until that decision is made. `CSR = 3%` remains inside ACTUAL_OPERATIONS 43%; there is no separate 1% financial allocation.
+
 ## Proven superseded current-tree surfaces
 
 | Removed path | Why it is superseded | Current replacement / safety evidence |
@@ -58,7 +62,7 @@ One Living Sector Object is created through the canonical NEXUS creation path an
 | `tests/nexus/pulse-vault.test.cjs` | Test contract targeted the deleted standalone client Pulse Vault runtime and became invalid after convergence to the server-authoritative runtime. | `tests/nexus/pulse-runtime.test.cjs` plus `tests/nexus/pulse-vault-ui-contract.test.cjs`; root NEXUS umbrella now requires the current runtime test. |
 | `docs/owner-control/P10_THREE_SECTOR_STRUCTURED_FIELDS.md` | Historical phase artifact encoded a fixed three-sector product count in the current owner-control tree, conflicting with the NEXUS rule that publication is bound to server-activated sectors without a fixed product count. | `config/fusion/current-authority.json` (`nexus.activatedSectorsOnly=true`), current NEXUS authority, and Git history as provenance. |
 | `docs/owner-control/OWNER_BINDING_DECISIONS_2026-08-12.md` | Superseded document still declared itself `BINDING / OWNER-CANONICAL` and carried old finance, Marketplace, and PR execution rules, creating a competing owner authority in the current tree. | `docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md` is the sole first owner constitution; current machine authority and registry route to NEXUS/current finance. Git history preserves the 2026-08-12 provenance. |
-| `docs/owner-control/VVIP_TIGER_OWNER_MASTER_DECISIONS_2026-08-12.md` | Declared itself `OWNER APPROVED` / permanent owner reference and retained superseded PR #190, public Marketplace assumptions, and retired financial percentages such as PRIMARY_MARKETER 4.30%. | `TIGER_OWNER_BINDING_CURRENT.md`, current NEXUS authority, and current 5+5+5+5+43+16+21 finance authority. Git history preserves historical provenance. |
+| `docs/owner-control/VVIP_TIGER_OWNER_MASTER_DECISIONS_2026-08-12.md` | Declared itself `OWNER APPROVED` / permanent owner reference and retained superseded PR #190, public Marketplace assumptions, and retired financial percentages such as PRIMARY_MARKETER 4.30%. | `TIGER_OWNER_BINDING_CURRENT.md`, current NEXUS authority, and current finance authority: 84% known + cancelled/unassigned 16% pending explicit owner decision. Git history preserves historical provenance. |
 | `docs/owner-control/VVIP_TIGER_OWNER_MASTER_REFERENCE.md` | Declared itself the unified highest owner reference while encoding a fixed three-sector product and older product/account/UX rules. | `TIGER_OWNER_BINDING_CURRENT.md` is the mandatory first reference; `TIGER_OWNER_CURRENT_REFERENCE_AR.md` is the current router; activated sectors are server-driven. |
 | `docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md` | Retained an obsolete official execution roadmap, old P00/P01 lane, fixed three-sector P10, 4-post weekly quota, 120-day deletion and subscription/trial paths. | Current owner binding/router + PR #349 exact-head convergence plan and `docs/MASTER_PROJECT_STATE.md` as explicitly non-authoritative implementation status. |
 | `docs/owner-control/VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml` | Declared itself `source_of_truth`, locked execution to stale P08, required deleted P10 Three-Sector artifact and retained retired subscription/entitlement sequencing. | `project-control/authority/authority-registry.v1.json`, `config/fusion/current-authority.json`, current owner binding, and exact Git/CI evidence. |
@@ -66,6 +70,7 @@ One Living Sector Object is created through the canonical NEXUS creation path an
 | `docs/owner-control/VVIP_TIGER_PHASE_TRACKER.md` | Declared itself the current official daily roadmap while retaining P08 as next authorized, 4 posts/week, 120-day expiry, four-month trial and other superseded product timing/limits. | Current PR #349 convergence lane, current owner binding/router, and exact-head protected verification evidence. |
 | `docs/owner-control/phase-status.json` | Machine-readable stale phase authority still locked to P08, named Three-Sector P10 and set `fallback_required=true`, conflicting with CURRENT_ONLY / NO_FALLBACK. | Current authority registry/config and protected exact-head implementation truth. |
 | `docs/change-control/20260710-master-execution-roadmap.json` | Historical change-control artifact still asserted the deleted roadmap plane as the expected single official reference and `next_authorized_phase=P01`. | Git history preserves the historical PR #23 record; current tree routes execution through the current owner binding and PR #349 convergence evidence. |
+| `docs/superpowers/specs/2026-08-18-tiger-pulse-ring-attention-allocation-engine-design.md` | Still declared itself `OWNER APPROVED / CURRENT DESIGN INPUT` while encoding an older incompatible Pulse tier model and explicitly rejecting parts of the current 2/10/20/45 authority. Retaining it would create a competing current design input. | Current `TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md`, NEXUS design/spec, `config/fusion/current-authority.json`, and regression guards. Git history preserves the old design provenance. |
 
 ## Regression guards
 
@@ -78,7 +83,7 @@ Current-tree deletion is protected by repository tests including:
 - `tests/final-owner-convergence.test.cjs`
 - `tests/nexus-2026-contract.test.cjs`
 
-These guards are intended to block restoration of parallel current-product surfaces, stale/competing owner authority, retired Pulse prices/durations, paid ordinary-publication gates, deleted standalone client Pulse authority, fixed-count sector artifacts, or archive/trash/legacy preservation of conflicting behavior.
+These guards are intended to block restoration of parallel current-product surfaces, stale/competing owner authority, retired Pulse prices/durations, paid ordinary-publication gates, deleted standalone client Pulse authority, fixed-count sector artifacts, restored TAX_RESERVE allocation, invented allocation of the pending 16%, separate 1% financial allocation, or archive/trash/legacy preservation of conflicting behavior.
 
 ## What this manifest does not authorize
 
