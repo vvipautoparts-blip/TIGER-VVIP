@@ -54,12 +54,22 @@
     {
       "authority_id": "authority.financial-distribution.v1",
       "domain": "financial-distribution",
-      "version": 2,
+      "version": 3,
       "status": "CURRENT_ONLY",
       "owner_decision_ref": "docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md",
       "canonical_path": "docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md",
       "supersedes": [],
-      "protected_boundaries": ["tax-reserve-cancelled", "no-invented-reallocation", "16-percent-pending-owner-decision", "distribution-execution-fail-closed", "one-sale-one-winner", "7-percent-self-service-discount", "14-day-settlement", "12-hour-payout-destination-grace", "immutable-ledger"]
+      "protected_boundaries": ["platform-revenue-excludes-statutory-tax", "tax-reserve-cancelled", "no-invented-reallocation", "16-percent-pending-owner-decision", "distribution-execution-fail-closed", "one-sale-one-winner", "7-percent-self-service-discount", "14-day-settlement", "12-hour-payout-destination-grace", "immutable-ledger"]
+    },
+    {
+      "authority_id": "authority.statutory-tax-boundary.v1",
+      "domain": "statutory-tax-boundary",
+      "version": 1,
+      "status": "CURRENT_ONLY",
+      "owner_decision_ref": "docs/owner-control/TIGER_STATUTORY_TAX_BOUNDARY_CURRENT.md",
+      "canonical_path": "docs/owner-control/TIGER_STATUTORY_TAX_BOUNDARY_CURRENT.md",
+      "supersedes": [],
+      "protected_boundaries": ["verified-statutory-tax-added-to-user-total", "zero-tax-adds-zero", "statutory-tax-not-platform-allocation", "statutory-tax-not-commissionable", "owner-does-not-invent-legal-tax-rate", "country-activation-independent-from-tax-rate", "unverified-tax-fail-closed"]
     },
     {
       "authority_id": "authority.cleanup-governance.v1",
