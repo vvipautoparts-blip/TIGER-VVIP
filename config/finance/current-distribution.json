@@ -48,6 +48,36 @@
     "ownerMayExtendGrace": true,
     "successfulSettlementZeroesPayableBalanceButPreservesLedger": true
   },
+  "humanDigitalFinancialFirewall": {
+    "status": "CURRENT_ONLY_FAIL_CLOSED",
+    "digitalActorType": "DIGITAL",
+    "financialBeneficiary": false,
+    "commissionBps": 0,
+    "shareBps": 0,
+    "financialEntitlement": 0,
+    "payoutDestination": null,
+    "walletAllowed": false,
+    "digitalSaleOwnershipAllowed": false,
+    "knownDigitalRoles": [
+      "DIGITAL_GROWTH_GOVERNOR",
+      "DIGITAL_GENERAL_MANAGER",
+      "DIGITAL_SECTOR_MANAGER",
+      "DIGITAL_FIELD_GOVERNOR",
+      "DIGITAL_SALES_GOVERNOR",
+      "DIGITAL_FINANCE_GOVERNOR"
+    ],
+    "humanSaleClaimRequirements": {
+      "actorType": "HUMAN",
+      "status": "ACTIVE",
+      "eligibility": "ELIGIBLE",
+      "roles": [
+        "GENERAL_MANAGER",
+        "SECTOR_MANAGER",
+        "MARKETER"
+      ],
+      "maxWinnersPerSale": 1
+    }
+  },
   "ledgerDimensions": [
     "OWNER",
     "PARTNERS",
@@ -61,5 +91,6 @@
   "financialInvariant": "NO_TAX_RESERVE_NO_INVENTED_REALLOCATION",
   "operationsInvariant": "ACTUAL_OPERATIONS_EQUALS_43_PERCENT",
   "salesInvariant": "SALES_ADMINISTRATION_EQUALS_21_PERCENT",
+  "humanDigitalFinancialInvariant": "DIGITAL_ACTORS_ZERO_FINANCIAL_BENEFIT_HUMAN_ONE_SALE_ONE_WINNER",
   "historyPolicy": "IMMUTABLE_LEDGER_NO_ERASURE"
 }
