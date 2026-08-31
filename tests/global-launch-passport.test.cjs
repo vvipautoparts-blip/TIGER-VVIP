@@ -86,6 +86,7 @@ test('fully evidenced exact-release passport can become globally eligible', () =
     finance: { distributionExecutionAuthorized: true, pendingOwnerDecisionPercent: 0 },
     f05LaunchGatePass: true,
     f08LaunchGatePass: true,
+    f09LaunchGatePass: true,
     f15LaunchGatePass: true
   });
   assert.equal(result.ok, true, result.errors.join('\n'));
@@ -150,4 +151,26 @@ test('runtime vacuum PASS requires subordinate F15 launch evidence PASS', () => 
   });
   assert.equal(result.ok, false);
   assert.ok(result.errors.includes('RUNTIME_VACUUM_PASS_REQUIRES_F15_EVIDENCE_PASS'));
+});
+
+test('global launch passport includes bounded AI as a mandatory gate', () => {
+  const { REQUIRED_GATES } = require(verifierPath);
+  const passport = loadJson(passportPath);
+  assert.ok(REQUIRED_GATES.includes('boundedAi'));
+  assert.ok(passport.gates.boundedAi);
+});
+
+test('bounded AI PASS requires subordinate F09 launch evidence PASS', () => {
+  const { verifyGlobalLaunchPassport } = require(verifierPath);
+  const passport = completePassport();
+  const result = verifyGlobalLaunchPassport(passport, {
+    currentHeadSha: passport.release.sha,
+    finance: { distributionExecutionAuthorized: true, pendingOwnerDecisionPercent: 0 },
+    f05LaunchGatePass: true,
+    f08LaunchGatePass: true,
+    f09LaunchGatePass: false,
+    f15LaunchGatePass: true
+  });
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.includes('BOUNDED_AI_PASS_REQUIRES_F09_EVIDENCE_PASS'));
 });
