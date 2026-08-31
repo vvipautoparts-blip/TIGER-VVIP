@@ -53,8 +53,10 @@ test('current owner decision is the only active supersession contract', () => {
   assert.match(owner, /OFFER \/ NEED \/ SERVICE \/ OPPORTUNITY/);
   assert.match(owner, /PULSE_2/);
   assert.match(owner, /PULSE_10/);
-  assert.match(owner, /PULSE_25/);
+  assert.match(owner, /PULSE_20/);
   assert.match(owner, /PULSE_45/);
+  assert.doesNotMatch(owner, /PULSE_25/);
+  assert.match(owner, /TAX_RESERVE_STATUS:\s*CANCELLED/);
   assert.match(owner, /not a party/i);
 });
 
