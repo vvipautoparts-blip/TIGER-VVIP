@@ -21,6 +21,7 @@
     "arabic": { "status": "IN_PROGRESS", "evidence": [] },
     "english": { "status": "IN_PROGRESS", "evidence": [] },
     "search": { "status": "FOUNDATION_EXISTS", "evidence": [] },
+    "boundedAi": { "status": "FOUNDATION_EXISTS", "evidence": [] },
     "hybridMediaHeic": { "status": "IN_PROGRESS", "evidence": [] },
     "accessibility": { "status": "FOUNDATION_EXISTS", "evidence": [] },
     "restore": { "status": "FOUNDATION_EXISTS", "evidence": [] },
