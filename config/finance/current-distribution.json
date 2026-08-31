@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "TIGER_FINANCIAL_DISTRIBUTION_V1",
+  "schemaVersion": "TIGER_FINANCIAL_DISTRIBUTION_V2",
   "status": "CURRENT_ONLY",
   "ownerAuthority": "docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md",
   "allocationBasis": "ACTUAL_CAPTURED_AMOUNT_AFTER_VALID_SELF_SERVICE_DISCOUNT",
@@ -9,9 +9,16 @@
     "PARTNER_2": 5,
     "PARTNER_3": 5,
     "ACTUAL_OPERATIONS": 43,
-    "TAX_RESERVE": 16,
     "SALES_ADMINISTRATION": 21
   },
+  "cancelledAllocation": {
+    "name": "TAX_RESERVE",
+    "formerPercent": 16,
+    "status": "CANCELLED_BY_LATEST_OWNER_DECISION"
+  },
+  "pendingOwnerDecisionPercent": 16,
+  "distributionState": "INCOMPLETE_PENDING_OWNER_REALLOCATION",
+  "distributionExecutionAuthorized": false,
   "actualOperationsPercent": {
     "RISK_RESERVE": 8,
     "MAINTENANCE": 8,
@@ -45,13 +52,13 @@
     "OWNER",
     "PARTNERS",
     "ACTUAL_OPERATIONS",
-    "TAX_RESERVE",
     "SALES_ADMINISTRATION",
+    "PENDING_OWNER_DECISION",
     "ABSENT_SALES_ROLE",
     "ACTIVE_USER_DISCOUNT",
     "REFUND_REVERSAL"
   ],
-  "financialInvariant": "MAIN_DISTRIBUTION_EQUALS_100_PERCENT",
+  "financialInvariant": "NO_TAX_RESERVE_NO_INVENTED_REALLOCATION",
   "operationsInvariant": "ACTUAL_OPERATIONS_EQUALS_43_PERCENT",
   "salesInvariant": "SALES_ADMINISTRATION_EQUALS_21_PERCENT",
   "historyPolicy": "IMMUTABLE_LEDGER_NO_ERASURE"
