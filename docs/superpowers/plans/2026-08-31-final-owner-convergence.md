@@ -19,7 +19,9 @@
 - Git history is the sole provenance for deleted conflicting source material.
 - Already-applied database migrations are not rewritten; obsolete effects use forward migrations.
 - Ordinary eligible sector publication remains free.
-- Pulse remains optional paid visibility at exactly 2/10/25/45 JOD with no product-time expiry.
+- Pulse remains optional paid visibility at exactly 2/10/20/45 JOD with no product-time expiry.
+- The former TAX_RESERVE 16% allocation is cancelled; no replacement allocation is invented until an explicit owner decision.
+- `CSR = 3%` remains inside `ACTUAL_OPERATIONS = 43%`; there is no separate 1% financial allocation.
 - PR #349 remains Draft; no merge to `main`, Production deploy, provider mutation, or database promotion without separate protected authorization and exact-head evidence.
 - A GitHub Actions result with `runner_id=0` and `steps=[]` is infrastructure-blocked: neither code-test failure evidence nor GREEN evidence.
 
@@ -286,4 +288,4 @@ git commit -m "test: gate final owner authority convergence"
 - Scope: no new NEXUS feature, payment behavior, Production action, migration rewrite, or provider mutation is introduced.
 - Placeholders: none.
 - Safety: deletion is evidence-bound; historical provenance remains Git history; immutable applied migrations are not rewritten.
-- Completion criterion: current status, human authority, machine authority, deletion manifest, and regression contracts agree on the same current NEXUS truth, with PR #349 still Draft until genuine exact-head runner-executed GREEN exists.
+- Completion criterion: current status, human authority, machine authority, deletion manifest, regression contracts agree on the same current NEXUS truth, with PR #349 still Draft until genuine exact-head runner-executed GREEN exists.
