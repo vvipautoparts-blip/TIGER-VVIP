@@ -6,7 +6,7 @@
 
 **Architecture:** Create a new isolated `cleanroom/domain` modular-monolith kernel using pure CommonJS modules and explicit ports. This first slice contains no live database migration, no real payment provider, no provider replacement, and no UI migration; it proves the business invariants and idempotent orchestration in deterministic tests before persistence/integration work begins.
 
-**Tech Stack:** JavaScript CommonJS; Node.js built-in `node:test` and `node:assert/strict`; integer micro-JOD accounting (`1 JOD = 1,000,000 micro-JOD`) for allocation precision; no new npm dependencies in this slice.
+**Tech Stack:** JavaScript CommonJS; Node.js built-in `node:test` and `node:assert/strict`; integer micro-JOD accounting (`1 JOD = 1,000,000 micro-JOD`) for internal allocation precision only; no new npm dependencies in this slice. Micro-JOD is not a new user-facing denomination and does not choose payment-provider settlement precision.
 
 **Spec:** `docs/superpowers/specs/2026-08-31-cleanroom-modular-core-design.md`
 
@@ -19,11 +19,13 @@
 - Current card prices are exactly `2 / 10 / 20 / 45 JOD`; `25 JOD` is rejected.
 - Card lifetime is verified-impression quota only; no calendar expiry.
 - Invalid/failed/unqualified/duplicate delivery consumes zero quota.
+- The user/client selects an approved price; the purchased impression quota is resolved by a trusted server-side card catalog. The client must not invent or submit quota as authority.
 - `POST_EXPIRES_AT = VISIBILITY_CARD_END + 24 HOURS`.
 - Sales roles are independent; one purchase has at most one winning 7% sales claimant.
 - No valid claimant means visible 7% self-service discount before payment.
 - Current beneficiary allocation is 84%; unresolved 16% is `PENDING_OWNER_REALLOCATION`, never an invented beneficiary.
 - `ACTUAL_OPERATIONS = 43%` exactly: 8/8/8/8/8/3.
+- Reusing an idempotency key with a materially different purchase command fails closed; it never returns the prior result for a different command.
 - No live payment, payout, Supabase migration, role assignment, Production deployment, merge to `main`, or destructive legacy cleanup in this plan.
 - Fine-grained social privacy/card-geometry/search wording remains SOURCE-RECOVERY-LOCKED and is outside this slice.
 
@@ -103,7 +105,6 @@ test('user-facing pace labels are exactly the approved Arabic labels', () => {
 
 - [ ] **Step 2: Run the test and verify RED**
 
-Run:
 ```bash
 node --test cleanroom/tests/policy/current-owner-policy.test.cjs
 ```
@@ -170,7 +171,6 @@ module.exports = Object.freeze({ CURRENT_OWNER_POLICY, deepFreeze, isApprovedPri
 
 - [ ] **Step 4: Run the test and verify GREEN**
 
-Run:
 ```bash
 node --test cleanroom/tests/policy/current-owner-policy.test.cjs
 ```
@@ -390,7 +390,7 @@ git commit -m "feat(cleanroom): add stable ten-sector registry"
 **Interfaces:**
 - Consumes: `CURRENT_OWNER_POLICY`.
 - Produces: `quoteVisibilityPurchase({ priceJod, claimant })`.
-- Return fields: `grossMicroJod`, `discountMicroJod`, `capturedMicroJod`, `claimant`, `ledgerEntries`, `ledgerTotalMicroJod`.
+- Return fields: `grossMicroJod`, `discountMicroJod`, `capturedMicroJod`, `claimant`, `discountLedgerEntry`, `ledgerEntries`, `ledgerTotalMicroJod`.
 - `claimant` is `NO_CLAIMANT` or exactly one of `GENERAL_MANAGER`, `SECTOR_MANAGER`, `MARKETER`.
 
 - [ ] **Step 1: Write failing finance tests**
@@ -403,11 +403,17 @@ const { quoteVisibilityPurchase } = require('../../domain/finance/purchase-quote
 
 function sum(entries) { return entries.reduce((total, e) => total + e.amountMicroJod, 0); }
 
-test('no claimant gives visible 7 percent discount and routes sales envelope to OWNER', () => {
+test('no claimant gives 7 percent discount, emits discount-ledger source entry, and routes sales envelope to OWNER', () => {
   const quote = quoteVisibilityPurchase({ priceJod: 10, claimant: 'NO_CLAIMANT' });
   assert.equal(quote.grossMicroJod, 10_000_000);
   assert.equal(quote.discountMicroJod, 700_000);
   assert.equal(quote.capturedMicroJod, 9_300_000);
+  assert.deepEqual(quote.discountLedgerEntry, {
+    kind: 'SELF_SERVICE_DISCOUNT',
+    percent: 7,
+    amountMicroJod: 700_000,
+    reasonCode: 'NO_SALES_CLAIMANT',
+  });
   assert.equal(sum(quote.ledgerEntries), quote.capturedMicroJod);
   assert.equal(quote.ledgerEntries.some((e) => e.account === 'PENDING_OWNER_REALLOCATION' && e.percent === 16), true);
   assert.equal(quote.ledgerEntries.some((e) => e.account === 'TAX_RESERVE'), false);
@@ -417,6 +423,7 @@ test('no claimant gives visible 7 percent discount and routes sales envelope to 
 test('one valid claimant suppresses discount and receives only one 7 percent commission', () => {
   const quote = quoteVisibilityPurchase({ priceJod: 20, claimant: 'MARKETER' });
   assert.equal(quote.discountMicroJod, 0);
+  assert.equal(quote.discountLedgerEntry, null);
   assert.equal(quote.capturedMicroJod, 20_000_000);
   const winners = quote.ledgerEntries.filter((e) => e.kind === 'SALES_COMMISSION');
   assert.deepEqual(winners.map((e) => [e.account, e.percent]), [['MARKETER', 7]]);
@@ -438,7 +445,7 @@ Expected: FAIL with `MODULE_NOT_FOUND`.
 
 - [ ] **Step 3: Implement exact micro-JOD ledger construction**
 
-Implementation requirements:
+Use:
 
 ```js
 const MICRO_JOD_PER_JOD = 1_000_000;
@@ -451,7 +458,7 @@ function percentOf(amount, percent) {
 }
 ```
 
-Construct separate immutable entries for:
+Construct immutable allocation entries for:
 
 ```text
 OWNER_BASE 5
@@ -470,7 +477,7 @@ OWNER_SALES_REROUTE 21 when NO_CLAIMANT
 PENDING_OWNER_REALLOCATION 16
 ```
 
-Every entry must include `percent`, `amountMicroJod`, `kind`, `account`, and an immutable `reasonCode`. Assert inside the function that entry percentages total 100 and entry amounts equal `capturedMicroJod`; otherwise throw `LEDGER_NOT_BALANCED`.
+Every allocation entry includes `percent`, `amountMicroJod`, `kind`, `account`, and immutable `reasonCode`. For `NO_CLAIMANT`, also emit exactly one immutable `discountLedgerEntry` with `kind=SELF_SERVICE_DISCOUNT`, `percent=7`, and `reasonCode=NO_SALES_CLAIMANT`. Assert allocation-entry percentages total 100 and allocation-entry amounts equal `capturedMicroJod`; otherwise throw `LEDGER_NOT_BALANCED`.
 
 - [ ] **Step 4: Run and verify GREEN**
 
@@ -496,7 +503,8 @@ git commit -m "feat(cleanroom): add one-winner purchase quote and balanced ledge
 
 **Interfaces:**
 - Produces: `createPaidVisibilityCard(input)`, `consumeQualifiedImpression(card, receipt, nowIso)`.
-- Card fields: `cardId`, `postId`, `priceJod`, `purchasedQuota`, `consumedQuota`, `state`, `paidAt`, `endedAt`, `consumedReceiptIds`.
+- Card fields: `cardId`, `postId`, `offerId`, `priceJod`, `purchasedQuota`, `consumedQuota`, `state`, `paidAt`, `endedAt`, `consumedReceiptIds`.
+- `purchasedQuota` is a trusted server-resolved value. Public purchase commands are forbidden from supplying it directly.
 
 - [ ] **Step 1: Write failing card tests**
 
@@ -511,7 +519,8 @@ const {
 
 test('card never ends by calendar time while verified quota remains', () => {
   const card = createPaidVisibilityCard({
-    cardId: 'card_1', postId: 'post_1', priceJod: 2, purchasedQuota: 2, paidAt: '2026-08-31T10:00:00.000Z'
+    cardId: 'card_1', offerId: 'offer_2', postId: 'post_1', priceJod: 2,
+    purchasedQuota: 2, paidAt: '2026-08-31T10:00:00.000Z'
   });
   const unchanged = consumeQualifiedImpression(card, { receiptId: 'bad_1', qualified: false }, '2030-01-01T00:00:00.000Z');
   assert.equal(unchanged.state, 'ACTIVE');
@@ -520,14 +529,14 @@ test('card never ends by calendar time while verified quota remains', () => {
 });
 
 test('duplicate or unqualified delivery burns zero quota', () => {
-  let card = createPaidVisibilityCard({ cardId: 'c', postId: 'p', priceJod: 10, purchasedQuota: 2, paidAt: '2026-08-31T10:00:00.000Z' });
+  let card = createPaidVisibilityCard({ cardId: 'c', offerId: 'o', postId: 'p', priceJod: 10, purchasedQuota: 2, paidAt: '2026-08-31T10:00:00.000Z' });
   card = consumeQualifiedImpression(card, { receiptId: 'r1', qualified: true }, '2026-08-31T10:01:00.000Z');
   const replay = consumeQualifiedImpression(card, { receiptId: 'r1', qualified: true }, '2026-08-31T10:02:00.000Z');
   assert.equal(replay.consumedQuota, 1);
 });
 
 test('card ends exactly on final verified impression and only once', () => {
-  let card = createPaidVisibilityCard({ cardId: 'c', postId: 'p', priceJod: 20, purchasedQuota: 2, paidAt: '2026-08-31T10:00:00.000Z' });
+  let card = createPaidVisibilityCard({ cardId: 'c', offerId: 'o', postId: 'p', priceJod: 20, purchasedQuota: 2, paidAt: '2026-08-31T10:00:00.000Z' });
   card = consumeQualifiedImpression(card, { receiptId: 'r1', qualified: true }, '2026-08-31T10:01:00.000Z');
   card = consumeQualifiedImpression(card, { receiptId: 'r2', qualified: true }, '2026-08-31T10:02:00.000Z');
   assert.equal(card.state, 'ENDED');
@@ -550,7 +559,8 @@ Rules in code:
 
 ```text
 price must pass isApprovedPriceJod
-purchasedQuota must be positive safe integer
+offerId must be non-empty
+purchasedQuota must be positive safe integer supplied by trusted server catalog
 state starts ACTIVE
 qualified !== true -> unchanged card
 seen receiptId -> unchanged card
@@ -605,7 +615,7 @@ test('draft cannot become active without a paid active card', () => {
 
 test('post remains active for exactly 24 hours after card end then expires', () => {
   const post = Object.freeze({ postId: 'p', state: 'ACTIVE', cardId: 'c' });
-  const card = Object.freeze({ cardId: 'c', state: 'ENDED', endedAt: '2026-08-31T12:00:00.000Z' });
+  const card = Object.freeze({ cardId: 'c', postId: 'p', state: 'ENDED', endedAt: '2026-08-31T12:00:00.000Z' });
   const before = derivePostLifecycle(post, card, '2026-09-01T11:59:59.999Z');
   assert.equal(before.state, 'ACTIVE_POST_CARD_GRACE');
   assert.equal(before.expiresAt, '2026-09-01T12:00:00.000Z');
@@ -623,7 +633,7 @@ Expected: FAIL with `MODULE_NOT_FOUND`.
 
 - [ ] **Step 3: Implement exact lifecycle derivation**
 
-Implementation requirements:
+Use:
 
 ```js
 const POST_CARD_GRACE_MS = 24 * 60 * 60 * 1000;
@@ -655,7 +665,7 @@ git commit -m "feat(cleanroom): enforce paid-card post lifecycle"
 
 ---
 
-### Task 7: Idempotent Purchase Orchestrator With Fake Ports Only
+### Task 7: Idempotent Purchase Orchestrator With Trusted Card Catalog and Fake Payment Port
 
 **Files:**
 - Create: `cleanroom/domain/purchase/purchase-visibility-card.cjs`
@@ -664,11 +674,13 @@ git commit -m "feat(cleanroom): enforce paid-card post lifecycle"
 **Interfaces:**
 - Consumes: `normalizeVerifiedSession`, sector registry, `quoteVisibilityPurchase`, `createPaidVisibilityCard`, `activatePostWithCard`.
 - Ports:
+  - `cardCatalog.resolve({ priceJod })` -> `{ offerId, priceJod, purchasedQuota }` from trusted server configuration.
   - `payment.capture({ idempotencyKey, amountMicroJod })` -> `{ ok: true, paymentId }`.
-  - `idempotency.get(key)` -> prior result or `null`.
-  - `idempotency.put(key, result)`.
+  - `idempotency.get(key)` -> `{ fingerprint, result }` or `null`.
+  - `idempotency.put(key, { fingerprint, result })`.
   - `audit.append(event)`.
 - Produces: `purchaseVisibilityCard(command, deps)`.
+- Public command fields do not include `purchasedQuota` or `quota`.
 
 - [ ] **Step 1: Write failing orchestration tests**
 
@@ -685,6 +697,7 @@ function fakeDeps() {
   return {
     captures, events,
     sectorRegistry: { requireActive(id) { if (id !== 'SEC-001') throw new Error('SECTOR_NOT_ACTIVE'); return { id }; } },
+    cardCatalog: { resolve({ priceJod }) { return { offerId: `offer_${priceJod}`, priceJod, purchasedQuota: 100 }; } },
     payment: { async capture(input) { captures.push(input); return { ok: true, paymentId: 'pay_1' }; } },
     idempotency: { get(key) { return saved.get(key) || null; }, put(key, value) { saved.set(key, value); } },
     audit: { append(event) { events.push(event); } },
@@ -697,26 +710,42 @@ const command = Object.freeze({
   post: { postId: 'p1', state: 'READY_FOR_CARD' },
   sectorId: 'SEC-001',
   priceJod: 10,
-  purchasedQuota: 100,
   claimant: 'NO_CLAIMANT',
   paidAt: '2026-08-31T15:00:00.000Z',
 });
 
-test('successful purchase captures once, creates paid card, balanced ledger and activates post', async () => {
+test('successful purchase captures once, uses server catalog quota, creates paid card, balanced ledger and active post', async () => {
   const deps = fakeDeps();
   const result = await purchaseVisibilityCard(command, deps);
   assert.equal(result.ok, true);
+  assert.equal(result.card.offerId, 'offer_10');
+  assert.equal(result.card.purchasedQuota, 100);
   assert.equal(result.card.state, 'ACTIVE');
   assert.equal(result.post.state, 'ACTIVE');
   assert.equal(result.quote.ledgerTotalMicroJod, result.quote.capturedMicroJod);
   assert.equal(deps.captures.length, 1);
 });
 
-test('same idempotency key returns prior result without second capture', async () => {
+test('public command cannot invent purchased quota', async () => {
+  const deps = fakeDeps();
+  const result = await purchaseVisibilityCard({ ...command, purchasedQuota: 999999 }, deps);
+  assert.deepEqual(result, { ok: false, code: 'CLIENT_QUOTA_FORBIDDEN' });
+  assert.equal(deps.captures.length, 0);
+});
+
+test('same idempotency key and same command returns prior result without second capture', async () => {
   const deps = fakeDeps();
   const first = await purchaseVisibilityCard(command, deps);
   const second = await purchaseVisibilityCard(command, deps);
   assert.deepEqual(second, first);
+  assert.equal(deps.captures.length, 1);
+});
+
+test('same idempotency key with different material command fails closed', async () => {
+  const deps = fakeDeps();
+  await purchaseVisibilityCard(command, deps);
+  const changed = await purchaseVisibilityCard({ ...command, priceJod: 20 }, deps);
+  assert.deepEqual(changed, { ok: false, code: 'IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_COMMAND' });
   assert.equal(deps.captures.length, 1);
 });
 
@@ -735,23 +764,35 @@ node --test cleanroom/tests/purchase/purchase-visibility-card.test.cjs
 ```
 Expected: FAIL with `MODULE_NOT_FOUND`.
 
-- [ ] **Step 3: Implement minimal orchestrator**
+- [ ] **Step 3: Implement minimal orchestrator with command fingerprinting**
+
+Use a deterministic fingerprint over material command fields after verified-session normalization:
+
+```js
+function purchaseFingerprint({ userId, postId, sectorId, priceJod, claimant }) {
+  return JSON.stringify({ userId, postId, sectorId, priceJod, claimant });
+}
+```
 
 Order is fixed:
 
 ```text
-1 verified external session
-2 active sector validation
-3 existing idempotency result lookup
-4 quote/attribution/discount/ledger calculation
-5 payment capture through injected port
-6 create paid Visibility Card
-7 activate post
-8 append audit event
-9 persist idempotency result through injected port
+1 reject client-supplied purchasedQuota/quota
+2 normalize verified external session
+3 validate non-empty idempotency key
+4 compute command fingerprint
+5 idempotency lookup: same fingerprint -> prior result; different fingerprint -> fail closed
+6 active sector validation
+7 resolve approved price to trusted server-side card catalog offer/quota
+8 quote/attribution/discount/ledger calculation
+9 payment capture through injected fake/provider-neutral port
+10 create paid Visibility Card using server-resolved offerId/quota
+11 activate post
+12 append immutable audit event; include discount source event when discountLedgerEntry exists
+13 persist { fingerprint, result } through idempotency port
 ```
 
-The function must return failure before card/post creation when any earlier step fails. It must not contain a real payment SDK or Supabase client.
+The function must return failure before card/post creation when any earlier step fails. It must not contain a real payment SDK or Supabase client. Durable atomic reservation around external payment is intentionally delegated to the next persistence/transaction plan; therefore this slice cannot be wired to real money.
 
 - [ ] **Step 4: Run and verify GREEN**
 
@@ -786,11 +827,12 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const kernel = require('../../domain/index.cjs');
 
-test('approved foundation flow reaches expiry only after paid card quota exhaustion plus 24 hours', async () => {
+test('approved foundation flow reaches expiry only after server-issued paid card quota exhaustion plus 24 hours', async () => {
   const registry = kernel.createSectorRegistry(kernel.CURRENT_OWNER_POLICY.sectors);
   const store = new Map();
   const deps = {
     sectorRegistry: registry,
+    cardCatalog: { resolve({ priceJod }) { return { offerId: `offer_${priceJod}`, priceJod, purchasedQuota: 1 }; } },
     payment: { async capture() { return { ok: true, paymentId: 'pay_e2e' }; } },
     idempotency: { get(k) { return store.get(k) || null; }, put(k, v) { store.set(k, v); } },
     audit: { append() {} },
@@ -799,10 +841,11 @@ test('approved foundation flow reaches expiry only after paid card quota exhaust
     idempotencyKey: 'e2e_1',
     session: { userId: 'u', externalProvider: 'x', externalSubject: 's', sessionId: 'sess' },
     post: { postId: 'p', state: 'READY_FOR_CARD' },
-    sectorId: 'SEC-001', priceJod: 2, purchasedQuota: 1, claimant: 'NO_CLAIMANT',
+    sectorId: 'SEC-001', priceJod: 2, claimant: 'NO_CLAIMANT',
     paidAt: '2026-08-31T00:00:00.000Z',
   }, deps);
   assert.equal(purchase.ok, true);
+  assert.equal(purchase.quote.discountLedgerEntry.kind, 'SELF_SERVICE_DISCOUNT');
   const endedCard = kernel.consumeQualifiedImpression(
     purchase.card,
     { receiptId: 'verified_1', qualified: true },
@@ -842,7 +885,6 @@ module.exports = Object.freeze({
 
 - [ ] **Step 4: Run the complete foundation suite**
 
-Run:
 ```bash
 node --test \
   cleanroom/tests/policy/current-owner-policy.test.cjs \
@@ -856,11 +898,12 @@ node --test \
 ```
 Expected: all tests PASS, zero skipped, zero failed.
 
-Also run existing finance contract regression:
+Also run the existing aligned finance-contract regression:
+
 ```bash
 node --test tests/finance-current-distribution.test.cjs
 ```
-Expected: PASS; cleanroom implementation must not weaken the already-aligned current finance contract.
+Expected: PASS; the cleanroom implementation must not weaken the existing current finance contract.
 
 - [ ] **Step 5: Commit**
 
@@ -876,15 +919,17 @@ git commit -m "test(cleanroom): prove foundation domain kernel end to end"
 - [ ] Every approved price path accepts only 2/10/20/45 and rejects 25.
 - [ ] No cleanroom identity module accepts or stores password material.
 - [ ] Sector IDs are stable and label changes do not alter IDs.
+- [ ] User/client cannot provide authoritative impression quota; trusted card catalog resolves it server-side.
 - [ ] No post can activate before a paid card result exists.
 - [ ] Unqualified/duplicate impressions consume zero quota.
 - [ ] Card ends only at quota exhaustion, never by time.
 - [ ] Post expires at card end + exactly 24 hours.
 - [ ] One purchase has zero or one winning sales claimant, never two.
-- [ ] NO_CLAIMANT produces 7% discount before capture.
+- [ ] NO_CLAIMANT produces 7% discount before capture and an immutable discount-ledger source entry.
 - [ ] Ledger entries total exactly captured amount and 100% allocation.
 - [ ] `PENDING_OWNER_REALLOCATION` remains 16% and has no beneficiary.
 - [ ] No active `TAX_RESERVE` entry exists.
+- [ ] Same idempotency key + different command fails closed.
 - [ ] No live payment SDK, Supabase write, migration, or Production path is introduced.
 - [ ] Full foundation suite and existing finance regression are GREEN on one exact commit SHA.
 
