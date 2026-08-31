@@ -46,26 +46,37 @@ function assertVerifiedTaxQuote(taxQuote) {
   }
 }
 
-function buildStatutoryTaxBoundary({ platformPriceMinor, taxQuote }) {
-  if (!isNonNegativeSafeInteger(platformPriceMinor)) {
-    fail('INVALID_PLATFORM_PRICE', 'Platform price must be a non-negative safe integer in minor units.');
+function buildStatutoryTaxBoundary({ displayedPriceMinor, taxQuote }) {
+  if (!isNonNegativeSafeInteger(displayedPriceMinor)) {
+    fail(
+      'INVALID_DISPLAYED_PRICE',
+      'Displayed price must be a non-negative safe integer in minor units.'
+    );
   }
 
   assertVerifiedTaxQuote(taxQuote);
 
-  const userTotalMinor = platformPriceMinor + taxQuote.taxAmountMinor;
-  if (!Number.isSafeInteger(userTotalMinor)) {
-    fail('CHECKOUT_TOTAL_OVERFLOW', 'Checkout total exceeds safe integer bounds.');
+  if (taxQuote.taxAmountMinor > displayedPriceMinor) {
+    fail(
+      'STATUTORY_TAX_EXCEEDS_DISPLAYED_PRICE',
+      'Included statutory tax cannot exceed the final displayed tax-inclusive price.'
+    );
   }
 
+  const platformRevenueMinor = displayedPriceMinor - taxQuote.taxAmountMinor;
+
   return Object.freeze({
-    platformRevenueMinor: platformPriceMinor,
+    displayedPriceMinor,
+    userTotalMinor: displayedPriceMinor,
+    additionalTaxAtCaptureMinor: 0,
+    pricePresentation: 'TAX_INCLUSIVE_FINAL',
+    taxIncludedInDisplayedPrice: true,
+    platformRevenueMinor,
     statutoryTaxMinor: taxQuote.taxAmountMinor,
     effectiveTaxRateBps: taxQuote.effectiveRateBps,
     jurisdiction: taxQuote.jurisdiction,
     taxSourceEvidenceId: taxQuote.sourceEvidenceId,
-    userTotalMinor,
-    distributionBasisMinor: platformPriceMinor,
+    distributionBasisMinor: platformRevenueMinor,
     taxExcludedFromDistribution: true,
     taxExcludedFromCommission: true
   });
