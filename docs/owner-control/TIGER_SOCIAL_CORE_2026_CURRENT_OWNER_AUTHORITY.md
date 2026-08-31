@@ -2,7 +2,7 @@
 
 **Status:** CURRENT_ONLY — BINDING OWNER PRODUCT AUTHORITY
 
-**Effective date:** 2026-08-29
+**Effective date:** 2026-08-31
 
 **Applies to:** VVIP TIGER social graph, authenticated/public social journeys, global navigation, feed consumption, reactions, comments, sharing, saving, messaging, notifications, search, privacy/safety, pages, groups, Marketplace placement, and implementation priorities derived from those domains.
 
@@ -83,6 +83,8 @@ Current paid-visibility authority remains:
 
 `docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md`
 
+Current Pulse reference levels are **2 / 10 / 20 / 45 JOD** only.
+
 NEXUS presents that authority through Pulse Vault. Ordinary eligible sector publication remains free. No marketplace checkout, escrow, delivery, settlement, warranty execution, or platform-run buyer/seller transaction dispute layer is introduced by the social product.
 
 Future social monetization requires a separate explicit owner decision.
@@ -130,10 +132,10 @@ No direct write to `main` is authorized by this document.
 
 ## 11. Supersession
 
-Earlier generic `normal Post Composer` authority that allowed a newly public post without current NEXUS sector/intent binding is superseded. Earlier TIGER ONE product/monetization clauses that conflict with NEXUS or the current Pulse 2/10/25/45 authority are also superseded.
+Earlier generic `normal Post Composer` authority that allowed a newly public post without current NEXUS sector/intent binding is superseded. Earlier product/monetization clauses that conflict with NEXUS or the current Pulse authority are also superseded.
 
 Compatible social graph, privacy, safety, search, media, authorization, and operational foundations remain in force.
 
 ## 12. Owner acceptance statement
 
-> **Build VVIP TIGER as an original social-network-first product, with familiar social interaction semantics but TIGER-owned code and identity. Current new publication is through NEXUS Living Sector Objects bound to an activated sector and OFFER/NEED/SERVICE/OPPORTUNITY; there is no generic public-post bypass. Keep Marketplace as a module, preserve fail-closed security/identity protections, use current 2026 verification baselines, and delete conflicting old current-tree authority instead of hiding it.**
+> **Build VVIP TIGER as an original social-network-first product, with familiar social interaction semantics but TIGER-owned code and identity. Current new publication is through NEXUS Living Sector Objects bound to an activated sector and OFFER/NEED/SERVICE/OPPORTUNITY; there is no generic public-post bypass. Keep Marketplace as a module, preserve fail-closed security/identity protections, use current Pulse 2/10/20/45 JOD, use current 2026 verification baselines, and delete conflicting old current-tree authority instead of hiding it.**
