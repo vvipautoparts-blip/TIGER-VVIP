@@ -23,7 +23,7 @@ The only current reference purchase levels are:
 | `PULSE_20` | **20 JOD** |
 | `PULSE_45` | **45 JOD** |
 
-No other current Pulse purchase-level set is authorized. `PULSE_25` and every older conflicting price set are superseded and must not control current runtime, configuration, tests, UI, documentation, or release gates.
+No other current Pulse purchase-level set is authorized. Every conflicting older price set must be absent from current runtime, configuration, tests, UI, documentation, and release gates.
 
 A lawful local payment rail may display an equivalent local-currency amount where required, but the TIGER reference level remains one of 2/10/20/45 JOD.
 
