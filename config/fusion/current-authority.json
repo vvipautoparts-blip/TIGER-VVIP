@@ -30,6 +30,7 @@
     "identity": "TIGER_NEXUS_2026",
     "primarySurface": "SOCIAL_FEED",
     "publishableScope": "ACTIVATED_SECTORS_ONLY",
+    "activatedSectorsOnly": true,
     "livingSectorObjectRequired": true,
     "intentClasses": ["OFFER", "NEED", "SERVICE", "OPPORTUNITY"],
     "composerPromptAr": "ماذا تعرض أو تحتاج؟",
