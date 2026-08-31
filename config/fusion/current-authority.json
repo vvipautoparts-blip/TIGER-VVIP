@@ -16,6 +16,7 @@
   "tigerSocialCoreOwnerReference": "docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md",
   "tigerPhoenixOwnerReference": "docs/owner-control/TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md",
   "tigerAionOwnerReference": "docs/owner-control/TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md",
+  "tigerGlobalLaunchPassportConfig": "config/launch/global-launch-passport.json",
   "securityBaseline": {
     "applicationVerification": "OWASP_ASVS_5.0.0",
     "digitalIdentity": "NIST_SP_800-63-4",
@@ -135,6 +136,7 @@
     "simultaneousActiveUsers": 4000000
   },
   "globalLaunchEligibilityRequiresBoth4M": true,
+  "globalLaunchEligibilityRequiresAllPassportGates": true,
   "launchTruth": "EVIDENCE_FIRST",
   "globalLaunchStatement": "نحن جاهزون للانطلاق العالمي.",
   "globalLaunchStatementAllowedOnlyWhen": "F16_LAUNCH_PASSPORT_PASS"
