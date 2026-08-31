@@ -75,7 +75,11 @@ function enforceFinancialActorPolicy(actor) {
     fail('INVALID_FINANCIAL_ACTOR', 'Financial actor must be an object.');
   }
 
-  if (actor.actorType !== 'DIGITAL') {
+  const digitalActor =
+    actor.actorType === 'DIGITAL' ||
+    (typeof actor.role === 'string' && actor.role.startsWith('DIGITAL_'));
+
+  if (!digitalActor) {
     return { ...actor };
   }
 
