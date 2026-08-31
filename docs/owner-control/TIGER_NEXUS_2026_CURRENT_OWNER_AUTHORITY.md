@@ -60,7 +60,7 @@ Current Pulse reference purchase levels are exactly:
 - `PULSE_20` — 20 JOD;
 - `PULSE_45` — 45 JOD.
 
-`PULSE_25` is superseded and is not current authority.
+No other Pulse level is current authority.
 
 Purchased visibility is a server-authoritative platform-service allocation and has **no product-time expiry**.
 
