@@ -20,6 +20,12 @@ function claim(role, overrides = {}) {
     eligibility: 'ELIGIBLE',
     role,
     userId: `user-${role.toLowerCase()}`,
+    purchaseId: 'purchase-001',
+    assignmentVersion: 1,
+    sourceEvidenceId: 'referral-proof-001',
+    claimedAt: '2026-09-01T00:00:00.000Z',
+    deduplicationKey: `purchase-001:${role}`,
+    integrityHash: 'a'.repeat(64),
     ...overrides
   };
 }
@@ -87,6 +93,24 @@ test('inactive, ineligible, unknown-role, or unknown actor claims fail closed', 
     claim('MARKETER', { actorType: 'SERVICE' })
   ]) {
     assertFirewallCode(() => validateSaleOwnershipClaims([invalid]), 'INELIGIBLE_SALE_CLAIM');
+  }
+});
+
+test('sale ownership claims require deterministic attribution evidence', () => {
+  const requiredEvidence = [
+    ['purchaseId', ''],
+    ['assignmentVersion', 0],
+    ['sourceEvidenceId', ''],
+    ['claimedAt', 'not-a-date'],
+    ['deduplicationKey', ''],
+    ['integrityHash', 'not-a-sha256']
+  ];
+
+  for (const [field, invalidValue] of requiredEvidence) {
+    assertFirewallCode(
+      () => validateSaleOwnershipClaims([claim('MARKETER', { [field]: invalidValue })]),
+      'INVALID_SALE_CLAIM_EVIDENCE'
+    );
   }
 });
 
