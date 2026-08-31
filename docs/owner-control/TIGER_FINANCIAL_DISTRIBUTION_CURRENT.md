@@ -6,51 +6,48 @@
 
 ## 1. Distribution basis
 
-All TIGER internal percentages are calculated from **platform service revenue after included statutory tax has been separated from the final tax-inclusive user price**.
+All TIGER internal percentages are calculated only from **platform service revenue excluding statutory tax**.
 
-`DISTRIBUTION_BASIS = PLATFORM_SERVICE_REVENUE_EXCLUDING_STATUTORY_TAX`
+Under the current country-tax pricing model, approved reference prices are calibrated with a 16% tax baseline. The system first recovers the untaxed base by dividing the reference price by 1.16, then applies the verified statutory tax rate for the user's jurisdiction.
 
-The user-facing price is final and tax-inclusive. Statutory tax is not added again at capture.
+`UNTAXED BASE = REFERENCE PRICE / 1.16`
 
-The binding statutory-tax authority is:
+`COUNTRY TAX = UNTAXED BASE × VERIFIED COUNTRY TAX RATE`
+
+`FINAL USER PRICE = UNTAXED BASE + COUNTRY TAX`
+
+`DISTRIBUTION BASIS = UNTAXED BASE`
+
+The resulting country-specific displayed price is the final amount charged. No second tax is added at capture.
+
+The binding tax authority is:
 
 `docs/owner-control/TIGER_STATUTORY_TAX_BOUNDARY_CURRENT.md`
 
-A refund, reversal, void, or chargeback reverses the related platform allocations atomically while preserving immutable audit evidence.
+## 2. Pricing examples
 
-## 2. Current statutory-tax boundary — final price includes tax
+For a reference price of 10.00:
 
-VVIP TIGER does not invent the legal tax rate. The applicable jurisdiction/rules determine the statutory-tax result, and TIGER consumes verified tax evidence/provider logic.
+- country tax 0% -> final ≈ 8.62;
+- country tax 12% -> final ≈ 9.65/9.66 depending on minor-unit rounding;
+- country tax 16% -> final = 10.00;
+- country tax 20% -> final ≈ 10.34.
 
-The current boundary is:
-
-`FINAL DISPLAYED PRICE = PLATFORM SERVICE REVENUE + INCLUDED VERIFIED STATUTORY TAX`
-
-`USER CHARGE = FINAL DISPLAYED PRICE`
-
-`ADDITIONAL TAX AT CAPTURE = 0`
-
-`PLATFORM SERVICE REVENUE = FINAL DISPLAYED PRICE - INCLUDED VERIFIED STATUTORY TAX`
-
-The verified tax quote must correspond to the final displayed price. If verified included tax is zero, the full final displayed price is platform service revenue. If included tax is non-zero, that verified tax amount is carved out internally before distribution.
-
-There is no TIGER 16% tax ceiling, no tax subsidy, no tax shield, and no use of internal commission/revenue allocations to absorb statutory tax.
-
-Country opening/closing is an owner-governance decision independent from the tax rate itself.
+The 16% pricing baseline is not a universal statutory tax selected by TIGER. It is only the calibration already contained in the approved reference prices.
 
 ## 3. Former TAX_RESERVE 16% remains cancelled
 
 `TAX_RESERVE_STATUS: CANCELLED`
 
-The former internal `TAX_RESERVE = 16%` is cancelled. It is not a statutory tax rate, tax bucket, reserve, beneficiary, or fallback.
+The former internal `TAX_RESERVE = 16%` allocation is cancelled and is **not** the same thing as the 16% pricing baseline.
 
-The 16 percentage points left after that cancellation remain an **unallocated platform-revenue decision pending explicit owner allocation**.
+The unresolved 16 percentage points left after cancellation remain an unallocated platform-revenue decision pending explicit owner allocation.
 
-They are not statutory tax and may not be used to pay or absorb statutory tax by inference.
+They are not statutory tax and may not be used to fund, absorb, or replace country tax by inference.
 
 No person, role, account, partner, operations bucket, sales bucket, CSR bucket, owner bucket, digital actor, or tax bucket may receive those 16 percentage points until a later explicit owner decision reallocates them.
 
-Therefore final distribution execution remains fail-closed.
+Final distribution execution therefore remains fail-closed.
 
 ## 4. Current known allocations — 84%
 
@@ -65,7 +62,7 @@ Therefore final distribution execution remains fail-closed.
 | **KNOWN CURRENT TOTAL** | **84%** |
 | **PENDING EXPLICIT OWNER REALLOCATION** | **16%** |
 
-The pending 16% row is not an allocation. It records only the unresolved commercial distribution balance.
+The pending 16% row is not an allocation.
 
 ## 5. Owner and partner allocations
 
@@ -79,9 +76,9 @@ Each partner allocation is independent:
 
 If a partner position is unassigned, its approved 5% routes to OWNER with an auditable `UNASSIGNED_PARTNER` reason code.
 
-A partner must have a valid payout destination. If no acceptable payout destination exists within 12 hours of role grant, payout eligibility is suspended and the affected approved share routes to OWNER unless the owner explicitly extends the grace period.
+A partner must have a valid payout destination. If none exists within 12 hours of role grant, payout eligibility is suspended and the affected approved share routes to OWNER unless the owner explicitly extends the grace period.
 
-The unresolved 16% never routes to OWNER by inference.
+The unresolved internal 16% never routes to OWNER by inference.
 
 ## 6. Actual operations — 43%
 
@@ -99,8 +96,6 @@ The unresolved 16% never routes to OWNER by inference.
 
 CSR is inside the 43%. There is no separate 1% charity allocation.
 
-The operations sub-allocation engine fails closed unless the total is exactly 43%.
-
 ## 7. Sales administration — 21%
 
 | Role | Reserved percentage |
@@ -114,11 +109,11 @@ The operations sub-allocation engine fails closed unless the total is exactly 43
 
 One purchase may have at most one winning sales-role claim.
 
-- GENERAL_MANAGER winner -> that HUMAN role receives 7%; the other two sales-role shares do not receive commission.
-- SECTOR_MANAGER winner -> that HUMAN role receives 7%; the other two sales-role shares do not receive commission.
-- MARKETER winner -> that HUMAN role receives 7%; the other two sales-role shares do not receive commission.
+- GENERAL_MANAGER winner -> that HUMAN role receives its 7%; the other two sales roles receive 0.
+- SECTOR_MANAGER winner -> that HUMAN role receives its 7%; the other two sales roles receive 0.
+- MARKETER winner -> that HUMAN role receives its 7%; the other two sales roles receive 0.
 
-The two non-winning 7% reserved shares route to OWNER with `NON_WINNING_SALES_ROLE` reason codes.
+The two non-winning reserved 7% shares route to OWNER with `NON_WINNING_SALES_ROLE` reason codes.
 
 There is no hierarchical commission cascade.
 
@@ -126,13 +121,12 @@ There is no hierarchical commission cascade.
 
 If there is no valid HUMAN sales claimant:
 
-1. the user receives the approved visible 7% self-service discount before the final payment price is sealed;
-2. the tax engine/provider must produce verified included-tax evidence for that final discounted tax-inclusive price;
-3. included statutory tax is separated from the final displayed price;
-4. the resulting platform-service revenue excluding statutory tax is the distribution basis;
-5. no sales role receives commission;
-6. the 21% SALES_ADMINISTRATION envelope routes to OWNER with absent-role reason codes;
-7. the 7% discount is recorded separately.
+1. the approved visible 7% self-service discount is applied according to current pricing authority before the payment quote is finalized;
+2. the discounted reference-price path is then rebased from its 16% calibration to the verified country tax;
+3. statutory tax remains excluded from distribution;
+4. no sales role receives commission;
+5. the 21% SALES_ADMINISTRATION envelope routes to OWNER with absent-role reason codes;
+6. the 7% discount is recorded separately.
 
 If a valid sales claimant exists, the self-service discount does not apply.
 
@@ -150,11 +144,9 @@ For every DIGITAL actor:
 - wallet authority prohibited;
 - sales-commission ownership prohibited.
 
-The rule also defends against misclassification by treating `DIGITAL_*` roles as digital for financial-benefit enforcement.
+`DIGITAL_*` role names are also treated as digital for financial enforcement even if actor type is misclassified.
 
 A winning sale claim must belong to exactly one `HUMAN + ACTIVE + ELIGIBLE` GENERAL_MANAGER, SECTOR_MANAGER, or MARKETER with deterministic attribution evidence.
-
-Digital actors may analyze, recommend, validate, route, or execute owner-authorized non-beneficiary automation only.
 
 The canonical firewall is:
 
@@ -175,43 +167,37 @@ Every eligible sale claim must include at minimum:
 
 Ambiguous, duplicate, invalid, DIGITAL, inactive/ineligible, unknown-role, or multi-winner claims fail closed.
 
-## 10. Statutory-tax separation at checkout
+## 10. Country-tax pricing boundary
 
-The canonical tax boundary is:
+The canonical tax module is:
 
 `project-control/finance/statutory-tax-boundary.cjs`
 
-It must preserve separate values for:
-
-- final displayed tax-inclusive price;
-- actual user charge;
-- platform revenue;
-- included statutory tax;
-- distribution basis;
-- tax jurisdiction/evidence;
-- additional tax at capture, which must be zero under the current presentation rule.
-
 Required identities:
 
-`userTotal = finalDisplayedPrice`
+`untaxedBase = referencePrice / 1.16`
 
-`platformRevenue = finalDisplayedPrice - includedStatutoryTax`
+`statutoryTax = untaxedBase × verifiedCountryTaxRate`
 
-`distributionBasis = platformRevenue`
+`userTotal = untaxedBase + statutoryTax`
+
+`displayedPrice = userTotal`
+
+`distributionBasis = untaxedBase`
 
 `additionalTaxAtCapture = 0`
 
-An unverified, negative, malformed, or internally inconsistent statutory-tax result fails closed. TIGER must not guess a legal tax rate or silently change the final displayed price.
+The old rule that treated the reference price itself as a fixed final price and merely carved tax out of it is superseded and must not remain active.
 
-The former cancelled 16% internal allocation is not restored or reclassified as statutory tax.
+An unverified, negative, malformed, or unavailable tax result fails closed. TIGER does not guess legal tax rates.
 
 ## 11. Payout and ledger
 
 Eligible external human commission payouts are settled every 14 days.
 
-A successful settlement may reduce payable balance to zero, but it never erases ledger history.
+A successful settlement may reduce payable balance to zero but never erases ledger history.
 
-Financial records must preserve separated accounting dimensions for at least:
+Financial records preserve separated dimensions for at least:
 
 - OWNER;
 - PARTNERS;
@@ -223,7 +209,7 @@ Financial records must preserve separated accounting dimensions for at least:
 - ACTIVE_USER_DISCOUNT;
 - refunds/reversals.
 
-Every movement remains auditable to purchase identity, final displayed price, actual user charge, platform service revenue, included statutory tax where applicable, distribution basis, percentage, allocation, beneficiary/fallback, reason code, status, timestamps, and immutable evidence linkage.
+Every movement remains auditable to purchase identity, reference price, baseline 16% calibration, untaxed base, verified country tax rate, statutory tax amount, final displayed/user charge, distribution basis, allocation, beneficiary/fallback, reason code, status, timestamps, and immutable evidence linkage.
 
 ## 12. Security invariants
 
@@ -231,13 +217,14 @@ Financial execution is server-authoritative and fail closed.
 
 Required invariants include:
 
-- the displayed user price is final and tax-inclusive;
-- no second statutory-tax surcharge is added at capture;
+- the approved reference price is calibrated with a 16% baseline;
+- the baseline is removed by division by 1.16, never by multiplying the gross price by 0.84;
+- verified country tax is applied to the recovered untaxed base;
+- the country-specific displayed price is the final charge;
+- no second tax surcharge is added at capture;
 - statutory tax never enters platform distribution or commissions;
-- unverified or inconsistent tax is never guessed;
-- included tax cannot exceed the final displayed price;
 - no restored TAX_RESERVE;
-- no invented reassignment of the unresolved 16%;
+- no invented reassignment of the unresolved internal 16%;
 - final distribution remains blocked while current owner allocation totals only 84%;
 - one sale / one HUMAN winner;
 - all DIGITAL actors remain zero-benefit;
@@ -250,4 +237,4 @@ Required invariants include:
 
 ## 13. Acceptance statement
 
-> **The price shown to the user is the final tax-inclusive price and is the amount charged. Applicable verified statutory tax is separated internally from that price and is never added again at capture. TIGER distribution and commissions are calculated only from platform-service revenue remaining after included statutory tax is removed. Statutory tax never enters OWNER, PARTNER, ACTUAL_OPERATIONS, SALES_ADMINISTRATION, HUMAN commission, or DIGITAL economics. Country activation is an independent owner-governance decision, not a 16% tax threshold. The former internal TAX_RESERVE 16% remains cancelled. The unresolved internal 16 percentage points are not tax and remain pending a separate explicit owner allocation decision, so final distribution remains fail-closed. Current known allocations remain OWNER 5%, three partners 5% each, ACTUAL_OPERATIONS 43%, and SALES_ADMINISTRATION 21%. One sale has at most one ACTIVE, ELIGIBLE HUMAN sales winner. Every DIGITAL actor remains permanently zero-financial-benefit.**
+> **Approved TIGER reference prices contain a 16% pricing baseline. The system removes that baseline correctly by dividing the reference price by 1.16, applies the verified statutory tax rate for the user's country/transaction to the recovered untaxed base, and displays/charges the resulting country-specific final price. A 16% country returns the reference price; lower tax lowers the final user price; higher tax raises it. Distribution and commissions use only the untaxed platform-service base. The pricing baseline is separate from the cancelled former internal TAX_RESERVE 16%, whose unresolved 16 percentage points remain pending a separate owner allocation decision. Current known allocations remain OWNER 5%, three partners 5% each, ACTUAL_OPERATIONS 43%, and SALES_ADMINISTRATION 21%. One sale has at most one ACTIVE, ELIGIBLE HUMAN sales winner. Every DIGITAL actor remains permanently zero-financial-benefit.**
