@@ -6,7 +6,7 @@ const EXPECTED_PHASES = Object.freeze(
 
 const FINAL_REFERENCE = 'docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md';
 const REQUIRED_PREFLIGHT = 'OWNER_BINDING_CURRENT_FIRST';
-const REQUIRED_DISPOSITION = 'DELETE_FROM_CURRENT_TREE_NO_FALLBACK_NO_IN_TREE_ARCHIVE';
+const REQUIRED_DISPOSITION = 'DELETE_FROM_CURRENT_TREE_NO_FALLBACK_NO_IN_TREE_ARCHIVE_NO_TRASH_NO_LEGACY_COMPATIBILITY';
 
 const REQUIRED_REFERENCE_FIELDS = Object.freeze({
   ownerOperationalIndex: 'docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md',
@@ -90,7 +90,7 @@ function verifyCurrentAuthority(manifest) {
   if (publication.submitContract !== 'SUBMIT_FOR_REVIEW') errors.push('ordinary publication submit contract must be SUBMIT_FOR_REVIEW');
 
   const pulse = manifest.pulseRing || {};
-  if (JSON.stringify(pulse.tiersJod) !== JSON.stringify([2, 10, 25, 45])) errors.push('Pulse tiers must be exactly 2/10/25/45 JOD');
+  if (JSON.stringify(pulse.tiersJod) !== JSON.stringify([2, 10, 20, 45])) errors.push('Pulse tiers must be exactly 2/10/20/45 JOD');
   if (pulse.purchasedValue !== 'SERVER_AUTHORITATIVE_VISIBILITY_ALLOCATION') errors.push('Pulse purchased value must be a server-authoritative visibility allocation');
   if (pulse.productTimeExpiry !== null) errors.push('Pulse visibility value must not have product-time expiry');
   if (pulse.ordinaryPublicationPrerequisite !== false) errors.push('Pulse must not be an ordinary-publication prerequisite');
