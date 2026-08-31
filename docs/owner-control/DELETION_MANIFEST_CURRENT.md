@@ -56,6 +56,7 @@ One Living Sector Object is created through the canonical NEXUS creation path an
 | `styles/vvip-production-marketplace.css` | Styling existed only for the parallel Marketplace production surface. | NEXUS/social current styles. |
 | `scripts/nexus/pulse-vault.js` | Standalone client Pulse Vault read-model runtime was superseded by the server-authoritative NEXUS Pulse runtime; retaining it would create a second client authority path. | `scripts/nexus/pulse-runtime.js`, server RPCs, `tests/nexus/pulse-runtime.test.cjs`, and current Pulse authority. |
 | `tests/nexus/pulse-vault.test.cjs` | Test contract targeted the deleted standalone client Pulse Vault runtime and became invalid after convergence to the server-authoritative runtime. | `tests/nexus/pulse-runtime.test.cjs` plus `tests/nexus/pulse-vault-ui-contract.test.cjs`; root NEXUS umbrella now requires the current runtime test. |
+| `docs/owner-control/P10_THREE_SECTOR_STRUCTURED_FIELDS.md` | Historical phase artifact encoded a fixed three-sector product count in the current owner-control tree, conflicting with the NEXUS rule that publication is bound to server-activated sectors without a fixed product count. | `config/fusion/current-authority.json` (`nexus.activatedSectorsOnly=true`), current NEXUS authority, and Git history as provenance. |
 
 ## Regression guards
 
@@ -68,7 +69,7 @@ Current-tree deletion is protected by repository tests including:
 - `tests/final-owner-convergence.test.cjs`
 - `tests/nexus-2026-contract.test.cjs`
 
-These guards are intended to block restoration of parallel current-product surfaces, stale authority values, retired Pulse prices/durations, paid ordinary-publication gates, deleted standalone client Pulse authority, or archive/trash/legacy preservation of conflicting behavior.
+These guards are intended to block restoration of parallel current-product surfaces, stale authority values, retired Pulse prices/durations, paid ordinary-publication gates, deleted standalone client Pulse authority, fixed-count sector artifacts, or archive/trash/legacy preservation of conflicting behavior.
 
 ## What this manifest does not authorize
 
