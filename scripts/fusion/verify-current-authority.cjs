@@ -7,6 +7,9 @@ const EXPECTED_PHASES = Object.freeze(
 const FINAL_REFERENCE = 'docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md';
 const REQUIRED_PREFLIGHT = 'OWNER_BINDING_CURRENT_FIRST';
 const REQUIRED_DISPOSITION = 'DELETE_FROM_CURRENT_TREE_NO_FALLBACK_NO_IN_TREE_ARCHIVE_NO_TRASH_NO_LEGACY_COMPATIBILITY';
+const REQUIRED_PULSE_COUNTRY_PRICING_MODE = 'REMOVE_REFERENCE_16_THEN_APPLY_VERIFIED_COUNTRY_TAX';
+const REQUIRED_PULSE_TAX_AUTHORITY = 'docs/owner-control/TIGER_STATUTORY_TAX_BOUNDARY_CURRENT.md';
+const REQUIRED_PULSE_TAX_MODULE = 'project-control/finance/statutory-tax-boundary.cjs';
 
 const REQUIRED_REFERENCE_FIELDS = Object.freeze({
   ownerOperationalIndex: 'docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md',
@@ -91,6 +94,13 @@ function verifyCurrentAuthority(manifest) {
 
   const pulse = manifest.pulseRing || {};
   if (JSON.stringify(pulse.tiersJod) !== JSON.stringify([2, 10, 20, 45])) errors.push('Pulse tiers must be exactly 2/10/20/45 JOD');
+  if (pulse.referencePriceIncludesBaselineTaxBps !== 1600) errors.push('Pulse reference prices must include the approved 16 percent pricing baseline');
+  if (pulse.countryPricingMode !== REQUIRED_PULSE_COUNTRY_PRICING_MODE) errors.push(`Pulse country pricing mode must equal ${REQUIRED_PULSE_COUNTRY_PRICING_MODE}`);
+  if (pulse.countryTaxAppliedToUntaxedBase !== true) errors.push('Pulse verified country tax must be applied to the untaxed reference base');
+  if (pulse.displayedCountryPriceIsFinalCharge !== true) errors.push('Pulse displayed country price must be the final user charge');
+  if (pulse.additionalTaxAtCapture !== false) errors.push('Pulse must not add a second tax surcharge at capture');
+  if (pulse.statutoryTaxAuthority !== REQUIRED_PULSE_TAX_AUTHORITY) errors.push(`Pulse statutory tax authority must equal ${REQUIRED_PULSE_TAX_AUTHORITY}`);
+  if (pulse.canonicalTaxModule !== REQUIRED_PULSE_TAX_MODULE) errors.push(`Pulse canonical tax module must equal ${REQUIRED_PULSE_TAX_MODULE}`);
   if (pulse.purchasedValue !== 'SERVER_AUTHORITATIVE_VISIBILITY_ALLOCATION') errors.push('Pulse purchased value must be a server-authoritative visibility allocation');
   if (pulse.productTimeExpiry !== null) errors.push('Pulse visibility value must not have product-time expiry');
   if (pulse.ordinaryPublicationPrerequisite !== false) errors.push('Pulse must not be an ordinary-publication prerequisite');
@@ -144,6 +154,9 @@ module.exports = Object.freeze({
   FINAL_REFERENCE,
   REQUIRED_PREFLIGHT,
   REQUIRED_DISPOSITION,
+  REQUIRED_PULSE_COUNTRY_PRICING_MODE,
+  REQUIRED_PULSE_TAX_AUTHORITY,
+  REQUIRED_PULSE_TAX_MODULE,
   REQUIRED_MARKETPLACE_ROLES,
   REQUIRED_MARKETPLACE_CONNECTIONS,
   REQUIRED_FORBIDDEN_MARKETPLACE_INTERMEDIATION,
