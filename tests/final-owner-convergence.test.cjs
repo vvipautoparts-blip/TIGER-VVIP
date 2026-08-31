@@ -85,3 +85,15 @@ test('superseded owner-canonical binding cannot remain in current tree', () => {
   const binding = read('docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md');
   assert.match(binding, /CURRENT_ONLY \/ OWNER_BINDING \/ FIRST_REFERENCE/);
 });
+
+test('owner-control tree contains no competing BINDING OWNER-CANONICAL declaration', () => {
+  const ownerControl = path.join(root, 'docs/owner-control');
+  const hits = [];
+  for (const name of fs.readdirSync(ownerControl)) {
+    if (!name.endsWith('.md')) continue;
+    const source = fs.readFileSync(path.join(ownerControl, name), 'utf8');
+    if (/\*\*Status:\*\*\s*BINDING\s*\/\s*OWNER-CANONICAL/i.test(source)) hits.push(name);
+    if (/This Owner Binding Decisions file is the binding owner decision truth/i.test(source)) hits.push(name);
+  }
+  assert.deepEqual([...new Set(hits)], []);
+});
