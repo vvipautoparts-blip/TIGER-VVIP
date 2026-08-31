@@ -68,7 +68,7 @@ The only current global reference purchase levels are:
 | `PULSE_20` | **20 JOD** |
 | `PULSE_45` | **45 JOD** |
 
-`PULSE_25` is superseded and is not current authority.
+No other Pulse price level is current authority.
 
 Every level maps to its own server-authoritative visibility allocation. The user sees the selected price and resulting visibility information before payment.
 
@@ -153,7 +153,7 @@ These are verification baselines, not unearned certification claims. Current mac
 
 ## 9. Global anti-legacy release rule
 
-Release is blocked if any active surface restores a superseded rule, including a 4-posts/week quota; 120/40/30-day product/content lifetime; publishing cards/subscriptions/paid slots; payment-gated ordinary publication; publication plan/entitlement gates; timed activation cards; any Pulse price set other than 2/10/20/45 JOD; `PULSE_25`; restored `TAX_RESERVE`; a separate 1% charity allocation; invented reassignment of the pending 16%; hierarchical multi-winner sales commission on one purchase; marketplace-party transaction intermediation; duplicate current authorities; generic public publishing that bypasses NEXUS sector/intent binding; or an in-tree archive/trash/legacy/compatibility copy preserving a superseded conflicting rule.
+Release is blocked if any active surface restores a superseded rule, including a 4-posts/week quota; 120/40/30-day product/content lifetime; publishing cards/subscriptions/paid slots; payment-gated ordinary publication; publication plan/entitlement gates; timed activation cards; any Pulse price set other than 2/10/20/45 JOD; restored `TAX_RESERVE`; a separate 1% charity allocation; invented reassignment of the pending 16%; hierarchical multi-winner sales commission on one purchase; marketplace-party transaction intermediation; duplicate current authorities; generic public publishing that bypasses NEXUS sector/intent binding; or an in-tree archive/trash/legacy/compatibility copy preserving a superseded conflicting rule.
 
 ## 10. Migration and deletion safety
 
