@@ -53,3 +53,11 @@ test('human and machine current authorities converge on one NEXUS first referenc
   assert.equal(platform[0].canonical_path, 'docs/owner-control/TIGER_NEXUS_2026_CURRENT_OWNER_AUTHORITY.md');
   assert.deepEqual(platform[0].supersedes, ['TIGER_ONE_2026']);
 });
+
+test('current NEXUS implementation plan cannot resurrect deleted client Pulse Vault runtime', () => {
+  const plan = read('docs/superpowers/plans/2026-08-29-tiger-nexus-2026.md');
+  assert.doesNotMatch(plan, /Create:\s*`scripts\/nexus\/pulse-vault\.js`/);
+  assert.doesNotMatch(plan, /Create:\s*`tests\/nexus\/pulse-vault\.test\.cjs`/);
+  assert.match(plan, /scripts\/nexus\/pulse-runtime\.js/);
+  assert.match(plan, /tests\/nexus\/pulse-runtime\.test\.cjs/);
+});
