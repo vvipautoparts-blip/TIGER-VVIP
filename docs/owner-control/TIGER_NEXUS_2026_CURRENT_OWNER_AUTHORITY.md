@@ -1,7 +1,7 @@
 # TIGER NEXUS™ 2026 — CURRENT OWNER AUTHORITY
 
 **Status:** `CURRENT_ONLY / OWNER_BINDING / NO_FALLBACK / NO_PARALLEL_PRODUCT / NO_IN_TREE_ARCHIVE`
-**Effective decision:** 2026-08-29
+**Effective decision:** 2026-08-31
 **Domain:** primary social experience, sector-specialized publication, contextual capabilities, Pulse Vault interaction, and current security verification baseline.
 
 ## 1. Product identity
@@ -53,12 +53,14 @@ Frontend visibility never grants authority; server/RLS/capability enforcement re
 
 ## 6. Pulse Vault
 
-Current Pulse reference purchase levels remain exactly:
+Current Pulse reference purchase levels are exactly:
 
 - `PULSE_2` — 2 JOD;
 - `PULSE_10` — 10 JOD;
-- `PULSE_25` — 25 JOD;
+- `PULSE_20` — 20 JOD;
 - `PULSE_45` — 45 JOD.
+
+`PULSE_25` is superseded and is not current authority.
 
 Purchased visibility is a server-authoritative platform-service allocation and has **no product-time expiry**.
 
@@ -92,7 +94,15 @@ No day/month/product timer expires Pulse because the user waited before using it
 
 Technical TTLs for quotes, sessions, OTP, signed URLs, anti-replay, reservations, and caches are security/concurrency mechanisms, not product expiry.
 
-## 10. 2026 security verification baseline
+## 10. Current financial boundary
+
+The current financial reference is:
+
+`docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md`
+
+The latest owner decision cancels the former `TAX_RESERVE` 16% allocation. No replacement allocation is inferred or invented. Until the owner explicitly reallocates that cancelled 16%, financial distribution execution remains fail-closed.
+
+## 11. 2026 security verification baseline
 
 NEXUS uses current external security standards as **verification references and engineering baselines**, not as marketing certification claims:
 
@@ -110,7 +120,7 @@ No identity-provider replacement is authorized by adopting these baselines. The 
 
 Security modernization must prefer proven controls already present in TIGER—RLS default-deny, server-authoritative authorization, OIDC-based release trust, signed artifact provenance, SBOM evidence, immutable/append-only audit boundaries, secret-leak scanning, and exact-source release verification—over adding fashionable infrastructure without a threat-model or measurable security gain.
 
-## 11. Latest-only deletion rule
+## 12. Latest-only deletion rule
 
 This NEXUS authority supersedes any conflicting current-tree product behavior in its scope.
 
@@ -122,6 +132,6 @@ A cleanup shim that searches for and removes conflicting DOM/runtime at executio
 
 Already-applied immutable migration history is not rewritten to fake history. Obsolete database effects are neutralized by forward migration. **Git history is the sole provenance mechanism for deleted conflicting source material.**
 
-## 12. Acceptance statement
+## 13. Acceptance statement
 
-> **TIGER NEXUS 2026 is the only current product experience: social-first, globally sector-specialized, one Living Sector Object per publishable purpose, one canonical `ماذا تعرض أو تحتاج؟` creation entry, persistent TIGER Command with validated `صلاحياتي`, and Pulse Vault visibility at 2/10/25/45 JOD with no product-time expiry. Sector discovery is a view of the same Living Objects and is not a parallel product or creation path. Current delivery modes are NOW/SMART/PRECISE and verified-delivery ZERO-BURN remains authoritative. Security verification is fail-closed against OWASP ASVS 5.0.0, NIST SP 800-63-4 / 800-63B-4, SLSA 1.2 and the existing signed GitHub Artifact Attestation path, without claiming conformance until evidence exists. Any current-tree behavior that conflicts with this authority is physically deleted with no archive, trash, compatibility, parallel product, or fallback preservation; Git history alone preserves provenance.**
+> **TIGER NEXUS 2026 is the only current product experience: social-first, globally sector-specialized, one Living Sector Object per publishable purpose, one canonical `ماذا تعرض أو تحتاج؟` creation entry, persistent TIGER Command with validated `صلاحياتي`, and Pulse Vault visibility at 2/10/20/45 JOD with no product-time expiry. Sector discovery is a view of the same Living Objects and is not a parallel product or creation path. Current delivery modes are NOW/SMART/PRECISE and verified-delivery ZERO-BURN remains authoritative. The former TAX_RESERVE 16% is cancelled and no replacement allocation is invented until an explicit owner decision. Any current-tree behavior that conflicts with this authority is physically deleted with no archive, trash, compatibility, parallel product, or fallback preservation; Git history alone preserves provenance.**
