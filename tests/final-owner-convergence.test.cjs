@@ -31,3 +31,25 @@ test('current deletion manifest exists and is bound to latest-only owner authori
   assert.match(manifest, /Git history/i);
   assert.match(manifest, /no blind deletion/i);
 });
+
+test('human and machine current authorities converge on one NEXUS first reference', () => {
+  const status = read('docs/MASTER_PROJECT_STATE.md');
+  const binding = read('docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md');
+  const router = read('docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md');
+  const config = JSON.parse(read('config/fusion/current-authority.json'));
+  const registry = JSON.parse(read('project-control/authority/authority-registry.v1.json'));
+
+  assert.equal(config.currentReference, 'docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md');
+  assert.equal(config.currentExperience, 'TIGER_NEXUS_2026');
+  assert.equal(config.firstReferenceRequired, true);
+  assert.match(binding, /Latest-only constitution/i);
+  assert.match(router, /CURRENT_ONLY/);
+  assert.match(status, /PR #349\b/);
+
+  const owner = registry.records.find((record) => record.authority_id === 'authority.owner-constitution.v1');
+  const platform = registry.records.filter((record) => record.domain === 'platform' && record.status === 'CURRENT_ONLY');
+  assert.equal(owner?.canonical_path, 'docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md');
+  assert.equal(platform.length, 1);
+  assert.equal(platform[0].canonical_path, 'docs/owner-control/TIGER_NEXUS_2026_CURRENT_OWNER_AUTHORITY.md');
+  assert.deepEqual(platform[0].supersedes, ['TIGER_ONE_2026']);
+});
