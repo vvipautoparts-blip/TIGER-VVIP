@@ -12,14 +12,19 @@ const owner = read('docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md');
 const activeRuntimeFiles = [
   'index.html',
   'scripts/fusion/single-surface-controller.js',
-  'scripts/fusion/runtime-adapters.js',
   'scripts/social/runtime-adapters.js',
   'scripts/social/post-composer.js',
   'scripts/social/core-shell.js',
   'scripts/nexus/living-sector-object.js',
+  'scripts/nexus/bootstrap.js'
+];
+
+const supersededRuntimeFiles = [
+  'scripts/fusion/runtime-adapters.js',
   'scripts/nexus/pulse-vault.js',
-  'scripts/nexus/bootstrap.js',
-  'scripts/runtime/vvip-marketplace-repository.js'
+  'scripts/runtime/vvip-marketplace-repository.js',
+  'scripts/fusion/progressive-composer.js',
+  'styles/fusion/progressive-composer.css'
 ];
 
 const retiredProductPatterns = [
@@ -60,8 +65,9 @@ test('active runtime must not restore superseded product rules or a second creat
       assert.doesNotMatch(source, pattern, `${relativePath} restores superseded owner information: ${pattern}`);
     }
   }
-  assert.equal(fs.existsSync(path.join(root, 'scripts/fusion/progressive-composer.js')), false);
-  assert.equal(fs.existsSync(path.join(root, 'styles/fusion/progressive-composer.css')), false);
+  for (const relativePath of supersededRuntimeFiles) {
+    assert.equal(fs.existsSync(path.join(root, relativePath)), false, `${relativePath} must remain physically deleted`);
+  }
 });
 
 test('current authority manifest contains no in-tree legacy decision registry', () => {
