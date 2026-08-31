@@ -1,81 +1,100 @@
-# VVIP TIGER — AI operating model
+# VVIP TIGER — AI Operating Model
 
-Official development governance for the static VVIP TIGER web application.
+Official development governance for the current VVIP TIGER repository, subordinate to the owner's mandatory current authority.
+
+## Mandatory first reference
+
+Before any AI actor plans, edits, reviews, tests, or recommends a release action, read:
+
+`docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md`
+
+Then read `docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md` and the current domain authority relevant to the task. The newest explicit owner-approved decision is the only current truth in its domain.
+
+## Current protected lane
+
+- Product: `TIGER NEXUS 2026`.
+- Current implementation lane: PR #349 on `feat/tiger-nexus-2026-20260829`.
+- Current work: final owner convergence/reconciliation only; no new product slice before exact-head protected verification.
+- PR #349 remains Draft until all required protected checks on the exact current head actually execute on a runner and are GREEN.
+- Current convergence does not authorize Production/Staging/provider/database mutation.
+
+A non-executed Actions job, including a job with no executed steps, is blocked verification. It is not GREEN and must not be represented as a code-test failure.
 
 ## Roles
 
 | Actor | Responsibility |
 | --- | --- |
-| **Project owner** | Approves `commit`, `push`, `merge`, production Supabase changes, and release/deploy steps. |
-| **Cursor Agent** | Sole author of repository changes; analysis, minimal diffs, local verification. |
-| **BLACKBOX AI** | Read-only review using `docs/ai/BLACKBOX_REVIEW_PROMPT.md`; outputs `REVIEW_DECISION=PASS` or `BLOCK`. |
-| **GitHub Actions** | Runs `scripts/quality-gate.sh` on pull requests to `main` (`VVIP Quality Gate` workflow). |
+| **Project owner** | Final product authority; approves protected merge and Production actions. |
+| **Authorized repository writer** | Makes bounded changes on the protected feature branch under current owner authority. |
+| **Antigravity** | Read-only planning/readiness/risk analysis. |
+| **BLACKBOX AI** | Read-only review where used. |
+| **GitHub Actions** | Automated verification evidence when jobs actually execute. |
 
-## Daily workflow
+No role may override `TIGER_OWNER_BINDING_CURRENT.md` with older prose, archived instructions, fallbacks, Git history, or stale status documents.
 
-1. Owner assigns a task; Cursor creates or uses a **feature branch** (never work directly on `main`).
-2. Cursor reads `AGENTS.md`, plans, implements the smallest correct change.
-3. Cursor runs `bash scripts/quality-gate.sh` and records `VVIP_QUALITY_GATE=PASS` or `FAIL`.
-4. Owner runs BLACKBOX with the official prompt on `origin/main...HEAD`.
-5. Owner opens a PR using `.github/pull_request_template.md`.
-6. GitHub Actions must pass `vvip-quality-gate`.
-7. Owner merges after PASS from quality gate, BLACKBOX (no P0/P1), and Actions.
+## Current workflow
 
-## Branch rules
+1. Read `docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md` first.
+2. Resolve the exact current PR, branch, head SHA, and requested domain.
+3. Read relevant current domain authority, machine config, source, and tests.
+4. Identify a proven conflict or bounded owner-approved change.
+5. Add/update a focused regression contract first when practical.
+6. Make the smallest correct protected-branch change while preserving compatible material.
+7. Run focused verification and `bash scripts/quality-gate.sh` when the environment supports it.
+8. Require actual exact-head runner-executed GREEN evidence for every protected check before readiness/merge progression.
+9. Keep merge and Production actions separately protected.
 
-- **`main`**: protected integration branch; no direct agent commits without owner approval.
-- **Feature branches**: one logical task per branch; name per team convention (e.g. `feat/…`, `chore/…`, `fix/…`).
-- Do not delete branches or worktrees unless the owner explicitly requests it.
+## Current authority guard
 
-## Pull request rules
+Do not restore or invent:
 
-- PR target is **`main`** unless owner specifies otherwise.
-- PR body must list scope, tests, gate results, Supabase/Firebase impact, rollback plan, and secret confirmation.
-- No force-push to `main`.
+- Pulse prices other than `2 / 10 / 20 / 45 JOD`;
+- `TAX_RESERVE 16%` as a current allocation;
+- a beneficiary for the pending 16%;
+- a separate 1% charity allocation;
+- a fixed sector count;
+- parallel Marketplace/Fusion product creation/runtime paths;
+- product-time expiry for Pulse or ordinary eligible content;
+- a multi-winner commission for one sale.
 
-## Merge conditions
+## Branch and PR rules
 
-All of the following:
+- `main` remains protected; no direct convergence edits to `main`.
+- PR #349 is the current protected convergence lane.
+- Do not force-push protected history or use destructive Git cleanup.
+- Do not mark PR #349 Ready for Review or merge it until all required exact-head protected checks actually execute and are GREEN and the required review state is satisfied.
+- A focused/local PASS is useful evidence for that contract only; it does not replace full protected CI.
 
-1. `VVIP_QUALITY_GATE=PASS` locally (or reproduced in CI).
-2. `REVIEW_DECISION=PASS` from BLACKBOX (no open P0/P1).
-3. GitHub Actions **`VVIP Quality Gate`** job green.
-4. Explicit owner approval to merge.
+## Supabase and Production safety
 
-## Supabase rules
+See `docs/ai/SUPABASE_SAFETY_POLICY.md` where compatible with the newer owner binding.
 
-See **`docs/ai/SUPABASE_SAFETY_POLICY.md`**. Agents do not run production database commands.
+During current convergence:
 
-## After machine reset or SSH disconnect
+- no Production/Staging database mutation;
+- no provider/credential mutation;
+- no RLS weakening;
+- no rewrite of applied historical migrations;
+- any obsolete applied migration effect requires a separately authorized forward migration and current-schema verification.
 
-Run read-only recovery:
+## Forbidden actions without separate current authorization
 
-```bash
-bash scripts/vvip-recovery-status.sh
-```
+- `git reset --hard`, `git clean -fd`, `git push --force`;
+- destructive repository cleanup;
+- Production Supabase/Firebase/provider operations;
+- disabling RLS or security controls;
+- committing secrets or `.env` material;
+- weakening or bypassing quality/security/release gates;
+- claiming GREEN, readiness, deployment, capacity, or certification without direct matching evidence.
 
-Interpret `VVIP_RECOVERY_STATUS=PASS` or `ATTENTION`. Do not `git fetch` or Supabase `login`/`link` unless the owner directs the next step.
+## Related current references
 
-## Forbidden commands (non-exhaustive)
+1. `docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md`
+2. `docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md`
+3. `AGENTS.md`
+4. `.cursor/rules/vvip-tiger-governance.mdc`
+5. `docs/ai/SUPABASE_SAFETY_POLICY.md`
+6. `scripts/quality-gate.sh`
+7. `.github/workflows/vvip-quality-gate.yml`
 
-Agents must not run these without **explicit owner approval**:
-
-- `git reset --hard`, `git clean -fd`, `git push --force`
-- `rm -rf` on repository paths
-- `supabase link`, `supabase db push`, `supabase db reset`, `supabase migration repair`
-- Production Firebase deploy or rotation of live keys in tracked files
-- Commits or pushes containing secrets or `.env` material
-
-## Related files
-
-- Cursor rule: `.cursor/rules/vvip-tiger-governance.mdc`
-- Quality gate: `scripts/quality-gate.sh`
-- CI: `.github/workflows/vvip-quality-gate.yml`
-- BLACKBOX prompt: `docs/ai/BLACKBOX_REVIEW_PROMPT.md`
-- Agent map: `AGENTS.md`
-
-## Quality gate notes
-
-- **`cleanroom_verify`**: on feature branches, the cleanroom tool’s `scope` gate expects `main`; the quality gate treats **only** that branch mismatch as deferred when all other cleanroom gates pass. On `main`, full `tools/vvip_cleanroom.py --verify` acceptance is required.
-- **`qa_smoke`**: skipped locally when the working tree contains **only** governance paths (see allowlist in `scripts/quality-gate.sh`) because `scripts/qa-smoke.sh` historically forbids unlisted `docs/` changes. CI on a committed PR runs the full smoke script on a clean tree.
-- **Python tests**: `PYTHONPATH` includes the repository root so `tests/` can import `tools.*` with `--import-mode=importlib`.
+`docs/MASTER_PROJECT_STATE.md` is a non-authoritative status surface. Exact Git SHA/tree plus matching verification evidence are implementation truth; they do not supersede the newest owner product decision.
