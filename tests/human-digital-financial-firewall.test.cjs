@@ -69,6 +69,17 @@ test('DIGITAL actors fail closed when any financial benefit is attempted', () =>
   }
 });
 
+test('DIGITAL_* role names stay financially blocked even if actorType is misclassified', () => {
+  assertFirewallCode(
+    () => enforceFinancialActorPolicy({
+      actorType: 'HUMAN',
+      role: 'DIGITAL_GROWTH_GOVERNOR',
+      commissionBps: 1
+    }),
+    'DIGITAL_ACTOR_FINANCIAL_BENEFIT_PROHIBITED'
+  );
+});
+
 test('a DIGITAL actor can never own a sale claim', () => {
   assertFirewallCode(
     () => validateSaleOwnershipClaims([
