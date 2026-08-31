@@ -1,7 +1,7 @@
 # VVIP TIGER — Current Project Status
 
 **Status:** `NON_AUTHORITATIVE_STATUS / CURRENT_WORK_ONLY`
-**Updated:** 2026-08-29
+**Updated:** 2026-08-31
 
 This file is a compact project-status surface only. It is **not** owner authority, a fallback, an archive, or a source of product/runtime truth.
 
@@ -27,19 +27,21 @@ The machine-readable handover authority is:
 
 ## Active work
 
-- Active lane: PR #345 on `chore/phoenix-publication-root-purge-20260828`.
-- Base: canonical `main`.
-- Ordinary publication path: `Create → Preview → Submit for Review → Trusted Review → Publish`.
-- Ordinary publication is free and is not gated by cards, subscriptions, paid publishing slots, timers, plans, or entitlement receipts.
-- Pulse is a separate paid-visibility product and is not an ordinary-publication prerequisite.
-- Superseded conflicting current-tree material is deleted directly. Git history is the historical record; no in-tree legacy archive/fallback is authoritative.
-- PHOENIX implementation work may continue across later plan tasks while GitHub Actions is unavailable before runner assignment. This is a sequencing exception only; it is not GREEN evidence.
-- No Production/Staging/provider/database mutation is authorized by this status file or by cleanup implementation work.
+- Current protected implementation lane: PR #349 on `feat/tiger-nexus-2026-20260829`.
+- `TIGER NEXUS 2026` is the current product experience governed first by `docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md`.
+- The exact current PR head must be read from PR #349 before any action; this status file must not freeze a moving head SHA as authority.
+- Base authority remains canonical protected `main`; merge is not implied by work on this branch.
+- Current product invariant: `ONE FEED • ONE OBJECT • ONE PULSE`.
+- Ordinary eligible sector publication is free and is not gated by cards, subscriptions, paid publishing slots, timers, plans, entitlement receipts, or Pulse payment.
+- Pulse is optional paid visibility for the same eligible Living Sector Object and is not an ordinary-publication prerequisite.
+- Superseded conflicting current-tree material is removed only after proving the conflict and the current replacement/authority. Git history is the historical provenance; no in-tree legacy/archive/trash/fallback is authoritative.
+- Until final owner convergence is complete, only reconciliation, deletion-proof, regression, and verification work may proceed; no new product-development slice should begin.
+- No Production/Staging/provider/database mutation is authorized by this status file or by current convergence work.
 
 ## Verification truth
 
-A GitHub Actions result with no assigned runner and no executed steps is an infrastructure-blocked verification, not a code-test failure and not GREEN evidence.
+A GitHub Actions result with no assigned runner and no executed steps (`runner_id=0`, `steps=[]`) is an infrastructure-blocked verification, not a code-test failure and not GREEN evidence.
 
-Implementation may proceed under the owner instruction to skip waiting on that blocked step. Any later readiness/merge claim must still state exactly which verification evidence exists and which CI evidence remains unavailable; no unavailable check may be represented as passed.
+Implementation sequencing may continue only within the owner-approved protected convergence scope while that runner condition exists. Any readiness/merge claim must still state exactly which verification evidence exists and which CI evidence remains unavailable; no unavailable check may be represented as passed.
 
 Do not infer deployment authorization or Production state from this file. Exact Git SHA/tree, matching verification evidence, the current owner constitution, and live-provider evidence where required remain authoritative.
