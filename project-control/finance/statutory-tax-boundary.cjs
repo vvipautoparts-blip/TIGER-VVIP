@@ -1,5 +1,8 @@
 'use strict';
 
+const BASELINE_INCLUDED_TAX_BPS = 1600;
+const BPS_DENOMINATOR = 10000;
+
 class StatutoryTaxBoundaryError extends Error {
   constructor(code, message) {
     super(message);
@@ -28,12 +31,11 @@ function assertVerifiedTaxQuote(taxQuote) {
   if (taxQuote.status !== 'VERIFIED') {
     fail(
       'UNVERIFIED_STATUTORY_TAX_QUOTE',
-      'TIGER must not invent or apply an unverified statutory tax amount.'
+      'TIGER must not invent or apply an unverified statutory tax rate.'
     );
   }
 
   if (
-    !isNonNegativeSafeInteger(taxQuote.taxAmountMinor) ||
     !Number.isFinite(taxQuote.effectiveRateBps) ||
     taxQuote.effectiveRateBps < 0 ||
     !isNonEmptyString(taxQuote.jurisdiction) ||
@@ -41,48 +43,64 @@ function assertVerifiedTaxQuote(taxQuote) {
   ) {
     fail(
       'INVALID_STATUTORY_TAX_QUOTE',
-      'Verified tax quote requires non-negative tax amount/rate plus jurisdiction and source evidence.'
+      'Verified tax quote requires a non-negative effective tax rate plus jurisdiction and source evidence.'
     );
   }
 }
 
-function buildStatutoryTaxBoundary({ displayedPriceMinor, taxQuote }) {
-  if (!isNonNegativeSafeInteger(displayedPriceMinor)) {
+function roundMinor(value) {
+  const rounded = Math.round(value);
+  if (!Number.isSafeInteger(rounded)) {
+    fail('CHECKOUT_TOTAL_OVERFLOW', 'Calculated monetary value exceeds safe integer bounds.');
+  }
+  return rounded;
+}
+
+function buildStatutoryTaxBoundary({ referencePriceMinor, taxQuote }) {
+  if (!isNonNegativeSafeInteger(referencePriceMinor)) {
     fail(
-      'INVALID_DISPLAYED_PRICE',
-      'Displayed price must be a non-negative safe integer in minor units.'
+      'INVALID_REFERENCE_PRICE',
+      'Reference price must be a non-negative safe integer in minor units.'
     );
   }
 
   assertVerifiedTaxQuote(taxQuote);
 
-  if (taxQuote.taxAmountMinor > displayedPriceMinor) {
-    fail(
-      'STATUTORY_TAX_EXCEEDS_DISPLAYED_PRICE',
-      'Included statutory tax cannot exceed the final displayed tax-inclusive price.'
-    );
+  const untaxedBaseMinor = roundMinor(
+    referencePriceMinor * BPS_DENOMINATOR /
+      (BPS_DENOMINATOR + BASELINE_INCLUDED_TAX_BPS)
+  );
+  const statutoryTaxMinor = roundMinor(
+    untaxedBaseMinor * taxQuote.effectiveRateBps / BPS_DENOMINATOR
+  );
+  const userTotalMinor = untaxedBaseMinor + statutoryTaxMinor;
+
+  if (!Number.isSafeInteger(userTotalMinor)) {
+    fail('CHECKOUT_TOTAL_OVERFLOW', 'Checkout total exceeds safe integer bounds.');
   }
 
-  const platformRevenueMinor = displayedPriceMinor - taxQuote.taxAmountMinor;
-
   return Object.freeze({
-    displayedPriceMinor,
-    userTotalMinor: displayedPriceMinor,
-    additionalTaxAtCaptureMinor: 0,
-    pricePresentation: 'TAX_INCLUSIVE_FINAL',
-    taxIncludedInDisplayedPrice: true,
-    platformRevenueMinor,
-    statutoryTaxMinor: taxQuote.taxAmountMinor,
+    referencePriceMinor,
+    baselineIncludedTaxBps: BASELINE_INCLUDED_TAX_BPS,
+    untaxedBaseMinor,
+    statutoryTaxMinor,
     effectiveTaxRateBps: taxQuote.effectiveRateBps,
     jurisdiction: taxQuote.jurisdiction,
     taxSourceEvidenceId: taxQuote.sourceEvidenceId,
-    distributionBasisMinor: platformRevenueMinor,
+    userTotalMinor,
+    displayedPriceMinor: userTotalMinor,
+    pricePresentation: 'COUNTRY_TAX_REBASED_FINAL',
+    taxIncludedInDisplayedPrice: true,
+    additionalTaxAtCaptureMinor: 0,
+    platformRevenueMinor: untaxedBaseMinor,
+    distributionBasisMinor: untaxedBaseMinor,
     taxExcludedFromDistribution: true,
     taxExcludedFromCommission: true
   });
 }
 
 module.exports = Object.freeze({
+  BASELINE_INCLUDED_TAX_BPS,
   StatutoryTaxBoundaryError,
   buildStatutoryTaxBoundary
 });
