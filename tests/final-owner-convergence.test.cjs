@@ -39,6 +39,7 @@ test('current deletion manifest exists and is bound to latest-only owner authori
   assert.match(manifest, /VVIP_TIGER_MASTER_EXECUTION_ROADMAP\.yaml/);
   assert.match(manifest, /VVIP_TIGER_PHASE_TRACKER\.md/);
   assert.match(manifest, /phase-status\.json/);
+  assert.match(manifest, /2026-08-18-tiger-pulse-ring-attention-allocation-engine-design\.md/);
   assert.match(manifest, /Git history/i);
   assert.match(manifest, /no blind deletion/i);
 });
@@ -153,4 +154,11 @@ test('latest owner Pulse and finance decisions cannot regress to superseded valu
   assert.ok(advertising.protected_boundaries.includes('2-10-20-45-jod'));
   assert.ok(financial.protected_boundaries.includes('tax-reserve-cancelled'));
   assert.ok(financial.protected_boundaries.includes('no-invented-reallocation'));
+});
+
+test('superseded Pulse design input cannot remain in the current tree', () => {
+  assert.equal(
+    fs.existsSync(path.join(root, 'docs/superpowers/specs/2026-08-18-tiger-pulse-ring-attention-allocation-engine-design.md')),
+    false
+  );
 });
