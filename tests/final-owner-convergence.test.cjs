@@ -21,3 +21,13 @@ test('status surface remains subordinate to the mandatory owner binding', () => 
   assert.match(status, /NON_AUTHORITATIVE_STATUS/);
   assert.match(status, /TIGER_OWNER_BINDING_CURRENT\.md/);
 });
+
+test('current deletion manifest exists and is bound to latest-only owner authority', () => {
+  const manifest = read('docs/owner-control/DELETION_MANIFEST_CURRENT.md');
+  assert.match(manifest, /TIGER_OWNER_BINDING_CURRENT\.md/);
+  assert.match(manifest, /fusion-home-f02\.html/);
+  assert.match(manifest, /scripts\/fusion\/f02-feed\.js/);
+  assert.match(manifest, /scripts\/runtime\/vvip-marketplace-repository\.js/);
+  assert.match(manifest, /Git history/i);
+  assert.match(manifest, /no blind deletion/i);
+});
