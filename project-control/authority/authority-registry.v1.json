@@ -44,22 +44,22 @@
     {
       "authority_id": "authority.advertising.v1",
       "domain": "advertising",
-      "version": 1,
+      "version": 2,
       "status": "CURRENT_ONLY",
       "owner_decision_ref": "docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md",
       "canonical_path": "docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md",
       "supersedes": [],
-      "protected_boundaries": ["2-10-25-45-jod", "no-product-time-expiry", "ordinary-publication-separation", "one-sale-one-sales-winner"]
+      "protected_boundaries": ["2-10-20-45-jod", "no-product-time-expiry", "ordinary-publication-separation", "one-sale-one-sales-winner"]
     },
     {
       "authority_id": "authority.financial-distribution.v1",
       "domain": "financial-distribution",
-      "version": 1,
+      "version": 2,
       "status": "CURRENT_ONLY",
       "owner_decision_ref": "docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md",
       "canonical_path": "docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md",
       "supersedes": [],
-      "protected_boundaries": ["100-percent-allocation", "one-sale-one-winner", "7-percent-self-service-discount", "14-day-settlement", "12-hour-payout-destination-grace", "immutable-ledger"]
+      "protected_boundaries": ["tax-reserve-cancelled", "no-invented-reallocation", "16-percent-pending-owner-decision", "distribution-execution-fail-closed", "one-sale-one-winner", "7-percent-self-service-discount", "14-day-settlement", "12-hour-payout-destination-grace", "immutable-ledger"]
     },
     {
       "authority_id": "authority.cleanup-governance.v1",
