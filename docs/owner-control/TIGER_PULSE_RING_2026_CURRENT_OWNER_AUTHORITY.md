@@ -1,7 +1,7 @@
 # TIGER PULSE RING 2026 — CURRENT OWNER AUTHORITY
 
 **Status:** `CURRENT_ONLY / OWNER_BINDING / NO_FALLBACK / NO_IN_TREE_ARCHIVE`
-**Effective decision:** 2026-08-29
+**Effective decision:** 2026-08-31
 **Domain:** paid visibility only.
 
 ## 1. Current product rule
@@ -20,18 +20,18 @@ The only current reference purchase levels are:
 |---|---:|
 | `PULSE_2` | **2 JOD** |
 | `PULSE_10` | **10 JOD** |
-| `PULSE_25` | **25 JOD** |
+| `PULSE_20` | **20 JOD** |
 | `PULSE_45` | **45 JOD** |
 
-No other current Pulse purchase-level set is authorized. Any superseded conflicting price set is absent from current authority/runtime/configuration/tests/UI and may exist only in Git history as provenance.
+No other current Pulse purchase-level set is authorized. `PULSE_25` and every older conflicting price set are superseded and must not control current runtime, configuration, tests, UI, documentation, or release gates.
 
-A lawful local payment rail may display an equivalent local-currency amount where required, but the TIGER reference level remains one of 2/10/25/45 JOD.
+A lawful local payment rail may display an equivalent local-currency amount where required, but the TIGER reference level remains one of 2/10/20/45 JOD.
 
 ## 3. Visibility is quantity/strength, never days
 
 TIGER does not sell days, months, an expiry period, a publishing lifetime, guaranteed first position, or permanent ranking dominance.
 
-Each 2/10/25/45 purchase level maps through the server-authoritative visibility engine to a distinct visibility allocation. Before payment the user must see the selected amount and the resulting visibility information, including the exact server quote available for that scope.
+Each 2/10/20/45 purchase level maps through the server-authoritative visibility engine to a distinct visibility allocation. Before payment the user must see the selected amount and the resulting visibility information, including the exact server quote available for that scope.
 
 The UI may describe delivery rhythm when supported by the quote, but the authoritative value is the server-side visibility allocation and verified delivery evidence—not a timer.
 
@@ -87,11 +87,11 @@ Attribution must be deterministic, auditable, deduplicated, and locked before fi
 
 ## 8. Financial distribution authority
 
-Every successfully captured Pulse purchase is distributed according to:
+Financial handling follows:
 
 `docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md`
 
-The financial basis is the amount actually captured from the user after any valid self-service discount and before internal allocation. Refunds/chargebacks reverse the corresponding allocations atomically.
+The latest owner decision cancels the former `TAX_RESERVE` 16% allocation. No replacement recipient or percentage has been invented. Until the owner explicitly reallocates that cancelled 16%, the financial distribution remains incomplete and distribution execution is fail-closed.
 
 ## 9. Verified delivery
 
@@ -125,4 +125,4 @@ Already-applied historical database migration files are not rewritten to fake hi
 
 ## 12. Owner acceptance statement
 
-> **The only current Pulse purchase levels are 2, 10, 25, and 45 JOD. Each amount buys a distinct server-authoritative visibility allocation, not days. There is no product-time expiry. Ordinary eligible NEXUS sector publication remains free. Pulse is optional paid visibility after eligibility and attaches to the same Living Sector Object rather than creating a second paid-post object. Self-service purchase without a sales claimant receives a visible 7% discount; an attributed sale does not. Only the one role that owns the sale receives the 7% sales commission. All financial allocation follows the current 100% distribution authority. No superseded conflicting price, duration, publishing-card, entitlement, subscription, duplicate creation, or fallback authority remains inside the current platform tree.**
+> **The only current Pulse purchase levels are 2, 10, 20, and 45 JOD. Each amount buys a distinct server-authoritative visibility allocation, not days. There is no product-time expiry. Ordinary eligible NEXUS sector publication remains free. Pulse is optional paid visibility after eligibility and attaches to the same Living Sector Object rather than creating a second paid-post object. Self-service purchase without a sales claimant receives a visible 7% discount; an attributed sale does not. Only the one role that owns the sale receives the 7% sales commission. The former TAX_RESERVE 16% is cancelled and no replacement allocation is invented until the owner explicitly decides it.**
