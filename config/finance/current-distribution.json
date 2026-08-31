@@ -76,6 +76,15 @@
         "MARKETER"
       ],
       "maxWinnersPerSale": 1
+    },
+    "canonicalEnforcementModule": "project-control/finance/human-digital-financial-firewall.cjs",
+    "claimEvidence": {
+      "purchaseOrQuoteIdentityRequired": true,
+      "assignmentVersionRequired": true,
+      "sourceEvidenceRequired": true,
+      "timestampRequired": true,
+      "deduplicationKeyRequired": true,
+      "integrityHashAlgorithm": "SHA-256"
     }
   },
   "ledgerDimensions": [
