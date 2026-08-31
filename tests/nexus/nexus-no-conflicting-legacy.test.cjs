@@ -8,8 +8,8 @@ const test = require('node:test');
 const root = path.resolve(__dirname, '../..');
 const scanRoots = ['index.html', 'scripts', 'styles', 'config', 'docs/owner-control'];
 const prohibited = [
-  /PULSE_(3|20|35|80|120)\b/,
-  /\b(?:3\s*\/\s*10\s*\/\s*20|10\s*\/\s*35\s*\/\s*80\s*\/\s*120)\b/,
+  /PULSE_(3|25|35|80|120)\b/,
+  /\b(?:3\s*\/\s*10\s*\/\s*25|10\s*\/\s*35\s*\/\s*80\s*\/\s*120)\b/,
   /duration_days/i,
   /timed activation card/i,
   /publishing entitlement card/i,
