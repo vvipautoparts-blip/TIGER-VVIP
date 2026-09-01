@@ -12,11 +12,11 @@ TIGER has one paid-visibility product family:
 
 Ordinary eligible sector publication is free and never requires Pulse, a publishing card, subscription, purchased slot, plan, entitlement receipt, or payment gate.
 
-## 2. Global reference purchase levels and country-tax rebasing
+## 2. Global platform base purchase levels + statutory tax
 
-The only current Pulse **reference** purchase levels are:
+The only current Pulse platform **base** purchase levels are:
 
-| Level | Reference price containing the approved 16% pricing baseline |
+| Level | TIGER platform base price |
 |---|---:|
 | `PULSE_2` | **2 JOD** |
 | `PULSE_10` | **10 JOD** |
@@ -25,43 +25,42 @@ The only current Pulse **reference** purchase levels are:
 
 No other current Pulse purchase-level set is authorized.
 
-These four values are **reference prices containing a 16% pricing baseline**. They are not fixed final prices for every country.
+These four values are TIGER platform service base prices. They do **not** contain a universal 16% tax baseline.
 
-For every country-specific payment quote, TIGER must:
+For every country-specific payment quote TIGER must:
 
-1. recover the untaxed reference base using `REFERENCE PRICE / 1.16`;
-2. obtain the verified statutory tax rate applicable to the user's jurisdiction/transaction;
-3. calculate the statutory tax on the untaxed base;
-4. calculate `FINAL COUNTRY PRICE = UNTAXED BASE + VERIFIED COUNTRY TAX`;
-5. display that country-specific total as the final user price before payment;
-6. add **no second tax surcharge** at capture.
+1. start from the approved platform base price;
+2. obtain the verified statutory tax result applicable to the user's jurisdiction/transaction;
+3. calculate statutory tax on the legally applicable taxable base;
+4. calculate `FINAL USER TOTAL = PLATFORM BASE PRICE + VERIFIED STATUTORY TAX`;
+5. expose base price, tax, and final total before payment;
+6. add no hidden second statutory-tax surcharge after the final quote is sealed.
 
-Therefore:
+Examples for a 10 JOD base price:
 
-- a verified `0%` country tax produces the untaxed base;
-- a verified `12%` country tax produces a price below the 16%-baseline reference price;
-- a verified `16%` country tax returns the approved reference price;
-- a verified `20%` country tax produces a price above the 16%-baseline reference price.
+- 0% tax → 10.00 JOD total;
+- 12% tax → 11.20 JOD total;
+- 16% tax → 11.60 JOD total;
+- 20% tax → 12.00 JOD total;
+- 25% tax → 12.50 JOD total.
 
-The 16% used here is a **pricing baseline only**. It is separate from the cancelled former internal `TAX_RESERVE 16%`, which remains a different financial-distribution matter.
+There is no 16% tax ceiling. TIGER does not invent statutory tax rates. Unverified tax evidence fails closed.
 
-TIGER does not invent statutory tax rates. Unverified tax evidence fails closed.
-
-The canonical tax authority is:
+Canonical tax authority:
 
 `docs/owner-control/TIGER_STATUTORY_TAX_BOUNDARY_CURRENT.md`
 
-The canonical calculation module is:
+Canonical calculation module:
 
 `project-control/finance/statutory-tax-boundary.cjs`
 
-A lawful local payment rail may display the final equivalent local-currency amount where required, but the underlying TIGER reference level remains one of 2/10/20/45 JOD and country tax rebasing remains server-authoritative.
+A lawful local payment rail may display the final equivalent local-currency amount where required, but the TIGER base service level remains one of 2/10/20/45 JOD unless a later owner decision changes it.
 
 ## 3. Visibility is quantity/strength, never days
 
 TIGER does not sell days, months, an expiry period, a publishing lifetime, guaranteed first position, or permanent ranking dominance.
 
-Each 2/10/20/45 reference purchase level maps through the server-authoritative visibility engine to a distinct visibility allocation. Before payment the user must see the selected reference level, the final country-specific price after verified tax rebasing, and the resulting visibility information, including the exact server quote available for that scope.
+Each 2/10/20/45 purchase level maps through the server-authoritative visibility engine to a distinct visibility allocation. Before payment the user must see the selected platform base level, applicable statutory tax, final user total, and resulting visibility information, including the exact server quote available for that scope.
 
 The UI may describe delivery rhythm when supported by the quote, but the authoritative value is the server-side visibility allocation and verified delivery evidence—not a timer.
 
@@ -97,9 +96,7 @@ Pulse begins only after the content is eligible for paid visibility. Pulse never
 
 ## 6. Self-service incentive
 
-If a user purchases Pulse without an attributed `GENERAL_MANAGER`, `SECTOR_MANAGER`, or `MARKETER` sale claim, the platform applies a **7% active-user self-service discount** before the country-specific payment quote is finalized.
-
-After the discount is resolved, the server-authoritative country-tax quote is calculated from the resulting reference-price basis according to the current pricing/tax authority.
+If a user purchases Pulse without an attributed `GENERAL_MANAGER`, `SECTOR_MANAGER`, or `MARKETER` sale claim, the platform applies a **7% active-user self-service discount** to the platform service price before the final taxable quote is sealed, subject to verified applicable legal tax treatment.
 
 The discount must be visible to the user before payment and recorded in its own immutable ledger/accounting dimension.
 
@@ -123,11 +120,11 @@ Financial handling follows:
 
 `docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md`
 
-Statutory tax calculated for the country-specific Pulse price is outside TIGER distributions and commissions.
+Statutory tax calculated for a Pulse purchase is outside TIGER distributions and commissions.
 
 The latest owner decision cancels the former internal `TAX_RESERVE` 16% allocation. No replacement recipient or percentage has been invented. Until the owner explicitly reallocates that cancelled 16%, the financial distribution remains incomplete and distribution execution is fail-closed.
 
-The cancelled internal 16% must never be confused with or used as the 16% Pulse reference-pricing baseline.
+The cancelled internal 16% is not statutory tax and not a Pulse pricing baseline.
 
 ## 9. Verified delivery
 
@@ -147,15 +144,13 @@ Pulse purchase is a platform-owned advertising/visibility service transaction on
 
 It does not create buyer/seller checkout, escrow, custody, delivery, settlement, item warranty, transaction guarantee, marketplace transaction commission, or payment intermediation between marketplace parties.
 
-Payment requires a server-authoritative country-specific quote built from the approved reference level, the 16% pricing-baseline removal, verified statutory country tax, provider-authoritative payment result, idempotency, replay protection, and immutable accounting/audit evidence.
-
-The country-specific displayed price is the final amount charged. `ADDITIONAL TAX AT CAPTURE = 0`.
+Any future lawful Pulse real-money path must use a server-authoritative quote containing the approved platform base price, verified statutory tax, final user total, provider-authoritative payment result, idempotency, replay protection, and immutable accounting/audit evidence.
 
 There is no general-purpose transferable user money wallet. Pulse balances are platform-service visibility allocations.
 
 ## 11. Superseded material disposal
 
-Conflicting publishing cards, subscriptions, paid publishing slots, timed activation cards, superseded price tiers, fixed-global-price interpretations that bypass country-tax rebasing, product-duration fields, duplicate paid-post creation paths, and paid-publication entitlement gates must be removed from the current repository tree and active schema/runtime through protected forward migration where necessary.
+Conflicting publishing cards, subscriptions, paid publishing slots, timed activation cards, superseded price tiers, 16%-baseline rebasing, product-duration fields, duplicate paid-post creation paths, and paid-publication entitlement gates must be removed from the current repository tree and active schema/runtime through protected forward migration where necessary.
 
 They must not be moved to an in-tree archive, trash folder, hidden compatibility layer, test fixture, fallback, generated copy, current documentation, or launch gate.
 
@@ -163,4 +158,4 @@ Already-applied historical database migration files are not rewritten to fake hi
 
 ## 12. Owner acceptance statement
 
-> **The only current Pulse reference purchase levels are 2, 10, 20, and 45 JOD, and each contains the approved 16% pricing baseline. For each country-specific quote, TIGER removes that baseline by dividing the reference price by 1.16, then applies the verified statutory tax rate for the user's jurisdiction/transaction to the untaxed base. The resulting country-specific price is the final price shown and charged, with no second tax surcharge at capture. A 16% country returns the reference price; lower tax lowers the country price; higher tax raises it. Statutory tax remains outside TIGER distributions and commissions. The pricing baseline 16% is separate from the cancelled former internal TAX_RESERVE 16%. Each purchase buys a distinct server-authoritative visibility allocation, not days. Ordinary eligible NEXUS sector publication remains free. Self-service without a sales claimant receives the approved visible 7% discount before the final country-specific quote. Only the one HUMAN role that owns the sale receives its 7% commission.**
+> **The only current Pulse platform base purchase levels are 2, 10, 20, and 45 JOD. Applicable verified statutory tax is added to the platform base price according to law; there is no 16% pricing baseline and no 16% tax ceiling. Statutory tax remains outside TIGER distributions and commissions. The former internal TAX_RESERVE 16% remains cancelled and separate. Each Pulse purchase buys a distinct server-authoritative visibility allocation, not days. Ordinary eligible NEXUS sector publication remains free. Self-service without a sales claimant receives the approved visible 7% discount before the final taxable quote is sealed. Only the one eligible HUMAN role that owns the sale receives its 7% commission.**
