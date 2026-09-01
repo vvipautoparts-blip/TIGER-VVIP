@@ -63,11 +63,30 @@ test('vacuum rejects superseded pricing/publication/lifetime tokens in active ru
   }
 });
 
+test('vacuum rejects superseded 16 percent tax-baseline rebasing in active runtime', () => {
+  const cases = [
+    'referencePriceMinor / 1.16',
+    'referencePriceIncludesBaselineTaxBps',
+    'baselineIncludedTaxBps',
+    'countryTaxAppliedToUntaxedBase',
+    'REMOVE_REFERENCE_16_THEN_APPLY_VERIFIED_COUNTRY_TAX'
+  ];
+  for (const token of cases) {
+    const root = tree();
+    try {
+      fs.writeFileSync(path.join(root, 'scripts/nexus/tax.js'), `const old = ${JSON.stringify(token)};`);
+      const result = verifyRuntimeVacuum({ root });
+      assert.equal(result.ok, false, token);
+      assert.ok(result.errors.some(x => x.includes('16-percent-tax-baseline')), token);
+    } finally { cleanup(root); }
+  }
+});
+
 test('vacuum ignores historical documentation evidence outside active runtime roots', () => {
   const root = tree();
   try {
     fs.mkdirSync(path.join(root, 'docs/history'), { recursive: true });
-    fs.writeFileSync(path.join(root, 'docs/history/old.md'), 'PULSE_25 requestPublication( 120 days 4 posts/week');
+    fs.writeFileSync(path.join(root, 'docs/history/old.md'), 'PULSE_25 requestPublication( 120 days 4 posts/week referencePriceMinor / 1.16');
     const result = verifyRuntimeVacuum({ root });
     assert.equal(result.ok, true, result.errors.join('\n'));
   } finally { cleanup(root); }
