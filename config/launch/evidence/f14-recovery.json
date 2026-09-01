@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "TIGER_F14_LAUNCH_EVIDENCE_V1",
+  "status": "FOUNDATION_EXISTS",
+  "releaseSha": null,
+  "metrics": {
+    "measuredRtoSeconds": null,
+    "measuredRpoSeconds": null
+  },
+  "checks": {
+    "restoreRehearsal": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "failoverRehearsal": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "rollbackEvidence": { "status": "FOUNDATION_EXISTS", "evidence": ["existing release/recovery foundations"] },
+    "dataIntegrityVerification": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "protectedExactHead": { "status": "NOT_EVIDENCED", "evidence": [] }
+  }
+}
