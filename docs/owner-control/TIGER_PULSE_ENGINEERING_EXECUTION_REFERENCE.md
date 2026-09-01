@@ -25,8 +25,9 @@ The newest explicit owner-approved decision is the only current truth in its dom
 - Current product: `TIGER NEXUS 2026`.
 - Invariant: `ONE FEED • ONE OBJECT • ONE PULSE`.
 - Pulse is optional paid visibility for the same eligible Living Sector Object; it is not a publication gate and does not create a second Marketplace object or composer.
-- Current Pulse reference set: **2 / 10 / 20 / 45 JOD**.
-- Those reference prices contain the approved **16% pricing baseline**. Country pricing is derived by recovering the untaxed base with `REFERENCE PRICE / 1.16`, then applying the verified statutory tax for the user's jurisdiction/transaction. The resulting country-specific displayed price is the final user charge; no second tax is added at capture.
+- Current Pulse platform **base-price** set: **2 / 10 / 20 / 45 JOD**.
+- Those values are independent TIGER platform service base prices. Verified statutory tax is added according to the user's jurisdiction/transaction rules. There is no 16% pricing baseline and no 16% tax ceiling.
+- Final server quote exposes base price + statutory tax + user total; no hidden second statutory tax is added after quote seal.
 - Current delivery modes: **NOW / SMART / PRECISE**.
 - Purchased Pulse has no product-time expiry.
 - Current consumption sequence: `RESERVE → SERVE → VERIFY → CONSUME`.
@@ -47,7 +48,7 @@ VVIP TIGER only advertises, supports discovery, reduces distance, and enables di
 
 The current finance authority is only `docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md`, `docs/owner-control/TIGER_STATUTORY_TAX_BOUNDARY_CURRENT.md`, and `config/finance/current-distribution.json`.
 
-Statutory tax is outside platform distributions and commissions. The current Pulse pricing baseline of 16% is a pricing calibration only and is distinct from the former internal `TAX_RESERVE` 16%.
+Statutory tax is outside platform distributions and commissions. It is added to the TIGER platform base price according to verified legal rules.
 
 `TAX_RESERVE` is **CANCELLED** under the latest owner decision. Known current allocation is **84%** and the remaining internal **16% is pending** an explicit owner decision; no beneficiary is invented. `CSR = 3%` remains inside ACTUAL_OPERATIONS 43%. Until the pending owner decision is resolved, final distribution execution remains **fail-closed**.
 
@@ -59,7 +60,7 @@ Legacy standalone Marketplace runtime/repository paths removed by the current co
 
 ## Retired engineering assumptions
 
-This file must not restore or authorize any earlier independent Pulse program, money-wallet/top-up model, subscription model, parallel Marketplace creation flow, marketplace-party checkout/payment/intermediation, older exposure thresholds, older deduplication windows, old Wave execution chain, or deleted owner-binding path.
+This file must not restore or authorize any earlier independent Pulse program, money-wallet/top-up model, subscription model, parallel Marketplace creation flow, marketplace-party checkout/payment/intermediation, older exposure thresholds, older deduplication windows, old Wave execution chain, 16%-baseline pricing, or deleted owner-binding path.
 
 There is no independent `PULSE-A` through `PULSE-H` implementation program under current authority.
 
@@ -77,4 +78,4 @@ A workflow with no executed runner steps is blocked verification, not GREEN evid
 
 ## Latest-only rule
 
-Any older Pulse engineering rule that conflicts with the current owner binding, NEXUS, Pulse authority, finance authority, country-tax pricing authority, zero-intermediation marketplace boundary, or current verified runtime is removed or corrected and is not preserved as an in-tree fallback, archive, trash copy, compatibility authority, or alternate execution program. Applied historical migration bytes remain immutable; Git history preserves source provenance.
+Any older Pulse engineering rule that conflicts with the current owner binding, NEXUS, Pulse authority, finance authority, statutory-tax boundary, zero-intermediation marketplace boundary, or current verified runtime is removed or corrected and is not preserved as an in-tree fallback, archive, trash copy, compatibility authority, or alternate execution program. Applied historical migration bytes remain immutable; Git history preserves source provenance.
