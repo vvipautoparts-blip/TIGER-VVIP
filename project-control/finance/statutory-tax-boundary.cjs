@@ -1,6 +1,5 @@
 'use strict';
 
-const BASELINE_INCLUDED_TAX_BPS = 1600;
 const BPS_DENOMINATOR = 10000;
 
 class StatutoryTaxBoundaryError extends Error {
@@ -56,51 +55,44 @@ function roundMinor(value) {
   return rounded;
 }
 
-function buildStatutoryTaxBoundary({ referencePriceMinor, taxQuote }) {
-  if (!isNonNegativeSafeInteger(referencePriceMinor)) {
+function buildStatutoryTaxBoundary({ basePriceMinor, taxQuote }) {
+  if (!isNonNegativeSafeInteger(basePriceMinor)) {
     fail(
-      'INVALID_REFERENCE_PRICE',
-      'Reference price must be a non-negative safe integer in minor units.'
+      'INVALID_BASE_PRICE',
+      'Platform base price must be a non-negative safe integer in minor units.'
     );
   }
 
   assertVerifiedTaxQuote(taxQuote);
 
-  const untaxedBaseMinor = roundMinor(
-    referencePriceMinor * BPS_DENOMINATOR /
-      (BPS_DENOMINATOR + BASELINE_INCLUDED_TAX_BPS)
-  );
   const statutoryTaxMinor = roundMinor(
-    untaxedBaseMinor * taxQuote.effectiveRateBps / BPS_DENOMINATOR
+    basePriceMinor * taxQuote.effectiveRateBps / BPS_DENOMINATOR
   );
-  const userTotalMinor = untaxedBaseMinor + statutoryTaxMinor;
+  const userTotalMinor = basePriceMinor + statutoryTaxMinor;
 
   if (!Number.isSafeInteger(userTotalMinor)) {
     fail('CHECKOUT_TOTAL_OVERFLOW', 'Checkout total exceeds safe integer bounds.');
   }
 
   return Object.freeze({
-    referencePriceMinor,
-    baselineIncludedTaxBps: BASELINE_INCLUDED_TAX_BPS,
-    untaxedBaseMinor,
+    basePriceMinor,
     statutoryTaxMinor,
     effectiveTaxRateBps: taxQuote.effectiveRateBps,
     jurisdiction: taxQuote.jurisdiction,
     taxSourceEvidenceId: taxQuote.sourceEvidenceId,
     userTotalMinor,
     displayedPriceMinor: userTotalMinor,
-    pricePresentation: 'COUNTRY_TAX_REBASED_FINAL',
-    taxIncludedInDisplayedPrice: true,
-    additionalTaxAtCaptureMinor: 0,
-    platformRevenueMinor: untaxedBaseMinor,
-    distributionBasisMinor: untaxedBaseMinor,
+    pricePresentation: 'BASE_PLUS_STATUTORY_TAX',
+    taxAddedToBasePrice: true,
+    platformRevenueMinor: basePriceMinor,
+    distributionBasisMinor: basePriceMinor,
+    taxLiabilityMinor: statutoryTaxMinor,
     taxExcludedFromDistribution: true,
     taxExcludedFromCommission: true
   });
 }
 
 module.exports = Object.freeze({
-  BASELINE_INCLUDED_TAX_BPS,
   StatutoryTaxBoundaryError,
   buildStatutoryTaxBoundary
 });
