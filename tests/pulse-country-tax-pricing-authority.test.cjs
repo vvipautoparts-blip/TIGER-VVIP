@@ -17,19 +17,16 @@ function verify(manifest) {
   return require(validatorPath).verifyCurrentAuthority(manifest);
 }
 
-test('Pulse reference prices include a 16 percent baseline and rebase to verified country tax', () => {
+test('Pulse tiers are platform base prices and verified statutory tax is added above them', () => {
   const manifest = loadManifest();
   const pulse = manifest.pulseRing;
 
   assert.deepEqual(pulse.tiersJod, [2, 10, 20, 45]);
-  assert.equal(pulse.referencePriceIncludesBaselineTaxBps, 1600);
-  assert.equal(
-    pulse.countryPricingMode,
-    'REMOVE_REFERENCE_16_THEN_APPLY_VERIFIED_COUNTRY_TAX'
-  );
-  assert.equal(pulse.countryTaxAppliedToUntaxedBase, true);
-  assert.equal(pulse.displayedCountryPriceIsFinalCharge, true);
-  assert.equal(pulse.additionalTaxAtCapture, false);
+  assert.equal(pulse.tiersArePlatformBasePrices, true);
+  assert.equal(pulse.countryPricingMode, 'PLATFORM_BASE_PLUS_VERIFIED_STATUTORY_TAX');
+  assert.equal(pulse.countryTaxAddedToPlatformBasePrice, true);
+  assert.equal(pulse.noTaxRateCeiling, true);
+  assert.equal(pulse.statutoryTaxExcludedFromDistribution, true);
   assert.equal(
     pulse.statutoryTaxAuthority,
     'docs/owner-control/TIGER_STATUTORY_TAX_BOUNDARY_CURRENT.md'
@@ -38,15 +35,17 @@ test('Pulse reference prices include a 16 percent baseline and rebase to verifie
     pulse.canonicalTaxModule,
     'project-control/finance/statutory-tax-boundary.cjs'
   );
+  assert.equal(Object.prototype.hasOwnProperty.call(pulse, 'referencePriceIncludesBaselineTaxBps'), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(pulse, 'countryTaxAppliedToUntaxedBase'), false);
 });
 
-test('Fusion validator fails closed if Pulse country-tax rebasing authority is weakened', () => {
+test('Fusion validator fails closed if Pulse base-plus-tax authority is weakened', () => {
   const mutations = [
-    (manifest) => { manifest.pulseRing.referencePriceIncludesBaselineTaxBps = 0; },
+    (manifest) => { manifest.pulseRing.tiersArePlatformBasePrices = false; },
     (manifest) => { manifest.pulseRing.countryPricingMode = 'FIXED_GLOBAL_PRICE'; },
-    (manifest) => { manifest.pulseRing.countryTaxAppliedToUntaxedBase = false; },
-    (manifest) => { manifest.pulseRing.displayedCountryPriceIsFinalCharge = false; },
-    (manifest) => { manifest.pulseRing.additionalTaxAtCapture = true; },
+    (manifest) => { manifest.pulseRing.countryTaxAddedToPlatformBasePrice = false; },
+    (manifest) => { manifest.pulseRing.noTaxRateCeiling = false; },
+    (manifest) => { manifest.pulseRing.statutoryTaxExcludedFromDistribution = false; },
     (manifest) => { manifest.pulseRing.canonicalTaxModule = 'client-tax.js'; }
   ];
 
