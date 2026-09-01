@@ -2,160 +2,135 @@
 
 **Status:** `CURRENT_ONLY / OWNER_BINDING / FAIL_CLOSED`
 **Effective owner decision:** 2026-09-01
-**Domain:** country-specific statutory tax pricing for TIGER-owned paid platform services.
+**Domain:** statutory tax for TIGER-owned paid platform services.
 
-## 1. Binding rule — 16% is the reference-price baseline
+## 1. Binding rule — tax is outside TIGER internal economics
 
-The newest owner decision supersedes the prior fixed-final-price extraction model.
-
-The approved TIGER reference prices, including the current Pulse reference levels, are calibrated with **16% tax already included**.
-
-For each user transaction TIGER must:
-
-1. start from the approved reference price;
-2. remove the included 16% baseline correctly by division, not by subtracting 16% of the gross price;
-3. obtain the verified statutory tax rate applicable to the user's jurisdiction/transaction;
-4. apply that verified country tax to the untaxed base;
-5. display the resulting country-specific total as the final price the user pays.
+VVIP TIGER sets the **platform base price** for its own paid service. The applicable government/statutory tax is determined by the relevant jurisdiction and transaction rules, not by TIGER.
 
 Canonical formula:
 
-`UNTAXED BASE = REFERENCE PRICE / 1.16`
+`PLATFORM BASE PRICE = TIGER-APPROVED SERVICE PRICE`
 
-`COUNTRY TAX = UNTAXED BASE × VERIFIED COUNTRY TAX RATE`
+`STATUTORY TAX = PLATFORM BASE PRICE × VERIFIED APPLICABLE TAX RATE`
 
-`FINAL USER PRICE = UNTAXED BASE + COUNTRY TAX`
+`FINAL USER TOTAL = PLATFORM BASE PRICE + STATUTORY TAX`
 
-The 16% baseline is a **pricing calibration baseline**, not a universal tax rate and not a statutory tax chosen by TIGER.
+There is **no universal 16% tax rate, no 16% tax ceiling, and no 16% pricing baseline** in the current authority.
 
-## 2. Examples
+Examples for a platform base price of 10.00:
 
-Using a reference price of 10.00:
+- applicable tax `0%` → tax `0.00` → user total `10.00`;
+- applicable tax `12%` → tax `1.20` → user total `11.20`;
+- applicable tax `16%` → tax `1.60` → user total `11.60`;
+- applicable tax `20%` → tax `2.00` → user total `12.00`;
+- applicable tax `25%` → tax `2.50` → user total `12.50`.
 
-- verified country tax 0% -> untaxed base ≈ 8.62 -> final user price ≈ 8.62;
-- verified country tax 12% -> untaxed base ≈ 8.62 -> final user price ≈ 9.65/9.66 depending on minor-unit rounding;
-- verified country tax 16% -> final user price returns to 10.00;
-- verified country tax 20% -> final user price ≈ 10.34.
+A higher statutory rate is not absorbed by TIGER and is not capped at 16%.
 
-The exact implementation works in minor currency units with deterministic rounding.
+## 2. TIGER does not invent legal tax
 
-## 3. User-facing price
+The applicable tax result must come from verified jurisdiction/tax evidence or a lawful tax provider/rules engine appropriate to the actual transaction.
 
-The price displayed for the user's country after the rebase is the **final tax-inclusive amount charged**.
+Depending on jurisdiction, the result may depend on factors such as B2B/B2C status, customer location, service classification, exemptions, registration thresholds, marketplace/deemed-supplier rules, or other legally relevant facts.
 
-`USER CHARGE = DISPLAYED COUNTRY PRICE`
+Unverified, malformed, negative, unavailable, or otherwise invalid tax evidence fails closed rather than being guessed.
 
-`ADDITIONAL TAX AT CAPTURE = 0`
+## 3. Quote and display rule
 
-No second tax surcharge may be added after the country-specific final price has been displayed and sealed for payment.
+Before capture, the authoritative server quote must expose at least:
 
-## 4. TIGER does not invent legal tax
+- platform base price;
+- verified statutory tax amount;
+- applicable tax rate/context;
+- final user total;
+- jurisdiction/evidence identity.
 
-VVIP TIGER controls the commercial reference prices but does not invent or arbitrarily choose statutory tax rates.
+The final sealed quote includes the applicable statutory tax. After that quote is sealed, no hidden or second statutory-tax surcharge may be added without generating a new valid quote.
 
-The applicable tax rate must come from verified jurisdiction/tax evidence or provider logic appropriate to the transaction.
+## 4. Distribution basis
 
-Unverified, malformed, negative, or unavailable tax evidence fails closed rather than being guessed.
+Statutory tax never enters TIGER internal distribution or commission calculations.
 
-## 5. Distribution basis is the untaxed platform-service base
+`PLATFORM SERVICE REVENUE = PLATFORM BASE PRICE`
 
-The statutory tax amount is outside TIGER distributable revenue.
+`DISTRIBUTION BASIS = PLATFORM BASE PRICE`
 
-For the current pricing model:
+`STATUTORY TAX LIABILITY = STATUTORY TAX`
 
-`PLATFORM SERVICE REVENUE = UNTAXED BASE`
-
-`DISTRIBUTION BASIS = UNTAXED BASE`
-
-`STATUTORY TAX = COUNTRY TAX APPLIED TO UNTAXED BASE`
+`FINAL USER TOTAL = DISTRIBUTION BASIS + STATUTORY TAX LIABILITY`
 
 Tax is excluded from:
 
-- OWNER percentage calculations;
-- PARTNER percentage calculations;
-- ACTUAL_OPERATIONS calculations;
-- SALES_ADMINISTRATION calculations;
+- OWNER percentages;
+- PARTNER percentages;
+- ACTUAL_OPERATIONS percentages;
+- SALES_ADMINISTRATION percentages;
 - GENERAL_MANAGER / SECTOR_MANAGER / MARKETER commissions;
-- DIGITAL actor economics;
+- all DIGITAL actor economics;
 - self-service commission allocation.
 
 `TAX MONEY != COMMISSION MONEY`
 
-## 6. Correct removal of the 16% baseline
+## 5. Former internal TAX_RESERVE 16% is unrelated
 
-The baseline must be removed by division:
+The former internal `TAX_RESERVE = 16%` distribution allocation remains **cancelled**.
 
-`REFERENCE PRICE / 1.16`
+Its unresolved internal 16 percentage points are a separate pending owner allocation decision. They are not statutory tax, are not a pricing baseline, and may not be restored, consumed, or reassigned by inference.
 
-It must **not** be implemented as:
+## 6. Country activation is independent
 
-`REFERENCE PRICE × 0.84`
+Opening, suspending, or closing a country remains a separate commercial/operational owner-governance decision.
 
-because subtracting 16% from a tax-inclusive gross price does not mathematically recover the pre-tax base.
+The statutory tax percentage by itself does not automatically open or close a country.
 
-## 7. Former TAX_RESERVE 16% remains separate
+## 7. Canonical server enforcement
 
-The pricing baseline of 16% in this document is not the former internal `TAX_RESERVE = 16%` distribution allocation.
-
-The former internal TAX_RESERVE remains cancelled under the current financial-distribution authority. Its unresolved internal 16 percentage points remain a separate owner allocation decision and must not be restored, consumed, or reclassified as statutory tax by inference.
-
-## 8. Country activation is independent
-
-Opening, suspending, or closing a country remains a TIGER commercial/operational owner-governance decision.
-
-The country tax rate itself does not automatically open or close a country.
-
-## 9. Server-authoritative enforcement
-
-The canonical enforcement module is:
+Canonical module:
 
 `project-control/finance/statutory-tax-boundary.cjs`
 
-It accepts:
+Input:
 
-- `referencePriceMinor` — approved reference price in minor units, calibrated with the 16% baseline included;
-- a verified tax quote containing the applicable effective country tax rate plus jurisdiction/evidence identity.
+- `basePriceMinor` — TIGER-approved platform service base price in minor currency units;
+- verified statutory tax quote containing applicable effective rate, jurisdiction, and source evidence identity.
 
-It returns at minimum:
+Output includes:
 
-- reference price;
-- baseline included tax basis points = 1600;
-- untaxed base;
-- statutory country tax;
-- country-specific displayed/final user price;
-- platform revenue/distribution basis;
-- jurisdiction/evidence;
-- zero additional tax at capture.
-
-## 10. Rounding and integrity
-
-All monetary calculations execute in minor currency units.
-
-The implementation uses deterministic rounding and safe-integer checks. Overflow or invalid inputs fail closed.
-
-At a verified 16% country rate, the country-specific total must return to the approved reference price within the deterministic minor-unit calculation.
-
-## 11. Discounts
-
-Any owner-approved discount, including the current eligible self-service discount, must be resolved consistently before the final country-specific payment amount is sealed.
-
-No discount path may cause statutory tax to enter commissionable/distributable revenue.
-
-## 12. Audit separation
-
-Every taxable platform purchase must remain auditable to at least:
-
-- approved reference price;
-- 16% reference baseline;
-- untaxed base;
-- verified country tax rate;
+- base price;
 - statutory tax amount;
-- final displayed/user-charged price;
-- tax jurisdiction/context;
-- tax evidence/source identity;
+- tax liability amount;
+- final displayed/user total;
+- distribution basis equal to the base price;
+- jurisdiction/evidence identity;
+- explicit tax exclusion from distribution and commissions.
+
+## 8. Rounding and integrity
+
+All canonical monetary calculations execute in minor currency units with deterministic rounding and safe-integer checks.
+
+Invalid inputs and overflow fail closed.
+
+## 9. Discounts
+
+Any owner-approved discount, including the current eligible self-service discount, applies to the TIGER platform service price according to current pricing authority **before** the final taxable quote is sealed, unless applicable law requires a different taxable basis.
+
+The statutory tax calculation must follow the verified legal treatment for that transaction. No discount path may cause statutory tax to enter commissionable/distributable revenue.
+
+## 10. Audit separation
+
+Every taxable TIGER platform-service purchase must remain auditable to at least:
+
+- approved platform base price;
+- discounts/reversals where applicable;
+- verified tax rate and tax context;
+- statutory tax amount;
+- final user total;
+- tax jurisdiction;
+- tax evidence/provider identity;
 - distribution basis excluding statutory tax;
-- discounts and reversals where applicable.
+- immutable purchase/quote identity and timestamps.
 
-## 13. Acceptance statement
+## 11. Acceptance statement
 
-> **TIGER reference prices are calibrated with a 16% tax baseline already included. For each country, TIGER first recovers the untaxed base by dividing the reference price by 1.16, then applies the verified statutory tax rate for the user's jurisdiction, and the resulting country-specific amount is the final price displayed and charged. A 16% jurisdiction returns the reference price; a lower tax produces a lower user price; a higher tax produces a higher user price. Statutory tax remains outside all TIGER distributions and commissions. The 16% pricing baseline is separate from the cancelled former internal TAX_RESERVE 16%, which remains governed by the separate pending owner-allocation decision. Unverified tax fails closed.**
+> **VVIP TIGER sets its platform service base price. The applicable legal tax is determined from verified jurisdiction/transaction rules and is added to the user total as required. 0% adds nothing; 12% adds 12%; 16% adds 16%; 20% adds 20%; 25% adds 25%. There is no 16% tax ceiling and no 16% pricing baseline. Statutory tax remains outside all TIGER distributions and commissions. Country activation is an independent owner business decision. The cancelled former internal TAX_RESERVE 16% remains a separate unresolved owner-allocation matter. Unverified tax fails closed.**
