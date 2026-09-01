@@ -21,6 +21,7 @@ function verify(config) {
 test('latest owner finance decision cancels TAX_RESERVE without inventing a replacement allocation', () => {
   const config = loadConfig();
   assert.equal(fs.existsSync(authorityPath), true);
+  assert.equal(config.allocationBasis, 'PLATFORM_SERVICE_REVENUE_EXCLUDING_STATUTORY_TAX');
   assert.deepEqual(config.mainDistributionPercent, {
     OWNER: 5,
     PARTNER_1: 5,
@@ -34,15 +35,34 @@ test('latest owner finance decision cancels TAX_RESERVE without inventing a repl
   assert.deepEqual(config.cancelledAllocation, {
     name: 'TAX_RESERVE',
     formerPercent: 16,
-    status: 'CANCELLED_BY_LATEST_OWNER_DECISION'
+    status: 'CANCELLED_BY_LATEST_OWNER_DECISION',
+    notStatutoryTax: true
   });
   assert.equal(config.pendingOwnerDecisionPercent, 16);
   assert.equal(config.distributionState, 'INCOMPLETE_PENDING_OWNER_REALLOCATION');
   assert.equal(config.distributionExecutionAuthorized, false);
   assert.equal(config.ledgerDimensions.includes('TAX_RESERVE'), false);
   assert.equal(config.ledgerDimensions.includes('PENDING_OWNER_DECISION'), true);
+  assert.equal(config.ledgerDimensions.includes('STATUTORY_TAX_EXTERNAL'), true);
   const result = verify(config);
   assert.equal(result.ok, true, result.errors.join('\n'));
+});
+
+test('statutory tax boundary is base plus verified tax and excluded from distribution', () => {
+  const boundary = loadConfig().statutoryTaxBoundary;
+  assert.equal(boundary.pricePresentation, 'BASE_PLUS_STATUTORY_TAX');
+  assert.equal(boundary.platformBasePriceIndependentFromStatutoryTax, true);
+  assert.equal(boundary.countryTaxAddedToPlatformBasePrice, true);
+  assert.equal(boundary.finalQuoteIncludesStatutoryTax, true);
+  assert.equal(boundary.noSecondTaxAfterQuoteSeal, true);
+  assert.equal(boundary.noTaxRateCeiling, true);
+  assert.equal(boundary.taxIsPlatformAllocation, false);
+  assert.equal(boundary.taxIsCommissionable, false);
+  assert.equal(boundary.taxIsPartnerShareable, false);
+  assert.equal(boundary.taxIsOperationsRevenue, false);
+  assert.equal(boundary.ownerDefinesLegalTaxRate, false);
+  assert.equal(boundary.countryActivationIndependentFromTaxRate, true);
+  assert.equal(Object.prototype.hasOwnProperty.call(boundary, 'referencePriceIncludesBaselineTaxBps'), false);
 });
 
 test('operations and sales envelopes remain exactly as approved', () => {
@@ -85,7 +105,7 @@ test('payout rules are 14 days, 12 hour destination grace, immutable ledger', ()
   assert.equal(config.historyPolicy, 'IMMUTABLE_LEDGER_NO_ERASURE');
 });
 
-test('validator fails closed on invented reallocation or restored TAX_RESERVE', () => {
+test('validator fails closed on invented reallocation, restored TAX_RESERVE, or weakened tax separation', () => {
   const restoredTax = loadConfig();
   restoredTax.mainDistributionPercent.TAX_RESERVE = 16;
   let result = verify(restoredTax);
@@ -115,4 +135,10 @@ test('validator fails closed on invented reallocation or restored TAX_RESERVE', 
   result = verify(wrongDiscount);
   assert.equal(result.ok, false);
   assert.ok(result.errors.includes('self-service discount must be 7 percent'));
+
+  const baselineTax = loadConfig();
+  baselineTax.statutoryTaxBoundary.referencePriceIncludesBaselineTaxBps = 1600;
+  result = verify(baselineTax);
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.includes('superseded statutory-tax baseline fields must remain absent'));
 });
