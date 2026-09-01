@@ -41,6 +41,10 @@ function evidenceOk(value) {
   return Array.isArray(value) && value.length > 0 && value.every(item => typeof item === 'string' && item.trim());
 }
 
+function anyGatePass(gates, names) {
+  return names.some(name => gates[name] && gates[name].status === 'PASS');
+}
+
 function verifyGlobalLaunchPassport(passport, context = {}) {
   const errors = [];
   const blockingGates = [];
@@ -85,11 +89,20 @@ function verifyGlobalLaunchPassport(passport, context = {}) {
   if (gates.boundedAi && gates.boundedAi.status === 'PASS' && context.f09LaunchGatePass !== true) {
     errors.push('BOUNDED_AI_PASS_REQUIRES_F09_EVIDENCE_PASS');
   }
-  const f10ClaimedPass = ['arabic', 'english', 'accessibility'].some(name =>
-    gates[name] && gates[name].status === 'PASS'
-  );
-  if (f10ClaimedPass && context.f10LaunchGatePass !== true) {
+  if (anyGatePass(gates, ['arabic', 'english', 'accessibility']) && context.f10LaunchGatePass !== true) {
     errors.push('LANGUAGE_ACCESSIBILITY_PASS_REQUIRES_F10_EVIDENCE_PASS');
+  }
+  if (anyGatePass(gates, ['android20of20', 'ios20of20']) && context.f11LaunchGatePass !== true) {
+    errors.push('MOBILE_CERTIFICATION_PASS_REQUIRES_F11_EVIDENCE_PASS');
+  }
+  if (anyGatePass(gates, ['supplyChainProvenance', 'securityVerification', 'redTeamCampaigns', 'zeroCriticalHigh']) && context.f12LaunchGatePass !== true) {
+    errors.push('SECURITY_RED_TEAM_PASS_REQUIRES_F12_EVIDENCE_PASS');
+  }
+  if (anyGatePass(gates, ['uniqueActors4m', 'simultaneousActive4m']) && context.f13LaunchGatePass !== true) {
+    errors.push('DIGITAL_TWIN_4M_PASS_REQUIRES_F13_EVIDENCE_PASS');
+  }
+  if (anyGatePass(gates, ['restore', 'failover']) && context.f14LaunchGatePass !== true) {
+    errors.push('RECOVERY_PASS_REQUIRES_F14_EVIDENCE_PASS');
   }
   if (gates.hybridMediaHeic && gates.hybridMediaHeic.status === 'PASS' && context.f05LaunchGatePass !== true) {
     errors.push('HYBRID_MEDIA_PASS_REQUIRES_F05_EVIDENCE_PASS');
