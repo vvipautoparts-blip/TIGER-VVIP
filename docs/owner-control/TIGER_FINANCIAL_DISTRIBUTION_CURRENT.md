@@ -8,42 +8,41 @@
 
 All TIGER internal percentages are calculated only from **platform service revenue excluding statutory tax**.
 
-Under the current country-tax pricing model, approved reference prices are calibrated with a 16% tax baseline. The system first recovers the untaxed base by dividing the reference price by 1.16, then applies the verified statutory tax rate for the user's jurisdiction.
+Canonical pricing boundary:
 
-`UNTAXED BASE = REFERENCE PRICE / 1.16`
+`PLATFORM BASE PRICE = TIGER-APPROVED SERVICE PRICE`
 
-`COUNTRY TAX = UNTAXED BASE × VERIFIED COUNTRY TAX RATE`
+`STATUTORY TAX = PLATFORM BASE PRICE × VERIFIED APPLICABLE TAX RATE`
 
-`FINAL USER PRICE = UNTAXED BASE + COUNTRY TAX`
+`FINAL USER TOTAL = PLATFORM BASE PRICE + STATUTORY TAX`
 
-`DISTRIBUTION BASIS = UNTAXED BASE`
+`DISTRIBUTION BASIS = PLATFORM BASE PRICE`
 
-The resulting country-specific displayed price is the final amount charged. No second tax is added at capture.
+There is no 16% pricing baseline and no 16% tax ceiling. The applicable legal tax is outside TIGER internal distribution economics.
 
-The binding tax authority is:
+Binding tax authority:
 
 `docs/owner-control/TIGER_STATUTORY_TAX_BOUNDARY_CURRENT.md`
 
-## 2. Pricing examples
+## 2. Tax examples
 
-For a reference price of 10.00:
+For a TIGER platform base price of 10.00:
 
-- country tax 0% -> final ≈ 8.62;
-- country tax 12% -> final ≈ 9.65/9.66 depending on minor-unit rounding;
-- country tax 16% -> final = 10.00;
-- country tax 20% -> final ≈ 10.34.
+- tax 0% → final user total 10.00;
+- tax 12% → final user total 11.20;
+- tax 16% → final user total 11.60;
+- tax 20% → final user total 12.00;
+- tax 25% → final user total 12.50.
 
-The 16% pricing baseline is not a universal statutory tax selected by TIGER. It is only the calibration already contained in the approved reference prices.
+The legal rate is not selected by TIGER. Unverified tax fails closed.
 
 ## 3. Former TAX_RESERVE 16% remains cancelled
 
 `TAX_RESERVE_STATUS: CANCELLED`
 
-The former internal `TAX_RESERVE = 16%` allocation is cancelled and is **not** the same thing as the 16% pricing baseline.
+The former internal `TAX_RESERVE = 16%` allocation is cancelled. It is **not** statutory tax and is not a pricing baseline.
 
 The unresolved 16 percentage points left after cancellation remain an unallocated platform-revenue decision pending explicit owner allocation.
-
-They are not statutory tax and may not be used to fund, absorb, or replace country tax by inference.
 
 No person, role, account, partner, operations bucket, sales bucket, CSR bucket, owner bucket, digital actor, or tax bucket may receive those 16 percentage points until a later explicit owner decision reallocates them.
 
@@ -109,9 +108,9 @@ CSR is inside the 43%. There is no separate 1% charity allocation.
 
 One purchase may have at most one winning sales-role claim.
 
-- GENERAL_MANAGER winner -> that HUMAN role receives its 7%; the other two sales roles receive 0.
-- SECTOR_MANAGER winner -> that HUMAN role receives its 7%; the other two sales roles receive 0.
-- MARKETER winner -> that HUMAN role receives its 7%; the other two sales roles receive 0.
+- GENERAL_MANAGER winner → that HUMAN role receives its 7%; the other two sales roles receive 0.
+- SECTOR_MANAGER winner → that HUMAN role receives its 7%; the other two sales roles receive 0.
+- MARKETER winner → that HUMAN role receives its 7%; the other two sales roles receive 0.
 
 The two non-winning reserved 7% shares route to OWNER with `NON_WINNING_SALES_ROLE` reason codes.
 
@@ -121,8 +120,8 @@ There is no hierarchical commission cascade.
 
 If there is no valid HUMAN sales claimant:
 
-1. the approved visible 7% self-service discount is applied according to current pricing authority before the payment quote is finalized;
-2. the discounted reference-price path is then rebased from its 16% calibration to the verified country tax;
+1. apply the approved visible 7% self-service discount to the TIGER platform service price according to current pricing/legal tax treatment;
+2. create a verified statutory-tax quote for the resulting taxable platform service amount;
 3. statutory tax remains excluded from distribution;
 4. no sales role receives commission;
 5. the 21% SALES_ADMINISTRATION envelope routes to OWNER with absent-role reason codes;
@@ -148,7 +147,7 @@ For every DIGITAL actor:
 
 A winning sale claim must belong to exactly one `HUMAN + ACTIVE + ELIGIBLE` GENERAL_MANAGER, SECTOR_MANAGER, or MARKETER with deterministic attribution evidence.
 
-The canonical firewall is:
+Canonical firewall:
 
 `project-control/finance/human-digital-financial-firewall.cjs`
 
@@ -167,27 +166,23 @@ Every eligible sale claim must include at minimum:
 
 Ambiguous, duplicate, invalid, DIGITAL, inactive/ineligible, unknown-role, or multi-winner claims fail closed.
 
-## 10. Country-tax pricing boundary
+## 10. Country-tax boundary
 
-The canonical tax module is:
+Canonical tax module:
 
 `project-control/finance/statutory-tax-boundary.cjs`
 
 Required identities:
 
-`untaxedBase = referencePrice / 1.16`
+`statutoryTax = platformBasePrice × verifiedApplicableTaxRate`
 
-`statutoryTax = untaxedBase × verifiedCountryTaxRate`
+`userTotal = platformBasePrice + statutoryTax`
 
-`userTotal = untaxedBase + statutoryTax`
+`distributionBasis = platformBasePrice`
 
-`displayedPrice = userTotal`
+`taxLiability = statutoryTax`
 
-`distributionBasis = untaxedBase`
-
-`additionalTaxAtCapture = 0`
-
-The old rule that treated the reference price itself as a fixed final price and merely carved tax out of it is superseded and must not remain active.
+Statutory tax is segregated from platform revenue, commissions, and all internal allocation percentages.
 
 An unverified, negative, malformed, or unavailable tax result fails closed. TIGER does not guess legal tax rates.
 
@@ -209,7 +204,7 @@ Financial records preserve separated dimensions for at least:
 - ACTIVE_USER_DISCOUNT;
 - refunds/reversals.
 
-Every movement remains auditable to purchase identity, reference price, baseline 16% calibration, untaxed base, verified country tax rate, statutory tax amount, final displayed/user charge, distribution basis, allocation, beneficiary/fallback, reason code, status, timestamps, and immutable evidence linkage.
+Every movement remains auditable to purchase identity, platform base price, discount treatment, verified tax context/rate, statutory tax amount, final user total, distribution basis, allocation, beneficiary/fallback, reason code, status, timestamps, and immutable evidence linkage.
 
 ## 12. Security invariants
 
@@ -217,11 +212,11 @@ Financial execution is server-authoritative and fail closed.
 
 Required invariants include:
 
-- the approved reference price is calibrated with a 16% baseline;
-- the baseline is removed by division by 1.16, never by multiplying the gross price by 0.84;
-- verified country tax is applied to the recovered untaxed base;
-- the country-specific displayed price is the final charge;
-- no second tax surcharge is added at capture;
+- TIGER platform base price is independent from statutory tax;
+- verified statutory tax is added according to applicable law;
+- there is no artificial 16% tax ceiling or 16% pricing baseline;
+- final quote exposes platform base price + statutory tax + user total;
+- no hidden second tax is added after a sealed final quote;
 - statutory tax never enters platform distribution or commissions;
 - no restored TAX_RESERVE;
 - no invented reassignment of the unresolved internal 16%;
@@ -237,4 +232,4 @@ Required invariants include:
 
 ## 13. Acceptance statement
 
-> **Approved TIGER reference prices contain a 16% pricing baseline. The system removes that baseline correctly by dividing the reference price by 1.16, applies the verified statutory tax rate for the user's country/transaction to the recovered untaxed base, and displays/charges the resulting country-specific final price. A 16% country returns the reference price; lower tax lowers the final user price; higher tax raises it. Distribution and commissions use only the untaxed platform-service base. The pricing baseline is separate from the cancelled former internal TAX_RESERVE 16%, whose unresolved 16 percentage points remain pending a separate owner allocation decision. Current known allocations remain OWNER 5%, three partners 5% each, ACTUAL_OPERATIONS 43%, and SALES_ADMINISTRATION 21%. One sale has at most one ACTIVE, ELIGIBLE HUMAN sales winner. Every DIGITAL actor remains permanently zero-financial-benefit.**
+> **TIGER sets the platform service base price. Verified statutory tax is added to the user total as legally applicable and remains outside every TIGER distribution and commission calculation. There is no 16% pricing baseline and no 16% tax ceiling. The former internal TAX_RESERVE 16% remains cancelled, and its unresolved internal 16 percentage points remain pending a separate explicit owner allocation decision. Current known allocations remain OWNER 5%, three partners 5% each, ACTUAL_OPERATIONS 43%, and SALES_ADMINISTRATION 21%. One sale has at most one ACTIVE, ELIGIBLE HUMAN sales winner. Every DIGITAL actor remains permanently zero-financial-benefit.**
