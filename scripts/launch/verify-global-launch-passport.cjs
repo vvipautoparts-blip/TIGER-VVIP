@@ -85,6 +85,12 @@ function verifyGlobalLaunchPassport(passport, context = {}) {
   if (gates.boundedAi && gates.boundedAi.status === 'PASS' && context.f09LaunchGatePass !== true) {
     errors.push('BOUNDED_AI_PASS_REQUIRES_F09_EVIDENCE_PASS');
   }
+  const f10ClaimedPass = ['arabic', 'english', 'accessibility'].some(name =>
+    gates[name] && gates[name].status === 'PASS'
+  );
+  if (f10ClaimedPass && context.f10LaunchGatePass !== true) {
+    errors.push('LANGUAGE_ACCESSIBILITY_PASS_REQUIRES_F10_EVIDENCE_PASS');
+  }
   if (gates.hybridMediaHeic && gates.hybridMediaHeic.status === 'PASS' && context.f05LaunchGatePass !== true) {
     errors.push('HYBRID_MEDIA_PASS_REQUIRES_F05_EVIDENCE_PASS');
   }
