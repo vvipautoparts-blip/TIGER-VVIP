@@ -19,8 +19,7 @@ This tracker never upgrades design, historical evidence, local tests, focused te
 - `PASS` — completed with evidence appropriate to the phase.
 - `EXACT_HEAD_PASS` — implementation plus required exact-head protected verification complete.
 - `IN_PROGRESS` — current implementation/evidence exists but mandatory closure evidence is incomplete.
-- `FOUNDATION_EXISTS` — reusable foundation exists but current NEXUS/FUSION closure is not complete.
-- `DESIGN_ONLY` — approved/current design exists without implementation closure evidence.
+- `FOUNDATION_EXISTS` — reusable foundation exists but current release closure is incomplete.
 - `NOT_EVIDENCED` — no sufficient current completion evidence.
 - `BLOCKED` — a known external/protected/owner-decision gate prevents closure.
 
@@ -30,42 +29,49 @@ This tracker never upgrades design, historical evidence, local tests, focused te
 |---|---|---|---|
 | F00 Constitution Reconciliation | PASS | Latest-only owner binding + machine authority | Keep authority chain consistent on every later decision |
 | F01 Runtime Vacuum Inventory | PASS / retained baseline | prior inventory methodology and convergence evidence | final exact-release cleanup belongs to F15 |
-| F02 Single Surface Design System | EXACT_HEAD_PASS (isolated historical phase) | prior protected F02 evidence | final NEXUS release integration still reverified at F16 |
+| F02 Single Surface Design System | EXACT_HEAD_PASS (isolated historical phase) | prior protected F02 evidence | final release integration still reverified at F16 |
 | F03 SOA + Sovereign Capability Graph | EXACT_HEAD_PASS (isolated historical phase) | prior protected F03 evidence | final release integration/privilege verification at F16 |
 | F04 TIGER Search Fabric | EXACT_HEAD_PASS (isolated historical phase) | prior protected F04 evidence | final release Search PASS on exact artifact |
-| F05 Hybrid HEIC/HEIF Media Fabric | IN_PROGRESS | current tree contains bounded HEIF preflight/policy/worker/adapter, Media Passport, PR36 bridge, server derivative gate/production readiness, pinned WASM, real upstream HEIC fixture proof and supply-chain records | run complete F05 suite on exact head; protected runner-executed GREEN; production-port/manual/browser/device closure required by F05 design; bind evidence to release |
-| F06 Global Money Fabric | IN_PROGRESS / FINANCE BLOCKED | statutory country-tax boundary, Human–Digital Financial Firewall, immutable finance authority and 16%-baseline rebasing exist | unresolved internal 16% owner allocation keeps `distributionExecutionAuthorized=false`; real platform-service payment/quote provider runtime is not yet authorized/implemented; Shadow Ledger cannot PASS until finance is executable |
-| F07 TIGER Pulse | IN_PROGRESS | NEXUS Pulse Vault/allocation runtime, owned-object projection, ProofView/verified delivery, NOW/SMART/PRECISE and current pricing authority exist | exact-head protected GREEN; lawful platform-service quote/payment implementation in a separately authorized slice; profitability/country evidence; no marketplace intermediation |
-| F08 25K Synthetic Showcase | NOT_EVIDENCED | requirement remains current | exactly 25,000 provenance-safe labeled synthetic objects, validation PASS, no real-person contact data, current no-product-lifetime semantics |
-| F09 AI Assistant + Bounded Controller | FOUNDATION_EXISTS | sovereign AI/security kernel and current digital non-beneficiary roles | NEXUS user-invoked advisory integration; fail-closed owner/money/country/Production boundaries; security verification |
-| F10 Arabic/English + Accessibility | FOUNDATION_EXISTS | Arabic-first current surface, RTL foundations, English/legal surfaces | complete versioned bilingual critical journeys + WCAG 2.2 AA exact-release evidence |
-| F11 Android/iOS Thin Shells | NOT_EVIDENCED | Web/PWA foundations only | native thin shells + Android 20/20 + iOS 20/20 physical-device certification |
-| F12 Five Red-Team Campaigns | NOT_EVIDENCED | existing security controls are foundations only | five authorized isolated campaigns; zero unresolved Critical/High; remediation + retest evidence |
-| F13 TIGER Digital Twin | NOT_EVIDENCED | machine authority requires both 4M programs | Program A 4,000,000 reproducible unique actors PASS + Program B 4,000,000 simultaneous active virtual users PASS with latency/error/saturation/cost/financial invariant evidence |
-| F14 DR/Failover/Restore | FOUNDATION_EXISTS | recovery/release/fail-closed foundations | measured RTO/RPO + restore rehearsal PASS + failover rehearsal PASS bound to release |
-| F15 Final Runtime Vacuum | IN_PROGRESS | PR #349 removed superseded standalone Marketplace/runtime paths; deletion manifest/current-only tests exist | full exact-release reachability/reference/dependency scan, runtime cleanup, build/manifest comparison, rollback evidence, protected GREEN |
-| F16 Launch Passport | IN_PROGRESS / FAIL-CLOSED | machine passport + verifier now exist; Fusion requires all passport gates | populate only real exact-release evidence; freeze SHA/artifact; every mandatory gate PASS; human review; Owner exact-SHA/artifact authorization |
+| F05 Hybrid HEIC/HEIF Media Fabric | IN_PROGRESS | current media implementation + `f05-hybrid-media.json` + verifier | focused/full suite, production ports, browser/device closure, protected exact-head GREEN |
+| F06 Global Money Fabric | BLOCKED | tax separation, Human–Digital Financial Firewall, finance validator, `f06-finance.json` + verifier | owner must resolve internal pending 16%; distribution executable; Shadow Ledger exactly zero; protected exact-head GREEN |
+| F07 TIGER Pulse / Country Economics | IN_PROGRESS / PAYMENT BLOCKED | NEXUS Pulse runtime, ProofView, current base-plus-tax pricing authority, `f07-pulse-country.json` + verifier | lawful TIGER-service payment runtime; launch-country gates; profitability certificate; protected exact-head GREEN |
+| F08 25K Synthetic Showcase | IN_PROGRESS | deterministic 25,000 synthetic generator/verifier + `f08-showcase.json` | isolated rehearsal + protected exact-head evidence |
+| F09 AI Assistant + Bounded Controller | IN_PROGRESS | sovereign kernel, digital owner boundary, `f09-bounded-ai.json` + verifier | NEXUS runtime integration + protected exact-head/security evidence |
+| F10 Arabic/English + Accessibility | IN_PROGRESS | versioned Arabic/English critical catalog, fail-closed translator, `f10-i18n-accessibility.json` + verifier | runtime integration, automated accessibility, manual WCAG 2.2 AA, RTL/LTR visual, protected exact-head |
+| F11 Android/iOS Thin Shells | NOT_EVIDENCED / CONTRACT READY | `f11-mobile.json` + verifier | native thin shells + Android 20/20 + iOS 20/20 on physical devices + protected exact-head |
+| F12 Five Red-Team Campaigns | NOT_EVIDENCED / CONTRACT READY | `f12-red-team.json` + verifier | five authorized isolated campaigns; remediation/retest; zero unresolved Critical/High; protected exact-head |
+| F13 TIGER Digital Twin | NOT_EVIDENCED / CONTRACT READY | `f13-digital-twin.json` + verifier | 4,000,000 reproducible unique actors + 4,000,000 simultaneous active users + latency/error/saturation/cost evidence |
+| F14 DR/Failover/Restore | FOUNDATION_EXISTS / CONTRACT READY | recovery foundations + `f14-recovery.json` + verifier | measured RTO/RPO + restore rehearsal + failover rehearsal + data-integrity verification + protected exact-head |
+| F15 Final Runtime Vacuum | IN_PROGRESS | runtime scanner + `f15-runtime-vacuum.json` + verifier | exact-release scan/artifact comparison/rollback evidence + protected GREEN |
+| F16 Launch Passport | IN_PROGRESS / FAIL-CLOSED | machine passport + verifier; subordinate F05–F15 evidence links | freeze SHA/artifact; every mandatory gate PASS; human review; Owner exact-SHA/artifact authorization |
 
 ## Current pricing and marketplace invariants carried into launch
 
-Pulse reference prices are exactly **2 / 10 / 20 / 45 JOD** and include the approved **16% pricing baseline**. Country price is derived by `REFERENCE PRICE / 1.16` and then applying the verified statutory tax for the user's jurisdiction/transaction. The resulting country-specific displayed price is the final user charge. Statutory tax is outside commissions/distributions.
+Pulse platform base prices are exactly **2 / 10 / 20 / 45 JOD**.
+
+They are TIGER platform-service base prices and do **not** contain a universal 16% pricing baseline. Verified statutory tax is added according to the applicable jurisdiction/transaction rules:
+
+`FINAL USER TOTAL = PLATFORM BASE PRICE + VERIFIED STATUTORY TAX`
+
+There is no 16% tax ceiling. Statutory tax is outside all TIGER commissions/distributions and is carried in a separate tax-liability dimension. The cancelled former internal `TAX_RESERVE 16%` remains unrelated and its unresolved internal 16 percentage points stay pending an explicit owner allocation decision.
 
 VVIP TIGER is not an intermediary, broker, agent, escrow provider, settlement provider, marketplace payment counterparty, guarantor, or transaction party. It advertises, supports discovery, reduces distance, and enables direct contact. Buyer/seller and service-provider/beneficiary transactions remain directly between those parties. Platform payment scope is limited to VVIP TIGER's own approved services such as Pulse/advertising.
 
 ## Mandatory F16 exact-release gates
 
-The machine passport must contain `PASS` plus non-empty evidence for every gate below, all bound to the exact release where applicable:
+The machine passport requires `PASS` plus non-empty evidence for every gate below:
 
 - supply-chain/provenance;
 - security verification;
 - five Red-Team campaigns;
 - 4,000,000 unique reproducible behavioral actors;
 - 4,000,000 simultaneous active virtual users;
-- Android 20/20;
-- iOS 20/20;
+- Android 20/20 physical-device certification;
+- iOS 20/20 physical-device certification;
 - Arabic;
 - English;
 - Search;
+- bounded AI;
 - Hybrid Media/HEIC;
 - accessibility;
 - Restore;
@@ -78,29 +84,38 @@ The machine passport must contain `PASS` plus non-empty evidence for every gate 
 - zero unresolved Critical/High security findings;
 - human review.
 
-In addition, the passport requires:
+Subordinate evidence contracts prevent manual gate promotion:
 
-- frozen release SHA;
-- release artifact SHA-256 digest;
-- Owner authorization bound to that exact SHA and artifact digest;
-- current finance distribution executable with `pendingOwnerDecisionPercent = 0` before `shadowLedgerZero` may be accepted as PASS.
+- F05 → Hybrid Media;
+- F06 → Shadow Ledger/finance closure;
+- F07 → Country Gates + Pricing/Profitability;
+- F08 → 25K Showcase;
+- F09 → bounded AI;
+- F10 → Arabic + English + accessibility;
+- F11 → Android + iOS;
+- F12 → supply chain + security + Red-Team + zero Critical/High;
+- F13 → both 4M gates;
+- F14 → Restore + Failover;
+- F15 → Runtime Vacuum.
+
+In addition, the passport requires a frozen release SHA, artifact SHA-256, Owner authorization bound to both, executable current finance, and human review.
 
 ## Current hard blockers — not paper blockers
 
-1. **Protected GitHub verification:** current PR #349 workflows have repeatedly terminated before runner execution with `steps=[]`. This is neither GREEN nor code-test failure evidence.
+1. **Protected GitHub verification:** prior PR #349 workflows terminated before runner execution with `steps=[]`; that is not GREEN evidence.
 2. **Internal finance completion:** the former internal TAX_RESERVE 16% is cancelled and the remaining internal 16 percentage points are still `PENDING_OWNER_DECISION`; no beneficiary may be invented.
-3. **Platform-service payment runtime:** Pulse real-money provider/quote/capture integration is not currently an authorized implemented runtime. It must never become marketplace-party payment/intermediation.
-4. **External certification evidence:** Android/iOS device certification, five Red-Team campaigns, 4M+4M capacity proof, and DR/failover rehearsals require real execution environments and cannot be manufactured by documentation or unit tests.
+3. **Platform-service payment runtime:** Pulse real-money quote/provider/capture runtime for TIGER's own service is not currently implemented/activated; it must never become marketplace-party payment/intermediation.
+4. **External execution evidence:** Android/iOS physical-device certification, five Red-Team campaigns, 4M+4M capacity proof, and DR/failover rehearsals require real environments and cannot be manufactured by documentation or unit tests.
+5. **F10 human evidence:** manual WCAG 2.2 AA and RTL/LTR visual certification require actual review of the release surfaces.
 
 ## Execution critical path from 2026-09-01
 
-1. Close F05 by auditing and running the existing media implementation/evidence rather than rebuilding it.
-2. Complete F06 platform-owned finance architecture after the Owner resolves the pending internal 16%; separately implement lawful platform-service quote/payment only under an approved slice.
-3. Close F07 Pulse integration and profitability without introducing marketplace intermediation.
-4. Implement/validate F08–F11: 25K showcase, bounded AI, bilingual/accessibility closure, native thin shells.
-5. Execute F12–F14 in real isolated environments: Red-Team, 4M+4M Digital Twin, DR/restore/failover.
-6. Execute F15 exact-release Runtime Vacuum.
-7. Freeze the release artifact and populate F16 machine passport only from evidence.
-8. Human review and Owner exact-SHA/artifact authorization are the final gates.
+1. Obtain protected runner-executed exact-head verification for the current branch and close any actual code failures it reveals.
+2. Resolve the pending internal 16% by explicit Owner decision before enabling distribution/Shadow Ledger closure.
+3. Implement/activate only a lawful platform-owned Pulse payment path under separate protected release authority, then certify launch-country gates and profitability.
+4. Complete device, Red-Team, 4M+4M, accessibility, and recovery rehearsals with machine-readable evidence.
+5. Execute F15 exact-release Runtime Vacuum.
+6. Freeze the release SHA/artifact and populate F16 only from evidence.
+7. Human review and Owner exact-SHA/artifact authorization are the final gates.
 
 Until every mandatory gate is PASS on the exact release, `GLOBAL_LAUNCH_ELIGIBLE` remains `FALSE` and VVIP TIGER must not state **«نحن جاهزون للانطلاق العالمي»** as a completed fact.
