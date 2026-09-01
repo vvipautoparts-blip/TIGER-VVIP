@@ -40,6 +40,10 @@ function completeContext(overrides = {}) {
     f08LaunchGatePass: true,
     f09LaunchGatePass: true,
     f10LaunchGatePass: true,
+    f11LaunchGatePass: true,
+    f12LaunchGatePass: true,
+    f13LaunchGatePass: true,
+    f14LaunchGatePass: true,
     f15LaunchGatePass: true,
     ...overrides
   };
@@ -133,6 +137,54 @@ test('25K showcase PASS requires subordinate F08 launch evidence PASS', () => {
   assert.ok(result.errors.includes('SHOWCASE_25K_PASS_REQUIRES_F08_EVIDENCE_PASS'));
 });
 
+test('bounded AI PASS requires subordinate F09 launch evidence PASS', () => {
+  const { verifyGlobalLaunchPassport } = require(verifierPath);
+  const passport = completePassport();
+  const result = verifyGlobalLaunchPassport(passport, completeContext({ f09LaunchGatePass: false }));
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.includes('BOUNDED_AI_PASS_REQUIRES_F09_EVIDENCE_PASS'));
+});
+
+test('Arabic, English and accessibility PASS require subordinate F10 evidence PASS', () => {
+  const { verifyGlobalLaunchPassport } = require(verifierPath);
+  const passport = completePassport();
+  const result = verifyGlobalLaunchPassport(passport, completeContext({ f10LaunchGatePass: false }));
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.includes('LANGUAGE_ACCESSIBILITY_PASS_REQUIRES_F10_EVIDENCE_PASS'));
+});
+
+test('Android and iOS PASS require subordinate F11 physical-device evidence PASS', () => {
+  const { verifyGlobalLaunchPassport } = require(verifierPath);
+  const passport = completePassport();
+  const result = verifyGlobalLaunchPassport(passport, completeContext({ f11LaunchGatePass: false }));
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.includes('MOBILE_CERTIFICATION_PASS_REQUIRES_F11_EVIDENCE_PASS'));
+});
+
+test('supply-chain security red-team and zero-Critical/High PASS require subordinate F12 evidence PASS', () => {
+  const { verifyGlobalLaunchPassport } = require(verifierPath);
+  const passport = completePassport();
+  const result = verifyGlobalLaunchPassport(passport, completeContext({ f12LaunchGatePass: false }));
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.includes('SECURITY_RED_TEAM_PASS_REQUIRES_F12_EVIDENCE_PASS'));
+});
+
+test('both 4M PASS gates require subordinate F13 evidence PASS', () => {
+  const { verifyGlobalLaunchPassport } = require(verifierPath);
+  const passport = completePassport();
+  const result = verifyGlobalLaunchPassport(passport, completeContext({ f13LaunchGatePass: false }));
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.includes('DIGITAL_TWIN_4M_PASS_REQUIRES_F13_EVIDENCE_PASS'));
+});
+
+test('restore and failover PASS require subordinate F14 evidence PASS', () => {
+  const { verifyGlobalLaunchPassport } = require(verifierPath);
+  const passport = completePassport();
+  const result = verifyGlobalLaunchPassport(passport, completeContext({ f14LaunchGatePass: false }));
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.includes('RECOVERY_PASS_REQUIRES_F14_EVIDENCE_PASS'));
+});
+
 test('runtime vacuum PASS requires subordinate F15 launch evidence PASS', () => {
   const { verifyGlobalLaunchPassport } = require(verifierPath);
   const passport = completePassport();
@@ -146,22 +198,4 @@ test('global launch passport includes bounded AI as a mandatory gate', () => {
   const passport = loadJson(passportPath);
   assert.ok(REQUIRED_GATES.includes('boundedAi'));
   assert.ok(passport.gates.boundedAi);
-});
-
-test('bounded AI PASS requires subordinate F09 launch evidence PASS', () => {
-  const { verifyGlobalLaunchPassport } = require(verifierPath);
-  const passport = completePassport();
-  const result = verifyGlobalLaunchPassport(passport, completeContext({ f09LaunchGatePass: false }));
-  assert.equal(result.ok, false);
-  assert.ok(result.errors.includes('BOUNDED_AI_PASS_REQUIRES_F09_EVIDENCE_PASS'));
-});
-
-test('Arabic, English and accessibility PASS each require subordinate F10 evidence PASS', () => {
-  const { verifyGlobalLaunchPassport } = require(verifierPath);
-  for (const gateName of ['arabic', 'english', 'accessibility']) {
-    const passport = completePassport();
-    const result = verifyGlobalLaunchPassport(passport, completeContext({ f10LaunchGatePass: false }));
-    assert.equal(result.ok, false, gateName);
-    assert.ok(result.errors.includes('LANGUAGE_ACCESSIBILITY_PASS_REQUIRES_F10_EVIDENCE_PASS'), gateName);
-  }
 });
