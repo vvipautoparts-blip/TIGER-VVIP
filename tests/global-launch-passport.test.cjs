@@ -32,6 +32,19 @@ function completePassport() {
   return passport;
 }
 
+function completeContext(overrides = {}) {
+  return {
+    currentHeadSha: 'a'.repeat(40),
+    finance: { distributionExecutionAuthorized: true, pendingOwnerDecisionPercent: 0 },
+    f05LaunchGatePass: true,
+    f08LaunchGatePass: true,
+    f09LaunchGatePass: true,
+    f10LaunchGatePass: true,
+    f15LaunchGatePass: true,
+    ...overrides
+  };
+}
+
 test('current global launch passport is fail-closed while mandatory gates are incomplete', () => {
   const { verifyGlobalLaunchPassport } = require(verifierPath);
   const passport = loadJson(passportPath);
@@ -60,7 +73,7 @@ test('passport rejects Shadow Ledger PASS while current financial distribution i
   const { verifyGlobalLaunchPassport } = require(verifierPath);
   const passport = completePassport();
   const result = verifyGlobalLaunchPassport(passport, {
-    currentHeadSha: passport.release.sha,
+    ...completeContext(),
     finance: { distributionExecutionAuthorized: false, pendingOwnerDecisionPercent: 16 }
   });
   assert.equal(result.ok, false);
@@ -70,10 +83,7 @@ test('passport rejects Shadow Ledger PASS while current financial distribution i
 test('passport rejects exact-head mismatch', () => {
   const { verifyGlobalLaunchPassport } = require(verifierPath);
   const passport = completePassport();
-  const result = verifyGlobalLaunchPassport(passport, {
-    currentHeadSha: 'c'.repeat(40),
-    finance: { distributionExecutionAuthorized: true, pendingOwnerDecisionPercent: 0 }
-  });
+  const result = verifyGlobalLaunchPassport(passport, completeContext({ currentHeadSha: 'c'.repeat(40) }));
   assert.equal(result.ok, false);
   assert.ok(result.errors.includes('PASSPORT_RELEASE_SHA_MUST_MATCH_CURRENT_HEAD'));
 });
@@ -81,14 +91,7 @@ test('passport rejects exact-head mismatch', () => {
 test('fully evidenced exact-release passport can become globally eligible', () => {
   const { verifyGlobalLaunchPassport } = require(verifierPath);
   const passport = completePassport();
-  const result = verifyGlobalLaunchPassport(passport, {
-    currentHeadSha: passport.release.sha,
-    finance: { distributionExecutionAuthorized: true, pendingOwnerDecisionPercent: 0 },
-    f05LaunchGatePass: true,
-    f08LaunchGatePass: true,
-    f09LaunchGatePass: true,
-    f15LaunchGatePass: true
-  });
+  const result = verifyGlobalLaunchPassport(passport, completeContext());
   assert.equal(result.ok, true, result.errors.join('\n'));
   assert.equal(result.globalLaunchEligible, true);
   assert.deepEqual(result.blockingGates, []);
@@ -117,11 +120,7 @@ test('Fusion validator fails closed if the Launch Passport gate is weakened', ()
 test('hybrid media PASS requires subordinate F05 launch evidence PASS', () => {
   const { verifyGlobalLaunchPassport } = require(verifierPath);
   const passport = completePassport();
-  const result = verifyGlobalLaunchPassport(passport, {
-    currentHeadSha: passport.release.sha,
-    finance: { distributionExecutionAuthorized: true, pendingOwnerDecisionPercent: 0 },
-    f05LaunchGatePass: false
-  });
+  const result = verifyGlobalLaunchPassport(passport, completeContext({ f05LaunchGatePass: false }));
   assert.equal(result.ok, false);
   assert.ok(result.errors.includes('HYBRID_MEDIA_PASS_REQUIRES_F05_EVIDENCE_PASS'));
 });
@@ -129,12 +128,7 @@ test('hybrid media PASS requires subordinate F05 launch evidence PASS', () => {
 test('25K showcase PASS requires subordinate F08 launch evidence PASS', () => {
   const { verifyGlobalLaunchPassport } = require(verifierPath);
   const passport = completePassport();
-  const result = verifyGlobalLaunchPassport(passport, {
-    currentHeadSha: passport.release.sha,
-    finance: { distributionExecutionAuthorized: true, pendingOwnerDecisionPercent: 0 },
-    f05LaunchGatePass: true,
-    f08LaunchGatePass: false
-  });
+  const result = verifyGlobalLaunchPassport(passport, completeContext({ f08LaunchGatePass: false }));
   assert.equal(result.ok, false);
   assert.ok(result.errors.includes('SHOWCASE_25K_PASS_REQUIRES_F08_EVIDENCE_PASS'));
 });
@@ -142,13 +136,7 @@ test('25K showcase PASS requires subordinate F08 launch evidence PASS', () => {
 test('runtime vacuum PASS requires subordinate F15 launch evidence PASS', () => {
   const { verifyGlobalLaunchPassport } = require(verifierPath);
   const passport = completePassport();
-  const result = verifyGlobalLaunchPassport(passport, {
-    currentHeadSha: passport.release.sha,
-    finance: { distributionExecutionAuthorized: true, pendingOwnerDecisionPercent: 0 },
-    f05LaunchGatePass: true,
-    f08LaunchGatePass: true,
-    f15LaunchGatePass: false
-  });
+  const result = verifyGlobalLaunchPassport(passport, completeContext({ f15LaunchGatePass: false }));
   assert.equal(result.ok, false);
   assert.ok(result.errors.includes('RUNTIME_VACUUM_PASS_REQUIRES_F15_EVIDENCE_PASS'));
 });
@@ -163,14 +151,17 @@ test('global launch passport includes bounded AI as a mandatory gate', () => {
 test('bounded AI PASS requires subordinate F09 launch evidence PASS', () => {
   const { verifyGlobalLaunchPassport } = require(verifierPath);
   const passport = completePassport();
-  const result = verifyGlobalLaunchPassport(passport, {
-    currentHeadSha: passport.release.sha,
-    finance: { distributionExecutionAuthorized: true, pendingOwnerDecisionPercent: 0 },
-    f05LaunchGatePass: true,
-    f08LaunchGatePass: true,
-    f09LaunchGatePass: false,
-    f15LaunchGatePass: true
-  });
+  const result = verifyGlobalLaunchPassport(passport, completeContext({ f09LaunchGatePass: false }));
   assert.equal(result.ok, false);
   assert.ok(result.errors.includes('BOUNDED_AI_PASS_REQUIRES_F09_EVIDENCE_PASS'));
+});
+
+test('Arabic, English and accessibility PASS each require subordinate F10 evidence PASS', () => {
+  const { verifyGlobalLaunchPassport } = require(verifierPath);
+  for (const gateName of ['arabic', 'english', 'accessibility']) {
+    const passport = completePassport();
+    const result = verifyGlobalLaunchPassport(passport, completeContext({ f10LaunchGatePass: false }));
+    assert.equal(result.ok, false, gateName);
+    assert.ok(result.errors.includes('LANGUAGE_ACCESSIBILITY_PASS_REQUIRES_F10_EVIDENCE_PASS'), gateName);
+  }
 });
