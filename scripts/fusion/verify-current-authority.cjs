@@ -7,7 +7,7 @@ const EXPECTED_PHASES = Object.freeze(
 const FINAL_REFERENCE = 'docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md';
 const REQUIRED_PREFLIGHT = 'OWNER_BINDING_CURRENT_FIRST';
 const REQUIRED_DISPOSITION = 'DELETE_FROM_CURRENT_TREE_NO_FALLBACK_NO_IN_TREE_ARCHIVE_NO_TRASH_NO_LEGACY_COMPATIBILITY';
-const REQUIRED_PULSE_COUNTRY_PRICING_MODE = 'REMOVE_REFERENCE_16_THEN_APPLY_VERIFIED_COUNTRY_TAX';
+const REQUIRED_PULSE_COUNTRY_PRICING_MODE = 'PLATFORM_BASE_PLUS_VERIFIED_STATUTORY_TAX';
 const REQUIRED_PULSE_TAX_AUTHORITY = 'docs/owner-control/TIGER_STATUTORY_TAX_BOUNDARY_CURRENT.md';
 const REQUIRED_PULSE_TAX_MODULE = 'project-control/finance/statutory-tax-boundary.cjs';
 const REQUIRED_GLOBAL_LAUNCH_PASSPORT = 'config/launch/global-launch-passport.json';
@@ -101,11 +101,15 @@ function verifyCurrentAuthority(manifest) {
 
   const pulse = manifest.pulseRing || {};
   if (JSON.stringify(pulse.tiersJod) !== JSON.stringify([2, 10, 20, 45])) errors.push('Pulse tiers must be exactly 2/10/20/45 JOD');
-  if (pulse.referencePriceIncludesBaselineTaxBps !== 1600) errors.push('Pulse reference prices must include the approved 16 percent pricing baseline');
+  if (pulse.tiersArePlatformBasePrices !== true) errors.push('Pulse tiers must remain independent platform base prices');
   if (pulse.countryPricingMode !== REQUIRED_PULSE_COUNTRY_PRICING_MODE) errors.push(`Pulse country pricing mode must equal ${REQUIRED_PULSE_COUNTRY_PRICING_MODE}`);
-  if (pulse.countryTaxAppliedToUntaxedBase !== true) errors.push('Pulse verified country tax must be applied to the untaxed reference base');
-  if (pulse.displayedCountryPriceIsFinalCharge !== true) errors.push('Pulse displayed country price must be the final user charge');
-  if (pulse.additionalTaxAtCapture !== false) errors.push('Pulse must not add a second tax surcharge at capture');
+  if (pulse.countryTaxAddedToPlatformBasePrice !== true) errors.push('verified statutory tax must be added to the Pulse platform base price');
+  if (pulse.finalQuoteIncludesStatutoryTax !== true) errors.push('Pulse final quote must include verified statutory tax');
+  if (pulse.noSecondTaxAfterQuoteSeal !== true) errors.push('Pulse must not add a second statutory tax after the final quote is sealed');
+  if (pulse.noTaxRateCeiling !== true) errors.push('Pulse statutory tax must not impose an artificial 16 percent ceiling');
+  if (pulse.statutoryTaxExcludedFromDistribution !== true) errors.push('Pulse statutory tax must remain outside internal distribution');
+  if (Object.prototype.hasOwnProperty.call(pulse, 'referencePriceIncludesBaselineTaxBps')) errors.push('superseded 16 percent pricing baseline must not remain in Pulse authority');
+  if (Object.prototype.hasOwnProperty.call(pulse, 'countryTaxAppliedToUntaxedBase')) errors.push('superseded untaxed-reference rebasing must not remain in Pulse authority');
   if (pulse.statutoryTaxAuthority !== REQUIRED_PULSE_TAX_AUTHORITY) errors.push(`Pulse statutory tax authority must equal ${REQUIRED_PULSE_TAX_AUTHORITY}`);
   if (pulse.canonicalTaxModule !== REQUIRED_PULSE_TAX_MODULE) errors.push(`Pulse canonical tax module must equal ${REQUIRED_PULSE_TAX_MODULE}`);
   if (pulse.purchasedValue !== 'SERVER_AUTHORITATIVE_VISIBILITY_ALLOCATION') errors.push('Pulse purchased value must be a server-authoritative visibility allocation');
