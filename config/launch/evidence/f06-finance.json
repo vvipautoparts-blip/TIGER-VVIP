@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "TIGER_F06_LAUNCH_EVIDENCE_V1",
+  "status": "BLOCKED",
+  "releaseSha": null,
+  "metrics": {
+    "shadowLedgerImbalanceMinor": null
+  },
+  "checks": {
+    "currentDistributionContract": { "status": "PASS", "evidence": ["config/finance/current-distribution.json", "scripts/finance/verify-current-distribution.cjs"] },
+    "statutoryTaxSeparation": { "status": "PASS", "evidence": ["project-control/finance/statutory-tax-boundary.cjs", "tests/statutory-tax-boundary.test.cjs"] },
+    "humanDigitalFinancialFirewall": { "status": "PASS", "evidence": ["project-control/finance/human-digital-financial-firewall.cjs"] },
+    "distributionExecutable": { "status": "BLOCKED", "evidence": [] },
+    "shadowLedgerZero": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "protectedExactHead": { "status": "NOT_EVIDENCED", "evidence": [] }
+  }
+}
