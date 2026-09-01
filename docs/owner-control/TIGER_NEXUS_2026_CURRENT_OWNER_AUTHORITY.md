@@ -1,7 +1,7 @@
 # TIGER NEXUS™ 2026 — CURRENT OWNER AUTHORITY
 
 **Status:** `CURRENT_ONLY / OWNER_BINDING / NO_FALLBACK / NO_PARALLEL_PRODUCT / NO_IN_TREE_ARCHIVE`
-**Effective decision:** 2026-08-31
+**Effective decision:** 2026-09-01
 **Domain:** primary social experience, sector-specialized publication, contextual capabilities, Pulse Vault interaction, and current security verification baseline.
 
 ## 1. Product identity
@@ -53,20 +53,32 @@ Frontend visibility never grants authority; server/RLS/capability enforcement re
 
 ## 6. Pulse Vault
 
-Current Pulse reference purchase levels are exactly:
+Current Pulse **platform base purchase prices** are exactly:
 
 - `PULSE_2` — 2 JOD;
 - `PULSE_10` — 10 JOD;
 - `PULSE_20` — 20 JOD;
 - `PULSE_45` — 45 JOD.
 
-No other Pulse level is current authority.
+No other Pulse base price level is current authority.
+
+These values are VVIP TIGER platform-service base prices. They do not contain a universal 16% tax baseline and there is no artificial 16% tax ceiling.
+
+For a country-specific platform-service quote, verified statutory tax is added as legally applicable:
+
+`FINAL USER TOTAL = PLATFORM BASE PRICE + VERIFIED STATUTORY TAX`
+
+The final quote must expose base price, statutory tax, and final user total. Statutory tax remains outside all TIGER distribution and commission percentages.
+
+Detailed tax authority:
+
+`docs/owner-control/TIGER_STATUTORY_TAX_BOUNDARY_CURRENT.md`
 
 Purchased visibility is a server-authoritative platform-service allocation and has **no product-time expiry**.
 
 NEXUS exposes it through **Pulse Vault**. Visibility may remain unassigned until the authorized user chooses an eligible Living Sector Object and activates/allocates it under current server policy.
 
-Pulse is not cash, a transferable wallet, buyer/seller settlement, escrow, or marketplace proceeds.
+Pulse is not cash, a transferable money wallet, buyer/seller settlement, escrow, or marketplace proceeds.
 
 ## 7. Delivery modes
 
@@ -96,13 +108,24 @@ Technical TTLs for quotes, sessions, OTP, signed URLs, anti-replay, reservations
 
 ## 10. Current financial boundary
 
-The current financial reference is:
+The current financial references are:
 
-`docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md`
+- `docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md`;
+- `docs/owner-control/TIGER_STATUTORY_TAX_BOUNDARY_CURRENT.md`.
 
-The latest owner decision cancels the former `TAX_RESERVE` 16% allocation. No replacement allocation is inferred or invented. Until the owner explicitly reallocates that cancelled 16%, financial distribution execution remains fail-closed.
+The latest owner decision cancels the former internal `TAX_RESERVE` 16% allocation. That cancelled internal 16% is not statutory tax and is not a pricing baseline. No replacement allocation is inferred or invented. Until the owner explicitly reallocates that internal 16%, financial distribution execution remains fail-closed.
 
-## 11. 2026 security verification baseline
+The applicable statutory tax for TIGER's own paid service is determined from verified legal/jurisdictional evidence and added above the platform base price. It does not reduce or enter owner, partner, operations, sales, or digital-role percentages.
+
+## 11. Marketplace transaction boundary
+
+`marketplaceIntermediationRole = NONE`.
+
+VVIP TIGER provides advertising, discovery, distance reduction, and direct contact. It is not an intermediary, broker, agent, escrow provider, settlement provider, marketplace payment counterparty, guarantor, or transaction party between users.
+
+Pulse payment, when separately lawfully implemented and activated, is payment only for VVIP TIGER's own visibility service. It never creates marketplace-party checkout, custody, settlement, delivery, warranty, guarantee, brokerage, or dispute resolution.
+
+## 12. 2026 security verification baseline
 
 NEXUS uses current external security standards as **verification references and engineering baselines**, not as marketing certification claims:
 
@@ -120,7 +143,7 @@ No identity-provider replacement is authorized by adopting these baselines. The 
 
 Security modernization must prefer proven controls already present in TIGER—RLS default-deny, server-authoritative authorization, OIDC-based release trust, signed artifact provenance, SBOM evidence, immutable/append-only audit boundaries, secret-leak scanning, and exact-source release verification—over adding fashionable infrastructure without a threat-model or measurable security gain.
 
-## 12. Latest-only deletion rule
+## 13. Latest-only deletion rule
 
 This NEXUS authority supersedes any conflicting current-tree product behavior in its scope.
 
@@ -132,6 +155,6 @@ A cleanup shim that searches for and removes conflicting DOM/runtime at executio
 
 Already-applied immutable migration history is not rewritten to fake history. Obsolete database effects are neutralized by forward migration. **Git history is the sole provenance mechanism for deleted conflicting source material.**
 
-## 13. Acceptance statement
+## 14. Acceptance statement
 
-> **TIGER NEXUS 2026 is the only current product experience: social-first, globally sector-specialized, one Living Sector Object per publishable purpose, one canonical `ماذا تعرض أو تحتاج؟` creation entry, persistent TIGER Command with validated `صلاحياتي`, and Pulse Vault visibility at 2/10/20/45 JOD with no product-time expiry. Sector discovery is a view of the same Living Objects and is not a parallel product or creation path. Current delivery modes are NOW/SMART/PRECISE and verified-delivery ZERO-BURN remains authoritative. The former TAX_RESERVE 16% is cancelled and no replacement allocation is invented until an explicit owner decision. Any current-tree behavior that conflicts with this authority is physically deleted with no archive, trash, compatibility, parallel product, or fallback preservation; Git history alone preserves provenance.**
+> **TIGER NEXUS 2026 is the only current product experience: social-first, globally sector-specialized, one Living Sector Object per publishable purpose, one canonical `ماذا تعرض أو تحتاج؟` creation entry, persistent TIGER Command with validated `صلاحياتي`, and Pulse Vault platform base prices 2/10/20/45 JOD with no product-time expiry. Verified statutory tax is added above the platform base price as legally applicable; there is no 16% pricing baseline and no 16% tax ceiling, and tax remains outside TIGER distributions and commissions. Sector discovery is a view of the same Living Objects and is not a parallel product or creation path. Current delivery modes are NOW/SMART/PRECISE and verified-delivery ZERO-BURN remains authoritative. VVIP TIGER has zero marketplace intermediation. The former internal TAX_RESERVE 16% is cancelled and no replacement allocation is invented until an explicit owner decision. Any current-tree behavior that conflicts with this authority is physically deleted with no archive, trash, compatibility, parallel product, or fallback preservation; Git history alone preserves provenance.**
