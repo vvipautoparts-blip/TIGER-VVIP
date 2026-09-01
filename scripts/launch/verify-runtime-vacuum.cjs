@@ -13,7 +13,8 @@ const SUPERSEDED_TOKENS = Object.freeze([
   { name: 'PULSE_25', pattern: /\bPULSE_25\b/i },
   { name: 'requestPublication', pattern: /requestPublication\s*\(/i },
   { name: '120-day-product-lifetime', pattern: /\b120\s*(?:days?|day)\b/i },
-  { name: '4-posts-week', pattern: /\b4\s*(?:posts?|post)\s*\/\s*week\b/i }
+  { name: '4-posts-week', pattern: /\b4\s*(?:posts?|post)\s*\/\s*week\b/i },
+  { name: '16-percent-tax-baseline', pattern: /(?:\/\s*1\.16\b|referencePriceIncludesBaselineTaxBps|baselineIncludedTaxBps|countryTaxAppliedToUntaxedBase|REMOVE_REFERENCE_16_THEN_APPLY_VERIFIED_COUNTRY_TAX)/i }
 ]);
 const ACTIVE_DIRS = Object.freeze(['scripts/nexus','scripts/social','scripts/fusion','scripts/runtime']);
 const ACTIVE_FILES = Object.freeze(['index.html','fusion-home-f02.html','private-profile-p03.html','manifest.webmanifest','sw-vvip-static.js']);
