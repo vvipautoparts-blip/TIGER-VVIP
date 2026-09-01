@@ -13,12 +13,8 @@
   const SAFE_RETURN_PATHS = new Set([
     "index.html", "/index.html", "./index.html"
   ]);
-  const PREVIEW_ONLY_RETURN_PATHS = new Set([
-    "private-profile-p03.html", "/private-profile-p03.html", "./private-profile-p03.html"
-  ]);
   const INTENT_STORAGE_KEY = "vvip.auth.intent.v1";
   const SIMPLE_INTENTS = new Set([
-    "CREATE_LISTING",
     "OPEN_ACCOUNT",
     "CREATE_SOCIAL_POST",
     "OPEN_SOCIAL_FRIENDS",
@@ -32,8 +28,6 @@
     "SOCIAL_PROFILE_UNFOLLOW",
     "SOCIAL_FEED_PREFERENCE"
   ]);
-  const LISTING_INTENTS = new Set(["TOGGLE_FAVORITE", "CONTACT_SELLER_INTERNAL"]);
-  const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   const CLERK_USER_PATTERN = /^user_[A-Za-z0-9_-]{6,128}$/;
   const SESSION_TOKEN_MAX_LENGTH = 16 * 1024;
 
@@ -62,40 +56,27 @@
     );
   }
 
-  function safeReturnPath(locationLike, runtimeConfigLike) {
+  function safeReturnPath(locationLike) {
     const location = locationLike || root.location;
     const returnTo = new URLSearchParams(location.search).get("return_to");
-    if (SAFE_RETURN_PATHS.has(returnTo)) return returnTo;
-    const runtimeConfig = runtimeConfigLike || root.__VVIP_RUNTIME_CONFIG__ || null;
-    const production = Boolean(runtimeConfig && runtimeConfig.environment === "production");
-    if (!production && PREVIEW_ONLY_RETURN_PATHS.has(returnTo)) return returnTo;
-    return "";
+    return SAFE_RETURN_PATHS.has(returnTo) ? returnTo : "";
+  }
+
+  function fusionSurface() {
+    const surface = root.VVIPFusionSurface;
+    return surface && typeof surface === "object" ? surface : null;
   }
 
   function showHome() {
-    if (root.VVIPFusionSurface && typeof root.VVIPFusionSurface.showHome === "function") {
-      root.VVIPFusionSurface.showHome();
-      return;
-    }
-    if (root.VVIP_PR29 && typeof root.VVIP_PR29.showHome === "function") root.VVIP_PR29.showHome();
+    const surface = fusionSurface();
+    if (!surface || typeof surface.showHome !== "function") throw authError("NEXUS_SURFACE_UNAVAILABLE");
+    surface.showHome();
   }
 
   function hideHome() {
-    if (root.VVIPFusionSurface && typeof root.VVIPFusionSurface.hideHome === "function") {
-      root.VVIPFusionSurface.hideHome();
-      return;
-    }
-
-    const home = root.document && typeof root.document.querySelector === "function"
-      ? root.document.querySelector("[data-vvip-fusion-authoritative]")
-      : null;
-    if (home) {
-      home.hidden = true;
-      if (typeof home.setAttribute === "function") home.setAttribute("aria-hidden", "true");
-      return;
-    }
-
-    if (root.VVIP_PR29 && typeof root.VVIP_PR29.hideHome === "function") root.VVIP_PR29.hideHome();
+    const surface = fusionSurface();
+    if (!surface || typeof surface.hideHome !== "function") throw authError("NEXUS_SURFACE_UNAVAILABLE");
+    surface.hideHome();
   }
 
   function gateElement() {
@@ -113,12 +94,9 @@
   function showGate() {
     hideHome();
     const gate = gateElement();
-    if (gate) {
-      gate.hidden = false;
-      if (typeof gate.setAttribute === "function") gate.setAttribute("aria-hidden", "false");
-      return;
-    }
-    if (root.VVIP_PR29 && typeof root.VVIP_PR29.showGate === "function") root.VVIP_PR29.showGate();
+    if (!gate) throw authError("NEXUS_AUTH_GATE_UNAVAILABLE");
+    gate.hidden = false;
+    if (typeof gate.setAttribute === "function") gate.setAttribute("aria-hidden", "false");
   }
 
   function hideGate() {
@@ -153,11 +131,6 @@
     if (SIMPLE_INTENTS.has(name)) {
       if (keys.length !== 1 || keys[0] !== "name") throw authError("AUTH_INTENT_INVALID");
       return Object.freeze({ name });
-    }
-    if (LISTING_INTENTS.has(name)) {
-      if (keys.length !== 2 || keys[0] !== "listingId" || keys[1] !== "name") throw authError("AUTH_INTENT_INVALID");
-      if (typeof input.listingId !== "string" || !UUID_PATTERN.test(input.listingId)) throw authError("AUTH_INTENT_INVALID");
-      return Object.freeze({ name, listingId: input.listingId });
     }
     throw authError("AUTH_INTENT_INVALID");
   }
@@ -283,8 +256,19 @@
   }
 
   async function resolveClerk() {
-    const runtime = await Promise.resolve(root.VVIPRuntimeReady);
-    const clerk = runtime && runtime.clerk;
+    const runtimeReady = root.VVIPRuntimeReady;
+    let clerk = null;
+
+    if (runtimeReady !== undefined && runtimeReady !== null) {
+      const runtime = await Promise.resolve(runtimeReady);
+      clerk = runtime && runtime.clerk;
+    } else if (!root.__VVIP_RUNTIME_CONFIG__) {
+      // Source/branch preview: index.html intentionally preloads Clerk directly.
+      // Sealed candidate/Production artifacts always define runtime config first and
+      // therefore remain bound to the canonical runtime loader with no fallback.
+      clerk = root.Clerk;
+    }
+
     if (!clerk) throw authError("CLERK_RUNTIME_UNAVAILABLE");
     resetForClerk(clerk);
     registerListener(clerk);
@@ -365,7 +349,11 @@
 
   function recover() {
     console.warn("VVIP_CLERK_GATE_RECOVERY");
-    showGate();
+    try {
+      showGate();
+    } catch (_) {
+      // Fail closed: never reveal the protected surface when the canonical gate is unavailable.
+    }
     showAuthError();
   }
 

@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "TIGER_F05_LAUNCH_EVIDENCE_V1",
+  "status": "IN_PROGRESS",
+  "authority": "docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md",
+  "release": { "sha": null, "artifactSha256": null },
+  "launchGatePass": false,
+  "implementation": {
+    "status": "PASS",
+    "evidence": [
+      "scripts/media/f05-heif-preflight.js",
+      "scripts/media/f05-heif-policy.js",
+      "scripts/media/f05-heif-adapter.js",
+      "scripts/media/f05-media-passport.js",
+      "scripts/media/f05-pr36-media-bridge.js",
+      "scripts/media/server/f05-derivative-gate.js",
+      "scripts/media/server/f05-production-readiness.js",
+      "workers/media/f05-heif-worker.js",
+      "workers/media/f05-heif-decoder.v1.wasm"
+    ]
+  },
+  "focusedTests": {
+    "status": "NOT_EVIDENCED",
+    "evidence": [],
+    "note": "Complete F05 suite has not been freshly executed on the current exact head in this session."
+  },
+  "realFixture": {
+    "status": "FOUNDATION_EXISTS",
+    "evidence": ["tests/f05-real-fixtures.test.cjs"],
+    "note": "Real upstream HEIC fixture test exists; fresh exact-head execution is still required."
+  },
+  "supplyChain": {
+    "status": "FOUNDATION_EXISTS",
+    "evidence": [
+      "tests/f05-supply-chain.test.cjs",
+      "tests/f05-supply-chain-records.test.cjs",
+      "workers/media/f05-heif-decoder.v1.manifest.json",
+      "workers/media/f05-heif-decoder.v1.checksums.sha256"
+    ]
+  },
+  "productionPorts": {
+    "status": "NOT_EVIDENCED",
+    "evidence": [],
+    "note": "Non-Production production-port rehearsal evidence is still required."
+  },
+  "browserDevice": {
+    "status": "NOT_EVIDENCED",
+    "evidence": [],
+    "note": "Required browser/device closure evidence is not yet bound to this release."
+  },
+  "protectedExactHead": {
+    "status": "BLOCKED",
+    "evidence": [],
+    "runnerExecuted": false,
+    "sha": null,
+    "note": "Protected GitHub jobs are not yet runner-executed GREEN on the exact release."
+  }
+}

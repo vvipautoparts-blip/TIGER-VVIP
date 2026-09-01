@@ -1,0 +1,261 @@
+:root {
+  --nexus-surface: color-mix(in srgb, Canvas 94%, CanvasText 6%);
+  --nexus-surface-elevated: color-mix(in srgb, Canvas 98%, CanvasText 2%);
+  --nexus-border: color-mix(in srgb, CanvasText 18%, transparent);
+  --nexus-accent: #3157d5;
+  --nexus-accent-contrast: #ffffff;
+  --nexus-radius: 18px;
+  --nexus-focus: 0 0 0 3px color-mix(in srgb, var(--nexus-accent) 38%, transparent);
+}
+
+.nexus-composer-classification {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-block: 14px;
+}
+
+.nexus-composer-classification label {
+  display: grid;
+  gap: 7px;
+  font-weight: 700;
+}
+
+.nexus-composer-classification select {
+  inline-size: 100%;
+  min-block-size: 46px;
+  padding-inline: 12px;
+  border: 1px solid var(--nexus-border);
+  border-radius: 12px;
+  background: var(--nexus-surface-elevated);
+  color: inherit;
+  font: inherit;
+}
+
+.nexus-pulse-entry {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.nexus-pulse-object-trigger {
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.nexus-vault-panel {
+  max-inline-size: 560px;
+}
+
+.nexus-vault-balance {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 8px;
+  padding: 18px;
+  border: 1px solid var(--nexus-border);
+  border-radius: var(--nexus-radius);
+  background: var(--nexus-surface);
+}
+
+.nexus-vault-balance__number {
+  font-size: clamp(1.7rem, 5vw, 2.6rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.nexus-vault-balance__label,
+.nexus-vault-balance__expiry {
+  opacity: .78;
+}
+
+.nexus-vault-balance__expiry {
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.nexus-vault-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-block: 14px;
+}
+
+.nexus-vault-metrics p {
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--nexus-border);
+  border-radius: 14px;
+  background: var(--nexus-surface-elevated);
+}
+
+.nexus-vault-modes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.nexus-vault-modes button,
+[data-nexus-vault-trigger],
+.nexus-pulse-allocation button,
+.nexus-pulse-group button,
+.nexus-pulse-group select {
+  min-block-size: 44px;
+  border: 1px solid var(--nexus-border);
+  border-radius: 12px;
+  background: var(--nexus-surface-elevated);
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+}
+
+.nexus-vault-modes button[aria-pressed="true"] {
+  border-color: var(--nexus-accent);
+  background: var(--nexus-accent);
+  color: var(--nexus-accent-contrast);
+}
+
+.nexus-vault-modes button:disabled,
+.nexus-pulse-allocation button:disabled,
+.nexus-pulse-group button:disabled {
+  opacity: .52;
+  cursor: not-allowed;
+}
+
+.nexus-vault-empty,
+.nexus-pulse-status {
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px dashed var(--nexus-border);
+  border-radius: 14px;
+}
+
+.nexus-pulse-status[data-nexus-pulse-status="success"] {
+  border-style: solid;
+  font-weight: 700;
+}
+
+.nexus-pulse-allocation,
+.nexus-pulse-groups,
+.nexus-pulse-group {
+  display: grid;
+  gap: 12px;
+}
+
+.nexus-pulse-allocation,
+.nexus-pulse-group {
+  margin-block-start: 14px;
+  padding: 16px;
+  border: 1px solid var(--nexus-border);
+  border-radius: var(--nexus-radius);
+  background: var(--nexus-surface-elevated);
+}
+
+.nexus-pulse-allocation h3,
+.nexus-pulse-groups h3 {
+  margin: 0;
+}
+
+.nexus-pulse-allocation input {
+  inline-size: 100%;
+  min-block-size: 48px;
+  box-sizing: border-box;
+  padding-inline: 12px;
+  border: 1px solid var(--nexus-border);
+  border-radius: 12px;
+  background: var(--nexus-surface-elevated);
+  color: inherit;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.nexus-pulse-allocate {
+  border-color: var(--nexus-accent) !important;
+  background: var(--nexus-accent) !important;
+  color: var(--nexus-accent-contrast) !important;
+}
+
+.nexus-pulse-group__heading,
+.nexus-pulse-group__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.nexus-pulse-group__controls select {
+  flex: 1 1 150px;
+  padding-inline: 10px;
+}
+
+.nexus-opportunity {
+  display: grid;
+  gap: 5px;
+  padding: 12px 14px;
+  border: 1px solid var(--nexus-border);
+  border-radius: 14px;
+  background: var(--nexus-surface);
+}
+
+.nexus-opportunity__message {
+  margin: 0;
+  opacity: .82;
+}
+
+[data-nexus-auto-freeze="true"] {
+  border-style: dashed;
+  font-weight: 700;
+}
+
+[data-nexus-sector]:focus-visible,
+[data-nexus-intent]:focus-visible,
+[data-nexus-vault-trigger]:focus-visible,
+.nexus-vault-modes button:focus-visible,
+.nexus-pulse-allocation input:focus-visible,
+.nexus-pulse-allocation button:focus-visible,
+.nexus-pulse-group button:focus-visible,
+.nexus-pulse-group select:focus-visible,
+.nexus-pulse-object-trigger:focus-visible {
+  outline: none;
+  box-shadow: var(--nexus-focus);
+}
+
+@media (max-width: 600px) {
+  .nexus-composer-classification,
+  .nexus-vault-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .nexus-vault-balance {
+    grid-template-columns: 1fr;
+  }
+
+  .nexus-vault-modes {
+    grid-template-columns: 1fr;
+  }
+
+  .nexus-pulse-group__heading,
+  .nexus-pulse-group__controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .nexus-pulse-group__controls select,
+  .nexus-pulse-group__controls button {
+    inline-size: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nexus-vault-panel,
+  .nexus-vault-modes button,
+  [data-nexus-vault-trigger],
+  .nexus-pulse-object-trigger,
+  .nexus-pulse-allocation button,
+  .nexus-pulse-group button {
+    scroll-behavior: auto;
+    transition: none !important;
+  }
+}

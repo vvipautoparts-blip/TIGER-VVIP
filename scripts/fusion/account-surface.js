@@ -26,6 +26,7 @@
     const host = root.document.querySelector('[data-fusion-account-actions]');
     if (!host) return;
     host.replaceChildren();
+
     const recovery = root.document.createElement('button');
     recovery.type = 'button';
     recovery.className = 'button button--quiet';
@@ -55,25 +56,31 @@
         setIdentity('تعذر تسجيل الخروج الآن. حاول مرة أخرى.', true);
       });
     });
+
     host.appendChild(recovery);
     host.appendChild(signOut);
+  }
+
+  async function currentRuntime() {
+    const ready = root.VVIPRuntimeReady;
+    if (!ready || typeof ready.then !== 'function') throw new Error('ACCOUNT_RUNTIME_UNAVAILABLE');
+    const runtime = await ready;
+    if (!runtime || !runtime.clerk) throw new Error('ACCOUNT_RUNTIME_UNAVAILABLE');
+    return runtime;
   }
 
   async function hydrate() {
     if (loading) return;
     loading = true;
     try {
-      const context = root.VVIPFusionMarketplaceContext;
-      if (!context || typeof context.ready !== 'function') throw new Error('ACCOUNT_RUNTIME_UNAVAILABLE');
-      const ready = await context.ready();
-      const user = ready.runtime && ready.runtime.clerk && ready.runtime.clerk.user;
+      const runtime = await currentRuntime();
+      const user = runtime.clerk && runtime.clerk.user;
       if (!user) throw new Error('ACCOUNT_IDENTITY_UNAVAILABLE');
       const name = safe(user.fullName || user.firstName || user.username || 'حساب VVIP TIGER');
       const email = safe(user.primaryEmailAddress && user.primaryEmailAddress.emailAddress);
-      const listings = await ready.repository.listMine();
-      const count = Array.isArray(listings) ? listings.length : 0;
-      setIdentity([name, email, `${count} إعلان في حسابك`].filter(Boolean).join(' · '), false);
-      renderActions(ready.runtime);
+      setIdentity([name, email].filter(Boolean).join(' · '), false);
+      renderActions(runtime);
+
       const lifecycle = root.TIGERSocialAccountLifecycleCurrent;
       if (!lifecycle || typeof lifecycle.load !== 'function') {
         throw new Error('ACCOUNT_LIFECYCLE_UNAVAILABLE');
@@ -94,7 +101,7 @@
     host.setAttribute('aria-hidden', 'false');
     const panel = host.querySelector('.fusion-account-panel');
     if (panel && typeof panel.focus === 'function') panel.focus();
-    hydrate();
+    void hydrate();
     return true;
   }
 

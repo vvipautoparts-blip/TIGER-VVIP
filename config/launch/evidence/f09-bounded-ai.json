@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "TIGER_F09_LAUNCH_EVIDENCE_V1",
+  "status": "IN_PROGRESS",
+  "authority": "docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md",
+  "release": { "sha": null, "artifactSha256": null },
+  "launchGatePass": false,
+  "sovereignKernel": {
+    "status": "FOUNDATION_EXISTS",
+    "evidence": ["scripts/ai/sovereign-security-kernel.js", "tests/ai02-sovereign-security-kernel.test.cjs"]
+  },
+  "nexusBoundary": {
+    "status": "PASS",
+    "evidence": ["scripts/ai/nexus-owner-boundary.cjs", "tests/f09-nexus-digital-authority.test.cjs"],
+    "digitalZeroBenefit": true,
+    "sovereignActionsDenied": true
+  },
+  "focusedTests": {
+    "status": "FOUNDATION_EXISTS",
+    "evidence": ["LOCAL_SESSION_2026-09-01:node --test tests/f09-nexus-digital-authority.test.cjs => 4/4 PASS"]
+  },
+  "nexusIntegration": {
+    "status": "NOT_EVIDENCED",
+    "evidence": []
+  },
+  "protectedExactHead": {
+    "status": "BLOCKED",
+    "evidence": [],
+    "runnerExecuted": false,
+    "sha": null
+  }
+}

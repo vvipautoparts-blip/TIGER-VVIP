@@ -39,7 +39,7 @@ test("static service worker module exists", () => {
 
 test("static delivery exports the current bounded cache contract", () => {
   assert.ok(worker, "service worker module must be loadable in Node");
-  assert.equal(worker.CACHE_NAME, "vvip-static-v2");
+  assert.equal(worker.CACHE_NAME, "vvip-static-nexus-v4");
   assert.equal(worker.MAX_AGE_MS, 60 * 60 * 1000);
   assert.equal(typeof worker.shouldHandleRequest, "function");
   assert.equal(typeof worker.isResponseCacheable, "function");
@@ -126,14 +126,14 @@ test("registration runtime exports a non-blocking installer and handles already-
   assert.equal(loadListeners, 0);
 });
 
-test("shared resilience bootstrap loads static delivery exactly once", () => {
+test("shared resilience bootstrap loads static delivery exactly once on the current NEXUS shell", () => {
   assert.equal(fs.existsSync(REGISTRATION_PATH), true, "registration runtime must exist");
   const resilience = fs.readFileSync(RESILIENCE_PATH, "utf8");
   const runtimeMatches = resilience.match(/scripts\/runtime\/vvip-static-delivery\.js/g) || [];
   assert.equal(runtimeMatches.length, 1, "shared resilience layer must bootstrap static delivery exactly once");
-  for (const file of ["index.html", "private-profile-p03.html"]) {
-    const html = fs.readFileSync(path.join(ROOT, file), "utf8");
-    const matches = html.match(/scripts\/vvip-pr30-resilience\.js/g) || [];
-    assert.equal(matches.length, 1, `${file} must load the shared resilience bootstrap exactly once`);
-  }
+  const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+  const matches = html.match(/scripts\/vvip-pr30-resilience\.js/g) || [];
+  assert.equal(matches.length, 1, "index.html must load the shared resilience bootstrap exactly once");
+  assert.equal(fs.existsSync(path.join(ROOT, "private-profile-p03.html")), false,
+    "retired standalone private profile route must stay deleted");
 });

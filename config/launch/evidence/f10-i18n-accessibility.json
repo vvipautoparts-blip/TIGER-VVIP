@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "TIGER_F10_LAUNCH_EVIDENCE_V1",
+  "status": "IN_PROGRESS",
+  "releaseSha": null,
+  "checks": {
+    "criticalCatalog": {
+      "status": "PASS",
+      "evidence": [
+        "config/i18n/critical-journeys.json",
+        "scripts/i18n/critical-catalog.cjs",
+        "tests/f10-i18n-critical.test.cjs"
+      ]
+    },
+    "runtimeIntegration": {
+      "status": "NOT_EVIDENCED",
+      "evidence": []
+    },
+    "automatedAccessibility": {
+      "status": "NOT_EVIDENCED",
+      "evidence": []
+    },
+    "manualWcag22AA": {
+      "status": "NOT_EVIDENCED",
+      "evidence": []
+    },
+    "rtlLtrVisual": {
+      "status": "NOT_EVIDENCED",
+      "evidence": []
+    },
+    "protectedExactHead": {
+      "status": "NOT_EVIDENCED",
+      "evidence": []
+    }
+  }
+}

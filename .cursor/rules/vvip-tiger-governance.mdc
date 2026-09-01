@@ -1,55 +1,78 @@
 ---
-description: VVIP TIGER development governance — Cursor Agent is the sole writer; owner approves git and production actions.
+description: VVIP TIGER development governance — current-only owner authority, protected branch execution, exact-head verification.
 alwaysApply: true
 ---
 
 # VVIP TIGER — Agent Governance
 
+## Mandatory first reference
+
+Before any edit, read:
+
+`docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md`
+
+This is the mandatory CURRENT_ONLY owner binding. Newest explicit owner-approved decisions supersede conflicting older instructions. Conflicting old material must not be restored from archived prose, old plans, Git history, fallback, or compatibility paths.
+
+Then read `AGENTS.md` and the current domain authority relevant to the task.
+
+## Current protected lane
+
+- Current product: `TIGER NEXUS 2026`.
+- Current implementation lane: PR #349 on `feat/tiger-nexus-2026-20260829`.
+- Current Pulse prices: `2 / 10 / 20 / 45 JOD`.
+- `TAX_RESERVE 16%` is cancelled; no replacement allocation may be invented.
+- Current convergence work is reconciliation only; no new product slice begins before exact-head protected verification.
+
 ## Roles
 
-- **Cursor Agent**: sole author of code and config changes in this repository.
-- **BLACKBOX AI**: read-only reviewer; see `docs/ai/BLACKBOX_REVIEW_PROMPT.md`.
-- **GitHub Actions**: automated final gate via `scripts/quality-gate.sh`.
-- **Project owner**: explicit approval for `git add`, `commit`, `push`, `merge`, and production Supabase operations.
+- **Cursor Agent**: repository writer only within the owner-approved task scope and protected branch.
+- **BLACKBOX AI**: read-only reviewer where used.
+- **GitHub Actions**: automated verification; a check is evidence only when it actually executes.
+- **Project owner**: final product authority and protected merge/Production authority.
 
 ## Before any edit
 
-1. Read relevant files and trace IDs across HTML and scripts (see `AGENTS.md`).
-2. State analysis, scope, and a minimal plan before modifying files.
-3. Use a **dedicated branch per task**; never commit directly to `main`.
-4. For bugs, add or run a failing test first when reasonably possible (RED → GREEN).
-5. Prefer the **smallest correct diff**; no drive-by refactors or unrelated fixes.
+1. Read the current owner binding first.
+2. Resolve the exact PR, branch, and head SHA.
+3. Read the relevant current source/test/domain authority.
+4. Identify the precise conflict or requested change; preserve compatible material.
+5. Add or update a focused failing regression contract first when practical.
+6. Make the smallest correct change; no unrelated refactors.
+7. Never rewrite applied historical migrations; use only separately authorized forward repair when needed.
 
-## Hard prohibitions (agent)
+## Hard prohibitions
 
-- No unauthorized file, branch, or worktree deletion.
-- No secrets, tokens, or environment keys in chat, commits, or logs.
-- No `commit`, `push`, or `merge` without **explicit owner approval** in the current task.
-- No Supabase production operations: `link`, `db push`, `db reset`, `migration repair`, or disabling RLS.
-- No `git reset --hard`, `git clean -fd`, `git push --force`, or `rm -rf` on the repository.
-- No backup copies inside the repository tree.
-- No edits to `supabase/migrations/` unless the task explicitly authorizes migration work (owner + review chain).
-- No Firebase deploy or hosting config changes unless explicitly requested.
-- Do not replace an existing file without reading and understanding it first.
+- No direct work on `main`.
+- No unauthorized file/worktree destruction.
+- No secrets, tokens, credentials, or private user data in chat, commits, browser code, or logs.
+- No Production/Staging provider/database/credential mutation during current convergence.
+- No disabling RLS, weakening security controls, or weakening/relabeling quality gates.
+- No `git reset --hard`, `git clean -fd`, `git push --force`, or destructive repository cleanup.
+- No in-tree backup/legacy/archive/trash/fallback copy of a conflicting current rule.
+- Do not recreate physically removed Marketplace/Fusion/legacy product runtimes to satisfy stale references.
 
-## Scope discipline
+## Current release boundary
 
-- Stay within the task scope documented in the PR template.
-- Do not change platform UI behavior unless the task requires it.
-- Link setup docs (`SETUP-GUIDE.md`, `SUPABASE-EDGE-OTP-GUIDE.md`) instead of duplicating long procedures.
+PR #349 remains **Draft**.
 
-## Pre-commit verification (agent)
+Do not mark Ready for Review, merge, deploy, or perform Production mutation until **all required protected checks on the exact current head actually execute on a runner and are GREEN**, and required review/protected-merge conditions are satisfied.
 
-Before asking the owner to approve `commit`:
+A job with no runner execution or no executed steps is `BLOCKED`, not a code-test failure and not GREEN.
+
+## Verification
+
+Full repository gate when available:
 
 ```bash
 bash scripts/quality-gate.sh
 ```
 
-Report `VVIP_QUALITY_GATE=PASS` or `FAIL` and fix governance-related failures before requesting approval.
+Report only evidence actually observed. A focused test does not prove full repository readiness.
 
-## Reference
+## References
 
-- Operating model: `docs/ai/VVIP_AI_OPERATING_MODEL.md`
-- Supabase safety: `docs/ai/SUPABASE_SAFETY_POLICY.md`
-- Recovery status (read-only): `bash scripts/vvip-recovery-status.sh`
+1. `docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md` — mandatory first authority.
+2. `docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md` — current owner router.
+3. `AGENTS.md` — current repository execution guidance subordinate to the owner binding.
+4. `docs/ai/VVIP_AI_OPERATING_MODEL.md` — compatible AI operating model.
+5. `docs/ai/SUPABASE_SAFETY_POLICY.md` — database safety boundary where compatible with newer owner authority.

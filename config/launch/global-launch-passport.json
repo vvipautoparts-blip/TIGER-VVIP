@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "TIGER_GLOBAL_LAUNCH_PASSPORT_V1",
+  "status": "CURRENT_PRE_RELEASE_FAIL_CLOSED",
+  "authority": "docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md",
+  "readinessMatrix": "docs/fusion/GLOBAL_LAUNCH_READINESS_2026.md",
+  "candidateBranch": "feat/tiger-nexus-2026-20260829",
+  "release": {
+    "frozen": false,
+    "sha": null,
+    "artifactSha256": null
+  },
+  "globalLaunchEligible": false,
+  "gates": {
+    "supplyChainProvenance": { "status": "BLOCKED", "evidence": [] },
+    "securityVerification": { "status": "BLOCKED", "evidence": [] },
+    "redTeamCampaigns": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "uniqueActors4m": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "simultaneousActive4m": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "android20of20": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "ios20of20": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "arabic": { "status": "IN_PROGRESS", "evidence": [] },
+    "english": { "status": "IN_PROGRESS", "evidence": [] },
+    "search": { "status": "FOUNDATION_EXISTS", "evidence": [] },
+    "boundedAi": { "status": "FOUNDATION_EXISTS", "evidence": [] },
+    "hybridMediaHeic": { "status": "IN_PROGRESS", "evidence": [] },
+    "accessibility": { "status": "FOUNDATION_EXISTS", "evidence": [] },
+    "restore": { "status": "FOUNDATION_EXISTS", "evidence": [] },
+    "failover": { "status": "FOUNDATION_EXISTS", "evidence": [] },
+    "shadowLedgerZero": { "status": "BLOCKED", "evidence": [] },
+    "countryGates": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "pricingProfitability": { "status": "IN_PROGRESS", "evidence": [] },
+    "showcase25k": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "runtimeVacuum": { "status": "IN_PROGRESS", "evidence": [] },
+    "zeroCriticalHigh": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "humanReview": { "status": "NOT_EVIDENCED", "evidence": [] }
+  },
+  "ownerAuthorization": {
+    "status": "NOT_EVIDENCED",
+    "exactReleaseSha": null,
+    "artifactSha256": null,
+    "evidence": []
+  }
+}

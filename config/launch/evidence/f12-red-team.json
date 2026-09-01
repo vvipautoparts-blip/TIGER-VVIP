@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "TIGER_F12_LAUNCH_EVIDENCE_V1",
+  "status": "NOT_EVIDENCED",
+  "releaseSha": null,
+  "metrics": {
+    "campaignsRequired": 5,
+    "campaignsPassed": 0,
+    "isolatedCampaigns": false,
+    "unresolvedCritical": null,
+    "unresolvedHigh": null
+  },
+  "checks": {
+    "authorizedIsolatedCampaigns": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "remediationRetest": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "zeroCriticalHigh": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "securityEvidenceBundle": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "protectedExactHead": { "status": "NOT_EVIDENCED", "evidence": [] }
+  }
+}

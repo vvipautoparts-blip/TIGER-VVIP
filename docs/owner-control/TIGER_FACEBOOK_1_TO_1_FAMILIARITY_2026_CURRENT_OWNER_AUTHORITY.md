@@ -1,394 +1,233 @@
-# TIGER Facebook 1:1 Familiarity + TIGER Identity — Current Owner Authority
+# TIGER Social Familiarity + TIGER Identity — Current Subordinate Design Authority
 
-**Status:** `CURRENT_ONLY / OWNER_APPROVED / DESIGN AUTHORITY`
+**Status:** `CURRENT_ONLY / OWNER_APPROVED / NEXUS_SUBORDINATE_DESIGN_AUTHORITY / NO_PARALLEL_PRODUCT`
 
-**Effective date:** 2026-08-21
+**Reconciled:** 2026-08-31
 
-**Applies to:** VVIP TIGER Social UI/UX, information architecture, navigation, component topology, interaction grammar, responsive behavior, profile presentation, feed presentation, composer, stories, comments, reactions, friends, messages shell, notifications shell, marketplace placement, accessibility presentation, loading/empty/error states, and all future implementation derived from those surfaces.
+## 0. Mandatory authority relationship
 
-## 1. Binding owner decision
+This document is a **UI/UX familiarity authority only**. Before using it, read:
 
-The OWNER has approved the following current UI direction:
+`docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md`
 
-> **Facebook 1:1 Familiarity + TIGER Identity**
+The current product authority is:
 
-The required interpretation is:
+`docs/owner-control/TIGER_NEXUS_2026_CURRENT_OWNER_AUTHORITY.md`
 
-- match Facebook-like social structure and interaction behavior with very high familiarity;
-- preserve VVIP TIGER branding, product name, logo, colors, typography choices, data model, identity authority, security boundaries, and platform-specific commercial modules;
-- do not copy Meta/Facebook logos, trademarks, proprietary imagery, private assets, or source code;
-- do not claim pixel-identical replication across Meta experiments, accounts, locales, or devices;
-- do require a canonical TIGER reference that produces the same familiar mental model, control placement, hierarchy, rhythm, and interaction sequence expected from a modern Facebook-style social network.
+If any wording in this document could be read to conflict with the owner binding or NEXUS, the newer owner binding/NEXUS rule controls and this document must be corrected. This file cannot create a second product, second composer, second Marketplace object, second publication lifecycle, or alternate execution lane.
 
-Any older VVIP TIGER UI/UX authority that conflicts with this rule is immediately classified:
+## 1. Binding design direction
 
-`RETIRED_FROM_CURRENT_PLATFORM / HISTORICAL_ONLY`
+VVIP TIGER should use highly familiar modern social-network interaction patterns so users understand the product quickly, while remaining unmistakably TIGER in branding, copy, information architecture, security, data authority, and product concepts.
 
-It may remain only as audit/provenance evidence and must not control current runtime behavior, active tests, public previews, generated current documentation, or launch criteria.
+Familiarity means:
 
-## 2. Fidelity model
+- familiar social structure and interaction grammar;
+- predictable control placement and hierarchy;
+- stable component anatomy and responsive behavior;
+- original TIGER branding, language, components, and code;
+- no copying of Meta/Facebook logos, trademarks, proprietary assets, private APIs, source code, or pixel-identical protected visual identity.
 
-`1:1 Familiarity` means parity in these dimensions:
+The design reference never overrides the NEXUS product invariant:
 
-1. **Information architecture** — the user finds Home, Friends, Messages, Notifications, Profile, Marketplace, search, composer, stories, and feed where a Facebook-familiar user expects them.
-2. **Spatial hierarchy** — header, primary navigation, rails, feed column, cards, action rows, comment areas, menus, and modal/sheet layers follow a familiar social-network composition.
-3. **Interaction grammar** — click/tap targets, hover/focus states, active tab state, composer opening, reaction selection, comment focus, menus, notifications, profile entry, and responsive transitions behave consistently.
-4. **Component anatomy** — post header/body/media/reaction summary/action row/comments, profile header/timeline, friend/request cards, notification rows, message conversation shell, search/result grouping, and marketplace placement have stable internal structure.
-5. **Responsive behavior** — desktop and mobile are not the same layout squeezed smaller; each follows an intentional familiar social-network layout.
-6. **State fidelity** — loading, empty, error, offline, retry, disabled, deactivated, deleted-user, blocked-user, no-results, and unavailable-feature states are first-class and never represented by dead controls.
+`ONE FEED • ONE OBJECT • ONE PULSE`
 
-The following are explicitly **not** required:
+## 2. NEXUS publication boundary
 
-- copying Meta brand assets;
-- reproducing proprietary source code;
-- tracking every temporary Facebook A/B experiment;
-- identical pixels where TIGER branding or accessibility requires a safer/different treatment.
+Every newly publishable public object remains a **Living Sector Object** bound to an activated TIGER sector and one current approved intent:
 
-## 3. Non-negotiable UI rules
+- `OFFER`;
+- `NEED`;
+- `SERVICE`;
+- `OPPORTUNITY`.
 
-### 3.1 No fake controls
+There is no generic public-post creation bypass and no distinct Marketplace listing-creation product.
 
-A visible control must be one of:
+The canonical creation entry is exactly:
 
-- fully functional;
-- intentionally disabled with a visible, understandable reason;
-- hidden until the feature is actually available.
+> **ماذا تعرض أو تحتاج؟**
 
-The current anti-pattern of visible Unicode/icon-like placeholders or permanently disabled controls presented as normal UI is prohibited.
+The same Living Sector Object may appear in Home feed, profile, search, sector discovery, saved surfaces, messaging context, and optional Pulse delivery. Sector discovery/Marketplace placement is a view of the same object, **not a parallel product**.
 
-Examples that must not remain as final UI:
+Ordinary eligible publication remains free. Pulse is optional paid visibility after eligibility.
 
-- decorative search icon that does not search;
-- video tab that is visible but inert;
-- share button that is permanently disabled without explanation;
-- message/notification destinations that are only placeholder paragraphs;
-- profile destination that silently opens an unrelated legacy account sheet.
+## 3. Fidelity model
 
-### 3.2 No placeholder-as-feature
+`High familiarity` applies to:
 
-A placeholder panel is not evidence that a feature exists. Current-state documentation and tests must classify a placeholder as `NOT_IMPLEMENTED`, `SPEC_ONLY`, or equivalent until the real workflow is functional and verified.
+1. **Information architecture** — Home, Search/Discovery, Friends/relationships where implemented, Messages, Notifications, Profile, sector discovery, composer, and implemented media/social modules appear where users can predictably find them.
+2. **Spatial hierarchy** — app bar, navigation, rails, feed column, cards, action rows, comments, menus, dialogs, and sheets follow coherent social-product composition.
+3. **Interaction grammar** — tap/click, focus, hover, active state, composer opening, reactions, comments, menus, notifications, profile entry, and responsive transitions behave consistently.
+4. **Component anatomy** — feed object header/body/media/reaction summary/action row/comments, profile header/timeline, relationship cards, notification rows, message shell, and search grouping have stable internal structure.
+5. **Responsive behavior** — mobile is intentionally designed rather than a compressed desktop layout.
+6. **State fidelity** — loading, empty, error, offline, retry, disabled, blocked, deleted/deactivated, no-results, and unavailable-feature states are explicit.
 
-### 3.3 One current navigation model
+Familiarity does not authorize copying another company's brand assets, proprietary implementation, or transient A/B experiments.
 
-Current Social navigation must have one authoritative model. Legacy marketplace-first or duplicate bottom navigation must not coexist as a second final navigation authority.
+## 4. No fake controls or placeholder-as-feature
 
-### 3.4 One current profile presentation model
+A visible control must be:
 
-Social Profile is a real social destination with profile header, identity presentation, social counts/relationships as authorized, tabs/sections, and timeline. Account/security/settings may open from the profile/menu but must not substitute for the social profile itself.
+- functional; or
+- intentionally disabled with a clear reason; or
+- hidden until the underlying feature is genuinely available.
 
-## 4. Canonical desktop topology
+A placeholder panel is not evidence that a feature is implemented. Current status must classify incomplete behavior truthfully.
 
-Desktop target topology:
+No decorative search control, inert primary tab, fake message/notification destination, permanently disabled normal-looking action, or unrelated legacy profile substitution may be accepted as complete.
+
+## 5. One navigation and one profile model
+
+The current social shell has one authoritative navigation model. Duplicate Marketplace-first navigation, duplicate bottom navigation, or compatibility navigation cannot coexist as a second final authority.
+
+Profile remains a first-class social destination. Account/security/settings may be reachable from Profile/TIGER Command but cannot replace the social profile presentation.
+
+## 6. Desktop topology
+
+The familiar desktop target is:
 
 `Top App Bar`
 
-Below it:
+then, where screen width and implemented modules permit:
 
 `Left Rail | Center Feed | Right Rail`
 
-### Top App Bar
+The top bar may contain TIGER home/brand entry, Search/Discovery, current primary destinations, Messages, Notifications, and account/TIGER Command actions when actually implemented.
 
-Must contain, in a coherent desktop arrangement:
+The center feed remains the primary reading and creation column. Contextual rails may contain only implemented, policy-safe modules and must collapse/relocate on narrower screens rather than compress the feed unreasonably.
 
-- TIGER brand/home entry;
-- search;
-- primary destination navigation;
-- quick actions appropriate to current authority;
-- messages;
-- notifications;
-- account/profile/menu entry.
+## 7. Mobile topology
 
-### Left Rail
-
-May contain authenticated user shortcut and current destination shortcuts such as:
-
-- profile;
-- friends;
-- groups/modules only when implemented;
-- marketplace;
-- saved/bookmarks when implemented;
-- other approved TIGER modules.
-
-No dead shortcut may appear.
-
-### Center Feed
-
-Primary reading/publishing column. Required order when applicable:
-
-1. composer;
-2. stories/short-lived social strip if enabled;
-3. feed state or posts;
-4. progressive pagination/infinite-scroll continuation.
-
-### Right Rail
-
-Contextual social rail, only for implemented features, such as:
-
-- sponsored/Pulse placements owned by TIGER;
-- contacts/online context if authorized;
-- friend suggestions/requests;
-- contextual modules.
-
-It must collapse/relocate on narrower screens rather than compress the feed unreasonably.
-
-## 5. Canonical mobile topology
-
-Mobile must use a deliberate social-network shell:
+Mobile should use a deliberate social shell with:
 
 - compact top bar;
-- horizontal primary destination tabs or equivalent familiar navigation;
-- edge-to-edge content surfaces where appropriate;
+- reachable primary destinations;
+- touch-safe navigation;
 - composer near the top of Home;
-- horizontally scrollable stories when enabled;
-- feed cards with mobile-native spacing;
-- navigation that remains reachable without duplicate/conflicting systems;
-- sheets/modals sized for touch and safe areas;
-- minimum accessible touch target sizing;
-- no desktop-only rail content forced into narrow columns.
+- feed-first content geometry;
+- responsive dialogs/sheets with safe areas;
+- accessible touch targets;
+- no duplicated/conflicting navigation system.
 
-The bottom navigation must not be arbitrarily hidden unless the approved mobile navigation model intentionally replaces it with another fully functional mechanism.
+Desktop-only rail content must not be forced into narrow columns.
 
-## 6. Home feed anatomy
+## 8. Living Sector Object feed anatomy
 
-Every social post must render through a canonical presentation model rather than hard-coded placeholder identity.
+A rendered Living Sector Object should use a stable social anatomy where applicable:
 
-Required anatomy:
-
-1. author avatar/presentation;
-2. author display name;
+1. safe author presentation/avatar;
+2. display name;
 3. timestamp;
-4. audience/privacy indicator where useful;
-5. overflow menu when actions exist;
+4. audience/privacy indicator where relevant;
+5. overflow actions only when implemented and authorized;
 6. body/text;
-7. media area when media exists;
-8. reaction summary/counts;
-9. primary action row;
-10. comments/replies area;
-11. progressive loading when more discussion exists.
+7. media when present;
+8. reaction summary;
+9. action row;
+10. comments/replies;
+11. progressive continuation where supported.
 
-The implementation must never expose Clerk subject identifiers to the UI.
+Internal identity-provider subject identifiers must never be exposed as user-facing identity.
 
-Deactivated/deleted-author historical content must remain orphan-safe and privacy-safe according to P0-B lifecycle authority.
+## 9. Canonical composer
 
-## 7. Composer reference
+The only current product creation entry is:
 
-Home composer must feel immediately familiar:
+> **ماذا تعرض أو تحتاج؟**
 
-- avatar/identity context;
-- obvious “what are you thinking?” style trigger using TIGER copy;
-- modal/sheet/dialog with clear audience/privacy selection;
-- text entry;
-- media attachment entry when trusted social media flow is implemented;
-- publish action;
-- cancel/close;
+The composer is progressive and TIGER-owned. It may begin from media, voice where available, or text, then request only missing sector/policy-required information.
+
+It must preserve:
+
+- clear current identity context;
+- sector and intent contract;
+- trusted media attachment where implemented;
+- visible validation and missing-information guidance;
+- submit/cancel/close behavior;
 - pending/success/error states;
 - duplicate-submit protection;
-- keyboard/focus management.
+- keyboard/focus accessibility.
 
-Marketplace listing creation must remain a distinct commercial flow and must not masquerade as a social post composer.
+Sector discovery does not create a second commercial composer. Commercial/offer semantics are represented by the same Living Sector Object and its sector/intent/structured data.
 
-## 8. Stories reference
+## 10. Stories / short media
 
-Stories may appear only when the underlying behavior exists. If enabled:
+Stories or similar short-media surfaces may appear only when their real behavior exists. If enabled they require real state, accessible interaction, non-fake identities, and trusted media handling. If the backend/workflow is incomplete, the feature must be hidden or explicitly unavailable rather than simulated as complete.
 
-- create-story card;
-- member story cards;
-- image/media-backed visual treatment rather than arbitrary placeholder gradients as final production representation;
-- horizontal scrolling;
-- clear seen/unseen/current state when implemented;
-- touch and keyboard accessibility;
-- no fake story identities.
+## 11. Reactions, comments, share/repost
 
-If stories backend is not ready, the final verified UI must hide the stories feature rather than simulate it with hard-coded cards.
+Reactions must use real persisted/server-reconciled state and accessible selected-state behavior.
 
-## 9. Reactions, comments, share/repost
+Comments/replies must use safe author projections, authorized edit/delete controls, consistent composition, loading/error/retry handling, and deleted/deactivated-author safety.
 
-### Reactions
+A visible share/repost control must have defined semantics and functioning implementation. If not available, hide it or mark it explicitly unavailable.
 
-- main reaction control;
-- familiar reaction picker interaction;
-- selected state;
-- total/summary;
-- optimistic UI only when reconciliation is safe;
-- keyboard and touch support;
-- real persisted state.
+## 12. Profile and relationships
 
-### Comments
+Profile should support the current authorized safe presentation of cover/header, avatar, display name, public fields, relationship/social counts where authorized, primary actions, sections/tabs, timeline, media/about/friends sections only when implemented, and clear separation of social presentation from security/settings.
 
-- author presentation from safe projection;
-- comment body;
-- time/edit state;
-- reply/edit/delete controls only when authorized;
-- composer positioned consistently;
-- loading/error/retry states;
-- deleted/deactivated author handling;
-- no hard-coded “member” identity as final verified behavior.
+Relationship surfaces expose only implemented server-authoritative transitions such as requests, accept/decline, friendship state, and follow/unfollow where the product differentiates them. The client must not invent relationship state.
 
-### Share/Repost
+## 13. Messages and Notifications
 
-A visible share/repost control must have defined semantics and functioning implementation. If unavailable, hide it or mark it explicitly unavailable; do not present a normal permanently disabled button.
+A placeholder is not a verified Messages or Notifications feature.
 
-## 10. Profile reference
+When Messages is implemented, its familiar shell may contain conversation list, selected conversation, participant identity, history, composer, supported delivery/read state, unavailable/deleted participant handling, and responsive single/two-pane transitions.
 
-Profile must be a first-class social destination.
+When Notifications is implemented, it requires real rows, read/unread state, safe actor presentation, timestamp, target navigation, privacy-safe preview, and loading/empty/error states.
 
-Required structure when data exists:
+## 14. Search and sector discovery
 
-- cover/header area;
-- profile avatar;
-- display name;
-- safe public presentation fields;
-- friend/follow/social counts according to product authority;
-- primary context actions;
-- navigation/tabs/sections;
-- user timeline;
-- media/about/friends sections only when implemented;
-- account/settings entry separated from public social presentation.
+Search must be real interaction, not decorative UI. It should support accessible input, bounded query handling, useful results based on implemented capabilities, safe people projection, content visibility/privacy enforcement, no-result/loading/error states, and keyboard/touch accessibility.
 
-States:
+Sector discovery/Marketplace placement remains a **module inside NEXUS**. It displays/filter/searches the same Living Sector Objects rather than creating or storing a second Marketplace product object.
 
-- own active profile;
-- another active public profile;
-- deactivated profile;
-- deleted member tombstone;
-- blocked/unavailable profile;
-- loading/error/no-content.
+The UI may visually distinguish intent, sector attributes, or optional Pulse/promoted state, but TIGER remains outside buyer/seller or service-provider/beneficiary transactions. No marketplace checkout, escrow, custody, transaction settlement, transaction commission, or guarantee is introduced by this design authority.
 
-## 11. Friends / social graph reference
+## 15. TIGER branding boundary
 
-Friends surface must support only implemented transitions and expose them as familiar actions:
+TIGER identity remains visible through the approved current brand/name layer, logo/mark when finalized, TIGER copy/terminology, current design tokens, Pulse presentation, and premium visual refinements that do not break usability.
 
-- requests received;
-- requests sent/cancel where authorized;
-- accept;
-- decline;
-- current friends;
-- unfriend;
-- follow/unfollow separately where the product differentiates those relationships.
+The temporary operating codename remains governed separately until a final global name is explicitly approved. Familiarity must never imply Meta/Facebook affiliation or imitation of protected identity.
 
-The UI must reflect server truth after mutation and must not invent relationship state locally.
+## 16. Accessibility and interaction quality
 
-## 12. Messages reference
+Verified surfaces should include as applicable:
 
-A placeholder is not sufficient for `VERIFIED` status.
-
-When implemented, the shell must include:
-
-- conversation list;
-- selected conversation;
-- participant identity;
-- message history;
-- composer;
-- delivery/read state when supported;
-- unavailable/deleted participant handling;
-- loading/error/offline/retry states;
-- responsive single-pane/two-pane transitions.
-
-Until then, the current verified product must not pretend Messages is complete.
-
-## 13. Notifications reference
-
-A verified notifications destination must have:
-
-- notification list;
-- unread/read distinction;
-- actor safe presentation;
-- timestamp;
-- target navigation;
-- empty/loading/error states;
-- privacy-safe preview text;
-- no deleted-user identity leakage.
-
-## 14. Search reference
-
-Search must be a real interaction, not a decorative icon.
-
-Expected behavior:
-
-- accessible search entry;
-- query input;
-- bounded query handling;
-- useful grouped results according to current features;
-- people results from safe public projection only;
-- social content results respecting visibility, block, lifecycle, and privacy rules;
-- no-result/loading/error states;
-- keyboard/touch accessibility.
-
-## 15. Marketplace placement
-
-Marketplace remains a module inside a social-first product.
-
-It must be reachable from familiar navigation but visually and behaviorally distinguish:
-
-- commercial listings;
-- social posts;
-- Pulse/sponsored visibility.
-
-TIGER remains outside the buyer/seller transaction and does not introduce marketplace checkout, escrow, settlement, transaction commission, or custody contrary to current owner authority.
-
-## 16. TIGER branding boundary
-
-TIGER Identity remains visible through:
-
-- VVIP TIGER name and logo/mark;
-- TIGER design tokens and approved accent system;
-- TIGER copy and terminology;
-- TIGER Pulse placements;
-- TIGER marketplace/module names;
-- TIGER typography and premium visual refinements where they do not break familiarity.
-
-Familiarity must not turn the product into a misleading Meta/Facebook clone.
-
-## 17. Accessibility and interaction quality
-
-Every verified surface must include:
-
-- semantic buttons/links rather than decorative spans for interactive controls;
+- semantic interactive elements;
 - keyboard navigation;
-- visible focus state;
+- visible focus;
 - meaningful accessible names;
-- correct aria-current/pressed/expanded where relevant;
-- screen-reader-safe status announcements;
-- touch targets appropriate for mobile;
-- no essential action dependent only on hover;
-- logical focus trapping/restoration for dialogs/sheets.
+- correct current/pressed/expanded states;
+- screen-reader-safe status messaging;
+- touch-safe targets;
+- no essential hover-only action;
+- logical dialog/sheet focus trapping and restoration.
 
-## 18. Acceptance and evidence rule
+## 17. Acceptance and evidence rule
 
-A UI slice may be marked `TRUE GREEN` only when all applicable evidence exists on the same exact SHA:
+A UI slice may be called verified only when applicable evidence exists on the **same exact SHA**. Evidence may include structural/behavioral tests, responsive and accessibility contracts, visual comparison where available, current runtime/data tests, and all required protected gates.
 
-- structural DOM/component contract tests;
-- behavioral interaction tests;
-- responsive layout contract tests;
-- accessibility contract tests;
-- visual/reference comparison evidence where the environment supports it;
-- no visible dead/fake controls;
-- no unexpected legacy UI authority active;
-- current Quality/CleanGuard/Zero-Residue/Project Control gates green;
-- relevant runtime/database tests green for the feature;
-- exact SHA recorded.
+A screenshot alone does not prove behavior. A unit test alone does not prove full visual/interaction readiness. A workflow that never executes is not GREEN evidence.
 
-A screenshot alone is not proof of behavior. A passing unit test alone is not proof of visual parity. Both implementation dimensions must be verified.
+## 18. Current execution boundary
 
-## 19. Migration order from current UI
+This document does not set an independent implementation sequence.
 
-The approved sequence is:
+Current work follows:
 
-1. close P0-B profile/account lifecycle and orphan-safe social presentation first;
-2. establish the Facebook→TIGER canonical component map and acceptance matrix;
-3. rebuild/realign the global social shell;
-4. realign Home feed/composer/stories/post cards;
-5. realign Profile;
-6. realign Friends;
-7. implement or deliberately hide incomplete Search/Messages/Notifications/Share/Stories controls;
-8. realign Marketplace placement;
-9. responsive/mobile parity pass;
-10. accessibility and visual verification pass;
-11. exact-head CI and preview evidence;
-12. only then classify the UI program closed.
+`docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md`
 
-No later step may be used to excuse an unresolved earlier step.
+and the protected PR #349 convergence plan/status.
 
-## 20. Final owner statement
+No new UI/product slice begins before current convergence is reconciled and all required protected checks on the exact current head are **runner-executed GREEN**. This document does not authorize Ready for Review, merge, Production/Staging mutation, provider/database mutation, or gate weakening.
 
-> **VVIP TIGER shall use Facebook-like structural and behavioral familiarity at a very high level while remaining unmistakably TIGER in identity, branding, security, business rules, and data authority. Any old UI rule that conflicts with this current owner decision is retired from the current platform. No dead buttons, fake destinations, placeholder-as-feature, duplicate navigation authority, or visually convincing but non-functional surface may be accepted as complete.**
+## 19. Latest-only disposal rule
+
+Any older UI/UX instruction that conflicts with the current owner binding or NEXUS is removed from current runtime, tests, current documentation, configuration, generated artifacts, and release gates. It is not moved into an in-tree archive, trash, fallback, or compatibility authority. Git history is provenance.
+
+Compatible social familiarity, accessibility, profile, relationship, search, messaging, notification, and interaction-quality guidance remains in force only within the NEXUS boundaries above.
+
+## 20. Final owner-aligned statement
+
+> **VVIP TIGER uses highly familiar social interaction semantics while remaining TIGER-owned in identity, code, security, data authority, and product concepts. The current product is NEXUS: one feed, one Living Sector Object, one canonical `ماذا تعرض أو تحتاج؟` composer, and optional Pulse on the same object. Sector discovery is not a parallel Marketplace product. No fake controls, duplicate navigation, placeholder-as-feature, parallel creation path, or stale execution authority may be accepted as current.**

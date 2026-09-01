@@ -29,37 +29,47 @@
       "owner_decision_ref": "docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md",
       "canonical_path": "docs/owner-control/TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md",
       "supersedes": [],
-      "protected_boundaries": ["social-first", "no-intermediation"]
+      "protected_boundaries": ["social-first", "social-graph", "privacy", "safety", "no-intermediation", "nexus-publication-delegation"]
     },
     {
       "authority_id": "authority.platform.v1",
       "domain": "platform",
-      "version": 1,
+      "version": 2,
       "status": "CURRENT_ONLY",
-      "owner_decision_ref": "docs/owner-control/TIGER_ONE_2026_CURRENT_OWNER_AUTHORITY.md",
-      "canonical_path": "docs/owner-control/TIGER_ONE_2026_CURRENT_OWNER_AUTHORITY.md",
-      "supersedes": [],
-      "protected_boundaries": ["main", "production", "stable-identifiers"]
+      "owner_decision_ref": "docs/owner-control/TIGER_NEXUS_2026_CURRENT_OWNER_AUTHORITY.md",
+      "canonical_path": "docs/owner-control/TIGER_NEXUS_2026_CURRENT_OWNER_AUTHORITY.md",
+      "supersedes": ["TIGER_ONE_2026"],
+      "protected_boundaries": ["social-first", "activated-sectors-only", "living-sector-object", "tiger-command", "pulse-vault", "fail-closed", "no-fallback", "no-in-tree-legacy"]
     },
     {
       "authority_id": "authority.advertising.v1",
       "domain": "advertising",
-      "version": 1,
+      "version": 2,
       "status": "CURRENT_ONLY",
       "owner_decision_ref": "docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md",
       "canonical_path": "docs/owner-control/TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md",
       "supersedes": [],
-      "protected_boundaries": ["2-10-25-45-jod", "no-product-time-expiry", "ordinary-publication-separation", "one-sale-one-sales-winner"]
+      "protected_boundaries": ["2-10-20-45-jod", "no-product-time-expiry", "ordinary-publication-separation", "one-sale-one-sales-winner"]
     },
     {
       "authority_id": "authority.financial-distribution.v1",
       "domain": "financial-distribution",
-      "version": 1,
+      "version": 3,
       "status": "CURRENT_ONLY",
       "owner_decision_ref": "docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md",
       "canonical_path": "docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md",
       "supersedes": [],
-      "protected_boundaries": ["100-percent-allocation", "one-sale-one-winner", "7-percent-self-service-discount", "14-day-settlement", "12-hour-payout-destination-grace", "immutable-ledger"]
+      "protected_boundaries": ["platform-revenue-excludes-statutory-tax", "tax-reserve-cancelled", "no-invented-reallocation", "16-percent-pending-owner-decision", "distribution-execution-fail-closed", "one-sale-one-winner", "7-percent-self-service-discount", "14-day-settlement", "12-hour-payout-destination-grace", "immutable-ledger"]
+    },
+    {
+      "authority_id": "authority.statutory-tax-boundary.v1",
+      "domain": "statutory-tax-boundary",
+      "version": 1,
+      "status": "CURRENT_ONLY",
+      "owner_decision_ref": "docs/owner-control/TIGER_STATUTORY_TAX_BOUNDARY_CURRENT.md",
+      "canonical_path": "docs/owner-control/TIGER_STATUTORY_TAX_BOUNDARY_CURRENT.md",
+      "supersedes": [],
+      "protected_boundaries": ["verified-statutory-tax-added-to-user-total", "zero-tax-adds-zero", "statutory-tax-not-platform-allocation", "statutory-tax-not-commissionable", "owner-does-not-invent-legal-tax-rate", "country-activation-independent-from-tax-rate", "unverified-tax-fail-closed"]
     },
     {
       "authority_id": "authority.cleanup-governance.v1",

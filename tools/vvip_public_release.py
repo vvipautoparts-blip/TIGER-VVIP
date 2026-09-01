@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Build the exact, auditable public artifact for TIGER VVIP.
+"""Build the exact, auditable public artifact for TIGER NEXUS 2026.
 
-The builder copies only explicitly approved files. No directory or prefix is
-implicitly public. Runtime configuration is generated at build time and
-production fails closed when configuration or artifact markers are unsafe.
+Only the current NEXUS runtime graph is public. No superseded product path,
+parallel composer, archive, fallback, compatibility surface, or second runtime
+is copied or injected.
 """
 from __future__ import annotations
 
@@ -34,15 +34,13 @@ PUBLIC_ROOT_FILES = (
 )
 
 PUBLIC_STYLE_FILES = (
-    "styles/vvip-pr29-home-marketplace.css",
+    "styles/tiger-social/base.css",
     "styles/vvip-pr36-media.css",
-    "styles/vvip-visual-trust-layer.css",
     "styles/fusion/f02-single-surface.css",
-    "styles/fusion/progressive-composer.css",
     "styles/tiger-one/tokens.css",
     "styles/tiger-one/type.css",
     "styles/tiger-social/core-shell.css",
-    "styles/tiger-synapse/living-surface.css",
+    "styles/nexus/nexus.css",
 )
 
 PUBLIC_ICON_FILES = (
@@ -54,25 +52,16 @@ PUBLIC_ICON_FILES = (
 
 PUBLIC_RUNTIME_FILES = (
     "scripts/runtime/vvip-runtime-loader.js",
-    "scripts/runtime/vvip-marketplace-repository.js",
     "scripts/runtime/vvip-static-delivery.js",
 )
 
 PUBLIC_SCRIPT_FILES = (
     "scripts/vvip-pr30-resilience.js",
-    "scripts/vvip-safe-ux-guard.js",
-    "scripts/fusion/runtime-adapters.js",
-    "scripts/fusion/marketplace-context.js",
-    "scripts/fusion/f02-feed.js",
     "scripts/fusion/f03-capability-menu.js",
     "scripts/fusion/f04-search-fabric.js",
-    "scripts/fusion/progressive-composer.js",
     "scripts/fusion/account-surface.js",
     "scripts/fusion/single-surface-controller.js",
     "scripts/social/text-contract.js",
-    "scripts/synapse/intent-domain.js",
-    "scripts/synapse/intent-runtime-adapters.js",
-    "scripts/synapse/living-surface-controller.js",
     "scripts/social/runtime-adapters.js",
     "scripts/social/feed-read-model.js",
     "scripts/social/messaging-read-model.js",
@@ -88,6 +77,13 @@ PUBLIC_SCRIPT_FILES = (
     "scripts/social/messaging-controller.js",
     "scripts/social/profile-controller.js",
     "scripts/social/core-shell.js",
+    "scripts/nexus/living-sector-object.js",
+    "scripts/nexus/sector-discovery.js",
+    "scripts/nexus/pulse-runtime.js",
+    "scripts/nexus/opportunity-radar.js",
+    "scripts/nexus/pulse-surface.js",
+    "scripts/nexus/social-runtime-guard.js",
+    "scripts/nexus/bootstrap.js",
 )
 
 PUBLIC_MEDIA_FILES = (
@@ -134,29 +130,18 @@ FORBIDDEN_PRODUCTION_MARKERS = {
     "FUTURE_PUBLISH_ONLY": "النشر الحقيقي سيتم تفعيله لاحقًا",
     "LOCAL_DRAFT_ONLY_PUBLISHER": "LOCAL_DRAFT_ONLY",
     "RETIRED_GITHUB_PAGES_URL": "vvipautoparts-blip." "github.io/TIGER-VVIP",
+    "THIRD_PARTY_PREVIEW_PROXY": "raw.githack.com",
+    "RETIRED_PRIVATE_PROFILE_ROUTE": "private-profile-p03.html",
+    "RETIRED_MARKETPLACE_STYLESHEET": "vvip-pr29-home-marketplace.css",
+    "PARALLEL_MARKETPLACE_BRAND": "VVIP TIGER MARKETPLACE",
 }
 
-INDEX_REMOVE_SCRIPTS = (
+# The source index intentionally contains preview Clerk/auth bootstrapping. The
+# sealed artifact replaces only those current entries; it does not understand
+# or preserve any superseded product route.
+INDEX_REPLACED_SCRIPTS = (
     "auth-clerk-index.js",
     "scripts/vvip-pr30-resilience.js",
-    "scripts/vvip-pr29-home-marketplace.js",
-    "scripts/vvip-pr32-draft-preview.js",
-    "scripts/vvip-pr31-create-listing-shell.js",
-    "scripts/vvip-pr33-publish-readiness.js",
-    "scripts/runtime/vvip-my-listings.js",
-    "scripts/vvip-production-marketplace.js",
-)
-
-INDEX_REMOVE_STYLES = (
-    "styles/vvip-pr31-create-listing-shell.css",
-    "styles/vvip-pr32-draft-preview.css",
-    "styles/vvip-pr33-publish-readiness.css",
-    "styles/vvip-production-marketplace.css",
-)
-
-ACCOUNT_ROUTE_PATTERN = re.compile(
-    r'href=(["\'])private-profile-p03\.html\1(?P<attrs>[^>]*)',
-    flags=re.IGNORECASE,
 )
 
 
@@ -193,18 +178,6 @@ def _copy(source: Path, output: Path, relative: str) -> None:
     shutil.copy2(src, destination)
 
 
-def _close_account_routes(text: str) -> str:
-    def replace(match: re.Match[str]) -> str:
-        attrs = match.group("attrs")
-        attrs = re.sub(r"\s+data-safe-nav(?:=(?:[\"'][^\"']*[\"']|[^\s>]+))?", "", attrs, flags=re.IGNORECASE)
-        attrs = re.sub(r"\s+data-nav-target=(?:[\"']private-profile-p03\.html[\"']|private-profile-p03\.html)", "", attrs, flags=re.IGNORECASE)
-        if not re.search(r"\bdata-account-route\b", attrs, flags=re.IGNORECASE):
-            attrs += " data-account-route"
-        return f'href="#marketplace"{attrs}'
-
-    return ACCOUNT_ROUTE_PATTERN.sub(replace, text)
-
-
 def _transform_index(text: str) -> str:
     text = re.sub(
         r"\s*<script[^>]+(?:data-clerk-publishable-key|clerk\.accounts\.dev)[^>]*></script>",
@@ -212,32 +185,23 @@ def _transform_index(text: str) -> str:
         text,
         flags=re.IGNORECASE,
     )
-    for script in INDEX_REMOVE_SCRIPTS:
+    for script in INDEX_REPLACED_SCRIPTS:
         text = re.sub(
             rf"\s*<script[^>]+src=[\"']{re.escape(script)}[\"'][^>]*></script>",
             "",
             text,
             flags=re.IGNORECASE,
         )
-    for stylesheet in INDEX_REMOVE_STYLES:
-        text = re.sub(
-            rf"\s*<link[^>]+href=[\"']{re.escape(stylesheet)}[\"'][^>]*>",
-            "",
-            text,
-            flags=re.IGNORECASE,
-        )
-
-    text = _close_account_routes(text)
 
     injection = """
   <script defer src="runtime-config.js"></script>
   <script defer src="scripts/runtime/vvip-runtime-loader.js"></script>
-  <script defer src="scripts/runtime/vvip-marketplace-repository.js"></script>
   <script defer src="auth-clerk-index.js"></script>
   <script defer src="scripts/vvip-pr30-resilience.js"></script>
 """.rstrip()
-    text = text.replace("</head>", f"{injection}\n</head>")
-    return text
+    if "</head>" not in text:
+        raise RuntimeError("public index head is missing")
+    return text.replace("</head>", f"{injection}\n</head>")
 
 
 def _decode_clerk_frontend_api(publishable_key: str) -> str | None:
@@ -395,7 +359,8 @@ def build(source: Path, output: Path, *, mode: str, source_sha: str, include_cna
 
     findings = _scan_markers(output)
     manifest = {
-        "schemaVersion": 1,
+        "schemaVersion": 2,
+        "product": "TIGER_NEXUS_2026",
         "mode": mode,
         "sourceSha": source_sha,
         "releaseEligible": not findings and not config_errors,

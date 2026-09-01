@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "TIGER_F15_LAUNCH_EVIDENCE_V1",
+  "status": "IN_PROGRESS",
+  "authority": "docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md",
+  "release": { "sha": null, "artifactSha256": null },
+  "launchGatePass": false,
+  "deletionBaseline": {
+    "status": "PASS",
+    "evidence": [
+      "deleted:scripts/vvip-production-marketplace.js",
+      "deleted:scripts/runtime/vvip-marketplace-repository.js",
+      "deleted:scripts/fusion/marketplace-context.js",
+      "scripts/launch/verify-runtime-vacuum.cjs"
+    ]
+  },
+  "exactTreeScan": {
+    "status": "NOT_EVIDENCED",
+    "evidence": [],
+    "scanOk": false
+  },
+  "releaseArtifactDiff": {
+    "status": "NOT_EVIDENCED",
+    "evidence": []
+  },
+  "rollbackEvidence": {
+    "status": "FOUNDATION_EXISTS",
+    "evidence": ["GIT_HISTORY_ONLY_FOR_SUPERSEDED_CONFLICTING_MATERIAL"]
+  },
+  "protectedExactHead": {
+    "status": "BLOCKED",
+    "evidence": [],
+    "runnerExecuted": false,
+    "sha": null
+  }
+}

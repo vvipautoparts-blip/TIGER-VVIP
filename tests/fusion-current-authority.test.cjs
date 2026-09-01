@@ -25,7 +25,7 @@ test('current authority is Latest-Only and owner binding is the mandatory first 
   assert.equal(manifest.currentReference, 'docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md');
   assert.equal(manifest.firstReferenceRequired, true);
   assert.equal(manifest.authorityPreflight, 'OWNER_BINDING_CURRENT_FIRST');
-  assert.equal(manifest.supersededMaterialDisposition, 'DELETE_FROM_CURRENT_TREE_NO_FALLBACK_NO_IN_TREE_ARCHIVE');
+  assert.equal(manifest.supersededMaterialDisposition, 'DELETE_FROM_CURRENT_TREE_NO_FALLBACK_NO_IN_TREE_ARCHIVE_NO_TRASH_NO_LEGACY_COMPATIBILITY');
   assert.equal(manifest.recheckOnNewOwnerDecision, true);
   assert.equal(manifest.historicalEvidencePolicy, 'GIT_HISTORY_ONLY_FOR_SUPERSEDED_CONFLICTING_MATERIAL');
   assert.equal(manifest.tigerFinancialDistributionReference, 'docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md');
@@ -38,12 +38,13 @@ test('current authority is Latest-Only and owner binding is the mandatory first 
   assert.match(binding, /No hidden copy, trash folder, archive folder/i);
   assert.match(binding, /PULSE_2/);
   assert.match(binding, /PULSE_10/);
-  assert.match(binding, /PULSE_25/);
+  assert.match(binding, /PULSE_20/);
   assert.match(binding, /PULSE_45/);
+  assert.doesNotMatch(binding, /PULSE_25/);
   assert.match(binding, /OWNER.*5%/s);
   assert.match(binding, /ACTUAL_OPERATIONS.*43%/s);
-  assert.match(binding, /TAX_RESERVE.*16%/s);
   assert.match(binding, /SALES_ADMINISTRATION.*21%/s);
+  assert.match(binding, /TAX_RESERVE_STATUS:\s*CANCELLED/);
   const result = verify(manifest);
   assert.equal(result.ok, true, result.errors.join('\n'));
 });
@@ -90,9 +91,9 @@ test('current authority rejects publishing cards, subscriptions and paid publica
   }
 });
 
-test('Pulse is exactly 2/10/25/45 with no product-time expiry', () => {
+test('Pulse is exactly 2/10/20/45 with no product-time expiry', () => {
   const manifest = loadManifest();
-  assert.deepEqual(manifest.pulseRing.tiersJod, [2, 10, 25, 45]);
+  assert.deepEqual(manifest.pulseRing.tiersJod, [2, 10, 20, 45]);
   assert.equal(manifest.pulseRing.purchasedValue, 'SERVER_AUTHORITATIVE_VISIBILITY_ALLOCATION');
   assert.equal(manifest.pulseRing.productTimeExpiry, null);
   assert.equal(manifest.pulseRing.ordinaryPublicationPrerequisite, false);
@@ -100,10 +101,10 @@ test('Pulse is exactly 2/10/25/45 with no product-time expiry', () => {
   assert.equal(manifest.pulseRing.oneSaleOneSalesWinner, true);
 
   const oldTiers = loadManifest();
-  oldTiers.pulseRing.tiersJod = [3, 10, 20];
+  oldTiers.pulseRing.tiersJod = [2, 10, 25, 45];
   let result = verify(oldTiers);
   assert.equal(result.ok, false);
-  assert.ok(result.errors.includes('Pulse tiers must be exactly 2/10/25/45 JOD'));
+  assert.ok(result.errors.includes('Pulse tiers must be exactly 2/10/20/45 JOD'));
 
   const expired = loadManifest();
   expired.pulseRing.productTimeExpiry = '30 days';

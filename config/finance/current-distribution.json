@@ -1,16 +1,43 @@
 {
-  "schemaVersion": "TIGER_FINANCIAL_DISTRIBUTION_V1",
+  "schemaVersion": "TIGER_FINANCIAL_DISTRIBUTION_V2",
   "status": "CURRENT_ONLY",
   "ownerAuthority": "docs/owner-control/TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md",
-  "allocationBasis": "ACTUAL_CAPTURED_AMOUNT_AFTER_VALID_SELF_SERVICE_DISCOUNT",
+  "allocationBasis": "PLATFORM_SERVICE_REVENUE_EXCLUDING_STATUTORY_TAX",
   "mainDistributionPercent": {
     "OWNER": 5,
     "PARTNER_1": 5,
     "PARTNER_2": 5,
     "PARTNER_3": 5,
     "ACTUAL_OPERATIONS": 43,
-    "TAX_RESERVE": 16,
     "SALES_ADMINISTRATION": 21
+  },
+  "cancelledAllocation": {
+    "name": "TAX_RESERVE",
+    "formerPercent": 16,
+    "status": "CANCELLED_BY_LATEST_OWNER_DECISION",
+    "notStatutoryTax": true
+  },
+  "pendingOwnerDecisionPercent": 16,
+  "pendingOwnerDecisionClassification": "UNALLOCATED_PLATFORM_REVENUE_NOT_STATUTORY_TAX",
+  "distributionState": "INCOMPLETE_PENDING_OWNER_REALLOCATION",
+  "distributionExecutionAuthorized": false,
+  "statutoryTaxBoundary": {
+    "status": "CURRENT_ONLY_FAIL_CLOSED",
+    "authority": "docs/owner-control/TIGER_STATUTORY_TAX_BOUNDARY_CURRENT.md",
+    "pricePresentation": "BASE_PLUS_STATUTORY_TAX",
+    "platformBasePriceIndependentFromStatutoryTax": true,
+    "countryTaxAddedToPlatformBasePrice": true,
+    "finalQuoteIncludesStatutoryTax": true,
+    "noSecondTaxAfterQuoteSeal": true,
+    "noTaxRateCeiling": true,
+    "taxIsPlatformAllocation": false,
+    "taxIsCommissionable": false,
+    "taxIsPartnerShareable": false,
+    "taxIsOperationsRevenue": false,
+    "ownerDefinesLegalTaxRate": false,
+    "countryActivationIndependentFromTaxRate": true,
+    "canonicalEnforcementModule": "project-control/finance/statutory-tax-boundary.cjs",
+    "unverifiedTaxQuoteBehavior": "FAIL_CLOSED"
   },
   "actualOperationsPercent": {
     "RISK_RESERVE": 8,
@@ -41,18 +68,59 @@
     "ownerMayExtendGrace": true,
     "successfulSettlementZeroesPayableBalanceButPreservesLedger": true
   },
+  "humanDigitalFinancialFirewall": {
+    "status": "CURRENT_ONLY_FAIL_CLOSED",
+    "digitalActorType": "DIGITAL",
+    "financialBeneficiary": false,
+    "commissionBps": 0,
+    "shareBps": 0,
+    "financialEntitlement": 0,
+    "payoutDestination": null,
+    "walletAllowed": false,
+    "digitalSaleOwnershipAllowed": false,
+    "knownDigitalRoles": [
+      "DIGITAL_GROWTH_GOVERNOR",
+      "DIGITAL_GENERAL_MANAGER",
+      "DIGITAL_SECTOR_MANAGER",
+      "DIGITAL_FIELD_GOVERNOR",
+      "DIGITAL_SALES_GOVERNOR",
+      "DIGITAL_FINANCE_GOVERNOR"
+    ],
+    "humanSaleClaimRequirements": {
+      "actorType": "HUMAN",
+      "status": "ACTIVE",
+      "eligibility": "ELIGIBLE",
+      "roles": [
+        "GENERAL_MANAGER",
+        "SECTOR_MANAGER",
+        "MARKETER"
+      ],
+      "maxWinnersPerSale": 1
+    },
+    "canonicalEnforcementModule": "project-control/finance/human-digital-financial-firewall.cjs",
+    "claimEvidence": {
+      "purchaseOrQuoteIdentityRequired": true,
+      "assignmentVersionRequired": true,
+      "sourceEvidenceRequired": true,
+      "timestampRequired": true,
+      "deduplicationKeyRequired": true,
+      "integrityHashAlgorithm": "SHA-256"
+    }
+  },
   "ledgerDimensions": [
     "OWNER",
     "PARTNERS",
     "ACTUAL_OPERATIONS",
-    "TAX_RESERVE",
     "SALES_ADMINISTRATION",
+    "PENDING_OWNER_DECISION",
+    "STATUTORY_TAX_EXTERNAL",
     "ABSENT_SALES_ROLE",
     "ACTIVE_USER_DISCOUNT",
     "REFUND_REVERSAL"
   ],
-  "financialInvariant": "MAIN_DISTRIBUTION_EQUALS_100_PERCENT",
+  "financialInvariant": "PLATFORM_BASE_PRICE_PLUS_VERIFIED_STATUTORY_TAX_STATUTORY_TAX_OUTSIDE_DISTRIBUTION",
   "operationsInvariant": "ACTUAL_OPERATIONS_EQUALS_43_PERCENT",
   "salesInvariant": "SALES_ADMINISTRATION_EQUALS_21_PERCENT",
+  "humanDigitalFinancialInvariant": "DIGITAL_ACTORS_ZERO_FINANCIAL_BENEFIT_HUMAN_ONE_SALE_ONE_WINNER",
   "historyPolicy": "IMMUTABLE_LEDGER_NO_ERASURE"
 }

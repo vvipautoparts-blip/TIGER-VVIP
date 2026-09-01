@@ -1,5 +1,5 @@
 {
-  "name": "VVIP TIGER",
+  "name": "VVIP TIGER NEXUS",
   "short_name": "VVIP TIGER",
   "lang": "ar",
   "dir": "rtl",
@@ -9,7 +9,7 @@
   "orientation": "portrait",
   "background_color": "#f0f2f5",
   "theme_color": "#1877F2",
-  "description": "منصة VVIP TIGER العالمية للإعلانات المبوبة في المركبات والمواد والعقارات.",
+  "description": "VVIP TIGER NEXUS — منصة اجتماعية موحدة للعرض والطلب والخدمات والفرص عبر القطاعات داخل ONE FEED • ONE OBJECT • ONE PULSE.",
   "icons": [
     {
       "src": "icons/icon-192.png",

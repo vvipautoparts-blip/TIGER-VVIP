@@ -1,79 +1,36 @@
-# VVIP TIGER — P01 Repository Audit Completion
+# VVIP TIGER — P01 Repository Audit Completion — Historical Evidence
 
-## نقطة البداية
+**Status:** `HISTORICAL_AUDIT_EVIDENCE / NON-AUTHORITY`
+**Historical completion:** P01 audit cycle
 
-- Branch baseline: main synced with origin/main and clean working tree.
-- PR #24 confirmed merged before P01 start.
-- Phase baseline at start: current_phase=P01, next_authorized_phase=P01, execution_lock=P01.
+This record documents an earlier repository-audit closure. It does not set the current phase, branch, next authorized phase, release state, product rule, or implementation priority.
 
-## نطاق التدقيق
+Mandatory current authority:
 
-- Full repository read-only audit across HTML/CSS/JS/docs/scripts/styles/supabase/backups/approved.
-- Git metadata audit (branches, merged branches, tags, open/merged PRs).
-- No runtime changes.
+`docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md`
 
-## الأوامر المستخدمة
+Current protected lane: **PR #349 / TIGER NEXUS 2026 owner convergence**.
 
-- git switch main
-- git fetch --prune origin
-- git pull --ff-only origin main
-- git status --short --branch
-- git rev-parse HEAD
-- git rev-parse origin/main
-- node --check across all JS files
-- link extraction and existence checks (href/src)
-- duplicate id and inline handler scans
-- TODO/FIXME/placeholder scans
-- security pattern scans (service_role, clerk_secret, firebase remnants)
-- secret scan and unicode control scan
-- gh pr list (open/merged)
-- git branch and git tag inventory
+## Historical audit scope
 
-## أرقام التدقيق
+The earlier P01 work performed read-only repository checks across HTML/CSS/JS/docs/scripts/styles/Supabase material and Git metadata. It reported syntax, link, duplicate-ID, inline-handler, TODO/FIXME, logging, and security-pattern findings for that historical snapshot.
 
-- عدد الملفات التي فُحصت: 335
-- عدد ملفات HTML المفحوصة: 40
-- عدد ملفات JavaScript المفحوصة بـ node --check: 27 (نجحت جميعها)
-- عدد الروابط المستخرجة: 439
-- عدد روابط runtime المفحوصة: 84
-- روابط runtime valid: 65
-- روابط runtime external: 18
-- روابط runtime missing: 1
+The historical phase record also noted that no runtime, SQL, migration, RLS, payment, or Production mutation was performed as part of that audit package.
 
-## نتائج الحالات (Gap Matrix)
+## Historical provenance
 
-- completed: 7
-- partially_completed: 4
-- not_started: 1
-- obsolete: 0
-- duplicate: 0
-- blocked: 1
-- needs_review: 8
-- deferred: 1
+Earlier P01 artifacts included audit reports, inventory, findings, and a gap matrix. Some of those artifacts were later removed or reconciled when they conflicted with the current owner-control model.
 
-## أهم المخاطر
+Any historical statement that P01 was completed, that P02 was next, or that an old phase-status/roadmap controlled execution is **not current authority**.
 
-- Critical: لا يوجد route-map تشغيلي معتمد كعقد انتقال إلى P02.
-- Critical: P01 يجب أن يُغلق دمجًا وتحققًا قبل فتح ترخيص P02.
-- High: بقايا Firebase patterns في ملفات runtime.
-- High: service_role/clerk_secret pattern hits تحتاج triage أمني.
+## Current use
 
-## الملفات التي أُنشئت في P01
+Use this file only to understand provenance. Before acting on any historical finding:
 
-- docs/change-control/20260711-p01-repository-gap-matrix.json
-- docs/owner-control/VVIP_TIGER_IMPLEMENTATION_GAP_MATRIX.md
-- docs/owner-control/VVIP_TIGER_REPOSITORY_AUDIT_REPORT.md
-- docs/owner-control/VVIP_TIGER_FILE_INVENTORY.csv
-- docs/owner-control/VVIP_TIGER_P01_PRIORITY_FINDINGS.md
-- docs/owner-control/VVIP_TIGER_P01_REPOSITORY_AUDIT_COMPLETION.md
+1. read the current owner binding;
+2. resolve the exact PR #349 head;
+3. prove the finding still exists in the current tree;
+4. preserve compatible material;
+5. change only what the current authority and evidence require.
 
-## تأكيدات
-
-- لا تعديل Runtime ضمن P01.
-- لا تعديل Clerk أو Supabase أو SQL أو migrations أو RLS أو Production أو Payments.
-- PR #26: MERGED.
-- Merge Commit: `8c064f060fb56b92096c16b2972ea8c64e7dbf61`.
-- P01 status: completed.
-- Post-Merge Verification: passed.
-- Current phase after closure: P02.
-- P02 status: next_authorized and not started.
+Git history preserves full historical details. This file cannot authorize Ready for Review, merge, Production/Staging mutation, database/provider changes, or a new product-development slice.

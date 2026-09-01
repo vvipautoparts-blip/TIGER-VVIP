@@ -6,7 +6,11 @@ const EXPECTED_PHASES = Object.freeze(
 
 const FINAL_REFERENCE = 'docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md';
 const REQUIRED_PREFLIGHT = 'OWNER_BINDING_CURRENT_FIRST';
-const REQUIRED_DISPOSITION = 'DELETE_FROM_CURRENT_TREE_NO_FALLBACK_NO_IN_TREE_ARCHIVE';
+const REQUIRED_DISPOSITION = 'DELETE_FROM_CURRENT_TREE_NO_FALLBACK_NO_IN_TREE_ARCHIVE_NO_TRASH_NO_LEGACY_COMPATIBILITY';
+const REQUIRED_PULSE_COUNTRY_PRICING_MODE = 'PLATFORM_BASE_PLUS_VERIFIED_STATUTORY_TAX';
+const REQUIRED_PULSE_TAX_AUTHORITY = 'docs/owner-control/TIGER_STATUTORY_TAX_BOUNDARY_CURRENT.md';
+const REQUIRED_PULSE_TAX_MODULE = 'project-control/finance/statutory-tax-boundary.cjs';
+const REQUIRED_GLOBAL_LAUNCH_PASSPORT = 'config/launch/global-launch-passport.json';
 
 const REQUIRED_REFERENCE_FIELDS = Object.freeze({
   ownerOperationalIndex: 'docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md',
@@ -79,6 +83,12 @@ function verifyCurrentAuthority(manifest) {
   for (const [field, expected] of Object.entries(REQUIRED_REFERENCE_FIELDS)) {
     if (manifest[field] !== expected) errors.push(`${field} must equal ${expected}`);
   }
+  if (manifest.tigerGlobalLaunchPassportConfig !== REQUIRED_GLOBAL_LAUNCH_PASSPORT) {
+    errors.push(`tigerGlobalLaunchPassportConfig must equal ${REQUIRED_GLOBAL_LAUNCH_PASSPORT}`);
+  }
+  if (manifest.globalLaunchEligibilityRequiresAllPassportGates !== true) {
+    errors.push('global launch eligibility must require all Launch Passport gates');
+  }
 
   const publication = manifest.ordinaryPublication || {};
   if (publication.paidPublishingGate !== false) errors.push('ordinary publication must not be payment gated');
@@ -90,7 +100,18 @@ function verifyCurrentAuthority(manifest) {
   if (publication.submitContract !== 'SUBMIT_FOR_REVIEW') errors.push('ordinary publication submit contract must be SUBMIT_FOR_REVIEW');
 
   const pulse = manifest.pulseRing || {};
-  if (JSON.stringify(pulse.tiersJod) !== JSON.stringify([2, 10, 25, 45])) errors.push('Pulse tiers must be exactly 2/10/25/45 JOD');
+  if (JSON.stringify(pulse.tiersJod) !== JSON.stringify([2, 10, 20, 45])) errors.push('Pulse tiers must be exactly 2/10/20/45 JOD');
+  if (pulse.tiersArePlatformBasePrices !== true) errors.push('Pulse tiers must remain independent platform base prices');
+  if (pulse.countryPricingMode !== REQUIRED_PULSE_COUNTRY_PRICING_MODE) errors.push(`Pulse country pricing mode must equal ${REQUIRED_PULSE_COUNTRY_PRICING_MODE}`);
+  if (pulse.countryTaxAddedToPlatformBasePrice !== true) errors.push('verified statutory tax must be added to the Pulse platform base price');
+  if (pulse.finalQuoteIncludesStatutoryTax !== true) errors.push('Pulse final quote must include verified statutory tax');
+  if (pulse.noSecondTaxAfterQuoteSeal !== true) errors.push('Pulse must not add a second statutory tax after the final quote is sealed');
+  if (pulse.noTaxRateCeiling !== true) errors.push('Pulse statutory tax must not impose an artificial 16 percent ceiling');
+  if (pulse.statutoryTaxExcludedFromDistribution !== true) errors.push('Pulse statutory tax must remain outside internal distribution');
+  if (Object.prototype.hasOwnProperty.call(pulse, 'referencePriceIncludesBaselineTaxBps')) errors.push('superseded 16 percent pricing baseline must not remain in Pulse authority');
+  if (Object.prototype.hasOwnProperty.call(pulse, 'countryTaxAppliedToUntaxedBase')) errors.push('superseded untaxed-reference rebasing must not remain in Pulse authority');
+  if (pulse.statutoryTaxAuthority !== REQUIRED_PULSE_TAX_AUTHORITY) errors.push(`Pulse statutory tax authority must equal ${REQUIRED_PULSE_TAX_AUTHORITY}`);
+  if (pulse.canonicalTaxModule !== REQUIRED_PULSE_TAX_MODULE) errors.push(`Pulse canonical tax module must equal ${REQUIRED_PULSE_TAX_MODULE}`);
   if (pulse.purchasedValue !== 'SERVER_AUTHORITATIVE_VISIBILITY_ALLOCATION') errors.push('Pulse purchased value must be a server-authoritative visibility allocation');
   if (pulse.productTimeExpiry !== null) errors.push('Pulse visibility value must not have product-time expiry');
   if (pulse.ordinaryPublicationPrerequisite !== false) errors.push('Pulse must not be an ordinary-publication prerequisite');
@@ -102,6 +123,10 @@ function verifyCurrentAuthority(manifest) {
     errors.push('ownerMarketplaceBoundary must be an object');
   } else {
     if (marketplaceBoundary.mode !== 'ADVERTISING_DISCOVERY_DIRECT_CONTACT_ONLY') errors.push('ownerMarketplaceBoundary.mode must be ADVERTISING_DISCOVERY_DIRECT_CONTACT_ONLY');
+    if (marketplaceBoundary.marketplaceIntermediationRole !== 'NONE') errors.push('marketplace intermediation role must remain NONE');
+    if (marketplaceBoundary.platformOnlyReducesDistance !== true) errors.push('platform role must remain limited to reducing distance between marketplace parties');
+    if (marketplaceBoundary.transactionPartiesInteractDirectly !== true) errors.push('marketplace transaction parties must interact directly');
+    if (marketplaceBoundary.platformHasNoMarketplaceTransactionAuthority !== true) errors.push('platform must have no marketplace transaction authority');
     if (marketplaceBoundary.platformIsMarketplaceTransactionParty !== false) errors.push('platform must not be a party to marketplace transactions');
     if (marketplaceBoundary.marketplaceTransactionHandledDirectlyByParties !== true) errors.push('marketplace transactions must be handled directly by their parties');
     if (marketplaceBoundary.platformDoesNotBrokerOrRepresentParties !== true) errors.push('platform must not broker or represent marketplace parties');
@@ -144,6 +169,10 @@ module.exports = Object.freeze({
   FINAL_REFERENCE,
   REQUIRED_PREFLIGHT,
   REQUIRED_DISPOSITION,
+  REQUIRED_PULSE_COUNTRY_PRICING_MODE,
+  REQUIRED_PULSE_TAX_AUTHORITY,
+  REQUIRED_PULSE_TAX_MODULE,
+  REQUIRED_GLOBAL_LAUNCH_PASSPORT,
   REQUIRED_MARKETPLACE_ROLES,
   REQUIRED_MARKETPLACE_CONNECTIONS,
   REQUIRED_FORBIDDEN_MARKETPLACE_INTERMEDIATION,

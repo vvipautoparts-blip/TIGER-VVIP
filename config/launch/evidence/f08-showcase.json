@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "TIGER_F08_LAUNCH_EVIDENCE_V1",
+  "status": "IN_PROGRESS",
+  "authority": "docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md",
+  "release": { "sha": null, "artifactSha256": null },
+  "launchGatePass": false,
+  "implementation": {
+    "status": "PASS",
+    "evidence": [
+      "scripts/showcase/generate-f08-showcase.cjs",
+      "scripts/showcase/verify-f08-showcase.cjs",
+      "tests/f08-showcase.test.cjs"
+    ]
+  },
+  "focusedTests": {
+    "status": "FOUNDATION_EXISTS",
+    "evidence": ["LOCAL_SESSION_2026-09-01:node --test tests/f08-showcase.test.cjs => 5/5 PASS"],
+    "note": "Local focused evidence exists but is not exact-release protected evidence."
+  },
+  "isolatedRehearsal": {
+    "status": "NOT_EVIDENCED",
+    "evidence": [],
+    "objectCount": null,
+    "validationOk": false
+  },
+  "protectedExactHead": {
+    "status": "BLOCKED",
+    "evidence": [],
+    "runnerExecuted": false,
+    "sha": null
+  }
+}

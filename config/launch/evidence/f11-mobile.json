@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "TIGER_F11_LAUNCH_EVIDENCE_V1",
+  "status": "NOT_EVIDENCED",
+  "releaseSha": null,
+  "metrics": {
+    "androidRequired": 20,
+    "androidPassed": 0,
+    "iosRequired": 20,
+    "iosPassed": 0,
+    "physicalDevices": false
+  },
+  "checks": {
+    "nativeThinShells": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "android20of20": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "ios20of20": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "physicalDeviceEvidence": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "protectedExactHead": { "status": "NOT_EVIDENCED", "evidence": [] }
+  }
+}

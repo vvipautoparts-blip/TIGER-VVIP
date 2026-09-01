@@ -14,49 +14,59 @@ function tupleBody(source, name) {
   return match[1];
 }
 
-test("production runtime exposes one current review-submission authority", () => {
-  const repository = read("scripts/runtime/vvip-marketplace-repository.js");
-  const composer = read("scripts/fusion/progressive-composer.js");
+test("production runtime exposes one current NEXUS Living Object creation authority", () => {
+  const socialRuntime = read("scripts/social/runtime-adapters.js");
+  const socialComposer = read("scripts/social/post-composer.js");
 
-  assert.match(repository, /function submitForReview\s*\(/);
-  assert.match(repository, /vvip_marketplace_submit_for_review/);
-  assert.doesNotMatch(repository, /\brequestPublication\b|\bprepareForPublication\b|\bcreateAndSubmit\b/);
-  assert.match(composer, /\.submitForReview\s*\(/);
-  assert.doesNotMatch(composer, /\.(?:requestPublication|prepareForPublication)\s*\(/);
+  assert.match(socialRuntime, /vvip_social_post_create/);
+  assert.match(socialRuntime, /p_sector_key/);
+  assert.match(socialRuntime, /p_intent_class/);
+  assert.match(socialComposer, /CREATE_SOCIAL_POST/);
+  assert.match(socialComposer, /sectorId/);
+  assert.match(socialComposer, /intent/);
+
+  for (const relative of [
+    "scripts/runtime/vvip-marketplace-repository.js",
+    "scripts/fusion/progressive-composer.js",
+    "scripts/fusion/f02-feed.js",
+    "scripts/fusion/runtime-adapters.js",
+    "scripts/fusion/marketplace-context.js"
+  ]) {
+    assert.equal(fs.existsSync(path.join(ROOT, relative)), false, `${relative} must not coexist with NEXUS`);
+  }
 });
 
-test("production artifact is an exact allowlist with no prefix or rollback authority", () => {
+test("production artifact is an exact NEXUS allowlist with no parallel product runtime", () => {
   const release = read("tools/vvip_public_release.py");
 
   assert.doesNotMatch(release, /\bPUBLIC_PREFIXES\b/);
   assert.doesNotMatch(release, /for\s+prefix\s+in\s+/);
 
-  const styles = tupleBody(release, "PUBLIC_STYLE_FILES");
-  const icons = tupleBody(release, "PUBLIC_ICON_FILES");
   const runtime = tupleBody(release, "PUBLIC_RUNTIME_FILES");
   const scripts = tupleBody(release, "PUBLIC_SCRIPT_FILES");
 
-  assert.match(styles, /styles\/fusion\/f02-single-surface\.css/);
-  assert.match(styles, /styles\/fusion\/progressive-composer\.css/);
-  assert.match(icons, /icons\/icon-192\.png/);
-  assert.match(icons, /icons\/icon-512\.png/);
   assert.match(runtime, /scripts\/runtime\/vvip-runtime-loader\.js/);
-  assert.match(runtime, /scripts\/runtime\/vvip-marketplace-repository\.js/);
   assert.match(runtime, /scripts\/runtime\/vvip-static-delivery\.js/);
-  assert.doesNotMatch(runtime + scripts, /vvip-marketplace-rollback\.js/);
-  assert.doesNotMatch(runtime + scripts, /vvip-my-listings\.js/);
+  assert.doesNotMatch(runtime, /marketplace-repository|marketplace-rollback|my-listings/);
+
+  assert.match(scripts, /scripts\/social\/post-composer\.js/);
+  assert.match(scripts, /scripts\/nexus\/sector-discovery\.js/);
+  assert.match(scripts, /scripts\/nexus\/bootstrap\.js/);
+  assert.match(scripts, /scripts\/nexus\/pulse-surface\.js/);
+  assert.doesNotMatch(scripts, /fusion\/f02-feed|fusion\/runtime-adapters|fusion\/marketplace-context|progressive-composer/);
 
   const injection = release.match(/injection\s*=\s*"""([^]*?)"""\.rstrip\(\)/m);
   assert.ok(injection, "release injection must be explicit");
   assert.match(injection[1], /vvip-runtime-loader\.js/);
-  assert.match(injection[1], /vvip-marketplace-repository\.js/);
-  assert.doesNotMatch(injection[1], /vvip-marketplace-rollback\.js/);
+  assert.match(injection[1], /auth-clerk-index\.js/);
+  assert.doesNotMatch(injection[1], /marketplace|listing|rollback/);
 });
 
-test("browser repository cannot directly mutate trusted publication status", () => {
-  const repository = read("scripts/runtime/vvip-marketplace-repository.js");
+test("browser NEXUS publisher delegates creation to server RPC and does not own publication status", () => {
+  const socialRuntime = read("scripts/social/runtime-adapters.js");
+  assert.match(socialRuntime, /vvip_social_post_create/);
   assert.doesNotMatch(
-    repository,
+    socialRuntime,
     /\.update\([^)]*status\s*:\s*["'](?:PENDING_REVIEW|ACTIVE)["']/s
   );
 });

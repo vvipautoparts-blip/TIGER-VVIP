@@ -1,58 +1,36 @@
-# VVIP TIGER — P01 Priority Findings
+# VVIP TIGER — P01 Priority Findings — Historical Evidence
 
-## Critical
+**Status:** `HISTORICAL_AUDIT_EVIDENCE / NON-AUTHORITY`
+**Original period:** P01 repository audit
 
-1. Runtime navigation integrity requires explicit route-map contract before P02 implementation.
-Evidence: runtime link scan found one unresolved target token and multiple non-runtime archive misses.
-Blocker impact: prevents safe transition to navigation architecture work without scope boundaries.
+This file preserves a compact record of findings observed during an earlier P01 audit. It does not define the current execution lane, priorities, phase transition, product authority, or next task.
 
-2. P01 cannot transition to P02 authorization before merge + post-merge verification.
-Evidence: phase lock model requires phase closure workflow.
-Blocker impact: governance breach if bypassed.
+Mandatory current authority:
 
-## High
+`docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md`
 
-1. Firebase remnant patterns still appear in runtime files (review-only finding).
-2. service_role/clerk_secret pattern hits require manual security triage.
-3. One live duplicate HTML id in clerk-private-profile.html.
-4. Root-level runtime candidate files include unreferenced pages/scripts requiring classification.
+Current protected work is PR #349 / TIGER NEXUS 2026 owner convergence. Any old P01/P02/P03/P29 sequencing is historical only and cannot direct current implementation.
 
-## Medium
+## Historical findings recorded at the time
 
-1. Inline event handler remains in runtime page (onsubmit).
-2. Console logging appears across runtime and archive JS surfaces.
-3. Marker density (TODO/FIXME/placeholder) indicates debt triage needed.
+The earlier audit reported items including:
 
-## Low
+- navigation/route-map uncertainty;
+- Firebase-remnant patterns requiring review;
+- service-role / Clerk-secret pattern hits requiring semantic security review rather than blind replacement;
+- duplicate HTML ID and inline-handler findings;
+- unreferenced root-level runtime candidates requiring classification;
+- TODO/FIXME/placeholder and console-logging debt;
+- archive/backups noise in the then-current repository state.
 
-1. Most duplicate ids are in archive snapshots only.
-2. Most missing links are in archive/email-template context, not active runtime.
+These observations describe that historical snapshot only. Current files, runtime, security state, and priorities must be re-read from the exact PR #349 head before any action.
 
-## Deferred
+## Current interpretation
 
-1. Archive consolidation and exclusion policy (approved/ and backups/).
-2. Deep logging hardening path (P29 track).
-3. Non-critical documentation cleanup unrelated to execution blockers.
+- Do not transition to P02 or any other phase because this historical file says so.
+- Do not restore deleted roadmap/phase-control files.
+- Do not treat old archive/backups findings as permission to create or preserve current-tree archive/fallback copies.
+- Do not mutate Production, database, providers, credentials, or security controls from this record.
+- Preserve compatible security lessons, but verify whether each historical finding still exists on the exact current head.
 
-## What Blocks Transition To P02
-
-- Missing owner-approved runtime route-map contract.
-- P01 must be merged and post-merge verified first.
-
-## What Can Be Deferred
-
-- Archive content cleanup.
-- Non-runtime placeholder cleanup.
-- Style-level non-blocking documentation improvements.
-
-## What Needs Security Review
-
-- service_role pattern hits.
-- clerk_secret pattern hits.
-- Runtime auth legacy remnant review.
-
-## What Needs Owner Decision
-
-- Archive retention strategy.
-- Scope split between P02 navigation and P03 auth bridge cleanup.
-- Priority order for high-risk but non-immediate runtime findings.
+Git history preserves the complete historical context. This file is evidence only.

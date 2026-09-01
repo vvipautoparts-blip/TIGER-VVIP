@@ -1,18 +1,54 @@
 # TIGER FINANCIAL DISTRIBUTION — CURRENT OWNER AUTHORITY
 
-**Status:** `CURRENT_ONLY / OWNER_BINDING / NO_FALLBACK / NO_IN_TREE_ARCHIVE`
-**Effective decision:** 2026-08-28
-**Domain:** distribution of successfully captured TIGER Pulse visibility purchases.
+**Status:** `CURRENT_ONLY / OWNER_BINDING / NO_FALLBACK`
+**Effective decision:** 2026-09-01
+**Domain:** distribution of TIGER-owned paid platform-service revenue.
 
-## 1. Allocation basis
+## 1. Distribution basis
 
-All percentages in this authority are calculated from the **actual amount successfully captured from the user after any valid self-service discount** and before TIGER internal allocation.
+All TIGER internal percentages are calculated only from **platform service revenue excluding statutory tax**.
 
-A refunded, voided, reversed, or charged-back purchase reverses the related allocations atomically and remains traceable in the immutable ledger.
+Canonical pricing boundary:
 
-No allocation in this document applies to the underlying buyer/seller or service-provider/beneficiary transaction. It applies only to TIGER-owned paid visibility/service revenue.
+`PLATFORM BASE PRICE = TIGER-APPROVED SERVICE PRICE`
 
-## 2. Main 100% distribution
+`STATUTORY TAX = PLATFORM BASE PRICE × VERIFIED APPLICABLE TAX RATE`
+
+`FINAL USER TOTAL = PLATFORM BASE PRICE + STATUTORY TAX`
+
+`DISTRIBUTION BASIS = PLATFORM BASE PRICE`
+
+There is no 16% pricing baseline and no 16% tax ceiling. The applicable legal tax is outside TIGER internal distribution economics.
+
+Binding tax authority:
+
+`docs/owner-control/TIGER_STATUTORY_TAX_BOUNDARY_CURRENT.md`
+
+## 2. Tax examples
+
+For a TIGER platform base price of 10.00:
+
+- tax 0% → final user total 10.00;
+- tax 12% → final user total 11.20;
+- tax 16% → final user total 11.60;
+- tax 20% → final user total 12.00;
+- tax 25% → final user total 12.50.
+
+The legal rate is not selected by TIGER. Unverified tax fails closed.
+
+## 3. Former TAX_RESERVE 16% remains cancelled
+
+`TAX_RESERVE_STATUS: CANCELLED`
+
+The former internal `TAX_RESERVE = 16%` allocation is cancelled. It is **not** statutory tax and is not a pricing baseline.
+
+The unresolved 16 percentage points left after cancellation remain an unallocated platform-revenue decision pending explicit owner allocation.
+
+No person, role, account, partner, operations bucket, sales bucket, CSR bucket, owner bucket, digital actor, or tax bucket may receive those 16 percentage points until a later explicit owner decision reallocates them.
+
+Final distribution execution therefore remains fail-closed.
+
+## 4. Current known allocations — 84%
 
 | Allocation | Percentage |
 |---|---:|
@@ -21,21 +57,15 @@ No allocation in this document applies to the underlying buyer/seller or service
 | `PARTNER_2` | **5%** |
 | `PARTNER_3` | **5%** |
 | `ACTUAL_OPERATIONS` | **43%** |
-| `TAX_RESERVE` | **16%** |
 | `SALES_ADMINISTRATION` | **21%** |
-| **TOTAL** | **100%** |
+| **KNOWN CURRENT TOTAL** | **84%** |
+| **PENDING EXPLICIT OWNER REALLOCATION** | **16%** |
 
-The allocation engine must fail closed if these percentages do not total exactly 100%.
+The pending 16% row is not an allocation.
 
-`TAX_RESERVE` is the owner-approved internal 16% tax-reserve envelope inside the purchase distribution. It must not be represented as a universal statutory tax rate where local law requires a different legal treatment; statutory settlement remains subject to the active country contract and law.
+## 5. Owner and partner allocations
 
-## 3. Owner account
-
-`OWNER = 5%` of the actual captured purchase basis.
-
-The platform maintains a separated owner ledger/account dimension. Missing or ineligible partner/sales-role allocations described below route to the owner ledger with the precise reason code and originating allocation.
-
-## 4. Partner accounts
+`OWNER = 5%` of the distribution basis.
 
 Each partner allocation is independent:
 
@@ -43,17 +73,15 @@ Each partner allocation is independent:
 - `PARTNER_2 = 5%`;
 - `PARTNER_3 = 5%`.
 
-The platform maintains a separated partners ledger/account dimension.
+If a partner position is unassigned, its approved 5% routes to OWNER with an auditable `UNASSIGNED_PARTNER` reason code.
 
-When a partner role is assigned, the assignee must provide a valid payout destination through the dedicated account field. If no acceptable payout destination is provided within **12 hours** of role grant, the role becomes payout-ineligible/suspended for commission purposes and its allocation routes to the owner account. The owner may explicitly extend the grace period.
+A partner must have a valid payout destination. If none exists within 12 hours of role grant, payout eligibility is suspended and the affected approved share routes to OWNER unless the owner explicitly extends the grace period.
 
-If a partner position is unassigned, its 5% allocation routes to the owner account with an `UNASSIGNED_PARTNER` reason code.
+The unresolved internal 16% never routes to OWNER by inference.
 
-## 5. Actual operations — 43%
+## 6. Actual operations — 43%
 
-`ACTUAL_OPERATIONS = 43%` of the actual captured purchase basis.
-
-Its internal sub-ledgers are:
+`ACTUAL_OPERATIONS = 43%` of the distribution basis.
 
 | Operations item | Percentage |
 |---|---:|
@@ -65,17 +93,9 @@ Its internal sub-ledgers are:
 | `CSR` | **3%** |
 | **TOTAL** | **43%** |
 
-These balances are internal platform operational allocations under owner/delegate control. The sub-allocation engine must fail closed if the operations total is not exactly 43%.
-
-## 6. Tax reserve — 16%
-
-`TAX_RESERVE = 16%` of the actual captured purchase basis.
-
-The platform maintains a separated tax-reserve ledger/account dimension. Movements must remain fully traceable. Legal tax reporting/settlement is handled under the active country/payment profile and applicable law without changing this owner-approved internal allocation unless a later explicit owner decision changes it.
+CSR is inside the 43%. There is no separate 1% charity allocation.
 
 ## 7. Sales administration — 21%
-
-The sales-administration envelope is:
 
 | Role | Reserved percentage |
 |---|---:|
@@ -84,118 +104,132 @@ The sales-administration envelope is:
 | `MARKETER` | **7%** |
 | **TOTAL** | **21%** |
 
-### One sale — one commission winner
+### One sale — one human winner
 
-For each purchase, at most one of these roles may own the winning sale claim.
+One purchase may have at most one winning sales-role claim.
 
-- If `GENERAL_MANAGER` owns the sale: GENERAL_MANAGER receives 7%; SECTOR_MANAGER = 0%; MARKETER = 0%.
-- If `SECTOR_MANAGER` owns the sale: SECTOR_MANAGER receives 7%; GENERAL_MANAGER = 0%; MARKETER = 0%.
-- If `MARKETER` owns the sale: MARKETER receives 7%; GENERAL_MANAGER = 0%; SECTOR_MANAGER = 0%.
+- GENERAL_MANAGER winner → that HUMAN role receives its 7%; the other two sales roles receive 0.
+- SECTOR_MANAGER winner → that HUMAN role receives its 7%; the other two sales roles receive 0.
+- MARKETER winner → that HUMAN role receives its 7%; the other two sales roles receive 0.
 
-The two non-winning reserved 7% shares route to the owner account and retain their original role labels plus a `NON_WINNING_SALES_ROLE` reason code.
+The two non-winning reserved 7% shares route to OWNER with `NON_WINNING_SALES_ROLE` reason codes.
 
-There is no hierarchical cascade commission and no automatic sharing of one sale across the three roles.
+There is no hierarchical commission cascade.
 
-### No sales claimant / self-service purchase
+### Self-service
 
-If the user completes the Pulse purchase without an attributed GENERAL_MANAGER, SECTOR_MANAGER, or MARKETER:
+If there is no valid HUMAN sales claimant:
 
-1. the user receives a visible **7% active-user self-service discount** before payment;
-2. the captured amount after this discount becomes the allocation basis;
-3. no sales role receives commission;
-4. the entire 21% SALES_ADMINISTRATION envelope on the captured amount routes to the owner account with explicit absent-role reason codes;
-5. the 7% discount itself is recorded in a separated `ACTIVE_USER_DISCOUNT` ledger/reporting dimension.
+1. apply the approved visible 7% self-service discount to the TIGER platform service price according to current pricing/legal tax treatment;
+2. create a verified statutory-tax quote for the resulting taxable platform service amount;
+3. statutory tax remains excluded from distribution;
+4. no sales role receives commission;
+5. the 21% SALES_ADMINISTRATION envelope routes to OWNER with absent-role reason codes;
+6. the 7% discount is recorded separately.
 
-If a valid sales claimant exists, the self-service 7% discount does not apply.
+If a valid sales claimant exists, the self-service discount does not apply.
 
-## 8. Sales role activation and payout destination
+## 8. Human–Digital Financial Firewall
 
-When GENERAL_MANAGER, SECTOR_MANAGER, or MARKETER is granted to a user by the owner or an authorized delegate, the platform must request the payout destination in the dedicated role/account field.
+Every canonical `DIGITAL` actor is permanently a zero-financial-benefit actor.
 
-If a valid payout destination is not provided within **12 hours** of role grant:
+For every DIGITAL actor:
 
-- commission payout eligibility is suspended for that role;
-- the owner may extend the grace period;
-- allocations that cannot be paid to that role route to the owner account with a precise reason code;
-- no hidden balance may accumulate for an ineligible role.
+- `financialBeneficiary = false`;
+- `commissionBps = 0`;
+- `shareBps = 0`;
+- `financialEntitlement = 0`;
+- `payoutDestination = null`;
+- wallet authority prohibited;
+- sales-commission ownership prohibited.
 
-Role authorization and payout destination must be independently auditable.
+`DIGITAL_*` role names are also treated as digital for financial enforcement even if actor type is misclassified.
 
-## 9. Settlement cadence — every 14 days
+A winning sale claim must belong to exactly one `HUMAN + ACTIVE + ELIGIBLE` GENERAL_MANAGER, SECTOR_MANAGER, or MARKETER with deterministic attribution evidence.
 
-Owner, partner, operations, tax-reserve, and sales-role accounting dimensions are reconciled continuously.
+Canonical firewall:
 
-Eligible external commission payouts are settled every **14 days**.
+`project-control/finance/human-digital-financial-firewall.cjs`
 
-"Account reset to zero" means the **payable balance becomes zero after a successful settlement/reconciliation**. It never means erasing transaction history. The immutable ledger, allocation records, reversals, payout evidence, and audit trail remain permanently available under current evidence policy.
+## 9. Deterministic sale attribution
 
-Failed or blocked payouts remain explicitly classified; they are never silently deleted.
+Every eligible sale claim must include at minimum:
 
-## 10. Deterministic attribution at global scale
-
-The system must support very large independent populations of GENERAL_MANAGER, SECTOR_MANAGER, and MARKETER roles without assuming they belong to one hierarchy.
-
-Every eligible sale creates exactly one deterministic `SALE_OWNERSHIP_CLAIM` containing at minimum:
-
-- purchase/quote identity;
-- winning role type;
+- purchase or quote identity;
+- winning HUMAN role type;
 - winning user identity;
-- country/sector/scope context where applicable;
-- assignment epoch/version;
+- assignment version/epoch;
 - source/referral evidence;
 - timestamp;
 - deduplication key;
-- integrity hash.
+- SHA-256-shaped integrity hash.
 
-The allocation engine rejects ambiguous, duplicate, expired/invalid, or multi-winner claims fail closed.
+Ambiguous, duplicate, invalid, DIGITAL, inactive/ineligible, unknown-role, or multi-winner claims fail closed.
 
-## 11. Separate ledger dimensions
+## 10. Country-tax boundary
 
-At minimum, the platform exposes separate accounting dimensions for:
+Canonical tax module:
 
-- `OWNER`;
-- `PARTNERS`;
-- `ACTUAL_OPERATIONS`;
-- `TAX_RESERVE`;
-- `SALES_ADMINISTRATION`;
-- `ABSENT_SALES_ROLE`;
-- `ACTIVE_USER_DISCOUNT`;
-- individual partner/role payable balances;
-- refunds/chargebacks/reversals.
+`project-control/finance/statutory-tax-boundary.cjs`
 
-Every movement records purchase identity, gross reference amount, discount, actual captured amount, percentage, allocated amount, beneficiary or owner fallback, reason code, status, timestamps, and immutable audit linkage.
+Required identities:
 
-## 12. Reports and permissions
+`statutoryTax = platformBasePrice × verifiedApplicableTaxRate`
 
-The owner and explicitly authorized delegates have full financial reporting authority.
+`userTotal = platformBasePrice + statutoryTax`
 
-Partners may receive read-only financial reports according to current owner-granted partner permissions. Reports may be detailed, summarized, filtered by role, purchase, country, sector, period, payout state, discount state, or exception reason.
+`distributionBasis = platformBasePrice`
 
-No sales role obtains owner-level reporting merely because it receives commission.
+`taxLiability = statutoryTax`
 
-## 13. Security invariants
+Statutory tax is segregated from platform revenue, commissions, and all internal allocation percentages.
 
-Financial distribution is server-authoritative and fail closed.
+An unverified, negative, malformed, or unavailable tax result fails closed. TIGER does not guess legal tax rates.
 
-Required controls include:
+## 11. Payout and ledger
 
-- immutable/double-entry or equivalently auditable financial ledger;
-- idempotent allocation and payout processing;
-- exact 100% allocation invariant;
-- one-sale/one-winner invariant;
-- least-privilege role access;
-- verified payout destination changes;
+Eligible external human commission payouts are settled every 14 days.
+
+A successful settlement may reduce payable balance to zero but never erases ledger history.
+
+Financial records preserve separated dimensions for at least:
+
+- OWNER;
+- PARTNERS;
+- ACTUAL_OPERATIONS;
+- SALES_ADMINISTRATION;
+- PENDING_OWNER_DECISION;
+- STATUTORY_TAX_EXTERNAL;
+- ABSENT_SALES_ROLE;
+- ACTIVE_USER_DISCOUNT;
+- refunds/reversals.
+
+Every movement remains auditable to purchase identity, platform base price, discount treatment, verified tax context/rate, statutory tax amount, final user total, distribution basis, allocation, beneficiary/fallback, reason code, status, timestamps, and immutable evidence linkage.
+
+## 12. Security invariants
+
+Financial execution is server-authoritative and fail closed.
+
+Required invariants include:
+
+- TIGER platform base price is independent from statutory tax;
+- verified statutory tax is added according to applicable law;
+- there is no artificial 16% tax ceiling or 16% pricing baseline;
+- final quote exposes platform base price + statutory tax + user total;
+- no hidden second tax is added after a sealed final quote;
+- statutory tax never enters platform distribution or commissions;
+- no restored TAX_RESERVE;
+- no invented reassignment of the unresolved internal 16%;
+- final distribution remains blocked while current owner allocation totals only 84%;
+- one sale / one HUMAN winner;
+- all DIGITAL actors remain zero-benefit;
+- payout changes are verified;
 - replay/deduplication protection;
+- immutable auditable ledger;
 - atomic reversal for refunds/chargebacks;
 - no client-authoritative commission calculation;
-- no hidden/manual balance edits without audit evidence.
+- no silent/manual balance edits without audit evidence.
 
-## 14. Supersession
+## 13. Acceptance statement
 
-Any prior commission model, split, hierarchy, percentage, partner treatment, sales cascade, payment-timing rule, or conflicting financial fallback is removed from current authority when it conflicts with this document.
-
-Conflicting old material must be deleted from the current repository tree and may not be moved to an in-tree archive/trash/legacy folder. Git history is the only provenance mechanism for removed source material.
-
-## 15. Owner acceptance statement
-
-> **Every successfully captured Pulse purchase is allocated 100% as OWNER 5%, PARTNER_1 5%, PARTNER_2 5%, PARTNER_3 5%, ACTUAL_OPERATIONS 43%, TAX_RESERVE 16%, and SALES_ADMINISTRATION 21%. Operations is 8+8+8+8+8+3. Sales administration is 7+7+7 but only the one role that owns the sale receives its 7%; non-winning or absent sales shares route to the owner. A self-service buyer with no sales claimant receives a visible 7% discount before payment, and no sales role receives commission. Eligible commissions settle every 14 days; missing payout destination after 12 hours suspends payout eligibility unless the owner extends it. Ledger history is never erased.**
+> **TIGER sets the platform service base price. Verified statutory tax is added to the user total as legally applicable and remains outside every TIGER distribution and commission calculation. There is no 16% pricing baseline and no 16% tax ceiling. The former internal TAX_RESERVE 16% remains cancelled, and its unresolved internal 16 percentage points remain pending a separate explicit owner allocation decision. Current known allocations remain OWNER 5%, three partners 5% each, ACTUAL_OPERATIONS 43%, and SALES_ADMINISTRATION 21%. One sale has at most one ACTIVE, ELIGIBLE HUMAN sales winner. Every DIGITAL actor remains permanently zero-financial-benefit.**

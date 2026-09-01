@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "TIGER_F13_LAUNCH_EVIDENCE_V1",
+  "status": "NOT_EVIDENCED",
+  "releaseSha": null,
+  "metrics": {
+    "uniqueActorsRequired": 4000000,
+    "uniqueActorsPassed": 0,
+    "simultaneousActiveRequired": 4000000,
+    "simultaneousActivePassed": 0,
+    "reproducible": false
+  },
+  "checks": {
+    "uniqueActorsProgram": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "simultaneousActiveProgram": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "latencyErrorSaturation": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "costFinancialInvariants": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "protectedExactHead": { "status": "NOT_EVIDENCED", "evidence": [] }
+  }
+}

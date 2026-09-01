@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "TIGER_F07_LAUNCH_EVIDENCE_V1",
+  "status": "IN_PROGRESS",
+  "releaseSha": null,
+  "metrics": {
+    "launchCountries": 0,
+    "allCountryGatesPass": false,
+    "profitabilityCertificate": false,
+    "platformServicePaymentRuntime": false,
+    "marketplaceIntermediationRole": "NONE"
+  },
+  "checks": {
+    "pulseVisibilityRuntime": { "status": "FOUNDATION_EXISTS", "evidence": ["scripts/nexus/pulse-runtime.js", "scripts/nexus/proofview.js"] },
+    "platformServicePaymentRuntime": { "status": "BLOCKED", "evidence": [] },
+    "countryGates": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "pricingProfitability": { "status": "NOT_EVIDENCED", "evidence": [] },
+    "marketplaceNoIntermediation": { "status": "PASS", "evidence": ["config/fusion/current-authority.json"] },
+    "protectedExactHead": { "status": "NOT_EVIDENCED", "evidence": [] }
+  }
+}

@@ -35,13 +35,13 @@ jobs:
       GITHUB_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout current main verification code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f544a08e6b0 # v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           ref: main
           fetch-depth: 1
 
       - name: Set up Python verifier
-        uses: actions/setup-python@a079284f6907d469567d7000a6d0159d034d90b0 # v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
 
@@ -279,7 +279,7 @@ jobs:
         uses: actions/deploy-pages@ec56924218b2176fe6802ce5b3391b0d6127de51 # v4
 
       - name: Set up Python for live verification
-        uses: actions/setup-python@a079284f6907d469567d7000a6d0159d034d90b0 # v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
 
@@ -300,19 +300,28 @@ jobs:
             manifest.webmanifest
             runtime-config.js
             sw-vvip-static.js
-            scripts/vvip-safe-ux-guard.js
+            auth-clerk-index.js
             scripts/runtime/vvip-runtime-loader.js
-            scripts/runtime/vvip-marketplace-repository.js
             scripts/runtime/vvip-static-delivery.js
             scripts/vvip-pr30-resilience.js
-            scripts/fusion/marketplace-context.js
-            scripts/fusion/progressive-composer.js
+            scripts/fusion/f03-capability-menu.js
+            scripts/fusion/account-surface.js
+            scripts/social/core-shell.js
+            scripts/social/post-composer.js
+            scripts/nexus/living-sector-object.js
+            scripts/nexus/sector-discovery.js
+            scripts/nexus/pulse-runtime.js
+            scripts/nexus/opportunity-radar.js
+            scripts/nexus/pulse-surface.js
+            scripts/nexus/social-runtime-guard.js
+            scripts/nexus/bootstrap.js
             scripts/media/f05-heif-worker-client.js
             workers/media/f05-heif-decoder.v1.wasm
-            styles/vvip-pr29-home-marketplace.css
+            styles/tiger-social/base.css
             styles/vvip-pr36-media.css
             styles/fusion/f02-single-surface.css
-            styles/fusion/progressive-composer.css
+            styles/tiger-social/core-shell.css
+            styles/nexus/nexus.css
             icons/icon-192.png
             icons/icon-512.png
           )
@@ -335,12 +344,24 @@ jobs:
           done
 
           forbidden_paths=(
+            private-profile-p03.html
+            fusion-home-f02.html
             scripts/runtime/vvip-marketplace-rollback.js
             scripts/runtime/vvip-my-listings.js
+            scripts/runtime/vvip-marketplace-repository.js
             scripts/vvip-production-marketplace.js
             scripts/vvip-pr31-create-listing-shell.js
+            scripts/vvip-pr32-draft-preview.js
+            scripts/vvip-pr33-publish-readiness.js
+            scripts/fusion/f02-feed.js
+            scripts/fusion/marketplace-context.js
+            scripts/fusion/progressive-composer.js
+            styles/vvip-pr29-home-marketplace.css
             styles/vvip-production-marketplace.css
             styles/vvip-pr31-create-listing-shell.css
+            styles/vvip-pr32-draft-preview.css
+            styles/vvip-pr33-publish-readiness.css
+            styles/fusion/progressive-composer.css
           )
           for path in "${forbidden_paths[@]}"; do
             status="$(curl --location --silent --output /dev/null --write-out '%{http_code}' \
@@ -398,11 +419,11 @@ jobs:
 
           supabase_url = str(config.get('supabaseUrl') or '').rstrip('/')
           supabase_key = str(config.get('supabasePublishableKey') or '')
-          listing_url = supabase_url + '/rest/v1/vvip_marketplace_listings?select=listing_id&limit=1'
+          rest_url = supabase_url + '/rest/v1/'
           try:
-              probe(listing_url, {
+              probe(rest_url, {
                   'apikey': supabase_key,
-                  'Accept': 'application/json',
+                  'Accept': 'application/openapi+json',
                   'User-Agent': 'VVIP-TIGER-Production-Verify/1.0',
               })
           except Exception:

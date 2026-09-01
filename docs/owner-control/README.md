@@ -1,96 +1,52 @@
 # VVIP TIGER — Owner Control Reference
 
-> مرجع داخلي لصاحب المنصة وفريق التنفيذ المصرح له داخل المستودع.
+**Status:** `CURRENT_ONLY / OWNER-CONTROL INDEX / NON-AUTHORITY`
 
-هذا المجلد هو نقطة البداية الإلزامية قبل أي برمجة جديدة في VVIP TIGER.
+> هذا الملف فهرس تنفيذي فقط. لا ينشئ قرار منتج ولا يتقدم على سلطة المالك الحالية.
 
-## الملفات
+## نقطة البداية الإلزامية
 
-1. `VVIP_TIGER_OWNER_MASTER_REFERENCE.md`  
-   المرجع الأعلى الموحد لجميع الاعتمادات والوظائف والأولويات.
+قبل أي برمجة أو تنظيف أو تعديل Runtime/UI/API/Config/Test/CI أو قرار إصدار، المرجع الأول الإلزامي هو:
 
-2. `VVIP_TIGER_VALUES_AND_NAMES_CHARTER.md`  
-   ميثاق القيم والإحاطة بمعاني أسماء الله الحسنى وضوابط استخدامها باحترام.
+`docs/owner-control/TIGER_OWNER_BINDING_CURRENT.md`
 
-3. `VVIP_TIGER_EXECUTION_CHARTER.md`  
-   ميثاق التنفيذ الجراحي والحماية والسرعة والبدائل والتراجع.
+والمرجع العربي الموجّه للمالك هو:
 
-4. `VVIP_TIGER_PHASE_TRACKER.md`  
-   سجل المراحل وما تم وما بقي ودليل كل إنجاز.
+`docs/owner-control/TIGER_OWNER_CURRENT_REFERENCE_AR.md`
 
-5. `phase-status.json`  
-   نسخة منظمة قابلة للقراءة آليًا لاستخدامها مستقبلًا في مركز المالك.
+قاعدة `CURRENT_ONLY`: أحدث قرار صريح معتمد من المالك هو السلطة الوحيدة داخل نطاقه. أي مادة أقدم تتعارض معه لا تبقى كمرجع أو fallback أو archive أو legacy داخل الشجرة الحالية؛ Git history فقط يحفظ الأثر التاريخي.
 
-6. `VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml`
-   المرجع الرسمي المنظم لترتيب التنفيذ والاعتماد والأولويات.
+## السلطات التشغيلية الحالية
 
-7. `VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md`
-   النسخة المقروءة للمالك من خارطة التنفيذ الرسمية.
+1. `TIGER_OWNER_BINDING_CURRENT.md` — المرجع الأول ودستور Latest-Only.
+2. `TIGER_NEXUS_2026_CURRENT_OWNER_AUTHORITY.md` — تجربة TIGER NEXUS 2026 الحالية.
+3. `TIGER_SOCIAL_CORE_2026_CURRENT_OWNER_AUTHORITY.md` — Social Core حيث يظل متوافقًا مع NEXUS الأحدث.
+4. `TIGER_PULSE_RING_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة Pulse الحالية.
+5. `TIGER_FINANCIAL_DISTRIBUTION_CURRENT.md` — التوزيع المالي الحالي.
+6. `TIGER_PHOENIX_CLEANROOM_2026_CURRENT_OWNER_AUTHORITY.md` — حوكمة التنظيف والإزالة المحمية.
+7. `TIGER_AION_2026_CURRENT_OWNER_AUTHORITY.md` — سلطة post-launch-autonomy المحمية ضمن حدودها.
+8. `project-control/authority/authority-registry.v1.json` — الرسم الآلي للسلطات الحالية.
+9. `config/fusion/current-authority.json` — عقد المنتج الحالي القابل للقراءة آليًا.
+10. `config/finance/current-distribution.json` — عقد التوزيع المالي الحالي القابل للقراءة آليًا.
+11. exact Git SHA/tree + matching protected CI evidence — حقيقة التنفيذ.
 
-8. `VVIP_TIGER_IMPLEMENTATION_GAP_MATRIX.md`
-   مصفوفة فجوات التنفيذ الرسمية لمرحلة P01.
+## أدلة التقارب — ليست سلطة منتج
 
-9. `VVIP_TIGER_REPOSITORY_AUDIT_REPORT.md`
-   تقرير التدقيق الشامل للمستودع ضمن P01.
+- `DELETION_MANIFEST_CURRENT.md` يوثق فقط ما ثبت حذفه أو استبداله أثناء التقارب الحالي، مع قاعدة **No Blind Deletion**.
+- وثائق مراحل قديمة متوافقة قد تبقى كأدلة تنفيذية فقط إذا لم تدّعِ سلطة حالية ولم تحمل قيمة أو قاعدة متعارضة.
+- أي وثيقة مرحلة أو تقرير أو خطة تتعارض مع أحدث سلطة مالك تُحذف من الشجرة الحالية بعد إثبات التعارض والاستبدال.
+- ملفات migrations المطبقة تاريخيًا لا يعاد تحريرها؛ أي أثر قديم فيها يعالج بـ forward migration محمي عند الحاجة.
 
-10. `VVIP_TIGER_FILE_INVENTORY.csv`
-   جرد الملفات مع حالة الإحالة والمخاطر والإجراء المقترح.
+## حدود التنفيذ الحالية
 
-11. `VVIP_TIGER_P01_PRIORITY_FINDINGS.md`
-   ترتيب نتائج P01 حسب الأولوية والمخاطر.
+هذا الفهرس لا يصرح بـ:
 
-12. `VVIP_TIGER_P01_REPOSITORY_AUDIT_COMPLETION.md`
-   وثيقة إكمال وتحقق مرحلة P01.
+- الدمج إلى `main`؛
+- تحويل PR #349 من Draft؛
+- Production أو Staging mutation؛
+- تعديل provider/database/credentials؛
+- تجاوز أو تخفيف أي Quality/Security/Release gate.
 
-## قاعدة إلزامية
+مسار التنفيذ المحمي يبقى:
 
-لا يبدأ أي كود أو فرع أو Pull Request أو SQL أو تعديل Runtime قبل عرض واعتماد:
-
-- الهدف.
-- السبب.
-- النطاق.
-- خارج النطاق.
-- النتيجة المرئية.
-- الحماية.
-- السرعة.
-- البدائل.
-- الصلاحيات.
-- الملفات.
-- المخاطر.
-- خطة التراجع.
-- الاختبارات.
-- شرط وضع علامة ✅.
-
-## الخصوصية
-
-هذه الملفات لا تظهر داخل واجهة المستخدم ولا يتم تحميلها بواسطة صفحات المنصة.
-
-لكن أي شخص يملك وصولًا إلى المستودع قد يستطيع قراءتها. إنشاء مركز يظهر للمالك وحده داخل المنصة يحتاج صلاحية مالك موثوقة عبر Clerk وطبقة خادم محمية.
-
-<!-- VVIP_DISCOVERY_REFERENCE_LINK -->
-
-## تجربة الاكتشاف والبحث
-
-راجع:
-
-[`VVIP_TIGER_DISCOVERY_EXPERIENCE_SPEC.md`](./VVIP_TIGER_DISCOVERY_EXPERIENCE_SPEC.md)
-
-[`VVIP_TIGER_PR22_DISCOVERY_SHELL_COMPLETION.md`](./VVIP_TIGER_PR22_DISCOVERY_SHELL_COMPLETION.md)
-
-[`VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml`](./VVIP_TIGER_MASTER_EXECUTION_ROADMAP.yaml)
-
-[`VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md`](./VVIP_TIGER_MASTER_EXECUTION_ROADMAP.md)
-
-الملف YAML هو المرجع الرسمي المنظم لترتيب التنفيذ والاعتماد والأولويات، بينما Markdown هو النسخة المقروءة للمالك.
-
-## مخرجات P01
-
-[`VVIP_TIGER_IMPLEMENTATION_GAP_MATRIX.md`](./VVIP_TIGER_IMPLEMENTATION_GAP_MATRIX.md)
-
-[`VVIP_TIGER_REPOSITORY_AUDIT_REPORT.md`](./VVIP_TIGER_REPOSITORY_AUDIT_REPORT.md)
-
-[`VVIP_TIGER_FILE_INVENTORY.csv`](./VVIP_TIGER_FILE_INVENTORY.csv)
-
-[`VVIP_TIGER_P01_PRIORITY_FINDINGS.md`](./VVIP_TIGER_P01_PRIORITY_FINDINGS.md)
-
-[`VVIP_TIGER_P01_REPOSITORY_AUDIT_COMPLETION.md`](./VVIP_TIGER_P01_REPOSITORY_AUDIT_COMPLETION.md)
+`CURRENT OWNER AUTHORITY → RED CONTRACT → IMPLEMENT/RECONCILE → DELETE PROVEN CONFLICT → EXACT-HEAD RUNNER GREEN → REVIEW → PROTECTED MERGE → VERIFICATION`
