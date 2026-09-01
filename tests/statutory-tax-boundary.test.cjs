@@ -20,92 +20,81 @@ function verifiedQuote({ effectiveRateBps, id = 'tax-quote' }) {
   };
 }
 
-test('machine authority rebases reference prices that include 16 percent to the verified country tax', () => {
+test('machine authority keeps platform base price independent and adds verified statutory tax on top', () => {
   const boundary = distribution.statutoryTaxBoundary;
 
   assert.equal(distribution.allocationBasis, 'PLATFORM_SERVICE_REVENUE_EXCLUDING_STATUTORY_TAX');
   assert.ok(boundary, 'statutoryTaxBoundary must be explicit current machine authority');
-  assert.equal(boundary.pricePresentation, 'COUNTRY_TAX_REBASED_FINAL');
-  assert.equal(boundary.referencePriceIncludesBaselineTaxBps, 1600);
-  assert.equal(boundary.removeBaselineTaxByDivision, true);
-  assert.equal(boundary.countryTaxAppliedToUntaxedBase, true);
-  assert.equal(boundary.displayedCountryPriceIsFinalCharge, true);
-  assert.equal(boundary.taxIncludedInDisplayedCountryPrice, true);
-  assert.equal(boundary.additionalTaxAtCapture, false);
+  assert.equal(boundary.pricePresentation, 'BASE_PLUS_STATUTORY_TAX');
+  assert.equal(boundary.platformBasePriceIndependentFromStatutoryTax, true);
+  assert.equal(boundary.countryTaxAddedToPlatformBasePrice, true);
+  assert.equal(boundary.noTaxRateCeiling, true);
   assert.equal(boundary.taxIsPlatformAllocation, false);
   assert.equal(boundary.taxIsCommissionable, false);
   assert.equal(boundary.taxIsPartnerShareable, false);
   assert.equal(boundary.taxIsOperationsRevenue, false);
   assert.equal(boundary.ownerDefinesLegalTaxRate, false);
   assert.equal(boundary.countryActivationIndependentFromTaxRate, true);
-  assert.equal(
-    Object.prototype.hasOwnProperty.call(boundary, 'taxQuoteAppliesToFinalDisplayedPrice'),
-    false,
-    'superseded fixed final-price extraction rule must not remain in current authority'
-  );
-  assert.equal(
-    boundary.canonicalEnforcementModule,
-    'project-control/finance/statutory-tax-boundary.cjs'
-  );
+  assert.equal(boundary.canonicalEnforcementModule, 'project-control/finance/statutory-tax-boundary.cjs');
   assert.equal(boundary.unverifiedTaxQuoteBehavior, 'FAIL_CLOSED');
+  assert.equal(Object.prototype.hasOwnProperty.call(boundary, 'referencePriceIncludesBaselineTaxBps'), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(boundary, 'removeBaselineTaxByDivision'), false);
 });
 
-test('12 percent country tax replaces the included 16 percent baseline', () => {
+test('12 percent country tax is added above the platform base price', () => {
   const result = tax.buildStatutoryTaxBoundary({
-    referencePriceMinor: 1000,
+    basePriceMinor: 1000,
     taxQuote: verifiedQuote({ effectiveRateBps: 1200, id: 'tax-quote-12' })
   });
 
-  assert.equal(result.referencePriceMinor, 1000);
-  assert.equal(result.baselineIncludedTaxBps, 1600);
-  assert.equal(result.untaxedBaseMinor, 862);
-  assert.equal(result.platformRevenueMinor, 862);
-  assert.equal(result.statutoryTaxMinor, 103);
-  assert.equal(result.userTotalMinor, 965);
-  assert.equal(result.displayedPriceMinor, 965);
-  assert.equal(result.distributionBasisMinor, 862);
-  assert.equal(result.additionalTaxAtCaptureMinor, 0);
-  assert.equal(result.pricePresentation, 'COUNTRY_TAX_REBASED_FINAL');
+  assert.equal(result.basePriceMinor, 1000);
+  assert.equal(result.platformRevenueMinor, 1000);
+  assert.equal(result.statutoryTaxMinor, 120);
+  assert.equal(result.taxLiabilityMinor, 120);
+  assert.equal(result.userTotalMinor, 1120);
+  assert.equal(result.displayedPriceMinor, 1120);
+  assert.equal(result.distributionBasisMinor, 1000);
+  assert.equal(result.pricePresentation, 'BASE_PLUS_STATUTORY_TAX');
 });
 
-test('16 percent country tax returns the original reference price', () => {
+test('zero-tax country leaves the platform base price unchanged', () => {
   const result = tax.buildStatutoryTaxBoundary({
-    referencePriceMinor: 1000,
-    taxQuote: verifiedQuote({ effectiveRateBps: 1600, id: 'tax-quote-16' })
-  });
-
-  assert.equal(result.untaxedBaseMinor, 862);
-  assert.equal(result.statutoryTaxMinor, 138);
-  assert.equal(result.userTotalMinor, 1000);
-});
-
-test('zero-tax country removes the included 16 percent and adds nothing back', () => {
-  const result = tax.buildStatutoryTaxBoundary({
-    referencePriceMinor: 1000,
+    basePriceMinor: 1000,
     taxQuote: verifiedQuote({ effectiveRateBps: 0, id: 'tax-quote-0' })
   });
 
-  assert.equal(result.untaxedBaseMinor, 862);
   assert.equal(result.statutoryTaxMinor, 0);
-  assert.equal(result.userTotalMinor, 862);
-  assert.equal(result.distributionBasisMinor, 862);
+  assert.equal(result.userTotalMinor, 1000);
+  assert.equal(result.distributionBasisMinor, 1000);
 });
 
-test('20 percent country tax increases the user price above the 16 percent reference', () => {
+test('16 percent country tax is simply 16 percent above the base price, not a pricing baseline', () => {
   const result = tax.buildStatutoryTaxBoundary({
-    referencePriceMinor: 1000,
-    taxQuote: verifiedQuote({ effectiveRateBps: 2000, id: 'tax-quote-20' })
+    basePriceMinor: 1000,
+    taxQuote: verifiedQuote({ effectiveRateBps: 1600, id: 'tax-quote-16' })
   });
 
-  assert.equal(result.untaxedBaseMinor, 862);
-  assert.equal(result.statutoryTaxMinor, 172);
-  assert.equal(result.userTotalMinor, 1034);
+  assert.equal(result.statutoryTaxMinor, 160);
+  assert.equal(result.userTotalMinor, 1160);
+  assert.equal(Object.prototype.hasOwnProperty.call(result, 'baselineIncludedTaxBps'), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(result, 'untaxedBaseMinor'), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(result, 'referencePriceMinor'), false);
+});
+
+test('25 percent country tax has no artificial 16 percent ceiling', () => {
+  const result = tax.buildStatutoryTaxBoundary({
+    basePriceMinor: 1000,
+    taxQuote: verifiedQuote({ effectiveRateBps: 2500, id: 'tax-quote-25' })
+  });
+
+  assert.equal(result.statutoryTaxMinor, 250);
+  assert.equal(result.userTotalMinor, 1250);
 });
 
 test('TIGER does not invent the legal tax rate and unverified quotes fail closed', () => {
   assert.throws(
     () => tax.buildStatutoryTaxBoundary({
-      referencePriceMinor: 1000,
+      basePriceMinor: 1000,
       taxQuote: {
         status: 'UNVERIFIED',
         effectiveRateBps: 1200,
@@ -117,7 +106,7 @@ test('TIGER does not invent the legal tax rate and unverified quotes fail closed
   );
 });
 
-test('former cancelled internal 16 percent remains separate from the 16 percent price baseline', () => {
+test('former cancelled internal 16 percent remains separate from statutory tax', () => {
   assert.equal(distribution.cancelledAllocation.name, 'TAX_RESERVE');
   assert.equal(distribution.cancelledAllocation.status, 'CANCELLED_BY_LATEST_OWNER_DECISION');
   assert.equal(distribution.cancelledAllocation.notStatutoryTax, true);
