@@ -346,7 +346,7 @@ jobs:
 
       - name: Create exact OCI provenance attestation
         id: provenance
-        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6
         with:
           subject-name: ${{ steps.image.outputs.ecr_uri }}
           subject-digest: ${{ steps.image.outputs.manifest_digest }}
@@ -354,7 +354,7 @@ jobs:
 
       - name: Create exact OCI CycloneDX SBOM attestation
         id: sbom-attestation
-        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6
         with:
           subject-name: ${{ steps.image.outputs.ecr_uri }}
           subject-digest: ${{ steps.image.outputs.manifest_digest }}
